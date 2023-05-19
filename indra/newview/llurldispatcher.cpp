@@ -142,7 +142,7 @@ bool LLURLDispatcherImpl::dispatchRightClick(const LLSLURL& slurl)
 	const bool right_click = true;
 	LLMediaCtrl* web = NULL;
 	const bool trusted_browser = false;
-	return dispatchCore(slurl, "clicked", right_click, web, trusted_browser);
+    return dispatchCore(slurl, LLCommandHandler::NAV_TYPE_CLICKED, right_click, web, trusted_browser);
 }
 
 // static
@@ -263,7 +263,7 @@ public:
 	// inside the app, otherwise a malicious web page could
 	// cause a constant teleport loop.  JC
 	LLTeleportHandler() :
-		LLCommandHandler("teleport", UNTRUSTED_THROTTLE),
+		LLCommandHandler("teleport", UNTRUSTED_CLICK_ONLY),
 		LLEventAPI("LLTeleportHandler", "Low-level teleport API")
 	{
 		LLEventAPI::add("teleport",
@@ -397,7 +397,7 @@ bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl, bool trus
 	// *TODO: Make this trust model more refined.  JC
 
 	LLMediaCtrl* web = NULL;
-	return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), "clicked", web, trusted_content);
+    return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), LLCommandHandler::NAV_TYPE_CLICKED, web, trusted_content);
 }
 
 

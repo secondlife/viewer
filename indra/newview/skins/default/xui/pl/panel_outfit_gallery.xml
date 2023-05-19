@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="Outfit Gallery">
+	<string name="outfit_photo_string">
+		Zdjecie stroju: "[OUTFIT_NAME]"
+	</string>
+	<string name="no_outfits_msg">
+		Nie ma jeszcze żadnych strojów. Spróbuj [secondlife:///app/search/all/ Wyszukiwarki]
+	</string>
+	<string name="no_matched_outfits_msg">
+		Nie udało Ci się znaleźć tego, czego szukasz? Spróbuj [secondlife:///app/search/all/[SEARCH_TERM] Wyszukiwarki].
+	</string>
+	<text name="no_outfits_txt">
+		Szukam...
+	</text> 
+	<panel name="bottom_panel">
+		<menu_button tool_tip="Pokaż dodatkowe opcje" name="options_gear_btn" />
+		<button name="trash_btn" tool_tip="Usuń wybrany strój" />
+	</panel>
+</panel>

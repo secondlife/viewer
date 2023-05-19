@@ -35,7 +35,8 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-template <class T> class LLOctreeNode;
+template<class T> class LLPointer;
+template <class T, typename T_PTR> class LLOctreeNode;
 
 class LLVolumeFace;
 class LLVolume;
@@ -910,6 +911,9 @@ public:
 	bool cacheOptimize();
 
 	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
+    void destroyOctree();
+    // Get a reference to the octree, which may be null
+    const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* getOctree() const;
 
 	enum
 	{
@@ -977,13 +981,14 @@ public:
     // Which joints are rigged to, and the bounding box of any rigged
     // vertices per joint.
     LLJointRiggingInfoTab mJointRiggingInfoTab;
-    
-	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 	//whether or not face has been cache optimized
 	BOOL mOptimized;
 
 private:
+    LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
+    LLVolumeTriangle* mOctreeTriangles;
+
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createSide(LLVolume* volume, BOOL partial_build = FALSE);
@@ -1096,8 +1101,12 @@ protected:
 	BOOL generate();
 	void createVolumeFaces();
 public:
-	virtual bool unpackVolumeFaces(std::istream& is, S32 size);
+	bool unpackVolumeFaces(std::istream& is, S32 size);
+	bool unpackVolumeFaces(U8* in_data, S32 size);
+private:
+	bool unpackVolumeFacesInternal(const LLSD& mdl);
 
+public:
 	virtual void setMeshAssetLoaded(BOOL loaded);
 	virtual BOOL isMeshAssetLoaded();
 

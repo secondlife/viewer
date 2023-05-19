@@ -63,6 +63,7 @@
 #include "llnotificationsutil.h"
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
+#include "llperfstats.h"
 #include "llrendersphere.h"
 #include "llscriptruntimeperms.h"
 #include "llsdutil.h"
@@ -96,6 +97,7 @@
 #include "stringize.h"
 #include "boost/foreach.hpp"
 #include "llcorehttputil.h"
+#include "lluiusage.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -574,6 +576,8 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	LLUIUsage::instance().logCommand("Agent.MoveAt");
+	
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -2909,9 +2913,11 @@ void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferr
 
 bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
-    std::string url;
-
-    url = getRegion()->getCapability(capName);
+    if (!getRegion())
+    {
+        return false;
+    }
+    std::string url = getRegion()->getCapability(capName);
 
     if (url.empty())
     {
@@ -4026,6 +4032,7 @@ void LLAgent::startTeleportRequest()
     }
 	if (hasPendingTeleportRequest())
 	{
+		LLUIUsage::instance().logCommand("Agent.StartTeleportRequest");
         mTeleportCanceled.reset();
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{
@@ -4096,6 +4103,7 @@ void LLAgent::handleTeleportFinished()
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
     }
+    LLPerfStats::tunables.autoTuneTimeout = true;
 }
 
 void LLAgent::handleTeleportFailed()
@@ -4127,6 +4135,8 @@ void LLAgent::handleTeleportFailed()
 	}
 
     mTPNeedsNeabyChatSeparator = false;
+
+    LLPerfStats::tunables.autoTuneTimeout = true;
 }
 
 /*static*/

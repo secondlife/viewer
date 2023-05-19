@@ -14,7 +14,7 @@
 				<label name="favorites_bar_label" tool_tip="Перетаскивайте сюда закладки, чтобы было удобнее переходить в любимые места в Second Life!">
 					Избранное
 				</label>
-				<more_button name="&gt;&gt;" tool_tip="Показать больше избранного">
+				<more_button name="&gt;&gt;" tool_tip="Показать больше избранного" width="60">
 					Больше ▼
 				</more_button>
 			</favorites_bar>

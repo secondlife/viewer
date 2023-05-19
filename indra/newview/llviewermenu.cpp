@@ -54,6 +54,7 @@
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
+#include "lldiskcache.h"
 #include "llenvironment.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -2102,6 +2103,32 @@ class LLAdvancedDropPacket : public view_listener_t
 	}
 };
 
+//////////////////////
+// PURGE DISK CACHE //
+//////////////////////
+
+
+class LLAdvancedPurgeDiskCache : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
+        llassert_always(main_queue);
+        llassert_always(general_queue);
+        main_queue->postTo(
+            general_queue,
+            []() // Work done on general queue
+            {
+                LLDiskCache::getInstance()->purge();
+                // Nothing needed to return
+            },
+            [](){}); // Callback to main thread is empty as there is nothing left to do
+
+		return true;
+	}
+};
+
 
 ////////////////////
 // EVENT Recorder //
@@ -2326,25 +2353,13 @@ class LLAdvancedEnableObjectObjectOcclusion: public view_listener_t
 };
 
 /////////////////////////////////////
-// Enable Framebuffer Objects	  ///
-/////////////////////////////////////
-class LLAdvancedEnableRenderFBO: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gGLManager.mHasFramebufferObject;
-		return new_value;
-	}
-};
-
-/////////////////////////////////////
 // Enable Deferred Rendering	  ///
 /////////////////////////////////////
 class LLAdvancedEnableRenderDeferred: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+		bool new_value = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
 		return new_value;
 	}
@@ -2357,7 +2372,7 @@ class LLAdvancedEnableRenderDeferredOptions: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+		bool new_value = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 && gSavedSettings.getBOOL("RenderDeferred");
 		return new_value;
 	}
@@ -2788,14 +2803,15 @@ void handle_object_show_original()
 }
 
 
-static void init_default_item_label(const std::string& item_name)
+static void init_default_item_label(LLUICtrl* ctrl)
 {
+	const std::string& item_name = ctrl->getName();
 	boost::unordered_map<std::string, LLStringExplicit>::iterator it = sDefaultItemLabels.find(item_name);
 	if (it == sDefaultItemLabels.end())
 	{
 		// *NOTE: This will not work for items of type LLMenuItemCheckGL because they return boolean value
 		//       (doesn't seem to matter much ATM).
-		LLStringExplicit default_label = gMenuHolder->childGetValue(item_name).asString();
+		LLStringExplicit default_label = ctrl->getValue().asString();
 		if (!default_label.empty())
 		{
 			sDefaultItemLabels.insert(std::pair<std::string, LLStringExplicit>(item_name, default_label));
@@ -2826,18 +2842,17 @@ bool enable_object_touch(LLUICtrl* ctrl)
 		new_value = obj->flagHandleTouch() || (parent && parent->flagHandleTouch());
 	}
 
-	std::string item_name = ctrl->getName();
-	init_default_item_label(item_name);
+	init_default_item_label(ctrl);
 
 	// Update label based on the node touch name if available.
 	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 	if (node && node->mValid && !node->mTouchName.empty())
 	{
-		gMenuHolder->childSetValue(item_name, node->mTouchName);
+		ctrl->setValue(node->mTouchName);
 	}
 	else
 	{
-		gMenuHolder->childSetValue(item_name, get_default_item_label(item_name));
+		ctrl->setValue(get_default_item_label(ctrl->getName()));
 	}
 
 	return new_value;
@@ -2859,6 +2874,13 @@ bool enable_object_touch(LLUICtrl* ctrl)
 void handle_object_open()
 {
 	LLFloaterReg::showInstance("openobject");
+}
+
+bool enable_object_inspect()
+{
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    LLViewerObject* selected_objectp = selection->getFirstRootObject();
+    return selected_objectp != NULL;
 }
 
 bool enable_object_open()
@@ -3290,6 +3312,8 @@ class LLAvatarCheckImpostorMode : public view_listener_t
 				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_DO_NOT_RENDER);
 			case 2:
 				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER);
+            case 4:
+                return (avatar->getVisualMuteSettings() != LLVOAvatar::AV_RENDER_NORMALLY);
 			default:
 				return false;
 		}
@@ -4319,6 +4343,10 @@ class LLLandSit : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
+        if (gAgent.isSitting())
+        {
+            gAgent.standUp();
+        }
         LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
 
         LLQuaternion target_rot;
@@ -5613,6 +5641,7 @@ class LLToolsSelectNextPartFace : public view_listener_t
                     }
                 }
                 LLSelectMgr::getInstance()->selectObjectOnly(to_select, new_te);
+                LLSelectMgr::getInstance()->addAsIndividual(to_select, new_te, false);
             }
             else
             {
@@ -6576,20 +6605,18 @@ bool enable_object_sit(LLUICtrl* ctrl)
 	bool sitting_on_sel = sitting_on_selection();
 	if (!sitting_on_sel)
 	{
-		std::string item_name = ctrl->getName();
-
 		// init default labels
-		init_default_item_label(item_name);
+		init_default_item_label(ctrl);
 
 		// Update label
 		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 		if (node && node->mValid && !node->mSitName.empty())
 		{
-			gMenuHolder->childSetValue(item_name, node->mSitName);
+			ctrl->setValue(node->mSitName);
 		}
 		else
 		{
-			gMenuHolder->childSetValue(item_name, get_default_item_label(item_name));
+			ctrl->setValue(get_default_item_label(ctrl->getName()));
 		}
 	}
 	return !sitting_on_sel && is_object_sittable();
@@ -7635,7 +7662,6 @@ void handle_selected_texture_info(void*)
    		map_t::iterator it;
    		for (it = faces_per_texture.begin(); it != faces_per_texture.end(); ++it)
    		{
-   			LLUUID image_id = it->first;
    			U8 te = it->second[0];
    			LLViewerTexture* img = node->getObject()->getTEImage(te);
    			S32 height = img->getHeight();
@@ -7924,7 +7950,7 @@ bool enable_object_take_copy()
 	bool all_valid = false;
 	if (LLSelectMgr::getInstance())
 	{
-		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		if (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() > 0)
 		{
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
@@ -9406,7 +9432,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
 	// Develop > Render
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
-	view_listener_t::addMenu(new LLAdvancedEnableRenderFBO(), "Advanced.EnableRenderFBO");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferred(), "Advanced.EnableRenderDeferred");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferredOptions(), "Advanced.EnableRenderDeferredOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleRandomizeFramerate(), "Advanced.ToggleRandomizeFramerate");
@@ -9504,6 +9529,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedEnableMessageLog(), "Advanced.EnableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDisableMessageLog(), "Advanced.DisableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDropPacket(), "Advanced.DropPacket");
+
+    // Advanced > Cache
+    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache");
 
 	// Advanced > Recorder
 	view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");
@@ -9629,6 +9657,7 @@ void initialize_menus()
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));

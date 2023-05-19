@@ -53,6 +53,7 @@
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llavataractions.h"
+#include "lluiusage.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -294,6 +295,8 @@ void LLAvatarTracker::copyBuddyList(buddy_map_t& buddies) const
 void LLAvatarTracker::terminateBuddy(const LLUUID& id)
 {
 	LL_DEBUGS() << "LLAvatarTracker::terminateBuddy()" << LL_ENDL;
+	LLUIUsage::instance().logCommand("Agent.TerminateFriendship");
+
 	LLRelationship* buddy = get_ptr_in_map(mBuddyInfo, id);
 	if(!buddy) return;
 	mBuddyInfo.erase(id);
@@ -647,8 +650,7 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 		{
 			if(mBuddyInfo.find(agent_id) != mBuddyInfo.end())
 			{
-                if (((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
-                    && !gAgent.isDoNotDisturb())
+                if (((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS))
 				{
 					LLSD args;
 					args["NAME"] = LLSLURL("agent", agent_id, "displayname").getSLURLString();
@@ -716,11 +718,12 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				// we were tracking someone who went offline
 				deleteTrackingData();
 			}
-		}
-		if(chat_notify)
-		{
-			// Look up the name of this agent for the notification
-			LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
+
+            if(chat_notify)
+            {
+                // Look up the name of this agent for the notification
+                LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
+            }
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;

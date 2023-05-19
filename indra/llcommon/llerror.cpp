@@ -586,11 +586,9 @@ namespace
 	
 	void Globals::invalidateCallSites()
 	{
-		for (CallSiteVector::const_iterator i = callSites.begin();
-			 i != callSites.end();
-			 ++i)
+		for (LLError::CallSite* site : callSites)
 		{
-            (*i)->invalidate();
+            site->invalidate();
 		}
 		
 		callSites.clear();
@@ -943,7 +941,7 @@ namespace LLError
             for (a = sets.beginArray(), end = sets.endArray(); a != end; ++a)
             {
                 const LLSD& entry = *a;
-                if (entry.isMap() && !entry.emptyMap())
+                if (entry.isMap() && entry.size() != 0)
                 {
                     ELevel level = decodeLevel(entry["level"]);
 
@@ -1224,12 +1222,8 @@ namespace
         std::string escaped_message;
 
         LLMutexLock lock(&s->mRecorderMutex);
-		for (Recorders::const_iterator i = s->mRecorders.begin();
-			i != s->mRecorders.end();
-			++i)
+		for (LLError::RecorderPtr& r : s->mRecorders)
 		{
-			LLError::RecorderPtr r = *i;
-
             if (!r->enabled())
             {
                 continue;
@@ -1514,7 +1508,7 @@ namespace LLError
 		const size_t BUF_SIZE = 64;
 		char time_str[BUF_SIZE];	/* Flawfinder: ignore */
 		
-		int chars = strftime(time_str, BUF_SIZE, 
+		auto chars = strftime(time_str, BUF_SIZE, 
 								  "%Y-%m-%dT%H:%M:%SZ",
 								  gmtime(&now));
 

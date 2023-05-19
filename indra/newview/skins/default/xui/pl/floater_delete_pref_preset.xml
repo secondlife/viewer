@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<floater name="delete_pref_preset" title="USUŃ USTAWIENIE">
+	<string name="title_graphic">
+		Usuń ustawienie graficzne
+	</string>
+	<string name="title_camera">
+		Usuń ustawienie kamery
+	</string>
+	<text name="Preset">
+		Wybierz ustawienie
+	</text>
+	<button label="Usuń" name="delete" />
+	<button label="Anuluj" name="cancel" />
+</floater>

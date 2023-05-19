@@ -29,7 +29,7 @@
 #include "llphysicsshapebuilderutil.h"
 
 /* static */
-void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut )
+void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut)
 {
 	const LLProfileParams& profile_params = volume_params.getProfileParams();
 	const LLPathParams& path_params = volume_params.getPathParams();
@@ -191,6 +191,7 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
 
 	if ( volume_params.shouldForceConvex() )
 	{
+        // Server distinguishes between convex of a prim vs isSculpt, but we don't care.
 		specOut.mType = PhysicsShapeSpecification::USER_CONVEX;
 	}	
 	// Make a simpler convex shape if we can.
@@ -199,6 +200,16 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
 	{
 		specOut.mType = PhysicsShapeSpecification::PRIM_CONVEX;
 	}
+    else if (volume_params.isMeshSculpt() &&
+             // Check overall dimensions, not individual triangles.
+             (scale.mV[0] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE ||
+              scale.mV[1] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE ||
+              scale.mV[2] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+              ) )
+    {
+        // Server distinguishes between user-specified or default convex mesh, vs server's thin-triangle override, but we don't.
+        specOut.mType = PhysicsShapeSpecification::PRIM_CONVEX;
+    }
 	else if ( volume_params.isSculpt() ) // Is a sculpt of any kind (mesh or legacy)
 	{
 		specOut.mType = volume_params.isMeshSculpt() ? PhysicsShapeSpecification::USER_MESH : PhysicsShapeSpecification::SCULPT;

@@ -64,6 +64,7 @@ using namespace llsd;
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #	include <VersionHelpers.h>
 #elif LL_DARWIN
+#   include "llsys_objc.h"
 #	include <errno.h>
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
@@ -74,12 +75,6 @@ using namespace llsd;
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
-
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -278,12 +273,9 @@ LLOSInfo::LLOSInfo() :
 	{
 		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
 		
-		SInt32 major_version, minor_version, bugfix_version;
-		OSErr r1 = Gestalt(gestaltSystemVersionMajor, &major_version);
-		OSErr r2 = Gestalt(gestaltSystemVersionMinor, &minor_version);
-		OSErr r3 = Gestalt(gestaltSystemVersionBugFix, &bugfix_version);
+		int64_t major_version, minor_version, bugfix_version = 0;
 
-		if((r1 == noErr) && (r2 == noErr) && (r3 == noErr))
+		if (LLGetDarwinOSInfo(major_version, minor_version, bugfix_version))
 		{
 			mMajorVer = major_version;
 			mMinorVer = minor_version;
@@ -462,14 +454,14 @@ LLOSInfo::LLOSInfo() :
 
 #ifndef LL_WINDOWS
 // static
-S32 LLOSInfo::getMaxOpenFiles()
+long LLOSInfo::getMaxOpenFiles()
 {
-	const S32 OPEN_MAX_GUESS = 256;
+	const long OPEN_MAX_GUESS = 256;
 
 #ifdef	OPEN_MAX
-	static S32 open_max = OPEN_MAX;
+	static long open_max = OPEN_MAX;
 #else
-	static S32 open_max = 0;
+	static long open_max = 0;
 #endif
 
 	if (0 == open_max)
@@ -917,7 +909,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	// Now stream stats
 	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
 	{
-		s << pfx << std::setw(key_width+1) << (pair.first + ':') << ' ';
+		s << pfx << std::setw(narrow(key_width+1)) << (pair.first + ':') << ' ';
 		LLSD value(pair.second);
 		if (value.isInteger())
 			s << std::setw(12) << value.asInteger();
@@ -1288,7 +1280,7 @@ public:
                     << " seconds ";
         }
 
-	S32 precision = LL_CONT.precision();
+	auto precision = LL_CONT.precision();
 
         LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
                 << LLMemoryInfo();
@@ -1410,10 +1402,3 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (dst != NULL) gzclose(dst);
 	return retval;
 }
-
-#if LL_DARWIN
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif

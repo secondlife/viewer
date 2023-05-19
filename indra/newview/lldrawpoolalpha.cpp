@@ -49,6 +49,7 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
+#include "llperfstats.h"
 
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
@@ -58,6 +59,7 @@ static BOOL deferred_render = FALSE;
 
 // minimum alpha before discarding a fragment
 static const F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
+
 // minimum alpha before discarding a fragment when rendering impostors
 static const F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
 
@@ -147,6 +149,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
     prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
 
+    for (int i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+    {
+        prepare_alpha_shader(LLPipeline::sUnderWaterRender ? &gDeferredMaterialWaterProgram[i] : &gDeferredMaterialProgram[i], false, false); // note: bindDeferredShader will get called during render loop for materials
+    }
 
     // first pass, render rigged objects only and render to depth buffer
     forwardRender(true);
@@ -215,8 +221,14 @@ void LLDrawPoolAlpha::render(S32 pass)
     {
         minimum_alpha = MINIMUM_IMPOSTOR_ALPHA;
     }
+
     prepare_forward_shader(fullbright_shader, minimum_alpha);
     prepare_forward_shader(simple_shader, minimum_alpha);
+
+    for (int i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+    {
+        prepare_forward_shader(LLPipeline::sUnderWaterRender ? &gDeferredMaterialWaterProgram[i] : &gDeferredMaterialProgram[i], minimum_alpha);
+    }
 
     //first pass -- rigged only and drawn to depth buffer
     forwardRender(true);
@@ -327,9 +339,19 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
             {
                 LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA+pass]; // <-- hacky + pass to use PASS_ALPHA_RIGGED on second pass 
 
+                std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
                 for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
                 {
                     LLDrawInfo& params = **k;
+
+                    if(params.mFace)
+                    {
+                        LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
+                        if(vobj->isAttachment())
+                        {
+                            trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
+                        }
+                    }
 
                     if (params.mParticle)
                     {
@@ -500,8 +522,16 @@ void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& 
 
     mask |= LLVertexBuffer::MAP_WEIGHT4;
 
+    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
     for (LLDrawInfo* draw : emissives)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
+        auto vobj = draw->mFace?draw->mFace->getViewerObject():nullptr;
+        if(vobj && vobj->isAttachment())
+        {
+            trackAttachments( vobj, draw->mFace->isState(LLFace::RIGGED), &ratPtr );
+        }
+
         bool tex_setup = TexSetup(draw, false);
         if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
         {
@@ -566,7 +596,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
+            std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
                 if ((bool)params.mAvatar != rigged)
@@ -584,6 +615,16 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 									<< ". Skipping render batch." << LL_ENDL;
 					continue;
 				}
+
+                if(params.mFace)
+                {
+                    LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
+
+                    if(vobj->isAttachment())
+                    {
+                        trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
+                    }
+                }
 
 				if(depth_only)
 				{
@@ -768,6 +809,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 					gGL.matrixMode(LLRender::MM_MODELVIEW);
 				}
 			}
+
+            ratPtr.reset(); // force the final batch to terminate to avoid double counting on the subsidiary batches for FB and Emmissives
 
             // render emissive faces into alpha channel for bloom effects
             if (!depth_only)

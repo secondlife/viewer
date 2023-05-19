@@ -43,6 +43,7 @@
 #include "llui.h" 
 #include "llglheaders.h"
 #include "llrender.h"
+#include "llstartup.h"
 #include "llwindow.h"	// swapBuffers()
 
 // newview includes
@@ -149,6 +150,7 @@ U32 LLPipeline::RenderFSAASamples;
 U32 LLPipeline::RenderResolutionDivisor;
 bool LLPipeline::RenderUIBuffer;
 S32 LLPipeline::RenderShadowDetail;
+S32 LLPipeline::RenderShadowSplits;
 bool LLPipeline::RenderDeferredSSAO;
 F32 LLPipeline::RenderShadowResolutionScale;
 bool LLPipeline::RenderLocalLights;
@@ -544,6 +546,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
 	connectRefreshCachedSettingsSafe("RenderUIBuffer");
 	connectRefreshCachedSettingsSafe("RenderShadowDetail");
+    connectRefreshCachedSettingsSafe("RenderShadowSplits");
 	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
 	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
 	connectRefreshCachedSettingsSafe("RenderLocalLights");
@@ -615,7 +618,6 @@ void LLPipeline::init()
 
 LLPipeline::~LLPipeline()
 {
-
 }
 
 void LLPipeline::cleanup()
@@ -685,7 +687,9 @@ void LLPipeline::cleanup()
 
 	mFaceSelectImagep = NULL;
 
-	mMovedBridge.clear();
+    mMovedList.clear();
+    mMovedBridge.clear();
+    mShiftList.clear();
 
 	mInitialized = false;
 
@@ -1073,6 +1077,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
 	RenderUIBuffer = gSavedSettings.getBOOL("RenderUIBuffer");
 	RenderShadowDetail = gSavedSettings.getS32("RenderShadowDetail");
+    RenderShadowSplits = gSavedSettings.getS32("RenderShadowSplits");
 	RenderDeferredSSAO = gSavedSettings.getBOOL("RenderDeferredSSAO");
 	RenderShadowResolutionScale = gSavedSettings.getF32("RenderShadowResolutionScale");
 	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
@@ -1776,7 +1781,9 @@ void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
 		 iter != gPipeline.mNearbyLights.end(); iter++)
 	{
-		if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
+        const LLViewerObject *vobj = iter->drawable->getVObj();
+        if (vobj && vobj->getAvatar()
+            && vobj->isAttachment() && vobj->getAvatar() == muted_avatar)
 		{
 			gPipeline.mLights.erase(iter->drawable);
 			gPipeline.mNearbyLights.erase(iter);
@@ -2817,6 +2824,14 @@ void LLPipeline::clearRebuildDrawables()
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED | LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD);
 	}
 	mMovedList.clear();
+
+    for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
+        iter != mShiftList.end(); ++iter)
+    {
+        LLDrawable *drawablep = *iter;
+        drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED | LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD | LLDrawable::ON_SHIFT_LIST);
+    }
+    mShiftList.clear();
 }
 
 void LLPipeline::rebuildPriorityGroups()
@@ -5990,7 +6005,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 			LLDrawable* drawable = light->drawable;
             const LLViewerObject *vobj = light->drawable->getVObj();
             if(vobj && vobj->getAvatar() 
-               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList())
+               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList() || vobj->getAvatar()->isTooSlow())
                )
             {
                 drawable->clearState(LLDrawable::NEARBY_LIGHT);
@@ -6069,7 +6084,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				continue;
 			}
             LLVOAvatar * av = light->getAvatar();
-            if (av && (av->isTooComplex() || av->isInMuteList()))
+            if (av && (av->isTooComplex() || av->isInMuteList() || av->isTooSlow()))
             {
                 // avatars that are already in the list will be removed by removeMutedAVsLights
                 continue;
@@ -7238,6 +7253,7 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	mResetVertexBuffers = false;
 
 	mCubeVB = NULL;
+    mDeferredVB = NULL;
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -7271,10 +7287,11 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 		LLPathingLib::getInstance()->cleanupVBOManager();
 	}
 	LLVOPartGroup::destroyGL();
+    gGL.resetVertexBuffer();
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
-	if (LLVertexBuffer::sGLCount > 0)
+	if (LLVertexBuffer::sGLCount != 0)
 	{
 		LL_WARNS() << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << LL_ENDL;
 	}
@@ -7295,6 +7312,10 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 
 	LLVertexBuffer::initClass(LLVertexBuffer::sEnableVBOs, LLVertexBuffer::sDisableVBOMapping);
+    gGL.initVertexBuffer();
+
+    mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
+    mDeferredVB->allocateBuffer(8, 0, true);
 
 	LLVOPartGroup::restoreGL();
 }
@@ -10229,14 +10250,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (mSunDiffuse == LLColor4::black)
 	{ //sun diffuse is totally black, shadows don't matter
-		LLGLDepthTest depth(GL_TRUE);
-
-		for (S32 j = 0; j < 4; j++)
-		{
-			mShadow[j].bindTarget();
-			mShadow[j].clear();
-			mShadow[j].flush();
-		}
+        skipRenderingShadows();
 	}
 	else
 	{
@@ -10291,7 +10305,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			std::vector<LLVector3> fp;
 
-			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir))
+			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir)
+                || j > RenderShadowSplits)
 			{
 				//no possible shadow receivers
 				if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
@@ -10853,10 +10868,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
 
-	pushRenderTypeMask();
-	
-	if (visually_muted || too_complex)
-	{
+    pushRenderTypeMask();
+
+    if (visually_muted || too_complex)
+    {
         // only show jelly doll geometry
 		andRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR,
 							LLPipeline::RENDER_TYPE_CONTROL_AV,
@@ -10900,6 +10915,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
         if (preview_avatar)
         {
             // Only show rigged attachments for preview
+            // For the sake of performance and so that static
+            // objects won't obstruct previewing changes
             LLVOAvatar::attachment_map_t::iterator iter;
             for (iter = avatar->mAttachmentPoints.begin();
                 iter != avatar->mAttachmentPoints.end();
@@ -10911,9 +10928,27 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
                     ++attachment_iter)
                 {
                     LLViewerObject* attached_object = attachment_iter->get();
-                    if (attached_object && attached_object->isRiggedMesh())
+                    if (attached_object)
                     {
-                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                        if (attached_object->isRiggedMesh())
+                        {
+                            markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                        }
+                        else
+                        {
+                            // sometimes object is a linkset and rigged mesh is a child
+                            LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+                            for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+                                iter != child_list.end(); iter++)
+                            {
+                                LLViewerObject* child = *iter;
+                                if (child->isRiggedMesh())
+                                {
+                                    markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -11494,5 +11529,29 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 			unhideDrawable( pDrawable );			
 		}
 	}
+}
+
+void LLPipeline::skipRenderingShadows()
+{
+    LLGLDepthTest depth(GL_TRUE);
+
+    for (S32 j = 0; j < 4; j++)
+    {
+        mShadow[j].bindTarget();
+        mShadow[j].clear();
+        mShadow[j].flush();
+    }
+}
+
+void LLPipeline::handleShadowDetailChanged()
+{
+    if (RenderShadowDetail > gSavedSettings.getS32("RenderShadowDetail"))
+    {
+        skipRenderingShadows();
+    }
+    else
+    {
+        LLViewerShaderMgr::instance()->setShaders();
+    }
 }
 

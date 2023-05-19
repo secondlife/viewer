@@ -247,18 +247,20 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloaternotificationstabbed.cpp
     llfloateroutfitphotopreview.cpp 
-    llfloateroutfitsnapshot.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
+    llfloatersimpleoutfitsnapshot.cpp
     llfloaterpathfindingcharacters.cpp
     llfloaterpathfindingconsole.cpp
     llfloaterpathfindinglinksets.cpp
     llfloaterpathfindingobjects.cpp
     llfloaterpay.cpp
+    llfloaterperformance.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
+    llfloaterpreferencesgraphicsadvanced.cpp
     llfloaterpreferenceviewadvanced.cpp
     llfloaterpreviewtrash.cpp
     llfloaterprofiletexture.cpp
@@ -889,18 +891,20 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloaternotificationstabbed.h
     llfloateroutfitphotopreview.h
-    llfloateroutfitsnapshot.h
     llfloaterobjectweights.h
     llfloateropenobject.h
+    llfloatersimpleoutfitsnapshot.h
     llfloaterpathfindingcharacters.h
     llfloaterpathfindingconsole.h
     llfloaterpathfindinglinksets.h
     llfloaterpathfindingobjects.h
     llfloaterpay.h
+    llfloaterperformance.h
     llfloaterperms.h
     llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
+    llfloaterpreferencesgraphicsadvanced.h
     llfloaterpreferenceviewadvanced.h
     llfloaterpreviewtrash.h
     llfloaterprofiletexture.h
@@ -1339,6 +1343,9 @@ set(viewer_HEADER_FILES
     VorbisFramework.h
     )
 
+  list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
+  list(APPEND viewer_HEADER_FILES llperfstats.h)
+
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
 #build_data.json creation moved to viewer_manifest.py MAINT-6413
@@ -1688,7 +1695,7 @@ if (WINDOWS)
       # The following commented dependencies are determined at variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${SHARED_LIB_STAGING_DIR}/openjpeg.dll
+      ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/uriparser.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe

@@ -207,6 +207,7 @@
 #include "llstacktrace.h"
 
 #include "threadpool.h"
+#include "llperfstats.h"
 
 
 #if LL_WINDOWS
@@ -272,12 +273,10 @@ void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
 bool login_alert_status(const LLSD& notification, const LLSD& response);
-void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
 void asset_callback_nothing(const LLUUID&, LLAssetType::EType, void*, S32);
 bool callback_choose_gender(const LLSD& notification, const LLSD& response);
-void init_start_screen(S32 location_id);
 void release_start_screen();
 void reset_login();
 LLSD transform_cert_args(LLPointer<LLCertificate> cert);
@@ -324,6 +323,8 @@ void set_flags_and_update_appearance()
 {
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
+
+    LLInventoryModelBackgroundFetch::instance().start();
 }
 
 // Returns false to skip other idle processing. Should only return
@@ -662,7 +663,7 @@ bool idle_startup()
 #else
 				void* window_handle = NULL;
 #endif
-				bool init = gAudiop->init(kAUDIO_NUM_SOURCES, window_handle, LLAppViewer::instance()->getSecondLifeTitle());
+				bool init = gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle());
 				if(init)
 				{
 					gAudiop->setMuted(TRUE);
@@ -1285,9 +1286,6 @@ bool idle_startup()
 		// Initialize classes w/graphics stuff.
 		//
 		LLViewerStatsRecorder::instance(); // Since textures work in threads
-		gTextureList.doPrefetchImages();		
-		display_startup();
-
 		LLSurface::initClasses();
 		display_startup();
 
@@ -1432,6 +1430,15 @@ bool idle_startup()
 	if (STATE_SEED_CAP_GRANTED == LLStartUp::getStartupState())
 	{
 		display_startup();
+
+        // These textures are not warrantied to be cached, so needs
+        // to hapen with caps granted
+        gTextureList.doPrefetchImages();
+
+        // will init images, should be done with caps, but before gSky.init()
+        LLEnvironment::getInstance()->initSingleton();
+
+        display_startup();
 		update_texture_fetch();
 		display_startup();
 
@@ -1491,6 +1498,8 @@ bool idle_startup()
 		{
 			LLViewerParcelAskPlay::getInstance()->loadSettings();
 		}
+
+		gAgent.addRegionChangedCallback(boost::bind(&LLPerfStats::StatsRecorder::clearStats));
 
 		// *Note: this is where gWorldMap used to be initialized.
 
@@ -2251,7 +2260,7 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-		set_startup_status(1.0, "", "");
+        set_startup_status(1.0, "", "");
 		display_startup();
 
 		if (!mBenefitsSuccessfullyInit)
@@ -2337,6 +2346,8 @@ bool idle_startup()
 			"");
 
 		LLUIUsage::instance().clear();
+
+        LLPerfStats::StatsRecorder::setAutotuneInit();
 
 		return TRUE;
 	}
@@ -2526,8 +2537,6 @@ void use_circuit_callback(void**, S32 result)
 void register_viewer_callbacks(LLMessageSystem* msg)
 {
 	msg->setHandlerFuncFast(_PREHASH_LayerData,				process_layer_data );
-	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerTextureList::receiveImageHeader );
-	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerTextureList::receiveImagePacket );
 	msg->setHandlerFuncFast(_PREHASH_ObjectUpdate,				process_object_update );
 	msg->setHandlerFunc("ObjectUpdateCompressed",				process_compressed_object_update );
 	msg->setHandlerFunc("ObjectUpdateCached",					process_cached_object_update );
@@ -2913,6 +2922,7 @@ void reset_login()
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();
 	gAgent.cleanup();
+    gSky.cleanup(); // mVOSkyp is an inworld object.
 	LLWorld::getInstance()->resetClass();
 
 	if ( gViewerWindow )
@@ -3013,7 +3023,7 @@ bool LLStartUp::dispatchURL()
 			|| (dx*dx > SLOP*SLOP)
 			|| (dy*dy > SLOP*SLOP) )
 		{
-			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), "clicked",
+			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), LLCommandHandler::NAV_TYPE_CLICKED,
 						  NULL, false);
 		}
 		return true;
@@ -3401,6 +3411,9 @@ bool process_login_success_response()
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 	
+	LLPerfStats::StatsRecorder::setEnabled(gSavedSettings.getBOOL("PerfStatsCaptureEnabled"));
+	LLPerfStats::StatsRecorder::setFocusAv(gAgentID);
+
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);

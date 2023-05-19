@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="profile_texture">
+	<layout_stack name="preview_stack">
+		<layout_panel name="buttons_panel">
+			<layout_stack name="buttons_stack">
+				<layout_panel name="close_panel">
+					<button label="Zamknij" name="close_btn" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

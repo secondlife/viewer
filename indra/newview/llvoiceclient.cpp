@@ -37,6 +37,7 @@
 #include "llui.h"
 #include "llkeyboard.h"
 #include "llagent.h"
+#include "lluiusage.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -141,6 +142,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 
 LLVoiceClient::~LLVoiceClient()
 {
+    llassert(!mVoiceModule);
 }
 
 void LLVoiceClient::init(LLPumpIO *pump)
@@ -603,6 +605,10 @@ void LLVoiceClient::setMuteMic(bool muted)
 
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
+	if (ptt)
+	{
+		LLUIUsage::instance().logCommand("Agent.EnableMicrophone");
+	}
 	mUserPTTState = ptt;
 	updateMicMuteLogic();
 	mMicroChangedSignal();
@@ -792,7 +798,10 @@ void LLVoiceClient::addObserver(LLVoiceClientStatusObserver* observer)
 
 void LLVoiceClient::removeObserver(LLVoiceClientStatusObserver* observer)
 {
-	if (mVoiceModule && mVoiceModule->singletoneInstanceExists()) mVoiceModule->removeObserver(observer);
+    if (mVoiceModule)
+    {
+        mVoiceModule->removeObserver(observer);
+    }
 }
 
 void LLVoiceClient::addObserver(LLFriendObserver* observer)
@@ -802,7 +811,10 @@ void LLVoiceClient::addObserver(LLFriendObserver* observer)
 
 void LLVoiceClient::removeObserver(LLFriendObserver* observer)
 {
-	if (mVoiceModule && mVoiceModule->singletoneInstanceExists()) mVoiceModule->removeObserver(observer);
+    if (mVoiceModule)
+    {
+        mVoiceModule->removeObserver(observer);
+    }
 }
 
 void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
@@ -812,7 +824,10 @@ void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
 
 void LLVoiceClient::removeObserver(LLVoiceClientParticipantObserver* observer)
 {
-	if (mVoiceModule && mVoiceModule->singletoneInstanceExists()) mVoiceModule->removeObserver(observer);
+    if (mVoiceModule)
+    {
+        mVoiceModule->removeObserver(observer);
+    }
 }
 
 std::string LLVoiceClient::sipURIFromID(const LLUUID &id)

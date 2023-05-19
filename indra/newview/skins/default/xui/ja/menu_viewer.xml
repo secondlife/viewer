@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <menu_bar name="Main Menu">
 	<menu label="ミー" name="Me">
 		<menu_item_call label="プロフィール..." name="Profile"/>
@@ -435,6 +435,11 @@
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
 		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
+		<menu_item_check name="Show Avatar Render Info" label="アバター描画情報を表示"/>
+		<menu_item_call name="Playback event recording" label="イベントの記録を再生する"/>
+		<menu_item_call name="FB Connect Test" label="FB コンテンツテスト"/>
+		<menu_item_call name="Stop event recording" label="イベントの記録を停止する"/>
+		<menu_item_call name="Start event recording" label="イベントの記録を開始する"/>
 	</menu>
 	<menu label="管理者" name="Admin">
 		<menu label="オブジェクト" name="AdminObject">

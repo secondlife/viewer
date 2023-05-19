@@ -95,7 +95,6 @@ set(llcommon_SOURCE_FILES
     llsys.cpp
     lltempredirect.cpp
     llthread.cpp
-    llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
     lltrace.cpp
@@ -106,6 +105,7 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
+    hbxxh.cpp
     u64.cpp
     threadpool.cpp
     workqueue.cpp
@@ -242,6 +242,7 @@ set(llcommon_HEADER_FILES
     llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
+    hbxxh.h
     lockstatic.h
     stdtypes.h
     stringize.h
@@ -253,6 +254,11 @@ set(llcommon_HEADER_FILES
     workqueue.h
     StackWalker.h
     )
+    
+if (DARWIN)
+  list(APPEND llcommon_HEADER_FILES llsys_objc.h)
+  list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
+endif (DARWIN)
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
@@ -261,7 +267,6 @@ add_library (llcommon ${llcommon_SOURCE_FILES})
 target_link_libraries(
         llcommon
         ll::apr
-        ll::bugsplat
         ll::expat
         ll::jsoncpp
         ll::zlib-ng
@@ -271,8 +276,8 @@ target_link_libraries(
         ll::tracy
     )
 
-target_include_directories( llcommon  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories( llcommon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories(llcommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(llcommon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_dependencies(llcommon stage_third_party_libs)
 

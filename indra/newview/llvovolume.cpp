@@ -88,6 +88,7 @@
 #include "llcallstack.h"
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
+#include "llperfstats.h" 
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -228,6 +229,9 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
     mColorChanged = FALSE;
 	mSpotLightPriority = 0.f;
 
+	mSkinInfoFailed = false;
+	mSkinInfo = NULL;
+
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
     mServerDrawableUpdateCount = 0;
@@ -243,6 +247,8 @@ LLVOVolume::~LLVOVolume()
 	mTextureAnimp = NULL;
 	delete mVolumeImpl;
 	mVolumeImpl = NULL;
+
+	gMeshRepo.unregisterMesh(this);
 
 	if(!mMediaImplList.empty())
 	{
@@ -851,10 +857,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	
 	if (isSculpted())
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-		LLUUID id =  sculpt_params->getSculptTexture();
-		
-		updateSculptTexture();
+        updateSculptTexture();
 		
 		
 
@@ -1095,10 +1098,15 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			// if it's a mesh
 			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
+				if (mSkinInfo && mSkinInfo->mMeshID != volume_params.getSculptID())
+				{
+					mSkinInfo = NULL;
+					mSkinInfoFailed = false;
+				}
+
 				if (!getVolume()->isMeshAssetLoaded())
 				{ 
 					//load request not yet issued, request pipeline load this mesh
-					LLUUID asset_id = volume_params.getSculptID();
 					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod, last_lod);
 					if (available_lod != lod)
 					{
@@ -1106,6 +1114,14 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					}
 				}
 				
+				if (!mSkinInfo && !mSkinInfoFailed)
+				{
+					const LLMeshSkinInfo* skin_info = gMeshRepo.getSkinInfo(volume_params.getSculptID(), this);
+					if (skin_info)
+					{
+						notifySkinInfoLoaded(skin_info);
+					}
+				}
 			}
 			else // otherwise is sculptie
 			{
@@ -1158,6 +1174,9 @@ void LLVOVolume::updateSculptTexture()
 		{
 			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 		}
+
+		mSkinInfoFailed = false;
+		mSkinInfo = NULL;
 	}
 	else
 	{
@@ -1210,6 +1229,20 @@ void LLVOVolume::notifyMeshLoaded()
         cav->notifyAttachmentMeshLoaded();
     }
     updateVisualComplexity();
+}
+
+void LLVOVolume::notifySkinInfoLoaded(const LLMeshSkinInfo* skin)
+{
+	mSkinInfoFailed = false;
+	mSkinInfo = skin;
+
+	notifyMeshLoaded();
+}
+
+void LLVOVolume::notifySkinInfoUnavailable()
+{
+	mSkinInfoFailed = true;
+	mSkinInfo = nullptr;
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -1715,7 +1748,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global, BOOL should_update_octree_bounds)
         // updates needed, set REBUILD_RIGGED accordingly.
 
         // Without the flag, this will remove unused rigged volumes, which we are not currently very aggressive about.
-        updateRiggedVolume();
+        updateRiggedVolume(false);
     }
 
     LLVolume* volume = mRiggedVolume;
@@ -2009,7 +2042,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	
 	if (mDrawable->isState(LLDrawable::REBUILD_RIGGED))
 	{
-		updateRiggedVolume();
+        updateRiggedVolume(false);
 		genBBoxes(FALSE);
 		mDrawable->clearState(LLDrawable::REBUILD_RIGGED);
 	}
@@ -3645,7 +3678,7 @@ const LLMeshSkinInfo* LLVOVolume::getSkinInfo() const
 {
     if (getVolume())
     {
-        return gMeshRepo.getSkinInfo(getMeshID(), this);
+         return mSkinInfo;
     }
     else
     {
@@ -4615,7 +4648,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	{
 		if ((pick_rigged) || (getAvatar() && (getAvatar()->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
 		{
-			updateRiggedVolume(true);
+            updateRiggedVolume(true, LLRiggedVolume::DO_NOT_UPDATE_FACES);
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -4690,6 +4723,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 				continue;
 			}
 
+            // This calculates the bounding box of the skinned mesh from scratch. It's actually quite expensive, but not nearly as expensive as building a full octree.
+            // rebuild_face_octrees = false because an octree for this face will be built later only if needed for narrow phase picking.
+            updateRiggedVolume(true, i, false);
 			face_hit = volume->lineSegmentIntersect(local_start, local_end, i,
 													&p, &tc, &n, &tn);
 			
@@ -4813,13 +4849,13 @@ void LLVOVolume::clearRiggedVolume()
 	}
 }
 
-void LLVOVolume::updateRiggedVolume(bool force_update)
+void LLVOVolume::updateRiggedVolume(bool force_treat_as_rigged, LLRiggedVolume::FaceIndex face_index, bool rebuild_face_octrees)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
-	if ((!force_update) && (!treatAsRigged()))
+    if ((!force_treat_as_rigged) && (!treatAsRigged()))
 	{
 		clearRiggedVolume();
 		
@@ -4848,10 +4884,10 @@ void LLVOVolume::updateRiggedVolume(bool force_update)
 		updateRelativeXform();
 	}
 
-	mRiggedVolume->update(skin, avatar, volume);
+    mRiggedVolume->update(skin, avatar, volume, face_index, rebuild_face_octrees);
 }
 
-void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume)
+void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume, FaceIndex face_index, bool rebuild_face_octrees)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	bool copy = false;
@@ -4882,7 +4918,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		if (is_paused)
 		{
             S32 frames_paused = LLFrameTimer::getFrameCount() - avatar->getMotionController().getPausedFrame();
-            if (frames_paused > 2)
+            if (frames_paused > 1)
             {
                 return;
             }
@@ -4901,7 +4937,24 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
     S32 rigged_vert_count = 0;
     S32 rigged_face_count = 0;
     LLVector4a box_min, box_max;
-	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+    S32 face_begin;
+    S32 face_end;
+    if (face_index == DO_NOT_UPDATE_FACES)
+    {
+        face_begin = 0;
+        face_end = 0;
+    }
+    else if (face_index == UPDATE_ALL_FACES)
+    {
+        face_begin = 0;
+        face_end = volume->getNumVolumeFaces();
+    }
+    else
+    {
+        face_begin = face_index;
+        face_end = face_begin + 1;
+    }
+    for (S32 i = face_begin; i < face_end; ++i)
 	{
 		const LLVolumeFace& vol_face = volume->getVolumeFace(i);
 		
@@ -4986,15 +5039,10 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 			}
 
+            if (rebuild_face_octrees)
 			{
-    			delete dst_face.mOctree;
-				dst_face.mOctree = NULL;
-
-				LLVector4a size;
-				size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
-				size.splat(size.getLength3().getF32()*0.5f);
-			
-				dst_face.createOctree(1.f);
+                dst_face.destroyOctree();
+                dst_face.createOctree();
 			}
 		}
 	}
@@ -5389,7 +5437,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			}
 		}
 		
-		if (type == LLRenderPass::PASS_ALPHA)
+		// if (type == LLRenderPass::PASS_ALPHA) // always populate the draw_info ptr
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
 		}
@@ -5517,6 +5565,7 @@ static inline void add_face(T*** list, U32* count, T* face)
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -5589,6 +5638,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         LL_PROFILE_ZONE_NAMED("rebuildGeom - face list");
 
 		//get all the faces into a list
+        std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); 
              drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
@@ -5619,6 +5669,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				continue;
 			}
+
+            if(vobj->isAttachment())
+            {
+                trackAttachments( vobj, drawablep->isState(LLDrawable::RIGGED),&ratPtr);
+            }
 
 			LLVolume* volume = vobj->getVolume();
 			if (volume)
@@ -5674,7 +5729,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             {
                 avatar->addAttachmentOverridesForObject(vobj, NULL, false);
             }
-            
+
             // Standard rigged mesh attachments: 
 			bool rigged = !vobj->isAnimatedObject() && skinInfo && vobj->isAttachment();
             // Animated objects. Have to check for isRiggedMesh() to
@@ -5718,7 +5773,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     if (facep->isState(LLFace::RIGGED))
                     { 
                         //face is not rigged but used to be, remove from rigged face pool
-                        LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
+                        LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*)facep->getPool();
                         if (pool)
                         {
                             pool->removeFace(facep);
@@ -5904,7 +5959,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			else
 			{
 				drawablep->clearState(LLDrawable::RIGGED);
-                vobj->updateRiggedVolume();
+                vobj->updateRiggedVolume(false);
 			}
 		}
 	}
@@ -6010,15 +6065,21 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 			U32 buffer_count = 0;
 
+            std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
 				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 
-				if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
+				if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL))
 				{
 					LLVOVolume* vobj = drawablep->getVOVolume();
 					
 					if (!vobj) continue;
+
+                    if (vobj->isAttachment())
+                    {
+                        trackAttachments( vobj, drawablep->isState(LLDrawable::RIGGED), &ratPtr );
+                    }
 					
 					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
 					{
@@ -6048,8 +6109,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 							LLVertexBuffer* buff = face->getVertexBuffer();
 							if (buff)
 							{
-								llassert(!face->isState(LLFace::RIGGED));
-
 								if (!face->getGeometryVolume(*volume, face->getTEOffset(), 
 									vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex()))
 								{ //something's gone wrong with the vertex buffer accounting, rebuild this group 
@@ -6177,7 +6236,6 @@ struct CompareBatchBreakerRigged
         }
     }
 };
-
 
 U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort, BOOL batch_textures, BOOL rigged)
 {
@@ -6458,10 +6516,16 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		U32 indices_index = 0;
 		U16 index_offset = 0;
 
-		while (face_iter < i)
+        std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr;
+        while (face_iter < i)
 		{
 			//update face indices for new buffer
 			facep = *face_iter;
+            LLViewerObject* vobj = facep->getViewerObject();
+            if(vobj && vobj->isAttachment())
+            {
+                trackAttachments(vobj, LLPipeline::sShadowRender, &ratPtr);
+            }
 			if (buffer.isNull())
 			{
 				// Bulk allocation failed

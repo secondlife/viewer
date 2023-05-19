@@ -226,6 +226,21 @@ private:
     static U32 countRootModels(LLModelLoader::model_list models);
     LLVector3   mGroundPlane[4];
 	void		renderGroundPlane(float z_offset = 0.0f);
+    /// Indicates whether we should warn of high-lod meshes that do not have a corresponding physics mesh.
+    /// Reset when resetting the modelpreview (i.e., when the uploader dialog is created or reset), and when
+    /// about to process a physics file. Set to true immediately after the file is loaded (before rebuildUploadData()).
+    ///
+    /// (The rules for mapping the correspondence of high-lod meshes to physics meshes are complex. When
+    /// lod rendering meshes are used, there is never an unmatched mesh. Nor is there a mismatch when
+    /// the high-lod file and physics file have ony one mesh each. In these cases, this value is moot.
+    /// When there are multiple meshes in each file, they are matched by name or order, and some meshes
+    /// are broken up by limitations into multiple objects, and thus there can be mismatches.)
+    bool mWarnOfUnmatchedPhyicsMeshes{false};
+    /// A mesh to use as the default physics shape in only those cases where the physics shape is not otherwise specified.
+    /// It is set only when the user chooses a physics shape file that contains a mesh with a name that matches DEFAULT_PHYSICS_MESH_NAME.
+    /// It is reset when such a name is not found, and when resetting the modelpreview.
+    /// Not read unless mWarnOfUnmatchedPhyicsMeshes is true.
+    LLModel* mDefaultPhysicsShapeP{};
 
     typedef enum
     {

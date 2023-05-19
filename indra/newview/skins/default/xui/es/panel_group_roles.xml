@@ -1,20 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Miembros y Roles" name="roles_tab">
-	<panel.string name="default_needs_apply_text">
-		Hay cambios sin guardar
-	</panel.string>
-	<panel.string name="want_apply_text">
-		¿Quieres guardar estos cambios?
-	</panel.string>
+	<panel.string name="default_needs_apply_text">Hay cambios sin guardar</panel.string>
+	<panel.string name="want_apply_text">¿Quieres guardar estos cambios?</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="MIEMBROS" name="members_sub_tab" tool_tip="Miembros">
-			<panel.string name="help_text">
-				Puede añadir o quitar los roles asignados a los miembros.
-Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada uno de ellos.
-			</panel.string>
-			<panel.string name="donation_area">
-				[AREA] m²
-			</panel.string>
+			<panel.string name="help_text">Puede añadir o quitar los roles asignados a los miembros.
+Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada uno de ellos.</panel.string>
+			<panel.string name="donation_area">[AREA] m²</panel.string>
 			<filter_editor label="Filtrar los miembros" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Miembro" name="name"/>
@@ -27,18 +19,12 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 			<button label="Expulsar miembro(s)" name="member_ban"/>
 		</panel>
 		<panel label="ROLES" name="roles_sub_tab">
-			<panel.string name="help_text">
-				Los roles tienen una etiqueta propia y unas capacidades que se
+			<panel.string name="help_text">Los roles tienen una etiqueta propia y unas capacidades que se
         permiten ejercer a sus miembros. Los miembros pueden
         tener más de un rol. Un grupo puede tener hasta 10 roles,
-        incluidos los roles Todos y Propietarios.
-			</panel.string>
-			<panel.string name="cant_delete_role">
-				Los roles de &apos;Todos&apos; y &apos;Propietarios&apos; son especiales, y no pueden eliminarse.
-			</panel.string>
-			<panel.string name="power_folder_icon">
-				Inv_FolderClosed
-			</panel.string>
+        incluidos los roles Todos y Propietarios.</panel.string>
+			<panel.string name="cant_delete_role">Los roles de 'Todos' y 'Propietarios' son especiales, y no pueden eliminarse.</panel.string>
+			<panel.string name="power_folder_icon">Inv_FolderClosed</panel.string>
 			<filter_editor label="Filtrar los roles" name="filter_input"/>
 			<scroll_list name="role_list">
 				<scroll_list.columns label="Rol" name="name"/>
@@ -49,10 +35,8 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 			<button label="Eliminar el rol" name="role_delete"/>
 		</panel>
 		<panel height="148" label="CAPACIDADES" name="actions_sub_tab" tool_tip="Puedes ver una descripción de la capacidad y qué miembros y roles la tienen.">
-			<panel.string name="help_text">
-				Las capacidades permiten a los miembros con roles hacer
-        cosas concretas en el grupo. Las hay de muchos tipos.
-			</panel.string>
+			<panel.string name="help_text">Las capacidades permiten a los miembros con roles hacer
+        cosas concretas en el grupo. Las hay de muchos tipos.</panel.string>
 			<filter_editor label="Filtrar las capacidades" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Elige una capacidad para verla más en detalle">
 				<scroll_list.columns label="" name="icon"/>
@@ -60,12 +44,8 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 			</scroll_list>
 		</panel>
 		<panel label="RESIDENTES EXPULSADOS" name="banlist_sub_tab" tool_tip="Muestra los residentes expulsados de este grupo.">
-			<panel.string name="help_text">
-				Los residentes que figuren en la lista de expulsados no podrán unirse al grupo.
-			</panel.string>
-			<panel.string name="ban_count_template">
-				Número de expulsados: [COUNT]/[LIMIT]
-			</panel.string>
+			<panel.string name="help_text">Los residentes que figuren en la lista de expulsados no podrán unirse al grupo.</panel.string>
+			<panel.string name="ban_count_template">Número de expulsados: [COUNT]/[LIMIT]</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="Residente" name="name"/>
 				<name_list.columns label="Fecha de expulsión" name="ban_date"/>
@@ -74,48 +54,33 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 			<button label="Anular expulsión" name="ban_delete" tool_tip="Readmite en el grupo a los residentes seleccionados"/>
 			<button name="ban_refresh" tool_tip="Actualiza la lista de expulsados"/>
 		</panel>
+		<button name="role_copy" label="Copiar rol"/>
 	</tab_container>
 	<panel name="members_footer">
-		<text name="static">
-			Roles asignados
-		</text>
+		<text name="static">Roles asignados</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="role"/>
 		</scroll_list>
-		<text name="static2">
-			Capacidades permitidas
-		</text>
+		<text name="static2">Capacidades permitidas</text>
 		<scroll_list name="member_allowed_actions" tool_tip="Para más detalles de cada capacidad, ver la pestaña Capacidades">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="members_header">
-		<text_editor name="member_action_description">
-			Esta habilidad es &apos;Expulsar miembros de este grupo&apos;. Sólo un propietario puede expulsar a otro propietario.
-		</text_editor>
+		<text_editor name="member_action_description">Esta habilidad es 'Expulsar miembros de este grupo'. Sólo un propietario puede expulsar a otro propietario.</text_editor>
 	</panel>
 	<panel name="roles_footer">
-		<text name="static">
-			Nombre del rol
-		</text>
+		<text name="static">Nombre del rol</text>
 		<line_editor name="role_name"/>
-		<text name="static3">
-			Etiqueta del rol
-		</text>
+		<text name="static3">Etiqueta del rol</text>
 		<line_editor name="role_title"/>
-		<text name="static2">
-			Descripción
-		</text>
+		<text name="static2">Descripción</text>
 		<text_editor name="role_description"/>
-		<text name="static4">
-			Roles asignados
-		</text>
+		<text name="static4">Roles asignados</text>
 		<check_box label="Mostrar los miembros" name="role_visible_in_list" tool_tip="Establece si los miembros de este rol pueden ser vistos en la pestaña General por personas ajenas al grupo."/>
-		<text name="static5" tool_tip="Una lista de las capacidades que puede desarrollar el rol seleccionado actualmente.">
-			Capacidades asignadas
-		</text>
+		<text name="static5" tool_tip="Una lista de las capacidades que puede desarrollar el rol seleccionado actualmente.">Capacidades asignadas</text>
 		<scroll_list name="role_allowed_actions" tool_tip="Para más detalles de cada capacidad, ver la pestaña Capacidades">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="checkbox"/>
@@ -123,19 +88,11 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 		</scroll_list>
 	</panel>
 	<panel name="roles_header">
-		<text_editor name="role_action_description">
-			Esta habilidad es &apos;Expulsar miembros de este grupo&apos;. Sólo un propietario puede expulsar a otro propietario.
-		</text_editor>
+		<text_editor name="role_action_description">Esta habilidad es 'Expulsar miembros de este grupo'. Sólo un propietario puede expulsar a otro propietario.</text_editor>
 	</panel>
 	<panel name="actions_footer">
-		<text_editor name="action_description">
-			Esta capacidad es la de &apos;Expulsar miembros de este grupo&apos;. Sólo un propietario puede expulsar a otro.
-		</text_editor>
-		<text name="static2">
-			Roles con esta capacidad
-		</text>
-		<text name="static3">
-			Miembros con esta capacidad
-		</text>
+		<text_editor name="action_description">Esta capacidad es la de 'Expulsar miembros de este grupo'. Sólo un propietario puede expulsar a otro.</text_editor>
+		<text name="static2">Roles con esta capacidad</text>
+		<text name="static3">Miembros con esta capacidad</text>
 	</panel>
 </panel>

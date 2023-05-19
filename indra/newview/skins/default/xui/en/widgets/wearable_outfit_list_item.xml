@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<inventory_list_item
+  follows="top|right|left"
+  height="20"
+  name="inventory_item"
+  tab_stop="false" 
+  hover_image="ListItem_Over"
+  selected_image="ListItem_Select"
+  separator_image="Wearables_Divider" 
+  width="380">
+  <!-- DEFAULT style for inventory list item -->
+  <default_style
+   font="SansSerifSmall"
+   font.style="NORMAL" />
+
+  <!-- style for inventory list item WORN on avatar -->
+  <worn_style
+   font="SansSerifSmall"
+   font.style="BOLD"
+   color="EmphasisColor" />
+  <item_icon
+    height="16"
+    follows="top|left"
+    image_name="Inv_Object"
+    layout="topleft"
+    left="0"
+    name="item_icon"
+    top="0"
+    width="16" />
+  <item_name
+    follows="left|right"
+    height="20"
+    layout="topleft"
+    left="21"
+    parse_urls="false"
+    use_ellipses="true"
+    name="item_name"
+    text_color="white"
+    top="4"
+    value="..."
+    width="359" />
+    <add_btn
+     name="add_wearable"
+     visible="false"
+     layout="topleft"
+     follows="top|right"
+     image_unselected="Add_Icon"
+     image_selected="Add_Icon"
+     top="1"
+     left="0"
+     height="16"
+     width="16"
+     tab_stop="false" />
+    <remove_btn
+     name="remove_wearable"
+     visible="false"
+     layout="topleft"
+     follows="top|right"
+     image_unselected="Remove_Icon"
+     image_selected="Remove_Icon"
+     top="1"
+     left="26"
+     height="16"
+     width="16"
+     tab_stop="false" />
+</inventory_list_item>

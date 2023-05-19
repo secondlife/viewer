@@ -51,11 +51,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>adf2a55a8596a5d2b8357c8816e32f17307bfff8</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>178b16ee9ff67986c8c14413ee68218e</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2.6312917/apr_suite-1.7.2.6312917-darwin64-6312917.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107593/938535/apr_suite-1.4.5.576669-darwin64-576669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -77,11 +75,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b55acee452f79cc13f241e57be5fabef19ec8bb0</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d2997cad03dbd0d70a060276b5671480</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2.6312917/apr_suite-1.7.2.6312917-windows-6312917.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107594/938548/apr_suite-1.4.5.576669-windows-576669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -91,18 +87,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3460bacbf5c806bbf7d1fef3c510ed2a7ba4ad6e</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ec24f5945faa8f13807b83eeaeb994f8</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2.6312917/apr_suite-1.7.2.6312917-windows64-6312917.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107592/938547/apr_suite-1.4.5.576669-windows64-576669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.2.6312917</string>
+        <string>1.4.5.576669</string>
       </map>
       <key>boost</key>
       <map>
@@ -123,11 +117,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d40ade5b3d1c08dff90c9a88bd6cf4c2fe399866</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>fedc8d63856f534b6098102e059dc548</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.72.0-dev22.gc16e420ec4-c16e420/boost-darwin64-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87776/805857/boost-1.72-darwin64-563847.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -149,11 +141,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a44377f5aab03918cc2c39219e9edaa81fa4a671</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6cc9fb4ca21365c4470a3e516544ba71</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.72.0-dev22.gc16e420ec4-c16e420/boost-windows-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87784/805850/boost-1.72-windows-563847.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -163,18 +153,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c99a3f7786ed27eb566e9be2ebd538c248d135cf</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>0c526efc3f8825cd25cdf635e238fab3</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.72.0-dev22.gc16e420ec4-c16e420/boost-windows64-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87783/805851/boost-1.72-windows64-563847.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>None</string>
+        <string>1.72</string>
       </map>
       <key>bugsplat</key>
       <map>
@@ -195,11 +183,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>933433cb71206a04b13849d1ac63611099cbb0c1</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>02b569ac2bd71f201e3dd86ade7b3eeb</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7.0f3de04/bugsplat-1.0.7.0f3de04-darwin64-0f3de04.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113876/983684/bugsplat-1.0.7.579696-darwin64-579696.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -209,11 +195,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9032f04797c96ee8f0d2dfe69194fa1f18d9ec26</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>5b32c47ae8e8cf0d4106f08e8db18044</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7.0f3de04/bugsplat-3.6.0.8.0f3de04-windows-0f3de04.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113878/983697/bugsplat-4.0.3.0.579696-windows-579696.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -223,18 +207,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9893c24bf7f0702890fc089c2b9295f0825f89ef</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>79c005fd8a660f8551b3c9ede64fa4ef</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7.0f3de04/bugsplat-3.6.0.8.0f3de04-windows64-0f3de04.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113879/983696/bugsplat-4.0.3.0.579696-windows64-579696.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.6.0.8.0f3de04</string>
+        <string>4.0.3.0.579696</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -317,11 +299,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d5fb3832a338bbe4891b823c64fdb4806706568e</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>7e4622b497bc465b01ff6d3e7e0b4214</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-darwin64-d7afe27.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89303/815402/cubemaptoequirectangular-1.1.0-darwin64-564841.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -331,11 +311,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>77c53daf558f51aec6e9f4bd9e930a103630ee7d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ac54672e0b38f52726f5c99047c913e4</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-linux64-d7afe27.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
             </map>
           </map>
           <key>windows</key>
@@ -343,11 +321,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e53a8268474e0272f0252097873d52de7205351e</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>b5ea7097ae10037024b0c2b3df9812b5</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-windows-d7afe27.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89307/815434/cubemaptoequirectangular-1.1.0-windows-564841.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -357,11 +333,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6c51855bcf3a8628289881fdaea08c25cf7b1b90</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ac54672e0b38f52726f5c99047c913e4</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-windows64-d7afe27.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -389,11 +363,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d4d5f27008de1ff7e86ae852841c68849b02eaea</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>44d801e05811269d1bed7dbc75d85843</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-darwin64-5a4a82d.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87786/805905/curl-7.54.1.563852-darwin64-563852.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -415,11 +387,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1ff1cea3b6171e4ed9f29249e72111866334615</string>
+              <string>676f624d4ebdc2189caa43ef6dd8266d</string>
               <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>md5</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-windows-5a4a82d.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87790/805917/curl-7.54.1.563852-windows-563852.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -429,18 +401,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07423f41d1320ea405f493869f6460cf8c45def5</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>b3db5a2cdf275c1af7758fbe2d14544a</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-windows64-5a4a82d.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87789/805918/curl-7.54.1.563852-windows64-563852.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.54.1-5a4a82d</string>
+        <string>7.54.1.563852</string>
       </map>
       <key>dbus_glib</key>
       <map>
@@ -491,18 +461,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f6835c4d7745cd1cadfbce47b40331d08affb532</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d778c6a3475bc35ee8b9615dfc38b4a9</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-dictionaries/releases/download/v1.0.1-dev2.gf887629-f887629/dictionaries-common-None.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55025/511964/dictionaries-1.538984-common-538984.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>None</string>
+        <string>1.538984</string>
       </map>
       <key>dullahan</key>
       <map>
@@ -523,11 +491,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>26302518fa132a8a9da7eddee53ee583ab7581b3</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>439d92ec73f0500ba1671faad2bd8090</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.13.0.202305180006_113.1.5_ge452d82_chromium-113.0.5672.93-1758b1b/dullahan-1.13.0.202305180020_113.1.5_ge452d82_chromium-113.0.5672.93-darwin64-1758b1b.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104637/916643/dullahan-1.12.4.202209142017_91.1.21_g9dd45fe_chromium-91.0.4472.114-darwin64-575005.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -537,11 +503,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f682df99c1acc5279a9161f2f13f446001e7871d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>2a7c01da15de77bc1fd1863327174d5e</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.13.0.202305180006_113.1.5_ge452d82_chromium-113.0.5672.93-1758b1b/dullahan-1.13.0.202305180125_113.1.5_ge452d82_chromium-113.0.5672.93-windows-1758b1b.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104638/916654/dullahan-1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows-575005.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -551,18 +515,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f29e543a6f85aa5b5093d2f4db0b192e28da601a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d06bee9b2517fbb09ba1a65e6d675361</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.13.0.202305180006_113.1.5_ge452d82_chromium-113.0.5672.93-1758b1b/dullahan-1.13.0.202305180125_113.1.5_ge452d82_chromium-113.0.5672.93-windows64-1758b1b.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104639/916659/dullahan-1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows64-575005.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.13.0.202305180125_113.1.5_ge452d82_chromium-113.0.5672.93</string>
+        <string>1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114</string>
       </map>
       <key>expat</key>
       <map>
@@ -583,11 +545,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b85526ca80b6a7e73c7870285cf68d568f742095</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>f4e80e0dfcab713a3da90cd8f7f23e7b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-darwin64-1f36d02.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76341/727265/expat-2.1.1.555519-darwin64-555519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -597,11 +557,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4cd82e2dec06ddff19e9b3dc0254f2593ec80452</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>5e1f025d1cebd12db542080aa755257f</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-linux64-1f36d02.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/380/943/expat-2.1.1.500375-linux64-500375.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -611,11 +569,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f663242ab6c7aa1601a96907202cfd04fee03720</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>cd4fe03473076c324d80ae3bd91a85bb</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-windows-1f36d02.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76343/727273/expat-2.1.1.555519-windows-555519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -625,18 +581,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>47c01a89bc32c5740efe51be43e459ffd9b7cd34</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d2d74d73b914150982b1883a3b96e60b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-windows64-1f36d02.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76344/727279/expat-2.1.1.555519-windows64-555519.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.1.1.1f36d02</string>
+        <string>2.1.1.555519</string>
       </map>
       <key>fmodstudio</key>
       <map>
@@ -656,14 +610,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>0a637eed8c841e29fc12459d8e122d188f27177f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>5a1d52ec3981292855a179be86988a02</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297245</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/112152/972159/fmodstudio-2.02.13.578928-darwin64-578928.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -672,14 +622,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>68fb759ee1f99e4d4df97354b228a82b7bbfc5b4</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>24b86630ccdfb5b3221f90ca7a9704f6</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297247</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/89682/818423/fmodstudio-2.02.03.565082-linux-565082.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -688,14 +634,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>fb13595a59f31aa2730723499cabd0397e5f1b18</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>8594ec180b73be42d37b6f93ac59ab4a</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297259</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/112153/972171/fmodstudio-2.02.13.578928-windows-578928.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -704,21 +646,17 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>02790e0e9bd904eaa8b15bf9bedb4fabfa80ad64</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>46941a2610f83c353e551d300e536c54</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297256</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/112154/972170/fmodstudio-2.02.13.578928-windows64-578928.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.02.06.570913</string>
+        <string>2.02.13.578928</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -769,11 +707,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>912d122aae996483ba814fe8e569394ddca0d42e</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>8865739d8e530199dacb3c3042c1bc01</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.4.4.4f739fa/freetype-2.4.4.4f739fa-darwin64-4f739fa.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87777/805782/freetype-2.4.4.563848-darwin64-563848.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -783,11 +719,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>14f57822f0cedef957a50a03a7b5372075cf8e1c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>94cf61dfdbc86aae5bbaf0b5cb8a366c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.4.4.4f739fa/freetype-2.4.4.4f739fa-linux64-4f739fa.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/874/1914/freetype-2.4.4.500865-linux64-500865.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -797,11 +731,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bb3c4f11b1c9f14e271c5ab16ca1ae743f1e3493</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>c0b3601e997553931cadc7d7ee94168b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.4.4.4f739fa/freetype-2.4.4.4f739fa-windows-4f739fa.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87779/805814/freetype-2.4.4.563848-windows-563848.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -811,18 +743,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d175b39257b691a957724e655c6cffe0b5a7b104</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e98e1e088cdcd20442e05e9abecdadf9</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.4.4.4f739fa/freetype-2.4.4.4f739fa-windows64-4f739fa.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87778/805815/freetype-2.4.4.563848-windows64-563848.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.4.4.4f739fa</string>
+        <string>2.4.4.563848</string>
       </map>
       <key>glext</key>
       <map>
@@ -838,20 +768,6 @@
         <string>glext</string>
         <key>platforms</key>
         <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>34af0a90a3015b7e7ec2486090bc4ce6ee5be758</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-glext/releases/download/v68-af397ee/glext-68-common-af397ee.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
           <key>darwin64</key>
           <map>
             <key>archive</key>
@@ -923,18 +839,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6604c1cca515d287e697997a8d5593d1cae172a9</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>dce3f3c01fddb400cb143c3283fe9259</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-glh_linear/releases/download/v1.0.1-dev2.g3253ed7-3253ed7/glh_linear-common-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82754/775367/glh_linear-0.0.0-common-560278.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>None</string>
+        <string>0.0.0</string>
       </map>
       <key>googlemock</key>
       <map>
@@ -955,11 +869,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b7390b1b0ea846550017bdba79a9c4955a00be7d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>11d0794582e91a57f6524ad345f2399d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.9339dda/googlemock-1.7.0.9339dda-darwin64-9339dda.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87791/805924/googlemock-1.7.0.563853-darwin64-563853.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -981,11 +893,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5d6917ca87ad1a3e97758af1988ca9055e7e4267</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>7d267050970ec6e28749178597bc8af0</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.9339dda/googlemock-1.7.0.9339dda-windows-9339dda.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87793/805930/googlemock-1.7.0.563853-windows-563853.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -995,18 +905,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4504efff4d0fa444bab6dc18a1826444140150ee</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>27638c692f0ec6121e54bf75f2d45e49</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.9339dda/googlemock-1.7.0.9339dda-windows64-9339dda.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87792/805936/googlemock-1.7.0.563853-windows64-563853.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.9339dda</string>
+        <string>1.7.0.563853</string>
       </map>
       <key>gstreamer</key>
       <map>
@@ -1082,14 +990,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>a32d7a0bae6d0f07f6e45d98cc2d3cf9837603c9</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ba229348c1d9d58519cd854ff9d8ef3d</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108288925</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55213/512968/havok_source-2012.1-2-darwin64-539117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1110,14 +1014,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>05bb597393ec0a47b0654a46ddaeca367c606b0e</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>4ff2af85106907acb171bb1e38a3757e</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108288933</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55214/512993/havok_source-2012.1-2-windows-539117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1126,14 +1026,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>a1acc90afbd497b7eac549b906b2a711399a312f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>bcaf4631ea10f7d09eecb73e8f5bef6c</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108288929</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55212/512962/havok_source-2012.1-2-windows64-539117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1159,11 +1055,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f271809c0d4244128fb52a71226a4d7674e14e0a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>c3c9e60bdc12b35e0e3d6b67d5635f60</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeg_encoder_js/releases/download/v1.0-9165e47/jpegencoderbasic-1.0-darwin64-9165e47.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89304/815407/jpegencoderbasic-1.0-darwin64-564842.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1173,11 +1067,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>35d6a617444fde9c8a5e998ef29dc43b95747637</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e70898903475d8ac2e81ff33278fc987</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeg_encoder_js/releases/download/v1.0-9165e47/jpegencoderbasic-1.0-linux64-9165e47.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
             </map>
           </map>
           <key>windows</key>
@@ -1185,11 +1077,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27a5ae2b7fb299685df499515b42342cab4d0973</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>0a376676dbb43fdd0c81ffdfbc5e6f81</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeg_encoder_js/releases/download/v1.0-9165e47/jpegencoderbasic-1.0-windows-9165e47.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89308/815432/jpegencoderbasic-1.0-windows-564842.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1199,11 +1089,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8ec22e9fc8734ba3d1826f4b88171a6017cc8676</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e70898903475d8ac2e81ff33278fc987</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeg_encoder_js/releases/download/v1.0-9165e47/jpegencoderbasic-1.0-windows64-9165e47.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1231,11 +1119,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>776d114aa1e3455bb13deaacd756deb07b53ecbe</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>3f2e34e3a2dac8eea957cad143a71dc5</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-darwin64-7846234.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54847/510113/jpeglib-8c.538977-darwin64-538977.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1245,11 +1131,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4b2278bd2fcae85619e2145a243cca388d760d7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ba9c62863ec338a049de83c24639f57c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-linux64-7846234.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/3151/7568/jpeglib-8c.503140-linux64-503140.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1259,11 +1143,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a78122a6130d9f647a17b1dd488ebe8c98f8b82</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>c8dee00ef13af40ec68becc25830e195</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-windows-7846234.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54992/511854/jpeglib-8c.538977-windows-538977.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1273,18 +1155,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d50fcac69eeb9404638da07db96ee3e1191ecf93</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6f40620e86f3c9b91b6b5fe3c81776fc</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-windows64-7846234.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54991/511847/jpeglib-8c.538977-windows64-538977.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>8c.7846234</string>
+        <string>8c.538977</string>
       </map>
       <key>jsoncpp</key>
       <map>
@@ -1305,11 +1185,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07761ab01e61d5d6b40d303ffafd85ec055ec9f7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>87d32aaac4183590c96edd0b6d9bf3e4</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-darwin64-bc46e62.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54846/510106/jsoncpp-0.5.0.538976-darwin64-538976.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1319,11 +1197,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>97e268754808cb2fbd682c4d3beafd2c598e1ba7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>9a658ae561c75e60bd9c0cee56731d21</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-linux64-bc46e62.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1475/3274/jsoncpp-0.5.0.501464-linux64-501464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1333,11 +1209,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>866fd5106369a58bdab8193914ff20cf6f0d96ae</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>b73d9addab278eacc100bd312ab6ec5c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-windows-bc46e62.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54990/511840/jsoncpp-0.5.0.538976-windows-538976.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1347,18 +1221,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>500e455b210d6bc4985185cef2472987ed3034bf</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>1b9ac5708cc526d2c5358ef0a427109d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-windows64-bc46e62.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54989/511833/jsoncpp-0.5.0.538976-windows64-538976.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.5.0.bc46e62</string>
+        <string>0.5.0.538976</string>
       </map>
       <key>kdu</key>
       <map>
@@ -1378,14 +1250,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>bcc7e2c34896fc9cbc41828dee8a4ddf54f10453</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ccfd8eacd1ebe92715944094064ba2e4</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298968</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55187/512570/kdu-7.10.4.539108-darwin64-539108.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1394,14 +1262,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>9de772df2ed12e9c742df6c90670c7cbbb9c93a6</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>a705a665810a71e7b0114a97ae9a2224</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298969</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15256/98457/kdu-7.10.4.513518-linux64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1410,14 +1274,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>3513764294c0c3e4fa669f57bb26454c91e79692</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>38574fbcb6c94c42745ef48748002e58</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298972</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55189/512583/kdu-7.10.4.539108-windows-539108.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1426,14 +1286,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>92533ff0f8c1881ad85e75800f9072c413ccf7b7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>3dfeb869c781a766874f0aedc7d4fcef</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298970</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55188/512576/kdu-7.10.4.539108-windows64-539108.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1461,11 +1317,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>18390940fa8c04964cc6a81a140249dae88be4a2</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>2021ea3a19b81c82993e733709683303</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.1f01e6e/libhunspell-1.3.2.1f01e6e-darwin64-1f01e6e.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76371/727419/libhunspell-1.3.2.555528-darwin64-555528.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1475,11 +1329,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b646de1ca06b0acaed26a5690913ed5b54452f9b</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ffbdd109356d66ddfefd8a5d57f63f1f</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.1f01e6e/libhunspell-1.3.2.1f01e6e-linux64-1f01e6e.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/533/1144/libhunspell-1.3.2.500526-linux64-500526.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1489,11 +1341,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>46770f7739ee04ad201c3ef973ba13270e89c03c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>2253ec09136cc7c208481030d78d9dd7</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.1f01e6e/libhunspell-1.3.2.1f01e6e-windows-1f01e6e.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76369/727412/libhunspell-1.3.2.555528-windows-555528.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1503,18 +1353,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec6e196298da0d69868d314ec0c89d4bd824a6c1</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>858d1708f6b3a74738a3d57a5387e20f</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.1f01e6e/libhunspell-1.3.2.1f01e6e-windows64-1f01e6e.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76370/727413/libhunspell-1.3.2.555528-windows64-555528.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.3.2.1f01e6e</string>
+        <string>1.3.2.555528</string>
       </map>
       <key>libndofdev</key>
       <map>
@@ -1535,11 +1383,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e3dd320c90e67e0c80caf4d4df23257b0196dfb6</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>a487fff84208a45844602c4a1f68c974</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libndofdev/releases/download/v0.1.8e9edc7/libndofdev-0.1.8e9edc7-darwin64-8e9edc7.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76356/727333/libndofdev-0.1.555523-darwin64-555523.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1549,11 +1395,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1d8fce18cfd19af6c10fb5575beb95953d9dd12d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>4c839555bf0ed9ae60ffc3f8a7c96f9b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libndofdev/releases/download/v0.1.8e9edc7/libndofdev-0.1.8e9edc7-windows-8e9edc7.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76354/727340/libndofdev-0.1.555523-windows-555523.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1563,18 +1407,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae9d554e8839f42230b8ed6c850445d54654a38f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>cbc033ae3b034b992b59f6de1034247c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libndofdev/releases/download/v0.1.8e9edc7/libndofdev-0.1.8e9edc7-windows64-8e9edc7.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76355/727341/libndofdev-0.1.555523-windows64-555523.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.1.8e9edc7</string>
+        <string>0.1.555523</string>
       </map>
       <key>libpng</key>
       <map>
@@ -1595,11 +1437,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>18a300f0d4ad73c2d035d350ed667a5fac85f28b</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>7a0059748d0b8733f2f9ce434cf604b8</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.9-dev3.ge495c04-e495c04/libpng-darwin64-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107514/937867/libpng-1.6.38.576621-darwin64-576621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1609,11 +1449,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4849f8a20f17e556620540d6f184c6c03e37255b</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>13de93ea11544051b69f238eeb644fd3</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.9-dev3.ge495c04-e495c04/libpng-linux64-None.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/882/1946/libpng-1.6.8.500873-linux64-500873.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1623,11 +1461,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1d44a2414021f09c8bb89b2cee6dfb7c910b81be</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>3112013186ad60b0fc270a398d4dd499</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.9-dev3.ge495c04-e495c04/libpng-windows-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107513/937823/libpng-1.6.38.576621-windows-576621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1637,18 +1473,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f200276fa8486224b63cfe613378983ed162b72a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>7c6bfcdb0d6162587cdbc436f595dd02</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.9-dev3.ge495c04-e495c04/libpng-windows64-None.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107512/937822/libpng-1.6.38.576621-windows64-576621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>None</string>
+        <string>1.6.38.576621</string>
       </map>
       <key>libuuid</key>
       <map>
@@ -1699,11 +1533,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>996b6dc851531b9f2b8b6a84a30ec1b4bf547a5f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6f37dd6c4a5174f358b6cc5d953f121b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-darwin64-dfc418f.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87768/805766/libxml2-2.9.4.563845-darwin64-563845.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1713,11 +1545,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db3abe85e569a7ceaa1c352d8e0f6d1987357671</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>740fc93f195c77b3a0c0800b31878ecb</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-linux64-dfc418f.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/890/1968/libxml2-2.9.4.500877-linux64-500877.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1727,11 +1557,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db18550ad820dca5e8d382cbc735b68e4fa681d6</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>fd85d3aa13fbdfd1f1ace587e95ef151</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-windows-dfc418f.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87773/805797/libxml2-2.9.4.563845-windows-563845.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1741,18 +1569,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b21aa35f1423d2aa490336f66312118fb3fc7de1</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d231d36c3b8942e0259aa2d9fcaa3b7e</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-windows64-dfc418f.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87772/805795/libxml2-2.9.4.563845-windows64-563845.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.9.4.dfc418f</string>
+        <string>2.9.4.563845</string>
       </map>
       <key>llappearance_utility</key>
       <map>
@@ -1802,18 +1628,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a45d167f60ed26dc1f8467b93ec64676cc7fe34</string>
+              <string>d6e7ab8483c348f223fd24028e27a52f</string>
               <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>md5</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llca/releases/download/v202305121625.0-efdf149/llca-202305160024.0-common-efdf149.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/93933/844890/llca-202202010217.567974-common-567974.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202305160024.0</string>
+        <string>202202010217.567974</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -1831,14 +1657,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>2cd9ebe73cefb04cc4b3a13109a0cd8750d35dcd</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e51c6f5dfd76eb148348a44ff57e66c2</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297119</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104810/918016/llphysicsextensions_source-1.0.575107-darwin64-575107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1847,14 +1669,10 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>0f1b99fc7f79830f32268a3a7f6035e1934fdd5e</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>c1b43e99c5ddccc18b0e9cb288bf75e1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297120</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4721/14828/llphysicsextensions_source-1.0.504710-linux64-504710.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1863,33 +1681,13 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>306fcd760120cad597f2580265ec550655b4232a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>dbbe4cc568ac149d862e421cdda4dd48</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297126</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104809/918011/llphysicsextensions_source-1.0.575107-windows-575107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>0d10dddd2d125496405e9843a64ba87c89c27559</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297122</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
@@ -2058,11 +1856,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c9d4e1264fde2bbfcc8d3463f73bfe4ef18766e5</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>30bc37db57bbd87c4b5f62634964242a</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v160-2ac0a00/meshoptimizer-160-darwin64-2ac0a00.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/84218/784918/meshoptimizer-0.16.561408-darwin64-561408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2072,11 +1868,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3b11968ccba312be53d22a85fb76dcf4cb9822ad</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ca3684bcf0447746cd2844e94f6d1fc7</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v160-2ac0a00/meshoptimizer-160-windows-2ac0a00.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/84219/784924/meshoptimizer-0.16.561408-windows-561408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2086,18 +1880,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c8c8218f2eeae3dc5d0fff023a494baff87d1a75</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>aef28c089d20f69d13c9c3e113fb3895</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v160-2ac0a00/meshoptimizer-160-windows64-2ac0a00.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/84220/784931/meshoptimizer-0.16.561408-windows64-561408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>160</string>
+        <string>0.16.561408</string>
       </map>
       <key>minizip-ng</key>
       <map>
@@ -2120,39 +1912,21 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b2da95c58944ee15d9e6eff9e0043c494cb2571</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>843587a078102d86d90054d03354684d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-darwin64-298f1f2.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95876/856095/minizip_ng-3.0.2.569217-darwin64-569217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3b0a7ebe15eb1c8bb072f4b90c7f4165c894f42f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-linux64-298f1f2.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>689d17ca2e2c7659651764831dfe739241f7a9c1</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>26dc254f443ca9c5509547d7fbd9d8e5</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-windows-298f1f2.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95878/856107/minizip_ng-3.0.2.569217-windows-569217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2162,18 +1936,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3579072a96643ffeed73a829909d9d647c1b977c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e9241fa325f4014995b62193321e7a1c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-windows64-298f1f2.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95877/856106/minizip_ng-3.0.2.569217-windows64-569217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.2.298f1f2</string>
+        <string>3.0.2.569217</string>
       </map>
       <key>nghttp2</key>
       <map>
@@ -2195,11 +1967,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fff611030a34e78b3a88168f64e4e33aef117bc3</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e4f784d8a035c51921a1562ca7a1bab6</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nghttp2/releases/download/v1.40.0.b1526c6/nghttp2-1.40.0.b1526c6-darwin64-b1526c6.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76357/727350/nghttp2-1.40.0.555524-darwin64-555524.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2209,11 +1979,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5798b5f6c8579ad44f211a873c072ee8d3fd8c93</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>c3c5ff7d2f7ac1143ef8d888192d4a53</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nghttp2/releases/download/v1.40.0.b1526c6/nghttp2-1.40.0.b1526c6-linux64-b1526c6.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9257/41579/nghttp2-1.25.0.509246-linux64-509246.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2223,11 +1991,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ea16c2b825b69af75c3a64df9e3c24a9021026ca</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>af05aa2994c9845308fecd094b7b2d25</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nghttp2/releases/download/v1.40.0.b1526c6/nghttp2-1.40.0.b1526c6-windows-b1526c6.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76359/727360/nghttp2-1.40.0.555524-windows-555524.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2237,11 +2003,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>05aad7759519719a54a6100fddd35b69e57f2386</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>5a55cede40eef16b9d1e47c418a2b77a</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nghttp2/releases/download/v1.40.0.b1526c6/nghttp2-1.40.0.b1526c6-windows64-b1526c6.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76358/727359/nghttp2-1.40.0.555524-windows64-555524.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2250,7 +2014,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.40.0.b1526c6</string>
+        <string>1.40.0.555524</string>
       </map>
       <key>nvapi</key>
       <map>
@@ -2271,11 +2035,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0a4752a250abd3df3c92ea4205c93598f88a1ecf</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>4305515ad326c911a390388366a9107b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nvapi/releases/download/v352.aac0e19/nvapi-352.aac0e19-windows-aac0e19.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54947/511704/nvapi-352.539058-windows-539058.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2285,18 +2047,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ebe715fc1096198e343c41d50654c11509cdbba</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>25c8ac919f24b8952653d38ec43640e5</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nvapi/releases/download/v352.aac0e19/nvapi-352.aac0e19-windows64-aac0e19.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54945/511697/nvapi-352.539058-windows64-539058.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>352.aac0e19</string>
+        <string>352.539058</string>
       </map>
       <key>ogg_vorbis</key>
       <map>
@@ -2317,11 +2077,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad0dd0f608b868cc44c225ee48e114239fca2807</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>a066f1d12caee1d87fc72f48169f9677</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-ogg_vorbis/releases/download/v1.3.3-1.3.6.e4101b6/ogg_vorbis-1.3.3-1.3.6.e4101b6-darwin64-e4101b6.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54841/510071/ogg_vorbis-1.3.3-1.3.6.538971-darwin64-538971.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2343,11 +2101,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9fc1cc518c17929cb66d9b07f92b2751fda80371</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d4b8ed3fd679a2b484d2d1a66c063908</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-ogg_vorbis/releases/download/v1.3.3-1.3.6.e4101b6/ogg_vorbis-1.3.3-1.3.6.e4101b6-windows-e4101b6.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54981/511789/ogg_vorbis-1.3.3-1.3.6.538971-windows-538971.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2357,18 +2113,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2e73a0a5659c9a09eba2f94619aa5c23c7cc3937</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ec4a657fe639bb458ee5132062146a7a</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-ogg_vorbis/releases/download/v1.3.3-1.3.6.e4101b6/ogg_vorbis-1.3.3-1.3.6.e4101b6-windows64-e4101b6.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54980/511782/ogg_vorbis-1.3.3-1.3.6.538971-windows64-538971.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.3.3-1.3.6.e4101b6</string>
+        <string>1.3.3-1.3.6.538971</string>
       </map>
       <key>open-libndofdev</key>
       <map>
@@ -2460,11 +2214,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c16deaf773cb2a5d001732122ee3ec74db1dceeb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>8114c6a7e499ea20d325db0de08ce30a</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-darwin64-ea12248.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105469/923024/openjpeg-2.5.0.575496-darwin64-575496.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2474,11 +2226,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c277dde6076fb682cb07264dd70f6f2298b633f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>ac66f3197010b1549a5e4467aebbc27d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-linux64-ea12248.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1113/2571/openjpeg-1.5.1.501102-linux64-501102.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2488,11 +2238,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f16bd2fe43901e510b53e57396b308f659443547</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>edc9388870d951632a6d595792293e05</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-windows-ea12248.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105472/923036/openjpeg-2.5.0.575496-windows-575496.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2502,18 +2250,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2abf9535adf21ebdf2295f8a680300432abe6280</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>b95f0732f2388ebb0ddf33d4a30e0ff1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-windows64-ea12248.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105471/923037/openjpeg-2.5.0.575496-windows64-575496.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.5.0.ea12248</string>
+        <string>2.5.0.575496</string>
       </map>
       <key>openssl</key>
       <map>
@@ -2534,11 +2280,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b286e4a10cf6b1b2710b85ff96ffc0e41fd5fde8</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>142d0ad85d0ee4fbb673c9f9e414fbdd</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1q.de53f55/openssl-1.1.1q.de53f55-darwin64-de53f55.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87769/805772/openssl-1.1.1l.563846-darwin64-563846.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2548,11 +2292,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5f6953db991ef6badb0525ecc98daf28d368e9e7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d50ccfbf0c1d249392919e2c46ad8d5c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1q.de53f55/openssl-1.1.1q.de53f55-linux64-de53f55.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/8339/33495/openssl-1.0.2l.508328-linux64-508328.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2562,11 +2304,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dbf2f69a7d73821dbe12288097298924e866e606</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>55bd833166d03f1467e2c7f24fa9143e</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1q.de53f55/openssl-1.1.1q.de53f55-windows-de53f55.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87775/805841/openssl-1.1.1l.563846-windows-563846.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2576,18 +2316,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8bd3dea6d81de5e469b241a1b79e61efce6ecc05</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6fefc60f68882fc6b246521b696497ab</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1q.de53f55/openssl-1.1.1q.de53f55-windows64-de53f55.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87774/805833/openssl-1.1.1l.563846-windows64-563846.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.1q.de53f55</string>
+        <string>1.1.1l.563846</string>
       </map>
       <key>pcre</key>
       <map>
@@ -2608,11 +2346,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b372d37596474043a62568e569b0ce155192f484</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>d8c0f97fe5abef43e72b6f84aba698b2</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-pcre/releases/download/v8.35.979fd86/pcre-8.35.979fd86-darwin64-979fd86.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54856/510176/pcre-8.35.538986-darwin64-538986.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2634,11 +2370,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e93602abcd5130c21a6d554dc088390326e68e7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>3660db45793df3050b63920bfb7d8479</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-pcre/releases/download/v8.35.979fd86/pcre-8.35.979fd86-windows-979fd86.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55041/512002/pcre-8.35.538986-windows-538986.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2648,18 +2382,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>166564afb60a7536a038fae80e2fc9a41d6dbccb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>cdee8e8b48a66266550bf279c40abc22</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-pcre/releases/download/v8.35.979fd86/pcre-8.35.979fd86-windows64-979fd86.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55038/511992/pcre-8.35.538986-windows64-538986.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>8.35.979fd86</string>
+        <string>8.35.538986</string>
       </map>
       <key>slvoice</key>
       <map>
@@ -2679,14 +2411,10 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>b583668b28fde0490e6953f10e93e4ab</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/98681/871545/slvoice-4.10.0000.32327.5fc3fe7c.571099-darwin64-571099.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2707,14 +2435,10 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>3a3dedc5ac1c19c6af40673908a3cc0c1f75c52c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6e0ed41653955afe8eeb8945776cf07b</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299354</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/98683/871560/slvoice-4.10.0000.32327.5fc3fe7c.571099-windows-571099.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2723,14 +2447,10 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>c39735851fd05c194d0be09b8f9e8cb7</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/98682/871552/slvoice-4.10.0000.32327.5fc3fe7c.571099-windows64-571099.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2756,11 +2476,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cfed00d8ea7265c035c2d86a234b28efb0b23756</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>24440e8219e59d81423b68d3be381fef</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-darwin64-b8f6746.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89305/815412/threejs-0.132.2-darwin64-564843.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2770,11 +2488,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9de1295b157c9913c28be81ff933c73493ecc132</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-linux64-b8f6746.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
             </map>
           </map>
           <key>windows</key>
@@ -2782,11 +2498,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31bd892de74f171644ea67ac57e0391d2c7081b1</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e1303fb9f2242a79aee5fd9f97726ace</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-windows-b8f6746.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89311/815452/threejs-0.132.2-windows-564843.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2796,11 +2510,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4141710fccbd1ea2b3b53d00e189bdfa2ee9d441</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-windows64-b8f6746.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2892,11 +2604,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f0bf4545f08df5381e0f39ccce3a57c6ec4b0f4</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>64e1c979aea2f74fe9c2d9d04573336d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tut/releases/download/v2008.11.30-409bce5/tut-2008.11.30-common-409bce5.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55001/511871/tut-2008.11.30-common-539059.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2924,11 +2634,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4b6ee5113b1368ec9ff5b59e195adde370b9f585</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>b97d0f6570104277de92d0d3f2d1111d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-darwin64-8fff38a.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89474/816487/uriparser-0.9.4-darwin64-564957.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2938,11 +2646,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44dc74ec73e37c56bef6317d12a29d0435cb4bbb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>087375378f104cdac0cb0fe0ca43dd4d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-linux64-8fff38a.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/346/880/uriparser-0.8.0.1-linux64-500342.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2952,11 +2658,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c07e234e5fbf1f92167ea5dd296a0fc7feb67199</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e2600c798e220cc98c1cc77341aee00d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-windows-8fff38a.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89476/816496/uriparser-0.9.4-windows-564957.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2966,11 +2670,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8b20edfc624f1d09bc83480932a9c844d47fc13</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>50d857117d31844fc8b84b07b795fd00</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-windows64-8fff38a.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89475/816497/uriparser-0.9.4-windows64-564957.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2998,54 +2700,24 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d8bc8720846cfa31e23e7e1008e32ba6ad4a8322</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>9e1b5515ab59b4e9cfeef6626d65d03d</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0.cc7ea1e/viewer_manager-3.0.cc7ea1e-darwin64-cc7ea1e.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/108609/945996/viewer_manager-3.0.577252-darwin64-577252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>228fae4ee0ce12b9d1d1b0a8ebb0bdf58ee521eb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0.cc7ea1e/viewer_manager-3.0.cc7ea1e-linux64-cc7ea1e.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>30d1386d0a6883d898fc56757a789b8b</string>
+              <string>a3c599595ecc8fb987a5499fca42520a</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/97002/862130/viewer_manager-3.0.569958-windows-569958.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/108610/946003/viewer_manager-3.0.577252-windows-577252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ca6999b64d96d45952fe872b381db9b2abc0248c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0.cc7ea1e/viewer_manager-3.0.cc7ea1e-windows64-cc7ea1e.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
           </map>
         </map>
         <key>source</key>
@@ -3053,7 +2725,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>3.0.cc7ea1e</string>
+        <string>3.0.577252</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -3072,11 +2744,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a26b47ab01a7e2c0add4c236886162c1135b3b79</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>738688816ebd76958e49772712a6b972</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.16.c219a5d/vlc_bin-3.0.16.c219a5d-darwin64-c219a5d.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90004/820701/vlc_bin-3.0.16.565299-darwin64-565299.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3086,11 +2756,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>712f25fe4780a089193fc4f23ed7dc9340d72994</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6801f91f3f27e626898bab90d40fc1c3</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.16.c219a5d/vlc_bin-3.0.16.c219a5d-windows-c219a5d.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90005/820712/vlc_bin-3.0.16.565299-windows-565299.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3100,18 +2768,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d56002da7435bab166c88d59eeaf69fd87cd897d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>7f66982d6edf3c38f3493e28826d58e8</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.16.c219a5d/vlc_bin-3.0.16.c219a5d-windows64-c219a5d.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90006/820713/vlc_bin-3.0.16.565299-windows64-565299.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.16.c219a5d</string>
+        <string>3.0.16.565299</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
@@ -3132,11 +2798,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aa12611374876196b3ebb6bda8d419a697217b8b</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>922a0dea32266897ed1911200438e1e1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-darwin64-8a05acf.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76372/727426/xmlrpc_epi-0.54.1.555529-darwin64-555529.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3146,11 +2810,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad0c8b41ee4b4de216382bec46ee1c25962a3f12</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>35df17c3eb673030dea4bde9191aa506</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-linux64-8a05acf.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/727/1489/xmlrpc_epi-0.54.1.500719-linux64-500719.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -3160,11 +2822,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db122f53b03334d4f192ee7a5f12899ba4658003</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>34b847e6b280048465fe7c6ce67fe05c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-windows-8a05acf.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76374/727436/xmlrpc_epi-0.54.1.555529-windows-555529.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3174,40 +2834,46 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e53fd38c14b8c47c7c84dead8a1b211bb8be170c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>8fbe7c4ea22bb7f23a93c73884ebb34c</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-windows64-8a05acf.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76373/727435/xmlrpc_epi-0.54.1.555529-windows64-555529.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.54.1.8a05acf</string>
+        <string>0.54.1.555529</string>
       </map>
       <key>xxhash</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2012-2020 Yann Collet</string>
+        <key>description</key>
+        <string>xxHash Extremely fast hash algorithm</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/xxhash.txt</string>
         <key>name</key>
         <string>xxhash</string>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
+          <key>common</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d0344bbe9fdbd7cd0b00e9105f58f7e23737d203</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>e4f77ba0a9b8ec3cc3fabc51c4da81d2</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1.8baecc1/xxhash-0.8.1.8baecc1-darwin64-8baecc1.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110070/956941/xxhash-0.8.1.578006-windows-578006.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>darwin64</string>
+            <string>common</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.8.1</string>
       </map>
       <key>zlib-ng</key>
       <map>
@@ -3230,11 +2896,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dacc5f3fb307c4d1292ed1ffb1d595d83599062d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>bf306e38bf81c6095e0967bdef6a2445</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v1.2.11.zlib-ng.32fd361/zlib_ng-1.2.11.zlib-ng.32fd361-darwin64-32fd361.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87759/805718/zlib_ng-2.0.5.563838-darwin64-563838.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3244,11 +2908,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fba88375e12454ae19f4528e11ffc7ddf7d879ec</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>dab6be8b0596c1e3354f2b6d41335131</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v1.2.11.zlib-ng.32fd361/zlib_ng-1.2.11.zlib-ng.32fd361-linux64-32fd361.tar.zst</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/866/1898/zlib-1.2.8.500857-linux64-500857.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -3258,11 +2920,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2b5a50b0a3d31a07bc74cb77871ad195eb97c550</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>8ffce5bd00e3d5afa8cb39b855237c4a</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v1.2.11.zlib-ng.32fd361/zlib_ng-1.2.11.zlib-ng.32fd361-windows-32fd361.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87761/805730/zlib_ng-2.0.5.563838-windows-563838.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3272,24 +2932,22 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ccfca9451063e2d0e95baa73b1ad2054d3e38907</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>bd103a9129e57f7ea35886bc7750f8a6</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v1.2.11.zlib-ng.32fd361/zlib_ng-1.2.11.zlib-ng.32fd361-windows64-32fd361.tar.zst</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87760/805729/zlib_ng-2.0.5.563838-windows64-563838.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.2.11.zlib-ng.32fd361</string>
+        <string>2.0.5.563838</string>
       </map>
     </map>
     <key>package_description</key>
     <map>
       <key>canonical_repo</key>
-      <string>https://bitbucket.org/lindenlab/viewer</string>
+      <string>https://github.com/secondlife/viewer</string>
       <key>copyright</key>
       <string>Copyright (c) 2020, Linden Research, Inc.</string>
       <key>description</key>
@@ -3408,9 +3066,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
-                  <string>-parallelizeTargets</string>
-                  <string>-jobs</string>
-                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3442,9 +3097,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
-                  <string>-parallelizeTargets</string>
-                  <string>-jobs</string>
-                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3470,9 +3122,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>Release</string>
-                  <string>-parallelizeTargets</string>
-                  <string>-jobs</string>
-                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3502,9 +3151,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>Release</string>
-                  <string>-parallelizeTargets</string>
-                  <string>-jobs</string>
-                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3601,16 +3247,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                  <string>/m:${AUTOBUILD_CPU_COUNT}</string>
+                  <string>/build</string>
+                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3649,8 +3290,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                  <string>/m:${AUTOBUILD_CPU_COUNT}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3682,16 +3323,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                  <string>/m:${AUTOBUILD_CPU_COUNT}</string>
+                  <string>/build</string>
+                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3728,8 +3364,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                  <string>/m:${AUTOBUILD_CPU_COUNT}</string>
                 </array>
               </map>
               <key>configure</key>

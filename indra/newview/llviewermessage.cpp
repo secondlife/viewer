@@ -33,6 +33,7 @@
 #include "llavataractions.h"
 #include "llavatarnamecache.h"		// IDEVO HACK
 #include "lleventtimer.h"
+#include "llfloatercreatelandmark.h"
 #include "llfloaterreg.h"
 #include "llfolderview.h"
 #include "llfollowcamparams.h"
@@ -122,6 +123,7 @@
 #include "llexperiencecache.h"
 
 #include "llexperiencecache.h"
+#include "lluiusage.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -261,6 +263,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    {
 	    case 0:
 	    {
+			LLUIUsage::instance().logCommand("Agent.AcceptFriendship");
 		    // accept
 		    LLAvatarTracker::formFriendship(payload["from_id"]);
 
@@ -303,6 +306,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    // fall-through
 	    case 2: // Send IM - decline and start IM session
 		    {
+				LLUIUsage::instance().logCommand("Agent.DeclineFriendship");
 			    // decline
 			    // We no longer notify other viewers, but we DO still send
                 // the rejection to the simulator to delete the pending userop.
@@ -832,6 +836,11 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
         LL_DEBUGS("GroupInvite") << "Replying to group invite via IM message" << LL_ENDL;
 
         EInstantMessage type = accept_invite ? IM_GROUP_INVITATION_ACCEPT : IM_GROUP_INVITATION_DECLINE;
+
+		if (accept_invite)
+		{
+			LLUIUsage::instance().logCommand("Group.Join");
+		}
 
         send_improved_im(group_id,
             std::string("name"),
@@ -1560,6 +1569,17 @@ bool highlight_offered_object(const LLUUID& obj_id)
 		}
 	}
 
+    if (obj->getType() == LLAssetType::AT_LANDMARK)
+    {
+        LLFloaterCreateLandmark *floater = LLFloaterReg::findTypedInstance<LLFloaterCreateLandmark>("add_landmark");
+        if (floater && floater->getItem() && floater->getItem()->getUUID() == obj_id)
+        {
+            // LLFloaterCreateLandmark is supposed to handle this,
+            // keep landmark creation floater at the front
+            return false;
+        }
+    }
+
 	return true;
 }
 
@@ -1887,7 +1907,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
 			}
 			chat.mText = log_message;
-			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
+			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::isLinden(mFromName) )  // muting for SL-42269
 			{
 				chat.mMuted = TRUE;
 				accept_to_trash = false; // will send decline message
@@ -2406,6 +2426,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
         chat.mText += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
     }
 
+	LLTranslate::instance().logSuccess(1);
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
 }
 
@@ -2415,6 +2436,7 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
     LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
     chat.mText += " (" + msg + ")";
 
+	LLTranslate::instance().logFailure(1);
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
 }
 
@@ -2492,7 +2514,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLMute::flagTextChat) 
 		|| LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagTextChat);
 	is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
-		LLMuteList::getInstance()->isLinden(from_name);
+		LLMuteList::isLinden(from_name);
 
 	if (is_muted && (chat.mSourceType == CHAT_SOURCE_OBJECT))
 	{
@@ -2649,6 +2671,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD args;
 		chat.mOwnerID = owner_id;
 
+		LLTranslate::instance().logCharsSeen(mesg.size());
 		if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)
 		{
 			if (chat.mChatStyle == CHAT_STYLE_IRC)
@@ -2658,6 +2681,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			const std::string from_lang = ""; // leave empty to trigger autodetect
 			const std::string to_lang = LLTranslate::getTranslateLanguage();
 
+			LLTranslate::instance().logCharsSent(mesg.size());
             LLTranslate::translateMessage(from_lang, to_lang, mesg,
                 boost::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
                 boost::bind(&translateFailure, chat, args, _1, _2));
@@ -6264,7 +6288,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 		// More than OFFER_RECIPIENT_LIMIT targets will overload the message
 		// producing an llerror.
 		LLSD args;
-		args["OFFERS"] = notification["payload"]["ids"].size();
+		args["OFFERS"] = LLSD::Integer(notification["payload"]["ids"].size());
 		args["LIMIT"] = static_cast<int>(OFFER_RECIPIENT_LIMIT);
 		LLNotificationsUtil::add("TooManyTeleportOffers", args);
 		return false;
@@ -6326,7 +6350,7 @@ bool teleport_request_callback(const LLSD& notification, const LLSD& response)
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(from_id, &av_name);
 
-	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(av_name.getUserName()))
+	if(LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::isLinden(av_name.getUserName()))
 	{
 		return false;
 	}

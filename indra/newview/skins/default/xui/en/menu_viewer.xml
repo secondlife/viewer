@@ -862,7 +862,16 @@
                parameter="UseDebugMenus" />
           </menu_item_check>
         </menu>
-
+        <menu_item_check
+          label="Improve graphics speed..."
+          name="Performance">
+          <menu_item_check.on_click
+           function="Floater.Toggle"
+           parameter="performance" />
+          <menu_item_check.on_check
+           function="Floater.Visible"
+           parameter="performance" />
+        </menu_item_check>
         <menu_item_separator/>
     <!--    <menu_item_check
          label="Show Navigation Bar"
@@ -3331,6 +3340,18 @@ function="World.EnvPreset"
              shortcut="control|alt|L">
                 <menu_item_call.on_click
                  function="Advanced.DropPacket" />
+            </menu_item_call>
+        </menu>
+        <menu
+         create_jump_keys="true"
+         label="Cache"
+         name="Cache"
+         tear_off="true">
+            <menu_item_call
+             label="Purge Disk Cache"
+             name="Purge Disk Cache">
+                <menu_item_call.on_click
+                 function="Advanced.PurgeDiskCache" />
             </menu_item_call>
         </menu>
         <menu_item_call

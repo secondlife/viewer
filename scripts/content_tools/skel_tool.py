@@ -72,6 +72,22 @@ def check_symmetry(name, field, vec1, vec2):
     if vec1[2] != vec2[2]:
         print(name,field,"z match fail")
 
+def enforce_alias_rules(tree, element, fix=False):
+    if element.tag != "bone":
+        return
+    alias_lis = []
+    aliases = element.get("aliases")
+    if aliases:
+        alias_lis = aliases.split(" ")
+    name = element.get("name")
+    if name:
+        std_alias = "avatar_" + name
+        if not std_alias in alias_lis:
+            print "missing expected alias",name,std_alias
+        for alias in alias_lis:
+            if alias.startswith("avatar_") and alias != std_alias:
+                print "invalid avatar_ alias",name,alias
+
 def enforce_symmetry(tree, element, field, fix=False):
     name = element.get("name")
     if not name:
@@ -209,6 +225,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
                             unfixable += 1
 
         fix_name(element)
+        enforce_alias_rules(tree, element, fix)
         enforce_precision_rules(element)
         for field in ["pos","pivot"]:
             enforce_symmetry(tree, element, field, fix)

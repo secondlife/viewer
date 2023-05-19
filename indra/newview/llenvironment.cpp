@@ -684,7 +684,6 @@ namespace
             if (!injection->mBlendIn)
                 mix = 1.0 - mix;
             stringset_t dummy;
-            LLUUID cloud_noise_id = getCloudNoiseTextureId();
             F64 value = this->mSettings[injection->mKeyName].asReal();
             if (this->getCloudNoiseTextureId().isNull())
             {
@@ -874,26 +873,37 @@ void LLEnvironment::initSingleton()
 
     requestRegion();
 
-    gAgent.addParcelChangedCallback([this]() { onParcelChange(); });
+    if (!mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection = gAgent.addParcelChangedCallback([this]() { onParcelChange(); });
 
-    //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
-    // We need to know new env version to fix this, without it we can only do full re-request
-    // Happens: on updates, on opening LLFloaterRegionInfo, on region crossing if info floater is open
-    LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
-    gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
+        //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
+        // We need to know new env version to fix this, without it we can only do full re-request
+        // Happens: on updates, on opening LLFloaterRegionInfo, on region crossing if info floater is open
+        mRegionUpdateCallbackConnection = LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
+        mRegionChangeCallbackConnection = gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
 
-    gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
+        mPositionCallbackConnection = gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
+    }
 
     if (!gGenericDispatcher.isHandlerPresent(MESSAGE_PUSHENVIRONMENT))
     {
         gGenericDispatcher.addHandler(MESSAGE_PUSHENVIRONMENT, &environment_push_dispatch_handler);
     }
 
+    LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
 }
 
 void LLEnvironment::cleanupSingleton()
 {
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
+        mRegionUpdateCallbackConnection.disconnect();
+        mRegionChangeCallbackConnection.disconnect();
+        mPositionCallbackConnection.disconnect();
+    }
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
 }
 
@@ -2641,7 +2651,7 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F3
 
     if (!water.isUndefined())
     {
-        environment->injectWaterSettings(sky, experience_id, LLSettingsBase::Seconds(transition_time));
+        environment->injectWaterSettings(water, experience_id, LLSettingsBase::Seconds(transition_time));
     }
 
     if (updateenvironment)
@@ -3086,7 +3096,7 @@ bool LLEnvironment::loadFromSettings()
         LL_INFOS("ENVIRONMENT") << "Unable to open previous session environment file " << user_filepath << LL_ENDL;
     }
 
-    if (!env_data.isMap() || env_data.emptyMap())
+    if (!env_data.isMap() || (env_data.size() == 0))
     {
         LL_DEBUGS("ENVIRONMENT") << "Empty map loaded from: " << user_filepath << LL_ENDL;
         return false;

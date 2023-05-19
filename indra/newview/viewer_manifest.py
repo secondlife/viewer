@@ -514,7 +514,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("alut.dll")
 
             # For textures
-            self.path("openjpeg.dll")
+            self.path("openjp2.dll")
 
             # Uriparser
             self.path("uriparser.dll")
@@ -564,6 +564,7 @@ class WindowsManifest(ViewerManifest):
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
+        self.path("cube.dae")
 
         with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
@@ -938,6 +939,7 @@ class DarwinManifest(ViewerManifest):
 
                 self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
+                self.path("cube.dae")
                 self.path("SecondLife.nib")
 
                 with self.prefix(src=pkgdir,dst=""):
@@ -1411,6 +1413,7 @@ class LinuxManifest(ViewerManifest):
             print("Skipping llcommon.so (assuming llcommon was linked statically)")
 
         self.path("featuretable_linux.txt")
+        self.path("cube.dae")
 
         with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
@@ -1482,7 +1485,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdirectfb-1.*.so.*")
             self.path("libfusion-1.*.so.*")
             self.path("libdirect-1.*.so.*")
-            self.path("libopenjpeg.so*")
+            self.path("libopenjp2.so*")
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5*")

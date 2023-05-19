@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<panel name="GroupCreation" label="Creazione del gruppo">
+	<panel name="group_info_top">
+		<line_editor name="group_name_editor" label="Scrivi qui il nome del tuo nuovo gruppo"/>
+	</panel>
+	<layout_panel name="group_info"/>
+	<layout_stack name="layout">
+		<texture_picker name="insignia" tool_tip="Clicca e scegli un'immagine"/>
+		<text_editor name="charter">Noleggio di gruppo</text_editor>
+		<button name="back" label="Elimina" tool_tip="Ritorna alla lista dei gruppi"/>
+		<text name="info_deletion">NB: dopo 7 giorni, un gruppo senza membri ( oltre al creatore) sarà cancellato</text>
+		<check_box name="check_enrollment_fee" label="Costo di iscrizione" tool_tip="Stabilire se richiedere una quota di iscrizione per entrare a far parte del gruppo"/>
+		<combo_box.item name="pg" label="Contenuto generale"/>
+		<scroll_list.rows name="basic" value="Base (segnaposto)"/>
+		<button name="btn_create" label="Crea un gruppo per L$ [COST]" tool_tip="Crea un nuovo Gruppo"/>
+		<text name="fee_information">La quota per la creazione di un gruppo si basa sul livello di membership. [https://secondlife.com/my/account/membership.php Maggiori informazioni]</text>
+		<scroll_list.rows name="premium" value="Premium (segnaposto)"/>
+		<check_box name="open_enrollement" label="Chiunque può partecipare" tool_tip="Stabilisce se questo gruppo permette a nuovi membri di aderire senza essere invitati."/>
+		<combo_item name="select_mature">- Seleziona la classificazione del contenuto  -</combo_item>
+		<spinner name="spin_enrollment_fee" label="L$" tool_tip="Per entrare a far parte del gruppo, i nuovi membri devono pagare questa quota."/>
+		<combo_box.item name="mature" label="Contenuto moderato"/>
+	</layout_stack>
+	<layout_panel name="layout_crt"/>
+	<layout_stack name="button_row_ls"/>
+	<layout_panel name="create_actions"/>
+	<panel name="preferences_container"/>
+	<combo_box name="group_mature_check" tool_tip="La classificazione del contenuto designa il tipo di contenuto e di comportamento consentito in un gruppo"/>
+	<scroll_list name="membership_list"/>
+	<layout_panel name="create_info"/>
+</panel>

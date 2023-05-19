@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<panel name="GroupCreation" label="Gruppenerstellung">
+	<panel name="group_info_top">
+		<line_editor name="group_name_editor" label="Gib deinen neuen Gruppennamen hier ein"/>
+	</panel>
+	<layout_panel name="group_info"/>
+	<layout_stack name="layout">
+		<texture_picker name="insignia" tool_tip="Klicke, um ein Bild auszuwählen"/>
+		<text_editor name="charter">Gruppencharakter</text_editor>
+		<button name="back" tool_tip="Zur Gruppenliste zurückgehen"/>
+		<text name="info_deletion">Hinweis: Nach 7 Tagen wird eine Gruppe ohne Mitglieder (mit Ausnahme des Erstellers) gelöscht.</text>
+		<check_box name="check_enrollment_fee" label="Kosten für den Beitritt" tool_tip="Legt fest, ob für den Beitritt zur Gruppe eine Aufnahmegebühr verlangt wird"/>
+		<combo_box.item name="pg" label="Allgemeine Inhalte"/>
+		<scroll_list.rows name="basic" value="Basis (Platzhalter)"/>
+		<button name="btn_create" label="Gruppe erstellen für [COST] L$" tool_tip="Neue Gruppe erstellen"/>
+		<text name="fee_information">Die Gebühr für die Erstellung einer Gruppe richtet sich nach deiner Mitgliedsstufe. [https://secondlife.com/my/account/membership.php Weitere Infos]</text>
+		<scroll_list.rows name="premium" value="Premium (Platzhalter)"/>
+		<check_box name="open_enrollement" label="Jeder kann beitreten" tool_tip="Legt fest, ob diese Gruppe neuen Mitgliedern den Beitritt erlaubt, ohne eingeladen zu werden."/>
+		<combo_item name="select_mature">- Reifeeinstufung auswählen -</combo_item>
+		<spinner name="spin_enrollment_fee" label="L$" tool_tip="Neue Mitglieder müssen diese Gebühr bezahlen, um der Gruppe beitreten zu können, wenn die Aufnahmegebühr festgelegt wird."/>
+		<combo_box.item name="mature" label="Moderate Inhalte"/>
+	</layout_stack>
+	<layout_panel name="layout_crt"/>
+	<layout_stack name="button_row_ls"/>
+	<layout_panel name="create_actions"/>
+	<panel name="preferences_container"/>
+	<combo_box name="group_mature_check" tool_tip="Reifeeinstufungen bezeichnen die Art des Inhalts und des Verhaltens, die in einer Gruppe erlaubt sind"/>
+	<scroll_list name="membership_list"/>
+	<layout_panel name="create_info"/>
+</panel>

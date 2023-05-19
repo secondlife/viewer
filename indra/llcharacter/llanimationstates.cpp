@@ -379,12 +379,11 @@ LLUUID LLAnimationLibrary::stringToAnimState( const std::string& name, BOOL allo
 
 	if (true_name)
 	{
-		for (anim_map_t::iterator iter = mAnimMap.begin();
-			 iter != mAnimMap.end(); iter++)
+		for (anim_map_t::value_type& anim_pair : mAnimMap)
 		{
-			if (iter->second == true_name)
+			if (anim_pair.second == true_name)
 			{
-				id = iter->first;
+				id = anim_pair.first;
 				break;
 			}
 		}

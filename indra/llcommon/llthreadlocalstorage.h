@@ -30,100 +30,6 @@
 
 #include "llinstancetracker.h"
 
-class LLThreadLocalPointerBase : public LLInstanceTracker<LLThreadLocalPointerBase>
-{
-public:
-	LLThreadLocalPointerBase()
-	:	mThreadKey(NULL)
-	{
-		if (sInitialized)
-		{
-			initStorage();
-		}
-	}
-
-	LLThreadLocalPointerBase( const LLThreadLocalPointerBase& other)
-	:	mThreadKey(NULL)
-	{
-		if (sInitialized)
-		{
-			initStorage();
-		}
-	}
-
-	~LLThreadLocalPointerBase()
-	{
-		destroyStorage();
-	}
-
-	static void initAllThreadLocalStorage();
-	static void destroyAllThreadLocalStorage();
-
-protected:
-	void set(void* value);
-
-	void* get() const;
-
-	void initStorage();
-	void destroyStorage();
-
-protected:
-	struct apr_threadkey_t*	mThreadKey;
-	static bool				sInitialized;
-};
-
-template <typename T>
-class LLThreadLocalPointer : public LLThreadLocalPointerBase
-{
-public:
-
-	LLThreadLocalPointer()
-	{}
-
-	explicit LLThreadLocalPointer(T* value)
-	{
-		set(value);
-	}
-
-
-	LLThreadLocalPointer(const LLThreadLocalPointer<T>& other)
-	:	LLThreadLocalPointerBase(other)
-	{
-		set(other.get());		
-	}
-
-	LL_FORCE_INLINE T* get() const
-	{
-		return (T*)LLThreadLocalPointerBase::get();
-	}
-
-	T* operator -> () const
-	{
-		return (T*)get();
-	}
-
-	T& operator*() const
-	{
-		return *(T*)get();
-	}
-
-	LLThreadLocalPointer<T>& operator = (T* value)
-	{
-		set((void*)value);
-		return *this;
-	}
-
-	bool operator ==(const T* other) const
-	{
-		if (!sInitialized) return false;
-		return get() == other;
-	}
-
-	bool isNull() const { return !sInitialized || get() == NULL; }
-
-	bool notNull() const { return sInitialized && get() != NULL; }
-};
-
 template<typename DERIVED_TYPE>
 class LLThreadLocalSingletonPointer
 {
@@ -139,10 +45,10 @@ public:
 	}
 
 private:
-	static LL_THREAD_LOCAL DERIVED_TYPE* sInstance;
+	static thread_local DERIVED_TYPE* sInstance;
 };
 
 template<typename DERIVED_TYPE>
-LL_THREAD_LOCAL DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
+thread_local DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
 
 #endif // LL_LLTHREADLOCALSTORAGE_H

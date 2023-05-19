@@ -1360,7 +1360,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>20.0</real>
+      <real>40.0</real>
     </map>
     <key>DiskCacheDirName</key>
     <map>
@@ -1415,7 +1415,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>1024</integer>
+      <integer>4096</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
@@ -4747,7 +4747,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://search.[GRID]/?query_term=[QUERY]&amp;search_type=[TYPE][COLLECTION]&amp;maturity=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>https://search.[GRID]/viewer/?query_term=[QUERY]&amp;search_type=[TYPE][COLLECTION]&amp;maturity=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>GuidebookURL</key>
     <map>
@@ -6808,6 +6808,9 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
+      <!-- *HACK: On first run, set this to 0 for new users,
+           otherwise the default is 1 to maintain consistent experience
+           for existing users. Hardcoded in llnetmap.cpp -->
       <integer>1</integer>
     </map>
     <key>MiniMapScale</key>
@@ -6820,6 +6823,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>128.0</real>
+    </map>
+    <key>MiniMapShowPropertyLines</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to show parcel borders on the MiniMap.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
     </map>
     <key>MouseSensitivity</key>
     <map>
@@ -7099,13 +7113,13 @@
     <key>NonvisibleObjectsInMemoryTime</key>
     <map>
       <key>Comment</key>
-      <string>Number of frames non-visible objects stay in memory before being removed. 0 means never to remove.</string>
+      <string>Number of frames non-visible objects stay in memory before being removed. 0 means max.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-			<integer>300</integer>
+			<integer>64</integer>
     </map>
     <key>NoPreload</key>
     <map>
@@ -8327,6 +8341,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>NvAPICreateApplicationProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Create NVIDIA application profile for optimized settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PurgeCacheOnNextStartup</key>
     <map>
       <key>Comment</key>
@@ -8803,6 +8828,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderClass0MemoryBandwidth</key>
+  <map>
+    <key>Comment</key>
+    <string>Memory bandwidth at which to default to Class 0 in gigabytes per second.  Used as basis for other classes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>16.0</real>
+  </map>
+  <key>RenderCPUBasis</key>
+  <map>
+    <key>Comment</key>
+    <string>Reference CPU clockspeed to use to bias GPU class (in MHz).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>3000.0</real>
+  </map>
   <key>RenderComplexityColorMin</key>
     <map>
       <key>Comment</key>
@@ -9059,6 +9106,17 @@
     <string>F32</string>
     <key>Value</key>
     <real>0.5</real>
+  </map>
+  <key>RenderShadowSplits</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount of shadow map splits to render (0 - 3).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
   </map>
   <key>RenderSSAOScale</key>
   <map>
@@ -11022,7 +11080,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>1024</integer>
+      <integer>2048</integer>
     </map>
     <key>SceneLoadLowMemoryBound</key>
     <map>
@@ -14620,6 +14678,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>MediaSoundsEarLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Location of the virtual ear for media and sounds</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>VoiceHost</key>
     <map>
       <key>Comment</key>
@@ -16686,6 +16755,160 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>TargetFPS</key>
+  <map>
+    <key>Comment</key>
+    <string>Desired minimum FPS</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>15</integer>
+  </map>
+  <key>AutoTuneFPS</key>
+  <map>
+    <key>Comment</key>
+    <string>Allow the viewer to adjust your settings to achieve target FPS</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AutoTuneLock</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled the viewer will dynamically change settings until auto tune is explicitly turned off.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>KeepAutoTuneLock</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled the AutoTuneLock will be maintainted all following sessions.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>AllowSelfImpostor</key>
+  <map>
+    <key>Comment</key>
+    <string>Allow own render time to impostor your avatar.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>ShowTunedART</key>
+  <map>
+    <key>Comment</key>
+    <string>Show the current render time not the pre-tuning render time in the avatar display.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderAvatarMaxART</key>
+  <map>
+    <key>Comment</key>
+    <string>Render Time Limit in microseconds (0.0 = no limit)</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4.699</real>
+  </map>
+  <key>AutoTuneRenderFarClipMin</key>
+  <map>
+    <key>Comment</key>
+    <string>The lowest draw distance that auto tune is allowed to use</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>32.0</real>
+  </map>
+  <key>AutoTuneRenderFarClipTarget</key>
+  <map>
+    <key>Comment</key>
+    <string>The draw distance that auto tune will try to achieve</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>256.0</real>
+  </map>
+  <key>UserTargetReflections</key>
+  <map>
+    <key>Comment</key>
+    <string>Set by auto tune floater on build</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+  <key>PerfStatsCaptureEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable/disable render time data to support autotune.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>AutoTuneImpostorByDistEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable/disable using MaxNonImpostor to limit avatar rendering by distance.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AutoTuneImpostorFarAwayDistance</key>
+  <map>
+    <key>Comment</key>
+    <string>Avatars beyond this range will automatically be optimized</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>64.0</real>
+  </map>
+  <key>TuningFPSStrategy</key>
+  <map>
+    <key>Comment</key>
+    <string>Strategy to use when tuning FPS. 0=Tune avatar rendering only, 1=Tune both avatar and global scene settings, 2=Tune only global scene.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>CameraOpacity</key>
   <map>
     <key>Comment</key>
@@ -16740,17 +16963,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>ResetUIScaleOnFirstRun</key>
-    <map>
-      <key>Comment</key>
-      <string>Resets the UI scale factor on first run due to changed display scaling behavior</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>        
     </map>
   <key>360CaptureUseInterestListCap</key>
   <map>
@@ -16861,6 +17073,17 @@
     <string>String</string>
     <key>Value</key>
     <string></string>
+  </map>
+  <key>DebugSettingsHideDefault</key>
+  <map>
+    <key>Comment</key>
+    <string>Show non-default settings only in Debug Settings list</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
 </map>
 </llsd>

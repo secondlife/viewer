@@ -236,6 +236,8 @@ Ansariel Hiller
 	SL-15226
 	SL-15227
 	SL-15398
+	SL-18432
+	SL-4126
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -281,6 +283,12 @@ Beq Janus
 	SL-11300
 	SL-15709
 	SL-16021
+	SL-18202
+	SL-18586
+	SL-18592
+	SL-18637
+	SL-19317
+	SL-19660
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -371,6 +379,7 @@ Charlie Sazaland
 Chaser Zaks
     BUG-225599
     BUG-227485
+    SL-16874
 Cherry Cheevers
 ChickyBabes Zuzu
 Chorazin Allen
@@ -401,6 +410,7 @@ Cinder Roxley
     STORM-2127
     STORM-2144
     SL-3404
+    SL-17634
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -487,6 +497,8 @@ Evangelista Emerald
 Faelon Swordthain
 Farallon Greyskin
 	VWR-2036
+Fawrsk
+	SL-18893
 Feep Larsson
 	VWR-447
 	VWR-1314
@@ -579,6 +591,8 @@ Henri Beauchamp
 	VWR-1320
 	VWR-1406
 	VWR-4157
+	SL-15175
+	SL-19110
 herina Bode
 Hikkoshi Sakai
 	VWR-429
@@ -1123,6 +1137,7 @@ Nicky Dasmijn
 	SL-16438
 	SL-17218
 	SL-17238
+	SL-17585
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1168,6 +1183,10 @@ Ollie Kubrick
 Orenj Marat
 Orion Delphis
 Oryx Tempel
+PanteraPolnocy
+	SL-18891
+	SL-18904
+	SL-18937
 Parvati Silverweb
 Patric Mills
 	VWR-2645
@@ -1378,6 +1397,7 @@ Sovereign Engineer
     OPEN-343
 	SL-11625
     BUG-229030
+	SL-14696
 	SL-14705
 	SL-14706
 	SL-14707
@@ -1385,6 +1405,12 @@ Sovereign Engineer
 	SL-14732
 	SL-15096
 	SL-16127
+	SL-18249
+    SL-18394
+    SL-18412
+    SL-18497
+    SL-18525
+    SL-18534
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1647,6 +1673,8 @@ Zi Ree
 	VWR-25588
 	STORM-1790
 	STORM-1842
+	SL-18348
+	SL-18593
 Zipherius Turas
 	VWR-76
 	VWR-77

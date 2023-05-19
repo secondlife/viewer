@@ -71,6 +71,7 @@
 #include "llui.h"
 #include "llweb.h"
 #include "pipeline.h"	// setHighlightObject
+#include "lluiusage.h"
 
 extern BOOL gDebugClicks;
 
@@ -442,6 +443,7 @@ BOOL LLToolPie::handleLeftClickPick()
 		LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 		gViewerWindow->hideCursor();
 		LLToolCamera::getInstance()->setMouseCapture(TRUE);
+        LLToolCamera::getInstance()->setClickPickPending();
 		LLToolCamera::getInstance()->pickCallback(mPick);
 		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 
@@ -568,6 +570,8 @@ bool LLToolPie::walkToClickedLocation()
         return false;
     }
 
+	LLUIUsage::instance().logCommand("Agent.WalkToClickedLocation");
+	
     LLPickInfo saved_pick = mPick;
     if (gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
     {

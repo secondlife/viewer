@@ -33,6 +33,7 @@
 #include "llstl.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "lldrawpool.h"
 #include "llglheaders.h"
@@ -93,7 +94,7 @@ LLWorld::LLWorld() :
 	mLastPacketsLost(0),
 	mSpaceTimeUSec(0)
 {
-	for (S32 i = 0; i < 8; i++)
+	for (S32 i = 0; i < EDGE_WATER_OBJECTS_COUNT; i++)
 	{
 		mEdgeWaterObjects[i] = NULL;
 	}
@@ -126,7 +127,7 @@ void LLWorld::resetClass()
 	LLViewerPartSim::getInstance()->destroyClass();
 
 	mDefaultWaterTexturep = NULL ;
-	for (S32 i = 0; i < 8; i++)
+	for (S32 i = 0; i < EDGE_WATER_OBJECTS_COUNT; i++)
 	{
 		mEdgeWaterObjects[i] = NULL;
 	}
@@ -293,13 +294,13 @@ void LLWorld::removeRegion(const LLHost &host)
 
 	mRegionRemovedSignal(regionp);
 
-	delete regionp;
-
 	updateWaterObjects();
 
 	//double check all objects of this region are removed.
 	gObjectList.clearAllMapObjectsInRegion(regionp) ;
 	//llassert_always(!gObjectList.hasMapObjectInRegion(regionp)) ;
+
+	delete regionp; // Delete last to prevent use after free
 }
 
 
@@ -753,6 +754,8 @@ void LLWorld::clearAllVisibleObjects()
 		//clear all cached visible objects.
 		(*iter)->clearCachedVisibleObjects();
 	}
+    clearHoleWaterObjects();
+    clearEdgeWaterObjects();
 }
 
 void LLWorld::updateParticles()
@@ -917,7 +920,7 @@ void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool inc
     }
 
 	S32 dir;
-	for (dir = 0; dir < 8; dir++)
+	for (dir = 0; dir < EDGE_WATER_OBJECTS_COUNT; dir++)
 	{
 		LLVOWater* waterp = mEdgeWaterObjects[dir];
 		if (waterp && waterp->mDrawable)
@@ -926,6 +929,26 @@ void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool inc
 		    cull->pushDrawable(waterp->mDrawable);
 		}
 	}
+}
+
+void LLWorld::clearHoleWaterObjects()
+{
+    for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
+        iter != mHoleWaterObjects.end(); ++iter)
+    {
+        LLVOWater* waterp = (*iter).get();
+        gObjectList.killObject(waterp);
+    }
+    mHoleWaterObjects.clear();
+}
+
+void LLWorld::clearEdgeWaterObjects()
+{
+    for (S32 i = 0; i < EDGE_WATER_OBJECTS_COUNT; i++)
+    {
+        gObjectList.killObject(mEdgeWaterObjects[i]);
+        mEdgeWaterObjects[i] = NULL;
+    }
 }
 
 void LLWorld::updateWaterObjects()
@@ -971,13 +994,7 @@ void LLWorld::updateWaterObjects()
 		}
 	}
 
-	for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
-		 iter != mHoleWaterObjects.end(); ++ iter)
-	{
-		LLVOWater* waterp = (*iter).get();
-		gObjectList.killObject(waterp);
-	}
-	mHoleWaterObjects.clear();
+    clearHoleWaterObjects();
 
 	// Use the water height of the region we're on for areas where there is no region
 	F32 water_height = gAgent.getRegion()->getWaterHeight();
@@ -1018,7 +1035,7 @@ void LLWorld::updateWaterObjects()
 		(S32)(512 - (region_y - min_y)) };
 		
 	S32 dir;
-	for (dir = 0; dir < 8; dir++)
+	for (dir = 0; dir < EDGE_WATER_OBJECTS_COUNT; dir++)
 	{
 		S32 dim[2] = { 0 };
 		switch (gDirAxes[dir][0])
@@ -1402,6 +1419,32 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 			}
 		}
 	}
+}
+
+S32 LLWorld::getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_avs)
+{
+    static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+    S32 nearby_max_complexity = 0;
+    F32 radius = render_far_clip * render_far_clip;
+    std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
+    while (char_iter != LLCharacter::sInstances.end())
+    {
+        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
+        if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
+        {
+            if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
+                (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
+            {
+                char_iter++;
+                continue;
+            }
+            avatar->calculateUpdateRenderComplexity();
+            nearby_max_complexity = llmax(nearby_max_complexity, (S32)avatar->getVisualComplexity());
+            valid_nearby_avs.push_back(*char_iter);
+        }
+        char_iter++;
+    }
+    return nearby_max_complexity;
 }
 
 bool LLWorld::isRegionListed(const LLViewerRegion* region) const

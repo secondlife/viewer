@@ -82,7 +82,7 @@ namespace LL
         using TimePoint = ThreadSafeSchedulePrivate::TimePoint;
         using Clock = TimePoint::clock;
 
-        ThreadSafeSchedule(U32 capacity=1024):
+        ThreadSafeSchedule(size_t capacity=1024):
             super(capacity)
         {}
 
@@ -248,7 +248,7 @@ namespace LL
                 TimePoint until = TimePoint::clock::now() + std::chrono::hours(24);
                 pop_result popped = tryPopUntil_(lock, until, tt);
                 if (popped == POPPED)
-                    return std::move(tt);
+                    return tt;
 
                 // DONE: throw, just as super::pop() does
                 if (popped == DONE)

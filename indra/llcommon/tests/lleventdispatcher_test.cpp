@@ -335,7 +335,7 @@ namespace tut
         // Full, partial defaults arrays for params for freena(), freenb()
         LLSD dft_array_full, dft_array_partial;
         // Start index of partial defaults arrays
-        const LLSD::Integer partial_offset;
+        const size_t partial_offset;
         // Full, partial defaults maps for params for freena(), freenb()
         LLSD dft_map_full, dft_map_partial;
         // Most of the above are indexed by "a" or "b". Useful to have an
@@ -345,7 +345,7 @@ namespace tut
         lleventdispatcher_data():
             work("test dispatcher", "op"),
             // map {d=double, array=[3 elements]}
-            required(LLSDMap("d", LLSD::Real(0))("array", LLSDArray(LLSD())(LLSD())(LLSD()))),
+            required(LLSDMap("d", LLSD::Real(0))("array", llsd::array(LLSD(), LLSD(), LLSD()))),
             // first several params are required, last couple optional
             partial_offset(3)
         {
@@ -434,8 +434,8 @@ namespace tut
 
             // freena(), methodna(), cmethodna(), smethodna() all take same param list.
             // Same for freenb() et al.
-            params = LLSDMap("a", LLSDArray("b")("i")("f")("d")("cp"))
-                            ("b", LLSDArray("s")("uuid")("date")("uri")("bin"));
+            params = LLSDMap("a", llsd::array("b", "i", "f", "d", "cp"))
+                            ("b", llsd::array("s", "uuid", "date", "uri", "bin"));
             debug("params:\n",
                   params, "\n"
                   "params[\"a\"]:\n",
@@ -452,12 +452,12 @@ namespace tut
             // LLDate values are, as long as they're different from the
             // LLUUID() and LLDate() default values so inspect() will report
             // them.
-            dft_array_full = LLSDMap("a", LLSDArray(true)(17)(3.14)(123456.78)("classic"))
-                                    ("b", LLSDArray("string")
-                                                   (LLUUID::generateNewID())
-                                                   (LLDate::now())
-                                                   (LLURI("http://www.ietf.org/rfc/rfc3986.txt"))
-                                                   (binary));
+            dft_array_full = LLSDMap("a", llsd::array(true, 17, 3.14, 123456.78, "classic"))
+                                    ("b", llsd::array("string",
+                                                      LLUUID::generateNewID(),
+                                                      LLDate::now(),
+                                                      LLURI("http://www.ietf.org/rfc/rfc3986.txt"),
+                                                      binary));
             debug("dft_array_full:\n",
                   dft_array_full);
             // Partial defaults arrays.
@@ -723,7 +723,7 @@ namespace tut
     {
         set_test_name("map-style registration with non-array params");
         // Pass "param names" as scalar or as map
-        LLSD attempts(LLSDArray(17)(LLSDMap("pi", 3.14)("two", 2)));
+        LLSD attempts(llsd::array(17, LLSDMap("pi", 3.14)("two", 2)));
         foreach(LLSD ae, inArray(attempts))
         {
             std::string threw = catch_what<std::exception>([this, &ae](){
@@ -738,7 +738,7 @@ namespace tut
     {
         set_test_name("map-style registration with badly-formed defaults");
         std::string threw = catch_what<std::exception>([this](){
-                work.add("freena_err", "freena", freena, LLSDArray("a")("b"), 17);
+                work.add("freena_err", "freena", freena, llsd::array("a", "b"), 17);
             });
         ensure_has(threw, "must be a map or an array");
     }
@@ -749,8 +749,8 @@ namespace tut
         set_test_name("map-style registration with too many array defaults");
         std::string threw = catch_what<std::exception>([this](){
                 work.add("freena_err", "freena", freena,
-                         LLSDArray("a")("b"),
-                         LLSDArray(17)(0.9)("gack"));
+                         llsd::array("a", "b"),
+                         llsd::array(17, 0.9, "gack"));
             });
         ensure_has(threw, "shorter than");
     }
@@ -761,7 +761,7 @@ namespace tut
         set_test_name("map-style registration with too many map defaults");
         std::string threw = catch_what<std::exception>([this](){
                 work.add("freena_err", "freena", freena,
-                         LLSDArray("a")("b"),
+                         llsd::array("a", "b"),
                          LLSDMap("b", 17)("foo", 3.14)("bar", "sinister"));
             });
         ensure_has(threw, "nonexistent params");
@@ -798,7 +798,7 @@ namespace tut
     void object::test<8>()
     {
         set_test_name("query Callables with/out required params");
-        LLSD names(LLSDArray("free1")("Dmethod1")("Dcmethod1")("method1"));
+        LLSD names(llsd::array("free1", "Dmethod1", "Dcmethod1", "method1"));
         foreach(LLSD nm, inArray(names))
         {
             LLSD metadata(getMetadata(nm));
@@ -821,13 +821,13 @@ namespace tut
     {
         set_test_name("query array-style functions/methods");
         // Associate each registered name with expected arity.
-        LLSD expected(LLSDArray
-                      (LLSDArray
-                       (0)(LLSDArray("free0_array")("smethod0_array")("method0_array")))
-                      (LLSDArray
-                       (5)(LLSDArray("freena_array")("smethodna_array")("methodna_array")))
-                      (LLSDArray
-                       (5)(LLSDArray("freenb_array")("smethodnb_array")("methodnb_array"))));
+        LLSD expected(llsd::array
+                      (llsd::array
+                       (0, llsd::array("free0_array", "smethod0_array", "method0_array")),
+                       llsd::array
+                       (5, llsd::array("freena_array", "smethodna_array", "methodna_array")),
+                       llsd::array
+                       (5, llsd::array("freenb_array", "smethodnb_array", "methodnb_array"))));
         foreach(LLSD ae, inArray(expected))
         {
             LLSD::Integer arity(ae[0].asInteger());
@@ -853,7 +853,7 @@ namespace tut
         set_test_name("query map-style no-params functions/methods");
         // - (Free function | non-static method), map style, no params (ergo
         //   no defaults)
-        LLSD names(LLSDArray("free0_map")("smethod0_map")("method0_map"));
+        LLSD names(llsd::array("free0_map", "smethod0_map", "method0_map"));
         foreach(LLSD nm, inArray(names))
         {
             LLSD metadata(getMetadata(nm));
@@ -877,13 +877,13 @@ namespace tut
         // there should (!) be no difference beween array defaults and map
         // defaults. Verify, so we can ignore the distinction for all other
         // tests.
-        LLSD equivalences(LLSDArray
-                          (LLSDArray("freena_map_adft")("freena_map_mdft"))
-                          (LLSDArray("freenb_map_adft")("freenb_map_mdft"))
-                          (LLSDArray("smethodna_map_adft")("smethodna_map_mdft"))
-                          (LLSDArray("smethodnb_map_adft")("smethodnb_map_mdft"))
-                          (LLSDArray("methodna_map_adft")("methodna_map_mdft"))
-                          (LLSDArray("methodnb_map_adft")("methodnb_map_mdft")));
+        LLSD equivalences(llsd::array
+                          (llsd::array("freena_map_adft", "freena_map_mdft"),
+                           llsd::array("freenb_map_adft", "freenb_map_mdft"),
+                           llsd::array("smethodna_map_adft", "smethodna_map_mdft"),
+                           llsd::array("smethodnb_map_adft", "smethodnb_map_mdft"),
+                           llsd::array("methodna_map_adft", "methodna_map_mdft"),
+                           llsd::array("methodnb_map_adft", "methodnb_map_mdft")));
         foreach(LLSD eq, inArray(equivalences))
         {
             LLSD adft(eq[0]);
@@ -953,42 +953,42 @@ namespace tut
         debug("skipreq:\n",
               skipreq);
 
-        LLSD groups(LLSDArray       // array of groups
+        LLSD groups(llsd::array       // array of groups
 
-                    (LLSDArray      // group
-                     (LLSDArray("freena_map_allreq")("smethodna_map_allreq")("methodna_map_allreq"))
-                     (LLSDArray(allreq["a"])(LLSD()))) // required, optional
+                    (llsd::array      // group
+                     (llsd::array("freena_map_allreq", "smethodna_map_allreq", "methodna_map_allreq"),
+                      llsd::array(allreq["a"], LLSD())),  // required, optional
 
-                    (LLSDArray        // group
-                     (LLSDArray("freenb_map_allreq")("smethodnb_map_allreq")("methodnb_map_allreq"))
-                     (LLSDArray(allreq["b"])(LLSD()))) // required, optional
+                     llsd::array        // group
+                     (llsd::array("freenb_map_allreq", "smethodnb_map_allreq", "methodnb_map_allreq"),
+                      llsd::array(allreq["b"], LLSD())),  // required, optional
 
-                    (LLSDArray        // group
-                     (LLSDArray("freena_map_leftreq")("smethodna_map_leftreq")("methodna_map_leftreq"))
-                     (LLSDArray(leftreq["a"])(rightdft["a"]))) // required, optional
+                     llsd::array        // group
+                     (llsd::array("freena_map_leftreq", "smethodna_map_leftreq", "methodna_map_leftreq"),
+                      llsd::array(leftreq["a"], rightdft["a"])),  // required, optional
 
-                    (LLSDArray        // group
-                     (LLSDArray("freenb_map_leftreq")("smethodnb_map_leftreq")("methodnb_map_leftreq"))
-                     (LLSDArray(leftreq["b"])(rightdft["b"]))) // required, optional
+                     llsd::array        // group
+                     (llsd::array("freenb_map_leftreq", "smethodnb_map_leftreq", "methodnb_map_leftreq"),
+                      llsd::array(leftreq["b"], rightdft["b"])),  // required, optional
 
-                    (LLSDArray        // group
-                     (LLSDArray("freena_map_skipreq")("smethodna_map_skipreq")("methodna_map_skipreq"))
-                     (LLSDArray(skipreq["a"])(dft_map_partial["a"]))) // required, optional
+                     llsd::array        // group
+                     (llsd::array("freena_map_skipreq", "smethodna_map_skipreq", "methodna_map_skipreq"),
+                      llsd::array(skipreq["a"], dft_map_partial["a"])),  // required, optional
 
-                    (LLSDArray        // group
-                     (LLSDArray("freenb_map_skipreq")("smethodnb_map_skipreq")("methodnb_map_skipreq"))
-                     (LLSDArray(skipreq["b"])(dft_map_partial["b"]))) // required, optional
+                     llsd::array        // group
+                     (llsd::array("freenb_map_skipreq", "smethodnb_map_skipreq", "methodnb_map_skipreq"),
+                      llsd::array(skipreq["b"], dft_map_partial["b"])),  // required, optional
 
-                    // We only need mention the full-map-defaults ("_mdft" suffix)
-                    // registrations, having established their equivalence with the
-                    // full-array-defaults ("_adft" suffix) registrations in another test.
-                    (LLSDArray        // group
-                     (LLSDArray("freena_map_mdft")("smethodna_map_mdft")("methodna_map_mdft"))
-                     (LLSDArray(LLSD::emptyMap())(dft_map_full["a"]))) // required, optional
+                     // We only need mention the full-map-defaults ("_mdft" suffix)
+                     // registrations, having established their equivalence with the
+                     // full-array-defaults ("_adft" suffix) registrations in another test.
+                     llsd::array        // group
+                     (llsd::array("freena_map_mdft", "smethodna_map_mdft", "methodna_map_mdft"),
+                      llsd::array(LLSD::emptyMap(), dft_map_full["a"])),  // required, optional
 
-                    (LLSDArray        // group
-                     (LLSDArray("freenb_map_mdft")("smethodnb_map_mdft")("methodnb_map_mdft"))
-                     (LLSDArray(LLSD::emptyMap())(dft_map_full["b"])))); // required, optional
+                     llsd::array        // group
+                     (llsd::array("freenb_map_mdft", "smethodnb_map_mdft", "methodnb_map_mdft"),
+                      llsd::array(LLSD::emptyMap(), dft_map_full["b"])))); // required, optional
 
         foreach(LLSD grp, inArray(groups))
         {
@@ -1077,7 +1077,7 @@ namespace tut
         // with 'required'.
         LLSD answer(42);
         // LLSD value matching 'required' according to llsd_matches() rules.
-        LLSD matching(LLSDMap("d", 3.14)("array", LLSDArray("answer")(true)(answer)));
+        LLSD matching(LLSDMap("d", 3.14)("array", llsd::array("answer", true, answer)));
         // Okay, walk through 'tests'.
         foreach(const CallablesTriple& tr, tests)
         {
@@ -1114,17 +1114,17 @@ namespace tut
         call_exc("free0_map", 17, map_exc);
         // Passing an array to a map-style function works now! No longer an
         // error case!
-//      call_exc("free0_map", LLSDArray("a")("b"), map_exc);
+//      call_exc("free0_map", llsd::array("a", "b"), map_exc);
     }
 
     template<> template<>
     void object::test<18>()
     {
         set_test_name("call no-args functions");
-        LLSD names(LLSDArray
-                   ("free0_array")("free0_map")
-                   ("smethod0_array")("smethod0_map")
-                   ("method0_array")("method0_map"));
+        LLSD names(llsd::array
+                   ("free0_array", "free0_map",
+                    "smethod0_array", "smethod0_map",
+                    "method0_array", "method0_map"));
         foreach(LLSD name, inArray(names))
         {
             // Look up the Vars instance for this function.
@@ -1142,10 +1142,10 @@ namespace tut
     }
 
     // Break out this data because we use it in a couple different tests.
-    LLSD array_funcs(LLSDArray
-                     (LLSDMap("a", "freena_array")   ("b", "freenb_array"))
-                     (LLSDMap("a", "smethodna_array")("b", "smethodnb_array"))
-                     (LLSDMap("a", "methodna_array") ("b", "methodnb_array")));
+    LLSD array_funcs(llsd::array
+                     (LLSDMap("a", "freena_array")   ("b", "freenb_array"),
+                      LLSDMap("a", "smethodna_array")("b", "smethodnb_array"),
+                      LLSDMap("a", "methodna_array") ("b", "methodnb_array")));
 
     template<> template<>
     void object::test<19>()
@@ -1153,7 +1153,7 @@ namespace tut
         set_test_name("call array-style functions with too-short arrays");
         // Could have two different too-short arrays, one for *na and one for
         // *nb, but since they both take 5 params...
-        LLSD tooshort(LLSDArray("this")("array")("too")("short"));
+        LLSD tooshort(llsd::array("this", "array", "too", "short"));
         foreach(const LLSD& funcsab, inArray(array_funcs))
         {
             foreach(const llsd::MapEntry& e, inMap(funcsab))
@@ -1172,12 +1172,12 @@ namespace tut
         {
             binary.push_back((U8)h);
         }
-        LLSD args(LLSDMap("a", LLSDArray(true)(17)(3.14)(123.456)("char*"))
-                         ("b", LLSDArray("string")
-                                        (LLUUID("01234567-89ab-cdef-0123-456789abcdef"))
-                                        (LLDate("2011-02-03T15:07:00Z"))
-                                        (LLURI("http://secondlife.com"))
-                                        (binary)));
+        LLSD args(LLSDMap("a", llsd::array(true, 17, 3.14, 123.456, "char*"))
+                         ("b", llsd::array("string",
+                                           LLUUID("01234567-89ab-cdef-0123-456789abcdef"),
+                                           LLDate("2011-02-03T15:07:00Z"),
+                                           LLURI("http://secondlife.com"),
+                                           binary)));
         LLSD argsplus(args);
         argsplus["a"].append("bogus");
         argsplus["b"].append("bogus");
@@ -1191,7 +1191,7 @@ namespace tut
         debug("expect: ", expect);
 
         // Use substantially the same logic for args and argsplus
-        LLSD argsarrays(LLSDArray(args)(argsplus));
+        LLSD argsarrays(llsd::array(args, argsplus));
         // So i==0 selects 'args', i==1 selects argsplus
         for (LLSD::Integer i(0), iend(argsarrays.size()); i < iend; ++i)
         {
@@ -1236,8 +1236,8 @@ namespace tut
         set_test_name("call map-style functions with (full | oversized) (arrays | maps)");
         const char binary[] = "\x99\x88\x77\x66\x55";
         LLSD array_full(LLSDMap
-                        ("a", LLSDArray(false)(255)(98.6)(1024.5)("pointer"))
-                        ("b", LLSDArray("object")(LLUUID::generateNewID())(LLDate::now())(LLURI("http://wiki.lindenlab.com/wiki"))(LLSD::Binary(boost::begin(binary), boost::end(binary)))));
+                        ("a", llsd::array(false, 255, 98.6, 1024.5, "pointer"))
+                        ("b", llsd::array("object", LLUUID::generateNewID(), LLDate::now(), LLURI("http://wiki.lindenlab.com/wiki"), LLSD::Binary(boost::begin(binary), boost::end(binary)))));
         LLSD array_overfull(array_full);
         foreach(LLSD::String a, ab)
         {
@@ -1280,20 +1280,20 @@ namespace tut
         // parameter defaults should make NO DIFFERENCE WHATSOEVER. Every call
         // should pass all params.
         LLSD names(LLSDMap
-                   ("a", LLSDArray
-                         ("freena_map_allreq") ("smethodna_map_allreq") ("methodna_map_allreq")
-                         ("freena_map_leftreq")("smethodna_map_leftreq")("methodna_map_leftreq")
-                         ("freena_map_skipreq")("smethodna_map_skipreq")("methodna_map_skipreq")
-                         ("freena_map_adft")   ("smethodna_map_adft")   ("methodna_map_adft")
-                         ("freena_map_mdft")   ("smethodna_map_mdft")   ("methodna_map_mdft"))
-                   ("b", LLSDArray
-                         ("freenb_map_allreq") ("smethodnb_map_allreq") ("methodnb_map_allreq")
-                         ("freenb_map_leftreq")("smethodnb_map_leftreq")("methodnb_map_leftreq")
-                         ("freenb_map_skipreq")("smethodnb_map_skipreq")("methodnb_map_skipreq")
-                         ("freenb_map_adft")   ("smethodnb_map_adft")   ("methodnb_map_adft")
-                         ("freenb_map_mdft")   ("smethodnb_map_mdft")   ("methodnb_map_mdft")));
+                   ("a", llsd::array
+                    ("freena_map_allreq",  "smethodna_map_allreq",  "methodna_map_allreq",
+                     "freena_map_leftreq", "smethodna_map_leftreq", "methodna_map_leftreq",
+                     "freena_map_skipreq", "smethodna_map_skipreq", "methodna_map_skipreq",
+                     "freena_map_adft",    "smethodna_map_adft",    "methodna_map_adft",
+                     "freena_map_mdft",    "smethodna_map_mdft",    "methodna_map_mdft"))
+                   ("b", llsd::array
+                    ("freenb_map_allreq",  "smethodnb_map_allreq",  "methodnb_map_allreq",
+                     "freenb_map_leftreq", "smethodnb_map_leftreq", "methodnb_map_leftreq",
+                     "freenb_map_skipreq", "smethodnb_map_skipreq", "methodnb_map_skipreq",
+                     "freenb_map_adft",    "smethodnb_map_adft",    "methodnb_map_adft",
+                     "freenb_map_mdft",    "smethodnb_map_mdft",    "methodnb_map_mdft")));
         // Treat (full | overfull) (array | map) the same.
-        LLSD argssets(LLSDArray(array_full)(array_overfull)(map_full)(map_overfull));
+        LLSD argssets(llsd::array(array_full, array_overfull, map_full, map_overfull));
         foreach(const LLSD& args, inArray(argssets))
         {
             foreach(LLSD::String a, ab)

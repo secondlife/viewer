@@ -1592,6 +1592,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     else if (sequence_id == 0 || sequence_id > parcel_mgr.mAgentParcelSequenceID)
     {
         // new agent parcel
+        // *TODO: Does it really make sense to set the agent parcel to this
+        // parcel if the client doesn't know what kind of parcel data this is?
         parcel_mgr.mAgentParcelSequenceID = sequence_id;
         parcel = parcel_mgr.mAgentParcel;
     }
@@ -1887,8 +1889,13 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	}
 	else
 	{
-		// Check for video
-		LLViewerParcelMedia::getInstance()->update(parcel);
+        if (gNonInteractive)
+        {
+            return;
+        }
+    
+        // Check for video
+        LLViewerParcelMedia::getInstance()->update(parcel);
 
 		// Then check for music
 		if (gAudiop)
@@ -1967,7 +1974,7 @@ void LLViewerParcelMgr::optionallyStartMusic(const std::string &music_url, const
 		static LLCachedControl<bool> tentative_autoplay(gSavedSettings, "MediaTentativeAutoPlay", true);
 		// only play music when you enter a new parcel if the UI control for this
 		// was not *explicitly* stopped by the user. (part of SL-4878)
-		LLPanelNearByMedia* nearby_media_panel = gStatusBar->getNearbyMediaPanel();
+		LLPanelNearByMedia* nearby_media_panel = gStatusBar ? gStatusBar->getNearbyMediaPanel() : NULL;
         LLViewerAudio* viewer_audio = LLViewerAudio::getInstance();
 
         // ask mode //todo constants
