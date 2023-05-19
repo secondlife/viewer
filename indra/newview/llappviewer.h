@@ -119,7 +119,6 @@ public:
 
 	virtual bool restoreErrorTrap() = 0; // Require platform specific override to reset error handling mechanism.
 	                                     // return false if the error trap needed restoration.
-	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
 	void checkForCrash();
     
 	// Thread accessors
