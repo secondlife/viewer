@@ -34,7 +34,6 @@
 #include <atomic>
 #include <chrono>
 // Forward declarations
-class LLErrorThread;
 class LLLiveFile;
 #if LL_LINUX
 #include <signal.h>
@@ -53,7 +52,6 @@ void clear_signals();
 
 class LL_COMMON_API LLApp
 {
-	friend class LLErrorThread;
 public:
 	typedef enum e_app_status
 	{
@@ -67,11 +65,6 @@ public:
 	LLApp();
 	virtual ~LLApp();
 
-protected:
-	LLApp(LLErrorThread* error_thread);
-	void commonCtor();
-public:
-	
 	/** 
 	 * @brief Return the static app instance if one was created.
 	 */
@@ -257,14 +250,14 @@ public:
 	void setupErrorHandling(bool mSecondInstance=false);
 
 	void setErrorHandler(LLAppErrorHandler handler);
-	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
+	static void runErrorHandler(); // run shortly after we detect an error
 	//@}
-	
+
 	// the maximum length of the minidump filename returned by getMiniDumpFilename()
 	static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
 
 	// change the directory where Breakpad minidump files are written to
-    void setDebugFileNames(const std::string &path);
+	void setDebugFileNames(const std::string &path);
 
 	// Return the Google Breakpad minidump filename after a crash.
 	char *getMiniDumpFilename() { return mMinidumpPath; }
@@ -323,9 +316,6 @@ private:
 	// their own purposes
 	typedef int(*signal_handler_func)(int signum);
 	static LLAppErrorHandler sErrorHandler;
-
-	// Default application threads
-	LLErrorThread* mThreadErrorp;		// Waits for app to go to status ERROR, then runs the error callback
 
 	// This is the application level runnable scheduler.
 	LLRunner mRunner;
