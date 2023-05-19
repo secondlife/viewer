@@ -374,12 +374,6 @@ void LLApp::setupErrorHandling(bool second_instance)
 #endif // ! LL_BUGSPLAT
 
 #endif // ! LL_WINDOWS
-
-#ifdef LL_BUGSPLAT
-    // do not start our own error thread
-#else // ! LL_BUGSPLAT
-	startErrorThread();
-#endif
 }
 
 void LLApp::setErrorHandler(LLAppErrorHandler handler)
