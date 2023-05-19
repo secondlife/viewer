@@ -303,13 +303,11 @@ protected:
 	void stepFrame();
 
 private:
-	void startErrorThread();
-	
 	// Contains the filename of the minidump file after a crash.
 	char mMinidumpPath[MAX_MINDUMP_PATH_LENGTH];
     
-    std::string mStaticDebugFileName;
-    std::string mDynamicDebugFileName;
+	std::string mStaticDebugFileName;
+	std::string mDynamicDebugFileName;
 
 	// *NOTE: On Windows, we need a routine to reset the structured
 	// exception handler when some evil driver has taken it over for
