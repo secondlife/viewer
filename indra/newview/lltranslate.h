@@ -61,6 +61,7 @@ public :
 	typedef enum e_service {
 		SERVICE_AZURE,
 		SERVICE_GOOGLE,
+		SERVICE_DEEPL,
 	} EService;
 
     typedef boost::function<void(EService, bool, S32)> KeyVerificationResult_fn;

@@ -13014,6 +13014,17 @@
       <key>Value</key>
       <string></string>
     </map>
+    <key>DeepLTranslateAPIKey</key>
+    <map>
+        <key>Comment</key>
+        <string>DeepL Translation service data to use with the DeepL Translator API</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <string></string>
+    </map>
     <key>TutorialURL</key>
     <map>
       <key>Comment</key>
