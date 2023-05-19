@@ -110,7 +110,7 @@ void LLQueuedThread::shutdown()
 
 // MAIN THREAD
 // virtual
-S32 LLQueuedThread::update(F32 max_time_ms)
+size_t LLQueuedThread::update(F32 max_time_ms)
 {
 	if (!mStarted)
 	{
@@ -123,11 +123,11 @@ S32 LLQueuedThread::update(F32 max_time_ms)
 	return updateQueue(max_time_ms);
 }
 
-S32 LLQueuedThread::updateQueue(F32 max_time_ms)
+size_t LLQueuedThread::updateQueue(F32 max_time_ms)
 {
 	F64 max_time = (F64)max_time_ms * .001;
 	LLTimer timer;
-	S32 pending = 1;
+	size_t pending = 1;
 
 	// Frame Update
 	if (mThreaded)
@@ -164,9 +164,9 @@ void LLQueuedThread::incQueue()
 
 //virtual
 // May be called from any thread
-S32 LLQueuedThread::getPending()
+size_t LLQueuedThread::getPending()
 {
-	S32 res;
+	size_t res;
 	lockData();
 	res = mRequestQueue.size();
 	unlockData();
@@ -399,7 +399,7 @@ bool LLQueuedThread::check()
 //============================================================================
 // Runs on its OWN thread
 
-S32 LLQueuedThread::processNextRequest()
+size_t LLQueuedThread::processNextRequest()
 {
 	QueuedRequest *req;
 	// Get next request from pool
@@ -473,8 +473,7 @@ S32 LLQueuedThread::processNextRequest()
 		LLTrace::get_thread_recorder()->pushToParent();
 	}
 
-	S32 pending = getPending();
-	return pending;
+	return getPending();
 }
 
 // virtual
@@ -511,7 +510,7 @@ void LLQueuedThread::run()
 
 		threadedUpdate();
 		
-		int pending_work = processNextRequest();
+		auto pending_work = processNextRequest();
 
 		if (pending_work == 0)
 		{

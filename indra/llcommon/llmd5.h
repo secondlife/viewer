@@ -86,7 +86,7 @@ class LL_COMMON_API LLMD5 {
 public:
 // methods for controlled operation:
   LLMD5              ();  // simple initializer
-  void  update     (const uint1 *input, const uint4 input_length);
+  void  update     (const uint1 *input, const size_t input_length);
   void  update     (std::istream& stream);
   void  update     (FILE *file);
   void  update     (const std::string& str);
@@ -110,7 +110,7 @@ private:
 
 // next, the private data:
   uint4 state[4];
-  uint4 count[2];     // number of *bits*, mod 2^64
+  uint64_t count;     // number of *bits*, mod 2^64
   uint1 buffer[64];   // input buffer
   uint1 digest[16];
   uint1 finalized;
@@ -120,8 +120,8 @@ private:
   void transform        (const uint1 *buffer);  // does the real update work.  Note 
                                           // that length is implied to be 64.
 
-  static void encode    (uint1 *dest, const uint4 *src, const uint4 length);
-  static void decode    (uint4 *dest, const uint1 *src, const uint4 length);
+  static void encode    (uint1 *dest, const uint4 *src, const size_t length);
+  static void decode    (uint4 *dest, const uint1 *src, const size_t length);
 
 };
 

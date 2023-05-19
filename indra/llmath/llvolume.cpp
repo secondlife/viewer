@@ -2416,7 +2416,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
 		mVolumeFaces.resize(face_count);
 
-		for (U32 i = 0; i < face_count; ++i)
+		for (size_t i = 0; i < face_count; ++i)
 		{
 			LLVolumeFace& face = mVolumeFaces[i];
 
