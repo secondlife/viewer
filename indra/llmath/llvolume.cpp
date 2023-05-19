@@ -2416,7 +2416,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
 		mVolumeFaces.resize(face_count);
 
-		for (U32 i = 0; i < face_count; ++i)
+		for (size_t i = 0; i < face_count; ++i)
 		{
 			LLVolumeFace& face = mVolumeFaces[i];
 
@@ -5482,14 +5482,14 @@ bool LLVolumeFace::cacheOptimize()
 	new_indices.push_back(tri->mVertex[2]->mIdx);
 	tri->complete();
 
-	U32 breaks = 0;
+	//U32 breaks = 0;
 	for (U32 i = 1; i < mNumIndices/3; ++i)
 	{
 		cache.updateScores();
 		tri = cache.mBestTriangle;
 		if (!tri)
 		{
-			breaks++;
+			//breaks++;
 			for (U32 j = 0; j < triangle_data.size(); ++j)
 			{
 				if (triangle_data[j].mActive)
