@@ -253,7 +253,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-    const BOOL use_textures = !use_local_materials && (compp->getMaterialType() == LLTerrainMaterials::MaterialType::TEXTURE);
+    const BOOL use_textures = !use_local_materials && compp->useTextures();
     
     if (use_textures)
     {

@@ -49,18 +49,11 @@ public:
 	// So we need to compress heights into this range.
     static const S32 ASSET_COUNT = 4;
 
-    enum class Type
-    {
-        TEXTURE,
-        PBR,
-        COUNT
-    };
-
     BOOL generateMaterials();
 
 	LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
-    Type getMaterialType();
+    BOOL useTextures();
     BOOL texturesReady(BOOL boost = FALSE);
     BOOL materialsReady(BOOL boost = FALSE);
 

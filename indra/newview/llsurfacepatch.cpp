@@ -209,7 +209,6 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 	}
 	llassert_always(vertex && normal && tex0 && tex1);
 	
-    // TODO: I think this is off by 1. Should use 1 less (which iirc is captured in another field member. See LLSurface::create). Do some hack to fix repeats for PBR only, while keeping legacy texture the same?
 	U32 surface_stride = mSurfacep->getGridsPerEdge();
 	U32 point_offset = x + y*surface_stride;
 
