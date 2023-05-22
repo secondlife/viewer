@@ -5442,6 +5442,7 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     *camera = saved_camera;
     set_current_modelview(saved_mod);
     set_current_projection(saved_proj);
+    setup3DViewport();
     LLPipeline::sUseOcclusion = old_occlusion;
 
     // ====================================================
