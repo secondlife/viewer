@@ -1335,7 +1335,14 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("norm_cutoff");
 	mReservedUniforms.push_back("shadow_target_width");
 	
-	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH + 1);
+
+    mReservedUniforms.push_back("iterationCount");
+    mReservedUniforms.push_back("rayStep");
+    mReservedUniforms.push_back("distanceBias");
+    mReservedUniforms.push_back("depthRejectBias");
+    mReservedUniforms.push_back("glossySampleCount");
+    mReservedUniforms.push_back("noiseSine");
 
     mReservedUniforms.push_back("modelview_delta");
     mReservedUniforms.push_back("inv_modelview_delta");

@@ -26,7 +26,7 @@
 #define FLT_MAX 3.402823466e+38
 
 #if defined(SSR)
-float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
 #endif
 
 uniform samplerCubeArray   reflectionProbes;
@@ -687,9 +687,9 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     if (cube_snapshot != 1 && glossiness >= 0.9)
     {
         vec4 ssr = vec4(0);
-        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
 
-        glossenv = mix(glossenv, ssr.rgb, w);
+        glossenv = mix(glossenv, ssr.rgb, ssr.a);
     }
 #endif
 }
@@ -790,10 +790,10 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     if (cube_snapshot != 1)
     {
         vec4 ssr = vec4(0);
-        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
 
-        glossenv = mix(glossenv, ssr.rgb, w);
-        legacyenv = mix(legacyenv, ssr.rgb, w);
+        glossenv = mix(glossenv, ssr.rgb, ssr.a);
+        legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
     }
 #endif
 
