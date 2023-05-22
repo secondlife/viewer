@@ -2193,9 +2193,9 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
 LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32 size)
 {
 	U8* result = NULL;
-	U32 cur_size = 0;
+	llssize cur_size = 0;
 	z_stream strm;
-		
+
 	constexpr U32 CHUNK = 1024 * 512;
 
 	static thread_local std::unique_ptr<U8[]> out;
