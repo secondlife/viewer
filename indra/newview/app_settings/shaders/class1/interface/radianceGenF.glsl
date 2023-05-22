@@ -31,7 +31,7 @@ out vec4 frag_color;
 uniform samplerCubeArray   reflectionProbes;
 uniform int sourceIdx;
 
-VARYING vec3 vary_dir;
+in vec3 vary_dir;
 
 //uniform float roughness;
 

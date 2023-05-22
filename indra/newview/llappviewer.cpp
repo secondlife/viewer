@@ -2150,6 +2150,7 @@ bool LLAppViewer::cleanup()
 	LLSelectMgr::deleteSingleton();
 	LLViewerEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
+    LLVoiceClient::deleteSingleton();
 
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
@@ -2214,6 +2215,10 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
 													enable_threads && true,
 													app_metrics_qa_mode);
+
+    // general task background thread (LLPerfStats, etc)
+    LLAppViewer::instance()->initGeneralThread();
+
 	LLAppViewer::sPurgeDiskCacheThread = new LLPurgeDiskCacheThread();
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
@@ -4441,6 +4446,7 @@ void LLAppViewer::purgeCache()
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
+	LLViewerShaderMgr::instance()->clearShaderCache();
 	std::string browser_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
 	if (LLFile::isdir(browser_cache))
 	{
@@ -5632,6 +5638,8 @@ void LLAppViewer::pauseMainloopTimeout()
 
 void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
+
 	if(mMainloopTimeout)
 	{
 		if(secs < 0.0f)

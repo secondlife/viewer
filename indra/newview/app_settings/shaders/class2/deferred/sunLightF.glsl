@@ -23,20 +23,14 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 //class 2, shadows, no SSAO
 
 // Inputs
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 uniform vec3 sun_dir;
 uniform float shadow_bias;

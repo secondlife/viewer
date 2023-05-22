@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Sonidos" name="Preference Media panel">
-	<panel.string name="middle_mouse">
-		Botón medio del ratón
-	</panel.string>
+	<panel.string name="middle_mouse">Botón medio del ratón</panel.string>
 	<slider label="Volumen general" name="System Volume"/>
 	<check_box initial_value="true" name="mute_when_minimized"/>
-	<text name="mute_chb_label">
-		Silenciar cuando minimice
-	</text>
+	<text name="mute_chb_label">Silenciar cuando minimice</text>
 	<slider label="Botones" name="UI Volume"/>
 	<slider label="Ambiental" name="Wind Volume"/>
 	<slider label="Efectos de sonido" name="SFX Volume"/>
@@ -20,21 +16,22 @@
 	<check_box label="Permitir la ejecución automática de los media" name="media_auto_play_btn" tool_tip="Marcar esto para permitir la ejecución automática de los media" value="true"/>
 	<check_box label="Ejecutar para otros avatares los media anexados" name="media_show_on_others_btn" tool_tip="Al desmarcar esto se esconderán los media anexados a otros avatares cercanos" value="true"/>
 	<check_box label="Reproducir sonidos de los gestos" name="gesture_audio_play_btn" tool_tip="Selecciona esta opción para escuchar los sonidos de los gestos" value="true"/>
-	<text name="voice_chat_settings">
-		Configuración del chat de voz
-	</text>
-	<text name="Listen from">
-		Oír desde:
-	</text>
+	<text name="voice_chat_settings">Configuración del chat de voz</text>
+	<text name="Listen from">Oír desde:</text>
 	<radio_group name="ear_location">
 		<radio_item label="La posición de la cámara" name="0"/>
 		<radio_item label="La posición del avatar" name="1"/>
 	</radio_group>
 	<check_box label="Al hablar, mover los labios del avatar" name="enable_lip_sync"/>
-	<check_box label="Cambiar entre hablar on/off cuando pulse:" name="push_to_talk_toggle_check" tool_tip="En el modo &apos;un toque&apos;, pulsa y suelta el botón UNA VEZ para activar o desactivar el micrófono. Si no estás en el modo &apos;un toque&apos;, el micrófono sólo recogerá tu voz mientras mantengas pulsado el botón."/>
+	<check_box label="Cambiar entre hablar on/off cuando pulse:" name="push_to_talk_toggle_check" tool_tip="En el modo 'un toque', pulsa y suelta el botón UNA VEZ para activar o desactivar el micrófono. Si no estás en el modo 'un toque', el micrófono sólo recogerá tu voz mientras mantengas pulsado el botón."/>
 	<line_editor label="Botón de Apretar para Hablar" name="modifier_combo"/>
 	<button label="Elegir la tecla" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="Reconfigurarlo al botón medio del ratón"/>
 	<button label="Dispositivos de entrada y salida" name="device_settings_btn" width="210"/>
 	<panel label="Configuración de dispositivos" name="device_settings_panel"/>
+	<combo_box name="media_auto_play_combo">
+		<item name="autoplay_enabled" label="Si"/>
+		<item name="autoplay_ask" label="Pregunta"/>
+		<item name="autoplay_disabled" label="No"/>
+	</combo_box>
 </panel>

@@ -8352,6 +8352,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>NvAPICreateApplicationProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Create NVIDIA application profile for optimized settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PurgeCacheOnNextStartup</key>
     <map>
       <key>Comment</key>
@@ -10788,17 +10799,6 @@
       <key>Value</key>
     <integer>0</integer>
     </map>
-  <key>RenderAutoMuteByteLimit</key>
-  <map>
-    <key>Comment</key>
-    <string>If avatar attachment size exceed this value (in bytes) attachment will not be rendered. Excludes attachments worn by own avatar.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>RenderAvatarMaxNonImpostors</key>
   <map>
     <key>Comment</key>
@@ -11068,6 +11068,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RenderShaderCacheEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable binary shader cache</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RenderShaderCacheVersion</key>
+    <map>
+      <key>Comment</key>
+      <string>Current version hash for shader cache</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>00000000-0000-0000-0000-000000000000</string>
     </map>
     <key>ReplaySession</key>
     <map>
@@ -14401,17 +14423,6 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-    <key>RenderDelayVBUpdate</key>
-    <map>
-      <key>Comment</key>
-      <string>Delay vertex buffer updates until just before rendering</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SocialPhotoResolution</key>
     <map>
       <key>Comment</key>
@@ -17128,17 +17139,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>ResetUIScaleOnFirstRun</key>
-    <map>
-      <key>Comment</key>
-      <string>Resets the UI scale factor on first run due to changed display scaling behavior</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>        
     </map>
   <key>360CaptureUseInterestListCap</key>
   <map>

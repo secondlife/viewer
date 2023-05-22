@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_profile_classifieds" label="Reklamy">
+	<string name="no_classifieds" value="Brak reklam" />
+	<layout_stack name="main_stack">
+		<layout_panel name="buttons_header">
+			<button name="new_btn" label="Nowa..." tool_tip="Utwórz nową reklamę w obecnej lokalizacji" />
+			<button name="delete_btn" label="Usuń..." tool_tip="Usuń aktualnie wybraną reklamę" />
+		</layout_panel>
+		<layout_panel name="main_body">
+			<text name="classifieds_panel_text">
+				Ładowanie...
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

@@ -149,7 +149,7 @@ void LLDrawable::unload()
 {
 	LLVOVolume *pVVol = getVOVolume();
 	pVVol->setNoLOD();
-	pVVol->markForUpdate(TRUE);
+	pVVol->markForUpdate();
 }
 
 // static
@@ -535,7 +535,7 @@ void LLDrawable::makeActive()
 
 		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
 		{
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME, TRUE);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME);
 		}
 		updatePartition();
 	}
@@ -583,7 +583,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 		
 		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
 		{
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME, TRUE);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME);
 		}		
 		
 		if (mSpatialBridge)
@@ -659,7 +659,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 
 			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
-				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
 			}
 		}
 	}
@@ -683,7 +683,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	
 	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
 	{ //scale change requires immediate rebuild
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
 	}
 	else if (!isRoot() && 
 		 (!mVObjp->getAngularVelocity().isExactlyZero() ||
@@ -693,7 +693,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		if (!isState(LLDrawable::ANIMATED_CHILD))
 		{			
 			setState(LLDrawable::ANIMATED_CHILD);
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL);
 			mVObjp->dirtySpatialGroup();
 		}
 	}
@@ -702,7 +702,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			|| (1.f - dot(old_rot, target_rot)) > 0.f))
 	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
         mVObjp->shrinkWrap();
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -813,7 +813,7 @@ void LLDrawable::updatePartition()
 	else
 	{
 		//a child prim moved and needs its verts regenerated
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
 	}
 }
 
@@ -938,11 +938,11 @@ void LLDrawable::updateTexture()
 
 	if (getVOVolume())
 	{
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_MATERIAL, TRUE);
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_MATERIAL);
 	}
 }
 
-BOOL LLDrawable::updateGeometry(BOOL priority)
+BOOL LLDrawable::updateGeometry()
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
 
@@ -981,7 +981,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 
 		if (rebuild)
 		{
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL);
 		}
 
 		for (S32 i = 0; i < getNumFaces(); i++)

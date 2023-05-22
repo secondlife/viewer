@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_picks" label="Miejsca">
+	<string name="no_picks" value="Brak Miejsc" />
+	<layout_stack name="main_stack">
+		<layout_panel name="buttons_header">
+			<text name="header_text">
+				Pokaż innym swoje ulubione miejsca w Second Life.
+			</text>
+			<button name="new_btn" label="Nowe..." tool_tip="Utwórz nowe Miejsce w obecnej lokalizacji" />
+			<button name="delete_btn" label="Usuń..." tool_tip="Usuń aktualnie wybrane Miejsce" />
+		</layout_panel>
+		<layout_panel name="main_body">
+			<text name="picks_panel_text">
+				Ładowanie...
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

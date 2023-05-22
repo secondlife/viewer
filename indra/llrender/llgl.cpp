@@ -2454,32 +2454,11 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	mState(state), mWasEnabled(FALSE), mIsEnabled(FALSE)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	switch (state)
-	{
-		case GL_ALPHA_TEST:
-		case GL_NORMALIZE:
-		case GL_TEXTURE_GEN_R:
-		case GL_TEXTURE_GEN_S:
-		case GL_TEXTURE_GEN_T:
-		case GL_TEXTURE_GEN_Q:
-		case GL_LIGHTING:
-		case GL_COLOR_MATERIAL:
-		case GL_FOG:
-		case GL_LINE_STIPPLE:
-		case GL_POLYGON_STIPPLE:
-			mState = 0;
-			break;
-	}
 
-
-	stop_glerror();
 	if (mState)
 	{
 		mWasEnabled = sStateMap[state];
-        // we can't actually assert on this as queued changes to state are not reflected by glIsEnabled
-		//llassert(mWasEnabled == glIsEnabled(state));
 		setEnabled(enabled);
-		stop_glerror();
 	}
 }
 
@@ -2511,7 +2490,6 @@ void LLGLState::setEnabled(S32 enabled)
 LLGLState::~LLGLState() 
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	stop_glerror();
 	if (mState)
 	{
 		if (gDebugGL)
@@ -2544,7 +2522,6 @@ LLGLState::~LLGLState()
 			}
 		}
 	}
-	stop_glerror();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2921,8 +2898,7 @@ void LLGLSyncFence::wait()
 }
 
 LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
-: mAlphaTest(GL_ALPHA_TEST)
-, mCullFace(GL_CULL_FACE)
+: mCullFace(GL_CULL_FACE)
 , mSquashClip()
 { 
 }

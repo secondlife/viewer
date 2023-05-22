@@ -144,7 +144,7 @@ vec2 getScreenCoordinate(vec2 screenpos)
 //      Method #4: Spheremap Transform, Lambert Azimuthal Equal-Area projection
 vec3 getNorm(vec2 screenpos)
 {
-   vec2 enc = texture2D(normalMap, screenpos.xy).xy;
+   vec2 enc = texture(normalMap, screenpos.xy).xy;
    vec2 fenc = enc*4-2;
    float f = dot(fenc,fenc);
    float g = sqrt(1-f/4);
@@ -170,7 +170,7 @@ vec3 getNormalFromPacked(vec4 packedNormalEnvIntensityFlags)
 // See: C++: addDeferredAttachments(), GLSL: softenLightF
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity)
 {
-    vec4 packedNormalEnvIntensityFlags = texture2D(normalMap, screenpos.xy);
+    vec4 packedNormalEnvIntensityFlags = texture(normalMap, screenpos.xy);
     n = getNormalFromPacked( packedNormalEnvIntensityFlags );
     envIntensity = packedNormalEnvIntensityFlags.z;
     return packedNormalEnvIntensityFlags;
@@ -190,7 +190,7 @@ float linearDepth01(float d, float znear, float zfar)
 
 float getDepth(vec2 pos_screen)
 {
-    float depth = texture2D(depthMap, pos_screen).r;
+    float depth = texture(depthMap, pos_screen).r;
     return depth;
 }
 
@@ -199,7 +199,7 @@ vec4 getTexture2DLodAmbient(vec2 tc, float lod)
 #ifndef FXAA_GLSL_120
     vec4 ret = textureLod(projectionMap, tc, lod);
 #else
-    vec4 ret = texture2D(projectionMap, tc);
+    vec4 ret = texture(projectionMap, tc);
 #endif
     ret.rgb = srgb_to_linear(ret.rgb);
 
@@ -215,7 +215,7 @@ vec4 getTexture2DLodDiffuse(vec2 tc, float lod)
 #ifndef FXAA_GLSL_120
     vec4 ret = textureLod(projectionMap, tc, lod);
 #else
-    vec4 ret = texture2D(projectionMap, tc);
+    vec4 ret = texture(projectionMap, tc);
 #endif
     ret.rgb = srgb_to_linear(ret.rgb);
 
@@ -262,7 +262,7 @@ vec4 texture2DLodSpecular(vec2 tc, float lod)
 #ifndef FXAA_GLSL_120
     vec4 ret = textureLod(projectionMap, tc, lod);
 #else
-    vec4 ret = texture2D(projectionMap, tc);
+    vec4 ret = texture(projectionMap, tc);
 #endif
     ret.rgb = srgb_to_linear(ret.rgb);
 

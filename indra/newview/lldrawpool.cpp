@@ -422,6 +422,27 @@ void LLRenderPass::renderRiggedGroup(LLSpatialGroup* group, U32 type, bool textu
 void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    if (texture)
+    {
+        auto* begin = gPipeline.beginRenderMap(type);
+        auto* end = gPipeline.endRenderMap(type);
+        for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+        {
+            LLDrawInfo* pparams = *i;
+            LLCullResult::increment_iterator(i, end);
+
+            pushBatch(*pparams, texture, batch_textures);
+        }
+    }
+    else
+    {
+        pushUntexturedBatches(type);
+    }
+}
+
+void LLRenderPass::pushUntexturedBatches(U32 type)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
@@ -429,11 +450,42 @@ void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 
-		pushBatch(*pparams, texture, batch_textures);
-	}
+        pushUntexturedBatch(*pparams);
+    }
 }
 
 void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    
+    if (texture)
+    {
+        LLVOAvatar* lastAvatar = nullptr;
+        U64 lastMeshId = 0;
+        auto* begin = gPipeline.beginRenderMap(type);
+        auto* end = gPipeline.endRenderMap(type);
+        for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+        {
+            LLDrawInfo* pparams = *i;
+            LLCullResult::increment_iterator(i, end);
+
+            if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
+            {
+                uploadMatrixPalette(*pparams);
+                lastAvatar = pparams->mAvatar;
+                lastMeshId = pparams->mSkinInfo->mHash;
+            }
+
+            pushBatch(*pparams, texture, batch_textures);
+        }
+    }
+    else
+    {
+        pushUntexturedRiggedBatches(type);
+    }
+}
+
+void LLRenderPass::pushUntexturedRiggedBatches(U32 type)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOAvatar* lastAvatar = nullptr;
@@ -452,7 +504,7 @@ void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures
             lastMeshId = pparams->mSkinInfo->mHash;
         }
 
-        pushBatch(*pparams, texture, batch_textures);
+        pushUntexturedBatch(*pparams);
     }
 }
 
@@ -523,6 +575,8 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    llassert(texture);
+
     if (!params.mCount)
     {
         return;
@@ -532,7 +586,6 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
 
 	bool tex_setup = false;
 
-	if (texture)
 	{
 		if (batch_textures && params.mTextureList.size() > 1)
 		{
@@ -574,6 +627,21 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
 		gGL.loadIdentity();
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
+}
+
+void LLRenderPass::pushUntexturedBatch(LLDrawInfo& params)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    if (!params.mCount)
+    {
+        return;
+    }
+
+    applyModelMatrix(params);
+
+    params.mVertexBuffer->setBuffer();
+    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 }
 
 // static

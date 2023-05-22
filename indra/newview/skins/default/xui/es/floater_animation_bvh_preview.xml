@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<floater name="Animation Preview">
+	<combo_box name="emote_combo" tool_tip="Controla lo que hace la cara durante la animacion">
+		<item name="Aaaaah" label="Aaaah"/>
+		<item name="Bored" label="Aburrido"/>
+		<item name="Surprise" label="Sorpresa"/>
+		<item name="Frown" label="Entrecejo / Fruncir el ceño"/>
+		<item name="Wink" label="Guiño"/>
+		<item name="Worry" label="Preocupación"/>
+		<item name="BigSmile" label="Gran Sonrisa"/>
+		<item name="Sad" label="Triste"/>
+		<item name="Afraid" label="Temeroso"/>
+		<item name="Angry" label="Molesto"/>
+		<item name="Cry" label="Llorar"/>
+		<item name="Smile" label="Sonreir"/>
+		<item name="Shrug" label="Enconger Hombros"/>
+		<item name="Embarrassed" label="Avergonzado"/>
+		<item name="Kiss" label="Beso"/>
+		<item name="Plllppt" label="*"/>
+		<item name="Disdain" label="Desden"/>
+		<item name="Repulsed" label="Repudiar"/>
+		<item name="Laugh" label="Risa"/>
+	</combo_box>
+	<combo_box name="hand_pose_combo" tool_tip="Controla lo que hacen las manos durante la animación">
+		<combo_box.item name="PointBoth" label="Señalar Ambas"/>
+		<combo_box.item name="RelaxedRight" label="Derecha relajada"/>
+		<combo_box.item name="PointRight" label="Señalar derecha"/>
+		<combo_box.item name="Spread" label="Extenderse"/>
+		<combo_box.item name="Typing" label="Escribiendo"/>
+		<combo_box.item name="RelaxedLeft" label="Izquierda Relajada"/>
+		<combo_box.item name="FistLeft" label="Puño Izquierdo"/>
+		<combo_box.item name="Fist" label="Puño"/>
+		<combo_box.item name="PointLeft" label="Señalar Izquierda"/>
+		<combo_box.item name="SaluteRight" label="Saludar Derecha"/>
+		<combo_box.item name="Relaxed" label="Relajado"/>
+		<combo_box.item name="FistRight" label="Puño Derecho"/>
+		<combo_box.item name="PeaceRight" label="Paz Derecha"/>
+	</combo_box>
+	<combo_box name="preview_base_anim" tool_tip="Usa esto para probar el comportamiento de tu animación mientras tu avatar realiza acciones comunes.">
+		<item name="Walking" label="Caminando"/>
+		<item name="Standing" label="De pie"/>
+		<item name="Sitting" label="Sentado"/>
+		<item name="Flying" label="Volando"/>
+	</combo_box>
+</floater>

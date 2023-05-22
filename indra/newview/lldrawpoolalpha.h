@@ -65,7 +65,7 @@ public:
 
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false);
-	void renderAlphaHighlight(U32 mask);
+	void renderAlphaHighlight();
     bool uploadMatrixPalette(const LLDrawInfo& params);
 
 	static BOOL sShowDebugAlpha;

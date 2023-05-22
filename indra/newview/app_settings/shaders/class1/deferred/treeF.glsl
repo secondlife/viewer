@@ -29,9 +29,9 @@ out vec4 frag_data[4];
 
 uniform sampler2D diffuseMap;
 
-VARYING vec4 vertex_color;
-VARYING vec3 vary_normal;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec3 vary_normal;
+in vec2 vary_texcoord0;
 
 uniform float minimum_alpha;
 
@@ -39,7 +39,7 @@ vec2 encode_normal(vec3 n);
 
 void main() 
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 col = texture(diffuseMap, vary_texcoord0.xy);
 	if (col.a < minimum_alpha)
 	{
 		discard;

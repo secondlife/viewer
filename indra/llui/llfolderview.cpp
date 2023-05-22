@@ -1672,7 +1672,8 @@ void LLFolderView::update()
     
 	// Clear the modified setting on the filter only if the filter finished after running the filter process
 	// Note: if the filter count has timed out, that means the filter halted before completing the entire set of items
-    if (filter_object.isModified() && (!filter_object.isTimedOut()))
+    bool filter_modified = filter_object.isModified();
+    if (filter_modified && (!filter_object.isTimedOut()))
 	{
 		filter_object.clearModified();
 	}
@@ -1706,7 +1707,7 @@ void LLFolderView::update()
 	BOOL filter_finished = mViewModel->contentsReady()
 							&& (getViewModelItem()->passedFilter()
 								|| ( getViewModelItem()->getLastFilterGeneration() >= filter_object.getFirstSuccessGeneration()
-									&& !filter_object.isModified()));
+									&& !filter_modified));
 	if (filter_finished 
 		|| gFocusMgr.childHasKeyboardFocus(mParentPanel.get())
 		|| gFocusMgr.childHasMouseCapture(mParentPanel.get()))
@@ -1794,13 +1795,26 @@ void LLFolderView::update()
 
 	if (mSelectedItems.size() && mNeedsScroll)
 	{
-		scrollToShowItem(mSelectedItems.back(), constraint_rect);
+        LLFolderViewItem* scroll_to_item = mSelectedItems.back();
+		scrollToShowItem(scroll_to_item, constraint_rect);
 		// continue scrolling until animated layout change is done
-		if (filter_finished
-			&& (!needsArrange() || !is_visible))
-		{
-			mNeedsScroll = FALSE;
-		}
+        bool selected_filter_finished = getRoot()->getViewModelItem()->getLastFilterGeneration() >= filter_object.getFirstSuccessGeneration();
+        if (selected_filter_finished && scroll_to_item && scroll_to_item->getViewModelItem())
+        {
+            selected_filter_finished = scroll_to_item->getViewModelItem()->getLastFilterGeneration() >= filter_object.getFirstSuccessGeneration();
+        }
+        if (filter_finished && selected_filter_finished)
+        {
+            bool needs_arrange = needsArrange() || getRoot()->needsArrange();
+            if (mParentFolder)
+            {
+                needs_arrange |= (bool)mParentFolder->needsArrange();
+            }
+            if (!needs_arrange || !is_visible)
+            {
+                mNeedsScroll = FALSE;
+            }
+        }
 	}
 
 	if (mSignalSelectCallback)

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<panel label="Uploads" name="uploads">
+	<text name="title">
+		Obecne lokalizacje dla nowych plików
+	</text>
+	<text name="title_models">
+		Obrazy
+	</text>
+	<text name="title_sounds">
+		Dźwięki
+	</text>
+	<text name="title_animation">
+		Animacje
+	</text>
+	<text name="title_model">
+		Modele
+	</text>
+	<text name="upload_help">
+		Aby zmienić folder docelowy kliknij na nim prawym przyciskiem myszy w Szafie
+i użyj opcji "ustaw jako domyślne dla"
+	</text>
+</panel>

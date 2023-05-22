@@ -24,9 +24,9 @@
  */
 
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
-VARYING vec2 vary_tc;
+out vec2 vary_tc;
 
 void main()
 {

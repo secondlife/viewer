@@ -1534,6 +1534,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("checkbox fullbright")->setValue((S32)(fullbright_flag != 0));
 			getChildView("checkbox fullbright")->setEnabled(editable && !has_pbr_material);
 			getChild<LLUICtrl>("checkbox fullbright")->setTentative(!identical_fullbright);
+            getChild<LLComboBox>("combobox matmedia")->setEnabledByValue("Materials", !has_pbr_material);
 		}
 		
 		// Repeats per meter

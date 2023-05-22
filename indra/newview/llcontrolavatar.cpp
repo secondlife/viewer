@@ -312,8 +312,8 @@ void LLControlAvatar::updateVolumeGeom()
         }
     }
 
-    gPipeline.markRebuild(mRootVolp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-    mRootVolp->markForUpdate(TRUE);
+    gPipeline.markRebuild(mRootVolp->mDrawable, LLDrawable::REBUILD_ALL);
+    mRootVolp->markForUpdate();
 
     // Note that attachment overrides aren't needed here, have already
     // been applied at the time the mControlAvatar was created, in
@@ -597,7 +597,7 @@ void LLControlAvatar::updateAnimations()
         //if (!mRootVolp->isAnySelected())
         {
             updateVolumeGeom();
-            mRootVolp->recursiveMarkForUpdate(TRUE);
+            mRootVolp->recursiveMarkForUpdate();
         }
     }
 

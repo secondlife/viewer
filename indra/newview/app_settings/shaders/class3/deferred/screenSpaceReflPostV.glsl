@@ -26,12 +26,12 @@
 uniform mat4 projection_matrix;
 uniform mat4 inv_proj;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 uniform vec2 screen_res;
 
-VARYING vec2 vary_fragcoord;
-VARYING vec3 camera_ray;
+out vec2 vary_fragcoord;
+out vec3 camera_ray;
 
 
 void main()

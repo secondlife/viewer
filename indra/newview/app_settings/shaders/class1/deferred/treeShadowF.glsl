@@ -36,7 +36,7 @@ in vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a;
+	float alpha = texture(diffuseMap, vary_texcoord0.xy).a;
 
 	if (alpha < minimum_alpha)
 	{

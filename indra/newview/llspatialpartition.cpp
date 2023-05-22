@@ -246,7 +246,7 @@ BOOL LLSpatialGroup::addObject(LLDrawable *drawablep)
 		drawablep->setGroup(this);
 		setState(OBJECT_DIRTY | GEOM_DIRTY);
 		setOcclusionState(LLSpatialGroup::DISCARD_QUERY, LLSpatialGroup::STATE_MODE_ALL_CAMERAS);
-		gPipeline.markRebuild(this, TRUE);
+		gPipeline.markRebuild(this);
 		if (drawablep->isSpatialBridge())
 		{
 			mBridgeList.push_back((LLSpatialBridge*) drawablep);
@@ -368,7 +368,7 @@ BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 	{
 		drawablep->setGroup(NULL);
 		setState(GEOM_DIRTY);
-		gPipeline.markRebuild(this, TRUE);
+		gPipeline.markRebuild(this);
 
 		if (drawablep->isSpatialBridge())
 		{
@@ -411,7 +411,7 @@ void LLSpatialGroup::shift(const LLVector4a &offset)
 		getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_CONTROL_AV)
 	{
 		setState(GEOM_DIRTY);
-		gPipeline.markRebuild(this, TRUE);
+		gPipeline.markRebuild(this);
 	}
 }
 
@@ -537,7 +537,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) : LLO
 
 	sg_assert(mOctreeNode->getListenerCount() == 0);
 	setState(SG_INITIAL_STATE_MASK);
-	gPipeline.markRebuild(this, TRUE);
+	gPipeline.markRebuild(this);
     
     // let the reflection map manager know about this spatial group
     mReflectionProbe = gPipeline.mReflectionMapManager.registerSpatialGroup(this);
@@ -611,7 +611,7 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 					//NOTE: If there is a trivial way to detect that alpha sorting here would not change the render order,
 					//not setting this node to dirty would be a very good thing
 					group->setState(LLSpatialGroup::ALPHA_DIRTY);
-					gPipeline.markRebuild(group, FALSE);
+					gPipeline.markRebuild(group);
 				}
 			}
 		}
@@ -783,7 +783,7 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 
 	if (!keep_occlusion)
 	{ //going to need a rebuild
-		gPipeline.markRebuild(this, TRUE);
+		gPipeline.markRebuild(this);
 	}
 
 	mLastUpdateTime = gFrameTimeSeconds;
@@ -1307,7 +1307,7 @@ public:
 			}
 			if (drawable->getVObj().notNull() && !group->getSpatialPartition()->mRenderByGroup)
 			{
-				gPipeline.markRebuild(drawable, LLDrawable::REBUILD_ALL, TRUE);
+				gPipeline.markRebuild(drawable, LLDrawable::REBUILD_ALL);
 			}
 		}
 
@@ -3107,22 +3107,6 @@ public:
 				renderNormals(drawable);
 			}
 			
-			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BUILD_QUEUE))
-			{
-				if (drawable->isState(LLDrawable::IN_REBUILD_Q2))
-				{
-					gGL.diffuseColor4f(0.6f, 0.6f, 0.1f, 1.f);
-					const LLVector4a* ext = drawable->getSpatialExtents();
-					LLVector4a center;
-					center.setAdd(ext[0], ext[1]);
-					center.mul(0.5f);
-					LLVector4a size;
-					size.setSub(ext[1], ext[0]);
-					size.mul(0.5f);
-					drawBoxOutline(center, size);
-				}
-			}
-
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
             {
                 setTextureAreaDebugText(drawable);
@@ -3452,14 +3436,12 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_NORMALS |
 									  LLPipeline::RENDER_DEBUG_POINTS |
-									  //LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
                                       LLPipeline::RENDER_DEBUG_TEXTURE_AREA |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AVATAR_JOINTS |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
-									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
 									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
 	{

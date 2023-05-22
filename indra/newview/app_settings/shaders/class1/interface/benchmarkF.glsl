@@ -23,17 +23,13 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D diffuseMap;
 
-VARYING vec2 tc0;
+in vec2 tc0;
 
 void main() 
 {
-	frag_color = texture2D(diffuseMap, tc0);
+	frag_color = texture(diffuseMap, tc0);
 }

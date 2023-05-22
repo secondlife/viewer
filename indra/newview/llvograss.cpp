@@ -264,7 +264,7 @@ U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if (mDrawable)
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
 	}
 
 	return retval;
@@ -290,12 +290,12 @@ void LLVOGrass::idleUpdate(LLAgent &agent, const F64 &time)
 	if (!LLVOTree::isTreeRenderingStopped() && !mNumBlades)//restart grass rendering
 	{
 		mNumBlades = GRASS_MAX_BLADES;
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 		return;
 	}
 	if (mPatch && (mLastPatchUpdateTime != mPatch->getLastUpdateTime()))
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
 	}
 
 	return;
@@ -348,7 +348,7 @@ BOOL LLVOGrass::updateLOD()
 		{
 			mNumBlades = 0 ;
             face->setSize(0, 0);
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 		}
 		return TRUE ;
 	}
@@ -373,7 +373,7 @@ BOOL LLVOGrass::updateLOD()
 		{
 			face->setSize(mNumBlades*8, mNumBlades*12);
 		}
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	else if (num_blades <= (mNumBlades >> 1))
 	{
@@ -386,7 +386,7 @@ BOOL LLVOGrass::updateLOD()
 		{
 			face->setSize(mNumBlades*8, mNumBlades*12);
 		}
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 		return TRUE;
 	}
 
@@ -737,7 +737,7 @@ void LLVOGrass::updateDrawable(BOOL force_damped)
 	if (mDrawable.notNull())
 	{
 		mDrawable->updateXform(TRUE);
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	clearChanged(SHIFTED);
 }

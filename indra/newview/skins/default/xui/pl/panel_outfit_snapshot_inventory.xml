@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_outfit_snapshot_inventory">
+	<text name="title">
+		Szafa
+	</text>
+	<text name="hint_lbl">
+		Przesłanie zdjęcia do Twojej Szafy kosztuje [UPLOAD_COST] L$.
+
+Opłata zależy od Twojego poziomu członkostwa. Wyższe poziomy to niższe opłaty.
+	</text>
+	<button label="Anuluj" name="cancel_btn" />
+	<button label="Prześlij [UPLOAD_COST]L$" name="save_btn" />
+</panel>

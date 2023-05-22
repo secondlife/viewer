@@ -25,9 +25,9 @@
 
 uniform mat4 modelview_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
-VARYING vec3 vary_dir;
+out vec3 vary_dir;
 
 void main()
 {

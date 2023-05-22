@@ -1553,9 +1553,6 @@ bool idle_startup()
 		gAgentCamera.resetCamera();
 		display_startup();
 
-		// start up the ThreadPool we'll use for textures et al.
-        LLAppViewer::instance()->initGeneralThread();
-
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 		// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
@@ -3025,7 +3022,7 @@ bool LLStartUp::dispatchURL()
 			|| (dx*dx > SLOP*SLOP)
 			|| (dy*dy > SLOP*SLOP) )
 		{
-			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), "clicked",
+			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), LLCommandHandler::NAV_TYPE_CLICKED,
 						  NULL, false);
 		}
 		return true;

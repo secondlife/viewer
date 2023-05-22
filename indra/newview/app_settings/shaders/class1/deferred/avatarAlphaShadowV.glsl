@@ -30,13 +30,13 @@ uniform float shadow_target_width;
 mat4 getSkinnedTransform();
 void passTextureIndex();
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec3 normal;
+in vec2 texcoord0;
 
-VARYING float pos_w;
-VARYING float target_pos_x;
-VARYING vec2 vary_texcoord0;
+out float pos_w;
+out float target_pos_x;
+out vec2 vary_texcoord0;
 
 void main()
 {

@@ -47,7 +47,7 @@ vec3 srgb_to_linear(vec3 c);
 
 void main()
 {
-    vec4 basecolor = texture2D(diffuseMap, base_color_texcoord.xy).rgba;
+    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
 
     if (basecolor.a < minimum_alpha)
     {
@@ -55,7 +55,7 @@ void main()
     }
 
     vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
+    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
     float lum = max(max(emissive.r, emissive.g), emissive.b);
     lum *= vertex_emissive.a;

@@ -23,21 +23,15 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D diffuseRect;
 uniform sampler2D exposureMap;
 
 uniform vec2 screen_res;
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 vec3 linear_to_srgb(vec3 cl);
 
@@ -173,7 +167,7 @@ vec3 legacyGamma(vec3 color)
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture2D(diffuseRect, vary_fragcoord);
+    vec4 diff = texture(diffuseRect, vary_fragcoord);
 
     diff.rgb = toneMap(diff.rgb);
 

@@ -31,14 +31,14 @@ uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-VARYING vec3 vary_normal;
-VARYING vec2 vary_texcoord0;
+in vec3 vary_normal;
+in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
 void main() 
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 col = texture(diffuseMap, vary_texcoord0.xy);
 	
 	if (col.a < minimum_alpha)
 	{

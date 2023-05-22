@@ -166,7 +166,7 @@ public:
 	void updateTexture();
 	void updateMaterial();
 	virtual void updateDistance(LLCamera& camera, bool force_update);
-	BOOL updateGeometry(BOOL priority);
+	BOOL updateGeometry();
 	void updateFaceSize(S32 idx);
 		
 	void updateSpecialHoverCursor(BOOL enabled);
@@ -257,8 +257,7 @@ public:
 	
 	typedef enum e_drawable_flags
 	{
- 		IN_REBUILD_Q1	= 0x00000001,
- 		IN_REBUILD_Q2	= 0x00000002,
+ 		IN_REBUILD_Q	= 0x00000001,
 		EARLY_MOVE		= 0x00000004,
 		MOVE_UNDAMPED	= 0x00000008,
 		ON_MOVE_LIST	= 0x00000010,

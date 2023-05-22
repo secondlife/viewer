@@ -179,8 +179,7 @@ public:
 	F32 getVObjRadius() const override				{ return mVObjRadius; };
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const override;
 
-				void	markForUpdate(BOOL priority) override;
-				void	markForUnload()							{ LLViewerObject::markForUnload(TRUE); mVolumeChanged = TRUE; }
+				void	markForUpdate() override;
 				void    faceMappingChanged() override           { mFaceMappingChanged=TRUE; }
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector) override; // Called when the drawable shifts
@@ -422,8 +421,7 @@ protected:
 	S32	computeLODDetail(F32 distance, F32 radius, F32 lod_factor);
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
-	void updateTEData();
-
+	
 	// stats tracking for render complexity
 	static S32 mRenderComplexity_last;
 	static S32 mRenderComplexity_current;

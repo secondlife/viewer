@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_adjust_snapshot" title="Własne oświetlenie">
+	<layout_stack name="outer_stack">
+		<layout_panel name="env_controls">
+			<layout_stack name="settings_stack">
+				<layout_panel name="lp_1">
+					<text name="ambient_lbl">
+						Otoczenie:
+					</text>
+					<text name="blue_horizon_lbl">
+						Hor. błękitu:
+					</text>
+					<text name="blue_density_lbl">
+						Gęst. błękitu:
+					</text>
+					<button label="Reset" tool_tip="Zamknij i zresetuj do otoczenia współdzielonego" name="btn_reset" />
+					<text name="sun_color_lbl">
+						Kolor Słońca:
+					</text>
+					<text name="cloud_color_lbl">
+						Kolor chmur:
+					</text>
+					<text name="cloud_map_label">
+						Obraz chmur:
+					</text>
+					<text name="water_map_label">
+						Obraz wody:
+					</text>
+				</layout_panel>
+				<layout_panel name="lp_2">
+					<text name="haze_horizon_label">
+						Horyzont mgły:
+					</text>
+					<text name="haze_density_label">
+						Gęstość mgły:
+					</text>
+					<text name="cloud_coverage_label">
+						Zachmurzenie:
+					</text>
+					<text name="cloud_scale_label">
+						Rozmiar chmur:
+					</text>
+					<text name="scene_gamma_label">
+						Gamma sceny:
+					</text>
+				</layout_panel>
+				<layout_panel name="lp_3">
+					<text name="label">
+						Słońce:
+					</text>
+					<text name="sun_azimuth_label">
+						Azymut:
+					</text>
+					<text name="sun_elevation_label">
+						Elewacja:
+					</text>
+					<check_box label="Pokaż emiter" name="sunbeacon" />
+					<text name="scale_label">
+						Rozmiar:
+					</text>
+					<text name="glow_focus_label">
+						Ostrość blasku:
+					</text>
+					<text name="glow_size_label">
+						Rozmiar blasku:
+					</text>
+					<text name="star_brightness_label">
+						Jasność gwiazd:
+					</text>
+				</layout_panel>
+				<layout_panel name="lp_4">
+					<text name="label">
+						Księżyc:
+					</text>
+					<text name="moon_azimuth_label">
+						Azymut:
+					</text>
+					<text name="moon_elevation_label">
+						Elewacja:
+					</text>
+					<check_box label="Pokaż emiter" name="moonbeacon" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

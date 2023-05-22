@@ -23,24 +23,20 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-VARYING float pos_w;
-VARYING float target_pos_x;
-VARYING vec2 vary_texcoord0;
+in float pos_w;
+in float target_pos_x;
+in vec2 vary_texcoord0;
 uniform vec4 color;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * color.a;
+	float alpha = texture(diffuseMap, vary_texcoord0.xy).a * color.a;
 
 	if (alpha < 0.05) // treat as totally transparent
 	{

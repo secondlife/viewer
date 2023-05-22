@@ -62,7 +62,7 @@ uniform mat3 normal_matrix;
 
 void main()
 {
-    vec4 basecolor = texture2D(diffuseMap, base_color_texcoord.xy).rgba;
+    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     if (basecolor.a < minimum_alpha)
     {
         discard;
@@ -71,7 +71,7 @@ void main()
     vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
 
     // from mikktspace.com
-    vec3 vNt = texture2D(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
+    vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
@@ -84,13 +84,13 @@ void main()
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 spec = texture2D(specularMap, metallic_roughness_texcoord.xy).rgb;
+    vec3 spec = texture(specularMap, metallic_roughness_texcoord.xy).rgb;
     
     spec.g *= roughnessFactor;
     spec.b *= metallicFactor;
 
     vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
+    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
@@ -131,7 +131,7 @@ vec3 srgb_to_linear(vec3 c);
 
 void main()
 {
-    vec4 basecolor = texture2D(diffuseMap, base_color_texcoord.xy).rgba;
+    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     if (basecolor.a < minimum_alpha)
     {
         discard;
@@ -140,7 +140,7 @@ void main()
     vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
 
     vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
+    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
     col += emissive;
 

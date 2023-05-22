@@ -23,19 +23,15 @@
  * $/LicenseInfo$
  */
  
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 void default_lighting() 
 {

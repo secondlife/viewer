@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_data[4];

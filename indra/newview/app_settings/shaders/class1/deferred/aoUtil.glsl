@@ -43,7 +43,7 @@ vec2 getScreenCoordinateAo(vec2 screenpos)
 
 float getDepthAo(vec2 pos_screen)
 {
-    float depth = texture2D(depthMap, pos_screen).r;
+    float depth = texture(depthMap, pos_screen).r;
     return depth;
 }
 
@@ -79,7 +79,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
 {
     float ret = 1.0;
     vec3 pos_world = pos.xyz;
-    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy * (screen_res / 128)).xy;
+    vec2 noise_reflect = texture(noiseMap, pos_screen.xy * (screen_res / 128)).xy;
 
     float angle_hidden = 0.0;
     float points = 0;

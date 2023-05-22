@@ -1051,7 +1051,7 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 		parentp->setState(LLDrawable::ACTIVE_CHILD);
 	}
 
-	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
 	if(	(old_parent != parentp && old_parent)
 		|| (parentp && parentp->isActive()))
 	{
@@ -2504,7 +2504,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		{
 // 			LL_DEBUGS() << "Clearing force invisible: " << mID << ":" << getPCodeString() << ":" << getPositionAgent() << LL_ENDL;
 			mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);
-			gPipeline.markRebuild( mDrawable, LLDrawable::REBUILD_ALL, TRUE );
+			gPipeline.markRebuild( mDrawable, LLDrawable::REBUILD_ALL);
 		}
 	}
 
@@ -3166,7 +3166,7 @@ void LLViewerObject::linkControlAvatar()
             //if (!cav->mRootVolp->isAnySelected())
             {
                 cav->updateVolumeGeom();
-                cav->mRootVolp->recursiveMarkForUpdate(TRUE);
+                cav->mRootVolp->recursiveMarkForUpdate();
             }
         }
     }
@@ -4976,7 +4976,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                         {
                             region->loadCacheMiscExtras(obj->getLocalID());
                         }
-                        obj->markForUpdate(FALSE);
+                        obj->markForUpdate();
                     }
                 });
         }
@@ -5210,7 +5210,7 @@ S32 LLViewerObject::setTEBumpmap(const U8 te, const U8 bump)
 		if (mDrawable.notNull() && retval)
 		{
 			gPipeline.markTextured(mDrawable);
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
 		}
 	}
 	return retval;
@@ -5300,10 +5300,8 @@ S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD, TRUE);
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
 			gPipeline.markTextured(mDrawable);
-			// JC - probably only need this if changes texture coords
-			//gPipeline.markRebuild(mDrawable);
 		}
 	}
 	return retval;
@@ -6631,35 +6629,27 @@ void LLViewerObject::updateVolume(const LLVolumeParams& volume_params)
 	{
 		// Transmit the update to the simulator
 		sendShapeUpdate();
-		markForUpdate(TRUE);
+		markForUpdate();
 	}
 }
 
-void LLViewerObject::recursiveMarkForUpdate(BOOL priority)
+void LLViewerObject::recursiveMarkForUpdate()
 {
     for (LLViewerObject::child_list_t::iterator iter = mChildList.begin();
          iter != mChildList.end(); iter++)
     {
         LLViewerObject* child = *iter;
-        child->markForUpdate(priority);
+        child->markForUpdate();
     }
-    markForUpdate(priority);
+    markForUpdate();
 }
 
-void LLViewerObject::markForUpdate(BOOL priority)
+void LLViewerObject::markForUpdate()
 {
 	if (mDrawable.notNull())
 	{
 		gPipeline.markTextured(mDrawable);
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, priority);
-	}
-}
-
-void LLViewerObject::markForUnload(BOOL priority)
-{
-	if (mDrawable.notNull())
-	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::FOR_UNLOAD, priority);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
 	}
 }
 
@@ -6885,7 +6875,7 @@ U32 LLViewerObject::getPartitionType() const
 	return LLViewerRegion::PARTITION_NONE; 
 }
 
-void LLViewerObject::dirtySpatialGroup(BOOL priority) const
+void LLViewerObject::dirtySpatialGroup() const
 {
 	if (mDrawable)
 	{
@@ -6893,7 +6883,7 @@ void LLViewerObject::dirtySpatialGroup(BOOL priority) const
 		if (group)
 		{
 			group->dirtyGeom();
-			gPipeline.markRebuild(group, priority);
+			gPipeline.markRebuild(group);
 		}
 	}
 }
@@ -6903,11 +6893,6 @@ void LLViewerObject::dirtyMesh()
 	if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
-		/*LLSpatialGroup* group = mDrawable->getSpatialGroup();
-		if (group)
-		{
-			group->dirtyMesh();
-		}*/
 	}
 }
 
@@ -6928,7 +6913,7 @@ void LLStaticViewerObject::updateDrawable(BOOL force_damped)
 	if (mDrawable.notNull())
 	{
 		mDrawable->updateXform(TRUE);
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	clearChanged(SHIFTED);
 }

@@ -26,12 +26,12 @@
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec4 diffuse_color;
+in vec2 texcoord0;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 void main()
 {

@@ -2924,16 +2924,6 @@ function="World.EnvPreset"
            parameter="triangle count" />
         </menu_item_check>
         <menu_item_check
-         label="Build Queue"
-         name="Build Queue">
-          <menu_item_check.on_check
-           function="Advanced.CheckInfoDisplay"
-           parameter="build queue" />
-          <menu_item_check.on_click
-           function="Advanced.ToggleInfoDisplay"
-           parameter="build queue" />
-        </menu_item_check>
-        <menu_item_check
          label="Lights"
          name="Lights">
           <menu_item_check.on_check
@@ -3269,7 +3259,24 @@ function="World.EnvPreset"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
           <menu_item_separator />
-          
+          <menu_item_check
+             label="Enable Shader Cache"
+             name="Enable Shader Cache">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderShaderCacheEnabled" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="RenderShaderCacheEnabled" />
+          </menu_item_check>
+          <menu_item_call
+            enabled="true"
+            label="Clear Shader Cache"
+            name="Shader Cache Clear">
+            <menu_item_call.on_click
+             function="Advanced.ClearShaderCache" />
+          </menu_item_call>
+          <menu_item_separator />
           <menu_item_call
             enabled="true"
             label="Clear Cache Immediately"

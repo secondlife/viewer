@@ -52,11 +52,7 @@ vec3 legacy_adjust(vec3 c);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 #ifdef HAS_SUN_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
@@ -77,9 +73,9 @@ uniform mat3 env_mat;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
-VARYING vec3 vary_position;
+in vec3 vary_position;
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
@@ -167,7 +163,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
             if (nh > 0.0)
             {
-                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt / (nh*da);
+                float scol = fres*texture(lightFunc, vec2(nh, spec.a)).r*gt / (nh*da);
                 vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 col += speccol;
@@ -184,11 +180,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 }
 
 #else
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[4];
-#else
-#define frag_data gl_FragData
-#endif
 #endif
 
 uniform sampler2D diffuseMap;  //always in sRGB space
@@ -200,7 +192,7 @@ uniform sampler2D bumpMap;
 #ifdef HAS_SPECULAR_MAP
 uniform sampler2D specularMap;
 
-VARYING vec2 vary_texcoord2;
+in vec2 vary_texcoord2;
 #endif
 
 uniform float env_intensity;
@@ -214,13 +206,13 @@ uniform float minimum_alpha;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
-VARYING vec2 vary_texcoord1;
+in vec2 vary_texcoord1;
 #else
-VARYING vec3 vary_normal;
+in vec3 vary_normal;
 #endif
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
@@ -228,7 +220,7 @@ vec2 encode_normal(vec3 n);
 vec3 getNormal(inout float glossiness)
 {
 #ifdef HAS_NORMAL_MAP
-	vec4 vNt = texture2D(bumpMap, vary_texcoord1.xy);
+	vec4 vNt = texture(bumpMap, vary_texcoord1.xy);
     glossiness *= vNt.a;
 	vNt.xyz = vNt.xyz * 2 - 1;
     float sign = vary_sign;
@@ -247,7 +239,7 @@ vec3 getNormal(inout float glossiness)
 vec4 getSpecular()
 {
 #ifdef HAS_SPECULAR_MAP
-    vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
+    vec4 spec = texture(specularMap, vary_texcoord2.xy);
     spec.rgb *= specular_color.rgb;
 #else
     vec4 spec = vec4(specular_color.rgb, 1.0);
@@ -301,7 +293,7 @@ void main()
     waterClip();
 
     // diffcol == diffuse map combined with vertex color
-    vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 diffcol = texture(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
     alphaMask(diffcol.a);
@@ -364,7 +356,7 @@ void main()
     if (glossiness > 0.0)  // specular reflection
     {
         float sa        = dot(normalize(refnormpersp), light_dir.xyz);
-        vec3  dumbshiny = sunlit_linear * shadow * (texture2D(lightFunc, vec2(sa, glossiness)).r);
+        vec3  dumbshiny = sunlit_linear * shadow * (texture(lightFunc, vec2(sa, glossiness)).r);
 
         // add the two types of shiny together
         vec3 spec_contrib = dumbshiny * spec.rgb;
@@ -395,7 +387,7 @@ void main()
             float gtdenom = 2 * nh;
             float gt = max(0,(min(gtdenom * nv / vh, gtdenom * nl / vh)));
 
-            float scol = shadow*fres*texture2D(lightFunc, vec2(nh, glossiness)).r*gt/(nh*nl);
+            float scol = shadow*fres*texture(lightFunc, vec2(nh, glossiness)).r*gt/(nh*nl);
             color.rgb += lit*scol*sunlit_linear.rgb*spec.rgb;
         }
 
