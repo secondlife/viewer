@@ -9164,6 +9164,61 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderScreenSpaceReflectionIterations</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of times the ray march algorithm runs to find a potential hit.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>40</integer>
+  </map>
+  <key>RenderScreenSpaceReflectionRayStep</key>
+  <map>
+    <key>Comment</key>
+    <string>How big the step is between each run.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.1</real>
+  </map>
+  <key>RenderScreenSpaceReflectionDistanceBias</key>
+  <map>
+    <key>Comment</key>
+    <string>Distance bias to apply when rejecting a potential sample.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.015</real>
+  </map>
+  <key>RenderScreenSpaceReflectionDepthRejectBias</key>
+  <map>
+    <key>Comment</key>
+    <string>Bias against the depth buffer before rejecting a sample.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.001</real>
+  </map>
+  <key>RenderScreenSpaceReflectionGlossySamples</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of samples to apply for glossy SSR.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>8</integer>
+  </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>
