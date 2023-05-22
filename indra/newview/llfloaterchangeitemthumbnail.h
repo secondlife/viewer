@@ -95,6 +95,8 @@ private:
     void onTexturePickerCommit(LLUUID id);
 
     void setThumbnailId(const LLUUID &new_thumbnail_id);
+    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id);
+    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id, LLInventoryObject* obj);
 
     enum EToolTipState
     {
