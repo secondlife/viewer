@@ -9891,7 +9891,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
             RENDER_TYPE_TREE,
             RENDER_TYPE_VOIDWATER,
             RENDER_TYPE_WATER,
-            RENDER_TYPE_ALPHA_POST_WATER,
+            RENDER_TYPE_ALPHA_PRE_WATER,
             RENDER_TYPE_PASS_GRASS,
             RENDER_TYPE_HUD,
             RENDER_TYPE_PARTICLES,
