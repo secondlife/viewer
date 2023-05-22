@@ -320,6 +320,10 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 64,0, 1);
     vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 16, 0, 1);
     
+    float zFar = 32.0;
+    vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
+
+
     vec4 hitpoint;
     
     glossiness = 1 - glossiness;

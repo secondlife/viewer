@@ -9184,7 +9184,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.02</real>
+    <real>0.015</real>
   </map>
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
   <map>
@@ -9206,7 +9206,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>4</integer>
+    <integer>8</integer>
   </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
