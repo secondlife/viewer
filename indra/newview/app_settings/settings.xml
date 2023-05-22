@@ -9167,7 +9167,7 @@
   <key>RenderScreenSpaceReflectionIterations</key>
   <map>
     <key>Comment</key>
-    <string>Renders screen space reflections to better account for dynamic objects with reflection probes.</string>
+    <string>Number of times the ray march algorithm runs to find a potential hit.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9178,7 +9178,7 @@
   <key>RenderScreenSpaceReflectionRayStep</key>
   <map>
     <key>Comment</key>
-    <string>Renders screen space reflections to better account for dynamic objects with reflection probes.</string>
+    <string>How big the step is between each run.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9189,7 +9189,7 @@
   <key>RenderScreenSpaceReflectionDistanceBias</key>
   <map>
     <key>Comment</key>
-    <string>Renders screen space reflections to better account for dynamic objects with reflection probes.</string>
+    <string>Distance bias to apply when rejecting a potential sample.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9200,7 +9200,7 @@
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
   <map>
     <key>Comment</key>
-    <string>Renders screen space reflections to better account for dynamic objects with reflection probes.</string>
+    <string>Bias against the depth buffer before rejecting a sample.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9211,7 +9211,7 @@
   <key>RenderScreenSpaceReflectionGlossySamples</key>
   <map>
     <key>Comment</key>
-    <string>Renders screen space reflections to better account for dynamic objects with reflection probes.</string>
+    <string>Maximum number of samples to apply for glossy SSR.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

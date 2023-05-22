@@ -61,7 +61,6 @@ uniform float rayStep;
 uniform float distanceBias;
 uniform float depthRejectBias;
 uniform float glossySampleCount;
-uniform float noiseSine;
 
 float epsilon = 0.1;
 
