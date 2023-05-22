@@ -472,7 +472,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	for (i = 0; i < num_objects; i++)
 	{
 		BOOL justCreated = FALSE;
-		S32	msg_size = 0;
 		bool update_cache = false; //update object cache if it is a full-update or terse update
 
 		if (compressed)
@@ -529,7 +528,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		else if (update_type != OUT_FULL) // !compressed, !OUT_FULL ==> OUT_FULL_CACHED only?
 		{
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-			msg_size += sizeof(U32);
 
 			getUUIDFromLocal(fullid,
 							local_id,
@@ -550,8 +548,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			update_cache = true;
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-			msg_size += sizeof(LLUUID);
-			msg_size += sizeof(U32);
 			LL_DEBUGS("ObjectUpdate") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
 		}
 		objectp = findObject(fullid);
@@ -626,7 +622,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				}
 
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_PCode, pcode, i);
-				msg_size += sizeof(U8);
 
 			}
 #ifdef IGNORE_DEAD
@@ -728,14 +723,12 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 
 	for (S32 i = 0; i < num_objects; i++)
 	{
-		S32	msg_size = 0;
 		U32 id;
 		U32 crc;
 		U32 flags;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, id, i);
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-		msg_size += sizeof(U32) * 2;
 
         LL_DEBUGS("ObjectUpdate") << "got probe for id " << id << " crc " << crc << LL_ENDL;
         dumpStack("ObjectUpdateStack");
