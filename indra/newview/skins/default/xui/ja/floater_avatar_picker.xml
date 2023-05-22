@@ -9,7 +9,7 @@
     instead of "OK" and "Cancel" because "Cancel" still keeps the ones 
     you have already selected.  The code will show the appropriate
     set of buttons. -->
-  <string label="OK" label_selected="OK" name="Select">選択</string>
+  <string label="ＯＫ" label_selected="ＯＫ" name="Select">選択</string>
   <string name="Close">閉じる</string>
   <tab_container name="ResidentChooserTabs">
     <panel label="検索" name="SearchPanel">
@@ -38,6 +38,6 @@
       </scroll_list>
     </panel>
   </tab_container>
-  <button label="OK" label_selected="OK" name="ok_btn" />
+  <button label="ＯＫ" label_selected="ＯＫ" name="ok_btn" />
   <button label="キャンセル" label_selected="キャンセル" name="cancel_btn" />
 </floater>

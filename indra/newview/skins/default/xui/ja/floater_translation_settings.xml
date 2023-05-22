@@ -35,6 +35,6 @@
   <text name="google_api_key_label">Google API key[http://code.google.com/apis/language/translate/v2/getting_started.html#auth API key]：</text>
   <button label="認証" name="verify_google_api_key_btn" />
   <text name="google_links_text">[http://code.google.com/apis/language/translate/v2/pricing.html 価格]|[https://code.google.com/apis/console 統計]</text>
-  <button label="OK" name="ok_btn" />
+  <button label="ＯＫ" name="ok_btn" />
   <button label="キャンセル" name="cancel_btn" />
 </floater>

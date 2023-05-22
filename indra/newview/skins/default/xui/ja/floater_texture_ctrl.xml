@@ -36,7 +36,7 @@
     <combo_box.item label="BAKED_AUX3" name="BAKED_AUX3" />
   </combo_box>
   <check_box initial_value="false" label="基本となるメッシュリージョンを隠す" name="hide_base_mesh_region" />
-  <button label="OK" label_selected="OK" name="Select" />
+  <button label="ＯＫ" label_selected="ＯＫ" name="Select" />
   <button label="キャンセル" label_selected="キャンセル" name="Cancel" />
   <check_box initial_value="true" label="今すぐ適用" name="apply_immediate_check" />
 </floater>

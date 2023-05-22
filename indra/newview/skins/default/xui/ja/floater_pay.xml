@@ -2,7 +2,7 @@
 <floater name="Give Money" title="お支払い">
   <string name="payee_group">グループに支払う</string>
   <string name="payee_resident">住人に支払う</string>
-  <text name="paying_text">支払中：</text>
+  <text name="paying_text">支払い先：</text>
   <text name="payee_name">非常に長い名前が途中で切れていないかをテストして確認</text>
   <text name="payment_message_label">説明（任意項目）：</text>
   <panel label="検索" name="PatternsPanel">

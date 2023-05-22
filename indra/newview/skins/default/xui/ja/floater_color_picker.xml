@@ -28,7 +28,7 @@
   <line_editor name="hex_value" />
   <check_box label="すぐ適用" name="apply_immediate" />
   <button name="color_pipette" />
-  <button label="OK" name="select_btn" />
+  <button label="ＯＫ" name="select_btn" />
   <button label="キャンセル" label_selected="キャンセル" name="cancel_btn" />
   <text tool_tip="パレットの下にドラッグして保存" name="Current color:">現在の色：</text>
   <menu_button menu_filename="menu_copy_color_picker.xml" name="clipboard_color" tool_tip="色のコピー時のオプション" />

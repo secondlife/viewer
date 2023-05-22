@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="オブジェクトのプロフィール">
-  <panel.string name="text deed continued">譲渡</panel.string>
+  <panel.string name="text deed continued">再譲渡</panel.string>
   <panel.string name="text deed">譲渡</panel.string>
-  <panel.string name="text modify info 1">このオブジェクトを修正できます。</panel.string>
-  <panel.string name="text modify info 2">これらのオブジェクトを修正できます。</panel.string>
-  <panel.string name="text modify info 3">このオブジェクトを修正できません。</panel.string>
-  <panel.string name="text modify info 4">これらのオブジェクトを修正できません。</panel.string>
-  <panel.string name="text modify info 5">リージョン（地域）の境界を越えてこのオブジェクトを修正できません。</panel.string>
-  <panel.string name="text modify info 6">リージョン（地域）の境界を越えてこれらのオブジェクトを修正できません。</panel.string>
+  <panel.string name="text modify info 1">このオブジェクトは、修正することができます。</panel.string>
+  <panel.string name="text modify info 2">これらのオブジェクトは、修正することができます。</panel.string>
+  <panel.string name="text modify info 3">このオブジェクトは、修正することができません。</panel.string>
+  <panel.string name="text modify info 4">これらのオブジェクトは、修正することができません。</panel.string>
+  <panel.string name="text modify info 5">リージョン（地域）の境界を越えて、このオブジェクトを修正することはできません。</panel.string>
+  <panel.string name="text modify info 6">リージョン（地域）の境界を越えて、これらのオブジェクトを修正することはできません。</panel.string>
   <panel.string name="text modify warning">このオブジェクトには、パーツがリンクされています。</panel.string>
   <panel.string name="Cost Default">価格：L$</panel.string>
   <panel.string name="Cost Total">合計価格：L$</panel.string>
-  <panel.string name="Cost Per Unit">Price Per：L$</panel.string>
-  <panel.string name="Cost Mixed">Mixed Price</panel.string>
-  <panel.string name="Sale Mixed">Mixed Sale</panel.string>
+  <panel.string name="Cost Per Unit">単価：L$</panel.string>
+  <panel.string name="Cost Mixed">総額</panel.string>
+  <panel.string name="Sale Mixed">販売額</panel.string>
   <text name="title" value="オブジェクトのプロフィール" />
   <text name="where" value="（インワールド）" />
   <panel label="" name="properties_panel">
@@ -38,7 +38,7 @@
       <combo_box.item label="なし" name="None" />
     </combo_box>
     <panel name="perms_inv">
-      <text name="perm_modify">このオブジェクトを修正できます。</text>
+      <text name="perm_modify">このオブジェクトは以下の条件で修正することができます。</text>
       <text name="Anyone can:">全員：</text>
       <check_box label="コピー" name="checkbox allow everyone copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります。" />
       <check_box label="移動" name="checkbox allow everyone move" tool_tip="オブジェクトは誰でも動かすことができます。" />
@@ -47,7 +47,7 @@
       <text name="NextOwnerLabel">次の所有者：</text>
       <check_box label="修正" name="checkbox next owner can modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。" />
       <check_box label="コピー" name="checkbox next owner can copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。" />
-      <check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます" />
+      <check_box label="再販・譲渡" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます" />
     </panel>
     <check_box label="販売" name="checkbox for sale" tool_tip="このオブジェクトやオブジェクトの中身が購入できるようになるか、指定価格でインワールドにコピーできるようになります。" />
     <combo_box name="sale type" tool_tip="購入者がコピーを受け取るのか、コピーの中身を受け取るのか、またはアイテム自体を受け取るのかを選択してください。">

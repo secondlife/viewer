@@ -9,6 +9,6 @@
   <text name="new_folder_textbox">[secondlife:/// フォルダを作成]</text>
   <text name="notes_label" value="私のノート" />
   <text_editor name="notes_editor" />
-  <button label="OK" name="ok_btn" />
+  <button label="ＯＫ" name="ok_btn" />
   <button label="キャンセル" name="cancel_btn" />
 </floater>

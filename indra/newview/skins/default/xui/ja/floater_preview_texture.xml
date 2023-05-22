@@ -10,7 +10,7 @@
       <combo_box name="combo_aspect_ratio" tool_tip="固定した縦横比のプレビュー" />
     </layout_panel>
     <layout_panel name="buttons_panel">
-      <button label="OK" name="Keep" />
+      <button label="ＯＫ" name="Keep" />
       <button label="破棄" name="Discard" />
       <button label="名前をつけて保存" name="save_tex_btn" />
     </layout_panel>

@@ -3,7 +3,7 @@
   <radio_group name="parcel_voice_channel">
     <radio_item label="不動産空間チャネルを使用" name="Estate" />
     <radio_item label="プライベート空間チャネルを使用" name="Private" />
-    <radio_item label="この区画の空間音声を無効" name="Disabled" />
+    <radio_item label="この区画の空間でのボイスチャットを無効化" name="Disabled" />
   </radio_group>
   <radio_group name="simple_radio_group">
     <radio_item label="label属性のラベル" name="label_radio_item" />

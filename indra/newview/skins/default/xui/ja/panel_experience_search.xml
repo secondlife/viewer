@@ -24,7 +24,7 @@
       <columns name="owner" label="所有者" />
     </scroll_list>
 
-    <button label="OK" label_selected="OK" name="ok_btn" />
+    <button label="ＯＫ" label_selected="ＯＫ" name="ok_btn" />
     <button label="キャンセル" name="cancel_btn" />
     <button label="プロフィール表示" name="profile_btn" />
     <button label="⇦" name="left_btn" />

@@ -11,7 +11,7 @@
       <filter_editor label="テクスチャをフィルタ" name="flt_inventory_search" />
     </layout_panel>
     <layout_panel name="temp">
-      <button label="OK" label_selected="OK" name="btn_select" />
+      <button label="ＯＫ" label_selected="ＯＫ" name="btn_select" />
       <button label="キャンセル" label_selected="キャンセル" name="btn_cancel" />
     </layout_panel>
   </layout_stack>

@@ -32,14 +32,14 @@
             <button label="空３" name="sky3_track" />
             <button label="空２" name="sky2_track" />
             <button label="地表レベル" name="sky1_track" />
-            <button label="水" name="water_track" />
+            <button label="水面" name="water_track" />
           </panel>
           <panel name="timeline">
             <!-- Todo: These 5 tests might be subjected to a change to be dynamically generated,
             consider using layout_stack to get dynamic width adjustment-->
             <text value="0％[DSC]" />
             <text name="p1" value="25％ [DSC]" />
-            <text name="p2" value="50％ DSC]" />
+            <text name="p2" value="50％ [DSC]" />
             <text name="p3" value="75％ [DSC]" />
             <text name="p4" value="100％ [DSC]" />
             <multi_slider name="WLTimeSlider" />
@@ -92,7 +92,7 @@
             <panel filename="panel_settings_sky_clouds.xml" label="雲" name="clouds_panel" />
             <panel filename="panel_settings_sky_sunmoon.xml" label="太陽＆月" name="moon_panel" />
             <!-- added programatically so it doesn't show up whether we want it or not
-            <panel name="density_panel" />
+            <panel name="density_panel" label="密度" />
             -->
           </tab_container>
         </layout_panel>
@@ -101,9 +101,9 @@
     <layout_panel name="buttons">
       <button label="保存" name="save_btn" />
 
-      <button name="btn_flyout" />
+      <button label="" name="btn_flyout" />
 
-      <button label="キャンセル" />
+      <button label="キャンセル" name="cancel_btn" />
 
     </layout_panel>
   </layout_stack>

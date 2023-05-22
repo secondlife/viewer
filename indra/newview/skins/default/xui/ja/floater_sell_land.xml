@@ -8,12 +8,12 @@
       <text name="info_size">[AREA]㎡</text>
       <text name="info_action">この区画を販売：</text>
       <text name="price_label">１．価格の設定：</text>
-      <text name="price_text">適正価格を設定してください。</text>
+      <text name="price_text">適正と思われる価格を入力してください。</text>
       <text name="price_ld">L$ </text>
       <line_editor name="price">0</line_editor>
       <text name="price_per_m">（1㎡あたりL$ [PER_METER]）</text>
       <text name="sell_to_label">２．特定の人物に販売：</text>
-      <text name="sell_to_text">販売先の指定なしか、特定の人物に販売するかを選択してください。</text>
+      <text name="sell_to_text">販売先を特定の人物に限定するか、しないかを選択してください。</text>
       <combo_box name="sell_to">
         <combo_box.item label="─１つ選択─" name="--selectone--" />
         <combo_box.item label="指定なし・誰にでも販売" name="Anyone" />
@@ -21,14 +21,14 @@
       </combo_box>
       <button label="選択" name="sell_to_select_agent" />
       <text name="sell_objects_label">３．オブジェクトと土地を一緒に販売しますか？</text>
-      <text name="sell_objects_text">区画上にある、土地所有者の譲渡可能なオブジェクトは、所有権が変更されます。</text>
+      <text name="sell_objects_text">区画上の土地所有者の譲渡可能なオブジェクトは、所有権が変更されます。</text>
       <radio_group name="sell_objects">
-        <radio_item label="いいえ、オブジェクトの所有権を保持します" name="no" />
-        <radio_item label="はい、オブジェクトと土地を一緒に販売します" name="yes" />
+        <radio_item label="いいえ、オブジェクトの所有権は保持します。" name="no" />
+        <radio_item label="はい、オブジェクトと土地を一緒に販売します。" name="yes" />
       </radio_group>
       <button label="オブジェクトを表示" name="show_objects" />
       <text name="nag_message_label">注意：返品・交換はできません。</text>
-      <button label="土地を販売" name="sell_btn" />
+      <button label="土地を販売する" name="sell_btn" />
       <button label="キャンセル" name="cancel_btn" />
     </panel>
   </scroll_container>

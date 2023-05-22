@@ -10,5 +10,5 @@
   <text_editor name="message" value="メッセージ" />
   <icon name="attachment_icon" />
   <text name="attachment" value="添付アイテム" />
-  <button label="OK" name="btn_ok" />
+  <button label="ＯＫ" name="btn_ok" />
 </panel>

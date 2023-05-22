@@ -87,7 +87,7 @@
       <panel.string name="objects_available_text">[MAX]個中[COUNT]個（[AVAILABLE]個が利用可能）</panel.string>
       <panel.string name="objects_deleted_text">[MAX]個中[COUNT]個（[DELETED]個を削除しました）</panel.string>
       <text name="parcel_object_bonus">オブジェクトボーナス：[BONUS]個</text>
-      <text name="Simulator primitive usage:">リージョン（地域）全体の最大プリム数：</text>
+      <text name="Simulator primitive usage:">リージョン全体の最大プリム数：</text>
       <text name="objects_available">[MAX]個中[COUNT]個（[AVAILABLE]個が利用可能）</text>
       <text name="Primitives parcel supports:">区画で利用可能な最大プリム数：</text>
       <text name="object_contrib_text">[COUNT]個</text>
@@ -203,9 +203,9 @@
       <check_box label="全員" name="all av sound check" />
       <check_box label="グループ" name="group av sound check" />
       <text name="Voice settings:">ボイス：</text>
-      <check_box label="ボイスを有効にする" name="parcel_enable_voice_channel" />
-      <check_box label="ボイスを有効にする（不動産設定）" name="parcel_enable_voice_channel_is_estate_disabled" />
-      <check_box label="ボイスをこの区画内に限定する" name="parcel_enable_voice_channel_local" />
+      <check_box label="ボイスチャットを有効にする" name="parcel_enable_voice_channel" />
+      <check_box label="ボイスチャットを有効にする（不動産設定）" name="parcel_enable_voice_channel_is_estate_disabled" />
+      <check_box label="ボイスチャットをこの区画内に限定する" name="parcel_enable_voice_channel_local" />
     </panel>
     <panel label="アクセス" name="land_access_panel">
       <panel.string name="access_estate_defined">（不動産に限定）</panel.string>

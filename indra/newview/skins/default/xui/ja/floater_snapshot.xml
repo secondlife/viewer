@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Snapshot" title="スナップショット">
   <floater.string name="unknown">不明</floater.string>
-  <string name="postcard_progress_str">メールに送信</string>
+  <string name="postcard_progress_str">メール送信</string>
   <string name="profile_progress_str">プロフィールに投稿</string>
   <string name="inventory_progress_str">インベントリに保存</string>
   <string name="local_progress_str">コンピュータに保存</string>
@@ -10,18 +10,18 @@
   <string name="inventory_succeeded_str">インベントリに保存されました！</string>
   <string name="local_succeeded_str">コンピュータに保存されました！</string>
   <string name="profile_failed_str">プロフィールフィードに画像をアップロードできませんでした。</string>
-  <string name="postcard_failed_str">メールを送信に失敗しました。</string>
+  <string name="postcard_failed_str">メール送信に失敗しました。</string>
   <string name="inventory_failed_str">インベントリに保存できませんでした。</string>
   <string name="local_failed_str">コンピュータへの保存に失敗しました。</string>
   <button label="リフレッシュ" name="new_snapshot_btn" />
   <panel name="advanced_options_panel">
-    <text name="layer_type_label">キャプチャー：</text>
+    <text name="layer_type_label">キャプチャーオプション：</text>
     <combo_box label="画像レイヤー" name="layer_types">
       <combo_box.item label="カラー" name="Colors" value="colors" />
       <combo_box.item label="色深度" name="Depth" value="depth" />
     </combo_box>
     <check_box label="インターフェース" name="ui_check" />
-    <check_box label="HUD" name="hud_check" />
+    <check_box label="ＨＵＤ" name="hud_check" />
     <check_box label="フレームをフリーズ（全画面）" name="freeze_frame_check" />
     <check_box label="自動リフレッシュ" name="auto_snapshot_check" />
     <text name="filter_list_label">フィルタ：</text>
@@ -44,11 +44,11 @@
     <text name="failed_lbl">失敗</text>
   </panel>
   <loading_indicator name="working_indicator" />
-  <text name="working_lbl" top_delta="5">処理中</text>
+  <text name="working_lbl">処理中</text>
   <text name="refresh_lbl">リフレッシュして保存</text>
   <ui_ctrl name="thumbnail_placeholder" />
   <view_border name="img_info_border" />
   <text name="image_res_text">[WIDTH]px（幅）✕[HEIGHT]px（高さ）</text>
   <text name="file_size_label">[SIZE]㎅</text>
-  <text name="360_label">360度スナップショットを撮影</text>
+  <text name="360_label">３６０度Ｓショットを撮影</text>
 </floater>

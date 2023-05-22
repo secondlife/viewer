@@ -71,7 +71,7 @@
   <text name="ZoomDeadZone">ズーム・デッド・ゾーン</text>
   <spinner label="" name="FlycamAxisDeadZone6" />
   <button label="SpaceNavigatorのデフォルト設定" name="SpaceNavigatorDefaults" />
-  <button label="OK" label_selected="OK" name="ok_btn" />
+  <button label="ＯＫ" label_selected="ＯＫ" name="ok_btn" />
   <button label="キャンセル" label_selected="キャンセル" name="cancel_btn" />
   <stat_view label="ジョイスティック・モニター" name="axis_view">
     <stat_bar label="軸０" name="axis0" />

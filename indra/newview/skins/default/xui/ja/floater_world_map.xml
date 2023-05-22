@@ -15,8 +15,8 @@
       <panel name="layout_panel_1">
         <text name="events_label">凡例</text>
       </panel>
-      <panel follows="right|top" name="layout_panel_2">
-        <button name="Show My Location" tool_tip="マップの中心を自分のアバターのいる場所にする。"/>
+      <panel name="layout_panel_2">
+        <button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にする。" />
         <text name="me_label">自分</text>
         <check_box control_name="MapShowPeople" name="people_chk" />
         <icon name="person" />
@@ -52,30 +52,24 @@
 
 
       <panel name="layout_panel_3">
-        <text name="find_on_map_label">マップ上を探す</text>
+        <text name="find_on_map_label">マップから探す</text>
       </panel>
 
       <panel name="layout_panel_4">
         <icon name="friends_icon" />
-        <combo_box label="オンラインのフレンド" name="friend combo" tool_tip="フレンドをマップに表示する。">
+        <combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示する。">
           <combo_box.item label="オンラインのフレンド" name="item1" value="None" />
           <combo_box.commit_callback function="WMap.AvatarCombo" />
         </combo_box>
         <icon name="landmark_icon" />
-        <combo_box label="ランドマーク" name="landmark combo" tool_tip="ランドマークをマップに表示する。">
+        <combo_box label="ランドマーク" name="landmark combo" tool_tip="マップにランドマークを表示する。">
           <combo_box.item label="ランドマーク" name="item1" value="None" />
           <combo_box.commit_callback function="WMap.Landmark" />
         </combo_box>
         <icon name="location_icon" />
-        <search_editor label="リージョン（地域）名で" layout="topleft" tool_tip="リージョン（地域）名を入力してください">
-          <search_editor.commit_callback function="WMap.Location" />
-        </search_editor>
-        <button label="探す" name="DoSearch" tool_tip="リージョン（地域）を検索する。">
-          <button.commit_callback function="WMap.Location" />
-        </button>
-        <button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする。">
-          <button.commit_callback function="WMap.Clear" />
-        </button>
+        <search_editor label="リージョン（地域）名で" tool_tip="リージョン（地域）名を入力してください" />
+        <button label="探す" name="DoSearch" tool_tip="リージョン（地域）を検索する。" />
+        <button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする。" />
         <scroll_list name="search_results">
           <scroll_list.columns label="" name="icon" />
           <scroll_list.columns label="" name="sim_name" />
@@ -83,11 +77,11 @@
         </scroll_list>
         <text name="events_label">場所：</text>
         <spinner name="teleport_coordinate_x" />
-        <spinner name="teleport_coordinate_y"/>
-        <spinner name="teleport_coordinate_z"/>
-        <button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポートする。"/>
-        <button label="SLurlをコピー" layout="topleft" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーする。"/>
-        <button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする。"/>
+        <spinner name="teleport_coordinate_y" />
+        <spinner name="teleport_coordinate_z" />
+        <button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポートする。" />
+        <button label="SLurlをコピー" layout="topleft" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーする。" />
+        <button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする。" />
       </panel>
       <panel name="layout_panel_5">
         <text name="zoom_label">縮尺</text>

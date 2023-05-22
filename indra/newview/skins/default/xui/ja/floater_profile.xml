@@ -10,7 +10,7 @@
       <panel label="リアルライフ（現実世界）" name="panel_profile_firstlife" />
       <panel label="メモ" name="panel_profile_notes" />
     </tab_container>
-    <button label="OK" name="ok_btn" tool_tip="プロフィールの変更を保存して閉じる" />
+    <button label="ＯＫ" name="ok_btn" tool_tip="プロフィールの変更を保存して閉じる" />
     <button label="キャンセル" label_selected="キャンセル" name="cancel_btn" />
   </panel>
 </floater>

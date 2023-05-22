@@ -103,7 +103,7 @@
     <combo_box.item label="太陽/月・プロジェクタ" name="2" />
   </combo_box>
   <button label="推奨設定にリセット" name="Defaults" />
-  <button label="OK" label_selected="OK" name="OK" />
+  <button label="ＯＫ" label_selected="ＯＫ" name="OK" />
   <button label="キャンセル" label_selected="キャンセル" name="Cancel" />
   <check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity" />
   <check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors" />

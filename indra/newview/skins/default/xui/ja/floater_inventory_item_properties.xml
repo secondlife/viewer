@@ -16,7 +16,7 @@
   <text name="OwnerLabel">あなた：</text>
   <check_box label="編集" name="CheckOwnerModify" />
   <check_box label="コピー" name="CheckOwnerCopy" />
-  <check_box label="再販・プレゼント" name="CheckOwnerTransfer" />
+  <check_box label="再販・譲渡" name="CheckOwnerTransfer" />
   <text name="AnyoneLabel">全員：</text>
   <check_box label="コピー" name="CheckEveryoneCopy" />
   <text name="GroupLabel">グループ：</text>
@@ -24,7 +24,7 @@
   <text name="NextOwnerLabel">次の所有者：</text>
   <check_box label="編集" name="CheckNextOwnerModify" />
   <check_box label="コピー" name="CheckNextOwnerCopy" />
-  <check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" />
+  <check_box label="再販・譲渡" name="CheckNextOwnerTransfer" />
   <check_box label="売り出し中" name="CheckPurchase" />
   <combo_box name="ComboBoxSaleType">
     <combo_box.item label="コピー" name="Copy" />

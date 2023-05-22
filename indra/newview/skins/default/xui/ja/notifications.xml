@@ -422,21 +422,21 @@ L$が不足しているので、このグループに参加することができ
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
   </notification>
   <notification name="ReturnObjectsNotOwnedBySelf">この土地区画内にある、あなた以外が所有するすべてのオブジェクトを、それぞれの所有者のインベントリに戻そうとしています。操作を続行しますか？ 
-グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
+グループに譲渡された「再販・譲渡可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告* 
 
-これにより、グループに譲渡された「再販・プレゼント不可」のオブジェクトは削除されます！
+これにより、グループに譲渡された「再販・譲渡不可」のオブジェクトは削除されます！
 オブジェクト：[N]
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
   </notification>
   <notification name="ReturnObjectsNotOwnedByUser">この土地区画内にある、[NAME]以外による所有のオブジェクトをすべてそれぞれの所有者のインベントリに返却しようとしています。操作を続行しますか？
-グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
+グループに譲渡された「再販・譲渡可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告* 
 
-これにより、グループに譲渡された「再販・プレゼント不可」のオブジェクトは削除されます！ 
+これにより、グループに譲渡された「再販・譲渡不可」のオブジェクトは削除されます！ 
 オブジェクト：[N]
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
@@ -1805,9 +1805,9 @@ OKをクリックして、ダウンロードとインストールを開始しま
     <tag>confirm</tag>
     <usetemplate ignoretext="ブラウザを起動して LSL ポータルを見るとき" name="okcancelignore" notext="キャンセル" yestext="ページに移動" />
   </notification>
-  <notification name="ReturnToOwner">選択したオブジェクトを、所有者に返却しますか？「再販・プレゼント可」の譲渡されたオブジェクトは、以前の所有者に返却されます。
+  <notification name="ReturnToOwner">選択したオブジェクトを、所有者に返却しますか？「再販・譲渡可」の譲渡されたオブジェクトは、以前の所有者に返却されます。
 
-*警告*「再販・プレゼント不可」の譲渡されたオブジェクトは、削除されます！
+*警告*「再販・譲渡不可」の譲渡されたオブジェクトは、削除されます！
     <tag>confirm</tag>
     <usetemplate ignoretext="オブジェクトを所有者に返却する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ" />
   </notification>
@@ -1866,8 +1866,8 @@ OKをクリックして、ダウンロードとインストールを開始しま
   <notification name="DoNotDisturbModeSet">着信拒否がオンになっています。着信する通信が通知されません。
   
 ・－他の住人は「着信拒否」応答を受け取ります。（「初期設定」＞「一般」で設定）
-・音声通話は拒否されます。
-    <usetemplate ignoretext="マイ ログイン状態を「通知を受けない」モードに変更しました。" name="okignore" yestext="ＯＫ" />
+・ボイスチャットは拒否されます。
+    <usetemplate ignoretext="ログイン状態を「通知を受けない」モードに変更しました。" name="okignore" yestext="ＯＫ" />
   </notification>
 
   <notification name="JoinedTooManyGroupsMember">加入できるグループの最大限に達しました。
@@ -1994,7 +1994,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="ＯＫ" />
   </notification>
 
-  <notification name="OfferTeleportFromGod">現在地に住人をゴッドサモンしますか？
+  <notification name="OfferTeleportFromGod">現在地に住人をゴッド・サモンしますか？
     <tag>confirm</tag>
     <form name="form">
       <input name="message">[REGION]に来ませんか？</input>
@@ -2008,7 +2008,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate ignoretext="ランドマークにテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート" />
   </notification>
 
-  <notification name="TeleportViaSLAPP">このまま、&lt;nolink&gt;[LOCATION]&lt;/nolink&gt; にテレポートしますか？
+  <notification name="TeleportViaSLAPP">このまま、&lt;nolink&gt;[LOCATION]&lt;/nolink&gt;にテレポートしますか？
     <tag>confirm</tag>
     <usetemplate ignoretext="SLAPP でテレポートすることを確認" name="okcancelignore" notext="キャンセル" yestext="テレポート" />
   </notification>
@@ -2426,7 +2426,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 購入すると、あなたがオブジェクトの所有者となり、以下の操作が可能になります。
 修正：[MODIFYPERM]
 コピー：[COPYPERM]
-再販・プレゼント：[RESELLPERM]
+再販・譲渡：[RESELLPERM]
     <tag>confirm</tag>
     <tag>funds</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
@@ -2436,7 +2436,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 購入すると、あなたがオブジェクトの所有者となり、以下の操作が可能になります。
 修正：[MODIFYPERM]
 コピー：[COPYPERM]
-再販・プレゼント：[RESELLPERM]
+再販・譲渡：[RESELLPERM]
     <tag>confirm</tag>
     <tag>funds</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
@@ -2446,7 +2446,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 購入したオブジェクトは、あなたのインベントリにコピーされ、以下の操作が可能になります。
 修正：[MODIFYPERM]
 コピー：[COPYPERM]
-再販・プレゼント：[RESELLPERM]
+再販・譲渡：[RESELLPERM]
     <tag>confirm</tag>
     <tag>funds</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
@@ -2456,7 +2456,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 購入したオブジェクトは、あなたのインベントリにコピーされ、以下の操作が可能になります。
 修正：[MODIFYPERM]
 コピー：[COPYPERM]
-再販・プレゼント：[RESELLPERM]
+再販・譲渡：[RESELLPERM]
     <tag>confirm</tag>
     <tag>funds</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />

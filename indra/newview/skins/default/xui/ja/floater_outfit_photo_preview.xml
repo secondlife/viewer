@@ -5,6 +5,6 @@
   <floater.string name="photo_confirmation">この画像を[OUTFIT]のアウトフィット画像にしますか？</floater.string>
   <text name="dimensions">[WIDTH]px✕[HEIGHT]px</text>
   <text name="notification" />
-  <button label="OK" name="ok_btn" />
+  <button label="ＯＫ" name="ok_btn" />
   <button label="キャンセル" name="cancel_btn" />
 </floater>

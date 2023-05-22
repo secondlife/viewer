@@ -2,7 +2,7 @@
 <floater name="url_entry">
   <text name="media_label">メディアURL：</text>
   <combo_box name="media_entry" />
-  <button label="OK" name="ok_btn" />
+  <button label="ＯＫ" name="ok_btn" />
   <button label="キャンセル" name="cancel_btn" />
   <button label="クリア" name="clear_btn" />
   <text name="loading_label">読み込んでいます…	</text>

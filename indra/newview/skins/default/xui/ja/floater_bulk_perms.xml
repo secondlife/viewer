@@ -33,8 +33,8 @@
   <text name="NextOwnerLabel">次の所有者：</text>
   <check_box label="修正" name="next_owner_modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。" />
   <check_box label="コピー" name="next_owner_copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。" />
-  <check_box initial_value="true" label="再販・プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます。" />
-  <button label="OK" name="ok" />
+  <check_box initial_value="true" label="再販・譲渡" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます。" />
+  <button label="ＯＫ" name="ok" />
   <button label="適用" name="apply" />
   <button label="キャンセル" name="close" />
 </floater>

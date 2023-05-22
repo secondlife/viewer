@@ -2,7 +2,7 @@
 <floater name="Give Money" title="オブジェクトにお支払い">
   <string name="payee_group">グループに支払う</string>
   <string name="payee_resident">住人に支払う</string>
-  <text name="paying_text">支払中：</text>
+  <text name="paying_text">支払い先：</text>
   <text name="payee_name">エリカシタ・モストポリゾン</text>
   <text name="object_name_label">以下のオブジェクトを介して支払う：</text>
   <icon name="icon_object" tool_tip="オブジェクト" />
