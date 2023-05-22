@@ -833,9 +833,12 @@ void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 	mAutoOpenItems.push(item);
 	
 	item->setOpen(TRUE);
+    if(!item->isSingleFolderMode())
+    {
 	LLRect content_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 	LLRect constraint_rect(0,content_rect.getHeight(), content_rect.getWidth(), 0);
 	scrollToShowItem(item, constraint_rect);
+    }
 }
 
 void LLFolderView::closeAutoOpenedFolders()
