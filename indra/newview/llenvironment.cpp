@@ -1179,13 +1179,14 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
         return;
     }
 
-    DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
+    bool reset_probes = false;
 
+    DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
 
     if (fixed.first)
     {
         logEnvironment(env, fixed.first, env_version);
-        environment->setSky(fixed.first);
+        reset_probes = environment->setSky(fixed.first);
         environment->setFlags(DayInstance::NO_ANIMATE_SKY);
     }
     else if (!environment->getSky())
@@ -1196,7 +1197,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
             // and then add water/sky on top
             // This looks like it will result in sky using single keyframe instead of whole day if day is present
             // when setting static water without static sky
-            environment->setSky(mCurrentEnvironment->getSky());
+            reset_probes = environment->setSky(mCurrentEnvironment->getSky());
             environment->setFlags(DayInstance::NO_ANIMATE_SKY);
         }
         else
@@ -1214,7 +1215,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
             if (substitute && substitute->getSky())
             {
-                environment->setSky(substitute->getSky());
+                reset_probes = environment->setSky(substitute->getSky());
                 environment->setFlags(DayInstance::NO_ANIMATE_SKY);
             }
             else
@@ -1266,7 +1267,10 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
         }
     }
 
-    gPipeline.mReflectionMapManager.reset();
+    if (reset_probes)
+    { // the sky changed in a way that merits a reset of reflection probes
+        gPipeline.mReflectionMapManager.reset();
+    }
 
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env, env_version);
@@ -2788,10 +2792,12 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSett
 }
 
 
-void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
+bool LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 {
     mInitialized = false;
 
+    bool changed = psky == nullptr || mSky == nullptr || mSky->getHash() != psky->getHash();
+    
     bool different_sky = mSky != psky;
     
     mSky = psky;
@@ -2805,6 +2811,8 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
         LLEnvironment::getAtmosphericModelSettings(settings, psky);
         gAtmosphere->configureAtmosphericModel(settings);
     }
+
+    return changed;
 }
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
