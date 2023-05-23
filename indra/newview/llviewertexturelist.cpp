@@ -1013,33 +1013,6 @@ void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debu
 	addImageToList(tex);
 }
 
-/*
- static U8 get_image_type(LLViewerFetchedTexture* imagep, LLHost target_host)
- {
- // Having a target host implies this is a baked image.  I don't
- // believe that boost level has been set at this point. JC
- U8 type_from_host = (target_host.isOk() 
- ? LLImageBase::TYPE_AVATAR_BAKE 
- : LLImageBase::TYPE_NORMAL);
- S32 boost_level = imagep->getBoostLevel();
- U8 type_from_boost = ( (boost_level == LLViewerFetchedTexture::BOOST_AVATAR_BAKED 
- || boost_level == LLViewerFetchedTexture::BOOST_AVATAR_BAKED_SELF)
- ? LLImageBase::TYPE_AVATAR_BAKE 
- : LLImageBase::TYPE_NORMAL);
- if (type_from_host == LLImageBase::TYPE_NORMAL
- && type_from_boost == LLImageBase::TYPE_AVATAR_BAKE)
- {
- LL_WARNS() << "TAT: get_image_type() type_from_host doesn't match type_from_boost"
- << " host " << target_host
- << " boost " << imagep->getBoostLevel()
- << " imageid " << imagep->getID()
- << LL_ENDL;
- imagep->dump();
- }
- return type_from_host;
- }
- */
-
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;

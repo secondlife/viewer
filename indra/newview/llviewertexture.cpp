@@ -3115,7 +3115,8 @@ void LLViewerLODTexture::processTextureStats()
         //
 
         S32 current_discard = getDiscardLevel();
-        if (mBoostLevel < LLGLTexture::BOOST_SCULPTED && current_discard >= 0)
+        if (mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED && 
+            current_discard >= 0)
         {
             if (current_discard < (mDesiredDiscardLevel-1) && !mForceToSaveRawImage)
             { // should scale down

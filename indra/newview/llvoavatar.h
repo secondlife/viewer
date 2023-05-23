@@ -684,7 +684,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	virtual LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const { return LLGLTexture::BOOST_AVATAR; }
-	virtual LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLGLTexture::BOOST_AVATAR_BAKED_SELF; }
+	virtual LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLGLTexture::BOOST_AVATAR_BAKED; }
 	virtual S32 						getTexImageSize() const;
 	/*virtual*/ S32						getTexImageArea() const { return getTexImageSize()*getTexImageSize(); }
 
