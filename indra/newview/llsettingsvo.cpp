@@ -717,14 +717,6 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLColor3 ambient(getTotalAmbient());
 
     F32 g = getGamma();
-    if (ambient != LLColor3::black && getReflectionProbeAmbiance() == 0.f)
-    { //desaturate ambient for legacy compatibility
-        F32 h, s, l;
-        ambient.calcHSL(&h, &s, &l);
-        s *= 0.5f;
-        l *= 1.f / (g + llmax(g-1.f, 0.f));
-        ambient.setHSL(h, s, l);
-    }
 
     if (irradiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)
