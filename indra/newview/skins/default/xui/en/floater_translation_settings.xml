@@ -319,7 +319,7 @@
      name="deepl_api_domain_label"
      top_pad="80"
      width="85">
-        Domain:
+        Endpoint:
     </text>
 
     <combo_box
