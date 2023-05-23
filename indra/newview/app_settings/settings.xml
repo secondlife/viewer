@@ -10457,17 +10457,6 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-  <key>RenderReflectionProbeCount</key>
-  <map>
-    <key>Comment</key>
-    <string>Number of reflection probes (maximum is 256, requires restart)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>S32</string>
-    <key>Value</key>
-    <integer>256</integer>
-  </map>
   <key>RenderReflectionProbeResolution</key>
   <map>
     <key>Comment</key>

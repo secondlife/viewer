@@ -1205,9 +1205,7 @@ void LLReflectionMapManager::renderDebug()
 
 void LLReflectionMapManager::initReflectionMaps()
 {
-    static LLCachedControl<S32> probe_count(gSavedSettings, "RenderReflectionProbeCount", LL_MAX_REFLECTION_PROBE_COUNT);
-
-    U32 count = llclamp((S32) probe_count, 1, LL_MAX_REFLECTION_PROBE_COUNT);
+    U32 count = LL_MAX_REFLECTION_PROBE_COUNT;
 
     if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {

@@ -177,7 +177,7 @@ private:
 
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
 
-    // number of reflection probes to use for rendering (based on saved setting RenderReflectionProbeCount)
+    // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
 
     // resolution of reflection probes

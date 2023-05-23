@@ -25,9 +25,6 @@
 
 #define FLT_MAX 3.402823466e+38
 
-#define REFMAP_COUNT 256
-#define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
-
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
