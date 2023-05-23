@@ -2831,18 +2831,6 @@ bool enable_object_edit_gltf_material()
     return func.mCanModify && func.mMaterialId.notNull();
 }
 
-bool enable_object_save_gltf_material()
-{
-    if (!LLMaterialEditor::capabilitiesAvailable())
-    {
-        return false;
-    }
-
-    LLSelectedTEGetmatIdAndPermissions func;
-    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
-    return func.mCanCopy && func.mMaterialId.notNull();
-}
-
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -2972,11 +2960,6 @@ void handle_object_edit_gltf_material()
     }
 
     LLMaterialEditor::loadLive();
-}
-
-void handle_object_save_gltf_material()
-{
-    LLMaterialEditor::savePickedMaterialAs();
 }
 
 void handle_attachment_edit(const LLUUID& inv_item_id)
@@ -9659,14 +9642,12 @@ void initialize_menus()
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
     commit.add("Object.Edit", boost::bind(&handle_object_edit));
     commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
-    commit.add("Object.SaveGLTFMaterial", boost::bind(&handle_object_save_gltf_material));
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
     enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
     enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));
-    enable.add("Object.EnableSaveGLTFMaterial", boost::bind(&enable_object_save_gltf_material));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
