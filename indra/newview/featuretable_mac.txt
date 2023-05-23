@@ -1,4 +1,4 @@
-version 53
+version 54
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -45,7 +45,6 @@ RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
-RenderTerrainPBRDetail      1   -1
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVBOEnable				1	1
@@ -308,6 +307,9 @@ RenderShadowDetail			0	0
 
 list TexUnit8orLess
 RenderDeferredSSAO			0	0
+
+list TexUnit16orLess
+RenderTerrainPBRDetail      1   -1
 
 list AMD
 RenderDeferredSSAO			1	0
