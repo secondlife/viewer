@@ -71,6 +71,7 @@ LLKeyframeMotion::JointMotionList::JointMotionList()
 	  mLoopOutPoint(0.f),
 	  mEaseInDuration(0.f),
 	  mEaseOutDuration(0.f),
+	  mPositionScale(1.f),
 	  mBasePriority(LLJoint::LOW_PRIORITY),
 	  mHandPose(LLHandMotion::HAND_POSE_SPREAD),
 	  mMaxPriority(LLJoint::LOW_PRIORITY)
@@ -137,6 +138,16 @@ void LLKeyframeMotion::JointMotionList::adjustTime(F32 adjustment)
 	}
 }
 
+void LLKeyframeMotion::JointMotionList::adjustPositionScale(F32 adjustment)
+{  // Change time values by this factor
+    mPositionScale = adjustment;
+
+    for (U32 i = 0; i < getNumJointMotions(); i++)
+    {
+        LLKeyframeMotion::JointMotion *joint_motion_p = mJointMotionArray[i];
+        joint_motion_p->adjustPositionScale(adjustment);
+    }
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -499,9 +510,9 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 	// update position component of joint state
 	//-------------------------------------------------------------------------
 	if ((usage & LLJointState::POS) && mPositionCurve.mNumKeys)
-	{
-		joint_state->setPosition( mPositionCurve.getValue( time, duration ) );
-	}
+    {
+		joint_state->setPosition(mPositionCurve.getValue(time, duration) * mPositionScale);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -509,11 +520,15 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::JointMotion::adjustTime(F32 adjustment)
 {
-	mScaleCurve.adjustTime(adjustment);
-	mRotationCurve.adjustTime(adjustment);
-	mPositionCurve.adjustTime(adjustment);
+    mScaleCurve.adjustTime(adjustment);
+    mRotationCurve.adjustTime(adjustment);
+    mPositionCurve.adjustTime(adjustment);
 }
 
+void LLKeyframeMotion::JointMotion::adjustPositionScale(F32 adjustment)
+{
+    mPositionScale = adjustment;
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -532,6 +547,7 @@ LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id)
 		mLastSkeletonSerialNum(0),
 		mLastUpdateTime(0.f),
 		mLastLoopedTime(0.f),
+		mPositionScale(1.f),
 		mAssetStatus(ASSET_UNDEFINED)
 {
 
@@ -2150,6 +2166,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			success &= dp.packU16(time_short, "time");
 
 			U16 x, y, z;
+			pos_key.mPosition *= mPositionScale;	//Modify position as writing out. Not needed for deserialize.
 			pos_key.mPosition.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 			x = F32_to_U16(pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 			y = F32_to_U16(pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
@@ -2354,7 +2371,6 @@ void LLKeyframeMotion::setEaseOut(F32 ease_in)
 	}
 }
 
-
 //-----------------------------------------------------------------------------
 // flushKeyframeCache()
 //-----------------------------------------------------------------------------
@@ -2511,10 +2527,22 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::adjustTime(F32 adjustment)
 {
-	if (mJointMotionList)
-	{
-		mJointMotionList->adjustTime(adjustment);
-	}
+    if (mJointMotionList)
+    {
+        mJointMotionList->adjustTime(adjustment);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// adjustPositionScale() - adjust the position scale by this factor
+//-----------------------------------------------------------------------------
+void LLKeyframeMotion::adjustPositionScale(F32 adjustment)
+{
+    if (mJointMotionList)
+    {
+        mPositionScale = adjustment;
+        mJointMotionList->adjustPositionScale(adjustment);
+    }
 }
 
 //--------------------------------------------------------------------

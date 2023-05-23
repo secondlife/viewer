@@ -171,7 +171,8 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("preview_base_anim")->setValue("Standing");
 
 	getChild<LLUICtrl>("priority")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPriority, this));
-	getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
+    getChild<LLUICtrl>("scale")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitScale, this));
+    getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
 	getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
 	getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopIn, this, _1));
 	getChild<LLUICtrl>("loop_out_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopOut, this));
@@ -350,8 +351,8 @@ BOOL LLFloaterBvhPreview::postBuild()
 			getChild<LLUICtrl>("loop_check")->setValue(LLSD(motionp->getLoop()));
 			getChild<LLUICtrl>("loop_in_point")->setValue(LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));
 			getChild<LLUICtrl>("loop_out_point")->setValue(LLSD(motionp->getLoopOut() / motionp->getDuration() * 100.f));
-			getChild<LLUICtrl>("priority")->setValue(LLSD((F32)motionp->getPriority()));
-			getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
+            getChild<LLUICtrl>("priority")->setValue(LLSD((F32) motionp->getPriority()));
+            getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
 			getChild<LLUICtrl>("ease_in_time")->setValue(LLSD(motionp->getEaseInDuration()));
 			getChild<LLUICtrl>("ease_out_time")->setValue(LLSD(motionp->getEaseOutDuration()));
 
@@ -848,13 +849,41 @@ void LLFloaterBvhPreview::onCommitEmote()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitPriority()
 {
-	if (!getEnabled() || !mAnimPreview)
-		return;
+    if (!getEnabled() || !mAnimPreview)
+        return;
 
-	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
 
-	motionp->setPriority(llfloor((F32)getChild<LLUICtrl>("priority")->getValue().asReal()));
+    motionp->setPriority(llfloor((F32) getChild<LLUICtrl>("priority")->getValue().asReal()));
+}
+
+//-----------------------------------------------------------------------------
+// onCommitScale()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitScale()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+	// Scale is percentage scale it down.
+    F32               scale   = (F32) getChild<LLUICtrl>("scale")->getValue().asReal();
+    
+	LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+	if (!motionp)
+    {
+        LL_WARNS("BVH") << "onCommitScale() - no motion found for " << mMotionID << LL_ENDL;
+        return;
+    }
+
+	//Negate out the previous scaling factor and pretend F32 rounding errors don't exist.
+
+    // scalePositions
+	motionp->adjustPositionScale( scale );
+
+	resetMotion();
 }
 
 //-----------------------------------------------------------------------------
