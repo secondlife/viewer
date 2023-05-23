@@ -1344,7 +1344,7 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 			child_selected = TRUE;
 		}
 	}
-	if(openitem && child_selected)
+	if(openitem && child_selected && !mSingleFolderMode)
 	{
 		setOpenArrangeRecursively(TRUE);
 	}
