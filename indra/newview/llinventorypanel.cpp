@@ -2107,6 +2107,7 @@ static LLDefaultChildRegistry::Register<LLInventorySingleFolderPanel> t_single_f
 
 LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     : LLInventoryPanel(params)
+    , mExternalScroller(NULL)
 {
     mBuildChildrenViews = false;
     getFilter().setSingleFolderMode(true);
@@ -2235,7 +2236,18 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
             mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
             addChild(mScroller);
             mScroller->addChild(mFolderRoot.get());
-            mFolderRoot.get()->setScrollContainer(mScroller);
+            if (!mExternalScroller)
+            {
+                mFolderRoot.get()->setScrollContainer(mScroller);
+            }
+            else
+            {
+                // Hack to use exteranl scroll in combination view
+                // Todo: find a way to avoid this
+                // ideally combination view should be own inventory panel
+                // instead of piggy backing on two different ones
+                mFolderRoot.get()->setScrollContainer(mExternalScroller);
+            }
             mFolderRoot.get()->setFollowsAll();
             mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
 

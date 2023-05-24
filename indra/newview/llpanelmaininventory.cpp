@@ -256,7 +256,7 @@ BOOL LLPanelMainInventory::postBuild()
     mInventoryGalleryPanel = getChild<LLInventoryGallery>("gallery_view_inv");
     mGalleryRootUpdatedConnection = mInventoryGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
 
-    mCombinationScrollPanel = getChild<LLUICtrl>("combination_view_inventory");
+    mCombinationScrollPanel = getChild<LLScrollContainer>("combination_view_inventory");
 
     mCombinationInventoryPanel = getChild<LLInventorySingleFolderPanel>("comb_single_folder_inv");
     LLInventoryFilter& comb_inv_filter = mCombinationInventoryPanel->getFilter();
@@ -264,6 +264,7 @@ BOOL LLPanelMainInventory::postBuild()
     comb_inv_filter.markDefault();
     mCombinationInventoryPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onCombinationInventorySelectionChanged, this, _1, _2));
     mCombinationInventoryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
+    mCombinationInventoryPanel->setScroller(mCombinationScrollPanel);
 
     mCombinationGalleryPanel = getChild<LLInventoryGallery>("comb_gallery_view_inv");
     LLInventoryFilter& comb_gallery_filter = mCombinationGalleryPanel->getFilter();
@@ -2326,6 +2327,11 @@ void LLPanelMainInventory::updateCombinationVisibility()
         {
             mCombinationShapeDirty = false;
             mCombinationInventoryPanel->reshape(1,1); // HACK: force reduce visible area
+            LLFolderView* root_folder = mCombinationInventoryPanel->getRootFolder();
+            if (root_folder)
+            {
+                root_folder->arrangeAll();
+            }
         }
         if (!mCombinationGalleryPanel->hasVisibleItems())
         {
@@ -2335,13 +2341,11 @@ void LLPanelMainInventory::updateCombinationVisibility()
         LLRect inv_inner_rect = mCombinationInventoryPanel->getScrollableContainer()->getScrolledViewRect();
         LLRect galery_rect = mCombinationGalleryPanel->getRect();
         LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
-        LLScrollContainer* scroll = static_cast<LLScrollContainer*>(mCombinationScrollPanel);
-        LLRect scroller_window_rect = scroll->getContentWindowRect();
+        LLRect scroller_window_rect = mCombinationScrollPanel->getContentWindowRect();
         const S32 BORDER_PAD = 2; // two sides
-        S32 desired_width = llmax(inv_inner_rect.getWidth(), scroller_window_rect.getWidth() - BORDER_PAD);
 
         inv_rect.mBottom = 0;
-        inv_rect.mRight = inv_rect.mLeft + desired_width;
+        inv_rect.mRight = inv_rect.mLeft + inv_inner_rect.getWidth();
         if (!mCombinationGalleryPanel->hasVisibleItems() || mCombinationInventoryPanel->hasVisibleItems())
         {
             inv_rect.mTop = inv_rect.mBottom + inv_inner_rect.getHeight() + BORDER_PAD;
@@ -2364,7 +2368,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
             galery_rect.mTop = galery_rect.mBottom;
         }
 
-        mCombinationScroller->reshape(desired_width, inv_rect.getHeight() + galery_rect.getHeight(), true);
+        mCombinationScroller->reshape(scroller_window_rect.getWidth(), inv_rect.getHeight() + galery_rect.getHeight(), true);
         mCombinationGalleryPanel->setShape(galery_rect, false);
         mCombinationInventoryPanel->setShape(inv_rect, false);
 
@@ -2375,12 +2379,6 @@ void LLPanelMainInventory::updateCombinationVisibility()
         else if(mDelayedCombInvPanelScroll)
         {
             scrollToInvPanelSelection();
-        }
-
-        LLFolderView* root_folder = mCombinationInventoryPanel->getRootFolder();
-        if (root_folder)
-        {
-            root_folder->updateRenamerPosition();
         }
     }
 }
