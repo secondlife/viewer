@@ -1739,7 +1739,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         out << "Invalid level of detail: " << which_lod;
         LL_WARNS() << out.str() << LL_ENDL;
         LLFloaterModelPreview::addStringToLog(out, false);
-        assert(lod >= -1 && lod < LLModel::NUM_LODS);
+        llassert(which_lod >= -1 && which_lod < LLModel::NUM_LODS);
         return;
     }
 
