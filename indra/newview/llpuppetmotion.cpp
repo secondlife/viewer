@@ -146,7 +146,12 @@ LLPuppetMotion::LLPuppetMotion(const LLUUID &id) :
     mRemoteToLocalClockOffset = std::numeric_limits<F32>::min();
 }
 
-// override
+LLPuppetMotion::~LLPuppetMotion() 
+{ 
+    mName = ""; 
+}
+
+    // override
 bool LLPuppetMotion::needsUpdate() const
 {
     return !mExpressionEvents.empty() || !mEventQueues.empty() || 

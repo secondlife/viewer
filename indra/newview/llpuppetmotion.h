@@ -91,7 +91,7 @@ public:
     bool needsUpdate() const override;
 
     // Destructor
-    virtual ~LLPuppetMotion() {}
+    ~LLPuppetMotion() override;
 
     void collectJoints(LLJoint* joint);
     void addExpressionEvent(const LLPuppetJointEvent& event);
