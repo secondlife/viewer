@@ -2093,9 +2093,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c5a2ae5ecc8ade5a85b674e4426d6403</string>
+              <string>4e76a6e967bacf2bc9bb92a16ab26a93</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107186/935576/nanosvg-2022.09.27-linux-576467.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109527/952888/nanosvg-2022.09.27-linux-577709.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
