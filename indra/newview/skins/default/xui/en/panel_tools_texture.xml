@@ -132,15 +132,27 @@
              name="object_horizontal"
              top_pad="4"
              width="278" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left="12"
+             top_pad="12"
+             name="label_matmedia"
+             width="90">
+                Material
+            </text>
             <combo_box
              height="23"
              layout="topleft"
              left="10"
              name="combobox matmedia"
-             top_pad="17"
+             top_pad="5"
              width="90">
                 <combo_box.item
-                 label="Materials"
+                 label="Blinn-Phong"
                  name="Materials"
                  value="Materials" />
                 <combo_box.item
@@ -156,7 +168,7 @@
             height="84"
             layout="topleft"
             left_pad="5"
-            top_delta="-10"
+            top_delta="-20"
             width="150"
             visible = "false"
             name="radio_material_type">
