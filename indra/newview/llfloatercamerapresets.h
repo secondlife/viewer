@@ -38,6 +38,7 @@ class LLFloaterCameraPresets : public LLFloater
     virtual void onOpen(const LLSD& key);
 
     void populateList();
+    void onSelectionChange();
 
 private:
     LLFloaterCameraPresets(const LLSD& key);
@@ -57,6 +58,8 @@ public:
     virtual BOOL postBuild();
     virtual void onMouseEnter(S32 x, S32 y, MASK mask);
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+
+    std::string getPresetName() { return mPresetName; }
 
 private:
     void onDeleteBtnClick();

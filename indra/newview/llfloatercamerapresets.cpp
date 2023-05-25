@@ -24,6 +24,7 @@
 */
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloatercamera.h"
 #include "llfloatercamerapresets.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
@@ -40,7 +41,8 @@ LLFloaterCameraPresets::~LLFloaterCameraPresets()
 BOOL LLFloaterCameraPresets::postBuild()
 {
     mPresetList = getChild<LLFlatListView>("preset_list");
-
+    mPresetList->setCommitCallback(boost::bind(&LLFloaterCameraPresets::onSelectionChange, this));
+    mPresetList->setCommitOnSelectionChange(true);
     LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCameraPresets::populateList, this));
 
     return TRUE;
@@ -58,6 +60,7 @@ void LLFloaterCameraPresets::populateList()
     std::list<std::string> preset_names;
 
 	presetsMgr->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_BOTTOM);
+    std::string active_preset = gSavedSettings.getString("PresetCameraActive");
 
     for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
     {
@@ -66,6 +69,19 @@ void LLFloaterCameraPresets::populateList()
         LLCameraPresetFlatItem* item = new LLCameraPresetFlatItem(name, is_default);
         item->postBuild();
         mPresetList->addItem(item);
+        if(name == active_preset)
+        {
+            mPresetList->selectItem(item);
+        }
+    }
+}
+
+void LLFloaterCameraPresets::onSelectionChange()
+{
+    LLCameraPresetFlatItem* selected_preset = dynamic_cast<LLCameraPresetFlatItem*>(mPresetList->getSelectedItem());
+    if(selected_preset)
+    {
+        LLFloaterCamera::switchToPreset(selected_preset->getPresetName());
     }
 }
 
