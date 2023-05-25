@@ -2281,17 +2281,17 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="InventoryPlaySoundTooltip">[再生]オプションでウィンドウを開ける。</string>
   <string name="InventoryOutboxNotMerchantTitle">マーケットプレイスでは誰でもアイテムを売ることができます。</string>
   <string name="InventoryOutboxNotMerchantTooltip" />
-  <string name="InventoryOutboxNotMerchant">マーチャントになりたい方は、[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストアを作成]する必要があります。</string>
+  <string name="InventoryOutboxNotMerchant">販売者になりたい方は、[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストアを作成]する必要があります。</string>
   <string name="InventoryOutboxNoItemsTitle">アウトボックスは空です。</string>
   <string name="InventoryOutboxNoItemsTooltip" />
   <string name="InventoryOutboxNoItems">[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。</string>
   <string name="InventoryOutboxInitializingTitle">マーケットプレイスの初期化。</string>
   <string name="InventoryOutboxInitializing">[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア]のアカウントにアクセスしています。</string>
-  <string name="InventoryOutboxErrorTitle">マーケットプレイス エラー。</string>
+  <string name="InventoryOutboxErrorTitle">マーケットプレイス エラー</string>
   <string name="InventoryOutboxError">[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア]がエラーを返しています。</string>
-  <string name="InventoryMarketplaceError">マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Life のサポート（http://support.secondlife.com）にお問い合わせください</string>
+  <string name="InventoryMarketplaceError">マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート（http://support.secondlife.com）にお問い合わせください</string>
   <string name="InventoryMarketplaceListingsNoItemsTitle">マーケットプレイスのリストフォルダが空です。</string>
-  <string name="InventoryMarketplaceListingsNoItems">[[MARKETPLACE_DASHBOARD_URL]マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグします。</string>
+  <string name="InventoryMarketplaceListingsNoItems">[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグします。</string>
   <string name="InventoryItemsCount">（[ITEMS_COUNT]個のアイテム）</string>
   <string name="Marketplace Validation Warning Stock">バージョンフォルダには、在庫フォルダが含まれなければなりません。</string>
   <string name="Marketplace Validation Error Mixed Stock">エラー：在庫フォルダ内のすべてのアイテムは、コピー不可で同じ種類でなければなりません。</string>
@@ -2404,7 +2404,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="InvFolder Accessories">アクセサリ</string>
   <string name="InvFolder Meshes">メッシュ</string>
   <string name="InvFolder Received Items">受け取った商品</string>
-  <string name="InvFolder Merchant Outbox">マーチャントのアウトボックス</string>
+  <string name="InvFolder Merchant Outbox">販売品ボックス</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
   <string name="InvFolder Friends">フレンド</string>
@@ -2596,7 +2596,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="NoGroupDataFound">グループのデータが見つかりませんでした。</string>
 
   <!-- floater IM bonus_info: When a Linden with Admin/god status receives a new IM this displays the estate (Mainland vs. teen grid) of the source avatar.
-		This is to help Lindens when answering questions. -->
+       This is to help Lindens when answering questions. -->
   <string name="IMParentEstate">親の不動産</string>
   <string name="IMMainland">メインランド</string>
   <string name="IMTeen">ティーン</string>
@@ -3515,7 +3515,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="UpdaterProgressBarTextWithEllipses">アップデートをダウンロード中です…</string>
   <string name="UpdaterProgressBarText">更新をダウンロード中…</string>
   <string name="UpdaterFailDownloadTitle">更新のダウンロードに失敗しました。</string>
-  <string name="UpdaterFailUpdateDescriptive">[APP_NAME]の更新中にエラーが発生しました。www.secondlife.comから最新バージョンをダウンロードしてください。</string>
+  <string name="UpdaterFailUpdateDescriptive">[APP_NAME]の更新中にエラーが発生しました。www.secondlife.com から最新バージョンをダウンロードしてください。</string>
   <string name="UpdaterFailInstallTitle">更新のインストールに失敗しました。</string>
   <string name="UpdaterFailStartTitle">ビューアーの起動に失敗しました。</string>
 
@@ -3985,7 +3985,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_View_Label">カメラ操作</string>
   <string name="Command_Voice_Label">ボイス設定</string>
 
-  <string name="Command_360_Capture_Tooltip">３６０度の正距円筒図法の画像をキャプチャする</string>
+  <string name="Command_360_Capture_Tooltip">３６０度の正距円筒図法のスナップショット画像を撮影します。</string>
   <string name="Command_AboutLand_Tooltip">訪問先に関する情報を表示します。</string>
   <string name="Command_Appearance_Tooltip">アバターの外観を変更します。</string>
   <string name="Command_Avatar_Tooltip">アバター一式を選択します。</string>
@@ -3993,7 +3993,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Chat_Tooltip">近くにいる人物とテキストチャットします。</string>
   <string name="Command_Conversations_Tooltip">全員との会話を表示します。</string>
   <string name="Command_Compass_Tooltip">コンパスを表示します。</string>
-  <string name="Command_Destinations_Tooltip">行ってみたい場所</string>
+  <string name="Command_Destinations_Tooltip">行ってみたい場所を表示します。</string>
   <string name="Command_Environments_Tooltip">自分の環境を表示します。</string>
   <string name="Command_Gestures_Tooltip">アバターのジェスチャーを表示します。</string>
   <string name="Command_Grid_Status_Tooltip">現在のグリッドステータスを表示します。</string>
@@ -4005,10 +4005,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_MiniMap_Tooltip">近隣の人を表示します。</string>
   <string name="Command_Move_Tooltip">アバターの移動操作をします。</string>
   <string name="Command_People_Tooltip">フレンド、グループ、近隣の人物を表示します。</string>
-  <string name="Command_Picks_Tooltip">プロフィールで紹介するお気に入りの場所を表示します。</string>
+  <string name="Command_Picks_Tooltip">プロフィールで紹介しているお気に入りの場所を表示します。</string>
   <string name="Command_Places_Tooltip">保存済みの場所を表示します。</string>
   <string name="Command_Preferences_Tooltip">初期設定を表示します。</string>
-  <string name="Command_Profile_Tooltip">プロフィールの表示や編集を行います。</string>
+  <string name="Command_Profile_Tooltip">自分のプロフィールの表示や編集を行います。</string>
   <string name="Command_Report_Abuse_Tooltip">嫌がらせを報告します。</string>
   <string name="Command_Search_Tooltip">場所、イベント、人物を検索します。</string>
   <string name="Command_Snapshot_Tooltip">スナップショット画像を撮ります。</string>
@@ -4069,7 +4069,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="ExperiencePermission12">体験の権限を自動的に承諾</string>
   <string name="ExperiencePermission16">あなたのアバターを強制的に座らせる</string>
   <string name="ExperiencePermission17">自然環境の設定を変更する</string>
-  <string name="ExperiencePermissionShortUnknown">が不明な操作を実行しました：[Permission]</string>
+  <string name="ExperiencePermissionShortUnknown">が、不明な操作を実行しました：[Permission]</string>
   <string name="ExperiencePermissionShort1">コントロールする</string>
   <string name="ExperiencePermissionShort3">アニメーションをトリガー</string>
   <string name="ExperiencePermissionShort4">取り付ける</string>
