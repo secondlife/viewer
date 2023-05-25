@@ -33,6 +33,8 @@
 #include "message.h"
 #include "llsdutil.h"
 
+#include "json/reader.h"
+
 // use this to avoid temporary object creation
 const LLSaleInfo LLSaleInfo::DEFAULT;
 
@@ -117,6 +119,39 @@ bool LLSaleInfo::fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
 		perm_mask = ll_U32_from_sd(sd[w]);
 	}
 	return true;
+}
+
+bool LLSaleInfo::fromJson(const Json::Value& sd, BOOL& has_perm_mask, U32& perm_mask)
+{
+    const char* w;
+
+    if (sd["sale_type"].isString())
+    {
+        mSaleType = lookup(sd["sale_type"].asString().c_str());
+    }
+    else if (sd["sale_type"].isInt())
+    {
+        S8 type = (U8)sd["sale_type"].asInt();
+        mSaleType = static_cast<LLSaleInfo::EForSale>(type);
+    }
+
+    mSalePrice = llclamp(sd["sale_price"].asInt(), 0, S32_MAX);
+    w = "perm_mask";
+    if (sd.isMember(w))
+    {
+        if (sd.isUInt())
+        {
+            has_perm_mask = TRUE;
+            perm_mask = sd[w].asUInt();
+        }
+        else
+        {
+            LL_WARNS() << "todo" << LL_ENDL;
+            //has_perm_mask = TRUE;
+            //perm_mask = ll_U32_from_sd(sd[w]);
+        }
+    }
+    return true;
 }
 
 BOOL LLSaleInfo::importLegacyStream(std::istream& input_stream, BOOL& has_perm_mask, U32& perm_mask)

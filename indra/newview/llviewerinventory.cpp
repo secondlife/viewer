@@ -72,6 +72,8 @@
 #include "llhttpretrypolicy.h"
 #include "llsettingsvo.h"
 
+#include "json/reader.h"
+
 // do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {} 
 void no_op_llsd_func(const LLSD&) {}
@@ -482,6 +484,17 @@ BOOL LLViewerInventoryItem::unpackMessage(const LLSD& item)
 }
 
 // virtual
+BOOL LLViewerInventoryItem::unpackMessage(const Json::Value& item)
+{
+    BOOL rv = LLInventoryItem::fromJson(item);
+
+    LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+
+    mIsComplete = TRUE;
+    return rv;
+}
+
+// virtual
 BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
@@ -859,6 +872,14 @@ BOOL LLViewerInventoryCategory::unpackMessage(const LLSD& category)
 	BOOL rv = LLInventoryCategory::fromLLSD(category);
 	localizeName();
 	return rv;
+}
+
+// virtual
+BOOL LLViewerInventoryCategory::unpackMessage(const Json::Value& category)
+{
+    BOOL rv = LLInventoryCategory::fromJson(category);
+    localizeName();
+    return rv;
 }
 
 // virtual

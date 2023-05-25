@@ -39,6 +39,11 @@ extern void mask_to_string(U32 mask, char* str);
 extern std::string mask_to_string(U32 mask);
 template<class T> class LLMetaClassT;
 
+namespace Json
+{
+    class Value;
+}
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPermissions
 //
@@ -446,5 +451,6 @@ protected:
 // permission object.
 LLSD ll_create_sd_from_permissions(const LLPermissions& perm);
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm);
+LLPermissions ll_permissions_from_json(const Json::Value& sd_perm);
 
 #endif

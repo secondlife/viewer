@@ -36,6 +36,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "llsdutil.h"
+#include "json/reader.h"
 
 ///----------------------------------------------------------------------------
 /// Exported functions
@@ -1049,6 +1050,186 @@ fail:
 
 }
 
+bool LLInventoryItem::fromJson(const Json::Value& sd, bool is_new)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if (is_new)
+    {
+        // If we're adding LLSD to an existing object, need avoid
+        // clobbering these fields.
+        mInventoryType = LLInventoryType::IT_NONE;
+        mAssetUUID.setNull();
+    }
+    std::string w;
+
+    w = INV_ITEM_ID_LABEL;
+    if (sd.isMember(w))
+    {
+        mUUID = LLUUID(sd[w].asString());
+    }
+    w = INV_PARENT_ID_LABEL;
+    if (sd.isMember(w))
+    {
+        mParentUUID = LLUUID(sd[w].asString());
+    }
+    mThumbnailUUID.setNull();
+    w = INV_THUMBNAIL_LABEL;
+    if (sd.isMember(w))
+    {
+        const Json::Value& thumbnail_map = sd[w];
+        w = INV_ASSET_ID_LABEL;
+        if (thumbnail_map.isMember(w))
+        {
+            mThumbnailUUID = LLUUID(thumbnail_map[w].asString());
+        }
+        /* Example:
+            <key> asset_id </key>
+            <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
+            <key> perms </key>
+            <integer> 8 </integer>
+            <key>service</key>
+            <integer> 3 </integer>
+            <key>version</key>
+            <integer> 1 </key>
+        */
+    }
+    else
+    {
+        w = INV_THUMBNAIL_ID_LABEL;
+        if (sd.isMember(w))
+        {
+            mThumbnailUUID = LLUUID(sd[w].asString());
+        }
+    }
+    w = INV_PERMISSIONS_LABEL;
+    if (sd.isMember(w))
+    {
+        mPermissions = ll_permissions_from_json(sd[w]);
+    }
+    w = INV_SALE_INFO_LABEL;
+    if (sd.isMember(w))
+    {
+        // Sale info used to contain next owner perm. It is now in
+        // the permissions. Thus, we read that out, and fix legacy
+        // objects. It's possible this op would fail, but it
+        // should pick up the vast majority of the tasks.
+        BOOL has_perm_mask = FALSE;
+        U32 perm_mask = 0;
+        if (!mSaleInfo.fromJson(sd[w], has_perm_mask, perm_mask))
+        {
+            goto fail;
+        }
+        if (has_perm_mask)
+        {
+            if (perm_mask == PERM_NONE)
+            {
+                perm_mask = mPermissions.getMaskOwner();
+            }
+            // fair use fix.
+            if (!(perm_mask & PERM_COPY))
+            {
+                perm_mask |= PERM_TRANSFER;
+            }
+            mPermissions.setMaskNext(perm_mask);
+        }
+    }
+    w = INV_SHADOW_ID_LABEL;
+    if (sd.isMember(w))
+    {
+        mAssetUUID = LLUUID(sd[w].asString());;
+        LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
+        cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
+    }
+    w = INV_ASSET_ID_LABEL;
+    if (sd.isMember(w))
+    {
+        mAssetUUID = LLUUID(sd[w].asString());;
+    }
+    w = INV_LINKED_ID_LABEL;
+    if (sd.isMember(w))
+    {
+        mAssetUUID = LLUUID(sd[w].asString());;
+    }
+    w = INV_ASSET_TYPE_LABEL;
+    if (sd.isMember(w))
+    {
+        if (sd[w].isString())
+        {
+            mType = LLAssetType::lookup(sd[w].asString().c_str());
+        }
+        else if (sd[w].isInt())
+        {
+            S8 type = (U8)sd[w].asInt();
+            mType = static_cast<LLAssetType::EType>(type);
+        }
+    }
+    w = INV_INVENTORY_TYPE_LABEL;
+    if (sd.isMember(w))
+    {
+        if (sd[w].isString())
+        {
+            mInventoryType = LLInventoryType::lookup(sd[w].asString().c_str());
+        }
+        else if (sd[w].isInt())
+        {
+            S8 type = (U8)sd[w].asInt();
+            mInventoryType = static_cast<LLInventoryType::EType>(type);
+        }
+    }
+    w = INV_FLAGS_LABEL;
+    if (sd.isMember(w))
+    {
+        if (sd[w].isUInt())
+        {
+            mFlags = sd[w].asUInt();
+        }
+        else if (sd[w].isInt())
+        {
+            mFlags = sd[w].asInt();
+        }
+        else
+        {
+            LL_WARNS() << "Incomplete " << LL_ENDL;
+            // binary?
+        }
+    }
+    w = INV_NAME_LABEL;
+    if (sd.isMember(w))
+    {
+        mName = sd[w].asString();
+        LLStringUtil::replaceNonstandardASCII(mName, ' ');
+        LLStringUtil::replaceChar(mName, '|', ' ');
+    }
+    w = INV_DESC_LABEL;
+    if (sd.isMember(w))
+    {
+        mDescription = sd[w].asString();
+        LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
+    }
+    w = INV_CREATION_DATE_LABEL;
+    if (sd.isMember(w))
+    {
+        mCreationDate = sd[w].asInt();
+    }
+
+    // Need to convert 1.0 simstate files to a useful inventory type
+    // and potentially deal with bad inventory tyes eg, a landmark
+    // marked as a texture.
+    if ((LLInventoryType::IT_NONE == mInventoryType)
+        || !inventory_and_asset_types_match(mInventoryType, mType))
+    {
+        LL_DEBUGS() << "Resetting inventory type for " << mUUID << LL_ENDL;
+        mInventoryType = LLInventoryType::defaultForAssetType(mType);
+    }
+
+    mPermissions.initMasks(mInventoryType);
+
+    return true;
+fail:
+    return false;
+
+}
+
 ///----------------------------------------------------------------------------
 /// Class LLInventoryCategory
 ///----------------------------------------------------------------------------
@@ -1184,6 +1365,62 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
 
     w = INV_NAME_LABEL;
     if (sd.has(w))
+    {
+        mName = sd[w].asString();
+        LLStringUtil::replaceNonstandardASCII(mName, ' ');
+        LLStringUtil::replaceChar(mName, '|', ' ');
+    }
+    return true;
+}
+
+bool LLInventoryCategory::fromJson(const Json::Value& sd)
+{
+    std::string w;
+
+    w = INV_FOLDER_ID_LABEL_WS;
+    if (sd.isMember(w))
+    {
+        mUUID = LLUUID(sd[w].asString());
+    }
+    w = INV_PARENT_ID_LABEL;
+    if (sd.isMember(w))
+    {
+        mParentUUID = LLUUID(sd[w].asString());
+    }
+    mThumbnailUUID.setNull();
+    w = INV_THUMBNAIL_LABEL;
+    if (sd.isMember(w))
+    {
+        const Json::Value& thumbnail_map = sd[w];
+        w = INV_ASSET_ID_LABEL;
+        if (thumbnail_map.isMember(w))
+        {
+            mThumbnailUUID = LLUUID(thumbnail_map[w].asString());
+        }
+    }
+    else
+    {
+        w = INV_THUMBNAIL_ID_LABEL;
+        if (sd.isMember(w))
+        {
+            mThumbnailUUID = LLUUID(sd[w].asString());
+        }
+    }
+    w = INV_ASSET_TYPE_LABEL;
+    if (sd.isMember(w))
+    {
+        S8 type = (U8)sd[w].asInt();
+        mPreferredType = static_cast<LLFolderType::EType>(type);
+    }
+    w = INV_ASSET_TYPE_LABEL_WS;
+    if (sd.isMember(w))
+    {
+        S8 type = (U8)sd[w].asInt();
+        mPreferredType = static_cast<LLFolderType::EType>(type);
+    }
+
+    w = INV_NAME_LABEL;
+    if (sd.isMember(w))
     {
         mName = sd[w].asString();
         LLStringUtil::replaceNonstandardASCII(mName, ' ');

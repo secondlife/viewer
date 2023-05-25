@@ -39,6 +39,8 @@
 #include "llinventoryobserver.h"
 #include "llviewercontrol.h"
 
+#include "json/reader.h"
+
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
 ///----------------------------------------------------------------------------
@@ -434,7 +436,7 @@ void AISAPI::FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callba
 		// _4 -> body 
 		// _5 -> httpOptions
 		// _6 -> httpHeaders
-		(&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+		(&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend), _1, _2, _3, _5, _6);
 
 	LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
 		_1, getFn, url, itemId, LLSD(), callback, FETCHITEM));
@@ -482,7 +484,7 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend), _1, _2, _3, _5, _6);
 
     // get doesn't use body, can pass additional data
     LLSD body;
@@ -535,7 +537,7 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend), _1, _2, _3, _5, _6);
 
     // get doesn't use body, can pass additional data
     LLSD body;
@@ -586,7 +588,7 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend), _1, _2, _3, _5, _6);
 
     // get doesn't use body, can pass additional data
     LLSD body;
@@ -663,7 +665,7 @@ void AISAPI::FetchCategorySubset(const LLUUID& catId,
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend), _1, _2, _3, _5, _6);
 
     // get doesn't use body, can pass additional data
     LLSD body;
@@ -700,7 +702,7 @@ void AISAPI::FetchCOF(completion_t callback)
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend), _1, _2, _3, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
                                                          _1, getFn, url, LLUUID::null, LLSD(), callback, FETCHCOF));
@@ -733,7 +735,7 @@ void AISAPI::FetchOrphans(completion_t callback)
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend) , _1 , _2 , _3 , _5 , _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getRawAndSuspend) , _1 , _2 , _3 , _5 , _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro ,
                                                          _1 , getFn , url , LLUUID::null , LLSD() , callback , FETCHORPHANS));
@@ -792,7 +794,7 @@ void AISAPI::onIdle(void *userdata)
 }
 
 /*static*/
-void AISAPI::onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD& request_body)
+void AISAPI::onLLSDUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD& request_body)
 {
     LLTimer timer;
     if ( (type == UPDATECATEGORY || type == UPDATEITEM)
@@ -804,6 +806,39 @@ void AISAPI::onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD&
     AISUpdate ais_update(update, type, request_body);
     ais_update.doUpdate(); // execute the updates in the appropriate order.
     LL_DEBUGS("Inventory", "AIS3") << "Elapsed processing: " << timer.getElapsedTimeF32() << LL_ENDL;
+}
+
+/*static*/
+LLUUID AISAPI::onRawUpdateReceived(const std::string& raw_body, COMMAND_TYPE type, const LLSD& request_body)
+{
+    LLTimer timer;
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(raw_body, root))
+    {
+        LL_WARNS("Inventory") << "Failed to parse response to JSON" << LL_ENDL;
+        return LLUUID::null;
+    }
+
+    AISUpdate ais_update(root, type, request_body);
+    ais_update.doUpdate(); // execute the updates in the appropriate order.
+    LL_DEBUGS("Inventory", "AIS3") << "Elapsed processing: " << timer.getElapsedTimeF32() << LL_ENDL;
+
+    if (root.isMember("category_id"))
+    {
+        return LLUUID(root["category_id"].asString());
+    }
+    if (root.isMember("item_id"))
+    {
+        return LLUUID(root["item_id"].asString());
+    }
+    if (root.isMember("linked_id"))
+    {
+        return LLUUID(root["linked_id"].asString());
+    }
+
+    return LLUUID::null;
 }
 
 /*static*/
@@ -822,9 +857,18 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
     LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions);
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
-    LLCore::HttpHeaders::ptr_t httpHeaders;
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
     httpOptions->setTimeout(HTTP_TIMEOUT);
+
+    if (type == FETCHCATEGORYCATEGORIES
+        || type == FETCHCATEGORYCHILDREN
+        || type == FETCHCATEGORYSUBSET
+        || type == FETCHCOF
+        || type == FETCHITEM)
+    {
+        httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_JSON);
+    }
 
     LL_DEBUGS("Inventory") << "Request url: " << url << LL_ENDL;
 
@@ -904,8 +948,18 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
     }
 
-	LL_DEBUGS("Inventory", "AIS3") << "Result: " << result << LL_ENDL;
-    onUpdateReceived(result, type, body);
+    LL_DEBUGS("Inventory", "AIS3") << "Result: " << result << LL_ENDL;
+    LLUUID fetch_response_id;
+    if (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW))
+    {
+        const LLSD::Binary& rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+        std::string raw_body_str(rawBody.begin(), rawBody.end());
+        fetch_response_id = onRawUpdateReceived(raw_body_str, type, body);
+    }
+    else
+    {
+        onLLSDUpdateReceived(result, type, body);
+    }
 
     if (callback && !callback.empty())
     {
@@ -919,20 +973,8 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         case FETCHCATEGORYCHILDREN:
         case FETCHCATEGORYSUBSET:
         case FETCHCOF:
-            if (result.has("category_id"))
-            {
-                id = result["category_id"];
-            }
-            break;
         case FETCHITEM:
-            if (result.has("item_id"))
-            {
-                id = result["item_id"];
-            }
-            if (result.has("linked_id"))
-            {
-                id = result["linked_id"];
-            }
+            id = fetch_response_id;
             break;
         case CREATEINVENTORY:
             // CREATEINVENTORY can have multiple callbacks
@@ -977,12 +1019,25 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body)
 : mType(type)
 {
-    mFetch = (type == AISAPI::FETCHITEM)
-        || (type == AISAPI::FETCHCATEGORYCHILDREN)
-        || (type == AISAPI::FETCHCATEGORYCATEGORIES)
-        || (type == AISAPI::FETCHCATEGORYSUBSET)
-        || (type == AISAPI::FETCHCOF)
-        || (type == AISAPI::FETCHORPHANS);
+    init(request_body);
+	parseUpdate(update);
+}
+
+AISUpdate::AISUpdate(const Json::Value& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body)
+    : mType(type)
+{
+    init(request_body);
+    parseUpdate(update);
+}
+
+void AISUpdate::init(const LLSD& request_body)
+{
+    mFetch = (mType == AISAPI::FETCHITEM)
+        || (mType == AISAPI::FETCHCATEGORYCHILDREN)
+        || (mType == AISAPI::FETCHCATEGORYCATEGORIES)
+        || (mType == AISAPI::FETCHCATEGORYSUBSET)
+        || (mType == AISAPI::FETCHCOF)
+        || (mType == AISAPI::FETCHORPHANS);
     // parse update llsd into stuff to do or parse received items.
     mFetchDepth = MAX_FOLDER_DEPTH_REQUEST;
     if (mFetch && request_body.has("depth"))
@@ -992,7 +1047,6 @@ AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& 
 
     mTimer.setTimerExpirySec(debugLoggingEnabled("Inventory") ? EXPIRY_SECONDS_DEBUG : EXPIRY_SECONDS_LIVE);
     mTimer.start();
-	parseUpdate(update);
 }
 
 void AISUpdate::clearParseResults()
@@ -1025,6 +1079,13 @@ void AISUpdate::parseUpdate(const LLSD& update)
 	clearParseResults();
 	parseMeta(update);
 	parseContent(update);
+}
+
+void AISUpdate::parseUpdate(const Json::Value& update)
+{
+    clearParseResults();
+    parseMeta(update);
+    parseContent(update);
 }
 
 void AISUpdate::parseMeta(const LLSD& update)
@@ -1105,16 +1166,95 @@ void AISUpdate::parseMeta(const LLSD& update)
 	}
 }
 
+void AISUpdate::parseMeta(const Json::Value& update)
+{
+    // parse _categories_removed -> mObjectsDeletedIds
+    uuid_list_t cat_ids;
+    parseUUIDArray(update, "_categories_removed", cat_ids);
+    for (uuid_list_t::const_iterator it = cat_ids.begin();
+         it != cat_ids.end(); ++it)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
+        if (cat)
+        {
+            mCatDescendentDeltas[cat->getParentUUID()]--;
+            mObjectsDeletedIds.insert(*it);
+        }
+        else
+        {
+            LL_WARNS("Inventory") << "removed category not found " << *it << LL_ENDL;
+        }
+    }
+
+    // parse _categories_items_removed -> mObjectsDeletedIds
+    uuid_list_t item_ids;
+    parseUUIDArray(update, "_category_items_removed", item_ids);
+    parseUUIDArray(update, "_removed_items", item_ids);
+    for (uuid_list_t::const_iterator it = item_ids.begin();
+         it != item_ids.end(); ++it)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(*it);
+        if (item)
+        {
+            mCatDescendentDeltas[item->getParentUUID()]--;
+            mObjectsDeletedIds.insert(*it);
+        }
+        else
+        {
+            LL_WARNS("Inventory") << "removed item not found " << *it << LL_ENDL;
+        }
+    }
+
+    // parse _broken_links_removed -> mObjectsDeletedIds
+    uuid_list_t broken_link_ids;
+    parseUUIDArray(update, "_broken_links_removed", broken_link_ids);
+    for (uuid_list_t::const_iterator it = broken_link_ids.begin();
+         it != broken_link_ids.end(); ++it)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(*it);
+        if (item)
+        {
+            mCatDescendentDeltas[item->getParentUUID()]--;
+            mObjectsDeletedIds.insert(*it);
+        }
+        else
+        {
+            LL_WARNS("Inventory") << "broken link not found " << *it << LL_ENDL;
+        }
+    }
+
+    // parse _created_items
+    parseUUIDArray(update, "_created_items", mItemIds);
+
+    // parse _created_categories
+    parseUUIDArray(update, "_created_categories", mCategoryIds);
+
+    // Parse updated category versions.
+    const std::string& ucv = "_updated_category_versions";
+    if (update.isMember(ucv))
+    {
+        const Json::Value& ucv_val = update[ucv];
+        for (Json::ValueConstIterator it = ucv_val.begin(),
+             end = ucv_val.end();
+             it != end; ++it)
+        {
+            const LLUUID id(it.memberName());
+            S32 version = (*it).asInt();
+            mCatVersionsUpdated[id] = version;
+        }
+    }
+}
+
 void AISUpdate::parseContent(const LLSD& update)
 {
-	if (update.has("linked_id"))
-	{
-		parseLink(update, mFetchDepth);
-	}
-	else if (update.has("item_id"))
-	{
-		parseItem(update);
-	}
+    if (update.has("linked_id"))
+    {
+        parseLink(update, mFetchDepth);
+    }
+    else if (update.has("item_id"))
+    {
+        parseItem(update);
+    }
 
     if (mType == AISAPI::FETCHCATEGORYSUBSET)
     {
@@ -1129,13 +1269,75 @@ void AISUpdate::parseContent(const LLSD& update)
     {
         parseCategory(update, mFetchDepth);
     }
-	else
-	{
-		if (update.has("_embedded"))
-		{
-			parseEmbedded(update["_embedded"], mFetchDepth);
-		}
-	}
+    else
+    {
+        if (update.has("_embedded"))
+        {
+            parseEmbedded(update["_embedded"], mFetchDepth);
+        }
+    }
+}
+
+void AISUpdate::parseContent(const Json::Value& update)
+{
+    if (update.isMember("linked_id"))
+    {
+        parseLink(update, mFetchDepth);
+    }
+    else if (update.isMember("item_id"))
+    {
+        parseItem(update);
+    }
+
+    if (mType == AISAPI::FETCHCATEGORYSUBSET)
+    {
+        // initial category is incomplete, don't process it,
+        // go for content instead
+        if (update.isMember("_embedded"))
+        {
+            parseEmbedded(update["_embedded"], mFetchDepth - 1);
+        }
+    }
+    else if (update.isMember("category_id"))
+    {
+        parseCategory(update, mFetchDepth);
+    }
+    else
+    {
+        if (update.isMember("_embedded"))
+        {
+            parseEmbedded(update["_embedded"], mFetchDepth);
+        }
+    }
+}
+
+void AISUpdate::parseItem(const LLUUID& item_id, LLViewerInventoryItem* curr_item, LLViewerInventoryItem* new_item)
+{
+    if (mFetch)
+    {
+        mItemsCreated[item_id] = new_item;
+        mCatDescendentDeltas[new_item->getParentUUID()];
+        new_item->setComplete(true);
+
+        if (new_item->getParentUUID().isNull())
+        {
+            mItemsLost[item_id] = new_item;
+        }
+    }
+    else if (curr_item)
+    {
+        mItemsUpdated[item_id] = new_item;
+        // This statement is here to cause a new entry with 0
+        // delta to be created if it does not already exist;
+        // otherwise has no effect.
+        mCatDescendentDeltas[new_item->getParentUUID()];
+    }
+    else
+    {
+        mItemsCreated[item_id] = new_item;
+        mCatDescendentDeltas[new_item->getParentUUID()]++;
+        new_item->setComplete(true);
+    }
 }
 
 void AISUpdate::parseItem(const LLSD& item_map)
@@ -1151,37 +1353,77 @@ void AISUpdate::parseItem(const LLSD& item_map)
 	BOOL rv = new_item->unpackMessage(item_map);
 	if (rv)
 	{
-        if (mFetch)
-        {
-            mItemsCreated[item_id] = new_item;
-            mCatDescendentDeltas[new_item->getParentUUID()];
-            new_item->setComplete(true);
-
-            if (new_item->getParentUUID().isNull())
-            {
-                mItemsLost[item_id] = new_item;
-            }
-        }
-        else if (curr_item)
-		{
-			mItemsUpdated[item_id] = new_item;
-			// This statement is here to cause a new entry with 0
-			// delta to be created if it does not already exist;
-			// otherwise has no effect.
-			mCatDescendentDeltas[new_item->getParentUUID()];
-		}
-		else
-		{
-			mItemsCreated[item_id] = new_item;
-			mCatDescendentDeltas[new_item->getParentUUID()]++;
-            new_item->setComplete(true);
-		}
+        parseItem(item_id, curr_item, new_item);
 	}
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
 		LL_ERRS() << "unpack failed" << LL_ENDL;
 	}
+}
+
+void AISUpdate::parseItem(const Json::Value& item_map)
+{
+    LLUUID item_id = LLUUID(item_map["item_id"].asString());
+    LLPointer<LLViewerInventoryItem> new_item(new LLViewerInventoryItem);
+    LLViewerInventoryItem* curr_item = gInventory.getItem(item_id);
+    if (curr_item)
+    {
+        // Default to current values where not provided.
+        new_item->copyViewerItem(curr_item);
+    }
+    BOOL rv = new_item->unpackMessage(item_map);
+    if (rv)
+    {
+        parseItem(item_id, curr_item, new_item);
+    }
+    else
+    {
+        // *TODO: Wow, harsh.  Should we just complain and get out?
+        LL_ERRS() << "unpack failed" << LL_ENDL;
+    }
+}
+
+void AISUpdate::parseLink(const LLUUID& item_id, LLViewerInventoryItem* curr_link, LLViewerInventoryItem* new_link)
+{
+    const LLUUID& parent_id = new_link->getParentUUID();
+    if (mFetch)
+    {
+        LLPermissions default_perms;
+        default_perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+        default_perms.initMasks(PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
+        new_link->setPermissions(default_perms);
+        LLSaleInfo default_sale_info;
+        new_link->setSaleInfo(default_sale_info);
+        mItemsCreated[item_id] = new_link;
+        mCatDescendentDeltas[parent_id];
+        new_link->setComplete(true);
+
+        if (new_link->getParentUUID().isNull())
+        {
+            mItemsLost[item_id] = new_link;
+        }
+    }
+    else if (curr_link)
+    {
+        mItemsUpdated[item_id] = new_link;
+        // This statement is here to cause a new entry with 0
+        // delta to be created if it does not already exist;
+        // otherwise has no effect.
+        mCatDescendentDeltas[parent_id];
+    }
+    else
+    {
+        LLPermissions default_perms;
+        default_perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+        default_perms.initMasks(PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
+        new_link->setPermissions(default_perms);
+        LLSaleInfo default_sale_info;
+        new_link->setSaleInfo(default_sale_info);
+        mItemsCreated[item_id] = new_link;
+        mCatDescendentDeltas[parent_id]++;
+        new_link->setComplete(true);
+    }
 }
 
 void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
@@ -1197,46 +1439,7 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
 	BOOL rv = new_link->unpackMessage(link_map);
 	if (rv)
 	{
-		const LLUUID& parent_id = new_link->getParentUUID();
-        if (mFetch)
-        {
-            LLPermissions default_perms;
-            default_perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
-            default_perms.initMasks(PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
-            new_link->setPermissions(default_perms);
-            LLSaleInfo default_sale_info;
-            new_link->setSaleInfo(default_sale_info);
-            //LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
-            mItemsCreated[item_id] = new_link;
-            mCatDescendentDeltas[parent_id];
-            new_link->setComplete(true);
-
-            if (new_link->getParentUUID().isNull())
-            {
-                mItemsLost[item_id] = new_link;
-            }
-        }
-		else if (curr_link)
-		{
-			mItemsUpdated[item_id] = new_link;
-			// This statement is here to cause a new entry with 0
-			// delta to be created if it does not already exist;
-			// otherwise has no effect.
-			mCatDescendentDeltas[parent_id];
-		}
-		else
-		{
-			LLPermissions default_perms;
-			default_perms.init(gAgent.getID(),gAgent.getID(),LLUUID::null,LLUUID::null);
-			default_perms.initMasks(PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE,PERM_NONE);
-			new_link->setPermissions(default_perms);
-			LLSaleInfo default_sale_info;
-			new_link->setSaleInfo(default_sale_info);
-			//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
-			mItemsCreated[item_id] = new_link;
-			mCatDescendentDeltas[parent_id]++;
-            new_link->setComplete(true);
-		}
+        parseLink(item_id, curr_link, new_link);
 
         if (link_map.has("_embedded"))
         {
@@ -1250,6 +1453,32 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
 	}
 }
 
+void AISUpdate::parseLink(const Json::Value& link_map, S32 depth)
+{
+    LLUUID item_id = LLUUID(link_map["item_id"].asString());
+    LLPointer<LLViewerInventoryItem> new_link(new LLViewerInventoryItem);
+    LLViewerInventoryItem* curr_link = gInventory.getItem(item_id);
+    if (curr_link)
+    {
+        // Default to current values where not provided.
+        new_link->copyViewerItem(curr_link);
+    }
+    BOOL rv = new_link->unpackMessage(link_map);
+    if (rv)
+    {
+        parseLink(item_id, curr_link, new_link);
+
+        if (link_map.isMember("_embedded"))
+        {
+            parseEmbedded(link_map["_embedded"], depth);
+        }
+    }
+    else
+    {
+        // *TODO: Wow, harsh.  Should we just complain and get out?
+        LL_ERRS() << "unpack failed" << LL_ENDL;
+    }
+}
 
 void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 {
@@ -1371,6 +1600,126 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 	}
 }
 
+void AISUpdate::parseCategory(const Json::Value& category_map, S32 depth)
+{
+    LLUUID category_id = LLUUID(category_map["category_id"].asString());
+    S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+
+    if (category_map.isMember("version"))
+    {
+        version = category_map["version"].asInt();
+    }
+
+    LLViewerInventoryCategory* curr_cat = gInventory.getCategory(category_id);
+
+    if (curr_cat
+        && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN
+        && version > LLViewerInventoryCategory::VERSION_UNKNOWN
+        && version < curr_cat->getVersion())
+    {
+        LL_WARNS() << "Got stale folder, known: " << curr_cat->getVersion()
+            << ", received: " << version << LL_ENDL;
+        return;
+    }
+
+    // Check descendent count first, as it may be needed
+    // to populate newly created categories
+    if (category_map.isMember("_embedded"))
+    {
+        parseDescendentCount(category_id, category_map["_embedded"]);
+    }
+
+    LLPointer<LLViewerInventoryCategory> new_cat;
+    if (curr_cat)
+    {
+        // Default to current values where not provided.
+        new_cat = new LLViewerInventoryCategory(curr_cat);
+    }
+    else
+    {
+        if (category_map.isMember("agent_id"))
+        {
+            new_cat = new LLViewerInventoryCategory(LLUUID(category_map["agent_id"].asString()));
+        }
+        else
+        {
+            LL_DEBUGS() << "No owner provided, folder might be assigned wrong owner" << LL_ENDL;
+            new_cat = new LLViewerInventoryCategory(LLUUID::null);
+        }
+    }
+    BOOL rv = new_cat->unpackMessage(category_map);
+    // *NOTE: unpackMessage does not unpack version or descendent count.
+    if (rv)
+    {
+        if (mFetch)
+        {
+            // set version only if previous one was already known 
+            // or if we are sure this update has full data and embeded items (depth 0+)
+            // since bulk fetch uses this to decide what still needs fetching
+            if (version > LLViewerInventoryCategory::VERSION_UNKNOWN
+                && (depth >= 0 || (curr_cat && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN)))
+            {
+                // Set version/descendents for newly fetched categories.
+                LL_DEBUGS("Inventory") << "Setting version to " << version
+                    << " for category " << category_id << LL_ENDL;
+                new_cat->setVersion(version);
+            }
+            uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
+            if (mCatDescendentsKnown.end() != lookup_it)
+            {
+                S32 descendent_count = lookup_it->second;
+                LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
+                    << " for category " << category_id << LL_ENDL;
+                new_cat->setDescendentCount(descendent_count);
+            }
+            mCategoriesCreated[category_id] = new_cat;
+            mCatDescendentDeltas[new_cat->getParentUUID()];
+        }
+        else if (curr_cat)
+        {
+            mCategoriesUpdated[category_id] = new_cat;
+            // This statement is here to cause a new entry with 0
+            // delta to be created if it does not already exist;
+            // otherwise has no effect.
+            mCatDescendentDeltas[new_cat->getParentUUID()];
+            // Capture update for the category itself as well.
+            mCatDescendentDeltas[category_id];
+        }
+        else
+        {
+            // Set version/descendents for newly created categories.
+            if (category_map.isMember("version"))
+            {
+                S32 version = category_map["version"].asInt();
+                LL_DEBUGS("Inventory") << "Setting version to " << version
+                    << " for new category " << category_id << LL_ENDL;
+                new_cat->setVersion(version);
+            }
+            uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
+            if (mCatDescendentsKnown.end() != lookup_it)
+            {
+                S32 descendent_count = lookup_it->second;
+                LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
+                    << " for new category " << category_id << LL_ENDL;
+                new_cat->setDescendentCount(descendent_count);
+            }
+            mCategoriesCreated[category_id] = new_cat;
+            mCatDescendentDeltas[new_cat->getParentUUID()]++;
+        }
+    }
+    else
+    {
+        // *TODO: Wow, harsh.  Should we just complain and get out?
+        LL_ERRS() << "unpack failed" << LL_ENDL;
+    }
+
+    // Check for more embedded content.
+    if (category_map.isMember("_embedded"))
+    {
+        parseEmbedded(category_map["_embedded"], depth - 1);
+    }
+}
+
 void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embedded)
 {
 	// We can only determine true descendent count if this contains all descendent types.
@@ -1382,6 +1731,19 @@ void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embe
 		mCatDescendentsKnown[category_id] += embedded["links"].size();
 		mCatDescendentsKnown[category_id] += embedded["items"].size();
 	}
+}
+
+void AISUpdate::parseDescendentCount(const LLUUID& category_id, const Json::Value& embedded)
+{
+    // We can only determine true descendent count if this contains all descendent types.
+    if (embedded.isMember("categories") &&
+        embedded.isMember("links") &&
+        embedded.isMember("items"))
+    {
+        mCatDescendentsKnown[category_id] = embedded["categories"].size();
+        mCatDescendentsKnown[category_id] += embedded["links"].size();
+        mCatDescendentsKnown[category_id] += embedded["items"].size();
+    }
 }
 
 void AISUpdate::parseEmbedded(const LLSD& embedded, S32 depth)
@@ -1410,6 +1772,32 @@ void AISUpdate::parseEmbedded(const LLSD& embedded, S32 depth)
 	}
 }
 
+void AISUpdate::parseEmbedded(const Json::Value& embedded, S32 depth)
+{
+    checkTimeout();
+
+    if (embedded.isMember("links")) // _embedded in a category
+    {
+        parseEmbeddedLinks(embedded["links"], depth);
+    }
+    if (embedded.isMember("items")) // _embedded in a category
+    {
+        parseEmbeddedItems(embedded["items"]);
+    }
+    if (embedded.isMember("item")) // _embedded in a link
+    {
+        parseEmbeddedItem(embedded["item"]);
+    }
+    if (embedded.isMember("categories")) // _embedded in a category
+    {
+        parseEmbeddedCategories(embedded["categories"], depth);
+    }
+    if (embedded.isMember("category")) // _embedded in a link
+    {
+        parseEmbeddedCategory(embedded["category"], depth);
+    }
+}
+
 void AISUpdate::parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids)
 {
 	if (content.has(name))
@@ -1421,6 +1809,19 @@ void AISUpdate::parseUUIDArray(const LLSD& content, const std::string& name, uui
 			ids.insert((*it).asUUID());
 		}
 	}
+}
+
+void AISUpdate::parseUUIDArray(const Json::Value& content, const std::string& name, uuid_list_t& ids)
+{
+    if (content.isMember(name))
+    {
+        for (Json::ValueConstIterator it = content[name].begin(),
+             end = content[name].end();
+             it != end; ++it)
+        {
+            ids.insert(LLUUID((*it).asString()));
+        }
+    }
 }
 
 void AISUpdate::parseEmbeddedLinks(const LLSD& links, S32 depth)
@@ -1442,6 +1843,25 @@ void AISUpdate::parseEmbeddedLinks(const LLSD& links, S32 depth)
 	}
 }
 
+void AISUpdate::parseEmbeddedLinks(const Json::Value& links, S32 depth)
+{
+    for (Json::ValueConstIterator linkit = links.begin(),
+         linkend = links.end();
+         linkit != linkend; ++linkit)
+    {
+        const LLUUID link_id(linkit.memberName());
+        const Json::Value& link_map = (*linkit);
+        if (!mFetch && mItemIds.end() == mItemIds.find(link_id))
+        {
+            LL_DEBUGS("Inventory") << "Ignoring link not in items list " << link_id << LL_ENDL;
+        }
+        else
+        {
+            parseLink(link_map, depth);
+        }
+    }
+}
+
 void AISUpdate::parseEmbeddedItem(const LLSD& item)
 {
 	// a single item (_embedded in a link)
@@ -1452,6 +1872,18 @@ void AISUpdate::parseEmbeddedItem(const LLSD& item)
 			parseItem(item);
 		}
 	}
+}
+
+void AISUpdate::parseEmbeddedItem(const Json::Value& item)
+{
+    // a single item (_embedded in a link)
+    if (item.isMember("item_id"))
+    {
+        if (mFetch || mItemIds.end() != mItemIds.find(LLUUID(item["item_id"].asString())))
+        {
+            parseItem(item);
+        }
+    }
 }
 
 void AISUpdate::parseEmbeddedItems(const LLSD& items)
@@ -1474,6 +1906,26 @@ void AISUpdate::parseEmbeddedItems(const LLSD& items)
 	}
 }
 
+void AISUpdate::parseEmbeddedItems(const Json::Value& items)
+{
+    // a map of items (_embedded in a category)
+    for (Json::ValueConstIterator itemit = items.begin(),
+         itemend = items.end();
+         itemit != itemend; ++itemit)
+    {
+        const LLUUID item_id(itemit.memberName());
+        const Json::Value& item_map = (*itemit);
+        if (!mFetch && mItemIds.end() == mItemIds.find(item_id))
+        {
+            LL_DEBUGS("Inventory") << "Ignoring item not in items list " << item_id << LL_ENDL;
+        }
+        else
+        {
+            parseItem(item_map);
+        }
+    }
+}
+
 void AISUpdate::parseEmbeddedCategory(const LLSD& category, S32 depth)
 {
 	// a single category (_embedded in a link)
@@ -1484,6 +1936,18 @@ void AISUpdate::parseEmbeddedCategory(const LLSD& category, S32 depth)
 			parseCategory(category, depth);
 		}
 	}
+}
+
+void AISUpdate::parseEmbeddedCategory(const Json::Value& category, S32 depth)
+{
+    // a single category (_embedded in a link)
+    if (category.isMember("category_id"))
+    {
+        if (mFetch || mCategoryIds.end() != mCategoryIds.find(LLUUID(category["category_id"].asString())))
+        {
+            parseCategory(category, depth);
+        }
+    }
 }
 
 void AISUpdate::parseEmbeddedCategories(const LLSD& categories, S32 depth)
@@ -1504,6 +1968,26 @@ void AISUpdate::parseEmbeddedCategories(const LLSD& categories, S32 depth)
 			parseCategory(category_map, depth);
 		}
 	}
+}
+
+void AISUpdate::parseEmbeddedCategories(const Json::Value& categories, S32 depth)
+{
+    // a map of categories (_embedded in a category)
+    for (Json::ValueConstIterator categoryit = categories.begin(),
+         categoryend = categories.end();
+         categoryit != categoryend; ++categoryit)
+    {
+        const LLUUID category_id(categoryit.memberName());
+        const Json::Value& category_map = (*categoryit);
+        if (!mFetch && mCategoryIds.end() == mCategoryIds.find(category_id))
+        {
+            LL_DEBUGS("Inventory") << "Ignoring category not in categories list " << category_id << LL_ENDL;
+        }
+        else
+        {
+            parseCategory(category_map, depth);
+        }
+    }
 }
 
 void AISUpdate::doUpdate()

@@ -35,6 +35,11 @@
 #include "llcorehttputil.h"
 #include "llcoproceduremanager.h"
 
+namespace Json
+{
+    class Value;
+}
+
 class AISAPI
 {
 public:
@@ -92,7 +97,8 @@ private:
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
     static void onIdle(void *userdata); // launches postponed AIS commands
-    static void onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD& request_body);
+    static void onLLSDUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD& request_body);
+    static LLUUID onRawUpdateReceived(const std::string& raw_body, COMMAND_TYPE type, const LLSD& request_body);
 
     static std::string getInvCap();
     static std::string getLibCap();
@@ -109,22 +115,42 @@ class AISUpdate
 {
 public:
 	AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body);
+    AISUpdate(const Json::Value& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body);
+
 	void parseUpdate(const LLSD& update);
+    void parseUpdate(const Json::Value& update);
 	void parseMeta(const LLSD& update);
+    void parseMeta(const Json::Value& update);
 	void parseContent(const LLSD& update);
+    void parseContent(const Json::Value& update);
 	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
+    void parseUUIDArray(const Json::Value& content, const std::string& name, uuid_list_t& ids);
+    void parseLink(const LLUUID& item_id, LLViewerInventoryItem* curr_link, LLViewerInventoryItem* new_link);
 	void parseLink(const LLSD& link_map, S32 depth);
+    void parseLink(const Json::Value& link_map, S32 depth);
+    void parseItem(const LLUUID& item_id, LLViewerInventoryItem* curr_item, LLViewerInventoryItem* new_item);
 	void parseItem(const LLSD& link_map);
+    void parseItem(const Json::Value& link_map);
 	void parseCategory(const LLSD& link_map, S32 depth);
+    void parseCategory(const Json::Value& link_map, S32 depth);
 	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
+    void parseDescendentCount(const LLUUID& category_id, const Json::Value& embedded);
 	void parseEmbedded(const LLSD& embedded, S32 depth);
+    void parseEmbedded(const Json::Value& embedded, S32 depth);
 	void parseEmbeddedLinks(const LLSD& links, S32 depth);
+    void parseEmbeddedLinks(const Json::Value& links, S32 depth);
 	void parseEmbeddedItems(const LLSD& items);
+    void parseEmbeddedItems(const Json::Value& items);
 	void parseEmbeddedCategories(const LLSD& categories, S32 depth);
+    void parseEmbeddedCategories(const Json::Value& categories, S32 depth);
 	void parseEmbeddedItem(const LLSD& item);
+    void parseEmbeddedItem(const Json::Value& item);
 	void parseEmbeddedCategory(const LLSD& category, S32 depth);
+    void parseEmbeddedCategory(const Json::Value& category, S32 depth);
+
 	void doUpdate();
 private:
+    void init(const LLSD& request_body);
 	void clearParseResults();
     void checkTimeout();
 

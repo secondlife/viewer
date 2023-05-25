@@ -40,6 +40,11 @@ const S32 DEFAULT_PRICE = 10;
 
 class LLMessageSystem;
 
+namespace Json
+{
+    class Value;
+}
+
 class LLSaleInfo
 {
 public:
@@ -88,6 +93,7 @@ public:
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }
 	bool fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask);
+    bool fromJson(const Json::Value& sd, BOOL& has_perm_mask, U32& perm_mask);
 	BOOL importLegacyStream(std::istream& input_stream, BOOL& has_perm_mask, U32& perm_mask);
 
 	LLSD packMessage() const;

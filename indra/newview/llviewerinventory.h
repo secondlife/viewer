@@ -42,6 +42,11 @@ class LLViewerInventoryCategory;
 class LLInventoryCallback;
 class LLAvatarName;
 
+namespace Json
+{
+    class Value;
+}
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
 //
@@ -132,6 +137,7 @@ public:
 	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(const LLSD& item);
+    virtual BOOL unpackMessage(const Json::Value& item);
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 
 	// new methods
@@ -237,6 +243,7 @@ public:
 	void changeType(LLFolderType::EType new_folder_type);
 	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(const LLSD& category);
+    virtual BOOL unpackMessage(const Json::Value& category);
     
     // returns true if the category object will accept the incoming item
     bool acceptItem(LLInventoryItem* inv_item);

@@ -33,6 +33,8 @@
 #include "message.h"
 #include "llsd.h"
 
+#include "json/reader.h"
+
 ///----------------------------------------------------------------------------
 /// Class LLPermissions
 ///----------------------------------------------------------------------------
@@ -1052,4 +1054,30 @@ LLPermissions ll_permissions_from_sd(const LLSD& sd_perm)
 	rv.setMaskNext(mask);
 	rv.fix();
 	return rv;
+}
+
+LLPermissions ll_permissions_from_json(const Json::Value& sd_perm)
+{
+    LLPermissions rv;
+    rv.init(
+        LLUUID(sd_perm[PERM_CREATOR_ID_LABEL].asString()),
+        LLUUID(sd_perm[PERM_OWNER_ID_LABEL].asString()),
+        LLUUID(sd_perm[PERM_LAST_OWNER_ID_LABEL].asString()),
+        LLUUID(sd_perm[PERM_GROUP_ID_LABEL].asString()));
+
+    // We do a cast to U32 here since LLSD does not attempt to
+    // represent unsigned ints.
+    PermissionMask mask;
+    mask = (U32)(sd_perm[PERM_BASE_MASK_LABEL].asInt());
+    rv.setMaskBase(mask);
+    mask = (U32)(sd_perm[PERM_OWNER_MASK_LABEL].asInt());
+    rv.setMaskOwner(mask);
+    mask = (U32)(sd_perm[PERM_EVERYONE_MASK_LABEL].asInt());
+    rv.setMaskEveryone(mask);
+    mask = (U32)(sd_perm[PERM_GROUP_MASK_LABEL].asInt());
+    rv.setMaskGroup(mask);
+    mask = (U32)(sd_perm[PERM_NEXT_OWNER_MASK_LABEL].asInt());
+    rv.setMaskNext(mask);
+    rv.fix();
+    return rv;
 }

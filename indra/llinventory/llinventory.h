@@ -38,6 +38,11 @@
 
 class LLMessageSystem;
 
+namespace Json
+{
+    class Value;
+}
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryObject
 //
@@ -209,6 +214,7 @@ public:
 	LLSD asLLSD() const;
 	void asLLSD( LLSD& sd ) const;
 	bool fromLLSD(const LLSD& sd, bool is_new = true);
+    bool fromJson(const Json::Value& sd, bool is_new = true);
 
 	//--------------------------------------------------------------------
 	// Member Variables
@@ -255,6 +261,7 @@ public:
 	LLSD asLLSD() const;
     LLSD asAISLLSD() const;
 	bool fromLLSD(const LLSD& sd);
+    bool fromJson(const Json::Value& sd);
 
 	//--------------------------------------------------------------------
 	// Messaging
