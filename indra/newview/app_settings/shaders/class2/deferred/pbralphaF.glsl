@@ -84,6 +84,10 @@ vec3 linear_to_srgb(vec3 c);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec3 atmosFragLightingLinear(vec3 color, vec3 additive, vec3 atten);
 
+#ifdef WATER_FOG
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
+#endif
+
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
@@ -237,6 +241,11 @@ void main()
 
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
     
+#ifdef WATER_FOG
+    vec4 temp = applyWaterFogViewLinear(pos, vec4(color, 0.0), sunlit_linear);
+    color = temp.rgb;
+#endif
+
     vec3 light = vec3(0);
 
     // Punctual lights
