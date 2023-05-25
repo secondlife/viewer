@@ -124,7 +124,7 @@ vec3 legacy_adjust(vec3 c)
 
 vec3 legacy_adjust_fullbright(vec3 c)
 {
-    float exp_scale = texture(exposureMap, vec2(0.5, 0.5)).r;
+    float exp_scale = clamp(texture(exposureMap, vec2(0.5, 0.5)).r, 0.01, 10.0);
     return c / exp_scale * 1.34; //magic 1.34 arrived at by binary search for a value that reproduces midpoint grey consistenty
 }
 

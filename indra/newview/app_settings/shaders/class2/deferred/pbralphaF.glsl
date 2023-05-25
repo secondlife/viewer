@@ -258,7 +258,7 @@ void main()
     glare = min(glare, 1.0);
     a = max(a, glare);
 
-    frag_color = vec4(color.rgb,a);
+    frag_color = max(vec4(color.rgb,a), vec4(0));
 }
 
 #else
@@ -311,7 +311,7 @@ void main()
     float a = basecolor.a*vertex_color.a;
     color += colorEmissive;
     color = linear_to_srgb(color);
-    frag_color = vec4(color.rgb,a);
+    frag_color = max(vec4(color.rgb,a), vec4(0));
 }
 
 #endif
