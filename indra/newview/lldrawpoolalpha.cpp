@@ -197,7 +197,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         prepare_alpha_shader(&materialShader[i], false, true, water_sign);
     }
 
-    pbr_shader = LLPipeline::sRenderingHUDs ? &gHUDPBRAlphaProgram : &gDeferredPBRAlphaProgram;
+    pbr_shader = 
+        (LLPipeline::sUnderWaterRender) ? &gDeferredPBRAlphaWaterProgram : 
+        (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram : 
+        &gDeferredPBRAlphaProgram;
 
     prepare_alpha_shader(pbr_shader, false, true, water_sign);
 

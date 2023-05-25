@@ -38,7 +38,7 @@ uniform float emissive_brightness;  // fullbright flag, 1.0 == fullbright, 0.0 o
 uniform int sun_up_factor;
 
 #ifdef WATER_FOG
-vec4 applyWaterFogView(vec3 pos, vec4 color);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
 #endif
 
 vec3 atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
@@ -411,6 +411,11 @@ void main()
 
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten); 
 
+#ifdef WATER_FOG
+    vec4 temp = applyWaterFogViewLinear(pos, vec4(color, 0.0), sunlit_linear);
+    color = temp.rgb;
+#endif
+
     vec3 npos = normalize(-pos.xyz);
     vec3 light = vec3(0, 0, 0);
 
@@ -431,11 +436,6 @@ void main()
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare) * vertex_color.a;
     
-#ifdef WATER_FOG
-    vec4 temp = applyWaterFogView(pos, vec4(color, 0.0));
-    color = temp.rgb;
-#endif
-
     frag_color = max(vec4(color, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
