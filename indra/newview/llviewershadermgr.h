@@ -277,5 +277,6 @@ extern LLGLSLShader         gHUDPBROpaqueProgram;
 extern LLGLSLShader         gPBRGlowProgram;
 extern LLGLSLShader         gDeferredPBROpaqueProgram;
 extern LLGLSLShader         gDeferredPBRAlphaProgram;
+extern LLGLSLShader         gDeferredPBRAlphaWaterProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
 #endif

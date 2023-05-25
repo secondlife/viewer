@@ -222,6 +222,8 @@ LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
+LLGLSLShader            gDeferredPBRAlphaWaterProgram;
+LLGLSLShader            gDeferredSkinnedPBRAlphaWaterProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -296,8 +298,10 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredWLMoonProgram);
     mShaderList.push_back(&gDeferredWLSunProgram);
     mShaderList.push_back(&gDeferredPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredPBRAlphaWaterProgram);
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredSkinnedPBRAlphaWaterProgram);
     mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
     mShaderList.push_back(&gNoPostGammaCorrectProgram);
     mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
@@ -1020,6 +1024,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
         gDeferredSkinnedPBRAlphaProgram.unload();
+        gDeferredPBRAlphaWaterProgram.unload();
+        gDeferredSkinnedPBRAlphaWaterProgram.unload();
 
 		return TRUE;
 	}
@@ -1396,6 +1402,62 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
+        if (success)
+        {
+            success = shader->createShader(NULL, NULL);
+        }
+        llassert(success);
+
+        // Alpha Shader Hack
+        // See: LLRender::syncMatrices()
+        shader->mFeatures.calculatesLighting = true;
+        shader->mFeatures.hasLighting = true;
+
+        shader->mRiggedVariant->mFeatures.calculatesLighting = true;
+        shader->mRiggedVariant->mFeatures.hasLighting = true;
+    }
+
+    if (success)
+    {
+        LLGLSLShader* shader = &gDeferredPBRAlphaWaterProgram;
+        shader->mName = "Deferred PBR Alpha Underwater Shader";
+                          
+        shader->mFeatures.calculatesLighting = false;
+        shader->mFeatures.hasLighting = false;
+        shader->mFeatures.isAlphaLighting = true;
+        shader->mFeatures.hasWaterFog = true;
+        shader->mFeatures.hasSrgb = true;
+        shader->mFeatures.encodesNormal = true;
+        shader->mFeatures.calculatesAtmospherics = true;
+        shader->mFeatures.hasAtmospherics = true;
+        shader->mFeatures.hasGamma = true;
+        shader->mFeatures.hasShadows = use_sun_shadow;
+        shader->mFeatures.isDeferred = true; // include deferredUtils
+        shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+        shader->mShaderGroup = LLGLSLShader::SG_WATER;
+
+        shader->mShaderFiles.clear();
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER));
+
+        shader->clearPermutations();
+
+        U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+        shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+        shader->addPermutation("HAS_NORMAL_MAP", "1");
+        shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
+        shader->addPermutation("HAS_EMISSIVE_MAP", "1");
+        shader->addPermutation("USE_VERTEX_COLOR", "1");
+        shader->addPermutation("WATER_FOG", "1");
+
+        if (use_sun_shadow)
+        {
+            shader->addPermutation("HAS_SUN_SHADOW", "1");
+        }
+
+        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaWaterProgram);
         if (success)
         {
             success = shader->createShader(NULL, NULL);
