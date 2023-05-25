@@ -170,7 +170,7 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 	camera->setOrigin(mCamera);
 	camera->setAxes(mCamera);
 	camera->setAspect(mCamera.getAspect());
-	camera->setView(mCamera.getView());
+	camera->setViewNoBroadcast(mCamera.getView());
 	camera->setNear(mCamera.getNear());
 }
 

@@ -118,7 +118,6 @@ LLGLSLShader		gPathfindingNoNormalsProgram;
 
 //avatar shader handles
 LLGLSLShader		gAvatarProgram;
-LLGLSLShader		gAvatarWaterProgram;
 LLGLSLShader		gAvatarEyeballProgram;
 LLGLSLShader		gImpostorProgram;
 
@@ -256,7 +255,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gSkinnedObjectFullbrightAlphaMaskProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNoColorWaterProgram);
-	mShaderList.push_back(&gAvatarWaterProgram);
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
 	mShaderList.push_back(&gDeferredSoftenProgram);
@@ -2854,7 +2852,6 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 	if (mShaderLevel[SHADER_AVATAR] == 0)
 	{
 		gAvatarProgram.unload();
-		gAvatarWaterProgram.unload();
 		gAvatarEyeballProgram.unload();
 		return TRUE;
 	}
@@ -2876,26 +2873,6 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarProgram.mShaderLevel = mShaderLevel[SHADER_AVATAR];
 		success = gAvatarProgram.createShader(NULL, NULL);
 			
-		if (success)
-		{
-			gAvatarWaterProgram.mName = "Avatar Water Shader";
-			gAvatarWaterProgram.mFeatures.hasSkinning = true;
-			gAvatarWaterProgram.mFeatures.calculatesAtmospherics = true;
-			gAvatarWaterProgram.mFeatures.calculatesLighting = true;
-			gAvatarWaterProgram.mFeatures.hasWaterFog = true;
-			gAvatarWaterProgram.mFeatures.hasAtmospherics = true;
-			gAvatarWaterProgram.mFeatures.hasLighting = true;
-			gAvatarWaterProgram.mFeatures.hasAlphaMask = true;
-			gAvatarWaterProgram.mFeatures.disableTextureIndex = true;
-			gAvatarWaterProgram.mShaderFiles.clear();
-			gAvatarWaterProgram.mShaderFiles.push_back(make_pair("avatar/avatarV.glsl", GL_VERTEX_SHADER));
-			gAvatarWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER));
-			// Note: no cloth under water:
-			gAvatarWaterProgram.mShaderLevel = llmin(mShaderLevel[SHADER_AVATAR], 1);	
-			gAvatarWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;				
-			success = gAvatarWaterProgram.createShader(NULL, NULL);
-		}
-
 		/// Keep track of avatar levels
 		if (gAvatarProgram.mShaderLevel != mShaderLevel[SHADER_AVATAR])
 		{

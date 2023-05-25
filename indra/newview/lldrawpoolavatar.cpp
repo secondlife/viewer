@@ -597,49 +597,14 @@ void LLDrawPoolAvatar::beginSkinned()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
-	if (sShaderLevel > 0)
-	{
-		if (LLPipeline::sUnderWaterRender)
-		{
-			sVertexProgram = &gAvatarWaterProgram;
-			sShaderLevel = llmin((U32) 1, sShaderLevel);
-		}
-		else
-		{
-			sVertexProgram = &gAvatarProgram;
-		}
-	}
-	else
-	{
-		if (LLPipeline::sUnderWaterRender)
-		{
-			sVertexProgram = &gObjectAlphaMaskNoColorWaterProgram;
-		}
-		else
-		{
-			sVertexProgram = &gObjectAlphaMaskNoColorProgram;
-		}
-	}
+    // used for preview only
+
+	sVertexProgram = &gAvatarProgram;
 	
-	if (sShaderLevel > 0)  // for hardware blending
-	{
-		sRenderingSkinned = TRUE;
+	sRenderingSkinned = TRUE;
 
-		sVertexProgram->bind();
-		sVertexProgram->enableTexture(LLViewerShaderMgr::BUMP_MAP);
-		gGL.getTexUnit(0)->activate();
-	}
-	else
-	{
-		if(gPipeline.shadersLoaded())
-		{
-			// software skinning, use a basic shader for windlight.
-			// TODO: find a better fallback method for software skinning.
-			sVertexProgram->bind();
-		}
-	}
-
-		sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
+	sVertexProgram->bind();
+    sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 }
 
 void LLDrawPoolAvatar::endSkinned()
@@ -704,7 +669,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	if (pass == -1)
 	{
 		for (S32 i = 1; i < getNumPasses(); i++)
-		{ //skip foot shadows
+		{ //skip impostor pass
 			prerender();
 			beginRenderPass(i);
 			renderAvatars(single_avatar, i);

@@ -64,7 +64,6 @@ protected:
 	F32					mCameraPitch;
 	F32					mCameraZoom;
 	LLVector3			mCameraOffset;
-	LLVector3			mCameraRelPos;
 	LLPointer<LLVOAvatar>			mDummyAvatar;
 };
 

@@ -819,9 +819,13 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 	return all_verts;
 }
 
+extern BOOL gCubeSnapshot;
+
 // changes local camera and broadcasts change
 /* virtual */ void LLViewerCamera::setView(F32 vertical_fov_rads)
 {
+    llassert(!gCubeSnapshot);
+
 	F32 old_fov = LLViewerCamera::getInstance()->getView();
 
 	// cap the FoV
@@ -845,6 +849,11 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 
 	// sync the camera with the new value
 	LLCamera::setView(vertical_fov_rads); // call base implementation
+}
+
+void LLViewerCamera::setViewNoBroadcast(F32 vertical_fov_rads)
+{
+    LLCamera::setView(vertical_fov_rads);
 }
 
 void LLViewerCamera::setDefaultFOV(F32 vertical_fov_rads) 

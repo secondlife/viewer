@@ -127,6 +127,8 @@
 
 extern void on_new_message(const LLSD& msg);
 
+extern BOOL gCubeSnapshot;
+
 //
 // Constants
 //
@@ -3294,6 +3296,8 @@ const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater th
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
     LL_PROFILE_ZONE_SCOPED;
+    llassert(!gCubeSnapshot);
+
 	if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
 	{
 		// We don't care if they want to send an agent update, they're not allowed to until the simulator

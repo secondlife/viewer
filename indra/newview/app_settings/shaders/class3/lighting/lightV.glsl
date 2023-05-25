@@ -23,21 +23,13 @@
  * $/LicenseInfo$
  */
  
-
-
-// All lights, no specular highlights
-vec3 atmosAmbient();
+// used for preview renders only
 vec4 sumLights(vec3 pos, vec3 norm, vec4 color);
-float getAmbientClamp();
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color)
 {
 	vec4 c = sumLights(pos, norm, color);
 
-#if !defined(AMBIENT_KILL)
-    c.rgb += atmosAmbient() * color.rgb * getAmbientClamp();
-#endif
- 
     return c;
 }
 
