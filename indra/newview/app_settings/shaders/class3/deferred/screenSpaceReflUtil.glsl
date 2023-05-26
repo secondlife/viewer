@@ -61,6 +61,8 @@ uniform float rayStep;
 uniform float distanceBias;
 uniform float depthRejectBias;
 uniform float glossySampleCount;
+uniform float adaptiveStepMultiplier;
+uniform float noiseSine;
 
 float epsilon = 0.1;
 
@@ -135,7 +137,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
 
             if (isExponentialStepEnabled)
             {
-                step *= 1.05;
+                step *= adaptiveStepMultiplier;
             }
         }
         if(isBinarySearchEnabled)
@@ -302,6 +304,10 @@ uniform vec3 POISSON3D_SAMPLES[128] = vec3[128](
     vec3(0.2698198, 0.0002266169, 0.3449324)
 );
 
+vec3 getPoissonSample(int i) {
+    return POISSON3D_SAMPLES[i] * 2 - 1;
+}
+
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness)
 {
     collectedColor = vec4(0);
@@ -319,7 +325,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 64,0, 1);
     vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 16, 0, 1);
     
-    float zFar = 32.0;
+    float zFar = 128.0;
     vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
 
 
@@ -329,17 +335,16 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
 
     totalSamples = int(max(glossySampleCount, glossySampleCount * glossiness * vignette));
 
-    totalSamples = max(totalSamples, 4);
+    totalSamples = max(totalSamples, 1);
 
     {
         {
             for (int i = 0; i < totalSamples; i++) 
             {
-                vec3 firstBasis = normalize(cross(POISSON3D_SAMPLES[i] * 2 - 1, rayDirection));
+                vec3 firstBasis = normalize(cross(getPoissonSample(i), rayDirection));
                 vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
                 vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
-                vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * 0.125 * max(glossiness, 0.025));
-                //vec3 reflectionDirectionRandomized = rayDirection + (POISSON3D_SAMPLES[i] * 2 - 1) * 0.125 * max(glossiness, 0.025);
+                vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * glossiness);
 
                 //float hitDepth;
 

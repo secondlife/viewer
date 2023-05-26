@@ -9173,7 +9173,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>40</integer>
+    <integer>25</integer>
   </map>
   <key>RenderScreenSpaceReflectionRayStep</key>
   <map>
@@ -9208,6 +9208,17 @@
     <key>Value</key>
     <real>0.001</real>
   </map>
+  <key>RenderScreenSpaceReflectionAdaptiveStepMultiplier</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier to scale adaptive stepping.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.6</real>
+  </map>
   <key>RenderScreenSpaceReflectionGlossySamples</key>
   <map>
     <key>Comment</key>
@@ -9217,7 +9228,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>8</integer>
+    <integer>4</integer>
   </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
