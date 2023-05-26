@@ -30,6 +30,14 @@
         function="Object.EnableEditGLTFMaterial"/>
   </menu_item_call>
   <menu_item_call
+      label="Build"
+      name="Build">
+    <menu_item_call.on_click
+        function="Object.Build" />
+    <menu_item_call.on_enable
+        function="EnableEdit"/>
+  </menu_item_call>
+  <menu_item_call
       enabled="false"
       label="Open"
       name="Open">
