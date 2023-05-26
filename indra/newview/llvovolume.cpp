@@ -6300,7 +6300,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	LLSpatialGroup::buffer_map_t buffer_map;
 
 	LLViewerTexture* last_tex = NULL;
-	S32 buffer_index = 0;
 
 	S32 texture_index_channels = 1;
 	
@@ -6313,11 +6312,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
-    
-    if (distance_sort)
-    {
-        buffer_index = -1;
-    }
 
 	static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
 	texture_index_channels = llmin(texture_index_channels, (S32) max_texture_index);
@@ -6341,14 +6335,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			tex = NULL;
 		}
 
-		if (last_tex == tex)
-		{
-			buffer_index++;
-		}
-		else
+		if (last_tex != tex)
 		{
 			last_tex = tex;
-			buffer_index = 0;
 		}
 
 		bool bake_sunlight = LLPipeline::sBakeSunlight && facep->getDrawable()->isStatic(); 

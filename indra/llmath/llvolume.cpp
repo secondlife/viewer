@@ -5482,14 +5482,14 @@ bool LLVolumeFace::cacheOptimize()
 	new_indices.push_back(tri->mVertex[2]->mIdx);
 	tri->complete();
 
-	U32 breaks = 0;
+	//U32 breaks = 0;
 	for (U32 i = 1; i < mNumIndices/3; ++i)
 	{
 		cache.updateScores();
 		tri = cache.mBestTriangle;
 		if (!tri)
 		{
-			breaks++;
+			//breaks++;
 			for (U32 j = 0; j < triangle_data.size(); ++j)
 			{
 				if (triangle_data[j].mActive)

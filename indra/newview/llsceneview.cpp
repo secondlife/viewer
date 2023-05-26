@@ -100,8 +100,6 @@ void LLSceneView::draw()
 	F32 total_physics[] = { 0.f, 0.f };
 	
 
-	U32 object_count = 0;
-
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
@@ -116,8 +114,7 @@ void LLSceneView::draw()
 				U32 idx = object->isAttachment() ? 1 : 0;
 
 				LLVolume* volume = object->getVolume();
-				object_count++;
-				
+
 				F32 radius = object->getScale().magVec();
 				size[idx].push_back(radius);
 

@@ -3738,7 +3738,6 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 			// take controls
 			msg->getU32("Data", "Controls", controls, block_index );
 			msg->getBOOL("Data", "PassToAgent", passon, block_index );
-			U32 total_count = 0;
 			for (i = 0; i < TOTAL_CONTROLS; i++)
 			{
 				if (controls & ( 1 << i))
@@ -3751,7 +3750,6 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 					{
 						gAgent.mControlsTakenCount[i]++;
 					}
-					total_count++;
 				}
 			}
 		}
