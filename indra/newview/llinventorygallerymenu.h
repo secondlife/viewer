@@ -33,8 +33,12 @@ class LLInventoryGalleryContextMenu : public LLListContextMenu
 public:
     LLInventoryGalleryContextMenu(LLInventoryGallery* gallery)
     : LLListContextMenu(),
-    mGallery(gallery){}
+    mGallery(gallery),
+    mRootFolder(false){}
     /*virtual*/ LLContextMenu* createMenu();
+
+    bool isRootFolder() { return mRootFolder; }
+    void setRootFolder(bool is_root) { mRootFolder = is_root; }
 
 protected:
     //virtual void buildContextMenu(class LLMenuGL& menu, U32 flags);
@@ -50,6 +54,7 @@ private:
     bool checkContextMenuItem(const LLSD& userdata);
 
     LLInventoryGallery* mGallery;
+    bool mRootFolder;
 };
 
 #endif

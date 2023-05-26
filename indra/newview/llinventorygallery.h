@@ -78,6 +78,7 @@ public:
     void draw();
     BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
+    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }
@@ -204,6 +205,7 @@ private:
     int mGalleryWidthFactor;
 
     LLInventoryGalleryContextMenu* mInventoryGalleryMenu;
+    LLInventoryGalleryContextMenu* mRootGalleryMenu;
     std::string mFilterSubString;
     LLInventoryFilter* mFilter;
 

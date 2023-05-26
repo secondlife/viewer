@@ -159,6 +159,8 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
 
             bool is_cut_mode = (LLClipboard::instance().isCutMode());
             {
+                LLUUID dest = is_folder ?  selected_id : obj->getParentUUID();
+                
                 std::vector<LLUUID> objects;
                 LLClipboard::instance().pasteFromClipboard(objects);
                 for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
@@ -174,11 +176,11 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
                     {
                         if(is_cut_mode)
                         {
-                            gInventory.changeCategoryParent(cat, selected_id, false);
+                            gInventory.changeCategoryParent(cat, dest, false);
                         }
                         else
                         {
-                            copy_inventory_category(&gInventory, cat, selected_id);
+                            copy_inventory_category(&gInventory, cat, dest);
                         }
                     }
                     else
@@ -188,13 +190,13 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
                         {
                             if(is_cut_mode)
                             {
-                                gInventory.changeItemParent(item, selected_id, false);
+                                gInventory.changeItemParent(item, dest, false);
                             }
                             else
                             {
                                 if (item->getIsLinkType())
                                 {
-                                    link_inventory_object(selected_id, item_id,
+                                    link_inventory_object(dest, item_id,
                                         LLPointer<LLInventoryCallback>(NULL));
                                 }
                                 else
@@ -203,7 +205,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
                                                         gAgent.getID(),
                                                         item->getPermissions().getOwner(),
                                                         item->getUUID(),
-                                                        selected_id,
+                                                        dest,
                                                         std::string(),
                                                         LLPointer<LLInventoryCallback>(NULL));
                                 }
@@ -264,7 +266,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
         {
             return;
         }
-
+        LLUUID dest = is_folder ?  selected_id : obj->getParentUUID();
         std::vector<LLUUID> objects;
         LLClipboard::instance().pasteFromClipboard(objects);
         for (std::vector<LLUUID>::const_iterator iter = objects.begin();
@@ -274,7 +276,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
             const LLUUID &object_id = (*iter);
             if (LLConstPointer<LLInventoryObject> link_obj = gInventory.getObject(object_id))
             {
-                link_inventory_object(selected_id, link_obj, LLPointer<LLInventoryCallback>(NULL));
+                link_inventory_object(dest, link_obj, LLPointer<LLInventoryCallback>(NULL));
             }
         }
 
@@ -463,11 +465,14 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
     if (is_folder)
     {
-        items.push_back(std::string("Copy Separator"));
+        if(!isRootFolder())
+        {
+            items.push_back(std::string("Copy Separator"));
 
-        items.push_back(std::string("open_in_current_window"));
-        items.push_back(std::string("open_in_new_window"));
-        items.push_back(std::string("Open Folder Separator"));
+            items.push_back(std::string("open_in_current_window"));
+            items.push_back(std::string("open_in_new_window"));
+            items.push_back(std::string("Open Folder Separator"));
+        }
     }
     else
     {
@@ -512,18 +517,28 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
         {
             items.push_back(std::string("Share"));
         }
+        if (LLClipboard::instance().hasContents() && is_agent_inventory && !is_cof && !is_inbox_folder(selected_id))
+        {
+            items.push_back(std::string("Paste"));
+
+            static LLCachedControl<bool> inventory_linking(gSavedSettings, "InventoryLinking", true);
+            if (inventory_linking)
+            {
+                items.push_back(std::string("Paste As Link"));
+            }
+        }
         if (is_folder && is_agent_inventory)
         {
             if (!is_cof && (folder_type != LLFolderType::FT_OUTFIT) && !is_outfits && !is_inbox_folder(selected_id))
             {
-                if (!gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD)))
+                if (!gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD)) && !isRootFolder())
                 {
                     items.push_back(std::string("New Folder"));
                 }
                 items.push_back(std::string("upload_def"));
             }
 
-            if(is_outfits)
+            if(is_outfits && !isRootFolder())
             {
                 items.push_back(std::string("New Outfit"));
             }
@@ -531,6 +546,8 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             items.push_back(std::string("Subfolder Separator"));
             if (!is_system_folder)
             {
+                if(!isRootFolder())
+                {
                 if(has_children && (folder_type != LLFolderType::FT_OUTFIT))
                 {
                     items.push_back(std::string("Ungroup folder items"));
@@ -542,19 +559,10 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                     disabled_items.push_back(std::string("Delete"));
                     disabled_items.push_back(std::string("Cut"));
                 }
+                }
                 if(!is_inbox)
                 {
                     items.push_back(std::string("Rename"));
-                }
-            }
-            if (LLClipboard::instance().hasContents() && is_agent_inventory && !is_cof && !is_inbox_folder(selected_id))
-            {
-                items.push_back(std::string("Paste"));
-
-                static LLCachedControl<bool> inventory_linking(gSavedSettings, "InventoryLinking", true);
-                if (inventory_linking)
-                {
-                    items.push_back(std::string("Paste As Link"));
                 }
             }
             if(!is_system_folder)

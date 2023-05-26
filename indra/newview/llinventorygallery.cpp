@@ -126,12 +126,15 @@ BOOL LLInventoryGallery::postBuild()
     mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
     mMessageTextBox = getChild<LLTextBox>("empty_txt");
     mInventoryGalleryMenu = new LLInventoryGalleryContextMenu(this);
+    mRootGalleryMenu = new LLInventoryGalleryContextMenu(this);
+    mRootGalleryMenu->setRootFolder(true);
     return TRUE;
 }
 
 LLInventoryGallery::~LLInventoryGallery()
 {
     delete mInventoryGalleryMenu;
+    delete mRootGalleryMenu;
     delete mFilter;
 
     while (!mUnusedRowPanels.empty())
@@ -835,6 +838,27 @@ void LLInventoryGallery::onThumbnailAdded(LLUUID item_id)
         updateAddedItem(item_id);
         reArrangeRows();
     }
+}
+
+BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+    if(mItemMap[mSelectedItemID])
+    {
+        mItemMap[mSelectedItemID]->setFocus(false);
+    }
+    clearSelection();
+    BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
+    if (mSelectedItemID.isNull())
+    {
+        if (mInventoryGalleryMenu && mFolderID.notNull())
+        {
+            uuid_vec_t selected_uuids;
+            selected_uuids.push_back(mFolderID);
+            mRootGalleryMenu->show(this, selected_uuids, x, y);
+            return TRUE;
+        }
+    }
+    return res;
 }
 
 void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id)
