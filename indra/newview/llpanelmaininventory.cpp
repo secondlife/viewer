@@ -2342,17 +2342,16 @@ void LLPanelMainInventory::updateCombinationVisibility()
         LLRect galery_rect = mCombinationGalleryPanel->getRect();
         LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
         LLRect scroller_window_rect = mCombinationScrollPanel->getContentWindowRect();
-        const S32 BORDER_PAD = 2; // two sides
 
         inv_rect.mBottom = 0;
-        inv_rect.mRight = inv_rect.mLeft + inv_inner_rect.getWidth();
+        inv_rect.mRight = inv_rect.mLeft + inv_inner_rect.getWidth() + mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth();
         if (!mCombinationGalleryPanel->hasVisibleItems() || mCombinationInventoryPanel->hasVisibleItems())
         {
-            inv_rect.mTop = inv_rect.mBottom + inv_inner_rect.getHeight() + BORDER_PAD;
+            inv_rect.mTop = inv_rect.mBottom + inv_inner_rect.getHeight() + mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth();
         }
         else
         {
-            inv_rect.mTop = inv_rect.mBottom;
+            inv_rect.mTop = inv_rect.mBottom + mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth();
         }
 
         galery_rect.mBottom = inv_rect.mTop;
@@ -2360,12 +2359,12 @@ void LLPanelMainInventory::updateCombinationVisibility()
         if (mCombinationGalleryPanel->hasVisibleItems())
         {
             mCombinationGalleryPanel->setVisible(true);
-            galery_rect.mTop = galery_rect.mBottom + inner_galery_rect.getHeight() + BORDER_PAD;
+            galery_rect.mTop = galery_rect.mBottom + inner_galery_rect.getHeight() + mCombinationGalleryPanel->getScrollableContainer()->getBorderWidth();
         }
         else
         {
             mCombinationGalleryPanel->setVisible(false);
-            galery_rect.mTop = galery_rect.mBottom;
+            galery_rect.mTop = galery_rect.mBottom + mCombinationGalleryPanel->getScrollableContainer()->getBorderWidth();
         }
 
         mCombinationScroller->reshape(scroller_window_rect.getWidth(), inv_rect.getHeight() + galery_rect.getHeight(), true);
