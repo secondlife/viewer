@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container" title="アウトフィットを保存する">
-	<button label="保存" label_selected="保存" name="Save"/>
-	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
-	<text name="Save item as:">
-		着用しているものを
-新しいアウトフィットに保存：
-	</text>
-	<line_editor name="name ed">
-		[DESC] （新）
-	</line_editor>
+  <button label="保存" label_selected="保存" name="Save" />
+  <button label="キャンセル" label_selected="キャンセル" name="Cancel" />
+  <!-- 字数制限のため「着用中のアウトフィットを名前をつけて保存：」ではない-->
+  <text name="Save item as:">名前をつけて保存：</text>
+  <!-- 名前には、非ASCII文字が使えないため翻訳しない -->
+  <line_editor name="name ed">[DESC] (NEW)</line_editor>
 </floater>

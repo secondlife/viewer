@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="通知パネル" name="notification_panel">
+  <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
+  <panel label="情報パネル" name="info_panel">
+    <text name="text_box" />
+    <text name="caution_text_box" />
+    <text_editor name="text_editor_box" />
+  </panel>
+  <panel label="コントロールパネル" name="control_panel">
+    <!-- 
+    Notes:
+    This panel holds buttons of notification. Change of its size can affect the layout of buttons. 
+    -->
+  </panel>
+</panel>
