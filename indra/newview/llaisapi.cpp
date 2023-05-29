@@ -32,11 +32,12 @@
 #include "llappviewer.h"
 #include "llcallbacklist.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
+#include "llnotificationsutil.h"
 #include "llsdutil.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llinventoryobserver.h"
 #include "llviewercontrol.h"
 
 ///----------------------------------------------------------------------------
@@ -893,11 +894,21 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
                 }
             }
         }
-        else if (status.getType() == 403)
+        else if (status == LLCore::HttpStatus(HTTP_FORBIDDEN) /*403*/)
         {
             if (type == FETCHCATEGORYCHILDREN)
             {
-                LL_DEBUGS("Inventory") << "Fetch failed, content is over imit" << LL_ENDL;
+                if (body.has("depth") && body["depth"].asInteger() == 0)
+                {
+                    // Can't fetch a single folder with depth 0, folder is too big.
+                    LLNotificationsUtil::add("InventoryLimitReachedAIS");
+                    LL_WARNS("Inventory") << "Fetch failed, content is over limit, url: " << url << LL_ENDL;
+                }
+                else
+                {
+                    // Result was too big, but situation is recoverable by requesting with lower depth
+                    LL_DEBUGS("Inventory") << "Fetch failed, content is over limit, url: " << url << LL_ENDL;
+                }
             }
         }
         LL_WARNS("Inventory") << "Inventory error: " << status.toString() << LL_ENDL;
