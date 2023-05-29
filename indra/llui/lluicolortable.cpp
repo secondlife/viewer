@@ -230,7 +230,7 @@ void LLUIColorTable::saveUserSettings() const
 	{
 		// Compare user color value with the default value, skip if equal
 		string_color_map_t::const_iterator itd = mLoadedColors.find(it->first);
-		if(itd != mUserSetColors.end() && itd->second == it->second)
+		if(itd != mLoadedColors.end() && itd->second == it->second)
 			continue;
 
 		ColorEntryParams color_entry;
