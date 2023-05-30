@@ -2132,6 +2132,15 @@ void LLInventorySingleFolderPanel::setSelectCallback(const boost::function<void(
     }
 }
 
+void LLInventorySingleFolderPanel::setScroller(LLScrollContainer* scroller)
+{
+    mExternalScroller = scroller;
+    if (mFolderRoot.get())
+    {
+        mFolderRoot.get()->setScrollContainer(mExternalScroller);
+    }
+}
+
 void LLInventorySingleFolderPanel::initFromParams(const Params& p)
 {
     mFolderID = gInventory.getRootFolderID();
