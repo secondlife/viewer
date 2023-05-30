@@ -468,6 +468,7 @@ void LLFloaterChangeItemThumbnail::onCopyToClipboard(void *userdata)
     LLInventoryObject* obj = self->getInventoryObject();
     if (obj)
     {
+        LLClipboard::instance().reset();
         LLClipboard::instance().addToClipboard(obj->getThumbnailUUID(), LLAssetType::AT_NONE);
         self->mPasteFromClipboardBtn->setEnabled(true);
     }
