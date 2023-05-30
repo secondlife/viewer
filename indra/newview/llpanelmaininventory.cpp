@@ -1011,9 +1011,12 @@ void LLPanelMainInventory::updateItemcountText()
 
         gInventory.getDirectDescendentsOf(getCurrentSFVRoot(), cats, items);
 
-        string_args["[ITEM_COUNT]"] = llformat("%d", items->size());
-        string_args["[CATEGORY_COUNT]"] = llformat("%d", cats->size());
-        text = getString("ItemcountCompleted", string_args);
+        if (items && cats)
+        {
+            string_args["[ITEM_COUNT]"] = llformat("%d", items->size());
+            string_args["[CATEGORY_COUNT]"] = llformat("%d", cats->size());
+            text = getString("ItemcountCompleted", string_args);
+        }
     }
 	
     mCounterCtrl->setValue(text);
@@ -1532,6 +1535,13 @@ void LLPanelMainInventory::toggleViewMode()
     }
 
     mSingleFolderMode = !mSingleFolderMode;
+    mCombinationShapeDirty = true;
+
+    if (mCombinationGalleryPanel->getRootFolder().isNull())
+    {
+        mCombinationGalleryPanel->setRootFolder(mCombinationInventoryPanel->getSingleFolderRoot());
+        mCombinationGalleryPanel->updateRootFolder();
+    }
 
     getChild<LLPanel>("default_inventory_panel")->setVisible(!mSingleFolderMode);
     getChild<LLPanel>("single_folder_inventory")->setVisible(mSingleFolderMode && isListViewMode());

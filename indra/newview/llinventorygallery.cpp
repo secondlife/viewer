@@ -183,7 +183,8 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
 
 void LLInventoryGallery::updateRootFolder()
 {
-    if (mIsInitialized)
+    llassert(mFolderID.notNull());
+    if (mIsInitialized && mFolderID.notNull())
     {
         S32 count = mItemsAddedCount;
         for (S32 i = count - 1; i >= 0; i--)
