@@ -127,6 +127,9 @@ public:
 	bool getAllowMultiSelect() { return mAllowMultiSelect; }
 	bool getAllowDrag() { return mAllowDrag; }
 
+    void setSingleFolderMode(bool is_single_mode) { mSingleFolderMode = is_single_mode; }
+    bool isSingleFolderMode() { return mSingleFolderMode; }
+
 	// Close all folders in the view
 	void closeAllFolders();
 	void openTopLevelFolders();
@@ -300,7 +303,8 @@ protected:
 									mShowItemLinkOverlays,
 									mShowSelectionContext,
 									mShowSingleSelection,
-									mSuppressFolderMenu;
+									mSuppressFolderMenu,
+                                    mSingleFolderMode;
 
 	// Renaming variables and methods
 	LLFolderViewItem*				mRenameItem;  // The item currently being renamed

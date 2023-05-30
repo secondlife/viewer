@@ -544,10 +544,8 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             }
 
             items.push_back(std::string("Subfolder Separator"));
-            if (!is_system_folder)
+            if (!is_system_folder && !isRootFolder())
             {
-                if(!isRootFolder())
-                {
                 if(has_children && (folder_type != LLFolderType::FT_OUTFIT))
                 {
                     items.push_back(std::string("Ungroup folder items"));
@@ -559,7 +557,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                     disabled_items.push_back(std::string("Delete"));
                     disabled_items.push_back(std::string("Cut"));
                 }
-                }
+
                 if(!is_inbox)
                 {
                     items.push_back(std::string("Rename"));

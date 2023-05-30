@@ -190,7 +190,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model),
     mGroupedItemModel(p.grouped_item_model),
-    mForceArrange(false)
+    mForceArrange(false),
+    mSingleFolderMode(false)
 {
     LLPanel* panel = p.parent_panel;
     mParentPanel = panel->getHandle();
@@ -1475,8 +1476,8 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		}
 	}
 	bool hide_folder_menu = mSuppressFolderMenu && isFolderSelected();
-	if (menu && (handled
-		&& ( count > 0 && (hasVisibleChildren()) )) && // show menu only if selected items are visible
+	if (menu && (mSingleFolderMode || (handled
+		&& ( count > 0 && (hasVisibleChildren()) ))) && // show menu only if selected items are visible
 		!hide_folder_menu)
 	{
 		if (mCallbackRegistrar)
@@ -1917,6 +1918,11 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 		selected_item->buildContextMenu(*menu, flags);
 		flags = multi_select_flag;
 	}
+
+    if(mSingleFolderMode && (mSelectedItems.size() == 0))
+    {
+        buildContextMenu(*menu, flags);
+    }
 
 	// This adds a check for restrictions based on the entire
 	// selection set - for example, any one wearable may not push you

@@ -409,6 +409,7 @@ public:
     LLUUID getSingleFolderRoot() { return mFolderID; }
 
     void doCreate(const LLSD& userdata);
+    void doShare();
 
     bool isBackwardAvailable();
     bool isForwardAvailable();

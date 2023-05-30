@@ -3194,6 +3194,14 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
             if(!bridge) continue;
             bridge->performAction(model, action);
         }
+        if(root->isSingleFolderMode() && selected_items.empty())
+        {
+            LLInvFVBridge* bridge = (LLInvFVBridge*)root->getViewModelItem();
+            if(bridge)
+            {
+                bridge->performAction(model, action);
+            }
+        }
     }
 
     // Update the marketplace listings that have been affected by the operation

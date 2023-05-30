@@ -791,6 +791,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										menuentry_vec_t &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
+    bool single_folder_root = (mRoot == NULL);
 
 	if (obj)
 	{
@@ -802,7 +803,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			disabled_items.push_back(std::string("Copy"));
 		}
 
-        if (isAgentInventory())
+        if (isAgentInventory() && !single_folder_root)
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));
@@ -836,7 +837,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				items.push_back(std::string("Find Links"));
 			}
 
-			if (!isInboxFolder())
+			if (!isInboxFolder() && !single_folder_root)
 			{
 				items.push_back(std::string("Rename"));
 				if (!isItemRenameable() || ((flags & FIRST_SELECTED_ITEM) == 0))
@@ -870,6 +871,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				}
 			}
 
+            if(!single_folder_root)
+            {
 			items.push_back(std::string("Cut"));
 			if (!isItemMovable() || !isItemRemovable())
 			{
@@ -891,6 +894,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
                     }
                 }
 			}
+            }
 		}
 	}
 
@@ -916,7 +920,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	items.push_back(std::string("Paste Separator"));
 
-	addDeleteContextMenuOptions(items, disabled_items);
+    if(!single_folder_root)
+    {
+        addDeleteContextMenuOptions(items, disabled_items);
+    }
 
 	if (!isPanelActive("All Items") && !isPanelActive("single_folder_inv") && !isPanelActive("comb_single_folder_inv"))
 	{
@@ -4382,7 +4389,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 	const bool is_agent_inventory = isAgentInventory();
 
 	// Only enable calling-card related options for non-system folders.
-	if (!is_system_folder && is_agent_inventory)
+	if (!is_system_folder && is_agent_inventory && (mRoot != NULL))
 	{
 		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
 		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
@@ -4402,6 +4409,11 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
         disabled_items.push_back(std::string("New folder from selected"));
     }
 
+    //skip the rest options in single-folder mode
+    if (mRoot == NULL)
+    {
+        return;
+    }
 
     if ((flags & ITEM_IN_MULTI_SELECTION) == 0)
     {

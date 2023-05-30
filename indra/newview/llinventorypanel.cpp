@@ -2116,6 +2116,7 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
 
     mCommitCallbackRegistrar.add("Inventory.OpenSelectedFolder", boost::bind(&LLInventorySingleFolderPanel::openInCurrentWindow, this, _2));
     mCommitCallbackRegistrar.replace("Inventory.DoCreate", boost::bind(&LLInventorySingleFolderPanel::doCreate, this, _2));
+    mCommitCallbackRegistrar.replace("Inventory.Share", boost::bind(&LLInventorySingleFolderPanel::doShare, this));
 }
 
 LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()
@@ -2138,6 +2139,7 @@ void LLInventorySingleFolderPanel::initFromParams(const Params& p)
     pane_params.open_first_folder = false;
     pane_params.start_folder.id = mFolderID;
     LLInventoryPanel::initFromParams(pane_params);
+    mFolderRoot.get()->setSingleFolderMode(true);
 }
 
 void LLInventorySingleFolderPanel::openInCurrentWindow(const LLSD& userdata)
@@ -2219,7 +2221,7 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
             LLFolderView* folder_view = createFolderRoot(root_id);
             folder_view->setChildrenInited(false);
             mFolderRoot = folder_view->getHandle();
-
+            mFolderRoot.get()->setSingleFolderMode(true);
             addItemID(root_id, mFolderRoot.get());
 
             LLRect scroller_view_rect = getRect();
@@ -2284,6 +2286,19 @@ void LLInventorySingleFolderPanel::doCreate(const LLSD& userdata)
     }
     reset_inventory_filter();
     menu_create_inventory_item(this, dest_id, userdata);
+}
+
+void LLInventorySingleFolderPanel::doShare()
+{
+    if(mFolderRoot.get()->getCurSelectedItem() == NULL)
+    {
+        std::set<LLUUID> uuids{mFolderID};
+        LLAvatarActions::shareWithAvatars(uuids, gFloaterView->getParentFloater(this));
+    }
+    else
+    {
+        LLAvatarActions::shareWithAvatars(this);
+    }
 }
 /************************************************************************/
 /* Asset Pre-Filtered Inventory Panel related class                     */
