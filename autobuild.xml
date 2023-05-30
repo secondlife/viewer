@@ -236,9 +236,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4e34187bee5e61210514fad9269a2856</string>
+              <string>cb76a5dcef6577fefff3f070029a4012</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115308/993050/colladadom-2.3.580295-darwin64-580295.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115496/994482/colladadom-2.3.580380-darwin64-580380.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -248,9 +248,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>12b400f26a141a9dccefd684f60a16a2</string>
+              <string>31996b4f4bbf478298edcd28a6581f92</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115310/993062/colladadom-2.3.580295-windows-580295.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115498/994495/colladadom-2.3.580380-windows-580380.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -260,16 +260,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>51374b87bab088470316048e48b4687f</string>
+              <string>9b0de47cd59e1aa88617d751c40dcff7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115309/993056/colladadom-2.3.580295-windows64-580295.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115497/994489/colladadom-2.3.580380-windows64-580380.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.580295</string>
+        <string>2.3.580380</string>
       </map>
       <key>cubemaptoequirectangular</key>
       <map>
@@ -2069,9 +2069,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>69d324948b1fce45dc2fea7d9d4f235d</string>
+              <string>32ead724319c2ea6f65fc5be0e3157cc</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115396/993659/nanosvg-2022.09.27-darwin64-580337.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115452/994130/nanosvg-2022.09.27-darwin64-580364.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2093,9 +2093,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1c475d446cfbd4533de194149a5c456e</string>
+              <string>4e56202b09c026e08fc51116b22feabc</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115400/993676/nanosvg-2022.09.27-windows-580337.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115456/994153/nanosvg-2022.09.27-windows-580364.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2105,9 +2105,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5236f7db7424ee4d00783bc8a17cf457</string>
+              <string>ee61ff8b866be04c325f1fe2db516d71</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115399/993677/nanosvg-2022.09.27-windows64-580337.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/115454/994144/nanosvg-2022.09.27-windows64-580364.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
