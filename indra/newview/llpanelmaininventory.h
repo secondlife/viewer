@@ -36,20 +36,19 @@
 #include "llfolderview.h"
 
 class LLComboBox;
+class LLFolderViewItem;
 class LLInventoryPanel;
 class LLInventoryGallery;
+class LLSaveFolderState;
 class LLFilterEditor;
-class LLFloater;
+class LLTabContainer;
 class LLFloaterInventoryFinder;
-class LLFloaterSidePanelContainer;
-class LLFolderViewItem;
 class LLMenuButton;
 class LLMenuGL;
-class LLSaveFolderState;
-class LLScrollContainer;
 class LLSidepanelInventory;
-class LLTabContainer;
 class LLToggleableMenu;
+class LLFloater;
+class LLFloaterSidePanelContainer;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -84,9 +83,8 @@ public:
 									   EAcceptance* accept,
 									   std::string& tooltip_msg);
 	/*virtual*/ void changed(U32);
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void draw();
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void 	onVisibilityChange ( BOOL new_visibility );
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }
@@ -148,6 +146,8 @@ protected:
 
 	static BOOL filtersVisible(void* user_data);
 	void onClearSearch();
+	static void onFoldersByName(void *user_data);
+	static BOOL checkFoldersByName(void *user_data);
 	
 	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 	void onFilterSelected();
@@ -207,10 +207,9 @@ private:
     LLInventorySingleFolderPanel* mSingleFolderPanelInventory;
     LLInventoryGallery* mInventoryGalleryPanel;
 
-    LLScrollContainer* mCombinationScrollPanel;
     LLInventorySingleFolderPanel* mCombinationInventoryPanel;
     LLInventoryGallery* mCombinationGalleryPanel;
-    LLView* mCombinationScroller;
+    LLPanel* mCombinationViewPanel;
 
     boost::signals2::connection mListViewRootUpdatedConnection;
     boost::signals2::connection mGalleryRootUpdatedConnection;
@@ -251,7 +250,6 @@ private:
 	bool						mNeedUploadCost;
 
     bool                        mForceShowInvLayout;
-    bool                        mCombinationShapeDirty;
     bool                        mDelayedCombGalleryScroll;
     bool                        mDelayedCombInvPanelScroll;
 	// List Commands                                                              //

@@ -120,7 +120,6 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
       mSingleFolderMode(false),
       mForceShowInvLayout(false),
       mViewMode(MODE_COMBINATION),
-      mCombinationShapeDirty(true),
       mListViewRootUpdatedConnection(),
       mGalleryRootUpdatedConnection(),
       mDelayedCombGalleryScroll(false),
@@ -258,6 +257,7 @@ BOOL LLPanelMainInventory::postBuild()
     mDefaultViewPanel = getChild<LLPanel>("default_inventory_panel");
     mListViewPanel = getChild<LLPanel>("single_folder_inventory");
     mGalleryViewPanel = getChild<LLPanel>("gallery_view_inventory");
+    mCombinationViewPanel = getChild<LLPanel>("combination_view_inventory");
 
     mSingleFolderPanelInventory = getChild<LLInventorySingleFolderPanel>("single_folder_inv");
     mListViewRootUpdatedConnection = mSingleFolderPanelInventory->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
@@ -266,15 +266,12 @@ BOOL LLPanelMainInventory::postBuild()
     mInventoryGalleryPanel = getChild<LLInventoryGallery>("gallery_view_inv");
     mGalleryRootUpdatedConnection = mInventoryGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
 
-    mCombinationScrollPanel = getChild<LLScrollContainer>("combination_view_inventory");
-
     mCombinationInventoryPanel = getChild<LLInventorySingleFolderPanel>("comb_single_folder_inv");
     LLInventoryFilter& comb_inv_filter = mCombinationInventoryPanel->getFilter();
     comb_inv_filter.setFilterThumbnails(LLInventoryFilter::FILTER_EXCLUDE_THUMBNAILS);
     comb_inv_filter.markDefault();
     mCombinationInventoryPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onCombinationInventorySelectionChanged, this, _1, _2));
     mCombinationInventoryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
-    mCombinationInventoryPanel->setScroller(mCombinationScrollPanel);
 
     mCombinationGalleryPanel = getChild<LLInventoryGallery>("comb_gallery_view_inv");
     LLInventoryFilter& comb_gallery_filter = mCombinationGalleryPanel->getFilter();
@@ -282,8 +279,6 @@ BOOL LLPanelMainInventory::postBuild()
     comb_gallery_filter.markDefault();
     mCombinationGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, true));
     mCombinationGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelMainInventory::onCombinationGallerySelectionChanged, this, _1));
-
-    mCombinationScroller = getChild<LLView>("combination_scroller");
 
 	initListCommandsHandlers();
 
@@ -301,7 +296,6 @@ BOOL LLPanelMainInventory::postBuild()
 
 	// Trigger callback for focus received so we can deselect items in inbox/outbox
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
-    mCombinationShapeDirty = true;
 
 	return TRUE;
 }
@@ -750,8 +744,6 @@ void LLPanelMainInventory::onClearSearch()
 			inbox_panel->onClearSearch();
 		}
 	}
-
-    mCombinationShapeDirty = true;
 }
 
 void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
@@ -809,8 +801,6 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 			inbox_panel->onFilterEdit(search_string);
 		}
 	}
-
-    mCombinationShapeDirty = true;
 }
 
 
@@ -921,19 +911,9 @@ BOOL LLPanelMainInventory::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 }
 
 // virtual
-void LLPanelMainInventory::changed(U32 mask)
+void LLPanelMainInventory::changed(U32)
 {
 	updateItemcountText();
-    if ((mask & LLInventoryObserver::REBUILD)
-        || (mask & LLInventoryObserver::STRUCTURE)
-        || (mask & LLInventoryObserver::REMOVE)
-        || (mask & LLInventoryObserver::ADD)
-        || (mask & LLInventoryObserver::INTERNAL) // Thumbnail
-        || (mask & LLInventoryObserver::LABEL))
-    {
-        // todo: can be limited to just observed folder
-        mCombinationShapeDirty = true;
-    }
 }
 
 void LLPanelMainInventory::setFocusFilterEditor()
@@ -942,14 +922,6 @@ void LLPanelMainInventory::setFocusFilterEditor()
 	{
 		mFilterEditor->setFocus(true);
 	}
-}
-
-
-void LLPanelMainInventory::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-    mCombinationShapeDirty = true;
-    LLPanel::reshape(width, height, called_from_parent);
-    updateCombinationVisibility();
 }
 
 // virtual
@@ -970,10 +942,9 @@ void LLPanelMainInventory::draw()
 		mActivePanel->setSortOrder(order);
 		mResortActivePanel = false;
 	}
-
-    updateCombinationVisibility();
 	LLPanel::draw();
 	updateItemcountText();
+    updateCombinationVisibility();
 }
 
 void LLPanelMainInventory::updateItemcountText()
@@ -1545,7 +1516,6 @@ void LLPanelMainInventory::toggleViewMode()
     }
 
     mSingleFolderMode = !mSingleFolderMode;
-    mCombinationShapeDirty = true;
 
     if (mCombinationGalleryPanel->getRootFolder().isNull())
     {
@@ -1556,9 +1526,9 @@ void LLPanelMainInventory::toggleViewMode()
     mDefaultViewPanel->setVisible(!mSingleFolderMode);
     mListViewPanel->setVisible(mSingleFolderMode && isListViewMode());
     mGalleryViewPanel->setVisible(mSingleFolderMode && isGalleryViewMode());
+    mCombinationViewPanel->setVisible(mSingleFolderMode && isCombinationViewMode());
     mNavigationBtnsPanel->setVisible(mSingleFolderMode);
     mViewModeBtn->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
-    mCombinationScrollPanel->setVisible(mSingleFolderMode && isCombinationViewMode());
 
     setActivePanel();
     updateTitle();
@@ -1711,8 +1681,6 @@ void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool
         mCombinationInventoryPanel->changeFolderRoot(folder_id);
     }
     updateNavButtons();
-
-    mCombinationShapeDirty = true;
 }
 
 LLUUID LLPanelMainInventory::getSingleFolderViewRoot()
@@ -1997,7 +1965,6 @@ void LLPanelMainInventory::onVisibilityChange( BOOL new_visibility )
 		}
 		getActivePanel()->getRootFolder()->finishRenamingItem();
 	}
-    mCombinationShapeDirty = true;
 }
 
 bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
@@ -2313,10 +2280,6 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
     }
     mForceShowInvLayout = false;
     updateTitle();
-
-    //force update scroll container
-    mCombinationShapeDirty = true;
-    mCombinationInventoryPanel->reshape(1, 1);
 }
 
 void LLPanelMainInventory::onCombinationGallerySelectionChanged(const LLUUID& category_id)
@@ -2339,66 +2302,23 @@ void LLPanelMainInventory::onCombinationInventorySelectionChanged(const std::deq
 
 void LLPanelMainInventory::updateCombinationVisibility()
 {
-    if(mSingleFolderMode
-       && isCombinationViewMode()
-       && mCombinationShapeDirty)
+    if(mSingleFolderMode && isCombinationViewMode())
     {
-        if (mCombinationInventoryPanel->areViewsInitialized())
+        bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
+        bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty || mForceShowInvLayout;
+        getChild<LLLayoutPanel>("comb_gallery_layout")->setVisible(!is_gallery_empty);
+        getChild<LLLayoutPanel>("comb_inventory_layout")->setVisible(show_inv_pane);
+        mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
+        if(mCombinationInventoryPanel->hasVisibleItems())
         {
-            mCombinationShapeDirty = false;
-            mCombinationInventoryPanel->reshape(1,1); // HACK: force reduce visible area
-            LLFolderView* root_folder = mCombinationInventoryPanel->getRootFolder();
-            if (root_folder)
-            {
-                root_folder->arrangeAll();
-            }
+            mForceShowInvLayout = false;
         }
-        if (!mCombinationGalleryPanel->hasVisibleItems())
+        if(is_gallery_empty)
         {
             mCombinationGalleryPanel->handleModifiedFilter();
         }
-        LLRect inv_rect = mCombinationInventoryPanel->getRect();
-        LLRect inv_inner_rect = mCombinationInventoryPanel->getScrollableContainer()->getScrolledViewRect();
-        LLRect galery_rect = mCombinationGalleryPanel->getRect();
-        LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
-        LLRect scroller_window_rect = mCombinationScrollPanel->getContentWindowRect();
-
-        inv_rect.mBottom = 0;
-        inv_rect.mRight = inv_rect.mLeft + inv_inner_rect.getWidth() + mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth();
-        if (!mCombinationGalleryPanel->hasVisibleItems() || mCombinationInventoryPanel->hasVisibleItems())
-        {
-            inv_rect.mTop = inv_rect.mBottom + inv_inner_rect.getHeight() + mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth();
-        }
-        else
-        {
-            inv_rect.mTop = inv_rect.mBottom + mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth();
-        }
-
-        galery_rect.mBottom = inv_rect.mTop;
-        galery_rect.mRight = galery_rect.mLeft + scroller_window_rect.getWidth();
-        if (mCombinationGalleryPanel->hasVisibleItems())
-        {
-            mCombinationGalleryPanel->setVisible(true);
-            galery_rect.mTop = galery_rect.mBottom + inner_galery_rect.getHeight() + mCombinationGalleryPanel->getScrollableContainer()->getBorderWidth();
-        }
-        else
-        {
-            mCombinationGalleryPanel->setVisible(false);
-            galery_rect.mTop = galery_rect.mBottom + mCombinationGalleryPanel->getScrollableContainer()->getBorderWidth();
-        }
-
-        mCombinationScroller->reshape(scroller_window_rect.getWidth(), inv_rect.getHeight() + galery_rect.getHeight(), true);
-        mCombinationGalleryPanel->setShape(galery_rect, false);
-        mCombinationInventoryPanel->setShape(inv_rect, false);
-
-        if(mDelayedCombGalleryScroll)
-        {
-            scrollToGallerySelection();
-        }
-        else if(mDelayedCombInvPanelScroll)
-        {
-            scrollToInvPanelSelection();
-        }
+        
+        getActivePanel()->getRootFolder();
     }
 }
 
@@ -2463,7 +2383,7 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
 
         mListViewPanel->setVisible(mSingleFolderMode && isListViewMode());
         mGalleryViewPanel->setVisible(mSingleFolderMode && isGalleryViewMode());
-        mCombinationScrollPanel->setVisible(mSingleFolderMode && isCombinationViewMode());
+        mCombinationViewPanel->setVisible(mSingleFolderMode && isCombinationViewMode());
 
         if(isListViewMode())
         {
@@ -2573,28 +2493,12 @@ void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id, bool new_w
 
 void LLPanelMainInventory::scrollToGallerySelection()
 {
-    LLInventoryGalleryItem* item = mCombinationGalleryPanel->getSelectedItem();
-    LLScrollContainer* scroll_panel = getChild<LLScrollContainer>("combination_view_inventory");
-
-    if(item)
-    {
-        LLRect item_rect;
-        item->localRectToOtherView(item->getLocalRect(), &item_rect, mCombinationScroller);
-        scroll_panel->scrollToShowRect(item_rect);
-    }
+    mCombinationGalleryPanel->scrollToShowItem(mCombinationGalleryPanel->getSelectedItemID());
 }
 
 void LLPanelMainInventory::scrollToInvPanelSelection()
 {
-    LLFolderViewItem* item = mCombinationInventoryPanel->getRootFolder()->getCurSelectedItem();
-    LLScrollContainer* scroll_panel = getChild<LLScrollContainer>("combination_view_inventory");
-
-    if(item)
-    {
-        LLRect item_rect;
-        item->localRectToOtherView(item->getLocalRect(), &item_rect, mCombinationScroller);
-        scroll_panel->scrollToShowRect(item_rect);
-    }
+    mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
 }
 
 // List Commands                                                              //

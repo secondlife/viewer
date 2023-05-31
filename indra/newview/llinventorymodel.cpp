@@ -914,7 +914,7 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
         // if it does not exists, it should either be added
         // to createCommonSystemCategories or server should
         // have set it
-        llassert(false);
+        llassert(!isInventoryUsable());
         LL_WARNS("Inventory") << "Tried to find folder, type " << preferred_type
 								  << " but category does not exist" << LL_ENDL;
 	}

@@ -258,13 +258,13 @@ public:
 	virtual void updateMenu();
 
 	void finishRenamingItem( void );
-    void updateRenamerPosition();
 
     // Note: We may eventually have to move that method up the hierarchy to LLFolderViewItem.
 	LLHandle<LLFolderView>	getHandle() const { return getDerivedHandle<LLFolderView>(); }
     
 private:
 	void updateMenuOptions(LLMenuGL* menu);
+	void updateRenamerPosition();
 
 protected:
 	LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.

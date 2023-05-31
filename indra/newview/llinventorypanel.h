@@ -214,7 +214,6 @@ public:
 	LLUUID getRootFolderID();
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
     bool getAllowDropOnRoot() { return mParams.allow_drop_on_root; }
-    bool areViewsInitialized() { return mViewsInitialized == VIEWS_INITIALIZED && !mFolderRoot.get()->needsArrange(); }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	
@@ -422,7 +421,6 @@ public:
     std::list<LLUUID> getNavForwardList() { return mForwardFolders; }
 
     void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
-    void setScroller(LLScrollContainer* scroller);
 
     typedef boost::function<void()> root_changed_callback_t;
     boost::signals2::connection setRootChangedCallback(root_changed_callback_t cb);
@@ -438,7 +436,6 @@ protected:
     LLUUID mFolderID;
     std::list<LLUUID> mBackwardFolders;
     std::list<LLUUID> mForwardFolders;
-    LLScrollContainer* mExternalScroller;
 
     boost::signals2::signal<void()> mRootChangedSignal;
 };
