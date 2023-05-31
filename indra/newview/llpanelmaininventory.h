@@ -192,6 +192,16 @@ private:
 	std::string					mCategoryCountString;
 	LLComboBox*					mSearchTypeCombo;
 
+    LLButton* mBackBtn;
+    LLButton* mForwardBtn;
+    LLButton* mUpBtn;
+    LLButton* mViewModeBtn;
+    LLLayoutPanel* mNavigationBtnsPanel;
+
+    LLPanel* mListViewPanel;
+    LLPanel* mGalleryViewPanel;
+    LLPanel* mDefaultViewPanel;
+
     bool mSingleFolderMode;
     EViewModeType mViewMode;
     LLInventorySingleFolderPanel* mSingleFolderPanelInventory;

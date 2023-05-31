@@ -249,6 +249,16 @@ BOOL LLPanelMainInventory::postBuild()
 	mVisibilityMenuButton = getChild<LLMenuButton>("options_visibility_btn");
     mViewMenuButton = getChild<LLMenuButton>("view_btn");
 
+    mBackBtn = getChild<LLButton>("back_btn");
+    mForwardBtn = getChild<LLButton>("forward_btn");
+    mUpBtn = getChild<LLButton>("up_btn");
+    mViewModeBtn = getChild<LLButton>("view_mode_btn");
+    mNavigationBtnsPanel = getChild<LLLayoutPanel>("nav_buttons");
+
+    mDefaultViewPanel = getChild<LLPanel>("default_inventory_panel");
+    mListViewPanel = getChild<LLPanel>("single_folder_inventory");
+    mGalleryViewPanel = getChild<LLPanel>("gallery_view_inventory");
+
     mSingleFolderPanelInventory = getChild<LLInventorySingleFolderPanel>("single_folder_inv");
     mListViewRootUpdatedConnection = mSingleFolderPanelInventory->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
     mSingleFolderPanelInventory->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mSingleFolderPanelInventory, _1, _2));
@@ -1543,11 +1553,11 @@ void LLPanelMainInventory::toggleViewMode()
         mCombinationGalleryPanel->updateRootFolder();
     }
 
-    getChild<LLPanel>("default_inventory_panel")->setVisible(!mSingleFolderMode);
-    getChild<LLPanel>("single_folder_inventory")->setVisible(mSingleFolderMode && isListViewMode());
-    getChild<LLPanel>("gallery_view_inventory")->setVisible(mSingleFolderMode && isGalleryViewMode());
-    getChild<LLLayoutPanel>("nav_buttons")->setVisible(mSingleFolderMode);
-    getChild<LLButton>("view_mode_btn")->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
+    mDefaultViewPanel->setVisible(!mSingleFolderMode);
+    mListViewPanel->setVisible(mSingleFolderMode && isListViewMode());
+    mGalleryViewPanel->setVisible(mSingleFolderMode && isGalleryViewMode());
+    mNavigationBtnsPanel->setVisible(mSingleFolderMode);
+    mViewModeBtn->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
     mCombinationScrollPanel->setVisible(mSingleFolderMode && isCombinationViewMode());
 
     setActivePanel();
@@ -2396,23 +2406,23 @@ void LLPanelMainInventory::updateNavButtons()
 {
     if(isListViewMode())
     {
-        getChild<LLButton>("back_btn")->setEnabled(mSingleFolderPanelInventory->isBackwardAvailable());
-        getChild<LLButton>("forward_btn")->setEnabled(mSingleFolderPanelInventory->isForwardAvailable());
+        mBackBtn->setEnabled(mSingleFolderPanelInventory->isBackwardAvailable());
+        mForwardBtn->setEnabled(mSingleFolderPanelInventory->isForwardAvailable());
     }
     if(isGalleryViewMode())
     {
-        getChild<LLButton>("back_btn")->setEnabled(mInventoryGalleryPanel->isBackwardAvailable());
-        getChild<LLButton>("forward_btn")->setEnabled(mInventoryGalleryPanel->isForwardAvailable());
+        mBackBtn->setEnabled(mInventoryGalleryPanel->isBackwardAvailable());
+        mForwardBtn->setEnabled(mInventoryGalleryPanel->isForwardAvailable());
     }
     if(isCombinationViewMode())
     {
-        getChild<LLButton>("back_btn")->setEnabled(mCombinationInventoryPanel->isBackwardAvailable());
-        getChild<LLButton>("forward_btn")->setEnabled(mCombinationInventoryPanel->isForwardAvailable());
+        mBackBtn->setEnabled(mCombinationInventoryPanel->isBackwardAvailable());
+        mForwardBtn->setEnabled(mCombinationInventoryPanel->isForwardAvailable());
     }
 
     const LLViewerInventoryCategory* cat = gInventory.getCategory(getCurrentSFVRoot());
     bool up_enabled = (cat && cat->getParentUUID().notNull());
-    getChild<LLButton>("up_btn")->setEnabled(up_enabled);
+    mUpBtn->setEnabled(up_enabled);
 }
 
 LLSidepanelInventory* LLPanelMainInventory::getParentSidepanelInventory()
@@ -2451,8 +2461,8 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
         LLUUID cur_root = getCurrentSFVRoot();
         mViewMode = mode;
 
-        getChild<LLPanel>("single_folder_inventory")->setVisible(mSingleFolderMode && isListViewMode());
-        getChild<LLPanel>("gallery_view_inventory")->setVisible(mSingleFolderMode && isGalleryViewMode());
+        mListViewPanel->setVisible(mSingleFolderMode && isListViewMode());
+        mGalleryViewPanel->setVisible(mSingleFolderMode && isGalleryViewMode());
         mCombinationScrollPanel->setVisible(mSingleFolderMode && isCombinationViewMode());
 
         if(isListViewMode())
