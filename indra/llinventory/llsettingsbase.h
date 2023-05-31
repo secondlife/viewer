@@ -467,6 +467,7 @@ protected:
 
 class LLSettingsBlenderTimeDelta : public LLSettingsBlender
 {
+protected:
     LOG_CLASS(LLSettingsBlenderTimeDelta);
 public:
     static const LLSettingsBase::BlendFactor MIN_BLEND_DELTA;

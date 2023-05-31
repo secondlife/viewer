@@ -168,6 +168,9 @@ namespace
     // Find normalized track position of given time along full length of cycle
     inline LLSettingsBase::TrackPosition convert_time_to_position(const LLSettingsBase::Seconds& time, const LLSettingsBase::Seconds& len)
     {
+        // early out to avoid divide by zero.  if len is zero then jump to end position
+        if (len == 0.f) return 1.f;
+
         LLSettingsBase::TrackPosition position = LLSettingsBase::TrackPosition(fmod((F64)time, (F64)len) / (F64)len);
         return llclamp(position, 0.0f, 1.0f);
     }
