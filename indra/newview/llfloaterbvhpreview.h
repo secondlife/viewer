@@ -100,6 +100,7 @@ public:
 	void onCommitHandPose();
 	void onCommitEmote();
 	void onCommitPriority();
+    void onCommitScale();
 	void onCommitEaseIn();
 	void onCommitEaseOut();
 	bool validateEaseIn(const LLSD& data);

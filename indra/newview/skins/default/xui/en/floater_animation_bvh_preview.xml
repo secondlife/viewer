@@ -171,7 +171,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left|right"
      height="23"
      layout="topleft"
-     left="100"
+     left="80"
      name="name_form"
      right="-10" />
     <text
@@ -190,7 +190,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left|right"
      height="23"
      layout="topleft"
-     left="100"
+     left="80"
      name="description_form"
      right="-10" />
     <spinner
@@ -200,13 +200,28 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="Priority"
-     label_width="88"
+     label_width="70"
      layout="topleft"
      left="10"
      max_val="4"
      name="priority"
      tool_tip="Controls which other animations can be overridden by this animation"
-     width="160" />
+     width="130" />
+    <spinner
+     decimal_digits="3"
+     follows="left|top"
+     height="23"
+     increment="0.010"
+     initial_value="1.000"
+     label="Scale"
+     label_width="60"
+     layout="topleft"
+     left_pad="10"
+     min_val="0.001"
+     max_val="10.000"
+     name="scale"
+     tool_tip="Scales position movement by this animation"
+     width="120" />
     <check_box
      top_pad="0"
      height="14"
@@ -222,14 +237,14 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="In(%)"
-     label_width="70"
+     label_width="68"
      layout="topleft"
      top_pad="5"
      left="15"
      max_val="100"
      name="loop_in_point"
      tool_tip="Sets point in animation that looping returns to"
-     width="130" />
+     width="125" />
     <spinner
      bottom_delta="0"
      follows="left|top"

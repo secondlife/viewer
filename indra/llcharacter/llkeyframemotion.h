@@ -160,6 +160,9 @@ public:
 	// Change all the time values by this factor
     void adjustTime(F32 adjustment);
 
+	// Scale any position movements by this factor. 
+	void adjustPositionScale(F32 adjustment);
+
     static void onLoadComplete(const LLUUID &asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
@@ -175,11 +178,13 @@ public:
 	// setters for modifying a keyframe animation
 	void setLoop(BOOL loop);
 
-	F32 getLoopIn() {
+	F32 getLoopIn()
+	{
 		return (mJointMotionList) ? mJointMotionList->mLoopInPoint : 0.f;
 	}
 
-	F32 getLoopOut() {
+	F32 getLoopOut()
+	{
 		return (mJointMotionList) ? mJointMotionList->mLoopOutPoint : 0.f;
 	}
 	
@@ -399,10 +404,12 @@ public:
 		ScaleCurve		mScaleCurve;
 		std::string		mJointName;
 		U32				mUsage;
+        F32             mPositionScale = 1.f;
 		LLJoint::JointPriority	mPriority;
 
 		void update(LLJointState* joint_state, F32 time, F32 duration);
         void adjustTime(F32 adjustment);
+		void adjustPositionScale(F32 adjustment);
 	};
 	
 	//-------------------------------------------------------------------------
@@ -418,6 +425,7 @@ public:
 		F32						mLoopOutPoint;
 		F32						mEaseInDuration;
 		F32						mEaseOutDuration;
+		F32						mPositionScale;
 		LLJoint::JointPriority	mBasePriority;
 		LLHandMotion::eHandPose mHandPose;
 		LLJoint::JointPriority  mMaxPriority;
@@ -435,6 +443,7 @@ public:
 		JointMotion* getJointMotion(U32 index) const { llassert(index < mJointMotionArray.size()); return mJointMotionArray[index]; }
 		U32 getNumJointMotions() const { return mJointMotionArray.size(); }
         void adjustTime(F32 adjustment);
+		void adjustPositionScale(F32 adjustment);
 	};
 
 protected:
@@ -447,6 +456,7 @@ protected:
 	U32								mLastSkeletonSerialNum;
 	F32								mLastUpdateTime;
 	F32								mLastLoopedTime;
+	F32								mPositionScale;
 	AssetStatus						mAssetStatus;
 
 public:
