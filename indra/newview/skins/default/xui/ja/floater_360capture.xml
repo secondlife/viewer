@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="360capture" title="３６０度スナップショット">
+<floater name="360capture" title="３６０度Ｓショット">
   <panel name="ui_panel_left">
     <text name="quality_level_label">品質</text>
     <radio_group name="360_quality_selection">
@@ -13,6 +13,7 @@
     <button label="名前をつけて保存…" name="save_local_button" />
   </panel>
   <panel name="ui_panel_right">
+    <web_browser name="360capture_contents" />
     <text name="statusbar">クリックとドラッグで視点変更</text>
   </panel>
 </floater>

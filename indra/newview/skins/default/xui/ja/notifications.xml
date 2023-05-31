@@ -364,7 +364,7 @@ L$が不足しているので、このグループに参加することができ
     <tag>fail</tag>
     <tag>funds</tag>
   </notification>
-  <notification name="CreateGroupCost">このグループ作成にかかる費用：L$[COST]
+  <notification name="CreateGroupCost">このグループ作成にかかる費用：L$ [COST]
 一人ではグループにならないので、永久に削除されてしまいます。
 ４８時間以内にメンバーを勧誘し、入会してもらってください。
     <tag>group</tag>
@@ -646,7 +646,7 @@ L$が不足しているので、このグループに参加することができ
   <notification name="ChangeLanguage">言語の変更は、[APP_NAME]再起動後に反映されます。</notification>
   <notification name="GoToAuctionPage">[SECOND_LIFE]のWebページに移動し、入札あるいはオークションの詳細を確認しますか？
     <tag>confirm</tag>
-    <url name="url">http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]</url>
+    <url name="url">http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]&amp;lang=ja-JP</url>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
   </notification>
   <notification name="SaveChanges">変更を保存しますか？
@@ -719,13 +719,13 @@ L$が不足しているので、このグループに参加することができ
   <notification name="UnsupportedHardware">お使いのコンピュータは、[APP_NAME]の最小システム要件を満たしていません。
 このためパフォーマンスが低下する場合があります。恐れ入りますが[SUPPORT_SITE]は、サポートされていないシステム構成に対する技術的サポートを提供できません。
 
-詳細について、[_URL]を確認しますか？
-    <url name="url" option="0">http://secondlife.com/support/sysreqs.php?lang=ja</url>
+詳細について、[_URL] を確認しますか？
+    <url name="url" option="0">https://secondlife.com/system-requirements?lang=ja</url>
     <tag>fail</tag>
     <usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="OldGPUDriver">グラフィックスチップに最新のドライバがある可能性があります。グラフィックドライバを更新することにより、大幅にパフォーマンスが向上します。
-ドライバの更新を確認するために[URL]にアクセスしますか？
+ドライバの更新を確認するために[URL] にアクセスしますか？
     <url name="url">[URL]</url>
     <tag>confirm</tag>
     <tag>fail</tag>
@@ -799,7 +799,7 @@ L$が不足しているので、このグループに参加することができ
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ" />
   </notification>
   <notification name="FreezeAvatarFullname">[AVATAR_NAME]をフリーズしますか？
-フリーズされた人は一時的に動けなくなり、チャットなど、ワールドに対する関わりを持つことができなくなります。
+フリーズされた人は一時的に動けなくなり、チャットなど、この世界に対する関わりを持つことができなくなります。
     <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ" />
   </notification>
@@ -827,7 +827,7 @@ L$が不足しているので、このグループに参加することができ
   </notification>
   <notification name="PromptGoToCurrencyPage">[EXTRA]
   
-[_URL]に移動してリンデンドル購入に関する情報を確認しますか？ 
+[_URL] に移動してリンデンドル購入に関する情報を確認しますか？ 
     <url name="url">https://secondlife.com/my/lindex/?lang=ja-JP</url>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
   </notification>
@@ -2738,6 +2738,10 @@ Linden Lab</notification>
     <usetemplate name="okcancelbuttons" notext="後でゴミ箱を空にする" yestext="ごみ箱フォルダーを確認する" />
   </notification>
 
+  <notification name="InventoryLimitReachedAIS">インベントリに問題が発生しています。お手数ですが、サポートにお問い合わせください。
+    <tag>fail</tag>
+  </notification>
+
   <notification name="ConfirmClearBrowserCache">トラベル、Web、検索の履歴をすべて削除しますか？ 
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
@@ -2753,7 +2757,7 @@ Linden Lab</notification>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい" />
   </notification>
 
-  <notification name="ConfirmClearMediaUrlList">保存されたＵＲＬのリストを消去します。よろしいですか？
+  <notification name="ConfirmClearMediaUrlList">保存されたＵＲＬのリストを消去します。このまま、リストを消去してもよろしいですか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい" />
   </notification>
@@ -3227,7 +3231,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
     <tag>fail</tag>
   </notification>
 
-  <notification name="ObjectGiveItem">[NAME_SLURL]が所有する&lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;という名前のオブジェクトが、あなたに[OBJECTTYPE]を渡しました：
+  <notification name="ObjectGiveItem">[NAME_SLURL] が所有する&lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt;という名前のオブジェクトが、あなたに[OBJECTTYPE]を渡しました：
 &lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
     <form name="form">
       <button name="Keep" text="受け取る" />
@@ -3301,7 +3305,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 
   <notification name="TeleportOfferSent">[TO_NAME]にテレポートを送りました。</notification>
 
-  <notification name="TeleportRequest">[NAME_SLURL]は、テレポートであなたを呼んでいます。
+  <notification name="TeleportRequest">[NAME_SLURL] は、テレポートであなたを呼んでいます。
 [MESSAGE]
 
 テレポートのオファーを受けますか？
@@ -3647,7 +3651,7 @@ Your L$ balance is shown in the upper-right.
   </notification>
 
   <notification name="VoiceEffectsExpired">ボイスモーフィング効果の１つ、または複数の有効期限が終了しました。
-期限を延長・更新するには [[URL] Click here] をクリックしてください。
+期限を延長・更新するには[[URL] ここ]をクリックしてください。
 
 プレミアム会員の方は、[[PREMIUM_URL] ここ]をクリックしてボイスモーフィング特典をお受け取りください。
     <tag>fail</tag>

@@ -2758,11 +2758,11 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- inventory offer -->
   <string name="InvOfferAnObjectNamed">オブジェクト名</string>
-  <string name="InvOfferOwnedByGroup">所有グループ</string>
-  <string name="InvOfferOwnedByUnknownGroup">不明なグループ所有</string>
-  <string name="InvOfferOwnedBy">所有者</string>
-  <string name="InvOfferOwnedByUnknownUser">不明なユーザー所有</string>
-  <string name="InvOfferGaveYou">が渡しました。</string>
+  <string name="InvOfferOwnedByGroup">グループが所有している</string>
+  <string name="InvOfferOwnedByUnknownGroup">不明なグループが所有している</string>
+  <string name="InvOfferOwnedBy">が所有している</string>
+  <string name="InvOfferOwnedByUnknownUser">不明なユーザーが所有している</string>
+  <string name="InvOfferGaveYou">を渡してきました。</string>
   <string name="InvOfferDecline">&lt;nolink&gt;[NAME]&lt;/nolink&gt;からの[DESC]を拒否しました。</string>
 
   <!-- group money -->
@@ -2771,8 +2771,8 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="GroupMoneyPaidYou">あなたに支払い：</string>
   <string name="GroupMoneyPaidInto">支払情報</string>
   <string name="GroupMoneyBoughtPassTo">入場許可を購入：</string>
-  <string name="GroupMoneyPaidFeeForEvent">が、イベント用の費用を支払いました。</string>
-  <string name="GroupMoneyPaidPrizeForEvent">が、イベント用の賞金を支払いました。</string>
+  <string name="GroupMoneyPaidFeeForEvent">が、イベントの費用を支払いました。</string>
+  <string name="GroupMoneyPaidPrizeForEvent">が、イベントの賞金を支払いました。</string>
   <string name="GroupMoneyBalance">残高</string>
   <string name="GroupMoneyCredits">収入</string>
   <string name="GroupMoneyDebits">支出</string>
@@ -2784,7 +2784,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="UploadingCosts">[NAME]のアップロード料金は L$ [AMOUNT]です。</string>
   <string name="BuyingCosts">これをL$ [AMOUNT]で購入します。</string>
   <string name="UnknownFileExtension">不明な拡張子：%s
-使用可能な拡張子：.wav, .tga, .bmp, .jpg, .jpeg, or .bvh</string>
+使用可能な拡張子：.wav，.tga，.bmp，.jpg，.jpeg，.bvh</string>
   <string name="MuteObject2">オブジェクトのブロック</string>
   <string name="MuteAvatar">アバターのブロック</string>
   <string name="UnmuteObject">オブジェクトのブロック解除</string>

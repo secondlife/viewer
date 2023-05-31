@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="プロフィール" name="panel_profile">
+<panel name="panel_profile" label="プロフィール">
   <!--
   Date from server comes already converted to stl timezone,
   so display it as an UTC+0
   -->
   <string name="date_format" value="ＳＬでの誕生日：[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日" />
-  <string name="age_format" value="[AGE]歳" />
+  <string name="age_format" value="[AGE]経過" />
   <string name="partner_text" value="パートナー：[LINK]" />
+  <string name="CaptionTextAcctInfo">アカウント：[ACCTTYPE]
+[PAYMENTINFO]</string>
 
+  <!--Badges-->
+  <string name="BadgeBeta" value="オリジナルβテスター" />
+  <string name="BadgeBetaLifetime" value="β会員" />
+  <string name="BadgeLifetime" value="会員" />
+  <string name="BadgeLinden" value="Linden Lab社員" />
+  <string name="BadgePremiumLifetime" value="プレミアム会員" />
+  <string name="BadgePremiumPlusLifetime" value="プレミアム・プラス会員" />
 
   <layout_stack name="image_stack">
     <layout_panel name="image_panel">
@@ -30,8 +39,13 @@
 
     <layout_panel name="partner_spacer_layout" />
 
-    <layout_panel name="frind_layout">
-      <text name="frind_text" value="あなたはフレンドです。" />
+    <layout_panel name="badge_layout">
+      <icon name="badge_icon" />
+      <text name="badge_text" value="バッチのテスト" />
+    </layout_panel>
+
+    <layout_panel name="friend_layout">
+      <text name="friend_text" value="あなたはフレンドです。" />
     </layout_panel>
     <layout_panel name="online_layout">
       <icon name="online_icon" />
@@ -64,12 +78,19 @@
   <layout_stack name="main_stack">
     <layout_panel name="display_name_panel">
       <line_editor name="display_name" value="（読み込んでいます…）" />
+
       <icon tool_tip="フレンドは、自分のオンライン状況を見ることができます。" name="can_see_online" />
+
       <icon tool_tip="フレンドは、自分のオンライン状況を見ることができません。" name="cant_see_online" />
+
       <icon tool_tip="フレンドは、自分がマップのどこにいるかを知ることができます。" name="can_see_on_map" />
+
       <icon tool_tip="フレンドは、自分がマップのどこにいるかを知ることができません。" name="cant_see_on_map" />
+
       <icon tool_tip="フレンドは、自分のオブジェクトを編集できます。" name="can_edit_objects" />
+
       <icon tool_tip="フレンドは、自分のオブジェクトを編集できません。" name="cant_edit_objects" />
+
     </layout_panel>
 
     <layout_panel name="about_panel">

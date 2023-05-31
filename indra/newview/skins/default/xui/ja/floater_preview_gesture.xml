@@ -34,8 +34,8 @@
   </radio_group>
   <check_box label="アニメーションが完了するまで" name="wait_anim_check" />
   <check_box label="時間（秒）：" name="wait_time_check" />
-  <text name="help_label">待機ステップを入れない限りは、すべてのステップが同時に起こります。</text>
-  <check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。 1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。" />
+  <text name="help_label">待機ステップを入れていない場合、すべてのステップが同時に実行されます。</text>
+  <check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーとなる語句を入力するか、ホットキーを押すことで実行されます。通常、同じキーバインディングを使用するゼスチャーがある場合、そのゼスチャーは非アクティブになります。" />
   <button label="プレビュー" name="preview_btn" />
   <button label="保存" name="save_btn" />
 </floater>
