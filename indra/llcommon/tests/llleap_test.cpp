@@ -109,7 +109,7 @@ namespace tut
                    "import os\n"
                    "import sys\n"
                    "\n"
-                   "from llbase import llsd\n"
+                   "import llsd\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
                    "    def __init__(self, msg, data):\n"

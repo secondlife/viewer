@@ -1861,8 +1861,8 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 {
 	const LLUUID mesh_id = mesh_params.getSculptID();
 	LLSD header;
-	
-	U32 header_size = 0;
+
+	size_t header_size = 0;
 	if (data_size > 0)
 	{
 		llssize dsize = data_size;
