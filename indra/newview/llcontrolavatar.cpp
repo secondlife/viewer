@@ -47,6 +47,7 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mGlobalScale(1.0f),
     mMarkedForDeath(false),
     mRootVolp(NULL),
+    mControlAVBridge(NULL),
     mScaleConstraintFixup(1.0),
 	mRegionChanged(false)
 {
@@ -374,6 +375,12 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     {
         LLVOAvatar::idleUpdate(agent,time);
     }
+}
+
+void LLControlAvatar::markDead()
+{
+    super::markDead();
+    mControlAVBridge = NULL;
 }
 
 bool LLControlAvatar::computeNeedsUpdate()
