@@ -201,6 +201,8 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setValue(azimuth);
     getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setValue(elevation);
     getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(quat);
+
+    updateGammaLabel();
 }
 
 
@@ -478,7 +480,23 @@ void LLFloaterEnvironmentAdjust::onReflectionProbeAmbianceChanged()
     if (!mLiveSky) return;
     F32 ambiance = getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal();
     mLiveSky->setReflectionProbeAmbiance(ambiance);
+
+    updateGammaLabel();
     mLiveSky->update();
+}
+
+void LLFloaterEnvironmentAdjust::updateGammaLabel()
+{
+    if (!mLiveSky) return;
+    F32 ambiance = mLiveSky->getReflectionProbeAmbiance();
+    if (ambiance != 0.f)
+    {
+        childSetValue("scene_gamma_label", getString("hdr_string"));
+    }
+    else
+    {
+        childSetValue("scene_gamma_label", getString("brightness_string"));
+    }
 }
 
 void LLFloaterEnvironmentAdjust::onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version)

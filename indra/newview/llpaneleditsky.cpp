@@ -213,6 +213,8 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setValue(droplet_radius);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setValue(ice_level);
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(rp_ambiance);
+
+    updateGammaLabel();
 }
 
 //-------------------------------------------------------------------------
@@ -321,11 +323,29 @@ void LLPanelSettingsSkyAtmosTab::onReflectionProbeAmbianceChanged()
 {
     if (!mSkySettings) return;
     F32 ambiance = getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal();
+
     mSkySettings->setReflectionProbeAmbiance(ambiance);
     mSkySettings->update();
     setIsDirty();
+
+    updateGammaLabel();
 }
 
+
+void LLPanelSettingsSkyAtmosTab::updateGammaLabel()
+{
+    if (!mSkySettings) return;
+    F32 ambiance = mSkySettings->getReflectionProbeAmbiance();
+    if (ambiance != 0.f)
+    {
+        childSetValue("scene_gamma_label", getString("hdr_string"));
+    }
+    else
+    {
+        childSetValue("scene_gamma_label", getString("brightness_string"));
+    }
+
+}
 //==========================================================================
 LLPanelSettingsSkyCloudTab::LLPanelSettingsSkyCloudTab() :
     LLPanelSettingsSky()

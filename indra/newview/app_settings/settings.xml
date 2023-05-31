@@ -10566,7 +10566,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.25</real>
+    <real>1.0</real>
   </map>
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
@@ -10588,7 +10588,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.6</real>
+    <real>1.0</real>
   </map>
   <key>RenderDynamicExposureMax</key>
   <map>
@@ -10599,7 +10599,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.5</real>
+    <real>1.0</real>
   </map>
   <key>RenderDynamicExposureCoefficient</key>
   <map>

@@ -1745,19 +1745,8 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
         case LLSD::TypeReal:
-        {
-            F32 v = value.asReal();
-            switch (it.second.getShaderKey())
-            { // convert to linear color space if this is a color parameter
-            case LLShaderMgr::HAZE_HORIZON:
-            case LLShaderMgr::HAZE_DENSITY:
-            case LLShaderMgr::CLOUD_SHADOW:
-                //v = sRGBtoLinear(v);
-                break;
-            }
-            shader->uniform1f(it.second.getShaderKey(), v);
+            shader->uniform1f(it.second.getShaderKey(), value.asReal());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-        }
             break;
 
         case LLSD::TypeBoolean:

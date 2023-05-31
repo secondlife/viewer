@@ -720,32 +720,21 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     if (irradiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)
-        shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, LLVector3::zero.mV);
         shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3::zero.mV);
     }
     else
     {
-        if (psky->getReflectionProbeAmbiance() == 0.f)
+        if (psky->getReflectionProbeAmbiance() != 0.f)
         {
-            LLVector3 ambcol(ambient.mV);
-            F32 cloud_shadow = psky->getCloudShadow();
-            LLVector3 tmpAmbient = ambcol + ((LLVector3::all_one - ambcol) * cloud_shadow * 0.5f);
-
-            shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(tmpAmbient));
-            shader->uniform3fv(LLShaderMgr::AMBIENT, tmpAmbient.mV);
+            shader->uniform3fv(LLShaderMgr::AMBIENT, getAmbientColor().mV);
+            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
         }
         else
         {
-            shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor() / 3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
+            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, 1.f);
             shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
         }
     }
-
-    shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon() / 2.f)); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY
-    shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, linearColor3v(getBlueDensity() / 2.f));
-
-    shader->uniform3fv(LLShaderMgr::SUNLIGHT_LINEAR, linearColor3v(sunDiffuse));
-    shader->uniform3fv(LLShaderMgr::MOONLIGHT_LINEAR,linearColor3v(moonDiffuse));
 
     static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
     shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getTotalReflectionProbeAmbiance(cloud_shadow_scale));
@@ -754,8 +743,6 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());
     shader->uniform1f(LLShaderMgr::DENSITY_MULTIPLIER, getDensityMultiplier());
     shader->uniform1f(LLShaderMgr::DISTANCE_MULTIPLIER, getDistanceMultiplier());
-
-    shader->uniform1f(LLShaderMgr::HAZE_DENSITY_LINEAR, sRGBtoLinear(getHazeDensity()));
 
     shader->uniform1f(LLShaderMgr::GAMMA, g);
 }

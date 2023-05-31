@@ -25,19 +25,13 @@
 
 uniform vec3  lightnorm;
 uniform vec3  sunlight_color;
-uniform vec3 sunlight_linear;
 uniform vec3  moonlight_color;
-uniform vec3 moonlight_linear;
 uniform int   sun_up_factor;
 uniform vec3  ambient_color;
-uniform vec3 ambient_linear;
 uniform vec3  blue_horizon;
-uniform vec3 blue_horizon_linear;
 uniform vec3  blue_density;
-uniform vec3 blue_density_linear;
 uniform float haze_horizon;
 uniform float haze_density;
-uniform float haze_density_linear;
 uniform float cloud_shadow;
 uniform float density_multiplier;
 uniform float distance_multiplier;
@@ -46,6 +40,7 @@ uniform vec3  glow;
 uniform float scene_light_strength;
 uniform mat3  ssao_effect_mat;
 uniform float sun_moon_glow_factor;
+uniform float sky_hdr_scale;
 
 float getAmbientClamp() { return 1.0f; }
 
@@ -64,7 +59,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
     
-    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color * 0.7;  // magic 0.7 to match legacy color
+    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color;
     
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
@@ -117,20 +112,6 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     // increase ambient when there are more clouds
     vec3 tmpAmbient = amb_color + (vec3(1.) - amb_color) * cloud_shadow * 0.5;
 
-    /*  decrease value and saturation (that in HSV, not HSL) for occluded areas
-     * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
-     * // The following line of code performs the equivalent of:
-     * float ambAlpha = tmpAmbient.a;
-     * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
-     * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
-     * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat,
-     * ambAlpha);
-     */
-    if (use_ao)
-    {
-        tmpAmbient = mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor);
-    }
-
     // Similar/Shared Algorithms:
     //     indra\llinventory\llsettingssky.cpp                                        -- LLSettingsSky::calculateLightSettings()
     //     indra\newview\app_settings\shaders\class1\windlight\atmosphericsFuncs.glsl -- calcAtmosphericVars()
@@ -141,7 +122,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     // brightness of surface both sunlight and ambient
     
     sunlit = sunlight.rgb;
-    amblit = vec3(1,0,1); //should no longer be used, filled in by calcAtmosphericVarsLinear
+    amblit = tmpAmbient;
 
     additive *= vec3(1.0 - combined_haze);
 }
@@ -166,13 +147,14 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 {
     calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
-    // multiply by 2 to get same colors as when the "scaleSoftClip" implementation was doubling color values
+    // multiply to get similar colors as when the "scaleSoftClip" implementation was doubling color values
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
-    sunlit *= 2.0;
+    sunlit *= 1.5;
+    amblit *= 0.5;
+    
+    // override amblit with ambient_color if sky probe ambiance is not zero
+    amblit = mix(amblit, ambient_color, clamp(sky_hdr_scale-1.0, 0.0, 1.0));
 
-    // squash ambient to approximate whatever weirdness legacy atmospherics were doing
-    amblit = ambient_color; // * (1.0+sun_up_factor*0.3);
-
-    amblit *= ambientLighting(norm, light_dir);
     amblit = srgb_to_linear(amblit);
+    amblit *= ambientLighting(norm, light_dir);
 }

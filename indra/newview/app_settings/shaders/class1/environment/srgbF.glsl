@@ -115,16 +115,21 @@ vec3 inv_toneMapACES_Hill(vec3 color)
 
 vec3 legacy_adjust(vec3 c)
 {
+#if 0
     vec3 desat = rgb2hsv(c.rgb);
     desat.g *= 1.0-(1.0-desat.b)*0.5;
     desat.b += (1.0-desat.b)*0.1f;
     desat.rgb = hsv2rgb(desat);
     return desat;
+#else
+    return c; //inv_toneMapACES_Hill(c);
+#endif
 }
 
 vec3 legacy_adjust_fullbright(vec3 c)
 {
-    float exp_scale = clamp(texture(exposureMap, vec2(0.5, 0.5)).r, 0.01, 10.0);
-    return c / exp_scale * 1.34; //magic 1.34 arrived at by binary search for a value that reproduces midpoint grey consistenty
+    //float exp_scale = clamp(texture(exposureMap, vec2(0.5, 0.5)).r, 0.01, 10.0);
+    //return c / exp_scale * 1.34; //magic 1.34 arrived at by binary search for a value that reproduces midpoint grey consistenty
+    return c;
 }
 

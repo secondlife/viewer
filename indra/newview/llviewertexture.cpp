@@ -490,20 +490,6 @@ bool LLViewerTexture::isMemoryForTextureLow()
 }
 
 //static
-bool LLViewerTexture::isMemoryForTextureSuficientlyFree()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    const S32Megabytes DESIRED_FREE_TEXTURE_MEMORY(50);
-    const S32Megabytes DESIRED_FREE_MAIN_MEMORY(200);
-
-    S32Megabytes gpu;
-    S32Megabytes physical;
-    getGPUMemoryForTextures(gpu, physical);
-
-    return (gpu > DESIRED_FREE_TEXTURE_MEMORY); // && (physical > DESIRED_FREE_MAIN_MEMORY);
-}
-
-//static
 void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;

@@ -203,17 +203,15 @@ void main()
         //should only be true of WL sky, just port over base color value
         color = texture(emissiveRect, tc).rgb;
         color = srgb_to_linear(color);
-        if (sun_up_factor > 0)
-        {
-           color *= sky_hdr_scale + 1.0;
-        }
+        color *= sky_hdr_scale;
     }
     else
     {
         // legacy shaders are still writng sRGB to gbuffer
+        baseColor.rgb = srgb_to_linear(baseColor.rgb);
         baseColor.rgb = legacy_adjust(baseColor.rgb);
 
-        baseColor.rgb = srgb_to_linear(baseColor.rgb);
+        
         spec.rgb = srgb_to_linear(spec.rgb);
 
         float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
