@@ -381,6 +381,7 @@
         auto_resize="true"
         height="126"
         width="312"
+        min_height="100"
         name="comb_inventory_layout">
         <single_folder_inventory_panel
          name="comb_single_folder_inv"

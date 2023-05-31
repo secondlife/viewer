@@ -1518,6 +1518,7 @@ void LLPanelMainInventory::toggleViewMode()
     }
 
     mSingleFolderMode = !mSingleFolderMode;
+    mReshapeInvLayout = true;
 
     if (mCombinationGalleryPanel->getRootFolder().isNull())
     {
@@ -2282,6 +2283,7 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
     }
     mForceShowInvLayout = false;
     updateTitle();
+    mReshapeInvLayout = true;
 }
 
 void LLPanelMainInventory::onCombinationGallerySelectionChanged(const LLUUID& category_id)
@@ -2321,6 +2323,55 @@ void LLPanelMainInventory::updateCombinationVisibility()
         }
         
         getActivePanel()->getRootFolder();
+
+        if (mReshapeInvLayout
+            && show_inv_pane
+            && mCombinationGalleryPanel->hasVisibleItems()
+            && mCombinationInventoryPanel->areViewsInitialized())
+        {
+            mReshapeInvLayout = false;
+
+            // force drop previous shape (because panel doesn't decrease shape properly)
+            LLRect list_latout = mCombinationListLayoutPanel->getRect();
+            list_latout.mTop = list_latout.mBottom; // min height is at 100, so it should snap to be bigger
+            mCombinationListLayoutPanel->setShape(list_latout, false);
+
+            LLRect inv_inner_rect = mCombinationInventoryPanel->getScrollableContainer()->getScrolledViewRect();
+            S32 inv_height = inv_inner_rect.getHeight()
+                + (mCombinationInventoryPanel->getScrollableContainer()->getBorderWidth() * 2)
+                + mCombinationInventoryPanel->getScrollableContainer()->getSize();
+            LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
+            S32 gallery_height = inner_galery_rect.getHeight()
+                + (mCombinationGalleryPanel->getScrollableContainer()->getBorderWidth() * 2)
+                + mCombinationGalleryPanel->getScrollableContainer()->getSize();
+            LLRect layout_rect = mCombinationViewPanel->getRect();
+
+            // by default make it take 1/3 of the panel
+            S32 list_default_height = layout_rect.getHeight() / 3;
+            // Don't set height from gallery_default_height - needs to account for a resizer in such case
+            S32 gallery_default_height = layout_rect.getHeight() - list_default_height;
+
+            if (inv_height > list_default_height
+                && gallery_height < gallery_default_height)
+            {
+                LLRect gallery_latout = mCombinationGalleryLayoutPanel->getRect();
+                gallery_latout.mTop = gallery_latout.mBottom + gallery_height;
+                mCombinationGalleryLayoutPanel->setShape(gallery_latout, true /*tell stack to account for new shape*/);
+            }
+            else if (inv_height < list_default_height
+                     && gallery_height > gallery_default_height)
+            {
+                LLRect list_latout = mCombinationListLayoutPanel->getRect();
+                list_latout.mTop = list_latout.mBottom + inv_height;
+                mCombinationListLayoutPanel->setShape(list_latout, true /*tell stack to account for new shape*/);
+            }
+            else
+            {
+                LLRect list_latout = mCombinationListLayoutPanel->getRect();
+                list_latout.mTop = list_latout.mBottom + list_default_height;
+                mCombinationListLayoutPanel->setShape(list_latout, true /*tell stack to account for new shape*/);
+            }
+        }
     }
 }
 

@@ -252,6 +252,7 @@ private:
 	bool						mNeedUploadCost;
 
     bool                        mForceShowInvLayout;
+    bool                        mReshapeInvLayout;
     bool                        mDelayedCombGalleryScroll;
     bool                        mDelayedCombInvPanelScroll;
 	// List Commands                                                              //
