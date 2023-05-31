@@ -339,6 +339,7 @@
      width="312">
      <layout_stack
       follows="all"
+      layout="topleft"
       height="372"
       width="312"
       animate="false"
@@ -364,7 +365,7 @@
          class="inventory_gallery"
          filename="panel_inventory_gallery.xml"
          left="0"
-         top_pad="0"
+         top="1"
          height="246"
          width="312"
          name="comb_gallery_view_inv"

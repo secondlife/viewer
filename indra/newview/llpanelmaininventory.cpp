@@ -258,6 +258,8 @@ BOOL LLPanelMainInventory::postBuild()
     mListViewPanel = getChild<LLPanel>("single_folder_inventory");
     mGalleryViewPanel = getChild<LLPanel>("gallery_view_inventory");
     mCombinationViewPanel = getChild<LLPanel>("combination_view_inventory");
+    mCombinationGalleryLayoutPanel = getChild<LLLayoutPanel>("comb_gallery_layout");
+    mCombinationListLayoutPanel = getChild<LLLayoutPanel>("comb_inventory_layout");
 
     mSingleFolderPanelInventory = getChild<LLInventorySingleFolderPanel>("single_folder_inv");
     mListViewRootUpdatedConnection = mSingleFolderPanelInventory->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
@@ -2306,8 +2308,8 @@ void LLPanelMainInventory::updateCombinationVisibility()
     {
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
         bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty || mForceShowInvLayout;
-        getChild<LLLayoutPanel>("comb_gallery_layout")->setVisible(!is_gallery_empty);
-        getChild<LLLayoutPanel>("comb_inventory_layout")->setVisible(show_inv_pane);
+        mCombinationGalleryLayoutPanel->setVisible(!is_gallery_empty);
+        mCombinationListLayoutPanel->setVisible(show_inv_pane);
         mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
         if(mCombinationInventoryPanel->hasVisibleItems())
         {

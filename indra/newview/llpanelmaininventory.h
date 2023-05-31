@@ -210,6 +210,8 @@ private:
     LLInventorySingleFolderPanel* mCombinationInventoryPanel;
     LLInventoryGallery* mCombinationGalleryPanel;
     LLPanel* mCombinationViewPanel;
+    LLPanel* mCombinationGalleryLayoutPanel;
+    LLPanel* mCombinationListLayoutPanel;
 
     boost::signals2::connection mListViewRootUpdatedConnection;
     boost::signals2::connection mGalleryRootUpdatedConnection;
