@@ -164,6 +164,7 @@ protected:
 	bool isSaveTextureEnabled(const LLSD& userdata);
 	void updateItemcountText();
 
+    void updatePanelVisibility();
     void updateCombinationVisibility();
 
 	void onFocusReceived();
@@ -198,18 +199,14 @@ private:
     LLButton* mViewModeBtn;
     LLLayoutPanel* mNavigationBtnsPanel;
 
-    LLPanel* mListViewPanel;
-    LLPanel* mGalleryViewPanel;
     LLPanel* mDefaultViewPanel;
+    LLPanel* mCombinationViewPanel;
 
     bool mSingleFolderMode;
     EViewModeType mViewMode;
-    LLInventorySingleFolderPanel* mSingleFolderPanelInventory;
-    LLInventoryGallery* mInventoryGalleryPanel;
 
     LLInventorySingleFolderPanel* mCombinationInventoryPanel;
     LLInventoryGallery* mCombinationGalleryPanel;
-    LLPanel* mCombinationViewPanel;
     LLPanel* mCombinationGalleryLayoutPanel;
     LLPanel* mCombinationListLayoutPanel;
 

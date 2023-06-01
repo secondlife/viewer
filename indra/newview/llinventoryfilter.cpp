@@ -763,11 +763,24 @@ void LLInventoryFilter::setFilterThumbnails(U64 filter_thumbnails)
 {
     if (mFilterOps.mFilterThumbnails != filter_thumbnails)
     {
-        if (mFilterOps.mFilterThumbnails == FILTER_EXCLUDE_THUMBNAILS ||
-            mFilterOps.mFilterThumbnails == FILTER_ONLY_THUMBNAILS)
+        if (mFilterOps.mFilterThumbnails == FILTER_EXCLUDE_THUMBNAILS
+            && filter_thumbnails == FILTER_ONLY_THUMBNAILS)
+        {
+            setModified(FILTER_RESTART);
+        }
+        else if (mFilterOps.mFilterThumbnails == FILTER_ONLY_THUMBNAILS
+            && filter_thumbnails == FILTER_EXCLUDE_THUMBNAILS)
+        {
+            setModified(FILTER_RESTART);
+        }
+        else if (mFilterOps.mFilterThumbnails == FILTER_INCLUDE_THUMBNAILS)
+        {
             setModified(FILTER_MORE_RESTRICTIVE);
+        }
         else
+        {
             setModified(FILTER_LESS_RESTRICTIVE);
+        }
     }
     mFilterOps.mFilterThumbnails = filter_thumbnails;
 }

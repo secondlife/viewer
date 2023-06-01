@@ -711,11 +711,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         LL_WARNS("InventoryGallery") << "Failed to find item: " << item_id << LL_ENDL;
         return;
     }
-    if(!mFilter->checkAgainstFilterThumbnails(item_id))
-    {
-        mThumbnailsObserver->addSkippedItem(item_id, boost::bind(&LLInventoryGallery::onThumbnailAdded, this, item_id));
-        return;
-    }
+
     std::string name = obj->getName();
     LLUUID thumbnail_id = obj->getThumbnailUUID();;
     LLInventoryType::EType inventory_type(LLInventoryType::IT_CATEGORY);
