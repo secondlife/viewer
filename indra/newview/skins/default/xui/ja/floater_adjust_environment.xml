@@ -19,7 +19,7 @@
           <color_swatch name="cloud_color" />
           <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="10" name="cloud_map_label" width="80">雲の画像：:</text>
           <texture_picker height="63" layout="topleft" left_delta="0" name="cloud_map" top_pad="5" width="60" />
-          <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="-13" name="cloud_map_label" width="80">水の画像：</text>
+          <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="-13" name="cloud_map_label" width="80">水面の画像：</text>
           <texture_picker height="63" layout="topleft" left_delta="0" name="water_normal_map" top_pad="5" width="60" />
         </layout_panel>
         <layout_panel border="false" bevel_style="in" auto_resize="false" user_resize="false" visible="true" width="200" height="150">

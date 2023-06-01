@@ -18,7 +18,7 @@
     </panel>
     <panel name="settings_subpanel">
       <text name="settings_lbl">グラフィック設定</text>
-      <text name="settings_desc">距離、水、照明などの設定を選択します。</text>
+      <text name="settings_desc">距離、水面、照明などの設定を選択します。</text>
       <icon name="icon_arrow3" />
     </panel>
     <panel name="nearby_subpanel">

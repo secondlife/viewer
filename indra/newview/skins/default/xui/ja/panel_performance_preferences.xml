@@ -38,10 +38,10 @@
     <combo_box.item label="太陽／月＋プロジェクター" name="2" value="2" />
   </combo_box>
   <view_border name="border3" />
-  <text name="water_lbl">水</text>
-  <text name="water_desc">水の効果を簡素化するかオフにすると、フレームレートが大幅に向上します。</text>
+  <text name="water_lbl">水面</text>
+  <text name="water_desc">水面の効果を簡素化するかオフにすると、フレームレートが大幅に向上します。</text>
   <check_box label="透明な水" name="TransparentWater" />
-  <text name="ReflectionsText">水の反射：</text>
+  <text name="ReflectionsText">水面の反射：</text>
   <combo_box name="Reflections">
     <combo_box.item label="なし；不透明" name="0" value="-2" />
     <combo_box.item label="なし；透明" name="0" value="-1" />
@@ -56,11 +56,11 @@
   <text name="photo_desc">詳細度を最大にすると撮影に適した画像になりますが、フレームレートが下がります。</text>
   <spinner label="距離の詳細：" name="render_volume_lod" />
   <text name="photo_desc">（0.0～4.0の値を入れてください）</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" top="80" left="213" name="1_lbl" width="7">1</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" left_pad="31" name="2_lbl" width="7">2</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" left_pad="30" name="3_lbl" width="7">3</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" left_pad="30" name="4_lbl" width="7">4</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" left_pad="30" name="5_lbl" width="7">5</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" left_pad="30" name="6_lbl" width="7">6</text>
-  <text follows="left|top" font="SansSerifSmall" height="18" layout="topleft" left_pad="30" name="7_lbl" width="7">7</text>
+  <text name="1_lbl">1</text>
+  <text name="2_lbl">2</text>
+  <text name="3_lbl">3</text>
+  <text name="4_lbl">4</text>
+  <text name="5_lbl">5</text>
+  <text name="6_lbl">6</text>
+  <text name="7_lbl">7</text>
 </panel>

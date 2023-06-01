@@ -326,7 +326,7 @@
       <menu_item_check label="アニメッシュ" name="Rendering Type Control Avatar" />
       <menu_item_check label="サーフェスパッチ" name="Rendering Type Surface Patch" />
       <menu_item_check label="空" name="Rendering Type Sky" />
-      <menu_item_check label="水" name="Rendering Type Water" />
+      <menu_item_check label="水面" name="Rendering Type Water" />
       <menu_item_check label="地面" name="Rendering Type Ground" />
       <menu_item_check label="ボリューム" name="Rendering Type Volume" />
       <menu_item_check label="草" name="Rendering Type Grass" />

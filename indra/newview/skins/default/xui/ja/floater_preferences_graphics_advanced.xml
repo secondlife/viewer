@@ -81,7 +81,7 @@
 
   <check_box label="アバターの衣類" name="AvatarCloth" />
 
-  <text name="ReflectionsText">水の反射：</text>
+  <text name="ReflectionsText">水面の反射：</text>
   <combo_box name="Reflections">
     <combo_box.item label="無し；不透明" name="0" value="-2" />
     <combo_box.item label="無し；透明" name="0" value="-1" />

@@ -7,7 +7,7 @@
       <icon name="icon_settingsskies" />
       <check_box label="空" name="chk_skies" />
       <icon name="icon_settingswater" />
-      <check_box label="水" name="chk_water" />
+      <check_box label="水面" name="chk_water" />
       <filter_editor label="環境の絞り込み" name="flt_search" />
     </layout_panel>
     <layout_panel name="list_panel" label="環境">

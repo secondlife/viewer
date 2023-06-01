@@ -3,7 +3,7 @@
   <floater.string name="pick title">選択：</floater.string>
   <floater.string name="pick_track">トラックを選択</floater.string>
   <floater.string name="pick_settings">設定を選択</floater.string>
-  <floater.string name="track_water">水</floater.string>
+  <floater.string name="track_water">水面</floater.string>
   <floater.string name="track_ground">地面</floater.string>
   <floater.string name="track_sky">空[NUM]</floater.string>
   <layout_stack name="test_stack">

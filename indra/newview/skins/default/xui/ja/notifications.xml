@@ -3303,7 +3303,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
     <tag>fail</tag>
   </notification>
 
-  <notification name="TeleportOfferSent">[TO_NAME]にテレポートを送りました。</notification>
+  <notification name="TeleportOfferSent">[TO_NAME]にテレポートのオファーを送りました。</notification>
 
   <notification name="TeleportRequest">[NAME_SLURL] は、テレポートであなたを呼んでいます。
 [MESSAGE]
@@ -3329,7 +3329,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 
 [MESSAGE]
 
-（デフォルト設定だとお互いのオンライン状態を見ることができます）
+（デフォルトの設定では、お互いのオンライン状態を知ることができます。）
     <tag>friendship</tag>
     <tag>confirm</tag>
     <form name="form">
@@ -3984,10 +3984,10 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <unique />
   </notification>
 
-  <notification label="" name="HintMoveClick">⒈クリックで移動
-行地面の一箇所をクリックすると、その場所まで歩きます。
+  <notification label="" name="HintMoveClick">１，クリックで移動
+地面をクリックすると、その場所まで歩きます。
 
-⒉クリック・ドラッグで視界を回転
+２，クリック・ドラッグで視界を回転
 任意の場所をクリックしてドラッグすると視界を回転させることができます。
     <tag>custom_skin</tag>
   </notification>
