@@ -42,7 +42,7 @@ uniform samplerCube environmentMap;
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 vec3 legacy_adjust_fullbright(vec3 c);
 vec3 legacy_adjust(vec3 c);
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
@@ -71,7 +71,7 @@ void main()
     vec3 additive;
     vec3 atten;
     vec3 pos = vary_position;
-    calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten);
 
     float env_intensity = vertex_color.a;
 

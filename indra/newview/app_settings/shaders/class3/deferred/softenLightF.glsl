@@ -44,9 +44,14 @@ uniform sampler2D     lightFunc;
 uniform float blur_size;
 uniform float blur_fidelity;
 
+#if defined(HAS_SSAO)
+uniform float ssao_irradiance_scale;
+uniform float ssao_irradiance_max;
+#endif
+
 // Inputs
 uniform mat3 env_mat;
-
+uniform mat3  ssao_effect_mat;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 uniform int  sun_up_factor;
@@ -112,6 +117,16 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 l); //surface point to light
 
 
+void adjustIrradiance(inout vec3 irradiance, vec3 amblit_linear, float ambocc)
+{
+    // use sky settings ambient or irradiance map sample, whichever is brighter
+    irradiance = max(amblit_linear, irradiance);
+
+#if defined(HAS_SSAO)
+    irradiance = mix(ssao_effect_mat * min(irradiance.rgb*ssao_irradiance_scale, vec3(ssao_irradiance_max)), irradiance.rgb, ambocc);
+#endif
+}
+
 void main()
 {
     vec2  tc           = vary_fragcoord.xy;
@@ -173,7 +188,7 @@ void main()
         vec3 orm = texture(specularRect, tc).rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
-        float ao = orm.r * ambocc;
+        float ao = orm.r;
 
         vec3 colorEmissive = texture(emissiveRect, tc).rgb;
         // PBR IBL
@@ -184,6 +199,8 @@ void main()
         // Take maximium of legacy ambient vs irradiance sample as irradiance
         // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
         irradiance       = max(amblit_linear,irradiance);
+
+        adjustIrradiance(irradiance, amblit_linear, ambocc);
 
         vec3 diffuseColor;
         vec3 specularColor;
@@ -197,6 +214,9 @@ void main()
         {
             color = atmosFragLightingLinear(color, additive, atten);
         }
+
+        //color = mix(irradiance, color, cube_snapshot);
+
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -222,11 +242,10 @@ void main()
 
         sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity);
         
-        // use sky settings ambient or irradiance map sample, whichever is brighter
-        irradiance = max(amblit_linear, irradiance);
+        adjustIrradiance(irradiance, amblit_linear, ambocc);
 
         // apply lambertian IBL only (see pbrIbl)
-        color.rgb = irradiance * ambocc;
+        color.rgb = irradiance;
 
         vec3 sun_contrib = min(da, scol) * sunlit_linear;
         color.rgb += sun_contrib;

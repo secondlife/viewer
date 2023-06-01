@@ -38,7 +38,6 @@ uniform float distance_multiplier;
 uniform float max_y;
 uniform vec3  glow;
 uniform float scene_light_strength;
-uniform mat3  ssao_effect_mat;
 uniform float sun_moon_glow_factor;
 uniform float sky_hdr_scale;
 
@@ -49,7 +48,7 @@ vec3 legacy_adjust(vec3 col);
 
 // return colors in sRGB space
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
-                         out vec3 atten, bool use_ao)
+                         out vec3 atten)
 {
     vec3 rel_pos = inPositionEye;
 
@@ -145,7 +144,7 @@ float ambientLighting(vec3 norm, vec3 light_dir)
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 additive,
                          out vec3 atten)
 {
-    calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten);
 
     // multiply to get similar colors as when the "scaleSoftClip" implementation was doubling color values
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)

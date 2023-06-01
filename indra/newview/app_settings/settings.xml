@@ -9116,6 +9116,28 @@
     <key>Value</key>
     <real>500.0</real>
   </map>
+  <key>RenderSSAOIrradianceScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scaling factor for irradiance input to SSAO</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.6</real>
+  </map>
+  <key>RenderSSAOIrradianceMax</key>
+  <map>
+    <key>Comment</key>
+    <string>Max factor for irradiance input to SSAO</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.18</real>
+  </map>
   <key>RenderSSAOMaxScale</key>
   <map>
     <key>Comment</key>
@@ -10568,6 +10590,17 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
+  <key>RenderSkyAutoAdjustLegacy</key>
+  <map>
+    <key>Comment</key>
+    <string>If true, automatically adjust legacy skies (those without a probe ambiance value) to take advantage of probes and HDR.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
     <key>Comment</key>
@@ -10578,28 +10611,6 @@
     <string>F32</string>
     <key>Value</key>
     <real>4.0</real>
-  </map>
-  <key>RenderDynamicExposureMin</key>
-  <map>
-    <key>Comment</key>
-    <string>Minimum dynamic exposure amount</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
-  <key>RenderDynamicExposureMax</key>
-  <map>
-    <key>Comment</key>
-    <string>Maximum dynamic exposure amount</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
   </map>
   <key>RenderDynamicExposureCoefficient</key>
   <map>

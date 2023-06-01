@@ -718,6 +718,11 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     F32 g = getGamma();
 
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+
+    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
+    F32 probe_ambiance = getTotalReflectionProbeAmbiance(cloud_shadow_scale);
+
     if (irradiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)
         shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3::zero.mV);
@@ -729,6 +734,12 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
             shader->uniform3fv(LLShaderMgr::AMBIENT, getAmbientColor().mV);
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
         }
+        else if (psky->canAutoAdjust() && should_auto_adjust)
+        { // auto-adjust legacy sky to take advantage of probe ambiance 
+            shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * 0.5f).mV);
+            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, 2.f);
+            probe_ambiance = 1.f;
+        }
         else
         {
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, 1.f);
@@ -736,8 +747,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         }
     }
 
-    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
-    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getTotalReflectionProbeAmbiance(cloud_shadow_scale));
+    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, probe_ambiance);
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());
