@@ -250,8 +250,6 @@ private:
 
     bool                        mForceShowInvLayout;
     bool                        mReshapeInvLayout;
-    bool                        mDelayedCombGalleryScroll;
-    bool                        mDelayedCombInvPanelScroll;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };

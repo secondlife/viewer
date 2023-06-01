@@ -121,9 +121,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
       mForceShowInvLayout(false),
       mViewMode(MODE_COMBINATION),
       mListViewRootUpdatedConnection(),
-      mGalleryRootUpdatedConnection(),
-      mDelayedCombGalleryScroll(false),
-      mDelayedCombInvPanelScroll(false)
+      mGalleryRootUpdatedConnection()
 {
 	// Menu Callbacks (non contex menus)
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
@@ -2548,26 +2546,12 @@ void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id, bool new_w
         if(mCombinationGalleryPanel->getFilter().checkAgainstFilterThumbnails(item_id))
         {
             mCombinationGalleryPanel->changeItemSelection(item_id, false);
-            if(new_window)
-            {
-                mDelayedCombGalleryScroll = new_window;
-            }
-            else
-            {
-                scrollToGallerySelection();
-            }
+            scrollToGallerySelection();
         }
         else
         {
             mCombinationInventoryPanel->setSelection(item_id, true);
-            if(new_window)
-            {
-                mDelayedCombInvPanelScroll = new_window;
-            }
-            else
-            {
-                scrollToInvPanelSelection();
-            }
+            scrollToInvPanelSelection();
         }
     }
     else if (mSingleFolderMode && isListViewMode())
