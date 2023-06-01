@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_experience_log" label="Zdarzenia">
+	<string name="no_events" value="Brak zdarzeń."/>
+	<string name="loading" value="wczytywanie..."/>
+	<layout_stack name="ls1">
+		<layout_panel name="list panel">
+			<scroll_list name="experience_log_list">
+				<columns name="time" label="Czas"/>
+				<columns name="event" label="Zdarzenie"/>
+				<columns name="experience_name" label="Przygoda"/>
+				<columns name="object_name" label="Obiekt"/>
+			</scroll_list>
+			<button name="btn_notify" label="Powiadom"/>
+			<button name="btn_profile_xp" label="Profil"/>
+			<button name="btn_report_xp" label="Zgłoś"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<check_box width="175" label="Powiadom o wszystkich (dni)" name="notify_all" />
+			<button name="btn_clear" label="Wyczyść"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="group_list_item">
+	<text name="group_name" value="Nieznana" />
+	<button name="visibility_hide_btn" tool_tip="Ukryj grupę w moim profilu" />
+	<button name="visibility_show_btn" tool_tip="Pokaż grupę w moim profilu" />
+	<button name="info_btn" tool_tip="Więcej informacji" />
+	<button name="profile_btn" tool_tip="Pokaż profil" />
+</panel>

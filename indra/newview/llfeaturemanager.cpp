@@ -408,6 +408,7 @@ bool LLFeatureManager::loadGPUClass()
 {
 	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
+        F32 class0_gbps = gSavedSettings.getF32("RenderClass0MemoryBandwidth");
 		//get memory bandwidth from benchmark
 		F32 gbps;
 		try
@@ -424,6 +425,14 @@ bool LLFeatureManager::loadGPUClass()
 			LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
 		}
 	
+        mGPUMemoryBandwidth = gbps;
+
+        // bias by CPU speed
+        F32 cpu_basis_mhz = gSavedSettings.getF32("RenderCPUBasis");
+        F32 cpu_mhz = (F32) gSysCPU.getMHz();
+        F32 cpu_bias = llclamp(cpu_mhz / cpu_basis_mhz, 0.5f, 1.f);
+        gbps *= cpu_bias;
+
 		if (gbps < 0.f)
 		{ //couldn't bench, use GLVersion
 	#if LL_DARWIN
@@ -466,23 +475,23 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_1;
 		}
-		else if (gbps <= 5.f)
+		else if (gbps <= class0_gbps)
 		{
 			mGPUClass = GPU_CLASS_0;
 		}
-		else if (gbps <= 8.f)
+		else if (gbps <= class0_gbps*2.f)
 		{
 			mGPUClass = GPU_CLASS_1;
 		}
-		else if (gbps <= 16.f)
+		else if (gbps <= class0_gbps*4.f)
 		{
 			mGPUClass = GPU_CLASS_2;
 		}
-		else if (gbps <= 40.f)
+		else if (gbps <= class0_gbps*8.f)
 		{
 			mGPUClass = GPU_CLASS_3;
 		}
-		else if (gbps <= 80.f)
+		else if (gbps <= class0_gbps*16.f)
 		{
 			mGPUClass = GPU_CLASS_4;
 		}
@@ -490,6 +499,18 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_5;
 		}
+
+    #if LL_WINDOWS
+        const F32Gigabytes MIN_PHYSICAL_MEMORY(2);
+
+        LLMemory::updateMemoryInfo();
+        F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
+        if (MIN_PHYSICAL_MEMORY > physical_mem && mGPUClass > GPU_CLASS_1)
+        {
+            // reduce quality on systems that don't have enough memory
+            mGPUClass = (EGPUClass)(mGPUClass - 1);
+        }
+    #endif //LL_WINDOWS
 	} //end if benchmark
 	else
 	{
