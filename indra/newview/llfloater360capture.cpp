@@ -319,13 +319,7 @@ const std::string LLFloater360Capture::getHTMLBaseFolder()
 // triggered when the 'capture' button in the UI is pressed
 void LLFloater360Capture::onCapture360ImagesBtn()
 {
-    // launch the main capture code in a coroutine so we can
-    // yield/suspend at some points to give the main UI
-    // thread a look-in occasionally.
-    LLCoros::instance().launch("capture360cap", [this]()
-    {
-        capture360Images();
-    });
+    capture360Images();
 }
 
 // Gets the full path name for a given JavaScript file in the HTML folder. We
@@ -686,9 +680,6 @@ void LLFloater360Capture::capture360Images()
     mCaptureBtn->setEnabled(true);
     mSaveLocalBtn->setEnabled(true);
 
-    // allow the UI to update by suspending and waiting for the
-    // main render loop to update the UI
-    suspendForAFrame();
 }
 
 // once the request is made to navigate to the web page containing the code

@@ -259,20 +259,74 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 	std::string app_name = LLTrans::getString("APP_NAME");
 	llutf16string w_app_name = utf8str_to_utf16str(app_name);
 	wsprintf(profile_name, L"%s", w_app_name.c_str());
-	status = NvAPI_DRS_SetCurrentGlobalProfile(hSession, profile_name);
-	if (status != NVAPI_OK)
+	NvDRSProfileHandle hProfile = 0;
+	// (3) Check if we already have an application profile for the viewer
+	status = NvAPI_DRS_FindProfileByName(hSession, profile_name, &hProfile);
+	if (status != NVAPI_OK && status != NVAPI_PROFILE_NOT_FOUND)
 	{
 		nvapi_error(status);
 		return;
 	}
+	else if (status == NVAPI_PROFILE_NOT_FOUND)
+	{
+		// Don't have an application profile yet - create one
+		LL_INFOS() << "Creating NVIDIA application profile" << LL_ENDL;
 
-	// (3) Obtain the current profile. 
-	NvDRSProfileHandle hProfile = 0;
-	status = NvAPI_DRS_GetCurrentGlobalProfile(hSession, &hProfile);
-	if (status != NVAPI_OK) 
+		NVDRS_PROFILE profileInfo;
+		profileInfo.version = NVDRS_PROFILE_VER;
+		profileInfo.isPredefined = 0;
+		wsprintf(profileInfo.profileName, L"%s", w_app_name.c_str());
+
+		status = NvAPI_DRS_CreateProfile(hSession, &profileInfo, &hProfile);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+	}
+
+	// (4) Check if current exe is part of the profile
+	std::string exe_name = gDirUtilp->getExecutableFilename();
+	NVDRS_APPLICATION profile_application;
+	profile_application.version = NVDRS_APPLICATION_VER;
+
+	llutf16string w_exe_name = utf8str_to_utf16str(exe_name);
+	NvAPI_UnicodeString profile_app_name;
+	wsprintf(profile_app_name, L"%s", w_exe_name.c_str());
+
+	status = NvAPI_DRS_GetApplicationInfo(hSession, hProfile, profile_app_name, &profile_application);
+	if (status != NVAPI_OK && status != NVAPI_EXECUTABLE_NOT_FOUND)
 	{
 		nvapi_error(status);
 		return;
+	}
+	else if (status == NVAPI_EXECUTABLE_NOT_FOUND)
+	{
+		LL_INFOS() << "Creating application for " << exe_name << " for NVIDIA application profile" << LL_ENDL;
+
+		// Add this exe to the profile
+		NVDRS_APPLICATION application;
+		application.version = NVDRS_APPLICATION_VER;
+		application.isPredefined = 0;
+		wsprintf(application.appName, L"%s", w_exe_name.c_str());
+		wsprintf(application.userFriendlyName, L"%s", w_exe_name.c_str());
+		wsprintf(application.launcher, L"%s", w_exe_name.c_str());
+		wsprintf(application.fileInFolder, L"%s", "");
+
+		status = NvAPI_DRS_CreateApplication(hSession, hProfile, &application);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+
+		// Save application in case we added one
+		status = NvAPI_DRS_SaveSettings(hSession);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
 	}
 
 	// load settings for querying 
@@ -289,7 +343,7 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 	status = NvAPI_DRS_GetSetting(hSession, hProfile, PREFERRED_PSTATE_ID, &drsSetting);
 	if (status == NVAPI_SETTING_NOT_FOUND)
 	{ //only override if the user hasn't specifically set this setting
-		// (4) Specify that we want the VSYNC disabled setting
+		// (5) Specify that we want to enable maximum performance setting
 		// first we fill the NVDRS_SETTING struct, then we call the function
 		drsSetting.version = NVDRS_SETTING_VER;
 		drsSetting.settingId = PREFERRED_PSTATE_ID;
@@ -302,7 +356,7 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 			return;
 		}
 
-        // (5) Now we apply (or save) our changes to the system
+        // (6) Now we apply (or save) our changes to the system
         status = NvAPI_DRS_SaveSettings(hSession);
         if (status != NVAPI_OK) 
         {
@@ -386,27 +440,31 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		LL_WARNS() << "Application init failed." << LL_ENDL;
 		return -1;
 	}
-	
-	NvAPI_Status status;
-    
-	// Initialize NVAPI
-	status = NvAPI_Initialize();
-	NvDRSSessionHandle hSession = 0;
 
-    if (status == NVAPI_OK) 
-	{
-		// Create the session handle to access driver settings
-		status = NvAPI_DRS_CreateSession(&hSession);
-		if (status != NVAPI_OK) 
-		{
-			nvapi_error(status);
-		}
-		else
-		{
-			//override driver setting as needed
-			ll_nvapi_init(hSession);
-		}
-	}
+    NvDRSSessionHandle hSession = 0;
+    static LLCachedControl<bool> use_nv_api(gSavedSettings, "NvAPICreateApplicationProfile", true);
+    if (use_nv_api)
+    {
+        NvAPI_Status status;
+
+        // Initialize NVAPI
+        status = NvAPI_Initialize();
+
+        if (status == NVAPI_OK)
+        {
+            // Create the session handle to access driver settings
+            status = NvAPI_DRS_CreateSession(&hSession);
+            if (status != NVAPI_OK)
+            {
+                nvapi_error(status);
+            }
+            else
+            {
+                //override driver setting as needed
+                ll_nvapi_init(hSession);
+            }
+        }
+    }
 
 	// Have to wait until after logging is initialized to display LFH info
 	if (num_heaps > 0)
@@ -620,76 +678,81 @@ bool LLAppViewerWin32::init()
         LLFile::remove(log_file, ENOENT);
     }
 
-	std::string build_data_fname(
-		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
-	// Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
-	// could contain non-ASCII characters, which std::ifstream doesn't handle.
-	llifstream inf(build_data_fname.c_str());
-	if (! inf.is_open())
-	{
-		LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't read '" << build_data_fname
-				   << "'" << LL_ENDL;
-	}
-	else
-	{
-		Json::Reader reader;
-		Json::Value build_data;
-		if (! reader.parse(inf, build_data, false)) // don't collect comments
-		{
-			// gah, the typo is baked into Json::Reader API
-			LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
-					   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
-		}
-		else
-		{
-			Json::Value BugSplat_DB = build_data["BugSplat DB"];
-			if (! BugSplat_DB)
-			{
-				LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
-						   << build_data_fname << "'" << LL_ENDL;
-			}
-			else
-			{
-				// Got BugSplat_DB, onward!
-				std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
-													   LL_VIEWER_VERSION_MINOR << '.' <<
-													   LL_VIEWER_VERSION_PATCH << '.' <<
-													   LL_VIEWER_VERSION_BUILD));
+    // Win7 is no longer supported
+    bool is_win_7_or_below = LLOSInfo::getInstance()->mMajorVer <= 6 && LLOSInfo::getInstance()->mMajorVer <= 1;
 
-                DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
-                                MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
-
-                bool needs_log_file = !isSecondInstance() && debugLoggingEnabled("BUGSPLAT");
-                if (needs_log_file)
+    if (!is_win_7_or_below)
+    {
+        std::string build_data_fname(
+            gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
+        // Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
+        // could contain non-ASCII characters, which std::ifstream doesn't handle.
+        llifstream inf(build_data_fname.c_str());
+        if (!inf.is_open())
+        {
+            LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't read '" << build_data_fname
+                << "'" << LL_ENDL;
+        }
+        else
+        {
+            Json::Reader reader;
+            Json::Value build_data;
+            if (!reader.parse(inf, build_data, false)) // don't collect comments
+            {
+                // gah, the typo is baked into Json::Reader API
+                LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
+                    << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
+            }
+            else
+            {
+                Json::Value BugSplat_DB = build_data["BugSplat DB"];
+                if (!BugSplat_DB)
                 {
-                    // Startup only!
-                    LL_INFOS("BUGSPLAT") << "Engaged BugSplat logging to bugsplat.log" << LL_ENDL;
-                    dwFlags |= MDSF_LOGFILE | MDSF_LOG_VERBOSE;
+                    LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
+                        << build_data_fname << "'" << LL_ENDL;
                 }
-
-				// have to convert normal wide strings to strings of __wchar_t
-				sBugSplatSender = new MiniDmpSender(
-					WCSTR(BugSplat_DB.asString()),
-					WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
-					WCSTR(version_string),
-					nullptr,              // szAppIdentifier -- set later
-					dwFlags);
-				sBugSplatSender->setCallback(bugsplatSendLog);
-
-                if (needs_log_file)
+                else
                 {
-                    // Log file will be created in %TEMP%, but it will be moved into logs folder in case of crash
-                    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
-                    sBugSplatSender->setLogFilePath(WCSTR(log_file));
-                }
+                    // Got BugSplat_DB, onward!
+                    std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
+                        LL_VIEWER_VERSION_MINOR << '.' <<
+                        LL_VIEWER_VERSION_PATCH << '.' <<
+                        LL_VIEWER_VERSION_BUILD));
 
-				// engage stringize() overload that converts from wstring
-				LL_INFOS("BUGSPLAT") << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
-						   << ' ' << stringize(version_string) << ')' << LL_ENDL;
-			} // got BugSplat_DB
-		} // parsed build_data.json
-	} // opened build_data.json
+                    DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
+                        MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
 
+                    bool needs_log_file = !isSecondInstance() && debugLoggingEnabled("BUGSPLAT");
+                    if (needs_log_file)
+                    {
+                        // Startup only!
+                        LL_INFOS("BUGSPLAT") << "Engaged BugSplat logging to bugsplat.log" << LL_ENDL;
+                        dwFlags |= MDSF_LOGFILE | MDSF_LOG_VERBOSE;
+                    }
+
+                    // have to convert normal wide strings to strings of __wchar_t
+                    sBugSplatSender = new MiniDmpSender(
+                        WCSTR(BugSplat_DB.asString()),
+                        WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
+                        WCSTR(version_string),
+                        nullptr,              // szAppIdentifier -- set later
+                        dwFlags);
+                    sBugSplatSender->setCallback(bugsplatSendLog);
+
+                    if (needs_log_file)
+                    {
+                        // Log file will be created in %TEMP%, but it will be moved into logs folder in case of crash
+                        std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
+                        sBugSplatSender->setLogFilePath(WCSTR(log_file));
+                    }
+
+                    // engage stringize() overload that converts from wstring
+                    LL_INFOS("BUGSPLAT") << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
+                        << ' ' << stringize(version_string) << ')' << LL_ENDL;
+                } // got BugSplat_DB
+            } // parsed build_data.json
+        } // opened build_data.json
+    } // !is_win_7_or_below
 #endif // LL_BUGSPLAT
 #endif // LL_SEND_CRASH_REPORTS
 

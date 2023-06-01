@@ -141,11 +141,9 @@ public:
 
 	ptr_value_t getValue(ref_const_key_t key)
 	{
-		for(scope_list_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
+		for(Registrar* scope : mActiveScopes)
 		{
-			ptr_value_t valuep = (*it)->getValue(key);
+			ptr_value_t valuep = scope->getValue(key);
 			if (valuep != NULL) return valuep;
 		}
 		return mDefaultRegistrar.getValue(key);
@@ -153,11 +151,9 @@ public:
 
 	ptr_const_value_t getValue(ref_const_key_t key) const
 	{
-		for(scope_list_const_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
+		for(const Registrar* scope : mActiveScopes)
 		{
-			ptr_value_t valuep = (*it)->getValue(key);
+			ptr_const_value_t valuep = scope->getValue(key);
 			if (valuep != NULL) return valuep;
 		}
 		return mDefaultRegistrar.getValue(key);
@@ -165,11 +161,9 @@ public:
 
 	bool exists(ref_const_key_t key) const
 	{
-		for(scope_list_const_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
+		for(const Registrar* scope : mActiveScopes)
 		{
-			if ((*it)->exists(key)) return true;
+			if (scope->exists(key)) return true;
 		}
 
 		return mDefaultRegistrar.exists(key);
@@ -177,11 +171,9 @@ public:
 
 	bool empty() const
 	{
-		for(scope_list_const_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
+		for(const Registrar* scope : mActiveScopes)
 		{
-			if (!(*it)->empty()) return false;
+			if (!scope->empty()) return false;
 		}
 
 		return mDefaultRegistrar.empty();

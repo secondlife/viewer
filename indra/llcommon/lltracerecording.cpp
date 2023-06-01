@@ -773,11 +773,9 @@ void PeriodicRecording::handleReset()
 	}
 	else
 	{
-		for (std::vector<Recording>::iterator it = mRecordingPeriods.begin(), end_it = mRecordingPeriods.end();
-			it != end_it;
-			++it)
+		for (Recording& rec : mRecordingPeriods)
 		{
-			it->reset();
+			rec.reset();
 		}
 	}
 	mCurPeriod = 0;

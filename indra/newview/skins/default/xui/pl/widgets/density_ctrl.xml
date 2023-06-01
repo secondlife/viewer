@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<densityctrl label="Gęstość" name="density_ctrl">
+	<text name="exponential_term_label">
+		Okres wykładniczy
+	</text>
+	<text name="exponential_scale_factor_label">
+		Współczynnik skali wykładn.
+	</text>
+	<text name="linear_term_label">
+		Okres liniowy
+	</text>
+	<text name="constant_term_label">
+		Okres stały
+	</text>
+	<text name="max_altitude_label">
+		Maks. wysokość
+	</text>
+	<text name="aniso_factor_label">
+		Współczynnik anizotropii
+	</text>
+</densityctrl>

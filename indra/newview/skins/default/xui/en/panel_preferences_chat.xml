@@ -67,7 +67,7 @@
 
     <text
         layout="topleft"
-        left="345"
+        left="389"
         height="12"
         name="font_size"
         width="120"
@@ -79,7 +79,7 @@
         control_name="ChatFontSize"
         height="23"
         layout="topleft"
-        left="341"
+        left="385"
         name="chat_font_size"
         top_pad="5"
         width="100">
@@ -103,7 +103,7 @@
         label="Bubble Chat"
         layout="topleft"
         top_pad="4"
-        left_delta="0"
+        left="340"
         name="bubble_text_chat"
         width="330">
     </check_box>

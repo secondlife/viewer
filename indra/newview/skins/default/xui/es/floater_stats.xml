@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="Statistics" title="ESTADÍSTICAS">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
@@ -93,5 +93,16 @@
 				</stat_view>
 			</stat_view>
 		</container_view>
+		<stat_bar name="simpendinguploads" label="Cargas pendientes"/>
+		<stat_bar name="simpendingdownloads" label="Descargas pendientes"/>
+		<stat_bar name="simchildagents" label="Agentes Secundarios"/>
+		<stat_bar name="simagentups" label="Actualizaciones del agente"/>
+		<stat_bar name="simscripteps" label="Eventos preestablecidos"/>
+		<stat_bar name="simmainagents" label="Agente Principal"/>
+		<stat_bar name="simactivescripts" label="Scripts/Eventos preestablecidos Activos"/>
+		<stat_bar name="simactiveobjects" label="Objetos activos"/>
+		<stat_bar name="simobjects" label="Objetos"/>
+		<stat_bar name="siminpps" label="Paquetes Entrantes"/>
+		<stat_bar name="simoutpps" label="Paquetes Salientes"/>
 	</scroll_container>
 </floater>
