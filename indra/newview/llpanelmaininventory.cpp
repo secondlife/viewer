@@ -517,8 +517,13 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                     mForceShowInvLayout = true;
                 }
 
-                LLFolderBridge* bridge = (LLFolderBridge*)current_folder->getViewModelItem();
-                menu_create_inventory_item(getPanel(), bridge, userdata);
+                std::function<void(const LLUUID&)> callback_cat_created = [this](const LLUUID& new_category_id)
+                {
+                    gInventory.notifyObservers();
+                    mCombinationInventoryPanel->setSelectionByID(new_category_id, TRUE);
+                    mCombinationInventoryPanel->getRootFolder()->setNeedsAutoRename(TRUE);
+                };
+                menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
             }
         }
         else
