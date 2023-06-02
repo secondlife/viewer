@@ -901,7 +901,16 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
                 if (body.has("depth") && body["depth"].asInteger() == 0)
                 {
                     // Can't fetch a single folder with depth 0, folder is too big.
-                    LLNotificationsUtil::add("InventoryLimitReachedAIS");
+                    static bool first_call = true;
+                    if (first_call)
+                    {
+                        first_call = false;
+                        LLNotificationsUtil::add("InventoryLimitReachedAISAlert");
+                    }
+                    else
+                    {
+                        LLNotificationsUtil::add("InventoryLimitReachedAIS");
+                    }
                     LL_WARNS("Inventory") << "Fetch failed, content is over limit, url: " << url << LL_ENDL;
                 }
                 else
