@@ -515,11 +515,17 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                     mForceShowInvLayout = true;
                 }
 
-                std::function<void(const LLUUID&)> callback_cat_created = [this](const LLUUID& new_category_id)
+                LLHandle<LLPanel> handle = mCombinationInventoryPanel->getHandle();
+                std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID& new_category_id)
                 {
-                    gInventory.notifyObservers();
-                    mCombinationInventoryPanel->setSelectionByID(new_category_id, TRUE);
-                    mCombinationInventoryPanel->getRootFolder()->setNeedsAutoRename(TRUE);
+                    gInventory.notifyObservers(); // not really needed, should have been already done
+                    LLInventorySingleFolderPanel* panel = (LLInventorySingleFolderPanel*)handle.get();
+                    if (new_category_id.notNull() && panel)
+                    {
+                        panel->setSelectionByID(new_category_id, TRUE);
+                        panel->getRootFolder()->scrollToShowSelection();
+                        panel->getRootFolder()->setNeedsAutoRename(TRUE);
+                    }
                 };
                 menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
             }
@@ -528,8 +534,11 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
         {
             std::function<void(const LLUUID&)> callback_cat_created = [this](const LLUUID &new_category_id)
             {
-                gInventory.notifyObservers();
-                setGallerySelection(new_category_id);
+                gInventory.notifyObservers(); // not really needed, should have been already done
+                if (new_category_id.notNull())
+                {
+                    setGallerySelection(new_category_id);
+                }
             };
             menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
         }
