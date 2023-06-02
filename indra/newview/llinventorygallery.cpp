@@ -858,6 +858,109 @@ BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
     return res;
 }
 
+
+BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
+{
+    BOOL handled = FALSE;
+    switch (key)
+    {
+        case KEY_RETURN:
+            // Open selected items if enter key hit on the inventory panel
+            if (mask == MASK_NONE && mInventoryGalleryMenu && mSelectedItemID.notNull())
+            {
+                LLViewerInventoryCategory* category = gInventory.getCategory(mSelectedItemID);
+                if (category)
+                {
+                    setRootFolder(mSelectedItemID);
+                    handled = TRUE;
+                }
+            }
+            break;
+        case KEY_DELETE:
+#if LL_DARWIN
+        case KEY_BACKSPACE:
+#endif
+            // Delete selected items if delete or backspace key hit on the inventory panel
+            // Note: on Mac laptop keyboards, backspace and delete are one and the same
+            if (mSelectedItemID.notNull())
+            {
+                LLViewerInventoryCategory* category = gInventory.getCategory(mSelectedItemID);
+                if (category)
+                {
+                    if (get_is_category_removable(&gInventory, mSelectedItemID))
+                    {
+                        gInventory.removeCategory(mSelectedItemID);
+                        handled = TRUE;
+                    }
+                }
+                else
+                {
+                    if (get_is_item_removable(&gInventory, mSelectedItemID))
+                    {
+                        gInventory.removeItem(mSelectedItemID);
+                        handled = TRUE;
+                    }
+                }
+            }
+            break;
+
+        case KEY_F2:
+            mFilterSubString.clear();
+            if (mInventoryGalleryMenu && mSelectedItemID.notNull())
+            {
+                mInventoryGalleryMenu->doToSelected("rename", mSelectedItemID);
+            }
+            handled = TRUE;
+            break;
+
+        case KEY_PAGE_UP:
+            mFilterSubString.clear();
+            if (mScrollPanel)
+            {
+                mScrollPanel->pageUp(30);
+            }
+            handled = TRUE;
+            break;
+
+        case KEY_PAGE_DOWN:
+            mFilterSubString.clear();
+            if (mScrollPanel)
+            {
+                mScrollPanel->pageDown(30);
+            }
+            handled = TRUE;
+            break;
+
+        case KEY_HOME:
+            mFilterSubString.clear();
+            if (mScrollPanel)
+            {
+                mScrollPanel->goToTop();
+            }
+            handled = TRUE;
+            break;
+
+        case KEY_END:
+            mFilterSubString.clear();
+            if (mScrollPanel)
+            {
+                mScrollPanel->goToBottom();
+            }
+            handled = TRUE;
+            break;
+
+        default:
+            break;
+    }
+
+    if (handled)
+    {
+        mInventoryGalleryMenu->hide();
+    }
+
+    return handled;
+}
+
 void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id)
 {
     if (mInventoryGalleryMenu && item_id.notNull())

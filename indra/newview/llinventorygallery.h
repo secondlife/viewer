@@ -73,12 +73,13 @@ public:
     LLInventoryGallery(const LLInventoryGallery::Params& params = getDefaultParams());
     ~LLInventoryGallery();
 
-    BOOL postBuild();
+    BOOL postBuild() override;
     void initGallery();
-    void draw();
+    void draw() override;
     BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
-                           void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
-    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+                           void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
+    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    BOOL handleKeyHere(KEY key, MASK mask) override;
 
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }

@@ -39,12 +39,12 @@ public:
 
     bool isRootFolder() { return mRootFolder; }
     void setRootFolder(bool is_root) { mRootFolder = is_root; }
+    void doToSelected(const LLSD& userdata, const LLUUID& selected_id);
 
 protected:
     //virtual void buildContextMenu(class LLMenuGL& menu, U32 flags);
     void updateMenuItemsVisibility(LLContextMenu* menu);
 
-    void doToSelected(const LLSD& userdata, const LLUUID& selected_id);
     void fileUploadLocation(const LLSD& userdata, const LLUUID& selected_id);
 
     static void onRename(const LLSD& notification, const LLSD& response);
