@@ -41,7 +41,7 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/regex/v4/match_results.hpp>
+#include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 
 #if LL_MSVC
