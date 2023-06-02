@@ -1008,7 +1008,7 @@ void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
         const LLRect visible_content_rect = mScrollPanel->getVisibleContentRect();
 
         LLRect item_rect;
-        item->localRectToOtherView(item->getLocalRect(), &item_rect, this);
+        item->localRectToOtherView(item->getLocalRect(), &item_rect, mScrollPanel);
         LLRect overlap_rect(item_rect);
         overlap_rect.intersectWith(visible_content_rect);
 
@@ -1020,7 +1020,7 @@ void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
             constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
 
             LLRect item_doc_rect;
-            item->localRectToOtherView(item->getLocalRect(), &item_doc_rect, this);
+            item->localRectToOtherView(item->getLocalRect(), &item_doc_rect, mGalleryPanel);
 
             mScrollPanel->scrollToShowRect( item_doc_rect, constraint_rect );
         }
