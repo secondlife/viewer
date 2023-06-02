@@ -10595,7 +10595,7 @@
     <key>Comment</key>
     <string>If true, automatically adjust legacy skies (those without a probe ambiance value) to take advantage of probes and HDR.</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>

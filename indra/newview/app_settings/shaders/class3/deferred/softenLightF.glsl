@@ -196,10 +196,6 @@ void main()
         
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss);
         
-        // Take maximium of legacy ambient vs irradiance sample as irradiance
-        // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
-        irradiance       = max(amblit_linear,irradiance);
-
         adjustIrradiance(irradiance, amblit_linear, ambocc);
 
         vec3 diffuseColor;
@@ -214,9 +210,6 @@ void main()
         {
             color = atmosFragLightingLinear(color, additive, atten);
         }
-
-        //color = mix(irradiance, color, cube_snapshot);
-
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -228,9 +221,9 @@ void main()
     else
     {
         // legacy shaders are still writng sRGB to gbuffer
-        baseColor.rgb = srgb_to_linear(baseColor.rgb);
         baseColor.rgb = legacy_adjust(baseColor.rgb);
-
+        
+        baseColor.rgb = srgb_to_linear(baseColor.rgb);
         
         spec.rgb = srgb_to_linear(spec.rgb);
 
