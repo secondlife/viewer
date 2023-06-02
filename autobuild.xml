@@ -253,9 +253,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a880dfc15fcb330baf548a85324cd88a</string>
+              <string>7f447d30d7add80270a55cf3c53000392821a1cb</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104133/913090/colladadom-2.3.574693-darwin64-574693.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3.d1ef72a/colladadom-2.3.d1ef72a-darwin64-d1ef72a.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -277,9 +279,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e84441d9c7cf019a7bdc7b818b16c27</string>
+              <string>48f27593701c1a72bee1e0feef559eb8e209f26e</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104112/912957/colladadom-2.3.574693-windows-574693.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3.d1ef72a/colladadom-2.3.d1ef72a-windows-d1ef72a.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -289,16 +293,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2eaffbb8a93b03a732d3c47055a8efcb</string>
+              <string>b32294a2f31f5b4ca49928e66832aad1bb4a88ac</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104135/913103/colladadom-2.3.574693-windows64-574693.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3.d1ef72a/colladadom-2.3.d1ef72a-windows64-d1ef72a.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.574693</string>
+        <string>2.3.d1ef72a</string>
       </map>
       <key>cubemaptoequirectangular</key>
       <map>
@@ -1697,11 +1703,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>996b6dc851531b9f2b8b6a84a30ec1b4bf547a5f</string>
+              <string>2c46547d9dc83c47f41eacc7e5092affa72f3eee</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-darwin64-dfc418f.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.7476681/libxml2-2.9.4.7476681-darwin64-7476681.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1711,11 +1717,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db3abe85e569a7ceaa1c352d8e0f6d1987357671</string>
+              <string>4cda464277bfa6756ce4663a91cd724f3f45b8d8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-linux64-dfc418f.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.7476681/libxml2-2.9.4.7476681-linux64-7476681.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1725,11 +1731,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db18550ad820dca5e8d382cbc735b68e4fa681d6</string>
+              <string>7446cbaed41c26b67122c203c556161893b5b425</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-windows-dfc418f.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.7476681/libxml2-2.9.4.7476681-windows-7476681.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1739,18 +1745,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b21aa35f1423d2aa490336f66312118fb3fc7de1</string>
+              <string>7e506d26f8cb6f205146e41d74095e7e27087e84</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.dfc418f/libxml2-2.9.4.dfc418f-windows64-dfc418f.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.9.4.7476681/libxml2-2.9.4.7476681-windows64-7476681.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.9.4.dfc418f</string>
+        <string>2.9.4.7476681</string>
       </map>
       <key>llappearance_utility</key>
       <map>
@@ -2118,11 +2124,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b2da95c58944ee15d9e6eff9e0043c494cb2571</string>
+              <string>303fa93a0fd6c636a65fd9d5d53beceb84752b0e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-darwin64-298f1f2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.3e9876e/minizip_ng-3.0.2.3e9876e-darwin64-3e9876e.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2132,11 +2138,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3b0a7ebe15eb1c8bb072f4b90c7f4165c894f42f</string>
+              <string>d4f35ebcea53ab6e9f2e6cbc0d680b10d10b9c53</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-linux64-298f1f2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.3e9876e/minizip_ng-3.0.2.3e9876e-linux64-3e9876e.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2146,11 +2152,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>689d17ca2e2c7659651764831dfe739241f7a9c1</string>
+              <string>ff191c1d6515234d8c671360215c52c5974988b1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-windows-298f1f2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.3e9876e/minizip_ng-3.0.2.3e9876e-windows-3e9876e.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2160,18 +2166,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3579072a96643ffeed73a829909d9d647c1b977c</string>
+              <string>5dc469172ba4c6015d5b771e516bc88a65d769eb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.298f1f2/minizip_ng-3.0.2.298f1f2-windows64-298f1f2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v3.0.2.3e9876e/minizip_ng-3.0.2.3e9876e-windows64-3e9876e.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.2.298f1f2</string>
+        <string>3.0.2.3e9876e</string>
       </map>
       <key>nghttp2</key>
       <map>
