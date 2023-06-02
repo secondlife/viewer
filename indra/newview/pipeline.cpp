@@ -6751,22 +6751,25 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst) {
 		static LLStaticHashedString noiseVec("noiseVec");
 		static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
 		static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
-		static LLCachedControl<F32> dynamic_exposure_min(gSavedSettings, "RenderDynamicExposureMin", 0.125f);
-		static LLCachedControl<F32> dynamic_exposure_max(gSavedSettings, "RenderDynamicExposureMax", 1.3f);
-
-        F32 exposure_max = dynamic_exposure_max;
         LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
-        if (sky->getReflectionProbeAmbiance() > 0.f)
-        { //not a legacy sky, use gamma as a boost to max exposure
-            exposure_max = llmax(exposure_max - 1.f, 0.f);
-            exposure_max *= sky->getGamma();
-            exposure_max += 1.f;
-        }
+        F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance();
+        F32 exp_min = 1.f;
+        F32 exp_max = 1.f;
+                
+        if (probe_ambiance > 0.f)
+        {
+            F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma())*2.f;
 
+            if (hdr_scale > 1.f)
+            {
+                exp_min = 1.f / hdr_scale;
+                exp_max = hdr_scale;
+            }
+        }
 		gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
 		gExposureProgram.uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
-		gExposureProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, dynamic_exposure_min, exposure_max);
+		gExposureProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max);
 
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -6789,8 +6792,12 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
 
 		// Apply gamma correction to the frame here.
 
+        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+        
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
         LLGLSLShader& shader = no_post && gFloaterTools->isAvailable() ? gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
-            LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance() == 0.f ? gLegacyPostGammaCorrectProgram :
+            psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? gLegacyPostGammaCorrectProgram :
             gDeferredPostGammaCorrectProgram;
         
         shader.bind();
@@ -7846,14 +7853,18 @@ void LLPipeline::renderDeferredLighting()
             LL_PROFILE_GPU_ZONE("atmospherics");
             bindDeferredShader(soften_shader);
 
-            static LLCachedControl<F32> sky_scale(gSavedSettings, "RenderSkyHDRScale", 1.f);
-            static LLStaticHashedString sky_hdr_scale("sky_hdr_scale");
+            static LLCachedControl<F32> ssao_scale(gSavedSettings, "RenderSSAOIrradianceScale", 0.5f);
+            static LLCachedControl<F32> ssao_max(gSavedSettings, "RenderSSAOIrradianceMax", 0.25f);
+            static LLStaticHashedString ssao_scale_str("ssao_irradiance_scale");
+            static LLStaticHashedString ssao_max_str("ssao_irradiance_max");
+            
+            soften_shader.uniform1f(ssao_scale_str, ssao_scale);
+            soften_shader.uniform1f(ssao_max_str, ssao_max);
 
             LLEnvironment &environment = LLEnvironment::instance();
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
-            soften_shader.uniform1f(sky_hdr_scale, sky_scale);
-
+            
             soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
 
             {

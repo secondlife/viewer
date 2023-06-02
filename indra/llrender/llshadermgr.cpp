@@ -1266,13 +1266,11 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("lightnorm");
 	mReservedUniforms.push_back("sunlight_color");
 	mReservedUniforms.push_back("ambient_color");
+    mReservedUniforms.push_back("sky_hdr_scale");
 	mReservedUniforms.push_back("blue_horizon");
-    mReservedUniforms.push_back("blue_horizon_linear");
-	mReservedUniforms.push_back("blue_density");
-    mReservedUniforms.push_back("blue_density_linear");
-	mReservedUniforms.push_back("haze_horizon");
+    mReservedUniforms.push_back("blue_density");
+    mReservedUniforms.push_back("haze_horizon");
 	mReservedUniforms.push_back("haze_density");
-    mReservedUniforms.push_back("haze_density_linear");
 	mReservedUniforms.push_back("cloud_shadow");
 	mReservedUniforms.push_back("density_multiplier");
 	mReservedUniforms.push_back("distance_multiplier");
@@ -1460,9 +1458,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("water_edge");
     mReservedUniforms.push_back("sun_up_factor");
     mReservedUniforms.push_back("moonlight_color");
-    mReservedUniforms.push_back("moonlight_linear");
-    mReservedUniforms.push_back("sunlight_linear");
-    mReservedUniforms.push_back("ambient_linear");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
