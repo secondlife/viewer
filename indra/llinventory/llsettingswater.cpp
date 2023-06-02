@@ -32,6 +32,10 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 #include "indra_constants.h"
+#include <boost/bind.hpp>
+
+// allow unqualified _1, _2 et al. to mean boost::bind placeholders
+using namespace boost::placeholders;
 
 const std::string LLSettingsWater::SETTING_BLUR_MULTIPLIER("blur_multiplier");
 const std::string LLSettingsWater::SETTING_FOG_COLOR("water_fog_color");
