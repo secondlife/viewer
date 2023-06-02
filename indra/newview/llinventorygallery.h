@@ -215,6 +215,7 @@ private:
     uuid_vec_t mCOFLinkedItems;
     uuid_vec_t mActiveGestures;
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
+    std::map<S32, LLInventoryGalleryItem*> mIndexToItemMap;
 
     LLInventoryFilter::ESearchType mSearchType;
     std::string mUsername;

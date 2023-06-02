@@ -591,7 +591,12 @@ void LLScrollbar::setValue(const LLSD& value)
 
 BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL handled = FALSE;
+    if (getDocPosMax() == 0 && !getVisible())
+    {
+        return FALSE;
+    }
+
+    BOOL handled = FALSE;
 
 	switch( key )
 	{

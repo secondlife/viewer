@@ -421,8 +421,9 @@ void LLInventoryGallery::addToGallery(LLInventoryGalleryItem* item)
         mHiddenItems.push_back(item);
         return;
     }
+    mItemIndexMap[item] = mItemsAddedCount;
+    mIndexToItemMap[mItemsAddedCount] = item;
     mItemsAddedCount++;
-    mItemIndexMap[item] = mItemsAddedCount - 1;
     int n = mItemsAddedCount;
     int row_count = (n % mItemsInRow) == 0 ? n / mItemsInRow : n / mItemsInRow + 1;
     int n_prev = n - 1;
@@ -458,6 +459,7 @@ void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item)
     int row_count = (n % mItemsInRow) == 0 ? n / mItemsInRow : n / mItemsInRow + 1;
     int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
     mItemsAddedCount--;
+    mIndexToItemMap.erase(mItemsAddedCount);
 
     bool remove_row = row_count != row_count_prev;
     removeFromLastRow(mItems[mItemsAddedCount]);
@@ -483,6 +485,7 @@ void LLInventoryGallery::removeFromGalleryMiddle(LLInventoryGalleryItem* item)
     }
     int n = mItemIndexMap[item];
     mItemIndexMap.erase(item);
+    mIndexToItemMap.erase(n);
     std::vector<LLInventoryGalleryItem*> saved;
     for (int i = mItemsAddedCount - 1; i > n; i--)
     {
@@ -945,6 +948,54 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             if (mScrollPanel)
             {
                 mScrollPanel->goToBottom();
+            }
+            handled = TRUE;
+            break;
+
+        case KEY_LEFT:
+            mFilterSubString.clear();
+
+            if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+            {
+                LLInventoryGalleryItem* item = getSelectedItem();
+                if (item)
+                {
+                    // Might be better to get item from panel
+                    S32 n = mItemIndexMap[item];
+                    if (n == 0)
+                    {
+                        n = mItemsAddedCount - 1;
+                    }
+                    n--;
+                    item = mIndexToItemMap[n];
+                    LLUUID item_id = item->getUUID();
+                    changeItemSelection(item_id, true);
+                    item->setFocus(TRUE);
+
+                }
+            }
+            handled = TRUE;
+            break;
+
+        case KEY_RIGHT:
+            mFilterSubString.clear();
+
+            if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+            {
+                LLInventoryGalleryItem* item = getSelectedItem();
+                if (item)
+                {
+                    S32 n = mItemIndexMap[item];
+                    n++;
+                    if (n == mItemsAddedCount)
+                    {
+                        n = 0;
+                    }
+                    item = mIndexToItemMap[n];
+                    LLUUID item_id = item->getUUID();
+                    changeItemSelection(item_id, true);
+                    item->setFocus(TRUE);
+                }
             }
             handled = TRUE;
             break;
