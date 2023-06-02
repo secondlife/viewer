@@ -877,6 +877,14 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                     setRootFolder(mSelectedItemID);
                     handled = TRUE;
                 }
+                else
+                {
+                    LLViewerInventoryItem* item = gInventory.getItem(mSelectedItemID);
+                    if (item)
+                    {
+                        LLInvFVBridgeAction::doAction(item->getType(), mSelectedItemID, &gInventory);
+                    }
+                }
             }
             break;
         case KEY_DELETE:
