@@ -29,9 +29,7 @@
 
   <check_box initial_value="true" label="高度な光源モデル" name="UseLightShaders" />
 
-  <button height="23" label="Automatic adjustments settings" layout="topleft" left="30" name="AutoAdjustmentsButton" top_delta="30" width="200">
-    <button.commit_callback function="Pref.AutoAdjustments" />
-  </button>
+  <button label="自動調整" name="AutoAdjustmentsButton" />
 
   <slider label="アバターの最大複雑度：" name="IndirectMaxComplexity" tool_tip="どの程度の複雑度で他のアバターをJellyDollとして描画するを設定します。" />
   <text name="IndirectMaxComplexityText">0</text>
@@ -50,6 +48,8 @@
   <button label="プリセットを削除…" name="PrefDeleteButton" />
 
   <button label="プリセットを削除…" name="PrefDeleteButton" />
+
+  <button label="推奨設定にリセット" name="Defaults" />
 
   <button label="拡張設定…" name="AdvancedSettings" />
 

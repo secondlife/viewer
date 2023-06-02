@@ -20,7 +20,7 @@
           <layout_stack>
             <layout_panel name="pnl_environment_current">
               <button label="[USEDEFAULT]" name="btn_usedefault" />
-              <button label="持ち物を使う" name="btn_select_inventory" />
+              <button label="インベントリを使う" name="btn_select_inventory" />
               <button label="カスタマイズ" name="btn_edit" />
               <check_box label="区画所有者による環境を上書きを許可" name="chk_allow_override" />
             </layout_panel>

@@ -5,6 +5,6 @@
   <text name="title_sounds">サウンド</text>
   <text name="title_animation">アニメーション</text>
   <text name="title_model">モデル</text>
-  <text name="upload_help">宛先フォルダを変更するには、持ち物でそのフォルダを右クリックして、
+  <text name="upload_help">宛先フォルダを変更するには、インベントリでそのフォルダを右クリックして、
 「デフォルトとして使用」を選択します。</text>
 </panel>

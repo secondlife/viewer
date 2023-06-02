@@ -476,7 +476,7 @@ L$が不足しているので、このグループに参加することができ
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
   </notification>
-  <notification name="ReturnAllTopObjects">リストされた全てのオブジェクトを所有者の持ち物に戻しますか？
+  <notification name="ReturnAllTopObjects">リストされた全てのオブジェクトを所有者のインベントリに戻しますか？
 これによりすべてのスクリプト化されたオブジェクトがリージョンに戻ります！
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ" />
@@ -766,7 +766,7 @@ L$が不足しているので、このグループに参加することができ
   </notification>
   <notification name="CannotCopyWarning">以下のアイテムをコピーする権限がありません：
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
-他の人に譲ると、そのアイテムはあなたの持ち物から削除されます。本当にこれらのアイテムを譲ってもよろしいですか？
+他の人に譲ると、そのアイテムはあなたのインベントリから削除されます。本当にこれらのアイテムを譲ってもよろしいですか？
     <tag>confirm</tag>
     <tag>fail</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
@@ -4905,11 +4905,11 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <tag>fail</tag>
   </notification>
 
-  <notification name="CantSendGroupNoticeCantConstructInventory">グループ通知を送信できません。持ち物を作成することもできません。
+  <notification name="CantSendGroupNoticeCantConstructInventory">グループ通知を送信できません。インベントリを作成することもできません。
     <tag>fail</tag>
   </notification>
 
-  <notification name="CantParceInventoryInNotice">通知内の持ち物を検出できません。
+  <notification name="CantParceInventoryInNotice">通知内のインベントリを検出できません。
     <tag>fail</tag>
   </notification>
 
@@ -5098,7 +5098,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <tag>fail</tag>
   </notification>
 
-  <notification name="CantCreateRequestedInvFolder">リクエストされた持ち物フォルダーを作成できません。
+  <notification name="CantCreateRequestedInvFolder">リクエストされたインベントリフォルダーを作成できません。
     <tag>fail</tag>
   </notification>
 
@@ -5118,7 +5118,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <tag>fail</tag>
   </notification>
 
-  <notification name="CantFindInvItem">持ち物アイテムを見つけることができません。
+  <notification name="CantFindInvItem">インベントリアイテムを見つけることができません。
     <tag>fail</tag>
   </notification>
 
@@ -5255,7 +5255,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <usetemplate ignoretext="設定を移行不可にしますか？" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
 
-  <notification name="NoEditFromLibrary">ライブラリから直接設定を変更することはできません。自分の持ち物からコピーしてやり直してください。
+  <notification name="NoEditFromLibrary">ライブラリから直接設定を変更することはできません。自分のインベントリからコピーしてやり直してください。
     <tag>fail</tag>
   </notification>
 
