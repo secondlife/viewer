@@ -30,8 +30,10 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llcallbacklist.h"
-#include "llinventorypanel.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
+#include "llnotificationsutil.h"
+#include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
@@ -802,12 +804,24 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 
     if(status == LLCore::HttpStatus(HTTP_FORBIDDEN))
     {
-        // too large, split into two, assume that this isn't the library
+        // Too large, split into two if possible
+        if (gDisconnected || LLApp::isExiting())
+        {
+            return;
+        }
+
         const std::string url(gAgent.getRegionCapability("FetchInventoryDescendents2"));
+        if (url.empty())
+        {
+            LL_WARNS(LOG_INV) << "Failed to get AIS2 cap" << LL_ENDL;
+            return;
+        }
+
         S32 size = mRequestSD["folders"].size();
 
-        if (!gDisconnected && !LLApp::isExiting() && !url.empty() && size > 1)
+        if (size > 1)
         {
+            // Can split, assume that this isn't the library
             LLSD folders;
             uuid_vec_t recursive_cats;
             LLSD::array_iterator iter = mRequestSD["folders"].beginArray();
@@ -837,6 +851,11 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
             LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(request_body, recursive_cats));
             gInventory.requestPost(false, url, request_body, handler, "Inventory Folder");
             return;
+        }
+        else
+        {
+            // Can't split
+            LLNotificationsUtil::add("InventoryLimitReachedAIS");
         }
     }
 	

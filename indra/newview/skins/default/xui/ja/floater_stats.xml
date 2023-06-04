@@ -38,10 +38,10 @@
           <stat_bar label="ＵＩ" name="LLView" />
           <stat_bar label="フォント" name="LLFontFreetype" />
           <stat_bar label="インベントリ" name="LLInventoryObject" />
-          <stat_bar label="ビューアーオブジェクト" name="LLViewerObject" />
+          <stat_bar label="ビューアオブジェクト" name="LLViewerObject" />
           <stat_bar label="八分木グループデータ" name="LLViewerOctreeGroup" />
           <stat_bar label="八分木データ" name="LLViewerOctreeEntry" />
-          <stat_bar label="ビューアーのオブジェクトキャッシュ" name="LLVOCacheEntry" />
+          <stat_bar label="ビューアのオブジェクトキャッシュ" name="LLVOCacheEntry" />
           <stat_bar label="描画可能オブジェクト" name="LLDrawable" />
           <stat_bar label="顔データ" name="LLFace" />
           <stat_bar label="描画情報" name="LLDrawInfo" />

@@ -3,8 +3,9 @@
   <check_box initial_value="true" label="近隣チャットでジェスチャーを自動補完する" name="auto_complete_gestures" />
   <panel name="general_chat_settings">
     <check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation" />
-    <check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email" />
-    <check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check" />
+    <check_box label="オフライン時に受け取ったＩＭはメールで受信する" name="send_im_to_email" />
+    <check_box label="フレンドとグループ以外からのコールとＩＭは受信しない" name="voice_call_friends_only_check" />
+    <text name="email_settings">[https://accounts.secondlife.com/change_email?lang=ja オフライン時のＩＭのメール送信先の設定]</text>
     <text name="font_size">文字の大きさ：</text>
     <combo_box name="chat_font_size">
       <item label="小" name="Small" value="0" />
@@ -74,9 +75,10 @@
   <panel name="log_settings">
     <text name="logging_label">保存：</text>
     <combo_box name="conversation_log_combo">
-      <item label="ログおよびテキストチャット" name="log_and_transcripts" value="2" />
+      <!-- TODO: Transscript翻訳が疑わしい -->
+      <item label="ログとテキストチャット" name="log_and_transcripts" value="2" />
       <item label="ログのみ" name="log_only" value="1" />
-      <item label="ログまたはテキストチャットなし" name="no_log_or_transcript" value="0" />
+      <item label="ログかテキストチャットなし" name="no_log_or_transcript" value="0" />
     </combo_box>
     <button label="ログを消去…" name="clear_log" />
     <button label="テキストチャットを削除…" name="delete_transcripts" />
@@ -85,5 +87,5 @@
   </panel>
   <button label="他の言語…" name="ok_btn" />
   <button label="自動置換…" name="autoreplace_showgui" />
-  <button label="スペルチェック中…" name="spellcheck_showgui" />
+  <button label="スペルチェック…" name="spellcheck_showgui" />
 </panel>

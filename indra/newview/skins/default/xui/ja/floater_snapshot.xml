@@ -9,7 +9,8 @@
   <string name="postcard_succeeded_str">メールが送信されました！</string>
   <string name="inventory_succeeded_str">インベントリに保存されました！</string>
   <string name="local_succeeded_str">コンピュータに保存されました！</string>
-  <string name="profile_failed_str">プロフィールフィードに画像をアップロードできませんでした。</string>
+  <!-- 字数制限のため「プロフィールフィードに画像をアップロードできませんでした。」から変更 -->
+  <string name="profile_failed_str">フィードにアップできませんでした。</string>
   <string name="postcard_failed_str">メール送信に失敗しました。</string>
   <string name="inventory_failed_str">インベントリに保存できませんでした。</string>
   <string name="local_failed_str">コンピュータへの保存に失敗しました。</string>

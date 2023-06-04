@@ -5,7 +5,7 @@
   <spinner label="水面の高さ" name="water_height_spin" />
   <spinner label="地形の上昇限度" name="terrain_raise_spin" />
   <spinner label="地形の下降限度" name="terrain_lower_spin" />
-  <text name="detail_texture_text">地形テクスチャ（1024x1024 の 24 bit .tga ファイル）</text>
+  <text name="detail_texture_text">地形テクスチャ（1024✕1024 の 24 bit .tga ファイル）</text>
   <text name="height_text_lbl">１（低）</text>
   <text name="height_text_lbl2">２</text>
   <text name="height_text_lbl3">３</text>

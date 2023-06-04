@@ -23,6 +23,6 @@
   <check_box label="オブジェクトの表面サイズに合わせて自動調整" name="auto_scale" />
 
   <text name="size_label">サイズ：</text>
-  <text name="X_label">X</text>
+  <text name="X_label">Ｘ</text>
   <spinner label="" name="height_pixels" />
 </panel>

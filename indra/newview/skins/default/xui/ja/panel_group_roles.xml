@@ -5,7 +5,7 @@
   <tab_container name="roles_tab_container">
     <panel label="メンバー" name="members_sub_tab" tool_tip="メンバー">
       <panel.string name="help_text">ここからメンバーに役割を付与したり、削除することができます。
-        Ctrlキーを押しながら、メンバー名をクリックすることで複数の人を選択できます。</panel.string>
+Ctrlキーを押しながら、メンバー名をクリックすることで複数の人を選択できます。</panel.string>
       <panel.string name="donation_area">[AREA]㎡</panel.string>
       <filter_editor label="メンバーをフィルタ" name="filter_input" />
       <name_list name="member_list">

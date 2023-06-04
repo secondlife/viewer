@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-  <rows enabled="false" name="move_actions" value="">
+  <rows name="move_actions" value="">
     <columns type="icontext" label="移動アクション" name="lst_action" value="Move_Walk_Off" />
   </rows>
   <rows name="walk_to" value="walk_to">
     <columns name="lst_action" tool_tip="マウスカーソルが指している場所に向かって歩きます。" value="移動先" />
   </rows>
   <rows name="teleport_to" value="teleport_to">
-    <columns name="lst_action"
-      tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。"
-      value="テレポートする" />
+    <columns name="lst_action" tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。" value="テレポートする" />
   </rows>
   <rows name="push_forward" value="push_forward">
     <columns name="lst_action" value="前に移動" />

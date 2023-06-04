@@ -26,7 +26,7 @@
   <menu_item_separator />
   <menu_item_call label="取る" name="Pie Object Take" />
   <menu_item_call label="コピーを取る" name="Take Copy" />
-  <menu_item_call label="支払い…" name="Pay..." />
+  <menu_item_call label="支払う…" name="Pay..." />
   <menu_item_call label="購入…" name="Buy..." />
   <menu_item_call label="削除" name="Delete" />
   <menu_item_separator />

@@ -2,7 +2,8 @@
 <floater name="floater_about" title="[CAPITALIZED_APP_NAME]について">
   <tab_container name="about_tab">
     <panel label="情報" name="support_panel">
-      <button label="クリップボードへコピー" name="copy_btn" />
+      <!-- 正確には「クリップボードへコピー」字数制限のためコピーに変更 -->
+      <button label="コピー" name="copy_btn" />
       <button label="更新の確認" name="update_btn" />
     </panel>
     <panel label="クレジット" name="credits_panel">
@@ -32,7 +33,7 @@ xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
 xxHash Copyright (C) 2012-2020 Yann Collet.
 zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
 
-Second Life ビューアーでは Havok (TM) Physics が使用されています。
+Second Life ビューアでは Havok (TM) Physics が使用されています。
 (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors).
 無断複写・複製・転載を禁じます。詳細については www.havok.com をご参照ください。
 

@@ -7,7 +7,7 @@
   <floater.string name="top_colliders_text">上位[COUNT]個の物体は多くの衝突可能性があります。</floater.string>
   <floater.string name="colliders_score_label">数</floater.string>
   <floater.string name="none_descriptor">何も見つかりませんでした。</floater.string>
-  <floater.string name="URLs">URL</floater.string>
+  <floater.string name="URLs">ＵＲＬ</floater.string>
   <floater.string name="memory">メモリ（㎅）</floater.string>
   <text name="title_text">読み込んでいます…</text>
   <scroll_list name="objects_list">

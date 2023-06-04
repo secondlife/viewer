@@ -14,7 +14,7 @@
   <check_box initial_value="true" label="プラグインを有効にする" name="browser_plugins_enabled" />
   <check_box initial_value="true" label="Cookie を受け入れる" name="cookies_enabled" />
   <check_box initial_value="true" label="Javascript を有効にする" name="browser_javascript_enabled" />
-  <text name="Software updates:">ソフトウェアアップデート：</text>
+  <text name="Software updates:">ソフトウェアの更新：</text>
   <combo_box name="updater_service_combobox">
     <combo_box.item label="各アップデートを自動的にインストールする" name="Install_automatically" />
     <combo_box.item label="オプションのアップデートのインストール準備ができたら通知する" name="Install_ask" />

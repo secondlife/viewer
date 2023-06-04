@@ -59,7 +59,7 @@
         <combo_box.item label="コライダー＜ステップ＞" name="item1" />
         <combo_box.item label="スクリプト＜回数＞、＜オプション・パターン＞" name="item2" />
         <combo_box.item label="オブジェクト＜パターン＞" name="item3" />
-        <combo_box.item label="rez ＜asset_id＞" name="item4" />
+        <combo_box.item label="rez ＜アセットＩＤ＞" name="item4" />
       </combo_box>
       <text name="Parameter:">パラメーター：</text>
       <button label="リクエストする" label_selected="リクエストする" name="Make Request" />

@@ -2,7 +2,7 @@
 <floater name="toolbox floater" short_title="制作" title="制作ツール">
   <floater.string name="grid_screen_text">画面</floater.string>
   <floater.string name="grid_local_text">ローカル</floater.string>
-  <floater.string name="grid_world_text">世界</floater.string>
+  <floater.string name="grid_world_text">ワールド</floater.string>
   <floater.string name="grid_reference_text">リファレンス</floater.string>
   <floater.string name="grid_attachment_text">装着物</floater.string>
   <floater.string name="status_rotate">色の付いたバンドをドラッグしてオブジェクトを回転</floater.string>
@@ -44,7 +44,7 @@
   <check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures" />
   <check_box initial_value="true" label="グリッドにスナップ" name="checkbox snap to grid" />
   <combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラの種類を選択">
-    <combo_box.item label="世界" name="World" />
+    <combo_box.item label="ワールド" name="World" />
     <combo_box.item label="ローカル" name="Local" />
     <combo_box.item label="リファレンス" name="Reference" />
   </combo_box>

@@ -5,5 +5,5 @@
   <menu_item_check label="変更をコミット" name="commit_changes" />
   <menu_item_check label="自分にのみ適用" name="apply_local" />
   <menu_item_check label="区画に適用" name="apply_parcel" />
-  <menu_item_check label="リージョンに適用" name="apply_region" />
+  <menu_item_check label="リージョン（地域）に適用" name="apply_region" />
 </toggleable_menu>

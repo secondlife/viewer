@@ -4,7 +4,7 @@
     <text name="label_show">表示：</text>
     <check_box label="ビーコン（標識）" name="beacons" />
     <check_box label="ハイライト" name="highlights" />
-    <text name="beacon_width_label" tool_tip="ビーコン（標識）の幅">幅：</text>
+    <text name="beacon_width_label" tool_tip="ビーコンの幅">幅：</text>
     <text name="label_objects">対象オブジェクト：</text>
     <check_box label="物理的" name="physical" />
     <check_box label="スクリプト" name="scripted" />

@@ -122,7 +122,7 @@
     </panel>
     <panel label="オプション" name="land_options_panel">
       <panel.string name="search_enabled_tooltip">この区画を検索結果に表示する</panel.string>
-      <panel.string name="search_disabled_small_tooltip">区画面積が１２８㎡かそれ以下のため、このオプションは無効です。
+      <panel.string name="search_disabled_small_tooltip">区画面積が１２８㎡未満のため、このオプションは無効です。
 大きな区画のみ検索に表示させることが可能です。</panel.string>
       <panel.string name="search_disabled_permissions_tooltip">あなたはこの区画の設定編集ができないため、このオプションは無効です。</panel.string>
       <panel.string name="mature_check_mature">「Moderate」コンテンツ</panel.string>

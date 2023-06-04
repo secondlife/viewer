@@ -48,7 +48,7 @@ SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 帯域幅：[NET_BANDWITH]kbit／秒
 ＬＯＤ係数：[LOD_FACTOR]
 描画の質：[RENDER_QUALITY]
-高度なライティングモデル：[GPU_SHADERS]
+高度な光源モデル：[GPU_SHADERS]
 テクスチャメモリ：[TEXTURE_MEMORY]㎆</string>
   <string name="AboutOSXHiDPI">高ＤＰＩ表示モード：[HIDPI]</string>
   <string name="AboutLibs">J2Cデコーダバージョン：[J2C_VERSION]
@@ -108,12 +108,12 @@ LibVLCバージョン：[LIBVLC_VERSION]
   <string name="AditiGridLabel">Second Lifeベータテストグリッド (Aditi)</string>
 
   <string name="ViewerDownloadURL">https://secondlife.com/support/downloads/?lang=ja</string>
-  <string name="LoginFailedViewerNotPermitted">お使いの古いビューアーでは、Second Lifeにアクセスできません。以下のページから新しいビューアーをダウンロードしてください： https://secondlife.com/support/downloads/?lang=ja
+  <string name="LoginFailedViewerNotPermitted">お使いの古いビューアでは、Second Lifeにアクセスできません。以下のページから新しいビューアをダウンロードしてください： https://secondlife.com/support/downloads/?lang=ja
 
 詳細については、FAQ を参照してください：
 https://secondlife.com/viewer-access-faq</string>
-  <string name="LoginIntermediateOptionalUpdateAvailable">ビューアーの更新（オプション）があります：[VERSION]</string>
-  <string name="LoginFailedRequiredUpdate">ビューアーの更新（必須）：[VERSION]</string>
+  <string name="LoginIntermediateOptionalUpdateAvailable">ビューアの更新（オプション）があります：[VERSION]</string>
+  <string name="LoginFailedRequiredUpdate">ビューアの更新（必須）：[VERSION]</string>
   <string name="LoginFailedAlreadyLoggedIn">このエージェントは既にログインしています。</string>
   <string name="LoginFailedAuthenticationFailed">申し訳ありませんが、ログインできませんでした。
 以下の情報が正しく入力されたことを確認してください：
@@ -183,7 +183,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="ShuttingDown">シャットダウン中です…</string>
   <string name="YouHaveBeenDisconnected">あなたがいたリージョンへの接続が切れました。</string>
   <string name="SentToInvalidRegion">無効なリージョンにテレポートされました。</string>
-  <string name="TestingDisconnect">ビューアーの接続を切るテスト中</string>
+  <string name="TestingDisconnect">ビューアの接続を切るテスト中</string>
 
   <!-- SLShare: User Friendly Filter Names Translation -->
   <string name="BlackAndWhite">白黒</string>
@@ -324,7 +324,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="AssetErrorFileNotFound">ファイルが見つかりません</string>
   <string name="AssetErrorTCPTimeout">ファイルの転送タイムアウト</string>
   <string name="AssetErrorCircuitGone">サーキットエラー</string>
-  <string name="AssetErrorPriceMismatch">ビューアーとサーバー上の値段が一致していません。</string>
+  <string name="AssetErrorPriceMismatch">ビューアとサーバー上の値段が一致していません。</string>
   <string name="AssetErrorUnknownStatus">不明のステータス</string>
 
   <!-- Asset upload errors. -->
@@ -2758,11 +2758,11 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- inventory offer -->
   <string name="InvOfferAnObjectNamed">オブジェクト名</string>
-  <string name="InvOfferOwnedByGroup">所有グループ</string>
-  <string name="InvOfferOwnedByUnknownGroup">不明なグループ所有</string>
-  <string name="InvOfferOwnedBy">所有者</string>
-  <string name="InvOfferOwnedByUnknownUser">不明なユーザー所有</string>
-  <string name="InvOfferGaveYou">が渡しました。</string>
+  <string name="InvOfferOwnedByGroup">グループが所有している</string>
+  <string name="InvOfferOwnedByUnknownGroup">不明なグループが所有している</string>
+  <string name="InvOfferOwnedBy">が所有している</string>
+  <string name="InvOfferOwnedByUnknownUser">不明なユーザーが所有している</string>
+  <string name="InvOfferGaveYou">を渡してきました。</string>
   <string name="InvOfferDecline">&lt;nolink&gt;[NAME]&lt;/nolink&gt;からの[DESC]を拒否しました。</string>
 
   <!-- group money -->
@@ -2771,8 +2771,8 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="GroupMoneyPaidYou">あなたに支払い：</string>
   <string name="GroupMoneyPaidInto">支払情報</string>
   <string name="GroupMoneyBoughtPassTo">入場許可を購入：</string>
-  <string name="GroupMoneyPaidFeeForEvent">が、イベント用の費用を支払いました。</string>
-  <string name="GroupMoneyPaidPrizeForEvent">が、イベント用の賞金を支払いました。</string>
+  <string name="GroupMoneyPaidFeeForEvent">が、イベントの費用を支払いました。</string>
+  <string name="GroupMoneyPaidPrizeForEvent">が、イベントの賞金を支払いました。</string>
   <string name="GroupMoneyBalance">残高</string>
   <string name="GroupMoneyCredits">収入</string>
   <string name="GroupMoneyDebits">支出</string>
@@ -2784,7 +2784,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="UploadingCosts">[NAME]のアップロード料金は L$ [AMOUNT]です。</string>
   <string name="BuyingCosts">これをL$ [AMOUNT]で購入します。</string>
   <string name="UnknownFileExtension">不明な拡張子：%s
-使用可能な拡張子：.wav, .tga, .bmp, .jpg, .jpeg, or .bvh</string>
+使用可能な拡張子：.wav，.tga，.bmp，.jpg，.jpeg，.bvh</string>
   <string name="MuteObject2">オブジェクトのブロック</string>
   <string name="MuteAvatar">アバターのブロック</string>
   <string name="UnmuteObject">オブジェクトのブロック解除</string>
@@ -3511,13 +3511,13 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="UpdaterWindowTitle">[APP_NAME]の更新</string>
   <string name="UpdaterNowUpdating">只今[APP_NAME]を更新中です…</string>
   <string name="UpdaterNowInstalling">[APP_NAME]をインストール中です…</string>
-  <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアーを最新バージョンに更新しています。数分かかることがありますのでしばらくお待ちください。</string>
+  <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアを最新バージョンに更新しています。数分かかることがありますのでしばらくお待ちください。</string>
   <string name="UpdaterProgressBarTextWithEllipses">アップデートをダウンロード中です…</string>
   <string name="UpdaterProgressBarText">更新をダウンロード中…</string>
   <string name="UpdaterFailDownloadTitle">更新のダウンロードに失敗しました。</string>
   <string name="UpdaterFailUpdateDescriptive">[APP_NAME]の更新中にエラーが発生しました。www.secondlife.com から最新バージョンをダウンロードしてください。</string>
   <string name="UpdaterFailInstallTitle">更新のインストールに失敗しました。</string>
-  <string name="UpdaterFailStartTitle">ビューアーの起動に失敗しました。</string>
+  <string name="UpdaterFailStartTitle">ビューアの起動に失敗しました。</string>
 
   <!-- System Messages -->
   <string name="ItemsComingInTooFastFrom">[APP_NAME]：アイテムが[FROM_NAME]から同時にたくさん読み込まれているため、自動プレビューが[TIME]秒間無効となります。</string>
@@ -3712,7 +3712,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 
   <!-- settings -->
   <string name="New Daycycle">新しいデイサイクル</string>
-  <string name="New Water">新しい水</string>
+  <string name="New Water">新しい水面</string>
   <string name="New Sky">新しい空</string>
 
 

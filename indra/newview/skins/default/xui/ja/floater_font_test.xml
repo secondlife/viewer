@@ -29,11 +29,7 @@
   <text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">Helvetica style=BOLD|ITALIC</text>
   <text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">Helvetica size=Large style=BOLD|ITALIC</text>
   <!--
-    <text type="string" length="1" bottom_delta="20" follows="left|top|right" font="OverrideTest" height="16" layout="topleft" left="16" name="linea">
-        OverrideTest, should be times, from default/xui/en
-    </text>
-    <text type="string" length="1" bottom_delta="20" follows="left|top|right" height="16" layout="topleft" left="16">
-        BogusFontName
-    </text>
--->
+  <text type="string" length="1" bottom_delta="20" follows="left|top|right" font="OverrideTest" height="16" layout="topleft" left="16" name="linea">OverrideTest, should be times, from default/xui/en</text>
+  <text type="string" length="1" bottom_delta="20" follows="left|top|right" height="16" layout="topleft" left="16">BogusFontName</text>
+  -->
 </floater>

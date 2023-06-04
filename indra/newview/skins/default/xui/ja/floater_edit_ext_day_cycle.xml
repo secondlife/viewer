@@ -11,7 +11,7 @@
   <string name="time_label">（[HH]：[MM]）</string>
   <string name="sky_track_label">空[ALT]</string>
   <string name="sky_label">空</string>
-  <string name="water_label">水</string>
+  <string name="water_label">水面</string>
 
   <string name="commit_parcel">区画に適用</string>
   <string name="commit_region">リージョン（地域）に適用</string>
@@ -31,7 +31,7 @@
             <button label="空４" name="sky4_track" />
             <button label="空３" name="sky3_track" />
             <button label="空２" name="sky2_track" />
-            <button label="地表レベル" name="sky1_track" />
+            <button label="地面" name="sky1_track" />
             <button label="水面" name="water_track" />
           </panel>
           <panel name="timeline">
@@ -50,9 +50,9 @@
 
             <layout_stack name="track_options_ls">
               <layout_panel name="track_options_lp">
-                <button label="トラックを以下からクローン" name="copy_track" />
-                <button label="ラックを以下からロード" name="load_track" />
-                <button label="トラックをクリア" name="clear_track" />
+                <button label="トラックを以下から複製" name="copy_track" />
+                <button label="トラックを以下から読み込み" name="load_track" />
+                <button label="トラックを消去" name="clear_track" />
 
               </layout_panel>
               <layout_panel name="track_progress_lp">
@@ -83,12 +83,12 @@
         </layout_panel>
         <layout_panel name="frame_settings_water">
           <tab_container name="water_tabs">
-            <panel filename="panel_settings_water.xml" label="水" name="water_panel" />
+            <panel filename="panel_settings_water.xml" label="水面" name="water_panel" />
           </tab_container>
         </layout_panel>
         <layout_panel name="frame_settings_sky">
           <tab_container name="sky_tabs">
-            <panel filename="panel_settings_sky_atmos.xml" label="大気＆雷" name="atmosphere_panel" />
+            <panel filename="panel_settings_sky_atmos.xml" label="大気＆光源" name="atmosphere_panel" />
             <panel filename="panel_settings_sky_clouds.xml" label="雲" name="clouds_panel" />
             <panel filename="panel_settings_sky_sunmoon.xml" label="太陽＆月" name="moon_panel" />
             <!-- added programatically so it doesn't show up whether we want it or not
