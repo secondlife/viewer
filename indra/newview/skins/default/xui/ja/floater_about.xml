@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="[CAPITALIZED_APP_NAME]について">
-  <tab_container name="about_tab">
-    <panel label="情報" name="support_panel">
-      <!-- 正確には「クリップボードへコピー」字数制限のためコピーに変更 -->
-      <button label="コピー" name="copy_btn" />
-      <button label="更新の確認" name="update_btn" />
-    </panel>
-    <panel label="クレジット" name="credits_panel">
-      <text name="linden_intro">Second Life は Lindens によって開発され、以下のオープンソースの貢献があります：</text>
-      <text_editor name="contrib_names">Dummy Nameは実行時間に置き換えられます。</text_editor>
-    </panel>
-    <panel label="ライセンス" name="licenses_panel">
-      <text_editor name="licenses_editor">3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
+	<tab_container name="about_tab">
+		<panel label="情報" name="support_panel">
+			<button label="コピー" name="copy_btn"/>
+			<button label="更新の確認" name="update_btn"/>
+		</panel>
+		<panel label="クレジット" name="credits_panel">
+			<text name="linden_intro">
+				Second Life は Lindens によって開発され、以下のオープンソースの貢献があります：
+			</text>
+			<text_editor name="contrib_names">
+				Dummy Nameは実行時間に置き換えられます。
+			</text_editor>
+		</panel>
+		<panel label="ライセンス" name="licenses_panel">
+			<text_editor name="licenses_editor">
+				3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
 APR Copyright (C) 2011 The Apache Software Foundation
 Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
 cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
@@ -41,7 +45,8 @@ Second Life ビューアでは Havok (TM) Physics が使用されています。
 
 無断複写・複製・転載を禁じます。詳細については licenses.txt をご参照ください。
 
-ボイスチャットのオーディオコーディング：Polycom(R) Siren14(TM) (ITU-T Rec.G.722.1 Annex C)</text_editor>
-    </panel>
-  </tab_container>
+ボイスチャットのオーディオコーディング：Polycom(R) Siren14(TM) (ITU-T Rec.G.722.1 Annex C)
+			</text_editor>
+		</panel>
+	</tab_container>
 </floater>

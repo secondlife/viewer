@@ -1,80 +1,74 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Scene Load Statistics" title="シーン読み込みの統計情報">
-  <scroll_container name="statistics_scroll">
-    <container_view name="statistics_view">
-      <!--Basic Section-->
-      <stat_view name="basic" label="基本">
-        <stat_bar label="フレームごとのピクセル差" name="frame difference" unit_label="％" />
-        <stat_bar label="ＵＤＰデータの受信量" name="bandwidth" unit_label="kbps" />
-        <stat_bar label="パケットロス" name="packet_loss" unit_label="％" />
-      </stat_view>
-      <!--Advanced Section-->
-      <stat_view name="advanced" label="拡張">
-        <stat_view name="render" label="描画">
-          <stat_bar name="objs" label="オブジェクト合計" />
-          <stat_bar name="newobjs" label="新しいオブジェクト" unit_label="／秒" />
-          <stat_bar name="object_cache_hits" label="オブジェクトのキャッシュのヒット率" unit_label="％" />
-        </stat_view>
-        <!--Texture Stats-->
-        <stat_view name="texture" label="テクスチャ">
-          <stat_bar name="texture_cache_hits" label="キャッシュヒット率" unit_label="％" />
-          <stat_bar name="texture_cache_read_latency" label="キャッシュ読み込み遅延量" unit_label="秒" />
-          <stat_bar name="texture_decode_latency" label="キャッシュデコード遅延量" unit_label="秒" />
-          <stat_bar name="texture_decode_latency" label="キャッシュ書き込み遅延量" unit_label="秒" />
-          <stat_bar name="texture_fetch_latency" label="キャッシュ取得遅延量" unit_label="秒" />
-          <stat_bar name="texture_fetch_time" label="キャッシュ取得時間" unit_label="秒" />
-          <stat_bar name="numimagesstat" label="カウント" />
-          <stat_bar name="numrawimagesstat" label="Rawカウント" />
-        </stat_view>
-        <!--Network Stats-->
-        <stat_view name="network" label="ネットワーク">
-          <stat_bar name="packetsinstat" label="受信パケット量" unit_label="／秒" />
-          <stat_bar name="packetsoutstat" label="送信パケット量" unit_label="／秒" />
-          <stat_bar name="objectdatareceived" label="オブジェクト" unit_label="kbps" />
-          <stat_bar name="texturedatareceived" label="テスクチャ" unit_label="kbps" />
-          <stat_bar name="assetudpdatareceived" label="アセット" unit_label="kbps" />
-          <stat_bar name="layersdatareceived" label="レイヤー" unit_label="kbps" />
-          <stat_bar name="messagedatain" label="実効受信量" unit_label="kbps" />
-          <stat_bar name="messagedataout" label="実効送信量" unit_label="kbps" />
-        </stat_view>
-      </stat_view>
-      <!--Sim Stats-->
-      <stat_view name="sim" label="シミュレーター">
-        <stat_bar name="simobjects" label="オブジェクト" />
-        <stat_bar name="simactiveobjects" label="アクティブなオブジェクト" />
-        <stat_bar name="simactivescripts" label="アクティブなスクリプト" />
-        <stat_bar name="siminpps" label="受信パケット" unit_label="pps" />
-        <stat_bar name="simoutpps" label="送信パケット" unit_label="pps" />
-        <stat_bar name="simpendingdownloads" label="保留中のダウンロード" />
-        <stat_bar name="simpendinguploads" label="保留中のアップロード" />
-        <stat_bar name="simtotalunackedbytes" label="未確認バイトの合計" unit_label="㎅" />
-        <stat_view name="simperf" label="時間（㎳）">
-          <stat_bar name="simframemsec" label="合計フレーム時間" unit_label="㎳" />
-          <stat_bar name="simnetmsec" label="ネット時間" unit_label="㎳" />
-          <stat_bar name="simsimphysicsmsec" label="物理作用時間" unit_label="㎳" />
-          <stat_bar name="simsimothermsec" label="シミュレーション時間" unit_label="㎳" />
-          <stat_bar name="simagentmsec" label="エージェント時間" unit_label="㎳" />
-          <stat_bar name="simimagesmsec" label="イメージ時間" unit_label="㎳" />
-          <stat_bar name="simscriptmsec" label="スクリプト時間" unit_label="㎳" />
-          <stat_bar name="simsparemsec" label="スペア時間" unit_label="㎳" />
-          <!--2nd level time blocks under 'Details' second-->
-          <stat_view name="timedetails" label="時間詳細（㎳）">
-            <stat_bar name="simsimphysicsstepmsec" label="　物理作用単位" unit_label="㎳" />
-            <stat_bar name="simsimphysicsshapeupdatemsec" label="　物理形状更新" unit_label="㎳" />
-            <stat_bar name="simsimphysicsothermsec" label="　他の物理作用" unit_label="㎳" />
-            <stat_bar name="simsleepmsec" label="　スリープ時間" unit_label="㎳" />
-            <stat_bar name="simpumpiomsec" label="　ポンプＩ／Ｏ" unit_label="㎳" />
-          </stat_view>
-        </stat_view>
-      </stat_view>
-      <stat_view name="frame_stats" label="フレームの内訳">
-        <stat_bar name="scenery_frame_pct" label="景色" unit_label="％" />
-        <stat_bar name="avatar_frame_pct" label="アバター" unit_label="％" />
-        <stat_bar name="ui_frame_pct" label="ＵＩ" unit_label="％" />
-        <stat_bar name="huds_frame_pct" label="ＨＵＤ" unit_label="％" />
-        <stat_bar name="swap_frame_pct" label="スワップ" unit_label="％" />
-        <stat_bar name="idle_frame_pct" label="タスク" unit_label="％" />
-      </stat_view>
-    </container_view>
-  </scroll_container>
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view name="basic" label="基本">
+				<stat_bar label="フレームごとのピクセル差" name="frame difference" unit_label="％"/>
+				<stat_bar label="ＵＤＰデータの受信量" name="bandwidth" unit_label="kbps"/>
+				<stat_bar label="パケットロス" name="packet_loss" unit_label="％"/>
+			</stat_view>
+			<stat_view name="advanced" label="拡張">
+				<stat_view name="render" label="描画">
+					<stat_bar name="objs" label="オブジェクト合計"/>
+					<stat_bar name="newobjs" label="新しいオブジェクト" unit_label="／秒"/>
+					<stat_bar name="object_cache_hits" label="オブジェクトのキャッシュのヒット率" unit_label="％"/>
+				</stat_view>
+				<stat_view name="texture" label="テクスチャ">
+					<stat_bar name="texture_cache_hits" label="キャッシュヒット率" unit_label="％"/>
+					<stat_bar name="texture_cache_read_latency" label="キャッシュ読み込み遅延量" unit_label="秒"/>
+					<stat_bar name="texture_decode_latency" label="キャッシュデコード遅延量" unit_label="秒"/>
+					<stat_bar name="texture_decode_latency" label="キャッシュ書き込み遅延量" unit_label="秒"/>
+					<stat_bar name="texture_fetch_latency" label="キャッシュ取得遅延量" unit_label="秒"/>
+					<stat_bar name="texture_fetch_time" label="キャッシュ取得時間" unit_label="秒"/>
+					<stat_bar name="numimagesstat" label="カウント"/>
+					<stat_bar name="numrawimagesstat" label="Rawカウント"/>
+				</stat_view>
+				<stat_view name="network" label="ネットワーク">
+					<stat_bar name="packetsinstat" label="受信パケット量" unit_label="／秒"/>
+					<stat_bar name="packetsoutstat" label="送信パケット量" unit_label="／秒"/>
+					<stat_bar name="objectdatareceived" label="オブジェクト" unit_label="kbps"/>
+					<stat_bar name="texturedatareceived" label="テスクチャ" unit_label="kbps"/>
+					<stat_bar name="assetudpdatareceived" label="アセット" unit_label="kbps"/>
+					<stat_bar name="layersdatareceived" label="レイヤー" unit_label="kbps"/>
+					<stat_bar name="messagedatain" label="実効受信量" unit_label="kbps"/>
+					<stat_bar name="messagedataout" label="実効送信量" unit_label="kbps"/>
+				</stat_view>
+			</stat_view>
+			<stat_view name="sim" label="シミュレーター">
+				<stat_bar name="simobjects" label="オブジェクト"/>
+				<stat_bar name="simactiveobjects" label="アクティブなオブジェクト"/>
+				<stat_bar name="simactivescripts" label="アクティブなスクリプト"/>
+				<stat_bar name="siminpps" label="受信パケット" unit_label="pps"/>
+				<stat_bar name="simoutpps" label="送信パケット" unit_label="pps"/>
+				<stat_bar name="simpendingdownloads" label="保留中のダウンロード"/>
+				<stat_bar name="simpendinguploads" label="保留中のアップロード"/>
+				<stat_bar name="simtotalunackedbytes" label="未確認バイトの合計" unit_label="㎅"/>
+				<stat_view name="simperf" label="時間（㎳）">
+					<stat_bar name="simframemsec" label="合計フレーム時間" unit_label="㎳"/>
+					<stat_bar name="simnetmsec" label="ネット時間" unit_label="㎳"/>
+					<stat_bar name="simsimphysicsmsec" label="物理作用時間" unit_label="㎳"/>
+					<stat_bar name="simsimothermsec" label="シミュレーション時間" unit_label="㎳"/>
+					<stat_bar name="simagentmsec" label="エージェント時間" unit_label="㎳"/>
+					<stat_bar name="simimagesmsec" label="イメージ時間" unit_label="㎳"/>
+					<stat_bar name="simscriptmsec" label="スクリプト時間" unit_label="㎳"/>
+					<stat_bar name="simsparemsec" label="スペア時間" unit_label="㎳"/>
+					<stat_view name="timedetails" label="時間詳細（㎳）">
+						<stat_bar name="simsimphysicsstepmsec" label="　物理作用単位" unit_label="㎳"/>
+						<stat_bar name="simsimphysicsshapeupdatemsec" label="　物理形状更新" unit_label="㎳"/>
+						<stat_bar name="simsimphysicsothermsec" label="　他の物理作用" unit_label="㎳"/>
+						<stat_bar name="simsleepmsec" label="　スリープ時間" unit_label="㎳"/>
+						<stat_bar name="simpumpiomsec" label="　ポンプＩ／Ｏ" unit_label="㎳"/>
+					</stat_view>
+				</stat_view>
+			</stat_view>
+			<stat_view name="frame_stats" label="フレームの内訳">
+				<stat_bar name="scenery_frame_pct" label="景色" unit_label="％"/>
+				<stat_bar name="avatar_frame_pct" label="アバター" unit_label="％"/>
+				<stat_bar name="ui_frame_pct" label="ＵＩ" unit_label="％"/>
+				<stat_bar name="huds_frame_pct" label="ＨＵＤ" unit_label="％"/>
+				<stat_bar name="swap_frame_pct" label="スワップ" unit_label="％"/>
+				<stat_bar name="idle_frame_pct" label="タスク" unit_label="％"/>
+			</stat_view>
+		</container_view>
+	</scroll_container>
 </floater>

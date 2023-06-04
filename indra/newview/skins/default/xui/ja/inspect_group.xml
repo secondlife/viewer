@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!--
-Not can_close / no title to avoid window chrome
-Single instance - only have one at a time, recycle it each spawn
--->
 <floater name="inspect_group">
-  <string name="PrivateGroup">プライベートグループ</string>
-  <string name="FreeToJoin">参加費無料</string>
-  <string name="CostToJoin">参加費L$ [AMOUNT]</string>
-  <string name="YouAreMember">あなたはメンバーです。</string>
-  <text name="group_subtitle">123メートル</text>
-  <text name="group_details">ヘラジカがいる部屋を作る任務を負った人々のグループ。
-ヘラジカを恐れてください！恐れよ！そしてマングースも！</text>
-  <text name="group_cost">L$123 to join</text>
-  <button label="参加" name="join_btn" />
-  <button label="脱退" name="leave_btn" />
-  <button label="プロフィールの表示" name="view_profile_btn" />
+	<string name="PrivateGroup">
+		プライベートグループ
+	</string>
+	<string name="FreeToJoin">
+		参加費無料
+	</string>
+	<string name="CostToJoin">
+		参加費L$ [AMOUNT]
+	</string>
+	<string name="YouAreMember">
+		あなたはメンバーです。
+	</string>
+	<text name="group_subtitle">
+		123メートル
+	</text>
+	<text name="group_details">
+		ヘラジカがいる部屋を作る任務を負った人々のグループ。
+ヘラジカを恐れてください！恐れよ！そしてマングースも！
+	</text>
+	<text name="group_cost">
+		L$123 to join
+	</text>
+	<button label="参加" name="join_btn"/>
+	<button label="脱退" name="leave_btn"/>
+	<button label="プロフィールの表示" name="view_profile_btn"/>
 </floater>

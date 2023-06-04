@@ -1,3 +1,2 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- Use "disabled color" to make it look like menu separators -->
-<menu_item_tear_off name="tear_off" label="〰〰〰〰〰" />
+<menu_item_tear_off name="tear_off" label="〰〰〰〰〰"/>
