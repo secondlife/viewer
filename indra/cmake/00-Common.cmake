@@ -26,6 +26,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
 
 # Portable compilation flags.
 add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
+# Because older versions of Boost.Bind dumped placeholders _1, _2 et al. into
+# the global namespace, Boost now requires either BOOST_BIND_NO_PLACEHOLDERS
+# to avoid that or BOOST_BIND_GLOBAL_PLACEHOLDERS to state that we require it
+# -- which we do. Without one or the other, we get a ton of Boost warnings.
+add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
