@@ -57,7 +57,6 @@ if(WINDOWS)
         openjp2.dll
         libapr-1.dll
         libaprutil-1.dll
-        libapriconv-1.dll
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
