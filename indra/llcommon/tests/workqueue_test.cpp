@@ -83,7 +83,11 @@ namespace tut
         // signal the work item that it can quit; consider LLOneShotCond.
         LLCond<Shared> data;
         auto start = WorkQueue::TimePoint::clock::now();
-        auto interval = 100ms;
+        // 2s seems like a long time to wait, since it directly impacts the
+        // duration of this test program. Unfortunately GitHub's Mac runners
+        // are pretty wimpy, and we're getting spurious "too late" errors just
+        // because the thread doesn't wake up as soon as we want.
+        auto interval = 2s;
         queue.postEvery(
             interval,
             [&data, count = 0]
