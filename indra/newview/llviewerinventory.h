@@ -256,6 +256,7 @@ protected:
 class LLInventoryCallback : public LLRefCount
 {
 public:
+    virtual ~LLInventoryCallback() {}
 	virtual void fire(const LLUUID& inv_item) = 0;
 };
 
@@ -294,17 +295,29 @@ class LLBoostFuncInventoryCallback: public LLInventoryCallback
 {
 public:
 
-	LLBoostFuncInventoryCallback(inventory_func_type fire_func = no_op_inventory_func,
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
 								 nullary_func_type destroy_func = no_op):
-		mFireFunc(fire_func),
 		mDestroyFunc(destroy_func)
 	{
+        mFireFuncs.push_back(fire_func);
 	}
+
+    LLBoostFuncInventoryCallback()
+    {
+    }
+
+    void addOnFireFunc(inventory_func_type fire_func)
+    {
+        mFireFuncs.push_back(fire_func);
+    }
 
 	// virtual
 	void fire(const LLUUID& item_id)
     {
-		mFireFunc(item_id);
+        for (inventory_func_type &func: mFireFuncs)
+        {
+            func(item_id);
+        }
 	}
 
 	// virtual
@@ -315,7 +328,7 @@ public:
 	
 
 private:
-	inventory_func_type mFireFunc;
+	std::list<inventory_func_type> mFireFuncs;
 	nullary_func_type mDestroyFunc;
 };
 

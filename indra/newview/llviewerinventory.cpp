@@ -1644,13 +1644,14 @@ void create_new_item(const std::string& name,
 				   const LLUUID& parent_id,
 				   LLAssetType::EType asset_type,
 				   LLInventoryType::EType inv_type,
-				   U32 next_owner_perm)
+				   U32 next_owner_perm,
+                   std::function<void(const LLUUID&)> created_cb = NULL)
 {
 	std::string desc;
 	LLViewerAssetType::generateDescriptionFor(asset_type, desc);
 	next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
-	LLPointer<LLInventoryCallback> cb = NULL;
+	LLPointer<LLBoostFuncInventoryCallback> cb = NULL;
 
 	switch (inv_type)
 	{
@@ -1674,9 +1675,17 @@ void create_new_item(const std::string& name,
 			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Notecards");
 			break;
 		}
-		default:
-			break;
-	}
+
+        default:
+        {
+            cb = new LLBoostFuncInventoryCallback();
+            break;
+        }
+    }
+    if (created_cb != NULL)
+    {
+        cb->addOnFireFunc(created_cb);
+    }
 
 	create_inventory_item(gAgent.getID(),
 						  gAgent.getSessionID(),
@@ -1731,7 +1740,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
     menu_create_inventory_item(panel, bridge ? bridge->getUUID() : LLUUID::null, userdata, default_parent_uuid);
 }
 
-void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid, std::function<void(const LLUUID&)> folder_created_cb)
+void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid, std::function<void(const LLUUID&)> created_cb)
 {
     std::string type_name = userdata.asString();
     
@@ -1754,10 +1763,10 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
         }
 
         std::function<void(const LLUUID&)> callback_cat_created = NULL;
-        if(panel)
+        if (panel)
         {
             LLHandle<LLPanel> handle = panel->getHandle();
-            std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID &new_category_id)
+            std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID& new_category_id)
             {
                 gInventory.notifyObservers();
                 LLInventoryPanel* panel = static_cast<LLInventoryPanel*>(handle.get());
@@ -1767,9 +1776,9 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                 }
             };
         }
-        else if(folder_created_cb != NULL)
+        else if (created_cb != NULL)
         {
-            callback_cat_created = folder_created_cb;
+            callback_cat_created = created_cb;
         }
         gInventory.createNewCategory(
             parent_id,
@@ -1784,7 +1793,8 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                       parent_id,
                       LLAssetType::AT_LSL_TEXT,
                       LLInventoryType::IT_LSL,
-                      PERM_MOVE | PERM_TRANSFER);    // overridden in create_new_item
+                      PERM_MOVE | PERM_TRANSFER,
+                      created_cb);    // overridden in create_new_item
     }
     else if ("notecard" == type_name)
     {
@@ -1793,7 +1803,8 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                       parent_id,
                       LLAssetType::AT_NOTECARD,
                       LLInventoryType::IT_NOTECARD,
-                      PERM_ALL);    // overridden in create_new_item
+                      PERM_ALL,
+                      created_cb);    // overridden in create_new_item
     }
     else if ("gesture" == type_name)
     {
@@ -1802,7 +1813,8 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                       parent_id,
                       LLAssetType::AT_GESTURE,
                       LLInventoryType::IT_GESTURE,
-                      PERM_ALL);    // overridden in create_new_item
+                      PERM_ALL,
+                      created_cb);    // overridden in create_new_item
     }
     else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
     {
@@ -1828,7 +1840,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
 
         LLUUID parent_id = dest_id.notNull() ? dest_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
 
-        LLSettingsVOBase::createNewInventoryItem(stype, parent_id);
+        LLSettingsVOBase::createNewInventoryItem(stype, parent_id, created_cb);
     }
     else
     {
@@ -1837,7 +1849,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
         if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
         {
             const LLUUID parent_id = dest_id;
-            LLAgentWearables::createWearable(wearable_type, false, parent_id);
+            LLAgentWearables::createWearable(wearable_type, false, parent_id, created_cb);
         }
         else
         {

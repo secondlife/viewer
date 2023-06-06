@@ -516,35 +516,35 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                 }
 
                 LLHandle<LLPanel> handle = getHandle();
-                std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID& new_category_id)
+                std::function<void(const LLUUID&)> callback_created = [handle](const LLUUID& new_id)
                 {
                     gInventory.notifyObservers(); // not really needed, should have been already done
                     LLPanelMainInventory* panel = (LLPanelMainInventory*)handle.get();
-                    if (new_category_id.notNull() && panel)
+                    if (new_id.notNull() && panel)
                     {
                         // might need to refresh visibility, delay rename
-                        panel->mCombInvUUIDNeedsRename = new_category_id;
+                        panel->mCombInvUUIDNeedsRename = new_id;
                     }
                 };
-                menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
+                menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
             }
         }
         else
         {
             LLHandle<LLPanel> handle = getHandle();
-            std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID &new_category_id)
+            std::function<void(const LLUUID&)> callback_created = [handle](const LLUUID &new_id)
             {
                 gInventory.notifyObservers(); // not really needed, should have been already done
-                if (new_category_id.notNull())
+                if (new_id.notNull())
                 {
                     LLPanelMainInventory* panel = (LLPanelMainInventory*)handle.get();
                     if (panel)
                     {
-                        panel->setGallerySelection(new_category_id);
+                        panel->setGallerySelection(new_id);
                     }
                 }
             };
-            menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
+            menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
         }
     }
     else
