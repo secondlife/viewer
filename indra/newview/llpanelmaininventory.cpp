@@ -1511,6 +1511,7 @@ void LLPanelMainInventory::setActivePanel()
     {
         mActivePanel = (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
     }
+    mViewModeBtn->setEnabled(mSingleFolderMode || (getAllItemsPanel() == getActivePanel()));
 }
 
 void LLPanelMainInventory::toggleViewMode()
@@ -2307,7 +2308,7 @@ void LLPanelMainInventory::updatePanelVisibility()
     mCombinationViewPanel->setVisible(mSingleFolderMode);
     mNavigationBtnsPanel->setVisible(mSingleFolderMode);
     mViewModeBtn->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
-
+    mViewModeBtn->setEnabled(mSingleFolderMode || (getAllItemsPanel() == getActivePanel()));
     if (mSingleFolderMode)
     {
         if (isCombinationViewMode())
