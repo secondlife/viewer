@@ -515,16 +515,15 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                     mForceShowInvLayout = true;
                 }
 
-                LLHandle<LLPanel> handle = mCombinationInventoryPanel->getHandle();
+                LLHandle<LLPanel> handle = getHandle();
                 std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID& new_category_id)
                 {
                     gInventory.notifyObservers(); // not really needed, should have been already done
-                    LLInventorySingleFolderPanel* panel = (LLInventorySingleFolderPanel*)handle.get();
+                    LLPanelMainInventory* panel = (LLPanelMainInventory*)handle.get();
                     if (new_category_id.notNull() && panel)
                     {
-                        panel->setSelectionByID(new_category_id, TRUE);
-                        panel->getRootFolder()->scrollToShowSelection();
-                        panel->getRootFolder()->setNeedsAutoRename(TRUE);
+                        // might need to refresh visibility, delay rename
+                        panel->mCombInvUUIDNeedsRename = new_category_id;
                     }
                 };
                 menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
@@ -532,12 +531,17 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
         }
         else
         {
-            std::function<void(const LLUUID&)> callback_cat_created = [this](const LLUUID &new_category_id)
+            LLHandle<LLPanel> handle = getHandle();
+            std::function<void(const LLUUID&)> callback_cat_created = [handle](const LLUUID &new_category_id)
             {
                 gInventory.notifyObservers(); // not really needed, should have been already done
                 if (new_category_id.notNull())
                 {
-                    setGallerySelection(new_category_id);
+                    LLPanelMainInventory* panel = (LLPanelMainInventory*)handle.get();
+                    if (panel)
+                    {
+                        panel->setGallerySelection(new_category_id);
+                    }
                 }
             };
             menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
@@ -2413,6 +2417,14 @@ void LLPanelMainInventory::updateCombinationVisibility()
                 list_latout.mTop = list_latout.mBottom + list_default_height;
                 mCombinationListLayoutPanel->setShape(list_latout, true /*tell stack to account for new shape*/);
             }
+        }
+
+        if (mCombInvUUIDNeedsRename.notNull() && !mReshapeInvLayout)
+        {
+            mCombinationInventoryPanel->setSelectionByID(mCombInvUUIDNeedsRename, TRUE);
+            mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
+            mCombinationInventoryPanel->getRootFolder()->setNeedsAutoRename(TRUE);
+            mCombInvUUIDNeedsRename.setNull();
         }
     }
 }

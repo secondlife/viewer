@@ -250,6 +250,7 @@ private:
 
     bool                        mForceShowInvLayout;
     bool                        mReshapeInvLayout;
+    LLUUID                      mCombInvUUIDNeedsRename;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };
