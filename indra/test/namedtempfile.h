@@ -38,6 +38,15 @@ public:
         createFile(pfx, [&content](std::ostream& out){ out << content; }, sfx);
     }
 
+    // Disambiguate when passing string literal -- unclear why a string
+    // literal should be ambiguous wrt std::string_view and Streamer
+    NamedTempFile(const std::string_view& pfx,
+                  const char* content,
+                  const std::string_view& sfx=std::string_view(""))
+    {
+        createFile(pfx, [&content](std::ostream& out){ out << content; }, sfx);
+    }
+
     // Function that accepts an ostream ref and (presumably) writes stuff to
     // it, e.g.:
     // (boost::phoenix::placeholders::arg1 << "the value is " << 17 << '\n')
@@ -96,6 +105,11 @@ class NamedExtTempFile: public NamedTempFile
     LOG_CLASS(NamedExtTempFile);
 public:
     NamedExtTempFile(const std::string& ext, const std::string_view& content):
+        NamedTempFile(remove_dot(ext), content, ensure_dot(ext))
+    {}
+
+    // Disambiguate when passing string literal
+    NamedExtTempFile(const std::string& ext, const char* content):
         NamedTempFile(remove_dot(ext), content, ensure_dot(ext))
     {}
 
