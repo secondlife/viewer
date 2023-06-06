@@ -33,9 +33,6 @@
 #include "v3colorutil.h"
 #include <boost/bind.hpp>
 
-// allow unqualified _1, _2 et al. to mean boost::bind placeholders
-using namespace boost::placeholders;
-
 //=========================================================================
 namespace
 {
