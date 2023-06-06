@@ -18,8 +18,6 @@
 #include <functional>
 // external library headers
 #include <boost/assign/list_of.hpp>
-#include <boost/phoenix/core/argument.hpp>
-#include <boost/phoenix/operator/bitwise.hpp> // operator<<()
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -105,7 +103,7 @@ namespace tut
         llleap_data():
             reader(".py",
                    // This logic is adapted from vita.viewerclient.receiveEvent()
-                   boost::phoenix::placeholders::arg1 <<
+                   [](std::ostream& out){ out <<
                    "import re\n"
                    "import os\n"
                    "import sys\n"
@@ -189,7 +187,7 @@ namespace tut
                    "def request(pump, data):\n"
                    "    # we expect 'data' is a dict\n"
                    "    data['reply'] = _reply\n"
-                   "    send(pump, data)\n"),
+                   "    send(pump, data)\n";}),
             // Get the actual pathname of the NamedExtTempFile and trim off
             // the ".py" extension. (We could cache reader.getName() in a
             // separate member variable, but I happen to know getName() just
@@ -383,7 +381,7 @@ namespace tut
         AckAPI api;
         Result result;
         NamedExtTempFile script("py",
-                                boost::phoenix::placeholders::arg1 <<
+                                [&](std::ostream& out){ out <<
                                 "from " << reader_module << " import *\n"
                                 // make a request on our little API
                                 "request(pump='" << api.getName() << "', data={})\n"
@@ -391,7 +389,7 @@ namespace tut
                                 "resp = get()\n"
                                 "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
                                 "            else 'bad: ' + str(resp)\n"
-                                "send(pump='" << result.getName() << "', data=result)\n");
+                                "send(pump='" << result.getName() << "', data=result)\n";});
         waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))));
         result.ensure();
     }
@@ -421,7 +419,7 @@ namespace tut
         ReqIDAPI api;
         Result result;
         NamedExtTempFile script("py",
-                                boost::phoenix::placeholders::arg1 <<
+                                [&](std::ostream& out){ out <<
                                 "import sys\n"
                                 "from " << reader_module << " import *\n"
                                 // Note that since reader imports llsd, this
@@ -450,7 +448,7 @@ namespace tut
                                 "    if resp['data']['reqid'] != i:\n"
                                 "        result = 'expected reqid=%s in %s' % (i, resp)\n"
                                 "        break\n"
-                                "send(pump='" << result.getName() << "', data=result)\n");
+                                "send(pump='" << result.getName() << "', data=result)\n";});
         waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))),
                 300);               // needs more realtime than most tests
         result.ensure();
@@ -464,7 +462,7 @@ namespace tut
         ReqIDAPI api;
         Result result;
         NamedExtTempFile script("py",
-                                boost::phoenix::placeholders::arg1 <<
+                                [&](std::ostream& out){ out <<
                                 "import sys\n"
                                 "from " << reader_module << " import *\n"
                                 // Generate a very large string value.
@@ -516,7 +514,7 @@ namespace tut
                                 "        send('" << result.getName() << "',\n"
                                 "             'at offset %s, expected %r but got %r' %\n"
                                 "             (start, large[start:end], echoed[start:end]))\n"
-                                "sys.exit(1)\n");
+                                "sys.exit(1)\n";});
         waitfor(LLLeap::create(test_name,
                                sv(list_of
                                   (PYTHON)
