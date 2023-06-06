@@ -191,7 +191,7 @@ struct PythonProcessLauncher
     LLProcess::Params mParams;
     LLProcessPtr mPy;
     std::string mDesc;
-    NamedTempFile mScript;
+    NamedExtTempFile mScript;
 };
 
 /// convenience function for PythonProcessLauncher::run()
@@ -355,7 +355,7 @@ namespace tut
         set_test_name("raw APR nonblocking I/O");
 
         // Create a script file in a temporary place.
-        NamedTempFile script("py",
+        NamedExtTempFile script("py",
             "from __future__ import print_function" EOL
             "import sys" EOL
             "import time" EOL
