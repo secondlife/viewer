@@ -84,10 +84,12 @@ protected:
                     const std::string_view& sfx)
     {
         // Create file in a temporary place.
-        boost::filesystem::path tempname{ boost::filesystem::temp_directory_path() };
-        // unique_path() recommended template, but with underscores instead of
-        // hyphens: some use cases involve temporary Python scripts
-        tempname += stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx);
+        boost::filesystem::path tempname{
+            boost::filesystem::temp_directory_path() /
+            // unique_path() recommended template, but with underscores
+            // instead of hyphens: some use cases involve temporary Python
+            // scripts
+            stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx) };
         mPath = boost::filesystem::unique_path(tempname);
         boost::filesystem::ofstream out{ mPath };
 
