@@ -50,6 +50,7 @@ typedef U32 uint32_t;
 #include "boost/bind.hpp"
 #include "boost/phoenix/bind/bind_function.hpp"
 #include "boost/phoenix/core/argument.hpp"
+#include <boost/phoenix/operator/bitwise.hpp>
 using namespace boost::phoenix;
 
 #include "../llsd.h"

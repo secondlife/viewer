@@ -15,10 +15,10 @@
 #include "llerror.h"
 #include "stringize.h"
 #include <string>
-#include <boost/function.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/noncopyable.hpp>
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <string_view>
@@ -50,7 +50,7 @@ public:
     // Function that accepts an ostream ref and (presumably) writes stuff to
     // it, e.g.:
     // (boost::phoenix::placeholders::arg1 << "the value is " << 17 << '\n')
-    typedef boost::function<void(std::ostream&)> Streamer;
+    typedef std::function<void(std::ostream&)> Streamer;
 
     NamedTempFile(const std::string_view& pfx,
                   const Streamer& func,

@@ -19,6 +19,7 @@
 // external library headers
 #include <boost/assign/list_of.hpp>
 #include <boost/phoenix/core/argument.hpp>
+#include <boost/phoenix/operator/bitwise.hpp> // operator<<()
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
