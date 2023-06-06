@@ -62,6 +62,9 @@
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 
+#include <fstream>
+#include <iomanip>
+
 static LLDefaultChildRegistry::Register<LLViewerTextEditor> r("text_editor");
 
 ///-----------------------------------------------------------------------
@@ -1309,11 +1312,23 @@ bool LLViewerTextEditor::hasEmbeddedInventory()
 
 ////////////////////////////////////////////////////////////////////////////
 
+static int importIndex = 0;
+
 BOOL LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
 {
+	time_t t = std::time(nullptr);
+	struct tm* tm = std::localtime(&t);
+	std::stringstream id_stream;
+	id_stream << std::put_time(tm, "%Y%m%d-%H%M%S-") << std::to_string(++importIndex);
+	std::ofstream os("C:\\LL\\editor-" + id_stream.str() + "-import.txt");
+	os << std::string(buffer, length);
+	os.close();
+
 	LLMemoryStream str((U8*)buffer, length);
 	return importStream(str);
 }
+
+static int exportIndex = 0;
 
 BOOL LLViewerTextEditor::exportBuffer( std::string& buffer )
 {
@@ -1331,7 +1346,15 @@ BOOL LLViewerTextEditor::exportBuffer( std::string& buffer )
 	nc.exportStream(out_stream);
 	
 	buffer = out_stream.str();
-	
+
+	time_t t = std::time(nullptr);
+	struct tm* tm = std::localtime(&t);
+	std::stringstream id_stream;
+	id_stream << std::put_time(tm, "%Y%m%d-%H%M%S-") << std::to_string(++exportIndex);
+	std::ofstream os("C:\\LL\\editor-" + id_stream.str() + "-export.txt");
+	os << buffer;
+	os.close();
+
 	return TRUE;
 }
 
