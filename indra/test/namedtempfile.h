@@ -13,6 +13,7 @@
 #define LL_NAMEDTEMPFILE_H
 
 #include "llerror.h"
+#include "llstring.h"
 #include "stringize.h"
 #include <string>
 #include <boost/filesystem.hpp>
@@ -64,7 +65,8 @@ public:
         boost::filesystem::remove(mPath);
     }
 
-    virtual std::string getName() const { return mPath.native(); }
+    // On Windows, path::native() returns a wstring
+    std::string getName() const { return ll_convert<std::string>(mPath.native()); }
 
     void peep()
     {
