@@ -2419,7 +2419,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
             }
         }
 
-        if (mCombInvUUIDNeedsRename.notNull() && !mReshapeInvLayout)
+        if (mCombInvUUIDNeedsRename.notNull())
         {
             mCombinationInventoryPanel->setSelectionByID(mCombInvUUIDNeedsRename, TRUE);
             mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
