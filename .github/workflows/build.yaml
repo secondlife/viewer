@@ -33,10 +33,10 @@ jobs:
       # the individual test fails.
       LOGFAIL: DEBUG
       # Force py.exe to select python3 rather than plain python (2)
-      PY_PYTHON: 3
+      PY_PYTHON: "3"
       # but if unit tests fail to import llsd (i.e. wrong Python interpreter),
       # make py.exe enumerate the possibilities and explain its choice
-      PYLAUNCHER_DEBUG: 1
+      PYLAUNCHER_DEBUG: "1"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
