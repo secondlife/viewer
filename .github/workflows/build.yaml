@@ -19,6 +19,7 @@ jobs:
           - runner: windows-large
             configuration: Release
             addrsize: 32
+            python-version: "3.11"
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
@@ -59,7 +60,7 @@ jobs:
           repository: secondlife/build-variables
           ref: viewer
           path: .build-variables
-      
+
       - name: Install autobuild 
         run: pip3 install autobuild llsd
 
