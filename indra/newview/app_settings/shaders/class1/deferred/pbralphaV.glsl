@@ -71,6 +71,7 @@ flat out float vary_sign;
 out vec3 vary_normal;
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 
 void main()
@@ -94,12 +95,13 @@ void main()
     metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
     emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 
+    vec3 tex_tangent = tangent_space_transform(tangent, normal.xyz, texture_normal_transform, texture_matrix0);
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
-	vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
+	vec3 t = (mat*vec4(tex_tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 #else //HAS_SKIN
 	vec3 n = normal_matrix * normal;
-  	vec3 t = normal_matrix * tangent.xyz;
+  	vec3 t = normal_matrix * tex_tangent.xyz;
 #endif //HAS_SKIN
 
     vary_tangent = normalize(t);
