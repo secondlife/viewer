@@ -5,18 +5,22 @@ on:
   pull_request:
   push:
     branches: ["actions"]
+    tags: ["*"]
 
 jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-2022, macos-11]
+        runner: [windows-large, macos-12-xl]
         configuration: [Release]
         addrsize: [64]
+        python-version: ["3.11"]
         include:
-          - runner: windows-2022
+          - runner: windows-large
             configuration: Release
             addrsize: 32
+          - runner: macos-12-xl
+            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
@@ -26,6 +30,7 @@ jobs:
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
+      DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that viewer builds engage Bugsplat.
       BUGSPLAT_DB: "SecondLife_Viewer_2018"
       # Setting this variable directs Linden's TUT test driver code to capture
@@ -35,9 +40,18 @@ jobs:
       # if unit tests fail to import llsd (i.e. wrong Python interpreter),
       # make py.exe enumerate the possibilities and explain its choice
       PYLAUNCHER_DEBUG: "1"
+      GIT_REF: ${{ github.head_ref || github.ref }}
+      LL_SKIP_REQUIRE_SYSROOT: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Checkout build variables
         uses: actions/checkout@v3
@@ -55,16 +69,13 @@ jobs:
         with:
           path: .autobuild-installables
           key: ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-
+            ${{ runner.os }}-${{ matrix.addrsize }}-
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
-        # Use 'py -m pip' because our autobuild.xml specifies py.exe as
-        # PYTHON_EXECUTABLE, and we've tried all kinds of tricks to make pip
-        # install the 'llsd' package into the Python interpreter selected by
-        # py.exe.
-        run: |
-          choco install nsis-unicode
-          py -m pip install autobuild llsd
+        run: choco install nsis-unicode
 
       - name: Build
         id: build
@@ -72,9 +83,18 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
-          autobuild configure
-          autobuild build --no-configure
+          # On windows we need to point the build to the correct python
+          # as neither CMake's FindPython nor our custom Python.cmake module
+          # will resolve the correct interpreter location.
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PYTHON="$(cygpath -m "$(which python)")"
+            echo "Python location: $PYTHON"
+          fi
 
+          autobuild configure -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
+          autobuild  build --no-configure
+
+          # Find artifacts
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
             installer_name="$(basename $installer_path)"
@@ -82,8 +102,9 @@ jobs:
             installer_path=$(find ./build-*/newview/ | grep '\.dmg')
             installer_name="$(basename $installer_path)"
           fi
-          echo "::set-output name=installer_path::$installer_path"
-          echo "::set-output name=installer_name::$installer_name"
+
+          echo "installer_path=$installer_path" >> $GITHUB_OUTPUT
+          echo "installer_name=$installer_name" >> $GITHUB_OUTPUT
       
       - name: Upload installer
         uses: actions/upload-artifact@v3
