@@ -32,8 +32,9 @@ jobs:
       # test-program log output at the specified level, but to display it only if
       # the individual test fails.
       LOGFAIL: DEBUG
-      # Force py.exe to select python3 rather than plain python (2)
-      PY_PYTHON: "3"
+      # Force py.exe to select python3.9 rather than the newest install 3.11,
+      # since the 'pip3' command below seems to be associated with Python 3.9
+      PY_PYTHON: "3.9"
       # but if unit tests fail to import llsd (i.e. wrong Python interpreter),
       # make py.exe enumerate the possibilities and explain its choice
       PYLAUNCHER_DEBUG: "1"
