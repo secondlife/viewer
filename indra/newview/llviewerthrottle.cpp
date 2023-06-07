@@ -84,7 +84,7 @@ LLViewerThrottleGroup::LLViewerThrottleGroup()
 }
 
 
-LLViewerThrottleGroup::LLViewerThrottleGroup(const F32 settings[])
+LLViewerThrottleGroup::LLViewerThrottleGroup(const F32 settings[TC_EOF])
 {
 	mThrottleTotal = 0.f;
 	S32 i;
