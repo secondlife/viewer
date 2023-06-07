@@ -1871,7 +1871,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 				inventory_panel->setSelection(obj_id, take_keyboard_focus);
 			}
 		}
-		else
+		else if (auto_open)
 		{
 			LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
 			if (floater_inventory)
@@ -1880,6 +1880,11 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 			}
 			active_panel->setSelection(obj_id, take_keyboard_focus);
 		}
+        else
+        {
+            // Created items are going to receive proper focus from callbacks
+            active_panel->setSelection(obj_id, take_keyboard_focus);
+        }
 	}
 }
 
