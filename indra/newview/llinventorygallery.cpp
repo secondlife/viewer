@@ -961,60 +961,22 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             break;
 
         case KEY_LEFT:
-            mFilterSubString.clear();
-
-            if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
-            {
-                LLInventoryGalleryItem* item = getSelectedItem();
-                if (item)
-                {
-                    // Might be better to get item from panel
-                    S32 n = mItemIndexMap[item];
-                    n--;
-                    if (n < 0)
-                    {
-                        n = mItemsAddedCount - 1;
-                    }
-                    item = mIndexToItemMap[n];
-                    LLUUID item_id = item->getUUID();
-                    changeItemSelection(item_id, true);
-                    item->setFocus(TRUE);
-
-                }
-            }
+            moveLeft();
             handled = TRUE;
             break;
 
         case KEY_RIGHT:
-            mFilterSubString.clear();
-
-            if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
-            {
-                LLInventoryGalleryItem* item = getSelectedItem();
-                if (item)
-                {
-                    S32 n = mItemIndexMap[item];
-                    n++;
-                    if (n == mItemsAddedCount)
-                    {
-                        n = 0;
-                    }
-                    item = mIndexToItemMap[n];
-                    LLUUID item_id = item->getUUID();
-                    changeItemSelection(item_id, true);
-                    item->setFocus(TRUE);
-                }
-            }
+            moveRight();
             handled = TRUE;
             break;
 
         case KEY_UP:
-            scrollUp();
+            moveUp();
             handled = TRUE;
             break;
 
         case KEY_DOWN:
-            scrollDown();
+            moveDown();
             handled = TRUE;
             break;
 
@@ -1030,7 +992,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
     return handled;
 }
 
-void LLInventoryGallery::scrollUp()
+void LLInventoryGallery::moveUp()
 {
     mFilterSubString.clear();
 
@@ -1052,7 +1014,7 @@ void LLInventoryGallery::scrollUp()
     }
 }
 
-void LLInventoryGallery::scrollDown()
+void LLInventoryGallery::moveDown()
 {
     mFilterSubString.clear();
 
@@ -1070,6 +1032,53 @@ void LLInventoryGallery::scrollDown()
                 changeItemSelection(item_id, true);
                 item->setFocus(TRUE);
             }
+        }
+    }
+}
+
+void LLInventoryGallery::moveLeft()
+{
+    mFilterSubString.clear();
+
+    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    {
+        LLInventoryGalleryItem* item = getSelectedItem();
+        if (item)
+        {
+            // Might be better to get item from panel
+            S32 n = mItemIndexMap[item];
+            n--;
+            if (n < 0)
+            {
+                n = mItemsAddedCount - 1;
+            }
+            item = mIndexToItemMap[n];
+            LLUUID item_id = item->getUUID();
+            changeItemSelection(item_id, true);
+            item->setFocus(TRUE);
+        }
+    }
+}
+
+void LLInventoryGallery::moveRight()
+{
+    mFilterSubString.clear();
+
+    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    {
+        LLInventoryGalleryItem* item = getSelectedItem();
+        if (item)
+        {
+            S32 n = mItemIndexMap[item];
+            n++;
+            if (n == mItemsAddedCount)
+            {
+                n = 0;
+            }
+            item = mIndexToItemMap[n];
+            LLUUID item_id = item->getUUID();
+            changeItemSelection(item_id, true);
+            item->setFocus(TRUE);
         }
     }
 }
@@ -1754,13 +1763,24 @@ BOOL LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
     BOOL handled = FALSE;
     switch (key)
     {
+
+        case KEY_LEFT:
+            mGallery->moveLeft();
+            handled = true;
+            break;
+
+        case KEY_RIGHT:
+            mGallery->moveRight();
+            handled = true;
+            break;
+
         case KEY_UP:
-            mGallery->scrollUp();
+            mGallery->moveUp();
             handled = true;
             break;
 
         case KEY_DOWN:
-            mGallery->scrollDown();
+            mGallery->moveDown();
             handled = true;
             break;
 
