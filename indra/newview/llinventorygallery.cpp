@@ -970,11 +970,11 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                 {
                     // Might be better to get item from panel
                     S32 n = mItemIndexMap[item];
-                    if (n == 0)
+                    n--;
+                    if (n < 0)
                     {
                         n = mItemsAddedCount - 1;
                     }
-                    n--;
                     item = mIndexToItemMap[n];
                     LLUUID item_id = item->getUUID();
                     changeItemSelection(item_id, true);
@@ -1008,6 +1008,16 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             handled = TRUE;
             break;
 
+        case KEY_UP:
+            scrollUp();
+            handled = TRUE;
+            break;
+
+        case KEY_DOWN:
+            scrollDown();
+            handled = TRUE;
+            break;
+
         default:
             break;
     }
@@ -1018,6 +1028,50 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
     }
 
     return handled;
+}
+
+void LLInventoryGallery::scrollUp()
+{
+    mFilterSubString.clear();
+
+    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    {
+        LLInventoryGalleryItem* item = getSelectedItem();
+        if (item)
+        {
+            S32 n = mItemIndexMap[item];
+            n -= mItemsInRow;
+            if (n >= 0)
+            {
+                item = mIndexToItemMap[n];
+                LLUUID item_id = item->getUUID();
+                changeItemSelection(item_id, true);
+                item->setFocus(TRUE);
+            }
+        }
+    }
+}
+
+void LLInventoryGallery::scrollDown()
+{
+    mFilterSubString.clear();
+
+    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    {
+        LLInventoryGalleryItem* item = getSelectedItem();
+        if (item)
+        {
+            S32 n = mItemIndexMap[item];
+            n += mItemsInRow;
+            if (n < mItemsAddedCount)
+            {
+                item = mIndexToItemMap[n];
+                LLUUID item_id = item->getUUID();
+                changeItemSelection(item_id, true);
+                item->setFocus(TRUE);
+            }
+        }
+    }
 }
 
 void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id)
@@ -1688,6 +1742,32 @@ BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
         return FALSE;
     }
     return baseHandleDragAndDrop(mUUID, drop, cargo_type, cargo_data, accept, tooltip_msg);
+}
+
+BOOL LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
+{
+    if (!mGallery)
+    {
+        return FALSE;
+    }
+
+    BOOL handled = FALSE;
+    switch (key)
+    {
+        case KEY_UP:
+            mGallery->scrollUp();
+            handled = true;
+            break;
+
+        case KEY_DOWN:
+            mGallery->scrollDown();
+            handled = true;
+            break;
+
+        default:
+            break;
+    }
+    return handled;
 }
 
 void LLInventoryGalleryItem::setWorn(bool value)

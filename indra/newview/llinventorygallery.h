@@ -80,6 +80,8 @@ public:
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
     BOOL handleKeyHere(KEY key, MASK mask) override;
+    void scrollUp();
+    void scrollDown();
 
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }
@@ -250,6 +252,7 @@ public:
                                    void* cargo_data,
                                    EAcceptance* accept,
                                    std::string& tooltip_msg);
+    BOOL handleKeyHere(KEY key, MASK mask);
 
     LLFontGL* getTextFont();
 
