@@ -1371,26 +1371,21 @@ LLVector3 LLAgent::getReferenceUpVector()
 void LLAgent::pitch(F32 angle)
 {
 	// don't let user pitch if pointed almost all the way down or up
-	mFrameAgent.pitch(clampPitchToLimits(angle));
-}
 
-
-// Radians, positive is forward into ground
-//-----------------------------------------------------------------------------
-// clampPitchToLimits()
-//-----------------------------------------------------------------------------
-F32 LLAgent::clampPitchToLimits(F32 angle)
-{
 	// A dot B = mag(A) * mag(B) * cos(angle between A and B)
 	// so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
 	//                                  = A dot B for unit vectors
 
 	LLVector3 skyward = getReferenceUpVector();
 
-	const F32 look_down_limit = 179.f * DEG_TO_RAD;;
-	const F32 look_up_limit   =   1.f * DEG_TO_RAD;
+	// SL-19286 Avatar is upside down when viewed from below
+	// after left-clicking the mouse on the avatar and dragging down
+	//
+	// The issue is observed on angle below 10 degrees
+	const F32 look_down_limit = 179.f * DEG_TO_RAD;
+	const F32 look_up_limit   =  10.f * DEG_TO_RAD;
 
-	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
+	F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
 
 	// clamp pitch to limits
 	if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
@@ -1401,8 +1396,11 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 	{
 		angle = look_up_limit - angle_from_skyward;
 	}
-   
-    return angle;
+
+	if (fabs(angle) > 1e-4)
+	{
+		mFrameAgent.pitch(angle);
+	}
 }
 
 
