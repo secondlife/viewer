@@ -484,10 +484,10 @@ void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_sele
             LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
             if (main_inventory)
             {
+                main_inventory->initSingleFolderRoot(folder_id);
                 main_inventory->toggleViewMode();
                 if(folder_id.notNull())
                 {
-                    main_inventory->setSingleFolderViewRoot(folder_id);
                     if(item_to_select.notNull())
                     {
                         main_inventory->setGallerySelection(item_to_select, true);
@@ -1518,6 +1518,11 @@ void LLPanelMainInventory::setActivePanel()
     mViewModeBtn->setEnabled(mSingleFolderMode || (getAllItemsPanel() == getActivePanel()));
 }
 
+void LLPanelMainInventory::initSingleFolderRoot(const LLUUID& start_folder_id)
+{
+    mCombinationInventoryPanel->initFolderRoot(start_folder_id);
+}
+
 void LLPanelMainInventory::toggleViewMode()
 {
     if(mSingleFolderMode && isCombinationViewMode())
@@ -1586,6 +1591,7 @@ void LLPanelMainInventory::onViewModeClick()
                 }
             }
         }
+        mCombinationInventoryPanel->initFolderRoot(new_root_folder);
     }
 
     toggleViewMode();

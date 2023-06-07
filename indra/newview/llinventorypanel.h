@@ -268,6 +268,7 @@ public:
     static void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response, const std::vector<LLUUID> inventory_selected);
 
     void changeFolderRoot(const LLUUID& new_id) {};
+    void initFolderRoot();
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -306,6 +307,7 @@ protected:
 	const LLInventoryFolderViewModelBuilder* mInvFVBridgeBuilder;
 
     bool mBuildChildrenViews;
+    bool mRootInited;
 
 
 	//--------------------------------------------------------------------
@@ -400,6 +402,8 @@ public:
 
     void initFromParams(const Params& p);
     bool isSelectionRemovable() { return false; }
+
+    void initFolderRoot(const LLUUID& start_folder_id = LLUUID::null);
 
     void openInCurrentWindow(const LLSD& userdata);
     void changeFolderRoot(const LLUUID& new_id);
