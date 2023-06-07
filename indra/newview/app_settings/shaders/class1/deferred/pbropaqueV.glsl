@@ -84,18 +84,19 @@ void main()
     metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
     emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 
-    vec3 tex_tangent = tangent_space_transform(tangent, normal.xyz, texture_normal_transform, texture_matrix0);
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
-	vec3 t = (mat*vec4(tex_tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
+	vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 #else //HAS_SKIN
 	vec3 n = normal_matrix * normal;
-	vec3 t = normal_matrix * tex_tangent.xyz;
+	vec3 t = normal_matrix * tangent.xyz;
 #endif
 
-    vary_tangent = normalize(t);
+    n = normalize(n);
+
+    vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0));
     vary_sign = tangent.w;
-    vary_normal = normalize(n);
+    vary_normal = n;
 	
 	vertex_color = diffuse_color;
 }
