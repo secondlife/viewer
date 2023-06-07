@@ -19,19 +19,24 @@ jobs:
             addrsize: 32
     runs-on: ${{ matrix.runner }}
     env:
-      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
+      # Ensure that viewer builds engage Bugsplat.
+      BUGSPLAT_DB: "SecondLife_Viewer_2018"
       # Setting this variable directs Linden's TUT test driver code to capture
       # test-program log output at the specified level, but to display it only if
       # the individual test fails.
       LOGFAIL: DEBUG
-      # Ensure that viewer builds engage Bugsplat.
-      BUGSPLAT_DB: "SecondLife_Viewer_2018"
+      # Force py.exe to select python3 rather than plain python (2)
+      PY_PYTHON: 3
+      # but if unit tests fail to import llsd (i.e. wrong Python interpreter),
+      # make py.exe enumerate the possibilities and explain its choice
+      PYLAUNCHER_DEBUG: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
