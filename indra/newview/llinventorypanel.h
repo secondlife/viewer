@@ -368,6 +368,8 @@ protected:
     virtual LLFolderView * createFolderRoot(LLUUID root_id );
 	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
+
+    boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)> mSelectionCallback;
 private:
     // buildViewsTree does not include some checks and is meant
     // for recursive use, use buildNewViews() for first call
@@ -425,8 +427,6 @@ public:
     std::list<LLUUID> getNavBackwardList() { return mBackwardFolders; }
     std::list<LLUUID> getNavForwardList() { return mForwardFolders; }
 
-    void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
-
     typedef boost::function<void()> root_changed_callback_t;
     boost::signals2::connection setRootChangedCallback(root_changed_callback_t cb);
 
@@ -435,7 +435,6 @@ protected:
     ~LLInventorySingleFolderPanel();
     void updateSingleFolderRoot();
 
-    boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)> mSelectionCallback;
     friend class LLUICtrlFactory;
     
     LLUUID mFolderID;

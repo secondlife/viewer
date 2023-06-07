@@ -305,6 +305,11 @@ void LLInventoryPanel::initFolderRoot()
         mFolderRoot.get()->setFollowsAll();
         mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
 
+    if (mSelectionCallback)
+    {
+        mFolderRoot.get()->setSelectCallback(mSelectionCallback);
+    }
+
     // Set up the callbacks from the inventory we're viewing, and then build everything.
     mInventoryObserver = new LLInventoryPanelObserver(this);
     mInventory->addObserver(mInventoryObserver);
@@ -1433,6 +1438,7 @@ void LLInventoryPanel::setSelectCallback(const boost::function<void (const std::
 	{
 		mFolderRoot.get()->setSelectCallback(cb);
 	}
+    mSelectionCallback = cb;
 }
 
 void LLInventoryPanel::clearSelection()
@@ -2133,15 +2139,6 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
 
 LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()
 {
-}
-
-void LLInventorySingleFolderPanel::setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb)
-{
-    if (mFolderRoot.get())
-    {
-        mFolderRoot.get()->setSelectCallback(cb);
-        mSelectionCallback = cb;
-    }
 }
 
 void LLInventorySingleFolderPanel::initFromParams(const Params& p)
