@@ -1,0 +1,90 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: ["actions"]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        runner: [windows-2022, macos-11]
+        configuration: [Release]
+        addrsize: [64]
+        include:
+          - runner: windows-2022
+            configuration: Release
+            addrsize: 32
+    runs-on: ${{ matrix.runner }}
+    env:
+      AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
+      # authorizes fetching private constituent packages
+      AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
+      AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
+      AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      AUTOBUILD_VSVER: "170"
+      # Ensure that viewer builds engage Bugsplat.
+      BUGSPLAT_DB: "SecondLife_Viewer_2018"
+      # Setting this variable directs Linden's TUT test driver code to capture
+      # test-program log output at the specified level, but to display it only if
+      # the individual test fails.
+      LOGFAIL: DEBUG
+      # Force py.exe to select python3.9 rather than the newest install 3.11,
+      # since the 'pip3' command below seems to be associated with Python 3.9
+      PY_PYTHON: "3.9"
+      # but if unit tests fail to import llsd (i.e. wrong Python interpreter),
+      # make py.exe enumerate the possibilities and explain its choice
+      PYLAUNCHER_DEBUG: "1"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Checkout build variables
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/build-variables
+          ref: viewer
+          path: .build-variables
+      
+      - name: Install autobuild 
+        run: pip3 install autobuild llsd
+
+      - name: Cache autobuild packages
+        uses: actions/cache@v3
+        id: cache-installables
+        with:
+          path: .autobuild-installables
+          key: ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+
+      - name: Install windows dependencies
+        if: runner.os == 'Windows'
+        run: choco install nsis-unicode
+
+      - name: Build
+        id: build
+        shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
+        run: |
+          pip install llsd # Required by viewer tests
+          autobuild configure
+          autobuild build --no-configure
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
+            installer_name="$(basename $installer_path)"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            installer_path=$(find ./build-*/newview/ | grep '\.dmg')
+            installer_name="$(basename $installer_path)"
+          fi
+          echo "::set-output name=installer_path::$installer_path"
+          echo "::set-output name=installer_name::$installer_name"
+      
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.installer_name }}
+          path: ${{ steps.build.outputs.installer_path }}

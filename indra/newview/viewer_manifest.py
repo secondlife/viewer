@@ -28,7 +28,6 @@ $/LicenseInfo$
 """
 import errno
 import glob
-import itertools
 import json
 import os
 import os.path
@@ -36,12 +35,9 @@ import plistlib
 import random
 import re
 import shutil
-import stat
 import subprocess
 import sys
-import tarfile
 import time
-import zipfile
 
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
@@ -790,27 +786,15 @@ class WindowsManifest(ViewerManifest):
             
         # Check two paths, one for Program Files, and one for Program Files (x86).
         # Yay 64bit windows.
-        for ProgramFiles in 'ProgramFiles', 'ProgramFiles(x86)':
-            NSIS_path = os.path.expandvars(r'${%s}\NSIS\makensis.exe' % ProgramFiles)
-            if os.path.exists(NSIS_path):
-                break
-        installer_created=False
-        nsis_attempts=3
-        nsis_retry_wait=15
-        for attempt in range(nsis_attempts):
-            try:
-                self.run_command([NSIS_path, '/V2', self.dst_path_of(tempfile)])
-            except ManifestError as err:
-                if attempt+1 < nsis_attempts:
-                    print("nsis failed, waiting %d seconds before retrying" % nsis_retry_wait, file=sys.stderr)
-                    time.sleep(nsis_retry_wait)
-                    nsis_retry_wait*=2
-            else:
-                # NSIS worked! Done!
-                break
-        else:
-            print("Maximum nsis attempts exceeded; giving up", file=sys.stderr)
-            raise
+        nsis_path = "makensis.exe"
+        for program_files in '${programfiles}', '${programfiles(x86)}':
+            for nesis_path in 'NSIS', 'NSIS\\Unicode':
+                possible_path = os.path.expandvars(f"{program_files}\\{nesis_path}\\makensis.exe")
+                if os.path.exists(possible_path):
+                    nsis_path = possible_path
+                    break
+
+        self.run_command([possible_path, '/V2', self.dst_path_of(tempfile)])
 
         self.sign(installer_file)
         self.created_path(self.dst_path_of(installer_file))

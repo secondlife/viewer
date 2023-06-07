@@ -31,6 +31,7 @@
 #include <algorithm>
 
 #include "llsdserialize.h"
+#include <boost/bind.hpp>
 
 //=========================================================================
 namespace

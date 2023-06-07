@@ -31,6 +31,7 @@
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"
+#include <boost/bind.hpp>
 
 //=========================================================================
 namespace
