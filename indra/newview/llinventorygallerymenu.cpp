@@ -39,6 +39,7 @@
 #include "llmarketplacefunctions.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
+#include "lltrans.h"
 #include "llviewerfoldertype.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -220,20 +221,9 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("delete" == action)
     {
-        if (is_folder)
-        {
-            if(get_is_category_removable(&gInventory, selected_id))
-            {
-                gInventory.removeCategory(selected_id);
-            }
-        }
-        else
-        {
-            if(get_is_item_removable(&gInventory, selected_id))
-            {
-                gInventory.removeItem(selected_id);
-            }
-        }
+        LLSD args;
+        args["QUESTION"] = LLTrans::getString("DeleteItem");
+        LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGalleryContextMenu::onDelete, _1, _2, selected_id));
     }
     else if ("copy" == action)
     {
@@ -339,6 +329,33 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     else if ("replace_links" == action)
     {
         LLFloaterReg::showInstance("linkreplace", LLSD(selected_id));
+    }
+}
+
+void LLInventoryGalleryContextMenu::onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        LLInventoryObject* obj = gInventory.getObject(selected_id);
+        if (!obj)
+        {
+            return;
+        }
+        if (obj->getType() == LLAssetType::AT_CATEGORY)
+        {
+            if(get_is_category_removable(&gInventory, selected_id))
+            {
+                gInventory.removeCategory(selected_id);
+            }
+        }
+        else
+        {
+            if(get_is_item_removable(&gInventory, selected_id))
+            {
+                gInventory.removeItem(selected_id);
+            }
+        }
     }
 }
 
