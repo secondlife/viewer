@@ -47,7 +47,6 @@ protected:
 
     void fileUploadLocation(const LLSD& userdata, const LLUUID& selected_id);
 
-    static void onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id);
     static void onRename(const LLSD& notification, const LLSD& response);
 
 private:

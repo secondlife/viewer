@@ -149,6 +149,9 @@ public:
     void paste() override;
     BOOL canPaste() const override;
 
+    static void onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id);
+    void deleteSelection();
+
     void claimEditHandler();
     static bool isItemCopyable(const LLUUID & item_id);
 

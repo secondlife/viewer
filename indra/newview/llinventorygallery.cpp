@@ -46,6 +46,7 @@
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
 #include "llmarketplacefunctions.h"
+#include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
@@ -901,23 +902,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             // Note: on Mac laptop keyboards, backspace and delete are one and the same
             if (mSelectedItemID.notNull())
             {
-                LLViewerInventoryCategory* category = gInventory.getCategory(mSelectedItemID);
-                if (category)
-                {
-                    if (get_is_category_removable(&gInventory, mSelectedItemID))
-                    {
-                        gInventory.removeCategory(mSelectedItemID);
-                        handled = TRUE;
-                    }
-                }
-                else
-                {
-                    if (get_is_item_removable(&gInventory, mSelectedItemID))
-                    {
-                        gInventory.removeItem(mSelectedItemID);
-                        handled = TRUE;
-                    }
-                }
+                deleteSelection();
             }
             break;
 
@@ -1323,6 +1308,46 @@ BOOL LLInventoryGallery::canPaste() const
         }
     }
     return TRUE;
+}
+
+void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        LLInventoryObject* obj = gInventory.getObject(selected_id);
+        if (!obj)
+        {
+            return;
+        }
+        if (obj->getType() == LLAssetType::AT_CATEGORY)
+        {
+            if (get_is_category_removable(&gInventory, selected_id))
+            {
+                gInventory.removeCategory(selected_id);
+            }
+        }
+        else
+        {
+            if (get_is_item_removable(&gInventory, selected_id))
+            {
+                gInventory.removeItem(selected_id);
+            }
+        }
+    }
+}
+
+void LLInventoryGallery::deleteSelection()
+{
+    if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+    {
+        LLNotifications::instance().setIgnored("DeleteItems", false);
+        LLInventoryAction::sDeleteConfirmationDisplayed = true;
+    }
+
+    LLSD args;
+    args["QUESTION"] = LLTrans::getString("DeleteItem");
+    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemID));
 }
 
 void LLInventoryGallery::claimEditHandler()
