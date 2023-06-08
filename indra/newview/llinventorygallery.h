@@ -45,7 +45,7 @@ class LLInventoryGalleryContextMenu;
 
 typedef boost::function<void()> callback_t;
 
-class LLInventoryGallery : public LLPanel
+class LLInventoryGallery : public LLPanel, public LLEditMenuHandler
 {
 public:
 
@@ -138,6 +138,19 @@ public:
     void handleModifiedFilter();
     LLScrollContainer* getScrollableContainer() { return mScrollPanel; }
     LLInventoryGalleryItem* getSelectedItem();
+
+    // Copy & paste (LLEditMenuHandler)
+    void	copy() override;
+    BOOL	canCopy() const override;
+
+    void	cut() override;
+    BOOL	canCut() const override;
+
+    void paste() override;
+    BOOL canPaste() const override;
+
+    void claimEditHandler();
+    static bool isItemCopyable(const LLUUID & item_id);
 
 protected:
 

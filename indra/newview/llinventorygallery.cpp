@@ -29,6 +29,7 @@
 #include "llinventorygallery.h"
 #include "llinventorygallerymenu.h"
 
+#include "llclipboard.h"
 #include "llcommonutils.h"
 #include "lliconctrl.h"
 #include "llinventorybridge.h"
@@ -133,6 +134,11 @@ BOOL LLInventoryGallery::postBuild()
 
 LLInventoryGallery::~LLInventoryGallery()
 {
+    if (gEditMenuHandler == this)
+    {
+        gEditMenuHandler = NULL;
+    }
+
     delete mInventoryGalleryMenu;
     delete mRootGalleryMenu;
     delete mFilter;
@@ -1009,6 +1015,7 @@ void LLInventoryGallery::moveUp()
                 LLUUID item_id = item->getUUID();
                 changeItemSelection(item_id, true);
                 item->setFocus(TRUE);
+                claimEditHandler();
             }
         }
     }
@@ -1031,6 +1038,7 @@ void LLInventoryGallery::moveDown()
                 LLUUID item_id = item->getUUID();
                 changeItemSelection(item_id, true);
                 item->setFocus(TRUE);
+                claimEditHandler();
             }
         }
     }
@@ -1056,6 +1064,7 @@ void LLInventoryGallery::moveLeft()
             LLUUID item_id = item->getUUID();
             changeItemSelection(item_id, true);
             item->setFocus(TRUE);
+            claimEditHandler();
         }
     }
 }
@@ -1079,6 +1088,7 @@ void LLInventoryGallery::moveRight()
             LLUUID item_id = item->getUUID();
             changeItemSelection(item_id, true);
             item->setFocus(TRUE);
+            claimEditHandler();
         }
     }
 }
@@ -1152,6 +1162,227 @@ void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
 LLInventoryGalleryItem* LLInventoryGallery::getSelectedItem()
 {
     return mItemMap[mSelectedItemID];
+}
+
+void LLInventoryGallery::copy()
+{
+    LLClipboard::instance().reset();
+    if (getVisible() && getEnabled() && mSelectedItemID.notNull())
+    {
+        LLClipboard::instance().addToClipboard(mSelectedItemID);
+    }
+    mFilterSubString.clear();
+}
+
+BOOL LLInventoryGallery::canCopy() const
+{
+    if (!getVisible() || !getEnabled() || mSelectedItemID.isNull())
+    {
+        return FALSE;
+    }
+
+    if (!isItemCopyable(mSelectedItemID))
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+void LLInventoryGallery::cut()
+{
+    // clear the inventory clipboard
+    LLClipboard::instance().reset();
+    if (getVisible() && getEnabled() && mSelectedItemID.notNull())
+    {
+        // todo: fade out selected item
+        LLClipboard::instance().setCutMode(true);
+        LLClipboard::instance().addToClipboard(mSelectedItemID);
+    }
+    mFilterSubString.clear();
+}
+
+BOOL LLInventoryGallery::canCut() const
+{
+    if (!getVisible() || !getEnabled() || mSelectedItemID.isNull())
+    {
+        return FALSE;
+    }
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedItemID);
+    if (cat)
+    {
+        if (!get_is_category_removable(&gInventory, mSelectedItemID))
+        {
+            return FALSE;
+        }
+    }
+    else if (!get_is_item_removable(&gInventory, mSelectedItemID))
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+void LLInventoryGallery::paste()
+{
+    const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    if (gInventory.isObjectDescendentOf(mSelectedItemID, marketplacelistings_id))
+    {
+        return;
+    }
+
+    LLInventoryObject* obj = gInventory.getObject(mSelectedItemID);
+    bool is_folder = obj && (obj->getType() == LLAssetType::AT_CATEGORY);
+    LLUUID dest = is_folder ? mSelectedItemID : mFolderID;
+    bool is_cut_mode = LLClipboard::instance().isCutMode();
+
+    std::vector<LLUUID> objects;
+    LLClipboard::instance().pasteFromClipboard(objects);
+    for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
+    {
+        const LLUUID& item_id = (*iter);
+        if (gInventory.isObjectDescendentOf(item_id, marketplacelistings_id) && (LLMarketplaceData::instance().isInActiveFolder(item_id) ||
+                                                                                 LLMarketplaceData::instance().isListedAndActive(item_id)))
+        {
+            return;
+        }
+        LLViewerInventoryCategory* cat = gInventory.getCategory(item_id);
+        if (cat)
+        {
+            if (is_cut_mode)
+            {
+                gInventory.changeCategoryParent(cat, dest, false);
+            }
+            else
+            {
+                copy_inventory_category(&gInventory, cat, dest);
+            }
+        }
+        else
+        {
+            LLViewerInventoryItem* item = gInventory.getItem(item_id);
+            if (item)
+            {
+                if (is_cut_mode)
+                {
+                    gInventory.changeItemParent(item, dest, false);
+                }
+                else
+                {
+                    if (item->getIsLinkType())
+                    {
+                        link_inventory_object(dest, item_id,
+                                              LLPointer<LLInventoryCallback>(NULL));
+                    }
+                    else
+                    {
+                        copy_inventory_item(
+                            gAgent.getID(),
+                            item->getPermissions().getOwner(),
+                            item->getUUID(),
+                            dest,
+                            std::string(),
+                            LLPointer<LLInventoryCallback>(NULL));
+                    }
+                }
+            }
+        }
+    }
+    // todo: scroll to item on arrival
+    LLClipboard::instance().setCutMode(false);
+}
+
+BOOL LLInventoryGallery::canPaste() const
+{
+    // Return FALSE on degenerated cases: empty clipboard, no inventory, no agent
+    if (!LLClipboard::instance().hasContents())
+    {
+        return FALSE;
+    }
+
+    // In cut mode, whatever is on the clipboard is always pastable
+    if (LLClipboard::instance().isCutMode())
+    {
+        return TRUE;
+    }
+
+    // In normal mode, we need to check each element of the clipboard to know if we can paste or not
+    std::vector<LLUUID> objects;
+    LLClipboard::instance().pasteFromClipboard(objects);
+    S32 count = objects.size();
+    for (S32 i = 0; i < count; i++)
+    {
+        const LLUUID& item_id = objects.at(i);
+
+        // Each item must be copyable to be pastable
+        if (!isItemCopyable(item_id))
+        {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+void LLInventoryGallery::claimEditHandler()
+{
+    gEditMenuHandler = this;
+}
+
+bool LLInventoryGallery::isItemCopyable(const LLUUID & item_id)
+{
+    const LLInventoryCategory* cat = gInventory.getCategory(item_id);
+    if (cat)
+    {
+        // Folders are copyable if items in them are, recursively, copyable.
+        // Get the content of the folder
+        LLInventoryModel::cat_array_t* cat_array;
+        LLInventoryModel::item_array_t* item_array;
+        gInventory.getDirectDescendentsOf(item_id, cat_array, item_array);
+
+        // Check the items
+        LLInventoryModel::item_array_t item_array_copy = *item_array;
+        for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+        {
+            LLInventoryItem* item = *iter;
+            if (!isItemCopyable(item->getUUID()))
+            {
+                return false;
+            }
+        }
+
+        // Check the folders
+        LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+        for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+        {
+            LLViewerInventoryCategory* category = *iter;
+            if (!isItemCopyable(category->getUUID()))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    LLViewerInventoryItem* item = gInventory.getItem(item_id);
+    if (item)
+    {
+        // Can't copy worn objects.
+        // Worn objects are tied to their inworld conterparts
+        // Copy of modified worn object will return object with obsolete asset and inventory
+        if (get_is_item_worn(item_id))
+        {
+            return false;
+        }
+
+        static LLCachedControl<bool> inventory_linking(gSavedSettings, "InventoryLinking", true);
+        return (item->getIsLinkType() && inventory_linking)
+            || item->getPermissions().allowCopyBy(gAgent.getID());
+    }
+
+    return false;
 }
 
 void LLInventoryGallery::updateMessageVisibility()
@@ -1666,6 +1897,7 @@ void LLInventoryGalleryItem::setSelected(bool value)
 BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
+    mGallery->claimEditHandler();
 
     gFocusMgr.setMouseCapture(this);
     S32 screen_x;
@@ -1678,6 +1910,8 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
+    mGallery->claimEditHandler();
+
     return LLUICtrl::handleRightMouseDown(x, y, mask);
 }
 
@@ -1763,7 +1997,6 @@ BOOL LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
     BOOL handled = FALSE;
     switch (key)
     {
-
         case KEY_LEFT:
             mGallery->moveLeft();
             handled = true;

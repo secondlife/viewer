@@ -134,20 +134,10 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("cut" == action)
     {
-            bool allow = false;
-            if(is_folder)
-            {
-                allow = get_is_category_removable(&gInventory, selected_id);
-            }
-            else
-            {
-                allow = get_is_item_removable(&gInventory, selected_id);
-            }
-            if(allow)
-            {
-                LLClipboard::instance().setCutMode(true);
-                LLClipboard::instance().addToClipboard(selected_id);
-            }
+        if (mGallery->canCut())
+        {
+            mGallery->cut();
+        }
     }
     else if ("paste" == action)
     {
@@ -227,19 +217,9 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("copy" == action)
     {
-        if(is_folder)
+        if (mGallery->canCopy())
         {
-            LLClipboard::instance().reset();
-            LLClipboard::instance().addToClipboard(selected_id);
-        }
-        else
-        {
-            LLViewerInventoryItem* inv_item = gInventory.getItem(selected_id);
-            if (inv_item && inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()) && !get_is_item_worn(selected_id))
-            {
-                LLClipboard::instance().reset();
-                LLClipboard::instance().addToClipboard(selected_id);
-            }
+            mGallery->copy();
         }
     }
     else if ("paste_link" == action)
