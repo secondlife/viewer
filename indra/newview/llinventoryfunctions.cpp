@@ -96,6 +96,7 @@
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 std::list<LLUUID> LLInventoryAction::sMarketplaceFolders;
+bool LLInventoryAction::sDeleteConfirmationDisplayed = false;
 
 // Helper function : callback to update a folder after inventory action happened in the background
 void update_folder_cb(const LLUUID& dest_folder)
@@ -2940,7 +2941,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     
 	if ("delete" == action)
 	{
-		static bool sDisplayedAtSession = false;
 		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
 		bool marketplacelistings_item = false;
 		LLAllDescendentsPassedFilter f;
@@ -2964,10 +2964,10 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		}
 		else
 		{
-			if (!sDisplayedAtSession) // ask for the confirmation at least once per session
+			if (!sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
 			{
 				LLNotifications::instance().setIgnored("DeleteItems", false);
-				sDisplayedAtSession = true;
+				sDeleteConfirmationDisplayed = true;
 			}
 
 			LLSD args;

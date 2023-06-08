@@ -551,7 +551,7 @@ struct LLInventoryAction
 
     static void saveMultipleTextures(const std::vector<std::string>& filenames, std::set<LLFolderViewItem*> selected_items, LLInventoryModel* model);
 
-	static const int sConfirmOnDeleteItemsNumber;
+    static bool sDeleteConfirmationDisplayed;
 
 private:
 	static void buildMarketplaceFolders(LLFolderView* root);

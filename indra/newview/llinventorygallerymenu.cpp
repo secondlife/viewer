@@ -211,6 +211,12 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("delete" == action)
     {
+        if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+        {
+            LLNotifications::instance().setIgnored("DeleteItems", false);
+            LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        }
+
         LLSD args;
         args["QUESTION"] = LLTrans::getString("DeleteItem");
         LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGalleryContextMenu::onDelete, _1, _2, selected_id));
