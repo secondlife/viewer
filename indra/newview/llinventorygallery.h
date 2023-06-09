@@ -152,6 +152,7 @@ public:
     // Copy & paste & delete
     static void onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id);
     void deleteSelection();
+    bool canDeleteSelection();
     void pasteAsLink();
 
     void claimEditHandler();

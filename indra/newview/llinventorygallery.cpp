@@ -934,7 +934,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
 #endif
             // Delete selected items if delete or backspace key hit on the inventory panel
             // Note: on Mac laptop keyboards, backspace and delete are one and the same
-            if (mSelectedItemID.notNull())
+            if (canDeleteSelection())
             {
                 deleteSelection();
             }
@@ -1409,6 +1409,30 @@ void LLInventoryGallery::deleteSelection()
     LLSD args;
     args["QUESTION"] = LLTrans::getString("DeleteItem");
     LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemID));
+}
+
+bool LLInventoryGallery::canDeleteSelection()
+{
+    if (mSelectedItemID.isNull())
+    {
+        return false;
+    }
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedItemID);
+    if (cat)
+    {
+        if (!get_is_category_removable(&gInventory, mSelectedItemID))
+        {
+            return false;
+        }
+    }
+    else if (!get_is_item_removable(&gInventory, mSelectedItemID))
+    {
+        return false;
+    }
+
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+    return !gInventory.isObjectDescendentOf(mSelectedItemID, trash_id);
 }
 
 void LLInventoryGallery::pasteAsLink()
