@@ -155,16 +155,21 @@ public:
     void claimEditHandler();
     static bool isItemCopyable(const LLUUID & item_id);
 
+    BOOL baseHandleDragAndDrop(LLUUID dest_id, BOOL drop, EDragAndDropType cargo_type,
+                               void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
+
 protected:
 
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
 
     void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
     bool checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring);
+    static void onIdle(void* userdata);
 
     LLInventoryCategoriesObserver*     mCategoriesObserver;
     LLThumbnailsObserver*              mThumbnailsObserver;
     LLGalleryGestureObserver*          mGestureObserver;
+    LLInventoryObserver*               mInventoryObserver;
     LLUUID                             mSelectedItemID;
     LLUUID                             mItemToSelect;
     bool                               mIsInitialized;
@@ -211,6 +216,7 @@ private:
     int mRowCount;
     int mItemsAddedCount;
     bool mGalleryCreated;
+    bool mNeedsArrange;
 
     /* Params */
     int mRowPanelHeight;
