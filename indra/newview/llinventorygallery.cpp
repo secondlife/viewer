@@ -1133,7 +1133,7 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
     {
         return;
     }
-    if (mNeedsArrange && item_id.notNull() && scroll_to_selection)
+    if (mNeedsArrange && item_id.notNull())
     {
         mItemToSelect = item_id;
         return;

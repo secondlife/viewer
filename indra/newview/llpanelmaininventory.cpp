@@ -2425,7 +2425,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
             }
         }
 
-        if (mCombInvUUIDNeedsRename.notNull())
+        if (mCombInvUUIDNeedsRename.notNull() && mCombinationInventoryPanel->areViewsInitialized())
         {
             mCombinationInventoryPanel->setSelectionByID(mCombInvUUIDNeedsRename, TRUE);
             mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
