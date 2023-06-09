@@ -18,7 +18,7 @@
      follows="all"
      height="400"
      layout="topleft"
-     left="0"
+     left="3"
      single_expansion="true"
      top="0"
      name="wearables_accordion"

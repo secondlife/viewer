@@ -126,6 +126,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	
 	LLRect horizontal_scroll_rect = mInnerRect;
 	horizontal_scroll_rect.mTop = horizontal_scroll_rect.mBottom + scrollbar_size;
+	horizontal_scroll_rect.mLeft += 3;
 	sbparams.name("scrollable horizontal");
 	sbparams.rect(horizontal_scroll_rect);
 	sbparams.orientation(LLScrollbar::HORIZONTAL);

@@ -294,16 +294,17 @@ void LLInventoryPanel::initFolderRoot()
     mFolderRoot.get()->setEnableRegistrar(&mEnableCallbackRegistrar);
     
     // Scroller
-        LLRect scroller_view_rect = getRect();
-        scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+    LLRect scroller_view_rect = getRect();
+    scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+	scroller_view_rect.mTop -= 3;
     LLScrollContainer::Params scroller_params(mParams.scroll());
-        scroller_params.rect(scroller_view_rect);
-        mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
-        addChild(mScroller);
-        mScroller->addChild(mFolderRoot.get());
-        mFolderRoot.get()->setScrollContainer(mScroller);
-        mFolderRoot.get()->setFollowsAll();
-        mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
+    scroller_params.rect(scroller_view_rect);
+    mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+    addChild(mScroller);
+    mScroller->addChild(mFolderRoot.get());
+    mFolderRoot.get()->setScrollContainer(mScroller);
+    mFolderRoot.get()->setFollowsAll();
+    mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
 
     if (mSelectionCallback)
     {
