@@ -75,6 +75,7 @@ void update_all_marketplace_count();
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name);
 
 void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id = LLUUID::null, bool move_no_copy_items = false);
+void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id, bool move_no_copy_items, inventory_func_type callback);
 
 void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& root_copy_id, bool move_no_copy_items);
 

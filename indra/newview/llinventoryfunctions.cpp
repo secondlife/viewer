@@ -401,14 +401,32 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 }
 
 void copy_inventory_category(LLInventoryModel* model,
-							 LLViewerInventoryCategory* cat,
-							 const LLUUID& parent_id,
-							 const LLUUID& root_copy_id,
-							 bool move_no_copy_items )
+                             LLViewerInventoryCategory* cat,
+                             const LLUUID& parent_id,
+                             const LLUUID& root_copy_id,
+                             bool move_no_copy_items)
+{
+    // Create the initial folder
+    inventory_func_type func = [model, cat, root_copy_id, move_no_copy_items](const LLUUID& new_id)
+    {
+        copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
+    };
+    gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
+}
+
+void copy_inventory_category(LLInventoryModel* model,
+                             LLViewerInventoryCategory* cat,
+                             const LLUUID& parent_id,
+                             const LLUUID& root_copy_id,
+                             bool move_no_copy_items,
+                             inventory_func_type callback)
 {
 	// Create the initial folder
-	// D567 needs to handle new fields
-	inventory_func_type func = boost::bind(&copy_inventory_category_content, _1, model, cat, root_copy_id, move_no_copy_items);
+    inventory_func_type func = [model, cat, root_copy_id, move_no_copy_items, callback](const LLUUID &new_id)
+    {
+        copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
+        callback(new_id);
+    };
 	gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
 }
 

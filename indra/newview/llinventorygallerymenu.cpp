@@ -71,8 +71,6 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     LLInventoryObject* obj = gInventory.getObject(selected_id);
     if(!obj) return;
 
-    bool is_folder = (obj->getType() == LLAssetType::AT_CATEGORY);
-
     if ("open_selected_folder" == action)
     {
         mGallery->setRootFolder(selected_id);
@@ -141,72 +139,9 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("paste" == action)
     {
+        if (mGallery->canPaste())
         {
-            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
-            if(gInventory.isObjectDescendentOf(selected_id, marketplacelistings_id))
-            {
-                return;
-            }
-
-            bool is_cut_mode = (LLClipboard::instance().isCutMode());
-            {
-                LLUUID dest = is_folder ?  selected_id : obj->getParentUUID();
-                
-                std::vector<LLUUID> objects;
-                LLClipboard::instance().pasteFromClipboard(objects);
-                for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
-                {
-                    const LLUUID& item_id = (*iter);
-                    if(gInventory.isObjectDescendentOf(item_id, marketplacelistings_id) && (LLMarketplaceData::instance().isInActiveFolder(item_id) ||
-                        LLMarketplaceData::instance().isListedAndActive(item_id)))
-                    {
-                        return;
-                    }
-                    LLViewerInventoryCategory* cat = gInventory.getCategory(item_id);
-                    if (cat)
-                    {
-                        if(is_cut_mode)
-                        {
-                            gInventory.changeCategoryParent(cat, dest, false);
-                        }
-                        else
-                        {
-                            copy_inventory_category(&gInventory, cat, dest);
-                        }
-                    }
-                    else
-                    {
-                        LLViewerInventoryItem* item = gInventory.getItem(item_id);
-                        if (item)
-                        {
-                            if(is_cut_mode)
-                            {
-                                gInventory.changeItemParent(item, dest, false);
-                            }
-                            else
-                            {
-                                if (item->getIsLinkType())
-                                {
-                                    link_inventory_object(dest, item_id,
-                                        LLPointer<LLInventoryCallback>(NULL));
-                                }
-                                else
-                                {
-                                    copy_inventory_item(
-                                                        gAgent.getID(),
-                                                        item->getPermissions().getOwner(),
-                                                        item->getUUID(),
-                                                        dest,
-                                                        std::string(),
-                                                        LLPointer<LLInventoryCallback>(NULL));
-                                }
-                            }
-                        }
-                    }
-                }
-                LLClipboard::instance().setCutMode(false);
-            }
-            
+            mGallery->paste();
         }
     }
     else if ("delete" == action)
@@ -222,33 +157,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("paste_link" == action)
     {
-        const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-        const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
-        const LLUUID &my_outifts_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-
-        const BOOL move_is_into_current_outfit = (selected_id == current_outfit_id);
-        const BOOL move_is_into_my_outfits = (selected_id == my_outifts_id) || gInventory.isObjectDescendentOf(selected_id, my_outifts_id);
-        const BOOL move_is_into_marketplacelistings = gInventory.isObjectDescendentOf(selected_id, marketplacelistings_id);
-
-        if (move_is_into_marketplacelistings || move_is_into_current_outfit || move_is_into_my_outfits)
-        {
-            return;
-        }
-        LLUUID dest = is_folder ?  selected_id : obj->getParentUUID();
-        std::vector<LLUUID> objects;
-        LLClipboard::instance().pasteFromClipboard(objects);
-        for (std::vector<LLUUID>::const_iterator iter = objects.begin();
-             iter != objects.end();
-             ++iter)
-        {
-            const LLUUID &object_id = (*iter);
-            if (LLConstPointer<LLInventoryObject> link_obj = gInventory.getObject(object_id))
-            {
-                link_inventory_object(dest, link_obj, LLPointer<LLInventoryCallback>(NULL));
-            }
-        }
-
-        LLClipboard::instance().setCutMode(false);
+        mGallery->pasteAsLink();
     }
     else if ("rename" == action)
     {
