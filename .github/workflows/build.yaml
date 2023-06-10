@@ -92,7 +92,7 @@ jobs:
             echo "Python location: $PYTHON"
           fi
 
-          autobuild configure -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
+          autobuild configure --id "${{ github.run_id }}" -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
           autobuild  build --no-configure
 
           # Find artifacts
