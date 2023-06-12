@@ -71,6 +71,7 @@ flat out float vary_sign;
 out vec3 vary_normal;
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 
 void main()
@@ -102,9 +103,11 @@ void main()
   	vec3 t = normal_matrix * tangent.xyz;
 #endif //HAS_SKIN
 
-    vary_tangent = normalize(t);
+    n = normalize(n);
+
+    vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0));
     vary_sign = tangent.w;
-    vary_normal = normalize(n);
+    vary_normal = n;
 
 	vertex_color = diffuse_color;
 

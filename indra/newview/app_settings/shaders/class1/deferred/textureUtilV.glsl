@@ -76,3 +76,47 @@ vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl
 
     return texcoord;
 }
+
+// Take the rotation only from both transforms and apply to the tangent. This
+// accounts for the change of the topology of the normal texture when a texture
+// rotation is applied to it.
+// *HACK: Assume the imported GLTF model did not have both normal texture
+// transforms and tangent vertices. The use of this function is inconsistent
+// with the GLTF sample viewer when that is the case. See getNormalInfo in
+// https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Viewer/47a191931461a6f2e14de48d6da0f0eb6ec2d147/source/Renderer/shaders/material_info.glsl
+// We may want to account for this case during GLTF model import.
+// -Cosmic,2023-06-06
+vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform)
+{
+    vec2 weights = vec2(0, 1);
+
+    // Apply texture animation first to avoid shearing and other artifacts (rotation only)
+    mat2 sl_rot_scale;
+    sl_rot_scale[0][0] = sl_animation_transform[0][0];
+    sl_rot_scale[0][1] = sl_animation_transform[0][1];
+    sl_rot_scale[1][0] = sl_animation_transform[1][0];
+    sl_rot_scale[1][1] = sl_animation_transform[1][1];
+    weights = sl_rot_scale * weights;
+    // Remove scale
+    weights = normalize(weights);
+
+    // Convert to left-handed coordinate system
+    weights.y = -weights.y;
+
+    // Apply KHR_texture_transform (rotation only)
+    float khr_rotation = khr_gltf_transform[0].z;
+    mat2 khr_rotation_mat = mat2(
+        cos(khr_rotation),-sin(khr_rotation),
+        sin(khr_rotation), cos(khr_rotation)
+    );
+    weights = khr_rotation_mat * weights;
+
+    // Convert back to right-handed coordinate system
+    weights.y = -weights.y;
+
+    // Similar to the MikkTSpace-compatible method of extracting the binormal
+    // from the normal and tangent, as seen in the fragment shader
+    vec3 vertex_binormal = vertex_tangent.w * cross(vertex_normal, vertex_tangent.xyz);
+
+    return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);
+}
