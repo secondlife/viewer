@@ -1486,6 +1486,10 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 		{
 			fv->startRenamingSelectedItem();
 		}
+        else
+        {
+            LL_DEBUGS("Inventory") << "Failed to start renemr, no items selected" << LL_ENDL;
+        }
 	}
 
 	std::set<LLFolderViewItem*> selected_items = mFolderRoot.get()->getSelectionList();
@@ -1838,6 +1842,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
         LLPanelMainInventory* main_panel = inventory_panel->getMainInventoryPanel();
         if(main_panel->isSingleFolderMode() && main_panel->isGalleryViewMode())
         {
+            LL_DEBUGS("Inventory") << "Opening gallery panel for item" << obj_id << LL_ENDL;
             main_panel->setGallerySelection(obj_id);
             return;
         }
@@ -1850,6 +1855,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
         const LLInventoryObject *obj = gInventory.getObject(obj_id);
         if (obj)
         {
+            LL_DEBUGS("Inventory") << "Opening main inventory panel for item" << obj_id << LL_ENDL;
             main_inventory->setSingleFolderViewRoot(obj->getParentUUID(), false);
             main_inventory->setGallerySelection(obj_id);
             return;
@@ -1859,7 +1865,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 
 	if (active_panel)
 	{
-		LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
+		LL_DEBUGS("Messaging", "Inventory") << "Highlighting" << obj_id  << LL_ENDL;
 
 		if (reset_filter)
 		{

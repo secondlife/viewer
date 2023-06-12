@@ -199,7 +199,7 @@ BOOL LLPanelMainInventory::postBuild()
 	}
 	// Now load the stored settings from disk, if available.
 	std::string filterSaveName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME));
-	LL_INFOS() << "LLPanelMainInventory::init: reading from " << filterSaveName << LL_ENDL;
+	LL_INFOS("Inventory") << "LLPanelMainInventory::init: reading from " << filterSaveName << LL_ENDL;
 	llifstream file(filterSaveName.c_str());
 	LLSD savedFilterState;
 	if (file.is_open())
@@ -510,8 +510,6 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
             {
                 if(isCombinationViewMode())
                 {
-                    //show layout and inventory panel before adding the item
-                    //to avoid wrong position of the 'renamer'
                     mForceShowInvLayout = true;
                 }
 
@@ -524,6 +522,13 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                     {
                         // might need to refresh visibility, delay rename
                         panel->mCombInvUUIDNeedsRename = new_id;
+
+                        if (panel->isCombinationViewMode())
+                        {
+                            panel->mForceShowInvLayout = true;
+                        }
+
+                        LL_DEBUGS("Inventory") << "Done creating inventory: " << new_id << LL_ENDL;
                     }
                 };
                 menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
@@ -541,6 +546,7 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                     if (panel)
                     {
                         panel->setGallerySelection(new_id);
+                        LL_DEBUGS("Inventory") << "Done creating inventory: " << new_id << LL_ENDL;
                     }
                 }
             };

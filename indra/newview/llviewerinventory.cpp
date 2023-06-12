@@ -1774,6 +1774,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                 {
                     panel->setSelectionByID(new_category_id, TRUE);
                 }
+                LL_DEBUGS(LOG_INV) << "Done creating inventory: " << new_category_id << LL_ENDL;
             };
         }
         else if (created_cb != NULL)
