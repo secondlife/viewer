@@ -2425,14 +2425,17 @@ void LLPanelMainInventory::updateCombinationVisibility()
                 mCombinationListLayoutPanel->setShape(list_latout, true /*tell stack to account for new shape*/);
             }
         }
+    }
 
-        if (mCombInvUUIDNeedsRename.notNull() && mCombinationInventoryPanel->areViewsInitialized())
-        {
-            mCombinationInventoryPanel->setSelectionByID(mCombInvUUIDNeedsRename, TRUE);
-            mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
-            mCombinationInventoryPanel->getRootFolder()->setNeedsAutoRename(TRUE);
-            mCombInvUUIDNeedsRename.setNull();
-        }
+    if (mSingleFolderMode
+        && !isGalleryViewMode()
+        && mCombInvUUIDNeedsRename.notNull()
+        && mCombinationInventoryPanel->areViewsInitialized())
+    {
+        mCombinationInventoryPanel->setSelectionByID(mCombInvUUIDNeedsRename, TRUE);
+        mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
+        mCombinationInventoryPanel->getRootFolder()->setNeedsAutoRename(TRUE);
+        mCombInvUUIDNeedsRename.setNull();
     }
 }
 
