@@ -765,8 +765,18 @@ namespace action_give_inventory
 	static bool is_give_inventory_acceptable(LLInventoryPanel* panel = NULL)
 	{
 		// check selection in the panel
-		const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs(panel);
-		if (inventory_selected_uuids.empty()) return false; // nothing selected
+        std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs(panel);
+		if (inventory_selected_uuids.empty())
+        {
+            if(panel && panel->getRootFolder() && panel->getRootFolder()->isSingleFolderMode())
+            {
+                inventory_selected_uuids.insert(panel->getRootFolderID());
+            }
+            else
+            {
+                return false; // nothing selected
+            }
+        }
 
         return is_give_inventory_acceptable_ids(inventory_selected_uuids);
 	}
@@ -940,11 +950,18 @@ namespace action_give_inventory
     static void give_inventory(const uuid_vec_t& avatar_uuids, const std::vector<LLAvatarName> avatar_names, LLInventoryPanel* panel = NULL)
     {
         llassert(avatar_names.size() == avatar_uuids.size());
+        std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs(panel);;
 
-        const std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs(panel);
         if (inventory_selected_uuids.empty())
         {
-            return;
+            if(panel && panel->getRootFolder() && panel->getRootFolder()->isSingleFolderMode())
+            {
+                inventory_selected_uuids.insert(panel->getRootFolderID());
+            }
+            else
+            {
+                return;
+            }
         }
         give_inventory_ids(avatar_uuids, avatar_names, inventory_selected_uuids);
     }

@@ -1471,6 +1471,16 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 			mCallbackRegistrar->popScope();
 		}
 	}
+
+    bool item_clicked = false;
+    for (selected_items_t::iterator item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+    {
+        item_clicked |= (*item_it)->getRect().pointInRect(x, y);
+    }
+    if(!item_clicked && mSingleFolderMode)
+    {
+        clearSelection();
+    }
 	bool hide_folder_menu = mSuppressFolderMenu && isFolderSelected();
 	if (menu && (mSingleFolderMode || (handled
 		&& ( count > 0 && (hasVisibleChildren()) ))) && // show menu only if selected items are visible

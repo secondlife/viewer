@@ -2304,15 +2304,7 @@ void LLInventorySingleFolderPanel::doCreate(const LLSD& userdata)
 
 void LLInventorySingleFolderPanel::doShare()
 {
-    if(mFolderRoot.get()->getCurSelectedItem() == NULL)
-    {
-        std::set<LLUUID> uuids{mFolderID};
-        LLAvatarActions::shareWithAvatars(uuids, gFloaterView->getParentFloater(this));
-    }
-    else
-    {
-        LLAvatarActions::shareWithAvatars(this);
-    }
+    LLAvatarActions::shareWithAvatars(this);
 }
 /************************************************************************/
 /* Asset Pre-Filtered Inventory Panel related class                     */
