@@ -1503,9 +1503,10 @@ void LLPanelMainInventory::onAddButtonClick()
 
 void LLPanelMainInventory::setActivePanel()
 {
+    // Todo: should cover gallery mode in some way
     if(mSingleFolderMode && isListViewMode())
     {
-        mActivePanel = getChild<LLInventoryPanel>("single_folder_inv");
+        mActivePanel = getChild<LLInventoryPanel>("comb_single_folder_inv");
     }
     else if(mSingleFolderMode && isCombinationViewMode())
     {

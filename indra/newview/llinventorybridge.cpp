@@ -925,7 +925,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
         addDeleteContextMenuOptions(items, disabled_items);
     }
 
-	if (!isPanelActive("All Items") && !isPanelActive("single_folder_inv") && !isPanelActive("comb_single_folder_inv"))
+	if (!isPanelActive("All Items") && !isPanelActive("comb_single_folder_inv"))
 	{
 		items.push_back(std::string("Show in Main Panel"));
 	}
@@ -4419,7 +4419,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
     {
         items.push_back(std::string("open_in_new_window"));
         items.push_back(std::string("Open Folder Separator"));
-        if(isPanelActive("single_folder_inv"))
+        if(isPanelActive("comb_single_folder_inv"))
         {
             items.push_back(std::string("open_in_current_window"));
         }
