@@ -387,7 +387,7 @@ vec3 pbrIbl(vec3 diffuseColor,
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
 	vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRough);
-	vec3 diffuseLight = irradiance*1.25;  //magic 1.25 to balance with legacy materials
+	vec3 diffuseLight = irradiance;
 	vec3 specularLight = radiance;
     
 	vec3 diffuse = diffuseLight * diffuseColor;
@@ -563,7 +563,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     vec3 ibl_spec;
     color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, ibl_spec);
     
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), specContrib) * sunlit * 3.9 * scol; //magic number to balance with legacy materials
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), specContrib) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
     specContrib *= sunlit * 2.75 * scol;
     specContrib += ibl_spec;
 

@@ -3014,7 +3014,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
         return nullptr; // not ready for updating
     }
 
-    llassert(!mTextureId.isNull());
+    //llassert(!mTextureId.isNull());
     // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
     LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, USE_MIPMAPS );
  

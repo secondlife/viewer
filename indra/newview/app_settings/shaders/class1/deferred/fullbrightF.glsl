@@ -44,7 +44,7 @@ vec3 legacy_adjust_fullbright(vec3 c);
 vec3 legacy_adjust(vec3 c);
 vec3 linear_to_srgb(vec3 cl);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 #ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
@@ -85,7 +85,7 @@ void main()
     vec3 amblit;
     vec3 additive;
     vec3 atten;
-    calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten);
 #endif
 
 #ifdef WATER_FOG

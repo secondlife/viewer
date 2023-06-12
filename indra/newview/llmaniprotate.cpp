@@ -1714,6 +1714,7 @@ LLVector3 LLManipRotate::intersectRayWithSphere( const LLVector3& ray_pt, const 
 }
 
 // Utility function.  Should probably be moved to another class.
+// x,y - mouse position in scaled window coordinates (NOT GL viewport coordinates)
 //static
 void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_dir )
 {
@@ -1727,10 +1728,8 @@ void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_
 	}
 	else
 	{
-		*ray_pt = gAgentCamera.getCameraPositionAgent();
-		LLViewerCamera::getInstance()->projectScreenToPosAgent(x, y, ray_dir);
-		*ray_dir -= *ray_pt;
-		ray_dir->normVec();
+    	*ray_pt = gAgentCamera.getCameraPositionAgent();
+        *ray_dir = gViewerWindow->mouseDirectionGlobal(x, y);
 	}
 }
 

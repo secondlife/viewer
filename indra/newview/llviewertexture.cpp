@@ -490,20 +490,6 @@ bool LLViewerTexture::isMemoryForTextureLow()
 }
 
 //static
-bool LLViewerTexture::isMemoryForTextureSuficientlyFree()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    const S32Megabytes DESIRED_FREE_TEXTURE_MEMORY(50);
-    const S32Megabytes DESIRED_FREE_MAIN_MEMORY(200);
-
-    S32Megabytes gpu;
-    S32Megabytes physical;
-    getGPUMemoryForTextures(gpu, physical);
-
-    return (gpu > DESIRED_FREE_TEXTURE_MEMORY); // && (physical > DESIRED_FREE_MAIN_MEMORY);
-}
-
-//static
 void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -3115,7 +3101,8 @@ void LLViewerLODTexture::processTextureStats()
         //
 
         S32 current_discard = getDiscardLevel();
-        if (mBoostLevel < LLGLTexture::BOOST_SCULPTED && current_discard >= 0)
+        if (mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED && 
+            current_discard >= 0)
         {
             if (current_discard < (mDesiredDiscardLevel-1) && !mForceToSaveRawImage)
             { // should scale down

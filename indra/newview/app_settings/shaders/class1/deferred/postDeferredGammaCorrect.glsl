@@ -102,15 +102,11 @@ vec3 toneMap(vec3 color)
 {
 #ifndef NO_POST
     float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
-
+    
     color *= exposure * exp_scale;
 
     color = toneMapACES_Hill(color);
-#else
-    color *= 0.6;
 #endif
-
-    color = linear_to_srgb(color);
 
     return color;
 }
@@ -158,10 +154,10 @@ float noise(vec2 x) {
 
 vec3 legacyGamma(vec3 color)
 {
-    color = 1. - clamp(color, vec3(0.), vec3(1.));
-    color = 1. - pow(color, vec3(gamma)); // s/b inverted already CPU-side
+    vec3 c = 1. - clamp(color, vec3(0.), vec3(1.));
+    c = 1. - pow(c, vec3(gamma)); // s/b inverted already CPU-side
 
-    return color;
+    return c;
 }
 
 void main() 
@@ -169,12 +165,14 @@ void main()
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture(diffuseRect, vary_fragcoord);
 
-    diff.rgb = toneMap(diff.rgb);
-
 #ifdef LEGACY_GAMMA
-#ifndef NO_POST
+    diff.rgb = linear_to_srgb(diff.rgb);
     diff.rgb = legacyGamma(diff.rgb);
+#else
+#ifndef NO_POST
+    diff.rgb = toneMap(diff.rgb);
 #endif
+    diff.rgb = linear_to_srgb(diff.rgb);
 #endif
 
     vec2 tc = vary_fragcoord.xy*screen_res*4.0;

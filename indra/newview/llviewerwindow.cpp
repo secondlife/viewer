@@ -5326,7 +5326,7 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 
     // camera constants for the square, cube map capture image
     camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
-    camera->setView(F_PI_BY_TWO);
+    camera->setViewNoBroadcast(F_PI_BY_TWO);
     camera->yaw(0.0);
     camera->setOrigin(origin);
     camera->setNear(near_clip);

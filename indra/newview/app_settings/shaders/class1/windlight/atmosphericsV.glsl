@@ -38,7 +38,7 @@ void setPositionEye(vec3 v);
 
 vec3 getAdditiveColor();
 
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 void calcAtmospherics(vec3 inPositionEye) {
     vec3 P = inPositionEye;
@@ -48,7 +48,7 @@ void calcAtmospherics(vec3 inPositionEye) {
     vec3 tmpaddlit = vec3(1);
     vec3 tmpattenlit = vec3(1);
 	vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;	
-    calcAtmosphericVars(inPositionEye, light_dir, 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit, false);
+    calcAtmosphericVars(inPositionEye, light_dir, 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit);
     setSunlitColor(tmpsunlit);
     setAmblitColor(tmpamblit);
     setAdditiveColor(tmpaddlit);

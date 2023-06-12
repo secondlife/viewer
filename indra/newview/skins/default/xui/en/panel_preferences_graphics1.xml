@@ -315,6 +315,25 @@ width="120">
       function="Pref.RenderExceptions"/>
   </button>
 
+  <slider
+    control_name="RenderExposure"
+    decimal_digits="1"
+    follows="left|top"
+    height="16"
+    increment="0.1"
+    initial_value="160"
+    label="Brightness (exposure)"
+    label_width="145"
+    layout="topleft"
+    left="30"
+    min_val="0.5"
+    max_val="1.5"
+    name="RenderExposure"
+    show_text="true"
+    top_pad="14"
+    width="260">
+  </slider>
+
 <!-- End of Basic Settings block -->
 
   <button

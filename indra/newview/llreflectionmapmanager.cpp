@@ -915,7 +915,8 @@ void LLReflectionMapManager::updateUniforms()
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
     static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
-    F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance(cloud_shadow_scale);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance(cloud_shadow_scale, should_auto_adjust);
 
     F32 ambscale = gCubeSnapshot && !isRadiancePass() ? 0.f : 1.f;
     F32 radscale = gCubeSnapshot && !isRadiancePass() ? 0.5f : 1.f;
@@ -1205,9 +1206,7 @@ void LLReflectionMapManager::renderDebug()
 
 void LLReflectionMapManager::initReflectionMaps()
 {
-    static LLCachedControl<S32> probe_count(gSavedSettings, "RenderReflectionProbeCount", LL_MAX_REFLECTION_PROBE_COUNT);
-
-    U32 count = llclamp((S32) probe_count, 1, LL_MAX_REFLECTION_PROBE_COUNT);
+    U32 count = LL_MAX_REFLECTION_PROBE_COUNT;
 
     if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {

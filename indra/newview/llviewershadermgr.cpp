@@ -118,7 +118,6 @@ LLGLSLShader		gPathfindingNoNormalsProgram;
 
 //avatar shader handles
 LLGLSLShader		gAvatarProgram;
-LLGLSLShader		gAvatarWaterProgram;
 LLGLSLShader		gAvatarEyeballProgram;
 LLGLSLShader		gImpostorProgram;
 
@@ -222,6 +221,8 @@ LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
+LLGLSLShader            gDeferredPBRAlphaWaterProgram;
+LLGLSLShader            gDeferredSkinnedPBRAlphaWaterProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -256,7 +257,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gSkinnedObjectFullbrightAlphaMaskProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNoColorWaterProgram);
-	mShaderList.push_back(&gAvatarWaterProgram);
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
 	mShaderList.push_back(&gDeferredSoftenProgram);
@@ -296,8 +296,10 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredWLMoonProgram);
     mShaderList.push_back(&gDeferredWLSunProgram);
     mShaderList.push_back(&gDeferredPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredPBRAlphaWaterProgram);
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredSkinnedPBRAlphaWaterProgram);
     mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
     mShaderList.push_back(&gNoPostGammaCorrectProgram);
     mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
@@ -639,8 +641,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled") && gGLManager.mGLVersion > 3.99f;
 
-	S32 probe_count = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
-    S32 probe_level = llclamp(gSavedSettings.getS32("RenderReflectionProbeLevel"), 0, 3);
+	S32 probe_level = llclamp(gSavedSettings.getS32("RenderReflectionProbeLevel"), 0, 3);
 
     if (ambient_kill)
     {
@@ -676,7 +677,6 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	if (has_reflection_probes)
 	{
-		attribs["REFMAP_COUNT"] = std::to_string(probe_count);
         attribs["REFMAP_LEVEL"] = std::to_string(probe_level);
 		attribs["REF_SAMPLE_COUNT"] = "32";
 	}
@@ -1022,6 +1022,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
         gDeferredSkinnedPBRAlphaProgram.unload();
+        gDeferredPBRAlphaWaterProgram.unload();
+        gDeferredSkinnedPBRAlphaWaterProgram.unload();
 
 		return TRUE;
 	}
@@ -1398,6 +1400,62 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
+        if (success)
+        {
+            success = shader->createShader(NULL, NULL);
+        }
+        llassert(success);
+
+        // Alpha Shader Hack
+        // See: LLRender::syncMatrices()
+        shader->mFeatures.calculatesLighting = true;
+        shader->mFeatures.hasLighting = true;
+
+        shader->mRiggedVariant->mFeatures.calculatesLighting = true;
+        shader->mRiggedVariant->mFeatures.hasLighting = true;
+    }
+
+    if (success)
+    {
+        LLGLSLShader* shader = &gDeferredPBRAlphaWaterProgram;
+        shader->mName = "Deferred PBR Alpha Underwater Shader";
+                          
+        shader->mFeatures.calculatesLighting = false;
+        shader->mFeatures.hasLighting = false;
+        shader->mFeatures.isAlphaLighting = true;
+        shader->mFeatures.hasWaterFog = true;
+        shader->mFeatures.hasSrgb = true;
+        shader->mFeatures.encodesNormal = true;
+        shader->mFeatures.calculatesAtmospherics = true;
+        shader->mFeatures.hasAtmospherics = true;
+        shader->mFeatures.hasGamma = true;
+        shader->mFeatures.hasShadows = use_sun_shadow;
+        shader->mFeatures.isDeferred = true; // include deferredUtils
+        shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+        shader->mShaderGroup = LLGLSLShader::SG_WATER;
+
+        shader->mShaderFiles.clear();
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER));
+
+        shader->clearPermutations();
+
+        U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+        shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+        shader->addPermutation("HAS_NORMAL_MAP", "1");
+        shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
+        shader->addPermutation("HAS_EMISSIVE_MAP", "1");
+        shader->addPermutation("USE_VERTEX_COLOR", "1");
+        shader->addPermutation("WATER_FOG", "1");
+
+        if (use_sun_shadow)
+        {
+            shader->addPermutation("HAS_SUN_SHADOW", "1");
+        }
+
+        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaWaterProgram);
         if (success)
         {
             success = shader->createShader(NULL, NULL);
@@ -2856,7 +2914,6 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 	if (mShaderLevel[SHADER_AVATAR] == 0)
 	{
 		gAvatarProgram.unload();
-		gAvatarWaterProgram.unload();
 		gAvatarEyeballProgram.unload();
 		return TRUE;
 	}
@@ -2878,26 +2935,6 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarProgram.mShaderLevel = mShaderLevel[SHADER_AVATAR];
 		success = gAvatarProgram.createShader(NULL, NULL);
 			
-		if (success)
-		{
-			gAvatarWaterProgram.mName = "Avatar Water Shader";
-			gAvatarWaterProgram.mFeatures.hasSkinning = true;
-			gAvatarWaterProgram.mFeatures.calculatesAtmospherics = true;
-			gAvatarWaterProgram.mFeatures.calculatesLighting = true;
-			gAvatarWaterProgram.mFeatures.hasWaterFog = true;
-			gAvatarWaterProgram.mFeatures.hasAtmospherics = true;
-			gAvatarWaterProgram.mFeatures.hasLighting = true;
-			gAvatarWaterProgram.mFeatures.hasAlphaMask = true;
-			gAvatarWaterProgram.mFeatures.disableTextureIndex = true;
-			gAvatarWaterProgram.mShaderFiles.clear();
-			gAvatarWaterProgram.mShaderFiles.push_back(make_pair("avatar/avatarV.glsl", GL_VERTEX_SHADER));
-			gAvatarWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER));
-			// Note: no cloth under water:
-			gAvatarWaterProgram.mShaderLevel = llmin(mShaderLevel[SHADER_AVATAR], 1);	
-			gAvatarWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;				
-			success = gAvatarWaterProgram.createShader(NULL, NULL);
-		}
-
 		/// Keep track of avatar levels
 		if (gAvatarProgram.mShaderLevel != mShaderLevel[SHADER_AVATAR])
 		{

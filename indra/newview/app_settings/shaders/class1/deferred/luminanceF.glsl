@@ -47,6 +47,6 @@ void main()
     tc.y -= 0.1; // HACK - nudge exposure sample down a little bit to favor ground over sky
     vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
     float L = lum(c);
-    frag_color = vec4(L);
+    frag_color = vec4(max(L, 0.0));
 }
 

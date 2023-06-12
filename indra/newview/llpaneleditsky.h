@@ -80,6 +80,7 @@ private:
     void                    onDropletRadiusChanged();
     void                    onIceLevelChanged();
     void                    onReflectionProbeAmbianceChanged();
+    void                    updateGammaLabel();
 
 };
 

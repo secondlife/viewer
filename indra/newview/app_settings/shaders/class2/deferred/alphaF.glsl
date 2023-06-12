@@ -274,6 +274,10 @@ void main()
 
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
 
+#ifdef WATER_FOG
+    color = applyWaterFogViewLinear(pos.xyz, color, sunlit_linear);
+#endif // WATER_FOG
+
     vec4 light = vec4(0,0,0,0);
     
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
@@ -290,11 +294,6 @@ void main()
 #if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
 #endif // !defined(LOCAL_LIGHT_KILL)
-
-
-#ifdef WATER_FOG
-    color = applyWaterFogViewLinear(pos.xyz, color, sunlit_linear);
-#endif // WATER_FOG
 
 #endif // #else // FOR_IMPOSTOR
 
