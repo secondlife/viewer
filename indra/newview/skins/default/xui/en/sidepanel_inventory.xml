@@ -1,137 +1,113 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	  follows="all"
-	  height="570"
-	  label="Things"
-	  layout="topleft"
-	  min_height="350"
-	  min_width="240"
-	  name="objects panel"
-	  width="358">
-    <panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 name="sidepanel_inventory_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="true"
-		 default_tab_group="1"
-		 width="395">
-      <layout_stack
-              follows="left|right|top|bottom"
-              layout="topleft"
-              left="0"
-              top="0"
-							tab_group="1"
-              orientation="vertical"
-              name="inventory_layout_stack"
-              height="565"
-              width="395">
-             <layout_panel
-                 name="main_inventory_layout_panel"
-                 layout="topleft"
-                 auto_resize="true"
-                 user_resize="true"
-                 min_dim="150"
-                 width="395"
-                 follows="bottom|left|right"
-                 height="300">
-                 <panel
-                      class="panel_main_inventory"
-                      filename="panel_main_inventory.xml"
-                      follows="all"
-                      layout="topleft"
-                      left="0"
-                      name="panel_main_inventory"
-                      top="0"
-                      label=""
-                      height="300"
-                      width="395" />
-             </layout_panel>
-			    <layout_panel
-                 width="355"
-                 layout="topleft"
-                 auto_resize="false"
-                 user_resize="true"
-                 follows="left|right|top"
-                 name="inbox_layout_panel"
-                 visible="true"
-                 min_dim="35"
-                 expanded_min_dim="90"
-                 height="235">
-                 <panel
-                      follows="all"
-                      layout="topleft"
-                      left="0"
-                      name="marketplace_inbox"
-                      class="panel_marketplace_inbox"
-                      top="0"
-                      label=""
-                      height="235"
-                      width="330">
-                     <string name="InboxLabelWithArg">Received items ([NUM])</string>
-                     <string name="InboxLabelNoArg">Received items</string>
-                     <button
-                        control_name="InventoryInboxToggleState"
-                        label="Received items"
-												font="SansSerifMedium"
-                        name="inbox_btn"
-                        height="35"
-                        width="308"
-                        image_unselected="MarketplaceBtn_Off"
-                        image_selected="MarketplaceBtn_Selected"
-                        halign="left"
-                        handle_right_mouse="false"
-                        follows="top|left|right"
-                        is_toggle="true"
-                        tab_stop="false"
-                        pad_left="35"
-                        top="0"
-                        left="10" />
-                     <text
-                        type="string"
-                        length="1"
-                        follows="right|top"
-                        layout="topleft"
-                        height="13"
-                        top="10"
-                        right="-20"
-                        name="inbox_fresh_new_count"
-                        font="SansSerifMedium"
-                        halign="right"
-                        top_pad="0"
-                        width="300">
-                        [NUM] new
-                     </text>
-                     <panel
-                        name="inbox_inventory_placeholder_panel"
-                        follows="all"
-                        left="10"
-                        bottom="235"
-                        width="308"
-                        top="35"
-                        bg_opaque_color="InventoryBackgroundColor"
-                        background_visible="true"
-                        background_opaque="true"
-                        tool_tip="Drag and drop items to your inventory to use them"
-                        >
-                        <text name="inbox_inventory_placeholder"
-															type="string"
-															follows="all"
-															layout="topleft"
-															top="0"
-															left="0"
-															width="308"
-															height="200"
-															wrap="true"
-															halign="center">
-Purchases from the marketplace will be delivered here.
-												</text>
-                    </panel>
-                 </panel>
-             </layout_panel>
-         </layout_stack>
-	</panel>
+ name="objects panel"
+ label="Things"
+ layout="topleft"
+ follows="all"
+ height="570"
+ min_height="350"
+ min_width="240">
+  <panel
+   name="sidepanel_inventory_panel"
+   layout="topleft"
+   follows="all"
+   top="0"
+   height="570"
+   default_tab_group="1">
+    <layout_stack
+     name="inventory_layout_stack"
+     layout="topleft"
+     follows="all"
+     top="0"
+     height="560"
+     tab_group="1"
+     orientation="vertical">
+      <layout_panel
+       name="main_inventory_layout_panel"
+       layout="topleft"
+       follows="bottom|left|right"
+       height="300"
+       auto_resize="true"
+       user_resize="true"
+       min_dim="150">
+        <panel
+         name="panel_main_inventory"
+         class="panel_main_inventory"
+         filename="panel_main_inventory.xml"
+         layout="topleft"
+         follows="all"
+         top="0"
+         height="300" />
+      </layout_panel>
+      <layout_panel
+       name="inbox_layout_panel"
+       follows="left|right|top"
+       layout="topleft"
+       min_dim="35"
+       expanded_min_dim="90"
+       auto_resize="false"
+       user_resize="true" >
+        <panel
+         name="marketplace_inbox"
+         class="panel_marketplace_inbox"
+         layout="topleft"
+         follows="all" >
+          <string name="InboxLabelWithArg">Received items ([NUM])</string>
+          <string name="InboxLabelNoArg">Received items</string>
+          <button
+           name="inbox_btn"
+           control_name="InventoryInboxToggleState"
+           label="Received items"
+           font="SansSerifMedium"
+           follows="top|left|right"
+           height="35"
+           image_unselected="MarketplaceBtn_Off"
+           image_selected="MarketplaceBtn_Selected"
+           pad_left="35"
+           left="10"
+           right="-10"
+           halign="left"
+           is_toggle="true"
+           tab_stop="false"
+           handle_right_mouse="false" />
+          <text
+           name="inbox_fresh_new_count"
+           font="SansSerifMedium"
+           type="string"
+           length="1"
+           follows="right|top"
+           layout="topleft"
+           height="13"
+           top_pad="0"
+           top="10"
+           right="-20"
+           halign="right">
+            [NUM] new
+          </text>
+          <panel
+           name="inbox_inventory_placeholder_panel"
+           bg_opaque_color="InventoryBackgroundColor"
+           background_visible="true"
+           background_opaque="true"
+           follows="all"
+           top="36"
+           right="-10"
+           bottom="10"
+           tool_tip="Drag and drop items to your inventory to use them" >
+            <text
+             name="inbox_inventory_placeholder"
+             type="string"
+             follows="all"
+             layout="topleft"
+             top="1"
+             bottom="-1"
+             wrap="true"
+             halign="center">
+              Purchases from the marketplace will be delivered here.
+            </text>
+          </panel>
+        </panel>
+      </layout_panel>
+    </layout_stack>
+  </panel>
 </panel>
