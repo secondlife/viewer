@@ -67,6 +67,7 @@ public:
     std::set<LLFolderViewItem*> getInboxSelectionList();
 
 	void showInventoryPanel();
+    void initInventoryViews();
 
 	// checks can share selected item(s)
 	bool canShare();

@@ -269,6 +269,7 @@ public:
 
     void changeFolderRoot(const LLUUID& new_id) {};
     void initFolderRoot();
+    void initializeViewBuilding();
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -306,7 +307,7 @@ protected:
 	 */
 	const LLInventoryFolderViewModelBuilder* mInvFVBridgeBuilder;
 
-    bool mBuildChildrenViews;
+    bool mBuildChildrenViews; // build root and children
     bool mRootInited;
 
 

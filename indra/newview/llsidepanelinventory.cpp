@@ -212,6 +212,14 @@ BOOL LLSidepanelInventory::postBuild()
 
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
 
+    LLFloater *floater = dynamic_cast<LLFloater*>(getParent());
+    if (floater && floater->getKey().isUndefined() && !sLoginCompleted)
+    {
+        // see get_instance_num();
+        // Primary inventory floater will have undefined key
+        initInventoryViews();
+    }
+
 	return TRUE;
 }
 
@@ -423,6 +431,11 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 void LLSidepanelInventory::showInventoryPanel()
 {
 	mInventoryPanel->setVisible(TRUE);
+}
+
+void LLSidepanelInventory::initInventoryViews()
+{
+    mPanelMainInventory->initInventoryViews();
 }
 
 bool LLSidepanelInventory::canShare()

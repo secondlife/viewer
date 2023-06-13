@@ -162,7 +162,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mInventoryViewModel(p.name),
 	mGroupedItemBridge(new LLFolderViewGroupedItemBridge),
 	mFocusSelection(false),
-    mBuildChildrenViews(true)
+    mBuildChildrenViews(true),
+    mRootInited(false)
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
@@ -286,6 +287,7 @@ void LLInventoryPanel::initFolderRoot()
         // build the views starting with that folder.
         LLFolderView* folder_view = createFolderRoot(root_id);
         mFolderRoot = folder_view->getHandle();
+        mRootInited = true;
     
         addItemID(root_id, mFolderRoot.get());
     }
@@ -318,22 +320,9 @@ void LLInventoryPanel::initFolderRoot()
     mCompletionObserver = new LLInvPanelComplObserver(boost::bind(&LLInventoryPanel::onItemsCompletion, this));
     mInventory->addObserver(mCompletionObserver);
 
-    if (mBuildViewsOnInit && mViewsInitialized == VIEWS_UNINITIALIZED)
+    if (mBuildViewsOnInit)
     {
-        // Build view of inventory if we need default full hierarchy and inventory is ready, otherwise do in onIdle.
-        // Initializing views takes a while so always do it onIdle if viewer already loaded.
-        if (mInventory->isInventoryUsable()
-            && LLStartUp::getStartupState() <= STATE_WEARABLES_WAIT)
-        {
-            // Usually this happens on login, so we have less time constraits, but too long and we can cause a disconnect
-            const F64 max_time = 20.f;
-            initializeViews(max_time);
-        }
-        else
-        {
-            mViewsInitialized = VIEWS_INITIALIZING;
-            gIdleCallbacks.addFunction(onIdle, (void*)this);
-        }
+        initializeViewBuilding();
     }
 
     if (mSortOrderSetting != INHERIT_SORT_ORDER)
@@ -366,13 +355,38 @@ void LLInventoryPanel::initFolderRoot()
     mClipboardState = LLClipboard::instance().getGeneration();
 }
 
+void LLInventoryPanel::initializeViewBuilding()
+{
+    if (mViewsInitialized == VIEWS_UNINITIALIZED)
+    {
+        LL_DEBUGS("Inventory") << "Setting views for " << getName() << " to initialize" << LL_ENDL;
+        // Build view of inventory if we need default full hierarchy and inventory is ready, otherwise do in onIdle.
+        // Initializing views takes a while so always do it onIdle if viewer already loaded.
+        if (mInventory->isInventoryUsable()
+            && LLStartUp::getStartupState() <= STATE_WEARABLES_WAIT)
+        {
+            // Usually this happens on login, so we have less time constraits, but too long and we can cause a disconnect
+            const F64 max_time = 20.f;
+            initializeViews(max_time);
+        }
+        else
+        {
+            mViewsInitialized = VIEWS_INITIALIZING;
+            gIdleCallbacks.addFunction(onIdle, (void*)this);
+        }
+    }
+}
+
 /*virtual*/
 void LLInventoryPanel::onVisibilityChange(BOOL new_visibility)
 {
     if (new_visibility && mViewsInitialized == VIEWS_UNINITIALIZED)
     {
-        mViewsInitialized = VIEWS_INITIALIZING;
-        gIdleCallbacks.addFunction(onIdle, (void*)this);
+        // first call can be from tab initialization
+        if (gFloaterView->getParentFloater(this) != NULL)
+        {
+            initializeViewBuilding();
+        }
     }
     LLPanel::onVisibilityChange(new_visibility);
 }
@@ -893,6 +907,7 @@ void LLInventoryPanel::idle(void* user_data)
 void LLInventoryPanel::initializeViews(F64 max_time)
 {
 	if (!gInventory.isInventoryUsable()) return;
+    if (!mRootInited) return;
 
     mViewsInitialized = VIEWS_BUILDING;
 
@@ -1063,7 +1078,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 			if (objectp->getType() >= LLAssetType::AT_COUNT)
   			{
 				// Example: Happens when we add assets of new, not yet supported type to library
-				LL_DEBUGS() << "LLInventoryPanel::buildViewsTree called with unknown objectp->mType : "
+				LL_DEBUGS("Inventory") << "LLInventoryPanel::buildViewsTree called with unknown objectp->mType : "
 				<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
 				<< LL_ENDL;
 
@@ -2134,7 +2149,6 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     : LLInventoryPanel(params)
 {
     mBuildChildrenViews = false;
-    mRootInited = false;
     getFilter().setSingleFolderMode(true);
     getFilter().setEmptyLookupMessage("InventorySingleFolderNoMatches");
     getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");

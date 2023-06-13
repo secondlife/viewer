@@ -1530,6 +1530,16 @@ void LLPanelMainInventory::initSingleFolderRoot(const LLUUID& start_folder_id)
     mCombinationInventoryPanel->initFolderRoot(start_folder_id);
 }
 
+void LLPanelMainInventory::initInventoryViews()
+{
+    LLInventoryPanel* all_item = getChild<LLInventoryPanel>(ALL_ITEMS);
+    all_item->initializeViewBuilding();
+    LLInventoryPanel* recent_item = getChild<LLInventoryPanel>(RECENT_ITEMS);
+    recent_item->initializeViewBuilding();
+    LLInventoryPanel* worn_item = getChild<LLInventoryPanel>(WORN_ITEMS);
+    worn_item->initializeViewBuilding();
+}
+
 void LLPanelMainInventory::toggleViewMode()
 {
     if(mSingleFolderMode && isCombinationViewMode())

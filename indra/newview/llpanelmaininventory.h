@@ -116,6 +116,7 @@ public:
     void onViewModeClick();
     void toggleViewMode();
     void initSingleFolderRoot(const LLUUID& start_folder_id = LLUUID::null);
+    void initInventoryViews();
     void onUpFolderClicked();
     void onBackFolderClicked();
     void onForwardFolderClicked();
