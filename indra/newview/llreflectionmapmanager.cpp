@@ -323,11 +323,17 @@ void LLReflectionMapManager::update()
         mRadiancePass = radiance_pass;
     }
 
-    static LLCachedControl<F32> sUpdatePeriod(gSavedSettings, "RenderDefaultProbeUpdatePeriod", 20.f);
-    if (sLevel == 0 &&
-        gFrameTimeSeconds - mDefaultProbe->mLastUpdateTime < sUpdatePeriod)
-    { // when probes are disabled don't update the default probe more often than once every 20 seconds
-        oldestProbe = nullptr;
+    static LLCachedControl<F32> sUpdatePeriod(gSavedSettings, "RenderDefaultProbeUpdatePeriod", 2.f);
+    if ((gFrameTimeSeconds - mDefaultProbe->mLastUpdateTime) < sUpdatePeriod)
+    {
+        if (sLevel == 0)
+        { // when probes are disabled don't update the default probe more often than the prescribed update period
+            oldestProbe = nullptr;
+        }
+    }
+    else if (sLevel > 0)
+    { // when probes are enabled don't update the default probe less often than the prescribed update period
+      oldestProbe = mDefaultProbe;
     }
 
     // switch to updating the next oldest probe
