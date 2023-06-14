@@ -10544,7 +10544,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>20.0</real>
+    <real>2.0</real>
   </map>
   <key>RenderReflectionProbeLevel</key>
   <map>
@@ -10632,7 +10632,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.3</real>
+    <real>0.4</real>
   </map>
     <key>RenderShaderLODThreshold</key>
     <map>
