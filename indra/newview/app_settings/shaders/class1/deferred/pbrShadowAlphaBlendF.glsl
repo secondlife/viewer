@@ -1,5 +1,5 @@
 /** 
- * @file pbrShadowAlphaMaskF.glsl
+ * @file pbrShadowAlphaBlendF.glsl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -37,10 +37,20 @@ void main()
 {
     float alpha = texture(diffuseMap,vary_texcoord0.xy).a;
 
-    if (alpha < minimum_alpha)
+    alpha *= vertex_color.a;
+
+    if (alpha < 0.05) // treat as totally transparent
     {
         discard;
     }
 
-    frag_color = vec4(1,1,1,1);
+    if (alpha < 0.88) // treat as semi-transparent
+    {
+        if (fract(0.5*floor(target_pos_x / post_pos.w )) < 0.25)
+        {
+            discard;
+        }
+    }
+
+	frag_color = vec4(1,1,1,1);
 }
