@@ -215,6 +215,9 @@ BOOL LLSidepanelInventory::postBuild()
     LLFloater *floater = dynamic_cast<LLFloater*>(getParent());
     if (floater && floater->getKey().isUndefined() && !sLoginCompleted)
     {
+        // Prefill inventory for primary inventory floater
+        // Other floaters should fill on visibility change
+        // 
         // see get_instance_num();
         // Primary inventory floater will have undefined key
         initInventoryViews();

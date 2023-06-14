@@ -85,6 +85,7 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor),
       mIsInitialized(false),
+      mRootDirty(false),
       mNeedsArrange(false),
       mSearchType(LLInventoryFilter::SEARCHTYPE_NAME)
 {
@@ -188,7 +189,19 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
         mBackwardFolders.push_back(mFolderID);
     }
     mFolderID = cat_id;
-    updateRootFolder();
+    dirtyRootFolder();
+}
+
+void LLInventoryGallery::dirtyRootFolder()
+{
+    if (getVisible())
+    {
+        updateRootFolder();
+    }
+    else
+    {
+        mRootDirty = true;
+    }
 }
 
 void LLInventoryGallery::updateRootFolder()
@@ -260,6 +273,7 @@ void LLInventoryGallery::updateRootFolder()
         }
         reArrangeRows();
         mIsInitialized = true;
+        mRootDirty = false;
 
         if (mScrollPanel)
         {
@@ -303,6 +317,15 @@ void LLInventoryGallery::draw()
             handleModifiedFilter();
         }
     }
+}
+
+void LLInventoryGallery::onVisibilityChange(BOOL new_visibility)
+{
+    if (new_visibility && mRootDirty)
+    {
+        updateRootFolder();
+    }
+    LLPanel::onVisibilityChange(new_visibility);
 }
 
 bool LLInventoryGallery::updateRowsIfNeeded()
@@ -542,6 +565,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
 void LLInventoryGallery::buildGalleryPanel(int row_count)
 {
     LLPanel::Params params;
+    params.use_bounding_rect = false;
     mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
     reshapeGalleryPanel(row_count);
 }
@@ -561,11 +585,12 @@ void LLInventoryGallery::reshapeGalleryPanel(int row_count)
 
 LLPanel* LLInventoryGallery::buildItemPanel(int left)
 {
-    LLPanel::Params lpparams;
     int top = 0;
     LLPanel* lpanel = NULL;
     if(mUnusedItemPanels.empty())
     {
+        LLPanel::Params lpparams;
+        lpparams.use_bounding_rect = false;
         lpanel = LLUICtrlFactory::create<LLPanel>(lpparams);
     }
     else
@@ -585,6 +610,7 @@ LLPanel* LLInventoryGallery::buildItemPanel(int left)
 LLPanel* LLInventoryGallery::buildRowPanel(int left, int bottom)
 {
     LLPanel::Params sparams;
+    sparams.use_bounding_rect = false;
     LLPanel* stack = NULL;
     if(mUnusedRowPanels.empty())
     {
@@ -1787,7 +1813,7 @@ void LLInventoryGallery::onForwardFolder()
         mBackwardFolders.push_back(mFolderID);
         mFolderID = mForwardFolders.back();
         mForwardFolders.pop_back();
-        updateRootFolder();
+        dirtyRootFolder();
     }
 }
 
@@ -1798,7 +1824,7 @@ void LLInventoryGallery::onBackwardFolder()
         mForwardFolders.push_back(mFolderID);
         mFolderID = mBackwardFolders.back();
         mBackwardFolders.pop_back();
-        updateRootFolder();
+        dirtyRootFolder();
     }
 }
 

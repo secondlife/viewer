@@ -1177,7 +1177,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                 else
                 {
                     create_children = true;
-                    folder_view_item->setChildrenInited(true);
+                    folder_view_item->setChildrenInited(mBuildChildrenViews);
                 }
                 break;
             }
@@ -1218,6 +1218,11 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 		LLViewerInventoryItem::item_array_t* items;
 		mInventory->lockDirectDescendentArrays(id, categories, items);
 
+        // Make sure panel won't lock in a loop over existing items if
+        // folder is enormous and at least some work gets done
+        const S32 MIN_ITEMS_PER_CALL = 500;
+        const S32 starting_item_count = mItemMap.size();
+
         LLFolderViewFolder *parentp = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
 
 		if(categories)
@@ -1243,6 +1248,22 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                         buildViewsTree(cat->getUUID(), id, cat, NULL, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode), depth);
                     }
                 }
+
+                if (!mBuildChildrenViews
+                    && mode == BUILD_TIMELIMIT
+                    && MIN_ITEMS_PER_CALL + starting_item_count < mItemMap.size())
+                {
+                    // Single folder view, check if we still have time
+                    // 
+                    // Todo: make sure this causes no dupplciates, breaks nothing,
+                    // especially filters and arrange
+                    F64 curent_time = LLTimer::getTotalSeconds();
+                    if (mBuildViewsEndTime < curent_time)
+                    {
+                        mBuildViewsQueue.push_back(id);
+                        break;
+                    }
+                }
 			}
 		}
 		
@@ -1262,8 +1283,30 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                     LLFolderViewItem* view_itemp = getItemByID(item->getUUID());
                     buildViewsTree(item->getUUID(), id, item, view_itemp, parentp, mode, depth);
                 }
+
+                if (!mBuildChildrenViews
+                    && mode == BUILD_TIMELIMIT
+                    && MIN_ITEMS_PER_CALL + starting_item_count < mItemMap.size())
+                {
+                    // Single folder view, check if we still have time
+                    // 
+                    // Todo: make sure this causes no dupplciates, breaks nothing,
+                    // especially filters and arrange
+                    F64 curent_time = LLTimer::getTotalSeconds();
+                    if (mBuildViewsEndTime < curent_time)
+                    {
+                        mBuildViewsQueue.push_back(id);
+                        break;
+                    }
+                }
 			}
 		}
+
+        if (!mBuildChildrenViews)
+        {
+            // flat list is done initializing folder
+            folder_view_item->setChildrenInited(true);
+        }
 		mInventory->unlockDirectDescendentArrays(id);
 	}
 	

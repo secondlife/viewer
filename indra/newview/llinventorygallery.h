@@ -76,6 +76,7 @@ public:
     BOOL postBuild() override;
     void initGallery();
     void draw() override;
+    void onVisibilityChange(BOOL new_visibility) override;
     BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
@@ -103,6 +104,7 @@ public:
     void setRootFolder(const LLUUID cat_id);
     void updateRootFolder();
     LLUUID getRootFolder() { return mFolderID; }
+    bool isRootDirty() { return mRootDirty; }
     boost::signals2::connection setRootChangedCallback(callback_t cb);
     void onForwardFolder();
     void onBackwardFolder();
@@ -168,6 +170,7 @@ protected:
     void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
     bool checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring);
     static void onIdle(void* userdata);
+    void dirtyRootFolder();
 
     LLInventoryCategoriesObserver*     mCategoriesObserver;
     LLThumbnailsObserver*              mThumbnailsObserver;
@@ -176,6 +179,7 @@ protected:
     LLUUID                             mSelectedItemID;
     LLUUID                             mItemToSelect;
     bool                               mIsInitialized;
+    bool                               mRootDirty;
 
     selection_change_signal_t        mSelectionChangeSignal;
     boost::signals2::signal<void()>  mRootChangedSignal;

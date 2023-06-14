@@ -2350,6 +2350,7 @@ void LLPanelMainInventory::updatePanelVisibility()
 
             // visibility will be controled by updateCombinationVisibility()
             mCombinationGalleryLayoutPanel->setVisible(true);
+            mCombinationGalleryPanel->setVisible(true);
             mCombinationListLayoutPanel->setVisible(true);
         }
         else
@@ -2363,12 +2364,14 @@ void LLPanelMainInventory::updatePanelVisibility()
             comb_gallery_filter.markDefault();
 
             mCombinationGalleryLayoutPanel->setVisible(mSingleFolderMode && isGalleryViewMode());
+            mCombinationGalleryPanel->setVisible(mSingleFolderMode && isGalleryViewMode()); // to prevent or process updates
             mCombinationListLayoutPanel->setVisible(mSingleFolderMode && isListViewMode());
         }
     }
     else
     {
         mCombinationGalleryLayoutPanel->setVisible(false);
+        mCombinationGalleryPanel->setVisible(false); // to prevent updates
         mCombinationListLayoutPanel->setVisible(false);
     }
 }
@@ -2380,6 +2383,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
         bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty || mForceShowInvLayout;
         mCombinationGalleryLayoutPanel->setVisible(!is_gallery_empty);
+        mCombinationGalleryPanel->setVisible(true); // to make sure root updates are getting processed
         mCombinationListLayoutPanel->setVisible(show_inv_pane);
         mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
         if(mCombinationInventoryPanel->hasVisibleItems())
