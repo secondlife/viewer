@@ -429,13 +429,12 @@ void main()
         LIGHT_LOOP(6)
         LIGHT_LOOP(7)
 
-    light *= 1.0-emissive;
     color += light;
 
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare) * vertex_color.a;
-    
+
     frag_color = max(vec4(color, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 

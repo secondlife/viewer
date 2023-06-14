@@ -3726,6 +3726,8 @@ BOOL LLModelPreview::render()
                             const std::string& binding = instance.mModel->mMaterialList[i];
                             const LLImportMaterial& material = instance.mMaterial[binding];
 
+                            buffer->unmapBuffer();
+
                             buffer->setBuffer();
                             gGL.diffuseColor4fv(material.mDiffuseColor.mV);
                             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
