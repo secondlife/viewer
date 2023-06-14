@@ -4268,6 +4268,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		if (model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) == mUUID)
 		{
 			items.push_back(std::string("Copy outfit list to clipboard"));
+            addOpenFolderMenuOptions(flags, items);
 		}
 
 		//Added by aura to force inventory pull on right-click to display folder options correctly. 07-17-06
@@ -4374,9 +4375,12 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 	if(!category) return;
 
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if (trash_id == mUUID) return;
-	if (isItemInTrash()) return;
-    
+	if ((trash_id == mUUID) || isItemInTrash())
+    {
+        addOpenFolderMenuOptions(flags, items);
+        return;
+    }
+
 	if (!isItemRemovable())
 	{
 		disabled_items.push_back(std::string("Delete"));
@@ -4415,15 +4419,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
         return;
     }
 
-    if ((flags & ITEM_IN_MULTI_SELECTION) == 0)
-    {
-        items.push_back(std::string("open_in_new_window"));
-        items.push_back(std::string("Open Folder Separator"));
-        if(isPanelActive("comb_single_folder_inv"))
-        {
-            items.push_back(std::string("open_in_current_window"));
-        }
-    }
+    addOpenFolderMenuOptions(flags, items);
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (LLFolderType::lookupIsProtectedType(type) && is_agent_inventory)
@@ -4500,6 +4496,20 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	// Reposition the menu, in case we're adding items to an existing menu.
 	menu.needsArrange();
 	menu.arrangeAndClear();
+}
+
+void LLFolderBridge::addOpenFolderMenuOptions(U32 flags, menuentry_vec_t& items)
+{
+    if ((flags & ITEM_IN_MULTI_SELECTION) == 0)
+    {
+        items.push_back(std::string("open_in_new_window"));
+        items.push_back(std::string("Open Folder Separator"));
+        items.push_back(std::string("Copy Separator"));
+        if(isPanelActive("comb_single_folder_inv"))
+        {
+            items.push_back(std::string("open_in_current_window"));
+        }
+    }
 }
 
 bool LLFolderBridge::hasChildren() const
