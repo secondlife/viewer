@@ -545,12 +545,11 @@ void LLInventoryGallery::removeFromLastRow(LLInventoryGalleryItem* item)
 LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link, bool is_worn)
 {
     LLInventoryGalleryItem::Params giparams;
+    giparams.visible = true;
+    giparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+    giparams.rect(LLRect(0,mItemHeight, mItemWidth, 0));
+    giparams.name = name;
     LLInventoryGalleryItem* gitem = LLUICtrlFactory::create<LLInventoryGalleryItem>(giparams);
-    gitem->reshape(mItemWidth, mItemHeight);
-    gitem->setVisible(true);
-    gitem->setFollowsLeft();
-    gitem->setFollowsTop();
-    gitem->setName(name);
     gitem->setUUID(item_id);
     gitem->setGallery(this);
     gitem->setType(type, inventory_type, flags, is_link);
@@ -565,6 +564,8 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
 void LLInventoryGallery::buildGalleryPanel(int row_count)
 {
     LLPanel::Params params;
+    params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+    params.visible = true;
     params.use_bounding_rect = false;
     mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
     reshapeGalleryPanel(row_count);
@@ -578,9 +579,6 @@ void LLInventoryGallery::reshapeGalleryPanel(int row_count)
     LLRect rect = LLRect(left, bottom + height, left + mGalleryWidth, bottom);
     mGalleryPanel->setRect(rect);
     mGalleryPanel->reshape(mGalleryWidth, height);
-    mGalleryPanel->setVisible(true);
-    mGalleryPanel->setFollowsLeft();
-    mGalleryPanel->setFollowsTop();
 }
 
 LLPanel* LLInventoryGallery::buildItemPanel(int left)
@@ -590,6 +588,9 @@ LLPanel* LLInventoryGallery::buildItemPanel(int left)
     if(mUnusedItemPanels.empty())
     {
         LLPanel::Params lpparams;
+        lpparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+        lpparams.visible = true;
+        lpparams.rect(LLRect(left, top + mItemHeight, left + mItemWidth + mItemHorizontalGap, top));
         lpparams.use_bounding_rect = false;
         lpanel = LLUICtrlFactory::create<LLPanel>(lpparams);
     }
@@ -597,23 +598,22 @@ LLPanel* LLInventoryGallery::buildItemPanel(int left)
     {
         lpanel = mUnusedItemPanels.back();
         mUnusedItemPanels.pop_back();
+
+        LLRect rect = LLRect(left, top + mItemHeight, left + mItemWidth + mItemHorizontalGap, top);
+        lpanel->setShape(rect, false);
     }
-    LLRect rect = LLRect(left, top + mItemHeight, left + mItemWidth + mItemHorizontalGap, top);
-    lpanel->setRect(rect);
-    lpanel->reshape(mItemWidth + mItemHorizontalGap, mItemHeight);
-    lpanel->setVisible(true);
-    lpanel->setFollowsLeft();
-    lpanel->setFollowsTop();
     return lpanel;
 }
 
 LLPanel* LLInventoryGallery::buildRowPanel(int left, int bottom)
 {
-    LLPanel::Params sparams;
-    sparams.use_bounding_rect = false;
     LLPanel* stack = NULL;
     if(mUnusedRowPanels.empty())
     {
+        LLPanel::Params sparams;
+        sparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+        sparams.use_bounding_rect = false;
+        sparams.visible = true;
         stack = LLUICtrlFactory::create<LLPanel>(sparams);
     }
     else
@@ -630,9 +630,6 @@ void LLInventoryGallery::moveRowPanel(LLPanel* stack, int left, int bottom)
     LLRect rect = LLRect(left, bottom + mRowPanelHeight, left + mRowPanelWidth, bottom);
     stack->setRect(rect);
     stack->reshape(mRowPanelWidth, mRowPanelHeight);
-    stack->setVisible(true);
-    stack->setFollowsLeft();
-    stack->setFollowsTop();
 }
 
 void LLInventoryGallery::setFilterSubString(const std::string& string)
