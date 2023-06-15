@@ -630,6 +630,8 @@ public:
 
 	S32						 mNumVisibleFaces;
 
+	S32						mPoissonOffset;
+
 	static S32				sCompiles;
 
 	static bool				sShowHUDAttachments;
@@ -1034,6 +1036,7 @@ public:
 	static F32 RenderScreenSpaceReflectionRayStep;
 	static F32 RenderScreenSpaceReflectionDistanceBias;
 	static F32 RenderScreenSpaceReflectionDepthRejectBias;
+	static F32 RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 	static S32 RenderScreenSpaceReflectionGlossySamples;
 	static S32 RenderBufferVisualization;
 };

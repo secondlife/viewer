@@ -35,6 +35,8 @@ uniform sampler2D sceneMap;
 uniform int cube_snapshot;
 uniform float max_probe_lod;
 
+uniform bool transparent_surface;
+
 #define MAX_REFMAP_COUNT 256  // must match LL_MAX_REFLECTION_PROBE_COUNT
 
 layout (std140) uniform ReflectionProbes
@@ -671,7 +673,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
 }
 
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent)
 {
     // TODO - don't hard code lods
     float reflection_lods = max_probe_lod;
@@ -687,7 +689,16 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     if (cube_snapshot != 1 && glossiness >= 0.9)
     {
         vec4 ssr = vec4(0);
-        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
+        if (transparent)
+        {
+            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, 1);
+            ssr.a *= glossiness;
+        }
+        else
+        {
+            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
+        }
+
 
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
     }
@@ -695,10 +706,10 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent)
 {
     preProbeSample(pos);
-    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness);
+    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, transparent);
 }
 
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
@@ -711,7 +722,7 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
     // always include void probe on water
     probeIndex[probeInfluences++] = 0;
 
-    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness);
+    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, false);
 
     // fudge factor to get PBR water at a similar luminance ot legacy water
     glossenv *= 0.4;
@@ -766,7 +777,7 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
 }
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent)
 {
     float reflection_lods = max_probe_lod;
     preProbeSample(pos);
@@ -790,7 +801,16 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     if (cube_snapshot != 1)
     {
         vec4 ssr = vec4(0);
-        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
+
+        if (transparent)
+        {
+            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, 1);
+            ssr.a *= glossiness;
+        }
+        else
+        {
+            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
+        }
 
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
         legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
