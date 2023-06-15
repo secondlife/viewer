@@ -219,6 +219,7 @@ void LLInventoryGallery::updateRootFolder()
         {
             updateRemovedItem(mHiddenItems[i]->getUUID());
         }
+        mItemBuildQuery.clear();
         
         if (gInventory.containsObserver(mCategoriesObserver))
         {
@@ -262,16 +263,15 @@ void LLInventoryGallery::updateRootFolder()
             iter != cat_array->end();
             iter++)
         {
-            updateAddedItem((*iter)->getUUID());
+            mItemBuildQuery.insert((*iter)->getUUID());
         }
         
         for (LLInventoryModel::item_array_t::const_iterator iter = item_array->begin();
             iter != item_array->end();
             iter++)
         {
-            updateAddedItem((*iter)->getUUID());
+            mItemBuildQuery.insert((*iter)->getUUID());
         }
-        reArrangeRows();
         mIsInitialized = true;
         mRootDirty = false;
 
@@ -286,6 +286,11 @@ void LLInventoryGallery::updateRootFolder()
     if (!mGalleryCreated)
     {
         initGallery();
+    }
+
+    if (!mItemBuildQuery.empty())
+    {
+        gIdleCallbacks.addFunction(onIdle, (void*)this);
     }
 }
 
@@ -640,12 +645,14 @@ void LLInventoryGallery::setFilterSubString(const std::string& string)
     //reArrangeRows();
 }
 
-void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring)
+bool LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring)
 {
     if(item)
     {
         item->setHidden(!checkAgainstFilters(item, filter_substring));
+        return false;
     }
+    return true;
 }
 
 bool LLInventoryGallery::checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring)
@@ -724,6 +731,21 @@ void LLInventoryGallery::onIdle(void* userdata)
         return;
     }
 
+    const F64 MAX_TIME_VISIBLE = 0.020f;
+    const F64 MAX_TIME_HIDDEN = 0.001f; // take it slow
+    const F64 max_time = self->getVisible() ? MAX_TIME_VISIBLE : MAX_TIME_HIDDEN;
+    F64 curent_time = LLTimer::getTotalSeconds();
+    const F64 end_time = curent_time + max_time;
+
+    while (!self->mItemBuildQuery.empty() && end_time > curent_time)
+    {
+        uuid_set_t::iterator iter = self->mItemBuildQuery.begin();
+        LLUUID item_id = *iter;
+        self->mNeedsArrange |= self->updateAddedItem(item_id);
+        self->mItemBuildQuery.erase(iter);
+        curent_time = LLTimer::getTotalSeconds();
+    }
+
     if (self->mNeedsArrange)
     {
         self->mNeedsArrange = false;
@@ -737,7 +759,7 @@ void LLInventoryGallery::onIdle(void* userdata)
         self->changeItemSelection(item_to_select, true);
     }
 
-    if (self->mItemToSelect.isNull())
+    if (self->mItemToSelect.isNull() && self->mItemBuildQuery.empty())
     {
         gIdleCallbacks.deleteFunction(onIdle, (void*)self);
     }
@@ -768,13 +790,13 @@ void LLInventoryGallery::getCurrentCategories(uuid_vec_t& vcur)
     }
 }
 
-void LLInventoryGallery::updateAddedItem(LLUUID item_id)
+bool LLInventoryGallery::updateAddedItem(LLUUID item_id)
 {
     LLInventoryObject* obj = gInventory.getObject(item_id);
     if (!obj)
     {
         LL_WARNS("InventoryGallery") << "Failed to find item: " << item_id << LL_ENDL;
-        return;
+        return false;
     }
 
     std::string name = obj->getName();
@@ -805,18 +827,20 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         }
     }
 
+    bool res = false;
     LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType(), is_worn);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id, false));
     if (mGalleryCreated)
     {
-        applyFilter(item, mFilterSubString);
+        res = applyFilter(item, mFilterSubString);
         addToGallery(item);
     }
 
     mThumbnailsObserver->addItem(item_id,
         boost::bind(&LLInventoryGallery::updateItemThumbnail, this, item_id));
+    return res;
 }
 
 void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
@@ -838,6 +862,8 @@ void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
             item->die();
         }
     }
+
+    mItemBuildQuery.erase(item_id);
 }
 
 void LLInventoryGallery::updateChangedItemName(LLUUID item_id, std::string name)
@@ -890,15 +916,6 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
         {
             reArrangeRows();
         }
-    }
-}
-
-void LLInventoryGallery::onThumbnailAdded(LLUUID item_id)
-{
-    if((mItemMap.count(item_id) == 0) && mFilter->checkAgainstFilterThumbnails(item_id))
-    {
-        updateAddedItem(item_id);
-        reArrangeRows();
     }
 }
 
@@ -1666,6 +1683,7 @@ void LLInventoryGallery::computeDifference(
 
     uuid_vec_t vcur;
     getCurrentCategories(vcur);
+    std::copy(mItemBuildQuery.begin(), mItemBuildQuery.end(), std::back_inserter(vcur));
 
     LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }

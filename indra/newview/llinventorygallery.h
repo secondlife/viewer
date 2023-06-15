@@ -92,11 +92,10 @@ public:
     bool checkAgainstFilterType(const LLUUID& object_id);
 
     void getCurrentCategories(uuid_vec_t& vcur);
-    void updateAddedItem(LLUUID item_id);
+    bool updateAddedItem(LLUUID item_id); // returns true if added item is visible
     void updateRemovedItem(LLUUID item_id);
     void updateChangedItemName(LLUUID item_id, std::string name);
     void updateItemThumbnail(LLUUID item_id);
-    void onThumbnailAdded(LLUUID item_id);
     void updateWornItem(LLUUID item_id, bool is_worn);
 
     void updateMessageVisibility();
@@ -167,7 +166,7 @@ protected:
 
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
 
-    void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
+    bool applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
     bool checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring);
     static void onIdle(void* userdata);
     void dirtyRootFolder();
@@ -247,6 +246,7 @@ private:
     gallery_item_map_t mItemMap;
     uuid_vec_t mCOFLinkedItems;
     uuid_vec_t mActiveGestures;
+    uuid_set_t mItemBuildQuery;
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
     std::map<S32, LLInventoryGalleryItem*> mIndexToItemMap;
 
