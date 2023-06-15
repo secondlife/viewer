@@ -2294,33 +2294,6 @@ void LLInventoryGalleryItem::updateNameText()
 void LLThumbnailsObserver::changed(U32 mask)
 {
     std::vector<LLUUID> deleted_ids;
-    for (item_map_t::iterator iter = mSkippedItems.begin();
-         iter != mSkippedItems.end();
-         ++iter)
-    {
-        const LLUUID& obj_id = (*iter).first;
-        LLItemData& data = (*iter).second;
-        
-        LLInventoryObject* obj = gInventory.getObject(obj_id);
-        if (!obj)
-        {
-            deleted_ids.push_back(obj_id);
-            continue;
-        }
-
-        const LLUUID thumbnail_id = obj->getThumbnailUUID();
-        if (data.mThumbnailID != thumbnail_id)
-        {
-            data.mThumbnailID = thumbnail_id;
-            data.mCallback();
-        }
-    }
-    for (std::vector<LLUUID>::iterator deleted_id = deleted_ids.begin(); deleted_id != deleted_ids.end(); ++deleted_id)
-    {
-        removeSkippedItem(*deleted_id);
-    }
-    deleted_ids.clear();
-
     for (item_map_t::iterator iter = mItemMap.begin();
          iter != mItemMap.end();
          ++iter)
@@ -2361,23 +2334,9 @@ bool LLThumbnailsObserver::addItem(const LLUUID& obj_id, callback_t cb)
     return false;
 }
 
-void LLThumbnailsObserver::addSkippedItem(const LLUUID& obj_id, callback_t cb)
-{
-    LLInventoryObject* obj = gInventory.getObject(obj_id);
-    if (obj)
-    {
-        mSkippedItems.insert(item_map_value_t(obj_id, LLItemData(obj_id, obj->getThumbnailUUID(), cb)));
-    }
-}
-
 void LLThumbnailsObserver::removeItem(const LLUUID& obj_id)
 {
     mItemMap.erase(obj_id);
-}
-
-void LLThumbnailsObserver::removeSkippedItem(const LLUUID& obj_id)
-{
-    mSkippedItems.erase(obj_id);
 }
 
 //-----------------------------
