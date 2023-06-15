@@ -353,24 +353,6 @@ void main()
 
     float glare = 0.0;
 
-#if 0 //wrong implementation
-    if (glossiness > 0.0)  // specular reflection
-    {
-        float sa        = dot(normalize(refnormpersp), light_dir.xyz);
-        vec3  dumbshiny = sunlit_linear * shadow * (texture(lightFunc, vec2(sa, glossiness)).r);
-
-        // add the two types of shiny together
-        vec3 spec_contrib = dumbshiny * spec.rgb;
-        bloom             = dot(spec_contrib, spec_contrib) / 6;
-
-        glare = max(spec_contrib.r, spec_contrib.g);
-        glare = max(glare, spec_contrib.b);
-
-        color += spec_contrib;
-
-        applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
-    }
-#else //right implementation ported from pointLightF.glsl
     if (glossiness > 0.0)
     {
         vec3  lv = light_dir.xyz;
@@ -395,7 +377,6 @@ void main()
         // add radiance map
         applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
     }
-#endif
 
     color = mix(color.rgb, legacy_adjust_fullbright(diffcol.rgb), emissive);
 

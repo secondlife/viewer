@@ -649,8 +649,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
-			bool draw_glow_for_this_partition = mShaderLevel > 0; // no shaders = no glow.
-
 			bool disable_cull = is_particle_or_hud_particle;
 			LLGLDisable cull(disable_cull ? GL_CULL_FACE : 0);
 
@@ -818,7 +816,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 				}
 
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls is expensive, but glow must be drawn Z-sorted with alpha.
-				if (draw_glow_for_this_partition &&
+				if (getType() != LLDrawPool::POOL_ALPHA_PRE_WATER &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
                     if (params.mAvatar != nullptr)
