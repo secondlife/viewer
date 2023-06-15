@@ -134,6 +134,7 @@ public:
     void setSearchType(LLInventoryFilter::ESearchType type);
     LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }
 
+    bool areViewsInitialized();
     bool hasDescendents(const LLUUID& cat_id);
     bool hasVisibleItems();
     void handleModifiedFilter();

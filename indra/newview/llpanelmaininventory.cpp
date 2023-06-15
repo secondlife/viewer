@@ -2386,7 +2386,6 @@ void LLPanelMainInventory::updateCombinationVisibility()
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
         bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty || mForceShowInvLayout;
         mCombinationGalleryLayoutPanel->setVisible(!is_gallery_empty);
-        mCombinationGalleryPanel->setVisible(true); // to make sure root updates are getting processed
         mCombinationListLayoutPanel->setVisible(show_inv_pane);
         mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
         if(mCombinationInventoryPanel->hasVisibleItems())
@@ -2402,7 +2401,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
 
         if (mReshapeInvLayout
             && show_inv_pane
-            && mCombinationGalleryPanel->hasVisibleItems()
+            && (mCombinationGalleryPanel->hasVisibleItems() || mCombinationGalleryPanel->areViewsInitialized())
             && mCombinationInventoryPanel->areViewsInitialized())
         {
             mReshapeInvLayout = false;

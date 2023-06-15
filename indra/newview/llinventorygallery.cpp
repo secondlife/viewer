@@ -158,6 +158,13 @@ LLInventoryGallery::~LLInventoryGallery()
         mUnusedItemPanels.pop_back();
         panelp->die();
     }
+    while (!mHiddenItems.empty())
+    {
+        LLPanel* panelp = mHiddenItems.back();
+        mHiddenItems.pop_back();
+        panelp->die();
+    }
+    
 
     if (gInventory.containsObserver(mCategoriesObserver))
     {
@@ -490,6 +497,7 @@ void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item)
     if(item->isHidden())
     {
         mHiddenItems.pop_back();
+        // Note: item still exists!!!
         return;
     }
     int n_prev = mItemsAddedCount;
@@ -519,6 +527,7 @@ void LLInventoryGallery::removeFromGalleryMiddle(LLInventoryGalleryItem* item)
     if(item->isHidden())
     {
         mHiddenItems.erase(std::remove(mHiddenItems.begin(), mHiddenItems.end(), item), mHiddenItems.end());
+        // item still exists and needs to be deleted or used!!!
         return;
     }
     int n = mItemIndexMap[item];
@@ -859,6 +868,7 @@ void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
         // kill removed item
         if (item != NULL)
         {
+            // Todo: instead of deleting, store somewhere to reuse later
             item->die();
         }
     }
@@ -1874,6 +1884,11 @@ BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
     }
 
     return handled;
+}
+
+bool LLInventoryGallery::areViewsInitialized()
+{
+    return mGalleryCreated && mItemBuildQuery.empty();
 }
 
 bool LLInventoryGallery::hasDescendents(const LLUUID& cat_id)
