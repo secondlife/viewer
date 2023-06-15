@@ -189,7 +189,7 @@ protected:
 
 private:
     void addToGallery(LLInventoryGalleryItem* item);
-    void removeFromGalleryLast(LLInventoryGalleryItem* item);
+    void removeFromGalleryLast(LLInventoryGalleryItem* item, bool needs_reshape = true);
     void removeFromGalleryMiddle(LLInventoryGalleryItem* item);
     LLPanel* addLastRow();
     void removeLastRow();

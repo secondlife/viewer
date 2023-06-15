@@ -379,7 +379,7 @@ void LLInventoryGallery::reArrangeRows(S32 row_diff)
     std::vector<LLInventoryGalleryItem*> buf_items = mItems;
     for (std::vector<LLInventoryGalleryItem*>::const_reverse_iterator it = buf_items.rbegin(); it != buf_items.rend(); ++it)
     {
-        removeFromGalleryLast(*it);
+        removeFromGalleryLast(*it, false);
     }
     for (std::vector<LLInventoryGalleryItem*>::const_reverse_iterator it = mHiddenItems.rbegin(); it != mHiddenItems.rend(); ++it)
     {
@@ -492,7 +492,7 @@ void LLInventoryGallery::addToGallery(LLInventoryGalleryItem* item)
 }
 
 
-void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item)
+void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item, bool needs_reshape)
 {
     if(item->isHidden())
     {
@@ -518,7 +518,10 @@ void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item)
         }
         removeLastRow();
     }
-    reshapeGalleryPanel(row_count);
+    if (needs_reshape)
+    {
+        reshapeGalleryPanel(row_count);
+    }
 }
 
 
