@@ -6518,7 +6518,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
         {
             if (pparams->mGLTFMaterial)
             {
-                gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
+                gDeferredShadowGLTFAlphaBlendProgram.bind(rigged);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
@@ -6544,7 +6544,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
         {
             if (pparams->mGLTFMaterial)
             {
-                gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
+                gDeferredShadowGLTFAlphaBlendProgram.bind(rigged);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
