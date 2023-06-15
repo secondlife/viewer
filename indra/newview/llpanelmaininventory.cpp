@@ -441,7 +441,10 @@ LLFloaterSidePanelContainer* LLPanelMainInventory::newWindow()
 
 	if (!gAgentCamera.cameraMouselook())
 	{
-		return LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
+        LLFloaterSidePanelContainer* floater = LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
+        LLSidepanelInventory* sidepanel_inventory = floater->findChild<LLSidepanelInventory>("main_panel");
+        sidepanel_inventory->initInventoryViews();
+		return floater;
 	}
     return NULL;
 }
