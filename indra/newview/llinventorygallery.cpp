@@ -661,10 +661,11 @@ bool LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
 {
     if(item)
     {
-        item->setHidden(!checkAgainstFilters(item, filter_substring));
-        return false;
+        bool visible = checkAgainstFilters(item, filter_substring);
+        item->setHidden(!visible);
+        return visible;
     }
-    return true;
+    return false;
 }
 
 bool LLInventoryGallery::checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring)
@@ -762,6 +763,7 @@ void LLInventoryGallery::onIdle(void* userdata)
     {
         self->mNeedsArrange = false;
         self->reArrangeRows();
+        self->updateMessageVisibility();
     }
 
     if (self->mItemToSelect.notNull())
