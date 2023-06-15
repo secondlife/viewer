@@ -335,6 +335,7 @@ LLPipeline::LLPipeline() :
 	mTextureMatrixOps(0),
 	mNumVisibleNodes(0),
 	mNumVisibleFaces(0),
+	mPoissonOffset(0),
 
 	mInitialized(false),
 	mShadersLoaded(false),
