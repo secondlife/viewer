@@ -550,7 +550,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if (mModifiers & mask)
     {
         eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
-        callKeyDown(&eventData, [theEvent keyCode], 0, [[theEvent characters] characterAtIndex:0]);
+
+        wchar_t c = 0;
+        if([theEvent type] == NSEventTypeKeyDown)
+        {
+            // characters property is only valid when the event is of type KeyDown or KeyUp
+            // https://developer.apple.com/documentation/appkit/nsevent/1534183-characters?language=objc
+            c = [[theEvent characters] characterAtIndex:0];
+        }
+
+        callKeyDown(&eventData, [theEvent keyCode], 0, c);
     }
     else
     {
