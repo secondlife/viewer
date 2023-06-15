@@ -332,6 +332,7 @@ collectedColor = vec4(1, 0, 1, 1);
     float zFar = 128.0;
     vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
 
+    vignette *= clamp(glossiness * 3 - 1.7, 0, 1);
 
     vec4 hitpoint;
     
@@ -340,8 +341,9 @@ collectedColor = vec4(1, 0, 1, 1);
     totalSamples = int(max(glossySampleCount, glossySampleCount * glossiness * vignette));
 
     totalSamples = max(totalSamples, 1);
-
+    if (glossiness < 0.35)
     {
+        if (vignette > 0)
         {
             for (int i = 0; i < totalSamples; i++) 
             {
@@ -363,15 +365,15 @@ collectedColor = vec4(1, 0, 1, 1);
                     collectedColor.a += 1;
                 }
             }
-        }
-
-        if (hits > 0)
-        {
-            collectedColor /= hits;
-        }
-        else
-        {
-            collectedColor = vec4(0);
+            
+            if (hits > 0)
+            {
+                collectedColor /= hits;
+            }
+            else
+            {
+                collectedColor = vec4(0);
+            }
         }
     }
     float hitAlpha = hits;
