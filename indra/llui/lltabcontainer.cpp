@@ -986,7 +986,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	// Tab panel
 	S32 tab_panel_top;
 	S32 tab_panel_bottom;
-	if (!getTabsHidden())
+	if (!getTabsHidden()) 
 	{
 		if( getTabPosition() == LLTabContainer::TOP )
 		{
@@ -1002,7 +1002,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
-		// Skip tab button space if tabs are invisible (EXT-576)
+		//Scip tab button space if they are invisible(EXT - 576)
 		tab_panel_top = getRect().getHeight();
 		tab_panel_bottom = LLPANEL_BORDER_WIDTH;
 	}
@@ -1017,9 +1017,9 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
-		tab_panel_rect = LLRect(LLPANEL_BORDER_WIDTH * 2,
+		tab_panel_rect = LLRect(LLPANEL_BORDER_WIDTH, 
 								tab_panel_top,
-								getRect().getWidth(),
+								getRect().getWidth()-LLPANEL_BORDER_WIDTH,
 								tab_panel_bottom );
 	}
 	child->setFollowsAll();

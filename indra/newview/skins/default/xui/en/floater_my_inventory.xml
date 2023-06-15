@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
- name="floater_my_inventory"
- title="INVENTORY"
- help_topic="sidebar_inventory"
  positioning="cascading"
- width="363"
- height="570"
- min_width="363"
- min_height="270"
  can_close="true"
  can_resize="true"
+ height="570"
+ help_topic="sidebar_inventory"
+ min_width="363"
+ min_height="270"
+ name="floater_my_inventory"
  save_rect="true"
  save_visibility="true"
- reuse_instance="true" >
-  <panel
-   name="main_panel"
-   class="sidepanel_inventory"
-   filename="sidepanel_inventory.xml"
-   follows="all"
-   top="0" />
+ reuse_instance="true"
+ title="INVENTORY"
+ width="363" >
+   <panel
+    class="sidepanel_inventory"
+    name="main_panel"
+    filename="sidepanel_inventory.xml"
+    follows="all"
+    top="0"/>
 </floater>
