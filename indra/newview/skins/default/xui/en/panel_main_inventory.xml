@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  name="main inventory panel"
- follows="all"
- height="423"
  label="Things"
+ follows="all"
  layout="topleft"
+ height="423"
  min_height="300"
  min_width="240" >
   <panel.string
@@ -12,16 +12,14 @@
   </panel.string>
   <panel.string
    name="ItemcountFetching">
-    Fetching [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders... [FILTER]
+   Fetching [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders... [FILTER]
   </panel.string>
   <panel.string
-   name="ItemcountCompleted">
+    name="ItemcountCompleted">
     [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders [FILTER]
   </panel.string>
-  <panel.string
-   name="ItemcountUnknown">
-    Fetched [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders [FILTER]
-  </panel.string>
+  <panel.string name="ItemcountUnknown"
+   >Fetched [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders [FILTER]</panel.string>
   <panel.string name="inventory_title">INVENTORY</panel.string>
   <panel.string name="default_mode_btn">Multi_Folder_Mode</panel.string>
   <panel.string name="single_folder_mode_btn">Single_Folder_Mode</panel.string>
@@ -259,20 +257,18 @@
     </tab_container>
   </panel>
   <panel
-   follows="all"
-   halign="center"
-   height="372"
-   layout="topleft"
-   left="7"
    name="combination_view_inventory"
-   top_delta="0"
-   visible="false"
-   xwidth="306">
+   layout="topleft"
+   follows="all"
+   top_delta="-5"
+   height="372"
+   halign="center"
+   visible="false">
     <layout_stack
-     follows="all"
      layout="topleft"
+     follows="all"
      height="372"
-     xwidth="306"
+     top_pad="0"
      animate="false"
      drag_handle_gap="13"
      drag_handle_thickness="6"
@@ -280,47 +276,45 @@
      drag_handle_second_indent="18"
      drag_handle_shift="5"
      show_drag_handle="true"
-     top="0"
-     left="0"
      orientation="vertical">
       <layout_panel
+       name="comb_gallery_layout"
+       layout="topleft"
+       follows="all"
+       height="246"
+       xmin_width="150"
        border="false"
        bevel_style="in"
        user_resize="true"
-       auto_resize="true"
-       height="246"
-       xwidth="306"
-       min_width="150"
-       name="comb_gallery_layout">
-        <panel
+       auto_resize="true">
+        <xpanel
+         name="comb_gallery_view_inv"
          class="inventory_gallery"
          filename="panel_inventory_gallery.xml"
-         left="0"
-         top="1"
-         height="246"
-         xwidth="304"
-         name="comb_gallery_view_inv"
-         background_visible="true"
+         layout="topleft"
          follows="all"
-         layout="topleft">
-        </panel>
+         xleft="0"
+         xtop="1"
+         height="246"
+         width="100"
+         background_visible="true">
+        </xpanel>
       </layout_panel>
-      <layout_panel
+	  <layout_panel
+       name="comb_inventory_layout"
+       layout="topleft"
+       follows="all"
+       height="126"
        border="false"
        bevel_style="in"
        user_resize="true"
-       auto_resize="true"
-       height="126"
-       xwidth="306"
-       min_height="100"
-       name="comb_inventory_layout">
-        <single_folder_inventory_panel
+       auto_resize="true">
+        <xsingle_folder_inventory_panel
          name="comb_single_folder_inv"
          follows="all"
          left="0"
          top="1"
          height="126"
-         xwidth="304"
          layout="topleft"
          show_item_link_overlays="true"
          bg_opaque_color="DkGray2"
@@ -335,7 +329,7 @@
           <folder
            single_folder_mode="true"
            folder_indentation="-8"/>
-        </single_folder_inventory_panel>
+        </xsingle_folder_inventory_panel>
       </layout_panel>
     </layout_stack>
   </panel>

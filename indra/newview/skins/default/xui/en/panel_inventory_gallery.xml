@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-   background_visible="true"
-   bg_alpha_color="InventoryBackgroundColor"
-   border="false"
-   follows="all"
-   height="390"
-   name="Inventory Gallery"
-   layout="topleft"
-   left="0"
-   top="0"
-   width="404">
+ name="Inventory Gallery"
+ background_visible="true"
+ bg_alpha_color="InventoryBackgroundColor"
+ layout="topleft"
+ follows="all"
+ height="390"
+ border="false">
   <text
-    type="string"
-    clip_partial="false"
-    follows="left|top"
-    layout="topleft"
-    left="13"
-    name="empty_txt"
-    top="0"
-    height="32"
-    valign="center"
-    parse_urls="true"
-    wrap="true">
-    Folder is empty.
-  </text> 
+   name="empty_txt"
+   type="string"
+   layout="topleft"
+   follows="all"
+   top="0"
+   left="13"
+   height="32"
+   halign="center"
+   valign="center"
+   clip_partial="false"
+   parse_urls="true"
+   wrap="true">
+   Folder is empty.
+  </text>
   <scroll_container
+   name="gallery_scroll_panel1"
+   layout="topleft"
    follows="all"
    height="390"
-   layout="topleft"
-   left="4"
+   xtop_pad="0"
    top="0"
-   name="gallery_scroll_panel"
-   opaque="false"
-   top_pad="0">
+   left="0"
+   opaque="false">
   </scroll_container>
 </panel>

@@ -81,9 +81,8 @@
            top_pad="0"
            top="10"
            right="-20"
-           halign="right">
-            [NUM] new
-          </text>
+           halign="right"
+           >[NUM] new</text>
           <panel
            name="inbox_inventory_placeholder_panel"
            bg_opaque_color="InventoryBackgroundColor"
@@ -102,9 +101,8 @@
              top="1"
              bottom="-1"
              wrap="true"
-             halign="center">
-              Purchases from the marketplace will be delivered here.
-            </text>
+             halign="center"
+             >Purchases from the marketplace will be delivered here.</text>
           </panel>
         </panel>
       </layout_panel>
