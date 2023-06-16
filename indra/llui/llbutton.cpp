@@ -203,7 +203,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	}
 
 	// Hack to make sure there is space for at least one character
-	if (getRect().getWidth() - (mRightHPad + mLeftHPad) < mGLFont->getWidth(std::string(" ")))
+	if (getRect().mRight >= 0 && getRect().getWidth() > 0 &&
+		getRect().getWidth() - (mRightHPad + mLeftHPad) < mGLFont->getWidth(std::string(" ")))
 	{
 		// Use old defaults
 		mLeftHPad = llbutton_orig_h_pad;

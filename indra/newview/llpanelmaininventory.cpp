@@ -2505,7 +2505,7 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
     {
         std::list<LLUUID> forward_history;
         std::list<LLUUID> backward_history;
-        U32 sort_order;
+        U32 sort_order = 0;
         switch(mViewMode)
         {
             case MODE_LIST:

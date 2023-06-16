@@ -1002,7 +1002,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
-		//Scip tab button space if they are invisible(EXT - 576)
+		// Skip tab button space if tabs are invisible (EXT-576)
 		tab_panel_top = getRect().getHeight();
 		tab_panel_bottom = LLPANEL_BORDER_WIDTH;
 	}
@@ -1017,9 +1017,9 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
-		tab_panel_rect = LLRect(LLPANEL_BORDER_WIDTH, 
+		tab_panel_rect = LLRect(LLPANEL_BORDER_WIDTH * 3,
 								tab_panel_top,
-								getRect().getWidth()-LLPANEL_BORDER_WIDTH,
+								getRect().getWidth() - LLPANEL_BORDER_WIDTH * 2,
 								tab_panel_bottom );
 	}
 	child->setFollowsAll();
@@ -1106,7 +1106,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		  p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
 		}
 		else
-		  { 
+		{ 
 		    p.name("htab_"+std::string(child->getName()));
 		    p.visible(false);
 		    p.image_unselected(tab_img);
