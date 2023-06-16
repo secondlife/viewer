@@ -936,13 +936,13 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
 
 BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    LLUUID old_selection = mSelectedItemID;
-    BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
-    if (!res)
+    if(mItemMap[mSelectedItemID])
     {
-        clearSelection();
-        mItemMap[old_selection]->setFocus(false);
+        mItemMap[mSelectedItemID]->setFocus(false);
+        setFocus(true);
     }
+    clearSelection();
+    BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
 
     if (mSelectedItemID.isNull())
     {
