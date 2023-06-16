@@ -565,8 +565,8 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     giparams.visible = true;
     giparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
     giparams.rect(LLRect(0,mItemHeight, mItemWidth, 0));
-    giparams.name = name;
     LLInventoryGalleryItem* gitem = LLUICtrlFactory::create<LLInventoryGalleryItem>(giparams);
+    gitem->setItemName(name);
     gitem->setUUID(item_id);
     gitem->setGallery(this);
     gitem->setType(type, inventory_type, flags, is_link);
@@ -889,7 +889,7 @@ void LLInventoryGallery::updateChangedItemName(LLUUID item_id, std::string name)
         LLInventoryGalleryItem* item = iter->second;
         if (item)
         {
-            item->setName(name);
+            item->setItemName(name);
         }
     }
 }
@@ -2001,7 +2001,7 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     : LLPanel(p),
     mSelected(false),
     mDefaultImage(true),
-    mName(""),
+    mItemName(""),
     mWornSuffix(""),
     mPermSuffix(""),
     mUUID(LLUUID()),
@@ -2117,9 +2117,9 @@ void LLInventoryGalleryItem::draw()
     gl_rect_2d(border, border_color.get(), FALSE);
 }
 
-void LLInventoryGalleryItem::setName(std::string name)
+void LLInventoryGalleryItem::setItemName(std::string name)
 {
-    mName = name;
+    mItemName = name;
     updateNameText();
 }
 
@@ -2287,9 +2287,9 @@ LLFontGL* LLInventoryGalleryItem::getTextFont()
 void LLInventoryGalleryItem::updateNameText()
 {
     mNameText->setFont(getTextFont());
-    mNameText->setText(mName + mPermSuffix + mWornSuffix);
-    mNameText->setToolTip(mName + mPermSuffix + mWornSuffix);
-    getChild<LLThumbnailCtrl>("preview_thumbnail")->setToolTip(mName + mPermSuffix + mWornSuffix);
+    mNameText->setText(mItemName + mPermSuffix + mWornSuffix);
+    mNameText->setToolTip(mItemName + mPermSuffix + mWornSuffix);
+    getChild<LLThumbnailCtrl>("preview_thumbnail")->setToolTip(mItemName + mPermSuffix + mWornSuffix);
 }
 
 //-----------------------------

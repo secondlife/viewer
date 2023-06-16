@@ -288,7 +288,7 @@ public:
 
     LLFontGL* getTextFont();
 
-    void setName(std::string name);
+    void setItemName(std::string name);
     void setSelected(bool value);
     void setWorn(bool value);
     void setUUID(LLUUID id) {mUUID = id;}
@@ -301,7 +301,7 @@ public:
     void setCreatorName(std::string name) {mCreatorName = name;}
     std::string getCreatorName() { return mCreatorName;}
 
-    std::string getItemName() {return mName;}
+    std::string getItemName() {return mItemName;}
     std::string getItemNameSuffix() {return mPermSuffix + mWornSuffix;}
     bool isDefaultImage() {return mDefaultImage;}
     
@@ -335,7 +335,7 @@ private:
 
     EInventorySortGroup mSortGroup;
     LLAssetType::EType mType;
-    std::string mName;
+    std::string mItemName;
     std::string mWornSuffix;
     std::string mPermSuffix;
     LLInventoryGallery* mGallery;
