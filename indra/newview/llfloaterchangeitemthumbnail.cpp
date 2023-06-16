@@ -295,8 +295,8 @@ void LLFloaterChangeItemThumbnail::refreshFromInventory()
     if (obj)
     {
         const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-        bool in_trash = (obj->getUUID() == trash_id) || gInventory.isObjectDescendentOf(obj->getUUID(), trash_id);
-        if (in_trash)
+        bool in_trash = gInventory.isObjectDescendentOf(obj->getUUID(), trash_id);
+        if (in_trash && obj->getUUID() != trash_id)
         {
             // Close properties when moving to trash
             // Aren't supposed to view properties from trash

@@ -4218,6 +4218,8 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		{
 			disabled_items.push_back(std::string("Empty Trash"));
 		}
+
+        items.push_back(std::string("thumbnail"));
 	}
 	else if(isItemInTrash())
 	{

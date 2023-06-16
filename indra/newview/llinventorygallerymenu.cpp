@@ -334,7 +334,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     if(!is_link)
     {
         items.push_back(std::string("thumbnail"));
-        if (!is_agent_inventory)
+        if (!is_agent_inventory || (is_in_trash && !is_trash))
         {
             disabled_items.push_back(std::string("thumbnail"));
         }
