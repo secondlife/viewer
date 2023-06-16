@@ -342,12 +342,15 @@ void LLInventoryGallery::onVisibilityChange(BOOL new_visibility)
 
 bool LLInventoryGallery::updateRowsIfNeeded()
 {
-    if(((getRect().getWidth() - mRowPanelWidth) > mItemWidth) && mRowCount > 1)
+    S32 scroll_content_width = mScrollPanel ? mScrollPanel->getVisibleContentRect().getWidth() : getRect().getWidth();
+    if(((scroll_content_width - mRowPanelWidth) > mItemWidth)
+       && mRowCount > 1)
     {
         reArrangeRows(1);
         return true;
     }
-    else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > GALLERY_ITEMS_PER_ROW_MIN)
+    else if((mRowPanelWidth > (scroll_content_width + mItemHorizontalGap))
+            && mItemsInRow > GALLERY_ITEMS_PER_ROW_MIN)
     {
         reArrangeRows(-1);
         return true;
