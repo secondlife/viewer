@@ -2196,7 +2196,7 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     getFilter().setEmptyLookupMessage("InventorySingleFolderNoMatches");
     getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");
 
-    mCommitCallbackRegistrar.add("Inventory.OpenSelectedFolder", boost::bind(&LLInventorySingleFolderPanel::openInCurrentWindow, this, _2));
+    mCommitCallbackRegistrar.replace("Inventory.DoToSelected", boost::bind(&LLInventorySingleFolderPanel::doToSelected, this, _2));
     mCommitCallbackRegistrar.replace("Inventory.DoCreate", boost::bind(&LLInventorySingleFolderPanel::doCreate, this, _2));
     mCommitCallbackRegistrar.replace("Inventory.Share", boost::bind(&LLInventorySingleFolderPanel::doShare, this));
 }
@@ -2228,11 +2228,6 @@ void LLInventorySingleFolderPanel::initFolderRoot(const LLUUID& start_folder_id)
 
     LLInventoryPanel::initFolderRoot();
     mFolderRoot.get()->setSingleFolderMode(true);
-}
-
-void LLInventorySingleFolderPanel::openInCurrentWindow(const LLSD& userdata)
-{
-    changeFolderRoot(LLFolderBridge::sSelf.get()->getUUID());
 }
 
 void LLInventorySingleFolderPanel::changeFolderRoot(const LLUUID& new_id)
@@ -2363,6 +2358,16 @@ void LLInventorySingleFolderPanel::doCreate(const LLSD& userdata)
     }
     reset_inventory_filter();
     menu_create_inventory_item(this, dest_id, userdata);
+}
+
+void LLInventorySingleFolderPanel::doToSelected(const LLSD& userdata)
+{
+    if (("open_in_current_window" == userdata.asString()))
+    {
+        changeFolderRoot(LLFolderBridge::sSelf.get()->getUUID());
+        return;
+    }
+    LLInventoryPanel::doToSelected(userdata);
 }
 
 void LLInventorySingleFolderPanel::doShare()

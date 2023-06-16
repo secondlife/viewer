@@ -386,7 +386,8 @@
      layout="topleft"
      name="open_in_current_window">
         <menu_item_call.on_click
-         function="Inventory.OpenSelectedFolder"/>
+         function="Inventory.DoToSelected"
+         parameter="open_in_current_window" />
     </menu_item_call>
     <menu_item_call
      label="Open in new window"

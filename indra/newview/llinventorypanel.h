@@ -408,7 +408,6 @@ public:
 
     void initFolderRoot(const LLUUID& start_folder_id = LLUUID::null);
 
-    void openInCurrentWindow(const LLSD& userdata);
     void changeFolderRoot(const LLUUID& new_id);
     void onForwardFolder();
     void onBackwardFolder();
@@ -416,6 +415,7 @@ public:
     LLUUID getSingleFolderRoot() { return mFolderID; }
 
     void doCreate(const LLSD& userdata);
+    void doToSelected(const LLSD& userdata);
     void doShare();
 
     bool isBackwardAvailable();

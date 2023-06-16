@@ -1315,7 +1315,7 @@ void LLInventoryGallery::paste()
     }
 
     const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
-    if (gInventory.isObjectDescendentOf(mSelectedItemID, marketplacelistings_id))
+    if (!mSelectedItemID.isNull() && gInventory.isObjectDescendentOf(mSelectedItemID, marketplacelistings_id))
     {
         return;
     }
