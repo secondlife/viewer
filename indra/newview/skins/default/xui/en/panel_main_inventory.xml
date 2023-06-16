@@ -6,8 +6,7 @@
  layout="topleft"
  min_height="300"
  min_width="240"
- name="main inventory panel"
- width="355">
+ name="main inventory panel">
   <panel.string
    name="Itemcount">
   </panel.string>
@@ -33,12 +32,12 @@
 		     height="13"
 		     layout="topleft"
     		 left="12"
+    		 right="-12"
 		     name="ItemcountText"
 		     font="SansSerifMedium"
 		     text_color="InventoryItemLinkColor"
 		     use_ellipses="true"
-		     top_pad="0"
-		     width="300">
+		     top_pad="0">
     Items:
   </text>
   <layout_stack
@@ -47,6 +46,7 @@
    animate="false"
    top_pad="10"
    left="2"
+   right="-2"
    orientation="horizontal">
     <layout_panel
      border="false"
@@ -100,7 +100,7 @@
       bevel_style="in"
       user_resize="false"
       height="25"
-      width="375"
+      width="381"
       visible="true">
       <combo_box
        height="23"
@@ -203,10 +203,10 @@
      halign="center"
      height="372"
      layout="topleft"
-     left="7"
+     left="10"
+     right="-10"
      name="default_inventory_panel"
-     top_pad="10"
-     width="312">
+     top_pad="10">
       <tab_container
        follows="all"
        halign="center"
@@ -217,8 +217,7 @@
        tab_height="30"
        tab_position="top"
        tab_min_width="100"
-       top="0"
-       width="312">
+       top="0">
         <inventory_panel
          bg_opaque_color="DkGray2"
          bg_alpha_color="DkGray2"
@@ -226,17 +225,14 @@
          border="false"
          bevel_style="none"
          follows="all"
-         height="338"
          label="MY INVENTORY"
          help_topic="my_inventory_tab"
          layout="topleft"
-         left="0"
          name="All Items"
          sort_order_setting="InventorySortOrder"
          show_item_link_overlays="true"
          preinitialize_views="false"
-         top="16"
-         width="288">
+         scroll.reserve_scroll_corner="false">
             <folder double_click_override="true"/>
         </inventory_panel>
         <recent_inventory_panel
@@ -246,15 +242,13 @@
          border="false"
          bevel_style="none"
          follows="all"
-         height="338"
          label="RECENT"
          help_topic="recent_inventory_tab"
          layout="topleft"
-         left_delta="0"
          name="Recent Items"
          show_item_link_overlays="true"
          preinitialize_views="false"
-         width="290">
+         scroll.reserve_scroll_corner="false">
             <folder double_click_override="true"/>
         </recent_inventory_panel>
         <inventory_panel
@@ -263,7 +257,6 @@
          show_empty_message="false"
          follows="all"
          layout="topleft"
-         width="290"
          bg_opaque_color="DkGray2"
          bg_alpha_color="DkGray2"
          background_visible="true"
@@ -283,13 +276,11 @@
      left="7"
      name="combination_view_inventory"
      top_delta="0"
-     visible="false"
-     width="312">
+     visible="false">
      <layout_stack
       follows="all"
       layout="topleft"
       height="372"
-      width="312"
       animate="false"
       drag_handle_gap="13"
       drag_handle_thickness="6"
@@ -306,7 +297,6 @@
         user_resize="true"
         auto_resize="true"
         height="246"
-        width="312"
         min_width="150"
         name="comb_gallery_layout">
         <panel
@@ -315,7 +305,6 @@
          left="0"
          top="1"
          height="246"
-         width="312"
          name="comb_gallery_view_inv"
          background_visible="true"
          follows="all"
@@ -328,7 +317,6 @@
         user_resize="true"
         auto_resize="true"
         height="126"
-        width="312"
         min_height="100"
         name="comb_inventory_layout">
         <single_folder_inventory_panel
@@ -337,7 +325,6 @@
          left="0"
          top="1"
          height="126"
-         width="312"
          layout="topleft"
          show_item_link_overlays="true"
          bg_opaque_color="DkGray2"
