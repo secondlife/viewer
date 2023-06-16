@@ -143,8 +143,8 @@ LLInventoryGallery::~LLInventoryGallery()
     delete mInventoryGalleryMenu;
     delete mRootGalleryMenu;
     delete mFilter;
-    
-    gIdleCallbacks.deleteFunction(onIdle, this);
+
+    gIdleCallbacks.deleteFunction(onIdle, (void*)this);
 
     while (!mUnusedRowPanels.empty())
     {
@@ -184,8 +184,6 @@ LLInventoryGallery::~LLInventoryGallery()
 
 void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
 {
-    gIdleCallbacks.deleteFunction(onIdle, this);
-
     LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
     if(!category || (mFolderID == cat_id))
     {
@@ -195,7 +193,13 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
     {
         mBackwardFolders.push_back(mFolderID);
     }
+
+    gIdleCallbacks.deleteFunction(onIdle, (void*)this);
+
     mFolderID = cat_id;
+    mItemToSelect.setNull();
+    mItemBuildQuery.clear();
+    mNeedsArrange = false;
     dirtyRootFolder();
 }
 
