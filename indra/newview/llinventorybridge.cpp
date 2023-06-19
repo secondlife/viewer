@@ -4448,26 +4448,29 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 			if (type != LLFolderType::FT_OUTFIT)
 			{
 				items.push_back(std::string("Add To Outfit"));
+                if (!LLAppearanceMgr::instance().getCanAddToCOF(mUUID))
+                {
+                    disabled_items.push_back(std::string("Add To Outfit"));
+                }
 			}
 
 			items.push_back(std::string("Replace Outfit"));
+            if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
+            {
+                disabled_items.push_back(std::string("Replace Outfit"));
+            }
 		}
 		if (is_agent_inventory)
 		{
 			items.push_back(std::string("Folder Wearables Separator"));
+            // Note: If user tries to unwear "My Inventory", it's going to deactivate everything including gestures
+            // Might be safer to disable this for "My Inventory"
 			items.push_back(std::string("Remove From Outfit"));
-			if (!LLAppearanceMgr::getCanRemoveFromCOF(mUUID))
-			{
-					disabled_items.push_back(std::string("Remove From Outfit"));
-			}
-		}
-		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
-		{
-			disabled_items.push_back(std::string("Replace Outfit"));
-		}
-		if (!LLAppearanceMgr::instance().getCanAddToCOF(mUUID))
-		{
-			disabled_items.push_back(std::string("Add To Outfit"));
+            if (type != LLFolderType::FT_ROOT_INVENTORY // Unless COF is empty, whih shouldn't be, warrantied to have worn items
+                && !LLAppearanceMgr::getCanRemoveFromCOF(mUUID)) // expensive from root!
+            {
+                disabled_items.push_back(std::string("Remove From Outfit"));
+            }
 		}
 		items.push_back(std::string("Outfit Separator"));
 
