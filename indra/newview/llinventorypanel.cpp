@@ -1224,6 +1224,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
         const S32 starting_item_count = mItemMap.size();
 
         LLFolderViewFolder *parentp = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
+        bool done = true;
 
 		if(categories)
         {
@@ -1261,6 +1262,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                     if (mBuildViewsEndTime < curent_time)
                     {
                         mBuildViewsQueue.push_back(id);
+                        done = false;
                         break;
                     }
                 }
@@ -1296,13 +1298,14 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                     if (mBuildViewsEndTime < curent_time)
                     {
                         mBuildViewsQueue.push_back(id);
+                        done = false;
                         break;
                     }
                 }
 			}
 		}
 
-        if (!mBuildChildrenViews)
+        if (!mBuildChildrenViews && done)
         {
             // flat list is done initializing folder
             folder_view_item->setChildrenInited(true);
