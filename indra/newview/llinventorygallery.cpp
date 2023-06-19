@@ -337,9 +337,16 @@ void LLInventoryGallery::draw()
 
 void LLInventoryGallery::onVisibilityChange(BOOL new_visibility)
 {
-    if (new_visibility && mRootDirty)
+    if (new_visibility)
     {
-        updateRootFolder();
+        if (mRootDirty)
+        {
+            updateRootFolder();
+        }
+        else if (mNeedsArrange)
+        {
+            gIdleCallbacks.addFunction(onIdle, (void*)this);
+        }
     }
     LLPanel::onVisibilityChange(new_visibility);
 }
@@ -751,9 +758,10 @@ void LLInventoryGallery::onIdle(void* userdata)
         return;
     }
 
+    bool visible = self->getVisible(); // In visible chain?
     const F64 MAX_TIME_VISIBLE = 0.020f;
     const F64 MAX_TIME_HIDDEN = 0.001f; // take it slow
-    const F64 max_time = self->getVisible() ? MAX_TIME_VISIBLE : MAX_TIME_HIDDEN;
+    const F64 max_time = visible ? MAX_TIME_VISIBLE : MAX_TIME_HIDDEN;
     F64 curent_time = LLTimer::getTotalSeconds();
     const F64 end_time = curent_time + max_time;
 
@@ -766,7 +774,7 @@ void LLInventoryGallery::onIdle(void* userdata)
         curent_time = LLTimer::getTotalSeconds();
     }
 
-    if (self->mNeedsArrange)
+    if (self->mNeedsArrange && visible)
     {
         self->mNeedsArrange = false;
         self->reArrangeRows();
