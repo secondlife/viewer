@@ -265,6 +265,7 @@ BOOL LLPanelMainInventory::postBuild()
     mListViewRootUpdatedConnection = mCombinationInventoryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
 
     mCombinationGalleryPanel = getChild<LLInventoryGallery>("comb_gallery_view_inv");
+    mCombinationGalleryPanel->setSortOrder(mCombinationInventoryPanel->getSortOrder());
     LLInventoryFilter& comb_gallery_filter = mCombinationGalleryPanel->getFilter();
     comb_gallery_filter.setFilterThumbnails(LLInventoryFilter::FILTER_ONLY_THUMBNAILS);
     comb_gallery_filter.markDefault();
@@ -631,6 +632,10 @@ void LLPanelMainInventory::setSortBy(const LLSD& userdata)
 			sort_order_mask |= LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
 		}
 	}
+    if(mSingleFolderMode && !isListViewMode())
+    {
+        mCombinationGalleryPanel->setSortOrder(sort_order_mask, true);
+    }
 
 	getActivePanel()->setSortOrder(sort_order_mask);
     if (isRecentItemsPanelSelected())
@@ -2150,7 +2155,7 @@ bool LLPanelMainInventory::isActionVisible(const LLSD& userdata)
 
 BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 {
-	U32 sort_order_mask = getActivePanel()->getSortOrder();
+	U32 sort_order_mask = (mSingleFolderMode && isGalleryViewMode()) ? mCombinationGalleryPanel->getSortOrder() :  getActivePanel()->getSortOrder();
 	const std::string command_name = userdata.asString();
 	if (command_name == "sort_by_name")
 	{
@@ -2500,20 +2505,24 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
     {
         std::list<LLUUID> forward_history;
         std::list<LLUUID> backward_history;
+        U32 sort_order;
         switch(mViewMode)
         {
             case MODE_LIST:
                 forward_history = mCombinationInventoryPanel->getNavForwardList();
                 backward_history = mCombinationInventoryPanel->getNavBackwardList();
+                sort_order = mCombinationInventoryPanel->getSortOrder();
                 break;
             case MODE_GALLERY:
                 forward_history = mCombinationGalleryPanel->getNavForwardList();
                 backward_history = mCombinationGalleryPanel->getNavBackwardList();
+                sort_order = mCombinationGalleryPanel->getSortOrder();
                 break;
             case MODE_COMBINATION:
                 forward_history = mCombinationInventoryPanel->getNavForwardList();
                 backward_history = mCombinationInventoryPanel->getNavBackwardList();
                 mCombinationInventoryPanel->getRootFolder()->setForceArrange(false);
+                sort_order = mCombinationInventoryPanel->getSortOrder();
                 break;
         }
             
@@ -2527,12 +2536,14 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
             mCombinationInventoryPanel->changeFolderRoot(cur_root);
             mCombinationInventoryPanel->setNavForwardList(forward_history);
             mCombinationInventoryPanel->setNavBackwardList(backward_history);
+            mCombinationInventoryPanel->setSortOrder(sort_order);
         }
         if(isGalleryViewMode())
         {
             mCombinationGalleryPanel->setRootFolder(cur_root);
             mCombinationGalleryPanel->setNavForwardList(forward_history);
             mCombinationGalleryPanel->setNavBackwardList(backward_history);
+            mCombinationGalleryPanel->setSortOrder(sort_order, true);
         }
         if(isCombinationViewMode())
         {
@@ -2542,6 +2553,8 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
             mCombinationInventoryPanel->setNavBackwardList(backward_history);
             mCombinationGalleryPanel->setNavForwardList(forward_history);
             mCombinationGalleryPanel->setNavBackwardList(backward_history);
+            mCombinationInventoryPanel->setSortOrder(sort_order);
+            mCombinationGalleryPanel->setSortOrder(sort_order, true);
         }
 
         updateNavButtons();

@@ -87,7 +87,8 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mIsInitialized(false),
       mRootDirty(false),
       mNeedsArrange(false),
-      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME)
+      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME),
+      mSortOrder(LLInventoryFilter::SO_DATE)
 {
     updateGalleryWidth();
     mFilter = new LLInventoryFilter();
@@ -369,18 +370,34 @@ bool LLInventoryGallery::updateRowsIfNeeded()
     return false;
 }
 
-bool compareGalleryItem(LLInventoryGalleryItem* item1, LLInventoryGalleryItem* item2)
+bool compareGalleryItem(LLInventoryGalleryItem* item1, LLInventoryGalleryItem* item2, bool sort_by_date, bool sort_folders_by_name)
 {
     if (item1->getSortGroup() != item2->getSortGroup())
     {
         return (item1->getSortGroup() < item2->getSortGroup());
     }
-    if(((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage())))
+
+    if(sort_folders_by_name && (item1->getSortGroup() != LLInventoryGalleryItem::SG_ITEM))
     {
         std::string name1 = item1->getItemName();
         std::string name2 = item2->getItemName();
 
         return (LLStringUtil::compareDict(name1, name2) < 0);
+    }
+
+    if(((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage())))
+    {
+        if(sort_by_date)
+        {
+            return item1->getCreationDate() > item2->getCreationDate();
+        }
+        else
+        {
+            std::string name1 = item1->getItemName();
+            std::string name2 = item2->getItemName();
+
+            return (LLStringUtil::compareDict(name1, name2) < 0);
+        }
     }
     else
     {
@@ -403,7 +420,13 @@ void LLInventoryGallery::reArrangeRows(S32 row_diff)
     
     mItemsInRow+= row_diff;
     updateGalleryWidth();
-    std::sort(buf_items.begin(), buf_items.end(), compareGalleryItem);
+
+    bool sort_by_date = (mSortOrder & LLInventoryFilter::SO_DATE);
+    bool sort_folders_by_name = (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+    std::sort(buf_items.begin(), buf_items.end(), [sort_by_date, sort_folders_by_name](LLInventoryGalleryItem* item1, LLInventoryGalleryItem* item2)
+    {
+        return compareGalleryItem(item1, item2, sort_by_date, sort_folders_by_name);
+    });
     
     for (std::vector<LLInventoryGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
@@ -573,7 +596,7 @@ void LLInventoryGallery::removeFromLastRow(LLInventoryGalleryItem* item)
     mItemPanels.pop_back();
 }
 
-LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link, bool is_worn)
+LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, time_t creation_date, bool is_link, bool is_worn)
 {
     LLInventoryGalleryItem::Params giparams;
     giparams.visible = true;
@@ -589,6 +612,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setCreatorName(get_searchable_creator_name(&gInventory, item_id));
     gitem->setDescription(get_searchable_description(&gInventory, item_id));
     gitem->setAssetIDStr(get_searchable_UUID(&gInventory, item_id));
+    gitem->setCreationDate(creation_date);
     return gitem;
 }
 
@@ -857,7 +881,8 @@ bool LLInventoryGallery::updateAddedItem(LLUUID item_id)
     }
 
     bool res = false;
-    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType(), is_worn);
+
+    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getCreationDate(), obj->getIsLinkType(), is_worn);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id, false));
@@ -2006,6 +2031,17 @@ void LLInventoryGallery::handleModifiedFilter()
     }
 }
 
+void LLInventoryGallery::setSortOrder(U32 order, bool update)
+{
+    bool dirty = (mSortOrder != order);
+
+    mSortOrder = order;
+    if(update && dirty)
+    {
+        mNeedsArrange = true;
+        gIdleCallbacks.addFunction(onIdle, (void*)this);
+    }
+}
 //-----------------------------
 // LLInventoryGalleryItem
 //-----------------------------
