@@ -357,6 +357,8 @@ void LLInventoryModelBackgroundFetch::scheduleFolderFetch(const LLUUID& cat_id, 
 {
     if (mFetchFolderQueue.empty() || mFetchFolderQueue.front().mUUID != cat_id)
     {
+        mBackgroundFetchActive = true;
+
         // Specific folder requests go to front of queue.
         mFetchFolderQueue.push_front(FetchQueueInfo(cat_id, forced ? FT_FORCED : FT_DEFAULT));
         gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
