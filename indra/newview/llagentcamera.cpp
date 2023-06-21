@@ -1764,13 +1764,24 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			LL_WARNS() << "Null avatar drawable!" << LL_ENDL;
 			return LLVector3d::zero;
 		}
+
 		head_offset.clearVec();
+		F32 fixup;
+		if (gAgentAvatarp->hasPelvisFixup(fixup))
+		{
+			head_offset[VZ] -= fixup;
+		}
+		if (gAgentAvatarp->isSitting())
+		{
+			head_offset.mdV[VZ] += 0.1;
+		}
+
 		if (gAgentAvatarp->isSitting() && gAgentAvatarp->getParent())
 		{
 			gAgentAvatarp->updateHeadOffset();
-			head_offset.mdV[VX] = gAgentAvatarp->mHeadOffset.mV[VX];
-			head_offset.mdV[VY] = gAgentAvatarp->mHeadOffset.mV[VY];
-			head_offset.mdV[VZ] = gAgentAvatarp->mHeadOffset.mV[VZ] + 0.1f;
+			head_offset.mdV[VX] += gAgentAvatarp->mHeadOffset.mV[VX];
+			head_offset.mdV[VY] += gAgentAvatarp->mHeadOffset.mV[VY];
+			head_offset.mdV[VZ] += gAgentAvatarp->mHeadOffset.mV[VZ];
 			const LLMatrix4& mat = ((LLViewerObject*) gAgentAvatarp->getParent())->getRenderMatrix();
 			camera_position_global = gAgent.getPosGlobalFromAgent
 								((gAgentAvatarp->getPosition()+
@@ -1778,11 +1789,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		}
 		else
 		{
-			head_offset.mdV[VZ] = gAgentAvatarp->mHeadOffset.mV[VZ];
-			if (gAgentAvatarp->isSitting())
-			{
-				head_offset.mdV[VZ] += 0.1;
-			}
+			head_offset.mdV[VZ] += gAgentAvatarp->mHeadOffset.mV[VZ];
 			camera_position_global = gAgent.getPosGlobalFromAgent(gAgentAvatarp->getRenderPosition());//frame_center_global;
 			head_offset = head_offset * gAgentAvatarp->getRenderRotation();
 			camera_position_global = camera_position_global + head_offset;
