@@ -36,7 +36,7 @@ uniform mat4 inv_modelview_delta;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-float random (vec2 uv) 
+float random (vec2 uv)
 {
     return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123); //simple random function
 }
@@ -75,7 +75,7 @@ float getLinearDepth(vec2 tc)
     return -pos.z;
 }
 
-bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame) 
+bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame)
 {
     // transform position and reflection into same coordinate frame as the sceneMap and sceneDepth
     reflection += position;
@@ -93,22 +93,27 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
     bool hit = false;
     hitColor = vec4(0);
     
-    
     int i = 0;
-    if (depth > depthRejectBias) 
+    if (depth > depthRejectBias)
     {
-        for (; i < iterationCount && !hit; i++) 
+        for (; i < iterationCount && !hit; i++)
         {
             screenPosition = generateProjectedPosition(marchingPosition);
+            if (screenPosition.x > 1 || screenPosition.x < 0 ||
+                screenPosition.y > 1 || screenPosition.y < 0)
+            {
+                hit = false;
+                break;
+            }
             depthFromScreen = getLinearDepth(screenPosition);
             delta = abs(marchingPosition.z) - depthFromScreen;
             
-            if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) 
+            if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
             {
                 break;
             }
 
-            if (abs(delta) < distanceBias) 
+            if (abs(delta) < distanceBias)
             {
                 vec4 color = vec4(1);
                 if(debugDraw)
@@ -118,7 +123,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
                 hit = true;
                 break;
             }
-            if (isBinarySearchEnabled && delta > 0) 
+            if (isBinarySearchEnabled && delta > 0)
             {
                 break;
             }
@@ -130,7 +135,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
                 step = step * (1.0 - rayStep * max(directionSign, 0.0));
                 marchingPosition += step * (-directionSign);
             }
-            else 
+            else
             {
                 marchingPosition += step;
             }
@@ -148,15 +153,21 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
                 marchingPosition = marchingPosition - step * sign(delta);
                 
                 screenPosition = generateProjectedPosition(marchingPosition);
+                if (screenPosition.x > 1 || screenPosition.x < 0 ||
+                    screenPosition.y > 1 || screenPosition.y < 0)
+                {
+                    hit = false;
+                    break;
+                }
                 depthFromScreen = getLinearDepth(screenPosition);
                 delta = abs(marchingPosition.z) - depthFromScreen;
 
-                if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) 
+                if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
                 {
                     break;
                 }
 
-                if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias)) 
+                if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias))
                 {
                     vec4 color = vec4(1);
                     if(debugDraw)
@@ -326,8 +337,8 @@ collectedColor = vec4(1, 0, 1, 1);
     float jitter = mod( c, 1.0);
     
     vec2 screenpos = 1 - abs(tc * 2 - 1);
-    float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 64,0, 1);
-    vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 16, 0, 1);
+    float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 16,0, 1);
+    vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 5.5 - 0.8, 0, 1);
     
     float zFar = 128.0;
     vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
@@ -345,7 +356,7 @@ collectedColor = vec4(1, 0, 1, 1);
     {
         if (vignette > 0)
         {
-            for (int i = 0; i < totalSamples; i++) 
+            for (int i = 0; i < totalSamples; i++)
             {
                 vec3 firstBasis = normalize(cross(getPoissonSample(i), rayDirection));
                 vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
@@ -358,7 +369,7 @@ collectedColor = vec4(1, 0, 1, 1);
 
                 hitpoint.a = 0;
 
-                if (hit) 
+                if (hit)
                 {
                     ++hits;
                     collectedColor += hitpoint;
