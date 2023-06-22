@@ -10590,17 +10590,6 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
-  <key>RenderSkyHDRScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Amount to over-brighten sun for HDR effect during the day</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
   <key>RenderSkyAutoAdjustLegacy</key>
   <map>
     <key>Comment</key>
@@ -10611,6 +10600,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>1</integer>
+  </map>
+  <key>RenderSkyAutoAdjustAmbientScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to scale ambient when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>RenderSkyAutoAdjustHDRScale</key>
+  <map>
+    <key>Comment</key>
+    <string>HDR Scale value to use when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.0</real>
   </map>
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>

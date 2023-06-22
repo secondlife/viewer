@@ -36,8 +36,6 @@ vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 { 
     light *= atten.r;
     additive = srgb_to_linear(additive*2.0);
-    // magic 1.25 here is to match the default RenderSkyHDRScale -- this parameter needs to be plumbed into sky settings or something
-    // so it's available to all shaders that call atmosFragLighting instead of just softenLightF.glsl
     additive *= sky_hdr_scale;
     light += additive;
     return light;

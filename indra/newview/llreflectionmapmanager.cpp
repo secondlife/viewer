@@ -924,8 +924,9 @@ void LLReflectionMapManager::updateUniforms()
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
     F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance(cloud_shadow_scale, should_auto_adjust);
 
-    F32 ambscale = gCubeSnapshot && !isRadiancePass() ? 0.f : 1.f;
-    F32 radscale = gCubeSnapshot && !isRadiancePass() ? 0.5f : 1.f;
+    bool is_ambiance_pass = gCubeSnapshot && !isRadiancePass();
+    F32 ambscale = is_ambiance_pass ? 0.f : 1.f;
+    F32 radscale = is_ambiance_pass ? 0.5f : 1.f;
     
     for (auto* refmap : mReflectionMaps)
     {
