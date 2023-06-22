@@ -174,7 +174,8 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mLiveSky->getCloudNoiseTextureId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setValue(mLiveWater->getNormalMapID());
 
-    getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(mLiveSky->getReflectionProbeAmbiance());
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(mLiveSky->getReflectionProbeAmbiance(should_auto_adjust));
 
     LLColor3 glow(mLiveSky->getGlow());
 
@@ -488,7 +489,9 @@ void LLFloaterEnvironmentAdjust::onReflectionProbeAmbianceChanged()
 void LLFloaterEnvironmentAdjust::updateGammaLabel()
 {
     if (!mLiveSky) return;
-    F32 ambiance = mLiveSky->getReflectionProbeAmbiance();
+
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    F32 ambiance = mLiveSky->getReflectionProbeAmbiance(should_auto_adjust);
     if (ambiance != 0.f)
     {
         childSetValue("scene_gamma_label", getString("hdr_string"));

@@ -36,6 +36,7 @@
 #include "llsettingssky.h"
 #include "llenvironment.h"
 #include "llatmosphere.h"
+#include "llviewercontrol.h"
 
 namespace
 {   
@@ -207,7 +208,9 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     F32 moisture_level  = mSkySettings->getSkyMoistureLevel();
     F32 droplet_radius  = mSkySettings->getSkyDropletRadius();
     F32 ice_level       = mSkySettings->getSkyIceLevel();
-    F32 rp_ambiance     = mSkySettings->getReflectionProbeAmbiance();
+
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    F32 rp_ambiance     = mSkySettings->getReflectionProbeAmbiance(should_auto_adjust);
 
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setValue(moisture_level);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setValue(droplet_radius);

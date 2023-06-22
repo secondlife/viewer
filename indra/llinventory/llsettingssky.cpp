@@ -1142,6 +1142,7 @@ void LLSettingsSky::setSkyIceLevel(F32 ice_level)
 
 void LLSettingsSky::setReflectionProbeAmbiance(F32 ambiance)
 {
+    mCanAutoAdjust = false; // we've now touched this sky in a "new" way, it can no longer auto adjust
     setValue(SETTING_REFLECTION_PROBE_AMBIANCE, ambiance);
 }
 
