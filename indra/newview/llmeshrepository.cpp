@@ -4067,7 +4067,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 			if (sys_volume)
 			{
 				sys_volume->copyVolumeFaces(volume);
-				sys_volume->setMeshAssetLoaded(TRUE);
+				sys_volume->setMeshAssetLoaded(true);
 				LLPrimitive::getVolumeManager()->unrefVolume(sys_volume);
 			}
 			else
@@ -4098,6 +4098,12 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
 	if (obj_iter != mLoadingMeshes[lod].end())
 	{
 		F32 detail = LLVolumeLODGroup::getVolumeScaleFromDetail(lod);
+
+        LLVolume* sys_volume = LLPrimitive::getVolumeManager()->refVolume(mesh_params, detail);
+        if (sys_volume)
+        {
+            sys_volume->setMeshAssetUnavaliable(true);
+        }
 
 		for (LLVOVolume* vobj : obj_iter->second)
 		{
