@@ -10593,8 +10593,36 @@ void LLPipeline::handleShadowDetailChanged()
     }
 }
 
-void LLPipeline::overrideEnvironmentMap()
+class LLOctreeDirty : public OctreeTraveler
 {
-    //mReflectionMapManager.mProbes.clear();
-    //mReflectionMapManager.addProbe(LLViewerCamera::instance().getOrigin());
+public:
+    virtual void visit(const OctreeNode* state)
+    {
+        LLSpatialGroup* group = (LLSpatialGroup*)state->getListener(0);
+
+        group->setState(LLSpatialGroup::GEOM_DIRTY);
+        gPipeline.markRebuild(group);
+
+        for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
+        {
+            LLSpatialBridge* bridge = *i;
+            traverse(bridge->mOctree);
+        }
+    }
+};
+
+
+void LLPipeline::rebuildDrawInfo()
+{
+    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+        iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+    {
+        LLViewerRegion* region = *iter;
+
+        LLOctreeDirty dirty;
+
+        LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
+        dirty.traverse(part->mOctree);
+    }
 }
+

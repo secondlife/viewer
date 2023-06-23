@@ -777,7 +777,8 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 	assert_states_valid(this);
 }
 
-void LLSpatialGroup::destroyGL(bool keep_occlusion) 
+
+void LLSpatialGroup::destroyGLState(bool keep_occlusion) 
 {
 	setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::IMAGE_DIRTY);
 
@@ -1290,43 +1291,9 @@ void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size)
 	drawBoxOutline(reinterpret_cast<const LLVector3&>(pos), reinterpret_cast<const LLVector3&>(size));
 }
 
-class LLOctreeDirty : public OctreeTraveler
-{
-public:
-	virtual void visit(const OctreeNode* state)
-	{
-		LLSpatialGroup* group = (LLSpatialGroup*) state->getListener(0);
-		group->destroyGL();
-
-		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
-		{
-			LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
-			if(!drawable)
-			{
-				continue;
-			}
-			if (drawable->getVObj().notNull() && !group->getSpatialPartition()->mRenderByGroup)
-			{
-				gPipeline.markRebuild(drawable, LLDrawable::REBUILD_ALL);
-			}
-		}
-
-		for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
-		{
-			LLSpatialBridge* bridge = *i;
-			traverse(bridge->mOctree);
-		}
-	}
-};
 
 void LLSpatialPartition::restoreGL()
 {
-}
-
-void LLSpatialPartition::resetVertexBuffers()
-{
-	LLOctreeDirty dirty;
-	dirty.traverse(mOctree);
 }
 
 BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax)

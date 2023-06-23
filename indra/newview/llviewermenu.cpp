@@ -7826,10 +7826,6 @@ class LLToggleShaderControl : public view_listener_t
 		BOOL checked = gSavedSettings.getBOOL( control_name );
 		gSavedSettings.setBOOL( control_name, !checked );
         LLPipeline::refreshCachedSettings();
-        //gPipeline.updateRenderDeferred();
-		//gPipeline.releaseGLBuffers();
-		//gPipeline.createGLBuffers();
-		//gPipeline.resetVertexBuffers();
         LLViewerShaderMgr::instance()->setShaders();
 		return !checked;
 	}
@@ -8560,6 +8556,9 @@ class LLViewHighlightTransparent : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLDrawPoolAlpha::sShowDebugAlpha = !LLDrawPoolAlpha::sShowDebugAlpha;
+
+        // invisible objects skip building their render batches unless sShowDebugAlpha is true, so rebuild batches whenever toggling this flag
+        gPipeline.rebuildDrawInfo(); 
 		return true;
 	}
 };

@@ -131,6 +131,10 @@ public:
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
+    // rebuild all LLVOVolume render batches
+    void rebuildDrawInfo();
+
+    // Clear LLFace mVertexBuffer pointers
 	void resetVertexBuffers(LLDrawable* drawable);
 
     // perform a profile of the given avatar
@@ -449,7 +453,6 @@ public:
     void handleShadowDetailChanged();
 
     LLReflectionMapManager mReflectionMapManager;
-    void overrideEnvironmentMap();
 
 private:
 	void unloadShaders();
