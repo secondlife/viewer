@@ -86,6 +86,9 @@ public:
     void moveLeft();
     void moveRight();
 
+    void onFocusLost();
+    void onFocusReceived();
+
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }
     LLInventoryFilter& getFilter() const { return *mFilter; }
@@ -161,6 +164,7 @@ public:
     U32 getSortOrder() { return mSortOrder; };
 
     void claimEditHandler();
+    void resetEditHandler();
     static bool isItemCopyable(const LLUUID & item_id);
 
     BOOL baseHandleDragAndDrop(LLUUID dest_id, BOOL drop, EDragAndDropType cargo_type,
@@ -289,6 +293,9 @@ public:
                                    EAcceptance* accept,
                                    std::string& tooltip_msg);
     BOOL handleKeyHere(KEY key, MASK mask);
+
+    void onFocusLost();
+    void onFocusReceived();
 
     LLFontGL* getTextFont();
 

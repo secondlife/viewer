@@ -63,6 +63,25 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, BOOL d
 BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm);
 void dropToMyOutfits(LLInventoryCategory* inv_cat);
 
+class LLGalleryPanel: public LLPanel
+{
+public:
+
+    BOOL canFocusChildren() const override
+    {
+        // Tell Tab to not focus children
+        return FALSE;
+    }
+
+protected:
+
+    LLGalleryPanel(const LLPanel::Params& params): LLPanel(params)
+    {
+    };
+
+    friend class LLUICtrlFactory;
+};
+
 //-----------------------------
 // LLInventoryGallery
 //-----------------------------
@@ -622,7 +641,7 @@ void LLInventoryGallery::buildGalleryPanel(int row_count)
     params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
     params.visible = true;
     params.use_bounding_rect = false;
-    mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
+    mGalleryPanel = LLUICtrlFactory::create<LLGalleryPanel>(params);
     reshapeGalleryPanel(row_count);
 }
 
@@ -647,6 +666,8 @@ LLPanel* LLInventoryGallery::buildItemPanel(int left)
         lpparams.visible = true;
         lpparams.rect(LLRect(left, top + mItemHeight, left + mItemWidth + mItemHorizontalGap, top));
         lpparams.use_bounding_rect = false;
+        lpparams.focus_root = false;
+        //lpparams.tab_stop = false;
         lpanel = LLUICtrlFactory::create<LLPanel>(lpparams);
     }
     else
@@ -669,6 +690,8 @@ LLPanel* LLInventoryGallery::buildRowPanel(int left, int bottom)
         sparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
         sparams.use_bounding_rect = false;
         sparams.visible = true;
+        sparams.focus_root = false;
+        //sparams.tab_stop = false;
         stack = LLUICtrlFactory::create<LLPanel>(sparams);
     }
     else
@@ -1207,6 +1230,35 @@ void LLInventoryGallery::moveRight()
     }
 }
 
+void LLInventoryGallery::onFocusLost()
+{
+    // inventory no longer handles cut/copy/paste/delete
+    if (gEditMenuHandler == this)
+    {
+        gEditMenuHandler = NULL;
+    }
+
+    LLPanel::onFocusLost();
+
+    if (mSelectedItemID.notNull() && mItemMap[mSelectedItemID])
+    {
+        mItemMap[mSelectedItemID]->setSelected(false);
+    }
+}
+
+void LLInventoryGallery::onFocusReceived()
+{
+    // inventory now handles cut/copy/paste/delete
+    gEditMenuHandler = this;
+
+    LLPanel::onFocusReceived();
+
+    if (mSelectedItemID.notNull() && mItemMap[mSelectedItemID])
+    {
+        mItemMap[mSelectedItemID]->setSelected(true);
+    }
+}
+
 void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id)
 {
     if (mInventoryGalleryMenu && item_id.notNull())
@@ -1593,6 +1645,14 @@ void LLInventoryGallery::pasteAsLink()
 void LLInventoryGallery::claimEditHandler()
 {
     gEditMenuHandler = this;
+}
+
+void LLInventoryGallery::resetEditHandler()
+{
+    if (gEditMenuHandler == this)
+    {
+        gEditMenuHandler = NULL;
+    }
 }
 
 bool LLInventoryGallery::isItemCopyable(const LLUUID & item_id)
@@ -2308,6 +2368,24 @@ BOOL LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
             break;
     }
     return handled;
+}
+
+void LLInventoryGalleryItem::onFocusLost()
+{
+    // inventory no longer handles cut/copy/paste/delete
+    mGallery->resetEditHandler();
+    setSelected(false);
+
+    LLPanel::onFocusLost();
+}
+
+void LLInventoryGalleryItem::onFocusReceived()
+{
+    // inventory now handles cut/copy/paste/delete
+    mGallery->claimEditHandler();
+    setSelected(true);
+
+    LLPanel::onFocusReceived();
 }
 
 void LLInventoryGalleryItem::setWorn(bool value)
