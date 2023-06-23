@@ -271,7 +271,7 @@
     <panel
      follows="all"
      halign="center"
-     height="372"
+     height="375"
      layout="topleft"
      left="7"
      name="combination_view_inventory"
@@ -280,9 +280,9 @@
      <layout_stack
       follows="all"
       layout="topleft"
-      height="372"
+      height="375"
+      name="combination_view_stack"
       animate="false"
-      drag_handle_gap="13"
       drag_handle_thickness="6"
       drag_handle_first_indent="18"
       drag_handle_second_indent="18"
@@ -296,7 +296,7 @@
         bevel_style="in"
         user_resize="true"
         auto_resize="true"
-        height="246"
+        height="248"
         min_width="150"
         name="comb_gallery_layout">
         <panel
@@ -304,7 +304,7 @@
          filename="panel_inventory_gallery.xml"
          left="0"
          top="1"
-         height="246"
+         height="248"
          name="comb_gallery_view_inv"
          background_visible="true"
          follows="all"
@@ -316,7 +316,7 @@
         bevel_style="in"
         user_resize="true"
         auto_resize="true"
-        height="126"
+        height="127"
         min_height="100"
         name="comb_inventory_layout">
         <single_folder_inventory_panel
@@ -324,7 +324,7 @@
          follows="all"
          left="0"
          top="1"
-         height="126"
+         height="127"
          layout="topleft"
          show_item_link_overlays="true"
          bg_opaque_color="DkGray2"

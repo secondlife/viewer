@@ -523,6 +523,15 @@ void LLLayoutStack::updateLayout()
 	mNeedsLayout = continue_animating;
 } // end LLLayoutStack::updateLayout
 
+void LLLayoutStack::setPanelSpacing(S32 val)
+{
+    if (mPanelSpacing != val)
+    {
+        mPanelSpacing = val;
+        mNeedsLayout = true;
+    }
+}
+
 LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
 {
 	if (!panelp) return NULL;

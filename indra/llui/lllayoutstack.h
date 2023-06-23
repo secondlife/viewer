@@ -91,6 +91,7 @@ public:
 	void updateLayout();
 
 	S32 getPanelSpacing() const { return mPanelSpacing; }
+    void setPanelSpacing(S32 val);
 	
 	static void updateClass();
 

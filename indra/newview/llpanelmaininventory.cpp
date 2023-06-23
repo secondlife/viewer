@@ -256,6 +256,7 @@ BOOL LLPanelMainInventory::postBuild()
     mCombinationViewPanel = getChild<LLPanel>("combination_view_inventory");
     mCombinationGalleryLayoutPanel = getChild<LLLayoutPanel>("comb_gallery_layout");
     mCombinationListLayoutPanel = getChild<LLLayoutPanel>("comb_inventory_layout");
+    mCombinationLayoutStack = getChild<LLLayoutStack>("combination_view_stack");
 
     mCombinationInventoryPanel = getChild<LLInventorySingleFolderPanel>("comb_single_folder_inv");
     LLInventoryFilter& comb_inv_filter = mCombinationInventoryPanel->getFilter();
@@ -2371,6 +2372,7 @@ void LLPanelMainInventory::updatePanelVisibility()
             comb_gallery_filter.setFilterThumbnails(LLInventoryFilter::FILTER_INCLUDE_THUMBNAILS);
             comb_gallery_filter.markDefault();
 
+            mCombinationLayoutStack->setPanelSpacing(0);
             mCombinationGalleryLayoutPanel->setVisible(mSingleFolderMode && isGalleryViewMode());
             mCombinationGalleryPanel->setVisible(mSingleFolderMode && isGalleryViewMode()); // to prevent or process updates
             mCombinationListLayoutPanel->setVisible(mSingleFolderMode && isListViewMode());
@@ -2390,6 +2392,10 @@ void LLPanelMainInventory::updateCombinationVisibility()
     {
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
         bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty || mForceShowInvLayout;
+
+        const S32 DRAG_HANDLE_PADDING = 12; // for drag handle to not overlap gallery when both inventories are visible
+        mCombinationLayoutStack->setPanelSpacing(show_inv_pane ? DRAG_HANDLE_PADDING : 0);
+
         mCombinationGalleryLayoutPanel->setVisible(!is_gallery_empty);
         mCombinationListLayoutPanel->setVisible(show_inv_pane);
         mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
