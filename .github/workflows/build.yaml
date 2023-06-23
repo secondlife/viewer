@@ -31,6 +31,7 @@ jobs:
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
+      AUTOBUILD_BUILD_ID: ${{ github.run_id }}
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that viewer builds engage Bugsplat.
       BUGSPLAT_DB: "SecondLife_Viewer_2018"
@@ -93,7 +94,7 @@ jobs:
           fi
 
           autobuild configure --id "${{ github.run_id }}" -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
-          autobuild  build --no-configure
+          autobuild build --no-configure
 
           # Find artifacts
           if [[ "$RUNNER_OS" == "Windows" ]]; then
