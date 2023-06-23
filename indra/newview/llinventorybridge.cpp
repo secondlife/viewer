@@ -89,24 +89,11 @@
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
-typedef std::pair<LLUUID, LLUUID> two_uuids_t;
-typedef std::list<two_uuids_t> two_uuids_list_t;
-
 const F32 SOUND_GAIN = 1.0f;
-
-struct LLMoveInv
-{
-	LLUUID mObjectID;
-	LLUUID mCategoryID;
-	two_uuids_list_t mMoveList;
-	void (*mCallback)(S32, void*);
-	void* mUserData;
-};
 
 using namespace LLOldEvents;
 
 // Function declarations
-bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv>);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 static bool check_category(LLInventoryModel* model,

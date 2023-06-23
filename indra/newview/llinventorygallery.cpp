@@ -2714,6 +2714,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
         // coming from a task. Need to figure out if the person can
         // move/copy this item.
         LLPermissions perm(inv_item->getPermissions());
+        bool is_move = false;
         if ((perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
             && perm.allowTransferTo(gAgent.getID())))
             // || gAgent.isGodlike())
@@ -2725,6 +2726,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             // If the object cannot be copied, but the object the
             // inventory is owned by the agent, then the item can be
             // moved from the task to agent inventory.
+            is_move = true;
             accept = TRUE;
         }
 
@@ -2749,9 +2751,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
 
         if (accept && drop)
         {
-            //todo: dnd from SOURCE_WORLD
-
-            /*boost::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
+            boost::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
             move_inv->mObjectID = inv_item->getParentUUID();
             std::pair<LLUUID, LLUUID> item_pair(folder_id, inv_item->getUUID());
             move_inv->mMoveList.push_back(item_pair);
@@ -2769,7 +2769,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
                 LLNotification::Params params("MoveInventoryFromObject");
                 params.functor.function(boost::bind(move_task_inventory_callback, _1, _2, move_inv));
                 LLNotifications::instance().forceResponse(params, 0);
-            }*/
+            }
         }
     }
     else if(LLToolDragAndDrop::SOURCE_NOTECARD == source)
@@ -3185,9 +3185,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
         }
         else
         {
-            //todo: dnd from SOURCE_WORLD
-            accept = FALSE;
-            //accept = move_inv_category_world_to_agent(cat_id, mUUID, drop, NULL, NULL, filter);
+            accept = move_inv_category_world_to_agent(cat_id, dest_id, drop);
         }
     }
     else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)

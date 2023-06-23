@@ -48,7 +48,8 @@ class LLViewerJointAttachment;
 class LLFolderView;
 
 typedef std::vector<std::string> menuentry_vec_t;
-
+typedef std::pair<LLUUID, LLUUID> two_uuids_t;
+typedef std::list<two_uuids_t> two_uuids_list_t;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInvFVBridge
 //
@@ -771,5 +772,17 @@ public:
     virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
     bool canWearSelected(const uuid_vec_t& item_ids) const;
 };
+
+struct LLMoveInv
+{
+    LLUUID mObjectID;
+    LLUUID mCategoryID;
+    two_uuids_list_t mMoveList;
+    void (*mCallback)(S32, void*);
+    void* mUserData;
+};
+
+void warn_move_inventory(LLViewerObject* object, boost::shared_ptr<LLMoveInv> move_inv);
+bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv>);
 
 #endif // LL_LLINVENTORYBRIDGE_H
