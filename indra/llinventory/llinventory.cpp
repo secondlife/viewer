@@ -215,6 +215,26 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 		{
 			mType = LLAssetType::lookup(valuestr);
 		}
+        else if (0 == strcmp("metadata", keyword))
+        {
+            LLSD metadata(valuestr);
+            if (metadata.has("thumbnail"))
+            {
+                const LLSD& thumbnail = metadata["thumbnail"];
+                if (thumbnail.has("asset_id"))
+                {
+                    setThumbnailUUID(thumbnail["asset_id"].asUUID());
+                }
+                else
+                {
+                    setThumbnailUUID(LLUUID::null);
+                }
+            }
+            else
+            {
+                setThumbnailUUID(LLUUID::null);
+            }
+        }
 		else if(0 == strcmp("name", keyword))
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
