@@ -1045,6 +1045,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                     }
                 }
             }
+            handled = TRUE;
             break;
         case KEY_DELETE:
 #if LL_DARWIN
@@ -1056,6 +1057,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 deleteSelection();
             }
+            handled = TRUE;
             break;
 
         case KEY_F2:
