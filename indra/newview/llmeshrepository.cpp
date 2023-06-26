@@ -4067,7 +4067,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 			if (sys_volume)
 			{
 				sys_volume->copyVolumeFaces(volume);
-				sys_volume->setMeshAssetLoaded(TRUE);
+				sys_volume->setMeshAssetLoaded(true);
 				LLPrimitive::getVolumeManager()->unrefVolume(sys_volume);
 			}
 			else
@@ -4098,6 +4098,12 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
 	if (obj_iter != mLoadingMeshes[lod].end())
 	{
 		F32 detail = LLVolumeLODGroup::getVolumeScaleFromDetail(lod);
+
+        LLVolume* sys_volume = LLPrimitive::getVolumeManager()->refVolume(mesh_params, detail);
+        if (sys_volume)
+        {
+            sys_volume->setMeshAssetUnavaliable(true);
+        }
 
 		for (LLVOVolume* vobj : obj_iter->second)
 		{
@@ -4255,6 +4261,37 @@ bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
     return false;
 }
 
+bool LLMeshRepository::hasSkinInfo(const LLUUID& mesh_id)
+{
+    if (mesh_id.isNull())
+    {
+        return false;
+    }
+
+    if (mThread->hasSkinInfoInHeader(mesh_id))
+    {
+        return true;
+    }
+
+    const LLMeshSkinInfo* skininfo = getSkinInfo(mesh_id);
+    if (skininfo)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool LLMeshRepository::hasHeader(const LLUUID& mesh_id)
+{
+    if (mesh_id.isNull())
+    {
+        return false;
+    }
+
+    return mThread->hasHeader(mesh_id);
+}
+
 bool LLMeshRepoThread::hasPhysicsShapeInHeader(const LLUUID& mesh_id)
 {
     LLMutexLock lock(mHeaderMutex);
@@ -4271,6 +4308,29 @@ bool LLMeshRepoThread::hasPhysicsShapeInHeader(const LLUUID& mesh_id)
     return false;
 }
 
+bool LLMeshRepoThread::hasSkinInfoInHeader(const LLUUID& mesh_id)
+{
+    LLMutexLock lock(mHeaderMutex);
+    mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+    if (iter != mMeshHeader.end() && iter->second.first > 0)
+    {
+        LLMeshHeader& mesh = iter->second.second;
+        if (mesh.mSkinOffset >= 0
+            && mesh.mSkinSize > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool LLMeshRepoThread::hasHeader(const LLUUID& mesh_id)
+{
+    LLMutexLock lock(mHeaderMutex);
+    mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+    return iter != mMeshHeader.end();
+}
 
 void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
 								   bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,

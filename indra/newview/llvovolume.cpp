@@ -230,7 +230,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
     mColorChanged = FALSE;
 	mSpotLightPriority = 0.f;
 
-	mSkinInfoFailed = false;
+    mSkinInfoUnavaliable = false;
 	mSkinInfo = NULL;
 
 	mMediaImplList.resize(getNumTEs());
@@ -1132,7 +1132,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				if (mSkinInfo && mSkinInfo->mMeshID != volume_params.getSculptID())
 				{
 					mSkinInfo = NULL;
-					mSkinInfoFailed = false;
+					mSkinInfoUnavaliable = false;
 				}
 
 				if (!getVolume()->isMeshAssetLoaded())
@@ -1145,13 +1145,24 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					}
 				}
 				
-				if (!mSkinInfo && !mSkinInfoFailed)
+				if (!mSkinInfo && !mSkinInfoUnavaliable)
 				{
-					const LLMeshSkinInfo* skin_info = gMeshRepo.getSkinInfo(volume_params.getSculptID(), this);
-					if (skin_info)
-					{
-						notifySkinInfoLoaded(skin_info);
-					}
+                    LLUUID mesh_id = volume_params.getSculptID();
+                    if (gMeshRepo.hasHeader(mesh_id) && !gMeshRepo.hasSkinInfo(mesh_id))
+                    {
+                        // If header is present but has no data about skin,
+                        // no point fetching
+                        mSkinInfoUnavaliable = true;
+                    }
+
+                    if (!mSkinInfoUnavaliable)
+                    {
+                        const LLMeshSkinInfo* skin_info = gMeshRepo.getSkinInfo(mesh_id, this);
+                        if (skin_info)
+                        {
+                            notifySkinInfoLoaded(skin_info);
+                        }
+                    }
 				}
 			}
 			else // otherwise is sculptie
@@ -1186,7 +1197,7 @@ void LLVOVolume::updateSculptTexture()
 			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 		}
 
-		mSkinInfoFailed = false;
+        mSkinInfoUnavaliable = false;
 		mSkinInfo = NULL;
 	}
 	else
@@ -1227,6 +1238,16 @@ void LLVOVolume::notifyMeshLoaded()
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
 
+    if (!mSkinInfo && !mSkinInfoUnavaliable)
+    {
+        // Header was loaded, update skin info state from header
+        LLUUID mesh_id = getVolume()->getParams().getSculptID();
+        if (!gMeshRepo.hasSkinInfo(mesh_id))
+        {
+            mSkinInfoUnavaliable = true;
+        }
+    }
+
     LLVOAvatar *av = getAvatar();
     if (av && !isAnimatedObject())
     {
@@ -1244,7 +1265,7 @@ void LLVOVolume::notifyMeshLoaded()
 
 void LLVOVolume::notifySkinInfoLoaded(const LLMeshSkinInfo* skin)
 {
-	mSkinInfoFailed = false;
+    mSkinInfoUnavaliable = false;
 	mSkinInfo = skin;
 
 	notifyMeshLoaded();
@@ -1252,7 +1273,7 @@ void LLVOVolume::notifySkinInfoLoaded(const LLMeshSkinInfo* skin)
 
 void LLVOVolume::notifySkinInfoUnavailable()
 {
-	mSkinInfoFailed = true;
+	mSkinInfoUnavaliable = true;
 	mSkinInfo = nullptr;
 }
 
@@ -5589,11 +5610,21 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             std::string vobj_name = llformat("Vol%p", vobj);
 
             bool is_mesh = vobj->isMesh();
-			if (is_mesh &&
-				((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
-			{
-				continue;
-			}
+            if (is_mesh)
+            {
+                if ((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded())
+                    || !gMeshRepo.meshRezEnabled())
+                {
+                    // Waiting for asset to fetch
+                    continue;
+                }
+
+                if (!vobj->getSkinInfo() && !vobj->isSkinInfoUnavaliable())
+                {
+                     // Waiting for skin info to fetch
+                     continue;
+                }
+            }
 
 			LLVolume* volume = vobj->getVolume();
 			if (volume)

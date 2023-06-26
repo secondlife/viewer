@@ -1111,15 +1111,18 @@ private:
 	bool unpackVolumeFacesInternal(const LLSD& mdl);
 
 public:
-	virtual void setMeshAssetLoaded(BOOL loaded);
-	virtual BOOL isMeshAssetLoaded();
+	virtual void setMeshAssetLoaded(bool loaded);
+	virtual bool isMeshAssetLoaded();
+    virtual void setMeshAssetUnavaliable(bool unavaliable);
+    virtual bool isMeshAssetUnavaliable();
 
  protected:
 	BOOL mUnique;
 	F32 mDetail;
 	S32 mSculptLevel;
 	F32 mSurfaceArea; //unscaled surface area
-	BOOL mIsMeshAssetLoaded;
+	bool mIsMeshAssetLoaded;
+    bool mIsMeshAssetUnavaliable;
 	
 	const LLVolumeParams mParams;
 	LLPath *mPathp;
