@@ -418,6 +418,7 @@ void LLViewerObject::markDead()
 {
 	if (!mDead)
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		//LL_INFOS() << "Marking self " << mLocalID << " as dead." << LL_ENDL;
 		
 		// Root object of this hierarchy unlinks itself.
@@ -1153,6 +1154,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 const EObjectUpdateType update_type,
 					 LLDataPacker *dp)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
 
     LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;

@@ -244,6 +244,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 LLVOVolume::~LLVOVolume()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	delete mTextureAnimp;
 	mTextureAnimp = NULL;
 	delete mVolumeImpl;
@@ -267,6 +268,7 @@ void LLVOVolume::markDead()
 {
 	if (!mDead)
 	{
+        LL_PROFILE_ZONE_SCOPED;
         if (getVolume())
         {
             LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
@@ -4676,7 +4678,12 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			end_face = face+1;
 		}
 		pick_transparent |= isHiglightedOrBeacon();
-		bool special_cursor = specialHoverCursor();
+
+        // we *probably* shouldn't care about special cursor at all, but we *definitely*
+        // don't care about special cursor for reflection probes -- makes alt-zoom
+        // go through reflection probes on vehicles
+		bool special_cursor = mReflectionProbe.isNull() && specialHoverCursor();
+
 		for (S32 i = start_face; i < end_face; ++i)
 		{
 			if (!special_cursor && !pick_transparent && getTE(i) && getTE(i)->getColor().mV[3] == 0.f)
