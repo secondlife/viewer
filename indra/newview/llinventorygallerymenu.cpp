@@ -42,6 +42,7 @@
 #include "llmarketplacefunctions.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
+#include "llpreviewtexture.h"
 #include "lltrans.h"
 #include "llviewerfoldertype.h"
 #include "llviewerwindow.h"
@@ -267,6 +268,15 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
         if(landmark)
         {
             show_on_map_cb(landmark);
+        }
+    }
+    else if ("save_as" == action)
+    {
+        LLPreviewTexture* preview_texture = LLFloaterReg::getTypedInstance<LLPreviewTexture>("preview_texture", selected_id);
+        if (preview_texture)
+        {
+            preview_texture->openToSave();
+            preview_texture->saveAs();
         }
     }
 }
@@ -618,6 +628,15 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 {
                     disabled_items.push_back(std::string("Wearable Add"));
                 }
+            }
+        }
+        if(obj->getType() == LLAssetType::AT_TEXTURE)
+        {
+            items.push_back(std::string("Save As"));
+            bool can_copy = selected_item && selected_item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+            if (!can_copy)
+            {
+                disabled_items.push_back(std::string("Save As"));
             }
         }
         if (is_link)
