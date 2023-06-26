@@ -401,6 +401,8 @@ public:
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	EMeshProcessingResult physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool hasPhysicsShapeInHeader(const LLUUID& mesh_id);
+    bool hasSkinInfoInHeader(const LLUUID& mesh_id);
+    bool hasHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
@@ -650,6 +652,8 @@ public:
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
 	bool hasPhysicsShape(const LLUUID& mesh_id);
+    bool hasSkinInfo(const LLUUID& mesh_id);
+    bool hasHeader(const LLUUID& mesh_id);
 	
 	void buildHull(const LLVolumeParams& params, S32 detail);
 	void buildPhysicsMesh(LLModel::Decomposition& decomp);
