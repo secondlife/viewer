@@ -86,8 +86,8 @@ public:
     void moveLeft();
     void moveRight();
 
-    void onFocusLost();
-    void onFocusReceived();
+    void onFocusLost() override;
+    void onFocusReceived() override;
 
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }
