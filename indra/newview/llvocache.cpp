@@ -105,7 +105,7 @@ bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
                 std::string error, warn;
                 if (override_mat->fromJSON(gltf_json_str, warn, error))
                 {
-                    mGLTFMaterial[i] = override_mat;
+                    mGLTFMaterial[side_idx] = override_mat;
                 }
                 else
                 {
@@ -126,6 +126,16 @@ bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
             LL_WARNS_IF(sides.size() != 0, "GLTF") << "broken override cache entry" << LL_ENDL;
         }
     }
+
+    llassert(mSides.size() == mGLTFMaterial.size());
+#ifdef SHOW_ASSERT
+    for (auto const & side : mSides)
+    {
+        // check that mSides and mGLTFMaterial have exactly the same keys present
+        llassert(mGLTFMaterial.count(side.first) == 1);
+    }
+#endif
+
     return true;
 }
 
@@ -141,8 +151,11 @@ LLSD LLGLTFOverrideCacheEntry::toLLSD() const
     data["object_id"] = mObjectId;
     data["local_id"] = (LLSD::Integer) mLocalId;
 
+    llassert(mSides.size() == mGLTFMaterial.size());
     for (auto const & side : mSides)
     {
+        // check that mSides and mGLTFMaterial have exactly the same keys present
+        llassert(mGLTFMaterial.count(side.first) == 1);
         data["sides"].append(LLSD::Integer(side.first));
         data["gltf_json"].append(side.second);
     }
