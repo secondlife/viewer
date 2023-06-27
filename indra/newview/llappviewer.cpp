@@ -3552,7 +3552,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
-	gDebugInfo["ClientInfo"]["BuildVersion"] = STRINGIZE(LLVersionInfo::instance().getBuild());
+	gDebugInfo["ClientInfo"]["BuildVersion"] = std::to_string(LLVersionInfo::instance().getBuild());
 	gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::instance().getAddressSize();
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
@@ -5669,7 +5669,7 @@ void LLAppViewer::handleLoginComplete()
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
-	gDebugInfo["ClientInfo"]["BuildVersion"] = STRINGIZE(LLVersionInfo::instance().getBuild());
+	gDebugInfo["ClientInfo"]["BuildVersion"] = std::to_string(LLVersionInfo::instance().getBuild());
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])
