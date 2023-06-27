@@ -92,6 +92,7 @@ LLGLSLShader    gCopyDepthProgram;
 
 //object shaders
 LLGLSLShader		gObjectPreviewProgram;
+LLGLSLShader        gSkinnedObjectPreviewProgram;
 LLGLSLShader        gPhysicsPreviewProgram;
 LLGLSLShader		gObjectFullbrightAlphaMaskProgram;
 LLGLSLShader        gSkinnedObjectFullbrightAlphaMaskProgram;
@@ -251,7 +252,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gWaterProgram);
 	mShaderList.push_back(&gWaterEdgeProgram);
 	mShaderList.push_back(&gAvatarEyeballProgram); 
-	mShaderList.push_back(&gObjectPreviewProgram);
 	mShaderList.push_back(&gImpostorProgram);
 	mShaderList.push_back(&gObjectBumpProgram);
     mShaderList.push_back(&gSkinnedObjectBumpProgram);
@@ -2876,20 +2876,16 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 	if (success)
 	{
-		gObjectPreviewProgram.mName = "Simple Shader";
-		gObjectPreviewProgram.mFeatures.calculatesLighting = false;
-		gObjectPreviewProgram.mFeatures.calculatesAtmospherics = false;
-		gObjectPreviewProgram.mFeatures.hasGamma = false;
-		gObjectPreviewProgram.mFeatures.hasAtmospherics = false;
-		gObjectPreviewProgram.mFeatures.hasLighting = false;
-		gObjectPreviewProgram.mFeatures.mIndexedTextureChannels = 0;
+		gObjectPreviewProgram.mName = "Object Preview Shader";
 		gObjectPreviewProgram.mFeatures.disableTextureIndex = true;
 		gObjectPreviewProgram.mShaderFiles.clear();
 		gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewV.glsl", GL_VERTEX_SHADER));
 		gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewF.glsl", GL_FRAGMENT_SHADER));
 		gObjectPreviewProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        success = make_rigged_variant(gObjectPreviewProgram, gSkinnedObjectPreviewProgram);
 		success = gObjectPreviewProgram.createShader(NULL, NULL);
 		gObjectPreviewProgram.mFeatures.hasLighting = true;
+        gSkinnedObjectPreviewProgram.mFeatures.hasLighting = true;
 	}
 
 	if (success)
