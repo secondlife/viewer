@@ -1295,14 +1295,14 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
         childSetVisible("badge_layout", TRUE);
         childSetVisible("partner_spacer_layout", FALSE);
     }
-    else if (customer_lower == "premium_lifetime")
+    else if (customer_lower == "secondlifetime_premium")
     {
-        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Premium_Lifetime");
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Premium_Lifetime");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgePremiumLifetime"));
         childSetVisible("badge_layout", TRUE);
         childSetVisible("partner_spacer_layout", FALSE);
     }
-    else if (customer_lower == "pplus_lifetime" || customer_lower == "premium_plus_lifetime")
+    else if (customer_lower == "secondlifetime_premium_plus")
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Pplus_Lifetime");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgePremiumPlusLifetime"));
