@@ -19,12 +19,12 @@ jobs:
           - runner: windows-large
             configuration: Release
             addrsize: 32
-            python-version: "3.11"
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      AUTOBUILD_BUILD_ID: ${{ github.run_id }}
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
@@ -32,17 +32,23 @@ jobs:
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
-      # Ensure that viewer builds engage Bugsplat.
-      BUGSPLAT_DB: "SecondLife_Viewer_2018"
+      build_coverity: false
+      build_log_dir: ${{ github.workspace }}/.logs
+      build_secrets_checkout: ${{ github.workspace }}/.build-secrets
+      build_viewer: true
+      BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
+      BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/.buildscripts/hg/bin/buildscripts_support_functions
+      git_hooks_checkout: ${{ github.workspace }}/.git-hooks
+      GIT_REF: ${{ github.head_ref || github.ref }}
+      LL_SKIP_REQUIRE_SYSROOT: 1
       # Setting this variable directs Linden's TUT test driver code to capture
       # test-program log output at the specified level, but to display it only if
       # the individual test fails.
       LOGFAIL: DEBUG
-      # if unit tests fail to import llsd (i.e. wrong Python interpreter),
-      # make py.exe enumerate the possibilities and explain its choice
-      PYLAUNCHER_DEBUG: "1"
-      GIT_REF: ${{ github.head_ref || github.ref }}
-      LL_SKIP_REQUIRE_SYSROOT: 1
+      master_message_template_checkout: ${{ github.workspace }}/.master-message-template
+      # Only set variants to the one configuration: don't let build.sh loop
+      # over variants, let GitHub distribute variants over multiple hosts.
+      variants: ${{ matrix.configuration }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -54,6 +60,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Checkout build secrets
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/build-secrets
+          path: .build-secrets
+
       - name: Checkout build variables
         uses: actions/checkout@v3
         with:
@@ -61,7 +73,25 @@ jobs:
           ref: viewer
           path: .build-variables
 
-      - name: Install autobuild 
+      - name: Checkout buildscripts
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/sling-buildscripts
+          path: .buildscripts
+
+      - name: Checkout git-hooks
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/git-hooks
+          path: .git-hooks
+
+      - name: Checkout master-message-template
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/master-message-template
+          path: .master-message-template
+
+      - name: Install autobuild
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
@@ -84,16 +114,78 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
+          # set up things the viewer's build.sh script expects
+          mkdir -p "$build_log_dir"
+          mkdir -p "$BUILDSCRIPTS_SHARED/packages/lib/python"
+          source "$BUILDSCRIPTS_SUPPORT_FUNCTIONS"
+          if [[ "$OSTYPE" == "cygwin" ]]
+          then
+            native_path() { cygpath --windows "$1"; }
+            shell_path()  { cygpath --unix "$1"; }
+          else
+            native_path() { echo "$1"; }
+            shell_path()  { echo "$1"; }
+          fi
+          initialize_build()
+          {
+            echo "initialize_build"
+          }
+          initialize_version()
+          {
+            export revision="$AUTOBUILD_BUILD_ID"
+          }
+          python_cmd()
+          {
+              if [[ "x${1:0:1}" == "x-" ]]    # -m, -c, etc.
+              then # if $1 is a switch, don't try to twiddle paths
+                   "$(shell_path "$PYTHON_COMMAND")" "$@"
+              elif [[ "$(basename "$1")" == "codeticket.py" ]]
+              then # ignore any attempt to contact codeticket
+                   echo "## $@"
+              else # running a script at an explicit path: fix path for Python
+                   local script="$1"
+                   shift
+                   "$(shell_path "$PYTHON_COMMAND")" "$(native_path "$script")" "$@"
+              fi
+          }
+          repo_branch()
+          {
+            git -C "$1" branch | grep '^* ' | cut -c 3-
+          }
+          record_dependencies_graph()
+          {
+            echo "TODO: generate and post dependency graph"
+          }
+          # Since we're not uploading to codeticket, DO NOT sleep for minutes.
+          sleep()
+          {
+            echo "Not sleeping for $1 seconds"
+          }
+          export -f native_path shell_path initialize_build initialize_version
+          export -f python_cmd repo_branch record_dependencies_graph sleep
+          export arch=$(uname | cut -b-6)
+          export AUTOBUILD="$(which autobuild)"
+          # Build with a tag like "Second Life Project Shiny:abcdef0" to get a
+          # viewer channel "Second Life Project Shiny" (ignoring ":hash",
+          # needed to disambiguate tags).
+          if [[ "${GIT_REF:0:12}" == "Second Life " ]]
+          then export viewer_channel="${GIT_REF%:*}"
+          else export viewer_channel="Second Life Test"
+          fi
+
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            export PYTHON="$(cygpath -m "$(which python)")"
+            export PYTHON="$(native_path "$(which python)")"
             echo "Python location: $PYTHON"
+            export PYTHON_COMMAND="$PYTHON"
+          else
+            export PYTHON_COMMAND="python3"
           fi
+          export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
-          autobuild configure -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
-          autobuild  build --no-configure
+          ./build.sh
 
           # Find artifacts
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -106,7 +198,7 @@ jobs:
 
           echo "installer_path=$installer_path" >> $GITHUB_OUTPUT
           echo "installer_name=$installer_name" >> $GITHUB_OUTPUT
-      
+
       - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
