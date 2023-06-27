@@ -63,7 +63,7 @@
      <radio_item
       height="20"
       follows="left|top"
-      label="Switch view"
+      label="Switches view"
       label_text.text_color="White"
       layout="topleft"
       left_delta="0"
