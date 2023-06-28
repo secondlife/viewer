@@ -1923,7 +1923,7 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
             texture_floaterp->setBakeTextureEnabled(FALSE);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 
@@ -2263,7 +2263,7 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 

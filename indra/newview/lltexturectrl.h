@@ -295,7 +295,7 @@ public:
 
 	// New functions
 	void setImageID(const LLUUID& image_asset_id, bool set_selection = true);
-	void updateImageStats();
+	bool updateImageStats(); // true if within limits
 	const LLUUID&	getAssetID() { return mImageAssetID; }
 	const LLUUID&	findItemID(const LLUUID& asset_id, BOOL copyable_only, BOOL ignore_library = FALSE);
 	void			setCanApplyImmediately(BOOL b);
@@ -313,7 +313,8 @@ public:
 
 	void onFilterEdit(const std::string& search_string);
 
-	void setCanApply(bool can_preview, bool can_apply);
+	void setCanApply(bool can_preview, bool can_apply, bool inworld_image = true);
+    void setDimentionsLimits(S32 max_dim, S32 min_dim);
 	void setTextureSelectedCallback(const texture_selected_callback& cb) { mTextureSelectedCallback = cb; }
 	void setOnFloaterCloseCallback(const floater_close_callback& cb) { mOnFloaterCloseCallback = cb; }
 	void setOnFloaterCommitCallback(const floater_commit_callback& cb) { mOnFloaterCommitCallback = cb; }
@@ -364,6 +365,7 @@ protected:
 
 	LLTextBox*			mTentativeLabel;
 	LLTextBox*			mResolutionLabel;
+    LLTextBox*          mResolutionWarning;
 
 	std::string			mPendingName;
 	BOOL				mActive;
@@ -381,11 +383,19 @@ protected:
 
 	LLComboBox*			mModeSelector;
 	LLScrollListCtrl*	mLocalScrollCtrl;
+    LLButton*           mDefaultBtn;
+    LLButton*           mNoneBtn;
+    LLButton*           mBlankBtn;
+    LLButton*           mPipetteBtn;
+    LLButton*           mSelectBtn;
+    LLButton*           mCancelBtn;
 
 private:
 	bool mCanApply;
 	bool mCanPreview;
 	bool mPreviewSettingChanged;
+    S32 mMaxDim;
+    S32 mMinDim;
 
 
 	texture_selected_callback mTextureSelectedCallback;

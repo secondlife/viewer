@@ -710,7 +710,9 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             texture_floaterp->setLocalTextureEnabled(FALSE);
             texture_floaterp->setBakeTextureEnabled(FALSE);
             texture_floaterp->setCanApplyImmediately(false);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false /*Hide 'preview disabled'*/);
+            texture_floaterp->setDimentionsLimits(LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX,
+                                                 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN);
 
             addDependentFloater(texture_floaterp);
         }
