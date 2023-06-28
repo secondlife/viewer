@@ -321,9 +321,13 @@ begin_section "coding policy check"
 # this far. Running coding policy checks on one platform *should* suffice...
 if [[ "$arch" == "Darwin" ]]
 then
-    # install the git-hooks dependencies
-    pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
-        fatal "pip install git-hooks failed"
+    git_hooks_reqs="$git_hooks_checkout/requirements.txt"
+    if [[ -r "$(shell_path "$git_hooks_reqs")" ]]
+    then
+        # install the git-hooks dependencies
+        pip install -r "$(native_path "$git_hooks_reqs")" || \
+            fatal "pip install git-hooks failed"
+    fi
     # validate the branch we're about to build
     python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
         fatal "coding policy check failed"
