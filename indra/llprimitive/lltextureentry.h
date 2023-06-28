@@ -80,6 +80,12 @@ public:
 		TEX_GEN_SPHERICAL		= 0x04,
 		TEX_GEN_CYLINDRICAL		= 0x06
 	} eTexGen;
+    
+    
+    typedef enum e_renderable_target {
+        RT_DISABLED = 0x00,
+        RT_MIRROR = 0x02
+    } eRenderableTarget;
 
 	LLTextureEntry();
 	LLTextureEntry(const LLUUID& tex_id);
@@ -134,7 +140,9 @@ public:
     S32  setGlow(F32 glow);
 	S32  setMaterialID(const LLMaterialID& pMaterialID);
 	S32  setMaterialParams(const LLMaterialPtr pMaterialParams);
-	
+    
+    S32  setRenderableTarget(eRenderableTarget target);
+    
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
     const F32 getAlpha() const { return mColor.mV[VALPHA]; }
@@ -152,6 +160,7 @@ public:
 
 	U8	 getBumpmap() const { return mBump & TEM_BUMP_MASK; }
 	U8	 getFullbright() const { return (mBump>>TEM_FULLBRIGHT_SHIFT) & TEM_FULLBRIGHT_MASK; }
+    eRenderableTarget getRenderableTarget() const { return mRenderableTarget; }
 	U8	 getShiny() const { return (mBump>>TEM_SHINY_SHIFT) & TEM_SHINY_MASK; }
 	U8	 getBumpShiny() const { return mBump & TEM_BUMP_SHINY_MASK; }
  	U8	 getBumpShinyFullbright() const { return mBump; }
@@ -233,6 +242,7 @@ protected:
 	LLColor4			mColor;
 	U8					mBump;					// Bump map, shiny, and fullbright
 	U8					mMediaFlags;			// replace with web page, movie, etc.
+    eRenderableTarget   mRenderableTarget;
 	F32                 mGlow;
 	bool                mMaterialUpdatePending;
 	LLMaterialID        mMaterialID;

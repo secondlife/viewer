@@ -5284,6 +5284,28 @@ S32 LLViewerObject::setTEFullbright(const U8 te, const U8 fullbright)
 	return retval;
 }
 
+S32 LLViewerObject::setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget target)
+{
+    S32 retval = 0;
+    
+    const LLTextureEntry *tep = getTE(te);
+    if (!tep)
+    {
+        LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
+    }
+    else if (target != tep->getRenderableTarget())
+    {
+        retval = LLPrimitive::setTERenderableTarget(te, target);
+        setChanged(TEXTURE);
+        if (mDrawable.notNull() && retval)
+        {
+            //gPipeline.markMirror(mDrawable);
+        }
+    }
+    
+    return retval;
+}
+
 
 S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 {

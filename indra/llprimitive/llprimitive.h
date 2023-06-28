@@ -485,6 +485,7 @@ public:
 	virtual S32 setTETexGen(const U8 te, const U8 texgen);
 	virtual S32 setTEShiny(const U8 te, const U8 shiny);
 	virtual S32 setTEFullbright(const U8 te, const U8 fullbright);
+    virtual S32 setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget target);
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
 	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);

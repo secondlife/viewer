@@ -592,6 +592,17 @@ void LLPanelFace::sendFullbright()
 	LLSelectMgr::getInstance()->selectionSetFullbright( fullbright );
 }
 
+void LLPanelFace::sendMirror()
+{
+    LLCheckBoxCtrl* mCheckMirror = getChild<LLCheckBoxCtrl>("checkbox mirror");
+    
+    if (!mCheckMirror)
+        return;
+    
+    LLTextureEntry::eRenderableTarget target = mCheckMirror->get() ? LLTextureEntry::RT_MIRROR : LLTextureEntry::RT_DISABLED;
+    LLSelectMgr::getInstance()->selectionSetRenderableTarget(target);
+}
+
 void LLPanelFace::sendColor()
 {
 	
@@ -1686,6 +1697,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChild<LLUICtrl>("shinyOffsetV")->setValue(offset_y);
 					getChild<LLUICtrl>("glossiness")->setValue(material->getSpecularLightExponent());
 					getChild<LLUICtrl>("environment")->setValue(material->getEnvironmentIntensity());
+                    getChild<LLUICtrl>("mirror")->setValue(material->getEnvironmentIntensity());
 
 					updateShinyControls(!material->getSpecularID().isNull(), true);
 		}
@@ -2992,6 +3004,12 @@ void LLPanelFace::onCommitFullbright(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->sendFullbright();
+}
+
+void LLPanelFace::onCommitMirror(LLUICtrl* ctrl, void* userdata)
+{
+    LLPanelFace* self = (LLPanelFace*) userdata;
+    self->sendMirror();
 }
 
 // static

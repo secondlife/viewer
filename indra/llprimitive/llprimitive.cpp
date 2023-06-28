@@ -404,6 +404,11 @@ S32  LLPrimitive::setTEFullbright(const U8 index, const U8 fullbright)
 	return mTextureList.setFullbright(index, fullbright);
 }
 
+S32 LLPrimitive::setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget target)
+{
+    return mTextureList.setRenderableTarget(te, target);
+}
+
 S32  LLPrimitive::setTEMediaFlags(const U8 index, const U8 media_flags)
 {
 	return mTextureList.setMediaFlags(index, media_flags);

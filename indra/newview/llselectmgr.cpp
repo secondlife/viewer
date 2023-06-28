@@ -2347,6 +2347,47 @@ void LLSelectMgr::selectionSetFullbright(U8 fullbright)
 	getSelection()->applyToObjects(&sendfunc);
 }
 
+void LLSelectMgr::selectionSetRenderableTarget(LLTextureEntry::eRenderableTarget target)
+{
+    struct f : public LLSelectedTEFunctor
+    {
+        LLTextureEntry::eRenderableTarget mRenderableTarget;
+        
+        f(const LLTextureEntry::eRenderableTarget& t) : mRenderableTarget(t) {}
+        
+        bool apply(LLViewerObject* object, S32 te)
+        {
+            if (object->permModify())
+            {
+                object->setTERenderableTarget(te, mRenderableTarget);
+            }
+            
+            return true;
+        }
+    } setfunc(target);
+    
+    getSelection()->applyToTEs(&setfunc);
+    
+    struct g : public LLSelectedObjectFunctor
+    {
+        LLTextureEntry::eRenderableTarget mRenderableTarget;
+        
+        g(const LLTextureEntry::eRenderableTarget& t) : mRenderableTarget(t) {}
+        
+        virtual bool apply(LLViewerObject* object)
+        {
+            if (object->permModify())
+            {
+                object->sendTEUpdate();
+            }
+            
+            return true;
+        }
+    } sendfunc(target);
+    
+    getSelection()->applyToObjects(&sendfunc);
+}
+
 // This function expects media_data to be a map containing relevant
 // media data name/value pairs (e.g. home_url, etc.)
 void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)

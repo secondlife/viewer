@@ -125,11 +125,15 @@ private:
     // render target for cube snapshots
     // used to generate mipmaps without doing a copy-to-texture
     LLRenderTarget mRenderTarget;
+    
+    LLRenderTarget mHeroRenderTarget;
 
     std::vector<LLRenderTarget> mMipChain;
 
     // storage for reflection probe radiance maps (plus two scratch space cubemaps)
     LLPointer<LLCubeMapArray> mTexture;
+    
+    LLPointer<LLCubeMapArray> mHeroArray;
 
     // vertex buffer for pushing verts to filter shaders
     LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -142,9 +146,11 @@ private:
 
     // perform an update on the currently updating Probe
     void doProbeUpdate();
+    
+    void doHeroProbeUpdate();
 
     // update the specified face of the specified probe
-    void updateProbeFace(LLReflectionMap* probe, U32 face);
+    void updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
@@ -157,6 +163,9 @@ private:
 
     // handle to UBO
     U32 mUBO = 0;
+    
+    // Hero UBO
+    U32 mHeroUBO = 0;
 
     // list of maps being used for rendering
     std::vector<LLReflectionMap*> mReflectionMaps;
@@ -176,12 +185,16 @@ private:
     bool mRealtimeRadiancePass = false;
 
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
+    
+    LLPointer<LLReflectionMap> mHeroProbe;
 
     // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
 
     // resolution of reflection probes
     U32 mProbeResolution = 128;
+    
+    U32 mHeroProbeResolution = 512;
 
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;

@@ -238,6 +238,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
             return FALSE;
         }
 	}
+    
+    if (features->hasHeroProbes)
+    {
+        if (!shader->attachFragmentObject("deferred/heroProbesUtil.glsl"))
+        {
+            return FALSE;
+        }
+    }
 
     if (features->hasShadows)
 	{
@@ -1260,6 +1268,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sceneDepth");
     mReservedUniforms.push_back("reflectionProbes");
     mReservedUniforms.push_back("irradianceProbes");
+    mReservedUniforms.push_back("heroProbes");
 	mReservedUniforms.push_back("cloud_noise_texture");
     mReservedUniforms.push_back("cloud_noise_texture_next");
 	mReservedUniforms.push_back("fullbright");

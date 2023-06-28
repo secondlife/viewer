@@ -653,6 +653,7 @@ public:
 	void selectionSetGlow(const F32 glow);
 	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func, int specific_te = -1);
 	void selectionRemoveMaterial();
+    void selectionSetRenderableTarget(LLTextureEntry::eRenderableTarget target);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const std::string& name);

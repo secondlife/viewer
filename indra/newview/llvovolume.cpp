@@ -2344,6 +2344,16 @@ S32 LLVOVolume::setTEFullbright(const U8 te, const U8 fullbright)
 	return  res;
 }
 
+S32 LLVOVolume::setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget mirror)
+{
+    S32 res = LLViewerObject::setTERenderableTarget(te, mirror);
+    if (res)
+    {
+        //gPipeline.markMirror(mDrawable);
+    }
+    return res;
+}
+
 S32 LLVOVolume::setTEBumpShinyFullbright(const U8 te, const U8 bump)
 {
 	S32 res = LLViewerObject::setTEBumpShinyFullbright(te, bump);

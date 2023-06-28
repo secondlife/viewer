@@ -32,6 +32,14 @@ uniform sampler2D specularRect;
 uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
+uniform samplerCubeArray   heroProbes;
+
+layout (std140) uniform HeroProbeData
+{
+    vec4 heroPosition[1];
+    int heroProbeCount;
+};
+
 const float M_PI = 3.14159265;
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
@@ -290,7 +298,7 @@ void main()
         vec4 fogged = applyWaterFogViewLinear(pos.xyz, vec4(color, bloom));
         color       = fogged.rgb;
     #endif
-
-    frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
+    frag_color.rgb = textureLod(heroProbes, vec4(norm.xyz, 0), 0).rgb;
+    //frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;
 }

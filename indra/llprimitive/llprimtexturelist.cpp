@@ -341,6 +341,16 @@ S32 LLPrimTextureList::setFullbright(const U8 index, const U8 fullbright)
 	return TEM_CHANGE_NONE;
 }
 
+S32 LLPrimTextureList::setRenderableTarget(const U8 index, const U8 target)
+{
+    if (index < mEntryList.size())
+    {
+        return mEntryList[index]->setRenderableTarget((LLTextureEntry::eRenderableTarget)target);
+    }
+    
+    return TEM_CHANGE_NONE;
+}
+
 S32 LLPrimTextureList::setMediaFlags(const U8 index, const U8 media_flags)
 {
 	if (index < mEntryList.size())

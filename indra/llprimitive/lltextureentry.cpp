@@ -504,6 +504,16 @@ S32 LLTextureEntry::setFullbright(U8 fullbright)
 	return TEM_CHANGE_NONE;
 }
 
+S32 LLTextureEntry::setRenderableTarget(eRenderableTarget target)
+{
+    if (getRenderableTarget() != target) {
+        mRenderableTarget = target;
+        return TEM_CHANGE_TEXTURE;
+    }
+    
+    return TEM_CHANGE_NONE;
+}
+
 S32 LLTextureEntry::setShiny(U8 shiny)
 {
 	shiny &= TEM_SHINY_MASK;
@@ -685,6 +695,15 @@ S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 		mMaterialUpdatePending = true;
 	}
 	mMaterial = pMaterialParams;
+    
+    // TODO: GZ: We should avoid magic UUIDs in the future, but for development we're using one for the time being.  Remove this later.
+    if (mMaterial->getSpecularID().asString() == "da7ecda1-e780-423f-ce27-26df7dc69cb6")
+    {
+        setRenderableTarget(RT_MIRROR);
+    } else {
+        setRenderableTarget(RT_DISABLED);
+    }
+    
 	return TEM_CHANGE_TEXTURE;
 }
 

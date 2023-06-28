@@ -36,6 +36,15 @@ class alignas(16) LLReflectionMap : public LLRefCount
 {
     LL_ALIGN_NEW
 public:
+    
+    enum class ProbeType
+    {
+        ALL = 0,
+        RADIANCE,
+        IRRADIANCE,
+        REFLECTION
+    };
+    
     // allocate an environment map of the given resolution 
     LLReflectionMap();
 
@@ -127,5 +136,7 @@ public:
     GLuint mOcclusionQuery = 0;
     bool mOccluded = false;
     U32 mOcclusionPendingFrames = 0;
+    
+    ProbeType mType;
 };
 
