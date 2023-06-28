@@ -1,17 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel name="MediaControls">
-	<string name="min_width">
-		300
-	</string>
-	<string name="min_height">
-		75
-	</string>
-	<string name="zoom_medium_padding">
-		1.1
-	</string>
-	<string name="top_world_view_avoid_zone">
-		50
-	</string>
+	<string name="min_width">300</string>
+	<string name="min_height">75</string>
+	<string name="zoom_medium_padding">1.1</string>
+	<string name="top_world_view_avoid_zone">50</string>
 	<layout_stack name="progress_indicator_area">
 		<layout_panel name="media_progress_indicator">
 			<progress_bar name="media_progress_bar" tool_tip="Los media se están cargando"/>
@@ -72,5 +64,6 @@
 		<layout_panel name="new_window">
 			<button name="new_window_btn" tool_tip="Abrir la URL en el navegador"/>
 		</layout_panel>
+		<icon name="media_secure_lock_flag" tool_tip="Navegacion segura"/>
 	</layout_stack>
 </panel>

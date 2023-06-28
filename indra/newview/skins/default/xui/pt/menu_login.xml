@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <menu_bar name="Login Menu">
 	<menu label="Eu" name="File">
 		<menu_item_call label="Preferências..." name="Preferences..."/>
@@ -34,5 +34,6 @@
 			<menu_item_check label="Nenhum" name="None"/>
 		</menu>
 		<menu_item_call label="Exibir painel de notificações" name="Show Notifications Console"/>
+		<menu_item_call name="UI Preview Tool" label="Ferramenta de Visualização XUI"/>
 	</menu>
 </menu_bar>

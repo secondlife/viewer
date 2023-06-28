@@ -741,6 +741,12 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	gGL.end();
 }
 
+void LLViewerParcelMgr::resetCollisionTimer()
+{
+    mCollisionTimer.reset();
+    mRenderCollision = TRUE;
+}
+
 void draw_line_cube(F32 width, const LLVector3& center)
 {
 	width = 0.5f * width;
@@ -984,6 +990,7 @@ private:
 
 //-----------------------------------------------------------------------------
 // gpu_benchmark()
+//  returns measured memory bandwidth of GPU in gigabytes per second
 //-----------------------------------------------------------------------------
 F32 gpu_benchmark()
 {

@@ -93,7 +93,7 @@ RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderVolumeLODFactor		1	0.5
+RenderVolumeLODFactor		1	1.125
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
@@ -111,6 +111,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0.5
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	0.75
+RenderAvatarMaxNonImpostors 1   5
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
@@ -140,6 +141,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	200000
 RenderAvatarPhysicsLODFactor 1	1.0
+RenderAvatarMaxNonImpostors 1   7
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -151,7 +153,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderVolumeLODFactor		1	1.125
+RenderVolumeLODFactor		1	1.25
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
@@ -169,6 +171,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	250000
 RenderAvatarPhysicsLODFactor 1	1.0
+RenderAvatarMaxNonImpostors 1   9
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -180,7 +183,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderVolumeLODFactor		1	1.125
+RenderVolumeLODFactor		1	1.375
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	0
@@ -198,6 +201,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	300000
 RenderAvatarPhysicsLODFactor 1	1.0
+RenderAvatarMaxNonImpostors 1   11
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -209,7 +213,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderVolumeLODFactor		1	1.125
+RenderVolumeLODFactor		1	1.5
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
@@ -225,6 +229,7 @@ list HighUltra
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
+RenderAvatarMaxNonImpostors 1   16
 RenderAvatarMaxComplexity   1	350000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderFarClip				1	128
@@ -238,7 +243,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderVolumeLODFactor		1	1.125
+RenderVolumeLODFactor		1	1.75
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
@@ -255,6 +260,7 @@ RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
+RenderAvatarMaxNonImpostors 1   16
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9

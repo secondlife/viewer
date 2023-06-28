@@ -46,6 +46,8 @@ public:
 	void setIsGroup(bool is_group) { mIsGroup = is_group; }
 	bool isExperience() const { return mIsExperience; }
 	void setIsExperience(bool is_experience) { mIsExperience = is_experience; }
+    void setSpecialID(const LLUUID& special_id) { mSpecialID = special_id; }
+    const LLUUID& getSpecialID() const { return mSpecialID; }
 
 protected:
 	friend class LLNameListCtrl;
@@ -68,6 +70,8 @@ protected:
 private:
 	bool mIsGroup;
 	bool mIsExperience;
+
+    LLUUID mSpecialID;
 };
 
 
@@ -95,10 +99,12 @@ public:
 	{
 		Optional<std::string>				name;
 		Optional<ENameType, NameTypeNames>	target;
+        Optional<LLUUID>                    special_id;
 
 		NameItem()
 		:	name("name"),
-			target("target", INDIVIDUAL)
+			target("target", INDIVIDUAL),
+            special_id("special_id", LLUUID())
 		{}
 	};
 
@@ -156,6 +162,9 @@ public:
 
 	LLScrollListItem* getNameItemByAgentId(const LLUUID& agent_id);
 
+    void selectItemBySpecialId(const LLUUID& special_id);
+    LLUUID getSelectedSpecialId();
+
 	// LLView interface
 	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
@@ -170,7 +179,14 @@ public:
 	/*virtual*/ void updateColumns(bool force_update);
 
 	/*virtual*/ void mouseOverHighlightNthItem( S32 index );
+
     /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+    bool isSpecialType() { return (mNameListType == SPECIAL); }
+
+    void setNameListType(e_name_type type) { mNameListType = type; }
+    void setHoverIconName(std::string icon_name) { mHoverIconName = icon_name; }
+
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group, bool is_experience = false);
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, std::string prefix, LLHandle<LLNameListItem> item);
@@ -187,6 +203,11 @@ private:
 
 	S32 mPendingLookupsRemaining;
 	namelist_complete_signal_t mNameListCompleteSignal;
+
+    std::string     mHoverIconName;
+    e_name_type     mNameListType;
+
+    boost::signals2::signal<void(const LLUUID &)> mIconClickedSignal;
 	
 public:
 	boost::signals2::connection setOnNameListCompleteCallback(boost::function<void(bool)> onNameListCompleteCallback) 
@@ -194,6 +215,10 @@ public:
 		return mNameListCompleteSignal.connect(onNameListCompleteCallback); 
 	}
 
+    boost::signals2::connection setIconClickedCallback(boost::function<void(const LLUUID &)> cb) 
+    { 
+        return mIconClickedSignal.connect(cb); 
+    }
 };
 
 

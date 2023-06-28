@@ -88,6 +88,7 @@
 #include "llcallstack.h"
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
+#include "llperfstats.h" 
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -5109,6 +5110,28 @@ LLControlAVBridge::LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regi
 	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
+void LLControlAVBridge::updateSpatialExtents()
+{
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
+
+	LLControlAvatar* controlAvatar = getVObj()->getControlAvatar();
+
+	LLSpatialGroup* root = (LLSpatialGroup*)mOctree->getListener(0);
+
+	bool rootWasDirty = root->isDirty();
+
+	super::updateSpatialExtents(); // root becomes non-dirty here
+
+	// SL-18251 "On-screen animesh characters using pelvis offset animations
+	// disappear when root goes off-screen"
+	//
+	// Expand extents to include Control Avatar placed outside of the bounds
+	if (controlAvatar && (rootWasDirty || controlAvatar->mPlaying))
+	{
+		root->expandExtents(controlAvatar->mDrawable->getSpatialExtents(), *mDrawable->getXform());
+	}
+}
+
 bool can_batch_texture(LLFace* facep)
 {
 	if (facep->getTextureEntry()->getBumpmap())
@@ -5436,7 +5459,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			}
 		}
 		
-		if (type == LLRenderPass::PASS_ALPHA)
+		// if (type == LLRenderPass::PASS_ALPHA) // always populate the draw_info ptr
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
 		}
@@ -5637,6 +5660,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         LL_PROFILE_ZONE_NAMED("rebuildGeom - face list");
 
 		//get all the faces into a list
+        std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); 
              drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
@@ -5667,6 +5691,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				continue;
 			}
+
+            if(vobj->isAttachment())
+            {
+                trackAttachments( vobj, drawablep->isState(LLDrawable::RIGGED),&ratPtr);
+            }
 
 			LLVolume* volume = vobj->getVolume();
 			if (volume)
@@ -6058,6 +6087,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 			U32 buffer_count = 0;
 
+            std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
 				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
@@ -6067,6 +6097,11 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					LLVOVolume* vobj = drawablep->getVOVolume();
 					
 					if (!vobj) continue;
+
+                    if (vobj->isAttachment())
+                    {
+                        trackAttachments( vobj, drawablep->isState(LLDrawable::RIGGED), &ratPtr );
+                    }
 					
 					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
 					{
@@ -6287,7 +6322,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	LLSpatialGroup::buffer_map_t buffer_map;
 
 	LLViewerTexture* last_tex = NULL;
-	S32 buffer_index = 0;
 
 	S32 texture_index_channels = 1;
 	
@@ -6300,11 +6334,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
-    
-    if (distance_sort)
-    {
-        buffer_index = -1;
-    }
 
 	static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
 	texture_index_channels = llmin(texture_index_channels, (S32) max_texture_index);
@@ -6328,14 +6357,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			tex = NULL;
 		}
 
-		if (last_tex == tex)
-		{
-			buffer_index++;
-		}
-		else
+		if (last_tex != tex)
 		{
 			last_tex = tex;
-			buffer_index = 0;
 		}
 
 		bool bake_sunlight = LLPipeline::sBakeSunlight && facep->getDrawable()->isStatic(); 
@@ -6503,10 +6527,16 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		U32 indices_index = 0;
 		U16 index_offset = 0;
 
-		while (face_iter < i)
+        std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr;
+        while (face_iter < i)
 		{
 			//update face indices for new buffer
 			facep = *face_iter;
+            LLViewerObject* vobj = facep->getViewerObject();
+            if(vobj && vobj->isAttachment())
+            {
+                trackAttachments(vobj, LLPipeline::sShadowRender, &ratPtr);
+            }
 			if (buffer.isNull())
 			{
 				// Bulk allocation failed

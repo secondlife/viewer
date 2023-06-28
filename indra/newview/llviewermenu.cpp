@@ -119,8 +119,10 @@
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
+#include "llviewerstatsrecorder.h"
 #include "llvoavatarself.h"
 #include "llvoicevivox.h"
+#include "llworld.h"
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
@@ -332,6 +334,7 @@ void handle_debug_avatar_textures(void*);
 void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
+void handle_reset_interest_lists(void *);
 
 BOOL enable_save_into_task_inventory(void*);
 
@@ -1295,48 +1298,65 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 	}
 };
 
-class LLAdvancedInterestListFullUpdate : public view_listener_t
+class LLAdvancedToggleInterestList360Mode : public view_listener_t
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLSD request;
-		LLSD body;
-		static bool using_360 = false;
-
-		if (using_360)
-		{
-			body["mode"] = LLSD::String("default");
+public:
+    bool handleEvent(const LLSD &userdata)
+    {
+        // Toggle the mode - regions will get updated
+        if (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360)
+        {
+			gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_DEFAULT);
 		}
 		else
 		{
-			body["mode"] = LLSD::String("360");
+			gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
 		}
-		using_360 = !using_360;
+        return true;
+    }
+};
 
-        if (gAgent.requestPostCapability("InterestList", body, [](const LLSD& response)
-        {
-            LL_INFOS("360Capture") <<
-                "InterestList capability responded: \n" <<
-                ll_pretty_print_sd(response) <<
-                LL_ENDL;
-        }))
-        {
-            LL_INFOS("360Capture") <<
-                "Successfully posted an InterestList capability request with payload: \n" <<
-                ll_pretty_print_sd(body) <<
-                LL_ENDL;
-            return true;
-        }
-        else
-        {
-            LL_INFOS("360Capture") <<
-                "Unable to post an InterestList capability request with payload: \n" <<
-                ll_pretty_print_sd(body) <<
-                LL_ENDL;
-            return false;
-        }
+class LLAdvancedCheckInterestList360Mode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360);
 	}
 };
+
+class LLAdvancedToggleStatsRecorder : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {
+        if (LLViewerStatsRecorder::instance().isEnabled())
+		{	// Turn off both recording and logging
+			LLViewerStatsRecorder::instance().enableObjectStatsRecording(false);
+		}
+		else
+		{	// Turn on both recording and logging
+			LLViewerStatsRecorder::instance().enableObjectStatsRecording(true, true);
+		}
+        return true;
+    }
+};
+
+class LLAdvancedCheckStatsRecorder : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {	// Use the logging state as the indicator of whether the stats recorder is on
+        return LLViewerStatsRecorder::instance().isLogging();
+    }
+};
+
+class LLAdvancedResetInterestLists : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {	// Reset all region interest lists
+        handle_reset_interest_lists(NULL);
+        return true;
+    }
+};
+
 
 class LLAdvancedBuyCurrencyTest : public view_listener_t
 	{
@@ -2876,6 +2896,13 @@ void handle_object_open()
 	LLFloaterReg::showInstance("openobject");
 }
 
+bool enable_object_inspect()
+{
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    LLViewerObject* selected_objectp = selection->getFirstRootObject();
+    return selected_objectp != NULL;
+}
+
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -3305,6 +3332,8 @@ class LLAvatarCheckImpostorMode : public view_listener_t
 				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_DO_NOT_RENDER);
 			case 2:
 				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER);
+            case 4:
+                return (avatar->getVisualMuteSettings() != LLVOAvatar::AV_RENDER_NORMALLY);
 			default:
 				return false;
 		}
@@ -3879,6 +3908,22 @@ void handle_dump_region_object_cache(void*)
 		regionp->dumpCache();
 	}
 }
+
+void handle_reset_interest_lists(void *)
+{
+    // Check all regions and reset their interest list
+    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+         iter != LLWorld::getInstance()->getRegionList().end();
+         ++iter)
+    {
+        LLViewerRegion *regionp = *iter;
+        if (regionp && regionp->isAlive() && regionp->capabilitiesReceived())
+        {
+            regionp->resetInterestList();
+        }
+    }
+}
+
 
 void handle_dump_focus()
 {
@@ -4490,33 +4535,6 @@ void handle_duplicate_in_place(void*)
 	LLSelectMgr::getInstance()->selectDuplicate(offset, TRUE);
 }
 
-/* dead code 30-apr-2008
-void handle_deed_object_to_group(void*)
-{
-	LLUUID group_id;
-	
-	LLSelectMgr::getInstance()->selectGetGroup(group_id);
-	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
-}
-
-BOOL enable_deed_object_to_group(void*)
-{
-	if(LLSelectMgr::getInstance()->getSelection()->isEmpty()) return FALSE;
-	LLPermissions perm;
-	LLUUID group_id;
-
-	if (LLSelectMgr::getInstance()->selectGetGroup(group_id) &&
-		gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) &&
-		LLSelectMgr::getInstance()->selectGetPermissions(perm) &&
-		perm.deedToGroup(gAgent.getID(), group_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
-
-*/
 
 
 /*
@@ -7941,7 +7959,7 @@ bool enable_object_take_copy()
 	bool all_valid = false;
 	if (LLSelectMgr::getInstance())
 	{
-		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		if (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() > 0)
 		{
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
@@ -9060,6 +9078,25 @@ class LLWorldPostProcess : public view_listener_t
 	}
 };
 
+class LLWorldCheckBanLines : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        S32 callback_data = userdata.asInteger();
+        return gSavedSettings.getS32("ShowBanLines") == callback_data;
+    }
+};
+
+class LLWorldShowBanLines : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        S32 callback_data = userdata.asInteger();
+        gSavedSettings.setS32("ShowBanLines", callback_data);
+        return true;
+    }
+};
+
 void handle_flush_name_caches()
 {
 	if (gCacheName) gCacheName->clear();
@@ -9349,6 +9386,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
+    view_listener_t::addMenu(new LLWorldCheckBanLines() , "World.CheckBanLines");
+    view_listener_t::addMenu(new LLWorldShowBanLines() , "World.ShowBanLines");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -9446,7 +9485,11 @@ void initialize_menus()
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
-	view_listener_t::addMenu(new LLAdvancedInterestListFullUpdate(), "Advanced.InterestListFullUpdate");
+    view_listener_t::addMenu(new LLAdvancedToggleStatsRecorder(), "Advanced.ToggleStatsRecorder");
+    view_listener_t::addMenu(new LLAdvancedCheckStatsRecorder(), "Advanced.CheckStatsRecorder");
+    view_listener_t::addMenu(new LLAdvancedToggleInterestList360Mode(), "Advanced.ToggleInterestList360Mode");
+    view_listener_t::addMenu(new LLAdvancedCheckInterestList360Mode(), "Advanced.CheckInterestList360Mode");
+    view_listener_t::addMenu(new LLAdvancedResetInterestLists(), "Advanced.ResetInterestLists");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
@@ -9648,6 +9691,7 @@ void initialize_menus()
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));

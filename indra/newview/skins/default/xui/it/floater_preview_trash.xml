@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<floater name="floater_preview_trash" title="CESTINO">
+	<layout_panel name="empty_btn_lp"/>
+	<layout_stack name="button_panel_ls">
+		<button name="empty_btn" label="Cestino vuoto"/>
+		<button name="cancel_btn" label="Annulla"/>
+	</layout_stack>
+	<layout_panel name="share_btn_lp"/>
+</floater>

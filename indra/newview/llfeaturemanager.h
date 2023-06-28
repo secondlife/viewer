@@ -111,6 +111,10 @@ public:
 
 	EGPUClass getGPUClass() 			{ return mGPUClass; }
 	std::string& getGPUString() 		{ return mGPUString; }
+    
+    // get the measured GPU memory bandwidth in GB/sec
+    // may return 0 of benchmark has not been run or failed to run
+    F32 getGPUMemoryBandwidth() { return mGPUMemoryBandwidth; }
 	BOOL isGPUSupported()				{ return mGPUSupported; }
 	F32 getExpectedGLVersion()			{ return mExpectedGLVersion; }
 	
@@ -162,6 +166,7 @@ protected:
 	S32			mTableVersion;
 	BOOL		mSafe;					// Reinitialize everything to the "safe" mask
 	EGPUClass	mGPUClass;
+    F32         mGPUMemoryBandwidth = 0.f;  // measured memory bandwidth of GPU in GB/second
 	F32			mExpectedGLVersion;		//expected GL version according to gpu table
 	std::string	mGPUString;
 	BOOL		mGPUSupported;

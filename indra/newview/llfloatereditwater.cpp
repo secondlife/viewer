@@ -335,7 +335,7 @@ void LLFloaterEditWater::refreshWaterPresetsList()
 
     for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
     {
-        mWaterPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+        mWaterPresetCombo->add((*it).first, llsd::array((*it).first, (*it).second));
     }
 
 	mWaterPresetCombo->setLabel(getString("combo_label"));

@@ -125,14 +125,20 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
 	char hdr_buf[MAX_HDR_LEN + 1] = ""; /* Flawfinder: ignore */
 	bool fail_if_not_legacy = false;
 
-	/*
-	 * Get the first line before anything. Don't read more than max_bytes:
-	 * this get() overload reads no more than (count-1) bytes into the
-	 * specified buffer. In the usual case when max_bytes exceeds
-	 * sizeof(hdr_buf), get() will read no more than sizeof(hdr_buf)-2.
-	 */
-	str.get(hdr_buf, llmin(max_bytes+1, sizeof(hdr_buf)-1), '\n');
+    /*
+     * Get the first line before anything. Don't read more than max_bytes:
+     * this get() overload reads no more than (count-1) bytes into the
+     * specified buffer. In the usual case when max_bytes exceeds
+     * sizeof(hdr_buf), get() will read no more than sizeof(hdr_buf)-2.
+     */
+    llssize max_hdr_read = MAX_HDR_LEN;
+	if (max_bytes != LLSDSerialize::SIZE_UNLIMITED)
+	{
+        max_hdr_read = llmin(max_bytes + 1, max_hdr_read);
+	}
+    str.get(hdr_buf, max_hdr_read, '\n');
 	auto inbuf = str.gcount();
+
 	// https://en.cppreference.com/w/cpp/io/basic_istream/get
 	// When the get() above sees the specified delimiter '\n', it stops there
 	// without pulling it from the stream. If it turns out that the stream
@@ -2242,9 +2248,9 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
 LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32 size)
 {
 	U8* result = NULL;
-	U32 cur_size = 0;
+	llssize cur_size = 0;
 	z_stream strm;
-		
+
 	constexpr U32 CHUNK = 1024 * 512;
 
 	static thread_local std::unique_ptr<U8[]> out;
@@ -2437,7 +2443,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
 	return result;
 }
 
-char* strip_deprecated_header(char* in, U32& cur_size, U32* header_size)
+char* strip_deprecated_header(char* in, llssize& cur_size, llssize* header_size)
 {
 	const char* deprecated_header = "<? LLSD/Binary ?>";
 	constexpr size_t deprecated_header_size = 17;

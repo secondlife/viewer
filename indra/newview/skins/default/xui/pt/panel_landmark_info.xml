@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel name="landmark_info">
 	<string name="title_create_landmark" value="Criar marco"/>
 	<string name="title_edit_landmark" value="Editar marco"/>
@@ -6,18 +6,10 @@
 	<string name="not_available" value="(N/A)"/>
 	<string name="unknown" value="(desconhecido)"/>
 	<string name="public" value="(público)"/>
-	<string name="server_update_text">
-		Informação do lugar não disponível sem atualização do servidor.
-	</string>
-	<string name="server_error_text">
-		No momento não há informações sobre este lugar; por favor tente novamente mais tarde.
-	</string>
-	<string name="server_forbidden_text">
-		Os dados deste lugar não estão indisponíveis devido a restrições de acesso. Verifique as permissões com o proprietário do terreno ou parcela.
-	</string>
-	<string name="acquired_date">
-		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-	</string>
+	<string name="server_update_text">Informação do lugar não disponível sem atualização do servidor.</string>
+	<string name="server_error_text">No momento não há informações sobre este lugar; por favor tente novamente mais tarde.</string>
+	<string name="server_forbidden_text">Os dados deste lugar não estão indisponíveis devido a restrições de acesso. Verifique as permissões com o proprietário do terreno ou parcela.</string>
+	<string name="acquired_date">[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]</string>
 	<button name="back_btn" tool_tip="Atrás"/>
 	<text name="title" value="Perfil do lugar"/>
 	<scroll_container name="place_scroll">
@@ -34,5 +26,8 @@
 				<text name="folder_label" value="Localização do marco:"/>
 			</panel>
 		</panel>
+		<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+		<expandable_text name="description" value="Du waltz die spritz"/>
+		<text name="region_title" value="SampleRegion"/>
 	</scroll_container>
 </panel>

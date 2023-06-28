@@ -1606,7 +1606,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="-134"
+             left_pad="6"
              name="mime_type"
              width="200" />
             <text

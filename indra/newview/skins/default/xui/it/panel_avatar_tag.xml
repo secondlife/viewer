@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<panel name="avatar_tag_notification">
+	<panel name="msg_caption">
+		<text name="tag_time" value="23:30:00"/>
+		<text name="sender_tag_name">Tester Angela</text>
+	</panel>
+</panel>

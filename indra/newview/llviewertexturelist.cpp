@@ -208,8 +208,8 @@ static std::string get_texture_list_name()
 void LLViewerTextureList::doPrefetchImages()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	gTextureTimer.start();
-	gTextureTimer.pause();
+    gTextureTimer.start();
+    gTextureTimer.pause();
 
     // todo: do not load without getViewerAssetUrl()
     // either fail login without caps or provide this

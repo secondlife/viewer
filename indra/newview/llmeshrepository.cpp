@@ -56,6 +56,7 @@
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llviewerstatsrecorder.h"
 #include "llviewertexturelist.h"
 #include "llvolume.h"
 #include "llvolumemgr.h"
@@ -1862,10 +1863,10 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 	const LLUUID mesh_id = mesh_params.getSculptID();
 	LLSD header;
 	
-	U32 header_size = 0;
+	llssize header_size = 0;
 	if (data_size > 0)
 	{
-		U32 dsize = data_size;
+		llssize dsize = data_size;
 		char* result_ptr = strip_deprecated_header((char*)data, dsize, &header_size);
 
 		data_size = dsize;
@@ -4089,6 +4090,8 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 		}
 		
 		mLoadingMeshes[detail].erase(obj_iter);
+
+		LLViewerStatsRecorder::instance().meshLoaded();
 	}
 }
 

@@ -35,6 +35,7 @@
 #include "llcommandhandler.h"
 #include "llslurl.h"
 #include "llurldispatcher.h"
+#include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -148,7 +149,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
         params.append(event_data["x"]);
         params.append(event_data["y"]);
         params.append(event_data["z"]);
-        LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, "clicked", true);
+        LLCommandDispatcher::dispatch("teleport", params, LLSD(), LLGridManager::getInstance()->getGrid(), NULL, LLCommandHandler::NAV_TYPE_CLICKED, true);
         // *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
         // should we just compose LLCommandHandler and LLDispatchListener?
     }
@@ -158,7 +159,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
                                   LLVector3(event_data["x"].asReal(), 
                                             event_data["y"].asReal(), 
                                             event_data["z"].asReal())).getSLURLString();
-        LLURLDispatcher::dispatch(url, "clicked", NULL, false);
+        LLURLDispatcher::dispatch(url, LLCommandHandler::NAV_TYPE_CLICKED, NULL, false);
     }
 }
 

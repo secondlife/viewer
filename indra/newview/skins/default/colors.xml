@@ -983,12 +983,15 @@
     name="OutfitGalleryItemUnselected"
     value="0.4 0.4 0.4 1" />
   <color
-    name="AddPaymentPanel"
+    name="PanelGray"
     value="0.27 0.27 0.27 1" />
+  <color
+    name="PerformanceMid"
+    value="1 0.8 0 1" />
   <color
     name="OutfitSnapshotMacMask"
     value="0.115 0.115 0.115 1"/>
- <color
-   name="OutfitSnapshotMacMask2"
-   value="0.1 0.1 0.1 1"/>
+  <color
+    name="OutfitSnapshotMacMask2"
+    value="0.1 0.1 0.1 1"/>
 </colors>
