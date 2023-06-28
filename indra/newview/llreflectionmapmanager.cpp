@@ -253,6 +253,10 @@ void LLReflectionMapManager::update()
 
         if (probe != mDefaultProbe)
         {
+            if (probe->mViewerObject) //make sure probes track the viewer objects they are attached to
+            {
+                probe->mOrigin.load3(probe->mViewerObject->getPositionAgent().mV);
+            }
             d.setSub(camera_pos, probe->mOrigin);
             probe->mDistance = d.getLength3().getF32() - probe->mRadius;
         }
