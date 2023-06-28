@@ -20,7 +20,7 @@ jobs:
           - runner: macos-12-xl
             addrsize: 32
           - runner: windows-large
-            developer-dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
