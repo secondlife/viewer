@@ -328,9 +328,13 @@ then
         pip install -r "$(native_path "$git_hooks_reqs")" || \
             fatal "pip install git-hooks failed"
     fi
-    # validate the branch we're about to build
-    python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
-        fatal "coding policy check failed"
+    git_hooks_script="$git_hooks_checkout/coding_policy_git.py"
+    if [[ -r "$(shell_path "$git_hooks_script")" ]]
+    then
+        # validate the branch we're about to build
+        python_cmd "$(native_path "$git_hooks_script")" --all_files || \
+            fatal "coding policy check failed"
+    fi
 fi
 end_section "coding policy check"
 

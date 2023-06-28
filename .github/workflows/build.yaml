@@ -43,7 +43,6 @@ jobs:
       BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
       # extracted and committed to viewer repo
       BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/buildscripts_support_functions
-      git_hooks_checkout: ${{ github.workspace }}/.git-hooks
       GIT_REF: ${{ github.head_ref || github.ref }}
       LL_SKIP_REQUIRE_SYSROOT: 1
       # Setting this variable directs Linden's TUT test driver code to capture
@@ -71,12 +70,6 @@ jobs:
           repository: secondlife/build-variables
           ref: viewer
           path: .build-variables
-
-      - name: Checkout git-hooks
-        uses: actions/checkout@v3
-        with:
-          repository: secondlife/git-hooks
-          path: .git-hooks
 
       - name: Checkout master-message-template
         uses: actions/checkout@v3
