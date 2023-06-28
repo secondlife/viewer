@@ -91,7 +91,7 @@ S32 LLVersionInfo::getPatch()
 	return LL_VIEWER_VERSION_PATCH;
 }
 
-S32 LLVersionInfo::getBuild()
+S64 LLVersionInfo::getBuild()
 {
 	return LL_VIEWER_VERSION_BUILD;
 }

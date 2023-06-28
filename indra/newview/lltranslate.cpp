@@ -133,7 +133,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, std::
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
+    std::string user_agent = llformat("%s %d.%d.%d (%ld)",
         LLVersionInfo::instance().getChannel().c_str(),
         LLVersionInfo::instance().getMajor(),
         LLVersionInfo::instance().getMinor(),
@@ -177,7 +177,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
+    std::string user_agent = llformat("%s %d.%d.%d (%ld)",
         LLVersionInfo::instance().getChannel().c_str(),
         LLVersionInfo::instance().getMajor(),
         LLVersionInfo::instance().getMinor(),

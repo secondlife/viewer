@@ -384,7 +384,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
 
 	httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
+    std::string user_agent = llformat("%s %d.%d.%d (%ld)",
         LLVersionInfo::instance().getChannel().c_str(),
         LLVersionInfo::instance().getMajor(),
         LLVersionInfo::instance().getMinor(),

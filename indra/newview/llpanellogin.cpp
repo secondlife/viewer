@@ -300,7 +300,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	setDefaultBtn(def_btn);
 
 	std::string channel = LLVersionInfo::instance().getChannel();
-	std::string version = llformat("%s (%d)",
+	std::string version = llformat("%s (%ld)",
 								   LLVersionInfo::instance().getShortVersion().c_str(),
 								   LLVersionInfo::instance().getBuild());
 	
@@ -894,7 +894,7 @@ void LLPanelLogin::loadLoginPage()
 	}
 
 	// Channel and Version
-	params["version"] = llformat("%s (%d)",
+	params["version"] = llformat("%s (%ld)",
 								 LLVersionInfo::instance().getShortVersion().c_str(),
 								 LLVersionInfo::instance().getBuild());
 	params["channel"] = LLVersionInfo::instance().getChannel();
