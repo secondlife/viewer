@@ -13,17 +13,14 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: [Release, ReleaseOS]
-        addrsize: [64]
+        addrsize: [32, 64]
         python-version: ["3.11"]
-        include:
-          - runner: windows-large
-            configuration: ${{ matrix.configuration }}
-            addrsize: 32
-            python-version: ${{ matrix.python-version }}
+        developer_dir: ["", "/Applications/Xcode_14.0.1.app/Contents/Developer"]
+        exclude:
           - runner: macos-12-xl
-            configuration: ${{ matrix.configuration }}
-            python-version: ${{ matrix.python-version }}
-            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+            addrsize: 32
+          - runner: windows-large
+            developer-dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
