@@ -322,7 +322,7 @@ void LLReflectionMapManager::update()
         mRadiancePass = mRealtimeRadiancePass;
         for (U32 i = 0; i < 6; ++i)
         {
-            updateProbeFace(closestDynamic, i, mProbeResolution);
+            updateProbeFace(closestDynamic, i, mProbeResolution, mTexture);
         }
         mRealtimeRadiancePass = !mRealtimeRadiancePass;
 
@@ -362,8 +362,26 @@ void LLReflectionMapManager::update()
         oldestOccluded->mLastUpdateTime = gFrameTimeSeconds;
     }
     
-    
-    doHeroProbeUpdate();
+    if (mHeroProbe != nullptr)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
+        // update the closest dynamic probe realtime
+        // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
+        mHeroProbe->autoAdjustOrigin();
+
+        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
+        // lighting values etc
+        bool radiance_pass = isRadiancePass();
+        mRadiancePass = mRealtimeRadiancePass;
+        for (U32 i = 0; i < 6; ++i)
+        {
+            updateProbeFace(mHeroProbe, i, mProbeResolution, mHeroArray);
+        }
+        mRealtimeRadiancePass = !mRealtimeRadiancePass;
+
+        // restore "isRadiancePass"
+        mRadiancePass = radiance_pass;
+    }
     
 }
 
@@ -539,7 +557,7 @@ void LLReflectionMapManager::doProbeUpdate()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(mUpdatingProbe != nullptr);
 
-    updateProbeFace(mUpdatingProbe, mUpdatingFace, mProbeResolution);
+    updateProbeFace(mUpdatingProbe, mUpdatingFace, mProbeResolution, mTexture);
     
     if (++mUpdatingFace == 6)
     {
@@ -709,14 +727,14 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U
             if (mip >= 0)
             {
                 LL_PROFILE_GPU_ZONE("probe mip copy");
-                probe->mCubeArray->bind(0);
+                cubeArray->bind(0);
                 //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
                 glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
                 //if (i == 0)
                 //{
                     //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
                 //}
-                probe->mCubeArray->unbind();
+                cubeArray->unbind();
             }
             mMipChain[i].flush();
         }
@@ -741,7 +759,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U
             mVertexBuffer->setBuffer();
 
             S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
-            probe->mCubeArray->bind(channel);
+            cubeArray->bind(channel);
             gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
 
@@ -786,7 +804,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U
             //generate irradiance map
             gIrradianceGenProgram.bind();
             S32 channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
-            probe->mCubeArray->bind(channel);
+            cubeArray->bind(channel);
 
             gIrradianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gIrradianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
@@ -821,7 +839,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U
                     S32 res = mMipChain[i].getWidth();
                     mIrradianceMaps->bind(channel);
                     glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, i - start_mip, 0, 0, probe->mCubeIndex * 6 + cf, 0, 0, res, res);
-                    probe->mCubeArray->bind(channel);
+                    cubeArray->bind(channel);
                 }
             }
         }
