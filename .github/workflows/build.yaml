@@ -17,9 +17,12 @@ jobs:
         python-version: ["3.11"]
         include:
           - runner: windows-large
+            configuration: ${{ matrix.configuration }}
             addrsize: 32
-            python-version: "3.11"
+            python-version: ${{ matrix.python-version }}
           - runner: macos-12-xl
+            configuration: ${{ matrix.configuration }}
+            python-version: ${{ matrix.python-version }}
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
