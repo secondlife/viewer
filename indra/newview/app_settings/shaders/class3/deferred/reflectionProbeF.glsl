@@ -364,7 +364,8 @@ return texCUBE(envMap, ReflDirectionWS);
 // dir - ray direction in clip space
 // i - probe index in refBox/refSphere
 // d - distance to nearest wall in clip space
-vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
+// scale - scale of box, default 1.0
+vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d, float scale)
 {
     // Intersection with OBB convert to unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
@@ -375,7 +376,7 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
 
     d = 1.0-max(max(abs(PositionLS.x), abs(PositionLS.y)), abs(PositionLS.z));
 
-    vec3 Unitary = vec3(1.0f, 1.0f, 1.0f);
+    vec3 Unitary = vec3(scale);
     vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
     vec3 SecondPlaneIntersect = (-Unitary - PositionLS) / RayLS;
     vec3 FurthestPlane = max(FirstPlaneIntersect, SecondPlaneIntersect);
@@ -385,6 +386,11 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
     vec3 IntersectPositionCS = origin + dir * Distance;
 
     return IntersectPositionCS;
+}
+
+vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
+{
+    return boxIntersect(origin, dir, i, d, 1.0);
 }
 
 void debugBoxCol(vec3 ro, vec3 rd, float t, vec3 p, inout vec4 col)
@@ -531,7 +537,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
     if (refIndex[i].w < 0)
     {
         float d = 0.0;
-        v = boxIntersect(pos, dir, i, d);
+        v = boxIntersect(pos, dir, i, d, 3.0);
         w = max(d, 0.001);
     }
     else
