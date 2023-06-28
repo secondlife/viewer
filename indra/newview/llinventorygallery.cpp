@@ -36,6 +36,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llthumbnailctrl.h"
 #include "lltextbox.h"
 #include "llviewerfoldertype.h"
@@ -2240,6 +2241,15 @@ void LLInventoryGalleryItem::setSelected(bool value)
 {
     mSelected = value;
     mTextBgPanel->setBackgroundVisible(value);
+
+    if(mSelected)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(mUUID);
+        if(item && !item->isFinished())
+        {
+            LLInventoryModelBackgroundFetch::instance().start(mUUID, false);
+        }
+    }
 }
 
 BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
