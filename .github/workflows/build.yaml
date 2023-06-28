@@ -41,7 +41,8 @@ jobs:
       build_log_dir: ${{ github.workspace }}/.logs
       build_viewer: true
       BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
-      BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/.buildscripts/hg/bin/buildscripts_support_functions
+      # extracted and committed to viewer repo
+      BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/buildscripts_support_functions
       git_hooks_checkout: ${{ github.workspace }}/.git-hooks
       GIT_REF: ${{ github.head_ref || github.ref }}
       LL_SKIP_REQUIRE_SYSROOT: 1
@@ -70,12 +71,6 @@ jobs:
           repository: secondlife/build-variables
           ref: viewer
           path: .build-variables
-
-      - name: Checkout buildscripts
-        uses: actions/checkout@v3
-        with:
-          repository: secondlife/sling-buildscripts
-          path: .buildscripts
 
       - name: Checkout git-hooks
         uses: actions/checkout@v3
