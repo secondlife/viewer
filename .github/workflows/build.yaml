@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: ["actions", "actions-build-sh"]
+    branches: ["actions*"]
     tags: ["*"]
 
 jobs:
@@ -19,6 +19,7 @@ jobs:
           - runner: windows-large
             configuration: Release
             addrsize: 32
+            python-version: "3.11"
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
@@ -32,9 +33,12 @@ jobs:
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
+      # Ensure that viewer builds engage Bugsplat.
+      BUGSPLAT_DB: "SecondLife_Viewer_2018"
+      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
+      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
-      build_secrets_checkout: ${{ github.workspace }}/.build-secrets
       build_viewer: true
       BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
       BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/.buildscripts/hg/bin/buildscripts_support_functions
@@ -59,12 +63,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Checkout build secrets
-        uses: actions/checkout@v3
-        with:
-          repository: secondlife/build-secrets
-          path: .build-secrets
 
       - name: Checkout build variables
         uses: actions/checkout@v3

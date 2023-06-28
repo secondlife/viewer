@@ -146,12 +146,20 @@ pre_build()
     fi
 
     # don't spew credentials into build log
-    bugsplat_sh="$build_secrets_checkout/bugsplat/bugsplat.sh"
     set +x
-    if [ -r "$bugsplat_sh" ]
-    then # show that we're doing this, just not the contents
-         echo source "$bugsplat_sh"
-         source "$bugsplat_sh"
+    # expect these variables to be set in the environment from GitHub secrets
+    if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
+    then
+        # older mechanism involving build-secrets repo -
+        # if build_secrets_checkout isn't set, report its name
+        bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
+        if [ -r "$bugsplat_sh" ]
+        then # show that we're doing this, just not the contents
+            echo source "$bugsplat_sh"
+            source "$bugsplat_sh"
+        else
+            fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
+        fi
     fi
     set -x
 
