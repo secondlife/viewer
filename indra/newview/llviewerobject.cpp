@@ -1269,7 +1269,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				LL_INFOS() << "Full:" << getID() << LL_ENDL;
 #endif
 				//clear cost and linkset cost
-				mCostStale = true;
+				setObjectCostStale();
 				if (isSelected())
 				{
 					gFloaterTools->dirty();
@@ -1825,7 +1825,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #ifdef DEBUG_UPDATE_TYPE
 				LL_INFOS() << "CompFull:" << getID() << LL_ENDL;
 #endif
-				mCostStale = true;
+				setObjectCostStale();
 
 				if (isSelected())
 				{
@@ -3777,6 +3777,16 @@ void LLViewerObject::setScale(const LLVector3 &scale, BOOL damped)
 			}
 		}
 	}
+}
+
+void LLViewerObject::setObjectCostStale()
+{
+	mCostStale = true;
+    // *NOTE: This is harmlessly redundant for Blinn-Phong material updates, as
+    // the root prim currently gets set stale anyway due to other property
+    // updates. But it is needed for GLTF material ID updates.
+    // -Cosmic,2023-06-27
+    getRootEdit()->mCostStale = true;
 }
 
 void LLViewerObject::setObjectCost(F32 cost)
@@ -6796,7 +6806,7 @@ void LLViewerObject::setPhysicsShapeType(U8 type)
 	if (type != mPhysicsShapeType)
 	{
 	mPhysicsShapeType = type;
-	mCostStale = true;
+	setObjectCostStale();
 }
 }
 
@@ -7302,6 +7312,12 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
             // calling setBaseMaterial above.
             LLGLTFMaterialList::queueApply(this, te, id);
         }
+    }
+
+    if (!update_server)
+    {
+        // Land impact may have changed
+        setObjectCostStale();
     }
 }
 
