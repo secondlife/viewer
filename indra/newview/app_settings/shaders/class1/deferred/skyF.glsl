@@ -84,6 +84,7 @@ void main()
     color.rgb += rainbow(optic_d);
     color.rgb += halo_22;
     color.rgb *= 2.;
+    color.rgb = clamp(color.rgb, vec3(0), vec3(5));
 
     frag_data[0] = vec4(0);
     frag_data[1] = vec4(0);
