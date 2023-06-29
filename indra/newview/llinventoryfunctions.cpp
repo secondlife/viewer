@@ -1518,10 +1518,14 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
                                                                              callback_dest_create);
                                             });
             }
-            if (depth == 1)
+            else if (depth == 1)
             {
                 // We need a version folder
                 gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName(), callback_dest_create);
+            }
+            else
+            {
+                callback_dest_create(dest_folder);
             }
         }
         else
