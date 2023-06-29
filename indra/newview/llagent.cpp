@@ -120,6 +120,8 @@ const F64 CHAT_AGE_FAST_RATE = 3.0;
 const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
+const S32 UI_FEATURE_VERSION = 1;
+
 // The agent instance.
 LLAgent gAgent;
 
@@ -372,7 +374,7 @@ LLAgent::LLAgent() :
 	mHideGroupTitle(FALSE),
 	mGroupID(),
 
-	mInitialized(FALSE),
+	mInitialized(false),
 	mListener(),
 
 	mDoubleTapRunTimer(),
@@ -447,7 +449,7 @@ LLAgent::LLAgent() :
 
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
-	mFirstLogin(FALSE),
+	mFirstLogin(false),
 	mOutfitChosen(FALSE),
 
 	mVoiceConnected(false),
@@ -504,7 +506,7 @@ void LLAgent::init()
 
 	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
 
-	mInitialized = TRUE;
+	mInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -559,6 +561,31 @@ void LLAgent::onAppFocusGained()
 	}
 }
 
+void LLAgent::setFirstLogin(bool b)
+{
+    mFirstLogin = b;
+
+    if (mFirstLogin)
+    {
+        // Don't notify new users about new features
+        S32 feature_version = gSavedSettings.getS32("LastUIFeatureVersion");
+        if (feature_version < UI_FEATURE_VERSION)
+        {
+            gSavedSettings.setS32("LastUIFeatureVersion", UI_FEATURE_VERSION);
+        }
+    }
+}
+
+void LLAgent::showLatestFeatureNotification()
+{
+    // Notify user about new thumbnail support
+    S32 feature_version = gSavedSettings.getS32("LastUIFeatureVersion");
+    if (feature_version < UI_FEATURE_VERSION)
+    {
+        LLFloaterReg::showInstance("new_feature_notification");
+        gSavedSettings.setS32("LastUIFeatureVersion", UI_FEATURE_VERSION);
+    }
+}
 
 void LLAgent::ageChat()
 {

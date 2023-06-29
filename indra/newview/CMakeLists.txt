@@ -246,6 +246,7 @@ set(viewer_SOURCE_FILES
     llfloatermyscripts.cpp
     llfloatermyenvironment.cpp
     llfloaternamedesc.cpp
+    llfloaternewfeaturenotification.cpp
     llfloaternotificationsconsole.cpp
     llfloaternotificationstabbed.cpp
     llfloaterobjectweights.cpp
@@ -894,6 +895,7 @@ set(viewer_HEADER_FILES
     llfloatermyscripts.h
     llfloatermyenvironment.h
     llfloaternamedesc.h
+    llfloaternewfeaturenotification.h
     llfloaternotificationsconsole.h
     llfloaternotificationstabbed.h
     llfloaterobjectweights.h

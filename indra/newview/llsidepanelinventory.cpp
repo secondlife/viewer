@@ -400,6 +400,8 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 		gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 	}
 #endif
+
+    gAgent.showLatestFeatureNotification();
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
