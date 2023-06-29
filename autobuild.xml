@@ -118,11 +118,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9abc9c21ca82ceb200d9b75e7a48961085cd6cfd</string>
+              <string>a6135a1d17ae4f703a9ffac3f160820fae916ab7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r2/assimp-darwin64-5.2.5-r2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r3/assimp-darwin64-5.2.5-r3.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -132,11 +132,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>077f0c4e4404860e3ba20cb0dc051a3a64a34fe5</string>
+              <string>e6914a03c41a4146a0e7cc8745fea4e8d60c1845</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r2/assimp-linux64-5.2.5-r2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r3/assimp-linux64-5.2.5-r3.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -146,11 +146,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b2774c4ba576e87a1af0f60429c4ca3648e1cf78</string>
+              <string>6e8af04600fa9f1c18e1f9b6e8238de32e675aa0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r2/assimp-windows-5.2.5-r2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r3/assimp-windows-5.2.5-r3.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -160,11 +160,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>78de72ee060ec9e39dd6cc4fa30e18b98f9d14be</string>
+              <string>8b878487089380b43a8b2109dfc6ab8bbebd4009</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r2/assimp-windows64-5.2.5-r2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r3/assimp-windows64-5.2.5-r3.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -179,7 +179,7 @@
         <key>vcs_url</key>
         <string>https://github.com/secondlife/3p-assimp</string>
         <key>version</key>
-        <string>5.2.5-r2</string>
+        <string>5.2.5-r3</string>
       </map>
       <key>boost</key>
       <map>
