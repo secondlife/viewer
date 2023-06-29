@@ -13,15 +13,17 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: [Release]
-        addrsize: [64]
+        addrsize: [32,64]
         python-version: ["3.11"]
-        include:
-          - runner: windows-large
-            configuration: Release
-            addrsize: 32
-            python-version: "3.11"
+        developer_dir: ["", "/Applications/Xcode_14.0.1.app/Contents/Developer"]
+        exclude:
           - runner: macos-12-xl
+            addrsize: 32
+          - runner: windows-large
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+          ## nat 2023-06-29: until we've resolved the !@#$%! Windows Python
+          ## permissions problem, don't even bother running Windows builds.
+          - runner: windows-large
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
@@ -112,6 +114,17 @@ jobs:
             native_path() { echo "$1"; }
             shell_path()  { echo "$1"; }
           fi
+          finalize()
+          {
+            case "$1" in
+              true|0)
+                record_success "Build Succeeded"
+                ;;
+              *)
+                record_failure "Build Failed with $1"
+                ;;
+            esac
+          }
           initialize_build()
           {
             echo "initialize_build"
@@ -147,9 +160,12 @@ jobs:
           {
             echo "Not sleeping for $1 seconds"
           }
-          export -f native_path shell_path initialize_build initialize_version
+          export -f native_path shell_path finalize initialize_build initialize_version
           export -f python_cmd repo_branch record_dependencies_graph sleep
           export arch=$(uname | cut -b-6)
+          # Surprise! GH Windows runner's MINGW6 is a $arch value we've never
+          # seen before, so numerous tests don't know about it.
+          [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
           # Build with a tag like "Second Life Project Shiny:abcdef0" to get a
           # viewer channel "Second Life Project Shiny" (ignoring ":hash",
