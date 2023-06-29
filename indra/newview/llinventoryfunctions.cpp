@@ -1825,6 +1825,7 @@ void validate_marketplacelistings(
                 {
                     // Create a new folder
                     const LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
+                    const LLUUID origin_uuid = viewer_cat->getUUID();
                     LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector_it->second.back());
                     std::string folder_name = (depth >= 1 ? viewer_cat->getName() : viewer_inv_item->getName());
                     LLFolderType::EType new_folder_type = (items_vector_it->first == default_key ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
@@ -1848,7 +1849,7 @@ void validate_marketplacelistings(
                         parent_uuid,
                         new_folder_type,
                         folder_name,
-                        [uuid_vector, cb_result, cb_msg, depth, parent_uuid, notify_observers](const LLUUID &new_category_id)
+                        [uuid_vector, cb_result, cb_msg, depth, parent_uuid, origin_uuid, notify_observers](const LLUUID &new_category_id)
                     {
                         // Move each item to the new folder
                         std::vector<LLUUID>::const_reverse_iterator iter = uuid_vector.rbegin();
@@ -1867,6 +1868,31 @@ void validate_marketplacelistings(
                             }
                             gInventory.changeItemParent(viewer_inv_item, new_category_id, true);
                             iter++;
+                        }
+
+                        if (origin_uuid != parent_uuid)
+                        {
+                            // We might have moved last item from a folder, check if it needs to be removed
+                            LLViewerInventoryCategory* cat = gInventory.getCategory(origin_uuid);
+                            if (cat->getDescendentCount() == 0)
+                            {
+                                // Remove previous folder if it ends up empty
+                                if (cb_msg)
+                                {
+                                    std::string indent;
+                                    for (int i = 1; i < depth; i++)
+                                    {
+                                        indent += "    ";
+                                    }
+                                    std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Warning Delete");
+                                    cb_msg(message, depth, LLError::LEVEL_WARN);
+                                }
+                                gInventory.removeCategory(cat->getUUID());
+                                if (notify_observers)
+                                {
+                                    gInventory.notifyObservers();
+                                }
+                            }
                         }
 
                         // Next type
