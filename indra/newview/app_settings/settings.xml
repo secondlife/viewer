@@ -5519,6 +5519,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LastUIFeatureVersion</key>
+    <map>
+        <key>Comment</key>
+        <string>UI Feature Version number for tracking feature notification between viewer builds</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <string></string>
+    </map>
     <key>LastFindPanel</key>
     <map>
       <key>Comment</key>
