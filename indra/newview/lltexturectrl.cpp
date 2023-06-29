@@ -288,7 +288,7 @@ bool LLFloaterTexturePicker::updateImageStats()
                 || height > mMaxDim
                 )
             {
-                std::string formatted_dims = llformat("%d x %d", width, height);
+                std::string formatted_dims = llformat("%dx%d", width, height);
                 mResolutionWarning->setTextArg("[TEXDIM]", formatted_dims);
                 result = false;
             }
@@ -1155,9 +1155,9 @@ void LLFloaterTexturePicker::setDimentionsLimits(S32 max_dim, S32 min_dim)
     mMaxDim = max_dim;
     mMinDim = min_dim;
 
-    std::string formatted_dims = llformat("%d x %d", mMinDim, mMinDim);
+    std::string formatted_dims = llformat("%dx%d", mMinDim, mMinDim);
     mResolutionWarning->setTextArg("[MINTEXDIM]", formatted_dims);
-    formatted_dims = llformat("%d x %d", mMaxDim, mMaxDim);
+    formatted_dims = llformat("%dx%d", mMaxDim, mMaxDim);
     mResolutionWarning->setTextArg("[MAXTEXDIM]", formatted_dims);
 }
 
