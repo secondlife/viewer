@@ -146,8 +146,6 @@ private:
 
     // perform an update on the currently updating Probe
     void doProbeUpdate();
-    
-    void doHeroProbeUpdate();
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray);

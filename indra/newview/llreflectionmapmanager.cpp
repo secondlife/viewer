@@ -329,6 +329,28 @@ void LLReflectionMapManager::update()
         // restore "isRadiancePass"
         mRadiancePass = radiance_pass;
     }
+    
+    
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
+        // update the closest dynamic probe realtime
+        // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
+        mHeroProbe->autoAdjustOrigin();
+
+        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
+        // lighting values etc
+        bool radiance_pass = isRadiancePass();
+        mRadiancePass = mRealtimeRadiancePass;
+        for (U32 i = 0; i < 6; ++i)
+        {
+            updateProbeFace(mHeroProbe, i, mHeroProbeResolution, mHeroArray);
+        }
+        
+        mRealtimeRadiancePass = !mRealtimeRadiancePass;
+
+        // restore "isRadiancePass"
+        mRadiancePass = radiance_pass;
+    }
 
     static LLCachedControl<F32> sUpdatePeriod(gSavedSettings, "RenderDefaultProbeUpdatePeriod", 2.f);
     if ((gFrameTimeSeconds - mDefaultProbe->mLastUpdateTime) < sUpdatePeriod)
@@ -361,28 +383,6 @@ void LLReflectionMapManager::update()
         oldestOccluded->autoAdjustOrigin();
         oldestOccluded->mLastUpdateTime = gFrameTimeSeconds;
     }
-    
-    if (mHeroProbe != nullptr)
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
-        // update the closest dynamic probe realtime
-        // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
-        mHeroProbe->autoAdjustOrigin();
-
-        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
-        // lighting values etc
-        bool radiance_pass = isRadiancePass();
-        mRadiancePass = mRealtimeRadiancePass;
-        for (U32 i = 0; i < 6; ++i)
-        {
-            updateProbeFace(mHeroProbe, i, mProbeResolution, mHeroArray);
-        }
-        mRealtimeRadiancePass = !mRealtimeRadiancePass;
-
-        // restore "isRadiancePass"
-        mRadiancePass = radiance_pass;
-    }
-    
 }
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
@@ -573,21 +573,6 @@ void LLReflectionMapManager::doProbeUpdate()
         {
             mRadiancePass = true;
         }
-    }
-}
-
-void LLReflectionMapManager::doHeroProbeUpdate()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    llassert(mHeroProbe != nullptr);
-    
-    touch_default_probe(mHeroProbe);
-    
-    for (int i = 0; i < 6; i++)
-    {
-        gPipeline.mRT = &gPipeline.mAuxillaryRT;
-        mHeroProbe->update(mHeroProbeResolution, i);
-        gPipeline.mRT = &gPipeline.mMainRT;
     }
 }
 
@@ -1190,6 +1175,7 @@ void LLReflectionMapManager::setUniforms()
         updateUniforms();
     }
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, mHeroUBO);
 }
 
 
