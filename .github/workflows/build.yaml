@@ -28,7 +28,6 @@ jobs:
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
-      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
