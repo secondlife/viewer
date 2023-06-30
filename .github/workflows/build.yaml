@@ -28,7 +28,6 @@ jobs:
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
-      autobuild_checkout: ${{ github.workspace}}/.autobuild
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
@@ -67,19 +66,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Checkout autobuild
-        uses: actions/checkout@v3
-        # Bug in autobuild 3.9.2? The TC viewer build can successfully build
-        # llphysicsextensions/autobuild-tpv.xml, but the previous GH actions
-        # build failed: "no configuration for Release found" despite -c Tpv.
-        # The difference seems to be that we used 'pip3 install autobuild'
-        # from PyPI, whereas the TC buildscripts setup clones
-        # secondlife/autobuild branch v3 and installs from that repo.
-        with:
-          repository: secondlife/autobuild
-          ref: v3
-          path: .autobuild
-
       - name: Checkout build variables
         uses: actions/checkout@v3
         with:
@@ -94,10 +80,7 @@ jobs:
           path: .master-message-template
 
       - name: Install autobuild
-        shell: bash
-        run: |
-          pip3 install "$autobuild_checkout"
-          pip3 install llsd
+        run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
         uses: actions/cache@v3
