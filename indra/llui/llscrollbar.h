@@ -105,8 +105,8 @@ public:
 	bool				setDocPos( S32 pos, BOOL update_thumb = TRUE );
 	S32					getDocPos() const		{ return mDocPos; }
 
-	BOOL				isAtBeginning();
-	BOOL				isAtEnd();
+	bool				isAtBeginning() const;
+	bool				isAtEnd() const;
 
 	// Setting both at once.
 	void				setDocParams( S32 size, S32 pos );

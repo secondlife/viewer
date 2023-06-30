@@ -2322,20 +2322,11 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
 
 void LLPanelMainInventory::onCombinationGallerySelectionChanged(const LLUUID& category_id)
 {
-    if(category_id != LLUUID::null)
-    {
-        mCombinationInventoryPanel->unSelectAll();
-    }
 }
 
 void LLPanelMainInventory::onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, BOOL user_action)
 {
     onSelectionChange(mCombinationInventoryPanel, items, user_action);
-
-    if(!items.empty())
-    {
-        mCombinationGalleryPanel->clearSelection();
-    }
 }
 
 void LLPanelMainInventory::updatePanelVisibility()

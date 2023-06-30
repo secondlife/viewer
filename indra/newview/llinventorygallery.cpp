@@ -1254,12 +1254,26 @@ void LLInventoryGallery::onFocusReceived()
     // inventory now handles cut/copy/paste/delete
     gEditMenuHandler = this;
 
-    LLPanel::onFocusReceived();
-
+    // Tab support, when tabbing into this view, select first item
     if (mSelectedItemID.notNull() && mItemMap[mSelectedItemID])
     {
-        mItemMap[mSelectedItemID]->setSelected(true);
+        LLInventoryGalleryItem* focus_item = mItemMap[mSelectedItemID];
+        focus_item->setSelected(true);
+        focus_item->setFocus(TRUE);
     }
+    else if (mIndexToItemMap.size() > 0)
+    {
+        // choose any items from visible rect
+        S32 vert_offset = mScrollPanel->getDocPosVertical();
+        S32 panel_size = mVerticalGap + mRowPanelHeight;
+        S32 n = llclamp((S32)(vert_offset / panel_size) * mItemsInRow, 0, (S32)(mIndexToItemMap.size() - 1) );
+
+        LLInventoryGalleryItem* focus_item = mIndexToItemMap[n];
+        changeItemSelection(focus_item->getUUID(), true);
+        focus_item->setFocus(TRUE);
+    }
+
+    LLPanel::onFocusReceived();
 }
 
 void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id)
