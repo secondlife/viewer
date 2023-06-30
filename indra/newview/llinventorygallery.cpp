@@ -1261,7 +1261,7 @@ void LLInventoryGallery::onFocusReceived()
         focus_item->setSelected(true);
         focus_item->setFocus(TRUE);
     }
-    else if (mIndexToItemMap.size() > 0)
+    else if (mIndexToItemMap.size() > 0 && mItemToSelect.isNull())
     {
         // choose any items from visible rect
         S32 vert_offset = mScrollPanel->getDocPosVertical();
