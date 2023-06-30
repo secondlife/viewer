@@ -2534,12 +2534,6 @@ void LLAgent::setStartPosition( U32 location_id )
     if (!requestPostCapability("HomeLocation", body, 
             boost::bind(&LLAgent::setStartPositionSuccess, this, _1)))
         LL_WARNS() << "Unable to post to HomeLocation capability." << LL_ENDL;
-
-    const U32 HOME_INDEX = 1;
-    if( HOME_INDEX == location_id )
-    {
-        setHomePosRegion( mRegionp->getHandle(), getPositionAgent() );
-    }
 }
 
 void LLAgent::setStartPositionSuccess(const LLSD &result)
