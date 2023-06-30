@@ -6,7 +6,7 @@
  layout="topleft"
  name="Animation Preview"
  help_topic="animation_preview"
- width="280">
+ width="310">
     <floater.string
      name="failed_to_initialize">
         Failed to initialize motion
@@ -500,13 +500,14 @@ Maximum animation length is [MAX_LENGTH] seconds.
 	<spinner
      follows="left|top"
      height="23"
-     increment="0.023"
+     increment="0.02"
      initial_value="0"
      label="Duration (sec)"
      label_width="100"
      layout="topleft"
      top_pad="0"
-     max_val="10"
+     min_val="0.0"
+     max_val="60.0"
      name="anim_duration"
      tool_tip="Time duration (in seconds) from start to finish"
      width="180" />
@@ -592,7 +593,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left_pad="10"
      follows="top|right"
      height="23"
-     width="200"
+     width="230"
      increment="0.0001"
      initial_value="0"
      layout="topleft"
@@ -624,14 +625,14 @@ We recommend BVH files exported from Poser 4.
      width="128" />
     <button
     	top="604"
-     follows="bottom|left"
+     follows="bottom|left|right"
      height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     left="142"
-     width="128" />
-    <text
+     left="182"
+     right="-10" />
+	<text
      type="string"
      length="1"
      follows="left|top"
