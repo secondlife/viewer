@@ -235,7 +235,7 @@ public:
     LLSD    asLLSD() const override;
     size_t  generateHash() const override;
 
-    bool    enforce(Joint& joint) const override;
+    //bool    enforce(Joint& joint) const override;
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
 
 #ifdef DEBUG_LLIK_UNIT_TESTS
@@ -515,8 +515,6 @@ public:
 
         void updateFrom(const Config& other_config);
 
-        //void dropElbow();
-
     private:
         LLVector3 mLocalPos;
         LLQuaternion mLocalRot;
@@ -543,15 +541,13 @@ public:
     void updateGeometry(const LLVector3& local_pos, const LLVector3& bone);
 
     LLVector3 computeWorldTipOffset() const;
-    void updateEndInward();
-    void updateEndOutward();
-    void updateBranchRoot();
-    void updateInward(const ptr_t& child);
+    void updateEndInward(bool enforce_constraints);
+    void updateEndOutward(bool enforce_constraints);
+    void updateInward(const ptr_t& child, bool enforce_constraints);
     void updatePosAndRotFromParent();
-    void updateOutward();
+    void updateOutward(bool enforce_constraints);
     void applyLocalRot();
-    void updateLocalRot();
-    LLQuaternion computeParentRot() const;
+    bool updateLocalRot(bool enforce_constraints=false);
     void updateChildLocalRots() const;
 
     LLVector3 computePosFromParent() const;
@@ -564,7 +560,6 @@ public:
     void setLocalRot(const LLQuaternion& new_local_rot);
     void setLocalScale(const LLVector3& scale);
     LLVector3 getPreScaledLocalPos() const;
-    void adjustWorldRot(const LLQuaternion& adjustment);
     void shiftPos(const LLVector3& shift);
 
     void setConfig(const Config& config);
@@ -746,20 +741,18 @@ private:
     F32 solveOnce();
 
     // experimental solver methods
-    void executeFabrikPass();
+    void executeFabrikPass(bool enforce_constraints=true);
     void executeCcdPass(); // EXPERIMENTAL
-    void enforceConstraints();
 
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
     //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
-    void dropElbow(const Joint::ptr_t& wrist_joint);
+    //void dropElbow(const Joint::ptr_t& wrist_joint); // EXPERIMENTAL: keep this
     void rebuildAllChains();
     void buildChain(Joint::ptr_t joint, Joint::joint_vec_t &chain, std::set<S16> &sub_bases, size_t chain_length);
-    void executeFabrikInward(const Joint::joint_vec_t& chain);
-    void executeFabrikOutward(const Joint::joint_vec_t& chain);
+    void executeFabrikInward(const Joint::joint_vec_t& chain, bool enforce_constraints);
+    void executeFabrikOutward(const Joint::joint_vec_t& chain, bool enforce_constraints);
     void shiftChainToBase(const Joint::joint_vec_t& chain);
-    S16 enforceConstraintsInward(const Joint::joint_vec_t& chain);
     void executeCcdInward(const Joint::joint_vec_t& chain);
     F32 measureMaxError();
 
