@@ -582,7 +582,12 @@ void LLAgent::showLatestFeatureNotification()
     S32 feature_version = gSavedSettings.getS32("LastUIFeatureVersion");
     if (feature_version < UI_FEATURE_VERSION)
     {
-        LLFloaterReg::showInstance("new_feature_notification");
+        // Need to open on top even if called from onOpen,
+        // do on idle to make sure it's on top
+        doOnIdleOneTime([]()
+                        {
+                            LLFloaterReg::showInstance("new_feature_notification");
+                        });
         gSavedSettings.setS32("LastUIFeatureVersion", UI_FEATURE_VERSION);
     }
 }

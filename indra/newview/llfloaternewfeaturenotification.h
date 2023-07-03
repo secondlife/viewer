@@ -30,20 +30,20 @@
 #include "llfloater.h"
 
 class LLFloaterNewFeatureNotification:
-	public LLFloater
+    public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	BOOL postBuild() override;
-	void onOpen(const LLSD& key) override;
+    BOOL postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
     LLFloaterNewFeatureNotification(const LLSD& key);
     /*virtual*/	~LLFloaterNewFeatureNotification();
 
-	void centerOnScreen();
+    void centerOnScreen();
 
-	void onCloseBtn();	
+    void onCloseBtn();	
 };
 
 #endif

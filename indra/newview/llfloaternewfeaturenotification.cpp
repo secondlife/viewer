@@ -30,7 +30,7 @@
 
 
 LLFloaterNewFeatureNotification::LLFloaterNewFeatureNotification(const LLSD& key)
-	:	LLFloater(key)
+  : LLFloater(key)
 {
 }
 
@@ -40,24 +40,29 @@ LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
 
 BOOL LLFloaterNewFeatureNotification::postBuild()
 {
-	setCanDrag(FALSE);
-	getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
-	return TRUE;
+    setCanDrag(FALSE);
+    getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
+    return TRUE;
 }
 
 void LLFloaterNewFeatureNotification::onOpen(const LLSD& key)
 {
-	centerOnScreen();
+    centerOnScreen();
 }
 
 void LLFloaterNewFeatureNotification::onCloseBtn()
 {
-	closeFloater();
+    closeFloater();
 }
 
 void LLFloaterNewFeatureNotification::centerOnScreen()
 {
-	LLVector2 window_size = LLUI::getInstance()->getWindowSize();
-	centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
+    LLVector2 window_size = LLUI::getInstance()->getWindowSize();
+    centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
+    LLFloaterView* parent = dynamic_cast<LLFloaterView*>(getParent());
+    if (parent)
+    {
+        parent->bringToFront(this);
+    }
 }
 
