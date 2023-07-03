@@ -1256,6 +1256,8 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 //-----------------------------------------------------------------------------
 LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
 {
+    LLPipeline::refreshCachedSettings();     // Ensure LLPipeline::PreviewBackgroundColor is up-to-date
+
 	mNeedsUpdate = TRUE;
 	mCameraDistance = PREVIEW_CAMERA_DISTANCE;
 	mCameraYaw = 0.f;
@@ -1294,7 +1296,7 @@ S8 LLPreviewAnimation::getType() const
 }
 
 //-----------------------------------------------------------------------------
-// update()
+// render()
 //-----------------------------------------------------------------------------
 BOOL	LLPreviewAnimation::render()
 {
@@ -1314,7 +1316,12 @@ BOOL	LLPreviewAnimation::render()
 
 	LLGLSUIDefault def;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
+
+	// background color
+    gGL.color4f(LLPipeline::PreviewBackgroundColor.mV[VRED],
+                LLPipeline::PreviewBackgroundColor.mV[VGREEN],
+                LLPipeline::PreviewBackgroundColor.mV[VBLUE],
+                LLPipeline::PreviewBackgroundColor.mV[VALPHA]);
 
 	gl_rect_2d_simple( mFullWidth, mFullHeight );
 

@@ -8080,6 +8080,23 @@
       <real>1.0</real>
     </array>
   </map>
+
+  <key>PreviewBackgroundColor</key>
+    <map>
+    <key>Comment</key>
+    <string>Background color of preview window</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+        <real>0.15</real>
+        <real>0.2</real>
+        <real>0.3</real>
+        <real>1.0</real>
+    </array>
+  </map>
   <key>PreviewDiffuse0</key>
   <map>
     <key>Comment</key>
