@@ -20,6 +20,15 @@
       left="34"
       height="29"
       width="162" />
+  <text
+      name="Description"
+      layout="bottomleft"
+      follows="bottom|left|right"
+      font="SansSerifMedium"
+      bottom="14"
+      left="42"
+      height="29"
+      width="150" />
   <button
       name="PreviewEmoji"
       layout="bottomleft"
@@ -31,7 +40,7 @@
       height="29"
       width="29" />
   <scroll_list
-      name="Emojis"
+      name="EmojiList"
       layout="topleft"
       follows="all"
       sort_column="0"
@@ -52,6 +61,24 @@
         label="Name"
         name="name" />
   </scroll_list>
+  <scroll_container
+      name="EmojiGridContainer"
+      layout="topleft"
+      follows="all"
+      top="25"
+      left="0"
+      height="330"
+      width="200">
+    <scrolling_panel_list
+        name="EmojiGrid"
+        layout="topleft"
+        follows="top|left|right"
+        padding="4"
+        spacing="0"
+        top="0"
+        left="0"
+        width="200"/>
+  </scroll_container>
   <combo_box
       name="Category"
       label="Choose a category"
