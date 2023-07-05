@@ -481,7 +481,11 @@ void LLAgent::init()
 	
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
 
-	setFlying( gSavedSettings.getBOOL("FlyingAtExit") );
+    bool is_flying = gSavedSettings.getBOOL("FlyingAtExit");
+    if(is_flying)
+    {
+        setFlying(is_flying);
+    }
 
 	*mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
