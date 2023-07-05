@@ -926,6 +926,7 @@ public:
 	static F32 RenderHighlightThickness;
 	static bool RenderSpotLightsInNondeferred;
 	static LLColor4 PreviewAmbientColor;
+	static LLColor4 PreviewBackgroundColor;
 	static LLColor4 PreviewDiffuse0;
 	static LLColor4 PreviewSpecular0;
 	static LLColor4 PreviewDiffuse1;
