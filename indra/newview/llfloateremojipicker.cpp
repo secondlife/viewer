@@ -100,9 +100,7 @@ public:
 		addChild(mList);
 	}
 
-	virtual void updatePanel(BOOL allow_modify)
-	{
-	}
+	virtual void updatePanel(BOOL allow_modify) override {}
 
 public:
 	LLScrollingPanelList* mList;
@@ -140,9 +138,7 @@ public:
 			true);                      // use_color
 	}
 
-	virtual void updatePanel(BOOL allow_modify)
-	{
-	}
+	virtual void updatePanel(BOOL allow_modify) override {}
 
 private:
 	const LLWString mText;
@@ -183,7 +179,7 @@ public:
 			true);                      // use_color
 	}
 
-	virtual void updatePanel(BOOL allow_modify) {}
+	virtual void updatePanel(BOOL allow_modify) override {}
 
 	llwchar getEmoji() const { return mEmoji; }
 	LLWString getText() const { return mText; }

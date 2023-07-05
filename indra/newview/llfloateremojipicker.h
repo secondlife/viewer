@@ -52,7 +52,7 @@ public:
 
 	void show(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
 
-	virtual void closeFloater(bool app_quitting = false);
+	virtual void closeFloater(bool app_quitting = false) override;
 
 private:
 	void fillEmojis();
