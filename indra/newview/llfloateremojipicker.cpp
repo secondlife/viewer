@@ -366,6 +366,18 @@ void LLFloaterEmojiPicker::fillEmojiGrid()
 	LLPanel::Params icon_params;
 	LLRect icon_rect(0, iconSize, iconSize, 0);
 
+	static const LLColor4 bgcolors[] =
+	{
+		LLColor4(0.8f, 0.6f, 0.8f, 1.0f),
+		LLColor4(0.8f, 0.8f, 0.4f, 1.0f),
+		LLColor4(0.6f, 0.6f, 0.8f, 1.0f),
+		LLColor4(0.4f, 0.7f, 0.4f, 1.0f),
+		LLColor4(0.5f, 0.7f, 0.9f, 1.0f),
+		LLColor4(0.7f, 0.8f, 0.2f, 1.0f)
+	};
+
+	static constexpr U32 bgcolorCount = sizeof(bgcolors) / sizeof(*bgcolors);
+
 	auto listCategory = [&](std::string category, const std::vector<const LLEmojiDescriptor*>& emojis, bool showDivider)
 	{
 		int iconIndex = 0;
@@ -395,6 +407,8 @@ void LLFloaterEmojiPicker::fillEmojiGrid()
 				icon->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseEnter(ctrl); });
 				icon->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseLeave(ctrl); });
 				icon->setMouseUpCallback([this](LLUICtrl* ctrl, S32, S32, MASK mask) { onEmojiMouseClick(ctrl, mask); });
+				icon->setBackgroundColor(bgcolors[iconIndex % bgcolorCount]);
+				icon->setBackgroundOpaque(1);
 				icon->setRect(icon_rect);
 				row->mList->addPanel(icon, true);
 
