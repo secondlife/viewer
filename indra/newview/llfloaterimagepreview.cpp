@@ -662,7 +662,12 @@ BOOL LLImagePreviewAvatar::render()
 	
 
 	LLGLSUIDefault def;
-	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
+
+    // background color
+    gGL.color4f(LLPipeline::PreviewBackgroundColor.mV[VRED],
+                LLPipeline::PreviewBackgroundColor.mV[VGREEN],
+                LLPipeline::PreviewBackgroundColor.mV[VBLUE],
+                LLPipeline::PreviewBackgroundColor.mV[VALPHA]);
 
 	gUIProgram.bind();
 
@@ -861,7 +866,11 @@ BOOL LLImagePreviewSculpted::render()
 	gGL.pushMatrix();
 	gGL.loadIdentity();
 		
-	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
+    // background color
+    gGL.color4f(LLPipeline::PreviewBackgroundColor.mV[VRED],
+                LLPipeline::PreviewBackgroundColor.mV[VGREEN],
+                LLPipeline::PreviewBackgroundColor.mV[VBLUE],
+                LLPipeline::PreviewBackgroundColor.mV[VALPHA]);
 
 	gUIProgram.bind();
 

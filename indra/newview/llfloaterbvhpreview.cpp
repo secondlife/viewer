@@ -1256,8 +1256,6 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 //-----------------------------------------------------------------------------
 LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
 {
-    LLPipeline::refreshCachedSettings();     // Ensure LLPipeline::PreviewBackgroundColor is up-to-date
-
 	mNeedsUpdate = TRUE;
 	mCameraDistance = PREVIEW_CAMERA_DISTANCE;
 	mCameraYaw = 0.f;
