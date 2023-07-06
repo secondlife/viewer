@@ -57,7 +57,6 @@ public:
 private:
 	void fillEmojiGrid();
 
-	bool matchesCategory(const LLEmojiDescriptor* descr);
 	bool matchesPattern(const LLEmojiDescriptor* descr);
 
 	void onCategoryCommit();

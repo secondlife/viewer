@@ -389,20 +389,12 @@ void LLFloaterEmojiPicker::fillEmojiGrid()
 	}
 }
 
-bool LLFloaterEmojiPicker::matchesCategory(const LLEmojiDescriptor* descr)
-{
-	return std::find(descr->Categories.begin(), descr->Categories.end(), mSelectedCategory) != descr->Categories.end();
-}
-
 bool LLFloaterEmojiPicker::matchesPattern(const LLEmojiDescriptor* descr)
 {
 	if (descr->Name.find(mSearchPattern) != std::string::npos)
 		return true;
 	for (const std::string& shortCode : descr->ShortCodes)
 		if (shortCode.find(mSearchPattern) != std::string::npos)
-			return true;
-	for (const std::string& category : descr->Categories)
-		if (category.find(mSearchPattern) != std::string::npos)
 			return true;
 	return false;
 }
