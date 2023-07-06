@@ -39,28 +39,6 @@
       left="2"
       height="29"
       width="29" />
-  <scroll_list
-      name="EmojiList"
-      layout="topleft"
-      follows="all"
-      sort_column="0"
-      max_chars="63"
-      commit_on_selection_change="true"
-      draw_heading="true"
-      heading_height="25"
-      row_padding="0"
-      top="25"
-      left="0"
-      height="330"
-      width="200">
-    <columns
-        label="@"
-        name="look"
-        width="16" />
-    <columns
-        label="Name"
-        name="name" />
-  </scroll_list>
   <scroll_container
       name="EmojiGridContainer"
       layout="topleft"

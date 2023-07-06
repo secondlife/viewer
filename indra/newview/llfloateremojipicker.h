@@ -55,8 +55,6 @@ public:
 	virtual void closeFloater(bool app_quitting = false) override;
 
 private:
-	void fillEmojis();
-	void fillEmojiList();
 	void fillEmojiGrid();
 
 	bool matchesCategory(const LLEmojiDescriptor* descr);
@@ -70,9 +68,6 @@ private:
 	void onEmojiMouseEnter(LLUICtrl* ctrl);
 	void onEmojiMouseLeave(LLUICtrl* ctrl);
 	void onEmojiMouseClick(LLUICtrl* ctrl, MASK mask);
-	void onEmojiSelect();
-	void onEmojiEmpty();
-	void onEmojiPick();
 
 	void selectGridIcon(LLUICtrl* ctrl);
 	void unselectGridIcon(LLUICtrl* ctrl);
@@ -81,7 +76,6 @@ private:
 
 	class LLComboBox* mCategory { nullptr };
 	class LLLineEditor* mSearch { nullptr };
-	class LLScrollListCtrl* mEmojiList { nullptr };
 	class LLScrollContainer* mEmojiScroll { nullptr };
 	class LLScrollingPanelList* mEmojiGrid { nullptr };
 	class LLButton* mPreviewEmoji { nullptr };
@@ -91,12 +85,11 @@ private:
 	close_callback_t mFloaterCloseCallback;
 
 	S32 mRecentGridWidth { 0 };
+	S32 mRecentMaxIcons { 0 };
 	LLUICtrl* mHoveredIcon { nullptr };
 
 	static std::string mSelectedCategory;
 	static std::string mSearchPattern;
-	static int mSelectedEmojiIndex;
-	static bool mUseGrid;
 };
 
 #endif
