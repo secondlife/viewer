@@ -13,12 +13,10 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: [Release]
-        addrsize: [32,64]
+        addrsize: [64]
         python-version: ["3.11"]
         developer_dir: ["", "/Applications/Xcode_14.0.1.app/Contents/Developer"]
         exclude:
-          - runner: macos-12-xl
-            addrsize: 32
           - runner: windows-large
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
           ## nat 2023-06-29: until we've resolved the !@#$%! Windows Python
