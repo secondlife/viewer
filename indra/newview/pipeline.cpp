@@ -840,7 +840,9 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         mSceneMap.allocate(resX, resY, GL_RGB, true);
     }
 
-    mPostMap.allocate(resX, resY, GL_RGBA);
+	const bool post_hdr = gSavedSettings.getBOOL("RenderPostProcessingHDR");
+    const U32 post_color_fmt = post_hdr ? GL_RGBA16F : GL_RGBA;
+    mPostMap.allocate(resX, resY, post_color_fmt);
 
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
@@ -1163,9 +1165,11 @@ void LLPipeline::createGLBuffers()
 
     // allocate screen space glow buffers
     const U32 glow_res = llmax(1, llmin(512, 1 << gSavedSettings.getS32("RenderGlowResolutionPow")));
+	const bool glow_hdr = gSavedSettings.getBOOL("RenderGlowHDR");
+    const U32 glow_color_fmt = glow_hdr ? GL_RGBA16F : GL_RGBA;
     for (U32 i = 0; i < 3; i++)
     {
-        mGlow[i].allocate(512, glow_res, GL_RGBA);
+        mGlow[i].allocate(512, glow_res, glow_color_fmt);
     }
 
     allocateScreenBuffer(resX, resY);
