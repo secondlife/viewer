@@ -36,14 +36,20 @@
 
 struct LLEmojiDescriptor
 {
-	LLEmojiDescriptor(const LLSD& descriptor_sd);
+    llwchar Character;
+    std::string Category;
+    std::list<std::string> ShortCodes;
+    std::string getShortCodes() const;
+};
 
-	bool isValid() const;
+// ============================================================================
+// LLEmojiGroup class
+//
 
-	std::string            Name;
-	llwchar                Character;
-	std::list<std::string> ShortCodes;
-	std::list<std::string> Categories;
+struct LLEmojiGroup
+{
+    llwchar Character;
+    std::list<std::string> Categories;
 };
 
 // ============================================================================
@@ -52,36 +58,48 @@ struct LLEmojiDescriptor
 
 class LLEmojiDictionary : public LLParamSingleton<LLEmojiDictionary>, public LLInitClass<LLEmojiDictionary>
 {
-	LLSINGLETON(LLEmojiDictionary);
-	~LLEmojiDictionary() override {};
+    LLSINGLETON(LLEmojiDictionary);
+    ~LLEmojiDictionary() override {};
 
 public:
-	typedef std::map<llwchar, const LLEmojiDescriptor*> emoji2descr_map_t;
-	typedef emoji2descr_map_t::value_type emoji2descr_item_t;
-	typedef std::map<std::string, const LLEmojiDescriptor*> code2descr_map_t;
-	typedef code2descr_map_t::value_type code2descr_item_t;
-	typedef std::map<std::string, std::vector<const LLEmojiDescriptor*>> cat2descrs_map_t;
-	typedef cat2descrs_map_t::value_type cat2descrs_item_t;
+    typedef std::map<std::string, std::string> cat2cat_map_t;
+    typedef std::map<std::string, const LLEmojiGroup*> cat2group_map_t;
+    typedef std::map<llwchar, const LLEmojiDescriptor*> emoji2descr_map_t;
+    typedef std::map<std::string, const LLEmojiDescriptor*> code2descr_map_t;
+    typedef std::map<std::string, std::vector<const LLEmojiDescriptor*>> cat2descrs_map_t;
 
-	static void initClass();
-	LLWString   findMatchingEmojis(const std::string& needle) const;
-	const LLEmojiDescriptor* getDescriptorFromEmoji(llwchar emoji) const;
-	const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;
-	std::string getNameFromEmoji(llwchar ch) const;
-	bool isEmoji(llwchar ch) const;
+    static void initClass();
+    LLWString findMatchingEmojis(const std::string& needle) const;
+    const LLEmojiDescriptor* getDescriptorFromEmoji(llwchar emoji) const;
+    const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;
+    std::string getNameFromEmoji(llwchar ch) const;
+    bool isEmoji(llwchar ch) const;
 
-	const emoji2descr_map_t& getEmoji2Descr() const { return mEmoji2Descr; }
-	const code2descr_map_t& getShortCode2Descr() const { return mShortCode2Descr; }
-	const cat2descrs_map_t& getCategory2Descrs() const { return mCategory2Descrs; }
-
-private:
-	void addEmoji(LLEmojiDescriptor&& descr);
+    const std::vector<LLEmojiGroup>& getGroups() const { return mGroups; }
+    const emoji2descr_map_t& getEmoji2Descr() const { return mEmoji2Descr; }
+    const cat2descrs_map_t& getCategory2Descrs() const { return mCategory2Descrs; }
+    const code2descr_map_t& getShortCode2Descr() const { return mShortCode2Descr; }
 
 private:
-	std::list<LLEmojiDescriptor> mEmojis;
-	emoji2descr_map_t mEmoji2Descr;
-	code2descr_map_t mShortCode2Descr;
-	cat2descrs_map_t mCategory2Descrs;
+    void loadTranslations();
+    void loadGroups();
+    void loadEmojis();
+
+    static llwchar loadIcon(const LLSD& sd);
+    static std::list<std::string> loadCategories(const LLSD& sd);
+    static std::list<std::string> loadShortCodes(const LLSD& sd);
+    void translateCategories(std::list<std::string>& categories);
+
+private:
+    std::vector<LLEmojiGroup> mGroups;
+    std::list<LLEmojiDescriptor> mEmojis;
+    std::list<std::string> mSkipCategories;
+
+    cat2cat_map_t mTranslations;
+    cat2group_map_t mCategory2Group;
+    emoji2descr_map_t mEmoji2Descr;
+    cat2descrs_map_t mCategory2Descrs;
+    code2descr_map_t mShortCode2Descr;
 };
 
 // ============================================================================

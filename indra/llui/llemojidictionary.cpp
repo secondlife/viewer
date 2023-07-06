@@ -38,7 +38,12 @@
 // Constants
 //
 
-constexpr char SKINNED_EMOJI_FILENAME[] = "emoji_characters.xml";
+static const std::string SKINNED_EMOJI_FILENAME("emoji_characters.xml");
+static const std::string SKINNED_CATEGORY_FILENAME("emoji_categories.xml");
+static const std::string COMMON_GROUP_FILENAME("emoji_groups.xml");
+static const std::string GROUP_NAME_ALL("all");
+static const std::string GROUP_NAME_OTHERS("others");
+static const std::string GROUP_NAME_SKIP("skip");
 
 // ============================================================================
 // Helper functions
@@ -50,81 +55,67 @@ std::list<T> llsd_array_to_list(const LLSD& sd, std::function<void(T&)> mutator 
 template<>
 std::list<std::string> llsd_array_to_list(const LLSD& sd, std::function<void(std::string&)> mutator)
 {
-	std::list<std::string> result;
-	for (LLSD::array_const_iterator it = sd.beginArray(), end = sd.endArray(); it != end; ++it)
-	{
-		const LLSD& entry = *it;
-		if (!entry.isString())
-			continue;
+    std::list<std::string> result;
+    for (LLSD::array_const_iterator it = sd.beginArray(), end = sd.endArray(); it != end; ++it)
+    {
+        const LLSD& entry = *it;
+        if (!entry.isString())
+            continue;
 
-		result.push_back(entry.asStringRef());
-		if (mutator)
-		{
-			mutator(result.back());
-		}
-	}
-	return result;
-}
-
-LLEmojiDescriptor::LLEmojiDescriptor(const LLSD& descriptor_sd)
-{
-	Name = descriptor_sd["Name"].asStringRef();
-
-	const LLWString emoji_string = utf8str_to_wstring(descriptor_sd["Character"].asString());
-	Character = (1 == emoji_string.size()) ? emoji_string[0] : L'\0'; // We don't currently support character composition
-
-	auto toLower = [](std::string& str) { LLStringUtil::toLower(str); };
-	ShortCodes = llsd_array_to_list<std::string>(descriptor_sd["ShortCodes"], toLower);
-	Categories = llsd_array_to_list<std::string>(descriptor_sd["Categories"], toLower);
-
-	if (Name.empty())
-	{
-		Name = ShortCodes.front();
-	}
-}
-
-bool LLEmojiDescriptor::isValid() const
-{
-	return
-		Character &&
-		!ShortCodes.empty() &&
-		!Categories.empty();
+        result.push_back(entry.asStringRef());
+        if (mutator)
+        {
+            mutator(result.back());
+        }
+    }
+    return result;
 }
 
 struct emoji_filter_base
 {
-	emoji_filter_base(const std::string& needle)
-	{
-		// Search without the colon (if present) so the user can type ':food' and see all emojis in the 'Food' category
-		mNeedle = (boost::starts_with(needle, ":")) ? needle.substr(1) : needle;
-		LLStringUtil::toLower(mNeedle);
-	}
+    emoji_filter_base(const std::string& needle)
+    {
+        // Search without the colon (if present) so the user can type ':food' and see all emojis in the 'Food' category
+        mNeedle = (boost::starts_with(needle, ":")) ? needle.substr(1) : needle;
+        LLStringUtil::toLower(mNeedle);
+    }
 
 protected:
-	std::string mNeedle;
+    std::string mNeedle;
 };
 
 struct emoji_filter_shortcode_or_category_contains : public emoji_filter_base
 {
-	emoji_filter_shortcode_or_category_contains(const std::string& needle) : emoji_filter_base(needle) {}
+    emoji_filter_shortcode_or_category_contains(const std::string& needle) : emoji_filter_base(needle) {}
 
-	bool operator()(const LLEmojiDescriptor& descr) const
-	{
-		for (const auto& short_code : descr.ShortCodes)
-		{
-			if (boost::icontains(short_code, mNeedle))
-				return true;
-		}
+    bool operator()(const LLEmojiDescriptor& descr) const
+    {
+        for (const auto& short_code : descr.ShortCodes)
+        {
+            if (boost::icontains(short_code, mNeedle))
+                return true;
+        }
 
-		for (const auto& category : descr.Categories)
-		{
-			if (boost::icontains(category, mNeedle))
-				return true;
-		}
+        if (boost::icontains(descr.Category, mNeedle))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 };
+
+std::string LLEmojiDescriptor::getShortCodes() const
+{
+    std::string result;
+    for (const std::string& shortCode : ShortCodes)
+    {
+        if (!result.empty())
+        {
+            result += ", ";
+        }
+        result += shortCode;
+    }
+    return result;
+}
 
 // ============================================================================
 // LLEmojiDictionary class
@@ -137,91 +128,278 @@ LLEmojiDictionary::LLEmojiDictionary()
 // static
 void LLEmojiDictionary::initClass()
 {
-	LLEmojiDictionary* pThis = &LLEmojiDictionary::initParamSingleton();
+    LLEmojiDictionary* pThis = &LLEmojiDictionary::initParamSingleton();
 
-	LLSD data;
-
-	auto filenames = gDirUtilp->findSkinnedFilenames(LLDir::XUI, SKINNED_EMOJI_FILENAME, LLDir::CURRENT_SKIN);
-	if (filenames.empty())
-	{
-		LL_WARNS() << "Emoji file characters not found" << LL_ENDL;
-		return;
-	}
-	const std::string filename = filenames.back();
-	llifstream file(filename.c_str());
-	if (file.is_open())
-	{
-		LL_DEBUGS() << "Loading emoji characters file at " << filename << LL_ENDL;
-		LLSDSerialize::fromXML(data, file);
-	}
-
-	if (data.isUndefined())
-	{
-		LL_WARNS() << "Emoji file characters missing or ill-formed" << LL_ENDL;
-		return;
-	}
-
-	for (LLSD::array_const_iterator descriptor_it = data.beginArray(), descriptor_end = data.endArray(); descriptor_it != descriptor_end; ++descriptor_it)
-	{
-		LLEmojiDescriptor descriptor(*descriptor_it);
-		if (!descriptor.isValid())
-		{
-			LL_WARNS() << "Skipping invalid emoji descriptor " << descriptor.Character << LL_ENDL;
-			continue;
-		}
-		pThis->addEmoji(std::move(descriptor));
-	}
+    pThis->loadTranslations();
+    pThis->loadGroups();
+    pThis->loadEmojis();
 }
 
 LLWString LLEmojiDictionary::findMatchingEmojis(const std::string& needle) const
 {
-	LLWString result;
-	boost::transform(mEmojis | boost::adaptors::filtered(emoji_filter_shortcode_or_category_contains(needle)),
-		             std::back_inserter(result), [](const auto& descr) { return descr.Character; });
-	return result;
+    LLWString result;
+    boost::transform(mEmojis | boost::adaptors::filtered(emoji_filter_shortcode_or_category_contains(needle)),
+                     std::back_inserter(result), [](const auto& descr) { return descr.Character; });
+    return result;
 }
 
 const LLEmojiDescriptor* LLEmojiDictionary::getDescriptorFromEmoji(llwchar emoji) const
 {
-	const auto it = mEmoji2Descr.find(emoji);
-	return (mEmoji2Descr.end() != it) ? it->second : nullptr;
+    const auto it = mEmoji2Descr.find(emoji);
+    return (mEmoji2Descr.end() != it) ? it->second : nullptr;
 }
 
 const LLEmojiDescriptor* LLEmojiDictionary::getDescriptorFromShortCode(const std::string& short_code) const
 {
-	const auto it = mShortCode2Descr.find(short_code);
-	return (mShortCode2Descr.end() != it) ? it->second : nullptr;
+    const auto it = mShortCode2Descr.find(short_code);
+    return (mShortCode2Descr.end() != it) ? it->second : nullptr;
 }
 
 std::string LLEmojiDictionary::getNameFromEmoji(llwchar ch) const
 {
-	const auto it = mEmoji2Descr.find(ch);
-	return (mEmoji2Descr.end() != it) ? it->second->Name : LLStringUtil::null;
+    const auto it = mEmoji2Descr.find(ch);
+    return (mEmoji2Descr.end() != it) ? it->second->ShortCodes.front() : LLStringUtil::null;
 }
 
 bool LLEmojiDictionary::isEmoji(llwchar ch) const
 {
-	// Currently used codes: A9,AE,203C,2049,2122,...,2B55,3030,303D,3297,3299,1F004,...,1FAF6
-	if (ch == 0xA9 || ch == 0xAE || (ch >= 0x2000 && ch < 0x3300) || (ch >= 0x1F000 && ch < 0x20000))
-	{
-		return mEmoji2Descr.find(ch) != mEmoji2Descr.end();
-	}
+    // Currently used codes: A9,AE,203C,2049,2122,...,2B55,3030,303D,3297,3299,1F004,...,1FAF6
+    if (ch == 0xA9 || ch == 0xAE || (ch >= 0x2000 && ch < 0x3300) || (ch >= 0x1F000 && ch < 0x20000))
+    {
+        return mEmoji2Descr.find(ch) != mEmoji2Descr.end();
+    }
 
-	return false;
+    return false;
 }
 
-void LLEmojiDictionary::addEmoji(LLEmojiDescriptor&& descr)
+void LLEmojiDictionary::loadTranslations()
 {
-	mEmojis.push_back(descr);
-	mEmoji2Descr.insert(std::make_pair(descr.Character, &mEmojis.back()));
-	for (const std::string& shortCode : descr.ShortCodes)
-	{
-		mShortCode2Descr.insert(std::make_pair(shortCode, &mEmojis.back()));
-	}
-	for (const std::string& category : descr.Categories)
-	{
-		mCategory2Descrs[category].push_back(&mEmojis.back());
-	}
+    std::vector<std::string> filenames = gDirUtilp->findSkinnedFilenames(LLDir::XUI, SKINNED_CATEGORY_FILENAME, LLDir::CURRENT_SKIN);
+    if (filenames.empty())
+    {
+        LL_WARNS() << "Emoji file categories not found" << LL_ENDL;
+        return;
+    }
+
+    const std::string filename = filenames.back();
+    llifstream file(filename.c_str());
+    if (!file.is_open())
+    {
+        LL_WARNS() << "Emoji file categories failed to open" << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS() << "Loading emoji categories file at " << filename << LL_ENDL;
+
+    LLSD data;
+    LLSDSerialize::fromXML(data, file);
+    if (data.isUndefined())
+    {
+        LL_WARNS() << "Emoji file categories missing or ill-formed" << LL_ENDL;
+        return;
+    }
+
+    // Register translations for all categories
+    for (LLSD::array_const_iterator it = data.beginArray(), end = data.endArray(); it != end; ++it)
+    {
+        const LLSD& sd = *it;
+        const std::string& name = sd["Name"].asStringRef();
+        const std::string& category = sd["Category"].asStringRef();
+        if (!name.empty() && !category.empty())
+        {
+            mTranslations[name] = category;
+        }
+        else
+        {
+            LL_WARNS() << "Skipping invalid emoji category '" << name << "' => '" << category << "'" << LL_ENDL;
+        }
+    }
+}
+
+void LLEmojiDictionary::loadGroups()
+{
+    const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, COMMON_GROUP_FILENAME);
+    llifstream file(filename.c_str());
+    if (!file.is_open())
+    {
+        LL_WARNS() << "Emoji file groups failed to open" << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS() << "Loading emoji groups file at " << filename << LL_ENDL;
+
+    LLSD data;
+    LLSDSerialize::fromXML(data, file);
+    if (data.isUndefined())
+    {
+        LL_WARNS() << "Emoji file groups missing or ill-formed" << LL_ENDL;
+        return;
+    }
+
+    mGroups.clear();
+    // Add group "all"
+    mGroups.emplace_back();
+    // https://www.compart.com/en/unicode/U+1F50D
+    mGroups.front().Character = 0x1F50D;
+    // https://www.compart.com/en/unicode/U+1F302
+    llwchar iconOthers = 0x1F302;
+
+    // Register all groups
+    for (LLSD::array_const_iterator it = data.beginArray(), end = data.endArray(); it != end; ++it)
+    {
+        const LLSD& sd = *it;
+        const std::string& name = sd["Name"].asStringRef();
+        if (name == GROUP_NAME_ALL)
+        {
+            mGroups.front().Character = loadIcon(sd);
+        }
+        else if (name == GROUP_NAME_OTHERS)
+        {
+            iconOthers = loadIcon(sd);
+        }
+        else if (name == GROUP_NAME_SKIP)
+        {
+            mSkipCategories = loadCategories(sd);
+            translateCategories(mSkipCategories);
+        }
+        else
+        {
+            // Add new group
+            mGroups.emplace_back();
+            LLEmojiGroup& group = mGroups.back();
+            group.Character = loadIcon(sd);
+            group.Categories = loadCategories(sd);
+            translateCategories(group.Categories);
+
+            for (const std::string& category : group.Categories)
+            {
+                mCategory2Group.insert(std::make_pair(category, &group));
+            }
+        }
+    }
+
+    // Add group "others"
+    mGroups.emplace_back();
+    mGroups.back().Character = iconOthers;
+}
+
+void LLEmojiDictionary::loadEmojis()
+{
+    std::vector<std::string> filenames = gDirUtilp->findSkinnedFilenames(LLDir::XUI, SKINNED_EMOJI_FILENAME, LLDir::CURRENT_SKIN);
+    if (filenames.empty())
+    {
+        LL_WARNS() << "Emoji file characters not found" << LL_ENDL;
+        return;
+    }
+
+    const std::string filename = filenames.back();
+    llifstream file(filename.c_str());
+    if (!file.is_open())
+    {
+        LL_WARNS() << "Emoji file characters failed to open" << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS() << "Loading emoji characters file at " << filename << LL_ENDL;
+
+    LLSD data;
+    LLSDSerialize::fromXML(data, file);
+    if (data.isUndefined())
+    {
+        LL_WARNS() << "Emoji file characters missing or ill-formed" << LL_ENDL;
+        return;
+    }
+
+    for (LLSD::array_const_iterator it = data.beginArray(), end = data.endArray(); it != end; ++it)
+    {
+        const LLSD& sd = *it;
+
+        llwchar icon = loadIcon(sd);
+        if (!icon)
+        {
+            LL_WARNS() << "Skipping invalid emoji descriptor (no icon)" << LL_ENDL;
+            continue;
+        }
+
+        std::list<std::string> categories = loadCategories(sd);
+        if (categories.empty())
+        {
+            LL_WARNS() << "Skipping invalid emoji descriptor (no categories)" << LL_ENDL;
+            continue;
+        }
+
+        std::string category = categories.front();
+
+        if (std::find(mSkipCategories.begin(), mSkipCategories.end(), category) != mSkipCategories.end())
+        {
+            // This category is listed for skip
+            continue;
+        }
+
+        std::list<std::string> shortCodes = loadShortCodes(sd);
+        if (shortCodes.empty())
+        {
+            LL_WARNS() << "Skipping invalid emoji descriptor (no shortCodes)" << LL_ENDL;
+            continue;
+        }
+
+        if (mCategory2Group.find(category) == mCategory2Group.end())
+        {
+            // Add unknown category to "others" group
+            mGroups.back().Categories.push_back(category);
+            mCategory2Group.insert(std::make_pair(category, &mGroups.back()));
+        }
+
+        mEmojis.emplace_back();
+        LLEmojiDescriptor& emoji = mEmojis.back();
+        emoji.Character = icon;
+        emoji.Category = category;
+        emoji.ShortCodes = std::move(shortCodes);
+
+        mEmoji2Descr.insert(std::make_pair(icon, &emoji));
+        mCategory2Descrs[category].push_back(&emoji);
+        for (const std::string& shortCode : emoji.ShortCodes)
+        {
+            mShortCode2Descr.insert(std::make_pair(shortCode, &emoji));
+        }
+    }
+}
+
+llwchar LLEmojiDictionary::loadIcon(const LLSD& sd)
+{
+    // We don't currently support character composition
+    const LLWString icon = utf8str_to_wstring(sd["Character"].asString());
+    return (1 == icon.size()) ? icon[0] : L'\0';
+}
+
+static inline std::list<std::string> loadStrings(const LLSD& sd, const std::string key)
+{
+    auto toLower = [](std::string& str) { LLStringUtil::toLower(str); };
+    return llsd_array_to_list<std::string>(sd[key], toLower);
+}
+
+std::list<std::string> LLEmojiDictionary::loadCategories(const LLSD& sd)
+{
+    static const std::string categoriesKey("Categories");
+    return loadStrings(sd, categoriesKey);
+}
+
+std::list<std::string> LLEmojiDictionary::loadShortCodes(const LLSD& sd)
+{
+    static const std::string shortCodesKey("ShortCodes");
+    return loadStrings(sd, shortCodesKey);
+}
+
+void LLEmojiDictionary::translateCategories(std::list<std::string>& categories)
+{
+    for (std::string& category : categories)
+    {
+        auto it = mTranslations.find(category);
+        if (it != mTranslations.end())
+        {
+            category = it->second;
+        }
+    }
 }
 
 // ============================================================================
