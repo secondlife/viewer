@@ -110,6 +110,27 @@ installer_CYGWIN()
   fi
 }
 
+[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+
+addoutput()
+{
+    local varname="$1"
+    local value="$2"
+    echo "${varname}_name=$(basename "$value")" >> "$GITHUB_OUTPUT"
+    echo "${varname}_path=$value" >> "$GITHUB_OUTPUT"
+}
+
+# For variable numbers of output values, separate them one per line.
+addarrayoutput()
+{
+    local varname="$1"
+    # indirection: specify the *name* of the array to emit
+    local -n arrayname="$2"
+    local IFS='
+'
+    echo "$varname=${arrayname[*]}" >> "$GITHUB_OUTPUT"
+}
+
 pre_build()
 {
   local variant="$1"
@@ -369,6 +390,7 @@ do
                   begin_section "Autobuild metadata"
                   python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml \
                       || fatal "Upload of autobuild metadata failed"
+                  addoutput autobuild_package "$build_dir/autobuild-package.xml"
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
@@ -384,6 +406,7 @@ do
                   begin_section "Viewer Version"
                   python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$(<"$build_dir/newview/viewer_version.txt")" --mimetype inline-text \
                       || fatal "Upload of viewer version failed"
+                  addoutput viewer_version "$(<"$build_dir/newview/viewer_version.txt")"
                   end_section "Viewer Version"
               fi
               ;;
@@ -392,12 +415,14 @@ do
               then
                   record_event "Doxygen warnings generated; see doxygen_warnings.log"
                   python_cmd "$helpers/codeticket.py" addoutput "Doxygen Log" "$build_dir/doxygen_warnings.log" --mimetype text/plain ## TBD
+                  addoutput doxygen_log "$build_dir/doxygen_warnings.log"
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
                   python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
                       || fatal "Upload of doxygen tarball failed"
+                  addoutput doxygen_tarball "$build_dir/viewer-doxygen.tar.bz2"
               fi
               ;;
             *)
@@ -513,6 +538,7 @@ then
       retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
           || fatal "Upload of installer failed"
       wait_for_codeticket
+      packages=("$package")
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -523,10 +549,13 @@ then
           retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
               || fatal "Upload of installer $package_id failed"
           wait_for_codeticket
+          packages+=("$package")
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
       done
+
+      addarrayoutput viewer_packages packages
 
       if [ "$last_built_variant" = "Release" ]
       then
@@ -537,6 +566,7 @@ then
               retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
               wait_for_codeticket
+              addoutput symbolfile "$VIEWER_SYMBOL_FILE"
           fi
 
           # Upload the llphysicsextensions_tpv package, if one was produced
@@ -546,6 +576,8 @@ then
               llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
               retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
                   || fatal "Upload of physics extensions package failed"
+              ## how to make private?
+              ## addoutput llphysics "$llphysicsextensions_package"
           fi
       fi
 

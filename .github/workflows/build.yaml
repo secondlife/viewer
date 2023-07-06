@@ -205,3 +205,41 @@ jobs:
         with:
           name: ${{ steps.build.outputs.installer_name }}
           path: ${{ steps.build.outputs.installer_path }}
+
+      - name: Upload metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.autobuild_package_name }}
+          path: ${{ steps.build.outputs.autobuild_package_path }}
+
+      - name: Upload version
+        uses: actions/upload-artifact@v3
+        with:
+          name: viewer_version.txt
+          path: ${{ steps.build.outputs.viewer_version_name }}
+
+      - name: Upload Doxygen Log
+        if: steps.build.outputs.doxygen_log_path
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.doxygen_log_name }}
+          path: ${{ steps.build.outputs.doxygen_log_path }}
+
+      - name: Upload Doxygen Tarball
+        if: steps.build.outputs.doxygen_tarball_path
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.doxygen_tarball_name }}
+          path: ${{ steps.build.outputs.doxygen_tarball_path }}
+
+      - name: Upload viewer package installers
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.installer_name }}
+          path: ${{ steps.build.outputs.packages }}
+
+      - name: Upload symbol file
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.symbolfile_name }}
+          path: ${{ steps.build.outputs.symbolfile_path }}
