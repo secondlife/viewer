@@ -292,6 +292,7 @@ void LLFloaterEmojiPicker::fillGroups()
         if (mGroupButtons.size() == sSelectedGroupIndex)
         {
             button->setToggleState(TRUE);
+            button->setUseFontColor(TRUE);
         }
 
         mGroupButtons.push_back(button);
@@ -479,9 +480,11 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
         if (it == mGroupButtons.end())
             return;
 
+        mGroupButtons[sSelectedGroupIndex]->setUseFontColor(FALSE);
         mGroupButtons[sSelectedGroupIndex]->setToggleState(FALSE);
         sSelectedGroupIndex = it - mGroupButtons.begin();
         mGroupButtons[sSelectedGroupIndex]->setToggleState(TRUE);
+        mGroupButtons[sSelectedGroupIndex]->setUseFontColor(TRUE);
 
         LLRect rect = mBadge->getRect();
         rect.mLeft = button->getRect().mLeft;
@@ -538,7 +541,7 @@ void LLFloaterEmojiPicker::onGroupButtonMouseLeave(LLUICtrl* ctrl)
 {
     if (LLButton* button = dynamic_cast<LLButton*>(ctrl))
     {
-        button->setUseFontColor(FALSE);
+        button->setUseFontColor(button->getToggleState());
     }
 }
 
