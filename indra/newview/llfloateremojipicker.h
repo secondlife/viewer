@@ -33,62 +33,70 @@ struct LLEmojiDescriptor;
 
 class LLFloaterEmojiPicker : public LLFloater
 {
-	using super = LLFloater;
+    using super = LLFloater;
 
 public:
-	// The callback function will be called with an emoji char.
-	typedef boost::function<void (llwchar)> pick_callback_t;
-	typedef boost::function<void ()> close_callback_t;
+    // The callback function will be called with an emoji char.
+    typedef boost::function<void (llwchar)> pick_callback_t;
+    typedef boost::function<void ()> close_callback_t;
 
-	// Call this to select an emoji.
-	static LLFloaterEmojiPicker* getInstance();
-	static LLFloaterEmojiPicker* showInstance(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
+    // Call this to select an emoji.
+    static LLFloaterEmojiPicker* getInstance();
+    static LLFloaterEmojiPicker* showInstance(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
 
-	LLFloaterEmojiPicker(const LLSD& key);
-	virtual ~LLFloaterEmojiPicker();
+    LLFloaterEmojiPicker(const LLSD& key);
+    virtual ~LLFloaterEmojiPicker();
 
-	virtual	BOOL postBuild() override;
-	virtual void dirtyRect() override;
+    virtual	BOOL postBuild() override;
+    virtual void dirtyRect() override;
 
-	void show(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
+    void show(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
 
-	virtual void closeFloater(bool app_quitting = false) override;
+    virtual void closeFloater(bool app_quitting = false) override;
 
 private:
-	void fillEmojiGrid();
+    void fillGroups();
+    void moveGroups();
+    void fillEmojis(bool fromResize = false);
 
-	bool matchesPattern(const LLEmojiDescriptor* descr);
+    bool matchesPattern(const LLEmojiDescriptor* descr);
 
-	void onCategoryCommit();
-	void onSearchKeystroke();
-	void onPreviewEmojiClick();
-	void onGridMouseEnter();
-	void onGridMouseLeave();
-	void onEmojiMouseEnter(LLUICtrl* ctrl);
-	void onEmojiMouseLeave(LLUICtrl* ctrl);
-	void onEmojiMouseClick(LLUICtrl* ctrl, MASK mask);
+    void onGroupButtonClick(LLUICtrl* ctrl);
+    void onSearchKeystroke();
+    void onPreviewEmojiClick();
+    void onGridMouseEnter();
+    void onGridMouseLeave();
+    void onGroupButtonMouseEnter(LLUICtrl* ctrl);
+    void onGroupButtonMouseLeave(LLUICtrl* ctrl);
+    void onEmojiMouseEnter(LLUICtrl* ctrl);
+    void onEmojiMouseLeave(LLUICtrl* ctrl);
+    void onEmojiMouseClick(LLUICtrl* ctrl, MASK mask);
 
-	void selectGridIcon(LLUICtrl* ctrl);
-	void unselectGridIcon(LLUICtrl* ctrl);
+    void selectGridIcon(LLUICtrl* ctrl);
+    void unselectGridIcon(LLUICtrl* ctrl);
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask) override;
+    virtual BOOL handleKeyHere(KEY key, MASK mask) override;
 
-	class LLComboBox* mCategory { nullptr };
-	class LLLineEditor* mSearch { nullptr };
-	class LLScrollContainer* mEmojiScroll { nullptr };
-	class LLScrollingPanelList* mEmojiGrid { nullptr };
-	class LLButton* mPreviewEmoji { nullptr };
-	class LLTextBox* mDescription { nullptr };
+    class LLPanel* mGroups { nullptr };
+    class LLPanel* mBadge { nullptr };
+    class LLLineEditor* mSearch { nullptr };
+    class LLScrollContainer* mEmojiScroll { nullptr };
+    class LLScrollingPanelList* mEmojiGrid { nullptr };
+    class LLButton* mPreviewEmoji { nullptr };
+    class LLTextBox* mDescription { nullptr };
 
-	pick_callback_t mEmojiPickCallback;
-	close_callback_t mFloaterCloseCallback;
+    pick_callback_t mEmojiPickCallback;
+    close_callback_t mFloaterCloseCallback;
 
-	S32 mRecentGridWidth { 0 };
-	S32 mRecentMaxIcons { 0 };
-	LLUICtrl* mHoveredIcon { nullptr };
+    std::vector<class LLButton*> mGroupButtons;
 
-	static std::string mSelectedCategory;
-	static std::string mSearchPattern;
+    S32 mRecentBadgeWidth { 0 };
+    S32 mRecentGridWidth { 0 };
+    S32 mRecentMaxIcons { 0 };
+    LLUICtrl* mHoveredIcon { nullptr };
+
+    static size_t sSelectedGroupIndex;
+    static std::string sSearchPattern;
 };
 
 #endif
