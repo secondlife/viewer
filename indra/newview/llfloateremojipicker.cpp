@@ -27,6 +27,7 @@
 
 #include "llfloateremojipicker.h"
 
+#include "llappviewer.h"
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llemojidictionary.h"
@@ -37,11 +38,27 @@
 #include "llscrollingpanellist.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
+#include "llsdserialize.h"
 #include "lltextbox.h" 
 #include "llviewerchat.h" 
 
-size_t LLFloaterEmojiPicker::sSelectedGroupIndex;
-std::string LLFloaterEmojiPicker::sSearchPattern;
+namespace {
+// The following variables and constants are used for storing the floater state
+// between different lifecycles of the floater and different sissions of the viewer
+
+// Floater state related variables
+static U32 sSelectedGroupIndex = 0;
+static std::string sSearchPattern;
+static std::list<llwchar> sRecentlyUsed;
+static std::list<std::pair<llwchar, U32>> sFrequentlyUsed;
+
+// State file related values
+static std::string sStateFileName;
+static const std::string sKeySelectedGroupIndex("SelectedGroupIndex");
+static const std::string sKeySearchPattern("SearchPattern");
+static const std::string sKeyRecentlyUsed("RecentlyUsed");
+static const std::string sKeyFrequentlyUsed("FrequentlyUsed");
+}
 
 class LLEmojiScrollListItem : public LLScrollListItem
 {
@@ -146,7 +163,10 @@ private:
 class LLEmojiGridIcon : public LLScrollingPanel
 {
 public:
-    LLEmojiGridIcon(const LLPanel::Params& panel_params, const LLEmojiDescriptor* descr, std::string category)
+    LLEmojiGridIcon(
+        const LLPanel::Params& panel_params
+        , const LLEmojiDescriptor* descr
+        , std::string category)
         : LLScrollingPanel(panel_params)
         , mEmoji(descr->Character)
         , mText(LLWString(1, mEmoji))
@@ -218,6 +238,7 @@ void LLFloaterEmojiPicker::show(pick_callback_t pick_callback, close_callback_t 
 LLFloaterEmojiPicker::LLFloaterEmojiPicker(const LLSD& key)
 : LLFloater(key)
 {
+    loadState();
 }
 
 BOOL LLFloaterEmojiPicker::postBuild()
@@ -269,7 +290,6 @@ void LLFloaterEmojiPicker::fillGroups()
 {
     LLButton::Params params;
     params.font = LLFontGL::getFontEmoji();
-    //params.use_font_color = true;
 
     LLRect rect;
     rect.mTop = mGroups->getRect().getHeight();
@@ -387,12 +407,17 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
 
     static constexpr U32 bgcolorCount = sizeof(bgcolors) / sizeof(*bgcolors);
 
-    auto listCategory = [&](std::string category, const std::vector<const LLEmojiDescriptor*>& emojis)
+    auto listCategory = [&](std::string category, const std::vector<const LLEmojiDescriptor*>& emojis, int maxRows = 0)
     {
+        int rowCount = 0;
         int iconIndex = 0;
         bool showDivider = true;
+        bool mixedFolder = maxRows;
         LLEmojiGridRow* row = nullptr;
-        LLStringUtil::capitalize(category);
+        if (!mixedFolder)
+        {
+            LLStringUtil::capitalize(category);
+        }
         for (const LLEmojiDescriptor* descr : emojis)
         {
             if (sSearchPattern.empty() || matchesPattern(descr))
@@ -408,12 +433,14 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
                 // Place a new row each (maxIcons) icons
                 if (!(iconIndex % maxIcons))
                 {
+                    if (maxRows && ++rowCount > maxRows)
+                        break;
                     row = new LLEmojiGridRow(row_panel_params, row_list_params);
                     mEmojiGrid->addPanel(row, true);
                 }
 
                 // Place a new icon to the current row
-                LLEmojiGridIcon* icon = new LLEmojiGridIcon(icon_params, descr, category);
+                LLEmojiGridIcon* icon = new LLEmojiGridIcon(icon_params, descr, mixedFolder ? LLStringUtil::capitalize(descr->Category) : category);
                 icon->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseEnter(ctrl); });
                 icon->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseLeave(ctrl); });
                 icon->setMouseUpCallback([this](LLUICtrl* ctrl, S32, S32, MASK mask) { onEmojiMouseClick(ctrl, mask); });
@@ -428,9 +455,32 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
     };
 
     const std::vector<LLEmojiGroup>& groups = LLEmojiDictionary::instance().getGroups();
+    const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
     const LLEmojiDictionary::cat2descrs_map_t& category2Descr = LLEmojiDictionary::instance().getCategory2Descrs();
     if (!sSelectedGroupIndex)
     {
+        std::vector<const LLEmojiDescriptor*> recentlyUsed;
+        for (llwchar emoji : sRecentlyUsed)
+        {
+            auto it = emoji2descr.find(emoji);
+            if (it != emoji2descr.end())
+            {
+                recentlyUsed.push_back(it->second);
+            }
+        }
+        listCategory(getString("title_for_recently_used"), recentlyUsed, 1);
+
+        std::vector<const LLEmojiDescriptor*> frequentlyUsed;
+        for (auto& emoji : sFrequentlyUsed)
+        {
+            auto it = emoji2descr.find(emoji.first);
+            if (it != emoji2descr.end())
+            {
+                frequentlyUsed.push_back(it->second);
+            }
+        }
+        listCategory(getString("title_for_frequently_used"), frequentlyUsed, 1);
+
         // List all groups
         for (const LLEmojiGroup& group : groups)
         {
@@ -577,6 +627,7 @@ void LLFloaterEmojiPicker::onEmojiMouseClick(LLUICtrl* ctrl, MASK mask)
     {
         if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
         {
+            onEmojiUsed(icon->getEmoji());
             mPreviewEmoji->handleAnyMouseClick(0, 0, 0, EMouseClickType::CLICK_LEFT, TRUE);
             mPreviewEmoji->handleAnyMouseClick(0, 0, 0, EMouseClickType::CLICK_LEFT, FALSE);
             if (!(mask & 4))
@@ -631,9 +682,189 @@ BOOL LLFloaterEmojiPicker::handleKeyHere(KEY key, MASK mask)
 // virtual
 void LLFloaterEmojiPicker::closeFloater(bool app_quitting)
 {
+    saveState();
     LLFloater::closeFloater(app_quitting);
     if (mFloaterCloseCallback)
     {
         mFloaterCloseCallback();
     }
+}
+
+void LLFloaterEmojiPicker::onEmojiUsed(llwchar emoji)
+{
+    // Update sRecentlyUsed
+    auto itr = std::find(sRecentlyUsed.begin(), sRecentlyUsed.end(), emoji);
+    if (itr == sRecentlyUsed.end())
+    {
+        sRecentlyUsed.push_front(emoji);
+    }
+    else if (itr != sRecentlyUsed.begin())
+    {
+        sRecentlyUsed.erase(itr);
+        sRecentlyUsed.push_front(emoji);
+    }
+
+    // Increment and reorder sFrequentlyUsed
+    auto itf = sFrequentlyUsed.begin();
+    while (itf != sFrequentlyUsed.end())
+    {
+        if (itf->first == emoji)
+        {
+            itf->second++;
+            while (itf != sFrequentlyUsed.begin())
+            {
+                auto prior = itf;
+                prior--;
+                if (prior->second > itf->second)
+                    break;
+                prior->swap(*itf);
+                itf = prior;
+            }
+            break;
+        }
+        itf++;
+    }
+    // Append new if not found
+    if (itf == sFrequentlyUsed.end())
+        sFrequentlyUsed.push_back(std::make_pair(emoji, 1));
+}
+
+void LLFloaterEmojiPicker::loadState()
+{
+    if (!sStateFileName.empty())
+        return; // Already loaded
+
+    sStateFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "emoji_floater_state.xml");
+
+    llifstream file;
+    file.open(sStateFileName.c_str());
+    if (!file.is_open())
+    {
+        LL_WARNS() << "Emoji floater state file is missing or inaccessible: " << sStateFileName << LL_ENDL;
+        return;
+    }
+
+    LLSD state;
+    LLSDSerialize::fromXML(state, file);
+    if (state.isUndefined())
+    {
+        LL_WARNS() << "Emoji floater state file is missing or ill-formed: " << sStateFileName << LL_ENDL;
+        return;
+    }
+
+    sSelectedGroupIndex = state[sKeySelectedGroupIndex].asInteger();
+
+    sSearchPattern = state[sKeySearchPattern].asString();
+
+    // Load and parse sRecentlyUsed
+    std::string recentlyUsed = state[sKeyRecentlyUsed];
+    std::vector<std::string> rtokens = LLStringUtil::getTokens(recentlyUsed, ",");
+    int maxCountR = 20;
+    for (const std::string& token : rtokens)
+    {
+        llwchar emoji = (llwchar)atoi(token.c_str());
+        if (std::find(sRecentlyUsed.begin(), sRecentlyUsed.end(), emoji) == sRecentlyUsed.end())
+        {
+            sRecentlyUsed.push_back(emoji);
+            if (!--maxCountR)
+                break;
+        }
+    }
+
+    // Load and parse sFrequentlyUsed
+    std::string frequentlyUsed = state[sKeyFrequentlyUsed];
+    std::vector<std::string> ftokens = LLStringUtil::getTokens(frequentlyUsed, ",");
+    int maxCountF = 20;
+    for (const std::string& token : ftokens)
+    {
+        std::vector<std::string> pair = LLStringUtil::getTokens(token, ":");
+        if (pair.size() == 2)
+        {
+            llwchar emoji = (llwchar)atoi(pair[0].c_str());
+            if (emoji)
+            {
+                U32 count = atoi(pair[1].c_str());
+                auto it = std::find_if(sFrequentlyUsed.begin(), sFrequentlyUsed.end(),
+                    [emoji](std::pair<llwchar, U32>& it) { return it.first == emoji; });
+                if (it != sFrequentlyUsed.end())
+                {
+                    it->second += count;
+                }
+                else
+                {
+                    sFrequentlyUsed.push_back(std::make_pair(emoji, count));
+                    if (!--maxCountF)
+                        break;
+                }
+            }
+        }
+    }
+
+    // Normalize by minimum
+    if (!sFrequentlyUsed.empty())
+    {
+        U32 delta = sFrequentlyUsed.back().second;
+        for (auto& it : sFrequentlyUsed)
+        {
+            it.second = std::max((U32)0, it.second - delta);
+        }
+    }
+}
+
+void LLFloaterEmojiPicker::saveState()
+{
+    if (sStateFileName.empty())
+        return; // Not loaded
+
+    if (LLAppViewer::instance()->isSecondInstance())
+        return; // Not allowed
+
+    LLSD state = LLSD::emptyMap();
+
+    if (sSelectedGroupIndex)
+    {
+        state[sKeySelectedGroupIndex] = (int)sSelectedGroupIndex;
+    }
+
+    if (!sSearchPattern.empty())
+    {
+        state[sKeySearchPattern] = sSearchPattern;
+    }
+
+    if (!sRecentlyUsed.empty())
+    {
+        U32 maxCount = 20;
+        std::string recentlyUsed;
+        for (llwchar emoji : sRecentlyUsed)
+        {
+            if (!recentlyUsed.empty())
+                recentlyUsed += ",";
+            char buffer[32];
+            sprintf(buffer, "%u", (U32)emoji);
+            recentlyUsed += buffer;
+            if (!--maxCount)
+                break;
+        }
+        state[sKeyRecentlyUsed] = recentlyUsed;
+    }
+
+    if (!sFrequentlyUsed.empty())
+    {
+        U32 maxCount = 20;
+        std::string frequentlyUsed;
+        for (auto& it : sFrequentlyUsed)
+        {
+            if (!frequentlyUsed.empty())
+                frequentlyUsed += ",";
+            char buffer[32];
+            sprintf(buffer, "%u:%u", (U32)it.first, (U32)it.second);
+            frequentlyUsed += buffer;
+            if (!--maxCount)
+                break;
+        }
+        state[sKeyFrequentlyUsed] = frequentlyUsed;
+    }
+
+    llofstream stream(sStateFileName.c_str());
+    LLSDSerialize::toPrettyXML(state, stream);
 }
