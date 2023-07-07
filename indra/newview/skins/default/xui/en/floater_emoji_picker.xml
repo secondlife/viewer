@@ -10,6 +10,8 @@
     min_width="250"
     height="400"
     width="250">
+  <floater.string name="title_for_recently_used" value="Recently used"/>
+  <floater.string name="title_for_frequently_used" value="Frequently used"/>
   <line_editor
       name="Search"
       label="Type to search"

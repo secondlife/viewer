@@ -77,6 +77,10 @@ private:
 
     virtual BOOL handleKeyHere(KEY key, MASK mask) override;
 
+    void onEmojiUsed(llwchar emoji);
+    void loadState();
+    void saveState();
+
     class LLPanel* mGroups { nullptr };
     class LLPanel* mBadge { nullptr };
     class LLLineEditor* mSearch { nullptr };
@@ -94,9 +98,6 @@ private:
     S32 mRecentGridWidth { 0 };
     S32 mRecentMaxIcons { 0 };
     LLUICtrl* mHoveredIcon { nullptr };
-
-    static size_t sSelectedGroupIndex;
-    static std::string sSearchPattern;
 };
 
 #endif
