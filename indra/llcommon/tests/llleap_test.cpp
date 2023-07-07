@@ -17,7 +17,6 @@
 // std headers
 #include <functional>
 // external library headers
-#include <boost/assign/list_of.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -28,10 +27,6 @@
 #include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
-
-using boost::assign::list_of;
-
-StringVec sv(const StringVec& listof) { return listof; }
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -217,9 +212,9 @@ namespace tut
                                 "time.sleep(1)\n");
         LLLeapVector instances;
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
+                                           StringVec{PYTHON, script.getName()})->getWeak());
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
+                                           StringVec{PYTHON, script.getName()})->getWeak());
         // In this case we're simply establishing that two LLLeap instances
         // can coexist without throwing exceptions or bombing in any other
         // way. Wait for them to terminate.
@@ -249,7 +244,7 @@ namespace tut
                                 "print('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("invalid protocol"), "Hello from Python!");
     }
@@ -264,7 +259,7 @@ namespace tut
                                 "sys.stdout.write('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("Discarding"), "Hello from Python!");
     }
@@ -278,7 +273,7 @@ namespace tut
                                 "sys.stdout.write('5a2:something')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("invalid protocol"), "5a2:");
     }
@@ -390,7 +385,8 @@ namespace tut
                                 "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
                                 "            else 'bad: ' + str(resp)\n"
                                 "send(pump='" << result.getName() << "', data=result)\n";});
-        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))));
+        waitfor(LLLeap::create(get_test_name(),
+                               StringVec{PYTHON, script.getName()}));
         result.ensure();
     }
 
@@ -449,7 +445,7 @@ namespace tut
                                 "        result = 'expected reqid=%s in %s' % (i, resp)\n"
                                 "        break\n"
                                 "send(pump='" << result.getName() << "', data=result)\n";});
-        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))),
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}),
                 300);               // needs more realtime than most tests
         result.ensure();
     }
@@ -516,10 +512,7 @@ namespace tut
                                 "             (start, large[start:end], echoed[start:end]))\n"
                                 "sys.exit(1)\n";});
         waitfor(LLLeap::create(test_name,
-                               sv(list_of
-                                  (PYTHON)
-                                  (script.getName())
-                                  (stringize(size)))),
+                               StringVec{PYTHON, script.getName(), stringize(size)}),
                 180);               // try a longer timeout
         result.ensure();
     }

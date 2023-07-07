@@ -124,17 +124,6 @@ void waitfor(LLProcess::handle h, const std::string& desc, int timeout=60)
                 i < timeout);
 }
 
-namespace {
-
-// find test helper, a sibling of this file
-// nat 2023-07-07: we're currently using Boost 1.81, but
-// path::replace_filename() (which is exactly what we need here) doesn't
-// arrive until Boost 1.82.
-auto test_python_script{
-    (boost::filesystem::path(__FILE__).remove_filename() / "test_python_script.py").string() };
-
-}
-
 /**
  * Construct an LLProcess to run a Python script.
  */
@@ -156,7 +145,6 @@ struct PythonProcessLauncher
 
         mParams.desc = desc + " script";
         mParams.executable = PYTHON;
-        mParams.args.add(test_python_script);
         mParams.args.add(mScript.getName());
     }
 
@@ -398,7 +386,6 @@ namespace tut
         // Have to have a named copy of this std::string so its c_str() value
         // will persist.
         std::string scriptname(script.getName());
-        argv.push_back(test_python_script.c_str());
         argv.push_back(scriptname.c_str());
         argv.push_back(NULL);
 
