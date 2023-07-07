@@ -65,8 +65,7 @@ public:
         boost::filesystem::remove(mPath);
     }
 
-    // On Windows, path::native() returns a wstring
-    std::string getName() const { return ll_convert<std::string>(mPath.native()); }
+    std::string getName() const { return mPath.string(); }
 
     void peep()
     {
@@ -78,12 +77,9 @@ public:
         std::cout << "---\n";
     }
 
-protected:
-    void createFile(const std::string_view& pfx,
-                    const Streamer& func,
-                    const std::string_view& sfx)
+    static boost::filesystem::path temp_path(const std::string_view& pfx="",
+                                             const std::string_view& sfx="")
     {
-        // Create file in a temporary place.
         // This variable is set by GitHub actions and is the recommended place
         // to put temp files belonging to an actions job.
         const char* RUNNER_TEMP = getenv("RUNNER_TEMP");
@@ -97,9 +93,17 @@ protected:
             // with underscores instead of hyphens: some use cases involve
             // temporary Python scripts
             tempdir / stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx) };
-        mPath = boost::filesystem::unique_path(tempname);
-        boost::filesystem::ofstream out{ mPath };
+        return boost::filesystem::unique_path(tempname);
+    }
 
+protected:
+    void createFile(const std::string_view& pfx,
+                    const Streamer& func,
+                    const std::string_view& sfx)
+    {
+        // Create file in a temporary place.
+        mPath = temp_path(pfx, sfx);
+        boost::filesystem::ofstream out{ mPath };
         // Write desired content.
         func(out);
     }

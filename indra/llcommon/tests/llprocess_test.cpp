@@ -124,6 +124,17 @@ void waitfor(LLProcess::handle h, const std::string& desc, int timeout=60)
                 i < timeout);
 }
 
+namespace {
+
+// find test helper, a sibling of this file
+// nat 2023-07-07: we're currently using Boost 1.81, but
+// path::replace_filename() (which is exactly what we need here) doesn't
+// arrive until Boost 1.82.
+auto test_python_script{
+    (boost::filesystem::path(__FILE__).remove_filename() / "test_python_script.py").string() };
+
+}
+
 /**
  * Construct an LLProcess to run a Python script.
  */
@@ -145,6 +156,7 @@ struct PythonProcessLauncher
 
         mParams.desc = desc + " script";
         mParams.executable = PYTHON;
+        mParams.args.add(test_python_script);
         mParams.args.add(mScript.getName());
     }
 
@@ -214,30 +226,26 @@ static std::string python_out(const std::string& desc, const CONTENT& script)
 class NamedTempDir: public boost::noncopyable
 {
 public:
-    // Use python() function to create a temp directory: I've found
-    // nothing in either Boost.Filesystem or APR quite like Python's
-    // tempfile.mkdtemp().
-    // Special extra bonus: on Mac, mkdtemp() reports a pathname
-    // starting with /var/folders/something, whereas that's really a
-    // symlink to /private/var/folders/something. Have to use
-    // realpath() to compare properly.
     NamedTempDir():
-        mPath(python_out("mkdtemp()",
-                         "from __future__ import with_statement\n"
-                         "import os.path, sys, tempfile\n"
-                         "with open(sys.argv[1], 'w') as f:\n"
-                         "    f.write(os.path.normcase(os.path.normpath(os.path.realpath(tempfile.mkdtemp()))))\n"))
-    {}
+        mPath(NamedTempFile::temp_path()),
+        mCreated(boost::filesystem::create_directories(mPath))
+    {
+        mPath = boost::filesystem::canonical(mPath);
+    }
 
     ~NamedTempDir()
     {
-        aprchk(apr_dir_remove(mPath.c_str(), gAPRPoolp));
+        if (mCreated)
+        {
+            boost::filesystem::remove_all(mPath);
+        }
     }
 
-    std::string getName() const { return mPath; }
+    std::string getName() const { return mPath.string(); }
 
 private:
-    std::string mPath;
+    boost::filesystem::path mPath;
+    bool mCreated;
 };
 
 /*****************************************************************************
@@ -390,6 +398,7 @@ namespace tut
         // Have to have a named copy of this std::string so its c_str() value
         // will persist.
         std::string scriptname(script.getName());
+        argv.push_back(test_python_script.c_str());
         argv.push_back(scriptname.c_str());
         argv.push_back(NULL);
 
