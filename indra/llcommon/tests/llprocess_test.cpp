@@ -30,7 +30,7 @@
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
-#include "lldir.h"
+#include "../llfilesystem/lldir.h"
 #include "llsdutil.h"
 #include "llevents.h"
 #include "llstring.h"
