@@ -2,11 +2,11 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="645"
+ height="669"
  layout="topleft"
  name="Animation Preview"
  help_topic="animation_preview"
- width="280">
+ width="310">
     <floater.string
      name="failed_to_initialize">
         Failed to initialize motion
@@ -151,6 +151,10 @@ Maximum animation length is [MAX_LENGTH] seconds.
      name="E_ST_BAD_ROOT">
         Incorrect root joint name, use "hip".
     </floater.string>
+    <floater.string
+     name="E_ST_INTERNAL_ERROR">
+        Internal importer error.
+    </floater.string>
   <text
      type="string"
      length="1"
@@ -167,7 +171,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left|right"
      height="23"
      layout="topleft"
-     left="100"
+     left="80"
      name="name_form"
      right="-10" />
     <text
@@ -186,7 +190,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left|right"
      height="23"
      layout="topleft"
-     left="100"
+     left="80"
      name="description_form"
      right="-10" />
     <spinner
@@ -196,13 +200,28 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="Priority"
-     label_width="88"
+     label_width="70"
      layout="topleft"
      left="10"
      max_val="4"
      name="priority"
      tool_tip="Controls which other animations can be overridden by this animation"
-     width="160" />
+     width="130" />
+    <spinner
+     decimal_digits="3"
+     follows="left|top"
+     height="23"
+     increment="0.010"
+     initial_value="1.000"
+     label="Scale"
+     label_width="60"
+     layout="topleft"
+     left_pad="10"
+     min_val="0.001"
+     max_val="10.000"
+     name="scale"
+     tool_tip="Scales position movement by this animation"
+     width="120" />
     <check_box
      top_pad="0"
      height="14"
@@ -218,14 +237,14 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="In(%)"
-     label_width="70"
+     label_width="68"
      layout="topleft"
      top_pad="5"
      left="15"
      max_val="100"
      name="loop_in_point"
      tool_tip="Sets point in animation that looping returns to"
-     width="130" />
+     width="125" />
     <spinner
      bottom_delta="0"
      follows="left|top"
@@ -478,7 +497,50 @@ Maximum animation length is [MAX_LENGTH] seconds.
      name="ease_out_time"
      tool_tip="Amount of time (in seconds) over which animations blends out"
      width="210" />
-    <button
+	<spinner
+     follows="left|top"
+     height="23"
+     increment="0.02"
+     initial_value="0"
+     label="Duration (sec)"
+     label_width="100"
+     layout="topleft"
+     top_pad="0"
+     min_val="0.0"
+     max_val="60.0"
+     name="anim_duration"
+     tool_tip="Time duration (in seconds) from start to finish"
+     width="180" />
+	<spinner
+     bottom_delta="0"
+     follows="left|top"
+     height="23"
+     increment="1"
+     initial_value="100"
+     label=" "
+     label_width="10"
+     layout="topleft"
+     left_pad="10"
+     min_val="50"
+     max_val="200"
+     name="duration_percent"
+     tool_tip="Change time duration by percentage"
+     width="80" />
+	<text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     top_pad="10"
+     follows="left"
+     height="23"
+     width="40"
+     word_wrap="false"
+     layout="topleft"
+     left_pad="10"
+     name="percent_label">
+         %
+	</text>
+	<button
      follows="top|right"
      height="23"
      image_overlay="Play_Over"
@@ -531,7 +593,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left_pad="10"
      follows="top|right"
      height="23"
-     width="200"
+     width="230"
      increment="0.0001"
      initial_value="0"
      layout="topleft"
@@ -553,7 +615,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 We recommend BVH files exported from Poser 4.
     </text>
     <button
-    	top="580"
+    	top="604"
      follows="bottom|left"
      height="23"
      label="Upload (L$[AMOUNT])"
@@ -562,15 +624,15 @@ We recommend BVH files exported from Poser 4.
      name="ok_btn"
      width="128" />
     <button
-    	top="580"
-     follows="bottom|left"
+    	top="604"
+     follows="bottom|left|right"
      height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     left="142"
-     width="128" />
-    <text
+     left="182"
+     right="-10" />
+	<text
      type="string"
      length="1"
      follows="left|top"

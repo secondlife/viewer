@@ -1580,7 +1580,6 @@ set_source_files_properties(${viewer_XUI_FILES}
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
 set(viewer_APPSETTINGS_FILES
-    app_settings/anim.ini
     app_settings/cmd_line.xml
     app_settings/commands.xml
     app_settings/grass.xml
@@ -1901,6 +1900,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
+        assimp-vc143-mt
         )
 
 if( TARGET ll::intel_memops )

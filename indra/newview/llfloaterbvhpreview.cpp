@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterbvhpreview.cpp
  * @brief LLFloaterBvhPreview class implementation
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -57,6 +57,7 @@
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llviewermenufile.h"	// upload_new_resource()
@@ -78,6 +79,9 @@ const F32 MIN_CAMERA_ZOOM = 0.5f;
 const F32 MAX_CAMERA_ZOOM = 10.f;
 
 const F32 BASE_ANIM_TIME_OFFSET = 5.f;
+
+const F32 MIN_DURATION_ADJUSTMENT = 0.5f;
+const F32 MAX_DURATION_ADJUSTMENT = 2.f;
 
 std::string STATUS[] =
 {
@@ -112,17 +116,19 @@ std::string STATUS[] =
 	"E_ST_NO_XLT_EASEOUT",
 	"E_ST_NO_XLT_HAND",
 	"E_ST_NO_XLT_EMOTE",
-"E_ST_BAD_ROOT"
+    "E_ST_BAD_ROOT",
+    "E_ST_INTERNAL_ERROR"
 };
 
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) : 
+LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) :
 	LLFloaterNameDesc(filename)
 {
 	mLastMouseX = 0;
 	mLastMouseY = 0;
+    mOriginalDuration = 1.f;
 
 	mIDList["Standing"] = ANIM_AGENT_STAND;
 	mIDList["Walking"] = ANIM_AGENT_FEMALE_WALK;
@@ -162,14 +168,15 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("preview_base_anim")->setValue("Standing");
 
 	getChild<LLUICtrl>("priority")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPriority, this));
-	getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
+    getChild<LLUICtrl>("scale")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitScale, this));
+    getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
 	getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
 	getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopIn, this, _1));
 	getChild<LLUICtrl>("loop_out_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopOut, this));
 	getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopOut, this, _1));
 
 	getChild<LLUICtrl>("hand_pose_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitHandPose, this));
-	
+
 	getChild<LLUICtrl>("emote_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEmote, this));
 	getChild<LLUICtrl>("emote_combo")->setValue("[None]");
 
@@ -177,13 +184,21 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("ease_in_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseIn, this, _1));
 	getChild<LLUICtrl>("ease_out_time")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEaseOut, this));
 	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
+
+	getChild<LLUICtrl>("anim_duration")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitDuration, this));
+    getChild<LLUICtrl>("anim_duration")->setValidateBeforeCommit(boost::bind(&LLFloaterBvhPreview::validateDuration, this, _1));
+    getChild<LLUICtrl>("duration_percent")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPercent, this));
+    getChild<LLUICtrl>("duration_percent")->setValidateBeforeCommit(boost::bind(&LLFloaterBvhPreview::validatePercent, this, _1));
 }
 
-std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
+const joint_alias_map_t & LLFloaterBvhPreview::getAnimationJointAliases()
 {
     LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
     return av->getJointAliases();
 }
+
+
+
 
 //-----------------------------------------------------------------------------
 // postBuild()
@@ -191,7 +206,6 @@ std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
 BOOL LLFloaterBvhPreview::postBuild()
 {
 	LLKeyframeMotion* motionp = NULL;
-	LLBVHLoader* loaderp = NULL;
 
 	if (!LLFloaterNameDesc::postBuild())
 	{
@@ -203,9 +217,9 @@ BOOL LLFloaterBvhPreview::postBuild()
 	childSetAction("ok_btn", onBtnOK, this);
 	setDefaultBtn();
 
-	mPreviewRect.set(PREVIEW_HPAD, 
+	mPreviewRect.set(PREVIEW_HPAD,
 		PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD,
-		getRect().getWidth() - PREVIEW_HPAD, 
+		getRect().getWidth() - PREVIEW_HPAD,
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
@@ -216,28 +230,29 @@ BOOL LLFloaterBvhPreview::postBuild()
 	mPauseButton = getChild<LLButton>( "pause_btn");
 	mPauseButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnPause, this));
 	mPauseButton->setVisible(false);
-	
+
 	mStopButton = getChild<LLButton>( "stop_btn");
 	mStopButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnStop, this));
 
 	getChildView("bad_animation_text")->setVisible(FALSE);
 
     mAnimPreview = new LLPreviewAnimation(256, 256);
-    
-	std::string exten = gDirUtilp->getExtension(mFilename);
-	if (exten == "bvh")
-	{
-		// loading a bvh file
 
-		// now load bvh file
+	std::string exten = gDirUtilp->getExtension(mFilename);
+
+    LLBVHLoader loader;
+
+	if (exten == "bvh" || exten == "fbx")
+	{
+		// now load animation file
 		S32 file_size;
-		
+
 		LLAPRFile infile ;
 		infile.open(mFilenameAndPath, LL_APR_RB, NULL, &file_size);
-		
+
 		if (!infile.getFileHandle())
 		{
-			LL_WARNS() << "Can't open BVH file:" << mFilename << LL_ENDL;	
+            LL_WARNS("BVH") << "Can't open animation file:" << mFilenameAndPath << LL_ENDL;
 		}
 		else
 		{
@@ -247,24 +262,28 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 			if (file_size == infile.read(file_buffer, file_size))
 			{
-				file_buffer[file_size] = '\0';
-				LL_INFOS() << "Loading BVH file " << mFilename << LL_ENDL;
-				ELoadStatus load_status = E_ST_OK;
-				S32 line_number = 0;
+                LL_INFOS("BVH") << "Loading animation file " << mFilename << LL_ENDL;
 
-                std::map<std::string, std::string> joint_alias_map = getJointAliases();
-    
-				loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
-				std::string status = getString(STATUS[load_status]);
-				
+                file_buffer[file_size] = '\0';
+                S32 line_number = 0;
+                const joint_alias_map_t & joint_alias_map = getAnimationJointAliases();
+
+                // Read and parse the animation file into internal joint data
+                loader.loadAnimationData(file_buffer, line_number, joint_alias_map, mFilenameAndPath, gSavedSettings.getS32("AnimationImportTransform"));
+                ELoadStatus load_status = loader.getStatus();
+
 				if(load_status == E_ST_NO_XLT_FILE)
 				{
-					LL_WARNS() << "NOTE: No translation table found." << LL_ENDL;
+					LL_WARNS("BVH") << "NOTE: No translation table found." << LL_ENDL;
 				}
-				else
+				else if (load_status != E_ST_OK)
 				{
-					LL_WARNS() << "ERROR: [line: " << line_number << "] " << status << LL_ENDL;
+                    LL_WARNS("BVH") << "ERROR loading animation file: [line: " << line_number << "] " << getString(STATUS[load_status]) << LL_ENDL;
 				}
+                else
+                {
+                    LL_INFOS("BVH") << "Animation file " << mFilenameAndPath << " loaded OK" << LL_ENDL;
+                }
 			}
 
 			infile.close() ;
@@ -272,37 +291,39 @@ BOOL LLFloaterBvhPreview::postBuild()
 		}
 	}
 
-	if (loaderp && loaderp->isInitialized() && loaderp->getDuration() <= MAX_ANIM_DURATION)
+	if (loader.isInitialized() && loader.getDuration() <= MAX_ANIM_DURATION)
 	{
 		// generate unique id for this motion
 		mTransactionID.generate();
 		mMotionID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 
 		// motion will be returned, but it will be in a load-pending state, as this is a new motion
-		// this motion will not request an asset transfer until next update, so we have a chance to 
+		// this motion will not request an asset transfer until next update, so we have a chance to
 		// load the keyframe data locally
 		motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
 
 		// create data buffer for keyframe initialization
-		S32 buffer_size = loaderp->getOutputSize();
+		S32 buffer_size = loader.getOutputSize();
 		U8* buffer = new U8[buffer_size];
 
 		LLDataPackerBinaryBuffer dp(buffer, buffer_size);
 
-		// pass animation data through memory buffer
-		LL_INFOS("BVH") << "Serializing loaderp" << LL_ENDL;
-		loaderp->serialize(dp);
+		// Create LLKeyFrameMotion from BVH data by serializing from the file we
+        // read into a binary anim format, then deserialize that into a LLKeyFrameMotion object
+		LL_INFOS("BVH") << "Serializing from animation loader into motion data" << LL_ENDL;
+		loader.serialize(dp);
 		dp.reset();
-		LL_INFOS("BVH") << "Deserializing motionp" << LL_ENDL;
-		BOOL success = motionp && motionp->deserialize(dp, mMotionID, false);
-		LL_INFOS("BVH") << "Done" << LL_ENDL;
+		LL_INFOS("BVH") << "Deserializing motion into animation data" << LL_ENDL;
+		bool success = motionp && motionp->deserialize(dp, mMotionID, false);
+		LL_INFOS("BVH") << (success ? "Success: " : "Failed")
+            << "Done: output animation data size " << dp.getCurrentSize() << " bytes" << LL_ENDL;
 
 		delete []buffer;
 
 		if (success)
 		{
 			setAnimCallbacks() ;
-			
+
 			const LLBBoxLocal &pelvis_bbox = motionp->getPelvisBBox();
 
 			LLVector3 temp = pelvis_bbox.getCenter();
@@ -327,10 +348,14 @@ BOOL LLFloaterBvhPreview::postBuild()
 			getChild<LLUICtrl>("loop_check")->setValue(LLSD(motionp->getLoop()));
 			getChild<LLUICtrl>("loop_in_point")->setValue(LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));
 			getChild<LLUICtrl>("loop_out_point")->setValue(LLSD(motionp->getLoopOut() / motionp->getDuration() * 100.f));
-			getChild<LLUICtrl>("priority")->setValue(LLSD((F32)motionp->getPriority()));
-			getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
+            getChild<LLUICtrl>("priority")->setValue(LLSD((F32) motionp->getPriority()));
+            getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
 			getChild<LLUICtrl>("ease_in_time")->setValue(LLSD(motionp->getEaseInDuration()));
 			getChild<LLUICtrl>("ease_out_time")->setValue(LLSD(motionp->getEaseOutDuration()));
+
+			mOriginalDuration = motionp->getDuration();
+            getChild<LLUICtrl>("anim_duration")->setValue(LLSD(mOriginalDuration));
+
 			setEnabled(TRUE);
 			std::string seconds_string;
 			seconds_string = llformat(" - %.2f seconds", motionp->getDuration());
@@ -343,24 +368,23 @@ BOOL LLFloaterBvhPreview::postBuild()
 			mMotionID.setNull();
 			getChild<LLUICtrl>("bad_animation_text")->setValue(getString("failed_to_initialize"));
 		}
+
+        mOriginalDuration = motionp->getDuration();
 	}
 	else
 	{
-		if ( loaderp )
+		if (loader.getDuration() > MAX_ANIM_DURATION)
 		{
-			if (loaderp->getDuration() > MAX_ANIM_DURATION)
-			{
-				LLUIString out_str = getString("anim_too_long");
-				out_str.setArg("[LENGTH]", llformat("%.1f", loaderp->getDuration()));
-				out_str.setArg("[MAX_LENGTH]", llformat("%.1f", MAX_ANIM_DURATION));
-				getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
-			}
-			else
-			{
-				LLUIString out_str = getString("failed_file_read");
-				out_str.setArg("[STATUS]", getString(STATUS[loaderp->getStatus()])); 
-				getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
-			}
+			LLUIString out_str = getString("anim_too_long");
+			out_str.setArg("[LENGTH]", llformat("%.1f", loader.getDuration()));
+			out_str.setArg("[MAX_LENGTH]", llformat("%.1f", MAX_ANIM_DURATION));
+			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
+		}
+		else
+		{
+			LLUIString out_str = getString("failed_file_read");
+			out_str.setArg("[STATUS]", getString(STATUS[loader.getStatus()]));
+			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
 		}
 
 		//setEnabled(FALSE);
@@ -369,8 +393,6 @@ BOOL LLFloaterBvhPreview::postBuild()
 	}
 
 	refresh();
-
-	delete loaderp;
 
 	return TRUE;
 }
@@ -468,6 +490,36 @@ void LLFloaterBvhPreview::resetMotion()
 	}
 }
 
+
+//-----------------------------------------------------------------------------
+// updateMotionTime()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::updateMotionTime()
+{	// Use the current duration adjustment to tweak motion values
+
+	LLVOAvatar *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = dynamic_cast<LLKeyframeMotion *>(avatarp->findMotion(mMotionID));
+	if (!motionp)
+	{
+        LL_WARNS("BVH") << "updateMotionTime() - no motion found for " << mMotionID << LL_ENDL;
+        return;
+	}
+	if (motionp->getDuration() <= 0 || mOriginalDuration <= 0.f)
+	{	// Paranoia
+        LL_WARNS("BVH") << "updateMotionTime() - unexpected duration values "
+			<< motionp->getDuration() << " or " << mOriginalDuration << LL_ENDL;
+        return;
+	}
+
+	// Want to change all time values by this factor
+    F32 adjustment = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal() / motionp->getDuration();
+
+	LL_DEBUGS("BVH") << "updateMotionTime() - adjusting motion time by " << adjustment << LL_ENDL;
+	motionp->adjustTime(adjustment);
+
+	resetMotion();
+}
+
 //-----------------------------------------------------------------------------
 // handleMouseDown()
 //-----------------------------------------------------------------------------
@@ -517,7 +569,7 @@ BOOL LLFloaterBvhPreview::handleHover(S32 x, S32 y, MASK mask)
 			
 			mAnimPreview->rotate(yaw_radians, pitch_radians);
 		}
-		else 
+		else
 		{
 			F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
 			F32 zoom_amt = (F32)(y - mLastMouseY) * 0.02f;
@@ -794,13 +846,41 @@ void LLFloaterBvhPreview::onCommitEmote()
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::onCommitPriority()
 {
-	if (!getEnabled() || !mAnimPreview)
-		return;
+    if (!getEnabled() || !mAnimPreview)
+        return;
 
-	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
 
-	motionp->setPriority(llfloor((F32)getChild<LLUICtrl>("priority")->getValue().asReal()));
+    motionp->setPriority(llfloor((F32) getChild<LLUICtrl>("priority")->getValue().asReal()));
+}
+
+//-----------------------------------------------------------------------------
+// onCommitScale()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitScale()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+	// Scale is percentage scale it down.
+    F32               scale   = (F32) getChild<LLUICtrl>("scale")->getValue().asReal();
+    
+	LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+	if (!motionp)
+    {
+        LL_WARNS("BVH") << "onCommitScale() - no motion found for " << mMotionID << LL_ENDL;
+        return;
+    }
+
+	//Negate out the previous scaling factor and pretend F32 rounding errors don't exist.
+
+    // scalePositions
+	motionp->adjustPositionScale( scale );
+
+	resetMotion();
 }
 
 //-----------------------------------------------------------------------------
@@ -872,6 +952,118 @@ bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
 
 	return true;
 }
+
+
+//-----------------------------------------------------------------------------
+// onCommitDuration()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitDuration()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+    // Limit the duration between 50% and 2x the original duration
+    F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
+    F32 new_duration = llclamp(cur_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
+    getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+
+	F32 new_percent = 100.f * new_duration / mOriginalDuration;
+    new_percent     = llclamp(new_percent, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
+    getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
+
+	LL_DEBUGS("BVH") << "onCommitDuration: value is " << new_duration << " : "
+                    << new_percent << "%" << LL_ENDL;
+
+	updateMotionTime();
+}
+
+
+//-----------------------------------------------------------------------------
+// validateDuration()
+//-----------------------------------------------------------------------------
+bool LLFloaterBvhPreview::validateDuration(const LLSD &data)
+{
+	if (!getEnabled() || !mAnimPreview)
+		return false;
+
+	// Limit the duration between 50% and 2x the original duration
+    F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
+    F32 new_duration = llclamp(cur_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
+
+    if (new_duration == cur_duration)
+    {	// Value was not limited, so just log it
+        LL_DEBUGS("BVH") << "validateDuration: no clamping value " << cur_duration << " seconds" << LL_ENDL;
+    }
+    else
+    {  // Value was limited, so set UI and sync up percentage
+        getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+
+        F32 new_percent = 100.f * new_duration / mOriginalDuration;
+        new_percent     = llclamp(new_percent, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
+        getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
+
+        LL_DEBUGS("BVH") << "validateDuration: set new values to " << new_duration << " seconds and "
+						<< new_percent << "%" << LL_ENDL;
+    }
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// onCommitPercent()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitPercent()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+    // Limit the percent between 50 and 200
+    F32 cur_percent    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
+    F32 clamped_percent = llclamp(cur_percent, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
+
+	getChild<LLUICtrl>("duration_percent")->setValue(LLSD(clamped_percent));
+
+	F32 new_duration = clamped_percent * mOriginalDuration / 100.f;
+    new_duration     = llclamp(new_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
+    getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+
+    LL_DEBUGS("BVH") << "onCommitPercent: value is " << clamped_percent
+		<< "% for " << new_duration << " seconds" << LL_ENDL;
+
+	updateMotionTime();
+}
+
+//-----------------------------------------------------------------------------
+// validatePercent()
+//-----------------------------------------------------------------------------
+bool LLFloaterBvhPreview::validatePercent(const LLSD &data)
+{
+    if (!getEnabled() || !mAnimPreview)
+        return false;
+
+    // Limit the duration between 50% and 2x the original duration
+    F32 cur_value    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
+    F32 new_value = llclamp(cur_value, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
+
+    if (new_value == cur_value)
+    {
+        LL_DEBUGS("BVH") << "validatePercent: no change " << new_value << "%" << LL_ENDL;
+    }
+    else
+    {  // Limit the percentage between 50 and 200
+		getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_value));
+
+		F32 new_duration = llclamp(mOriginalDuration * new_value / 100.f, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
+		getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+		
+		LL_DEBUGS("BVH") << "validatePercent: set new values to " << new_value
+			<< "% and " << new_duration << " seconds" << LL_ENDL;
+    }
+
+    return true;
+}
+
+
 
 //-----------------------------------------------------------------------------
 // validateLoopIn()
@@ -997,6 +1189,32 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		LLDataPackerBinaryBuffer dp(buffer, file_size);
 		if (motionp->serialize(dp))
 		{
+            // Start Test Code
+            // Write out a text version of the data for debugging
+            std::string test_file_name(floaterp->mFilenameAndPath);
+            test_file_name.append("-anim.txt");
+            LLFILE* test_fp = LLFile::fopen(test_file_name.c_str(), "wb");
+            if (test_fp)
+            {
+                LL_INFOS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
+                LLDataPackerAsciiFile  test_dp(test_fp);
+                if (motionp->serialize(test_dp))
+                {
+                    LL_INFOS("BVH") << "Success writing " << test_file_name << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("BVH") << "Error writing " << test_file_name << LL_ENDL;
+                }
+                LLFile::close(test_fp);
+            }
+            else
+            {
+                LL_WARNS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
+            }
+            // End Test Code
+
+
 			LLFileSystem file(motionp->getID(), LLAssetType::AT_ANIMATION, LLFileSystem::APPEND);
 
 			S32 size = dp.getCurrentSize();
@@ -1019,7 +1237,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 			}
 			else
 			{
-				LL_WARNS() << "Failure writing animation data." << LL_ENDL;
+				LL_WARNS("BVH") << "Failure writing animation data." << LL_ENDL;
 				LLNotificationsUtil::add("WriteAnimationFail");
 			}
 		}
@@ -1076,7 +1294,7 @@ S8 LLPreviewAnimation::getType() const
 }
 
 //-----------------------------------------------------------------------------
-// update()
+// render()
 //-----------------------------------------------------------------------------
 BOOL	LLPreviewAnimation::render()
 {
@@ -1096,7 +1314,12 @@ BOOL	LLPreviewAnimation::render()
 
 	LLGLSUIDefault def;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
+
+	// background color
+    gGL.color4f(LLPipeline::PreviewBackgroundColor.mV[VRED],
+                LLPipeline::PreviewBackgroundColor.mV[VGREEN],
+                LLPipeline::PreviewBackgroundColor.mV[VBLUE],
+                LLPipeline::PreviewBackgroundColor.mV[VALPHA]);
 
 	gl_rect_2d_simple( mFullWidth, mFullHeight );
 
@@ -1110,7 +1333,7 @@ BOOL	LLPreviewAnimation::render()
 
 	LLVector3 target_pos = avatarp->mRoot->getWorldPosition();
 
-	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
+	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) *
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
 	LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
@@ -1153,8 +1376,8 @@ BOOL	LLPreviewAnimation::render()
 // requestUpdate()
 //-----------------------------------------------------------------------------
 void LLPreviewAnimation::requestUpdate()
-{ 
-	mNeedsUpdate = TRUE; 
+{
+	mNeedsUpdate = TRUE;
 }
 
 //-----------------------------------------------------------------------------

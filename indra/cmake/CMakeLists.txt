@@ -8,6 +8,7 @@ set(cmake_SOURCE_FILES
         CMakeLists.txt
         00-Common.cmake
         APR.cmake
+        Assimp.cmake
         Audio.cmake
         Boost.cmake
         bugsplat.cmake

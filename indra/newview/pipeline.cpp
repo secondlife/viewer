@@ -163,6 +163,7 @@ LLColor4 LLPipeline::RenderHighlightColor;
 F32 LLPipeline::RenderHighlightThickness;
 bool LLPipeline::RenderSpotLightsInNondeferred;
 LLColor4 LLPipeline::PreviewAmbientColor;
+LLColor4 LLPipeline::PreviewBackgroundColor;
 LLColor4 LLPipeline::PreviewDiffuse0;
 LLColor4 LLPipeline::PreviewSpecular0;
 LLColor4 LLPipeline::PreviewDiffuse1;
@@ -559,6 +560,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderHighlightThickness");
 	connectRefreshCachedSettingsSafe("RenderSpotLightsInNondeferred");
 	connectRefreshCachedSettingsSafe("PreviewAmbientColor");
+    connectRefreshCachedSettingsSafe("PreviewBackgroundColor");
 	connectRefreshCachedSettingsSafe("PreviewDiffuse0");
 	connectRefreshCachedSettingsSafe("PreviewSpecular0");
 	connectRefreshCachedSettingsSafe("PreviewDiffuse1");
@@ -1090,6 +1092,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderHighlightThickness = gSavedSettings.getF32("RenderHighlightThickness");
 	RenderSpotLightsInNondeferred = gSavedSettings.getBOOL("RenderSpotLightsInNondeferred");
 	PreviewAmbientColor = gSavedSettings.getColor4("PreviewAmbientColor");
+	PreviewBackgroundColor = gSavedSettings.getColor4("PreviewBackgroundColor");
 	PreviewDiffuse0 = gSavedSettings.getColor4("PreviewDiffuse0");
 	PreviewSpecular0 = gSavedSettings.getColor4("PreviewSpecular0");
 	PreviewDiffuse1 = gSavedSettings.getColor4("PreviewDiffuse1");

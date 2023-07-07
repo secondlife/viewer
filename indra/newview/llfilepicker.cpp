@@ -53,7 +53,7 @@ LLFilePicker LLFilePicker::sInstance;
 #if LL_WINDOWS
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
-#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
+#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.fbx)\0*.bvh;*.anim;*.fbx\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
 #define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"

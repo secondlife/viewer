@@ -37,6 +37,8 @@
 class LLVOAvatar;
 class LLViewerJointMesh;
 
+typedef std::map<std::string, std::string> joint_alias_map_t;
+
 class LLPreviewAnimation : public LLViewerDynamicTexture
 {
 protected:
@@ -73,19 +75,19 @@ class LLFloaterBvhPreview : public LLFloaterNameDesc
 public:
 	LLFloaterBvhPreview(const std::string& filename);
 	virtual ~LLFloaterBvhPreview();
-	
+
 	BOOL postBuild();
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	void onMouseCaptureLost();
 
 	void refresh();
 
 	void onBtnPlay();
-	void onBtnPause();	
+    void onBtnPause();
 	void onBtnStop();
 	void onSliderMove();
 	void onCommitBaseAnim();
@@ -98,35 +100,42 @@ public:
 	void onCommitHandPose();
 	void onCommitEmote();
 	void onCommitPriority();
+    void onCommitScale();
 	void onCommitEaseIn();
 	void onCommitEaseOut();
 	bool validateEaseIn(const LLSD& data);
 	bool validateEaseOut(const LLSD& data);
-	static void	onBtnOK(void*);
+    void onCommitDuration();
+    bool validateDuration(const LLSD &data);
+    void onCommitPercent();
+    bool validatePercent(const LLSD &data);
+    static void onBtnOK(void *);
 	static void onSaveComplete(const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
 									   void* user_data,
 									   S32 status, LLExtStat ext_status);
 private:
-	void setAnimCallbacks() ;
-    std::map <std::string, std::string> getJointAliases();
+	void        setAnimCallbacks() ;
+    const joint_alias_map_t & getAnimationJointAliases();
 
 
 protected:
 	void			draw();
 	void			resetMotion();
+	void			updateMotionTime();
 
 	LLPointer< LLPreviewAnimation > mAnimPreview;
 	S32					mLastMouseX;
 	S32					mLastMouseY;
 	LLButton*			mPlayButton;
-	LLButton*			mPauseButton;	
+    LLButton*			mPauseButton;
 	LLButton*			mStopButton;
 	LLRect				mPreviewRect;
 	LLRectf				mPreviewImageRect;
 	LLAssetID			mMotionID;
 	LLTransactionID		mTransactionID;
 	LLAnimPauseRequest	mPauseRequest;
+    F32					mOriginalDuration;
 
 	std::map<std::string, LLUUID>	mIDList;
 };
