@@ -186,58 +186,48 @@ jobs:
 
           ./build.sh
 
-          # Find artifacts
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
-            installer_name="$(basename $installer_path)"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            installer_path=$(find ./build-*/newview/ | grep '\.dmg')
-            installer_name="$(basename $installer_path)"
-          fi
-
-          echo "installer_path=$installer_path" >> $GITHUB_OUTPUT
-          echo "installer_name=$installer_name" >> $GITHUB_OUTPUT
+          # Each artifact is downloaded as a distinct .zip file. Multiple jobs
+          # (per the matrix above) writing the same filepath to the same
+          # artifact name will *overwrite* that file. Moreover, they can
+          # interfere with each other, causing the upload to fail.
+          # https://github.com/actions/upload-artifact#uploading-to-the-same-artifact
+          # Given the size of our installers, and the fact that we typically
+          # only want to download just one instead of a single zip containing
+          # several, generate a distinct artifact name for each installer.
+          # Since the matrix above can run multiple builds on the same
+          # platform, we must disambiguate on more than the platform name.
+          # If we were still running Windows 32-bit builds, we'd need to
+          # qualify the artifact with bit width.
+          # DEVELOPER_DIR="/Applications/Xcode_14.0.1.app/Contents/Developer"
+          # or the empty string, so this produces dev="Xcode_14.0.1" or ".".
+          dev="$(basename "$(dirname "$(dirname "$DEVELOPER_DIR")")" .app)"
+          artifact="$RUNNER_OS $dev"
+          # For empty DEVELOPER_DIR, dev is ".", so artifact can end up with
+          # appended " ." -- ditch that if present.
+          artifact="${artifact% .}"
+          echo "artifact=$artifact" >> $GITHUB_OUTPUT
 
       - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.build.outputs.installer_name }}
-          path: ${{ steps.build.outputs.installer_path }}
+          name: "${{ steps.build.outputs.artifact }} installer"
+          # emitted by build.sh, possibly multiple lines
+          path: |
+            ${{ steps.build.outputs.installer }}
+
+      # The other upload of nontrivial size is the symbol file. Use a distinct
+      # artifact for that too.
+      - name: Upload symbol file
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ steps.build.outputs.artifact }} symbols"
+          path: |
+            ${{ steps.build.outputs.symbolfile }}
 
       - name: Upload metadata
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.build.outputs.autobuild_package_name }}
-          path: ${{ steps.build.outputs.autobuild_package_path }}
-
-      - name: Upload version
-        uses: actions/upload-artifact@v3
-        with:
-          name: viewer_version.txt
-          path: ${{ steps.build.outputs.viewer_version_name }}
-
-      - name: Upload Doxygen Log
-        if: steps.build.outputs.doxygen_log_path
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build.outputs.doxygen_log_name }}
-          path: ${{ steps.build.outputs.doxygen_log_path }}
-
-      - name: Upload Doxygen Tarball
-        if: steps.build.outputs.doxygen_tarball_path
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build.outputs.doxygen_tarball_name }}
-          path: ${{ steps.build.outputs.doxygen_tarball_path }}
-
-      - name: Upload viewer package installers
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build.outputs.installer_name }}
-          path: ${{ steps.build.outputs.packages }}
-
-      - name: Upload symbol file
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build.outputs.symbolfile_name }}
-          path: ${{ steps.build.outputs.symbolfile_path }}
+          name: "${{ steps.build.outputs.artifact }} metadata"
+          # emitted by build.sh, possibly multiple lines
+          path: |
+            ${{ steps.build.outputs.metadata }}
