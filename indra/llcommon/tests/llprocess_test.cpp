@@ -30,6 +30,7 @@
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
+#include "lldir.h"
 #include "llsdutil.h"
 #include "llevents.h"
 #include "llstring.h"
@@ -151,8 +152,37 @@ struct PythonProcessLauncher
     /// Launch Python script; verify that it launched
     void launch()
     {
-        mPy = LLProcess::create(mParams);
-        tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
+        std::string logpath{ gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "apr.log") };
+#if LL_WINDOWS
+        _putenv_s("APR_LOG", logpath.c_str());
+#else
+        setenv("APR_LOG", logpath.c_str(), 1);
+#endif
+        try
+        {
+            mPy = LLProcess::create(mParams);
+            tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
+        }
+        catch (const tut::failure& err);
+        {
+            std::ifstream inf(logpath.c_str());
+            if (! inf.is_open())
+            {
+                LL_WARNS() << "Couldn't open '" << logpath << "'" << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS() << "==============================" << LL_ENDL;
+                LL_WARNS() << "From '" << logpath << "':" << LL_ENDL;
+                std::string line;
+                while (std::getline(line, inf))
+                {
+                    LL_WARNS() << line << LL_ENDL;
+                }
+                LL_WARNS() << "==============================" << LL_ENDL;
+            }
+            throw;
+        }
     }
 
     /// Run Python script and wait for it to complete.
