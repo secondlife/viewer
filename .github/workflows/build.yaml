@@ -19,9 +19,9 @@ jobs:
         exclude:
           - runner: windows-large
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
-          ## nat 2023-06-29: until we've resolved the !@#$%! Windows Python
-          ## permissions problem, don't even bother running Windows builds.
-          - runner: windows-large
+          ## nat 2023-07-07: trying to resolve the Windows Python permissions
+          ## problem; don't bother running Mac builds.
+          - runner: macos-12-xl
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}

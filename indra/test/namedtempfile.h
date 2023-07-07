@@ -84,12 +84,19 @@ protected:
                     const std::string_view& sfx)
     {
         // Create file in a temporary place.
+        // This variable is set by GitHub actions and is the recommended place
+        // to put temp files belonging to an actions job.
+        const char* RUNNER_TEMP = getenv("RUNNER_TEMP");
+        boost::filesystem::path tempdir{
+            // if RUNNER_TEMP is set and not empty
+            (RUNNER_TEMP && *RUNNER_TEMP)?
+            boost::filesystem::path(RUNNER_TEMP) : // use RUNNER_TEMP if available
+            boost::filesystem::temp_directory_path()}; // else canonical temp dir
         boost::filesystem::path tempname{
-            boost::filesystem::temp_directory_path() /
-            // unique_path() recommended template, but with underscores
-            // instead of hyphens: some use cases involve temporary Python
-            // scripts
-            stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx) };
+            // use filename template recommended by unique_path() doc, but
+            // with underscores instead of hyphens: some use cases involve
+            // temporary Python scripts
+            tempdir / stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx) };
         mPath = boost::filesystem::unique_path(tempname);
         boost::filesystem::ofstream out{ mPath };
 
