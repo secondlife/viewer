@@ -163,7 +163,7 @@ struct PythonProcessLauncher
             mPy = LLProcess::create(mParams);
             tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
         }
-        catch (const tut::failure& err)
+        catch (const tut::failure&)
         {
             std::ifstream inf(logpath.c_str());
             if (! inf.is_open())
