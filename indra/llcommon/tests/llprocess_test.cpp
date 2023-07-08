@@ -141,6 +141,15 @@ struct PythonProcessLauncher
         mScript("py", script)
     {
         auto PYTHON(LLStringUtil::getenv("PYTHON"));
+#if LL_WINDOWS
+        // Weirdly, on GitHub Windows runners, plain 'python' works much better
+        // than a full pathname.
+        const char* RUNNER_TEMP = getenv("RUNNER_TEMP");
+        if (RUNNER_TEMP && *RUNNER_TEMP)
+        {
+            PYTHON = "python";
+        }
+#endif
         tut::ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
 
         mParams.desc = desc + " script";
@@ -1013,7 +1022,9 @@ namespace tut
         set_test_name("get*Pipe() validation");
         PythonProcessLauncher py(get_test_name(),
             "from __future__ import print_function\n"
-            "print('this output is expected')\n");
+            "import sys\n"
+            "print('this output is expected')\n"
+            "print('run by', sys.executable)\n");
         py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for  stdin
         py.mParams.files.add(LLProcess::FileParam());       // inherit stdout
         py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for stderr

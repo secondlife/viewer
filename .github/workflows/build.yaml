@@ -177,11 +177,7 @@ jobs:
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            ##export PYTHON="$(native_path "$(which python)")"
-            ## Weirdly, on GitHub's Windows runners, the integration test that
-            ## runs just 'python' succeeds while the integration tests that
-            ## run the full path to the .exe fail with "Access is denied."
-            export PYTHON=python
+            export PYTHON="$(native_path "$(which python)")"
             echo "Python location: $PYTHON"
             export PYTHON_COMMAND="$PYTHON"
           else
