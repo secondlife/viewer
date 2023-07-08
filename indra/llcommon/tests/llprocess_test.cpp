@@ -151,10 +151,6 @@ struct PythonProcessLauncher
     /// Launch Python script; verify that it launched
     void launch()
     {
-        std::string logpath{ NamedTempFile::temp_path("apr", ".log").string() };
-#if LL_WINDOWS
-        _putenv_s("APR_LOG", logpath.c_str());
-#endif
         try
         {
             mPy = LLProcess::create(mParams);
@@ -162,21 +158,25 @@ struct PythonProcessLauncher
         }
         catch (const tut::failure&)
         {
-            std::ifstream inf(logpath.c_str());
-            if (! inf.is_open())
+            const char* APR_LOG = getenv("APR_LOG");
+            if (APR_LOG && *APR_LOG)
             {
-                LL_WARNS() << "Couldn't open '" << logpath << "'" << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS() << "==============================" << LL_ENDL;
-                LL_WARNS() << "From '" << logpath << "':" << LL_ENDL;
-                std::string line;
-                while (std::getline(inf, line))
+                std::ifstream inf(APR_LOG);
+                if (! inf.is_open())
                 {
-                    LL_WARNS() << line << LL_ENDL;
+                    LL_WARNS() << "Couldn't open '" << APR_LOG << "'" << LL_ENDL;
                 }
-                LL_WARNS() << "==============================" << LL_ENDL;
+                else
+                {
+                    LL_WARNS() << "==============================" << LL_ENDL;
+                    LL_WARNS() << "From '" << APR_LOG << "':" << LL_ENDL;
+                    std::string line;
+                    while (std::getline(inf, line))
+                    {
+                        LL_WARNS() << line << LL_ENDL;
+                    }
+                    LL_WARNS() << "==============================" << LL_ENDL;
+                }
             }
             throw;
         }

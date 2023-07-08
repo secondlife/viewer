@@ -24,6 +24,7 @@ jobs:
           - runner: macos-12-xl
     runs-on: ${{ matrix.runner }}
     env:
+      APR_LOG: "$RUNNER_TEMP/apr.log"
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
       # authorizes fetching private constituent packages
