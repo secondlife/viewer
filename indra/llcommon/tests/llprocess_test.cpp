@@ -175,7 +175,7 @@ struct PythonProcessLauncher
                 LL_WARNS() << "==============================" << LL_ENDL;
                 LL_WARNS() << "From '" << logpath << "':" << LL_ENDL;
                 std::string line;
-                while (std::getline(line, inf))
+                while (std::getline(inf, line))
                 {
                     LL_WARNS() << line << LL_ENDL;
                 }
