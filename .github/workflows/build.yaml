@@ -24,7 +24,6 @@ jobs:
           - runner: macos-12-xl
     runs-on: ${{ matrix.runner }}
     env:
-      APR_LOG: "${{ runner.temp }}/apr.log"
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
       # authorizes fetching private constituent packages
@@ -160,6 +159,7 @@ jobs:
           }
           export -f native_path shell_path finalize initialize_build initialize_version
           export -f python_cmd repo_branch record_dependencies_graph sleep
+          export APR_LOG="${RUNNER_TEMP}/apr.log"
           export arch=$(uname | cut -b-6)
           # Surprise! GH Windows runner's MINGW6 is a $arch value we've never
           # seen before, so numerous tests don't know about it.
