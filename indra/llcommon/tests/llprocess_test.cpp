@@ -30,7 +30,6 @@
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
-#include "../llfilesystem/lldir.h"
 #include "llsdutil.h"
 #include "llevents.h"
 #include "llstring.h"
@@ -152,11 +151,9 @@ struct PythonProcessLauncher
     /// Launch Python script; verify that it launched
     void launch()
     {
-        std::string logpath{ gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "apr.log") };
+        std::string logpath{ NamedTempFile::temp_path("apr", ".log").string() };
 #if LL_WINDOWS
         _putenv_s("APR_LOG", logpath.c_str());
-#else
-        setenv("APR_LOG", logpath.c_str(), 1);
 #endif
         try
         {
