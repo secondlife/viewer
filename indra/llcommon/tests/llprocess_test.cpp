@@ -591,7 +591,7 @@ namespace tut
                                  "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
-        ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
+        ensure_equals("os.getcwd()", py.run_read(), utf8str_tolower(tempdir.getName()));
     }
 
     template<> template<>
