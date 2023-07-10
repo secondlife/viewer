@@ -9213,6 +9213,26 @@ Paste failed. [REASON]
 
   <notification
    icon="alertmodal.tga"
+   name="FailedToApplyTextureNoCopyToMultiple"
+   type="alertmodal">
+Failed to apply texture. You can not apply a no-copy texture to multiple objects.
+   <usetemplate
+    name="okbutton"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedToApplyGLTFNoCopyToMultiple"
+   type="alertmodal">
+Failed to apply GLTF material. You can not apply a no-copy material to multiple objects.
+   <usetemplate
+    name="okbutton"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="FacePasteTexturePermissions"
    type="alertmodal">
     You applied a texture with limited permissions, object will inherit permissions from texture.

@@ -520,7 +520,11 @@ void LLPanelFace::sendTexture()
 		{
 			id = mTextureCtrl->getImageAssetID();
 		}
-		LLSelectMgr::getInstance()->selectionSetImage(id);
+        if (!LLSelectMgr::getInstance()->selectionSetImage(id))
+        {
+            // need to refresh value in texture ctrl
+            refresh();
+        }
 	}
 }
 
@@ -3032,7 +3036,11 @@ void LLPanelFace::onCommitPbr(const LLSD& data)
         {
             id = pbr_ctrl->getImageAssetID();
         }
-        LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id);
+        if (!LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
+        {
+            // If failed to set material, refresh pbr_ctrl's value
+            refresh();
+        }
     }
 }
 
@@ -3056,8 +3064,14 @@ void LLPanelFace::onSelectPbr(const LLSD& data)
         {
             id = pbr_ctrl->getImageAssetID();
         }
-        LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id);
-        LLSelectedTEMaterial::setMaterialID(this, id);
+        if (LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
+        {
+            LLSelectedTEMaterial::setMaterialID(this, id);
+        }
+        else
+        {
+            refresh();
+        }
     }
 }
 
