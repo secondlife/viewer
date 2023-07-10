@@ -193,20 +193,11 @@ namespace tut
                               reader.getName().substr(0, reader.getName().length()-3))),
             PYTHON(LLStringUtil::getenv("PYTHON"))
         {
-#if LL_WINDOWS
-            // Weirdly, on GitHub Windows runners, plain 'python' works much
-            // better than a full pathname.
-            const char* RUNNER_TEMP = getenv("RUNNER_TEMP");
-            if (RUNNER_TEMP && *RUNNER_TEMP)
-            {
-                PYTHON = "python";
-            }
-#endif
             ensure("Set PYTHON to interpreter pathname", !PYTHON.empty());
         }
         NamedExtTempFile reader;
         const std::string reader_module;
-        std::string PYTHON;
+        const std::string PYTHON;
     };
     typedef test_group<llleap_data> llleap_group;
     typedef llleap_group::object object;
