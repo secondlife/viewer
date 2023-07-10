@@ -51,11 +51,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>20efce94a857d97ba9b947bcf802136175815d5b</string>
+              <string>dc4a38439f90325b406ec3f7cc4fa66edf0eeec8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-4d6fcb2/apr_suite-1.7.2-4d6fcb2-darwin64-4d6fcb2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-darwin64-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -77,11 +77,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0421edc009fb19747bc8affaaeb6826f31e29909</string>
+              <string>abb48e031b4bbab5fa48d2872ef2db065f33d8ac</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-4d6fcb2/apr_suite-1.7.2-4d6fcb2-windows-4d6fcb2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -91,18 +91,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1fe8589dcaafa6bc3ea29a02617468e2d2a23c0</string>
+              <string>8233de9a11f323a03d569db1043ba5198176457b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-4d6fcb2/apr_suite-1.7.2-4d6fcb2-windows64-4d6fcb2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows64-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.2-4d6fcb2</string>
+        <string>1.7.2-e935465</string>
       </map>
       <key>boost</key>
       <map>
