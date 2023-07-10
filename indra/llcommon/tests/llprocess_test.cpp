@@ -158,6 +158,9 @@ struct PythonProcessLauncher
         }
         catch (const tut::failure&)
         {
+            // On Windows, if APR_LOG is set, our version of APR's
+            // apr_create_proc() logs to the specified file. If this test
+            // failed, try to report that log.
             const char* APR_LOG = getenv("APR_LOG");
             if (APR_LOG && *APR_LOG)
             {

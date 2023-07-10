@@ -159,7 +159,8 @@ jobs:
           }
           export -f native_path shell_path finalize initialize_build initialize_version
           export -f python_cmd repo_branch record_dependencies_graph sleep
-          export APR_LOG="${RUNNER_TEMP}/apr.log"
+          ## Useful for diagnosing Windows LLProcess/LLLeap test failures
+          ##export APR_LOG="${RUNNER_TEMP}/apr.log"
           export arch=$(uname | cut -b-6)
           # Surprise! GH Windows runner's MINGW6 is a $arch value we've never
           # seen before, so numerous tests don't know about it.
