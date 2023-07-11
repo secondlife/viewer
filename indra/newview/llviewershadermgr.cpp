@@ -898,11 +898,20 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 	
 	if (success)
 	{
-		gGlowExtractProgram.mName = "Glow Extract Shader (Post)";
+        const bool use_glow_noise = gSavedSettings.getBOOL("RenderGlowNoise");
+        const std::string glow_noise_label = use_glow_noise ? " (+Noise)" : "";
+
+		gGlowExtractProgram.mName = llformat("Glow Extract Shader (Post)%s", glow_noise_label.c_str());
 		gGlowExtractProgram.mShaderFiles.clear();
 		gGlowExtractProgram.mShaderFiles.push_back(make_pair("effects/glowExtractV.glsl", GL_VERTEX_SHADER));
 		gGlowExtractProgram.mShaderFiles.push_back(make_pair("effects/glowExtractF.glsl", GL_FRAGMENT_SHADER));
 		gGlowExtractProgram.mShaderLevel = mShaderLevel[SHADER_EFFECT];
+
+        if (use_glow_noise)
+        {
+            gGlowExtractProgram.addPermutation("HAS_NOISE", "1");
+        }
+
 		success = gGlowExtractProgram.createShader(NULL, NULL);
 		if (!success)
 		{

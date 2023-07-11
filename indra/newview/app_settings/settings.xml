@@ -10225,6 +10225,17 @@
       <key>Value</key>
       <real>1.3</real>
     </map>
+    <key>RenderGlowNoise</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables glow noise (dithering). Reduces banding from glow in certain cases.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>DisableAllRenderTypes</key>
     <map>
       <key>Comment</key>

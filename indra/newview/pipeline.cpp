@@ -157,6 +157,7 @@ S32 LLPipeline::RenderGlowResolutionPow;
 S32 LLPipeline::RenderGlowIterations;
 F32 LLPipeline::RenderGlowWidth;
 F32 LLPipeline::RenderGlowStrength;
+bool LLPipeline::RenderGlowNoise;
 bool LLPipeline::RenderDepthOfField;
 bool LLPipeline::RenderDepthOfFieldInEditMode;
 F32 LLPipeline::CameraFocusTransitionTime;
@@ -517,6 +518,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderGlowIterations");
 	connectRefreshCachedSettingsSafe("RenderGlowWidth");
 	connectRefreshCachedSettingsSafe("RenderGlowStrength");
+	connectRefreshCachedSettingsSafe("RenderGlowNoise");
 	connectRefreshCachedSettingsSafe("RenderDepthOfField");
 	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
 	connectRefreshCachedSettingsSafe("CameraFocusTransitionTime");
@@ -1007,6 +1009,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderGlowIterations = gSavedSettings.getS32("RenderGlowIterations");
 	RenderGlowWidth = gSavedSettings.getF32("RenderGlowWidth");
 	RenderGlowStrength = gSavedSettings.getF32("RenderGlowStrength");
+	RenderGlowNoise = gSavedSettings.getBOOL("RenderGlowNoise");
 	RenderDepthOfField = gSavedSettings.getBOOL("RenderDepthOfField");
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	CameraFocusTransitionTime = gSavedSettings.getF32("CameraFocusTransitionTime");
@@ -6885,6 +6888,19 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 		gGlowExtractProgram.uniform3f(LLShaderMgr::GLOW_WARMTH_WEIGHTS, warmthWeights.mV[0], warmthWeights.mV[1],
 			warmthWeights.mV[2]);
 		gGlowExtractProgram.uniform1f(LLShaderMgr::GLOW_WARMTH_AMOUNT, warmthAmount);
+
+        if (RenderGlowNoise)
+        {
+            S32 channel = gGlowExtractProgram.enableTexture(LLShaderMgr::GLOW_NOISE_MAP);
+            if (channel > -1)
+            {
+                gGL.getTexUnit(channel)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
+                gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+            }
+            gGlowExtractProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
+                                          mGlow[2].getWidth(),
+                                          mGlow[2].getHeight());
+        }
 
 		{
 			LLGLEnable blend_on(GL_BLEND);
