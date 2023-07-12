@@ -182,11 +182,15 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_gen
 	bool generation_skip = mMarkedDirtyGeneration >= 0
 		&& mPrevPassedAllFilters
 		&& mMarkedDirtyGeneration < mRootViewModel.getFilter().getFirstSuccessGeneration();
+    S32 last_generation = mLastFilterGeneration;
 	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
 	bool before = mPrevPassedAllFilters;
 	mPrevPassedAllFilters = passedFilter(filter_generation);
 
-	if (before != mPrevPassedAllFilters || generation_skip)
+	if (before != mPrevPassedAllFilters // Change of state
+        || generation_skip // Was marked dirty
+        // Potential change from being in-progress and invisible to visible)
+        || (mPrevPassedAllFilters && last_generation < mRootViewModel.getFilter().getFirstRequiredGeneration()))
 	{
 		// Need to rearrange the folder if the filtered state of the item changed,
 		// previously passed item skipped filter generation changes while being dirty

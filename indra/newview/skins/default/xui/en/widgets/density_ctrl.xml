@@ -13,6 +13,7 @@
      follows="left|top"
      height="11"
      layout="topleft"
+     name="exponential_term_label"
      left="15"
      top_pad="-5"
      width="120">
@@ -45,6 +46,7 @@ Exponential Term
      follows="left|top"
      height="11"
      layout="topleft"
+     name="exponential_scale_factor_label"
      left="15"
      top_pad="-5"
      width="120">
@@ -69,6 +71,7 @@ Exponential Scale Factor
      follows="left|top"
      height="11"
      layout="topleft"
+     name="linear_term_label"
      left="15"
      top_pad="-5"
      width="120">
@@ -93,6 +96,7 @@ Linear Term
      follows="left|top"
      height="11"
      layout="topleft"
+     name="constant_term_label"
      left="15"
      top_pad="-5"
      width="120">
@@ -117,6 +121,7 @@ Constant Term
      follows="left|top"
      height="11"
      layout="topleft"
+     name="max_altitude_label"
      left="15"
      top_pad="15"
      width="80">

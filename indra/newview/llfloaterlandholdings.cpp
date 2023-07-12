@@ -39,6 +39,7 @@
 #include "llfloaterworldmap.h"
 #include "llproductinforequest.h"
 #include "llscrolllistctrl.h"
+#include "llsdutil.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
 #include "llscrolllistctrl.h"
@@ -79,24 +80,25 @@ BOOL LLFloaterLandHoldings::postBuild()
 	for(S32 i = 0; i < count; ++i)
 	{
 		LLUUID id(gAgent.mGroups.at(i).mID);
-
-		LLSD element;
-		element["id"] = id;
-		element["columns"][0]["column"] = "group";
-		element["columns"][0]["value"] = gAgent.mGroups.at(i).mName;
-		element["columns"][0]["font"] = "SANSSERIF";
-
 		LLUIString areastr = getString("area_string");
 		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.at(i).mContribution));
-		element["columns"][1]["column"] = "area";
-		element["columns"][1]["value"] = areastr;
-		element["columns"][1]["font"] = "SANSSERIF";
 
-		grant_list->addElement(element);
+		grant_list->addElement(
+			llsd::map(
+				"id", id,
+				"columns", llsd::array(
+					llsd::map(
+						"column", "group",
+						"value", gAgent.mGroups.at(i).mName,
+						"font", "SANSSERIF"),
+					llsd::map(
+						"column", "area",
+						"value", areastr,
+						"font", "SANSSERIF"))));
 	}
-	
+
 	center();
-	
+
 	return TRUE;
 }
 
@@ -108,8 +110,8 @@ LLFloaterLandHoldings::~LLFloaterLandHoldings()
 
 void LLFloaterLandHoldings::onOpen(const LLSD& key)
 {
-    LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
-    list->clearRows();
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
+	list->clearRows();
 
 	// query_id null is known to be us
 	const LLUUID& query_id = LLUUID::null;

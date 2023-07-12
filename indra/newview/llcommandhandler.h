@@ -70,6 +70,8 @@ public:
 	};
 
     static const std::string NAV_TYPE_CLICKED;
+    static const std::string NAV_TYPE_EXTERNAL;
+    static const std::string NAV_TYPE_NAVIGATED;
 
 	LLCommandHandler(const char* command, EUntrustedAccess untrusted_access);
 		// Automatically registers object to get called when 

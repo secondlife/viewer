@@ -270,6 +270,7 @@
                                 word_wrap="true"/>
 
                         <layout_stack
+                                name="track_options_ls"
                                 follows="all"
                                 height="200"
                                 animate="false"
@@ -277,6 +278,7 @@
                                 left="0"
                                 orientation="horizontal">
                             <layout_panel
+                                    name="track_options_lp"
                                     border="false"
                                     bevel_style="in"
                                     auto_resize="false"
@@ -312,6 +314,7 @@
                                     
                             </layout_panel>
                             <layout_panel
+                                    name="track_progress_lp"
                                     border="false"
                                     bevel_style="in"
                                     auto_resize="false"
@@ -457,6 +460,7 @@
                                 </layout_stack>
                             </layout_panel>
                             <layout_panel
+                                    name="frames_lp"
                                     border="false"
                                     bevel_style="in"
                                     auto_resize="false"

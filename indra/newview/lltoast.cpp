@@ -220,7 +220,11 @@ void LLToast::hide()
 /*virtual*/
 void LLToast::setFocus(BOOL b)
 {
-    if (b && !hasFocus() && mPanel)
+    if (b
+        && !hasFocus()
+        && mPanel
+        && mWrapperPanel
+        && !mWrapperPanel->getChildList()->empty())
     {
         LLModalDialog::setFocus(TRUE);
         // mostly for buttons
@@ -416,15 +420,18 @@ void LLToast::setVisible(BOOL show)
 		//hide "hide" button in case toast was hidden without mouse_leave
 		if(mHideBtn)
 			mHideBtn->setVisible(show);
-	}
-	LLFloater::setVisible(show);
-	if(mPanel)
-	{
-		if(!mPanel->isDead())
-		{
-			mPanel->setVisible(show);
-		}
-	}
+    }
+    LLFloater::setVisible(show);
+    if (mPanel
+        && !mPanel->isDead()
+        && mWrapperPanel
+        && !mWrapperPanel->getChildList()->empty()
+        // LLInspectToast can take over, but LLToast still appears to act like a data storage
+        && mPanel->getParent() == mWrapperPanel
+        )
+    {
+        mPanel->setVisible(show);
+    }
 }
 
 void LLToast::updateHoveredState()

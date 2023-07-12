@@ -65,8 +65,6 @@ public:
 		bool user_waiting=FALSE,
 		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
 
-    void checkForTimeouts() override;
-
 protected:
 	void _queueDataRequest(const LLUUID& uuid,
 						   LLAssetType::EType type,
@@ -118,8 +116,6 @@ protected:
         LLGetAssetCallback mCallback;
         void *mUserData;
     };
-    typedef std::list<CoroWaitList> wait_list_t;
-    wait_list_t mCoroWaitList;
 
     std::string mViewerAssetUrl;
     S32 mCountRequests;

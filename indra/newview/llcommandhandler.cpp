@@ -40,6 +40,8 @@
 
 static LLCommandDispatcherListener sCommandDispatcherListener;
 const std::string LLCommandHandler::NAV_TYPE_CLICKED = "clicked";
+const std::string LLCommandHandler::NAV_TYPE_EXTERNAL = "external";
+const std::string LLCommandHandler::NAV_TYPE_NAVIGATED = "navigated";
 
 //---------------------------------------------------------------------------
 // Underlying registry for command handlers, not directly accessible.

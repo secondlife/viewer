@@ -1,146 +1,58 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="floaterland" title="LAND-INFO">
-	<floater.string name="maturity_icon_general">
-		&quot;Parcel_PG_Dark&quot;
-	</floater.string>
-	<floater.string name="maturity_icon_moderate">
-		&quot;Parcel_M_Dark&quot;
-	</floater.string>
-	<floater.string name="maturity_icon_adult">
-		&quot;Parcel_R_Dark&quot;
-	</floater.string>
-	<floater.string name="Hours">
-		[HOURS] Stunden
-	</floater.string>
-	<floater.string name="Hour">
-		Std.
-	</floater.string>
-	<floater.string name="Minutes">
-		[MINUTES] Min.
-	</floater.string>
-	<floater.string name="Minute">
-		Min.
-	</floater.string>
-	<floater.string name="Seconds">
-		[SECONDS] Sek.
-	</floater.string>
-	<floater.string name="Remaining">
-		Restzeit
-	</floater.string>
-	<floater.string name="Always">
-		Immer
-	</floater.string>
+	<floater.string name="maturity_icon_general">&quot;Parcel_PG_Dark&quot;</floater.string>
+	<floater.string name="maturity_icon_moderate">&quot;Parcel_M_Dark&quot;</floater.string>
+	<floater.string name="maturity_icon_adult">&quot;Parcel_R_Dark&quot;</floater.string>
+	<floater.string name="Hours">[HOURS] Stunden</floater.string>
+	<floater.string name="Hour">Std.</floater.string>
+	<floater.string name="Minutes">[MINUTES] Min.</floater.string>
+	<floater.string name="Minute">Min.</floater.string>
+	<floater.string name="Seconds">[SECONDS] Sek.</floater.string>
+	<floater.string name="Remaining">Restzeit</floater.string>
+	<floater.string name="Always">Immer</floater.string>
 	<tab_container name="landtab" tab_min_width="40">
 		<panel label="ALLGEMEIN" name="land_general_panel">
-			<panel.string name="new users only">
-				Nur neue Benutzer
-			</panel.string>
-			<panel.string name="anyone">
-				Jeder
-			</panel.string>
-			<panel.string name="area_text">
-				Gebiet:
-			</panel.string>
-			<panel.string name="area_size_text">
-				[AREA] m².
-			</panel.string>
-			<panel.string name="auction_id_text">
-				Auktions-ID: [ID]
-			</panel.string>
-			<panel.string name="need_tier_to_modify">
-				Bestätigen Sie den Kauf, um dieses Land zu bearbeiten.
-			</panel.string>
-			<panel.string name="group_owned_text">
-				(In Gruppenbesitz)
-			</panel.string>
-			<panel.string name="profile_text">
-				Profil
-			</panel.string>
-			<panel.string name="info_text">
-				Info
-			</panel.string>
-			<panel.string name="public_text">
-				(öffentlich)
-			</panel.string>
-			<panel.string name="none_text">
-				(keiner)
-			</panel.string>
-			<panel.string name="sale_pending_text">
-				(Wird verkauft)
-			</panel.string>
-			<panel.string name="no_selection_text">
-				Keine Parzelle ausgewählt.
-			</panel.string>
-			<panel.string name="time_stamp_template">
-				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-			</panel.string>
-			<text name="Name:">
-				Name:
-			</text>
-			<text name="Description:">
-				Beschreibung:
-			</text>
-			<text name="LandType">
-				Typ:
-			</text>
-			<text name="LandTypeText">
-				Mainland / Homestead
-			</text>
-			<text name="ContentRating">
-				Einstufung:
-			</text>
-			<text name="ContentRatingText">
-				Adult
-			</text>
-			<text name="Owner:">
-				Eigentümer:
-			</text>
-			<text name="Group:">
-				Gruppe:
-			</text>
+			<panel.string name="new users only">Nur neue Benutzer</panel.string>
+			<panel.string name="anyone">Jeder</panel.string>
+			<panel.string name="area_text">Gebiet:</panel.string>
+			<panel.string name="area_size_text">[AREA] m².</panel.string>
+			<panel.string name="auction_id_text">Auktions-ID: [ID]</panel.string>
+			<panel.string name="need_tier_to_modify">Bestätigen Sie den Kauf, um dieses Land zu bearbeiten.</panel.string>
+			<panel.string name="group_owned_text">(In Gruppenbesitz)</panel.string>
+			<panel.string name="profile_text">Profil</panel.string>
+			<panel.string name="info_text">Info</panel.string>
+			<panel.string name="public_text">(öffentlich)</panel.string>
+			<panel.string name="none_text">(keiner)</panel.string>
+			<panel.string name="sale_pending_text">(Wird verkauft)</panel.string>
+			<panel.string name="no_selection_text">Keine Parzelle ausgewählt.</panel.string>
+			<panel.string name="time_stamp_template">[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]</panel.string>
+			<text name="Name:">Name:</text>
+			<text name="Description:">Beschreibung:</text>
+			<text name="LandType">Typ:</text>
+			<text name="LandTypeText">Mainland / Homestead</text>
+			<text name="ContentRating">Einstufung:</text>
+			<text name="ContentRatingText">Adult</text>
+			<text name="Owner:">Eigentümer:</text>
+			<text name="Group:">Gruppe:</text>
 			<button label="Festlegen" label_selected="Einstellen..." name="Set..." width="90"/>
 			<check_box label="Übertragung an Gruppe zulassen" name="check deed" tool_tip="Ein Gruppen-Officer kann dieses Land der Gruppe übertragen. Das Land wird dann über die Landzuteilung der Gruppe verwaltet."/>
 			<button label="Übertragung" label_selected="Übertragen..." name="Deed..." tool_tip="Sie können Land nur übertragen, wenn Sie in der ausgewählten Gruppe Officer sind."/>
 			<check_box label="Eigentümer leistet Beitrag durch Übertragung" name="check contrib" tool_tip="Wenn das Land an die Gruppe übertragen wird, trägt der frühere Eigentümer ausreichend Landnutzungsrechte bei, um es zu halten."/>
-			<text name="For Sale:">
-				Zum Verkauf:
-			</text>
-			<text name="Not for sale.">
-				Nicht zu verkaufen
-			</text>
-			<text name="For Sale: Price L$[PRICE].">
-				Preis: [PRICE] L$ ([PRICE_PER_SQM]L$/m²)
-			</text>
+			<text name="For Sale:">Zum Verkauf:</text>
+			<text name="Not for sale.">Nicht zu verkaufen</text>
+			<text name="For Sale: Price L$[PRICE].">Preis: [PRICE] L$ ([PRICE_PER_SQM]L$/m²)</text>
 			<text name="SalePending"/>
 			<button label="Land verkaufen" label_selected="Land verkaufen..." name="Sell Land..."/>
-			<text name="For sale to">
-				Zum Verkauf an: [BUYER]
-			</text>
-			<text name="Sell with landowners objects in parcel.">
-				Objekte sind im Verkauf eingeschlossen
-			</text>
-			<text name="Selling with no objects in parcel.">
-				Objekte sind im Verkauf nicht eingeschlossen
-			</text>
+			<text name="For sale to">Zum Verkauf an: [BUYER]</text>
+			<text name="Sell with landowners objects in parcel.">Objekte sind im Verkauf eingeschlossen</text>
+			<text name="Selling with no objects in parcel.">Objekte sind im Verkauf nicht eingeschlossen</text>
 			<button label="Landverkauf abbrechen" label_selected="Landverkauf abbrechen" name="Cancel Land Sale"/>
-			<text name="Claimed:">
-				Gekauft am:
-			</text>
-			<text name="DateClaimText">
-				Dienstag, 15. Aug. 2006, 13:47:25
-			</text>
-			<text name="PriceLabel">
-				Gebiet:
-			</text>
-			<text name="PriceText">
-				4.048 m²
-			</text>
-			<text name="Traffic:">
-				Traffic:
-			</text>
-			<text name="DwellText">
-				Laden...
-			</text>
+			<text name="Claimed:">Gekauft am:</text>
+			<text name="DateClaimText">Dienstag, 15. Aug. 2006, 13:47:25</text>
+			<text name="PriceLabel">Gebiet:</text>
+			<text name="PriceText">4.048 m²</text>
+			<text name="Traffic:">Traffic:</text>
+			<text name="DwellText">Laden...</text>
 			<button label="Land kaufen" label_selected="Land kaufen..." name="Buy Land..."/>
 			<button label="Linden-Verkauf" label_selected="Linden-Verkauf..." name="Linden Sale..." tool_tip="Land muss Eigentum und auf Inhalt gesetzt sein und nicht zur Auktion stehen."/>
 			<button label="Skriptinfo" name="Scripts..."/>
@@ -150,133 +62,55 @@
 			<button label="Land in Besitz nehmen" label_selected="Land in Besitz nehmen..." name="Reclaim Land..."/>
 		</panel>
 		<panel label="VERTRAG" name="land_covenant_panel">
-			<panel.string name="can_resell">
-				Gekauftes Land in dieser Region kann wiederverkauft werden.
-			</panel.string>
-			<panel.string name="can_not_resell">
-				Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
-			</panel.string>
-			<panel.string name="can_change">
-				Gekauftes Land in dieser Region kann zusammengelegt und geteilt werden.
-			</panel.string>
-			<panel.string name="can_not_change">
-				Gekauftes Land in dieser Region kann nicht zusammengelegt und geteilt werden.
-			</panel.string>
-			<text name="estate_section_lbl">
-				Grundbesitz:
-			</text>
-			<text name="estate_name_text">
-				Mainland
-			</text>
-			<text name="estate_owner_lbl">
-				Eigentümer:
-			</text>
-			<text name="estate_owner_text">
-				(keiner)
-			</text>
-			<text_editor name="covenant_editor">
-				Für diesen Grundbesitz fehlt der Vertrag.
-			</text_editor>
-			<text name="covenant_timestamp_text">
-				Letzte Änderung am Mittwoch, den 31. Dez. 1969, 16:00:00
-			</text>
-			<text name="region_section_lbl">
-				Region:
-			</text>
-			<text name="region_name_text">
-				EricaVille
-			</text>
-			<text name="region_landtype_lbl">
-				Typ:
-			</text>
-			<text name="region_landtype_text">
-				Mainland / Homestead
-			</text>
-			<text name="region_maturity_lbl">
-				Einstufung:
-			</text>
-			<text name="region_maturity_text">
-				Adult
-			</text>
-			<text name="resellable_lbl">
-				Wiederverkauf:
-			</text>
-			<text name="resellable_clause">
-				Land in dieser Region kann nicht wiederverkauft werden.
-			</text>
-			<text name="changeable_lbl">
-				Unterteilen:
-			</text>
-			<text name="changeable_clause">
-				Land in dieser Region kann nicht zusammengelegt/geteilt
-werden.
-			</text>
+			<panel.string name="can_resell">Gekauftes Land in dieser Region kann wiederverkauft werden.</panel.string>
+			<panel.string name="can_not_resell">Gekauftes Land in dieser Region kann nicht wiederverkauft werden.</panel.string>
+			<panel.string name="can_change">Gekauftes Land in dieser Region kann zusammengelegt und geteilt werden.</panel.string>
+			<panel.string name="can_not_change">Gekauftes Land in dieser Region kann nicht zusammengelegt und geteilt werden.</panel.string>
+			<text name="estate_section_lbl">Grundbesitz:</text>
+			<text name="estate_name_text">Mainland</text>
+			<text name="estate_owner_lbl">Eigentümer:</text>
+			<text name="estate_owner_text">(keiner)</text>
+			<text_editor name="covenant_editor">Für diesen Grundbesitz fehlt der Vertrag.</text_editor>
+			<text name="covenant_timestamp_text">Letzte Änderung am Mittwoch, den 31. Dez. 1969, 16:00:00</text>
+			<text name="region_section_lbl">Region:</text>
+			<text name="region_name_text">EricaVille</text>
+			<text name="region_landtype_lbl">Typ:</text>
+			<text name="region_landtype_text">Mainland / Homestead</text>
+			<text name="region_maturity_lbl">Einstufung:</text>
+			<text name="region_maturity_text">Adult</text>
+			<text name="resellable_lbl">Wiederverkauf:</text>
+			<text name="resellable_clause">Land in dieser Region kann nicht wiederverkauft werden.</text>
+			<text name="changeable_lbl">Unterteilen:</text>
+			<text name="changeable_clause">Land in dieser Region kann nicht zusammengelegt/geteilt
+werden.</text>
 		</panel>
 		<panel label="OBJEKTE" name="land_objects_panel">
-			<panel.string name="objects_available_text">
-				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
-			</panel.string>
-			<panel.string name="objects_deleted_text">
-				[COUNT] von [MAX] ([DELETED] werden gelöscht)
-			</panel.string>
-			<text name="parcel_object_bonus">
-				Objektbonusfaktor in Region: [BONUS]
-			</text>
-			<text name="Simulator primitive usage:">
-				Regionskapazität:
-			</text>
-			<text name="objects_available">
-				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
-			</text>
-			<text name="Primitives parcel supports:">
-				Parzellenlandkapazität:
-			</text>
-			<text name="object_contrib_text">
-				[COUNT]
-			</text>
-			<text name="Primitives on parcel:">
-				Parzellenlandauswirkung:
-			</text>
-			<text name="total_objects_text">
-				[COUNT]
-			</text>
-			<text name="Owned by parcel owner:" width="200">
-				Im Eigentum des Parzellenbesitzers:
-			</text>
-			<text left_delta="204" name="owner_objects_text">
-				[COUNT]
-			</text>
+			<panel.string name="objects_available_text">[COUNT] von [MAX] ([AVAILABLE] verfügbar)</panel.string>
+			<panel.string name="objects_deleted_text">[COUNT] von [MAX] ([DELETED] werden gelöscht)</panel.string>
+			<text name="parcel_object_bonus">Objektbonusfaktor in Region: [BONUS]</text>
+			<text name="Simulator primitive usage:">Regionskapazität:</text>
+			<text name="objects_available">[COUNT] von [MAX] ([AVAILABLE] verfügbar)</text>
+			<text name="Primitives parcel supports:">Parzellenlandkapazität:</text>
+			<text name="object_contrib_text">[COUNT]</text>
+			<text name="Primitives on parcel:">Parzellenlandauswirkung:</text>
+			<text name="total_objects_text">[COUNT]</text>
+			<text name="Owned by parcel owner:" width="200">Im Eigentum des Parzellenbesitzers:</text>
+			<text left_delta="204" name="owner_objects_text">[COUNT]</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOwner"/>
 			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOwner..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
-			<text name="Set to group:">
-				Der Gruppe zugeordnet:
-			</text>
-			<text name="group_objects_text">
-				[COUNT]
-			</text>
+			<text name="Set to group:">Der Gruppe zugeordnet:</text>
+			<text name="group_objects_text">[COUNT]</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowGroup"/>
 			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnGroup..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
-			<text name="Owned by others:">
-				Im Eigentum anderer:
-			</text>
-			<text name="other_objects_text">
-				[COUNT]
-			</text>
+			<text name="Owned by others:">Im Eigentum anderer:</text>
+			<text name="other_objects_text">[COUNT]</text>
 			<button label="Anzeigen" label_selected="Anzeigen" name="ShowOther"/>
 			<button label="Zurückgeben" label_selected="Zurückgeben..." name="ReturnOther..." tool_tip="Objekte an ihre Eigentümer zurückgeben."/>
-			<text name="Selected / sat upon:">
-				Ausgewählt/gesessen auf:
-			</text>
-			<text name="selected_objects_text">
-				[COUNT]
-			</text>
-			<text name="Autoreturn">
-				Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):
-			</text>
+			<text name="Selected / sat upon:">Ausgewählt/gesessen auf:</text>
+			<text name="selected_objects_text">[COUNT]</text>
+			<text name="Autoreturn">Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):</text>
 			<line_editor name="clean other time"/>
-			<text name="Object Owners:">
-				Objekteigentümer:
-			</text>
+			<text name="Object Owners:">Objekteigentümer:</text>
 			<button label="Liste aktualisieren" label_selected="Liste aktualisieren" name="Refresh List" tool_tip="Objektliste aktualisieren"/>
 			<button label="Objekte zurückgeben" label_selected="Objekte zurückgeben..." name="Return objects..."/>
 			<name_list name="owner list">
@@ -287,57 +121,27 @@ werden.
 			</name_list>
 		</panel>
 		<panel label="OPTIONEN" name="land_options_panel">
-			<panel.string name="search_enabled_tooltip">
-				Diese Parzelle in Suchergebnissen anzeigen.
-			</panel.string>
-			<panel.string name="search_disabled_small_tooltip">
-				Diese Option ist nicht aktiviert, weil die Parzelle 128 m² oder kleiner ist.
-Nur große Parzellen können in der Suche aufgeführt werden.
-			</panel.string>
-			<panel.string name="search_disabled_permissions_tooltip">
-				Diese Option ist nicht aktiviert, da Sie die Parzellenoptionen nicht verändern können.
-			</panel.string>
-			<panel.string name="mature_check_mature">
-				Moderater Inhalt
-			</panel.string>
-			<panel.string name="mature_check_adult">
-				Adult-Inhalt
-			</panel.string>
-			<panel.string name="mature_check_mature_tooltip">
-				Die Informationen oder Inhalte Ihrer Parzelle sind „Moderat“.
-			</panel.string>
-			<panel.string name="mature_check_adult_tooltip">
-				Die Informationen oder Inhalte Ihrer Parzelle sind „Adult“.
-			</panel.string>
-			<panel.string name="landing_point_none">
-				(keiner)
-			</panel.string>
-			<panel.string name="push_restrict_text">
-				Kein Stoßen
-			</panel.string>
-			<panel.string name="push_restrict_region_text">
-				Kein Stoßen (regional)
-			</panel.string>
-			<text name="allow_label">
-				Anderen Einwohnern gestatten:
-			</text>
-			<text name="allow_label0">
-				Fliegen:
-			</text>
+			<panel.string name="search_enabled_tooltip">Diese Parzelle in Suchergebnissen anzeigen.</panel.string>
+			<panel.string name="search_disabled_small_tooltip">Diese Option ist nicht aktiviert, weil die Parzelle 128 m² oder kleiner ist.
+Nur große Parzellen können in der Suche aufgeführt werden.</panel.string>
+			<panel.string name="search_disabled_permissions_tooltip">Diese Option ist nicht aktiviert, da Sie die Parzellenoptionen nicht verändern können.</panel.string>
+			<panel.string name="mature_check_mature">Moderater Inhalt</panel.string>
+			<panel.string name="mature_check_adult">Adult-Inhalt</panel.string>
+			<panel.string name="mature_check_mature_tooltip">Die Informationen oder Inhalte Ihrer Parzelle sind „Moderat“.</panel.string>
+			<panel.string name="mature_check_adult_tooltip">Die Informationen oder Inhalte Ihrer Parzelle sind „Adult“.</panel.string>
+			<panel.string name="landing_point_none">(keiner)</panel.string>
+			<panel.string name="push_restrict_text">Kein Stoßen</panel.string>
+			<panel.string name="push_restrict_region_text">Kein Stoßen (regional)</panel.string>
+			<text name="allow_label">Anderen Einwohnern gestatten:</text>
+			<text name="allow_label0">Fliegen:</text>
 			<check_box label="Jeder" name="check fly" tool_tip="Falls aktiviert, können Einwohner auf Ihrem Land fliegen. Falls nicht aktiviert, können Einwohner lediglich auf Ihr Land fliegen und dort landen (dann jedoch nicht wieder weiterfliegen) oder über Ihr Land hinweg fliegen."/>
-			<text name="allow_label2">
-				Bauen:
-			</text>
+			<text name="allow_label2">Bauen:</text>
 			<check_box label="Jeder" name="edit objects check" tool_tip="Wenn aktiviert, können Einwohner auf Ihrem Land Objekte erstellen und rezzen."/>
 			<check_box label="Gruppe" name="edit group objects check" tool_tip="Wenn aktiviert, können Parzellengruppen-Mitglieder auf Ihrem Land Objekte erstellen und rezzen."/>
-			<text name="allow_label3">
-				Objekteintritt:
-			</text>
+			<text name="allow_label3">Objekteintritt:</text>
 			<check_box label="Jeder" name="all object entry check" tool_tip="Wenn aktiviert, können Einwohner bestehende Objekte von anderen Parzellen auf diese Parzelle verschieben."/>
 			<check_box label="Gruppe" name="group object entry check" tool_tip="Wenn aktiviert, können Parzellengruppen-Mitglieder bestehende Objekte von anderen Parzellen auf diese Parzelle verschieben."/>
-			<text name="allow_label4">
-				Skripts ausführen:
-			</text>
+			<text name="allow_label4">Skripts ausführen:</text>
 			<check_box label="Jeder" name="check other scripts" tool_tip="Wenn aktiviert, können Einwohner auf Ihrer Parzelle Skripte inklusive Anhängen ausführen."/>
 			<check_box label="Gruppe" name="check group scripts" tool_tip="Wenn aktiviert, können Parzellengruppen-Mitglieder auf Ihrer Parzelle Skripte inklusive Anhängen ausführen."/>
 			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Ansonsten sind Kampfschäden aktiviert."/>
@@ -359,22 +163,14 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				<combo_box.item label="Sonstige" name="item12"/>
 			</combo_box>
 			<check_box label="Moderater Inhalt" name="MatureCheck" tool_tip=""/>
-			<text name="Snapshot:">
-				Foto:
-			</text>
+			<text name="Snapshot:">Foto:</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
-			<text name="allow_see_label">
-				Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten.
-			</text>
+			<text name="allow_see_label">Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten.</text>
 			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Avataren auf anderen Parzellen, Avatare auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Avatare auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
-			<text name="landing_point">
-				Landepunkt: [LANDING]
-			</text>
+			<text name="landing_point">Landepunkt: [LANDING]</text>
 			<button label="Festlegen" label_selected="Festlegen" name="Set" tool_tip="Legt Ihren Standort als Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
 			<button label="Löschen" label_selected="Löschen" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
-			<text name="Teleport Routing: ">
-				Teleport-Route:
-			</text>
+			<text name="Teleport Routing: ">Teleport-Route:</text>
 			<combo_box name="landing type" tool_tip="Teleport-Route -- festlegen, wie Teleports auf Ihrem Land gehandhabt werden sollen">
 				<combo_box.item label="Blockiert" name="Blocked"/>
 				<combo_box.item label="Landepunkt" name="LandingPoint"/>
@@ -382,66 +178,38 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</combo_box>
 		</panel>
 		<panel label="MEDIEN" name="land_media_panel">
-			<text name="with media:">
-				Typ:
-			</text>
+			<text name="with media:">Typ:</text>
 			<combo_box name="media type" tool_tip="Geben Sie einen URL für den Film, die Webseite oder ein anderes Medium ein"/>
-			<text name="at URL:">
-				Homepage:
-			</text>
+			<text name="at URL:">Homepage:</text>
 			<button label="Festlegen" name="set_media_url"/>
-			<text name="Description:">
-				Inhalt:
-			</text>
+			<text name="Description:">Inhalt:</text>
 			<line_editor name="url_description" tool_tip="Text, der neben der Abspielen/Laden-Schaltfläche angezeigt wird"/>
-			<text name="Media texture:">
-				Textur ersetzen:
-			</text>
+			<text name="Media texture:">Textur ersetzen:</text>
 			<texture_picker label="" name="media texture" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
-			<text name="replace_texture_help">
-				Objekte, die diese Textur verwenden, werden den Film oder die Webseite anzeigen, nachdem Sie auf den Pfeil (Wiedergabe) klicken.  Wählen Sie das kleine Bild aus, um eine andere Textur auszuwählen.
-			</text>
+			<text name="replace_texture_help">Objekte, die diese Textur verwenden, werden den Film oder die Webseite anzeigen, nachdem Sie auf den Pfeil (Wiedergabe) klicken.  Wählen Sie das kleine Bild aus, um eine andere Textur auszuwählen.</text>
 			<check_box label="Automatisch skalieren" name="media_auto_scale" tool_tip="Aktivieren Sie diese Option, um den Inhalt für diese Parzelle automatisch zu skalieren. Dies ist eventuell langsamer und die Qualität ist schlechter, aber Sie müssen keine weitere Texturskalierung oder -anpassung vornehmen."/>
-			<text name="media_size" tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen.">
-				Größe:
-			</text>
+			<text name="media_size" tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen.">Größe:</text>
 			<spinner name="media_size_width" tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen."/>
 			<spinner name="media_size_height" tool_tip="Darstellungsgröße von Webmedien, für Standard bei 0 belassen."/>
-			<text name="pixels">
-				Pixel
-			</text>
-			<text name="Options:">
-				Optionen:
-			</text>
+			<text name="pixels">Pixel</text>
+			<text name="Options:">Optionen:</text>
 			<check_box label="Schleife" name="media_loop" tool_tip="Spielt das Medium in einer Schleife ab.  Der Abspielvorgang wird immer wieder von vorne fortgesetzt."/>
 		</panel>
 		<panel label="SOUND" name="land_audio_panel">
-			<text name="MusicURL:">
-				Musik-URL:
-			</text>
-			<text name="Sound:">
-				Sound:
-			</text>
+			<text name="MusicURL:">Musik-URL:</text>
+			<text name="Sound:">Sound:</text>
 			<check_box label="Gesten- und Objektgeräusche auf diese Parzelle beschränken" name="check sound local"/>
-			<text name="Avatar Sounds:">
-				Avatarsounds:
-			</text>
+			<text name="Avatar Sounds:">Avatarsounds:</text>
 			<check_box label="Jeder" name="all av sound check"/>
 			<check_box label="Gruppe" name="group av sound check"/>
-			<text name="Voice settings:">
-				Voice:
-			</text>
+			<text name="Voice settings:">Voice:</text>
 			<check_box label="Voice aktivieren" name="parcel_enable_voice_channel"/>
 			<check_box label="Voice aktivieren (vom Grundbesitz eingerichtet)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Voice auf diese Parzelle beschränken" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ZUGANG" name="land_access_panel">
-			<panel.string name="access_estate_defined">
-				(Durch Grundbesitz festgelegt)
-			</panel.string>
-			<panel.string name="estate_override">
-				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene
-			</panel.string>
+			<panel.string name="access_estate_defined">(Durch Grundbesitz festgelegt)</panel.string>
+			<panel.string name="estate_override">Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene</panel.string>
 			<check_box label="Alle Besucher sind zugelassen" tool_tip="Bei Deaktivierung dieser Option werden Bannlinien generiert" name="public_access"/>
 			<check_box label="Muss 18+ sein [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diese Parzelle betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
 			<check_box label="Muss über Zahlungsinfo in Datei [ESTATE_PAYMENT_LIMIT] verfügen" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
@@ -453,21 +221,15 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</combo_box>
 			<spinner label="Preis in L$:" name="PriceSpin"/>
 			<spinner label="Online-Zeit:" name="HoursSpin"/>
-			<text name="OwnerLimited">
-				(Der Grundbesitzer kann diese Auswahl eingeschränkt haben)
-			</text>
+			<text name="OwnerLimited">(Der Grundbesitzer kann diese Auswahl eingeschränkt haben)</text>
 			<panel name="Allowed_layout_panel">
-				<text label="Immer erlauben" name="AllowedText">
-					Immer zulässig ([COUNT], max. [MAX])
-				</text>
+				<text label="Immer erlauben" name="AllowedText">Immer zulässig ([COUNT], max. [MAX])</text>
 				<name_list name="AccessList" tool_tip="([LISTED] aufgeführt, [MAX] max)"/>
 				<button label="Hinzufügen" name="add_allowed"/>
 				<button label="Entfernen" label_selected="Entfernen" name="remove_allowed"/>
 			</panel>
 			<panel name="Banned_layout_panel">
-				<text label="Verbannen" name="BanCheck">
-					Verbannt ([COUNT], max. [MAX])
-				</text>
+				<text label="Verbannen" name="BanCheck">Verbannt ([COUNT], max. [MAX])</text>
 				<name_list name="BannedList" tool_tip="([LISTED] aufgeführt, [MAX] max)">
 					<columns label="Name" name="name"/>
 					<columns label="Dauer" name="duration"/>
@@ -477,5 +239,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel>
 		</panel>
 		<panel label="ERLEBNISSE" name="land_experiences_panel"/>
+		<panel name="land_environment_panel" label="UMGEBUNG"/>
 	</tab_container>
 </floater>

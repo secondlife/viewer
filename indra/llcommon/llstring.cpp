@@ -141,7 +141,7 @@ std::string rawstr_to_utf8(const std::string& raw)
 	return wstring_to_utf8str(wstr);
 }
 
-S32 wchar_to_utf8chars(llwchar in_char, char* outchars)
+std::ptrdiff_t wchar_to_utf8chars(llwchar in_char, char* outchars)
 {
 	U32 cur_char = (U32)in_char;
 	char* base = outchars;
@@ -192,7 +192,7 @@ S32 wchar_to_utf8chars(llwchar in_char, char* outchars)
 	return outchars - base;
 }	
 
-S32 utf16chars_to_wchar(const U16* inchars, llwchar* outchar)
+auto utf16chars_to_wchar(const U16* inchars, llwchar* outchar)
 {
 	const U16* base = inchars;
 	U16 cur_char = *inchars++;
@@ -310,7 +310,7 @@ S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wle
 // and whose equivalent utf-16 string does not exceeds the given utf16_length.
 S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, BOOL *unaligned)
 {
-	const S32 end = wstr.length();
+	const auto end = wstr.length();
 	BOOL u = FALSE;
 	S32 n = woffset + utf16_length;
 	S32 i = woffset;
@@ -426,7 +426,7 @@ LLWString utf8str_to_wstring(const char* utf8str, size_t len)
 			}
 
 			// Check that this character doesn't go past the end of the string
-			S32 end = (len < (i + cont_bytes)) ? len : (i + cont_bytes);
+			auto end = (len < (i + cont_bytes)) ? len : (i + cont_bytes);
 			do
 			{
 				++i;
@@ -471,7 +471,7 @@ std::string wstring_to_utf8str(const llwchar* utf32str, size_t len)
 	while (i < len)
 	{
 		char tchars[8];		/* Flawfinder: ignore */
-		S32 n = wchar_to_utf8chars(utf32str[i], tchars);
+		auto n = wchar_to_utf8chars(utf32str[i], tchars);
 		tchars[n] = 0;
 		out += tchars;
 		i++;

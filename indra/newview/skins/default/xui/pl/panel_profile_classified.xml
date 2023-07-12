@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_profile_classified">
+	<panel.string name="type_mature">
+		Treść Moderate
+	</panel.string>
+	<panel.string name="type_pg">
+		Treść General
+	</panel.string>
+	<panel.string name="l$_price">
+		[PRICE]L$
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] teleport, [MAP] mapa, [PROFILE] profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Włączone
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Wyłączone
+	</panel.string>
+	<panel.string name="location_notice">
+		(zaktualizuje się po zapisaniu)
+	</panel.string>
+	<string name="publish_label">
+		Publikuj
+	</string>
+	<string name="save_label">
+		Zapisz
+	</string>
+	<layout_stack name="main_classifieds_stack">
+		<layout_panel name="scroll_layout_panel">
+			<scroll_container name="profile_scroll">
+				<panel name="info_scroll_content_panel">
+					<icon name="edit_icon" tool_tip="Kliknij by wybrać obraz" />
+					<layout_stack name="info_panel">
+						<layout_panel name="main_info_panel">
+							<text name="classified_location_label" value="Lokalizacja:" />
+							<text name="content_type_label" value="Zawartość:" />
+							<text name="category_label" value="Kategoria:" />
+							<text name="creation_date_label" value="Utworzono:" />
+							<text_editor name="creation_date" tool_tip="Data utworzenia" />
+							<text name="price_for_listing_label" value="Koszt listowania:" />
+							<text_editor name="price_for_listing" tool_tip="Koszt listowania reklamy." />
+						</layout_panel>
+						<layout_panel name="clickthrough_layout_panel">
+							<text name="click_through_label" value="Kliki:" />
+							<text_editor name="click_through_text" tool_tip="Dane dotyczące przeklików" />
+						</layout_panel>
+						<layout_panel name="auto_renew_layout_panel">
+							<text name="auto_renew_label" value="Autoodnawianie:" />
+							<text name="auto_renew" value="Włączone" />
+						</layout_panel>
+						<layout_panel name="descr_layout_panel">
+							<text name="classified_desc_label" value="Opis:" />
+						</layout_panel>
+					</layout_stack>
+					<panel name="edit_panel">
+						<text name="Name:">
+							Tytuł:
+						</text>
+						<text name="description_label">
+							Opis:
+						</text>
+						<text name="location_label">
+							Lokalizacja:
+						</text>
+						<text name="classified_location_edit">
+							ładowanie...
+						</text>
+						<button name="set_to_curr_location_btn" label="Ustaw na bieżącą lokalizację" />
+						<text name="category_label" value="Kategoria:" />
+						<text name="content_type_label" value="Zawartość:" />
+						<icons_combo_box name="content_type_edit" label="Treść General">
+							<icons_combo_box.item name="mature_ci" label="Treść Moderate" />
+							<icons_combo_box.item name="pg_ci" label="Treść General" />
+						</icons_combo_box>
+						<check_box name="auto_renew_edit" label="Auto-ponawiaj co tydzień" />
+					</panel>
+				</panel>
+			</scroll_container>
+		</layout_panel>
+		<layout_panel name="util_buttons_lp">
+			<layout_stack name="util_buttons_stack">
+				<layout_panel name="teleport_btn_lp">
+					<button name="teleport_btn" label="Teleportuj" />
+				</layout_panel>
+				<layout_panel name="map_btn_lp">
+					<button name="show_on_map_btn" label="Mapa" />
+				</layout_panel>
+				<layout_panel name="edit_btn_lp">
+					<button name="edit_btn" label="Edytuj" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="publish_layout_panel">
+			<layout_stack name="publish_stack">
+				<layout_panel name="cancel_btn_lp">
+					<button name="cancel_btn" label="Anuluj" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

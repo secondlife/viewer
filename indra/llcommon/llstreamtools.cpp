@@ -118,7 +118,7 @@ bool skip_to_next_word(std::istream& input_stream)
 
 bool skip_to_end_of_next_keyword(const char* keyword, std::istream& input_stream)
 {
-	int key_length = strlen(keyword);	 /*Flawfinder: ignore*/
+	auto key_length = strlen(keyword);	 /*Flawfinder: ignore*/
 	if (0 == key_length)
 	{
 		return false;
@@ -315,7 +315,7 @@ bool unget_line(const std::string& line, std::istream& input_stream)
 // returns true if removed last char
 bool remove_last_char(char c, std::string& line)
 {
-	int line_size = line.size();
+	auto line_size = line.size();
 	if (line_size > 1
 		&& c == line[line_size - 1])
 	{
@@ -330,9 +330,8 @@ bool remove_last_char(char c, std::string& line)
 // "\\n" ---> '\n' (backslash n becomes carriage return)
 void unescape_string(std::string& line)
 {
-	int line_size = line.size();
-	int index = 0;
-	while (index < line_size - 1)
+	auto line_size = line.size();
+	for (size_t index = 0; line_size >= 1 && index < line_size - 1; ++index)
 	{
 		if ('\\' == line[index])
 		{
@@ -347,7 +346,6 @@ void unescape_string(std::string& line)
 				line_size--;
 			}
 		}
-		index++;
 	}
 }
 
@@ -356,9 +354,8 @@ void unescape_string(std::string& line)
 // '\n' ---> "\\n"  (carriage return becomes backslash n)
 void escape_string(std::string& line)
 {
-	int line_size = line.size();
-	int index = 0;
-	while (index < line_size)
+	auto line_size = line.size();
+	for (size_t index = 0; index < line_size; ++index)
 	{
 		if ('\\' == line[index])
 		{
@@ -372,31 +369,27 @@ void escape_string(std::string& line)
 			line_size++;
 			index++;
 		}
-		index++;
 	}
 }
 
 // removes '\n' characters
 void replace_newlines_with_whitespace(std::string& line)
 {
-	int line_size = line.size();
-	int index = 0;
-	while (index < line_size)
+	auto line_size = line.size();
+	for (size_t index = 0; index < line_size; ++index)
 	{
 		if ('\n' == line[index])
 		{
 			line.replace(index, 1, " ");
 		}
-		index++;
 	}
 }
 
 // erases any double-quote characters in 'line'
 void remove_double_quotes(std::string& line)
 {
-	int index = 0;
-	int line_size = line.size();
-	while (index < line_size)
+	auto line_size = line.size();
+	for (size_t index = 0; index < line_size; )
 	{
 		if ('"' == line[index])
 		{
@@ -424,22 +417,21 @@ void get_keyword_and_value(std::string& keyword,
 						   const std::string& line)
 {
 	// skip initial whitespace
-	int line_size = line.size();
-	int line_index = 0;
+	auto line_size = line.size();
+	size_t line_index = 0;
 	char c;
-	while (line_index < line_size)
+	for ( ; line_index < line_size; ++line_index)
 	{
 		c = line[line_index];
 		if (!LLStringOps::isSpace(c))
 		{
 			break;
 		}
-		line_index++;
 	}
 
 	// get the keyword
 	keyword.clear();
-	while (line_index < line_size)
+	for ( ; line_index < line_size; ++line_index)
 	{
 		c = line[line_index];
 		if (LLStringOps::isSpace(c) || '\r' == c || '\n' == c)
@@ -447,7 +439,6 @@ void get_keyword_and_value(std::string& keyword,
 			break;
 		}
 		keyword += c;
-		line_index++;
 	}
 
 	// get the value
@@ -465,7 +456,7 @@ void get_keyword_and_value(std::string& keyword,
 			line_index++;
 		}
 
-		while (line_index < line_size)
+		for ( ; line_index < line_size; ++line_index)
 		{
 			c = line[line_index];
 			if ('\r' == c || '\n' == c)
@@ -473,7 +464,6 @@ void get_keyword_and_value(std::string& keyword,
 				break;
 			}
 			value += c;
-			line_index++;
 		}
 	}
 }

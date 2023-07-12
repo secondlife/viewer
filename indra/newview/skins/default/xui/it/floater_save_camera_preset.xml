@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<floater name="save_camera_preset" title="Salva il preset della telecamera">
+	<radio_group name="radio_save_preset">
+		<radio_item name="replace_preset" label="Sostituisci un preset"/>
+		<radio_item name="new_preset" label="Salva come nuovo preset"/>
+	</radio_group>
+</floater>

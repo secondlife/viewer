@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <floater
+  name="experience_profile"
   positioning="cascading"
   can_close="true"
   enabled="true"
@@ -88,6 +89,7 @@
             animate="false"
             top="0"
             orientation="vertical"
+            name="ls1"
             width="315">
             <layout_panel
               follows="all"
@@ -264,6 +266,7 @@
               auto_resize="false"
               name="marketplace panel">
               <text
+                name="Marketplace"
                 type="string"
                 length="1"
                 follows="left|top"
@@ -287,6 +290,7 @@
               </text>
             </layout_panel>
             <layout_panel
+              name="owner panel"
               follows="left|top|right"
               height="18"
               left="0"
@@ -613,6 +617,7 @@
             name="clear_btn"
             label="Clear Location"/>
           <text
+            name="edit_marketplace"
             type="string"
             length="1"
             follows="left|top|right"

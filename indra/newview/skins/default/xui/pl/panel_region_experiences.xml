@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Przygody" name="Experiences">
+	<panel.string name="trusted_estate_text">
+Każda przygoda może być kluczową.
+
+Przygody kluczowe są dozwolone w tym Majątku.
+
+Jeśli Majątek ma wyłączony dostęp publiczny, Rezydenci uczestniczący w dowolnej przygodzie kluczowej mogą wejść i pozostać tak długo, jak mają oni ją aktywną.
+	</panel.string>
+	<panel.string name="allowed_estate_text">
+Tylko przygody o zasięgu ziemi mogą zostać dozwolone.
+
+Dozwolone przygody mogą być uruchamiane w tym Majątku.
+	</panel.string>
+	<panel.string name="blocked_estate_text">
+Tylko przygody o zasięgu świata mogą zostać blokowane.
+
+Zablokowane przygody nie mogą być uruchamiane w tym Majątku.
+	</panel.string>
+	<panel.string name="estate_caption">
+Zmiany ustawień z tej karty będą mieć wpływ na wszystkie regiony majątku.
+	</panel.string>
+	<panel.string name="allowed_parcel_text">
+Tylko przygody o zasięgu ziemi mogą zostać dozwolone.
+
+Dozwolone przygody mogą być uruchamiane na tej działce, jeśli nie są blokowane przez Majątek.
+	</panel.string>
+	<panel.string name="blocked_parcel_text">
+Każda przygoda może zostać zablokowana.
+
+Zablokowane przygody nie mogą być uruchamiane na tej działce.
+	</panel.string>
+</panel>

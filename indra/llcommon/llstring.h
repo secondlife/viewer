@@ -664,7 +664,7 @@ ll_convert_forms(ll_convert_alias,     LLWString,     std::string,   utf8str_to_
 // Same function, better name. JC
 inline LLWString utf8string_to_wstring(const std::string& utf8_string) { return utf8str_to_wstring(utf8_string); }
 
-LL_COMMON_API S32 wchar_to_utf8chars(llwchar inchar, char* outchars);
+LL_COMMON_API std::ptrdiff_t wchar_to_utf8chars(llwchar inchar, char* outchars);
 
 ll_convert_forms(ll_convert_alias,     std::string, LLWString,     wstring_to_utf8str);
 ll_convert_forms(ll_convert_u16_alias, std::string, llutf16string, utf16str_to_utf8str);

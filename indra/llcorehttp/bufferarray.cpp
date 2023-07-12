@@ -196,7 +196,7 @@ size_t BufferArray::read(size_t pos, void * dst, size_t len)
 		return 0;
 	
 	size_t result(0), offset(0);
-	const int block_limit(mBlocks.size());
+	const auto block_limit(mBlocks.size());
 	int block_start(findBlock(pos, &offset));
 	if (block_start < 0)
 		return 0;
@@ -228,7 +228,7 @@ size_t BufferArray::write(size_t pos, const void * src, size_t len)
 		return 0;
 	
 	size_t result(0), offset(0);
-	const int block_limit(mBlocks.size());
+	const auto block_limit(mBlocks.size());
 	int block_start(findBlock(pos, &offset));
 
 	if (block_start >= 0)
@@ -288,7 +288,7 @@ int BufferArray::findBlock(size_t pos, size_t * ret_offset)
 	if (pos >= mLen)
 		return -1;		// Doesn't exist
 
-	const int block_limit(mBlocks.size());
+	const int block_limit(narrow(mBlocks.size()));
 	for (int i(0); i < block_limit; ++i)
 	{
 		if (pos < mBlocks[i]->mUsed)

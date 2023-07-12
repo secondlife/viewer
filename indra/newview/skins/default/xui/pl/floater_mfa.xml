@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater title="Wymagany token MFA" name="mfa_challenge">
+	<text name="token_prompt_text">
+		token
+	</text>
+	<button label="Kontynuuj" name="continue_btn" />
+	<button label="Anuluj" name="cancel_btn" />
+</floater>

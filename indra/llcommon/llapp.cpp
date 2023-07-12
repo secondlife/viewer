@@ -862,14 +862,14 @@ bool unix_post_minidump_callback(const char *dump_dir,
 	// heap allocations in a crash handler.
 	
 	// path format: <dump_dir>/<minidump_id>.dmp
-	int dirPathLength = strlen(dump_dir);
-	int idLength = strlen(minidump_id);
+	auto dirPathLength = strlen(dump_dir);
+	auto idLength = strlen(minidump_id);
 	
 	// The path must not be truncated.
 	llassert((dirPathLength + idLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
 	
 	char * path = LLApp::instance()->getMiniDumpFilename();
-	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
+	auto remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
 	strncpy(path, dump_dir, remaining);
 	remaining -= dirPathLength;
 	path += dirPathLength;

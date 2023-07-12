@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="experince_list_editor">
+	<panel.string name="loading">
+		wczytywanie...
+	</panel.string>
+	<panel.string name="panel_allowed">
+		Przygody dozwolone:
+	</panel.string>
+	<panel.string name="panel_blocked">
+		Przygody blokowane:
+	</panel.string>
+	<panel.string name="panel_trusted">
+		Przygody kluczowe:
+	</panel.string>
+	<panel.string name="no_results">
+		(puste)
+	</panel.string>
+	<text name="text_name">
+		Lista przygód
+	</text>
+	<name_list name="experience_list">
+		<name_list.columns name="experience_name" label="Nazwa" />
+	</name_list>
+	<button name="btn_add" label="Dodaj" />
+	<button name="btn_remove" label="Usuń" />
+	<button name="btn_profile" label="Profil" />
+</panel>

@@ -59,7 +59,7 @@ public:
 	S32 mBuild;
 
 #ifndef LL_WINDOWS
-	static S32 getMaxOpenFiles();
+	static long getMaxOpenFiles();
 #endif
 	static bool is64Bit();
 

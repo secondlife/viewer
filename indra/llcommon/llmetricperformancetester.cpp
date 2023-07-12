@@ -42,9 +42,9 @@ LLMetricPerformanceTesterBasic::name_tester_map_t LLMetricPerformanceTesterBasic
 /*static*/ 
 void LLMetricPerformanceTesterBasic::cleanupClass() 
 {
-	for (name_tester_map_t::iterator iter = sTesterMap.begin() ; iter != sTesterMap.end() ; ++iter)
+	for (name_tester_map_t::value_type& pair : sTesterMap)
 	{
-		delete iter->second ;
+		delete pair.second;
 	}
 	sTesterMap.clear() ;
 }
@@ -111,8 +111,8 @@ LLSD LLMetricPerformanceTesterBasic::analyzeMetricPerformanceLog(std::istream& i
 			{
 				ret[label]["Name"] = iter->second["Name"] ;
 				
-				S32 num_of_metrics = tester->getNumberOfMetrics() ;
-				for(S32 index = 0 ; index < num_of_metrics ; index++)
+				auto num_of_metrics = tester->getNumberOfMetrics() ;
+				for(size_t index = 0 ; index < num_of_metrics ; index++)
 				{
 					ret[label][ tester->getMetricName(index) ] = iter->second[ tester->getMetricName(index) ] ;
 				}
@@ -154,10 +154,9 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
 	llofstream os(output.c_str());
 	
 	os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n"; 
-	for(LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin() ; 
-		iter != LLMetricPerformanceTesterBasic::sTesterMap.end() ; ++iter)
+	for (LLMetricPerformanceTesterBasic::name_tester_map_t::value_type& pair : LLMetricPerformanceTesterBasic::sTesterMap)
 	{
-		LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second) ;	
+		LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)pair.second);
 		tester->analyzePerformance(&os, &base, &current) ;
 	}
 	

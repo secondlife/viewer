@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+	<rows name="editing_actions">
+		<columns label="Edytowanie" name="lst_action" />
+	</rows>
+	<rows name="edit_avatar_spin_ccw">
+		<columns name="lst_action" tool_tip="Obrót kamery wokół awatara w kierunku przeciwnym do ruchu wskazówek zegara." value="Obrót kamery w prawo" />
+	</rows>
+	<rows name="edit_avatar_spin_cw">
+		<columns name="lst_action" tool_tip="Obrót kamery wokół awatara zgodnie z ruchem wskazówek zegara." value="Obrót kamery w lewo" />
+	</rows>
+	<rows name="edit_avatar_spin_over">
+		<columns name="lst_action" tool_tip="Obrót kamery ponad awatarem" value="Obrót kamery w górę" />
+	</rows>
+	<rows name="edit_avatar_spin_under">
+		<columns name="lst_action" tool_tip="Obrót kamery pod awatarem" value="Obrót kamery w dół" />
+	</rows>
+	<rows name="edit_avatar_move_forward">
+		<columns name="lst_action" value="Kamera w przód" />
+	</rows>
+	<rows name="edit_avatar_move_backward">
+		<columns name="lst_action" value="Kamera w tył" />
+	</rows>
+</contents>

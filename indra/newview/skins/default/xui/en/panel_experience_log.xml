@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
 <panel
+  name="panel_experience_log"
   layout="topleft"
   top="3"
   left="3"
@@ -16,6 +17,7 @@
     name="loading"
     value="loading..."/>
   <layout_stack
+    name="ls1"
     layout="topleft"
     top="0"
     left="4" 
@@ -24,6 +26,7 @@
     orientation="vertical"
     follows="all">
     <layout_panel
+      name="list panel"
       layout="topleft"
       top="0"
       left="1"

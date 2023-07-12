@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <menu_bar name="Main Menu">
 	<menu label="Eu" name="Me">
 		<menu_item_call label="Perfil..." name="Profile"/>
@@ -236,6 +236,7 @@
 		</menu>
 		<menu_item_call label="Mostrar configurações de depuração" name="Debug Settings"/>
 		<menu_item_check label="Show Develop Menu" name="Debug Mode"/>
+		<menu_item_check name="Test FRInfo" label="Testar InfoFR"/>
 	</menu>
 	<menu label="Desenvolver" name="Develop">
 		<menu label="Painéis" name="Consoles">
@@ -378,6 +379,65 @@
 		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
 		<menu_item_call label="Sair do modo admin" name="Leave Admin Options"/>
 		<menu_item_check label="Mostrar menu admin" name="View Admin Options"/>
+		<menu_item_check name="Texture Area" label="Área da Textura"/>
+		<menu_item_call name="Print Agent Info" label="Imprimir Informações do Agente"/>
+		<menu_item_call name="Test Male" label="Testar Homem"/>
+		<menu_item_check name="Shadow Frusta" label="Tronco de Sombra"/>
+		<menu_item_check name="Debug GL" label="Depurar GL"/>
+		<menu_item_call name="Capabilities Info to Debug Console" label="Informações de Capacidade para o Console de Depuração"/>
+		<menu_item_check name="Face Area" label="Área Facial"/>
+		<menu_item_check name="Debug Pipeline" label="Pipeline de Depuração"/>
+		<menu_item_call name="Dump Scripted Camera" label="Apagar Câmera com Script"/>
+		<menu_item_check name="Show Avatar Render Info" label="Mostrar Informações de Renderização do Avatar"/>
+		<menu_item_check name="Bounding Boxes" label="Campos de Limitação"/>
+		<menu_item_call name="Start Playback" label="Começar Reprodução"/>
+		<menu_item_call name="Dump Attachments" label="Apagar Anexos"/>
+		<menu_item_check name="Debug Views" label="Depurar Visões"/>
+		<menu_item_call name="Stop Record" label="Parar Gravação"/>
+		<menu_item_call name="Appearance To XML" label="Aparência ao XML"/>
+		<menu_item_check name="Raycast" label="Raycast"/>
+		<menu_item_call name="Dump Focus Holder" label="Apagar Detentor de Foco"/>
+		<menu_item_call name="Playback event recording" label="Reproduzir gravação de evento"/>
+		<menu_item_call name="Disable Message Log" label="Desabilitar Registro de Mensagens"/>
+		<menu_item_call name="Selected Texture Info Basis" label="Base de Informações da Textura Selecionada"/>
+		<menu_item_check name="Object-Object Occlusion" label="Oclusão Objeto-Objeto"/>
+		<menu_item_check name="Output Debug Minidump" label="Produzir Depuração de Tela Azul"/>
+		<menu_item_check name="Debug Keys" label="Depurar Chaves"/>
+		<menu_item_check name="Texture Anim" label="Animação de Textura"/>
+		<menu_item_call name="FB Connect Test" label="Teste do Facebook Connect"/>
+		<menu_item_call name="Dump Timers" label="Apagar Cronômetros"/>
+		<menu_item_check name="Rull Res Textures" label="Texturas de Resolução Máxima"/>
+		<menu_item_call name="Dump Local Textures" label="Apagar Texturas Locais"/>
+		<menu_item_check name="Ping Interpolate Object Positions" label="Rastrear Posições de Objetos Interpolados"/>
+		<menu_item_check name="Show Look At" label="Mostrar Olhar Para"/>
+		<menu_item_check name="Velocity Interpolate Objects" label="Velocidade de Objetos Interpolados"/>
+		<menu_item_call name="Test Female" label="Testar Mulher"/>
+		<menu_item_check name="FOV" label="Campo de Visão"/>
+		<menu_item_check name="Debug SelectMgr" label="Depurar SelectMgr"/>
+		<menu_item_call name="Stop event recording" label="Parar gravação do evento"/>
+		<menu_item_check name="Debug WindowProc" label="Depurar WindowProc"/>
+		<menu_item_check name="Render Batches" label="Renderizar Lotes"/>
+		<menu_item_check name="Lights" label="Luzes"/>
+		<menu_item_call name="Start Record" label="Começar Gravação"/>
+		<menu_item_check name="Collision Skeleton" label="Esqueleto de Colisão"/>
+		<menu_item_check name="Octree" label="Octree"/>
+		<menu_item_check name="Show Matrices" label="Mostrar Matrizes"/>
+		<menu_item_call name="Stop Playback" label="Parar Reprodução"/>
+		<menu_item_check name="Debug Name Tooltips" label="Depurar Nomear Dicas de Contexto"/>
+		<menu_item_call name="Dump Inventory" label="Apagar Inventário"/>
+		<menu_item_call name="Dump SelectMgr" label="Apagar SelectMgr"/>
+		<menu_item_check name="Debug Joint Updates" label="Depurar Atualizações Conjuntas"/>
+		<menu_item_call name="Group Info to Debug Console" label="Informações do Grupo para o Painel de Depuração"/>
+		<menu_item_check name="Texture Priority" label="Prioridade da Textura"/>
+		<menu_item_check name="Loop Playback" label="Reprodução em Loop"/>
+		<menu_item_check name="Occlusion" label="Oclusão"/>
+		<menu_item_check name="Debug Character Vis" label="Depurar Visibilidade do Personagem"/>
+		<menu_item_check name="Periodic Slow Frame" label="Câmera Lenta Periódica"/>
+		<menu_item_call name="Start event recording" label="Começar gravação de evento"/>
+		<menu_item_call name="Compress Images" label="Comprimir Imagens"/>
+		<menu_item_check name="Tangent Basis" label="Base da Tangente"/>
+		<menu_item_call name="Enable Message Log" label="Habilitar Registro de Mensagens"/>
+		<menu_item_check name="Show Point At" label="Mostrar Apontar Para"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Objeto" name="AdminObject">
@@ -415,5 +475,24 @@
 				<menu_item_call label="Página Wiki" name="QA Wiki"/>
 			</menu>
 		</menu>
+		<menu name="Attach Object" label="Anexar Objeto"/>
+		<menu_item_call name="Tattoo" label="Tatuagem"/>
+		<menu_item_call name="Alpha" label="Alpha"/>
+		<menu name="Detach Object" label="Desanexar Objeto"/>
+		<menu_item_call name="Menu Underpants" label="Roupa Íntima"/>
+		<menu_item_call name="Menu Undershirt" label="Camisa de Baixo"/>
 	</menu>
+	<menu name="Clothes &gt;"/>
+	<menu name="Take Off &gt;"/>
+	<menu name="Avatar">
+		<menu_item_call name="Gloves" label="Luvas"/>
+		<menu_item_call name="All Clothes" label="Todas as Roupas"/>
+		<menu_item_call name="Skirt" label="Saia"/>
+		<menu_item_call name="Jacket" label="Jaqueta"/>
+		<menu_item_call name="Pants" label="Calça"/>
+		<menu_item_call name="Shirt" label="Camisa"/>
+		<menu_item_call name="Socks" label="Meias"/>
+		<menu_item_call name="Shoes" label="Sapatos"/>
+	</menu>
+	<menu name="Recorder" label="Registrador"/>
 </menu_bar>
