@@ -429,12 +429,10 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
 	llassert(content[MATERIALS_CAP_ZIP_FIELD].isBinary());
 
-	LLSD::Binary content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
-	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
-	std::istringstream content_stream(content_string);
+	const LLSD::Binary& content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 
 	LLSD response_data;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_stream, content_binary.size());
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), content_binary.size());
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
@@ -472,12 +470,10 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
 	llassert(content[MATERIALS_CAP_ZIP_FIELD].isBinary());
 
-	LLSD::Binary content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
-	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
-	std::istringstream content_stream(content_string);
+	const LLSD::Binary& content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 
 	LLSD response_data;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_stream, content_binary.size());
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), content_binary.size());
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
@@ -541,12 +537,10 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	llassert(content.has(MATERIALS_CAP_ZIP_FIELD));
 	llassert(content[MATERIALS_CAP_ZIP_FIELD].isBinary());
 
-	LLSD::Binary content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
-	std::string content_string(reinterpret_cast<const char*>(content_binary.data()), content_binary.size());
-	std::istringstream content_stream(content_string);
+	const LLSD::Binary& content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 
 	LLSD response_data;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_stream, content_binary.size());
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), content_binary.size());
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
@@ -666,8 +660,8 @@ void LLMaterialMgr::processGetQueue()
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
 			materialsData.append((*itMaterial).asLLSD());
-			materials.erase(itMaterial);
 			markGetPending(region_id, *itMaterial);
+			materials.erase(itMaterial);
 		}
 		if (materials.empty())
 		{

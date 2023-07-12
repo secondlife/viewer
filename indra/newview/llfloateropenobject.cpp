@@ -56,8 +56,6 @@ LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
 	mDirty(TRUE)
 {
 	mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",	boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
-	mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",		boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
-	mCommitCallbackRegistrar.add("OpenObject.ReplaceOutfit",	boost::bind(&LLFloaterOpenObject::onClickReplace, this));
 	mCommitCallbackRegistrar.add("OpenObject.Cancel",			boost::bind(&LLFloaterOpenObject::onClickCancel, this));
 }
 
@@ -240,18 +238,6 @@ void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 void LLFloaterOpenObject::onClickMoveToInventory()
 {
 	moveToInventory(false);
-	closeFloater();
-}
-
-void LLFloaterOpenObject::onClickMoveAndWear()
-{
-	moveToInventory(true, false);
-	closeFloater();
-}
-
-void LLFloaterOpenObject::onClickReplace()
-{
-	moveToInventory(true, true);
 	closeFloater();
 }
 

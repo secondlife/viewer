@@ -177,7 +177,9 @@ public:
 	bool			getUIVisibility();
 	void			handlePieMenu(S32 x, S32 y, MASK mask);
 
-	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
+    void            reshapeStatusBarContainer();
+
+	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down, bool &is_toolmgr_action);
 
 	//
 	// LLWindowCallback interface implementation

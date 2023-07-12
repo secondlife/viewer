@@ -793,7 +793,7 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 		}
 
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, NULL);
+		part->init(this, mImagep, updatePart);
 
 		part->mFlags = LLPartData::LL_PART_INTERP_COLOR_MASK |
 						LLPartData::LL_PART_INTERP_SCALE_MASK |

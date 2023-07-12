@@ -1,29 +1,14 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (USESYSTEMLIBS)
-  include(FindPkgConfig)
+add_library( ll::dbus INTERFACE IMPORTED)
 
-  pkg_check_modules(DBUSGLIB REQUIRED dbus-glib-1)
+if( LINUX )
+  # Only define this when not using the prebuild 3ps, lls prebuild is broken
+  if( NOT USE_AUTOBUILD_3P )
+    target_compile_definitions( ll::dbus INTERFACE LL_DBUS_ENABLED )
+  endif()
+  use_system_binary(dbus)
 
-elseif (LINUX)
   use_prebuilt_binary(dbus_glib)
-  set(DBUSGLIB_FOUND ON FORCE BOOL)
-  set(DBUSGLIB_INCLUDE_DIRS
-      ${LIBS_PREBUILT_DIR}/include/dbus
-      )
-  # We don't need to explicitly link against dbus-glib itself, because
-  # the viewer probes for the system's copy at runtime.
-  set(DBUSGLIB_LIBRARIES
-      gobject-2.0
-      glib-2.0
-      )
-endif (USESYSTEMLIBS)
-
-if (DBUSGLIB_FOUND)
-  set(DBUSGLIB ON CACHE BOOL "Build with dbus-glib message bus support.")
-endif (DBUSGLIB_FOUND)
-
-if (DBUSGLIB)
-  add_definitions(-DLL_DBUS_ENABLED=1)
-endif (DBUSGLIB)
+endif()

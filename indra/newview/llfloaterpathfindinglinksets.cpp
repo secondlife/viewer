@@ -44,6 +44,7 @@
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
 #include "llpathfindingmanager.h"
+#include "llsearcheditor.h"
 #include "llscrolllistitem.h"
 #include "llsd.h"
 #include "lltextbase.h"
@@ -114,17 +115,13 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 {
 	mBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingLinksetBeaconColor");
 
-	mFilterByName = findChild<LLLineEditor>("filter_by_name");
-	llassert(mFilterByName != NULL);
-	mFilterByName->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
-	mFilterByName->setSelectAllonFocusReceived(true);
-	mFilterByName->setCommitOnFocusLost(true);
+    mFilterByName = getChild<LLSearchEditor>("filter_by_name");
+    mFilterByName->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
+    mFilterByName->setCommitOnFocusLost(true);
 
-	mFilterByDescription = findChild<LLLineEditor>("filter_by_description");
-	llassert(mFilterByDescription != NULL);
-	mFilterByDescription->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
-	mFilterByDescription->setSelectAllonFocusReceived(true);
-	mFilterByDescription->setCommitOnFocusLost(true);
+    mFilterByDescription = getChild<LLSearchEditor>("filter_by_description");
+    mFilterByDescription->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
+    mFilterByDescription->setCommitOnFocusLost(true);
 
 	mFilterByLinksetUse = findChild<LLComboBox>("filter_by_linkset_use");
 	llassert(mFilterByLinksetUse != NULL);

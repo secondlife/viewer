@@ -40,7 +40,7 @@
 		Klicken und ziehen, um Land auszuwählen
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] Objekte ausgewählt, Auswirkung auf Land [LAND_IMPACT]
+		[OBJ_COUNT] Objekte ausgewählt, Auswirkung auf Land [LAND_IMPACT] [secondlife:///app/openfloater/object_weights ?]
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		Verbleibende Kapazität [LAND_CAPACITY].

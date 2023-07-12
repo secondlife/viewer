@@ -355,7 +355,7 @@ LLSD cert_name_from_X509_NAME(X509_NAME* name)
 		char buffer[32];
 		X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, entry_index);
 		
-		std::string name_value = std::string((const char*)ASN1_STRING_data(X509_NAME_ENTRY_get_data(entry)), 
+		std::string name_value = std::string((const char*)ASN1_STRING_get0_data(X509_NAME_ENTRY_get_data(entry)), 
 											 ASN1_STRING_length(X509_NAME_ENTRY_get_data(entry)));
 
 		ASN1_OBJECT* name_obj = X509_NAME_ENTRY_get_object(entry);		

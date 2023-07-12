@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<panel name="notifications_panel">
+	<scroll_list name="notifications_list"/>
+	<layout_panel name="notifications_list_panel"/>
+	<layout_stack name="stack1">
+		<scroll_list.columns name="name" label="Nombre"/>
+		<scroll_list.columns name="content" label="Contenido"/>
+		<scroll_list.columns name="date" label="Fecha"/>
+	</layout_stack>
+</panel>

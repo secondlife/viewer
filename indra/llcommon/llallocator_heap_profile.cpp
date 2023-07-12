@@ -130,15 +130,13 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
 
 void LLAllocatorHeapProfile::dump(std::ostream & out) const
 {
-    lines_t::const_iterator i;
-    for(i = mLines.begin(); i != mLines.end(); ++i)
+	for (const LLAllocatorHeapProfile::line& line : mLines)
     {
-        out << i->mLiveCount << ": " << i->mLiveSize << '[' << i->mTotalCount << ": " << i->mTotalSize << "] @";
+        out << line.mLiveCount << ": " << line.mLiveSize << '[' << line.mTotalCount << ": " << line.mTotalSize << "] @";
 
-        stack_trace::const_iterator j;
-        for(j = i->mTrace.begin(); j != i->mTrace.end(); ++j)
+		for (const stack_marker marker : line.mTrace)
         {
-            out << ' ' << *j;
+            out << ' ' << marker;
         }
         out << '\n';
     }

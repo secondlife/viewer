@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="groups" title="ZAPAMIĘTANI UŻYTKOWNICY">
+    <button label="Zapomnij" label_selected="Zapomnij" name="forget" />
+    <check_box label="Usuń także dane lokalne tego użytkownika" name="delete_data" tool_tip="Usuwa lokalne pliki: historia czatu, zrzut ekranu z ostatniej sesji, pliki cookie przeglądarki, historia teleportacji, ustawienia paska narzędzi itp. Niektóre pliki lokalne są współdzielone pomiędzy światami."/>
+</floater>

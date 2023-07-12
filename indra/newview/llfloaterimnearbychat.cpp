@@ -307,7 +307,6 @@ void LLFloaterIMNearbyChat::onOpen(const LLSD& key)
 		restoreFloater();
 		onCollapseToLine(this);
 	}
-	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
 // virtual

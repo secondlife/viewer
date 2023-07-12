@@ -450,7 +450,6 @@
         follows="left|top"
         decimal_digits="0"
         increment="1"
-        control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
         label_width="75"
@@ -461,8 +460,72 @@
         max_val="999999999"
         top_pad="10"
         tool_tip="Object cost." />
-    </panel>
-
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="10"
+        layout="topleft"
+        left="10"
+        name="BaseMaskDebug"
+        text_color="White"
+        top_pad="30"
+        width="130">
+        B:
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="10"
+        layout="topleft"
+        left_delta="60"
+        name="OwnerMaskDebug"
+        text_color="White"
+        top_delta="0"
+        width="270">
+        O:
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="10"
+        layout="topleft"
+        left_delta="60"
+        name="GroupMaskDebug"
+        text_color="White"
+        top_delta="0"
+        width="210">
+        G:
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="10"
+        layout="topleft"
+        left_delta="60"
+        name="EveryoneMaskDebug"
+        text_color="White"
+        top_delta="0"
+        width="150">
+        E:
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="10"
+       layout="topleft"
+       left_delta="60"
+       name="NextMaskDebug"
+       text_color="White"
+       top_delta="0"
+       width="90">
+        N:
+      </text>
+    </panel>   
   </scroll_container>
   <panel
     height="30"

@@ -495,7 +495,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
 	mModifiers = [theEvent modifierFlags];
-    unichar ch = [[theEvent charactersIgnoringModifiers] characterAtIndex:0];
+    NSString *str_no_modifiers = [theEvent charactersIgnoringModifiers];
+    unichar ch = 0;
+    if (str_no_modifiers.length)
+    {
+        ch = [str_no_modifiers characterAtIndex:0];
+    }
     bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, ch);
 
     if (acceptsText &&

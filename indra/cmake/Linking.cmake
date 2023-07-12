@@ -1,24 +1,34 @@
 # -*- cmake -*-
 
-if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
-set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
-
+include_guard()
 include(Variables)
 
 set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
 set(ARCH_PREBUILT_DIRS_PLUGINS ${AUTOBUILD_INSTALL_DIR}/plugins)
 set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
 set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
-if (WINDOWS)
-  set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
-  set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
+if (WINDOWS OR DARWIN )
+  # Kludge for older cmake versions, 3.20+ is needed to use a genex in add_custom_command( OUTPUT <var> ... )
+  # Using this will work okay-ish, as Debug is not supported anyway. But for property multi config and also
+  # ninja support the genex version is preferred.
+  if(${CMAKE_VERSION} VERSION_LESS "3.20.0")  
+    if(CMAKE_BUILD_TYPE MATCHES Release)
+      set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/Release)
+    elseif (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
+      set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/RelWithDebInfo)
+    endif()
+  else()
+    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
+  endif()
+
+  if( DARWIN )
+    set( SHARED_LIB_STAGING_DIR ${SHARED_LIB_STAGING_DIR}/Resources)
+  endif()
+  set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
 elseif (LINUX)
   set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
   set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
-elseif (DARWIN)
-  set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
-  set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs")
-endif (WINDOWS)
+endif ()
 
 # Autobuild packages must provide 'release' versions of libraries, but may provide versions for
 # specific build types.  AUTOBUILD_LIBS_INSTALL_DIRS lists first the build type directory and then
@@ -27,52 +37,54 @@ endif (WINDOWS)
 # windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
 # that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
 # CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
-if(WINDOWS OR DARWIN)
-  # the cmake xcode and VS generators implicitly append ${CMAKE_CFG_INTDIR} to the library paths for us
-  # fortunately both windows and darwin are case insensitive filesystems so this works.
-  set(AUTOBUILD_LIBS_INSTALL_DIRS "${AUTOBUILD_INSTALL_DIR}/lib/")
-else(WINDOWS OR DARWIN)
-  # else block is for linux and any other makefile based generators
-  string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
-  set(AUTOBUILD_LIBS_INSTALL_DIRS ${AUTOBUILD_INSTALL_DIR}/lib/${CMAKE_BUILD_TYPE_LOWER})
-endif(WINDOWS OR DARWIN)
 
-if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  # When we're building something other than Release, append the
-  # packages/lib/release directory to deal with autobuild packages that don't
-  # provide (e.g.) lib/debug libraries.
-  list(APPEND AUTOBUILD_LIBS_INSTALL_DIRS ${ARCH_PREBUILT_DIRS_RELEASE})
-endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
+link_directories(${AUTOBUILD_INSTALL_DIR}/lib/release)
 
-link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
+add_library( ll::oslibraries INTERFACE IMPORTED )
 
 if (LINUX)
-  set(DL_LIBRARY dl)
-  set(PTHREAD_LIBRARY pthread)
-else (LINUX)
-  set(DL_LIBRARY "")
-  set(PTHREAD_LIBRARY "")
-endif (LINUX)
+  target_link_libraries( ll::oslibraries INTERFACE
+          dl
+          pthread
+          rt)
+elseif (WINDOWS)
+  target_link_libraries( ll::oslibraries INTERFACE
+          advapi32
+          shell32
+          ws2_32
+          mswsock
+          psapi
+          winmm
+          netapi32
+          wldap32
+          gdi32
+          user32
+          ole32
+          dbghelp
+          legacy_stdio_definitions
+          )
+else()
+  include(CMakeFindFrameworks)
+  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
+  find_library(CARBON_LIBRARY Carbon)
+  find_library(COCOA_LIBRARY Cocoa)
+  find_library(IOKIT_LIBRARY IOKit)
 
-if (WINDOWS)
-  set(WINDOWS_LIBRARIES
-      advapi32
-      shell32
-      ws2_32
-      mswsock
-      psapi
-      winmm
-      netapi32
-      wldap32
-      gdi32
-      user32
-      ole32
-      dbghelp
-      )
-else (WINDOWS)
-  set(WINDOWS_LIBRARIES "")
-endif (WINDOWS)
-    
-mark_as_advanced(DL_LIBRARY PTHREAD_LIBRARY WINDOWS_LIBRARIES)
+  find_library(AGL_LIBRARY AGL)
+  find_library(APPKIT_LIBRARY AppKit)
+  find_library(COREAUDIO_LIBRARY CoreAudio)
 
-endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+  target_link_libraries( ll::oslibraries INTERFACE
+          ${COCOA_LIBRARY}
+          ${IOKIT_LIBRARY}
+          ${COREFOUNDATION_LIBRARY}
+          ${CARBON_LIBRARY}
+          ${AGL_LIBRARY}
+          ${APPKIT_LIBRARY}
+          ${COREAUDIO_LIBRARY}
+          )
+endif()
+
+
+

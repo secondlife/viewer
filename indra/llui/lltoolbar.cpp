@@ -127,7 +127,12 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 
 LLToolBar::~LLToolBar()
 {
-	delete mPopupMenuHandle.get();
+	auto menu = mPopupMenuHandle.get();
+	if (menu)
+	{
+		menu->die();
+		mPopupMenuHandle.markDead();
+	}
 	delete mButtonAddSignal;
 	delete mButtonEnterSignal;
 	delete mButtonLeaveSignal;

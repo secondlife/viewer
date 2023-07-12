@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="left|top"
+ height="580"
+ width="580"
+ name="panel_performance_autoadjustments"
+ layout="topleft"
+ left="0"
+ top="0">
+  <button
+    height="16"
+    width="16"
+    layout="topleft"
+    mouse_opaque="true"
+    follows="left|top"
+    name="back_btn"
+    top="7"
+    image_selected="Arrow_Left_Off"
+    image_pressed="Arrow_Left_Off"
+    image_unselected="Arrow_Left_Off"
+    left="15"
+    is_toggle="true">
+  </button>
+  <text
+   follows="left|top"
+   height="18"
+   layout="topleft"
+   left_pad="0"
+   valign="center"
+   halign="center"
+   top="6"
+   name="back_lbl"
+   width="32">
+    Back
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifLarge"
+   text_color="white"
+   height="20"
+   layout="topleft"
+   left="20"
+   top_pad="15"
+   name="settings_title"
+   width="300">
+    Auto-adjust settings
+  </text>
+  <button
+   follows="top|left"
+   height="23"
+   label="Reset to recommended settings"
+   layout="topleft"
+   left="360"
+   name="defaults_btn"
+   top_delta="0"
+   width="200"/>
+  <view_border
+   bevel_style="in"
+   height="0"
+   layout="topleft"
+   name="border0"
+   top_pad="15"
+   left="20"
+   width="540"/>
+  <text
+   follows="left|top"
+   font="SansSerif"
+   text_color="White"
+   height="20"
+   layout="topleft"
+   left="20"
+   name="targetfps_desc"
+   wrap="true"
+   width="115"
+   top_pad="20">
+    Desired frame rate
+  </text>
+  <spinner
+   name="target_fps"
+   control_name="TargetFPS"
+   font="SansSerifLarge"
+   tool_tip="The viewer will attempt to achieve this by adjusting your graphics settings."
+   layout="topleft"
+   follows="left|top"
+   left_pad="25"
+   top_delta="0"
+   height="25"
+   visible="true"
+   decimal_digits="0"
+   increment="1"
+   initial_value="25"
+   max_val="300"
+   min_val="1"
+   width="48"
+   label_width="0" />
+ <text
+   follows="left|top"
+   text_color="White"
+   height="20"
+   layout="topleft"
+   name="display_desc"
+   top_delta="5"
+   left_pad="15"
+   wrap="true"
+   width="225">
+  Your display supports up to [FPS_LIMIT] fps.
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerif"
+   text_color="White"
+   height="20"
+   layout="topleft"
+   left="20"
+   name="settings_desc"
+   top_pad="15"
+   wrap="true"
+   width="115">
+    Settings affect
+  </text>
+  <combo_box
+   follows="top|left"
+   font="SansSerif"
+   height="20"
+   layout="topleft"
+   left_pad="25"
+   control_name="TuningFPSStrategy"
+   name="TuningFPSStrategy"
+   width="160">
+    <combo_box.item
+     label="Avatars Only"
+     name="av_only"
+     value="0" />
+    <combo_box.item
+     label="Avatars and World"
+     name="av_and_scene"
+     value="1" />
+	<combo_box.item
+     label="World Only"
+     name="scene_only"
+     value="2" />
+  </combo_box>
+  <button
+   follows="top|left"
+   height="22"
+   image_pressed="PushButton_Press"
+   image_pressed_selected="PushButton_Selected_Press"
+   image_selected="PushButton_Selected_Press"
+   label="Auto-adjust now"
+   layout="topleft"
+   top_pad="15"
+   left="20"
+   name="start_autotune"
+   tool_tip="The viewer will attempt to adjust settings to meet the target FPS then stop."
+   width="124"/>
+  <button
+   follows="top|left"
+   height="22"
+   image_pressed="PushButton_Press"
+   image_pressed_selected="PushButton_Selected_Press"
+   image_selected="PushButton_Selected_Press"
+   label="Cancel"
+   layout="topleft"
+   left_pad="15"
+   name="stop_autotune"
+   tool_tip="Stop adjusting settings."
+   width="90"/>
+  <text
+   follows="left|top"
+   text_color="Yellow"
+   height="20"
+   layout="topleft"
+   name="wip_desc"
+   top_delta="5"
+   left_pad="20"
+   wrap="true"
+   width="115">
+  Working on it...
+  </text>
+  <check_box
+   control_name="AutoTuneLock"
+   follows="top|left"
+   height="20"
+   initial_value="true"
+   image_pressed="PushButton_Press"
+   image_pressed_selected="PushButton_Selected_Press"
+   image_selected="PushButton_Selected_Press"
+   is_toggle="true"
+   label="Adjust continuously"
+   layout="topleft"
+   left="17"
+   top_pad="10"
+   name="AutoTuneContinuous"
+   tool_tip="The viewer will continually adapt the settings to meet the target FPS until stopped even with the floater closed."
+   width="64">
+  </check_box>
+  <radio_group
+   control_name="KeepAutoTuneLock"
+   enabled_control="AutoTuneLock"
+   height="50"
+   layout="topleft"
+   follows="top|left"
+   name="autotune_lock_type"
+   top_pad="5"
+   left_delta="15"
+   width="120">
+    <radio_item
+     height="16"
+     label="This login session only"
+     layout="topleft"
+     name="one_session_lock"
+     value="0"
+     width="120" />
+    <radio_item
+     height="16"
+     label="Future login sessions"
+     layout="topleft"
+     name="next_session_lock"
+     value="1"
+     width="120" />
+  </radio_group>
+  <view_border
+   bevel_style="in"
+   height="0"
+   layout="topleft"
+   name="border_vsync"
+   top_pad="3"
+   left="20"
+   width="540"/>
+  <check_box
+   control_name="RenderVSyncEnable"
+   height="16"
+   left="17"
+   initial_value="true"
+   label="Enable VSync"
+   label_text.text_color="White"
+   layout="topleft"
+   top_pad="12"
+   name="vsync"
+   tool_tip="Enable Vertical synchronization to reduce screen tearing and stuttering."
+   width="315" />
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left="20"
+   top_pad="15"
+   name="vsync_desc"
+   width="580">
+    Matches monitor refresh rate with frame rate.
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="3"
+   left="20"
+   name="vsync_desc_limit"
+   width="580">
+    Note: Turning on VSync limits frame rate to [FPS_LIMIT] fps.
+  </text>
+  <view_border
+   bevel_style="in"
+   height="0"
+   layout="topleft"
+   name="border1"
+   top_pad="10"
+   left="20"
+   width="540"/>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left="20"
+   top_pad="15"
+   name="simplify_dist_desc"
+   width="580">
+    Reducing detail shown on avatars that are far away will improve graphics speed.
+  </text>
+  <check_box
+   control_name="AutoTuneImpostorByDistEnabled"
+   height="19"
+   label="Simplify avatars beyond"
+   label_text.text_color="White"
+   layout="topleft"
+   follows="top|left"
+   name="AutoTuneImpostorByDistEnabled"
+   tool_tip="When enabled the viewer will adjust the MaxNonImpostors setting to limit fully rendered avatars to those within the defined radius."
+   top_pad="15"
+   width="190" />
+  <spinner
+   control_name="AutoTuneImpostorFarAwayDistance"
+   height="20"
+   layout="topleft"
+   follows="top|left"
+   name="ffa_autotune"
+   left_pad="20"
+   decimal_digits="2"
+   min_val="16"
+   max_val="256"
+   width="60" >
+  </spinner>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left_pad="10"
+   name="dist_meters"
+   width="70">
+    meters
+  </text>
+  <view_border
+   bevel_style="in"
+   height="0"
+   layout="topleft"
+   name="border2"
+   top_pad="20"
+   left="20"
+   width="540"/>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left="20"
+   top_pad="15"
+   name="dist_limits_desc"
+   width="580">
+    Choose the distance range that automatic settings will affect.
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="15"
+   name="min_dist_lbl"
+   width="120">
+    Minimum distance
+  </text>
+  <spinner
+   control_name="AutoTuneRenderFarClipMin"
+   height="20"
+   layout="topleft"
+   left_pad="15"
+   follows="top|left"
+   name="min_dd_autotune"
+   decimal_digits="2"
+   min_val="32"
+   max_val="256"
+   width="60">
+  </spinner>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="15"
+   left="20"
+   name="pref_dist_lbl"
+   width="120">
+    Maximum distance
+  </text>
+  <spinner
+   control_name="AutoTuneRenderFarClipTarget"
+   height="20"
+   layout="topleft"
+   follows="top|left"
+   name="pref_dd_autotune"
+   left_pad="15"
+   min_val="32"
+   max_val="256"
+   width="60">
+  </spinner>
+</panel>

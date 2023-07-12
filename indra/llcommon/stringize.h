@@ -30,7 +30,7 @@
 #define LL_STRINGIZE_H
 
 #include <sstream>
-#include <llstring.h>
+#include "llstring.h"
 #include <boost/call_traits.hpp>
 
 /**

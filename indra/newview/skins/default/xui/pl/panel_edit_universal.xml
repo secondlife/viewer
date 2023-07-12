@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="edit_universal_panel">
+	<scroll_container name="avatar_universal_scroll">
+		<panel name="avatar_universal_color_panel">
+			<texture_picker label="Tatuaż głowy" name="Head Universal Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: górny tułów" name="Upper Universal Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: dolny tułów" name="Lower Universal Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: spódnica" name="Skirt Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: włosy" name="Hair Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: oczy" name="Eyes Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: lewe ramię" name="Left Arm Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: lewa noga" name="Left Leg Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: Aux1" name="Aux1 Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: Aux2" name="Aux2 Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<texture_picker label="Tatuaż: Aux3" name="Aux3 Tattoo" tool_tip="Kliknij by wybrać grafikę" />
+			<color_swatch label="Kolor" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor" />
+		</panel>
+	</scroll_container>
+</panel>

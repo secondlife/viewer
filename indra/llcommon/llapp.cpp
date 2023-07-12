@@ -68,10 +68,6 @@ void setup_signals();
 void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 
 #if LL_LINUX
-#include "google_breakpad/minidump_descriptor.h"
-static bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_desc, 
-                                   void* context, 
-                                   bool succeeded);
 #else
 // Called by breakpad exception handler after the minidump has been generated.
 bool unix_post_minidump_callback(const char *dump_dir,
@@ -856,46 +852,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 }
 
 #if LL_LINUX
-bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_desc, void* context, bool succeeded)
-{
-	// Copy minidump file path into fixed buffer in the app instance to avoid
-	// heap allocations in a crash handler.
-	
-	// path format: <dump_dir>/<minidump_id>.dmp
-	
-	//HACK:  *path points to the buffer in getMiniDumpFilename which has already allocated space
-	//to avoid doing allocation during crash.
-	char * path = LLApp::instance()->getMiniDumpFilename();
-	int dir_path_len = strlen(path);
-	
-	// The path must not be truncated.
-	S32 remaining =  LLApp::MAX_MINDUMP_PATH_LENGTH - dir_path_len;
-
-	llassert( (remaining - strlen(minidump_desc.path())) > 5);
-	
-	path += dir_path_len;
-
-	if (dir_path_len > 0 && path[-1] != '/')
-	{
-		*path++ = '/';
-		--remaining;
-	}
-
-	strncpy(path, minidump_desc.path(), remaining);
-	
-	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
-	LLApp::runErrorHandler();
-	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	clear_signals();
-	return false;
-#else
-	return true;
 #endif
-
-}
-#endif
-
 
 bool unix_post_minidump_callback(const char *dump_dir,
 					  const char *minidump_id,

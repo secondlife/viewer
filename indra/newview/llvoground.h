@@ -49,7 +49,6 @@ public:
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
 
-	void cleanupGL();
 };
 
 #endif // LL_LLVOGROUND_H

@@ -40,7 +40,7 @@
 		按住並拖曳，可以選取土地
 	</floater.string>
 	<floater.string name="status_selectcount">
-		選取了 [OBJ_COUNT] 個物件，土地衝擊量 [LAND_IMPACT]
+		選取了 [OBJ_COUNT] 個物件，土地衝擊量 [LAND_IMPACT] [secondlife:///app/openfloater/object_weights 詳情]
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		剩餘容納量 [LAND_CAPACITY]。

@@ -257,12 +257,7 @@ void LLPngWrapper::normalizeImage()
 		png_set_strip_16(mReadPngPtr);
 	}
 
-#if LL_DARWIN
-	const F64 SCREEN_GAMMA = 1.8;
-#else
 	const F64 SCREEN_GAMMA = 2.2;
-#endif
-
 	if (png_get_gAMA(mReadPngPtr, mReadInfoPtr, &mGamma))
 	{
 		png_set_gamma(mReadPngPtr, SCREEN_GAMMA, mGamma);

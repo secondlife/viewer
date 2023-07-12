@@ -284,13 +284,11 @@ void ThreadRecorder::pullFromChildren()
 
 		AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
 		target_recording_buffers.sync();
-		for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
-			it != end_it;
-			++it)
-		{ LLMutexLock lock(&(*it)->mSharedRecordingMutex);
+		for (LLTrace::ThreadRecorder* rec : mChildThreadRecorders)
+		{ LLMutexLock lock(&(rec->mSharedRecordingMutex));
 
-			target_recording_buffers.merge((*it)->mSharedRecordingBuffers);
-			(*it)->mSharedRecordingBuffers.reset();
+			target_recording_buffers.merge(rec->mSharedRecordingBuffers);
+			rec->mSharedRecordingBuffers.reset();
 		}
 	}
 #endif
@@ -308,13 +306,13 @@ ThreadRecorder* get_master_thread_recorder()
 	return sMasterThreadRecorder;
 }
 
-LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder_ptr()
+ThreadRecorder*& get_thread_recorder_ptr()
 {
-	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
+	static thread_local ThreadRecorder* s_thread_recorder;
 	return s_thread_recorder;
 }
 
-const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
+ThreadRecorder* get_thread_recorder()
 {
 	return get_thread_recorder_ptr();
 }

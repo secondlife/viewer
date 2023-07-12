@@ -118,7 +118,6 @@ public:
 	static void clear();
 	static void addstandard();
 
-	static void init();
 	static void shutdown();
 	static void restoreGL();
 	static void destroyGL();

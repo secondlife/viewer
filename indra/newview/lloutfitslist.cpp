@@ -823,8 +823,7 @@ void LLOutfitListBase::onOpen(const LLSD& info)
         mCategoriesObserver->addCategory(outfits,
             boost::bind(&LLOutfitListBase::refreshList, this, outfits));
 
-        const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-
+        //const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
         // Start observing changes in Current Outfit category.
         //mCategoriesObserver->addCategory(cof, boost::bind(&LLOutfitsList::onCOFChanged, this));
 

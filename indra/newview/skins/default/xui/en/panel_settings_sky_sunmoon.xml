@@ -8,6 +8,7 @@
         name="panel_settings_sky_hbodies"
         top="0">
     <layout_stack 
+            name="main_ls"
             follows="all"
             layout="topleft"
             left="5"
@@ -24,6 +25,7 @@
                 name="sun_layout"
                 height="400">
             <text
+                    name="sun_stars_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -34,6 +36,7 @@
                 Sun &amp; Stars
             </text>
             <text
+                    name="position_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -51,6 +54,7 @@
                     width="150"
                     thumb_mode="sun" />
             <text
+                    name="image_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -67,6 +71,7 @@
                     top_pad="10"
                     width="100"/>
             <text
+                    name="scale_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -90,6 +95,7 @@
                     width="130"
                     can_edit_text="true"/>
             <text
+                    name="color_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -110,6 +116,7 @@
                     width="60" />
           <text
             follows="left|top"
+            name="sun_azimuth_label"
             height="10"
             layout="topleft"
             left_delta="-235"
@@ -133,6 +140,7 @@
             can_edit_text="true"/>
           <text
             follows="left|top"
+            name="sun_elevation_label"
             height="10"
             layout="topleft"
             left_delta="-5"
@@ -155,6 +163,7 @@
             width="215"
             can_edit_text="true"/>
             <text
+                    name="glow_focus_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -178,6 +187,7 @@
                     width="215"
                     can_edit_text="true"/>
             <text
+                    name="glow_size_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -201,6 +211,7 @@
                     width="215"
                     can_edit_text="true"/>
             <text
+                    name="star_brightness_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -237,6 +248,7 @@
                     
         </layout_panel>
         <layout_panel
+                name="moon_layout"
                 border="false"
                 bevel_style="in"
                 auto_resize="true"
@@ -244,6 +256,7 @@
                 visible="true"
                 height="400">
             <layout_stack 
+                    name="moon_stack"
                     left="5"
                     top="5"
                     right="-5"
@@ -259,6 +272,7 @@
                         name="moon_layout"
                         height="220">
                     <text
+                            name="moon_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -269,6 +283,7 @@
                         Moon
                     </text>
                     <text
+                            name="position_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -286,6 +301,7 @@
                             width="150"
                             thumb_mode="moon" />
                     <text
+                            name="moon_image_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -302,6 +318,7 @@
                             top_pad="10"
                             width="100"/>
                     <text
+                            name="scale_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -326,6 +343,7 @@
                             can_edit_text="true"/>
                   <text
                     follows="left|top"
+                    name="moon_azimuth_label"
                     height="10"
                     layout="topleft"
                     left_delta="-170"
@@ -349,6 +367,7 @@
                     can_edit_text="true"/>
                   <text
                     follows="left|top"
+                    name="moon_elevation_label"
                     height="10"
                     layout="topleft"
                     left_delta="-5"
@@ -371,6 +390,7 @@
                     width="215"
                     can_edit_text="true"/>
                   <text
+                    name="brightness_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"

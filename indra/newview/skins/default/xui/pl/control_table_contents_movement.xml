@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+	<rows name="move_actions">
+		<columns label="Ruch" name="lst_action" />
+	</rows>
+	<rows name="walk_to">
+		<columns name="lst_action" tool_tip="Podejdź do miejsca, której wskazuje kursor myszy." value="Podejdź do" />
+	</rows>
+	<rows name="teleport_to">
+		<columns name="lst_action" tool_tip="Teleportuj się do miejsca, które wskazuje kursor myszy - nie wszystkie lokalizacje pozwalają na bezpośrednią teleportację, więc zamiast tego możesz zostać teleportowana/y w pobliże celu." value="Teleportuj do" />
+	</rows>
+	<rows name="push_forward">
+		<columns name="lst_action" value="Idź w przód" />
+	</rows>
+	<rows name="push_backward">
+		<columns name="lst_action" value="Idź do tyłu" />
+	</rows>
+	<rows name="turn_left">
+		<columns name="lst_action" value="Obrót w lewo" />
+	</rows>
+	<rows name="turn_right">
+		<columns name="lst_action" value="Obrót w prawo" />
+	</rows>
+	<rows name="slide_left">
+		<columns name="lst_action" value="Idź w lewo" />
+	</rows>
+	<rows name="slide_right">
+		<columns name="lst_action" value="Idź w prawo" />
+	</rows>
+	<rows name="jump">
+		<columns name="lst_action" value="Skok / W górę" />
+	</rows>
+	<rows name="push_down">
+		<columns name="lst_action" value="W dół" />
+	</rows>
+	<rows name="run_forward">
+		<columns name="lst_action" value="Bieg w przód" />
+	</rows>
+	<rows name="run_backward">
+		<columns name="lst_action" value="Bieg w tył" />
+	</rows>
+	<rows name="run_left">
+		<columns name="lst_action" value="Bieg w lewo" />
+	</rows>
+	<rows name="run_right">
+		<columns name="lst_action" value="Bieg w prawo" />
+	</rows>
+	<rows name="toggle_run">
+		<columns name="lst_action" value="Zawsze biegaj" />
+	</rows>
+	<rows name="toggle_fly">
+		<columns name="lst_action" value="Lataj / Przestań" />
+	</rows>
+	<rows name="toggle_sit">
+		<columns name="lst_action" value="Usiądź / Wstań" />
+	</rows>
+	<rows name="stop_moving">
+		<columns name="lst_action" value="Wstrzymaj ruch" />
+	</rows>
+</contents>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_add_payment_method">
+	<panel name="wrapper_panel">
+		<text name="title_txt">
+			Dodaj metodę płatności, aby kupić Lindeny i lepiej doświadczać Second Life.
+		</text>
+		<button label="Rozpocznij" name="continue_btn" />
+		<button label="Później" name="close_btn" />
+		<text name="image_left_desc">
+			Stwórz awatara, którego pokochasz. Wybieraj spośród milionów sklepów i Second Life Marketplace. Twój styl jest tutaj.
+		</text>
+		<text name="image_center_desc">
+			Wspieraj swoich ulubionych wykonawców i gospodarzy. Pomożesz im tworzyć wspaniałe doświadczenia.
+		</text>
+		<text name="image_right_desc">
+			Stwórz dom swoich marzeń. Miliony przedmiotów dostępnych do kupienia mogą uczynić Twoje gniazdko wyjątkowym.
+		</text>
+	</panel>
+</floater>

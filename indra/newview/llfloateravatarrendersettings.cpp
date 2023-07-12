@@ -89,7 +89,6 @@ BOOL LLFloaterAvatarRenderSettings::postBuild()
     LLFloater::postBuild();
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
-    getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(boost::bind(&LLFloaterAvatarRenderSettings::onFilterEdit, this, _2));
 
 	return TRUE;
 }
@@ -133,35 +132,11 @@ void LLFloaterAvatarRenderSettings::updateList()
     {
         item_params.value = iter->first;
         LLAvatarNameCache::get(iter->first, &av_name);
-        if(!isHiddenRow(av_name.getCompleteName()))
-        {
-            item_params.columns.add().value(av_name.getCompleteName()).column("name");
-            std::string setting = getString(iter->second == 1 ? "av_never_render" : "av_always_render");
-            item_params.columns.add().value(setting).column("setting");
-            std::string timestamp = createTimestamp(LLRenderMuteList::getInstance()->getVisualMuteDate(iter->first));
-            item_params.columns.add().value(timestamp).column("timestamp");
-            mAvatarSettingsList->addNameItemRow(item_params);
-        }
+        item_params.columns.add().value(av_name.getCompleteName()).column("name");
+        std::string setting = getString(iter->second == 1 ? "av_never_render" : "av_always_render");
+        item_params.columns.add().value(setting).column("setting");
+        mAvatarSettingsList->addNameItemRow(item_params);
     }
-}
-
-void LLFloaterAvatarRenderSettings::onFilterEdit(const std::string& search_string)
-{
-    std::string filter_upper = search_string;
-    LLStringUtil::toUpper(filter_upper);
-    if (mNameFilter != filter_upper)
-    {
-        mNameFilter = filter_upper;
-        mNeedsUpdate = true;
-    }
-}
-
-bool LLFloaterAvatarRenderSettings::isHiddenRow(const std::string& av_name)
-{
-    if (mNameFilter.empty()) return false;
-    std::string upper_name = av_name;
-    LLStringUtil::toUpper(upper_name);
-    return std::string::npos == upper_name.find(mNameFilter);
 }
 
 static LLVOAvatar* find_avatar(const LLUUID& id)
@@ -213,6 +188,10 @@ bool LLFloaterAvatarRenderSettings::isActionChecked(const LLSD& userdata, const 
     if ("default" == command_name)
     {
         return (visual_setting == S32(LLVOAvatar::AV_RENDER_NORMALLY));
+    }
+    else if ("non_default" == command_name)
+    {
+        return (visual_setting != S32(LLVOAvatar::AV_RENDER_NORMALLY));
     }
     else if ("never" == command_name)
     {

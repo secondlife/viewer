@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="profile_permissions">
+	<string name="description_string" value="Zezwól [AGENT_NAME] na:" />
+	<text name="perm_description" value="Zezwól tej osobie:" />
+	<check_box name="online_check" label="Widzieć gdy jestem online" />
+	<check_box name="map_check" label="Znajdować mnie na mapie" />
+	<check_box name="objects_check" label="Edytować, usuwać lub zabierać moje obiekty" />
+	<button name="perms_btn_cancel" label="Anuluj" />
+</floater>

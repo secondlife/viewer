@@ -8,16 +8,6 @@
  tab_stop="false" 
  name="main_view"
  width="1024">
-
-  <!-- At the moment layout_stack is not an LLUICtrl,
-  but Tab requires focus_root to function and focus_root
-  functionality is implemented in LLUICtrl -->
-  <panel follows="all"
-         height="768"
-         name="menu_tab_wrapper"
-         mouse_opaque="false"
-         focus_root="true"
-         top="0">
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
@@ -25,31 +15,35 @@
                 name="menu_stack"
                 orientation="vertical"
                 top="0">
+    <!-- Menu, nav bar and status bar need common focus_root-->
     <layout_panel mouse_opaque="true"
               follows="left|right|top"
               name="status_bar_container"
+              focus_root="true"
               height="19"
               left="0"
               top="0"
               width="1024"
               auto_resize="false"
-              default_tab_group="1"
               visible="true">
       <view mouse_opaque="false"
-            follows="all"
+            follows="top|left|right"
             name="menu_bar_holder"
+            tab_group="1"
             left="0"
             top="0"
             width="1024"
-            tab_group="1"
             height="19"/>
+      <view mouse_opaque="false"
+            follows="top|left|right"
+            name="nav_bar_container"
+            tab_group="3"
+            left="0"
+            top="19"
+            width="1024"
+            height="34"
+            visible="false"/>
     </layout_panel>
-    <layout_panel auto_resize="false"
-                  height="34"
-                  mouse_opaque="false"
-                  name="nav_bar_container"
-                  width="1024"
-                  visible="false"/>
     <layout_panel auto_resize="true"  
                   follows="all"
                   height="500"
@@ -109,7 +103,6 @@
              tab_stop="false"/>
     </layout_panel>
   </layout_stack>
-  </panel> <!--menu_tab_wrapper-->
  
   <panel top="0"
         follows="all"

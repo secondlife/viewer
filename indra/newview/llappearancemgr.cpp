@@ -3987,7 +3987,7 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 		// existence of AIS as an indicator the fix is present. Does
 		// not actually use AIS to create the category.
 		inventory_func_type func = boost::bind(&LLAppearanceMgr::onOutfitFolderCreated,this,_1,show_panel);
-		LLUUID folder_id = gInventory.createNewCategory(
+		gInventory.createNewCategory(
 			parent_id,
 			LLFolderType::FT_OUTFIT,
 			new_folder_name,

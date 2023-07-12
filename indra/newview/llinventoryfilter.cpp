@@ -437,7 +437,6 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) const
 {
 	LLInventoryType::EType object_type = item->getInventoryType();
-	const LLUUID object_id = item->getUUID();
 
 	const U32 filterTypes = mFilterOps.mFilterTypes;
 

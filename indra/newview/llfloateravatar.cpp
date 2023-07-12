@@ -44,17 +44,21 @@ LLFloaterAvatar::LLFloaterAvatar(const LLSD& key)
 
 LLFloaterAvatar::~LLFloaterAvatar()
 {
-	LLMediaCtrl* avatar_picker = findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (avatar_picker)
+	if (mAvatarPicker)
 	{
-		avatar_picker->navigateStop();
-		avatar_picker->clearCache();          //images are reloading each time already
-		avatar_picker->unloadMediaSource();
+		mAvatarPicker->navigateStop();
+        mAvatarPicker->clearCache();          //images are reloading each time already
+        mAvatarPicker->unloadMediaSource();
 	}
 }
 
 BOOL LLFloaterAvatar::postBuild()
 {
+    mAvatarPicker = findChild<LLMediaCtrl>("avatar_picker_contents");
+    if (mAvatarPicker)
+    {
+        mAvatarPicker->clearCache();
+    }
 	enableResizeCtrls(true, true, false);
 	return TRUE;
 }

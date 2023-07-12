@@ -74,6 +74,7 @@ bool LLEstateInfoModel::getDenyAgeUnverified()		const {	return getFlag(REGION_FL
 bool LLEstateInfoModel::getAllowVoiceChat()			const { return getFlag(REGION_FLAGS_ALLOW_VOICE); }
 bool LLEstateInfoModel::getAllowAccessOverride()	const { return getFlag(REGION_FLAGS_ALLOW_ACCESS_OVERRIDE); }
 bool LLEstateInfoModel::getAllowEnvironmentOverride() const { return getFlag(REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE); }
+bool LLEstateInfoModel::getDenyScriptedAgents()     const { return getFlag(REGION_FLAGS_DENY_BOTS); }
 
 void LLEstateInfoModel::setUseFixedSun(bool val)			{ setFlag(REGION_FLAGS_SUN_FIXED, 				val);	}
 void LLEstateInfoModel::setIsExternallyVisible(bool val)	{ setFlag(REGION_FLAGS_EXTERNALLY_VISIBLE,		val);	}
@@ -83,6 +84,7 @@ void LLEstateInfoModel::setDenyAgeUnverified(bool val)		{ setFlag(REGION_FLAGS_D
 void LLEstateInfoModel::setAllowVoiceChat(bool val)		    { setFlag(REGION_FLAGS_ALLOW_VOICE,				val);	}
 void LLEstateInfoModel::setAllowAccessOverride(bool val)    { setFlag(REGION_FLAGS_ALLOW_ACCESS_OVERRIDE,   val);   }
 void LLEstateInfoModel::setAllowEnvironmentOverride(bool val) { setFlag(REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE, val); }
+void LLEstateInfoModel::setDenyScriptedAgents(bool val)     { setFlag(REGION_FLAGS_DENY_BOTS, val); }
 
 void LLEstateInfoModel::update(const strings_t& strings)
 {
@@ -148,6 +150,7 @@ void LLEstateInfoModel::commitEstateInfoCapsCoro(std::string url)
     body["allow_direct_teleport"] = getAllowDirectTeleport();
     body["deny_anonymous"] = getDenyAnonymous();
     body["deny_age_unverified"] = getDenyAgeUnverified();
+    body["block_bots"] = getDenyScriptedAgents();
     body["allow_voice_chat"] = getAllowVoiceChat();
     body["override_public_access"] = getAllowAccessOverride();
 
@@ -222,6 +225,7 @@ std::string LLEstateInfoModel::getInfoDump()
 	dump["allow_direct_teleport"] = getAllowDirectTeleport();
 	dump["deny_anonymous"       ] = getDenyAnonymous();
 	dump["deny_age_unverified"  ] = getDenyAgeUnverified();
+    dump["block_bots"           ] = getDenyScriptedAgents();
 	dump["allow_voice_chat"     ] = getAllowVoiceChat();
     dump["override_public_access"] = getAllowAccessOverride();
     dump["override_environment"] = getAllowEnvironmentOverride();

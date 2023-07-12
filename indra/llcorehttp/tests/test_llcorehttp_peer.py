@@ -38,7 +38,6 @@ from io import StringIO
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
-from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
 
 # we're in llcorehttp/tests ; testrunner.py is found in llmessage/tests

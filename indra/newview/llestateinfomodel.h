@@ -57,6 +57,7 @@ public:
 	bool				getAllowVoiceChat()			const;
     bool                getAllowAccessOverride()    const;
     bool                getAllowEnvironmentOverride() const;
+    bool                getDenyScriptedAgents()     const;
 
 	const std::string&	getName()					const { return mName; }
 	const LLUUID&		getOwnerID()				const { return mOwnerID; }
@@ -72,6 +73,7 @@ public:
 	void setAllowVoiceChat(bool val);
     void setAllowAccessOverride(bool val);
     void setAllowEnvironmentOverride(bool val);
+    void setDenyScriptedAgents(bool val);
 
 	void setSunHour(F32 sun_hour) { mSunHour = sun_hour; }
 

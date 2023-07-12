@@ -428,13 +428,18 @@ void LLFloaterAvatarPicker::findCoro(std::string url, LLUUID queryID, std::strin
 
     if (status || (status == LLCore::HttpStatus(HTTP_BAD_REQUEST)))
     {
-        LLFloaterAvatarPicker* floater =
-            LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", name);
-        if (floater)
-        {
-            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
-            floater->processResponse(queryID, result);
-        }
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    }
+    else
+    {
+        result["failure_reason"] = status.toString();
+    }
+
+    LLFloaterAvatarPicker* floater =
+        LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", name);
+    if (floater)
+    {
+        floater->processResponse(queryID, result);
     }
 }
 
@@ -672,59 +677,67 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 	{
 		LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
 
-		LLSD agents = content["agents"];
+        // clear "Searching" label on first results
+        search_results->deleteAllItems();
 
-		// clear "Searching" label on first results
-		search_results->deleteAllItems();
+        if (content.has("failure_reason"))
+        {
+            getChild<LLScrollListCtrl>("SearchResults")->setCommentText(content["failure_reason"].asString());
+            getChildView("ok_btn")->setEnabled(false);
+        }
+        else
+        {
+            LLSD agents = content["agents"];
 
-		LLSD item;
-		LLSD::array_const_iterator it = agents.beginArray();
-		for ( ; it != agents.endArray(); ++it)
-		{
-			const LLSD& row = *it;
-			if (row["id"].asUUID() != gAgent.getID() || !mExcludeAgentFromSearchResults)
-			{
-				item["id"] = row["id"];
-				LLSD& columns = item["columns"];
-				columns[0]["column"] = "name";
-				columns[0]["value"] = row["display_name"];
-				columns[1]["column"] = "username";
-				columns[1]["value"] = row["username"];
-				search_results->addElement(item);
+            LLSD item;
+            LLSD::array_const_iterator it = agents.beginArray();
+            for (; it != agents.endArray(); ++it)
+            {
+                const LLSD& row = *it;
+                if (row["id"].asUUID() != gAgent.getID() || !mExcludeAgentFromSearchResults)
+                {
+                    item["id"] = row["id"];
+                    LLSD& columns = item["columns"];
+                    columns[0]["column"] = "name";
+                    columns[0]["value"] = row["display_name"];
+                    columns[1]["column"] = "username";
+                    columns[1]["value"] = row["username"];
+                    search_results->addElement(item);
 
-				// add the avatar name to our list
-				LLAvatarName avatar_name;
-				avatar_name.fromLLSD(row);
-				sAvatarNameMap[row["id"].asUUID()] = avatar_name;
-			}
-		}
+                    // add the avatar name to our list
+                    LLAvatarName avatar_name;
+                    avatar_name.fromLLSD(row);
+                    sAvatarNameMap[row["id"].asUUID()] = avatar_name;
+                }
+            }
 
-		if (search_results->isEmpty())
-		{
-			std::string name = "'" + getChild<LLUICtrl>("Edit")->getValue().asString() + "'";
-			LLSD item;
-			item["id"] = LLUUID::null;
-			item["columns"][0]["column"] = "name";
-			item["columns"][0]["value"] = name;
-			item["columns"][1]["column"] = "username";
-			item["columns"][1]["value"] = getString("not_found_text");
-			search_results->addElement(item);
-			search_results->setEnabled(false);
-			getChildView("ok_btn")->setEnabled(false);
-		}
-		else
-		{
-			getChildView("ok_btn")->setEnabled(true);
-			search_results->setEnabled(true);
-			search_results->sortByColumnIndex(1, TRUE);
-			std::string text = getChild<LLUICtrl>("Edit")->getValue().asString();
-			if (!search_results->selectItemByLabel(text, TRUE, 1))
-			{
-				search_results->selectFirstItem();
-			}			
-			onList();
-			search_results->setFocus(TRUE);
-		}
+            if (search_results->isEmpty())
+            {
+                std::string name = "'" + getChild<LLUICtrl>("Edit")->getValue().asString() + "'";
+                LLSD item;
+                item["id"] = LLUUID::null;
+                item["columns"][0]["column"] = "name";
+                item["columns"][0]["value"] = name;
+                item["columns"][1]["column"] = "username";
+                item["columns"][1]["value"] = getString("not_found_text");
+                search_results->addElement(item);
+                search_results->setEnabled(false);
+                getChildView("ok_btn")->setEnabled(false);
+            }
+            else
+            {
+                getChildView("ok_btn")->setEnabled(true);
+                search_results->setEnabled(true);
+                search_results->sortByColumnIndex(1, TRUE);
+                std::string text = getChild<LLUICtrl>("Edit")->getValue().asString();
+                if (!search_results->selectItemByLabel(text, TRUE, 1))
+                {
+                    search_results->selectFirstItem();
+                }
+                onList();
+                search_results->setFocus(TRUE);
+            }
+        }
 	}
 }
 

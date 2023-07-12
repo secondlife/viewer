@@ -1597,7 +1597,8 @@ bool LLViewerInput::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 
 BOOL LLViewerInput::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
 {
-    BOOL handled = gViewerWindow->handleAnyMouseClick(window_impl, pos, mask, clicktype, down);
+    bool is_toolmgr_action = false;
+    BOOL handled = gViewerWindow->handleAnyMouseClick(window_impl, pos, mask, clicktype, down, is_toolmgr_action);
 
     if (clicktype != CLICK_NONE)
     {
@@ -1614,11 +1615,21 @@ BOOL LLViewerInput::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask,
             clicktype = CLICK_DOUBLELEFT;
         }
 
+        // If the first LMB click is handled by the menu, skip the following double click
+        static bool skip_double_click = false;
+        if (clicktype == CLICK_LEFT && down && !is_toolmgr_action)
+        {
+            skip_double_click = handled;
+        }
 
         if (double_click_sp && down)
         {
             // Consume click.
             // Due to handling, double click that is not handled will be immediately followed by LMB click
+        }
+        else if (clicktype == CLICK_DOUBLELEFT && skip_double_click)
+        {
+            handled = true;
         }
         // If UI handled 'down', it should handle 'up' as well
         // If we handle 'down' not by UI, then we should handle 'up'/'level' regardless of UI

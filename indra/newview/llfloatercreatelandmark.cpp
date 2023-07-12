@@ -316,7 +316,6 @@ void LLFloaterCreateLandmark::onSaveClicked()
 	LLStringUtil::trim(current_title_value);
 	LLStringUtil::trim(current_notes_value);
 
-	LLUUID item_id = mItem->getUUID();
 	LLUUID folder_id = mFolderCombo->getValue().asUUID();
 	bool change_parent = folder_id != mItem->getParentUUID();
 

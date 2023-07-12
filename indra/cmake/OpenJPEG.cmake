@@ -1,22 +1,11 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(OPENJPEG_FIND_QUIETLY ON)
-set(OPENJPEG_FIND_REQUIRED ON)
+include_guard()
+add_library( ll::openjpeg INTERFACE IMPORTED )
 
-if (USESYSTEMLIBS)
-  include(FindOpenJPEG)
-else (USESYSTEMLIBS)
-  use_prebuilt_binary(openjpeg)
-  
-  if(WINDOWS)
-    # Windows has differently named release and debug openjpeg(d) libs.
-    set(OPENJPEG_LIBRARIES 
-        debug openjpegd
-        optimized openjpeg)
-  else(WINDOWS)
-    set(OPENJPEG_LIBRARIES openjpeg)
-  endif(WINDOWS)
-  
-    set(OPENJPEG_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/openjpeg)
-endif (USESYSTEMLIBS)
+use_system_binary(openjpeg)
+use_prebuilt_binary(openjpeg)
+
+target_link_libraries(ll::openjpeg INTERFACE openjp2 )
+target_include_directories( ll::openjpeg SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/openjpeg)

@@ -402,6 +402,11 @@ private:
     bool                        mShowMoonBeacon;
     S32                         mEditorCounter;
 
+    connection_t                mParcelCallbackConnection;
+    connection_t                mRegionUpdateCallbackConnection;
+    connection_t                mRegionChangeCallbackConnection;
+    connection_t                mPositionCallbackConnection;
+
     struct UpdateInfo
     {
         typedef std::shared_ptr<UpdateInfo> ptr_t;

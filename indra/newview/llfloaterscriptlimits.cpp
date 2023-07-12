@@ -421,7 +421,6 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	for(S32 i = 0; i < number_parcels; i++)
 	{
 		std::string parcel_name = content["parcels"][i]["name"].asString();
-		LLUUID parcel_id = content["parcels"][i]["id"].asUUID();
 		S32 number_objects = content["parcels"][i]["objects"].size();
 
 		S32 local_id = 0;

@@ -1,22 +1,17 @@
 # -*- cmake -*-
 
 include(Prebuilt)
+include_guard()
+add_library( ll::jsoncpp INTERFACE IMPORTED )
 
-set(JSONCPP_FIND_QUIETLY ON)
-set(JSONCPP_FIND_REQUIRED ON)
+use_system_binary(jsoncpp)
 
-if (USESYSTEMLIBS)
-  include(FindJsonCpp)
-else (USESYSTEMLIBS)
-  use_prebuilt_binary(jsoncpp)
-  if (WINDOWS)
-    set(JSONCPP_LIBRARIES 
-      debug json_libmdd.lib
-      optimized json_libmd.lib)
-  elseif (DARWIN)
-    set(JSONCPP_LIBRARIES libjson_darwin_libmt.a)
-  elseif (LINUX)
-    set(JSONCPP_LIBRARIES libjson_linux-gcc-4.1.3_libmt.a)
-  endif (WINDOWS)
-  set(JSONCPP_INCLUDE_DIR "${LIBS_PREBUILT_DIR}/include/jsoncpp" "${LIBS_PREBUILT_DIR}/include/json")
-endif (USESYSTEMLIBS)
+use_prebuilt_binary(jsoncpp)
+if (WINDOWS)
+  target_link_libraries( ll::jsoncpp INTERFACE json_libmd.lib )
+elseif (DARWIN)
+  target_link_libraries( ll::jsoncpp INTERFACE libjson_darwin_libmt.a )
+elseif (LINUX)
+  target_link_libraries( ll::jsoncpp INTERFACE libjson_linux-gcc-4.1.3_libmt.a )
+endif (WINDOWS)
+target_include_directories( ll::jsoncpp SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)

@@ -1,7 +1,9 @@
 # -*- cmake -*-
 
+add_library( ll::pluginlibraries INTERFACE IMPORTED )
+
 if (WINDOWS)
-  set(PLUGIN_API_WINDOWS_LIBRARIES
+  target_link_libraries( ll::pluginlibraries INTERFACE
       wsock32
       ws2_32
       psapi
@@ -9,8 +11,6 @@ if (WINDOWS)
       advapi32
       user32
       )
-else (WINDOWS)
-  set(PLUGIN_API_WINDOWS_LIBRARIES "")
 endif (WINDOWS)
 
 

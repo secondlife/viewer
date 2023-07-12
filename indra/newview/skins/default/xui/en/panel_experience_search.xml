@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+  name="panel_experience_search"
   layout="topleft"
   top="18"
   left="0"
@@ -44,6 +45,7 @@
     top="0"
     name="search_panel">
     <text
+      name="lbl name part"
       left="0"
       follows="top|left|right"
       right="-1">
@@ -63,6 +65,7 @@
             height="18"
             name="find"/>
     <text
+      name="lbl max content rating"
       top_pad="6"
       left="0"
       follows="top|left"

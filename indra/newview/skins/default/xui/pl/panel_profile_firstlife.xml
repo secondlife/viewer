@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_profile_firstlife" label="Profil">
+	<button name="fl_upload_image" label="Prześlij obraz" />
+	<button name="fl_change_image" label="Zmień obraz" />
+	<button name="fl_remove_image" label="Usuń obraz" />
+	<button name="fl_save_changes" label="Zapisz" />
+	<button name="fl_discard_changes" label="Odrzuć" />
+</panel>

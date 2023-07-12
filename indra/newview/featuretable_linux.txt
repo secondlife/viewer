@@ -33,7 +33,6 @@ RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   16
 RenderAvatarMaxComplexity          1	350000
-RenderAvatarVP				1	1
 RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0
@@ -80,7 +79,6 @@ RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   3
 RenderAvatarMaxComplexity          1	25000
-RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
@@ -111,7 +109,6 @@ RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   3
 RenderAvatarMaxComplexity          1	35000
-RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
@@ -141,7 +138,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0.5
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	0.75
-RenderAvatarVP				1	1
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
@@ -171,7 +167,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	200000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -201,7 +196,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	250000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -231,7 +225,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	300000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -261,7 +254,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	350000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -290,7 +282,6 @@ RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -367,7 +358,6 @@ RenderCompressTextures		1	0
 // No Pixel Shaders available
 //
 list NoPixelShaders
-RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
@@ -380,7 +370,6 @@ RenderShadowDetail			0	0
 // No Vertex Shaders available
 //
 list NoVertexShaders
-RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
@@ -402,7 +391,6 @@ RenderVBOMappingDisable		1	1
 list safe
 RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
-RenderAvatarVP				0	0
 RenderAvatarMaxNonImpostors 1	16
 RenderAvatarMaxComplexity          1	80000
 RenderObjectBump			0	0
@@ -597,7 +585,6 @@ Disregard128DefaultDrawDistance	1	0
 // on various ATI chipsets on drivers before 8.2
 
 list ATIOldDriver
-RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 // Avoid driver crashes with some features on Linux with old ATI drivers
 UseOcclusion				0	0

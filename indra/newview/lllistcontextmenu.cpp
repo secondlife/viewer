@@ -51,6 +51,7 @@ LLListContextMenu::~LLListContextMenu()
 	if (!mMenuHandle.isDead())
 	{
 		mMenuHandle.get()->die();
+		mMenuHandle.markDead();
 	}
 }
 
@@ -59,13 +60,8 @@ void LLListContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32
 	LLContextMenu* menup = mMenuHandle.get();
 	if (menup)
 	{
-		//preventing parent (menu holder) from deleting already "dead" context menus on exit
-		LLView* parent = menup->getParent();
-		if (parent)
-		{
-			parent->removeChild(menup);
-		}
-		delete menup;
+		menup->die();
+		mMenuHandle.markDead();
 		mUUIDs.clear();
 	}
 

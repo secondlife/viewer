@@ -13,15 +13,6 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLKDU)
-include(LLMath)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${KDU_INCLUDE_DIR}
-    ${LLKDU_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    )
 
 set(llkdu_SOURCE_FILES
     llimagej2ckdu.cpp
@@ -30,13 +21,9 @@ set(llkdu_SOURCE_FILES
 
 set(llkdu_HEADER_FILES
     CMakeLists.txt
-    
     llimagej2ckdu.h
     llkdumem.h
     )
-
-set_source_files_properties(${llkdu_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 
 list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 
@@ -51,11 +38,14 @@ set_source_files_properties(${llkdu_SOURCE_FILES}
 if (USE_KDU)
   add_library (llkdu ${llkdu_SOURCE_FILES})
 
-  target_link_libraries(llkdu
-    ${KDU_LIBRARY})
-  
+  target_link_libraries(llkdu ll::kdu llimage llcommon)
+  target_include_directories( llkdu  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+
   # Add tests
-  if (LL_TESTS)
+  # ND: llkdu tests are very strange as they include stubs for KDU classes/methods
+  # if not having access to the right KDU version this test will fail to compile, incidentally I do not
+  # have access to a matching version of KDU and thus cannot get this tests to compile
+  if (LL_TESTS_KDU)
     include(LLAddBuildTest)
     include(Tut)
     SET(llkdu_TEST_SOURCE_FILES
@@ -66,11 +56,12 @@ if (USE_KDU)
       llkdumem.h
       lltut.h
       )
-    SET(llkdu_test_additional_INCLUDE_DIRS
-      ${KDU_INCLUDE_DIR}
-      ${LLKDU_INCLUDE_DIRS}
-    )
+
+    get_property( llimage_include_dir TARGET llimage PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
+    set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES  ll::kdu llcommon)
+    set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_INCLUDE_DIRS ${llimage_include_dir})
+
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
-  endif (LL_TESTS)
+  endif (LL_TESTS_KDU)
 
 endif (USE_KDU)

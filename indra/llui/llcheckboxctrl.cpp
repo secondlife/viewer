@@ -203,11 +203,9 @@ void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
     // it will work fine in case of decrease of space, but if we get more space or text
     // becomes longer, label will fail to grow so reinit label's dimentions.
     
-    static LLUICachedControl<S32> llcheckboxctrl_hpad("UICheckboxctrlHPad", 0);
     LLRect label_rect = mLabel->getRect();
-    S32 new_width = getRect().getWidth() - label_rect.mLeft - llcheckboxctrl_hpad;
-    label_rect.mRight = label_rect.mLeft + new_width;
-    mLabel->setRect(label_rect);
+    S32 new_width = rect.getWidth() - label_rect.mLeft;
+    mLabel->reshape(new_width, label_rect.getHeight(), TRUE);
 
 	S32 label_top = label_rect.mTop;
 	mLabel->reshapeToFitText(TRUE);

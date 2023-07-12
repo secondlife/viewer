@@ -1103,6 +1103,18 @@ void LLPanelLogin::onRememberPasswordCheck(void*)
     if (sInstance)
     {
         gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
+
+        LLPointer<LLCredential> cred;
+        bool remember_user, remember_password;
+        getFields(cred, remember_user, remember_password);
+
+        std::string grid(LLGridManager::getInstance()->getGridId());
+        std::string user_id(cred->userID());
+        if (!remember_password)
+        {
+            gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
+            gSecAPIHandler->syncProtectedMap();
+        }
     }
 }
 

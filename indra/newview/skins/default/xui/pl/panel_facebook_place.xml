@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="panel_facebook_place">
-	<text name="place_caption_label">
-		Opowiedz coś o miejscu, w którym jesteś:
-	</text>
-	<check_box label="Dołącz widok z lotu ptaka" name="add_place_view_cb" />
-	<button label="Wyślij" name="post_place_btn" />
-	<button label="Anuluj" name="cancel_place_btn" />
-</panel>

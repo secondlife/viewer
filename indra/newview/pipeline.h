@@ -425,6 +425,7 @@ public:
 	void skipRenderingOfTerrain( bool flag );
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
+    void handleShadowDetailChanged();
 
 private:
 	void unloadShaders();
@@ -436,6 +437,7 @@ private:
 	void connectRefreshCachedSettingsSafe(const std::string name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
+    void skipRenderingShadows();
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
@@ -465,7 +467,7 @@ public:
         RENDER_TYPE_PASS_SIMPLE_RIGGED = LLRenderPass::PASS_SIMPLE_RIGGED,
 		RENDER_TYPE_PASS_GRASS					= LLRenderPass::PASS_GRASS,
 		RENDER_TYPE_PASS_FULLBRIGHT				= LLRenderPass::PASS_FULLBRIGHT,
-        RENDER_TYPE_PASS_FULLBRIGHT_RIGGED = LLRenderPass::PASS_FULLBRIGHT,
+        RENDER_TYPE_PASS_FULLBRIGHT_RIGGED = LLRenderPass::PASS_FULLBRIGHT_RIGGED,
 		RENDER_TYPE_PASS_INVISIBLE				= LLRenderPass::PASS_INVISIBLE,
         RENDER_TYPE_PASS_INVISIBLE_RIGGED = LLRenderPass::PASS_INVISIBLE_RIGGED,
 		RENDER_TYPE_PASS_INVISI_SHINY			= LLRenderPass::PASS_INVISI_SHINY,
@@ -717,7 +719,6 @@ protected:
 	U64						mOldRenderDebugMask;
 	std::stack<U32>			mRenderDebugFeatureStack;
 
-	
 	/////////////////////////////////////////////
 	//
 	//
@@ -912,6 +913,7 @@ public:
 	static U32 RenderResolutionDivisor;
 	static bool RenderUIBuffer;
 	static S32 RenderShadowDetail;
+    static S32 RenderShadowSplits;
 	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
 	static bool RenderLocalLights;

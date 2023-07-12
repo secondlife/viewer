@@ -51,6 +51,10 @@ class SpeakingIndicatorManager : public LLSingleton<SpeakingIndicatorManager>, L
 	LLSINGLETON(SpeakingIndicatorManager);
 	~SpeakingIndicatorManager();
 	LOG_CLASS(SpeakingIndicatorManager);
+
+protected:
+    void                cleanupSingleton();
+
 public:
 
 	/**
@@ -183,12 +187,16 @@ SpeakingIndicatorManager::SpeakingIndicatorManager()
 
 SpeakingIndicatorManager::~SpeakingIndicatorManager()
 {
-	// Don't use LLVoiceClient::getInstance() here without check
-	// singleton MAY have already been destroyed.
-	if(LLVoiceClient::instanceExists())
-	{
-		LLVoiceClient::getInstance()->removeObserver(this);
-	}
+}
+
+void SpeakingIndicatorManager::cleanupSingleton()
+{
+    // Don't use LLVoiceClient::getInstance() here without a check,
+    // singleton MAY have already been destroyed.
+    if (LLVoiceClient::instanceExists())
+    {
+        LLVoiceClient::getInstance()->removeObserver(this);
+    }
 }
 
 void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)

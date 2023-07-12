@@ -55,6 +55,7 @@
 #include "llviewerwindow.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
+#include "llworld.h"
 
 #include "boost/lexical_cast.hpp"
 #if LL_MSVC
@@ -452,7 +453,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
     BOOL accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
     BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
-        LLMuteList::getInstance()->isLinden(name);
+        LLMuteList::isLinden(name);
 
     chat.mMuted = is_muted;
     chat.mFromID = from_id;
@@ -521,7 +522,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     parent_estate_id,
                     region_id,
                     position,
-                    true);
+                    false,      // is_region_msg
+                    timestamp);
 
                 if (!gIMMgr->isDNDMessageSend(session_id))
                 {
@@ -572,6 +574,15 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 }
                 if (!mute_im)
                 {
+                    bool region_message = false;
+                    if (region_id.isNull())
+                    {
+                        LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(from_id);
+                        if (regionp)
+                        {
+                            region_message = true;
+                        }
+                    }
                     gIMMgr->addMessage(
                         session_id,
                         from_id,
@@ -583,7 +594,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                         parent_estate_id,
                         region_id,
                         position,
-                        true);
+                        region_message,
+                        timestamp);
                 }
                 else
                 {
@@ -1103,7 +1115,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     parent_estate_id,
                     region_id,
                     position,
-                    true);
+                    false,      // is_region_msg
+                    timestamp);
             }
             else
             {
@@ -1123,13 +1136,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     from_id,
                     name,
                     buffer,
-                    IM_OFFLINE == offline,
-                    ll_safe_string((char*)binary_bucket),
+                    (IM_OFFLINE == offline),
+                    ll_safe_string((char*)binary_bucket),   // session name
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
                     position,
-                    true);
+                    false,      // is_region_msg
+                    timestamp);
             }
             break;
 
@@ -1561,7 +1575,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         return;
     }
 
-    if (messages.emptyArray())
+    if (messages.size() == 0)
     {
         // Nothing to process
         return;

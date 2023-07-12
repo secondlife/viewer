@@ -35,7 +35,6 @@
 #include "llassettype.h"
 #include "lldir.h"
 #include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <chrono>
 
 #include "lldiskcache.h"
@@ -100,19 +99,20 @@ void LLDiskCache::purge()
 #endif
     if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_path, ec), {}))
+        boost::filesystem::directory_iterator iter(cache_path, ec);
+        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
         {
-            if (boost::filesystem::is_regular_file(entry, ec) && !ec.failed())
+            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
             {
-                if (entry.path().string().find(mCacheFilenamePrefix) != std::string::npos)
+                if ((*iter).path().string().find(mCacheFilenamePrefix) != std::string::npos)
                 {
-                    uintmax_t file_size = boost::filesystem::file_size(entry, ec);
+                    uintmax_t file_size = boost::filesystem::file_size(*iter, ec);
                     if (ec.failed())
                     {
                         continue;
                     }
-                    const std::string file_path = entry.path().string();
-                    const std::time_t file_time = boost::filesystem::last_write_time(entry, ec);
+                    const std::string file_path = (*iter).path().string();
+                    const std::time_t file_time = boost::filesystem::last_write_time(*iter, ec);
                     if (ec.failed())
                     {
                         continue;
@@ -121,6 +121,7 @@ void LLDiskCache::purge()
                     file_info.push_back(file_info_t(file_time, { file_size, file_path }));
                 }
             }
+            iter.increment(ec);
         }
     }
 
@@ -348,19 +349,21 @@ void LLDiskCache::clearCache()
 #endif
     if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_path, ec), {}))
+        boost::filesystem::directory_iterator iter(cache_path, ec);
+        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
         {
-            if (boost::filesystem::is_regular_file(entry, ec) && !ec.failed())
+            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
             {
-                if (entry.path().string().find(mCacheFilenamePrefix) != std::string::npos)
+                if ((*iter).path().string().find(mCacheFilenamePrefix) != std::string::npos)
                 {
-                    boost::filesystem::remove(entry, ec);
+                    boost::filesystem::remove(*iter, ec);
                     if (ec.failed())
                     {
-                        LL_WARNS() << "Failed to delete cache file " << entry << ": " << ec.message() << LL_ENDL;
+                        LL_WARNS() << "Failed to delete cache file " << *iter << ": " << ec.message() << LL_ENDL;
                     }
                 }
             }
+            iter.increment(ec);
         }
     }
 }
@@ -379,20 +382,22 @@ void LLDiskCache::removeOldVFSFiles()
 #endif
     if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_path, ec), {}))
+        boost::filesystem::directory_iterator iter(cache_path, ec);
+        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
         {
-            if (boost::filesystem::is_regular_file(entry, ec) && !ec.failed())
+            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
             {
-                if ((entry.path().string().find(CACHE_FORMAT) != std::string::npos) ||
-                    (entry.path().string().find(DB_FORMAT) != std::string::npos))
+                if (((*iter).path().string().find(CACHE_FORMAT) != std::string::npos) ||
+                    ((*iter).path().string().find(DB_FORMAT) != std::string::npos))
                 {
-                    boost::filesystem::remove(entry, ec);
+                    boost::filesystem::remove(*iter, ec);
                     if (ec.failed())
                     {
-                        LL_WARNS() << "Failed to delete cache file " << entry << ": " << ec.message() << LL_ENDL;
+                        LL_WARNS() << "Failed to delete cache file " << *iter << ": " << ec.message() << LL_ENDL;
                     }
                 }
             }
+            iter.increment(ec);
         }
     }
 }
@@ -418,19 +423,21 @@ uintmax_t LLDiskCache::dirFileSize(const std::string dir)
 #endif
     if (boost::filesystem::is_directory(dir_path, ec) && !ec.failed())
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(dir_path, ec), {}))
+        boost::filesystem::directory_iterator iter(dir_path, ec);
+        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
         {
-            if (boost::filesystem::is_regular_file(entry, ec) && !ec.failed())
+            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
             {
-                if (entry.path().string().find(mCacheFilenamePrefix) != std::string::npos)
+                if ((*iter).path().string().find(mCacheFilenamePrefix) != std::string::npos)
                 {
-                    uintmax_t file_size = boost::filesystem::file_size(entry, ec);
+                    uintmax_t file_size = boost::filesystem::file_size(*iter, ec);
                     if (!ec.failed())
                     {
                         total_file_size += file_size;
                     }
                 }
             }
+            iter.increment(ec);
         }
     }
 

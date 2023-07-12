@@ -209,13 +209,6 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 
 	setPrevalidateInput(p.prevalidate_input_callback());
 	setPrevalidate(p.prevalidate_callback());
-
-	llassert(LLMenuGL::sMenuContainer != NULL);
-	LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
-		("menu_text_editor.xml",
-		 LLMenuGL::sMenuContainer,
-		 LLMenuHolderGL::child_registry_t::instance());
-	setContextMenu(menu);
 }
  
 LLLineEditor::~LLLineEditor()
@@ -1567,7 +1560,7 @@ BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask )
 				KEY_SHIFT != key &&
 				KEY_CONTROL != key &&
 				KEY_ALT != key &&
-				KEY_CAPSLOCK )
+				KEY_CAPSLOCK != key)
 			{
 				deselect();
 			}
@@ -2637,6 +2630,15 @@ LLWString LLLineEditor::getConvertedText() const
 void LLLineEditor::showContextMenu(S32 x, S32 y)
 {
 	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if (!menu)
+	{
+		llassert(LLMenuGL::sMenuContainer != NULL);
+		menu = LLUICtrlFactory::createFromFile<LLContextMenu>
+			("menu_text_editor.xml",
+				LLMenuGL::sMenuContainer,
+				LLMenuHolderGL::child_registry_t::instance());
+		setContextMenu(menu);
+	}
 
 	if (menu)
 	{

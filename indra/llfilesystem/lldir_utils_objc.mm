@@ -30,75 +30,75 @@
 #include "lldir_utils_objc.h"
 #import <Cocoa/Cocoa.h>
 
-std::string* getSystemTempFolder()
+std::string getSystemTempFolder()
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSString * tempDir = NSTemporaryDirectory();
-    if (tempDir == nil)
-        tempDir = @"/tmp";
-    std::string *result = ( new std::string([tempDir UTF8String]) );
-    [pool release];
+    std::string result;
+    @autoreleasepool {
+        NSString * tempDir = NSTemporaryDirectory();
+        if (tempDir == nil)
+            tempDir = @"/tmp";
+        result = std::string([tempDir UTF8String]);
+    }
     
     return result;
 }
 
 //findSystemDirectory scoped exclusively to this file. 
-std::string* findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
+std::string findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
                                    NSSearchPathDomainMask domainMask)
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
-    std::string *result = nil;
-    NSString *path = nil;
-    
-    // Search for the path
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(searchPathDirectory,
-                                                         domainMask,
-                                                         YES);
-    if ([paths count])
-    {
-        path = [paths objectAtIndex:0];
-        //HACK:  Always attempt to create directory, ignore errors.
-        NSError *error = nil;
-
-        [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
-
+    std::string result;
+    @autoreleasepool {
+        NSString *path = nil;
         
-        result = new std::string([path UTF8String]);        
+        // Search for the path
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(searchPathDirectory,
+                                                             domainMask,
+                                                             YES);
+        if ([paths count])
+        {
+            path = [paths objectAtIndex:0];
+            //HACK:  Always attempt to create directory, ignore errors.
+            NSError *error = nil;
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+            
+            
+            result = std::string([path UTF8String]);
+        }
     }
-    [pool release];
     return result;
 }
 
-std::string* getSystemExecutableFolder()
+std::string getSystemExecutableFolder()
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    NSString *bundlePath = [[NSBundle mainBundle] executablePath];
-    std::string *result = (new std::string([bundlePath UTF8String]));  
-    [pool release];
+    std::string result;
+    @autoreleasepool {
+        NSString *bundlePath = [[NSBundle mainBundle] executablePath];
+        result = std::string([bundlePath UTF8String]);
+    }
 
     return result;
 }
 
-std::string* getSystemResourceFolder()
+std::string getSystemResourceFolder()
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    NSString *bundlePath = [[NSBundle mainBundle] resourcePath];
-    std::string *result = (new std::string([bundlePath UTF8String]));
-    [pool release];
+    std::string result;
+    @autoreleasepool {
+        NSString *bundlePath = [[NSBundle mainBundle] resourcePath];
+        result = std::string([bundlePath UTF8String]);
+    }
     
     return result;
 }
 
-std::string* getSystemCacheFolder()
+std::string getSystemCacheFolder()
 {
     return findSystemDirectory (NSCachesDirectory,
                                 NSUserDomainMask);
 }
 
-std::string* getSystemApplicationSupportFolder()
+std::string getSystemApplicationSupportFolder()
 {
     return findSystemDirectory (NSApplicationSupportDirectory,
                                 NSUserDomainMask);

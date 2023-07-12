@@ -63,6 +63,7 @@
 #include "llnotificationsutil.h"
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
+#include "llperfstats.h"
 #include "llpuppetmotion.h"
 #include "llrendersphere.h"
 #include "llscriptruntimeperms.h"
@@ -481,7 +482,11 @@ void LLAgent::init()
 	
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
 
-	setFlying( gSavedSettings.getBOOL("FlyingAtExit") );
+    bool is_flying = gSavedSettings.getBOOL("FlyingAtExit");
+    if(is_flying)
+    {
+        setFlying(is_flying);
+    }
 
 	*mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
@@ -2541,12 +2546,6 @@ void LLAgent::setStartPosition( U32 location_id )
     if (!requestPostCapability("HomeLocation", body, 
             boost::bind(&LLAgent::setStartPositionSuccess, this, _1)))
         LL_WARNS() << "Unable to post to HomeLocation capability." << LL_ENDL;
-
-    const U32 HOME_INDEX = 1;
-    if( HOME_INDEX == location_id )
-    {
-        setHomePosRegion( mRegionp->getHandle(), getPositionAgent() );
-    }
 }
 
 void LLAgent::setStartPositionSuccess(const LLSD &result)
@@ -2920,9 +2919,11 @@ void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferr
 
 bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
-    std::string url;
-
-    url = getRegion()->getCapability(capName);
+    if (!getRegion())
+    {
+        return false;
+    }
+    std::string url = getRegion()->getCapability(capName);
 
     if (url.empty())
     {
@@ -4108,6 +4109,7 @@ void LLAgent::handleTeleportFinished()
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
     }
+    LLPerfStats::tunables.autoTuneTimeout = true;
 }
 
 void LLAgent::handleTeleportFailed()
@@ -4139,6 +4141,8 @@ void LLAgent::handleTeleportFailed()
 	}
 
     mTPNeedsNeabyChatSeparator = false;
+
+    LLPerfStats::tunables.autoTuneTimeout = true;
 }
 
 /*static*/

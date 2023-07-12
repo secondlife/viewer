@@ -800,7 +800,6 @@ void LLPanelPlaces::onSaveButtonClicked()
 	LLStringUtil::trim(current_title_value);
 	LLStringUtil::trim(current_notes_value);
 
-	LLUUID item_id = mItem->getUUID();
 	LLUUID folder_id = mLandmarkInfo->getLandmarkFolder();
 	bool change_parent = folder_id != mItem->getParentUUID();
 

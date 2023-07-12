@@ -1,7 +1,6 @@
 # -*- cmake -*-
 include(Prebuilt)
-if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
-set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+include_guard()
 
 use_prebuilt_binary(havok-source)
 
@@ -124,4 +123,3 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
   endif (LINUX)
 endforeach(HAVOK_LIB)
 
-endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

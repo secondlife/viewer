@@ -30,7 +30,6 @@
 #include "llapr.h"
 #include "llmutex.h"
 #include "apr_dso.h"
-#include "llthreadlocalstorage.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 LLVolatileAPRPool *LLAPRFile::sAPRFilePoolp = NULL ; //global volatile APR memory pool.
@@ -54,7 +53,6 @@ void ll_init_apr()
 		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
 	}
 
-	LLThreadLocalPointerBase::initAllThreadLocalStorage();
 	gAPRInitialized = true;
 }
 
@@ -69,8 +67,6 @@ void ll_cleanup_apr()
 	gAPRInitialized = false;
 
 	LL_DEBUGS("APR") << "Cleaning up APR" << LL_ENDL;
-
-	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
 
 	if (gAPRPoolp)
 	{

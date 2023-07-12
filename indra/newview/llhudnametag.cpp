@@ -56,7 +56,6 @@ const F32 HORIZONTAL_PADDING = 16.f;
 const F32 VERTICAL_PADDING = 12.f;
 const F32 LINE_PADDING = 3.f;			// aka "leading"
 const F32 BUFFER_SIZE = 2.f;
-const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const S32 NUM_OVERLAP_ITERATIONS = 10;
 const F32 POSITION_DAMPING_TC = 0.2f;
 const F32 MAX_STABLE_CAMERA_VELOCITY = 0.1f;
@@ -67,6 +66,8 @@ const F32 LOD_2_SCREEN_COVERAGE = 0.40f;
 std::set<LLPointer<LLHUDNameTag> > LLHUDNameTag::sTextObjects;
 std::vector<LLPointer<LLHUDNameTag> > LLHUDNameTag::sVisibleTextObjects;
 BOOL LLHUDNameTag::sDisplayText = TRUE ;
+const F32 LLHUDNameTag::NAMETAG_MAX_WIDTH = 298.f;
+const F32 LLHUDNameTag::HUD_TEXT_MAX_WIDTH = 190.f;
 
 bool llhudnametag_further_away::operator()(const LLPointer<LLHUDNameTag>& lhs, const LLPointer<LLHUDNameTag>& rhs) const
 {
@@ -414,7 +415,8 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
 						const LLColor4& color,
 						const LLFontGL::StyleFlags style,
 						const LLFontGL* font,
-						const bool use_ellipses)
+						const bool use_ellipses,
+						F32 max_pixels)
 {
 	LLWString wline = utf8str_to_wstring(text_utf8);
 	if (!wline.empty())
@@ -431,7 +433,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
 		tokenizer tokens(wline, sep);
 		tokenizer::iterator iter = tokens.begin();
 
-        const F32 max_pixels = HUD_TEXT_MAX_WIDTH;
+        max_pixels = llmin(max_pixels, NAMETAG_MAX_WIDTH);
         while (iter != tokens.end())
         {
             U32 line_length = 0;
@@ -488,7 +490,7 @@ void LLHUDNameTag::setLabel(const std::string &label_utf8)
 	addLabel(label_utf8);
 }
 
-void LLHUDNameTag::addLabel(const std::string& label_utf8)
+void LLHUDNameTag::addLabel(const std::string& label_utf8, F32 max_pixels)
 {
 	LLWString wstr = utf8string_to_wstring(label_utf8);
 	if (!wstr.empty())
@@ -502,13 +504,15 @@ void LLHUDNameTag::addLabel(const std::string& label_utf8)
 		tokenizer tokens(wstr, sep);
 		tokenizer::iterator iter = tokens.begin();
 
+        max_pixels = llmin(max_pixels, NAMETAG_MAX_WIDTH);
+
 		while (iter != tokens.end())
 		{
 			U32 line_length = 0;
 			do	
 			{
 				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), 
-					HUD_TEXT_MAX_WIDTH, wstr.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+                    max_pixels, wstr.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
 				LLHUDTextSegment segment(iter->substr(line_length, segment_length), LLFontGL::NORMAL, mColor, mFontp);
 				mLabelSegments.push_back(segment);
 				line_length += segment_length;
@@ -695,7 +699,7 @@ void LLHUDNameTag::updateSize()
 		const LLFontGL* fontp = iter->mFont;
 		height += fontp->getLineHeight();
 		height += LINE_PADDING;
-		width = llmax(width, llmin(iter->getWidth(fontp), HUD_TEXT_MAX_WIDTH));
+		width = llmax(width, llmin(iter->getWidth(fontp), NAMETAG_MAX_WIDTH));
 		++iter;
 	}
 
@@ -709,7 +713,7 @@ void LLHUDNameTag::updateSize()
 	while (iter != mLabelSegments.end())
 	{
 		height += mFontp->getLineHeight();
-		width = llmax(width, llmin(iter->getWidth(mFontp), HUD_TEXT_MAX_WIDTH));
+		width = llmax(width, llmin(iter->getWidth(mFontp), NAMETAG_MAX_WIDTH));
 		++iter;
 	}
 	

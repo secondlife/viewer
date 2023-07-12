@@ -96,6 +96,7 @@ public:
 	void toggleFindOptions();
 
     void resetFilters();
+    void resetAllItemsFilters();
 
 protected:
 	//

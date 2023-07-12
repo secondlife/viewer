@@ -41,7 +41,7 @@
 #include "llfilepicker.h"
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
-#include "llfloateroutfitsnapshot.h"
+#include "llfloatersimpleoutfitsnapshot.h"
 #include "llimagedimensionsinfo.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -1226,7 +1226,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
         checkRemovePhoto(outfit_id);
         std::string upload_pending_name = outfit_id.asString();
         std::string upload_pending_desc = "";
-        LLUUID photo_id = upload_new_resource(filename, // file
+        upload_new_resource(filename, // file
             upload_pending_name,
             upload_pending_desc,
             0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
@@ -1386,8 +1386,8 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
 
 void LLOutfitGallery::onTakeSnapshot(LLUUID selected_outfit_id)
 {
-    LLFloaterReg::toggleInstanceOrBringToFront("outfit_snapshot");
-    LLFloaterOutfitSnapshot* snapshot_floater = LLFloaterOutfitSnapshot::getInstance();
+    LLFloaterReg::toggleInstanceOrBringToFront("simple_outfit_snapshot");
+    LLFloaterSimpleOutfitSnapshot* snapshot_floater = LLFloaterSimpleOutfitSnapshot::getInstance();
     if (snapshot_floater)
     {
         snapshot_floater->setOutfitID(selected_outfit_id);

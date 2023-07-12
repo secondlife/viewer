@@ -218,11 +218,9 @@ public:
 	S32 getVisualParamCountInGroup(const EVisualParamGroup group) const
 	{
 		S32 rtn = 0;
-		for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin();
-		     iter != mVisualParamIndexMap.end();
-		     /**/ )
+		for (const visual_param_index_map_t::value_type& index_pair : mVisualParamIndexMap)
 		{
-			if ((iter++)->second->getGroup() == group)
+			if (index_pair.second->getGroup() == group)
 			{
 				++rtn;
 			}
@@ -237,11 +235,10 @@ public:
 	}
 	S32 getVisualParamID(LLVisualParam *id)
 	{
-		visual_param_index_map_t::iterator iter;
-		for (iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); iter++)
+		for (visual_param_index_map_t::value_type& index_pair : mVisualParamIndexMap)
 		{
-			if (iter->second == id)
-				return iter->first;
+			if (index_pair.second == id)
+				return index_pair.first;
 		}
 		return 0;
 	}

@@ -30,6 +30,8 @@
 #include "llbufferstream.h"
 #include <boost/function.hpp>
 
+#include "llsingleton.h"
+
 namespace Json
 {
     class Value;
@@ -48,8 +50,10 @@ class LLTranslationAPIHandler;
  *
  * API keys for translation are taken from saved settings.
  */
-class LLTranslate
+class LLTranslate: public LLSingleton<LLTranslate>
 {
+	LLSINGLETON(LLTranslate);
+	~LLTranslate();
 	LOG_CLASS(LLTranslate);
 
 public :
@@ -94,9 +98,19 @@ public :
     static std::string addNoTranslateTags(std::string mesg);
     static std::string removeNoTranslateTags(std::string mesg);
 
+	void logCharsSeen(size_t count);
+	void logCharsSent(size_t count);
+	void logSuccess(S32 count);
+	void logFailure(S32 count);
+	LLSD asLLSD() const;
 private:
 	static LLTranslationAPIHandler& getPreferredHandler();
 	static LLTranslationAPIHandler& getHandler(EService service);
+
+	size_t mCharsSeen;
+	size_t mCharsSent;
+	S32 mFailureCount;
+	S32 mSuccessCount;
 };
 
 #endif

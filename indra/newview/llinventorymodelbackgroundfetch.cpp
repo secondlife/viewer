@@ -363,7 +363,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	//If there are items in mFetchQueue, we want to check the time since the last bulkFetch was 
 	//sent.  If it exceeds our retry time, go ahead and fire off another batch.  
 	LLViewerRegion * region(gAgent.getRegion());
-	if (! region || gDisconnected)
+	if (! region || gDisconnected || LLApp::isExiting())
 	{
 		return;
 	}

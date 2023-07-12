@@ -51,6 +51,7 @@ class LLHost;
 class LLViewerObject;
 class LLSurfacePatch;
 
+class LLCharacter;
 class LLCloudPuff;
 class LLCloudGroup;
 class LLVOAvatar;
@@ -122,12 +123,9 @@ public:
 	void					updateRegions(F32 max_update_time);
 	void					updateVisibilities();
 	void					updateParticles();
-	void					updateClouds(const F32 dt);
-	LLCloudGroup *			findCloudGroup(const LLCloudPuff &puff);
 
 	void					renderPropertyLines();
 
-	void resetStats();
 	void updateNetStats(); // Update network statistics for all the regions...
 
 	void printPacketsLost();
@@ -140,7 +138,7 @@ public:
 	void setLandFarClip(const F32 far_clip);
 
 	LLViewerTexture *getDefaultWaterTexture();
-	void updateWaterObjects();
+    void updateWaterObjects();
 
     void precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water);
 
@@ -174,7 +172,12 @@ public:
 	// or if the circuit to this simulator had been lost.
 	bool isRegionListed(const LLViewerRegion* region) const;
 
+    S32 getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_avs);
+
 private:
+    void clearHoleWaterObjects();
+    void clearEdgeWaterObjects();
+
 	region_list_t	mActiveRegionList;
 	region_list_t	mRegionList;
 	region_list_t	mVisibleRegionList;
@@ -198,15 +201,14 @@ private:
 	U32 mNumOfActiveCachedObjects;
 	U64MicrosecondsImplicit mSpaceTimeUSec;
 
-	BOOL mClassicCloudsEnabled;
-
 	////////////////////////////
 	//
 	// Data for "Fake" objects
 	//
 
 	std::list<LLPointer<LLVOWater> > mHoleWaterObjects;
-	LLPointer<LLVOWater> mEdgeWaterObjects[8];
+    static const S32 EDGE_WATER_OBJECTS_COUNT = 8;
+    LLPointer<LLVOWater> mEdgeWaterObjects[EDGE_WATER_OBJECTS_COUNT];
 
 	LLPointer<LLViewerTexture> mDefaultWaterTexturep;
 };

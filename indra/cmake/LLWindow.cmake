@@ -4,39 +4,19 @@ include(Variables)
 include(GLEXT)
 include(Prebuilt)
 
-if (USESYSTEMLIBS)
-  include(FindSDL)
+include_guard()
+add_library( ll::SDL INTERFACE IMPORTED )
 
-  # This should be done by FindSDL.  Sigh.
-  mark_as_advanced(
-      SDLMAIN_LIBRARY
-      SDL_INCLUDE_DIR
-      SDL_LIBRARY
-      )
-else (USESYSTEMLIBS)
-  if (LINUX)
-    use_prebuilt_binary(SDL)
-    set (SDL_FOUND TRUE)
-    set (SDL_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/i686-linux)
-    set (SDL_LIBRARY SDL directfb fusion direct X11)
-  endif (LINUX)
-endif (USESYSTEMLIBS)
 
-if (SDL_FOUND)
-  include_directories(${SDL_INCLUDE_DIR})
-endif (SDL_FOUND)
+if (LINUX)
+  #Must come first as use_system_binary can exit this file early
+  target_compile_definitions( ll::SDL INTERFACE LL_SDL=1)
 
-set(LLWINDOW_INCLUDE_DIRS
-    ${GLEXT_INCLUDE_DIR}
-    ${LIBS_OPEN_DIR}/llwindow
-    )
+  use_system_binary(SDL)
+  use_prebuilt_binary(SDL)
+  
+  target_include_directories( ll::SDL SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)
+  target_link_libraries( ll::SDL INTERFACE SDL directfb fusion direct X11)
+endif (LINUX)
 
-if (BUILD_HEADLESS)
-  set(LLWINDOW_HEADLESS_LIBRARIES
-      llwindowheadless
-      )
-endif (BUILD_HEADLESS)
 
-  set(LLWINDOW_LIBRARIES
-      llwindow
-      )

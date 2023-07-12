@@ -38,7 +38,13 @@
 // external library headers
 #include <boost/scoped_ptr.hpp>
 #include <boost/range.hpp>          // boost::begin(), boost::end()
+
+#ifdef LL_USESYSTEMLIBS
+#include <xmlrpc.h>
+#else
 #include <xmlrpc-epi/xmlrpc.h>
+#endif
+
 #include "curl/curl.h"
 
 // other Linden headers
@@ -343,7 +349,9 @@ public:
 		
 		switch (curlcode)
 		{
+#if CURLE_SSL_PEER_CERTIFICATE != CURLE_SSL_CACERT
 			case CURLE_SSL_PEER_CERTIFICATE:
+#endif
 			case CURLE_SSL_CACERT:
                 data["certificate"] = mTransaction->getErrorCertData();
 				break;

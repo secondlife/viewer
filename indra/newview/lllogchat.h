@@ -92,7 +92,7 @@ public:
 		LOG_END
 	};
 
-	static std::string timestamp(bool withdate = false);
+	static std::string timestamp2LogString(U32 timestamp, bool withdate);
 	static std::string makeLogFileName(std::string(filename));
 	static void renameLogFile(const std::string& old_filename, const std::string& new_filename);
 	/**
@@ -201,6 +201,7 @@ extern const std::string GROUP_CHAT_SUFFIX;
 
 // LLSD map lookup constants
 extern const std::string LL_IM_TIME; //("time");
+extern const std::string LL_IM_DATE_TIME; //("datetime");
 extern const std::string LL_IM_TEXT; //("message");
 extern const std::string LL_IM_FROM; //("from");
 extern const std::string LL_IM_FROM_ID; //("from_id");

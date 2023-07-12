@@ -92,17 +92,77 @@ LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item, co
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelWearableOutfitItem(&typeid(LLPanelWearableOutfitItem::Params), "wearable_outfit_list_item");
+
+LLPanelWearableOutfitItem::Params::Params()
+:   add_btn("add_btn"),
+    remove_btn("remove_btn")
+{
+}
+
+BOOL LLPanelWearableOutfitItem::postBuild()
+{
+    LLPanelWearableListItem::postBuild();
+    
+    LLViewerInventoryItem* inv_item = getItem();
+    mShowWidgets &= (inv_item->getType() != LLAssetType::AT_BODYPART);
+    if(mShowWidgets)
+    {
+        addWidgetToRightSide("add_wearable");
+        addWidgetToRightSide("remove_wearable");
+
+        childSetAction("add_wearable", boost::bind(&LLPanelWearableOutfitItem::onAddWearable, this));
+        childSetAction("remove_wearable", boost::bind(&LLPanelWearableOutfitItem::onRemoveWearable, this));
+
+        setWidgetsVisible(false);
+        reshapeWidgets();
+    }
+    return TRUE;
+}
+
+BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+    if(!mShowWidgets)
+    {
+        return LLPanelWearableListItem::handleDoubleClick(x, y, mask);
+    }
+
+    if(LLAppearanceMgr::instance().isLinkedInCOF(mInventoryItemUUID))
+    {
+        onRemoveWearable();
+    }
+    else
+    {
+        onAddWearable();
+    }
+    return TRUE;
+}
+
+void LLPanelWearableOutfitItem::onAddWearable()
+{
+    setWidgetsVisible(false);
+    reshapeWidgets();
+    LLAppearanceMgr::instance().wearItemOnAvatar(mInventoryItemUUID, true, false);
+}
+
+void LLPanelWearableOutfitItem::onRemoveWearable()
+{
+    setWidgetsVisible(false);
+    reshapeWidgets();
+    LLAppearanceMgr::instance().removeItemFromAvatar(mInventoryItemUUID);
+}
 
 // static
 LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryItem* item,
-															 bool worn_indication_enabled)
+															 bool worn_indication_enabled,
+                                                             bool show_widgets)
 {
 	LLPanelWearableOutfitItem* list_item = NULL;
 	if (item)
 	{
-		const LLPanelInventoryListItemBase::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelInventoryListItemBase>();
+		const LLPanelWearableOutfitItem::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelWearableOutfitItem>();
 
-		list_item = new LLPanelWearableOutfitItem(item, worn_indication_enabled, params);
+		list_item = new LLPanelWearableOutfitItem(item, worn_indication_enabled, params, show_widgets);
 		list_item->initFromParams(params);
 		list_item->postBuild();
 	}
@@ -110,11 +170,23 @@ LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryIt
 }
 
 LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
-													 bool worn_indication_enabled,
-													 const LLPanelWearableOutfitItem::Params& params)
-: LLPanelInventoryListItemBase(item, params)
+                                                     bool worn_indication_enabled,
+                                                     const LLPanelWearableOutfitItem::Params& params,
+                                                     bool show_widgets)
+: LLPanelWearableListItem(item, params)
 , mWornIndicationEnabled(worn_indication_enabled)
+, mShowWidgets(show_widgets)
 {
+    if(mShowWidgets)
+    {
+        LLButton::Params button_params = params.add_btn;
+        applyXUILayout(button_params, this);
+        addChild(LLUICtrlFactory::create<LLButton>(button_params));
+
+        button_params = params.remove_btn;
+        applyXUILayout(button_params, this);
+        addChild(LLUICtrlFactory::create<LLButton>(button_params));
+    }
 }
 
 // virtual
@@ -127,11 +199,22 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 	// We don't use get_is_item_worn() here because this update is triggered by
 	// an inventory observer upon link in COF beind added or removed so actual
 	// worn status of a linked item may still remain unchanged.
-	if (mWornIndicationEnabled && LLAppearanceMgr::instance().isLinkedInCOF(mInventoryItemUUID))
+    bool is_worn = LLAppearanceMgr::instance().isLinkedInCOF(mInventoryItemUUID);
+	if (mWornIndicationEnabled && is_worn)
 	{
 		search_label += LLTrans::getString("worn");
 		item_state = IS_WORN;
 	}
+    if(mShowWidgets)
+    {
+        setShowWidget("add_wearable", !is_worn);
+        setShowWidget("remove_wearable", is_worn);
+        if(mHovered)
+        {
+            setWidgetsVisible(true);
+            reshapeWidgets();
+        }
+    }
 
 	LLPanelInventoryListItemBase::updateItem(search_label, item_state);
 }
@@ -634,6 +717,7 @@ static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_i
 LLWearableItemsList::Params::Params()
 :	standalone("standalone", true)
 ,	worn_indication_enabled("worn_indication_enabled", true)
+,   show_item_widgets("show_item_widgets", false)
 {}
 
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
@@ -649,6 +733,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 	}
 	mWornIndicationEnabled = p.worn_indication_enabled;
 	setNoItemsCommentText(LLTrans::getString("LoadingData"));
+    mShowItemWidgets = p.show_item_widgets;
 }
 
 // virtual
@@ -665,7 +750,7 @@ LLPanel* LLWearableItemsList::createNewItem(LLViewerInventoryItem* item)
         return NULL;
     }
 
-    return LLPanelWearableOutfitItem::create(item, mWornIndicationEnabled);
+    return LLPanelWearableOutfitItem::create(item, mWornIndicationEnabled, mShowItemWidgets);
 }
 
 void LLWearableItemsList::updateList(const LLUUID& category_id)

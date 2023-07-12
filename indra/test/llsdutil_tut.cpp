@@ -404,28 +404,28 @@ namespace tut
             ensure("hash: equivalent values but different types do not match.", boost::hash<LLSD>{}(data_r1) != boost::hash<LLSD>{}(data_i1));
         }
         {
-            LLSD data_a1 = LLSDArray("A")("B")("C");
-            LLSD data_a2 = LLSDArray("A")("B")("C");
+            LLSD data_a1 = llsd::array("A", "B", "C");
+            LLSD data_a2 = llsd::array("A", "B", "C");
 
             ensure("hash: identical arrays produce identical results", boost::hash<LLSD>{}(data_a1) == boost::hash<LLSD>{}(data_a2));
 
-            data_a2.append(LLSDArray(1)(2));
+            data_a2.append(llsd::array(1, 2));
 
             ensure("hash: changing the array changes the hash.", boost::hash<LLSD>{}(data_a1) != boost::hash<LLSD>{}(data_a2));
 
-            data_a1.append(LLSDArray(1)(2));
+            data_a1.append(llsd::array(1, 2));
             ensure("hash: identical arrays produce identical results with nested arrays", boost::hash<LLSD>{}(data_a1) == boost::hash<LLSD>{}(data_a2));
         }
         {
-            LLSD data_m1 = LLSDMap("key1", LLSD::Real(3.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
-            LLSD data_m2 = LLSDMap("key1", LLSD::Real(3.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+            LLSD data_m1 = LLSDMap("key1", LLSD::Real(3.0))("key2", "value2")("key3", llsd::array(1, 2, 3));
+            LLSD data_m2 = LLSDMap("key1", LLSD::Real(3.0))("key2", "value2")("key3", llsd::array(1, 2, 3));
 
             ensure("hash: identical maps produce identical results", boost::hash<LLSD>{}(data_m1) == boost::hash<LLSD>{}(data_m2));
 
-            LLSD data_m3 = LLSDMap("key1", LLSD::Real(5.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+            LLSD data_m3 = LLSDMap("key1", LLSD::Real(5.0))("key2", "value2")("key3", llsd::array(1, 2, 3));
             ensure("hash: Different values in the map produce different hashes.", boost::hash<LLSD>{}(data_m1) != boost::hash<LLSD>{}(data_m3));
 
-            LLSD data_m4 = LLSDMap("keyA", LLSD::Real(3.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+            LLSD data_m4 = LLSDMap("keyA", LLSD::Real(3.0))("key2", "value2")("key3", llsd::array(1, 2, 3));
             ensure("hash: Different keys in the map produce different hashes.", boost::hash<LLSD>{}(data_m1) != boost::hash<LLSD>{}(data_m4));
 
         }

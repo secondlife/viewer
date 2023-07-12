@@ -82,7 +82,7 @@
     <view_border
      bevel_style="none"
      follows="top|left"
-     height="185"
+     height="205"
      layout="topleft"
      left="10"
      top_pad="5"
@@ -123,6 +123,16 @@
      left_delta="0"
      name="limit_payment"
      tool_tip="Residents must have payment information on file to access this estate.  See the [SUPPORT_SITE] for more information."
+     top_pad="2"
+     width="278" />
+    <check_box
+     follows="top|left"
+     height="18"
+     label="Must not be a scripted agent"
+     layout="topleft"
+     left_delta="0"
+     name="limit_bots"
+     tool_tip="Residents must not be a scripted agents (bots) to access this estate.  See the [SUPPORT_SITE] for more information."
      top_pad="2"
      width="278" />
     <check_box

@@ -252,7 +252,7 @@ public:
 	{};
 
 	
-	virtual ~LLIMChiclet() {};
+	virtual ~LLIMChiclet();
 
 	/**
 	 * It is used for default setting up of chicklet:click handler, etc.  
@@ -325,7 +325,7 @@ protected:
 
 	bool canCreateMenu();
 
-	LLMenuGL* mPopupMenu;
+	LLHandle<LLUICtrl> mPopupMenuHandle;
 
 	bool mShowSpeaker;
 	bool mCounterEnabled;
@@ -519,7 +519,7 @@ protected:
 	bool mIsNewMessagesState;
 
 	LLFlashTimer* mFlashToLitTimer;
-	LLContextMenu* mContextMenu;
+	LLHandle<LLContextMenu> mContextMenuHandle;
 };
 
 class LLNotificationChiclet : public LLSysWellChiclet

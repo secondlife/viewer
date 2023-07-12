@@ -53,7 +53,16 @@ void LLAgentUI::buildSLURL(LLSLURL& slurl, const bool escaped /*= true*/)
       LLViewerRegion *regionp = gAgent.getRegion();
       if (regionp)
       {
-		  return_slurl = LLSLURL(regionp->getName(), gAgent.getPositionGlobal());
+          // Make sure coordinates are within current region
+          LLVector3d global_pos = gAgent.getPositionGlobal();
+          LLVector3d region_origin = regionp->getOriginGlobal();
+          // -1 otherwise slurl will fmod 256 to 0.
+          // And valid slurl range is supposed to be 0..255
+          F64 max_val = REGION_WIDTH_METERS - 1;
+          global_pos.mdV[VX] = llclamp(global_pos[VX], region_origin[VX], region_origin[VX] + max_val);
+          global_pos.mdV[VY] = llclamp(global_pos[VY], region_origin[VY], region_origin[VY] + max_val);
+
+          return_slurl = LLSLURL(regionp->getName(), global_pos);
       }
 	slurl = return_slurl;
 }

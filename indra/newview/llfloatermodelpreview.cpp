@@ -1740,7 +1740,7 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 		childSetTextArg("download_weight", "[ST]", tbd);
 		childSetTextArg("server_weight", "[SIM]", tbd);
 		childSetTextArg("physics_weight", "[PH]", tbd);
-		if (!mModelPhysicsFee.isMap() || mModelPhysicsFee.emptyMap())
+		if (!mModelPhysicsFee.isMap() || (mModelPhysicsFee.size() == 0))
 		{
 			childSetTextArg("upload_fee", "[FEE]", tbd);
 		}

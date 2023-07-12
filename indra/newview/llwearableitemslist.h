@@ -72,12 +72,23 @@ protected:
  * Extends LLPanelInventoryListItemBase with handling
  * double click to wear the item.
  */
-class LLPanelWearableOutfitItem : public LLPanelInventoryListItemBase
+class LLPanelWearableOutfitItem : public LLPanelWearableListItem
 {
 	LOG_CLASS(LLPanelWearableOutfitItem);
 public:
+    struct Params : public LLInitParam::Block<Params, LLPanelWearableListItem::Params>
+    {
+        Optional<LLButton::Params>   add_btn, remove_btn;
+
+        Params();
+    };
+
+    BOOL postBuild();
+    BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
 	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item,
-											 bool worn_indication_enabled);
+											 bool worn_indication_enabled,
+                                             bool show_widgets);
 
 	/**
 	 * Updates item name and (worn) suffix.
@@ -85,12 +96,16 @@ public:
 	/*virtual*/ void updateItem(const std::string& name,
 								EItemState item_state = IS_DEFAULT);
 
+    void onAddWearable();
+    void onRemoveWearable();
+
 protected:
 	LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
-							  bool worn_indication_enabled, const Params& params);
+							  bool worn_indication_enabled, const Params& params, bool show_widgets = false);
 
 private:
 	bool	mWornIndicationEnabled;
+    bool mShowWidgets;
 };
 
 class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
@@ -442,6 +457,7 @@ public:
 	{
 		Optional<bool> standalone;
 		Optional<bool> worn_indication_enabled;
+        Optional<bool> show_item_widgets;
 
 		Params();
 	};
@@ -482,6 +498,7 @@ protected:
 
 	bool mIsStandalone;
 	bool mWornIndicationEnabled;
+    bool mShowItemWidgets;
 
 	ESortOrder		mSortOrder;
 

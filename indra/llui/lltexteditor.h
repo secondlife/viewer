@@ -329,7 +329,7 @@ private:
 	keystroke_signal_t mKeystrokeSignal;
 	LLTextValidate::validate_func_t mPrevalidateFunc;
 
-	LLContextMenu* mContextMenu;
+	LLHandle<LLContextMenu> mContextMenuHandle;
 }; // end class LLTextEditor
 
 // Build time optimization, generate once in .cpp file

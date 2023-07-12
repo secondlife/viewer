@@ -1,11 +1,7 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(GLH_FIND_REQUIRED TRUE)
-set(GLH_FIND_QUIETLY TRUE)
+add_library( ll::glh_linear INTERFACE IMPORTED )
 
-if (USESYSTEMLIBS)
-  include(FindGLH)
-else (USESYSTEMLIBS)
-  use_prebuilt_binary(glh_linear)
-endif (USESYSTEMLIBS)
+use_system_binary( glh_linear )
+use_prebuilt_binary(glh_linear)

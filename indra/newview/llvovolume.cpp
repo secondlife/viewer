@@ -88,6 +88,7 @@
 #include "llcallstack.h"
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
+#include "llperfstats.h" 
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -228,6 +229,9 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
     mColorChanged = FALSE;
 	mSpotLightPriority = 0.f;
 
+	mSkinInfoFailed = false;
+	mSkinInfo = NULL;
+
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
     mServerDrawableUpdateCount = 0;
@@ -243,6 +247,8 @@ LLVOVolume::~LLVOVolume()
 	mTextureAnimp = NULL;
 	delete mVolumeImpl;
 	mVolumeImpl = NULL;
+
+	gMeshRepo.unregisterMesh(this);
 
 	if(!mMediaImplList.empty())
 	{
@@ -851,10 +857,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	
 	if (isSculpted())
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-		LLUUID id =  sculpt_params->getSculptTexture();
-		
-		updateSculptTexture();
+        updateSculptTexture();
 		
 		
 
@@ -1095,10 +1098,15 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			// if it's a mesh
 			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
+				if (mSkinInfo && mSkinInfo->mMeshID != volume_params.getSculptID())
+				{
+					mSkinInfo = NULL;
+					mSkinInfoFailed = false;
+				}
+
 				if (!getVolume()->isMeshAssetLoaded())
 				{ 
 					//load request not yet issued, request pipeline load this mesh
-					LLUUID asset_id = volume_params.getSculptID();
 					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod, last_lod);
 					if (available_lod != lod)
 					{
@@ -1106,6 +1114,14 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 					}
 				}
 				
+				if (!mSkinInfo && !mSkinInfoFailed)
+				{
+					const LLMeshSkinInfo* skin_info = gMeshRepo.getSkinInfo(volume_params.getSculptID(), this);
+					if (skin_info)
+					{
+						notifySkinInfoLoaded(skin_info);
+					}
+				}
 			}
 			else // otherwise is sculptie
 			{
@@ -1158,6 +1174,9 @@ void LLVOVolume::updateSculptTexture()
 		{
 			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 		}
+
+		mSkinInfoFailed = false;
+		mSkinInfo = NULL;
 	}
 	else
 	{
@@ -1210,6 +1229,20 @@ void LLVOVolume::notifyMeshLoaded()
         cav->notifyAttachmentMeshLoaded();
     }
     updateVisualComplexity();
+}
+
+void LLVOVolume::notifySkinInfoLoaded(const LLMeshSkinInfo* skin)
+{
+	mSkinInfoFailed = false;
+	mSkinInfo = skin;
+
+	notifyMeshLoaded();
+}
+
+void LLVOVolume::notifySkinInfoUnavailable()
+{
+	mSkinInfoFailed = true;
+	mSkinInfo = nullptr;
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -3645,7 +3678,7 @@ const LLMeshSkinInfo* LLVOVolume::getSkinInfo() const
 {
     if (getVolume())
     {
-        return gMeshRepo.getSkinInfo(getMeshID(), this);
+         return mSkinInfo;
     }
     else
     {
@@ -5404,7 +5437,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			}
 		}
 		
-		if (type == LLRenderPass::PASS_ALPHA)
+		// if (type == LLRenderPass::PASS_ALPHA) // always populate the draw_info ptr
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
 		}
@@ -5605,6 +5638,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         LL_PROFILE_ZONE_NAMED("rebuildGeom - face list");
 
 		//get all the faces into a list
+        std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); 
              drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
@@ -5635,6 +5669,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				continue;
 			}
+
+            if(vobj->isAttachment())
+            {
+                trackAttachments( vobj, drawablep->isState(LLDrawable::RIGGED),&ratPtr);
+            }
 
 			LLVolume* volume = vobj->getVolume();
 			if (volume)
@@ -6026,6 +6065,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 			U32 buffer_count = 0;
 
+            std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
 				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
@@ -6035,6 +6075,11 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					LLVOVolume* vobj = drawablep->getVOVolume();
 					
 					if (!vobj) continue;
+
+                    if (vobj->isAttachment())
+                    {
+                        trackAttachments( vobj, drawablep->isState(LLDrawable::RIGGED), &ratPtr );
+                    }
 					
 					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
 					{
@@ -6471,10 +6516,16 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		U32 indices_index = 0;
 		U16 index_offset = 0;
 
-		while (face_iter < i)
+        std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr;
+        while (face_iter < i)
 		{
 			//update face indices for new buffer
 			facep = *face_iter;
+            LLViewerObject* vobj = facep->getViewerObject();
+            if(vobj && vobj->isAttachment())
+            {
+                trackAttachments(vobj, LLPipeline::sShadowRender, &ratPtr);
+            }
 			if (buffer.isNull())
 			{
 				// Bulk allocation failed

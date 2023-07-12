@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="prefs_graphics_advanced" title="ZAAWANSOWANE USTAWIENIA GRAFICZNE">
+	<text name="GeneralText">
+		Ogólne
+	</text>
+	<slider label="Pole widzenia:" name="DrawDistance" />
+	<slider label="Maks. ilość cząsteczek:" name="MaxParticleCount" />
+	<slider label="Jakość post-procesu:" name="RenderPostProcess" />
+	<text name="PostProcessText">
+		Niska
+	</text>
+	<check_box label="Włącz VSync" name="vsync" tool_tip="Synchronizuje liczbę klatek na sekundę z częstotliwością odświeżania monitora, może skutkować zmniejszeniem widocznej płynności i opóźnieniami." />
+	<text name="AvatarText">
+		Awatar
+	</text>
+	<slider tool_tip="Kontroluje w jakim momencie awatar, który jest graficznie złożony zostanie zastąpiony przez mniej obciążającą komputer formę (tzw. JellyDoll)" label="Maks. szczegółowość awatarów:" name="IndirectMaxComplexity" />
+	<slider label="Maks. il. wyświetlanych awatarów:" name="IndirectMaxNonImpostors" />
+	<slider label="Detale:" name="AvatarMeshDetail" />
+	<text name="AvatarMeshDetailText">
+		Mało
+	</text>
+	<slider label="Fizyka:" name="AvatarPhysicsDetail" />
+	<text name="AvatarPhysicsDetailText">
+		Mało
+	</text>
+	<text name="HardwareText">
+		Sprzętowe
+	</text>
+	<slider label="Bufor pamięci tekstur (MB):" name="GraphicsCardTextureMemory" tool_tip="Ilość pamięci przeznaczona na tekstury. Domyślnie jest to maksymalna wielkość pamięci karty graficznej, ale nie więcej niż 512 MB na systemach 32 bitowych lub 2048 MB na 64 bitowych. Zmniejszenie tej wartości może spowodować wzrost wydajności, ale tekstury będą bardziej rozmazane." />
+	<slider label="Stosunek odległości dla mgły:" name="fog" />
+	<text name="(brightness, lower is brighter)">
+		(0 = domyślna jasność, niżej = jaśniej)
+	</text>
+	<check_box label="Filtrowanie anizotropowe (wolniej, gdy włączone)" name="ani" />
+	<check_box label="Włącz stratną kompresję tekstur (wymaga restartu)" name="texture compression" tool_tip="Kompresuje tekstury w pamięci wideo. Umożliwi to ładowanie tekstur w wyższej rozdzielczości / większej ich ilości, ale kosztem jakości obrazu." />
+	<check_box label="Włącz wsparcie dla ekranów HiDPI (wymaga restartu)" name="use HiDPI" tool_tip="Włącz funkcje OpenGL dla rysowania w wysokich rozdzielczościach." />
+	<text name="antialiasing label">
+		Antyaliasing:
+	</text>
+	<combo_box label="Antyaliasing" name="fsaa">
+		<combo_box.item label="Wyłączony" name="FSAADisabled" />
+	</combo_box>
+	<text name="antialiasing restart">
+		(wymaga restartu)
+	</text>
+	<text name="MeshText">
+		Mesz
+	</text>
+	<slider label="Szczegóły terenu:" name="TerrainMeshDetail" />
+	<text name="TerrainMeshDetailText">
+		Mało
+	</text>
+	<slider label="Drzewa:" name="TreeMeshDetail" />
+	<text name="TreeMeshDetailText">
+		Mało
+	</text>
+	<slider label="Obiekty i skulpty:" name="ObjectMeshDetail" />
+	<text name="ObjectMeshDetailText">
+		Mało
+	</text>
+	<slider label="Obiekty elastyczne:" name="FlexibleMeshDetail" />
+	<text name="FlexibleMeshDetailText">
+		Mało
+	</text>
+	<text name="ShadersText">
+		Cieniowanie
+	</text>
+	<check_box label="Przezroczysta woda" name="TransparentWater" />
+	<check_box label="Mapping wypukłości i połysk" name="BumpShiny" />
+	<check_box label="Lokalne światła" name="LocalLights" />
+	<slider label="Szczegóły terenu:" name="TerrainDetail" />
+	<text name="TerrainDetailText">
+		Mało
+	</text>
+	<check_box label="Elastyczne tkaniny ubrań" name="AvatarCloth" />
+	<text name="ReflectionsText">
+		Odbicia w wodzie:
+	</text>
+	<combo_box name="Reflections">
+		<combo_box.item label="Żadne; nieprzezroczyste" name="-2" />
+		<combo_box.item label="Żadne; przezroczyste" name="-1" />
+		<combo_box.item label="Minimalne" name="0" />
+		<combo_box.item label="Teren i drzewa" name="1" />
+		<combo_box.item label="Wszystkie obiekty statyczne" name="2" />
+		<combo_box.item label="Wszystkie awatary i obiekty" name="3" />
+		<combo_box.item label="Wszystko" name="4" />
+	</combo_box>
+	<check_box label="Shadery atmosfery" name="WindLightUseAtmosShaders" />
+	<slider label="Niebo:" name="SkyMeshDetail" />
+	<text name="SkyMeshDetailText">
+		Nisko
+	</text>
+	<check_box label="Zaawansowane oświetlenie" name="UseLightShaders" />
+	<check_box label="Okluzja otoczenia" name="UseSSAO" />
+	<check_box label="Włącz głębię ostrości" name="UseDoF" />
+	<check_box label="Zaawansowana atmosfera" name="UseAdvancedAtmo" />
+	<text name="RenderShadowDetailText">
+		Cienie:
+	</text>
+	<combo_box name="ShadowDetail">
+		<combo_box.item label="Brak" name="0" />
+		<combo_box.item label="Słońce/Księżyc" name="1" />
+		<combo_box.item label="Słońce/Księżyc + inne źródła" name="2" />
+	</combo_box>
+	<button label="Zresetuj wartości ustawień grafiki" name="Defaults" />
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
+</floater>

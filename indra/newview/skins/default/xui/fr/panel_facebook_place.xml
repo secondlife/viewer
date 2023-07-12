@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<panel name="panel_facebook_place">
-	<text name="place_caption_label">
-		Dites quelque chose au sujet du lieu où vous vous trouvez :
-	</text>
-	<check_box initial_value="false" label="Inclure la vue aérienne du lieu" name="add_place_view_cb"/>
-	<button label="Publier" name="post_place_btn"/>
-	<button label="Annuler" name="cancel_place_btn"/>
-</panel>

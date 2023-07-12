@@ -1,10 +1,11 @@
 # -*- cmake -*-
 include(Prebuilt)
+include(GLH)
 
-if (NOT USESYSTEMLIBS)
-  if (WINDOWS OR LINUX)
-    use_prebuilt_binary(glext)
-  endif (WINDOWS OR LINUX)
-  use_prebuilt_binary(glh_linear)
-  set(GLEXT_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include)
-endif (NOT USESYSTEMLIBS)
+add_library( ll::glext INTERFACE IMPORTED )
+if (WINDOWS OR LINUX)
+  use_system_binary(glext)
+  use_prebuilt_binary(glext)
+endif (WINDOWS OR LINUX)
+
+

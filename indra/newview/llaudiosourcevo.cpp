@@ -102,7 +102,7 @@ LLVector3d LLAudioSourceVO::getPosGlobal() const
 
 bool LLAudioSourceVO::isInCutOffRadius(const LLVector3d pos_global, const F32 cutoff) const
 {
-    static LLCachedControl<S32> ear_mode(gSavedSettings, "VoiceEarLocation", 0);
+    static LLCachedControl<S32> ear_mode(gSavedSettings, "MediaSoundsEarLocation", 0);
 
     LLVector3d pos_ear;
 
@@ -113,9 +113,6 @@ bool LLAudioSourceVO::isInCutOffRadius(const LLVector3d pos_global, const F32 cu
             break;
 
         case 1: // avatar
-        case 2:
-            // voice support 'mixed' in '2' case with agent's position and camera's rotations
-            // but it is not defined in settings and uses camera as default
             pos_ear = gAgent.getPositionGlobal();
             break;
 

@@ -75,7 +75,13 @@
 
 #include <sstream>
 #include <iterator>
+
+#ifdef LL_USESYSTEMLIBS
+#include <xmlrpc.h>
+#else
 #include <xmlrpc-epi/xmlrpc.h>
+#endif
+
 #include "apr_base64.h"
 
 #include "llbuffer.h"

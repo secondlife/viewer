@@ -496,7 +496,20 @@ void audio_update_listener()
 	if (gAudiop)
 	{
 		// update listener position because agent has moved	
-		LLVector3d lpos_global = gAgentCamera.getCameraPositionGlobal();		
+        static LLUICachedControl<S32> mEarLocation("MediaSoundsEarLocation", 0);
+        LLVector3d ear_position;
+        switch(mEarLocation)
+        {
+        case 0:
+        default:
+            ear_position = gAgentCamera.getCameraPositionGlobal();
+            break;
+
+        case 1:
+            ear_position = gAgent.getPositionGlobal();
+            break;
+        }
+		LLVector3d lpos_global = ear_position;		
 		LLVector3 lpos_global_f;
 		lpos_global_f.setVec(lpos_global);
 	

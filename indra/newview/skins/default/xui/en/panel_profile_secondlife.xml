@@ -9,9 +9,13 @@
  follows="all"
  layout="topleft"
 >
+  <!--
+  Date from server comes already converted to stl timezone,
+  so display it as an UTC+0
+  -->
    <string 
     name="date_format"
-    value="SL birthdate: [mth,datetime,slt] [day,datetime,slt], [year,datetime,slt]" />
+    value="SL birthdate: [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]" />
    <string
     name="age_format"
     value="[AGE]" />

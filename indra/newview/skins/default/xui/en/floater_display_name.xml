@@ -56,7 +56,7 @@
       max_length_chars="31"
       height="20"
       top_pad="5"
-      left="50" />
+      left_delta="0" />
 	<text
        top_pad="15"
        left="25"
@@ -72,23 +72,33 @@
       max_length_chars="31"
       height="20"
       top_pad="5"
-      left="50" />
+      left_delta="0" />
+    <button
+     label="Reset"
+     layout="topleft"
+     font="SansSerif"
+     width="120"
+     height="23"
+     top_pad="40"
+     left_delta="0"
+     name="reset_btn"
+     tool_tip="Use Username as a Display Name" />
     <button
      height="23"
      label="Save"
      layout="topleft"
      font="SansSerif"
-     left="35"
+     left_pad="35"
      name="save_btn"
      tool_tip="Save your new Display Name" 
-     top_pad="40"
+     top_delta="0"
      width="120" />
     <button
      height="23"
      label="Cancel"
      font="SansSerif"
      layout="topleft"
-     left_pad="125"
+     left_pad="5"
      name="cancel_btn"
      width="120" />
 </floater>

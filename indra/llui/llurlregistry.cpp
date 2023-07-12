@@ -169,7 +169,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 	for (it = mUrlEntry.begin(); it != mUrlEntry.end(); ++it)
 	{
 		//Skip for url entry icon if content is not trusted
-		if(!is_content_trusted && (mUrlEntryIcon == *it))
+		if((mUrlEntryIcon == *it) && ((text.find("Hand") != std::string::npos) || !is_content_trusted))
 		{
 			continue;
 		}

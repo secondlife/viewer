@@ -1140,7 +1140,6 @@ even though the user gets a free copy.
       decimal_digits="0"
       increment="1"
       left_pad="0"
-      control_name="Edit Cost"
       name="Edit Cost"
       label="L$"
       label_width="15"

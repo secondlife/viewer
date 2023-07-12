@@ -64,11 +64,11 @@ GroupChatListener::GroupChatListener():
         "Leave a group chat in group with UUID [\"id\"]\n"
         "Assumes a prior successful startIM request.",
         &LLGroupActions::endIM,
-        LLSDArray("id"));
-	add("sendIM",
-		"send a groupchat IM",
-		&send_message_wrapper,
-        LLSDArray("text")("session_id")("group_id"));
+        llsd::array("id"));
+    add("sendIM",
+        "send a groupchat IM",
+        &send_message_wrapper,
+        llsd::array("text", "session_id", "group_id"));
 }
 /*
 	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,

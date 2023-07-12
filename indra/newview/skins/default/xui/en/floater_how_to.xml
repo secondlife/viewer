@@ -3,7 +3,6 @@
   legacy_header_height="18"
   can_resize="false"
   can_minimize="false"
-  can_close="false"
   height="525"
   layout="topleft"
   name="floater_how_to"

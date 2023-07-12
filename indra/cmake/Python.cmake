@@ -5,20 +5,36 @@ set(PYTHONINTERP_FOUND)
 if (WINDOWS)
   # On Windows, explicitly avoid Cygwin Python.
 
+  # if the user has their own version of Python installed, prefer that
+  foreach(hive HKEY_CURRENT_USER HKEY_LOCAL_MACHINE)
+    # prefer more recent Python versions to older ones, if multiple versions
+    # are installed
+    foreach(pyver 3.11 3.10 3.9 3.8 3.7)
+      list(APPEND regpaths "[${hive}\\SOFTWARE\\Python\\PythonCore\\${pyver}\\InstallPath]")
+    endforeach()
+  endforeach()
+
+  # TODO: This logic has the disadvantage that if you have multiple versions
+  # of Python installed, the selected path won't necessarily be the newest -
+  # e.g. this GLOB will prefer Python310 to Python311. But since pymaybe is
+  # checked AFTER the registry entries, this will only surface as a problem if
+  # no installed Python appears in the registry.
+  file(GLOB pymaybe
+    "$ENV{PROGRAMFILES}/Python*"
+##  "$ENV{PROGRAMFILES(X86)}/Python*"
+    # The Windows environment variable is in fact as shown above, but CMake
+    # disallows querying an environment variable containing parentheses -
+    # thanks, Windows. Fudge by just appending " (x86)" to $PROGRAMFILES and
+    # hoping for the best.
+    "$ENV{PROGRAMFILES} (x86)/Python*"
+    "c:/Python*")
+
   find_program(python
     NAMES python3.exe python.exe
     NO_DEFAULT_PATH # added so that cmake does not find cygwin python
     PATHS
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\3.7\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\3.8\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\3.9\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\3.10\\InstallPath]
-    [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\3.11\\InstallPath]
-    [HKEY_CURRENT_USER\\SOFTWARE\\Python\\PythonCore\\3.7\\InstallPath]
-    [HKEY_CURRENT_USER\\SOFTWARE\\Python\\PythonCore\\3.8\\InstallPath]
-    [HKEY_CURRENT_USER\\SOFTWARE\\Python\\PythonCore\\3.9\\InstallPath]
-    [HKEY_CURRENT_USER\\SOFTWARE\\Python\\PythonCore\\3.10\\InstallPath]
-    [HKEY_CURRENT_USER\\SOFTWARE\\Python\\PythonCore\\3.11\\InstallPath]
+    ${regpaths}
+    ${pymaybe}
     )
     include(FindPythonInterp)
 else()

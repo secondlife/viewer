@@ -89,6 +89,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	const LLFontGL* font = make_small_btn ? sFontSmall: sFont; // for block and ignore buttons in script dialog
 	p.name = form_element["name"].asString();
 	p.label = form_element["text"].asString();
+	p.tool_tip = form_element["text"].asString();
 	p.font = font;
 	p.rect.height = BTN_HEIGHT;
 	p.click_callback.function(boost::bind(&LLToastNotifyPanel::onClickButton, userdata));

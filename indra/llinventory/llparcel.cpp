@@ -1271,5 +1271,5 @@ U32 LLParcel::countExperienceKeyType( U32 type )
 	return std::count_if(
 		boost::begin(mExperienceKeys | boost::adaptors::map_values), 
 		boost::end(mExperienceKeys | boost::adaptors::map_values), 
-		std::bind2nd(std::equal_to<U32>(), type));
+		[type](U32 key){ return (key == type); });
 }

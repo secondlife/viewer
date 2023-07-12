@@ -443,6 +443,7 @@ BOOL LLToolPie::handleLeftClickPick()
 		LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 		gViewerWindow->hideCursor();
 		LLToolCamera::getInstance()->setMouseCapture(TRUE);
+        LLToolCamera::getInstance()->setClickPickPending();
 		LLToolCamera::getInstance()->pickCallback(mPick);
 		gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 

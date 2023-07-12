@@ -112,7 +112,7 @@ void LLPanelExperienceLog::refresh()
 	int items = 0;
 	bool moreItems = false;
 	LLSD events_to_save = events;
-	if (!events.emptyMap())
+	if (events.isMap() && events.size() != 0)
 	{
 		LLSD::map_const_iterator day = events.endMap();
 		do

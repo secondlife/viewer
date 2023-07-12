@@ -61,7 +61,7 @@ public:
 	bool needsUpdate() const;
 	
 	const LLTrace::ExtendablePeriodicRecording* getRecording() const {return &mSceneLoadRecording;}
-	void dumpToFile(std::string file_name);
+	void dumpToFile(const std::string &file_name);
 	bool hasResults() const { return mSceneLoadRecording.getResults().getDuration() != S32Seconds(0);}
 
 	void reset();

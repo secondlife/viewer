@@ -83,7 +83,7 @@ int createNSApp(int argc, const char **argv);
 void setupCocoa();
 bool pasteBoardAvailable();
 bool copyToPBoard(const unsigned short *str, unsigned int len);
-const unsigned short *copyFromPBoard();
+unsigned short *copyFromPBoard();
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY);
 short releaseImageCursor(CursorRef ref);
 short setImageCursor(CursorRef ref);

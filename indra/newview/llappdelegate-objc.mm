@@ -46,6 +46,7 @@
 
 - (void)dealloc
 {
+    [currentInputLanguage release];
     [super dealloc];
 }
 
@@ -199,12 +200,14 @@
 
 - (bool) romanScript
 {
-	// How to add support for new languages with the input window:
-	// Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
-	NSArray *nonRomanScript = [[NSArray alloc] initWithObjects:@"ja", @"ko", @"zh-Hant", @"zh-Hans", nil];
-	if ([nonRomanScript containsObject:currentInputLanguage])
-    {
-        return false;
+    @autoreleasepool {
+        // How to add support for new languages with the input window:
+        // Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
+        NSArray* nonRomanScript = @[@"ja", @"ko", @"zh-Hant", @"zh-Hans"];
+        if ([nonRomanScript containsObject:currentInputLanguage])
+        {
+            return false;
+        }
     }
     
     return true;

@@ -199,15 +199,14 @@ BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(" ");
 	tokenizer tokens(string, sep);
-	tokenizer::iterator token_iter;
 
-	for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+	for(const std::string& cur_token : tokens)
 	{
 		LLGesture* gesture = NULL;
 
 		if( !found_gestures ) // Only pay attention to the first gesture in the string.
 		{
-			std::string cur_token_lower = *token_iter;
+			std::string cur_token_lower = cur_token;
 			LLStringUtil::toLower(cur_token_lower);
 
 			for (U32 i = 0; i < mList.size(); i++)
@@ -228,7 +227,7 @@ BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 						LLStringUtil::toLower(output_lower);
 						if( cur_token_lower == output_lower )
 						{
-							revised_string->append(*token_iter);
+							revised_string->append(cur_token);
 						}
 						else
 						{
@@ -249,7 +248,7 @@ BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 			{
 				revised_string->append( " " );
 			}
-			revised_string->append( *token_iter );
+			revised_string->append( cur_token );
 		}
 
 		first_token = FALSE;

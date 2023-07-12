@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<panel name="Outfit Gallery">
+	<panel name="bottom_panel">
+		<menu_button name="options_gear_btn" tool_tip="Mostrar opciones adicionales"/>
+		<button name="trash_btn" tool_tip="Borrar atuendo seleccionado"/>
+	</panel>
+</panel>

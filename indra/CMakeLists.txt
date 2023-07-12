@@ -4,21 +4,33 @@
 # other commands to guarantee full compatibility
 # with the version specified
 ## 3.8 added VS_DEBUGGER_WORKING_DIRECTORY support
-cmake_minimum_required(VERSION 3.8.0 FATAL_ERROR)
+## 3.13/12 is needed for add_link_options/add_compile_definitions
+## 3.14 added FILE CREATE_LINK
+## 3.16 is needed for target_precompile_headers
+## Nicky: Ideally we want at least 3.21 for good preset support
+##   We're not there yet, but once done, there is a kludge in Linking.cmake
+#    "if(${CMAKE_VERSION} VERSION_LESS "3.20.0")" that can also be removed
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}")
+
+include(conanbuildinfo OPTIONAL RESULT_VARIABLE USE_CONAN )
+if( USE_CONAN )
+    set( USE_CONAN ON )
+    set( USE_AUTOBUILD_3P OFF )
+    conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
+    add_compile_definitions(LL_USESYSTEMLIBS USE_CONAN NO_AUTOBUILD_3P)
+else()
+  set( USE_CONAN OFF )
+  set( USE_AUTOBUILD_3P ON )
+endif()
 
 include(Variables)
 include(BuildVersion)
-
-set(LEGACY_STDIO_LIBS)
-if (WINDOWS)
-      set(LEGACY_STDIO_LIBS legacy_stdio_definitions)
-endif (WINDOWS)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -59,8 +71,10 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
 add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
+if( LL_TESTS )
 # Legacy C++ tests. Build always, run if LL_TESTS is true.
 add_subdirectory(${VIEWER_PREFIX}test)
+endif()
 
 if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
@@ -72,7 +86,6 @@ if (LINUX)
       include(LLAppearanceUtility)
       add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
   endif (INSTALL_PROPRIETARY)
-  add_dependencies(viewer linux-crash-logger-strip-target)
 elseif (WINDOWS)
   # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
   if (EXISTS ${VIEWER_DIR}win_setup)
@@ -86,12 +99,6 @@ if (WINDOWS)
       add_subdirectory(${VIEWER_DIR}win_setup)
     endif (EXISTS ${VIEWER_DIR}win_setup)
 endif (WINDOWS)
-
-# sets the 'startup project' for debugging from visual studio.
-set_property(
-    DIRECTORY ${VIEWER_PREFIX}
-    PROPERTY VS_STARTUP_PROJECT secondlife-bin
-    )
 
 if (USE_BUGSPLAT)
     if (BUGSPLAT_DB)
@@ -107,6 +114,12 @@ add_subdirectory(${VIEWER_PREFIX}newview)
 add_dependencies(viewer secondlife-bin)
 
 add_subdirectory(${VIEWER_PREFIX}doxygen EXCLUDE_FROM_ALL)
+
+# sets the 'startup project' for debugging from visual studio.
+set_property(
+        DIRECTORY ${VIEWER_PREFIX}
+        PROPERTY VS_STARTUP_PROJECT ${VIEWER_BINARY_NAME}
+        )
 
 if (LL_TESTS)
   # Define after the custom targets are created so

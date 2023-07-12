@@ -622,7 +622,7 @@ namespace
 
 		if (index >= mData.size())
 		{
-			mData.resize(i + 1);
+			mData.resize(index + 1);
 		}
 
 		return mData[index];

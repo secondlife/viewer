@@ -30,7 +30,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <type_traits>
 
 #include "stdtypes.h"
 
@@ -216,21 +215,15 @@ public:
 		void assign(const Date&);
 		void assign(const URI&);
 		void assign(const Binary&);
-
-		// support assignment from size_t et al.
-		template <typename VALUE,
-				  typename std::enable_if<std::is_integral<VALUE>::value &&
-										  ! std::is_same<VALUE, Boolean>::value,
-										  bool>::type = true>
-		void assign(VALUE v) { assign(Integer(narrow(v))); }
-		// support assignment from F32 et al.
-		template <typename VALUE,
-				  typename std::enable_if<std::is_floating_point<VALUE>::value,
-										  bool>::type = true>
-		void assign(VALUE v) { assign(Real(narrow(v))); }
-
-		template <typename VALUE>
-		LLSD& operator=(VALUE v)			{ assign(v); return *this; }
+		
+		LLSD& operator=(Boolean v)			{ assign(v); return *this; }
+		LLSD& operator=(Integer v)			{ assign(v); return *this; }
+		LLSD& operator=(Real v)				{ assign(v); return *this; }
+		LLSD& operator=(const String& v)	{ assign(v); return *this; }
+		LLSD& operator=(const UUID& v)		{ assign(v); return *this; }
+		LLSD& operator=(const Date& v)		{ assign(v); return *this; }
+		LLSD& operator=(const URI& v)		{ assign(v); return *this; }
+		LLSD& operator=(const Binary& v)	{ assign(v); return *this; }
 	//@}
 
 	/**
@@ -292,6 +285,7 @@ public:
 	//@{
 		LLSD(const char*);
 		void assign(const char*);
+		LLSD& operator=(const char* v) { assign(v); return *this; }
 	//@}
 	
 	/** @name Map Values */
@@ -447,42 +441,42 @@ public:
 	static std::string		typeString(Type type);		// Return human-readable type as a string
 };
 
-struct llsd_select_bool : public std::unary_function<LLSD, LLSD::Boolean>
+struct llsd_select_bool
 {
 	LLSD::Boolean operator()(const LLSD& sd) const
 	{
 		return sd.asBoolean();
 	}
 };
-struct llsd_select_integer : public std::unary_function<LLSD, LLSD::Integer>
+struct llsd_select_integer
 {
 	LLSD::Integer operator()(const LLSD& sd) const
 	{
 		return sd.asInteger();
 	}
 };
-struct llsd_select_real : public std::unary_function<LLSD, LLSD::Real>
+struct llsd_select_real
 {
 	LLSD::Real operator()(const LLSD& sd) const
 	{
 		return sd.asReal();
 	}
 };
-struct llsd_select_float : public std::unary_function<LLSD, F32>
+struct llsd_select_float
 {
 	F32 operator()(const LLSD& sd) const
 	{
 		return (F32)sd.asReal();
 	}
 };
-struct llsd_select_uuid : public std::unary_function<LLSD, LLSD::UUID>
+struct llsd_select_uuid
 {
 	LLSD::UUID operator()(const LLSD& sd) const
 	{
 		return sd.asUUID();
 	}
 };
-struct llsd_select_string : public std::unary_function<LLSD, LLSD::String>
+struct llsd_select_string
 {
 	LLSD::String operator()(const LLSD& sd) const
 	{

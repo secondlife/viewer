@@ -232,7 +232,7 @@ class LLInventoryHandler : public LLCommandHandler
 {
 public:
 	// requires trusted browser to trigger
-	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_THROTTLE) { }
+	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_CLICK_ONLY) { }
 	
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)

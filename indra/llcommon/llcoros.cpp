@@ -288,25 +288,15 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     return name;
 }
 
+namespace
+{
+
 #if LL_WINDOWS
 
 static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
-U32 cpp_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop, const std::string& name)
+U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
 {
-    // C++ exceptions were logged in toplevelTryWrapper, but not SEH
-    // log SEH exceptions here, to make sure it gets into bugsplat's 
-    // report and because __try won't allow std::string operations
-    if (code != STATUS_MSC_EXCEPTION)
-    {
-        LL_WARNS() << "SEH crash in " << name << ", code: " << code << LL_ENDL;
-    }
-    // Handle bugsplat here, since GetExceptionInformation() can only be
-    // called from within filter for __except(filter), not from __except's {}
-    // Bugsplat should get all exceptions, C++ and SEH
-    LLApp::instance()->reportCrashToBugsplat(exception_infop);
-
-    // Only convert non C++ exceptions.
     if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on
@@ -319,28 +309,38 @@ U32 cpp_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop, 
     }
 }
 
-void LLCoros::sehHandle(const std::string& name, const LLCoros::callable_t& callable)
+void sehandle(const LLCoros::callable_t& callable)
 {
     __try
     {
-        LLCoros::toplevelTryWrapper(name, callable);
+        callable();
     }
-    __except (cpp_exception_filter(GetExceptionCode(), GetExceptionInformation(), name))
+    __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
-        // convert to C++ styled exception for handlers other than bugsplat
+        // convert to C++ styled exception
         // Note: it might be better to use _se_set_translator
         // if you want exception to inherit full callstack
-        //
-        // in case of bugsplat this will get to exceptionTerminateHandler and
-        // looks like fiber will terminate application after that
         char integer_string[512];
-        sprintf(integer_string, "SEH crash in %s, code: %lu\n", name.c_str(), GetExceptionCode());
+        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
         throw std::exception(integer_string);
     }
 }
-#endif
 
-void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& callable)
+#else  // ! LL_WINDOWS
+
+inline void sehandle(const LLCoros::callable_t& callable)
+{
+    callable();
+}
+
+#endif // ! LL_WINDOWS
+
+} // anonymous namespace
+
+// Top-level wrapper around caller's coroutine callable.
+// Normally we like to pass strings and such by const reference -- but in this
+// case, we WANT to copy both the name and the callable to our local stack!
+void LLCoros::toplevel(std::string name, callable_t callable)
 {
     // keep the CoroData on this top-level function's stack frame
     CoroData corodata(name);
@@ -350,12 +350,12 @@ void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& call
     // run the code the caller actually wants in the coroutine
     try
     {
-        callable();
+        sehandle(callable);
     }
     catch (const Stop& exc)
     {
         LL_INFOS("LLCoros") << "coroutine " << name << " terminating because "
-            << exc.what() << LL_ENDL;
+                            << exc.what() << LL_ENDL;
     }
     catch (const LLContinueError&)
     {
@@ -366,34 +366,12 @@ void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& call
     }
     catch (...)
     {
-#if LL_WINDOWS
-        // Any OTHER kind of uncaught exception will cause the viewer to
-        // crash, SEH handling should catch it and report to bugsplat.
-        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
-        // to not modify callstack
-        throw;
-#else
         // Stash any OTHER kind of uncaught exception in the rethrow() queue
         // to be rethrown by the main fiber.
         LL_WARNS("LLCoros") << "Capturing uncaught exception in coroutine "
                             << name << LL_ENDL;
         LLCoros::instance().saveException(name, std::current_exception());
-#endif
     }
-}
-
-// Top-level wrapper around caller's coroutine callable.
-// Normally we like to pass strings and such by const reference -- but in this
-// case, we WANT to copy both the name and the callable to our local stack!
-void LLCoros::toplevel(std::string name, callable_t callable)
-{
-#if LL_WINDOWS
-    // Because SEH can's have unwinding, need to call a wrapper
-    // 'try' is inside SEH handling to not catch LLContinue
-    sehHandle(name, callable);
-#else
-    toplevelTryWrapper(name, callable);
-#endif
 }
 
 //static

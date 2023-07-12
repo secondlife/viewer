@@ -1,42 +1,16 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (USESYSTEMLIBS)
-  include(FindPkgConfig)
-  pkg_check_modules(OGG REQUIRED ogg)
-  pkg_check_modules(VORBIS REQUIRED vorbis)
-  pkg_check_modules(VORBISENC REQUIRED vorbisenc)
-  pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
-else (USESYSTEMLIBS)
-  use_prebuilt_binary(ogg_vorbis)
-  set(VORBIS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
-  set(VORBISENC_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})
-  set(VORBISFILE_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})
+include_guard()
+add_library( ll::vorbis INTERFACE IMPORTED )
 
-  if (WINDOWS)
-    set(OGG_LIBRARIES
-        optimized ogg_static
-        debug ogg_static_d)
-    set(VORBIS_LIBRARIES
-        optimized vorbis_static
-        debug vorbis_static_d)
-    set(VORBISENC_LIBRARIES
-        optimized vorbisenc_static
-        debug vorbisenc_static_d)
-    set(VORBISFILE_LIBRARIES
-        optimized vorbisfile_static
-        debug vorbisfile_static_d)
-  else (WINDOWS)
-    set(OGG_LIBRARIES ogg)
-    set(VORBIS_LIBRARIES vorbis)
-    set(VORBISENC_LIBRARIES vorbisenc)
-    set(VORBISFILE_LIBRARIES vorbisfile)
-  endif (WINDOWS)
-endif (USESYSTEMLIBS)
+use_system_binary(vorbis)
+use_prebuilt_binary(ogg_vorbis)
+target_include_directories( ll::vorbis SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include )
 
-link_directories(
-    ${VORBIS_LIBRARY_DIRS}
-    ${VORBISENC_LIBRARY_DIRS}
-    ${VORBISFILE_LIBRARY_DIRS}
-    ${OGG_LIBRARY_DIRS}
-    )
+if (WINDOWS)
+  target_link_libraries(ll::vorbis INTERFACE ogg_static vorbis_static vorbisenc_static vorbisfile_static )
+else (WINDOWS)
+  target_link_libraries(ll::vorbis INTERFACE ogg vorbis vorbisenc vorbisfile )
+endif (WINDOWS)
+

@@ -523,7 +523,7 @@ void LLFloaterEditSky::refreshSkyPresetsList()
 
     for (LLEnvironment::list_name_id_t::iterator it = list.begin(); it != list.end(); ++it)
     {
-        mSkyPresetCombo->add((*it).first, LLSDArray((*it).first)((*it).second));
+        mSkyPresetCombo->add((*it).first, llsd::array((*it).first, (*it).second));
     }
 
 	mSkyPresetCombo->setLabel(getString("combo_label"));

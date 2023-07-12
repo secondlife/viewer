@@ -257,7 +257,6 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mMouseDownY(0),
 	mTabsToNextField(p.ignore_tab),
 	mPrevalidateFunc(p.prevalidate_callback()),
-	mContextMenu(NULL),
 	mShowContextMenu(p.show_context_menu),
 	mEnableTooltipPaste(p.enable_tooltip_paste),
 	mPassDelete(FALSE),
@@ -301,8 +300,13 @@ LLTextEditor::~LLTextEditor()
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 	mUndoStack.clear();
-	// context menu is owned by menu holder, not us
-	//delete mContextMenu;
+	// Mark the menu as dead or its retained in memory till shutdown.
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if(menu)
+	{
+		menu->die();
+		mContextMenuHandle.markDead();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -2051,12 +2055,19 @@ void LLTextEditor::setEnabled(BOOL enabled)
 
 void LLTextEditor::showContextMenu(S32 x, S32 y)
 {
-	if (!mContextMenu)
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if (!menu)
 	{
 		llassert(LLMenuGL::sMenuContainer != NULL);
-		mContextMenu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_text_editor.xml", 
+		menu = LLUICtrlFactory::createFromFile<LLContextMenu>("menu_text_editor.xml", 
 																				LLMenuGL::sMenuContainer, 
 																				LLMenuHolderGL::child_registry_t::instance());
+        if(!menu)
+        {
+            LL_WARNS() << "Failed to create menu for LLTextEditor: " << getName() << LL_ENDL;
+            return;
+        }
+		mContextMenuHandle = menu->getHandle();
 	}
 
 	// Route menu to this class
@@ -2102,11 +2113,11 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 		}
 	}
 
-	mContextMenu->setItemVisible("Suggestion Separator", (use_spellcheck) && (!mSuggestionList.empty()));
-	mContextMenu->setItemVisible("Add to Dictionary", (use_spellcheck) && (is_misspelled));
-	mContextMenu->setItemVisible("Add to Ignore", (use_spellcheck) && (is_misspelled));
-	mContextMenu->setItemVisible("Spellcheck Separator", (use_spellcheck) && (is_misspelled));
-	mContextMenu->show(screen_x, screen_y, this);
+	menu->setItemVisible("Suggestion Separator", (use_spellcheck) && (!mSuggestionList.empty()));
+	menu->setItemVisible("Add to Dictionary", (use_spellcheck) && (is_misspelled));
+	menu->setItemVisible("Add to Ignore", (use_spellcheck) && (is_misspelled));
+	menu->setItemVisible("Spellcheck Separator", (use_spellcheck) && (is_misspelled));
+	menu->show(screen_x, screen_y, this);
 }
 
 
