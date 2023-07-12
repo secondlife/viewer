@@ -217,7 +217,7 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setValue(ice_level);
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(rp_ambiance);
 
-    updateGammaLabel();
+    updateGammaLabel(should_auto_adjust);
 }
 
 //-------------------------------------------------------------------------
@@ -335,10 +335,10 @@ void LLPanelSettingsSkyAtmosTab::onReflectionProbeAmbianceChanged()
 }
 
 
-void LLPanelSettingsSkyAtmosTab::updateGammaLabel()
+void LLPanelSettingsSkyAtmosTab::updateGammaLabel(bool auto_adjust)
 {
     if (!mSkySettings) return;
-    F32 ambiance = mSkySettings->getReflectionProbeAmbiance();
+    F32 ambiance = mSkySettings->getReflectionProbeAmbiance(auto_adjust);
     if (ambiance != 0.f)
     {
         childSetValue("scene_gamma_label", getString("hdr_string"));
