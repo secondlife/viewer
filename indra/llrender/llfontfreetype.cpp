@@ -461,6 +461,8 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
 
 	// Fallback fonts with a functor have precedence over everything else
 	fallback_font_vector_t::const_iterator it_fallback = mFallbackFonts.cbegin();
+	/* This leads to a bug SL-19831 "Check marks in the menu are less visible."
+	** Also, LLFontRegistry::createFont() says: "Fallback fonts don't render"
 	for (; it_fallback != mFallbackFonts.cend() && it_fallback->second; ++it_fallback)
 	{
 		if (it_fallback->second(wch))
@@ -472,6 +474,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
 			}
 		}
 	}
+	*/
 
 	// Initialize char to glyph map
 	glyph_index = FT_Get_Char_Index(mFTFace, wch);
