@@ -71,6 +71,8 @@ struct LLFontGlyphInfo
 	S32 mYBitmapOffset; // Offset to the origin in the bitmap
 	S32 mXBearing;	// Distance from baseline to left in pixels
 	S32 mYBearing;	// Distance from baseline to top in pixels
+    S32 mLeftSideBearingDelta;	// The difference between hinted and unhinted left side bearing
+    S32 mRightSideBearingDelta;	//The difference between hinted and unhinted right side bearing
 	S32 mBitmapNum; // Which bitmap in the bitmap cache contains this glyph
 };
 

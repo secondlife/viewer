@@ -392,11 +392,28 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 	LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right);
 	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
+    F32 sb_delta = 0;
+    S32 cmp = left_glyph_info->mRightSideBearingDelta - right_glyph_info->mLeftSideBearingDelta;
+    if (cmp > 32)
+    {
+        sb_delta = -1;
+    }
+    if (cmp < -31)
+    {
+        sb_delta = 1;
+    }
+
 	FT_Vector  delta;
 
 	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-	return delta.x*(1.f/64.f);
+    if (mFTFace->face_flags & FT_FACE_FLAG_SCALABLE)
+    {
+        // Return the X advance
+        return delta.x * (1.f / 64.f) + sb_delta;
+    }    
+
+	return delta.x + sb_delta;
 }
 
 F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
@@ -407,11 +424,32 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 	U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
 	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
+    F32 sb_delta = 0;
+    if (left_glyph_info && right_glyph_info)
+    {
+        S32 cmp = left_glyph_info->mRightSideBearingDelta - right_glyph_info->mLeftSideBearingDelta;
+        if (cmp > 32)
+        {
+            sb_delta = -1;
+        }
+        if (cmp < -31)
+        {
+            sb_delta = 1;
+        }
+    }
+
 	FT_Vector  delta;
 
 	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-	return delta.x*(1.f/64.f);
+
+    if (mFTFace->face_flags & FT_FACE_FLAG_SCALABLE)
+    {
+        // Return the X advance
+        return delta.x * (1.f / 64.f) + sb_delta;
+    }
+
+    return delta.x + sb_delta;
 }
 
 BOOL LLFontFreetype::hasGlyph(llwchar wch) const
@@ -478,6 +516,8 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 	gi->mHeight = height;
 	gi->mXBearing = fontp->mFTFace->glyph->bitmap_left;
 	gi->mYBearing = fontp->mFTFace->glyph->bitmap_top;
+    gi->mLeftSideBearingDelta = fontp->mFTFace->glyph->rsb_delta;
+    gi->mRightSideBearingDelta = fontp->mFTFace->glyph->lsb_delta;
 	// Convert these from 26.6 units to float pixels.
 	gi->mXAdvance = fontp->mFTFace->glyph->advance.x / 64.f;
 	gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;
