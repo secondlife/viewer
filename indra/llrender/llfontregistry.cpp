@@ -51,19 +51,25 @@ LLFontDescriptor::char_functor_map_t LLFontDescriptor::mCharFunctors({
 	{ "is_emoji", LLStringOps::isEmoji }
 });
 
-LLFontDescriptor::LLFontDescriptor():
-	mStyle(0)
+LLFontDescriptor::LLFontDescriptor()
+    : mStyle(0)
+    , mHinting(0x20) // FT_LOAD_FORCE_AUTOHINT
+    , mKerning(1) // unfited
+    , mSpacing(0)
 {
 }
 
 LLFontDescriptor::LLFontDescriptor(const std::string& name,
 								   const std::string& size, 
 								   const U8 style,
-								   const font_file_info_vec_t& font_files):
-	mName(name),
-	mSize(size),
-	mStyle(style),
-	mFontFiles(font_files)
+								   const font_file_info_vec_t& font_files)
+	: mName(name)
+	, mSize(size)
+	, mStyle(style)
+	, mFontFiles(font_files)
+    , mHinting(0x20) // FT_LOAD_FORCE_AUTOHINT
+    , mKerning(1) // unfited
+    , mSpacing(0)
 {
 }
 
@@ -79,10 +85,13 @@ LLFontDescriptor::LLFontDescriptor(const std::string& name,
 
 LLFontDescriptor::LLFontDescriptor(const std::string& name,
 								   const std::string& size, 
-								   const U8 style):
-	mName(name),
-	mSize(size),
-	mStyle(style)
+								   const U8 style)
+    : mName(name)
+    , mSize(size)
+    , mStyle(style)
+    , mHinting(0x20) // FT_LOAD_FORCE_AUTOHINT
+    , mKerning(1) // unfited
+    , mSpacing(0)
 {
 }
 
@@ -178,7 +187,11 @@ LLFontDescriptor LLFontDescriptor::normalize() const
 	if (removeSubString(new_name,"Italic"))
 		new_style |= LLFontGL::ITALIC;
 
-	return LLFontDescriptor(new_name,new_size,new_style, getFontFiles(), getFontCollectionFiles());
+	LLFontDescriptor res(new_name,new_size,new_style,getFontFiles(),getFontCollectionFiles());
+    res.setHinting(getHinting());
+    res.setKerning(getKerning());
+    res.setSpacing(getSpacing());
+    return res;
 }
 
 void LLFontDescriptor::addFontFile(const std::string& file_name, const std::string& char_functor)
@@ -276,6 +289,51 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
 		{
 			desc.setStyle(LLFontGL::getStyleFromString(attr_style));
 		}
+
+        std::string attr_hinting;
+        if (node->getAttributeString("font_hinting", attr_hinting))
+        {
+            if (attr_hinting == "default")
+            {
+                desc.setHinting(0);
+            }
+            else if (attr_hinting == "force_auto")
+            {
+                //FT_LOAD_FORCE_AUTOHINT
+                desc.setHinting(0x20);
+            }
+            else if (attr_hinting == "no_hinting")
+            {
+                //FT_LOAD_NO_HINTING
+                desc.setHinting(0x8000U);
+            }
+        }
+
+        std::string attr_kerning;
+        if (node->getAttributeString("font_kerning", attr_kerning))
+        {
+            if (attr_kerning == "default")
+            {
+                // FT_KERNING_DEFAULT
+                desc.setKerning(0);
+            }
+            else if (attr_kerning == "unfitted")
+            {
+                //FT_KERNING_UNFITTED
+                desc.setKerning(1);
+            }
+            else if (attr_kerning == "unscaled")
+            {
+                //FT_KERNING_UNSCALED
+                desc.setKerning(2);
+            }
+        }
+
+        F32 attr_spacing;
+        if (node->getAttributeF32("font_spacing", attr_spacing))
+        {
+            desc.setSpacing(attr_spacing);
+        }
 
 		desc.setSize(s_template_string);
 	}
@@ -426,7 +484,18 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	// See whether this best-match font has already been instantiated in the requested size.
 	LLFontDescriptor nearest_exact_desc = *match_desc;
 	nearest_exact_desc.setSize(norm_desc.getSize());
-	font_reg_map_t::iterator it = mFontMap.find(nearest_exact_desc);
+    font_reg_map_t::iterator it = mFontMap.begin();
+    while (it != mFontMap.end())
+    {
+        const LLFontDescriptor* curr_desc = &(it->first);
+        if (curr_desc->getName() == nearest_exact_desc.getName()
+            && curr_desc->getStyle() == nearest_exact_desc.getStyle()
+            && curr_desc->getSize() == nearest_exact_desc.getSize())
+        {
+            break;
+        }
+        it++;
+    }
 	// If we fail to find a font in the fonts directory, it->second might be NULL.
 	// We shouldn't construcnt a font with a NULL mFontFreetype.
 	// This may not be the best solution, but it at least prevents a crash.
@@ -437,8 +506,11 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		// copying underlying Freetype font, and storing in LLFontGL with requested font descriptor
 		LLFontGL *font = new LLFontGL;
 		font->mFontDescriptor = desc;
+        font->mFontDescriptor.setHinting(match_desc->getHinting());
+        font->mFontDescriptor.setKerning(match_desc->getKerning());
+        font->mFontDescriptor.setSpacing(match_desc->getSpacing());
 		font->mFontFreetype = it->second->mFontFreetype;
-		mFontMap[desc] = font;
+		mFontMap[font->mFontDescriptor] = font;
 
 		return font;
 	}
@@ -553,13 +625,16 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	if (result)
 	{
 		result->mFontDescriptor = desc;
+        result->mFontDescriptor.setHinting(match_desc->getHinting());
+        result->mFontDescriptor.setKerning(match_desc->getKerning());
+        result->mFontDescriptor.setSpacing(match_desc->getSpacing());
 	}
 	else
 	{
 		LL_WARNS() << "createFont failed in some way" << LL_ENDL;
 	}
 
-	mFontMap[desc] = result;
+	mFontMap[result->mFontDescriptor] = result;
 	return result;
 }
 
@@ -601,10 +676,19 @@ void LLFontRegistry::destroyGL()
 
 LLFontGL *LLFontRegistry::getFont(const LLFontDescriptor& desc)
 {
-	font_reg_map_t::iterator it = mFontMap.find(desc);
-	if (it != mFontMap.end())
-		return it->second;
-	else
+    font_reg_map_t::iterator it = mFontMap.begin();
+    while (it != mFontMap.end())
+    {
+        const LLFontDescriptor* curr_desc = &(it->first);
+        if (curr_desc->getName() == desc.getName()
+            && curr_desc->getStyle() == desc.getStyle()
+            && curr_desc->getSize() == desc.getSize())
+        {
+            return it->second;
+        }
+        it++;
+    }
+	
 	{
 		LLFontGL *fontp = createFont(desc);
 		if (!fontp)
@@ -626,11 +710,19 @@ const LLFontDescriptor *LLFontRegistry::getMatchingFontDesc(const LLFontDescript
 {
 	LLFontDescriptor norm_desc = desc.normalize();
 
-	font_reg_map_t::iterator it = mFontMap.find(norm_desc);
-	if (it != mFontMap.end())
-		return &(it->first);
-	else
-		return NULL;
+	font_reg_map_t::iterator it = mFontMap.begin();
+    while (it != mFontMap.end())
+    {
+        const LLFontDescriptor* curr_desc = &(it->first);
+        if (curr_desc->getName() == desc.getName()
+            && curr_desc->getStyle() == desc.getStyle()
+            && curr_desc->getSize() == desc.getSize())
+        {
+            return curr_desc;
+        }
+        it++;
+    }
+	return NULL;
 }
 
 static U32 bitCount(U8 c)

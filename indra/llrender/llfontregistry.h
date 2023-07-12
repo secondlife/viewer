@@ -80,6 +80,12 @@ public:
 
 	const U8 getStyle() const { return mStyle; }
 	void setStyle(U8 style) { mStyle = style; }
+    const U32 getHinting() const { return mHinting; }
+    void setHinting(U32 hinting) { mHinting = hinting; }
+    const U32 getKerning() const { return mKerning; }
+    void setKerning(U32 kerning) { mKerning = kerning; }
+    const F32 getSpacing() const { return mSpacing; }
+    void setSpacing(F32 spacing) { mSpacing = spacing; }
 
 private:
 	std::string mName;
@@ -87,6 +93,9 @@ private:
 	font_file_info_vec_t mFontFiles;
 	font_file_info_vec_t mFontCollectionFiles;
 	U8 mStyle;
+    U32 mHinting;
+    U32 mKerning;
+    F32 mSpacing;
 
 	typedef std::map<std::string, std::function<bool(llwchar)>> char_functor_map_t;
 	static char_functor_map_t mCharFunctors;

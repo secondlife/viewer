@@ -134,7 +134,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
 	mBitmapEntry = fgi.mBitmapEntry;
 }
 
-LLFontFreetype::LLFontFreetype()
+LLFontFreetype::LLFontFreetype(U32 hinting)
 :	mFontBitmapCachep(new LLFontBitmapCache),
 	mAscender(0.f),
 	mDescender(0.f),
@@ -148,6 +148,7 @@ LLFontFreetype::LLFontFreetype()
 	mRenderGlyphCount(0),
 	mAddGlyphCount(0),
 	mStyle(0),
+    mHinting(hinting),
 	mPointSize(0)
 {
 }
@@ -408,7 +409,7 @@ F32 LLFontFreetype::getXAdvance(const LLFontGlyphInfo* glyph) const
 	return glyph->mXAdvance;
 }
 
-F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
+F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right, U32 kerning) const
 {
 	if (mFTFace == NULL)
 		return 0.0;
@@ -422,12 +423,19 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 
 	FT_Vector  delta;
 
-	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
+    // ex: kerning == FT_KERNING_UNFITTED
+	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, kerning, &delta));
 
-	return delta.x*(1.f/64.f);
+    if (mFTFace->face_flags & FT_FACE_FLAG_SCALABLE)
+    {
+        // Return the X advance
+        return delta.x * (1.f / 64.f);
+    }
+
+    return delta.x;
 }
 
-F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
+F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info, U32 kerning) const
 {
 	if (mFTFace == NULL)
 		return 0.0;
@@ -437,9 +445,16 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 
 	FT_Vector  delta;
 
-	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
+    // ex: kerning == FT_KERNING_UNFITTED
+	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, kerning, &delta));
 
-	return delta.x*(1.f/64.f);
+    if (mFTFace->face_flags & FT_FACE_FLAG_SCALABLE)
+    {
+        // Return the X advance
+        return delta.x * (1.f / 64.f);
+    }
+
+    return delta.x;
 }
 
 BOOL LLFontFreetype::hasGlyph(llwchar wch) const
@@ -658,7 +673,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) co
 	if (mFTFace == NULL)
 		return;
 
-	FT_Int32 load_flags = FT_LOAD_FORCE_AUTOHINT;
+	FT_Int32 load_flags = mHinting;
 	if (EFontGlyphType::Color == bitmap_type)
 	{
 		// We may not actually get a color render so our caller should always examine mFTFace->glyph->bitmap.pixel_mode

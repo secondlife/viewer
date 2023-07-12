@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <fonts>
 
-  <font name="default" comment="default font files (global fallbacks)">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="default"
+      comment="default font files (global fallbacks)"
+      font_hinting="default"
+      font_kerning="unfitted">
+    <file load_collection="true">NotoSans-Regular.ttf</file>
     <file functor="is_emoji">TwemojiSVG.ttf</file>
     <os name="Windows">
       <file>meiryo.TTC</file>
@@ -31,9 +35,13 @@
     </os>
   </font>
 
-  <font name="SansSerifBold"
-	comment="Name of bold sans-serif font">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="SansSerifBold"
+      comment="Name of bold sans-serif font"
+      font_hinting="default"
+      font_kerning="unfitted"
+      font_spacing="0.5">
+    <file load_collection="true">NotoSans-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -42,8 +50,12 @@
       </os>
   </font>
 
-  <font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of san-serif font (Truetype file name)"
+      font_hinting="default"
+      font_kerning="unfitted">
+    <file load_collection="true">NotoSans-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -52,60 +64,55 @@
       </os>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of bold sans-serif font"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of bold sans-serif font"
+      font_style="BOLD"
+      font_hinting="default"
+      font_kerning="unfitted"
+      font_spacing="0.5">
+    <file load_collection="true">NotoSans-SemiBold.ttf</file>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of italic sans-serif font"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of italic sans-serif font"
+      font_style="ITALIC"
+      font_hinting="default"
+      font_kerning="unfitted">
+    <file load_collection="true">NotoSans-Italic.ttf</file>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of bold italic sans-serif font"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of bold italic sans-serif font"
+      font_style="BOLD|ITALIC"
+      font_hinting="default"
+      font_kerning="unfitted"
+      font_spacing="0.5">
+    <file load_collection="true">NotoSans-SemiBoldItalic.ttf</file>
   </font>
 
   <font name="Emoji"
 	comment="Name of emoji font">
     <file>TwemojiSVG.ttf</file>
   </font>
-
-  <font name="Monospace"
-	comment="Name of monospace font">
+  
+  <font
+      name="Monospace"
+      comment="Name of monospace font"
+      font_hinting="force_auto"
+      font_kerning="unfitted">
     <file>DejaVuSansMono.ttf</file>
   </font>
 
-  <font name="DejaVu"
-	comment="Name of DejaVu font">
-    <file>DejaVuSans.ttf</file>
-  </font>
 
-  <font name="DejaVu"
-	comment="Name of DejaVu font (bold)"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
-  </font>
-
-  <font name="DejaVu"
-	comment="Name of DejaVu font (italic)"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
-  </font>
-
-  <font name="DejaVu"
-	comment="Name of DejaVu font (bold italic)"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
-  </font>
-
-  <font name="Helvetica"
-	comment="Name of Helvetica font">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font"
+      font_hinting="default"
+      font_kerning="unfitted">
+    <file>NotoSans-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -114,10 +121,14 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (bold)"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (bold)"
+      font_style="BOLD"
+      font_hinting="default"
+      font_kerning="unfitted"
+      font_spacing="0.5">
+    <file>NotoSans-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -126,10 +137,13 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (italic)"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (italic)"
+      font_style="ITALIC"
+      font_hinting="default"
+      font_kerning="unfitted">
+    <file>NotoSans-Italic.ttf</file>
     <os name="Windows">
       <file>ariali.ttf</file>
       </os>
@@ -138,10 +152,14 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (bold italic)"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (bold italic)"
+      font_style="BOLD|ITALIC"
+      font_hinting="default"
+      font_kerning="unfitted"
+      font_spacing="0.5">
+    <file>NotoSans-SemiBoldItalic.ttf</file>
     <os name="Windows">
       <file>arialbi.ttf</file>
       </os>
@@ -150,10 +168,13 @@
       </os>
   </font>
 
-  <font name="OverrideTest"
-	comment="Name of font to test overriding">
+  <font
+      name="OverrideTest"
+      comment="Name of font to test overriding"
+      font_hinting="default"
+      font_kerning="unfitted">
     <file>times.ttf</file>
-    <file>DejaVuSans.ttf</file>
+    <file>NotoSans-Regular.ttf</file>
   </font>
 
   <font_size name="Monospace"

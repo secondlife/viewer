@@ -93,7 +93,7 @@ BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, const F32 v
 {
 	if(mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
 	{
-		mFontFreetype = new LLFontFreetype;
+        mFontFreetype = new LLFontFreetype(mFontDescriptor.getHinting());
 	}
 
 	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, is_fallback, face_n);
@@ -103,7 +103,7 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
 {
 	if (mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
 	{
-		mFontFreetype = new LLFontFreetype;
+		mFontFreetype = new LLFontFreetype(mFontDescriptor.getHinting());
 	}
 
 	return mFontFreetype->getNumFaces(filename);
@@ -355,7 +355,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		{
 			// Kern this puppy.
 			next_glyph = mFontFreetype->getGlyphInfo(next_char, (!use_color) ? EFontGlyphType::Grayscale : EFontGlyphType::Color);
-			cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+			cur_x += mFontFreetype->getXKerning(fgi, next_glyph, mFontDescriptor.getKerning()) + mFontDescriptor.getSpacing();
 		}
 
 		// Round after kerning.
@@ -536,7 +536,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 		{
 			// Kern this puppy.
 			next_glyph = mFontFreetype->getGlyphInfo(next_char, EFontGlyphType::Unspecified);
-			cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+			cur_x += mFontFreetype->getXKerning(fgi, next_glyph, mFontDescriptor.getKerning()) + mFontDescriptor.getSpacing();
 		}
 		// Round after kerning.
 		cur_x = (F32)ll_round(cur_x);
@@ -656,7 +656,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		{
 			// Kern this puppy.
 			next_glyph = mFontFreetype->getGlyphInfo(wchars[i+1], EFontGlyphType::Unspecified);
-			cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+			cur_x += mFontFreetype->getXKerning(fgi, next_glyph, mFontDescriptor.getKerning()) + mFontDescriptor.getSpacing();
 		}
 
 		// Round after kerning.
@@ -726,7 +726,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		if ( i > 0 )
 		{
 			// kerning
-			total_width += mFontFreetype->getXKerning(wchars[i-1], wch);
+			total_width += mFontFreetype->getXKerning(wchars[i-1], wch, mFontDescriptor.getKerning()) + mFontDescriptor.getSpacing();
 		}
 
 		// Round after kerning.
@@ -808,7 +808,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 		{
 			// Kern this puppy.
 			next_glyph = mFontFreetype->getGlyphInfo(wchars[pos + 1], EFontGlyphType::Unspecified);
-			cur_x += mFontFreetype->getXKerning(glyph, next_glyph);
+			cur_x += mFontFreetype->getXKerning(glyph, next_glyph, mFontDescriptor.getKerning()) + mFontDescriptor.getSpacing();
 		}
 
 

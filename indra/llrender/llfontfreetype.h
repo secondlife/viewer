@@ -81,7 +81,7 @@ extern LLFontManager *gFontManagerp;
 class LLFontFreetype : public LLRefCount
 {
 public:
-	LLFontFreetype();
+	LLFontFreetype(U32 hinting);
 	~LLFontFreetype();
 
 	// is_fallback should be true for fallback fonts that aren't used
@@ -97,6 +97,7 @@ public:
 
 	typedef std::function<bool(llwchar)> char_functor_t;
 	void addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor = nullptr);
+    void setHinting(U32 hinting) {mHinting = hinting;}
 
 	// Global font metrics - in units of pixels
 	F32 getLineHeight() const;
@@ -132,8 +133,8 @@ public:
 
 	F32 getXAdvance(llwchar wc) const;
 	F32 getXAdvance(const LLFontGlyphInfo* glyph) const;
-	F32 getXKerning(llwchar char_left, llwchar char_right) const; // Get the kerning between the two characters
-	F32 getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const; // Get the kerning between the two characters
+	F32 getXKerning(llwchar char_left, llwchar char_right, U32 kerning) const; // Get the kerning between the two characters
+	F32 getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info, U32 kerning) const; // Get the kerning between the two characters
 
 	LLFontGlyphInfo* getGlyphInfo(llwchar wch, EFontGlyphType glyph_type) const;
 
@@ -162,6 +163,7 @@ private:
 	std::string mName;
 
 	U8 mStyle;
+    U32 mHinting;
 
 	F32 mPointSize;
 	F32 mAscender;			
