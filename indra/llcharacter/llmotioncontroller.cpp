@@ -209,7 +209,7 @@ void LLMotionController::purgeExcessMotions()
 	{
 		// too many motions active this frame, kill all blenders
 		mPoseBlender.clearBlenders();
-		for (LLMotion* cur_motionp : mLoadedMotions)
+		for (LLMotion::ptr_t cur_motionp : mLoadedMotions)
 		{
 			// motion isn't playing, delete it
 			if (!isMotionActive(cur_motionp))

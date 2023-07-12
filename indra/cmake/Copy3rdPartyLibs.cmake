@@ -152,12 +152,6 @@ if(WINDOWS)
     endforeach()
 
 elseif(DARWIN)
-    # Support our "@executable_path/../Resources" load path for executables
-    # that end up in any of the SHARED_LIB_STAGING_DIR_MUMBLE
-    # directories.
-    file(CREATE_LINK "Release/Resources" "${SHARED_LIB_STAGING_DIR}/Resources"
-         SYMBOLIC)
-
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(slvoice_files SLVoice)
     set(vivox_libs

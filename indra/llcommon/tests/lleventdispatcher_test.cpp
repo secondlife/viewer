@@ -1211,9 +1211,6 @@ namespace tut
                                            LLDate("2011-02-03T15:07:00Z"),
                                            LLURI("http://secondlife.com"),
                                            binary)));
-        LLSD argsplus(args);
-        argsplus["a"].append("bogus");
-        argsplus["b"].append("bogus");
         LLSD expect;
         for (LLSD::String a: ab)
         {
@@ -1223,10 +1220,7 @@ namespace tut
         expect["a"]["cp"] = stringize("'", expect["a"]["cp"].asString(), "'");
         debug("expect: ", expect);
 
-        // Use substantially the same logic for args and argsplus
-        LLSD argsarrays(llsd::array(args, argsplus));
-        // So i==0 selects 'args', i==1 selects argsplus
-        for (LLSD::Integer i(0), iend(argsarrays.size()); i < iend; ++i)
+        for (const LLSD& funcsab: inArray(array_funcs))
         {
             for (LLSD::String a: ab)
             {
