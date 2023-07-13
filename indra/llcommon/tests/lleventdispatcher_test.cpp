@@ -754,7 +754,7 @@ namespace tut
         set_test_name("map-style registration with non-array params");
         // Pass "param names" as scalar or as map
         LLSD attempts(llsd::array(17, LLSDMap("pi", 3.14)("two", 2)));
-        foreach(LLSD ae, inArray(attempts))
+        for (LLSD ae: inArray(attempts))
         {
             std::string threw = catch_what<std::exception>([this, &ae](){
                     work.add("freena_err", "freena", freena, ae);
@@ -829,7 +829,7 @@ namespace tut
     {
         set_test_name("query Callables with/out required params");
         LLSD names(llsd::array("free1", "Dmethod1", "Dcmethod1", "method1"));
-        foreach(LLSD nm, inArray(names))
+        for (LLSD nm: inArray(names))
         {
             LLSD metadata(getMetadata(nm));
             ensure_equals("name mismatch", metadata["name"], nm);
@@ -858,7 +858,7 @@ namespace tut
                        (5, llsd::array("freena_array", "smethodna_array", "methodna_array")),
                        llsd::array
                        (5, llsd::array("freenb_array", "smethodnb_array", "methodnb_array"))));
-        foreach(LLSD ae, inArray(expected))
+        for (LLSD ae: inArray(expected))
         {
             LLSD::Integer arity(ae[0].asInteger());
             LLSD names(ae[1]);
@@ -884,7 +884,7 @@ namespace tut
         // - (Free function | non-static method), map style, no params (ergo
         //   no defaults)
         LLSD names(llsd::array("free0_map", "smethod0_map", "method0_map"));
-        foreach(LLSD nm, inArray(names))
+        for (LLSD nm: inArray(names))
         {
             LLSD metadata(getMetadata(nm));
             ensure_equals("name mismatch", metadata["name"], nm);
@@ -914,7 +914,7 @@ namespace tut
                            llsd::array("smethodnb_map_adft", "smethodnb_map_mdft"),
                            llsd::array("methodna_map_adft", "methodna_map_mdft"),
                            llsd::array("methodnb_map_adft", "methodnb_map_mdft")));
-        foreach(LLSD eq, inArray(equivalences))
+        for (LLSD eq: inArray(equivalences))
         {
             LLSD adft(eq[0]);
             LLSD mdft(eq[1]);
@@ -1015,10 +1015,6 @@ namespace tut
                      llsd::array        // group
                      (llsd::array("freena_map_mdft", "smethodna_map_mdft", "methodna_map_mdft"),
                       llsd::array(LLSD::emptyMap(), dft_map_full["a"])),  // required, optional
-
-                     llsd::array        // group
-                     (llsd::array("freenb_map_mdft", "smethodnb_map_mdft", "methodnb_map_mdft"),
-                      llsd::array(LLSD::emptyMap(), dft_map_full["b"])))); // required, optional
 
                      llsd::array        // group
                      (llsd::array("freenb_map_mdft", "smethodnb_map_mdft", "methodnb_map_mdft"),
@@ -1156,7 +1152,7 @@ namespace tut
                    ("free0_array", "free0_map",
                     "smethod0_array", "smethod0_map",
                     "method0_array", "method0_map"));
-        foreach(LLSD name, inArray(names))
+        for (LLSD name: inArray(names))
         {
             // Look up the Vars instance for this function.
             Vars* vars(varsfor(name));
@@ -1316,7 +1312,7 @@ namespace tut
                      "freenb_map_mdft",    "smethodnb_map_mdft",    "methodnb_map_mdft")));
         // Treat (full | overfull) (array | map) the same.
         LLSD argssets(llsd::array(array_full, array_overfull, map_full, map_overfull));
-        foreach(const LLSD& args, inArray(argssets))
+        for (const LLSD& args: inArray(argssets))
         {
             for (LLSD::String a: ab)
             {
