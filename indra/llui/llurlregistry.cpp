@@ -73,6 +73,7 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
     registerUrl(new LLUrlEntryExperienceProfile());
+    registerUrl(new LLUrlEntryKeybinding());
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
