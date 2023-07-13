@@ -93,7 +93,14 @@ auto invoke(Fn&& f, Args&&... args)
 #if __cpp_lib_apply >= 201603L
 
 // C++17 implementation
-using std::apply;
+// We don't just say 'using std::apply;' because that template is too general:
+// it also picks up the apply(function, vector) case, which we want to handle
+// below.
+template <typename CALLABLE, typename... ARGS>
+auto apply(CALLABLE&& func, const std::tuple<ARGS...>& args)
+{
+    return std::apply(std::forward<CALLABLE>(func), args);
+}
 
 #else // C++14
 
@@ -124,14 +131,14 @@ auto apply(CALLABLE&& func, const std::tuple<ARGS...>& args)
                       std::index_sequence_for<ARGS...>{});
 }
 
+#endif // C++14
+
 // per https://stackoverflow.com/a/57510428/5533635
 template <typename CALLABLE, typename T, size_t SIZE>
 auto apply(CALLABLE&& func, const std::array<T, SIZE>& args)
 {
     return apply(std::forward<CALLABLE>(func), std::tuple_cat(args));
 }
-
-#endif // C++14
 
 /*****************************************************************************
 *   bind_front()
