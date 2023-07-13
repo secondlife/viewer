@@ -131,6 +131,7 @@ public:
         GLOW_WARMTH_AMOUNT,                 //  "warmthAmount"
         GLOW_STRENGTH,                      //  "glowStrength"
         GLOW_DELTA,                         //  "glowDelta"
+        GLOW_NOISE_MAP,                     //  "glowNoiseMap"
 
         MINIMUM_ALPHA,                      //  "minimum_alpha"
         EMISSIVE_BRIGHTNESS,                //  "emissive_brightness"

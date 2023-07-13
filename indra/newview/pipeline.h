@@ -1001,6 +1001,7 @@ public:
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
+	static bool RenderGlowNoise;
 	static bool RenderDepthOfField;
 	static bool RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;

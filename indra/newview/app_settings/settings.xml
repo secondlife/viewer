@@ -9340,6 +9340,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderPostProcessingHDR</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable HDR for post processing buffer</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
@@ -10155,6 +10166,17 @@
       <key>Value</key>
       <integer>9</integer>
     </map>
+    <key>RenderGlowHDR</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable HDR for glow map</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderGlowStrength</key>
     <map>
       <key>Comment</key>
@@ -10202,6 +10224,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.3</real>
+    </map>
+    <key>RenderGlowNoise</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables glow noise (dithering). Reduces banding from glow in certain cases.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
     </map>
     <key>DisableAllRenderTypes</key>
     <map>

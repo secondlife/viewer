@@ -1300,8 +1300,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("warmthAmount");
 	mReservedUniforms.push_back("glowStrength");
 	mReservedUniforms.push_back("glowDelta");
+	mReservedUniforms.push_back("glowNoiseMap");
 
-	llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_DELTA+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_NOISE_MAP+1);
 
 
 	mReservedUniforms.push_back("minimum_alpha");
