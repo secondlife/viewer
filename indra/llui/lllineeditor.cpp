@@ -89,6 +89,7 @@ LLLineEditor::Params::Params()
 	background_image_disabled("background_image_disabled"),
 	background_image_focused("background_image_focused"),
 	bg_image_always_focused("bg_image_always_focused", false),
+	show_label_focused("show_label_focused", false),
 	select_on_focus("select_on_focus", false),
 	revert_on_esc("revert_on_esc", true),
 	spellcheck("spellcheck", false),
@@ -152,6 +153,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mBgImageDisabled( p.background_image_disabled ),
 	mBgImageFocused( p.background_image_focused ),
 	mShowImageFocused( p.bg_image_always_focused ),
+	mShowLabelFocused( p.show_label_focused ),
 	mUseBgColor(p.use_bg_color),
 	mHaveHistory(FALSE),
 	mReplaceNewlinesWithSpaces( TRUE ),
@@ -2068,7 +2070,7 @@ void LLLineEditor::draw()
 		//draw label if no text is provided
 		//but we should draw it in a different color
 		//to give indication that it is not text you typed in
-		if (0 == mText.length() && mReadOnly)
+		if (0 == mText.length() && (mReadOnly || mShowLabelFocused))
 		{
 			mGLFont->render(mLabel.getWString(), 0,
 							mTextLeftEdge, (F32)text_bottom,

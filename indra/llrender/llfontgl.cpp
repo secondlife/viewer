@@ -193,7 +193,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	if (-1 == max_chars)
 	{
-		length = (S32)wstr.length() - begin_offset;
+		max_chars = length = (S32)wstr.length() - begin_offset;
 	}
 	else
 	{
@@ -253,7 +253,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	F32 inv_height = 1.f / font_bitmap_cache->getBitmapHeight();
 
 	const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
-
 
 	BOOL draw_ellipses = FALSE;
 	if (use_ellipses)
@@ -1024,10 +1023,17 @@ LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
 	return gl_vfont_align;
 }
 
- //static
+//static
 LLFontGL* LLFontGL::getFontEmoji()
 {
 	static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Large", 0));
+	return fontp;;
+}
+
+//static
+LLFontGL* LLFontGL::getFontEmojiHuge()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Huge", 0));
 	return fontp;;
 }
 

@@ -13,42 +13,26 @@
   <floater.string name="title_for_recently_used" value="Recently used"/>
   <floater.string name="title_for_frequently_used" value="Frequently used"/>
   <line_editor
-      name="Search"
-      label="Type to search"
+      name="Filter"
+      label="Start typing to filter"
       layout="bottomleft"
       follows="bottom|left|right"
       text_tentative_color="TextFgTentativeColor"
+      show_label_focused="true"
       max_length_bytes="63"
+      text_pad_right="5"
+      text_pad_left="5"
       bottom="14"
-      left="34"
+      left="10"
       height="29"
-      width="212" />
-  <text
-      name="Description"
-      layout="bottomleft"
-      follows="bottom|left|right"
-      font="SansSerifMedium"
-      bottom="14"
-      left="42"
-      height="29"
-      width="200" />
-  <button
-      name="PreviewEmoji"
-      layout="bottomleft"
-      follows="bottom|left"
-      font="EmojiHuge"
-      use_font_color="true"
-      bottom="14"
-      left="2"
-      height="29"
-      width="29" />
+      width="230" />
   <scroll_container
       name="EmojiGridContainer"
       layout="topleft"
       follows="all"
       top="25"
       left="0"
-      height="330"
+      height="325"
       width="250">
     <scrolling_panel_list
         name="EmojiGrid"
