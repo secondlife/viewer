@@ -91,6 +91,7 @@ public:
 										commit_on_focus_lost,
 										ignore_tab,
 										bg_image_always_focused,
+										show_label_focused,
 										is_password,
 										use_bg_color;
 
@@ -395,6 +396,7 @@ protected:
 	BOOL		mReadOnly;
 
 	BOOL 		mShowImageFocused;
+	BOOL 		mShowLabelFocused;
 
 	bool		mUseBgColor;
 

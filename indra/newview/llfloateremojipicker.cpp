@@ -48,62 +48,17 @@ namespace {
 
 // Floater state related variables
 static U32 sSelectedGroupIndex = 0;
-static std::string sSearchPattern;
+static std::string sFilterPattern;
 static std::list<llwchar> sRecentlyUsed;
 static std::list<std::pair<llwchar, U32>> sFrequentlyUsed;
 
 // State file related values
 static std::string sStateFileName;
 static const std::string sKeySelectedGroupIndex("SelectedGroupIndex");
-static const std::string sKeySearchPattern("SearchPattern");
+static const std::string sKeyFilterPattern("FilterPattern");
 static const std::string sKeyRecentlyUsed("RecentlyUsed");
 static const std::string sKeyFrequentlyUsed("FrequentlyUsed");
 }
-
-class LLEmojiScrollListItem : public LLScrollListItem
-{
-public:
-    LLEmojiScrollListItem(const llwchar emoji, const LLScrollListItem::Params& params)
-        : LLScrollListItem(params)
-        , mEmoji(emoji)
-    {
-    }
-
-    llwchar getEmoji() const { return mEmoji; }
-
-    virtual void draw(const LLRect& rect,
-        const LLColor4& fg_color,
-        const LLColor4& hover_color, // highlight/hover selection of whole item or cell
-        const LLColor4& select_color, // highlight/hover selection of whole item or cell
-        const LLColor4& highlight_color, // highlights contents of cells (ex: text)
-        S32 column_padding) override
-    {
-        LLScrollListItem::draw(rect, fg_color, hover_color, select_color, highlight_color, column_padding);
-
-        LLWString wstr(1, mEmoji);
-        S32 width = getColumn(0)->getWidth();
-        F32 x = rect.mLeft + width / 2;
-        F32 y = rect.getCenterY();
-        LLFontGL::getFontEmoji()->render(
-            wstr,                       // wstr
-            0,                          // begin_offset
-            x,                          // x
-            y,                          // y
-            LLColor4::white,            // color
-            LLFontGL::HCENTER,          // halign
-            LLFontGL::VCENTER,          // valign
-            LLFontGL::NORMAL,           // style
-            LLFontGL::DROP_SHADOW_SOFT, // shadow
-            1,                          // max_chars
-            S32_MAX,                    // max_pixels
-            nullptr,                    // right_x
-            false,                      // use_ellipses
-            true);                      // use_color
-    }
-
-private:
-    llwchar mEmoji;
-};
 
 class LLEmojiGridRow : public LLScrollingPanel
 {
@@ -137,7 +92,7 @@ public:
 
         F32 x = 4; // padding-left
         F32 y = getRect().getHeight() / 2;
-        LLFontGL::getFontSansSerifBold()->render(
+        LLFontGL::getFontSansSerif()->render(
             mText,                      // wstr
             0,                          // begin_offset
             x,                          // x
@@ -168,10 +123,8 @@ public:
         , const LLEmojiDescriptor* descr
         , std::string category)
         : LLScrollingPanel(panel_params)
-        , mEmoji(descr->Character)
-        , mText(LLWString(1, mEmoji))
-        , mDescr(descr->getShortCodes())
-        , mCategory(category)
+        , mDescr(descr)
+        , mText(LLWString(1, descr->Character))
     {
     }
 
@@ -200,16 +153,106 @@ public:
 
     virtual void updatePanel(BOOL allow_modify) override {}
 
-    llwchar getEmoji() const { return mEmoji; }
+    const LLEmojiDescriptor* getDescr() const { return mDescr; }
+    llwchar getEmoji() const { return mDescr->Character; }
     LLWString getText() const { return mText; }
-    std::string getDescr() const { return mDescr; }
-    std::string getCategory() const { return mCategory; }
 
 private:
-    const llwchar mEmoji;
+    const LLEmojiDescriptor* mDescr;
     const LLWString mText;
-    const std::string mDescr;
-    const std::string mCategory;
+};
+
+class LLEmojiPreviewPanel : public LLPanel
+{
+public:
+    LLEmojiPreviewPanel()
+        : LLPanel()
+    {
+    }
+
+    void setEmoji(const LLEmojiDescriptor* descr)
+    {
+        mDescr = descr;
+
+        if (!mDescr)
+            return;
+
+        mEmojiText = LLWString(1, descr->Character);
+    }
+
+    virtual void draw() override
+    {
+        LLPanel::draw();
+
+        if (!mDescr)
+            return;
+
+        S32 clientHeight = getRect().getHeight();
+        S32 clientWidth = getRect().getWidth();
+        S32 iconWidth = clientHeight;
+
+        F32 centerX = 0.5f * iconWidth;
+        F32 centerY = 0.5f * clientHeight;
+        drawIcon(centerX, centerY, iconWidth);
+
+        static LLColor4 defaultColor(0.75f, 0.75f, 0.75f, 1.0f);
+        LLColor4 textColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", defaultColor);
+        S32 max_pixels = clientWidth - iconWidth;
+        size_t count = mDescr->ShortCodes.size();
+        if (count == 1)
+        {
+            drawName(mDescr->ShortCodes.front(), iconWidth, centerY, max_pixels, textColor);
+        }
+        else if (count > 1)
+        {
+            F32 quarterY = 0.5f * centerY;
+            drawName(mDescr->ShortCodes.front(), iconWidth, centerY + quarterY, max_pixels, textColor);
+            drawName(*++mDescr->ShortCodes.begin(), iconWidth, quarterY, max_pixels, textColor);
+        }
+    }
+
+protected:
+    void drawIcon(F32 x, F32 y, S32 max_pixels)
+    {
+        LLFontGL::getFontEmojiHuge()->render(
+            mEmojiText,                 // wstr
+            0,                          // begin_offset
+            x,                          // x
+            y,                          // y
+            LLColor4::white,            // color
+            LLFontGL::HCENTER,          // halign
+            LLFontGL::VCENTER,          // valign
+            LLFontGL::NORMAL,           // style
+            LLFontGL::DROP_SHADOW_SOFT, // shadow
+            1,                          // max_chars
+            max_pixels,                 // max_pixels
+            nullptr,                    // right_x
+            false,                      // use_ellipses
+            true);                      // use_color
+    }
+
+    void drawName(std::string name, F32 x, F32 y, S32 max_pixels, LLColor4& color)
+    {
+        LLFontGL::getFontEmoji()->renderUTF8(
+            name,                       // wstr
+            0,                          // begin_offset
+            x,                          // x
+            y,                          // y
+            color,                      // color
+            LLFontGL::LEFT,             // halign
+            LLFontGL::VCENTER,          // valign
+            LLFontGL::NORMAL,           // style
+            LLFontGL::DROP_SHADOW_SOFT, // shadow
+            -1,                         // max_chars
+            max_pixels,                 // max_pixels
+            nullptr,                    // right_x
+            true,                       // use_ellipses
+            false);                     // use_color
+    }
+
+private:
+    const LLEmojiDescriptor* mDescr { nullptr };
+    LLWString mEmojiText;
 };
 
 LLFloaterEmojiPicker* LLFloaterEmojiPicker::getInstance()
@@ -244,19 +287,17 @@ LLFloaterEmojiPicker::LLFloaterEmojiPicker(const LLSD& key)
 BOOL LLFloaterEmojiPicker::postBuild()
 {
     // Should be initialized first
-    mPreviewEmoji = getChild<LLButton>("PreviewEmoji");
-    mPreviewEmoji->setClickedCallback([this](LLUICtrl*, const LLSD&) { onPreviewEmojiClick(); });
-
-    mDescription = getChild<LLTextBox>("Description");
-    mDescription->setVisible(FALSE);
+    mPreview = new LLEmojiPreviewPanel();
+    mPreview->setVisible(FALSE);
+    addChild(mPreview);
 
     mGroups = getChild<LLPanel>("Groups");
     mBadge = getChild<LLPanel>("Badge");
 
-    mSearch = getChild<LLLineEditor>("Search");
-    mSearch->setKeystrokeCallback([this](LLLineEditor*, void*) { onSearchKeystroke(); }, NULL);
-    mSearch->setFont(LLViewerChat::getChatFont());
-    mSearch->setText(sSearchPattern);
+    mFilter = getChild<LLLineEditor>("Filter");
+    mFilter->setKeystrokeCallback([this](LLLineEditor*, void*) { onSearchKeystroke(); }, NULL);
+    mFilter->setFont(LLViewerChat::getChatFont());
+    mFilter->setText(sFilterPattern);
 
     mEmojiScroll = getChild<LLScrollContainer>("EmojiGridContainer");
     mEmojiScroll->setMouseEnterCallback([this](LLUICtrl*, const LLSD&) { onGridMouseEnter(); });
@@ -273,6 +314,16 @@ BOOL LLFloaterEmojiPicker::postBuild()
 void LLFloaterEmojiPicker::dirtyRect()
 {
     super::dirtyRect();
+
+    if (!mFilter)
+        return;
+
+    const S32 PADDING = 4;
+    LLRect rect(PADDING, mFilter->getRect().mTop, getRect().getWidth() - PADDING * 2, PADDING);
+    if (mPreview->getRect() != rect)
+    {
+        mPreview->setRect(rect);
+    }
 
     if (mEmojiScroll && mEmojiScroll->getRect().getWidth() != mRecentGridWidth)
     {
@@ -374,7 +425,7 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
 
     mHoveredIcon = nullptr;
     mEmojiGrid->clearPanels();
-    mPreviewEmoji->setLabel(LLUIString());
+    mPreview->setEmoji(nullptr);
 
     if (mEmojiGrid->getRect().getWidth() != clientWidth)
     {
@@ -395,17 +446,16 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
     LLPanel::Params icon_params;
     LLRect icon_rect(0, iconSize, iconSize, 0);
 
-    static const LLColor4 bgcolors[] =
-    {
-        LLColor4(0.8f, 0.6f, 0.8f, 1.0f),
-        LLColor4(0.8f, 0.8f, 0.4f, 1.0f),
-        LLColor4(0.6f, 0.6f, 0.8f, 1.0f),
-        LLColor4(0.4f, 0.7f, 0.4f, 1.0f),
-        LLColor4(0.5f, 0.7f, 0.9f, 1.0f),
-        LLColor4(0.7f, 0.8f, 0.2f, 1.0f)
-    };
+    static LLColor4 defaultColor(0.75f, 0.75f, 0.75f, 1.0f);
+    LLColor4 bgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", defaultColor);
 
-    static constexpr U32 bgcolorCount = sizeof(bgcolors) / sizeof(*bgcolors);
+    auto matchesPattern = [](const LLEmojiDescriptor* descr) -> bool
+    {
+        for (const std::string& shortCode : descr->ShortCodes)
+            if (shortCode.find(sFilterPattern) != std::string::npos)
+                return true;
+        return false;
+    };
 
     auto listCategory = [&](std::string category, const std::vector<const LLEmojiDescriptor*>& emojis, int maxRows = 0)
     {
@@ -418,9 +468,10 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
         {
             LLStringUtil::capitalize(category);
         }
+
         for (const LLEmojiDescriptor* descr : emojis)
         {
-            if (sSearchPattern.empty() || matchesPattern(descr))
+            if (sFilterPattern.empty() || matchesPattern(descr))
             {
                 // Place a category title if needed
                 if (showDivider)
@@ -443,8 +494,9 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
                 LLEmojiGridIcon* icon = new LLEmojiGridIcon(icon_params, descr, mixedFolder ? LLStringUtil::capitalize(descr->Category) : category);
                 icon->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseEnter(ctrl); });
                 icon->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseLeave(ctrl); });
-                icon->setMouseUpCallback([this](LLUICtrl* ctrl, S32, S32, MASK mask) { onEmojiMouseClick(ctrl, mask); });
-                icon->setBackgroundColor(bgcolors[iconIndex % bgcolorCount]);
+                icon->setMouseDownCallback([this](LLUICtrl* ctrl, S32, S32, MASK) { onEmojiMouseDown(ctrl); });
+                icon->setMouseUpCallback([this](LLUICtrl* ctrl, S32, S32, MASK) { onEmojiMouseUp(ctrl); });
+                icon->setBackgroundColor(bgColor);
                 icon->setBackgroundOpaque(1);
                 icon->setRect(icon_rect);
                 row->mList->addPanel(icon, true);
@@ -511,14 +563,6 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
     }
 }
 
-bool LLFloaterEmojiPicker::matchesPattern(const LLEmojiDescriptor* descr)
-{
-    for (const std::string& shortCode : descr->ShortCodes)
-        if (shortCode.find(sSearchPattern) != std::string::npos)
-            return true;
-    return false;
-}
-
 void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
 {
     if (LLButton* button = dynamic_cast<LLButton*>(ctrl))
@@ -541,7 +585,7 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
         rect.mRight = button->getRect().mRight;
         mBadge->setRect(rect);
 
-        mSearch->setFocus(TRUE);
+        mFilter->setFocus(TRUE);
 
         fillEmojis();
     }
@@ -549,34 +593,22 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
 
 void LLFloaterEmojiPicker::onSearchKeystroke()
 {
-    sSearchPattern = mSearch->getText();
+    sFilterPattern = mFilter->getText();
     fillEmojis();
-}
-
-void LLFloaterEmojiPicker::onPreviewEmojiClick()
-{
-    if (mEmojiPickCallback)
-    {
-        if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(mHoveredIcon))
-        {
-            mEmojiPickCallback(icon->getEmoji());
-        }
-    }
 }
 
 void LLFloaterEmojiPicker::onGridMouseEnter()
 {
-    mSearch->setVisible(FALSE);
-    mDescription->setText(LLStringExplicit(""), LLStyle::Params());
-    mDescription->setVisible(TRUE);
+    mFilter->setVisible(FALSE);
+    mPreview->setEmoji(nullptr);
+    mPreview->setVisible(TRUE);
 }
 
 void LLFloaterEmojiPicker::onGridMouseLeave()
 {
-    mDescription->setVisible(FALSE);
-    mDescription->setText(LLStringExplicit(""), LLStyle::Params());
-    mSearch->setVisible(TRUE);
-    mSearch->setFocus(TRUE);
+    mPreview->setVisible(FALSE);
+    mFilter->setVisible(TRUE);
+    mFilter->setFocus(TRUE);
 }
 
 void LLFloaterEmojiPicker::onGroupButtonMouseEnter(LLUICtrl* ctrl)
@@ -621,18 +653,29 @@ void LLFloaterEmojiPicker::onEmojiMouseLeave(LLUICtrl* ctrl)
     }
 }
 
-void LLFloaterEmojiPicker::onEmojiMouseClick(LLUICtrl* ctrl, MASK mask)
+void LLFloaterEmojiPicker::onEmojiMouseDown(LLUICtrl* ctrl)
 {
+    if (getSoundFlags() & MOUSE_DOWN)
+    {
+        make_ui_sound("UISndClick");
+    }
+}
+
+void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
+{
+    if (getSoundFlags() & MOUSE_UP)
+    {
+        make_ui_sound("UISndClickRelease");
+    }
+
     if (mEmojiPickCallback)
     {
         if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
         {
             onEmojiUsed(icon->getEmoji());
-            mPreviewEmoji->handleAnyMouseClick(0, 0, 0, EMouseClickType::CLICK_LEFT, TRUE);
-            mPreviewEmoji->handleAnyMouseClick(0, 0, 0, EMouseClickType::CLICK_LEFT, FALSE);
-            if (!(mask & 4))
+            if (mEmojiPickCallback)
             {
-                closeFloater();
+                mEmojiPickCallback(icon->getEmoji());
             }
         }
     }
@@ -643,13 +686,7 @@ void LLFloaterEmojiPicker::selectGridIcon(LLUICtrl* ctrl)
     if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
         icon->setBackgroundVisible(TRUE);
-
-        LLUIString text;
-        text.insert(0, icon->getText());
-        mPreviewEmoji->setLabel(text);
-
-        std::string descr = icon->getDescr() + "\n" + icon->getCategory();
-        mDescription->setText(LLStringExplicit(descr), LLStyle::Params());
+        mPreview->setEmoji(icon->getDescr());
     }
 }
 
@@ -658,8 +695,7 @@ void LLFloaterEmojiPicker::unselectGridIcon(LLUICtrl* ctrl)
     if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
         icon->setBackgroundVisible(FALSE);
-        mPreviewEmoji->setLabel(LLUIString());
-        mDescription->setText(LLStringExplicit(""), LLStyle::Params());
+        mPreview->setEmoji(nullptr);
     }
 }
 
@@ -754,7 +790,7 @@ void LLFloaterEmojiPicker::loadState()
 
     sSelectedGroupIndex = state[sKeySelectedGroupIndex].asInteger();
 
-    sSearchPattern = state[sKeySearchPattern].asString();
+    sFilterPattern = state[sKeyFilterPattern].asString();
 
     // Load and parse sRecentlyUsed
     std::string recentlyUsed = state[sKeyRecentlyUsed];
@@ -826,9 +862,9 @@ void LLFloaterEmojiPicker::saveState()
         state[sKeySelectedGroupIndex] = (int)sSelectedGroupIndex;
     }
 
-    if (!sSearchPattern.empty())
+    if (!sFilterPattern.empty())
     {
-        state[sKeySearchPattern] = sSearchPattern;
+        state[sKeyFilterPattern] = sFilterPattern;
     }
 
     if (!sRecentlyUsed.empty())

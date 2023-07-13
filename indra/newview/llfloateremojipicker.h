@@ -59,18 +59,16 @@ private:
     void moveGroups();
     void fillEmojis(bool fromResize = false);
 
-    bool matchesPattern(const LLEmojiDescriptor* descr);
-
     void onGroupButtonClick(LLUICtrl* ctrl);
     void onSearchKeystroke();
-    void onPreviewEmojiClick();
     void onGridMouseEnter();
     void onGridMouseLeave();
     void onGroupButtonMouseEnter(LLUICtrl* ctrl);
     void onGroupButtonMouseLeave(LLUICtrl* ctrl);
     void onEmojiMouseEnter(LLUICtrl* ctrl);
     void onEmojiMouseLeave(LLUICtrl* ctrl);
-    void onEmojiMouseClick(LLUICtrl* ctrl, MASK mask);
+    void onEmojiMouseDown(LLUICtrl* ctrl);
+    void onEmojiMouseUp(LLUICtrl* ctrl);
 
     void selectGridIcon(LLUICtrl* ctrl);
     void unselectGridIcon(LLUICtrl* ctrl);
@@ -83,11 +81,10 @@ private:
 
     class LLPanel* mGroups { nullptr };
     class LLPanel* mBadge { nullptr };
-    class LLLineEditor* mSearch { nullptr };
+    class LLLineEditor* mFilter { nullptr };
     class LLScrollContainer* mEmojiScroll { nullptr };
     class LLScrollingPanelList* mEmojiGrid { nullptr };
-    class LLButton* mPreviewEmoji { nullptr };
-    class LLTextBox* mDescription { nullptr };
+    class LLEmojiPreviewPanel* mPreview { nullptr };
 
     pick_callback_t mEmojiPickCallback;
     close_callback_t mFloaterCloseCallback;

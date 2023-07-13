@@ -128,11 +128,12 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 	mInputEditor->setKeystrokeCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
-	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
+	std::string nearbyChatTitle(LLTrans::getString("NearbyChatTitle"));
+	mInputEditor->setLabel(nearbyChatTitle);
 
 	// Title must be defined BEFORE call to addConversationListItem() because
 	// it is used to show the item's name in the conversations list
-	setTitle(LLTrans::getString("NearbyChatTitle"));
+	setTitle(nearbyChatTitle);
 
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
