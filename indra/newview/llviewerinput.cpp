@@ -36,6 +36,7 @@
 #include "llfloaterimnearbychat.h"
 #include "llfocusmgr.h"
 #include "llkeybind.h" // LLKeyData
+#include "llkeybindparsing.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llsetkeybinddialog.h"
@@ -991,6 +992,11 @@ LLViewerInput::LLViewerInput()
 	}
 }
 
+LLViewerInput::~LLViewerInput()
+{
+
+}
+
 // static
 BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode)
 {
@@ -1222,6 +1228,7 @@ BOOL LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
     bind.mKey = key;
     bind.mMask = mask;
     bind.mFunction = function;
+    bind.mFunctionName = function_name;
 
     if (result->mIsGlobal)
     {
@@ -1303,6 +1310,7 @@ BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
     bind.mMouse = mouse;
     bind.mMask = mask;
     bind.mFunction = function;
+    bind.mFunctionName = function_name;
 
     if (result->mIsGlobal)
     {
@@ -1315,25 +1323,6 @@ BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
 
     return TRUE;
 }
-
-LLViewerInput::KeyBinding::KeyBinding()
-:	key("key"),
-	mouse("mouse"),
-	mask("mask"),
-	command("command")
-{}
-
-LLViewerInput::KeyMode::KeyMode()
-:	bindings("binding")
-{}
-
-LLViewerInput::Keys::Keys()
-:	first_person("first_person"),
-	third_person("third_person"),
-	sitting("sitting"),
-	edit_avatar("edit_avatar"),
-	xml_version("xml_version", 0)
-{}
 
 void LLViewerInput::resetBindings()
 {
@@ -1352,7 +1341,7 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
     resetBindings();
 
 	S32 binding_count = 0;
-	Keys keys;
+    LLKeyBindParsing::Keys keys;
 	LLSimpleXUIParser parser;
 
 	if (parser.readXUI(filename, keys) 
@@ -1373,7 +1362,7 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
             }
 
             // fix missing values
-            KeyBinding mouse_binding;
+            LLKeyBindParsing::KeyBinding mouse_binding;
             mouse_binding.key = "";
             mouse_binding.mask = "NONE";
             mouse_binding.mouse = "LMB";
@@ -1453,10 +1442,10 @@ bool compare_mouse_by_mask(LLMouseBinding i1, LLMouseBinding i2)
     return (count_masks(i1.mMask) > count_masks(i2.mMask));
 }
 
-S32 LLViewerInput::loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode)
+S32 LLViewerInput::loadBindingMode(const LLKeyBindParsing::KeyMode& keymode, S32 mode)
 {
 	S32 binding_count = 0;
-	for (LLInitParam::ParamIterator<KeyBinding>::const_iterator it = keymode.bindings.begin(), 
+	for (LLInitParam::ParamIterator<LLKeyBindParsing::KeyBinding>::const_iterator it = keymode.bindings.begin(),
 			end_it = keymode.bindings.end();
 		it != end_it;
 		++it)
@@ -1798,6 +1787,47 @@ bool LLViewerInput::isMouseBindUsed(const EMouseClickType mouse, const MASK mask
     {
         if (mouse == mGlobalMouseBindings[mode][index].mMouse && mask == mGlobalMouseBindings[mode][index].mMask)
             return true;
+    }
+    return false;
+}
+
+S32 LLViewerInput::getKeyboardMode() const
+{
+    return getMode();
+}
+
+bool LLViewerInput::getKeyBind(const S32 mode, const std::string& command, KEY &key, MASK &mask) const
+{
+    if (mode < 0 || mode >= MODE_COUNT)
+    {
+        return false;
+    }
+    for (const LLKeyboardBinding& keybind : mKeyBindings[mode])
+    {
+        if (keybind.mFunctionName == command)
+        {
+            key = keybind.mKey;
+            mask = keybind.mMask;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LLViewerInput::getMouseBind(const S32 mode, const std::string& command, EMouseClickType &clicktype, MASK &mask) const
+{
+    if (mode < 0 || mode >= MODE_COUNT)
+    {
+        return false;
+    }
+    for (const LLMouseBinding& mousebind : mMouseBindings[mode])
+    {
+        if (mousebind.mFunctionName == command)
+        {
+            clicktype = mousebind.mMouse;
+            mask = mousebind.mMask;
+            return true;
+        }
     }
     return false;
 }

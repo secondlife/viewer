@@ -33,6 +33,7 @@
 #include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "llkeyboard.h"
 #include "llkeyconflict.h"
 #include "llviewercontrol.h"
 

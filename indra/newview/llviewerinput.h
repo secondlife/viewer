@@ -28,11 +28,16 @@
 #define LL_LLVIEWERINPUT_H
 
 #include "llkeyboard.h" // For EKeystate
-#include "llinitparam.h"
 
 const S32 MAX_KEY_BINDINGS = 128; // was 60
 const S32 keybindings_xml_version = 1;
 const std::string script_mouse_handler_name = "script_trigger_lbutton";
+
+namespace LLKeyBindParsing
+{
+    struct KeyMode;
+}
+class LLWindow;
 
 class LLNamedFunction
 {
@@ -51,6 +56,7 @@ public:
     MASK			mMask;
 
     LLKeyFunc		mFunction;
+    std::string     mFunctionName;
 };
 
 class LLMouseBinding
@@ -60,6 +66,7 @@ public:
     MASK			mMask;
 
     LLKeyFunc		mFunction;
+    std::string     mFunctionName;
 };
 
 
@@ -72,41 +79,11 @@ typedef enum e_keyboard_mode
 	MODE_COUNT
 } EKeyboardMode;
 
-class LLWindow;
-
-void bind_keyboard_functions();
-
-class LLViewerInput
+class LLViewerInput : public LLKeyBindFromNameHandler
 {
 public:
-	struct KeyBinding : public LLInitParam::Block<KeyBinding>
-	{
-		Mandatory<std::string>	key,
-								mask,
-								command;
-		Optional<std::string>	mouse; // Note, not mandatory for the sake of backward campatibility with keys.xml
-
-		KeyBinding();
-	};
-
-	struct KeyMode : public LLInitParam::Block<KeyMode>
-	{
-		Multiple<KeyBinding>		bindings;
-
-		KeyMode();
-	};
-
-	struct Keys : public LLInitParam::Block<Keys>
-	{
-		Optional<KeyMode>	first_person,
-							third_person,
-							sitting,
-							edit_avatar;
-		Optional<S32> xml_version; // 'xml', because 'version' appears to be reserved
-		Keys();
-	};
-
 	LLViewerInput();
+    virtual ~LLViewerInput();
 
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
 	BOOL			handleKeyUp(KEY key, MASK mask);
@@ -136,6 +113,11 @@ public:
     bool            isMouseBindUsed(const EMouseClickType mouse, const MASK mask, const S32 mode) const;
     bool            isLMouseHandlingDefault(const S32 mode) const { return mLMouseDefaultHandling[mode]; }
 
+    // inherited from LLKeyBindFromNameHandler
+    S32 getKeyboardMode() const override;
+    bool getKeyBind(const S32 mode, const std::string& command, KEY &key, MASK &mask) const override;
+    bool getMouseBind(const S32 mode, const std::string& command, EMouseClickType &clicktype, MASK &mask) const override;
+
 private:
     bool            scanKey(const std::vector<LLKeyboardBinding> &binding,
                             S32 binding_count,
@@ -162,7 +144,7 @@ private:
                           EMouseState state,
                           bool ignore_additional_masks) const;
 
-    S32				loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
+    S32				loadBindingMode(const LLKeyBindParsing::KeyMode& keymode, S32 mode);
     BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
     BOOL			bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name);
     void			resetBindings();

@@ -28,8 +28,11 @@
 #define LL_LLKEYCONFLICT_H
 
 #include "llkeybind.h"
-#include "llviewerinput.h"
 
+namespace LLKeyBindParsing
+{
+ struct KeyMode;
+}
 
 class LLKeyConflict
 {
@@ -150,7 +153,7 @@ private:
     void registerTemporaryControl(const std::string &control_name, U32 conflict_mask = 0);
 
     typedef std::map<std::string, LLKeyConflict> control_map_t;
-    void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
+    void loadFromSettings(const LLKeyBindParsing::KeyMode& keymode, control_map_t *destination);
     bool loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
     void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values
     // returns false in case user is trying to reuse control that can't be reassigned

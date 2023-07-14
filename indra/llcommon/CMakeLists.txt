@@ -59,6 +59,7 @@ set(llcommon_SOURCE_FILES
     llinitdestroyclass.cpp
     llinstancetracker.cpp
     llkeybind.cpp
+    llkeybindparsing.cpp
     llleap.cpp
     llleaplistener.cpp
     llliveappconfig.cpp
@@ -173,6 +174,7 @@ set(llcommon_HEADER_FILES
     llinitparam.h
     llinstancetracker.h
     llkeybind.h
+    llkeybindparsing.h
     llkeythrottle.h
     llleap.h
     llleaplistener.h

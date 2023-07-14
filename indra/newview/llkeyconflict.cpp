@@ -35,6 +35,7 @@
 #include "llkeyconflict.h"
 
 #include "llinitparam.h"
+#include "llkeybindparsing.h"
 #include "llkeyboard.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -70,40 +71,6 @@ std::string string_from_mask(MASK mask)
     if (mask == MASK_NONE)
     {
         res = "NONE";
-    }
-    return res;
-}
-
-std::string string_from_mouse(EMouseClickType click, bool translate)
-{
-    std::string res;
-    switch (click)
-    {
-    case CLICK_LEFT:
-        res = "LMB";
-        break;
-    case CLICK_MIDDLE:
-        res = "MMB";
-        break;
-    case CLICK_RIGHT:
-        res = "RMB";
-        break;
-    case CLICK_BUTTON4:
-        res = "MB4";
-        break;
-    case CLICK_BUTTON5:
-        res = "MB5";
-        break;
-    case CLICK_DOUBLELEFT:
-        res = "Double LMB";
-        break;
-    default:
-        break;
-    }
-
-    if (translate && !res.empty())
-    {
-        res = LLTrans::getString(res);
     }
     return res;
 }
@@ -270,7 +237,7 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
         result = LLKeyboard::stringFromAccelerator(keydata.mMask);
     }
 
-    result += string_from_mouse(keydata.mMouse, true);
+    result += LLKeyboard::stringFromMouse(keydata.mMouse);
 
     return result;
 }
@@ -295,9 +262,9 @@ void LLKeyConflictHandler::loadFromControlSettings(const std::string &name)
     }
 }
 
-void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination)
+void LLKeyConflictHandler::loadFromSettings(const LLKeyBindParsing::KeyMode& keymode, control_map_t *destination)
 {
-    for (LLInitParam::ParamIterator<LLViewerInput::KeyBinding>::const_iterator it = keymode.bindings.begin(),
+    for (LLInitParam::ParamIterator<LLKeyBindParsing::KeyBinding>::const_iterator it = keymode.bindings.begin(),
         end_it = keymode.bindings.end();
         it != end_it;
     ++it)
@@ -336,7 +303,7 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
 
     bool res = false;
 
-    LLViewerInput::Keys keys;
+    LLKeyBindParsing::Keys keys;
     LLSimpleXUIParser parser;
 
     if (parser.readXUI(filename, keys)
@@ -488,7 +455,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
         }
 
-        LLViewerInput::Keys keys;
+        LLKeyBindParsing::Keys keys;
         LLSimpleXUIParser parser;
 
         if (parser.readXUI(filename, keys)
@@ -498,8 +465,8 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
 
             // mode is a HACK to correctly reset bindings without reparsing whole file and avoid doing
             // own param container (which will face issues with inasseesible members of LLInitParam)
-            LLViewerInput::KeyMode mode;
-            LLViewerInput::KeyBinding binding;
+            LLKeyBindParsing::KeyMode mode;
+            LLKeyBindParsing::KeyBinding binding;
 
             control_map_t::iterator iter = mControlsMap.begin();
             control_map_t::iterator end = mControlsMap.end();
@@ -545,7 +512,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                     {
                         // set() because 'optional', for compatibility purposes
                         // just copy old keys.xml and rename to key_bindings.xml, it should work
-                        binding.mouse.set(string_from_mouse(data.mMouse, false), true);
+                        binding.mouse.set(LLKeyboard::stringFromMouse(data.mMouse, false), true);
                     }
                     binding.command = iter->first;
                     mode.bindings.add(binding);

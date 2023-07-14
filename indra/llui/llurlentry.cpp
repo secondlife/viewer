@@ -35,6 +35,7 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llkeyboard.h"
 #include "llregex.h"
 #include "llscrolllistctrl.h" // for LLUrlEntryKeybinding file parsing
 #include "lltrans.h"
@@ -1617,9 +1618,11 @@ std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
 //
 LLUrlEntryKeybinding::LLUrlEntryKeybinding()
     : LLUrlEntryBase()
+    , pHandler(NULL)
 {
     mPattern = boost::regex(APP_HEADER_REGEX "/keybinding/\\w+(\\?mode=\\w+)?$",
                             boost::regex::perl | boost::regex::icase);
+    mMenuName = "menu_url_slurl.xml";
     initLocalization();
 }
 
@@ -1628,12 +1631,15 @@ std::string LLUrlEntryKeybinding::getLabel(const std::string& url, const LLUrlLa
     std::string control = getControlName(url);
 
     std::map<std::string, LLLocalizationData>::iterator iter = mLocalizations.find(control);
+
+    S32 mode = getMode(url);
+
     if (iter != mLocalizations.end())
     {
-        return "Temp + " + control + " " + iter->second.mLocalization;
+        return iter->second.mLocalization + ": " + getKeyAsString(mode, control);
     }
 
-    return "Temp + " + control;
+    return control + ": " + getKeyAsString(mode, control);
 }
 
 std::string LLUrlEntryKeybinding::getTooltip(const std::string& url) const
@@ -1664,6 +1670,57 @@ std::string LLUrlEntryKeybinding::getControlName(const std::string& url) const
         pos_end = url.size();
     }
     return url.substr(pos_start, pos_end - pos_start);
+}
+
+S32 LLUrlEntryKeybinding::getMode(const std::string& url) const
+{
+    std::string search = "?mode=";
+    size_t pos_start = url.find(search);
+    if (pos_start == std::string::npos)
+    {
+        return pHandler ? pHandler->getKeyboardMode() : 0;
+    }
+    pos_start += search.size();
+    std::string mode_string = url.substr(pos_start, url.size() - pos_start);
+
+    // should match llviewerinput
+    if (mode_string == "first_person")
+    {
+        return 0;
+    }
+    else if (mode_string == "third_person")
+    {
+        return 1;
+    }
+    else if (mode_string == "edit_avatar")
+    {
+        return 2;
+    }
+    else if (mode_string == "sitting")
+    {
+        return 3;
+    }
+
+    return atoi(mode_string.c_str());
+}
+
+std::string LLUrlEntryKeybinding::getKeyAsString(S32 mode, std::string& control) const
+{
+    if (pHandler)
+    {
+        KEY key;
+        MASK mask;
+        EMouseClickType clicktype;
+        if (pHandler->getKeyBind(mode, control, key, mask))
+        {
+            return LLKeyboard::stringFromAccelerator(mask, key);
+        }
+        if (pHandler->getMouseBind(mode, control, clicktype, mask))
+        {
+            return LLKeyboard::stringFromAccelerator(mask, clicktype);
+        }
+    }
+    return "Not found";
 }
 
 void LLUrlEntryKeybinding::initLocalization()
