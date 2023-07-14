@@ -1096,12 +1096,16 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
         LL_WARNS() << "LLToolDragAndDrop::dropTextureOneFace no material item." << LL_ENDL;
         return;
     }
+
+    // SL-20013 must save asset_id before handleDropMaterialProtections since our item instance
+    // may be deleted if it is moved into task inventory
+    LLUUID asset_id = item->getAssetUUID();
     BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
     if (!success)
     {
         return;
     }
-    LLUUID asset_id = item->getAssetUUID();
+
     if (asset_id.isNull())
     {
         // use blank material
@@ -1127,13 +1131,17 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
         LL_WARNS() << "LLToolDragAndDrop::dropTextureAllFaces no material item." << LL_ENDL;
         return;
     }
+
+    // SL-20013 must save asset_id before handleDropMaterialProtections since our item instance
+    // may be deleted if it is moved into task inventory
+    LLUUID asset_id = item->getAssetUUID();
     BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
+
     if (!success)
     {
         return;
     }
 
-    LLUUID asset_id = item->getAssetUUID();
     if (asset_id.isNull())
     {
         // use blank material
