@@ -219,6 +219,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	U16 num_channels = 0;
 	U32 sample_rate = 0;
 	U32 bits_per_sample = 0;
+    S32 serial_number   = 0;
 
 	S32 format_error = 0;
 	std::string error_msg;
@@ -322,9 +323,10 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	 vorbis_block_init(&vd,&vb);
 	 
 	 /* set up our packet->stream encoder */
-	 /* pick a random serial number; that way we can more likely build
-		chained streams just by concatenation */
-	 ogg_stream_init(&os, ll_rand());
+	 /* we want to have the same serial numbers every time so upload of the same sound
+	    file twice creates identical vorbis files, hence identical asset ids.  This does
+		mean that vorbis files can't simply be concatenated. */
+	 ogg_stream_init(&os, serial_number++);
 	 
 	 /* Vorbis streams begin with three headers; the initial header (with
 		most of the codec setup parameters) which is mandated by the Ogg
