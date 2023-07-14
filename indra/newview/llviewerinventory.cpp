@@ -1053,16 +1053,16 @@ void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
 {
     std::string item_desc = avatar_id.asString();
     create_inventory_item(gAgent.getID(),
-		gAgent.getSessionID(),
-		parent,
-		LLTransactionID::tnull,
-		av_name.getUserName(),
-		item_desc,
-        LLAssetType::AT_CALLINGCARD,
-		LLInventoryType::IT_CALLINGCARD,
-		NO_INV_SUBTYPE,
-		PERM_MOVE | PERM_TRANSFER,
-		cb);
+                          gAgent.getSessionID(),
+                          parent,
+                          LLTransactionID::tnull,
+                          av_name.getUserName(),
+                          item_desc,
+                          LLAssetType::AT_CALLINGCARD,
+                          LLInventoryType::IT_CALLINGCARD,
+                          NO_INV_SUBTYPE,
+                          PERM_MOVE | PERM_TRANSFER,
+                          cb);
 }
 
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
