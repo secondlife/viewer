@@ -1046,14 +1046,29 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	gAgent.sendReliableMessage();
 }
 
+void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
+                                           const LLUUID &parent,
+                                           const LLUUID &avatar_id,
+                                           const LLAvatarName &av_name)
+{
+    std::string item_desc = avatar_id.asString();
+    create_inventory_item(gAgent.getID(),
+                          gAgent.getSessionID(),
+                          parent,
+                          LLTransactionID::tnull,
+                          av_name.getUserName(),
+                          item_desc,
+                          LLAssetType::AT_CALLINGCARD,
+                          LLInventoryType::IT_CALLINGCARD,
+                          NO_INV_SUBTYPE,
+                          PERM_MOVE | PERM_TRANSFER,
+                          cb);
+}
+
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
-	std::string item_desc = avatar_id.asString();
 	LLAvatarName av_name;
-	LLAvatarNameCache::get(avatar_id, &av_name);
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
-                          LLInventoryType::IT_CALLINGCARD, NO_INV_SUBTYPE, PERM_MOVE | PERM_TRANSFER, cb);
+    LLAvatarNameCache::get(avatar_id, boost::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
 }
 
 void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
