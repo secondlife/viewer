@@ -1247,6 +1247,27 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 	return FALSE;
 }
 
+bool LLVOAvatarSelf::hasAttachmentsInTrash()
+{
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+
+    for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter)
+    {
+        LLViewerJointAttachment *attachment = iter->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+             attachment_iter != attachment->mAttachedObjects.end();
+             ++attachment_iter)
+        {
+            LLViewerObject *attached_object = attachment_iter->get();
+            if (attached_object && gInventory.isObjectDescendentOf(attached_object->getAttachmentItemID(), trash_id))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // static
 BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
 {
