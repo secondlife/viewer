@@ -51,11 +51,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>20efce94a857d97ba9b947bcf802136175815d5b</string>
+              <string>dc4a38439f90325b406ec3f7cc4fa66edf0eeec8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-4d6fcb2/apr_suite-1.7.2-4d6fcb2-darwin64-4d6fcb2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-darwin64-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -77,11 +77,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0421edc009fb19747bc8affaaeb6826f31e29909</string>
+              <string>abb48e031b4bbab5fa48d2872ef2db065f33d8ac</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-4d6fcb2/apr_suite-1.7.2-4d6fcb2-windows-4d6fcb2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -91,18 +91,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1fe8589dcaafa6bc3ea29a02617468e2d2a23c0</string>
+              <string>8233de9a11f323a03d569db1043ba5198176457b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-4d6fcb2/apr_suite-1.7.2-4d6fcb2-windows64-4d6fcb2.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows64-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.2-4d6fcb2</string>
+        <string>1.7.2-e935465</string>
       </map>
       <key>boost</key>
       <map>
@@ -1838,11 +1838,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>2d0ba3d6c0f4c73f603bc7d61135079ef281686d</string>
+              <string>48bca5d0233d1e724a59f649a2c6c7ac5f40ec3c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108908515</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/117009335</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1854,11 +1854,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>90b1d01ab2fe93dd584de87df8cb42d1ec35f109</string>
+              <string>39f52d0350e130f41c5c758f7cb94e87b962c223</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108908517</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/117009336</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1870,11 +1870,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>397daeb397719448858eabae6061c795d127b8fb</string>
+              <string>362126acd5348b20636ce7489dc9e6887a5a415d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108908521</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/117009343</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1886,11 +1886,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>475d0d49a28bcc04b3af8c9d5e8b0dbafa542db9</string>
+              <string>7b5e645fb7eb399abbea63bd21e8063bbb32a911</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108908518</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/117009339</string>
             </map>
             <key>name</key>
             <string>windows64</string>
