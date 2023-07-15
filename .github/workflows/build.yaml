@@ -13,18 +13,14 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: [Release]
-        addrsize: [64]
         python-version: ["3.11"]
         include:
-          - runner: windows-large
-            configuration: Release
-            addrsize: 32
-            python-version: "3.11"
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+            python-version: "3.11"
     runs-on: ${{ matrix.runner }}
     env:
-      AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}

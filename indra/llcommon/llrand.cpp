@@ -82,7 +82,7 @@ static LLSeedRand sRandomSeeder;
 inline F64 ll_internal_random_double()
 {
 #if LL_WINDOWS
-	return (F64)rand() / (F64)RAND_MAX; 
+	return (F64)rand() / (F64)(RAND_MAX+1);
 #else
 	return drand48();
 #endif
@@ -90,7 +90,7 @@ inline F64 ll_internal_random_double()
 inline F32 ll_internal_random_float()
 {
 #if LL_WINDOWS
-	return (F32)rand() / (F32)RAND_MAX; 
+	return (F32)rand() / (F32)(RAND_MAX+1);
 #else
 	return (F32)drand48();
 #endif
