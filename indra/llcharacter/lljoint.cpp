@@ -1037,24 +1037,5 @@ void LLJoint::setSkinOffset( const LLVector3& offset )
 	mSkinOffset = offset;
 }
 
-//-----------------------------------------------------------------------------
-// clampRotation()
-//-----------------------------------------------------------------------------
-void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
-{
-	LLVector3 main_axis(1.f, 0.f, 0.f);
-
-	for (LLJoint* joint : mChildren)
-	{
-		if (joint->isAnimatable())
-		{
-			main_axis = joint->getPosition();
-			main_axis.normVec();
-			// only care about first animatable child
-			break;
-		}
-	}
-}
-
 // End
 
