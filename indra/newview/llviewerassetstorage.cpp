@@ -134,14 +134,6 @@ LLViewerAssetStorage::~LLViewerAssetStorage()
         // This class has dedicated coroutine pool, clean it up, otherwise coroutines will crash later. 
         LLCoprocedureManager::instance().close(VIEWER_ASSET_STORAGE_CORO_POOL);
     }
-
-    while (mCoroWaitList.size() > 0)
-    {
-        CoroWaitList &request = mCoroWaitList.front();
-        // Clean up pending downloads, delete request and trigger callbacks
-        removeAndCallbackPendingDownloads(request.mId, request.mType, request.mId, request.mType, LL_ERR_NOERR, LLExtStat::NONE);
-        mCoroWaitList.pop_front();
-    }
 }
 
 // virtual 
@@ -346,28 +338,6 @@ void LLViewerAssetStorage::storeAssetData(
     }
 }
 
-void LLViewerAssetStorage::checkForTimeouts()
-{
-    LLAssetStorage::checkForTimeouts();
-
-    // Restore requests
-    LLCoprocedureManager* manager = LLCoprocedureManager::getInstance();
-    while (mCoroWaitList.size() > 0
-           && manager->count(VIEWER_ASSET_STORAGE_CORO_POOL) < (LLCoprocedureManager::DEFAULT_QUEUE_SIZE - 1))
-    {
-        CoroWaitList &request = mCoroWaitList.front();
-        
-        bool with_http = true;
-        bool is_temp = false;
-        LLViewerAssetStatsFF::record_enqueue(request.mType, with_http, is_temp);
-
-        manager->enqueueCoprocedure(VIEWER_ASSET_STORAGE_CORO_POOL, "LLViewerAssetStorage::assetRequestCoro",
-            boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, request.mRequest, request.mId, request.mType, request.mCallback, request.mUserData));
-
-        mCoroWaitList.pop_front();
-    }
-}
-
 /**
  * @brief Allocate and queue an asset fetch request for the viewer
  *
@@ -424,21 +394,18 @@ void LLViewerAssetStorage::queueRequestHttp(
     // This is the same as the current UDP logic - don't re-request a duplicate.
     if (!duplicate)
     {
-        // Coroutine buffer has fixed size (synchronization buffer, so we have no alternatives), so buffer any request above limit
         LLCoprocedureManager* manager = LLCoprocedureManager::getInstance();
-        if (manager->count(VIEWER_ASSET_STORAGE_CORO_POOL) < (LLCoprocedureManager::DEFAULT_QUEUE_SIZE - 1))
-        {
-            bool with_http = true;
-            bool is_temp = false;
-            LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
-
-            manager->enqueueCoprocedure(VIEWER_ASSET_STORAGE_CORO_POOL, "LLViewerAssetStorage::assetRequestCoro",
-                boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
-        }
-        else
-        {
-            mCoroWaitList.emplace_back(req, uuid, atype, callback, user_data);
-        }
+        bool with_http = true;
+        bool is_temp = false;
+        LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
+        manager->enqueueCoprocedure(
+            VIEWER_ASSET_STORAGE_CORO_POOL,
+            "LLViewerAssetStorage::assetRequestCoro",
+            [this, req, uuid, atype, callback, user_data]
+            (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t&, const LLUUID&)
+            {
+                assetRequestCoro(req, uuid, atype, callback, user_data);
+            });
     }
 }
 

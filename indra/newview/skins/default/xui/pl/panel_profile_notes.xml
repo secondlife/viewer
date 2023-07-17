@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_notes" label="Notatki i prywatność">
+	<text name="status_message" value="Twoje notatki o tej osobie. Nikt inny nie może ich zobaczyć." />
+	<button name="notes_save_changes" label="Zapisz" />
+	<button name="notes_discard_changes" label="Odrzuć" />
+</panel>

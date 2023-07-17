@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater name="360capture" title="Zdjęcie 360°">
+	<panel name="ui_panel_left">
+		<text name="quality_level_label">
+			Poziom detali
+		</text>
+		<radio_group name="360_quality_selection">
+			<radio_item label="Podgląd (szybkie)" name="preview_quality" tool_tip="Najsłabsza jakość" />
+			<radio_item label="Średni" name="medium_quality" tool_tip="Średnia jakość" />
+			<radio_item label="Wysoki" name="high_quality" tool_tip="Wysoka jakość" />
+			<radio_item label="Maksymalny" name="maximum_quality" tool_tip="Maksymalna jakość" />
+		</radio_group>
+		<check_box label="Ukryj awatary" name="360_hide_avatar" />
+		<button label="Stwórz obraz 360" name="capture_button" />
+		<button label="Zapisz jako..." name="save_local_button" />
+	</panel>
+	<panel name="ui_panel_right">
+		<text name="statusbar">
+			Przeciągaj obraz, aby przesunąć widok
+		</text>
+	</panel>
+</floater>

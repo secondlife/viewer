@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<panel name="im_panel" label="im_panel">
+	<panel name="im_header" label="im_header">
+		<text name="time_box" value="23:30:00"/>
+	</panel>
+</panel>

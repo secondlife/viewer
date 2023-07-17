@@ -91,10 +91,9 @@ LLCallStack::LLCallStack(S32 skip_count, bool verbose):
 
 bool LLCallStack::contains(const std::string& str)
 {
-    for (std::vector<std::string>::const_iterator it = m_strings.begin();
-         it != m_strings.end(); ++it)
+	for (const std::string& src_str : m_strings)
     {
-        if (it->find(str) != std::string::npos)
+        if (src_str.find(str) != std::string::npos)
         {
             return true;
         }
@@ -105,10 +104,9 @@ bool LLCallStack::contains(const std::string& str)
 std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-    std::vector<std::string>::const_iterator it;
-    for (it=call_stack.m_strings.begin(); it!=call_stack.m_strings.end(); ++it)
+	for (const std::string& str : call_stack.m_strings)
     {
-        s << *it;
+        s << str;
     }
 #else
     s << "UNAVAILABLE IN RELEASE";
@@ -156,9 +154,9 @@ bool LLContextStrings::contains(const std::string& str)
 {
     const std::map<std::string,S32>& strings =
         LLThreadLocalSingletonPointer<LLContextStrings>::getInstance()->m_contextStrings;
-    for (std::map<std::string,S32>::const_iterator it = strings.begin(); it!=strings.end(); ++it)
+    for (const std::map<std::string,S32>::value_type& str_pair : strings)
     {
-        if (it->first.find(str) != std::string::npos)
+        if (str_pair.first.find(str) != std::string::npos)
         {
             return true;
         }
@@ -171,9 +169,9 @@ void LLContextStrings::output(std::ostream& os)
 {
     const std::map<std::string,S32>& strings =
         LLThreadLocalSingletonPointer<LLContextStrings>::getInstance()->m_contextStrings;
-    for (std::map<std::string,S32>::const_iterator it = strings.begin(); it!=strings.end(); ++it)
+    for (const std::map<std::string,S32>::value_type& str_pair : strings)
     {
-        os << it->first << "[" << it->second << "]" << "\n";
+        os << str_pair.first << "[" << str_pair.second << "]" << "\n";
     }
 }
 

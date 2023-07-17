@@ -183,18 +183,15 @@ LLAvatarAppearanceDictionary::~LLAvatarAppearanceDictionary()
 // map it to the baked texture.
 void LLAvatarAppearanceDictionary::createAssociations()
 {
-	for (BakedTextures::const_iterator iter = mBakedTextures.begin(); iter != mBakedTextures.end(); iter++)
+	for (BakedTextures::value_type& baked_pair : mBakedTextures)
 	{
-		const EBakedTextureIndex baked_index = (iter->first);
-		const BakedEntry *dict = (iter->second);
+		const EBakedTextureIndex baked_index = baked_pair.first;
+		const BakedEntry *dict = baked_pair.second;
 
 		// For each texture that this baked texture index affects, associate those textures
 		// with this baked texture index.
-		for (texture_vec_t::const_iterator local_texture_iter = dict->mLocalTextures.begin();
-			 local_texture_iter != dict->mLocalTextures.end();
-			 local_texture_iter++)
+		for (const ETextureIndex local_texture_index : dict->mLocalTextures)
 		{
-			const ETextureIndex local_texture_index = (ETextureIndex) *local_texture_iter;
 			mTextures[local_texture_index]->mIsUsedByBakedTexture = true;
 			mTextures[local_texture_index]->mBakedTextureIndex = baked_index;
 		}

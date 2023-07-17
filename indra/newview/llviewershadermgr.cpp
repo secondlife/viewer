@@ -35,6 +35,7 @@
 
 #include "llrender.h"
 #include "llenvironment.h"
+#include "llerrorcontrol.h"
 #include "llatmosphere.h"
 #include "llworld.h"
 #include "llsky.h"
@@ -559,10 +560,15 @@ void LLViewerShaderMgr::setShaders()
     std::string shader_name = loadBasicShaders();
     if (shader_name.empty())
     {
-        LL_INFOS() << "Loaded basic shaders." << LL_ENDL;
+        LL_INFOS("Shader") << "Loaded basic shaders." << LL_ENDL;
     }
     else
     {
+        // "ShaderLoading" and "Shader" need to be logged
+        LLError::ELevel lvl = LLError::getDefaultLevel();
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        loadBasicShaders();
+        LLError::setDefaultLevel(lvl);
         LL_ERRS() << "Unable to load basic shader " << shader_name << ", verify graphics driver installed and current." << LL_ENDL;
         reentrance = false; // For hygiene only, re-try probably helps nothing 
         return;

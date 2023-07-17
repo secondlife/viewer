@@ -17,6 +17,7 @@
             bottom="-5"
             orientation="vertical">
         <layout_panel
+                name="lp_top"
                 border="true"
                 bevel_style="in"
                 auto_resize="false"
@@ -24,6 +25,7 @@
                 visible="true"
                 height="105">
             <text
+                    name="water_fog_label"
                     follows="left|top"
                     height="20"
                     font="SansSerif"
@@ -34,6 +36,7 @@
                 Water Fog:
             </text>
             <text
+                    name="color_label"
                     follows="left|top"
                     height="10"
                     layout="left|top"
@@ -53,6 +56,7 @@
                     top_pad="5"
                     width="60" />
             <text
+                    name="density_exponent_label"
                     follows="left|top"
                     height="10"
                     top_delta="-15"
@@ -75,6 +79,7 @@
                     width="150"
                     can_edit_text="true"/>
             <text
+                    name="underwater_modifier_label"
                     follows="left|top"
                     height="10"
                     top_delta="25"
@@ -101,6 +106,7 @@
                             height="10"
                             layout="topleft"
                             left_delta="165"
+                            name="FresnelScaleText"
                             top_delta="-53"
                             width="150">
                         Fresnel Scale:
@@ -141,6 +147,7 @@
                     
         </layout_panel>
         <layout_panel
+                name="lp_bottom"
                 auto_resize="true"
                 user_resize="false"
                 visible="true">
@@ -152,6 +159,7 @@
                     follows="left|top|right|bottom"
                     orientation="horizontal">
                 <layout_panel
+                        name="lp_left"
                         border="true"
                         bevel_style="in"
                         auto_resize="true"
@@ -160,6 +168,7 @@
                         min_width="460"
                         width="50">
                     <text
+                            name="normal_map_label"
                             follows="left|top|right"
                             height="16"
                             layout="topleft"
@@ -177,6 +186,7 @@
                             width="61"/>
 
                     <text
+                            name="large_wave_speed_label"
                             follows="left|top"
                             height="16"
                             width="120"
@@ -202,6 +212,7 @@
                         arrow_color="white"/>
                     
                     <text
+                            name="small_wave_speed_label"
                             follows="left|top"
                             height="16"
                             layout="topleft"
@@ -226,6 +237,7 @@
                         arrow_color="white"/>
 
                     <text
+                            name="reflection_wavelet_scale_label"
                             follows="left|top|right"
                             height="16"
                             layout="topleft"
@@ -277,6 +289,7 @@
                         
                 </layout_panel>
                 <layout_panel
+                        name="lp_right"
                         border="true"
                         bevel_style="in"
                         auto_resize="true"
@@ -284,6 +297,7 @@
                         width="50"
                         visible="true">
                     <text
+                            name="refraction_and_blur_label"
                             follows="left|top"
                             height="20"
                             font="SansSerif"
@@ -294,6 +308,7 @@
                         Refraction And Blur:
                     </text>
                     <text
+                            name="refraction_scale_above_label"
                             follows="left|top|right"
                             height="16"
                             layout="topleft"
@@ -318,6 +333,7 @@
                             width="200"
                             can_edit_text="true" />
                     <text
+                            name="refraction_scale_below_label"
                             type="string"
                             length="1"
                             follows="left|top|right"
@@ -344,6 +360,7 @@
                             width="200"
                             can_edit_text="true"/>
                     <text
+                            name="blur_multiplier_label"
                             follows="left|top|right"
                             font="SansSerif"
                             height="16"

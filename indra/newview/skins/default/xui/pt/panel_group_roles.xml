@@ -1,19 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Membros e Funções" name="roles_tab">
-	<panel.string name="default_needs_apply_text">
-		Algumas modificações não foram salvas
-	</panel.string>
-	<panel.string name="want_apply_text">
-		Deseja salvar essas mudanças?
-	</panel.string>
+	<panel.string name="default_needs_apply_text">Algumas modificações não foram salvas</panel.string>
+	<panel.string name="want_apply_text">Deseja salvar essas mudanças?</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="MEMBROS" name="members_sub_tab" tool_tip="Membros">
-			<panel.string name="help_text">
-				Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.
-			</panel.string>
-			<panel.string name="donation_area">
-				[AREA] m²
-			</panel.string>
+			<panel.string name="help_text">Você pode adicionar ou remover as funções designadas aos membros. Selecione vários membros, segurando a tecla Ctrl e clicando em seus nomes.</panel.string>
+			<panel.string name="donation_area">[AREA] m²</panel.string>
 			<filter_editor label="Filtrar por membro" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Membro" name="name"/>
@@ -26,18 +18,12 @@
 			<button label="Banir membro(s)" name="member_ban"/>
 		</panel>
 		<panel label="CARGOS" name="roles_sub_tab">
-			<panel.string name="help_text">
-				Os cargos têm um título e uma lista de funções permitidas
+			<panel.string name="help_text">Os cargos têm um título e uma lista de funções permitidas
         que os membros podem realizar. Os membros podem pertencer a
         um ou mais cargos. Um grupo pode ter até 10 cargos,
-        inclusive Todos e Proprietário.
-			</panel.string>
-			<panel.string name="cant_delete_role">
-				As funções &apos;Todos&apos; e &apos;Owners&apos; são especiais e não podem ser apagadas.
-			</panel.string>
-			<panel.string name="power_folder_icon">
-				Inv_FolderClosed
-			</panel.string>
+        inclusive Todos e Proprietário.</panel.string>
+			<panel.string name="cant_delete_role">As funções 'Todos' e 'Owners' são especiais e não podem ser apagadas.</panel.string>
+			<panel.string name="power_folder_icon">Inv_FolderClosed</panel.string>
 			<filter_editor label="Filtrar por cargo" name="filter_input"/>
 			<scroll_list name="role_list">
 				<scroll_list.columns label="Cargo" name="name"/>
@@ -48,20 +34,14 @@
 			<button label="Apagar função" name="role_delete"/>
 		</panel>
 		<panel height="148" label="FUNÇÕES" name="actions_sub_tab" tool_tip="Você pode ver a descrição de uma função e quais cargos e membros podem desempenhá-la.">
-			<panel.string name="help_text">
-				As funções permitem que os membros em cargos realizem
-        tarefas específicas neste grupo. Existem diversas funções.
-			</panel.string>
+			<panel.string name="help_text">As funções permitem que os membros em cargos realizem
+        tarefas específicas neste grupo. Existem diversas funções.</panel.string>
 			<filter_editor label="Filtrar por função" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Selecione uma função para ver mais detalhes"/>
 		</panel>
 		<panel label="RESIDENTES BANIDOS" name="banlist_sub_tab" tool_tip="Visualizar os residentes banidos deste grupo.">
-			<panel.string name="help_text">
-				Qualquer residente na lista de banidos não poderá entrar no grupo.
-			</panel.string>
-			<panel.string name="ban_count_template">
-				Número de banimentos: [COUNT]/[LIMIT]
-			</panel.string>
+			<panel.string name="help_text">Qualquer residente na lista de banidos não poderá entrar no grupo.</panel.string>
+			<panel.string name="ban_count_template">Número de banimentos: [COUNT]/[LIMIT]</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="Residente" name="name"/>
 				<name_list.columns label="Data do banimento" name="ban_date"/>
@@ -70,57 +50,34 @@
 			<button label="Cancelar banimento(s)" name="ban_delete" tool_tip="Cancelar o banimento de residentes selecionados do seu grupo"/>
 			<button name="ban_refresh" tool_tip="Atualizar a lista de banidos"/>
 		</panel>
+		<button name="role_copy" label="Copiar Função"/>
 	</tab_container>
 	<panel name="members_footer">
-		<text name="static">
-			Cargos desempenhados
-		</text>
-		<text name="static2">
-			Habilidades permitidas
-		</text>
+		<text name="static">Cargos desempenhados</text>
+		<text name="static2">Habilidades permitidas</text>
 		<scroll_list name="member_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
 	</panel>
 	<panel name="members_header">
-		<text_editor name="member_action_description">
-			Esta Habilidade é ‘Expulsar Membros deste Grupo&apos;. Somente os Proprietários podem expulsar outro Proprietário.
-		</text_editor>
+		<text_editor name="member_action_description">Esta Habilidade é ‘Expulsar Membros deste Grupo'. Somente os Proprietários podem expulsar outro Proprietário.</text_editor>
 	</panel>
 	<panel name="roles_footer">
-		<text name="static">
-			Nome da função
-		</text>
+		<text name="static">Nome da função</text>
 		<line_editor name="role_name"/>
-		<text name="static3">
-			Título da função
-		</text>
+		<text name="static3">Título da função</text>
 		<line_editor name="role_title"/>
-		<text name="static2">
-			Descrição
-		</text>
+		<text name="static2">Descrição</text>
 		<text_editor name="role_description"/>
-		<text name="static4">
-			Cargos desempenhados
-		</text>
+		<text name="static4">Cargos desempenhados</text>
 		<check_box label="Revelar membros" name="role_visible_in_list" tool_tip="Define se os membros dessa função são visíveis na guia geral para pessoas de fora do grupo."/>
-		<text name="static5" tool_tip="Uma lista de habilidades que a função selecionada atualmente pode executar.">
-			Habilidades permitidas
-		</text>
+		<text name="static5" tool_tip="Uma lista de habilidades que a função selecionada atualmente pode executar.">Habilidades permitidas</text>
 		<scroll_list name="role_allowed_actions" tool_tip="Clique na guia Funções para ver mais detalhes"/>
 	</panel>
 	<panel name="roles_header">
-		<text_editor name="role_action_description">
-			Esta Habilidade é ‘Expulsar Membros deste Grupo&apos;. Somente os Proprietários podem expulsar outro Proprietário.
-		</text_editor>
+		<text_editor name="role_action_description">Esta Habilidade é ‘Expulsar Membros deste Grupo'. Somente os Proprietários podem expulsar outro Proprietário.</text_editor>
 	</panel>
 	<panel name="actions_footer">
-		<text_editor name="action_description">
-			Essa habilidade permite tirar alguem do grupo. Somente o dono do grupo poderá retirar outro dono do grupo.
-		</text_editor>
-		<text name="static2">
-			Cargos com esta função
-		</text>
-		<text name="static3">
-			Membros com esta função
-		</text>
+		<text_editor name="action_description">Essa habilidade permite tirar alguem do grupo. Somente o dono do grupo poderá retirar outro dono do grupo.</text_editor>
+		<text name="static2">Cargos com esta função</text>
+		<text name="static3">Membros com esta função</text>
 	</panel>
 </panel>

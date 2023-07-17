@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel name="landmark_info">
 	<string name="title_create_landmark" value="Crear un hito"/>
 	<string name="title_edit_landmark" value="Editar el hito"/>
@@ -6,18 +6,10 @@
 	<string name="not_available" value="(No disp.)"/>
 	<string name="unknown" value="(desconocidas)"/>
 	<string name="public" value="(público)"/>
-	<string name="server_update_text">
-		Los datos de este lugar no están disponibles sin una actualización del servidor.
-	</string>
-	<string name="server_error_text">
-		Los datos de este lugar no están disponibles por el momento. Por favor, prueba más tarde.
-	</string>
-	<string name="server_forbidden_text">
-		Por restricciones en el acceso, los datos de esta localización no están disponibles.  Por favor, revisa tus permisos con el propietario de la parcela.
-	</string>
-	<string name="acquired_date">
-		[wkday,datetime,local][day,datetime,local] [mth,datetime,local] [year,datetime,local][hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
-	</string>
+	<string name="server_update_text">Los datos de este lugar no están disponibles sin una actualización del servidor.</string>
+	<string name="server_error_text">Los datos de este lugar no están disponibles por el momento. Por favor, prueba más tarde.</string>
+	<string name="server_forbidden_text">Por restricciones en el acceso, los datos de esta localización no están disponibles.  Por favor, revisa tus permisos con el propietario de la parcela.</string>
+	<string name="acquired_date">[wkday,datetime,local][day,datetime,local] [mth,datetime,local] [year,datetime,local][hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</string>
 	<button name="back_btn" tool_tip="Atrás"/>
 	<text name="title" value="Perfil del lugar"/>
 	<scroll_container name="place_scroll">
@@ -34,5 +26,6 @@
 				<text name="folder_label" value="Localización del hito:"/>
 			</panel>
 		</panel>
+		<text name="region_title" value="Región de muestra"/>
 	</scroll_container>
 </panel>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Tworzenie grupy" name="GroupCreation">
+	<panel.string name="current_membership">
+		(twoje członkostwo)
+	</panel.string>
+	<panel name="group_info_top">
+		<line_editor label="Wpisz tutaj nazwę nowej grupy" name="group_name_editor" />
+	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_info">
+			<panel name="group_info_top">
+				<texture_picker name="insignia" tool_tip="Kliknij by wybrać obraz" />
+				<text_editor name="charter">
+					Statut grupy
+				</text_editor>
+			</panel>
+			<panel name="preferences_container">
+				<check_box label="Wolny wstęp" name="open_enrollement" tool_tip="Grupa oferuje wolny wstęp dla każdego i nie wymaga zaproszenia." />
+				<check_box label="Opłata wstępu" name="check_enrollment_fee" tool_tip="Określa, czy wymagać opłaty wstępu, aby dołączyć do grupy." />
+				<spinner name="spin_enrollment_fee" tool_tip="Nowe osoby muszą zapłacić tę sumę by dołączyć do grupy, jeśli 'Opłata wstępu' jest zaznaczona." />
+				<combo_box name="group_mature_check" tool_tip="Klasyfikacja dojrzałości oraz wieku określa rodzaje treści i zachowanie dozwolone w grupie.">
+					<combo_item name="select_mature">
+						- Wybierz klasyfikację wieku -
+					</combo_item>
+					<combo_box.item label="Treść Moderate" name="mature" />
+					<combo_box.item label="Treść General" name="pg" />
+				</combo_box>
+			</panel>
+		</layout_panel>
+		<layout_panel name="create_info">
+			<text name="fee_information">
+				Opłata za utworzenie grupy zależy od Twojego poziomu członkostwa. [https://secondlife.com/my/account/membership.php Więcej]
+			</text>
+			<scroll_list name="membership_list">
+				<scroll_list.rows name="basic" value="Podstawowe (wypełniacz)"/>
+				<scroll_list.rows name="premium" value="Premium (wypełniacz)" />
+			</scroll_list>
+		</layout_panel>
+		<layout_panel name="create_actions">
+			<layout_stack name="button_row_ls">
+				<layout_panel name="layout_crt">
+					<button label="Utwórz grupę za [COST] L$" name="btn_create" tool_tip="Utwórz nową grupę" />
+					<button name="back" label="Anuluj" tool_tip="Powrót do listy grup" />
+				</layout_panel>
+			</layout_stack>
+			<text name="info_deletion">
+				Uwaga: grupa, która ma mniej niż 2 członków przez 48 godzin, zostaje usunięta!
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

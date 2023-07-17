@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarinfo" title="Profil">
+	<panel name="panel_profile_view">
+		<tab_container name="panel_profile_tabs">
+			<panel name="panel_profile_secondlife" label="REZYDENT" />
+			<panel name="panel_profile_web" label="SIEĆ" />
+			<panel name="panel_profile_picks" label="MIEJSCA" />
+			<panel name="panel_profile_classifieds" label="REKLAMY" />
+			<panel name="panel_profile_firstlife" label="WIĘCEJ" />
+			<panel name="panel_profile_notes" label="NOTATKI" />
+		</tab_container>
+	</panel>
+</floater>

@@ -1,14 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" ?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php?lang=fr
-	</panel.string>
-	<panel.string name="sign_up_url">
-		https://join.secondlife.com/
-	</panel.string>
+	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=fr</panel.string>
+	<panel.string name="sign_up_url">https://join.secondlife.com/</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
-			<combo_box label="Nom d&apos;utilisateur" name="username_combo" tool_tip="Nom d&apos;utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
+			<combo_box label="Nom d'utilisateur" name="username_combo" tool_tip="Nom d'utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
 			<line_editor label="Mot de passe" name="password_edit"/>
 			<combo_box label="Mes lieux préférés" name="start_location_combo">
 				<combo_box.item label="Dernier emplacement" name="MyLastLocation"/>
@@ -16,13 +12,11 @@
 			</combo_box>
 			<button label="Connexion" name="connect_btn"/>
 			<check_box label="Mémoriser mes informations" name="remember_check"/>
-			<text name="forgot_password_text">
-				Mot de passe oublié
-			</text>
+			<text name="forgot_password_text">Mot de passe oublié</text>
 			<combo_box label="Sélectionner la grille" left_pad="20" name="server_combo"/>
-			<text name="sign_up_text">
-				S&apos;inscrire
-			</text>
+			<text name="sign_up_text">S'inscrire</text>
 		</layout_panel>
+		<check_box name="remember_name" label="Se souvenir de moi" tool_tip="Les utilisateurs déjà mémorisés peuvent être oubliés à partir de Moi &gt; Préférences &gt; Avancé &gt; Noms d'utilisateurs mémorisés."/>
+		<check_box name="remember_password" label="Mémoriser le mot de passe"/>
 	</layout_stack>
 </panel>

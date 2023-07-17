@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<panel name="panel_facebook_place">
-	<text name="place_caption_label">
-		描述一下你所在的地方：
-	</text>
-	<check_box initial_value="false" label="包括地點的俯瞰圖" name="add_place_view_cb"/>
-	<button label="發佈" name="post_place_btn"/>
-	<button label="取消" name="cancel_place_btn"/>
-</panel>

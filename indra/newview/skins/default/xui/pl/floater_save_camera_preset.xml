@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater name="save_camera_preset" title="Zapisz ustawienie kamery">
+	<string name="btn_label_save">
+		Zapisz
+	</string>
+	<string name="btn_label_replace">
+		Zastąp
+	</string>
+	<radio_group name="radio_save_preset">
+		<radio_item label="Zapisz jako nowe ustawienie" name="new_preset" />
+		<radio_item label="Zastąp ustawienie" name="replace_preset" />
+	</radio_group> 
+	<button label="Zapisz" name="save" />
+	<button label="Anuluj" name="cancel" />
+</floater>

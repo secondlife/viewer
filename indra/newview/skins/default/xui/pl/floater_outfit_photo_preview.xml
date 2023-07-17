@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="outfit_photo_preview">
+	<floater.string name="Title">
+		Tekstura: [NAME]
+	</floater.string>
+	<floater.string name="exceed_limits">
+		Maks. rozmiar zdjęcia stroju to [MAX_WIDTH]*[MAX_HEIGHT]. Wybierz inną teksturę.
+	</floater.string>
+	<floater.string name="photo_confirmation">
+		Ustawić to zdjęcie dla stroju [OUTFIT]?
+	</floater.string>
+	<button label="Anuluj" name="cancel_btn" />
+</floater>

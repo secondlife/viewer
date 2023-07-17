@@ -499,6 +499,18 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_5;
 		}
+
+    #if LL_WINDOWS
+        const F32Gigabytes MIN_PHYSICAL_MEMORY(2);
+
+        LLMemory::updateMemoryInfo();
+        F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
+        if (MIN_PHYSICAL_MEMORY > physical_mem && mGPUClass > GPU_CLASS_1)
+        {
+            // reduce quality on systems that don't have enough memory
+            mGPUClass = (EGPUClass)(mGPUClass - 1);
+        }
+    #endif //LL_WINDOWS
 	} //end if benchmark
 	else
 	{
