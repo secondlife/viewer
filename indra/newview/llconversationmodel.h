@@ -40,7 +40,7 @@ class LLConversationItem;
 class LLConversationItemSession;
 class LLConversationItemParticipant;
 
-typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
+typedef std::map<LLUUID, LLPointer<LLConversationItem> > conversations_items_map;
 typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
 typedef std::vector<std::string> menuentry_vec_t;

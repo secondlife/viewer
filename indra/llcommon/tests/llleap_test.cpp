@@ -17,6 +17,7 @@
 // std headers
 #include <functional>
 // external library headers
+//#include <boost/algorithm/string/join.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/phoenix/core/argument.hpp>
 // other Linden headers
