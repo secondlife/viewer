@@ -6,7 +6,7 @@
 		</text>
 		<check_box label="ビーコン（標識）" name="beacons"/>
 		<check_box label="ハイライト" name="highlights"/>
-		<text name="beacon_width_label" tool_tip="ビーコン（標識）の幅">
+		<text name="beacon_width_label" tool_tip="ビーコンの幅">
 			幅：
 		</text>
 		<text name="label_objects">
@@ -18,6 +18,9 @@
 		<check_box label="音源" name="sounds"/>
 		<check_box label="パーティクル源" name="particles"/>
 		<check_box label="メディア源" name="moapbeacon"/>
+		<text name="label_objects">
+			以下の向きを示す：
+		</text>
 		<check_box label="太陽" name="sun"/>
 		<check_box label="月" name="moon"/>
 	</panel>

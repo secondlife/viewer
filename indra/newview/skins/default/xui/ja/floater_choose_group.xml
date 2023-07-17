@@ -3,6 +3,6 @@
 	<text name="groupdesc">
 		グループを選択：
 	</text>
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>
+	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 </floater>

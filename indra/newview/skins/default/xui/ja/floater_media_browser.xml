@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="メディアブラウザ">
 	<floater.string name="home_page_url">
-		http://jp.secondlife.com
+		https://secondlife.com
 	</floater.string>
 	<floater.string name="support_page_url">
-		http://jp.secondlife.com/support
+		https://support.secondlife.com/
 	</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
 			<button label="戻る" name="back"/>
 			<button label="進む" name="forward"/>
-			<button label="更新" name="reload"/>
+			<button label="リロード" name="reload"/>
 			<button label="閲覧" name="go"/>
 		</layout_panel>
 		<layout_panel name="time_controls">

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="presets_pulldown">
 	<text name="Graphic Presets">
-		グラフィックプリセット
+		グラフィックのプリセット
 	</text>
-	<button label="グラフィックス設定を開く" name="open_prefs_btn" tool_tip="グラフィックス設定を開きます"/>
+	<scroll_list name="preset_list"/>
+	<view_border name="horiz_separator"/>
+	<button name="open_prefs_btn" label="グラフィック初期設定" tool_tip="グラフィック設定を呼び出します。"/>
+	<button name="open_autofps_btn" label="自動ＦＰＳ設定" tool_tip="自動調整設定を呼び出します。"/>
 </panel>
