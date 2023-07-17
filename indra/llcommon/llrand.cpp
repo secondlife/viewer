@@ -58,14 +58,18 @@
  * to restore uniform distribution.
  */
 
+template <typename REAL>
+inline REAL ll_internal_random();
+
 // *NOTE: The system rand implementation is probably not correct.
 #define LL_USE_SYSTEM_RAND 0
 
+/*****************************************************************************
+*   The LL_USE_SYSTEM_RAND implementation has been disabled since June 2008.
+*****************************************************************************/
 #if LL_USE_SYSTEM_RAND
 #include <cstdlib>
-#endif
 
-#if LL_USE_SYSTEM_RAND
 class LLSeedRand
 {
 public:
@@ -79,25 +83,25 @@ public:
 	}
 };
 static LLSeedRand sRandomSeeder;
-inline F64 ll_internal_random_double()
+
+template <>
+inline F64 ll_internal_random<F64>()
 {
 #if LL_WINDOWS
-	return (F64)rand() / (F64)RAND_MAX; 
+	return (F64)rand() / (F64)(RAND_MAX+1);
 #else
 	return drand48();
 #endif
 }
-inline F32 ll_internal_random_float()
-{
-#if LL_WINDOWS
-	return (F32)rand() / (F32)RAND_MAX; 
-#else
-	return (F32)drand48();
-#endif
-}
-#else
+
+/*****************************************************************************
+*   This is the implementation we've been using.
+*****************************************************************************/
+#else  // LL_USE_SYSTEM_RAND
 static LLRandLagFib2281 gRandomGenerator(LLUUID::getRandomSeed());
-inline F64 ll_internal_random_double()
+
+template <>
+inline F64 ll_internal_random<F64>()
 {
 	// *HACK: Through experimentation, we have found that dual core
 	// CPUs (or at least multi-threaded processes) seem to
@@ -107,16 +111,40 @@ inline F64 ll_internal_random_double()
 	if(!((rv >= 0.0) && (rv < 1.0))) return fmod(rv, 1.0);
 	return rv;
 }
+#endif  // LL_USE_SYSTEM_RAND
 
+/*****************************************************************************
+*   Functions common to both implementations
+*****************************************************************************/
+template <>
+inline F32 ll_internal_random<F32>()
+{
+    return F32(ll_internal_random<F64>());
+}
+
+/*------------------------------ F64 aliases -------------------------------*/
+inline F64 ll_internal_random_double()
+{
+    return ll_internal_random<F64>();
+}
+
+F64 ll_drand()
+{
+	return ll_internal_random_double();
+}
+
+/*------------------------------ F32 aliases -------------------------------*/
 inline F32 ll_internal_random_float()
 {
-	// The clamping rules are described above.
-	F32 rv = (F32)gRandomGenerator();
-	if(!((rv >= 0.0f) && (rv < 1.0f))) return fmod(rv, 1.f);
-	return rv;
+    return ll_internal_random<F32>();
 }
-#endif
 
+F32 ll_frand()
+{
+	return ll_internal_random_float();
+}
+
+/*-------------------------- clamped random range --------------------------*/
 S32 ll_rand()
 {
 	return ll_rand(RAND_MAX);
@@ -130,42 +158,28 @@ S32 ll_rand(S32 val)
 	return rv;
 }
 
-F32 ll_frand()
+template <typename REAL>
+REAL ll_grand(REAL val)
 {
-	return ll_internal_random_float();
+	// The clamping rules are described above.
+	REAL rv = ll_internal_random<REAL>() * val;
+	if(val > 0)
+	{
+		if(rv >= val) return REAL();
+	}
+	else
+	{
+		if(rv <= val) return REAL();
+	}
+	return rv;
 }
 
 F32 ll_frand(F32 val)
 {
-	// The clamping rules are described above.
-	F32 rv = ll_internal_random_float() * val;
-	if(val > 0)
-	{
-		if(rv >= val) return 0.0f;
-	}
-	else
-	{
-		if(rv <= val) return 0.0f;
-	}
-	return rv;
-}
-
-F64 ll_drand()
-{
-	return ll_internal_random_double();
+    return ll_grand<F32>(val);
 }
 
 F64 ll_drand(F64 val)
 {
-	// The clamping rules are described above.
-	F64 rv = ll_internal_random_double() * val;
-	if(val > 0)
-	{
-		if(rv >= val) return 0.0;
-	}
-	else
-	{
-		if(rv <= val) return 0.0;
-	}
-	return rv;
+    return ll_grand<F64>(val);
 }
