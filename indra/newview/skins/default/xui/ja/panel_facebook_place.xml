@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<panel name="panel_facebook_place">
-	<text name="place_caption_label">
-		自分がいる場所について何か言ってください:
-	</text>
-	<check_box initial_value="false" label="場所の俯瞰図を含める" name="add_place_view_cb"/>
-	<button label="投稿" name="post_place_btn"/>
-	<button label="キャンセル" name="cancel_place_btn"/>
-</panel>

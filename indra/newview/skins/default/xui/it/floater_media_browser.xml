@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="floater_about" title="BROWSER MULTIMEDIALE">
-	<floater.string name="home_page_url">
-		http://it.secondlife.com
-	</floater.string>
-	<floater.string name="support_page_url">
-		http://it.secondlife.com/support
-	</floater.string>
+	<floater.string name="home_page_url">http://it.secondlife.com</floater.string>
+	<floater.string name="support_page_url">http://it.secondlife.com/support</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
 			<button label="Indietro" name="back" width="75"/>
@@ -22,5 +18,9 @@
 			<check_box label="Apri sempre nel web browser" name="open_always"/>
 			<button label="Chiudi" name="close"/>
 		</layout_panel>
+		<button name="seek" label="avanti"/>
+		<button name="rewind" label="Riavvolgi"/>
+		<button name="stop" label="stop"/>
 	</layout_stack>
+	<layout_panel name="time_controls"/>
 </floater>

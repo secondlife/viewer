@@ -8,6 +8,7 @@
         name="panel_settings_sky_atmos"
         top="0">
     <layout_stack
+            name="main_ls"
             follows="all"
             layout="topleft"
             left="5"
@@ -16,6 +17,7 @@
             bottom="-5"
             orientation="vertical">
         <layout_panel
+                name="top_lp"
                 border="true"
                 bevel_style="in"
                 auto_resize="false"
@@ -24,6 +26,7 @@
                 height="75">
 
             <text
+                    name="ambient_color_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -43,6 +46,7 @@
                     top_pad="5"
                     width="60" />
             <text
+                    name="blue_horizon_label"
                     follows="left"
                     height="10"
                     layout="topleft"
@@ -62,6 +66,7 @@
                     top_pad="5"
                     width="60" />
             <text
+                    name="blue_density_label"
                     follows="left"
                     height="10"
                     layout="topleft"
@@ -82,6 +87,7 @@
                     width="60" />
         </layout_panel>
         <layout_panel
+                name="bottom_lp"
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
@@ -95,6 +101,7 @@
                     follows="left|top|right|bottom"
                     orientation="hoizontal">
                 <layout_panel
+                        name="left_lp"
                         border="false"
                         bevel_style="in"
                         auto_resize="true"
@@ -102,6 +109,7 @@
                         visible="true"
                         min_width="225">
                     <text
+                            name="haze_horizon_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -125,6 +133,7 @@
                             width="207"
                             can_edit_text="true"/>
                     <text
+                            name="haze_density_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -148,6 +157,7 @@
                             width="207"
                             can_edit_text="true"/>
                     <text
+                            name="moisture_level_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -171,6 +181,7 @@
                             width="207"
                             can_edit_text="true"/>
                     <text
+                            name="droplet_radius_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -194,6 +205,7 @@
                             width="207"
                             can_edit_text="true"/>
                     <text
+                            name="ice_level_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -217,6 +229,7 @@
                             width="207"
                             can_edit_text="true"/>
                     <text
+                            name="scene_gamma_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -240,6 +253,7 @@
                             can_edit_text="true"/>
                 </layout_panel>            
                 <layout_panel
+                        name="right_lp"
                         border="false"
                         bevel_style="in"
                         auto_resize="true"
@@ -247,6 +261,7 @@
                         visible="true"
                         min_width="225">
                     <text
+                            name="density_multiplier_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -270,6 +285,7 @@
                             width="219"
                             can_edit_text="true"/>
                     <text
+                            name="distance_multiplier_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"
@@ -293,6 +309,7 @@
                             width="219"
                             can_edit_text="true"/>
                     <text
+                            name="maximum_altitude_label"
                             follows="left|top"
                             height="10"
                             layout="topleft"

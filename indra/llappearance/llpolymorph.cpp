@@ -363,18 +363,16 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 	setWeight(getDefaultWeight());
 
 	LLAvatarAppearance* avatarp = mMesh->getAvatar();
-	LLPolyMorphTargetInfo::volume_info_list_t::iterator iter;
-	for (iter = getInfo()->mVolumeInfoList.begin(); iter != getInfo()->mVolumeInfoList.end(); iter++)
+	for (LLPolyVolumeMorphInfo& volume_info : getInfo()->mVolumeInfoList)
 	{
-		LLPolyVolumeMorphInfo *volume_info = &(*iter);
 		for (S32 i = 0; i < avatarp->mNumCollisionVolumes; i++)
 		{
-			if (avatarp->mCollisionVolumes[i].getName() == volume_info->mName)
+			if (avatarp->mCollisionVolumes[i].getName() == volume_info.mName)
 			{
 				mVolumeMorphs.push_back(
 					LLPolyVolumeMorph(&avatarp->mCollisionVolumes[i],
-														  volume_info->mScale,
-														  volume_info->mPos));
+														  volume_info.mScale,
+														  volume_info.mPos));
 				break;
 			}
 		}
@@ -641,15 +639,14 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 		}
 
 		// now apply volume changes
-		for( volume_list_t::iterator iter = mVolumeMorphs.begin(); iter != mVolumeMorphs.end(); iter++ )
+		for(LLPolyVolumeMorph& volume_morph : mVolumeMorphs)
 		{
-			LLPolyVolumeMorph* volume_morph = &(*iter);
-			LLVector3 scale_delta = volume_morph->mScale * delta_weight;
-			LLVector3 pos_delta = volume_morph->mPos * delta_weight;
+			LLVector3 scale_delta = volume_morph.mScale * delta_weight;
+			LLVector3 pos_delta = volume_morph.mPos * delta_weight;
 			
-			volume_morph->mVolume->setScale(volume_morph->mVolume->getScale() + scale_delta);
+			volume_morph.mVolume->setScale(volume_morph.mVolume->getScale() + scale_delta);
             // SL-315
-			volume_morph->mVolume->setPosition(volume_morph->mVolume->getPosition() + pos_delta);
+			volume_morph.mVolume->setPosition(volume_morph.mVolume->getPosition() + pos_delta);
 		}
 	}
 
@@ -735,15 +732,14 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 void LLPolyMorphTarget::applyVolumeChanges(F32 delta_weight)
 {
     // now apply volume changes
-    for( volume_list_t::iterator iter = mVolumeMorphs.begin(); iter != mVolumeMorphs.end(); iter++ )
+    for(LLPolyVolumeMorph& volume_morph : mVolumeMorphs)
     {
-        LLPolyVolumeMorph* volume_morph = &(*iter);
-        LLVector3 scale_delta = volume_morph->mScale * delta_weight;
-        LLVector3 pos_delta = volume_morph->mPos * delta_weight;
+        LLVector3 scale_delta = volume_morph.mScale * delta_weight;
+        LLVector3 pos_delta = volume_morph.mPos * delta_weight;
 		
-        volume_morph->mVolume->setScale(volume_morph->mVolume->getScale() + scale_delta);
+        volume_morph.mVolume->setScale(volume_morph.mVolume->getScale() + scale_delta);
         // SL-315
-        volume_morph->mVolume->setPosition(volume_morph->mVolume->getPosition() + pos_delta);
+        volume_morph.mVolume->setPosition(volume_morph.mVolume->getPosition() + pos_delta);
     }
 }
 

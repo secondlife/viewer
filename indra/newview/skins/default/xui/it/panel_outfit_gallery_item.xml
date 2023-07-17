@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<panel name="gallery_item_panel">
+	<panel name="text_bg_panel">
+		<text name="outfit_name">Hipster estivo, Pierce Pierce Pierce Pierce Pierce</text>
+		<text name="outfit_worn_text">(indossato)</text>
+	</panel>
+</panel>

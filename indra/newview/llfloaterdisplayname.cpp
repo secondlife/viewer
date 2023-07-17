@@ -165,10 +165,21 @@ void LLFloaterDisplayName::onReset()
     {
         return;
     }
-    getChild<LLUICtrl>("display_name_editor")->setValue(av_name.getCompleteName());
+    getChild<LLUICtrl>("display_name_editor")->setValue(av_name.getUserName());
 
-    getChild<LLUICtrl>("display_name_confirm")->clear();
-    getChild<LLUICtrl>("display_name_confirm")->setFocus(TRUE);
+    if (getChild<LLUICtrl>("display_name_editor")->getEnabled())
+    {
+        // UI is enabled, fill the first field
+        getChild<LLUICtrl>("display_name_confirm")->clear();
+        getChild<LLUICtrl>("display_name_confirm")->setFocus(TRUE);
+    }
+    else
+    {
+        // UI is disabled, looks like we should allow resetting
+        // even if user already set a display name, enable save button
+        getChild<LLUICtrl>("display_name_confirm")->setValue(av_name.getUserName());
+        getChild<LLUICtrl>("save_btn")->setEnabled(true);
+    }
 }
 
 
@@ -182,6 +193,21 @@ void LLFloaterDisplayName::onSave()
 		LLNotificationsUtil::add("SetDisplayNameMismatch");
 		return;
 	}
+
+    LLAvatarName av_name;
+    if (!LLAvatarNameCache::get(gAgent.getID(), &av_name))
+    {
+        return;
+    }
+
+    std::string user_name = av_name.getUserName();
+    if (display_name_utf8.compare(user_name) == 0
+        && LLAvatarNameCache::getInstance()->hasNameLookupURL())
+    {
+        // A reset
+        LLViewerDisplayName::set("", boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
+        return;
+    }
 
 	const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
 	LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);

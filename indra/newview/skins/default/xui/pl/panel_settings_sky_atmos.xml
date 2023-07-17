@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Atmosfera i światła" name="panel_settings_sky_atmos">
+	<layout_stack name="main_ls">
+		<layout_panel name="top_lp">
+			<text name="ambient_color_label">
+				Kolor otoczenia:
+			</text>
+			<text name="blue_horizon_label">
+				Horyzont błękitu:
+			</text>
+			<text name="blue_density_label">
+				Gęstość błękitu:
+			</text>
+		</layout_panel>
+		<layout_panel name="bottom_lp">
+			<layout_stack name="atmosphere1">
+				<layout_panel name="left_lp">
+					<text name="haze_horizon_label">
+						Horyzont mgły:
+					</text>
+					<text name="haze_density_label">
+						Gęstość mgły:
+					</text>
+					<text name="moisture_level_label">
+						Poziom wilgoci:
+					</text>
+					<text name="droplet_radius_label">
+						Promień kropli:
+					</text>
+					<text name="ice_level_label">
+						Poziom lodu:
+					</text>
+					<text name="scene_gamma_label">
+						Gamma sceny:
+					</text>
+				</layout_panel>
+				<layout_panel name="right_lp">
+					<text name="density_multiplier_label">
+						Mnożnik gęstości:
+					</text>
+					<text name="distance_multiplier_label">
+						Mnożnik odległ.:
+					</text>
+					<text name="maximum_altitude_label">
+						Maksymalna wys.:
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

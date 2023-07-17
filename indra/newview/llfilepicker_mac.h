@@ -41,11 +41,25 @@
 //void modelessPicker();
 std::unique_ptr<std::vector<std::string>> doLoadDialog(const std::vector<std::string>* allowed_types,
                  unsigned int flags);
+
+void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
+                unsigned int flags,
+                void (*callback)(bool, std::vector<std::string>&, void*),
+                void *userdata);
+
 std::unique_ptr<std::string> doSaveDialog(const std::string* file, 
                   const std::string* type,
                   const std::string* creator,
                   const std::string* extension,
                   unsigned int flags);
+
+void doSaveDialogModeless(const std::string* file,
+                  const std::string* type,
+                  const std::string* creator,
+                  const std::string* extension,
+                  unsigned int flags,
+                  void (*callback)(bool, std::string&, void*),
+                  void *userdata);
 enum {
     F_FILE =      0x00000001,
     F_DIRECTORY = 0x00000002,

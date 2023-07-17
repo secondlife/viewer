@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <menu_bar name="Login Menu">
 	<menu label="Yo" name="File">
 		<menu_item_call label="Preferencias..." name="Preferences..."/>
@@ -18,12 +18,12 @@
 		<menu_item_call label="Informar de un fallo" name="Report Bug"/>
 		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
 	</menu>
-	<menu_item_check label="Mostrar el menú &apos;Debug&apos;" name="Show Debug Menu"/>
+	<menu_item_check label="Mostrar el menú 'Debug'" name="Show Debug Menu"/>
 	<menu label="Depurar" name="Debug">
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
 		<menu label="Pruebas de la interfaz" name="UI Tests"/>
 		<menu_item_call label="Definir el tamaño de la ventana..." name="Set Window Size..."/>
-		<menu_item_call label="Mostrar los &apos;TOS&apos;" name="TOS"/>
+		<menu_item_call label="Mostrar los 'TOS'" name="TOS"/>
 		<menu_item_call label="Mostrar mensaje crítico" name="Critical"/>
 		<menu_item_call label="Navegador de medios" name="Media Browser"/>
 		<menu label="Configurar el nivel de registro" name="Set Logging Level">
@@ -34,5 +34,6 @@
 			<menu_item_check label="Ninguno" name="None"/>
 		</menu>
 		<menu_item_call label="Mostrar la consola de notificaciones" name="Show Notifications Console"/>
+		<menu_item_call name="UI Preview Tool" label="Herramienta de previsualización  XUI"/>
 	</menu>
 </menu_bar>

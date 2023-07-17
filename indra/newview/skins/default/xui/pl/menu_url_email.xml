@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu name="Email Popup">
+	<menu_item_call label="Utwórz nowego e-maila w zewnętrznym programie" name="email_open_external" />
+	<menu_item_call label="Kopiuj e-mail do schowka" name="email_copy" />
+</context_menu>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_search_visibility">
+	<menu_item_check label="Szukaj w koszu" name="search_trash" />
+	<menu_item_check label="Szukaj w Bibliotece" name="search_library" />
+	<menu_item_check label="Uwzględniaj linki" name="include_links" />
+</toggleable_menu>

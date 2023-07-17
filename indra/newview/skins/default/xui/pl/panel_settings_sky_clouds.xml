@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Chmury" name="panel_settings_sky_clouds">
+	<layout_stack name="main_ls">
+		<layout_panel name="left_lp">
+			<text name="cloud_color_label">
+				Kolor chmur:
+			</text>
+			<text name="cloud_coverage_label">
+				Zachmurzenie:
+			</text>
+			<text name="cloud_scale_label">
+				Rozmiar chmur:
+			</text>
+			<text name="cloud_variance_label">
+				Zmienność:
+			</text>
+			<text name="cloud_scroll_label">
+				Przewijanie:
+			</text>
+			<text name="cloud_image_label">
+				Obraz chmur:
+			</text>
+		</layout_panel>
+		<layout_panel name="right_lp">
+			<text name="cloud_density_label">
+				Gęstość chmur:
+			</text>
+			<slider label="G" name="cloud_density_d" />
+			<text name="cloud_detail_label">
+				Detale chmur:
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

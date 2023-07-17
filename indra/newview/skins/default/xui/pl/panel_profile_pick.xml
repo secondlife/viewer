@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		(zaktualizuje się po zapisaniu)
+	</panel.string>
+	<layout_stack name="main_pick_stack">
+		<layout_panel name="main_pick_lp">
+			<text name="title_label">
+				Nazwa:
+			</text>
+			<text name="description_label">
+				Opis:
+			</text>
+			<text name="location_label">
+				Lokalizacja:
+			</text>
+			<line_editor name="pick_location">
+				Ładowanie...
+			</line_editor>
+		</layout_panel>
+		<layout_panel name="save_changes_lp">
+			<layout_stack name="save_changes_stack">
+				<layout_panel name="map_btn_lp">
+					<button name="show_on_map_btn" label="Pokaż na mapie" />
+				</layout_panel>
+				<layout_panel name="tp_btn_lp">
+					<button name="teleport_btn" label="Teleportuj" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="save_changes_lp">
+			<layout_stack name="save_changes_stack">
+				<layout_panel name="create_btn_lp">
+					<button name="create_changes_btn" label="Utwórz" />
+				</layout_panel>
+				<layout_panel name="save_btn_lp">
+					<button name="save_changes_btn" label="Zapisz" />
+				</layout_panel>
+				<layout_panel name="cancel_btn_lp">
+					<button name="cancel_changes_btn" label="Anuluj" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

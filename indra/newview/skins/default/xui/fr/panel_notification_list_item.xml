@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<panel name="main_panel">
+	<panel name="sender_time_panel_exp"/>
+	<panel name="main_info_panel_expanded"/>
+	<layout_panel name="layout_panel_middle_exp"/>
+	<layout_stack name="horizontal_stack"/>
+	<panel name="panel_expanded_view"/>
+	<layout_panel name="layout_panel_expanded_view"/>
+	<layout_stack name="item_vertical_stack"/>
+	<panel name="panel_total_view">
+		<text name="notification_time_exp" value="2014-12-24 23:30:00"/>
+		<text name="sender_or_fee_box_exp">Emetteur: &quot;Résident R é s i d e n t R é s i d e n t&quot;</text>
+		<text name="notification_title_exp">Titre de l'avis Titre de l'avis T i t r e A v i s T i t r e A v i s</text>
+		<avatar_icon name="avatar_icon" tool_tip="Avatar"/>
+		<button name="join_btn" label="S'inscrire"/>
+		<chat_editor name="notification_text_exp">Le texte de l'avis se trouve ici b l a b l a.</chat_editor>
+		<button name="decline_btn" label="Décliner"/>
+		<group_icon name="group_icon_exp" tool_tip="Groupe"/>
+		<text name="sender_or_fee_box">Emetteur : &quot;Résident R é s i d e n t R é s i d e n t&quot;</text>
+		<icon name="attachment_icon_exp" tool_tip="Pièce jointe"/>
+		<icon name="system_notification_icon_exp" tool_tip="Icône"/>
+		<text name="notification_title">Nom du groupe :  Titre de l'avis Titre de l'avis T i t r e A v i s T i t r e A v i s</text>
+		<button name="info_btn" label="Informations"/>
+		<text name="group_name_exp">Nom Groupe Nom Groupe N o m G r o u p e</text>
+		<text name="attachment_text">La pièce jointe va ici b l a b l a.</text>
+	</panel>
+	<panel name="notification_title_panel_exp"/>
+	<layout_panel name="layout_panel_right"/>
+	<panel name="panel_condensed_view"/>
+	<layout_panel name="layout_panel_condensed_view"/>
+	<panel name="button_panel"/>
+	<panel name="notification_text_panel_exp"/>
+	<layout_panel name="layout_panel_right_exp"/>
+	<panel name="sender_time_panel"/>
+	<panel name="main_info_panel"/>
+	<layout_panel name="layout_panel_middle"/>
+	<panel name="notification_title_panel"/>
+	<panel name="attachment_panel"/>
+</panel>

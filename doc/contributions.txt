@@ -237,6 +237,7 @@ Ansariel Hiller
 	SL-15227
 	SL-15398
 	SL-18432
+	SL-4126
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -287,6 +288,7 @@ Beq Janus
 	SL-18592
 	SL-18637
 	SL-19317
+	SL-19660
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -495,6 +497,8 @@ Evangelista Emerald
 Faelon Swordthain
 Farallon Greyskin
 	VWR-2036
+Fawrsk
+	SL-18893
 Feep Larsson
 	VWR-447
 	VWR-1314
@@ -587,6 +591,8 @@ Henri Beauchamp
 	VWR-1320
 	VWR-1406
 	VWR-4157
+	SL-15175
+	SL-19110
 herina Bode
 Hikkoshi Sakai
 	VWR-429
@@ -1177,6 +1183,10 @@ Ollie Kubrick
 Orenj Marat
 Orion Delphis
 Oryx Tempel
+PanteraPolnocy
+	SL-18891
+	SL-18904
+	SL-18937
 Parvati Silverweb
 Patric Mills
 	VWR-2645

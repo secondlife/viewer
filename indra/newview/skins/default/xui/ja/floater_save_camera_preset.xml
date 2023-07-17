@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<floater name="save_camera_preset" title="カメラプリセットを保存">
+	<radio_group name="radio_save_preset">
+		<radio_item name="replace_preset" label="プリセットを交換する"/>
+		<radio_item name="new_preset" label="新しいプリセットとして保存する"/>
+	</radio_group>
+</floater>

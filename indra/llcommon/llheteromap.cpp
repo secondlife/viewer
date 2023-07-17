@@ -22,11 +22,11 @@ LLHeteroMap::~LLHeteroMap()
 {
     // For each entry in our map, we must call its deleter, which is the only
     // record we have of its original type.
-    for (TypeMap::iterator mi(mMap.begin()), me(mMap.end()); mi != me; ++mi)
+	for (TypeMap::value_type& pair : mMap)
     {
-        // mi->second is the std::pair; mi->second.first is the void*;
-        // mi->second.second points to the deleter function
-        (mi->second.second)(mi->second.first);
-        mi->second.first = NULL;
+        // pair.second is the std::pair; pair.second.first is the void*;
+        // pair.second.second points to the deleter function
+        (pair.second.second)(pair.second.first);
+        pair.second.first = NULL;
     }
 }

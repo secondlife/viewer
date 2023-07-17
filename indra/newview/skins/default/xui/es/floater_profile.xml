@@ -3,7 +3,7 @@
 	<panel name="panel_profile_view">
 		<tab_container name="panel_profile_tabs">
 			<panel label="Second Life" name="panel_profile_secondlife"/>
-			<panel label="Web" name="panel_profile_web"/>
+			<panel label="Noticias" name="panel_profile_web"/>
 			<panel label="Intereses" name="panel_profile_interests"/>
 			<panel label="Destacados" name="panel_profile_picks"/>
 			<panel label="Clasificado" name="panel_profile_classifieds"/>

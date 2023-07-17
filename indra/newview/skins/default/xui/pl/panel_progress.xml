@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="login_progress_panel">
+	<layout_stack name="horizontal_centering">
+		<layout_panel name="center">
+			<layout_stack name="vertical_centering">
+				<layout_panel name="panel4">
+					<layout_stack name="vertical_centering">
+						<layout_panel name="panel_icons">
+							<text name="logos_lbl">
+								Second Life używa
+							</text>
+						</layout_panel>
+					</layout_stack>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

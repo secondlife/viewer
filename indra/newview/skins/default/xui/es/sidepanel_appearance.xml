@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Vestuarios" name="appearance panel">
 	<string name="No Outfit" value="No hay vestuario"/>
 	<string name="Unsaved Changes" value="Cambios sin guardar"/>
@@ -7,10 +7,9 @@
 	<panel name="panel_currentlook">
 		<button label="F" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
-		<text name="currentlook_status">
-			(Estado)
-		</text>
+		<text name="currentlook_status">(Estado)</text>
 		<button label="" name="edit_outfit_btn" tool_tip="Editar este vestuario"/>
+		<text name="currentlook_name">MiAtuendo Con Un Nombre Muy Largo como ALCE</text>
 	</panel>
 	<filter_editor label="Filtrar los vestuarios" name="Filter"/>
 </panel>

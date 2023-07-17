@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="linkreplace" title="ZASTĄP LINKI W SZAFIE">
+	<string name="Ready">
+		Gotowy...
+	</string>
+	<string name="TargetNotFound">
+		Obiekt docelowy nie został znaleziony.
+	</string>
+	<string name="ItemsIdentical">
+		Obiekty źródłowy i docelowy są identyczne.
+	</string>
+	<string name="ItemsFound">
+		Znaleziono [NUM] linków w Szafie.
+	</string>
+	<string name="ItemsRemaining">
+		Linków pozostało: [NUM]
+	</string>
+	<string name="ReplaceFinished">
+		Zakończono zastępowanie linków.
+	</string>
+	<text name="source_label">
+		Stary:
+	</text>
+	<inventory_link_replace_drop_target name="source_uuid_editor" tool_tip="Przeciągnij i upuść tutaj przedmiot, którego linki chcesz zastąpić." />
+	<text name="target_label">
+		Nowy:
+	</text>
+	<inventory_link_replace_drop_target name="target_uuid_editor" tool_tip="Przeciągnij i upuść tutaj przedmiot, którego linki zastąpią linki do przedmiotu pierwotnego." />
+	<text name="status_text">
+		Gotowy...
+	</text>
+	<button name="btn_refresh" label="Odśwież" />
+</floater>

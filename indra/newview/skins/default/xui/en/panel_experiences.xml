@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
 <panel
+  name="panel_experiences"
   layout="topleft"
   top="3"
   left="3"

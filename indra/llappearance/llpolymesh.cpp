@@ -890,11 +890,10 @@ void LLPolyMesh::dumpDiagInfo()
         LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 
         // print each loaded mesh, and it's memory usage
-        for(LLPolyMeshSharedDataTable::iterator iter = sGlobalSharedMeshList.begin();
-            iter != sGlobalSharedMeshList.end(); ++iter)
+        for(const LLPolyMeshSharedDataTable::value_type& mesh_pair : sGlobalSharedMeshList)
         {
-                const std::string& mesh_name = iter->first;
-                LLPolyMeshSharedData* mesh = iter->second;
+                const std::string& mesh_name = mesh_pair.first;
+                LLPolyMeshSharedData* mesh = mesh_pair.second;
 
                 S32 num_verts = mesh->mNumVertices;
                 S32 num_faces = mesh->mNumFaces;
@@ -997,14 +996,12 @@ LLPolyMorphData*        LLPolyMesh::getMorphData(const std::string& morph_name)
 {
         if (!mSharedData)
                 return NULL;
-        for (LLPolyMeshSharedData::morphdata_list_t::iterator iter = mSharedData->mMorphData.begin();
-             iter != mSharedData->mMorphData.end(); ++iter)
+        for (LLPolyMorphData* morph_data : mSharedData->mMorphData)
         {
-                LLPolyMorphData *morph_data = *iter;
-                if (morph_data->getName() == morph_name)
-                {
-                        return morph_data;
-                }
+            if (morph_data->getName() == morph_name)
+            {
+                    return morph_data;
+            }
         }
         return NULL;
 }

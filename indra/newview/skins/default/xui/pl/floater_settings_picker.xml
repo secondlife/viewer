@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="settings picker" title="WYBÓR OTOCZENIA">
+	<floater.string name="pick title">
+		Wybierz:
+	</floater.string>
+	<floater.string name="pick_track">
+		WYBÓR ŚCIEŻKI
+	</floater.string>
+	<floater.string name="pick_settings">
+		WYBÓR OTOCZENIA
+	</floater.string>
+	<floater.string name="track_water">
+		Woda
+	</floater.string>
+	<floater.string name="track_ground">
+		Ziemia
+	</floater.string>
+	<floater.string name="track_sky">
+		Niebo[NUM]
+	</floater.string>
+	<layout_stack name="test_stack">
+		<layout_panel name="inv_list">
+			<filter_editor label="Filtruj otoczenia" name="flt_inventory_search" />
+		</layout_panel>
+		<layout_panel name="temp">
+			<button label="Anuluj" label_selected="Anuluj" name="btn_cancel" />
+		</layout_panel>
+	</layout_stack>
+</floater>
