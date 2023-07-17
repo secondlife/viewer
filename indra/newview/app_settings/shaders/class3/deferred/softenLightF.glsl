@@ -117,8 +117,8 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -193,7 +193,7 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = texture(specularRect, tc).rgb; 
+        vec3 orm = texture(specularRect, tc).rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r;
@@ -298,7 +298,6 @@ void main()
         vec4 fogged = applyWaterFogViewLinear(pos.xyz, vec4(color, bloom));
         color       = fogged.rgb;
     #endif
-    frag_color.rgb = textureLod(heroProbes, vec4(norm.xyz, 0), 0).rgb;
-    //frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
+    frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;
 }

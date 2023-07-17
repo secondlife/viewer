@@ -333,20 +333,14 @@ void LLReflectionMapManager::update()
     
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
-        // update the closest dynamic probe realtime
-        // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
-        mHeroProbe->autoAdjustOrigin();
-
-        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
-        // lighting values etc
+        
+        mHeroProbe->mOrigin.load3(LLViewerCamera::instance().mOrigin.mV);
         bool radiance_pass = isRadiancePass();
-        mRadiancePass = mRealtimeRadiancePass;
+        mRadiancePass = true;
         for (U32 i = 0; i < 6; ++i)
         {
             updateProbeFace(mHeroProbe, i, mHeroProbeResolution, mHeroArray);
         }
-        
-        mRealtimeRadiancePass = !mRealtimeRadiancePass;
 
         // restore "isRadiancePass"
         mRadiancePass = radiance_pass;
@@ -713,12 +707,9 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U
             {
                 LL_PROFILE_GPU_ZONE("probe mip copy");
                 cubeArray->bind(0);
-                //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
+                
                 glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
-                //if (i == 0)
-                //{
-                    //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
-                //}
+                
                 cubeArray->unbind();
             }
             mMipChain[i].flush();
@@ -732,7 +723,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U
         gReflectionMipProgram.unbind();
     }
 
-    if (face == 5 && probe->mType != LLReflectionMap::ProbeType::REFLECTION)
+    if (face == 5)
     {
         mMipChain[0].bindTarget();
         static LLStaticHashedString sSourceIdx("sourceIdx");
@@ -1330,10 +1321,11 @@ void LLReflectionMapManager::initReflectionMaps()
         mDefaultProbe->mProbeIndex = 0;
         touch_default_probe(mDefaultProbe);
         
-        mHeroProbeResolution = 512;
+        mHeroProbeResolution = 128;
         
         mHeroArray = new LLCubeMapArray();
-        mHeroArray->allocate(mHeroProbeResolution, 3, 1);
+        // Revise when we have both water and mirrors in hero probes.
+        mHeroArray->allocate(mHeroProbeResolution, 3, 2, true);
         
         if (mHeroProbe.isNull()) {
             mHeroProbe = new LLReflectionMap();
