@@ -317,7 +317,6 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
 	}
 	refreshFromRegion(gAgent.getRegion());
 	requestRegionInfo();
-	requestMeshRezInfo();
 
 	if (!mGodLevelChangeSlot.connected())
 	{
@@ -1004,19 +1003,6 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	sendEstateOwnerMessage(gMessageSystem, "simulatormessage", invoice, strings);
 	return false;
-}
-
-void LLFloaterRegionInfo::requestMeshRezInfo()
-{
-	std::string sim_console_url = gAgent.getRegionCapability("SimConsoleAsync");
-
-	if (!sim_console_url.empty())
-	{
-		std::string request_str = "get mesh_rez_enabled";
-		
-        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(sim_console_url, LLSD(request_str),
-            "Requested mesh_rez_enabled", "Error requesting mesh_rez_enabled");
-	}
 }
 
 // setregioninfo
