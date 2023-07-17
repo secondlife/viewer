@@ -27,6 +27,26 @@
 Account: [ACCTTYPE]
 [PAYMENTINFO]
     </string>
+    
+    <!--Badges-->
+    <string
+     name="BadgeBeta"
+     value="Original Beta Tester" />
+    <string
+     name="BadgeBetaLifetime"
+     value="Beta Lifetime member" />
+    <string
+     name="BadgeLifetime"
+     value="Lifetime member" />
+    <string
+     name="BadgeLinden"
+     value="Linden Lab employee" />
+    <string
+     name="BadgePremiumLifetime"
+     value="Premium lifetime" />
+    <string
+     name="BadgePremiumPlusLifetime"
+     value="Premium Plus lifetime" />
 
   <layout_stack
    name="image_stack"
@@ -156,9 +176,39 @@ Account: [ACCTTYPE]
      user_resize="false"
      visible="true">
     </layout_panel>
-    
+
     <layout_panel
-     name="frind_layout"
+     name="badge_layout"
+     follows="all"
+     layout="topleft"
+     height="40"
+     auto_resize="false"
+     user_resize="false"
+     visible="false">
+      <icon
+       name="badge_icon"
+       image_name="Beta_Tester"
+       layout="topleft"
+       follows="left|top"
+       top="10"
+       left="5"
+       height="18"
+       width="18"/>
+      <text
+       name="badge_text"
+       value="Badge Tester"
+       top="13"
+       left_pad="3"
+       right="-1"
+       height="16"
+       follows="left|top|right"
+       layout="topleft"
+       translate="false"
+       visible="true"/>
+    </layout_panel>
+
+    <layout_panel
+     name="friend_layout"
      follows="all"
      layout="topleft"
      height="16"
@@ -166,7 +216,7 @@ Account: [ACCTTYPE]
      user_resize="false"
      visible="false">
       <text
-       name="frind_text"
+       name="friend_text"
        value="You are friends"
        text_color="ConversationFriendColor"
        top="0"

@@ -274,7 +274,6 @@ namespace LLError
 		// used to indicate no class info known for logging
 
     //LLCallStacks keeps track of call stacks and output the call stacks to log file
-    //when LLAppViewer::handleViewerCrash() is triggered.
     //
     //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
     //LLCallStacks is designed not to be thread-safe.

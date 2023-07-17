@@ -1370,7 +1370,8 @@ void LLPanelObjectInventory::reset()
 		LLEditMenuHandler::gEditMenuHandler = mFolders;
 	}
 
-	LLRect scroller_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+	int offset = hasBorder() ? getBorder()->getBorderWidth() << 1 : 0;
+	LLRect scroller_rect(0, getRect().getHeight() - offset, getRect().getWidth() - offset, 0);
 	LLScrollContainer::Params scroll_p;
 	scroll_p.name("task inventory scroller");
 	scroll_p.rect(scroller_rect);

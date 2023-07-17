@@ -32,7 +32,6 @@
 #include "llappviewer.h"
 #include "llcallbacklist.h"
 #include "llinventorymodel.h"
-#include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnotificationsutil.h"
 #include "llstartup.h"

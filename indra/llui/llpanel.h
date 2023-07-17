@@ -127,6 +127,7 @@ public:
 	virtual 	void	clearCtrls(); // overridden in LLPanelObject and LLPanelVolume
 
 	// Border controls
+	const LLViewBorder* getBorder() const { return mBorder; }
 	void addBorder( LLViewBorder::Params p);
 	void addBorder();
 	void			removeBorder();

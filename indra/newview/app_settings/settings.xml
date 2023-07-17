@@ -12973,13 +12973,13 @@
     <key>TranslationService</key>
     <map>
       <key>Comment</key>
-      <string>Translation API to use. (google|bing)</string>
+      <string>Translation API to use. (google|azure)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>bing</string>
+      <string>azure</string>
     </map>
     <key>GoogleTranslateAPIKey</key>
     <map>
@@ -12995,13 +12995,35 @@
     <key>BingTranslateAPIKey</key>
     <map>
       <key>Comment</key>
-      <string>Bing AppID to use with the Microsoft Translator API</string>
+      <string>(Deprecated) Bing AppID to use with the Microsoft Translator API</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
       <string></string>
+    </map>
+    <key>AzureTranslateAPIKey</key>
+    <map>
+      <key>Comment</key>
+      <string>Azure Translation service data to use with the MS Azure Translator API</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <string></string>
+    </map>
+    <key>DeepLTranslateAPIKey</key>
+    <map>
+        <key>Comment</key>
+        <string>DeepL Translation service data to use with the DeepL Translator API</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <string></string>
     </map>
     <key>TutorialURL</key>
     <map>

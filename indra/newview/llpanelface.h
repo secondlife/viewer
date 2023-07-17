@@ -134,8 +134,7 @@ protected:
 	void			sendTexGen();				// applies and sends bump map
 	void			sendShiny(U32 shininess);			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
-	void        sendGlow();
-	void			sendMedia();
+	void			sendGlow();
     void            alignTestureLayer();
 
     void            updateCopyTexButton();
@@ -240,7 +239,6 @@ protected:
 	
 
 private:
-
 	bool		isAlpha() { return mIsAlpha; }
 
 	// Convenience funcs to keep the visual flack to a minimum
@@ -249,10 +247,10 @@ private:
 	LLUUID	getCurrentSpecularMap();
 	U32		getCurrentShininess();
 	U32		getCurrentBumpiness();
-	U8			getCurrentDiffuseAlphaMode();
-	U8			getCurrentAlphaMaskCutoff();
-	U8			getCurrentEnvIntensity();
-	U8			getCurrentGlossiness();
+	U8		getCurrentDiffuseAlphaMode();
+	U8		getCurrentAlphaMaskCutoff();
+	U8		getCurrentEnvIntensity();
+	U8		getCurrentGlossiness();
 	F32		getCurrentBumpyRot();
 	F32		getCurrentBumpyScaleU();
 	F32		getCurrentBumpyScaleV();
@@ -328,7 +326,7 @@ private:
 
 					U32		new_alpha_mode			= new_material->getDiffuseAlphaMode();
 					LLUUID	new_normal_map_id		= new_material->getNormalID();
-					LLUUID	new_spec_map_id		= new_material->getSpecularID();
+					LLUUID	new_spec_map_id			= new_material->getSpecularID();
 
 					if ((new_alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND) && !is_alpha_face)
 					{
@@ -540,7 +538,6 @@ public:
 	class LLSelectedTE
 	{
 	public:
-
 		static void getFace(class LLFace*& face_to_return, bool& identical_face);
 		static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face);
 		static void getTexId(LLUUID& id, bool& identical);

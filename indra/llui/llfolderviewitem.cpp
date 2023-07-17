@@ -399,7 +399,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
             // it is purely visual, so it is fine to do at our laisure
             refreshSuffix();
         }
-		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(LLFontGL::NORMAL)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
+		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(LLFontGL::NORMAL)->getWidth(mLabelSuffix) + mLabelPaddingRight;
 		mLabelWidthDirty = false;
 	}
 
