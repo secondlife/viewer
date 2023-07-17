@@ -13,19 +13,15 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: [Release]
-        addrsize: [64]
         python-version: ["3.11"]
-        developer_dir: ["", "/Applications/Xcode_14.0.1.app/Contents/Developer"]
-        exclude:
-          - runner: windows-large
-            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
-          ## nat 2023-07-07: trying to resolve the Windows Python permissions
-          ## problem; don't bother running Mac builds.
+        include:
           - runner: macos-12-xl
+            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
-      AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
+      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
