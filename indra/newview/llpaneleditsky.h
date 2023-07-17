@@ -80,7 +80,7 @@ private:
     void                    onDropletRadiusChanged();
     void                    onIceLevelChanged();
     void                    onReflectionProbeAmbianceChanged();
-    void                    updateGammaLabel();
+    void                    updateGammaLabel(bool auto_adjust = false);
 
 };
 

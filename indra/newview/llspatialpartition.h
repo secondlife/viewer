@@ -295,7 +295,9 @@ public:
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
 	void shift(const LLVector4a &offset);
-	void destroyGL(bool keep_occlusion = false);
+
+    // TODO: this no longer appears to be called, figure out if it's important and if not remove it
+	void destroyGLState(bool keep_occlusion = false);
 	
 	void updateDistance(LLCamera& camera);
 	F32 getUpdateUrgency() const;
@@ -419,7 +421,6 @@ public:
 	void renderDebug();
 	void renderIntersectingBBoxes(LLCamera* camera);
 	void restoreGL();
-	void resetVertexBuffers();
 
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
 

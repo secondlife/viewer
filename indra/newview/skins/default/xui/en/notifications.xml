@@ -6370,6 +6370,14 @@ Your trash is overflowing. This may cause problems logging in.
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="InventoryLimitReachedAIS"
+   type="notifytip">
+Your inventory is experiencing issues. Please, contact support.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
@@ -9206,6 +9214,26 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
    name="FacePasteFailed"
    type="alertmodal">
 Paste failed. [REASON]
+   <usetemplate
+    name="okbutton"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedToApplyTextureNoCopyToMultiple"
+   type="alertmodal">
+Failed to apply texture. You can not apply a no-copy texture to multiple objects.
+   <usetemplate
+    name="okbutton"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FailedToApplyGLTFNoCopyToMultiple"
+   type="alertmodal">
+Failed to apply GLTF material. You can not apply a no-copy material to multiple objects.
    <usetemplate
     name="okbutton"
     yestext="OK"/>
@@ -12078,13 +12106,6 @@ Would you like to save them first?
        yestext="Yes"/>
   </notification>
     
-<notification
- icon="notifytip.tga"
- name="MaterialCreated"
- type="notifytip">
-Material successfully created.  Asset ID: [ASSET_ID]
-</notification>
-
   <notification
     icon="notifytip.tga"
     name="ReflectionProbeApplied"
@@ -12096,6 +12117,18 @@ Material successfully created.  Asset ID: [ASSET_ID]
        name="okcancelignore"
        notext="Cancel"
        yestext="OK"/>
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="AutoAdjustHDRSky"
+    persist="true"
+    type="alertmodal">
+      You are editing a non-HDR sky that has been automatically converted to HDR.  To remove HDR and tone mapping, set Reflection Probe Ambiance to zero.
+    <usetemplate
+        ignoretext="HDR Sky adjustment warning"
+        name="okignore"
+        yestext="OK"/>
   </notification>
   
 </notifications>

@@ -80,8 +80,6 @@ int main( int argc, char **argv )
 
 	// install unexpected exception handler
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
-	// install crash handlers
-	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
 	bool ok = viewer_app_ptr->init();
 	if(!ok)

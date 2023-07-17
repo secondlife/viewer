@@ -182,6 +182,12 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     syncronizeTabs();
     refresh();
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
+
+    // teach user about HDR settings
+    if (mSettings && ((LLSettingsSky*)mSettings.get())->canAutoAdjust())
+    {
+        LLNotificationsUtil::add("AutoAdjustHDRSky");
+    }
 }
 
 void LLFloaterFixedEnvironment::syncronizeTabs()

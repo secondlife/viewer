@@ -1327,9 +1327,7 @@ void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std:
                 [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
                 {
                     // done callback
-                    LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " asset: " << new_asset_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
-                    LLSD params = llsd::map("ASSET_ID", new_asset_id);
-                    LLNotificationsUtil::add("MaterialCreated", params);
+                    LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
                 },
                 nullptr // failure callback, floater already closed
             );

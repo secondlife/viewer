@@ -529,6 +529,7 @@ void LLPanelProfilePick::setAvatarId(const LLUUID& avatar_id)
             pick_name = parcel->getName();
             pick_desc = parcel->getDesc();
             snapshot_id = parcel->getSnapshotID();
+            mPickDescription->setParseHTML(false);
         }
 
         LLViewerRegion* region = gAgent.getRegion();

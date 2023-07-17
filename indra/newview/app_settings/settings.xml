@@ -9351,6 +9351,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderPostProcessingHDR</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable HDR for post processing buffer</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
@@ -10166,6 +10177,17 @@
       <key>Value</key>
       <integer>9</integer>
     </map>
+    <key>RenderGlowHDR</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable HDR for glow map</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderGlowStrength</key>
     <map>
       <key>Comment</key>
@@ -10213,6 +10235,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.3</real>
+    </map>
+    <key>RenderGlowNoise</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables glow noise (dithering). Reduces banding from glow in certain cases.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
     </map>
     <key>DisableAllRenderTypes</key>
     <map>
@@ -10601,17 +10634,6 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
-  <key>RenderSkyHDRScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Amount to over-brighten sun for HDR effect during the day</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
   <key>RenderSkyAutoAdjustLegacy</key>
   <map>
     <key>Comment</key>
@@ -10622,6 +10644,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>1</integer>
+  </map>
+  <key>RenderSkyAutoAdjustAmbientScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to scale ambient when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>RenderSkyAutoAdjustHDRScale</key>
+  <map>
+    <key>Comment</key>
+    <string>HDR Scale value to use when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.0</real>
   </map>
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
@@ -10643,7 +10687,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.4</real>
+    <real>0.5</real>
   </map>
     <key>RenderShaderLODThreshold</key>
     <map>
@@ -13127,13 +13171,13 @@
     <key>TranslationService</key>
     <map>
       <key>Comment</key>
-      <string>Translation API to use. (google|bing)</string>
+      <string>Translation API to use. (google|azure)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>bing</string>
+      <string>azure</string>
     </map>
     <key>GoogleTranslateAPIKey</key>
     <map>
@@ -13149,13 +13193,35 @@
     <key>BingTranslateAPIKey</key>
     <map>
       <key>Comment</key>
-      <string>Bing AppID to use with the Microsoft Translator API</string>
+      <string>(Deprecated) Bing AppID to use with the Microsoft Translator API</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
       <string></string>
+    </map>
+    <key>AzureTranslateAPIKey</key>
+    <map>
+      <key>Comment</key>
+      <string>Azure Translation service data to use with the MS Azure Translator API</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <string></string>
+    </map>
+    <key>DeepLTranslateAPIKey</key>
+    <map>
+        <key>Comment</key>
+        <string>DeepL Translation service data to use with the DeepL Translator API</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <string></string>
     </map>
     <key>TutorialURL</key>
     <map>

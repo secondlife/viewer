@@ -36,6 +36,7 @@
 #include "llsettingssky.h"
 #include "llenvironment.h"
 #include "llatmosphere.h"
+#include "llviewercontrol.h"
 
 namespace
 {   
@@ -207,14 +208,16 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     F32 moisture_level  = mSkySettings->getSkyMoistureLevel();
     F32 droplet_radius  = mSkySettings->getSkyDropletRadius();
     F32 ice_level       = mSkySettings->getSkyIceLevel();
-    F32 rp_ambiance     = mSkySettings->getReflectionProbeAmbiance();
+
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    F32 rp_ambiance     = mSkySettings->getReflectionProbeAmbiance(should_auto_adjust);
 
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setValue(moisture_level);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setValue(droplet_radius);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setValue(ice_level);
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(rp_ambiance);
 
-    updateGammaLabel();
+    updateGammaLabel(should_auto_adjust);
 }
 
 //-------------------------------------------------------------------------
@@ -332,10 +335,10 @@ void LLPanelSettingsSkyAtmosTab::onReflectionProbeAmbianceChanged()
 }
 
 
-void LLPanelSettingsSkyAtmosTab::updateGammaLabel()
+void LLPanelSettingsSkyAtmosTab::updateGammaLabel(bool auto_adjust)
 {
     if (!mSkySettings) return;
-    F32 ambiance = mSkySettings->getReflectionProbeAmbiance();
+    F32 ambiance = mSkySettings->getReflectionProbeAmbiance(auto_adjust);
     if (ambiance != 0.f)
     {
         childSetValue("scene_gamma_label", getString("hdr_string"));

@@ -110,7 +110,7 @@ void main()
     // Combine
     vec3 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
-    color.rgb= max(vec3(0), color.rgb);
+    color.rgb = clamp(color.rgb, vec3(0), vec3(1));
     color.rgb *= 2.0;
 
     /// Gamma correct for WL (soft clip effect).

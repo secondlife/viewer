@@ -2751,6 +2751,16 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
         base_iter++;
 
+        bool skinned = include_skin_weights && !mdl->mSkinWeights.empty();
+
+        LLMatrix4a mat_normal;
+        if (skinned)
+        {
+            glh::matrix4f m((F32*)mdl->mSkinInfo.mBindShapeMatrix.getF32ptr());
+            m = m.inverse().transpose();
+            mat_normal.loadu(m.m);
+        }
+
         S32 num_faces = mdl->getNumVolumeFaces();
         for (S32 i = 0; i < num_faces; ++i)
         {
@@ -2765,7 +2775,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
             LLVertexBuffer* vb = NULL;
 
-            bool skinned = include_skin_weights && !mdl->mSkinWeights.empty();
+            
 
             U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
@@ -2803,6 +2813,15 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
             LLVector4a::memcpyNonAliased16((F32*)vertex_strider.get(), (F32*)vf.mPositions, num_vertices * 4 * sizeof(F32));
 
+            if (skinned)
+            {
+                for (U32 i = 0; i < num_vertices; ++i)
+                {
+                    LLVector4a* v = (LLVector4a*)vertex_strider.get();
+                    mdl->mSkinInfo.mBindShapeMatrix.affineTransform(*v, *v);
+                    vertex_strider++;
+                }
+            }
             if (vf.mTexCoords)
             {
                 vb->getTexCoord0Strider(tc_strider);
@@ -2813,7 +2832,25 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
             if (vf.mNormals)
             {
                 vb->getNormalStrider(normal_strider);
-                LLVector4a::memcpyNonAliased16((F32*)normal_strider.get(), (F32*)vf.mNormals, num_vertices * 4 * sizeof(F32));
+
+                if (skinned)
+                {
+                    F32* normals = (F32*)normal_strider.get();
+                    LLVector4a* src = vf.mNormals;
+                    LLVector4a* end = src + num_vertices;
+
+                    while (src < end)
+                    {
+                        LLVector4a normal;
+                        mat_normal.rotate(*src++, normal);
+                        normal.store4a(normals);
+                        normals += 4;
+                    }
+                }
+                else
+                {
+                    LLVector4a::memcpyNonAliased16((F32*)normal_strider.get(), (F32*)vf.mNormals, num_vertices * 4 * sizeof(F32));
+                }
             }
 
             if (skinned)
@@ -3276,7 +3313,7 @@ BOOL LLModelPreview::render()
         refresh();
     }
 
-    gObjectPreviewProgram.bind();
+    gObjectPreviewProgram.bind(skin_weight);
 
     gGL.loadIdentity();
     gPipeline.enableLightsPreview();
@@ -3351,11 +3388,11 @@ BOOL LLModelPreview::render()
                 }
 
                 gGL.pushMatrix();
+
                 LLMatrix4 mat = instance.mTransform;
 
                 gGL.multMatrix((GLfloat*)mat.mMatrix);
-
-
+        
                 U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
                 for (U32 i = 0; i < num_models; ++i)
                 {
@@ -3685,65 +3722,41 @@ BOOL LLModelPreview::render()
                         {
                             LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
-                            const LLVolumeFace& face = model->getVolumeFace(i);
+                            model->mSkinInfo.updateHash();
+                            LLRenderPass::uploadMatrixPalette(mPreviewAvatar, &model->mSkinInfo);
 
-                            LLStrider<LLVector3> position;
-                            buffer->getVertexStrider(position);
-
-                            LLStrider<LLVector4> weight;
-                            buffer->getWeight4Strider(weight);
-
-                            //quick 'n dirty software vertex skinning
-
-                            //build matrix palette
-
-                            LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-                            LLSkinningUtil::initSkinningMatrixPalette(mat, joint_count,
-                                skin, getPreviewAvatar());
-
-                            const LLMatrix4a& bind_shape_matrix = skin->mBindShapeMatrix;
-                            U32 max_joints = LLSkinningUtil::getMaxJointCount();
-                            for (U32 j = 0; j < buffer->getNumVerts(); ++j)
-                            {
-                                LLMatrix4a final_mat;
-                                F32 *wptr = weight[j].mV;
-                                LLSkinningUtil::getPerVertexSkinMatrix(wptr, mat, true, final_mat, max_joints);
-
-                                //VECTORIZE THIS
-                                LLVector4a& v = face.mPositions[j];
-
-                                LLVector4a t;
-                                LLVector4a dst;
-                                bind_shape_matrix.affineTransform(v, t);
-                                final_mat.affineTransform(t, dst);
-
-                                position[j][0] = dst[0];
-                                position[j][1] = dst[1];
-                                position[j][2] = dst[2];
-                            }
-
-                            llassert(model->mMaterialList.size() > i);
-                            const std::string& binding = instance.mModel->mMaterialList[i];
-                            const LLImportMaterial& material = instance.mMaterial[binding];
-
-                            buffer->unmapBuffer();
-
-                            buffer->setBuffer();
-                            gGL.diffuseColor4fv(material.mDiffuseColor.mV);
                             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-                            // Find the tex for this material, bind it, and add it to our set
-                            //
-                            LLViewerFetchedTexture* tex = bindMaterialDiffuseTexture(material);
-                            if (tex)
+                            if (textures)
                             {
-                                mTextureSet.insert(tex);
+                                int materialCnt = instance.mModel->mMaterialList.size();
+                                if (i < materialCnt)
+                                {
+                                    const std::string& binding = instance.mModel->mMaterialList[i];
+                                    const LLImportMaterial& material = instance.mMaterial[binding];
+
+                                    gGL.diffuseColor4fv(material.mDiffuseColor.mV);
+
+                                    // Find the tex for this material, bind it, and add it to our set
+                                    //
+                                    LLViewerFetchedTexture* tex = bindMaterialDiffuseTexture(material);
+                                    if (tex)
+                                    {
+                                        mTextureSet.insert(tex);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                gGL.diffuseColor4fv(PREVIEW_BASE_COL.mV);
                             }
 
+                            buffer->setBuffer();
                             buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 
                             if (edges)
                             {
+                                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
                                 gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
                                 glLineWidth(PREVIEW_EDGE_WIDTH);
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

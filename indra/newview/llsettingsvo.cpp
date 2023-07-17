@@ -719,6 +719,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     F32 g = getGamma();
 
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<F32> auto_adjust_ambient_scale(gSavedSettings, "RenderSkyAutoAdjustAmbientScale", 0.75f);
+    static LLCachedControl<F32> auto_adjust_hdr_scale(gSavedSettings, "RenderSkyAutoAdjustHDRScale", 2.f);
 
     static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
     F32 probe_ambiance = getTotalReflectionProbeAmbiance(cloud_shadow_scale);
@@ -736,9 +738,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
         { // auto-adjust legacy sky to take advantage of probe ambiance 
-            shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * 0.5f).mV);
-            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, 2.f);
-            probe_ambiance = 1.f;
+            shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * auto_adjust_ambient_scale).mV);
+            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
+            probe_ambiance = 1.f;  // NOTE -- must match LLSettingsSky::getReflectionProbeAmbiance value for "auto_adjust" true
         }
         else
         {

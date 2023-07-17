@@ -1821,7 +1821,7 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
 // selectionSetImage()
 //-----------------------------------------------------------------------------
 // *TODO: re-arch texture applying out of lltooldraganddrop
-void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
+bool LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 {
 	// First for (no copy) textures and multiple object selection
 	LLViewerInventoryItem* item = gInventory.getItem(imageid);
@@ -1829,9 +1829,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		&& !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
 		&& (mSelectedObjects->getNumNodes() > 1) )
 	{
-		LL_WARNS() << "Attempted to apply no-copy texture to multiple objects"
-				<< LL_ENDL;
-		return;
+         LL_DEBUGS() << "Attempted to apply no-copy texture " << imageid
+             << " to multiple objects" << LL_ENDL;
+
+        LLNotificationsUtil::add("FailedToApplyTextureNoCopyToMultiple");
+        return false;
 	}
 
 	struct f : public LLSelectedTEFunctor
@@ -1896,12 +1898,14 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		}
 	} sendfunc(item);
 	getSelection()->applyToObjects(&sendfunc);
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // selectionSetGLTFMaterial()
 //-----------------------------------------------------------------------------
-void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
+bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
 {
     // First for (no copy) textures and multiple object selection
     LLViewerInventoryItem* item = gInventory.getItem(mat_id);
@@ -1909,9 +1913,11 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
         && (mSelectedObjects->getNumNodes() > 1))
     {
-        LL_WARNS() << "Attempted to apply no-copy material to multiple objects"
-            << LL_ENDL;
-        return;
+        LL_DEBUGS() << "Attempted to apply no-copy material " << mat_id
+            << "to multiple objects" << LL_ENDL;
+
+        LLNotificationsUtil::add("FailedToApplyGLTFNoCopyToMultiple");
+        return false;
     }
 
     struct f : public LLSelectedTEFunctor
@@ -1983,6 +1989,8 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
     getSelection()->applyToObjects(&sendfunc);
 
     LLGLTFMaterialList::flushUpdates();
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
