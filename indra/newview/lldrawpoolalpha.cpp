@@ -282,6 +282,7 @@ void LLDrawPoolAlpha::renderDebugAlpha()
         gGL.diffuseColor4f(1, 0, 0, 1);
         gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::getSmokeImage());
 
+
         renderAlphaHighlight();
 
 		pushUntexturedBatches(LLRenderPass::PASS_ALPHA_MASK);

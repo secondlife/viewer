@@ -552,7 +552,9 @@ std::string LLCacheName::buildUsername(const std::string& full_name)
 
 	// if the input wasn't a correctly formatted legacy name, just return it  
 	// cleaned up from a potential terminal "Resident"
-	return cleanFullName(full_name);
+    std::string clean_name = cleanFullName(full_name);
+    LLStringUtil::toLower(clean_name);
+	return clean_name;
 }
 
 //static 
