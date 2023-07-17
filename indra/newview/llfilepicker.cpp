@@ -194,12 +194,14 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		mOFN.lpstrFilter = ANIM_FILTER \
 			L"\0";
 		break;
-    case FFLOAD_GLTF:
-        mOFN.lpstrFilter = GLTF_FILTER \
-            L"\0";
-        break;
-    case FFLOAD_COLLADA:
+	case FFLOAD_GLTF:
+		mOFN.lpstrFilter = GLTF_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_COLLADA:
 		mOFN.lpstrFilter = COLLADA_FILTER \
+			L"\0";
+		break;
 	case FFLOAD_XML:
 		mOFN.lpstrFilter = XML_FILTER \
 			L"\0";
