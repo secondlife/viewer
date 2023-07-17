@@ -126,7 +126,7 @@ public:
     bool        operator == (const LLMaterial& rhs) const;
     bool        operator != (const LLMaterial& rhs) const;
 
-    U32         getShaderMask(U32 alpha_mode = DIFFUSE_ALPHA_MODE_DEFAULT);
+    U32         getShaderMask(U32 alpha_mode, BOOL is_alpha);
 
 protected:
     LLUUID      mNormalID;

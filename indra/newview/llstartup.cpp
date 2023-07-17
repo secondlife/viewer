@@ -1398,8 +1398,16 @@ bool idle_startup()
 		}
         else if (regionp->capabilitiesError())
         {
-            // Try to connect despite capabilities' error state
-            LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+            LL_WARNS("AppInit") << "Failed to get capabilities. Backing up to login screen!" << LL_ENDL;
+            if (gRememberPassword)
+            {
+                LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+            }
+            else
+            {
+                LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
+            }
+            reset_login();
         }
 		else
 		{
@@ -1905,6 +1913,7 @@ bool idle_startup()
 			LLNotificationsUtil::add("InventoryUnusable");
 		}
 		
+        LLInventoryModelBackgroundFetch::instance().start();
 		gInventory.createCommonSystemCategories();
 
 		// It's debatable whether this flag is a good idea - sets all
