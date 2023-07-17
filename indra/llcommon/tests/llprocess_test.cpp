@@ -591,7 +591,13 @@ namespace tut
                                  "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
-        ensure_equals("os.getcwd()", py.run_read(), utf8str_tolower(tempdir.getName()));
+        std::string expected{ tempdir.getName() };
+#if LL_WINDOWS
+        // SIGH, don't get tripped up by "C:" != "c:" --
+        // but on the Mac, using tolower() fails because "/users" != "/Users"!
+        expected = utf8str_tolower(expected);
+#endif
+        ensure_equals("os.getcwd()", py.run_read(), expected);
     }
 
     template<> template<>
