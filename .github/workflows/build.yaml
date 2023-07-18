@@ -232,3 +232,15 @@ jobs:
           # emitted by build.sh, zero or one lines
           path: |
             ${{ steps.build.outputs.physicstpv }}
+
+  release:
+    needs: build
+    runs-on: [ubuntu-latest]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          files: |
+            ${{ steps.build.outputs.installer }}
+            ${{ steps.build.outputs.metadata }}
