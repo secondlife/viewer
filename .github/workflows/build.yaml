@@ -17,6 +17,7 @@ jobs:
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+            python-version: "3.11"
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_ADDRSIZE: 64
