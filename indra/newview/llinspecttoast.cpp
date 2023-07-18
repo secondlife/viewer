@@ -47,6 +47,7 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& notification_id);
 	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+    /*virtual*/ void deleteAllChildren();
 	/*virtual*/ void removeChild(LLView* child);
 private:
 	void onToastDestroy(LLToast * toast);
@@ -120,6 +121,12 @@ BOOL LLInspectToast::handleToolTip(S32 x, S32 y, MASK mask)
 	// (black tooltips look weird),
 	// so force using the default implementation (STORM-511).
 	return LLFloater::handleToolTip(x, y, mask);
+}
+
+void LLInspectToast::deleteAllChildren()
+{
+    mPanel = NULL;
+    LLInspect::deleteAllChildren();
 }
 
 // virtual

@@ -831,7 +831,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 { //set state of UI to match state of texture entry(ies)  (calls setEnabled, setValue, etc, but NOT setVisible)
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 
-	if( objectp
+	if (objectp
 		&& objectp->getPCode() == LL_PCODE_VOLUME
 		&& objectp->permModify())
 	{
@@ -854,7 +854,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		}
 
 		LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
-		if(radio_mat_type)
+		if (radio_mat_type)
 		{
 		    if (radio_mat_type->getSelectedIndex() < MATTYPE_DIFFUSE)
 		    {
@@ -871,10 +871,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
 		updateVisibility();
 
-		bool identical				= true;	// true because it is anded below
-      bool identical_diffuse	= false;
-      bool identical_norm		= false;
-      bool identical_spec		= false;
+		bool identical			= true;	// true because it is anded below
+		bool identical_diffuse	= false;
+		bool identical_norm		= false;
+		bool identical_spec		= false;
 
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
 		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
@@ -888,12 +888,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		{
 			getChildView("color label")->setEnabled(editable);
 		}
-		LLColorSwatchCtrl*	color_swatch = findChild<LLColorSwatchCtrl>("colorswatch");
+		LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>("colorswatch");
 
-		LLColor4 color					= LLColor4::white;
-		bool		identical_color	= false;
+		LLColor4 color = LLColor4::white;
+		bool identical_color = false;
 
-		if(color_swatch)
+		if (color_swatch)
 		{
 			LLSelectedTE::getColor(color, identical_color);
 			LLColor4 prev_color = color_swatch->get();
@@ -927,7 +927,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		LLCtrlSelectionInterface* combobox_shininess = childGetSelectionInterface("combobox shininess");
 		if (combobox_shininess)
-				{
+		{
 			combobox_shininess->selectNthItem((S32)shiny);
 		}
 
@@ -947,8 +947,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChild<LLUICtrl>("shinycolorswatch")->setTentative(!identical_spec);
 					
 		LLColorSwatchCtrl*	mShinyColorSwatch = getChild<LLColorSwatchCtrl>("shinycolorswatch");
-		if(mShinyColorSwatch)
-					{
+		if (mShinyColorSwatch)
+		{
 			mShinyColorSwatch->setValid(editable);
 			mShinyColorSwatch->setEnabled( editable );
 			mShinyColorSwatch->setCanApplyImmediately( editable );
@@ -956,7 +956,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		U8 bumpy = 0;
 		// Bumpy
-						{
+		{
 			bool identical_bumpy = false;
 			LLSelectedTE::getBumpmap(bumpy,identical_bumpy);
 
@@ -966,18 +966,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			bumpy = norm_map_id.isNull() ? bumpy : BUMPY_TEXTURE;
 
 			if (combobox_bumpiness)
-							{
+			{
 				combobox_bumpiness->selectNthItem((S32)bumpy);
-							}
+			}
 			else
-							{
+			{
 				LL_WARNS() << "failed childGetSelectionInterface for 'combobox bumpiness'" << LL_ENDL;
-							}
+			}
 
 			getChildView("combobox bumpiness")->setEnabled(editable);
 			getChild<LLUICtrl>("combobox bumpiness")->setTentative(!identical_bumpy);
 			getChildView("label bumpiness")->setEnabled(editable);
-						}
+		}
 
 		// Texture
 		{
@@ -991,25 +991,25 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			bool identical_image_format = false;
 			LLSelectedTE::getImageFormat(image_format, identical_image_format);
             
-         mIsAlpha = FALSE;
-         switch (image_format)
-         {
-               case GL_RGBA:
-               case GL_ALPHA:
-               {
-                  mIsAlpha = TRUE;
-               }
-               break;
-
-               case GL_RGB: break;
-               default:
-               {
-                  LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
-					}
-               break;
+			mIsAlpha = FALSE;
+			switch (image_format)
+			{
+				case GL_RGBA:
+				case GL_ALPHA:
+				{
+					mIsAlpha = TRUE;
 				}
+				break;
 
-			if(LLViewerMedia::getInstance()->textureHasMedia(id))
+				case GL_RGB: break;
+				default:
+				{
+					LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+				}
+				break;
+			}
+
+			if (LLViewerMedia::getInstance()->textureHasMedia(id))
 			{
 				getChildView("button align")->setEnabled(editable);
 			}
@@ -1046,7 +1046,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			updateAlphaControls();
 
 			if (texture_ctrl)
-				{
+			{
 				if (identical_diffuse)
 				{
 					texture_ctrl->setTentative(FALSE);
@@ -1060,8 +1060,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					texture_ctrl->setBakeTextureEnabled(TRUE);
 				}
 				else if (id.isNull())
-					{
-						// None selected
+				{
+					// None selected
 					texture_ctrl->setTentative(FALSE);
 					texture_ctrl->setEnabled(FALSE);
 					texture_ctrl->setImageAssetID(LLUUID::null);
@@ -1071,10 +1071,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("label maskcutoff")->setEnabled(FALSE);
 
 					texture_ctrl->setBakeTextureEnabled(false);
-					}
-					else
-					{
-						// Tentative: multiple selected with different textures
+				}
+				else
+				{
+					// Tentative: multiple selected with different textures
 					texture_ctrl->setTentative(TRUE);
 					texture_ctrl->setEnabled(editable);
 					texture_ctrl->setImageAssetID(id);
@@ -1085,7 +1085,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					
 					texture_ctrl->setBakeTextureEnabled(TRUE);
 				}
-				
 			}
 
 			if (shinytexture_ctrl)
@@ -1343,15 +1342,14 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				combobox_texgen->selectNthItem(((S32)selected_texgen) >> 1);
 			}
 			else
-				{
+			{
 				LL_WARNS() << "failed childGetSelectionInterface for 'combobox texgen'" << LL_ENDL;
-				}
+			}
 
 			getChildView("combobox texgen")->setEnabled(editable);
 			getChild<LLUICtrl>("combobox texgen")->setTentative(!identical);
 			getChildView("tex gen")->setEnabled(editable);
-
-			}
+		}
 
 		{
 			U8 fullbright_flag = 0;
@@ -1380,7 +1378,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 			LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 			if (mComboTexGen)
-		{
+			{
 				S32 index = mComboTexGen ? mComboTexGen->getCurrentIndex() : 0;
 				BOOL enabled = editable && (index != 1);
 				BOOL identical_repeats = true;
@@ -1390,26 +1388,26 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				LLSelectMgr::getInstance()->setTextureChannel(LLRender::eTexIndex(material_type));
 
 				switch (material_type)
-			{
+				{
 					default:
 					case MATTYPE_DIFFUSE:
-				{
+					{
 						enabled = editable && !id.isNull();
 						identical_repeats = identical_diff_repeats;
 						repeats = repeats_diff;
-				}
+					}
 					break;
 
 					case MATTYPE_SPECULAR:
-			{
+					{
 						enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
 						identical_repeats = identical_spec_repeats;
 						repeats = repeats_spec;
-			}
+					}
 					break;
 
 					case MATTYPE_NORMAL:
-			{
+					{
 						enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
 						identical_repeats = identical_norm_repeats;
 						repeats = repeats_norm;
@@ -1458,14 +1456,14 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					if (!mIsAlpha)
 					{ // ... unless there is no alpha channel in the texture, in which case alpha mode MUST ebe none
 						alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-				}
+					}
 
 					combobox_alphamode->selectNthItem(alpha_mode);
-			}
-			else
-			{
+				}
+				else
+				{
 					LL_WARNS() << "failed childGetSelectionInterface for 'combobox alphamode'" << LL_ENDL;
-			}
+				}
 				getChild<LLUICtrl>("maskcutoff")->setValue(material->getAlphaMaskCutoff());
 				updateAlphaControls();
 
@@ -1477,15 +1475,15 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				texture_ctrl->setImageAssetID(material->getSpecularID());
 
 				if (!material->getSpecularID().isNull() && (shiny == SHINY_TEXTURE))
-			{
+				{
 					material->getSpecularOffset(offset_x,offset_y);
 					material->getSpecularRepeat(repeat_x,repeat_y);
 
 					if (identical_planar_texgen)
-			{
+					{
 						repeat_x *= 2.0f;
 						repeat_y *= 2.0f;
-			}
+					}
 
 					rot = material->getSpecularRotation();
 					getChild<LLUICtrl>("shinyScaleU")->setValue(repeat_x);
@@ -1497,7 +1495,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChild<LLUICtrl>("environment")->setValue(material->getEnvironmentIntensity());
 
 					updateShinyControls(!material->getSpecularID().isNull(), true);
-		}
+				}
 
 				// Assert desired colorswatch color to match material AFTER updateShinyControls
 				// to avoid getting overwritten with the default on some UI state changes.
@@ -1559,14 +1557,14 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		// Disable non-UICtrls
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control"); 
-		if(texture_ctrl)
+		if (texture_ctrl)
 		{
 			texture_ctrl->setImageAssetID( LLUUID::null );
 			texture_ctrl->setEnabled( FALSE );  // this is a LLUICtrl, but we don't want it to have keyboard focus so we add it as a child, not a ctrl.
 // 			texture_ctrl->setValid(FALSE);
 		}
 		LLColorSwatchCtrl* mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
-		if(mColorSwatch)
+		if (mColorSwatch)
 		{
 			mColorSwatch->setEnabled( FALSE );			
 			mColorSwatch->setFallbackImage(LLUI::getUIImage("locked_image.j2c") );
@@ -1609,7 +1607,6 @@ void LLPanelFace::updateCopyTexButton()
                                                     && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1));
     std::string tooltip = (objectp && objectp->isInventoryPending()) ? LLTrans::getString("LoadingContents") : getString("paste_options");
     mMenuClipboardTexture->setToolTip(tooltip);
-
 }
 
 void LLPanelFace::refresh()
