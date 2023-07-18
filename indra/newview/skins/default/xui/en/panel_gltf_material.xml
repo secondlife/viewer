@@ -98,7 +98,7 @@
       top_pad="5"
       width="96"
       name="base_color_transparency_lbl">
-      Transparency
+      Alpha
     </text>
     <spinner
       decimal_digits="3"
