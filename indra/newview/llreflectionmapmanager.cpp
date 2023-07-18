@@ -1171,7 +1171,6 @@ void LLReflectionMapManager::setUniforms()
         updateUniforms();
     }
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, mHeroUBO);
 }
 
 
