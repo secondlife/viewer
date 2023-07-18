@@ -41,7 +41,7 @@ typedef unsigned int			U32;
 
 // to express an index that might go negative
 // (ssize_t is provided by SOME compilers, don't collide)
-typedef typename std::make_signed<size_t>::type llssize;
+typedef typename std::make_signed<std::size_t>::type llssize;
 
 #if LL_WINDOWS
 // https://docs.microsoft.com/en-us/cpp/build/reference/zc-wchar-t-wchar-t-is-native-type
