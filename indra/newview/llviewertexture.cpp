@@ -402,9 +402,6 @@ void LLViewerTextureManager::init()
 	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
 	LLViewerFetchedTexture::sDefaultImagep->setCategory(LLGLTexture::OTHER);
 
- 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	LLViewerFetchedTexture::sSmokeImagep->setNoDelete();
-
 	image_raw = new LLImageRaw(32,32,3);
 	data = image_raw->getData();
 

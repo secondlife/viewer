@@ -1187,6 +1187,7 @@ PanteraPolnocy
 	SL-18891
 	SL-18904
 	SL-18937
+	SL-19681
 Parvati Silverweb
 Patric Mills
 	VWR-2645
@@ -1411,6 +1412,7 @@ Sovereign Engineer
     SL-18497
     SL-18525
     SL-18534
+    SL-19336
 SpacedOut Frye
 	VWR-34
 	VWR-45
