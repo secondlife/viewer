@@ -511,7 +511,13 @@ with the same filename but different name
   <texture name="Play_Off" file_name="icons/Play_Off.png" preload="false" />
   <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
   <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
-  
+
+  <texture name="Profile_Badge_Beta" file_name="icons/profile_badge_beta.png" preload="true"/>
+  <texture name="Profile_Badge_Beta_Lifetime" file_name="icons/profile_badge_beta_lifetime.png" preload="true"/>
+  <texture name="Profile_Badge_Lifetime" file_name="icons/profile_badge_lifetime.png" preload="true"/>
+  <texture name="Profile_Badge_Linden" file_name="icons/profile_badge_linden.png" preload="true"/>
+  <texture name="Profile_Badge_Pplus_Lifetime" file_name="icons/profile_badge_pplus_lifetime.png" preload="true"/>
+  <texture name="Profile_Badge_Premium_Lifetime" file_name="icons/profile_badge_premium_lifetime.png" preload="true"/>
   <texture name="Profile_Group_Visibility_Off" file_name="icons/profile_group_visibility_eye_off.png" preload="true"/>
   <texture name="Profile_Group_Visibility_Off_Pressed" file_name="icons/profile_group_visibility_eye_off_pressed.png" preload="true"/>
   <texture name="Profile_Group_Visibility_On" file_name="icons/profile_group_visibility_eye_on.png" preload="true"/>

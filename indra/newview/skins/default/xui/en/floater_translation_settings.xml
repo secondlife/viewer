@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="310"
+ height="470"
  layout="topleft"
  name="floater_translation_settings"
  help_topic="translation_settings"
@@ -9,11 +9,13 @@
  title="CHAT TRANSLATION SETTINGS"
  width="485">
 
- <string name="bing_api_key_not_verified">Bing appID not verified. Please try again.</string>
- <string name="google_api_key_not_verified">Google API key not verified. Please try again.</string>
+ <string name="azure_api_key_not_verified">Azure service identifier not verified. Status: [STATUS]. Please check your settings and try again.</string>
+ <string name="google_api_key_not_verified">Google API key not verified. Status: [STATUS]. Please check your key and try again.</string>
+ <string name="deepl_api_key_not_verified">DeepL Auth Key key not verified. Status: [STATUS]. Please check your key and try again.</string>
 
- <string name="bing_api_key_verified">Bing appID verified.</string>
+ <string name="azure_api_key_verified">Azure service identifier verified.</string>
  <string name="google_api_key_verified">Google API key verified.</string>
+ <string name="deepl_api_key_verified">DeepL API key verified.</string>
 
  <check_box
   height="16"     
@@ -128,24 +130,85 @@
 
  <radio_group
   follows="top|left"
-  height="80"
+  height="260"
   layout="topleft"
   left_delta="10"
   name="translation_service_rg"
   top_pad="20"
   width="320">
   <radio_item
-   initial_value="bing"
-   label="Bing Translator"
+   initial_value="azure"
+   label="Azure Translator"
    layout="topleft"
-   name="bing" />
+   name="azure" />
   <radio_item
    initial_value="google"
    label="Google Translate"
    layout="topleft"
    name="google"
-   top_pad="55" />
+   top_pad="115" />
+  <radio_item
+   initial_value="deepl"
+   label="DeepL Translator"
+   layout="topleft"
+   name="deepl"
+   top_pad="61" />
  </radio_group>
+
+  <text
+   follows="top|right"
+   height="20"
+   layout="topleft"
+   left="185"
+   length="1"
+   name="google_links_text"
+   top_pad="-262"
+   type="string"
+   width="100">
+    [https://learn.microsoft.com/en-us/azure/cognitive-services/translator/create-translator-resource Setup]
+  </text>
+
+  <text
+   type="string"
+   length="1"
+   follows="top|right"
+   height="20"
+   layout="topleft"
+   left="70"
+   name="azure_api_endoint_label"
+   top_pad="8"
+   width="85">
+    Endpoint:
+  </text>
+  
+ <combo_box
+   allow_text_entry="true"
+   follows="left|top"
+   name="azure_api_endpoint_combo"
+   height="23"
+   left_pad="10"
+   right="-10"
+   top_delta="-4"
+   max_chars="512"
+   value="https://api.cognitive.microsofttranslator.com"
+   combo_button.scale_image="true">
+   <combo_box.item
+     label="https://api.cognitive.microsofttranslator.com"
+     name="global"
+     value="https://api.cognitive.microsofttranslator.com" />
+   <combo_box.item
+     label="https://api-apc.cognitive.microsofttranslator.com"
+     name="api-apc"
+     value="https://api-apc.cognitive.microsofttranslator.com" />
+   <combo_box.item
+     label="https://api-eur.cognitive.microsofttranslator.com"
+     name="api-eur"
+     value="https://api-eur.cognitive.microsofttranslator.com" />
+   <combo_box.item
+     label="https://api-nam.cognitive.microsofttranslator.com"
+     name="api-nam"
+     value="https://api-nam.cognitive.microsofttranslator.com" />
+  </combo_box>
 
  <text
   type="string"
@@ -154,30 +217,52 @@
   height="20"
   layout="topleft"
   left="70"
-  name="bing_api_key_label"
-  top_pad="-55"
+  name="azure_api_key_label"
+  top_pad="10"
   width="85">
-  Bing [http://www.bing.com/developers/createapp.aspx AppID]:
+  Azure Key:
   </text>
  <line_editor
-  default_text="Enter Bing AppID and click &quot;Verify&quot;"
+  default_text="Enter Translator Key and click &quot;Verify&quot;"
   follows="top|left"
   height="20"
   layout="topleft"
   left_pad="10"
   max_length_chars="50"
   top_delta="-4"
-  name="bing_api_key"
+  name="azure_api_key"
   width="210" />
- <button
-  follows="left|top"
-  height="23"
-  label="Verify"
-  layout="topleft"
-  left_pad="10"
-  name="verify_bing_api_key_btn"
-  top_delta="-2"
-  width="90" />	
+  <text
+   type="string"
+   length="1"
+   follows="top|right"
+   height="20"
+   layout="topleft"
+   left="70"
+   name="azure_api_region_label"
+   top_pad="11"
+   width="85">
+    Region:
+  </text>
+  <line_editor
+   default_text="Can be left empty for global services"
+   follows="top|left"
+   height="20"
+   layout="topleft"
+   left_pad="10"
+   max_length_chars="50"
+   top_delta="-4"
+   name="azure_api_region"
+   width="210" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Verify"
+   layout="topleft"
+   left_pad="10"
+   name="verify_azure_api_key_btn"
+   top_delta="-2"
+   width="90" />
 
  <text
   follows="top|right"
@@ -186,7 +271,7 @@
   left="70"
   length="1"
   name="google_api_key_label"
-  top_pad="50"
+  top_pad="53"
   type="string"
   width="85">
   Google [http://code.google.com/apis/language/translate/v2/getting_started.html#auth API key]:
@@ -209,7 +294,7 @@
   left_pad="10"
   name="verify_google_api_key_btn"
   top_delta="-2"
-  width="90" />	
+  width="90" />
 
  <text
   follows="top|right"
@@ -223,6 +308,87 @@
   width="100">
   [http://code.google.com/apis/language/translate/v2/pricing.html Pricing] | [https://code.google.com/apis/console Stats] 
  </text>
+
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="20"
+     layout="topleft"
+     left="70"
+     name="deepl_api_domain_label"
+     top_pad="80"
+     width="85">
+        Endpoint:
+    </text>
+
+    <combo_box
+      allow_text_entry="false"
+      follows="left|top"
+      name="deepl_api_domain_combo"
+      height="23"
+      left_pad="10"
+      width="140"
+      top_delta="-4"
+      max_chars="512"
+      value="https://api-free.deepl.com"
+      combo_button.scale_image="true">
+        <combo_box.item
+          label="DeepL Free"
+          name="global"
+          value="https://api-free.deepl.com" />
+        <combo_box.item
+          label="DeepL Pro"
+          name="api-apc"
+          value="https://api.deepl.com" />
+    </combo_box>
+    
+    <text
+     follows="top|right"
+     height="20"
+     layout="topleft"
+     left="70"
+     length="1"
+     name="deepl_api_key_label"
+     top_pad="11"
+     type="string"
+     width="85">
+      DeepL API key:
+    </text>
+
+    <line_editor
+     default_text="Enter DeepL API key and click &quot;Verify&quot;"
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_pad="10"
+     max_length_chars="50"
+     top_delta="-4"
+     name="deepl_api_key"
+     width="210" />
+    
+    <button
+     follows="left|top"
+     height="23"
+     label="Verify"
+     layout="topleft"
+     left_pad="10"
+     name="verify_deepl_api_key_btn"
+     top_delta="-2"
+     width="90" />
+
+    <text
+     follows="top|right"
+     height="20"
+     layout="topleft"
+     left="185"
+     length="1"
+     name="deepl_links_text"
+     top_delta="-53"
+     type="string"
+     width="100">
+        [https://www.deepl.com/pro/select-country?cta=header-prices Pricing]
+    </text>
 
  <button
   follows="left|top"
