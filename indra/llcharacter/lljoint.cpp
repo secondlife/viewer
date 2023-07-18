@@ -258,8 +258,7 @@ LLJoint *LLJoint::findJoint( const std::string &name )
 	if (name == getName())
 		return this;
 
-	for (joints_t::const_iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
+	for (LLJoint* joint : mChildren)
 	{
 		LLJoint *found = joint->findJoint(name);
 		if (found)

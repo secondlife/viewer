@@ -66,7 +66,7 @@ LLKeyframeMotionParam::~LLKeyframeMotionParam()
 {
 	for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
 	{
-		motion_list_t& motionList = iter->second;
+		motion_list_t& motionList = motion_pair.second;
 		motionList.clear();
 	}
 	mParameterizedMotions.clear();
@@ -89,7 +89,6 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 		motion_list_t& motionList = motion_pair.second;
 		for (const ParameterizedMotion& paramMotion : motionList)
 		{
-			const ParameterizedMotion& paramMotion = *iter2;
 			LLMotion::ptr_t motion(paramMotion.mMotion);
 			motion->onInitialize(character);
 

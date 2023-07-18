@@ -209,9 +209,8 @@ void LLMotionController::purgeExcessMotions()
 	{
 		// too many motions active this frame, kill all blenders
 		mPoseBlender.clearBlenders();
-		for (LLMotion* cur_motionp : mLoadedMotions)
+		for (LLMotion::ptr_t cur_motionp : mLoadedMotions)
 		{
-			LLMotion::ptr_t cur_motionp(*loaded_motion_it);
 			// motion isn't playing, delete it
 			if (!isMotionActive(cur_motionp))
 			{
@@ -225,7 +224,6 @@ void LLMotionController::purgeExcessMotions()
 	{
 		// look up the motion again by ID to get canonical instance
 		// and kill it only if that one is inactive
-		LLUUID motion_id = *motion_it;
 		LLMotion::ptr_t motionp(findMotion(motion_id));
 		if (motionp && !isMotionActive(motionp))
 		{
@@ -1056,7 +1054,7 @@ void LLMotionController::dumpMotions()
 	{
 		LLUUID id = motion_pair.first;
 		std::string state_string;
-		LLMotion::ptr_t motion(iter->second);
+		LLMotion::ptr_t motion(motion_pair.second);
 		if (mLoadingMotions.find(motion) != mLoadingMotions.end())
 			state_string += std::string("l");
 		if (mLoadedMotions.find(motion) != mLoadedMotions.end())
@@ -1077,7 +1075,7 @@ void LLMotionController::deactivateAllMotions()
 {
 	for (motion_map_t::value_type& motion_pair : mAllMotions)
 	{
-		LLMotion::ptr_t motionp(iter->second);
+		LLMotion::ptr_t motionp(motion_pair.second);
 		deactivateMotionInstance(motionp);
 	}
 }
