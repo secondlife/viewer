@@ -194,6 +194,7 @@ pre_build()
         fi
     fi
     set -x
+    export BUGSPLAT_USER BUGSPLAT_PASS
 
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
