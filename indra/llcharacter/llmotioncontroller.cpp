@@ -211,6 +211,7 @@ void LLMotionController::purgeExcessMotions()
 		mPoseBlender.clearBlenders();
 		for (LLMotion* cur_motionp : mLoadedMotions)
 		{
+			LLMotion::ptr_t cur_motionp(*loaded_motion_it);
 			// motion isn't playing, delete it
 			if (!isMotionActive(cur_motionp))
 			{
@@ -224,7 +225,8 @@ void LLMotionController::purgeExcessMotions()
 	{
 		// look up the motion again by ID to get canonical instance
 		// and kill it only if that one is inactive
-		LLMotion* motionp = findMotion(motion_id);
+		LLUUID motion_id = *motion_it;
+		LLMotion::ptr_t motionp(findMotion(motion_id));
 		if (motionp && !isMotionActive(motionp))
 		{
 			removeMotion(motion_id);
@@ -1054,7 +1056,7 @@ void LLMotionController::dumpMotions()
 	{
 		LLUUID id = motion_pair.first;
 		std::string state_string;
-		LLMotion *motion = motion_pair.second;
+		LLMotion::ptr_t motion(iter->second);
 		if (mLoadingMotions.find(motion) != mLoadingMotions.end())
 			state_string += std::string("l");
 		if (mLoadedMotions.find(motion) != mLoadedMotions.end())
@@ -1075,7 +1077,7 @@ void LLMotionController::deactivateAllMotions()
 {
 	for (motion_map_t::value_type& motion_pair : mAllMotions)
 	{
-		LLMotion* motionp = motion_pair.second;
+		LLMotion::ptr_t motionp(iter->second);
 		deactivateMotionInstance(motionp);
 	}
 }
