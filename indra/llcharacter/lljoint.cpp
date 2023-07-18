@@ -258,17 +258,16 @@ LLJoint *LLJoint::findJoint( const std::string &name )
 	if (name == getName())
 		return this;
 
-	for (joints_t::const_iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
+	for (LLJoint* joint : mChildren)
 	{
-		LLJoint *found = joint->findJoint(name);
+		LLJoint* found = joint->findJoint(name);
 		if (found)
 		{
 			return found;
 		}
 	}
 
-	return NULL;	
+	return NULL;
 }
 
 
@@ -533,7 +532,7 @@ void LLJoint::getAllAttachmentPosOverrides(S32& num_pos_overrides,
         distinct_pos_overrides.insert(pos_override_pair.second);
     }
 }
-                                        
+
 //--------------------------------------------------------------------
 // getAllAttachmentScaleOverrides()
 //--------------------------------------------------------------------
@@ -546,7 +545,7 @@ void LLJoint::getAllAttachmentScaleOverrides(S32& num_scale_overrides,
         distinct_scale_overrides.insert(scale_override_pair.second);
     }
 }
-                                        
+
 //--------------------------------------------------------------------
 // showAttachmentPosOverrides()
 //--------------------------------------------------------------------

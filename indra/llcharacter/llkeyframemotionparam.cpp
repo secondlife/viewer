@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llkeyframemotionparam.cpp
  * @brief Implementation of LLKeyframeMotion class.
  *
@@ -66,7 +66,7 @@ LLKeyframeMotionParam::~LLKeyframeMotionParam()
 {
 	for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
 	{
-		motion_list_t& motionList = iter->second;
+		motion_list_t& motionList = motion_pair.second;
 		motionList.clear();
 	}
 	mParameterizedMotions.clear();
@@ -81,15 +81,14 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 
 	if (!loadMotions())
 	{
-		return STATUS_FAILURE;	
+		return STATUS_FAILURE;
 	}
-	
+
 	for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
 	{
 		motion_list_t& motionList = motion_pair.second;
 		for (const ParameterizedMotion& paramMotion : motionList)
 		{
-			const ParameterizedMotion& paramMotion = *iter2;
 			LLMotion::ptr_t motion(paramMotion.mMotion);
 			motion->onInitialize(character);
 
@@ -182,9 +181,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		for (const ParameterizedMotion& paramMotion : motionList)
 		{
 			paramMotion.mMotion->onUpdate(time, joint_mask);
-			
 			F32 distToParam = paramMotion.mParam - *paramValue;
-			
 			if ( distToParam <= 0.f)
 			{
 				// keep track of the motion closest to the parameter value
