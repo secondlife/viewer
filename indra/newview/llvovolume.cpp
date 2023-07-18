@@ -6490,12 +6490,15 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                 }
             }
 
-            F32 te_alpha = te->getColor().mV[3]; 
+            F32 blinn_phong_alpha = te->getColor().mV[3];
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
-			bool opaque = te_alpha >= 0.999f;
-            bool transparent = te_alpha < 0.999f;
+			bool blinn_phong_opaque = blinn_phong_alpha >= 0.999f;
+            bool blinn_phong_transparent = blinn_phong_alpha < 0.999f;
 
-            is_alpha = (is_alpha || transparent) ? TRUE : FALSE;
+            if (!gltf_mat)
+            {
+                is_alpha = (is_alpha || blinn_phong_transparent) ? TRUE : FALSE;
+            }
 
 			if (gltf_mat || (mat && !hud_group))
 			{
@@ -6525,7 +6528,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
-						if (opaque)
+						if (blinn_phong_opaque)
 						{
 							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 						}
@@ -6546,7 +6549,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						}
 						else
 						{
-                            if (opaque)
+                            if (blinn_phong_opaque)
 						    {
 							    registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
                             }
@@ -6557,7 +6560,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						}
 					}
 				}
-				else if (transparent)
+				else if (blinn_phong_transparent)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
