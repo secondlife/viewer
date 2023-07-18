@@ -576,8 +576,10 @@ void LLView::deleteAllChildren()
 
 	while (!mChildList.empty())
 	{
-		LLView* viewp = mChildList.front();
-		delete viewp; // will remove the child from mChildList
+        LLView* viewp = mChildList.front();
+        viewp->mParentView = NULL;
+        delete viewp;
+        mChildList.pop_front();
 	}
 }
 

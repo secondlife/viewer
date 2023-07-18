@@ -42,38 +42,48 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void setBingVerified(bool ok, bool alert);
-	void setGoogleVerified(bool ok, bool alert);
+	void setAzureVerified(bool ok, bool alert, S32 status);
+	void setGoogleVerified(bool ok, bool alert, S32 status);
+    void setDeepLVerified(bool ok, bool alert, S32 status);
 	void onClose(bool app_quitting);
 
 private:
 	std::string getSelectedService() const;
-	std::string getEnteredBingKey() const;
+	LLSD getEnteredAzureKey() const;
 	std::string getEnteredGoogleKey() const;
-	void showAlert(const std::string& msg_name) const;
+    LLSD getEnteredDeepLKey() const;
+	void showAlert(const std::string& msg_name, S32 status) const;
 	void updateControlsEnabledState();
-	void verifyKey(int service, const std::string& key, bool alert = true);
+    void verifyKey(int service, const LLSD& key, bool alert = true);
 
 	void onEditorFocused(LLFocusableElement* control);
-	void onBingKeyEdited();
+	void onAzureKeyEdited();
 	void onGoogleKeyEdited();
-	void onBtnBingVerify();
+    void onDeepLKeyEdited();
+	void onBtnAzureVerify();
 	void onBtnGoogleVerify();
+    void onBtnDeepLVerify();
 	void onBtnOK();
 
-    static void setVerificationStatus(int service, bool alert, bool ok);
+    static void setVerificationStatus(int service, bool alert, bool ok, S32 status);
 
 	LLCheckBoxCtrl* mMachineTranslationCB;
 	LLComboBox* mLanguageCombo;
-	LLLineEditor* mBingAPIKeyEditor;
+    LLComboBox* mAzureAPIEndpointEditor;
+	LLLineEditor* mAzureAPIKeyEditor;
+    LLLineEditor* mAzureAPIRegionEditor;
 	LLLineEditor* mGoogleAPIKeyEditor;
+    LLComboBox* mDeepLAPIDomainCombo;
+    LLLineEditor* mDeepLAPIKeyEditor;
 	LLRadioGroup* mTranslationServiceRadioGroup;
-	LLButton* mBingVerifyBtn;
+	LLButton* mAzureVerifyBtn;
 	LLButton* mGoogleVerifyBtn;
+    LLButton* mDeepLVerifyBtn;
 	LLButton* mOKBtn;
 
-	bool mBingKeyVerified;
+	bool mAzureKeyVerified;
 	bool mGoogleKeyVerified;
+    bool mDeepLKeyVerified;
 };
 
 #endif // LL_LLFLOATERTRANSLATIONSETTINGS_H
