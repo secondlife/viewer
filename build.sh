@@ -121,8 +121,13 @@ EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
 installer=()
 metadata=()
 symbolfile=()
+physicstpv=()
 # and dump them to GITHUB_OUTPUT when done
-cleanup="$cleanup ; arrayoutput installer ; arrayoutput metadata ; arrayoutput symbolfile"
+cleanup="$cleanup ; \
+arrayoutput installer ; \
+arrayoutput metadata ; \
+arrayoutput symbolfile ; \
+arrayoutput physicstpv"
 trap "$cleanup" EXIT
 
 arrayoutput()
@@ -216,9 +221,12 @@ package_llphysicsextensions_tpv()
   # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
   if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
   then 
-      test -r  "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml" || fatal "No llphysicsextensions_tpv autobuild configuration found"
-      tpvconfig=$(native_path "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml")
-      "$autobuild" build --quiet --config-file "$tpvconfig" -c Tpv || fatal "failed to build llphysicsextensions_tpv"
+      tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
+      test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
+      # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
+      unset AUTOBUILD_CONFIGURATION
+      "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
+          || fatal "failed to build llphysicsextensions_tpv"
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
@@ -576,13 +584,15 @@ then
 
           # Upload the llphysicsextensions_tpv package, if one was produced
           # *TODO: Make this an upload-extension
-          if [ -r "$build_dir/llphysicsextensions_package" ]
+          # Only upload this package when building the private repo so the
+          # artifact is private.
+          if [[ "$GITHUB_REPOSITORY" == "secondlife/viewer-private" && \
+                -r "$build_dir/llphysicsextensions_package" ]]
           then
               llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
               retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
                   || fatal "Upload of physics extensions package failed"
-              ## how to make private?
-              ## addoutput llphysics "$llphysicsextensions_package"
+              physicstpv+=("$llphysicsextensions_package")
           fi
       fi
 
