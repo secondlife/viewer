@@ -99,7 +99,7 @@ jobs:
           mkdir -p "$build_log_dir"
           mkdir -p "$BUILDSCRIPTS_SHARED/packages/lib/python"
           source "$BUILDSCRIPTS_SUPPORT_FUNCTIONS"
-          if [[ "$OSTYPE" == "cygwin" ]]
+          if [[ "$OSTYPE" =~ cygwin|msys ]]
           then
             native_path() { cygpath --windows "$1"; }
             shell_path()  { cygpath --unix "$1"; }
