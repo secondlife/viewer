@@ -58,47 +58,11 @@
  * to restore uniform distribution.
  */
 
+static LLRandLagFib2281 gRandomGenerator(LLUUID::getRandomSeed());
+
+// no default implementation, only specific F64 and F32 specializations
 template <typename REAL>
 inline REAL ll_internal_random();
-
-// *NOTE: The system rand implementation is probably not correct.
-#define LL_USE_SYSTEM_RAND 0
-
-/*****************************************************************************
-*   The LL_USE_SYSTEM_RAND implementation has been disabled since June 2008.
-*****************************************************************************/
-#if LL_USE_SYSTEM_RAND
-#include <cstdlib>
-
-class LLSeedRand
-{
-public:
-	LLSeedRand()
-	{
-#if LL_WINDOWS
-		srand(LLUUID::getRandomSeed());
-#else
-		srand48(LLUUID::getRandomSeed());
-#endif
-	}
-};
-static LLSeedRand sRandomSeeder;
-
-template <>
-inline F64 ll_internal_random<F64>()
-{
-#if LL_WINDOWS
-	return (F64)rand() / (F64)(RAND_MAX+1);
-#else
-	return drand48();
-#endif
-}
-
-/*****************************************************************************
-*   This is the implementation we've been using.
-*****************************************************************************/
-#else  // LL_USE_SYSTEM_RAND
-static LLRandLagFib2281 gRandomGenerator(LLUUID::getRandomSeed());
 
 template <>
 inline F64 ll_internal_random<F64>()
@@ -111,11 +75,7 @@ inline F64 ll_internal_random<F64>()
 	if(!((rv >= 0.0) && (rv < 1.0))) return fmod(rv, 1.0);
 	return rv;
 }
-#endif  // LL_USE_SYSTEM_RAND
 
-/*****************************************************************************
-*   Functions common to both implementations
-*****************************************************************************/
 template <>
 inline F32 ll_internal_random<F32>()
 {
