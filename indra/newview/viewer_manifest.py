@@ -1329,6 +1329,10 @@ class DarwinManifest(ViewerManifest):
                     self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
 
         finally:
+            # Empirically, on GitHub we've hit errors like:
+            # hdiutil: couldn't eject "disk10" - Resource busy
+            # Try waiting a bit to see if that improves reliability.
+            time.sleep(2)
             # Unmount the image even if exceptions from any of the above 
             self.run_command(['hdiutil', 'detach', '-force', devfile])
 
