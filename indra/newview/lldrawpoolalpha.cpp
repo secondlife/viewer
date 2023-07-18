@@ -204,6 +204,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(pbr_shader, false, true, water_sign);
 
+    // explicitly unbind here so render loop doesn't make assumptions about the last shader
+    // already being setup for rendering
+    LLGLSLShader::unbind();
+
     if (!LLPipeline::sRenderingHUDs)
     {
         // first pass, render rigged objects only and render to depth buffer
