@@ -930,6 +930,8 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 													 LLToolDragAndDrop::ESource source,
 													 const LLUUID& src_id)
 {
+	if (!item) return FALSE;
+
 	// Always succeed if....
 	// material is from the library 
 	// or already in the contents of the object
@@ -967,8 +969,6 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		// and ensures that the asset item is only added once.
 		return TRUE;
 	}
-
-	if (!item) return FALSE;
 	
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 	if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
