@@ -62,6 +62,7 @@ public:
     static void FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCategorySubset(const LLUUID& catId, const uuid_vec_t specificChildren, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCOF(completion_t callback = completion_t());
+    static void FetchCategoryLinks(const LLUUID &catId, completion_t callback = completion_t());
     static void FetchOrphans(completion_t callback = completion_t() );
     static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
@@ -81,6 +82,7 @@ public:
         FETCHCATEGORYSUBSET,
         FETCHCOF,
         FETCHORPHANS,
+        FETCHCATEGORYLINKS
     } COMMAND_TYPE;
 
 private:

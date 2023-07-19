@@ -227,9 +227,13 @@ private:
 	//--------------------------------------------------------------------
 public:
 	static BOOL getIsFirstTimeInViewer2();
+    static bool  isSysFoldersReady() { return (sPendingSystemFolders == 0); }
+
 private:
 	static BOOL sFirstTimeInViewer2;
 	const static S32 sCurrentInvCacheVersion; // expected inventory cache version
+
+    static S32 sPendingSystemFolders;
 
 /**                    Initialization/Setup
  **                                                                            **
