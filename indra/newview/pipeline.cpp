@@ -6494,6 +6494,25 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
 	gGLLastMatrix = NULL;		
 }
 
+void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
+{
+    assertInitialized();
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
+
+    if (rigged)
+    {
+        mSimplePool->pushRiggedGLTFBatches(type + 1, texture);
+    }
+    else
+    {
+        mSimplePool->pushGLTFBatches(type, texture);
+    }
+
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
+}
+
 // Currently only used for shadows -Cosmic,2023-04-19
 void LLPipeline::renderAlphaObjects(bool rigged)
 {
@@ -8601,8 +8620,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LLRenderPass::PASS_NORMMAP,
         LLRenderPass::PASS_NORMMAP_EMISSIVE,
         LLRenderPass::PASS_NORMSPEC,
-        LLRenderPass::PASS_NORMSPEC_EMISSIVE,
-        LLRenderPass::PASS_GLTF_PBR
+        LLRenderPass::PASS_NORMSPEC_EMISSIVE
     };
 
     LLGLEnable cull(GL_CULL_FACE);
@@ -8664,6 +8682,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         {
             renderObjects(type, false, false, rigged);
         }
+
+        renderGLTFObjects(LLRenderPass::PASS_GLTF_PBR, false, rigged);
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }
