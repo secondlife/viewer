@@ -1912,7 +1912,22 @@ bool idle_startup()
 		
         LLInventoryModelBackgroundFetch::instance().start();
 		gInventory.createCommonSystemCategories();
+        LLStartUp::setStartupState(STATE_INVENTORY_CALLBACKS );
+        display_startup();
 
+        return FALSE;
+    }
+
+    //---------------------------------------------------------------------
+    // STATE_INVENTORY_CALLBACKS 
+    //---------------------------------------------------------------------
+    if (STATE_INVENTORY_CALLBACKS  == LLStartUp::getStartupState())
+    {
+        if (!LLInventoryModel::isSysFoldersReady())
+        {
+            display_startup();
+            return FALSE;
+        }
         LLInventoryModelBackgroundFetch::instance().start();
         LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
         LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
@@ -2850,8 +2865,15 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		// Need to fetch cof contents before we can wear.
-		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
+        if (do_copy)
+        {
+            callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
 							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+        }
+        else
+        {
+            callAfterCategoryLinksFetch(cat_id, boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+        }
 		LL_DEBUGS() << "initial outfit category id: " << cat_id << LL_ENDL;
 	}
 
@@ -2904,6 +2926,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_AGENT_SEND );
 		RTNENUM( STATE_AGENT_WAIT );
 		RTNENUM( STATE_INVENTORY_SEND );
+        RTNENUM(STATE_INVENTORY_CALLBACKS );
 		RTNENUM( STATE_MISC );
 		RTNENUM( STATE_PRECACHE );
 		RTNENUM( STATE_WEARABLES_WAIT );

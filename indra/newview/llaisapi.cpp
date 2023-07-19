@@ -709,6 +709,40 @@ void AISAPI::FetchCOF(completion_t callback)
     EnqueueAISCommand("FetchCOF", proc);
 }
 
+void AISAPI::FetchCategoryLinks(const LLUUID &catId, completion_t callback)
+{
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
+        return;
+    }
+    std::string url = cap + std::string("/category/") + catId.asString() + "/links";
+
+    invokationFn_t getFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &,
+                                                                   LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend),
+        _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(
+        boost::bind(&AISAPI::InvokeAISCommandCoro, _1, getFn, url, LLUUID::null, LLSD(), callback, FETCHCATEGORYLINKS));
+
+    EnqueueAISCommand("FetchCategoryLinks", proc);
+}
+
 /*static*/
 void AISAPI::FetchOrphans(completion_t callback)
 {
@@ -938,6 +972,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         case FETCHCATEGORYCATEGORIES:
         case FETCHCATEGORYCHILDREN:
         case FETCHCATEGORYSUBSET:
+        case FETCHCATEGORYLINKS:
         case FETCHCOF:
             if (result.has("category_id"))
             {
@@ -1002,6 +1037,7 @@ AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& 
         || (type == AISAPI::FETCHCATEGORYCATEGORIES)
         || (type == AISAPI::FETCHCATEGORYSUBSET)
         || (type == AISAPI::FETCHCOF)
+        || (type == AISAPI::FETCHCATEGORYLINKS)
         || (type == AISAPI::FETCHORPHANS);
     // parse update llsd into stuff to do or parse received items.
     mFetchDepth = MAX_FOLDER_DEPTH_REQUEST;

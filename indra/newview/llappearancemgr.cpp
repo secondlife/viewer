@@ -4612,6 +4612,35 @@ void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb)
     }
 }
 
+void callAfterCategoryLinksFetch(const LLUUID &cat_id, nullary_func_t cb)
+{
+    LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+    if (AISAPI::isAvailable())
+    {
+        // Mark folder (update timer) so that background fetch won't request it
+        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+        // Assume that we have no relevant cache. Fetch folder, and items folder's links point to.
+        AISAPI::FetchCategoryLinks(cat_id,
+            [cb, cat_id](const LLUUID &id)
+            {
+                cb();
+                LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+                if (cat)
+                {
+                    cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+                }
+            });
+        }
+        else
+        {
+            LL_WARNS() << "AIS API v3 not available, can't use AISAPI::FetchCOF" << LL_ENDL;
+            // startup should have marked folder as fetching, remove that
+            cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+            callAfterCategoryFetch(cat_id, cb);
+        }
+    
+}
+
 void add_wearable_type_counts(const uuid_vec_t& ids,
                               S32& clothing_count,
                               S32& bodypart_count,

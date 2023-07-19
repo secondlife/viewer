@@ -79,6 +79,8 @@
 const S32 LLInventoryModel::sCurrentInvCacheVersion = 3;
 BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 
+S32 LLInventoryModel::sPendingSystemFolders = 0;
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -861,8 +863,9 @@ void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred
                     }
                     else
                     {
-                        LL_DEBUGS("Inventory") << "Created category: " << new_cat_id
+                        LL_WARNS("Inventory") << "Created category: " << new_cat_id
                             << " for type: " << preferred_type << LL_ENDL;
+                        sPendingSystemFolders--;
                     }
             }
             );
@@ -872,6 +875,10 @@ void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred
             LL_WARNS("Inventory") << "Can't create requested folder, type " << preferred_type
                 << " because inventory is not usable" << LL_ENDL;
         }
+    }
+    else
+    {
+        sPendingSystemFolders--;
     }
 }
 
@@ -3253,6 +3260,9 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 
 void LLInventoryModel::createCommonSystemCategories()
 {
+    //amount of System Folder we should wait for
+    sPendingSystemFolders = 8;
+
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_TRASH);
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_FAVORITE);
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CALLINGCARD);
