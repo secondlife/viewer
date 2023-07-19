@@ -948,7 +948,14 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 	{
 		hit_obj->requestInventory();
 		LLSD args;
-		args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
+        if (LLAssetType::AT_MATERIAL == item->getType())
+        {
+            args["ERROR_MESSAGE"] = "Unable to add material.\nPlease wait a few seconds and try again.";
+        }
+        else
+        {
+            args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
+        }
 		LLNotificationsUtil::add("ErrorMessage", args);
 		return FALSE;
 	}
@@ -957,7 +964,7 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		// if the asset is already in the object's inventory 
 		// then it can always be added to a side.
 		// This saves some work if the task's inventory is already loaded
-		// and ensures that the texture item is only added once.
+		// and ensures that the asset item is only added once.
 		return TRUE;
 	}
 
@@ -995,7 +1002,7 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 				return FALSE;
 			}
 		}
-		// Add the texture item to the target object's inventory.
+		// Add the asset item to the target object's inventory.
         if (LLAssetType::AT_TEXTURE == new_item->getType()
             || LLAssetType::AT_MATERIAL == new_item->getType())
         {
@@ -1011,14 +1018,14 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 	else if (!item->getPermissions().allowOperationBy(PERM_TRANSFER,
 													 gAgent.getID()))
 	{
-		// Check that we can add the texture as inventory to the object
+		// Check that we can add the asset as inventory to the object
 		if (willObjectAcceptInventory(hit_obj,item) < ACCEPT_YES_COPY_SINGLE )
 		{
 			return FALSE;
 		}
 		// *FIX: may want to make sure agent can paint hit_obj.
 
-		// Add the texture item to the target object's inventory.
+		// Add the asset item to the target object's inventory.
 		if (LLAssetType::AT_TEXTURE == new_item->getType()
             || LLAssetType::AT_MATERIAL == new_item->getType())
 		{
@@ -1028,7 +1035,7 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
-		// Force the object to update and refetch its inventory so it has this texture.
+		// Force the object to update and refetch its inventory so it has this asset.
 		hit_obj->dirtyInventory();
 		hit_obj->requestInventory();
 		// TODO: Check to see if adding the item was successful; if not, then
