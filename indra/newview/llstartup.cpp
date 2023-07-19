@@ -1912,7 +1912,22 @@ bool idle_startup()
 		
         LLInventoryModelBackgroundFetch::instance().start();
 		gInventory.createCommonSystemCategories();
+        LLStartUp::setStartupState(STATE_SYSTEM_FOLDERS);
+        display_startup();
 
+        return FALSE;
+    }
+
+    //---------------------------------------------------------------------
+    // STATE_SYSTEM_FOLDERS
+    //---------------------------------------------------------------------
+    if (STATE_SYSTEM_FOLDERS == LLStartUp::getStartupState())
+    {
+        if (!LLInventoryModel::isSysFoldersReady())
+        {
+            display_startup();
+            return FALSE;
+        }
         LLInventoryModelBackgroundFetch::instance().start();
         LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
         LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
@@ -2177,7 +2192,17 @@ bool idle_startup()
 			&& !gAgent.isOutfitChosen()) // nothing already loading
 		{
 			// Start loading the wearables, textures, gestures
-			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
+			//
+            LLInventoryModelBackgroundFetch::getInstance()->setFetchCompletionCallback(
+                []()
+                {
+                    static bool outfit_loaded = false;
+                    if (!outfit_loaded && LLInventoryModelBackgroundFetch::getInstance()->isBulkFetchProcessingComplete())
+                    {
+                        LLStartUp::loadInitialOutfit(sInitialOutfit, sInitialOutfitGender);
+                        outfit_loaded = true;
+                    }
+                });
 		}
 		// If not first login, we need to fetch COF contents and
 		// compute appearance from that.
@@ -2904,6 +2929,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_AGENT_SEND );
 		RTNENUM( STATE_AGENT_WAIT );
 		RTNENUM( STATE_INVENTORY_SEND );
+        RTNENUM(STATE_SYSTEM_FOLDERS);
 		RTNENUM( STATE_MISC );
 		RTNENUM( STATE_PRECACHE );
 		RTNENUM( STATE_WEARABLES_WAIT );

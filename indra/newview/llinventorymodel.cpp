@@ -79,6 +79,8 @@
 const S32 LLInventoryModel::sCurrentInvCacheVersion = 3;
 BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 
+S32 LLInventoryModel::mSysFoldersCheckedCount = 0;
+S32 LLInventoryModel::mSysFoldersCount;
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -812,7 +814,7 @@ void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::E
 	}
 }
 
-void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred_type)
+void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred_type, bool update_sys_folder_counter)
 {
     LLUUID rv = LLUUID::null;
     LLUUID root_id = gInventory.getRootFolderID();
@@ -851,7 +853,7 @@ void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred
                 root_id,
                 preferred_type,
                 LLStringUtil::null,
-                [preferred_type](const LLUUID &new_cat_id)
+                [preferred_type, update_sys_folder_counter](const LLUUID &new_cat_id)
             {
                     if (new_cat_id.isNull())
                     {
@@ -861,8 +863,12 @@ void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred
                     }
                     else
                     {
-                        LL_DEBUGS("Inventory") << "Created category: " << new_cat_id
+                        LL_WARNS("Inventory") << "Created category: " << new_cat_id
                             << " for type: " << preferred_type << LL_ENDL;
+                        if (update_sys_folder_counter)
+                        {
+                            LLInventoryModel::mSysFoldersCheckedCount++;
+                        }
                     }
             }
             );
@@ -872,6 +878,10 @@ void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred
             LL_WARNS("Inventory") << "Can't create requested folder, type " << preferred_type
                 << " because inventory is not usable" << LL_ENDL;
         }
+    }
+    else if (update_sys_folder_counter)
+    {
+        mSysFoldersCheckedCount++;
     }
 }
 
@@ -3253,14 +3263,17 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 
 void LLInventoryModel::createCommonSystemCategories()
 {
-	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_TRASH);
-	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_FAVORITE);
-	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CALLINGCARD);
-	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_MY_OUTFITS);
-	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
-	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_LANDMARK); // folder should exist before user tries to 'landmark this'
-    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_SETTINGS);
-    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_INBOX);
+    //amount of System Folder we should wait for
+    mSysFoldersCount = 8;
+
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_TRASH, true);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_FAVORITE, true);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CALLINGCARD, true);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_MY_OUTFITS, true);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT, true);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_LANDMARK, true); // folder should exist before user tries to 'landmark this'
+    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_SETTINGS, true);
+    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_INBOX, true);
 }
 
 struct LLUUIDAndName

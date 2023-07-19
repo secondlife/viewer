@@ -227,9 +227,14 @@ private:
 	//--------------------------------------------------------------------
 public:
 	static BOOL getIsFirstTimeInViewer2();
+    static bool  isSysFoldersReady() { return (mSysFoldersCheckedCount == mSysFoldersCount); }
+
 private:
 	static BOOL sFirstTimeInViewer2;
 	const static S32 sCurrentInvCacheVersion; // expected inventory cache version
+
+    static S32 mSysFoldersCheckedCount;
+    static S32 mSysFoldersCount;
 
 /**                    Initialization/Setup
  **                                                                            **
@@ -305,7 +310,7 @@ public:
 public:
 
     // Checks if category exists ("My Inventory" only), if it does not, creates it
-    void ensureCategoryForTypeExists(LLFolderType::EType preferred_type);
+    void ensureCategoryForTypeExists(LLFolderType::EType preferred_type, bool update_sys_folder_counter = false);
 
 	const LLUUID findCategoryUUIDForTypeInRoot(
 		LLFolderType::EType preferred_type,
