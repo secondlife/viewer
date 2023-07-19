@@ -1706,7 +1706,7 @@ namespace tut
             // scanner.
             import_llsd("import os.path\n"
                         "import sys\n"
-                        "from llbase import llsd\n")
+                        "import llsd\n")
         {}
         ~TestPythonCompatible() {}
 
