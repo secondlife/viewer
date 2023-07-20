@@ -107,6 +107,7 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mIsInitialized(false),
       mRootDirty(false),
       mNeedsArrange(false),
+      mNeedsSelection(false),
       mSearchType(LLInventoryFilter::SEARCHTYPE_NAME),
       mSortOrder(LLInventoryFilter::SO_DATE)
 {
@@ -221,6 +222,7 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
     mItemToSelect.setNull();
     mItemBuildQuery.clear();
     mNeedsArrange = false;
+    mNeedsSelection = false;
     dirtyRootFolder();
 }
 
@@ -829,14 +831,15 @@ void LLInventoryGallery::onIdle(void* userdata)
         self->updateMessageVisibility();
     }
 
-    if (self->mItemToSelect.notNull())
+    if (self->mNeedsSelection)
     {
         LLUUID item_to_select = self->mItemToSelect;
         self->mItemToSelect = LLUUID::null;
+        self->mNeedsSelection = false;
         self->changeItemSelection(item_to_select, true);
     }
 
-    if (self->mItemToSelect.isNull() && self->mItemBuildQuery.empty())
+    if (!self->mNeedsSelection && self->mItemBuildQuery.empty())
     {
         gIdleCallbacks.deleteFunction(onIdle, (void*)self);
     }
@@ -908,7 +911,6 @@ bool LLInventoryGallery::updateAddedItem(LLUUID item_id)
 
     LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getCreationDate(), obj->getIsLinkType(), is_worn);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
-    item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id, false));
     if (mGalleryCreated)
     {
@@ -1000,15 +1002,21 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
 
 BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    if(mItemMap[mSelectedItemID])
+    if (mSelectedItemIDs.size() > 0)
     {
-        mItemMap[mSelectedItemID]->setFocus(false);
-        setFocus(true);
+        selection_deque::iterator iter = mSelectedItemIDs.begin();
+        if (mItemMap[*iter])
+        {
+            mItemMap[*iter]->setFocus(false);
+            setFocus(true);
+        }
     }
     clearSelection();
+
+    // Scroll is going to always return true
     BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
 
-    if (mSelectedItemID.isNull())
+    if (mSelectedItemIDs.empty())
     {
         if (mInventoryGalleryMenu && mFolderID.notNull())
         {
@@ -1029,20 +1037,21 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
     {
         case KEY_RETURN:
             // Open selected items if enter key hit on the inventory panel
-            if (mask == MASK_NONE && mInventoryGalleryMenu && mSelectedItemID.notNull())
+            if (mask == MASK_NONE && mInventoryGalleryMenu && mSelectedItemIDs.size() == 1)
             {
-                LLViewerInventoryCategory* category = gInventory.getCategory(mSelectedItemID);
+                selection_deque::iterator iter = mSelectedItemIDs.begin();
+                LLViewerInventoryCategory* category = gInventory.getCategory(*iter);
                 if (category)
                 {
-                    setRootFolder(mSelectedItemID);
+                    setRootFolder(*iter);
                     handled = TRUE;
                 }
                 else
                 {
-                    LLViewerInventoryItem* item = gInventory.getItem(mSelectedItemID);
+                    LLViewerInventoryItem* item = gInventory.getItem(*iter);
                     if (item)
                     {
-                        LLInvFVBridgeAction::doAction(item->getType(), mSelectedItemID, &gInventory);
+                        LLInvFVBridgeAction::doAction(item->getType(), *iter, &gInventory);
                     }
                 }
             }
@@ -1063,9 +1072,10 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
 
         case KEY_F2:
             mFilterSubString.clear();
-            if (mInventoryGalleryMenu && mSelectedItemID.notNull())
+            if (mInventoryGalleryMenu && mSelectedItemIDs.size() == 1)
             {
-                mInventoryGalleryMenu->doToSelected("rename", mSelectedItemID);
+                selection_deque::iterator iter = mSelectedItemIDs.begin();
+                mInventoryGalleryMenu->doToSelected("rename", *iter);
             }
             handled = TRUE;
             break;
@@ -1142,9 +1152,9 @@ void LLInventoryGallery::moveUp()
 {
     mFilterSubString.clear();
 
-    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = getSelectedItem();
+        LLInventoryGalleryItem* item = getFirstSelectedItem();
         if (item)
         {
             S32 n = mItemIndexMap[item];
@@ -1165,9 +1175,9 @@ void LLInventoryGallery::moveDown()
 {
     mFilterSubString.clear();
 
-    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = getSelectedItem();
+        LLInventoryGalleryItem* item = getFirstSelectedItem();
         if (item)
         {
             S32 n = mItemIndexMap[item];
@@ -1188,9 +1198,9 @@ void LLInventoryGallery::moveLeft()
 {
     mFilterSubString.clear();
 
-    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = getSelectedItem();
+        LLInventoryGalleryItem* item = getFirstSelectedItem();
         if (item)
         {
             // Might be better to get item from panel
@@ -1213,9 +1223,9 @@ void LLInventoryGallery::moveRight()
 {
     mFilterSubString.clear();
 
-    if (mInventoryGalleryMenu && mSelectedItemID.notNull() && mItemsAddedCount > 1)
+    if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = getSelectedItem();
+        LLInventoryGalleryItem* item = getFirstSelectedItem();
         if (item)
         {
             S32 n = mItemIndexMap[item];
@@ -1243,9 +1253,12 @@ void LLInventoryGallery::onFocusLost()
 
     LLPanel::onFocusLost();
 
-    if (mSelectedItemID.notNull() && mItemMap[mSelectedItemID])
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        mItemMap[mSelectedItemID]->setSelected(false);
+        if (mItemMap[id])
+        {
+            mItemMap[id]->setSelected(false);
+        }
     }
 }
 
@@ -1255,13 +1268,19 @@ void LLInventoryGallery::onFocusReceived()
     gEditMenuHandler = this;
 
     // Tab support, when tabbing into this view, select first item
-    if (mSelectedItemID.notNull() && mItemMap[mSelectedItemID])
+    if (mSelectedItemIDs.size() > 0)
     {
-        LLInventoryGalleryItem* focus_item = mItemMap[mSelectedItemID];
-        focus_item->setSelected(true);
-        focus_item->setFocus(TRUE);
+        for (const LLUUID& id : mSelectedItemIDs)
+        {
+            if (mItemMap[id])
+            {
+                LLInventoryGalleryItem* focus_item = mItemMap[id];
+                focus_item->setSelected(true);
+                focus_item->setFocus(TRUE);
+            }
+        }
     }
-    else if (mIndexToItemMap.size() > 0 && mItemToSelect.isNull())
+    else if (mIndexToItemMap.size() > 0 && !mNeedsSelection)
     {
         // choose any items from visible rect
         S32 vert_offset = mScrollPanel->getDocPosVertical();
@@ -1280,6 +1299,11 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
 {
     if (mInventoryGalleryMenu && item_id.notNull())
     {
+        if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) == mSelectedItemIDs.end())
+        {
+            mSelectedItemIDs.clear();
+            mSelectedItemIDs.push_back(item_id);
+        }
         uuid_vec_t selected_uuids;
         selected_uuids.push_back(item_id);
         mInventoryGalleryMenu->show(ctrl, selected_uuids, x, y);
@@ -1291,32 +1315,32 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
     if ((mItemMap.count(item_id) == 0) || mNeedsArrange)
     {
         mItemToSelect = item_id;
+        mNeedsSelection = true;
         return;
     }
-    if (mSelectedItemID == item_id)
+    if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) == mSelectedItemIDs.end())
     {
-        return;
-    }
-    if (mNeedsArrange && item_id.notNull())
-    {
-        mItemToSelect = item_id;
         return;
     }
 
-    if (mItemMap[mSelectedItemID])
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        mItemMap[mSelectedItemID]->setSelected(FALSE);
+        if (mItemMap[id])
+        {
+            mItemMap[id]->setSelected(FALSE);
+        }
     }
+
     if (mItemMap[item_id])
     {
         mItemMap[item_id]->setSelected(TRUE);
     }
-    mSelectedItemID = item_id;
+    mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
 
     if (scroll_to_selection)
     {
-        scrollToShowItem(mSelectedItemID);
+        scrollToShowItem(item_id);
     }
 }
 
@@ -1347,31 +1371,45 @@ void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
     }
 }
 
-LLInventoryGalleryItem* LLInventoryGallery::getSelectedItem()
+LLInventoryGalleryItem* LLInventoryGallery::getFirstSelectedItem()
 {
-    return mItemMap[mSelectedItemID];
+    if (mSelectedItemIDs.size() > 0)
+    {
+        selection_deque::iterator iter = mSelectedItemIDs.begin();
+        return mItemMap[*iter];
+    }
+    return NULL;
 }
 
 void LLInventoryGallery::copy()
 {
-    LLClipboard::instance().reset();
-    if (getVisible() && getEnabled() && mSelectedItemID.notNull())
+    if (!getVisible() || !getEnabled())
     {
-        LLClipboard::instance().addToClipboard(mSelectedItemID);
+        return;
+    }
+
+    LLClipboard::instance().reset();
+
+    for (const LLUUID& id : mSelectedItemIDs)
+    {
+        LLClipboard::instance().addToClipboard(id);
     }
     mFilterSubString.clear();
 }
 
 BOOL LLInventoryGallery::canCopy() const
 {
-    if (!getVisible() || !getEnabled() || mSelectedItemID.isNull())
+    if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
     {
         return FALSE;
     }
 
-    if (!isItemCopyable(mSelectedItemID))
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        return FALSE;
+        if (!isItemCopyable(id))
+        {
+            return FALSE;
+        }
     }
 
     return TRUE;
@@ -1379,35 +1417,44 @@ BOOL LLInventoryGallery::canCopy() const
 
 void LLInventoryGallery::cut()
 {
+    if (!getVisible() || !getEnabled())
+    {
+        return;
+    }
+
     // clear the inventory clipboard
     LLClipboard::instance().reset();
-    if (getVisible() && getEnabled() && mSelectedItemID.notNull())
+    LLClipboard::instance().setCutMode(true);
+    for (const LLUUID& id : mSelectedItemIDs)
     {
         // todo: fade out selected item
-        LLClipboard::instance().setCutMode(true);
-        LLClipboard::instance().addToClipboard(mSelectedItemID);
+        LLClipboard::instance().addToClipboard(id);
     }
+
     mFilterSubString.clear();
 }
 
 BOOL LLInventoryGallery::canCut() const
 {
-    if (!getVisible() || !getEnabled() || mSelectedItemID.isNull())
+    if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
     {
         return FALSE;
     }
 
-    LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedItemID);
-    if (cat)
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (!get_is_category_removable(&gInventory, mSelectedItemID))
+        LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+        if (cat)
+        {
+            if (!get_is_category_removable(&gInventory, id))
+            {
+                return FALSE;
+            }
+        }
+        else if (!get_is_item_removable(&gInventory, id))
         {
             return FALSE;
         }
-    }
-    else if (!get_is_item_removable(&gInventory, mSelectedItemID))
-    {
-        return FALSE;
     }
 
     return TRUE;
@@ -1421,14 +1468,20 @@ void LLInventoryGallery::paste()
     }
 
     const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
-    if (!mSelectedItemID.isNull() && gInventory.isObjectDescendentOf(mSelectedItemID, marketplacelistings_id))
+    if (mSelectedItemIDs.size() == 1 && gInventory.isObjectDescendentOf(*mSelectedItemIDs.begin(), marketplacelistings_id))
     {
         return;
     }
 
-    LLInventoryObject* obj = gInventory.getObject(mSelectedItemID);
+    LLUUID first_selected_id;
+    if (mSelectedItemIDs.size() > 0)
+    {
+        first_selected_id = *mSelectedItemIDs.begin();
+    }
+
+    LLInventoryObject* obj = gInventory.getObject(first_selected_id);
     bool is_folder = obj && (obj->getType() == LLAssetType::AT_CATEGORY);
-    LLUUID dest = is_folder ? mSelectedItemID : mFolderID;
+    LLUUID dest = is_folder ? first_selected_id : mFolderID;
     bool is_cut_mode = LLClipboard::instance().isCutMode();
 
     std::vector<LLUUID> objects;
@@ -1463,6 +1516,7 @@ void LLInventoryGallery::paste()
                 gInventory.changeCategoryParent(cat, dest, false);
                 // Don't select immediately, wait for item to arrive
                 mItemToSelect = item_id;
+                mNeedsSelection = true;
             }
             else
             {
@@ -1479,6 +1533,7 @@ void LLInventoryGallery::paste()
                     gInventory.changeItemParent(item, dest, false);
                     // Don't select immediately, wait for item to arrive
                     mItemToSelect = item_id;
+                    mNeedsSelection = true;
                 }
                 else
                 {
@@ -1535,28 +1590,31 @@ BOOL LLInventoryGallery::canPaste() const
     return TRUE;
 }
 
-void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id)
+void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response, const selection_deque selected_ids)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {
-        LLInventoryObject* obj = gInventory.getObject(selected_id);
-        if (!obj)
+        for (const LLUUID& id : selected_ids)
         {
-            return;
-        }
-        if (obj->getType() == LLAssetType::AT_CATEGORY)
-        {
-            if (get_is_category_removable(&gInventory, selected_id))
+            LLInventoryObject* obj = gInventory.getObject(id);
+            if (!obj)
             {
-                gInventory.removeCategory(selected_id);
+                return;
             }
-        }
-        else
-        {
-            if (get_is_item_removable(&gInventory, selected_id))
+            if (obj->getType() == LLAssetType::AT_CATEGORY)
             {
-                gInventory.removeItem(selected_id);
+                if (get_is_category_removable(&gInventory, id))
+                {
+                    gInventory.removeCategory(id);
+                }
+            }
+            else
+            {
+                if (get_is_item_removable(&gInventory, id))
+                {
+                    gInventory.removeItem(id);
+                }
             }
         }
     }
@@ -1572,31 +1630,39 @@ void LLInventoryGallery::deleteSelection()
 
     LLSD args;
     args["QUESTION"] = LLTrans::getString("DeleteItem");
-    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemID));
+    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
 }
 
 bool LLInventoryGallery::canDeleteSelection()
 {
-    if (mSelectedItemID.isNull())
-    {
-        return false;
-    }
-
-    LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedItemID);
-    if (cat)
-    {
-        if (!get_is_category_removable(&gInventory, mSelectedItemID))
-        {
-            return false;
-        }
-    }
-    else if (!get_is_item_removable(&gInventory, mSelectedItemID))
+    if (mSelectedItemIDs.empty())
     {
         return false;
     }
 
     const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-    return !gInventory.isObjectDescendentOf(mSelectedItemID, trash_id);
+    if (mFolderID == trash_id || gInventory.isObjectDescendentOf(mFolderID, trash_id))
+    {
+        return false;
+    }
+
+    for (const LLUUID& id : mSelectedItemIDs)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+        if (cat)
+        {
+            if (!get_is_category_removable(&gInventory, id))
+            {
+                return false;
+            }
+        }
+        else if (!get_is_item_removable(&gInventory, id))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void LLInventoryGallery::pasteAsLink()
@@ -1611,12 +1677,12 @@ void LLInventoryGallery::pasteAsLink()
     const LLUUID& my_outifts_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
     LLUUID dest;
-    LLInventoryObject* obj = gInventory.getObject(mSelectedItemID);
-    if (obj && obj->getType() == LLAssetType::AT_CATEGORY)
+    if (mSelectedItemIDs.size() > 0)
     {
-        dest = mSelectedItemID;
+        dest = *mSelectedItemIDs.begin();
     }
-    else
+    LLInventoryObject* obj = gInventory.getObject(dest);
+    if (!obj || obj->getType() != LLAssetType::AT_CATEGORY)
     {
         dest = mFolderID;
     }
@@ -1894,18 +1960,35 @@ void LLInventoryGallery::onGesturesChanged()
 void LLInventoryGallery::deselectItem(const LLUUID& category_id)
 {
     // Reset selection if the item is selected.
-    if (category_id == mSelectedItemID)
+    LLInventoryGalleryItem* item = mItemMap[category_id];
+    if (item && item->isSelected())
     {
-        mSelectedItemID = LLUUID::null;
-        signalSelectionItemID(mSelectedItemID);
+        mItemMap[category_id]->setSelected(FALSE);
+        setFocus(true);
+        // Todo: support multiselect
+        signalSelectionItemID(LLUUID::null);
+    }
+
+    selection_deque::iterator found = std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), category_id);
+    if (found != mSelectedItemIDs.end())
+    {
+        mSelectedItemIDs.erase(found);
     }
 }
 
 void LLInventoryGallery::clearSelection()
 {
-    if(mSelectedItemID != LLUUID::null)
+    for (const LLUUID& id: mSelectedItemIDs)
     {
-        changeItemSelection(LLUUID::null);
+        if (mItemMap[id])
+        {
+            mItemMap[id]->setSelected(FALSE);
+        }
+    }
+    if (!mSelectedItemIDs.empty())
+    {
+        mSelectedItemIDs.clear();
+        signalSelectionItemID(LLUUID::null);
     }
 }
 
@@ -1917,6 +2000,15 @@ void LLInventoryGallery::signalSelectionItemID(const LLUUID& category_id)
 boost::signals2::connection LLInventoryGallery::setSelectionChangeCallback(selection_change_callback_t cb)
 {
     return mSelectionChangeSignal.connect(cb);
+}
+
+LLUUID LLInventoryGallery::getFirstSelectedItemID()
+{
+    if (mSelectedItemIDs.size() > 0)
+    {
+        return *mSelectedItemIDs.begin();
+    }
+    return LLUUID::null;
 }
 
 LLUUID LLInventoryGallery::getOutfitImageID(LLUUID outfit_id)
@@ -2284,6 +2376,10 @@ BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
     setFocus(TRUE);
     mGallery->claimEditHandler();
 
+    //S32 gal_x, gal_y;
+    //localPointToOtherView(x, y, &gal_x, &gal_y, mGallery);
+    mGallery->showContextMenu(this, x, y, mUUID);
+
     LLUICtrl::handleRightMouseDown(x, y, mask);
     return TRUE;
 }
@@ -2532,6 +2628,7 @@ BOOL LLInventoryGallery::baseHandleDragAndDrop(LLUUID dest_id, BOOL drop,
             {
                 // Don't select immediately, wait for item to arrive
                 mItemToSelect = inv_item->getUUID();
+                mNeedsSelection = true;
             }
             break;
         case DAD_LINK:
@@ -2553,6 +2650,7 @@ BOOL LLInventoryGallery::baseHandleDragAndDrop(LLUUID dest_id, BOOL drop,
             if (accepted && drop && inv_item)
             {
                 mItemToSelect = inv_item->getUUID();
+                mNeedsSelection = true;
             }
             break;
         case DAD_CATEGORY:
@@ -2567,6 +2665,7 @@ BOOL LLInventoryGallery::baseHandleDragAndDrop(LLUUID dest_id, BOOL drop,
                 if (accepted && drop)
                 {
                     mItemToSelect = cat_ptr->getUUID();
+                    mNeedsSelection = true;
                 }
             }
             break;

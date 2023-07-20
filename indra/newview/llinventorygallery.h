@@ -51,6 +51,7 @@ public:
 
     typedef boost::signals2::signal<void(const LLUUID&)> selection_change_signal_t;
     typedef boost::function<void(const LLUUID&)> selection_change_callback_t;
+    typedef std::deque<LLUUID> selection_deque;
 
     struct Params
         : public LLInitParam::Block<Params, LLPanel::Params>
@@ -132,7 +133,7 @@ public:
     void scrollToShowItem(const LLUUID& item_id);
     void signalSelectionItemID(const LLUUID& category_id);
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
-    LLUUID getSelectedItemID() { return mSelectedItemID; }
+    LLUUID getFirstSelectedItemID();
 
     void setSearchType(LLInventoryFilter::ESearchType type);
     LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }
@@ -142,7 +143,7 @@ public:
     bool hasVisibleItems();
     void handleModifiedFilter();
     LLScrollContainer* getScrollableContainer() { return mScrollPanel; }
-    LLInventoryGalleryItem* getSelectedItem();
+    LLInventoryGalleryItem* getFirstSelectedItem();
 
     // Copy & paste (LLEditMenuHandler)
     void	copy() override;
@@ -155,7 +156,7 @@ public:
     BOOL canPaste() const override;
 
     // Copy & paste & delete
-    static void onDelete(const LLSD& notification, const LLSD& response, const LLUUID& selected_id);
+    static void onDelete(const LLSD& notification, const LLSD& response, const selection_deque selected_ids);
     void deleteSelection();
     bool canDeleteSelection();
     void pasteAsLink();
@@ -170,9 +171,9 @@ public:
     BOOL baseHandleDragAndDrop(LLUUID dest_id, BOOL drop, EDragAndDropType cargo_type,
                                void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
-protected:
-
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
+
+protected:
 
     bool applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
     bool checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring);
@@ -183,8 +184,9 @@ protected:
     LLThumbnailsObserver*              mThumbnailsObserver;
     LLGalleryGestureObserver*          mGestureObserver;
     LLInventoryObserver*               mInventoryObserver;
-    LLUUID                             mSelectedItemID;
+    selection_deque                    mSelectedItemIDs;
     LLUUID                             mItemToSelect;
+    bool                               mNeedsSelection;
     bool                               mIsInitialized;
     bool                               mRootDirty;
 
@@ -300,6 +302,7 @@ public:
     LLFontGL* getTextFont();
 
     void setItemName(std::string name);
+    bool isSelected() { return mSelected; }
     void setSelected(bool value);
     void setWorn(bool value);
     void setUUID(LLUUID id) {mUUID = id;}
