@@ -95,6 +95,12 @@ set(llmath_HEADER_FILES
     xform.h
     )
 
+if (DARWIN)
+  # Boost headers define unused members in condition_variable so...
+  set_source_files_properties(${llmath_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS -Wno-unused-but-set-variable)
+endif (DARWIN)
+
 list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})

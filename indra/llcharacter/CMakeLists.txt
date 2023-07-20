@@ -57,6 +57,12 @@ set(llcharacter_HEADER_FILES
     llvisualparam.h
     )
 
+if (DARWIN)
+  # Boost headers define unused members in condition_variable so...
+  set_source_files_properties(${llcharacter_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS -Wno-unused-but-set-variable)
+endif (DARWIN)
+
 list(APPEND llcharacter_SOURCE_FILES ${llcharacter_HEADER_FILES})
 
 add_library (llcharacter ${llcharacter_SOURCE_FILES})

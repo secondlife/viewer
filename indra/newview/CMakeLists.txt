@@ -1343,6 +1343,12 @@ set(viewer_HEADER_FILES
     VorbisFramework.h
     )
 
+if (DARWIN)
+  # Boost headers define unused members in condition_variable so...
+  set_source_files_properties(${viewer_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS "-Wno-unused-but-set-variable -Wno-bitwise-instead-of-logical")
+endif (DARWIN)
+
   list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
   list(APPEND viewer_HEADER_FILES llperfstats.h)
 

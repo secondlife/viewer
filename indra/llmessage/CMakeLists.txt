@@ -183,6 +183,12 @@ set(llmessage_HEADER_FILES
     sound_ids.h
     )
 
+if (DARWIN)
+  # Boost headers define unused members in condition_variable so...
+  set_source_files_properties(${llmessage_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS -Wno-unused-but-set-variable)
+endif (DARWIN)
+
 list(APPEND llmessage_SOURCE_FILES ${llmessage_HEADER_FILES})
 
 add_library (llmessage ${llmessage_SOURCE_FILES})

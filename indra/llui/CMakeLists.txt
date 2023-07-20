@@ -246,6 +246,12 @@ set_source_files_properties(llurlentry.cpp
     "${llurlentry_TEST_DEPENDENCIES}"
     )
 
+if (DARWIN)
+  # Boost headers define unused members in condition_variable so...
+  set_source_files_properties(${llui_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS -Wno-unused-but-set-variable)
+endif (DARWIN)
+
 list(APPEND llui_SOURCE_FILES ${llui_HEADER_FILES})
 
 add_library (llui ${llui_SOURCE_FILES})

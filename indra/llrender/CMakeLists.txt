@@ -64,6 +64,12 @@ set(llrender_HEADER_FILES
     llglcommonfunc.h
     )
 
+if (DARWIN)
+  # Boost headers define unused members in condition_variable so...
+  set_source_files_properties(${llrender_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS -Wno-unused-but-set-variable)
+endif (DARWIN)
+
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 if (BUILD_HEADLESS)
