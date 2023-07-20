@@ -2230,7 +2230,9 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     mHidden(false),
     mGallery(NULL),
     mType(LLAssetType::AT_NONE),
-    mSortGroup(SG_ITEM)
+    mSortGroup(SG_ITEM),
+    mCutGeneration(0),
+    mSelectedForCut(false)
 {
     buildFromFile("panel_inventory_gallery_item.xml");
 }
@@ -2328,13 +2330,24 @@ void LLInventoryGalleryItem::setThumbnail(LLUUID id)
 
 void LLInventoryGalleryItem::draw()
 {
-    LLPanel::draw();
+    if (isFadeItem())
+    {
+        // Fade out to indicate it's being cut
+        LLViewDrawContext context(0.5f);
+        LLPanel::draw();
+    }
+    else
+    {
+        LLPanel::draw();
 
-    // Draw border
-    LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
-    LLRect border = getChildView("preview_thumbnail")->getRect();
-    border.mRight = border.mRight + 1;
-    gl_rect_2d(border, border_color.get(), FALSE);
+        // Draw border
+        LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
+        LLRect border = getChildView("preview_thumbnail")->getRect();
+        border.mRight = border.mRight + 1;
+        gl_rect_2d(border, border_color.get(), FALSE);
+    }
+
+
 }
 
 void LLInventoryGalleryItem::setItemName(std::string name)
@@ -2541,6 +2554,19 @@ void LLInventoryGalleryItem::updateNameText()
     mNameText->setText(mItemName + mPermSuffix + mWornSuffix);
     mNameText->setToolTip(mItemName + mPermSuffix + mWornSuffix);
     getChild<LLThumbnailCtrl>("preview_thumbnail")->setToolTip(mItemName + mPermSuffix + mWornSuffix);
+}
+
+bool LLInventoryGalleryItem::isFadeItem()
+{
+    LLClipboard& clipboard = LLClipboard::instance();
+    if (mCutGeneration == clipboard.getGeneration())
+    {
+        return mSelectedForCut;
+    }
+
+    mCutGeneration = clipboard.getGeneration();
+    mSelectedForCut = clipboard.isCutMode() && clipboard.isOnClipboard(mUUID);
+    return mSelectedForCut;
 }
 
 //-----------------------------

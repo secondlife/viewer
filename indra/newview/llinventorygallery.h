@@ -335,6 +335,8 @@ public:
     void updateNameText();
     
 private:
+    bool isFadeItem();
+
     LLUUID mUUID;
     LLTextBox* mNameText;
     LLPanel* mTextBgPanel;
@@ -344,6 +346,8 @@ private:
     bool     mHidden;
     bool     mIsFolder;
     bool     mIsLink;
+    S32      mCutGeneration;
+    bool     mSelectedForCut;
 
     std::string mAssetIDStr;
     std::string mDesc;
