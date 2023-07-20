@@ -12122,7 +12122,6 @@ Would you like to save them first?
   <notification
     icon="notifytip.tga"
     name="AutoAdjustHDRSky"
-    persist="true"
     type="alertmodal">
       You are editing a non-HDR sky that has been automatically converted to HDR. To remove HDR and tone mapping, set Reflection Probe Ambiance to zero.
     <usetemplate
