@@ -163,11 +163,12 @@ jobs:
           # seen before, so numerous tests don't know about it.
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
-          # Build with a tag like "Second Life Project Shiny:abcdef0" to get a
-          # viewer channel "Second Life Project Shiny" (ignoring ":hash",
+          # Build with a tag like "Second_Life_Project_Shiny#abcdef0" to get a
+          # viewer channel "Second Life Project Shiny" (ignoring "#hash",
           # needed to disambiguate tags).
-          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second Life " ]]
-          then export viewer_channel="${GIT_REF%:*}"
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
+          then viewer_channel="${GITHUB_REF_NAME%#*}"
+               export viewer_channel="${viewer_channel//_/ }"
           else export viewer_channel="Second Life Test"
           fi
 
@@ -237,7 +238,7 @@ jobs:
   release:
     needs: build
     runs-on: [ubuntu-latest]
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second Life ')
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
