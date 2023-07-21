@@ -1956,25 +1956,11 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
 
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    LLUUID image_asset_id;
-                    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterTexturePickerHandle.get();
-                    if (floaterp)
-                    {
-                        if (id.notNull())
-                        {
-                            image_asset_id = id;
-                        }
-                        else
-                        {
-                            image_asset_id = floaterp->getAssetID();
-                        }
-                    }
-
-                    onCommitProfileImage(image_asset_id);
+                    onCommitProfileImage(asset_id);
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
@@ -2297,25 +2283,11 @@ void LLPanelProfileFirstLife::onChangePhoto()
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
 
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    LLUUID image_asset_id;
-                    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterTexturePickerHandle.get();
-                    if (floaterp)
-                    {
-                        if (id.notNull())
-                        {
-                            image_asset_id = id;
-                        }
-                        else
-                        {
-                            image_asset_id = floaterp->getAssetID();
-                        }
-                    }
-
-                    onCommitPhoto(image_asset_id);
+                    onCommitPhoto(asset_id);
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);

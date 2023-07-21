@@ -92,7 +92,7 @@ private:
         void* userdata);
 
     void showTexturePicker(const LLUUID &thumbnail_id);
-    void onTexturePickerCommit(LLUUID id);
+    void onTexturePickerCommit();
 
     void setThumbnailId(const LLUUID &new_thumbnail_id);
     static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id);

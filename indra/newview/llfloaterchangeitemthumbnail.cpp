@@ -698,11 +698,11 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
         {
             //texture_floaterp->setTextureSelectedCallback();
             //texture_floaterp->setOnUpdateImageStatsCallback();
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource, const LLUUID&, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    onTexturePickerCommit(id);
+                    onTexturePickerCommit();
                 }
             }
             );
@@ -722,7 +722,7 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
     floaterp->setFocus(TRUE);
 }
 
-void LLFloaterChangeItemThumbnail::onTexturePickerCommit(LLUUID id)
+void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
 {
     LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mPickerHandle.get();
 

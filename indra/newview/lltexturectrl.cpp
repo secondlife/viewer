@@ -713,17 +713,76 @@ PermissionMask LLFloaterTexturePicker::getFilterPermMask()
 
 void LLFloaterTexturePicker::commitIfImmediateSet()
 {
-	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback && mCanApply)
+	if (!mNoCopyTextureSelected && mCanApply)
 	{
-		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, LLUUID::null);
+        commitCallback();
 	}
 }
 
+void LLFloaterTexturePicker::commitCallback()
+{
+    if (!mOnFloaterCommitCallback)
+    {
+        return;
+    }
+    LLUUID asset_id = mImageAssetID;
+    LLUUID inventory_id;
+    LLPickerSource mode = (LLPickerSource)mModeSelector->getValue().asInteger();
+
+    switch (mode)
+    {
+        case PICKER_INVENTORY:
+            {
+                LLFolderView* root_folder = mInventoryPanel->getRootFolder();
+                if (root_folder && root_folder->getCurSelectedItem())
+                {
+                    LLFolderViewItem* last_selected = root_folder->getCurSelectedItem();
+                    LLFolderViewModelItemInventory* inv_view = static_cast<LLFolderViewModelItemInventory*>(last_selected->getViewModelItem());
+
+                    LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
+                    if (itemp && itemp->getAssetUUID() == mImageAssetID)
+                    {
+                        inventory_id = inv_view->getUUID();
+                    }
+                    else
+                    {
+                        mode = PICKER_UNKNOWN; // source of id unknown
+                    }
+                }
+                else
+                {
+                    mode = PICKER_UNKNOWN; // source of id unknown
+                }
+                break;
+            }
+        case PICKER_LOCAL:
+            {
+                if (!mLocalScrollCtrl->getAllSelected().empty())
+                {
+                    LLUUID temp_id = mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
+                    asset_id = LLLocalBitmapMgr::getInstance()->getWorldID(temp_id);
+                }
+                else
+                {
+                    asset_id = mImageAssetID;
+                    mode = PICKER_UNKNOWN; // source of id unknown
+                }
+                break;
+            }
+        case PICKER_BAKE:
+            break;
+        default:
+            mode = PICKER_UNKNOWN; // source of id unknown
+            break;
+    }
+
+    mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, mode, asset_id, inventory_id);
+}
 void LLFloaterTexturePicker::commitCancel()
 {
 	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback && mCanApply)
 	{
-		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, LLUUID::null);
+		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, mOriginalImageAssetID, LLUUID::null);
 	}
 }
 
@@ -776,7 +835,7 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 	self->setImageID( self->mOriginalImageAssetID );
 	if (self->mOnFloaterCommitCallback)
 	{
-		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, LLUUID::null);
+		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, self->mOriginalImageAssetID, LLUUID::null);
 	}
 	self->mViewModel->resetDirty();
 	self->closeFloater();
@@ -786,20 +845,7 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	LLUUID local_id = LLUUID::null;
-	if (self->mOwner)
-	{
-		if (self->mLocalScrollCtrl->getVisible() && !self->mLocalScrollCtrl->getAllSelected().empty())
-		{
-			LLUUID temp_id = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
-			local_id = LLLocalBitmapMgr::getInstance()->getWorldID(temp_id);
-		}
-	}
-	
-	if (self->mOnFloaterCommitCallback)
-	{
-		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_SELECT, local_id);
-	}
+	self->commitCallback();
 	self->closeFloater();
 }
 
@@ -861,25 +907,25 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
     int index = self->mModeSelector->getValue().asInteger();
 
-	self->mDefaultBtn->setVisible(index == 0 ? TRUE : FALSE);
-	self->mBlankBtn->setVisible(index == 0 ? TRUE : FALSE);
-	self->mNoneBtn->setVisible(index == 0 ? TRUE : FALSE);
-	self->mPipetteBtn->setVisible(index == 0 ? TRUE : FALSE);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == 0 ? TRUE : FALSE);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == 0 ? TRUE : FALSE);
+	self->mDefaultBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+	self->mBlankBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+	self->mNoneBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+	self->mPipetteBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
 
 	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
 	  no idea under which conditions the above is even shown, needs testing. */
 
-	self->getChild<LLButton>("l_add_btn")->setVisible(index == 1 ? TRUE : FALSE);
-	self->getChild<LLButton>("l_rem_btn")->setVisible(index == 1 ? TRUE : FALSE);
-	self->getChild<LLButton>("l_upl_btn")->setVisible(index == 1 ? TRUE : FALSE);
-	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == 1 ? TRUE : FALSE);
+	self->getChild<LLButton>("l_add_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+	self->getChild<LLButton>("l_rem_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+	self->getChild<LLButton>("l_upl_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
 
-	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == 2 ? TRUE : FALSE);
+	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == PICKER_BAKE ? TRUE : FALSE);
 	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
 
-	if (index == 2)
+	if (index == PICKER_BAKE)
 	{
 		self->stopUsingPipette();
 
@@ -1020,7 +1066,7 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 		{
 			if (self->mOnFloaterCommitCallback)
 			{
-				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, inworld_id);
+				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, PICKER_LOCAL, inworld_id, LLUUID::null);
 			}
 		}
 	}
@@ -1457,7 +1503,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		}
 		if (texture_floaterp)
 		{
-			texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2));
+			texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4));
 		}
 		if (texture_floaterp)
 		{
@@ -1574,7 +1620,7 @@ void LLTextureCtrl::onFloaterClose()
 	mFloaterHandle.markDead();
 }
 
-void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
+void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inv_id)
 {
 	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
@@ -1588,22 +1634,29 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 		else if (mCommitOnSelection || op == TEXTURE_SELECT)
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 			
-		if(floaterp->isDirty() || id.notNull()) // mModelView->setDirty does not work.
+		if(floaterp->isDirty() || asset_id.notNull()) // mModelView->setDirty does not work.
 		{
 			setTentative( FALSE );
 
-			if (id.notNull())
-			{
-				mImageItemID = id;
-				mImageAssetID = id;
-			}
-			else
-			{
-			mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-			LL_DEBUGS() << "mImageItemID: " << mImageItemID << LL_ENDL;
-			mImageAssetID = floaterp->getAssetID();
-			LL_DEBUGS() << "mImageAssetID: " << mImageAssetID << LL_ENDL;
-			}
+            switch(source)
+            {
+                case PICKER_INVENTORY:
+                    mImageItemID = inv_id;
+                    mImageAssetID = asset_id;
+                    break;
+                case PICKER_BAKE:
+                case PICKER_LOCAL:
+                    mImageItemID = LLUUID::null;
+                    mImageAssetID = asset_id;
+                    break;
+                case PICKER_UNKNOWN:
+                default:
+                    mImageItemID = floaterp->findItemID(asset_id, FALSE);
+                    mImageAssetID = asset_id;
+                    break;
+            }
+
+            LL_DEBUGS() << "mImageAssetID: " << mImageAssetID << ", mImageItemID: " << mImageItemID << LL_ENDL;
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)
 			{
