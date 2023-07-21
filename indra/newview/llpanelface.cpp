@@ -3093,12 +3093,7 @@ void LLPanelFace::onSelectPbr(const LLSD& data)
         {
             id = pbr_ctrl->getImageAssetID();
         }
-        if (LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
-        {
-            LLSelectedTEMaterial::setMaterialID(this, id);
-        }
-        else
-        {
+        if (!LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
             refresh();
         }
     }

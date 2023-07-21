@@ -1042,6 +1042,26 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		// we should return false here. This will requre a separate listener
 		// since without listener, we have no way to receive update
 	}
+	else if (LLAssetType::AT_MATERIAL == new_item->getType() &&
+             !item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+	{
+		// Check that we can add the material as inventory to the object
+		if (willObjectAcceptInventory(hit_obj,item) < ACCEPT_YES_COPY_SINGLE )
+		{
+			return FALSE;
+		}
+		// *FIX: may want to make sure agent can paint hit_obj.
+
+		// Add the material item to the target object's inventory.
+        hit_obj->updateMaterialInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+
+		// Force the object to update and refetch its inventory so it has this material.
+		hit_obj->dirtyInventory();
+		hit_obj->requestInventory();
+		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here. This will requre a separate listener
+		// since without listener, we have no way to receive update
+	}
 	return TRUE;
 }
 

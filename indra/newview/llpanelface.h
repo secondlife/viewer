@@ -583,7 +583,6 @@ public:
 		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setNormalID);
 		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setSpecularID);
 		DEF_EDIT_MAT_STATE(LLColor4U,	const LLColor4U&,setSpecularLightColor);
-		DEF_EDIT_MAT_STATE(LLUUID, const LLUUID&, setMaterialID);
 	};
 
 	class LLSelectedTE

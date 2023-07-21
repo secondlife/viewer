@@ -378,7 +378,17 @@ public:
 	 * Then this only texture is used for all selected faces.
 	 */
 	void applyNoCopyTextureToTEs(LLViewerInventoryItem* item);
-    void applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item);
+    /*
+     * Multi-purpose function for applying PBR materials to the
+     * selected object or faces, any combination of copy/mod/transfer
+     * permission restrictions. This method moves the restricted
+     * material to the object's inventory and doesn't make a copy of the
+     * material for each face. Then this only material is used for
+     * all selected faces.
+     * Returns false if applying the material failed on one or more selected
+     * faces.
+     */
+    bool applyRestrictedPbrMaterialToTEs(LLViewerInventoryItem* item);
 
 	ESelectType getSelectType() const { return mSelectType; }
 
@@ -635,7 +645,7 @@ public:
 	void selectionSetRestitution(F32 restitution);
 	void selectionSetMaterial(U8 material);
 	bool selectionSetImage(const LLUUID& imageid); // could be item or asset id
-    bool selectionSetGLTFMaterial(const LLUUID& mat_id); // could be item or asset id
+    bool selectionSetGLTFMaterial(const LLUUID& mat_id); // material id only
 	void selectionSetColor(const LLColor4 &color);
 	void selectionSetColorOnly(const LLColor4 &color); // Set only the RGB channels
 	void selectionSetAlphaOnly(const F32 alpha); // Set only the alpha channel
