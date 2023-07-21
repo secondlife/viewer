@@ -1302,7 +1302,7 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
         if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) == mSelectedItemIDs.end())
         {
             mSelectedItemIDs.clear();
-            mSelectedItemIDs.push_back(item_id);
+            changeItemSelection(item_id, false);
         }
         uuid_vec_t selected_uuids;
         selected_uuids.push_back(item_id);
@@ -1318,8 +1318,10 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
         mNeedsSelection = true;
         return;
     }
-    if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) == mSelectedItemIDs.end())
+    if (mSelectedItemIDs.size() == 1
+        && std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) != mSelectedItemIDs.end())
     {
+        // Already selected
         return;
     }
 
@@ -1330,6 +1332,7 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
             mItemMap[id]->setSelected(FALSE);
         }
     }
+    mSelectedItemIDs.clear();
 
     if (mItemMap[item_id])
     {
@@ -2388,9 +2391,6 @@ BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
     mGallery->claimEditHandler();
-
-    //S32 gal_x, gal_y;
-    //localPointToOtherView(x, y, &gal_x, &gal_y, mGallery);
     mGallery->showContextMenu(this, x, y, mUUID);
 
     LLUICtrl::handleRightMouseDown(x, y, mask);
