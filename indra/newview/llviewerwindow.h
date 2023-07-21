@@ -179,7 +179,7 @@ public:
 
     void            reshapeStatusBarContainer();
 
-	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
+	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down, bool &is_toolmgr_action);
 
 	//
 	// LLWindowCallback interface implementation

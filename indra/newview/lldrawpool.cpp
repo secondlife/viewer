@@ -402,7 +402,7 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL t
             if(pparams->mFace)
             {
                 LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
+                if(vobj && vobj->isAttachment())
                 {
                     trackAttachments(vobj, false, &ratPtr);
                 }
@@ -429,7 +429,7 @@ void LLRenderPass::renderRiggedGroup(LLSpatialGroup* group, U32 type, U32 mask, 
             if(pparams->mFace)
             {
                 LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
+                if(vobj && vobj->isAttachment())
                 {
                     trackAttachments( vobj, true ,&ratPtr);
                 }
@@ -459,7 +459,7 @@ void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_text
             if(pparams->mFace)
             {
                 LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
+                if(vobj && vobj->isAttachment())
                 {
                     trackAttachments( vobj, false, &ratPtr);
                 }
@@ -484,7 +484,7 @@ void LLRenderPass::pushRiggedBatches(U32 type, U32 mask, BOOL texture, BOOL batc
             if(pparams->mFace)
             {
                 LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
+                if(vobj && vobj->isAttachment())
                 {
                     trackAttachments( vobj, true, &ratPtr);
                 }
@@ -514,7 +514,7 @@ void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_
             if((*pparams).mFace)
             {
                 LLViewerObject* vobj = (*pparams).mFace->getViewerObject();
-                if(vobj->isAttachment())
+                if(vobj && vobj->isAttachment())
                 {
                     trackAttachments( vobj, false, &ratPtr);
                 }
@@ -539,7 +539,7 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture, BOOL 
             if((*pparams).mFace)
             {
                 LLViewerObject* vobj = (*pparams).mFace->getViewerObject();
-                if(vobj->isAttachment())
+                if(vobj && vobj->isAttachment())
                 {
                     trackAttachments( vobj, true, &ratPtr);
                 }
