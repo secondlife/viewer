@@ -96,6 +96,7 @@ jobs:
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
+          set -x
           mkdir -p "$build_log_dir"
           mkdir -p "$BUILDSCRIPTS_SHARED/packages/lib/python"
           source "$BUILDSCRIPTS_SUPPORT_FUNCTIONS"
@@ -165,7 +166,7 @@ jobs:
           # Build with a tag like "Second Life Project Shiny:abcdef0" to get a
           # viewer channel "Second Life Project Shiny" (ignoring ":hash",
           # needed to disambiguate tags).
-          if [[ "${GIT_REF:0:12}" == "Second Life " ]]
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second Life " ]]
           then export viewer_channel="${GIT_REF%:*}"
           else export viewer_channel="Second Life Test"
           fi
@@ -236,7 +237,7 @@ jobs:
   release:
     needs: build
     runs-on: [ubuntu-latest]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second Life ')
     steps:
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
