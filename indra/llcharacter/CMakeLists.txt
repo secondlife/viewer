@@ -4,6 +4,7 @@ project(llcharacter)
 
 include(00-Common)
 include(LLCommon)
+include(Assimp)
 
 set(llcharacter_SOURCE_FILES
     llanimationstates.cpp
@@ -69,4 +70,5 @@ target_link_libraries(
         llmessage
         llfilesystem
         llxml
+        ll::assimp
     )

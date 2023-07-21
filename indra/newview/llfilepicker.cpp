@@ -53,7 +53,7 @@ LLFilePicker LLFilePicker::sInstance;
 #if LL_WINDOWS
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
-#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.fbx)\0*.bvh;*.anim;*.fbx\0"
+#define ANIM_FILTER L"Animations (*.bvh; *.anim; *.fbx; *.obj)\0*.bvh;*.anim;*.fbx; *.obj\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
 #define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"
@@ -624,8 +624,10 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             allowedv->push_back("bvh");
             allowedv->push_back("anim");
             allowedv->push_back("dae");
+            allowedv->push_back("fbx");
             allowedv->push_back("raw");
             allowedv->push_back("lsl");
+            allowedv->push_back("obj");
             allowedv->push_back("dic");
             allowedv->push_back("xcu");
             allowedv->push_back("gif");
