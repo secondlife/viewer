@@ -195,11 +195,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7ef45735577edddf2d072421cb40ba3cbc7005e</string>
+              <string>d152f19f4a5a9c8013f006e19b1fcd88692bccf1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-b878140/bugsplat-1.0.7-b878140-darwin64-b878140.tar.zst</string>
+              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-527603a/bugsplat-1.0.7-527603a-darwin64-527603a.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -209,11 +209,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6674d2a8c74cf561a97a6e2051f4066a44facefe</string>
+              <string>21afe91b0f334685ca46bf043784145f9a85709f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-b878140/bugsplat-4.0.3.0-b878140-windows-b878140.tar.zst</string>
+              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-527603a/bugsplat-4.0.3.0-527603a-windows-527603a.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -223,18 +223,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>abacf8169d18bfd7ecef7b19789458d8ec6ff2d3</string>
+              <string>1364da04333570b73c771e4f4acd1bacc7fc3f02</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-b878140/bugsplat-4.0.3.0-b878140-windows64-b878140.tar.zst</string>
+              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-527603a/bugsplat-4.0.3.0-527603a-windows64-527603a.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.0.3.0-b878140</string>
+        <string>4.0.3.0-527603a</string>
       </map>
       <key>colladadom</key>
       <map>
