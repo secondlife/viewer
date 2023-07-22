@@ -18,6 +18,10 @@ jobs:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
+    outputs:
+      # pass these from build job to release job
+      installer: ${{ steps.build.outputs.installer }}
+      metadata: ${{ steps.build.outputs.metadata }}
     env:
       AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
@@ -245,5 +249,5 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            ${{ steps.build.outputs.installer }}
-            ${{ steps.build.outputs.metadata }}
+            ${{ jobs.build.outputs.installer }}
+            ${{ jobs.build.outputs.metadata }}
