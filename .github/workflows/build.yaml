@@ -247,7 +247,10 @@ jobs:
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
         with:
+          prerelease: true
           generate_release_notes: true
+          # the only reason we generate a GH release is to post build products
+          fail_on_unmatched_files: true
           files: |
-            ${{ jobs.build.outputs.installer }}
-            ${{ jobs.build.outputs.metadata }}
+            ${{ needs.build.outputs.installer }}
+            ${{ needs.build.outputs.metadata }}
