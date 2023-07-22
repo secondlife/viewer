@@ -3094,6 +3094,7 @@ void LLPanelFace::onSelectPbr(const LLSD& data)
             id = pbr_ctrl->getImageAssetID();
         }
         if (!LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
+        {
             refresh();
         }
     }
@@ -4989,23 +4990,24 @@ void LLPanelFace::onPbrSelectionChanged(LLInventoryItem* itemp)
         LLSaleInfo sale_info;
         LLSelectMgr::instance().selectGetSaleInfo(sale_info);
 
-        bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this texture?
-        bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this texture?
-        bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply texture belong to the agent?
-        bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply texture not for sale?
+        bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this material?
+        bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this material?
+        bool can_modify = itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgentID); // do we have perm to transfer this material?
+        bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply material belong to the agent?
+        bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply material not for sale?
 
-        if (can_copy && can_transfer)
+        if (can_copy && can_transfer && can_modify)
         {
             pbr_ctrl->setCanApply(true, true);
             return;
         }
 
-        // if texture has (no-transfer) attribute it can be applied only for object which we own and is not for sale
+        // if material has (no-transfer) attribute it can be applied only for object which we own and is not for sale
         pbr_ctrl->setCanApply(false, can_transfer ? true : is_object_owner && not_for_sale);
 
         if (gSavedSettings.getBOOL("TextureLivePreview"))
         {
-            LLNotificationsUtil::add("LivePreviewUnavailable");
+            LLNotificationsUtil::add("LivePreviewUnavailablePBR");
         }
     }
 }

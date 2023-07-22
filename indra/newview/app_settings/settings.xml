@@ -250,7 +250,7 @@
     <key>TextureLivePreview</key>
     <map>
       <key>Comment</key>
-      <string>Preview selections in texture picker immediately</string>
+      <string>Preview selections in texture picker or material picker immediately</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
