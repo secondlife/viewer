@@ -478,8 +478,10 @@ private:
         LLSD callFail(ARGS&&... args) const
         {
             mParent->callFail<LLEventDispatcher::DispatchError>(std::forward<ARGS>(args)...);
+#if _MSC_VER < 1930                 // pre VS 2022
             // pacify the compiler
             return {};
+#endif // pre VS 2022
         }
     };
     typedef std::map<std::string, std::unique_ptr<DispatchEntry> > DispatchMap;
