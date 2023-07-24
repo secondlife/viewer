@@ -924,6 +924,8 @@ LSL Scientist
 Lamorna Proctor
 Lares Carter
 Larry Pixel
+Lars Næsbye Christensen
+	SL-20054
 Laurent Bechir
 Leal Choche
 Lenae Munz
