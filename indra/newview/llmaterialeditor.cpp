@@ -238,6 +238,7 @@ struct LLSelectedTEGetMatData : public LLSelectedTEFunctor
     LLUUID mTexNormalId;
     LLUUID mObjectId;
     S32 mObjectTE;
+    LLUUID mMaterialId;
     LLPointer<LLGLTFMaterial> mMaterial;
     LLPointer<LLLocalGLTFMaterial> mLocalMaterial;
 };
@@ -259,6 +260,7 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
         return false;
     }
     LLUUID mat_id = objectp->getRenderMaterialID(te_index);
+    mMaterialId = mat_id;
     bool can_use = mIsOverride ? objectp->permModify() : objectp->permCopy();
     LLTextureEntry *tep = objectp->getTE(te_index);
     // We might want to disable this entirely if at least
@@ -2708,7 +2710,10 @@ bool LLMaterialEditor::setFromSelection()
     if (func.mMaterial.notNull())
     {
         setFromGLTFMaterial(func.mMaterial);
-        setEnableEditing(true);
+        LLViewerObject* selected_object = selected_objects->getFirstSelectedObject(NULL);
+        const LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
+        const bool allow_modify = !item || canModify(selected_object, item);
+        setEnableEditing(allow_modify);
     }
     else
     {
