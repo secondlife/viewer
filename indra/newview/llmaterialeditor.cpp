@@ -237,6 +237,7 @@ struct LLSelectedTEGetMatData : public LLSelectedTEFunctor
     LLUUID mTexEmissiveId;
     LLUUID mTexNormalId;
     LLUUID mObjectId;
+    LLViewerObject* mObject = nullptr;
     S32 mObjectTE;
     LLUUID mMaterialId;
     LLPointer<LLGLTFMaterial> mMaterial;
@@ -293,6 +294,7 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
                 mTexNormalId = tex_normal_id;
                 mObjectTE = te_index;
                 mObjectId = objectp->getID();
+                mObject = objectp;
                 mFirst = false;
             }
             else
@@ -1194,7 +1196,9 @@ bool LLMaterialEditor::saveIfNeeded()
     { 
         //make a new inventory item
         std::string res_desc = buildMaterialDescription();
-        createInventoryItem(buffer, mMaterialName, res_desc);
+        LLPermissions local_permissions;
+        local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+        createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);
 
         // We do not update floater with uploaded asset yet, so just close it.
         closeFloater();
@@ -1288,7 +1292,7 @@ bool LLMaterialEditor::updateInventoryItem(const std::string &buffer, const LLUU
     return true;
 }
 
-void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc)
+void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& owner_permissions)
 {
     // gen a new uuid for this asset
     LLTransactionID tid;
@@ -1299,7 +1303,7 @@ void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std:
 
     create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, name, desc,
         LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
-        new LLBoostFuncInventoryCallback([output = buffer](LLUUID const& inv_item_id)
+        new LLBoostFuncInventoryCallback([output = buffer, owner_permissions](LLUUID const& inv_item_id)
     {
         LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
         if (item)
@@ -1309,8 +1313,15 @@ void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std:
             if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Materials")
                 || perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Materials"))
             {
-                perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Materials"));
-                perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Materials"));
+                LLPermissions floater_perm;
+                floater_perm.set(perm);
+                floater_perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Materials"));
+                floater_perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Materials"));
+                perm.accumulate(floater_perm);
+                perm.accumulate(owner_permissions);
+                // TODO: Decide if these are needed
+                perm.setCreator(owner_permissions.getCreator());
+                perm.setLastOwner(owner_permissions.getLastOwner());
 
                 item->setPermissions(perm);
 
@@ -1794,55 +1805,112 @@ void LLMaterialEditor::loadLive()
     }
 }
 
-void LLMaterialEditor::saveObjectsMaterialAs()
+// *NOTE: permissions_out ignores user preferences for new item creation
+// (LLFloaterPerms).  Those are applied later on in
+// LLMaterialEditor::createInventoryItem.
+bool can_save_objects_material(LLSelectedTEGetMatData& func, LLPermissions& permissions_out)
 {
-    LLSelectedTEGetMatData func(false);
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
-    saveMaterialAs(func.mMaterial, func.mLocalMaterial);
-}
-void LLMaterialEditor::savePickedMaterialAs()
-{
-    LLPickInfo pick = LLToolPie::getInstance()->getPick();
-    if (pick.mPickType != LLPickInfo::PICK_OBJECT || !pick.getObject())
+    LLViewerObject* selected_object = func.mObject;
+    llassert(selected_object); // Note the function name
+    const LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
+
+    LLPermissions item_permissions;
+    const bool previous_item_owned = item && item->getPermissions().getLastOwner().notNull();
+    if (item)
     {
-        return;
-    }
-
-    LLPointer<LLGLTFMaterial> render_material;
-    LLPointer<LLLocalGLTFMaterial> local_material;
-
-    LLViewerObject *objectp = pick.getObject();
-    LLUUID mat_id = objectp->getRenderMaterialID(pick.mObjectFace);
-    if (mat_id.notNull() && objectp->permCopy())
-    {
-        // Try a face user picked first
-        // (likely the only method we need, but in such case
-        // enable_object_save_gltf_material will need to check this)
-        LLTextureEntry *tep = objectp->getTE(pick.mObjectFace);
-        LLGLTFMaterial *mat = tep->getGLTFMaterial();
-        LLLocalGLTFMaterial *local_mat = dynamic_cast<LLLocalGLTFMaterial*>(mat);
-
-        if (local_mat)
+        item_permissions.set(item->getPermissions());
+        if (!gAgent.allowOperation(PERM_MODIFY, item_permissions, GP_OBJECT_MANIPULATE))
         {
-            local_material = local_mat;
+            return false;
         }
-        render_material = tep->getGLTFRenderMaterial();
+        if (!gAgent.allowOperation(PERM_COPY, item_permissions, GP_OBJECT_MANIPULATE))
+        {
+            return false;
+        }
+        if (!item_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
+        {
+            llassert(false);
+            return false;
+        }
     }
     else
     {
-        // Find an applicable material.
-        // Do this before showing message, because
-        // message is going to drop selection.
-        LLSelectedTEGetMatData func(false);
-        LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
-        local_material = func.mLocalMaterial;
-        render_material = func.mMaterial;
+        item_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
     }
 
-    saveMaterialAs(render_material, local_material);
+    LLPermissions* object_permissions_p = LLSelectMgr::getInstance()->findObjectPermissions(selected_object);
+    LLPermissions object_permissions;
+    const bool previous_object_owned = object_permissions_p && object_permissions_p->getLastOwner().notNull();
+    if (object_permissions_p)
+    {
+        object_permissions.set(*object_permissions_p);
+        if (!gAgent.allowOperation(PERM_MODIFY, object_permissions, GP_OBJECT_MANIPULATE))
+        {
+            return false;
+        }
+        if (!gAgent.allowOperation(PERM_COPY, object_permissions, GP_OBJECT_MANIPULATE))
+        {
+            return false;
+        }
+        if (!object_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
+        {
+            llassert(false);
+            return false;
+        }
+    }
+    else
+    {
+        object_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+    }
+
+    permissions_out.set(item_permissions);
+    permissions_out.accumulate(object_permissions);
+
+    if (previous_item_owned != previous_object_owned)
+    {
+        // Likely ownership history conflict. Prefer the item history. Fall
+        // back to object history if no associated item.
+        if (previous_item_owned)
+        {
+            permissions_out.setCreator(item_permissions.getCreator());
+            permissions_out.setLastOwner(item_permissions.getLastOwner());
+        }
+        else if (previous_object_owned)
+        {
+            permissions_out.setCreator(object_permissions.getCreator());
+            permissions_out.setLastOwner(object_permissions.getLastOwner());
+        }
+    }
+
+    llassert(permissions_out.getOwner() == gAgent.getID());
+    llassert(permissions_out.getCreator().notNull());
+    llassert(permissions_out.getGroup().isNull());
+
+    return true;
 }
 
-void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, const LLLocalGLTFMaterial *local_material)
+bool LLMaterialEditor::canSaveObjectsMaterial()
+{
+    LLSelectedTEGetMatData func(false);
+    LLPermissions permissions;
+    return can_save_objects_material(func, permissions);
+}
+
+void LLMaterialEditor::saveObjectsMaterialAs()
+{
+    LLSelectedTEGetMatData func(false);
+    LLPermissions permissions;
+    bool allowed = can_save_objects_material(func, permissions);
+    if (!allowed)
+    {
+        LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
+        return;
+    }
+    saveMaterialAs(func.mMaterial, func.mLocalMaterial, permissions);
+}
+
+void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions)
 {
     if (local_material)
     {
@@ -1918,10 +1986,20 @@ void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, con
     LLSD args;
     args["DESC"] = LLTrans::getString("New Material");
 
-    LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2));
+    // At this point, last owner, etc should be set. LLFloaterPerms will be honored later on
+    if (local_material)
+    {
+        LLPermissions local_permissions;
+        local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, local_permissions));
+    }
+    else
+    {
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
+    }
 }
 
-void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response)
+void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (0 == option)
@@ -1936,7 +2014,7 @@ void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notificati
         LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
 
         std::string new_name = response["message"].asString();
-        createInventoryItem(str.str(), new_name, std::string());
+        createInventoryItem(str.str(), new_name, std::string(), permissions);
     }
 }
 
@@ -2710,7 +2788,7 @@ bool LLMaterialEditor::setFromSelection()
     if (func.mMaterial.notNull())
     {
         setFromGLTFMaterial(func.mMaterial);
-        LLViewerObject* selected_object = selected_objects->getFirstSelectedObject(NULL);
+        LLViewerObject* selected_object = func.mObject;
         const LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
         const bool allow_modify = !item || canModify(selected_object, item);
         setEnableEditing(allow_modify);

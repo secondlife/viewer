@@ -112,9 +112,9 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static void updateLive(const LLUUID &object_id, S32 te);
     static void loadLive();
 
+    static bool canSaveObjectsMaterial();
     static void saveObjectsMaterialAs();
-    static void savePickedMaterialAs();
-    static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response);
+    static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
@@ -229,10 +229,10 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static bool capabilitiesAvailable();
 
 private:
-    static void saveMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material);
+    static void saveMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions);
 
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
-    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc);
+    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& owner_permissions);
 
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();

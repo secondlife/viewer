@@ -1856,7 +1856,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
     getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
     getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
-    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && identical_pbr && has_pbr_capabilities);
+    getChildView("save_selected_pbr")->setEnabled(LLMaterialEditor::canSaveObjectsMaterial() && identical_pbr);
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
