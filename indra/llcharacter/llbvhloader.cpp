@@ -313,12 +313,6 @@ void LLBVHLoader::makeTranslation(const std::string & alias_name, const std::str
 
     // Access existing value or create new - uses []'s implicit call to ctor.
     LLAnimTranslation &newTrans = mTranslations[ alias_name ];
-    if (newTrans.mOutName.length() > 0)
-    {   // Don't expect to have one already - clean up anim.ini?
-        LL_WARNS("BVH") << "Replacing joint translation " << alias_name
-            << ", existing output name " << newTrans.mOutName << ", new " << joint_name
-            << ".   Check anim.ini ?" << LL_ENDL;
-    }
 
     newTrans.mOutName = joint_name;
 
