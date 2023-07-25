@@ -317,7 +317,7 @@ public:
 
 	void updateFilterPermMask();
 	void commitIfImmediateSet();
-    void commitCallback();
+    void commitCallback(LLTextureCtrl::ETexturePickOp op);
 	void commitCancel();
 
 	void onFilterEdit(const std::string& search_string);
