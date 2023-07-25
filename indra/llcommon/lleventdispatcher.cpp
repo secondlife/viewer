@@ -113,7 +113,7 @@ public:
 private:
     static std::string formatlist(const LLSD&);
     template <typename... ARGS>
-    void callFail(ARGS&&... args) const;
+    [[noreturn]] void callFail(ARGS&&... args) const;
 
     // store a plain dumb back-pointer because we don't have to manage the
     // parent LLEventDispatcher's lifespan
@@ -338,7 +338,7 @@ std::string LLEventDispatcher::LLSDArgsMapper::formatlist(const LLSD& list)
 }
 
 template <typename... ARGS>
-void LLEventDispatcher::LLSDArgsMapper::callFail(ARGS&&... args) const
+[[noreturn]] void LLEventDispatcher::LLSDArgsMapper::callFail(ARGS&&... args) const
 {
     _parent->callFail<LLEventDispatcher::DispatchError>
         (_function, std::forward<ARGS>(args)...);
@@ -388,7 +388,7 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
         std::string mismatch(llsd_matches(mRequired, event));
         if (! mismatch.empty())
         {
-            return callFail(desc, ": bad request: ", mismatch);
+            callFail(desc, ": bad request: ", mismatch);
         }
         // Event syntax looks good, go for it!
         return mFunc(event);
@@ -425,7 +425,7 @@ struct LLEventDispatcher::ParamsDispatchEntry: public LLEventDispatcher::Dispatc
         catch (const LL::apply_error& err)
         {
             // could hit runtime errors with LL::apply()
-            return callFail(err.what());
+            callFail(err.what());
         }
     }
 };
@@ -472,11 +472,11 @@ struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::Pa
                 // array, we must have an argskey.
                 if (argskey.empty())
                 {
-                    return callFail("LLEventDispatcher has no args key");
+                    callFail("LLEventDispatcher has no args key");
                 }
                 if ((! event.has(argskey)))
                 {
-                    return callFail("missing required key ", std::quoted(argskey));
+                    callFail("missing required key ", std::quoted(argskey));
                 }
                 args = event[argskey];
             }
@@ -708,7 +708,7 @@ LLSD LLEventDispatcher::try_call(const std::string& key, const std::string& name
 
 template <typename EXCEPTION, typename... ARGS>
 //static
-void LLEventDispatcher::sCallFail(ARGS&&... args)
+[[noreturn]] void LLEventDispatcher::sCallFail(ARGS&&... args)
 {
     auto error = stringize(std::forward<ARGS>(args)...);
     LL_WARNS("LLEventDispatcher") << error << LL_ENDL;
@@ -716,7 +716,7 @@ void LLEventDispatcher::sCallFail(ARGS&&... args)
 }
 
 template <typename EXCEPTION, typename... ARGS>
-void LLEventDispatcher::callFail(ARGS&&... args) const
+[[noreturn]] void LLEventDispatcher::callFail(ARGS&&... args) const
 {
     // Describe this instance in addition to the error itself.
     sCallFail<EXCEPTION>(*this, ": ", std::forward<ARGS>(args)...);
