@@ -1229,8 +1229,8 @@ class DarwinManifest(ViewerManifest):
                 ['Rez', self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
                  '-o', os.path.join(volpath, "Applications")])
 
-            # Set the alias file's alias and custom icon bits
-            self.run_command(['SetFile', '-a', 'AC', os.path.join(volpath, "Applications")])
+            # Set the alias file's alias bit
+            self.run_command(['SetFile', '-a', 'A', os.path.join(volpath, "Applications")])
 
             # Set the disk image root's custom icon bit
             self.run_command(['SetFile', '-a', 'C', volpath])
