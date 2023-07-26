@@ -183,8 +183,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 	is_deferred_render = true;
 	
 	if (LLPipeline::sImpostorRender)
-	{ //impostor pass does not have rigid or impostor rendering
-		pass += 2;
+	{ //impostor pass does not have impostor rendering
+		++pass;
 	}
 
 	switch (pass)
@@ -210,7 +210,7 @@ void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 
 	if (LLPipeline::sImpostorRender)
 	{
-		pass += 2;
+		++pass;
 	}
 
 	switch (pass)
@@ -431,7 +431,7 @@ void LLDrawPoolAvatar::render(S32 pass)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (LLPipeline::sImpostorRender)
 	{
-		renderAvatars(NULL, pass+2);
+		renderAvatars(NULL, ++pass);
 		return;
 	}
 
@@ -446,7 +446,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 
 	if (LLPipeline::sImpostorRender)
 	{ //impostor render does not have impostors or rigid rendering
-		pass += 2;
+		++pass;
 	}
 
 	switch (pass)
@@ -474,7 +474,7 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 
 	if (LLPipeline::sImpostorRender)
 	{
-		pass += 2;		
+		++pass;
 	}
 
 	switch (pass)
