@@ -724,10 +724,6 @@ template <typename Method, typename InstanceGetter>
 LLEventDispatcher::invoker_function
 LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
 {
-    // function_arity<member function> includes its implicit 'this' pointer
-    constexpr auto arity = LL::function_arity<
-        typename std::remove_reference<Method>::type>::value - 1;
-
     return [f, getter](const LLSD& args)
     {
         // always_return<LLSD>() immediately calls the lambda we pass, and
@@ -736,6 +732,10 @@ LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
             [f, getter, args]
             ()
             {
+                // function_arity<member function> includes its implicit 'this' pointer
+                constexpr auto arity = LL::function_arity<
+                    typename std::remove_reference<Method>::type>::value - 1;
+
                 // Use bind_front() to bind the method to (a pointer to) the object
                 // returned by getter(). It's okay to capture and bind a pointer
                 // because this bind_front() object will last only as long as this
