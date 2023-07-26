@@ -5232,11 +5232,6 @@ U32 LLVOAvatar::renderRigid()
 	{
 		return 0;
 	}
-	
-	if (!mIsBuilt)
-	{
-		return 0;
-	}
 
 	if (isTextureVisible(TEX_EYES_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 	{
