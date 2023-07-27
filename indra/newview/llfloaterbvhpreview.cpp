@@ -83,6 +83,8 @@ const F32 BASE_ANIM_TIME_OFFSET = 5.f;
 const F32 MIN_DURATION_ADJUSTMENT = 0.5f;
 const F32 MAX_DURATION_ADJUSTMENT = 2.f;
 
+static const std::string TAG_AnimationImportDiagnosticFiles("AnimationImportDiagnosticFiles");
+
 std::string STATUS[] =
 {
 	"E_ST_OK",
@@ -240,7 +242,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 	std::string exten = gDirUtilp->getExtension(mFilename);
 
-    LLBVHLoader loader;
+    LLBVHLoader loader(gSavedSettings.getBOOL(TAG_AnimationImportDiagnosticFiles));
 
 	if (exten == "bvh" || exten == "fbx")
 	{
@@ -1189,31 +1191,30 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		LLDataPackerBinaryBuffer dp(buffer, file_size);
 		if (motionp->serialize(dp))
 		{
-            // Start Test Code
-            // Write out a text version of the data for debugging
-            std::string test_file_name(floaterp->mFilenameAndPath);
-            test_file_name.append("-anim.txt");
-            LLFILE* test_fp = LLFile::fopen(test_file_name.c_str(), "wb");
-            if (test_fp)
-            {
-                LL_INFOS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
-                LLDataPackerAsciiFile  test_dp(test_fp);
-                if (motionp->serialize(test_dp))
+            if (gSavedSettings.getBOOL(TAG_AnimationImportDiagnosticFiles))
+            {  // Write out a text version of the data for debugging
+                std::string test_file_name(floaterp->mFilenameAndPath);
+                test_file_name.append("-anim.txt");
+                LLFILE *test_fp = LLFile::fopen(test_file_name.c_str(), "wb");
+                if (test_fp)
                 {
-                    LL_INFOS("BVH") << "Success writing " << test_file_name << LL_ENDL;
+                    LL_INFOS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
+                    LLDataPackerAsciiFile test_dp(test_fp);
+                    if (motionp->serialize(test_dp))
+                    {
+                        LL_INFOS("BVH") << "Success writing " << test_file_name << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_WARNS("BVH") << "Error writing " << test_file_name << LL_ENDL;
+                    }
+                    LLFile::close(test_fp);
                 }
                 else
                 {
-                    LL_WARNS("BVH") << "Error writing " << test_file_name << LL_ENDL;
+                    LL_WARNS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
                 }
-                LLFile::close(test_fp);
             }
-            else
-            {
-                LL_WARNS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
-            }
-            // End Test Code
-
 
 			LLFileSystem file(motionp->getID(), LLAssetType::AT_ANIMATION, LLFileSystem::APPEND);
 

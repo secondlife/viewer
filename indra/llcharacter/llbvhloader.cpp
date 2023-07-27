@@ -31,6 +31,8 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "llcontrol.h"
+
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "llkeyframemotion.h"
@@ -128,8 +130,10 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 // LLBVHLoader()
 //-----------------------------------------------------------------------------
 
-LLBVHLoader::LLBVHLoader() : mAssimpImporter(nullptr),
-                             mAssimpScene(nullptr)
+LLBVHLoader::LLBVHLoader(bool save_diagnostic_files) :
+                             mAssimpImporter(nullptr),
+                             mAssimpScene(nullptr),
+                             mSaveDiagnosticFiles(save_diagnostic_files)
 {
     reset();
 }
@@ -163,7 +167,7 @@ void LLBVHLoader::loadAnimationData(const char* buffer,
 
     // Assimp test code
     loadAssimp();
-    if (mAssimpScene)
+    if (mAssimpScene && mSaveDiagnosticFiles)
     {
         dumpAssimp();
     }
@@ -1515,14 +1519,15 @@ ELoadStatus LLBVHLoader::loadAssimp()
         return E_ST_INTERNAL_ERROR;
     }
 
-    // Create a logger instance.   To do - remove eventually?
-    std::string assimp_log_name(mFilenameAndPath);
-    assimp_log_name.append(".log");
-    Assimp::DefaultLogger::create(assimp_log_name.c_str(), Logger::VERBOSE);
-    LL_INFOS("Assimp") << "Writing log file " << assimp_log_name << LL_ENDL;
+    if (mSaveDiagnosticFiles)
+    {  // Create a logger instance if needed
+        std::string assimp_log_name(mFilenameAndPath);
+        assimp_log_name.append(".log");
+        DefaultLogger::create(assimp_log_name.c_str(), Logger::VERBOSE);
+        DefaultLogger::get()->info("SL assimp animation loading logging");
+        LL_INFOS("Assimp") << "Writing animation import log file " << assimp_log_name << LL_ENDL;
+   }
 
-    // Test
-    DefaultLogger::get()->info("SL assimp animation loading logging");
     try
     {
         // Create an instance of the Asset Importer class
@@ -1551,8 +1556,10 @@ ELoadStatus LLBVHLoader::loadAssimp()
         LL_WARNS("Assimp") << "Unhandled exception trying to use Assimp asset import library" << LL_ENDL;
     }
 
-    // Get rid of assimp logger
-    DefaultLogger::kill();
+    if (mSaveDiagnosticFiles)
+    {  // Get rid of assimp logger
+        DefaultLogger::kill();
+    }
 
     return E_ST_OK;
 }
