@@ -2800,7 +2800,12 @@ bool enable_object_inspect()
 
 struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
 {
-    LLSelectedTEGetmatIdAndPermissions() : mCanCopy(true), mCanModify(true), mCanTransfer(true) {}
+    LLSelectedTEGetmatIdAndPermissions()
+        : mCanCopy(true)
+        , mCanModify(true)
+        , mCanTransfer(true)
+        , mHasNonPbrFaces(false)
+    {}
     bool apply(LLViewerObject* objectp, S32 te_index)
     {
         mCanCopy &= (bool)objectp->permCopy();
@@ -2811,11 +2816,16 @@ struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
         {
             mMaterialId = mat_id;
         }
+        else
+        {
+            mHasNonPbrFaces = true;
+        }
         return true;
     }
     bool mCanCopy;
     bool mCanModify;
     bool mCanTransfer;
+    bool mHasNonPbrFaces;
     LLUUID mMaterialId;
 };
 
@@ -2828,7 +2838,7 @@ bool enable_object_edit_gltf_material()
 
     LLSelectedTEGetmatIdAndPermissions func;
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
-    return func.mCanModify && func.mMaterialId.notNull();
+    return func.mCanModify && !func.mHasNonPbrFaces;
 }
 
 bool enable_object_open()

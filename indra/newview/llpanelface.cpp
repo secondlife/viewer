@@ -1000,7 +1000,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
 
         bool has_pbr_material;
-        updateUIGLTF(objectp, has_pbr_material, force_set_values);
+        bool has_faces_without_pbr;
+        updateUIGLTF(objectp, has_pbr_material, has_faces_without_pbr, force_set_values);
 
         const bool has_material = !has_pbr_material;
 
@@ -1536,7 +1537,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("checkbox fullbright")->setValue((S32)(fullbright_flag != 0));
 			getChildView("checkbox fullbright")->setEnabled(editable && !has_pbr_material);
 			getChild<LLUICtrl>("checkbox fullbright")->setTentative(!identical_fullbright);
-            getChild<LLComboBox>("combobox matmedia")->setEnabledByValue("Materials", !has_pbr_material);
+            mComboMatMedia->setEnabledByValue("Materials", !has_pbr_material);
 		}
 		
 		// Repeats per meter
@@ -1800,7 +1801,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
-void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool force_set_values)
+void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool& has_faces_without_pbr, bool force_set_values)
 {
     has_pbr_material = false;
 
@@ -1813,9 +1814,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     {
         LLUUID pbr_id;
         bool identical_pbr;
-        LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr);
-
-        has_pbr_material = pbr_id.notNull();
+        LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
         pbr_ctrl->setEnabled(editable && has_pbr_capabilities);
@@ -1823,13 +1822,13 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     }
 
     getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
-    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && has_pbr_capabilities);
-    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && has_pbr_capabilities);
+    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
+    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
     {
-        const bool new_state = has_pbr_capabilities && has_pbr_material;
+        const bool new_state = has_pbr_capabilities && has_pbr_material && !has_faces_without_pbr;
 
         LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
         LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
@@ -5057,16 +5056,34 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
 }
 
-void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical)
+void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical, bool& has_faces_with_pbr, bool& has_faces_without_pbr)
 {
     struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
     {
+        LLSelectedTEGetmatId()
+            : mHasFacesWithoutPBR(false)
+            , mHasFacesWithPBR(false)
+        {
+        }
         LLUUID get(LLViewerObject* object, S32 te_index)
         {
-            return object->getRenderMaterialID(te_index);
+            LLUUID pbr_id = object->getRenderMaterialID(te_index);
+            if (pbr_id.isNull())
+            {
+                mHasFacesWithoutPBR = true;
+            }
+            else
+            {
+                mHasFacesWithPBR = true;
+            }
+            return pbr_id;
         }
+        bool mHasFacesWithoutPBR;
+        bool mHasFacesWithPBR;
     } func;
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, id);
+    has_faces_with_pbr = func.mHasFacesWithPBR;
+    has_faces_without_pbr = func.mHasFacesWithoutPBR;
 }
 
 void LLPanelFace::LLSelectedTEMaterial::getCurrent(LLMaterialPtr& material_ptr, bool& identical_material)
