@@ -358,7 +358,7 @@ public:
     /// otherwise, instantiate a more specific LLSDParam<T> to convert; that
     /// preserves the existing customization mechanism
     template <typename T>
-    operator T() const { return LLSDParam<T>(value_); }
+    operator T() const { return LLSDParam<std::decay_t<T>>(value_); }
 };
 
 /**
