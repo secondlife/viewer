@@ -71,25 +71,22 @@ namespace LL
             mOperations.push_back(std::make_pair(name, desc));
             // Use connect_extended() so the lambda is passed its own
             // connection.
+
             // We can't bind an unexpanded parameter pack into a lambda --
-            // shame really. Instead, capture it as a std::tuple and then, in
-            // the lambda, use apply() to convert back to function args.
+            // shame really. Instead, capture all our args as a std::tuple and
+            // then, in the lambda, use apply() to pass to add_trampoline().
             mParams.init.connect_extended(
-                [name, desc, rest = std::make_tuple(std::forward<ARGS>(rest)...)]
+                [args = std::make_tuple(name, desc, std::forward<ARGS>(rest)...)]
                 (const boost::signals2::connection& conn, LLEventAPI* instance)
                 {
                     // we only need this connection once
                     conn.disconnect();
-                    // Our add() method distinguishes name and desc because we
-                    // capture them separately. But now, because apply()
-                    // expects a tuple specifying ALL the arguments, expand to
-                    // a tuple including add_trampoline() arguments: instance,
-                    // name, desc, rest.
+                    // apply() expects a tuple specifying ALL the arguments,
+                    // so prepend instance.
                     // apply() can't accept a template per se; it needs a
                     // particular specialization.
                     apply(&LazyEventAPIBase::add_trampoline<const std::string&, const std::string&,  ARGS...>,
-                          std::tuple_cat(std::make_tuple(instance, name, desc),
-                                         rest));
+                          std::tuple_cat(std::make_tuple(instance), args));
                 });
         }
 
