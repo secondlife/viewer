@@ -72,21 +72,24 @@ namespace LL
             // Use connect_extended() so the lambda is passed its own
             // connection.
 
+            // apply() can't accept a template per se; it needs a particular
+            // specialization. Specialize out here to work around a clang bug:
+            // https://github.com/llvm/llvm-project/issues/41999
+            auto func{ &LazyEventAPIBase::add_trampoline
+                       <const std::string&, const std::string&, ARGS...> };
+
             // We can't bind an unexpanded parameter pack into a lambda --
             // shame really. Instead, capture all our args as a std::tuple and
             // then, in the lambda, use apply() to pass to add_trampoline().
             mParams.init.connect_extended(
-                [args = std::make_tuple(name, desc, std::forward<ARGS>(rest)...)]
+                [func, args = std::make_tuple(name, desc, std::forward<ARGS>(rest)...)]
                 (const boost::signals2::connection& conn, LLEventAPI* instance)
                 {
                     // we only need this connection once
                     conn.disconnect();
                     // apply() expects a tuple specifying ALL the arguments,
                     // so prepend instance.
-                    // apply() can't accept a template per se; it needs a
-                    // particular specialization.
-                    apply(&LazyEventAPIBase::add_trampoline<const std::string&, const std::string&,  ARGS...>,
-                          std::tuple_cat(std::make_tuple(instance), args));
+                    apply(func, std::tuple_cat(std::make_tuple(instance), args));
                 });
         }
 
