@@ -83,11 +83,10 @@ namespace LL
                     conn.disconnect();
                     // apply() expects a tuple specifying ALL the arguments,
                     // so prepend instance.
-                    std::tuple full_args{ std::tuple_cat(std::make_tuple(instance), args) };
                     // apply() can't accept a template per se; it needs a
                     // particular specialization.
                     apply(&LazyEventAPIBase::add_trampoline<const std::string&, const std::string&,  ARGS...>,
-                          full_args);
+                          std::tuple_cat(std::make_tuple(instance), args));
                 });
         }
 
