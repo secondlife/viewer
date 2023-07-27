@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<llsd>
-<map>
+<llsd><map>
     <key>installables</key>
     <map>
       <key>SDL</key>
@@ -2701,24 +2700,42 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b091b1f13348eedadf66d7d81cb6bc1</string>
+              <string>c3edd45dadeb2afca56c1574bb996d5a4355044d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/116621/1003286/viewer_manager-3.0.580913-darwin64-580913.tar.bz2</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-5cfc07c/viewer_manager-3.0-5cfc07c-darwin64-5cfc07c.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
           </map>
-          <key>windows</key>
+          <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>647e86470e02509b1cf89829d08dfd46</string>
+              <string>73d32a7271bb3a1b8c469286f07a407311997bbc</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/116623/1003293/viewer_manager-3.0.580913-windows-580913.tar.bz2</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-5cfc07c/viewer_manager-3.0-5cfc07c-linux64-5cfc07c.tar.zst</string>
             </map>
             <key>name</key>
-            <string>windows</string>
+            <string>linux64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>69f4e51d2346ca0574cb0bd477f79e384ebbc2e0</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-5cfc07c/viewer_manager-3.0-5cfc07c-windows64-5cfc07c.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
           </map>
         </map>
         <key>source</key>
@@ -2726,7 +2743,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>3.0.580913</string>
+        <string>3.0-5cfc07c</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -3400,5 +3417,4 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <string>autobuild</string>
     <key>version</key>
     <string>1.3</string>
-  </map>
-</llsd>
+  </map></llsd>
