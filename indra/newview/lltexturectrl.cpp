@@ -282,7 +282,8 @@ bool LLFloaterTexturePicker::updateImageStats()
         S32 height = mTexturep->getFullHeight();
 		if (width > 0 && height > 0)
 		{
-            if (width < mMinDim
+            if (width != height
+                || width < mMinDim
                 || width > mMaxDim
                 || height < mMinDim
                 || height > mMaxDim
