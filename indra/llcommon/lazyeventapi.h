@@ -77,12 +77,13 @@ namespace LL
             // https://github.com/llvm/llvm-project/issues/41999
             auto func{ &LazyEventAPIBase::add_trampoline
                        <const std::string&, const std::string&, ARGS...> };
-
             // We can't bind an unexpanded parameter pack into a lambda --
             // shame really. Instead, capture all our args as a std::tuple and
             // then, in the lambda, use apply() to pass to add_trampoline().
+            auto args{ std::make_tuple(name, desc, std::forward<ARGS>(rest)...) };
+
             mParams.init.connect_extended(
-                [func, args = std::make_tuple(name, desc, std::forward<ARGS>(rest)...)]
+                [func, args]
                 (const boost::signals2::connection& conn, LLEventAPI* instance)
                 {
                     // we only need this connection once
