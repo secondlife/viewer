@@ -298,7 +298,13 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lazyeventapi "" "${test_libs}")
+  if (WINDOWS)
+    # As of 2023-07-27, lazyeventapi.h triggers a bug in older clang,
+    # unfortunately the version we run on our TeamCity Mac build agent. As we
+    # move forward, either with an updated TC agent or GitHub builds, remove
+    # this 'if'.
+    LL_ADD_INTEGRATION_TEST(lazyeventapi "" "${test_libs}")
+  endif ()
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
