@@ -693,6 +693,11 @@ void LLFloaterTexturePicker::draw()
 
 const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL copyable_only, BOOL ignore_library)
 {
+	if (asset_id.isNull())
+	{
+		return LLUUID::null;
+	}
+
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	LLAssetIDMatches asset_id_matches(asset_id);
