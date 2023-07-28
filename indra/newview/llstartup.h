@@ -71,7 +71,9 @@ typedef enum {
 	STATE_AGENT_SEND,				// Connect to a region
 	STATE_AGENT_WAIT,				// Wait for region
 	STATE_INVENTORY_SEND,			// Do inventory transfer
-	STATE_MISC,						// Do more things (set bandwidth, start audio, save location, etc)
+	STATE_INVENTORY_SKEL,			// Do more inventory skeleton loading
+    STATE_INVENTORY_SEND2,			// Do more inventory init after skeleton is loaded
+    STATE_MISC,                    // Do more things (set bandwidth, start audio, save location, etc)
 	STATE_PRECACHE,					// Wait a bit for textures to download
 	STATE_WEARABLES_WAIT,			// Wait for clothing to download
 	STATE_CLEANUP,					// Final cleanup
