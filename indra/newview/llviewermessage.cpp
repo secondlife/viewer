@@ -1532,7 +1532,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLFloaterReg::showInstance("preview_sound", LLSD(obj_id), take_focus);
 						break;
                     case LLAssetType::AT_MATERIAL:
-                        LLFloaterReg::showInstance("material_editor", LLSD(obj_id), take_focus);
+                        // Explicitly do nothing -- we don't want to open the material editor every time you add a material to inventory
                         break;
 					default:
 						LL_DEBUGS("Messaging") << "No preview method for previewable asset type : " << LLAssetType::lookupHumanReadable(asset_type)  << LL_ENDL;
