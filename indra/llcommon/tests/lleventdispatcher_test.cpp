@@ -1200,6 +1200,9 @@ namespace tut
     void object::test<20>()
     {
         set_test_name("call array-style functions with right-size arrays");
+#if defined(_MSC_VER) && _MSC_VER <= 1933
+        skip("This test fails on VS older than VS2022 ver 17.4");
+#endif
         std::vector<U8> binary;
         for (size_t h(0x01), i(0); i < 5; h+= 0x22, ++i)
         {
@@ -1238,6 +1241,9 @@ namespace tut
     void object::test<21>()
     {
         set_test_name("verify that passing LLSD() to const char* sends NULL");
+#if defined(_MSC_VER) && _MSC_VER <= 1933
+        skip("This test fails on VS older than VS2022 ver 17.4");
+#endif
 
         ensure_equals("Vars::cp init", v.cp, "");
         work("methodna_map_mdft", LLSDMap("cp", LLSD()));
@@ -1251,6 +1257,9 @@ namespace tut
     template<> template<>
     void object::test<22>()
     {
+#if defined(_MSC_VER) && _MSC_VER <= 1933
+        skip("This test fails on VS older than VS2022 ver 17.4");
+#endif
         set_test_name("call map-style functions with (full | oversized) (arrays | maps)");
         const char binary[] = "\x99\x88\x77\x66\x55";
         LLSD array_full(LLSDMap
