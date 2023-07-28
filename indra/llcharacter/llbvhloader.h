@@ -199,7 +199,7 @@ class LLBVHLoader
 	friend class LLKeyframeMotion;
 public:
 	// Constructor
-    LLBVHLoader();
+    LLBVHLoader(bool save_diagnostic_files);
 	~LLBVHLoader();
 
     void loadAnimationData(const char* buffer,
@@ -323,6 +323,8 @@ protected:
     std::string         mFilenameAndPath;   // Source file (bvh)
     Assimp::Importer *  mAssimpImporter;    // Main assimp library object
     const aiScene *     mAssimpScene;       // scene data after reading a file
+
+    bool mSaveDiagnosticFiles;                // Flag to save extra logging data during import
 };
 
 #endif // LL_LLBVHLOADER_H
