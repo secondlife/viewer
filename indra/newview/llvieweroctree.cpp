@@ -627,13 +627,17 @@ void LLViewerOctreeGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntr
 //virtual 
 void LLViewerOctreeGroup::handleDestruction(const TreeNode* node)
 {
+    if (isDead())
+    {
+        return;
+    }
+    setState(DEAD);
 	for (OctreeNode::element_iter i = mOctreeNode->getDataBegin(); i != mOctreeNode->getDataEnd(); ++i)
 	{
 		LLViewerOctreeEntry* obj = *i;
 		if (obj && obj->getGroup() == this)
 		{
 			obj->nullGroup();
-			//obj->setGroup(NULL);
 		}
 	}
 	mOctreeNode = NULL;

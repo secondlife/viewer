@@ -452,7 +452,7 @@ private:
     void onTextureSelectionChanged(LLInventoryItem* itemp);
     void onPbrSelectionChanged(LLInventoryItem* itemp);
 
-    void updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool force_set_values);
+    void updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool& has_faces_without_pbr, bool force_set_values);
     void updateVisibilityGLTF();
 
     void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func);
@@ -595,7 +595,7 @@ public:
 		static void getFace(class LLFace*& face_to_return, bool& identical_face);
 		static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face);
 		static void getTexId(LLUUID& id, bool& identical);
-        static void getPbrMaterialId(LLUUID& id, bool& identical);
+        static void getPbrMaterialId(LLUUID& id, bool& identical, bool& has_pbr, bool& has_faces_without_pbr);
 		static void getObjectScaleS(F32& scale_s, bool& identical);
 		static void getObjectScaleT(F32& scale_t, bool& identical);
 		static void getMaxDiffuseRepeats(F32& repeats, bool& identical);
