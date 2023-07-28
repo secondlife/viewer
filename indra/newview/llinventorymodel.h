@@ -189,7 +189,7 @@ private:
 public:
 	// Methods to load up inventory skeleton & meat. These are used
 	// during authentication. Returns true if everything parsed.
-	bool loadSkeleton(const LLSD& options, const LLUUID& owner_id);
+	bool loadSkeletonCoro(const LLSD& options, const LLUUID& owner_id);
 	void buildParentChildMap(); // brute force method to rebuild the entire parent-child relations
 	void createCommonSystemCategories();
 

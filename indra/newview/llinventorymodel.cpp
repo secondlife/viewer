@@ -2224,10 +2224,11 @@ bool LLInventoryModel::isCategoryComplete(const LLUUID& cat_id) const
 	return false;
 }
 
-bool LLInventoryModel::loadSkeleton(
+bool LLInventoryModel::loadSkeletonCoro(
 	const LLSD& options,
 	const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
 
 	typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
@@ -2895,6 +2896,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 									LLInventoryModel::changed_items_t& cats_to_update,
 									bool &is_cache_obsolete)
 {
+    LL_PROFILE_ZONE_NAMED_COLOR("inventory load from file", 0xFF1111);
+
 	if(filename.empty())
 	{
 		LL_ERRS(LOG_INV) << "filename is Null!" << LL_ENDL;
@@ -2914,6 +2917,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 
 	std::string line;
 	LLPointer<LLSDParser> parser = new LLSDNotationParser();
+    //U32 count  = 0;
 	while (std::getline(file, line)) 
 	{
 		LLSD s_item;
@@ -2955,13 +2959,19 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			if (is_cache_obsolete)
 				break;
 
+			//if (++count > 5000)
+   //         {
+			//	// oh no. inventory is huge!
+   //             break;
+   //         }
+
 			LLPointer<LLViewerInventoryItem> inv_item = new LLViewerInventoryItem;
 			if( inv_item->fromLLSD(s_item) )
 			{
 				if(inv_item->getUUID().isNull())
 				{
-					LL_WARNS(LOG_INV) << "Ignoring inventory with null item id: "
-						<< inv_item->getName() << LL_ENDL;
+					//LL_WARNS(LOG_INV) << "Ignoring inventory with null item id: "
+						//<< inv_item->getName() << LL_ENDL;
 				}
 				else
 				{

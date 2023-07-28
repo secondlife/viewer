@@ -1740,9 +1740,10 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	// Inventory Send
 	//---------------------------------------------------------------------
-	if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
-	{
-		display_startup();
+    if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory send")
+        display_startup();
 
         // request mute list
         LL_INFOS() << "Requesting Mute List" << LL_ENDL;
@@ -1754,57 +1755,79 @@ bool idle_startup()
 
         display_startup();
 
-		// Inform simulator of our language preference
-		LLAgentLanguage::update();
+        // Inform simulator of our language preference
+        LLAgentLanguage::update();
 
-		display_startup();
-		// unpack thin inventory
+        display_startup();
+        // unpack thin inventory
+        LLSD response = LLLoginInstance::getInstance()->getResponse();
+        // bool dump_buffer = false;
+
+        LLSD inv_lib_root = response["inventory-lib-root"];
+        if (inv_lib_root.isDefined())
+        {
+            // should only be one
+            LLSD id = inv_lib_root[0]["folder_id"];
+            if (id.isDefined())
+            {
+                gInventory.setLibraryRootFolderID(id.asUUID());
+            }
+        }
+        display_startup();
+
+        LLSD inv_lib_owner = response["inventory-lib-owner"];
+        if (inv_lib_owner.isDefined())
+        {
+            // should only be one
+            LLSD id = inv_lib_owner[0]["agent_id"];
+            if (id.isDefined())
+            {
+                gInventory.setLibraryOwnerID(LLUUID(id.asUUID()));
+            }
+        }
+        display_startup();
+        LLStartUp::setStartupState(STATE_INVENTORY_SKEL);
+        display_startup();
+        return FALSE;
+    }
+
+    if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
+
 		LLSD response = LLLoginInstance::getInstance()->getResponse();
-		//bool dump_buffer = false;
 
-		LLSD inv_lib_root = response["inventory-lib-root"];
-		if(inv_lib_root.isDefined())
-		{
-			// should only be one
-			LLSD id = inv_lib_root[0]["folder_id"];
-			if(id.isDefined())
-			{
-				gInventory.setLibraryRootFolderID(id.asUUID());
-			}
-		}
-		display_startup();
- 		
-		LLSD inv_lib_owner = response["inventory-lib-owner"];
-		if(inv_lib_owner.isDefined())
-		{
-			// should only be one
-			LLSD id = inv_lib_owner[0]["agent_id"];
-			if(id.isDefined())
-			{
-				gInventory.setLibraryOwnerID( LLUUID(id.asUUID()));
-			}
-		}
-		display_startup();
-
-		LLSD inv_skel_lib = response["inventory-skel-lib"];
- 		if(inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
- 		{
- 			if(!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
- 			{
- 				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
- 			}
- 		}
-		display_startup();
+        LLSD inv_skel_lib = response["inventory-skel-lib"];
+        if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
+        {
+            LL_PROFILE_ZONE_NAMED("load library inv")
+            if (!gInventory.loadSkeletonCoro(inv_skel_lib, gInventory.getLibraryOwnerID()))
+            {
+                LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+            }
+        }
+        display_startup();
 
 		LLSD inv_skeleton = response["inventory-skeleton"];
  		if(inv_skeleton.isDefined())
  		{
- 			if(!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+            LL_PROFILE_ZONE_NAMED("load personal inv")
+            if (!gInventory.loadSkeletonCoro(inv_skeleton, gAgent.getID()))
  			{
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
  			}
  		}
 		display_startup();
+        LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+        display_startup();
+        return FALSE;
+    }
+
+    if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory send2")
+
+		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
 		LLSD inv_basic = response["inventory-basic"];
  		if(inv_basic.isDefined())
