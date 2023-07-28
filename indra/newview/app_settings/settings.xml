@@ -9637,7 +9637,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>-0.001</real>
+    <real>-0.0002</real>
   </map>
   <key>RenderSpotShadowOffset</key>
   <map>
