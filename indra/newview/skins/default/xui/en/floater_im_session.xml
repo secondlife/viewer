@@ -300,16 +300,17 @@
                          right="-30"
                          wrap="true" />
                         <button
+                         name="emoji_panel_btn"
+                         tool_tip="Shows/hides emoji picker"
                          follows="right|bottom"
-                         bottom="-7"
-                         height="25"
+                         use_font_color="true"
+                         font="EmojiLarge"
                          image_hover_unselected="Toolbar_Middle_Over"
-                         image_overlay="Emoji_Picker_Icon"
                          image_selected="Toolbar_Middle_Selected"
                          image_unselected="Toolbar_Middle_Off"
+                         bottom="-7"
                          right="-1"
-                         name="emoji_panel_btn"
-                         tool_tip="Shows/hides emoji panel"
+                         height="25"
                          width="25"/>
                     </layout_panel>
                     <layout_panel

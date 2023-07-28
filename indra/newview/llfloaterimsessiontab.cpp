@@ -254,6 +254,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
 	mEmojiBtn = getChild<LLButton>("emoji_panel_btn");
+	mEmojiBtn->setLabel(LLUIString(LLWString(1, 128512)));
 	mEmojiBtn->setClickedCallback(boost::bind(&LLFloaterIMSessionTab::onEmojiPanelBtnClicked, this));
 
 	mGearBtn = getChild<LLButton>("gear_btn");

@@ -355,10 +355,7 @@ void LLFloaterEmojiPicker::fillGroups()
         button->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonMouseLeave(ctrl); });
 
         button->setRect(rect);
-
-        LLUIString text;
-        text.insert(0, LLWString(1, group.Character));
-        button->setLabel(text);
+        button->setLabel(LLUIString(LLWString(1, group.Character)));
 
         if (mGroupButtons.size() == sSelectedGroupIndex)
         {
