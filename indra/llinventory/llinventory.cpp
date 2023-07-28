@@ -904,6 +904,8 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 		mInventoryType = LLInventoryType::IT_NONE;
 		mAssetUUID.setNull();
 	}
+
+#if 0  // old implementation.  makes a LOT of temporary copies and LLSD::safe(impl) calls
 	std::string w;
 
 	w = INV_ITEM_ID_LABEL;
@@ -1050,6 +1052,132 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 	{
 		mCreationDate = sd[w].asInteger();
 	}
+#else  // if 0 - new implementation follows
+
+    // iterate as map to avoid making unnecessary temp copies of everything
+    LLSD::map_const_iterator i, end;
+    end = sd.endMap();
+    for (i = sd.beginMap(); i != end; ++i)
+    {
+        if (i->first == INV_ITEM_ID_LABEL)
+        {
+            mUUID = i->second;
+        }
+
+        if (i->first == INV_PARENT_ID_LABEL)
+        {
+            mParentUUID = i->second;
+        }
+
+        if (i->first == INV_PERMISSIONS_LABEL)
+        {
+            mPermissions = ll_permissions_from_sd(i->second);
+        }
+
+        if (i->first == INV_SALE_INFO_LABEL)
+        {
+            // Sale info used to contain next owner perm. It is now in
+            // the permissions. Thus, we read that out, and fix legacy
+            // objects. It's possible this op would fail, but it
+            // should pick up the vast majority of the tasks.
+            BOOL has_perm_mask = FALSE;
+            U32  perm_mask     = 0;
+            if (!mSaleInfo.fromLLSD(i->second, has_perm_mask, perm_mask))
+            {
+                goto fail;
+            }
+            if (has_perm_mask)
+            {
+                if (perm_mask == PERM_NONE)
+                {
+                    perm_mask = mPermissions.getMaskOwner();
+                }
+                // fair use fix.
+                if (!(perm_mask & PERM_COPY))
+                {
+                    perm_mask |= PERM_TRANSFER;
+                }
+                mPermissions.setMaskNext(perm_mask);
+            }
+        }
+
+        if (i->first == INV_SHADOW_ID_LABEL)
+        {
+            mAssetUUID = i->second;
+            LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
+            cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
+        }
+
+        if (i->first == INV_ASSET_ID_LABEL)
+        {
+            mAssetUUID = i->second;
+        }
+
+        if (i->first == INV_LINKED_ID_LABEL)
+        {
+            mAssetUUID = i->second;
+        }
+
+        if (i->first == INV_ASSET_TYPE_LABEL)
+        {
+            LLSD const &label = i->second;
+            if (label.isString())
+            {
+                mType = LLAssetType::lookup(label.asString().c_str());
+            }
+            else if (label.isInteger())
+            {
+                S8 type = (U8) label.asInteger();
+                mType   = static_cast<LLAssetType::EType>(type);
+            }
+        }
+
+        if (i->first == INV_INVENTORY_TYPE_LABEL)
+        {
+            LLSD const &label = i->second;
+            if (label.isString())
+            {
+                mInventoryType = LLInventoryType::lookup(label.asString().c_str());
+            }
+            else if (label.isInteger())
+            {
+                S8 type        = (U8) label.asInteger();
+                mInventoryType = static_cast<LLInventoryType::EType>(type);
+            }
+        }
+
+        if (i->first == INV_FLAGS_LABEL)
+        {
+            LLSD const &label = i->second;
+            if (label.isBinary())
+            {
+                mFlags = ll_U32_from_sd(label);
+            }
+            else if (label.isInteger())
+            {
+                mFlags = label.asInteger();
+            }
+        }
+
+        if (i->first == INV_NAME_LABEL)
+        {
+            mName = i->second.asString();
+            LLStringUtil::replaceNonstandardASCII(mName, ' ');
+            LLStringUtil::replaceChar(mName, '|', ' ');
+        }
+
+        if (i->first == INV_DESC_LABEL)
+        {
+            mDescription = i->second.asString();
+            LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
+        }
+
+        if (i->first == INV_CREATION_DATE_LABEL)
+        {
+            mCreationDate = i->second.asInteger();
+        }
+    }
+#endif // new version
 
 	// Need to convert 1.0 simstate files to a useful inventory type
 	// and potentially deal with bad inventory tyes eg, a landmark

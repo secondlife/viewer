@@ -66,6 +66,7 @@
 #include "bufferstream.h"
 #include "llcorehttputil.h"
 #include "hbxxh.h"
+#include "llstartup.h"
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
@@ -2642,6 +2643,7 @@ bool LLInventoryModel::loadSkeleton(
 	const LLSD& options,
 	const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
 
 	typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
@@ -3321,6 +3323,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 									LLInventoryModel::changed_items_t& cats_to_update,
 									bool &is_cache_obsolete)
 {
+    LL_PROFILE_ZONE_NAMED_COLOR("inventory load from file", 0xFF1111);
+
 	if(filename.empty())
 	{
 		LL_ERRS(LOG_INV) << "filename is Null!" << LL_ENDL;
@@ -3338,6 +3342,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 
 	is_cache_obsolete = true; // Obsolete until proven current
 
+	U64 lines_count = 0U;
 	std::string line;
 	LLPointer<LLSDParser> parser = new LLSDNotationParser();
 	while (std::getline(file, line)) 
@@ -3386,7 +3391,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			{
 				if(inv_item->getUUID().isNull())
 				{
-					LL_WARNS(LOG_INV) << "Ignoring inventory with null item id: "
+					LL_DEBUGS(LOG_INV) << "Ignoring inventory with null item id: "
 						<< inv_item->getName() << LL_ENDL;
 				}
 				else
@@ -3401,6 +3406,13 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 					}
 				}
 			}	
+		}
+
+		static constexpr U64 BATCH_SIZE = 512U;
+		if ((++lines_count % BATCH_SIZE) == 0)
+		{
+			// SL-19968 - make sure message system code gets a chance to run every so often
+			pump_idle_startup_network();
 		}
 	}
 

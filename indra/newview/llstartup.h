@@ -40,6 +40,7 @@ class LLSLURL;
 bool idle_startup();
 void release_start_screen();
 bool login_alert_done(const LLSD& notification, const LLSD& response);
+void pump_idle_startup_network();
 
 // start location constants
 enum EStartLocation
@@ -72,6 +73,8 @@ typedef enum {
 	STATE_AGENT_WAIT,				// Wait for region
 	STATE_INVENTORY_SEND,			// Do inventory transfer
 	STATE_INVENTORY_CALLBACKS,		// Wait for missing system folders and register callbacks
+	STATE_INVENTORY_SKEL,			// Do more inventory skeleton loading
+	STATE_INVENTORY_SEND2,			// Do more inventory init after skeleton is loaded
 	STATE_MISC,						// Do more things (set bandwidth, start audio, save location, etc)
 	STATE_PRECACHE,					// Wait a bit for textures to download
 	STATE_WEARABLES_WAIT,			// Wait for clothing to download
