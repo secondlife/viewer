@@ -4219,7 +4219,8 @@ void LLViewerWindow::pickAsync( S32 x,
 								void (*callback)(const LLPickInfo& info),
 								BOOL pick_transparent,
 								BOOL pick_rigged,
-								BOOL pick_unselectable)
+								BOOL pick_unselectable,
+                                BOOL pick_reflection_probes)
 {
 	// "Show Debug Alpha" means no object actually transparent
     BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
@@ -4229,7 +4230,7 @@ void LLViewerWindow::pickAsync( S32 x,
         pick_transparent = TRUE;
     }
 
-	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, TRUE, pick_unselectable, TRUE, callback);
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, pick_reflection_probes, pick_unselectable, TRUE, callback);
 	schedulePick(pick_info);
 }
 

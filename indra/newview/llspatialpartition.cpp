@@ -3624,7 +3624,9 @@ public:
 					}
 				}
 
-				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mPickRigged, mPickUnselectable, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
+				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, 
+                    (mPickReflectionProbe && vobj->isReflectionProbe()) ? TRUE : mPickTransparent, // always pick transparent when picking selection probe
+                    mPickRigged, mPickUnselectable, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)

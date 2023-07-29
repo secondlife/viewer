@@ -1446,6 +1446,15 @@ function="World.EnvPreset"
                      function="Tools.SelectInvisibleObjects"
                      parameter="invisible" />
             </menu_item_check>
+            <menu_item_check
+                 label="Select Reflection Probes"
+                 name="Select Reflection Probes">
+                    <menu_item_check.on_check
+                     control="SelectReflectionProbes" />
+                    <menu_item_check.on_click
+                     function="Tools.SelectReflectionProbes"
+                     parameter="reflection_probes" />
+            </menu_item_check>
                 <menu_item_check
                  label="Select By Surrounding"
                  name="Select By Surrounding">
