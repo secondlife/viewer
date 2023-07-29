@@ -112,6 +112,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static void updateLive(const LLUUID &object_id, S32 te);
     static void loadLive();
 
+    static bool canModifyObjectsMaterial();
     static bool canSaveObjectsMaterial();
     static void saveObjectsMaterialAs();
     static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions);

@@ -35,6 +35,8 @@
 #include "lltextureentry.h"
 #include "llselectmgr.h"
 
+#include <memory>
+
 class LLButton;
 class LLCheckBoxCtrl;
 class LLColorSwatchCtrl;
@@ -50,6 +52,8 @@ class LLFloater;
 class LLMaterialID;
 class LLMediaCtrl;
 class LLMenuButton;
+
+class PBRPickerItemListener;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
@@ -502,6 +506,8 @@ private:
     };
 
     static Selection sMaterialOverrideSelection;
+
+    std::unique_ptr<PBRPickerItemListener> mInventoryListener;
 
 public:
 	#if defined(DEF_GET_MAT_STATE)

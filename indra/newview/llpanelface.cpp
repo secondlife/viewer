@@ -51,6 +51,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llfloatermediasettings.h"
 #include "llfloaterreg.h"
+#include "llfloatertools.h"
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmaterialeditor.h"
@@ -77,6 +78,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvovolume.h"
+#include "llvoinventorylistener.h"
 #include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexturelist.h"// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
@@ -1834,13 +1836,48 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
+// One-off listener that updates the build floater UI when the prim inventory updates
+class PBRPickerItemListener : public LLVOInventoryListener
+{
+protected:
+    LLViewerObject* mObjectp;
+public:
+
+    PBRPickerItemListener(LLViewerObject* object)
+    : mObjectp(object)
+    {
+        registerVOInventoryListener(mObjectp, nullptr);
+    }
+
+    const LLViewerObject* const getObject() { return mObjectp; }
+
+    void inventoryChanged(LLViewerObject* object,
+        LLInventoryObject::object_list_t* inventory,
+        S32 serial_num,
+        void* user_data) override
+    {
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
+        removeVOInventoryListener();
+    }
+
+    ~PBRPickerItemListener()
+    {
+        removeVOInventoryListener();
+    }
+};
+
 void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool& has_faces_without_pbr, bool force_set_values)
 {
     has_pbr_material = false;
 
-    const bool editable = objectp->permModify() && !objectp->isPermanentEnforced();
     bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvailable();
     bool identical_pbr = true;
+    const bool settable = has_pbr_capabilities && objectp->permModify() && !objectp->isPermanentEnforced();
+    const bool editable = LLMaterialEditor::canModifyObjectsMaterial();
+    const bool saveable = LLMaterialEditor::canSaveObjectsMaterial();
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
@@ -1850,13 +1887,23 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
-        pbr_ctrl->setEnabled(editable && has_pbr_capabilities);
+        pbr_ctrl->setEnabled(settable);
         pbr_ctrl->setImageAssetID(pbr_id);
     }
 
-    getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
-    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
-    getChildView("save_selected_pbr")->setEnabled(LLMaterialEditor::canSaveObjectsMaterial() && identical_pbr);
+    const bool inventory_pending = objectp->isInventoryPending();
+    getChildView("pbr_from_inventory")->setEnabled(settable);
+    getChildView("edit_selected_pbr")->setEnabled(editable && !inventory_pending && !has_faces_without_pbr);
+    getChildView("save_selected_pbr")->setEnabled(saveable && !inventory_pending && identical_pbr);
+    // TODO: Vet inventory updates and memory management
+    if (inventory_pending && (!mInventoryListener || mInventoryListener->getObject() != objectp))
+    {
+        mInventoryListener = std::make_unique<PBRPickerItemListener>(objectp);
+    }
+    else
+    {
+        mInventoryListener = nullptr;
+    }
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)

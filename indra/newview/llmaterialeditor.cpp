@@ -293,8 +293,8 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
                 mTexEmissiveId = tex_emissive_id;
                 mTexNormalId = tex_normal_id;
                 mObjectTE = te_index;
-                mObjectId = objectp->getID();
                 mObject = objectp;
+                mObjectId = objectp->getID();
                 mFirst = false;
             }
             else
@@ -322,6 +322,7 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
             LLGLTFMaterial *mat = tep->getGLTFMaterial();
             LLLocalGLTFMaterial *local_mat = dynamic_cast<LLLocalGLTFMaterial*>(mat);
 
+            mObject = objectp;
             if (local_mat)
             {
                 mLocalMaterial = local_mat;
@@ -1297,38 +1298,39 @@ void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std:
     // gen a new uuid for this asset
     LLTransactionID tid;
     tid.generate();     // timestamp-based randomization + uniquification
-    U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+    LLPermissions final_perm;
+    {
+        final_perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+
+        LLPermissions floater_perm;
+        floater_perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+        floater_perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Materials"));
+        floater_perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Materials"));
+        floater_perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Materials"));
+
+        final_perm.accumulate(floater_perm);
+        final_perm.accumulate(owner_permissions);
+    }
+    // NOTE: create_inventory_item doesn't allow presetting some permissions.
+    // The rest will be fixed after the callback.
     LLUUID parent = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL);
     const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 
     create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, name, desc,
-        LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
-        new LLBoostFuncInventoryCallback([output = buffer, owner_permissions](LLUUID const& inv_item_id)
+        LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, final_perm.getMaskNextOwner(),
+        new LLBoostFuncInventoryCallback([output = buffer, final_perm](LLUUID const& inv_item_id)
     {
         LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
         if (item)
         {
             // create_inventory_item doesn't allow presetting some permissions, fix it now
             LLPermissions perm = item->getPermissions();
-            if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Materials")
-                || perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Materials"))
-            {
-                LLPermissions floater_perm;
-                floater_perm.set(perm);
-                floater_perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Materials"));
-                floater_perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Materials"));
-                perm.accumulate(floater_perm);
-                perm.accumulate(owner_permissions);
-                // TODO: Decide if these are needed
-                perm.setCreator(owner_permissions.getCreator());
-                perm.setLastOwner(owner_permissions.getLastOwner());
+            perm.accumulate(final_perm);
+            item->setPermissions(perm);
 
-                item->setPermissions(perm);
-
-                item->updateServer(FALSE);
-                gInventory.updateItem(item);
-                gInventory.notifyObservers();
-            }
+            item->updateServer(FALSE);
+            gInventory.updateItem(item);
+            gInventory.notifyObservers();
         }
 
         // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
@@ -1805,29 +1807,47 @@ void LLMaterialEditor::loadLive()
     }
 }
 
-// *NOTE: permissions_out ignores user preferences for new item creation
-// (LLFloaterPerms).  Those are applied later on in
+// *NOTE: permissions_out ignores user preferences for new item creation. See
+// LLFloaterPerms.  Preferences are applied later on in
 // LLMaterialEditor::createInventoryItem.
-bool can_save_objects_material(LLSelectedTEGetMatData& func, LLPermissions& permissions_out)
+bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, LLPermissions& permissions_out)
 {
+    if (!LLMaterialEditor::capabilitiesAvailable())
+    {
+        return false;
+    }
+
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
     LLViewerObject* selected_object = func.mObject;
-    llassert(selected_object); // Note the function name
+    if (!selected_object)
+    {
+        // LLSelectedTEGetMatData can fail if there are no selected faces
+        // with materials, but we expect at least some object is selected.
+        llassert(LLSelectMgr::getInstance()->getSelection()->getFirstObject());
+        return false;
+    }
+    for (PermissionBit op : ops)
+    {
+        if (op == PERM_MODIFY && selected_object->isPermanentEnforced())
+        {
+            return false;
+        }
+    }
+
     const LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
 
     LLPermissions item_permissions;
-    const bool previous_item_owned = item && item->getPermissions().getLastOwner().notNull();
     if (item)
     {
         item_permissions.set(item->getPermissions());
-        if (!gAgent.allowOperation(PERM_MODIFY, item_permissions, GP_OBJECT_MANIPULATE))
+        for (PermissionBit op : ops)
         {
-            return false;
+            if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
+            {
+                return false;
+            }
         }
-        if (!gAgent.allowOperation(PERM_COPY, item_permissions, GP_OBJECT_MANIPULATE))
-        {
-            return false;
-        }
+        // Update flags for new owner
         if (!item_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
         {
             llassert(false);
@@ -1839,20 +1859,21 @@ bool can_save_objects_material(LLSelectedTEGetMatData& func, LLPermissions& perm
         item_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
     }
 
-    LLPermissions* object_permissions_p = LLSelectMgr::getInstance()->findObjectPermissions(selected_object);
+    // Use root object for permissions checking
+    LLViewerObject* root_object = selected_object->getRootEdit();
+    LLPermissions* object_permissions_p = LLSelectMgr::getInstance()->findObjectPermissions(root_object);
     LLPermissions object_permissions;
-    const bool previous_object_owned = object_permissions_p && object_permissions_p->getLastOwner().notNull();
     if (object_permissions_p)
     {
         object_permissions.set(*object_permissions_p);
-        if (!gAgent.allowOperation(PERM_MODIFY, object_permissions, GP_OBJECT_MANIPULATE))
+        for (PermissionBit op : ops)
         {
-            return false;
+            if (!gAgent.allowOperation(op, object_permissions, GP_OBJECT_MANIPULATE))
+            {
+                return false;
+            }
         }
-        if (!gAgent.allowOperation(PERM_COPY, object_permissions, GP_OBJECT_MANIPULATE))
-        {
-            return false;
-        }
+        // Update flags for new owner
         if (!object_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
         {
             llassert(false);
@@ -1865,43 +1886,34 @@ bool can_save_objects_material(LLSelectedTEGetMatData& func, LLPermissions& perm
     }
 
     permissions_out.set(item_permissions);
+    // *NOTE: A close inspection of LLPermissions::accumulate shows that
+    // conflicting UUIDs will be unset. This is acceptable behavior for now.
+    // The server doesn't allow us to create an item while claiming someone
+    // else was the creator/previous owner.
     permissions_out.accumulate(object_permissions);
 
-    if (previous_item_owned != previous_object_owned)
-    {
-        // Likely ownership history conflict. Prefer the item history. Fall
-        // back to object history if no associated item.
-        if (previous_item_owned)
-        {
-            permissions_out.setCreator(item_permissions.getCreator());
-            permissions_out.setLastOwner(item_permissions.getLastOwner());
-        }
-        else if (previous_object_owned)
-        {
-            permissions_out.setCreator(object_permissions.getCreator());
-            permissions_out.setLastOwner(object_permissions.getLastOwner());
-        }
-    }
-
-    llassert(permissions_out.getOwner() == gAgent.getID());
-    llassert(permissions_out.getCreator().notNull());
-    llassert(permissions_out.getGroup().isNull());
-
     return true;
+}
+
+bool LLMaterialEditor::canModifyObjectsMaterial()
+{
+    LLSelectedTEGetMatData func(false);
+    LLPermissions permissions;
+    return can_use_objects_material(func, std::vector({PERM_MODIFY}), permissions);
 }
 
 bool LLMaterialEditor::canSaveObjectsMaterial()
 {
     LLSelectedTEGetMatData func(false);
     LLPermissions permissions;
-    return can_save_objects_material(func, permissions);
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions);
 }
 
 void LLMaterialEditor::saveObjectsMaterialAs()
 {
     LLSelectedTEGetMatData func(false);
     LLPermissions permissions;
-    bool allowed = can_save_objects_material(func, permissions);
+    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions);
     if (!allowed)
     {
         LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
@@ -1986,7 +1998,6 @@ void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, con
     LLSD args;
     args["DESC"] = LLTrans::getString("New Material");
 
-    // At this point, last owner, etc should be set. LLFloaterPerms will be honored later on
     if (local_material)
     {
         LLPermissions local_permissions;
