@@ -1862,10 +1862,10 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 	
     LLMeshHeader header;
 
-	U32 header_size = 0;
+	size_t header_size = 0;
 	if (data_size > 0)
 	{
-		U32 dsize = data_size;
+		llssize dsize = data_size;
 		char* result_ptr = strip_deprecated_header((char*)data, dsize, &header_size);
 
 		data_size = dsize;
@@ -4103,6 +4103,7 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
         if (sys_volume)
         {
             sys_volume->setMeshAssetUnavaliable(true);
+            LLPrimitive::getVolumeManager()->unrefVolume(sys_volume);
         }
 
 		for (LLVOVolume* vobj : obj_iter->second)

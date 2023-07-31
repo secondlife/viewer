@@ -5489,8 +5489,8 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 	LLViewerRegion*	last_region;
 	LLViewerRegion*	current_region;
 
-	S32 objects_sent = 0;
-	S32 packets_sent = 0;
+//	S32 objects_sent = 0;
+//	S32 packets_sent = 0;
 	S32 objects_in_this_packet = 0;
 
 	bool link_operation = message_name == "ObjectLink";
@@ -5622,7 +5622,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 			(*pack_body)(node, user_data);
             // do any related logging
             (*log_func)(node, user_data);
-			++objects_sent;
+//			++objects_sent;
 			++objects_in_this_packet;
 
 			// and on to the next object
@@ -5640,7 +5640,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 		{
 			// otherwise send current message and start new one
 			gMessageSystem->sendReliable( last_region->getHost());
-			packets_sent++;
+//			packets_sent++;
 			objects_in_this_packet = 0;
 
 			gMessageSystem->newMessage(message_name.c_str());
@@ -5657,7 +5657,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 				{
 					// add root instance into new message
 					(*pack_body)(linkset_root, user_data);
-					++objects_sent;
+//					++objects_sent;
 					++objects_in_this_packet;
 				}
 			}
@@ -5671,7 +5671,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 	if (gMessageSystem->getCurrentSendTotal() > 0)
 	{
 		gMessageSystem->sendReliable( current_region->getHost());
-		packets_sent++;
+//		packets_sent++;
 	}
 	else
 	{

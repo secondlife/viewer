@@ -1035,7 +1035,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         mComboMatMedia->setEnabled(editable);
 
         LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
-        
         if (radio_mat_type->getSelectedIndex() < MATTYPE_DIFFUSE)
         {
             radio_mat_type->selectNthItem(MATTYPE_DIFFUSE);
