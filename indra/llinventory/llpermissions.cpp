@@ -1030,6 +1030,8 @@ LLSD ll_create_sd_from_permissions(const LLPermissions& perm)
 
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	LLPermissions rv;
 	rv.init(
 		sd_perm[PERM_CREATOR_ID_LABEL].asUUID(),

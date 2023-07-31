@@ -826,8 +826,10 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
 }
 
-bool LLInventoryItem::fromLLSD(const LLSD &sd0, bool is_new)
+bool LLInventoryItem::fromLLSD(const LLSD &sd, bool is_new)
 {
+	U32 count_id = 0;
+
     LL_PROFILE_ZONE_SCOPED;
     if (is_new)
     {
@@ -957,11 +959,12 @@ bool LLInventoryItem::fromLLSD(const LLSD &sd0, bool is_new)
 	}
 #else  // if 0 - new implementation follows
 
-    LLSD::map_const_iterator i, end;
-    end = sd0.endMap();
-    for (i = sd0.beginMap(); i != end; ++i) {
+	LLSD::map_const_iterator i, end;
+	end = sd.endMap();
+	for (i = sd.beginMap(); i != end; ++i) {
 		if (i->first == INV_ITEM_ID_LABEL)
 		{
+			mUUID = i->second;
 		}
 
 		if (i->first == INV_PARENT_ID_LABEL)
@@ -976,6 +979,7 @@ bool LLInventoryItem::fromLLSD(const LLSD &sd0, bool is_new)
 
 		if (i->first == INV_SALE_INFO_LABEL)
 		{
+            LL_PROFILE_ZONE_NAMED("INV_SALE_INFO_LABEL");
 			// Sale info used to contain next owner perm. It is now in
 			// the permissions. Thus, we read that out, and fix legacy
 			// objects. It's possible this op would fail, but it
@@ -1003,7 +1007,9 @@ bool LLInventoryItem::fromLLSD(const LLSD &sd0, bool is_new)
 
 		if (i->first == INV_SHADOW_ID_LABEL)
 		{
-			mAssetUUID = i->second;
+            LL_PROFILE_ZONE_NAMED("INV_SHADOW_ID_LABEL");
+            mAssetUUID = i->second;
+            ++count_id;
 			LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
 			cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
 		}
@@ -1011,12 +1017,14 @@ bool LLInventoryItem::fromLLSD(const LLSD &sd0, bool is_new)
 		if (i->first == INV_ASSET_ID_LABEL)
 		{
 			mAssetUUID = i->second;
-		}
+            ++count_id;
+        }
 
 		if (i->first == INV_LINKED_ID_LABEL)
 		{
 			mAssetUUID = i->second;
-		}
+            ++count_id;
+        }
 
 		if (i->first == INV_ASSET_TYPE_LABEL)
 		{
@@ -1077,6 +1085,8 @@ bool LLInventoryItem::fromLLSD(const LLSD &sd0, bool is_new)
 			mCreationDate = i->second.asInteger();
 		}
 	}
+
+	llassert(count_id <= 1);
 #endif // new version
 
 	// Need to convert 1.0 simstate files to a useful inventory type

@@ -97,7 +97,8 @@ LLSD LLSaleInfo::asLLSD() const
 
 bool LLSaleInfo::fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
 {
-	const char *w;
+    LL_PROFILE_ZONE_SCOPED;
+    const char *w;
 
 	if (sd["sale_type"].isString())
 	{
