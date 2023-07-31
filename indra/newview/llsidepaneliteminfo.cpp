@@ -446,7 +446,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	}
 
     // Not yet supported for task inventories
-    mChangeThumbnailBtn->setEnabled(mObjectID.isNull());
+    mChangeThumbnailBtn->setEnabled(mObjectID.isNull() && ALEXANDRIA_LINDEN_ID != perm.getOwner());
 	
 	////////////
 	// ORIGIN //
