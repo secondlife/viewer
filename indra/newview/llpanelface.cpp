@@ -1841,6 +1841,7 @@ class PBRPickerItemListener : public LLVOInventoryListener
 {
 protected:
     LLViewerObject* mObjectp;
+    bool mChangePending = true;
 public:
 
     PBRPickerItemListener(LLViewerObject* object)
@@ -1849,7 +1850,10 @@ public:
         registerVOInventoryListener(mObjectp, nullptr);
     }
 
-    const LLViewerObject* const getObject() { return mObjectp; }
+    const bool isListeningFor(const LLViewerObject* objectp) const
+    {
+        return mChangePending && (objectp == mObjectp);
+    }
 
     void inventoryChanged(LLViewerObject* object,
         LLInventoryObject::object_list_t* inventory,
@@ -1861,11 +1865,13 @@ public:
             gFloaterTools->dirty();
         }
         removeVOInventoryListener();
+        mChangePending = false;
     }
 
     ~PBRPickerItemListener()
     {
         removeVOInventoryListener();
+        mChangePending = false;
     }
 };
 
@@ -1893,12 +1899,16 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
     const bool inventory_pending = objectp->isInventoryPending();
     getChildView("pbr_from_inventory")->setEnabled(settable);
+    // TODO: Put message on these two buttons when material permissions are still loading
     getChildView("edit_selected_pbr")->setEnabled(editable && !inventory_pending && !has_faces_without_pbr);
     getChildView("save_selected_pbr")->setEnabled(saveable && !inventory_pending && identical_pbr);
-    // TODO: Vet inventory updates and memory management
-    if (inventory_pending && (!mInventoryListener || mInventoryListener->getObject() != objectp))
+    if (inventory_pending)
     {
-        mInventoryListener = std::make_unique<PBRPickerItemListener>(objectp);
+        // Reuse the same listener when possible
+        if (!mInventoryListener || !mInventoryListener->isListeningFor(objectp))
+        {
+            mInventoryListener = std::make_unique<PBRPickerItemListener>(objectp);
+        }
     }
     else
     {
