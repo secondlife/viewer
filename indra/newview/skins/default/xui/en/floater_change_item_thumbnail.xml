@@ -54,7 +54,6 @@
   <text
     name="item_name"
     font="SansSerif"
-    max_length_bytes="127"
     use_ellipses="true"
     follows="left|top|right"
     layout="topleft"
