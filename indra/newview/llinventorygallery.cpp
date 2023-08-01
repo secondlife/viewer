@@ -2376,6 +2376,9 @@ void LLInventoryGalleryItem::setSelected(bool value)
 
 BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+    // call changeItemSelection directly, before setFocus
+    // to avoid autoscroll from LLInventoryGallery::onFocusReceived()
+    mGallery->changeItemSelection(mUUID, false);
     setFocus(TRUE);
     mGallery->claimEditHandler();
 

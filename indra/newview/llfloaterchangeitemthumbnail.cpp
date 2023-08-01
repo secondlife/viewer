@@ -546,12 +546,21 @@ struct ImageLoadedData
     LLUUID mThumbnailId;
     LLUUID mObjectId;
     LLHandle<LLFloater> mFloaterHandle;
+    bool mSilent;
 };
 
 void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id, bool silent)
 {
     LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::getFetchedTexture(asset_id);
-    if (texturep->getFullWidth() == 0 && !texturep->isFullyLoaded() && !texturep->isMissingAsset())
+    if (texturep->isMissingAsset())
+    {
+        LL_WARNS() << "Attempted to assign missing asset " << asset_id << LL_ENDL;
+        if (!silent)
+        {
+            LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+        }
+    }
+    else if (texturep->getFullWidth() == 0)
     {
         if (silent)
         {
@@ -566,9 +575,10 @@ void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id
         data->mObjectId = mItemId;
         data->mThumbnailId = asset_id;
         data->mFloaterHandle = getHandle();
+        data->mSilent = silent;
 
         texturep->setLoadedCallback(onImageLoaded,
-            MAX_DISCARD_LEVEL, // don't actually need max one, 3 or 4 should be enough
+            MAX_DISCARD_LEVEL, // Don't need full image, just size data
             FALSE,
             FALSE,
             (void*)data,
@@ -648,16 +658,20 @@ void LLFloaterChangeItemThumbnail::onImageLoaded(
         {
             setThumbnailId(data->mThumbnailId, data->mObjectId);
         }
-
-        // Update floater
-        if (!data->mFloaterHandle.isDead())
+        else if (!data->mSilent)
         {
-            LLFloaterChangeItemThumbnail* self = static_cast<LLFloaterChangeItemThumbnail*>(data->mFloaterHandle.get());
-            if (self && self->mExpectingAssetId == data->mThumbnailId)
-            {
-                LLNotificationsUtil::add("ThumbnailDimentionsLimit");
-                self->mExpectingAssetId = LLUUID::null;
-            }
+            // Should this only appear if floater is alive?
+            LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+        }
+    }
+
+    // Update floater
+    if (!data->mSilent && !data->mFloaterHandle.isDead())
+    {
+        LLFloaterChangeItemThumbnail* self = static_cast<LLFloaterChangeItemThumbnail*>(data->mFloaterHandle.get());
+        if (self && self->mExpectingAssetId == data->mThumbnailId)
+        {
+            self->mExpectingAssetId = LLUUID::null;
         }
     }
 
