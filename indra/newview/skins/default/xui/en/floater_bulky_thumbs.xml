@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="600"
+ layout="topleft"
+ min_height="175"
+ min_width="250"
+ name="contents"
+ help_topic="contents"
+ title="BULKY THUMBS"
+ width="500">
+	<button follows="left|top"
+		height="20"
+		label="Paste from Inventory copy"
+		layout="topleft"
+		left="10"
+		name="paste_from_inventory"
+		top="26	"
+		width="200" />
+
+	<text_editor
+   height="510"
+   follows="top|left|right|bottom"
+   left_delta="0"
+   name="inv_items"
+   top_pad="10"
+   width="480">
+Entry 1
+Entry 2
+Entry 3
+Entry 4
+	</text_editor>
+	<button follows="left|bottom"
+		height="20"
+		label="Process!"
+		layout="bottomleft"
+		left="10"
+		name="process_bulky_thumbs"
+		bottom="8"
+		width="200" />
+</floater>

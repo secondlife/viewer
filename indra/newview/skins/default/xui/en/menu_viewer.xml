@@ -3485,6 +3485,14 @@ function="World.EnvPreset"
              function="Advanced.WebContentTest"
              parameter="http://duckduckgo.com"/>
           </menu_item_call>
+			<menu_item_call
+             label="Bulky Thumbs"
+             name="Bulky Thumbs"
+				shortcut="control|alt|shift|Y">
+				<menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="bulky_thumbs" />
+			</menu_item_call>
           <menu_item_call
            label="FB Connect Test"
            name="FB Connect Test">

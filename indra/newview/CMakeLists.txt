@@ -185,6 +185,7 @@ set(viewer_SOURCE_FILES
     llfloaterbigpreview.cpp
     llfloaterbuildoptions.cpp
     llfloaterbulkpermission.cpp
+    llfloaterbulkythumbs.cpp
     llfloaterbump.cpp
     llfloaterbuy.cpp
     llfloaterbuycontents.cpp
@@ -831,6 +832,7 @@ set(viewer_HEADER_FILES
     llfloaterbigpreview.h
     llfloaterbuildoptions.h
     llfloaterbulkpermission.h
+    llfloaterbulkythumbs.h
     llfloaterbump.h
     llfloaterbuy.h
     llfloaterbuycontents.h
