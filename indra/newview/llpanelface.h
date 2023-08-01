@@ -296,7 +296,7 @@ private:
 	//
 	// Do NOT call updateUI from within this function.
 	//
-	void updateVisibility();
+	void updateVisibility(LLViewerObject* objectp = nullptr);
 
 	// Hey look everyone, a type-safe alternative to copy and paste! :)
 	//
@@ -457,7 +457,7 @@ private:
     void onPbrSelectionChanged(LLInventoryItem* itemp);
 
     void updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool& has_faces_without_pbr, bool force_set_values);
-    void updateVisibilityGLTF();
+    void updateVisibilityGLTF(LLViewerObject* objectp = nullptr);
 
     void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func);
     void updateGLTFTextureTransform(float value, U32 pbr_type, std::function<void(LLGLTFMaterial::TextureTransform*)> edit);

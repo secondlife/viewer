@@ -1102,7 +1102,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
 
-		updateVisibility();
+		updateVisibility(objectp);
 
 		// Color swatch
 		{
@@ -1899,7 +1899,6 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
     const bool inventory_pending = objectp->isInventoryPending();
     getChildView("pbr_from_inventory")->setEnabled(settable);
-    // TODO: Put message on these two buttons when material permissions are still loading
     getChildView("edit_selected_pbr")->setEnabled(editable && !inventory_pending && !has_faces_without_pbr);
     getChildView("save_selected_pbr")->setEnabled(saveable && !inventory_pending && identical_pbr);
     if (inventory_pending)
@@ -1938,9 +1937,10 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     }
 }
 
-void LLPanelFace::updateVisibilityGLTF()
+void LLPanelFace::updateVisibilityGLTF(LLViewerObject* objectp /*= nullptr */)
 {
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+    const bool inventory_pending = objectp && objectp->isInventoryPending();
 
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
     radio_pbr_type->setVisible(show_pbr);
@@ -1951,8 +1951,9 @@ void LLPanelFace::updateVisibilityGLTF()
     getChildView("pbr_control")->setVisible(show_pbr_render_material_id);
 
     getChildView("pbr_from_inventory")->setVisible(show_pbr_render_material_id);
-    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id);
-    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id);
+    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id && !inventory_pending);
+    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id && !inventory_pending);
+    getChildView("material_permissions_loading_label")->setVisible(show_pbr_render_material_id && inventory_pending);
 
     getChildView("gltfTextureScaleU")->setVisible(show_pbr);
     getChildView("gltfTextureScaleV")->setVisible(show_pbr);
@@ -2793,7 +2794,7 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	self->refreshMedia();
 }
 
-void LLPanelFace::updateVisibility()
+void LLPanelFace::updateVisibility(LLViewerObject* objectp /* = nullptr */)
 {
     LLRadioGroup* radio_mat_type = findChild<LLRadioGroup>("radio_material_type");
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
@@ -2884,7 +2885,7 @@ void LLPanelFace::updateVisibility()
     getChild<LLSpinCtrl>("rptctrl")->setVisible(show_material || show_media);
 
     // PBR controls
-    updateVisibilityGLTF();
+    updateVisibilityGLTF(objectp);
 }
 
 // static
