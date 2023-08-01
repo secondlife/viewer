@@ -1321,6 +1321,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 
     if (curr_cat
         && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN
+        && curr_cat->getDescendentCount() != LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN
         && version > LLViewerInventoryCategory::VERSION_UNKNOWN
         && version < curr_cat->getVersion())
     {
@@ -1429,15 +1430,26 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 
 void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embedded)
 {
-	// We can only determine true descendent count if this contains all descendent types.
-	if (embedded.has("categories") &&
-		embedded.has("links") &&
-		embedded.has("items"))
-	{
-		mCatDescendentsKnown[category_id]  = embedded["categories"].size();
-		mCatDescendentsKnown[category_id] += embedded["links"].size();
-		mCatDescendentsKnown[category_id] += embedded["items"].size();
-	}
+    if (mType == AISAPI::FETCHCOF)
+    {
+        // contains only links
+        if (embedded.has("links"))
+        {
+            mCatDescendentsKnown[category_id] = embedded["links"].size();
+        }
+    }
+    else
+    {
+        // We can only determine true descendent count if this contains all descendent types.
+        if (embedded.has("categories") &&
+            embedded.has("links") &&
+            embedded.has("items"))
+        {
+            mCatDescendentsKnown[category_id] = embedded["categories"].size();
+            mCatDescendentsKnown[category_id] += embedded["links"].size();
+            mCatDescendentsKnown[category_id] += embedded["items"].size();
+        }
+    }
 }
 
 void AISUpdate::parseEmbedded(const LLSD& embedded, S32 depth)
