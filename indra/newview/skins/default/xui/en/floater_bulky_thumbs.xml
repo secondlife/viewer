@@ -23,7 +23,7 @@
    height="510"
    follows="top|left|right|bottom"
    left_delta="0"
-   name="inv_items"
+   name="inventory_items"
    top_pad="10"
    width="480">
 Entry 1
