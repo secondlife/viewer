@@ -97,6 +97,7 @@ void move_items_to_new_subfolder(const uuid_vec_t& selected_uuids, const std::st
 void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected_uuids);
 bool is_only_cats_selected(const uuid_vec_t& selected_uuids);
 bool is_only_items_selected(const uuid_vec_t& selected_uuids);
+std::string get_category_path(LLUUID cat_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **

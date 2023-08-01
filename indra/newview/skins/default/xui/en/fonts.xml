@@ -170,4 +170,12 @@
 	     comment="Size of small font (points, or 1/72 of an inch)"
 	     size="7.6"
 	     />
+  <font_size name="SmallLSL"
+         comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
+         size="7"
+         />
+  <font_size name="HugeLSL"
+         comment="Size of huge font for LSL editor (points, or 1/72 of an inch)"
+         size="12"
+         />
 </fonts>

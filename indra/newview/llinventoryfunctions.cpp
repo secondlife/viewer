@@ -1967,6 +1967,24 @@ void move_items_to_new_subfolder(const uuid_vec_t& selected_uuids, const std::st
 
 }
 
+std::string get_category_path(LLUUID cat_id)
+{
+    LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+    std::string localized_cat_name;
+    if (!LLTrans::findString(localized_cat_name, "InvFolder " + cat->getName()))
+    {
+        localized_cat_name = cat->getName();
+    }
+
+    if (cat->getParentUUID().notNull())
+    {
+        return get_category_path(cat->getParentUUID()) + " > " + localized_cat_name;
+    }
+    else
+    {
+        return localized_cat_name;
+    }
+}
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------

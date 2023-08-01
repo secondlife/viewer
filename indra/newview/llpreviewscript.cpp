@@ -86,6 +86,9 @@
 #include "llexperiencecache.h"
 #include "llfloaterexperienceprofile.h"
 #include "llviewerassetupload.h"
+#include "lltoggleablemenu.h"
+#include "llmenubutton.h"
+#include "llinventoryfunctions.h"
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -458,6 +461,13 @@ BOOL LLScriptEdCore::postBuild()
 	// Intialise keyword highlighting for the current simulator's version of LSL
 	LLSyntaxIdLSL::getInstance()->initialize();
 	processKeywords();
+
+    mCommitCallbackRegistrar.add("FontSize.Set", boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
+    mEnableCallbackRegistrar.add("FontSize.Check", boost::bind(&LLScriptEdCore::isFontSizeChecked, this, _2));
+
+    LLToggleableMenu *context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
+        "menu_lsl_font_size.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    getChild<LLMenuButton>("font_btn")->setMenu(context_menu, LLMenuButton::MP_BOTTOM_LEFT, true);
 
 	return TRUE;
 }
@@ -1287,7 +1297,21 @@ LLUUID LLScriptEdCore::getAssociatedExperience()const
 	return mAssociatedExperience;
 }
 
-void LLLiveLSLEditor::setExperienceIds( const LLSD& experience_ids )
+void LLScriptEdCore::onChangeFontSize(const LLSD &userdata)
+{
+    const std::string font_name = userdata.asString();
+    gSavedSettings.setString("LSLFontSizeName", font_name);
+}
+
+bool LLScriptEdCore::isFontSizeChecked(const LLSD &userdata)
+{
+    const std::string current_size_name = LLScriptEditor::getScriptFontSize();
+    const std::string size_name = userdata.asString();
+
+    return (size_name == current_size_name);
+}
+
+    void LLLiveLSLEditor::setExperienceIds( const LLSD& experience_ids )
 {
 	mExperienceIds=experience_ids;
 	updateExperiencePanel();
@@ -1475,7 +1499,21 @@ bool LLScriptEdContainer::onExternalChange(const std::string& filename)
 	return true;
 }
 
-/// ---------------------------------------------------------------------------
+BOOL LLScriptEdContainer::handleKeyHere(KEY key, MASK mask) 
+{
+    if (('A' == key) && (MASK_CONTROL == (mask & MASK_MODIFIERS)))
+    {
+        mScriptEd->selectAll();
+        return TRUE;
+    }
+
+    if (!LLPreview::handleKeyHere(key, mask)) 
+    {
+        return mScriptEd->handleKeyHere(key, mask);
+    }
+    return TRUE;
+}
+    /// ---------------------------------------------------------------------------
 /// LLPreviewLSL
 /// ---------------------------------------------------------------------------
 
@@ -1527,10 +1565,14 @@ BOOL LLPreviewLSL::postBuild()
 	if (item)
 	{
 		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
+
+        std::string item_path = get_category_path(item->getParentUUID());
+        getChild<LLUICtrl>("path_txt")->setValue(item_path);
+        getChild<LLUICtrl>("path_txt")->setToolTip(item_path);
 	}
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
-
+ 
 	return LLPreview::postBuild();
 }
 

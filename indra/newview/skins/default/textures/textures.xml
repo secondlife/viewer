@@ -881,4 +881,7 @@ with the same filename but different name
   <texture name="System_Notification" file_name="icons/SL_Logo.png" preload="true"/>
   <texture name="Icon_Attachment_Small" file_name="icons/Icon_Attachment_Small.png"	preload="true"/>
   <texture name="Icon_Attachment_Large" file_name="icons/Icon_Attachment_Large.png"	preload="true"/>
+
+  <texture name="Icon_Color_Palette" file_name="icons/Icon_Color_Palette.png" preload="false"/>
+  <texture name="Icon_Font_Size" file_name="icons/Icon_Font_Size.png" preload="false"/>
 </textures>

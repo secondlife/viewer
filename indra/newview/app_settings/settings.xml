@@ -5420,6 +5420,17 @@
       <key>Value</key>
       <string>http://wiki.secondlife.com/wiki/[LSL_STRING]</string>
     </map>
+    <key>LSLFontSizeName</key>
+    <map>
+        <key>Comment</key>
+        <string>Text font size in LSL editor</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>Monospace</string>
+    </map>
     <key>GridStatusRSS</key>
     <map>
       <key>Comment</key>

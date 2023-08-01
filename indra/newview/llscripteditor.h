@@ -37,7 +37,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
 	{
 		Optional<bool>		show_line_numbers;
-		
+        Optional<bool> default_font_size;
 		Params();
 	};
 	
@@ -45,6 +45,7 @@ public:
 	
 	// LLView override
 	virtual void	draw();
+    BOOL postBuild();
 	
 	void	initKeywords();
 	void	loadKeywords();
@@ -52,7 +53,11 @@ public:
 	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
 	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
 	
-protected:
+    static std::string getScriptFontSize();
+    LLFontGL* getScriptFont();
+    void onFontSizeChange();
+
+  protected:
 	friend class LLUICtrlFactory;
 	LLScriptEditor(const Params& p);
 	
@@ -65,6 +70,7 @@ private:
 	
 	LLKeywords	mKeywords;
 	bool		mShowLineNumbers;
+    bool mUseDefaultFontSize;
 };
 
 #endif // LL_SCRIPTEDITOR_H

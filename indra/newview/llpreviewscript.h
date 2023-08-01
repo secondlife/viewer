@@ -36,6 +36,7 @@
 #include "llfloatergotoline.h"
 #include "lllivefile.h"
 #include "llsyntaxid.h"
+#include "llscripteditor.h"
 
 class LLLiveLSLFile;
 class LLMessageSystem;
@@ -145,7 +146,13 @@ public:
     void 			setAssetID( const LLUUID& asset_id){ mAssetID = asset_id; };
     LLUUID 			getAssetID() { return mAssetID; }
 
-private:
+    bool isFontSizeChecked(const LLSD &userdata);
+    void onChangeFontSize(const LLSD &size_name);
+
+    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    void selectAll() { mEditor->selectAll(); }
+
+  private:
 	void		onBtnDynamicHelp();
 	void		onBtnUndoChanges();
 
@@ -153,8 +160,6 @@ private:
 
 	void selectFirstError();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	
 	void enableSave(BOOL b) {mEnableSave = b;}
 
 protected:
@@ -206,6 +211,8 @@ class LLScriptEdContainer : public LLPreview
 public:
 	LLScriptEdContainer(const LLSD& key);
 	LLScriptEdContainer(const LLSD& key, const bool live);
+
+    BOOL handleKeyHere(KEY key, MASK mask);
 
 protected:
 	std::string		getTmpFileName(const std::string& script_name);
