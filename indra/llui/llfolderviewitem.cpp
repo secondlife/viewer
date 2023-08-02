@@ -32,6 +32,7 @@
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
 #include "llpanel.h"
+#include "llcallbacklist.h"
 #include "llcriticaldamp.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"		// gFocusMgr
@@ -1844,7 +1845,12 @@ void LLFolderViewFolder::setOpen(BOOL openitem)
 {
     if(mSingleFolderMode)
     {
-        getViewModelItem()->navigateToFolder();
+        // navigateToFolder can destroy this view
+        // delay it in case setOpen was called from click or key processing
+        doOnIdleOneTime([this]()
+                        {
+                            getViewModelItem()->navigateToFolder();
+                        });
     }
     else
     {
@@ -2074,7 +2080,19 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
     if(mSingleFolderMode)
     {
         static LLUICachedControl<bool> double_click_new_window("SingleModeDoubleClickOpenWindow", false);
-        getViewModelItem()->navigateToFolder(double_click_new_window);
+        if (double_click_new_window)
+        {
+            getViewModelItem()->navigateToFolder(true);
+        }
+        else
+        {
+            // navigating is going to destroy views and change children
+            // delay it untill handleDoubleClick processing is complete
+            doOnIdleOneTime([this]()
+                            {
+                                getViewModelItem()->navigateToFolder(false);
+                            });
+        }
         return TRUE;
     }
 
