@@ -501,7 +501,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 		{
 			if( *cur == '\n' )
 			{
-				LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(cur-base);
+				LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, cur-base);
 				text_segment->setToken( 0 );
 				insertSegment( *seg_list, text_segment, text_len, style, editor);
 				cur++;
@@ -712,7 +712,7 @@ void LLKeywords::insertSegments(const LLWString& wtext, std::vector<LLTextSegmen
 			insertSegment( seg_list, text_segment, text_len, style, editor);
 		}
 
-		LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(pos);
+		LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, pos);
 		text_segment->setToken( cur_token );
 		insertSegment( seg_list, text_segment, text_len, style, editor);
 
