@@ -124,6 +124,7 @@ void render_disconnected_background();
 
 void display_startup()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (   !gViewerWindow
 		|| !gViewerWindow->getActive()
 		|| !gViewerWindow->getWindow()->getVisible() 

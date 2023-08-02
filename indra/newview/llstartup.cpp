@@ -120,6 +120,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llinventoryskeletonloader.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "lllogininstance.h" // Host the login module.
@@ -1742,7 +1743,7 @@ bool idle_startup()
 	//---------------------------------------------------------------------
     if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
     {
-        LL_PROFILE_ZONE_NAMED("State inventory send")
+        LL_PROFILE_ZONE_NAMED("STATE_INVENTORY_SEND")
         display_startup();
 
         // request mute list
@@ -1793,7 +1794,7 @@ bool idle_startup()
 
     if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
     {
-        LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
+        LL_PROFILE_ZONE_NAMED("STATE_INVENTORY_SKEL")
 
 		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
@@ -1801,10 +1802,21 @@ bool idle_startup()
         if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
         {
             LL_PROFILE_ZONE_NAMED("load library inv")
-            if (!gInventory.loadSkeletonCoro(inv_skel_lib, gInventory.getLibraryOwnerID()))
+
+            static LLInventorySkeletonLoader::ptr_t loader;
+            if (!loader)
             {
-                LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+                loader = std::make_unique<LLInventorySkeletonLoader>(inv_skel_lib, gInventory.getLibraryOwnerID());
+			}
+            else
+            {
+                loader->loadChunk();
             }
+
+            //if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+            //{
+            //    LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+            //}
         }
         display_startup();
 
@@ -1812,10 +1824,10 @@ bool idle_startup()
  		if(inv_skeleton.isDefined())
  		{
             LL_PROFILE_ZONE_NAMED("load personal inv")
-            if (!gInventory.loadSkeletonCoro(inv_skeleton, gAgent.getID()))
- 			{
- 				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
- 			}
+            //if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+ 			//{
+ 			//	LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
+ 			//}
  		}
 		display_startup();
         LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
@@ -1825,7 +1837,7 @@ bool idle_startup()
 
     if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
     {
-        LL_PROFILE_ZONE_NAMED("State inventory send2")
+        LL_PROFILE_ZONE_NAMED("STATE_INVENTORY_SEND2")
 
 		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
@@ -1959,9 +1971,12 @@ bool idle_startup()
 		LL_INFOS() << "Requesting Agent Data" << LL_ENDL;
 		gAgent.sendAgentDataUpdateRequest();
 		display_startup();
-		// Create the inventory views
-		LL_INFOS() << "Creating Inventory Views" << LL_ENDL;
-		LLFloaterReg::getInstance("inventory");
+        {
+            LL_PROFILE_ZONE_NAMED("Create inventory views");
+            // Create the inventory views
+            LL_INFOS() << "Creating Inventory Views" << LL_ENDL;
+            LLFloaterReg::getInstance("inventory");
+        }
 		display_startup();
 		LLStartUp::setStartupState( STATE_MISC );
 		display_startup();

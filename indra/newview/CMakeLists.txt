@@ -349,6 +349,7 @@ set(viewer_SOURCE_FILES
     llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
     llinventorypanel.cpp
+    llinventoryskeletonloader.cpp
     lljoystickbutton.cpp
     llkeyconflict.cpp
     lllandmarkactions.cpp
@@ -996,6 +997,7 @@ set(viewer_HEADER_FILES
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
     llinventorypanel.h
+    llinventoryskeletonloader.h
     lljoystickbutton.h
     llkeyconflict.h
     lllandmarkactions.h

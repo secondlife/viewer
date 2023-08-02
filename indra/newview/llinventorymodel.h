@@ -187,10 +187,7 @@ private:
 	// Structure
 	//--------------------------------------------------------------------
 public:
-	// Methods to load up inventory skeleton & meat. These are used
-	// during authentication. Returns true if everything parsed.
-	bool loadSkeletonCoro(const LLSD& options, const LLUUID& owner_id);
-	void buildParentChildMap(); // brute force method to rebuild the entire parent-child relations
+	void buildParentChildMap();  // brute force method to rebuild the entire parent-child relations
 	void createCommonSystemCategories();
 
 	static std::string getInvCacheAddres(const LLUUID& owner_id);
@@ -645,11 +642,6 @@ public:
 	// File I/O
 	//--------------------------------------------------------------------
 protected:
-	static bool loadFromFile(const std::string& filename,
-							 cat_array_t& categories,
-							 item_array_t& items,
-							 changed_items_t& cats_to_update,
-							 bool& is_cache_obsolete); 
 	static bool saveToFile(const std::string& filename,
 						   const cat_array_t& categories,
 						   const item_array_t& items); 

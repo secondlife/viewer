@@ -122,6 +122,7 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
 //static
 LLFloater* LLFloaterReg::findInstance(const std::string& name, const LLSD& key)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLFloater* res = NULL;
 	const std::string& groupname = sGroupMap[name];
 	if (!groupname.empty())
