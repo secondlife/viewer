@@ -37,6 +37,7 @@
 #include "llclipboard.h"
 #include "llinventorymodel.h"
 #include "lltexteditor.h"
+#include "lluuid.h"
 
 LLFloaterBulkyThumbs::LLFloaterBulkyThumbs(const LLSD& key)
     :   LLFloater("floater_bulky_thumbs")
@@ -88,7 +89,11 @@ void LLFloaterBulkyThumbs::onPasteFromInventory()
             {
                 if (item->getType() == LLAssetType::AT_OBJECT)
                 {
-                    mInventoryItems->appendText(item->getName(), "\n");
+                    const std::string name = item->getName();
+                    const std::string item_asset_uuid_str = item->getAssetUUID().asString();
+                    const std::string thumb_uuid_str = item->getThumbnailUUID().asString();
+                    const std::string output_line = name + "|" + item_asset_uuid_str + "|" + thumb_uuid_str;
+                    mInventoryItems->appendText(output_line, "\n");
                 }
             }
         }

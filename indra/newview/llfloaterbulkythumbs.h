@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 class LLTextEditor;
+class LLUUID;
 
 class LLFloaterBulkyThumbs:
     public LLFloater
