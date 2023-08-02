@@ -829,7 +829,7 @@ void LLScriptEdCore::setHelpPage(const std::string& help_string)
 
 	LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
 
-	url_string.setArg("[LSL_STRING]", help_string);
+	url_string.setArg("[LSL_STRING]", help_string.empty() ? HELP_LSL_PORTAL_TOPIC : help_string);
 
 	addHelpItemToHistory(help_string);
 
