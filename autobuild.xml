@@ -1628,18 +1628,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d6e7ab8483c348f223fd24028e27a52f</string>
+              <string>3a45d167f60ed26dc1f8467b93ec64676cc7fe34</string>
               <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/93933/844890/llca-202202010217.567974-common-567974.tar.bz2</string>
+              <string>https://github.com/secondlife/llca/releases/download/v202305121625.0-efdf149/llca-202305160024.0-common-efdf149.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202202010217.567974</string>
+        <string>202305160024.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
