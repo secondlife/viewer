@@ -461,16 +461,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d778c6a3475bc35ee8b9615dfc38b4a9</string>
+              <string>8dd8a7e799362d5c45f2385805f3e857aca4edff</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55025/511964/dictionaries-1.538984-common-538984.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-dictionaries/releases/download/v1.0.2-dev2.d98581c/dictionaries-1.d98581c-common-d98581c.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.538984</string>
+        <string>1.d98581c</string>
       </map>
       <key>dullahan</key>
       <map>
