@@ -187,7 +187,7 @@ void LLScriptEditor::drawSelectionBackground()
 	// Draw selection even if we don't have keyboard focus for search/replace
 	if( hasSelection() && !mLineInfoList.empty())
 	{
-        std::vector<LLRect> selection_rects = getSelctionRects();
+        std::vector<LLRect> selection_rects = getSelectionRects();
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		const LLColor4& color = mReadOnly ? mReadOnlyFgColor : mFgColor;
