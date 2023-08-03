@@ -28,6 +28,7 @@
 
 #include "llinventoryskeletonloader.h"
 
+#include "llsdserialize.h"
 #include "llsdutil.h"
 
 #include "llinventorymodel.h"
@@ -110,7 +111,10 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
             }
         }
         bool is_cache_obsolete = false;
-        if (loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
+
+        file.open(inventory_filename);
+
+        if (loadFromFile(categories, items, categories_to_update, is_cache_obsolete))
         {
             // We were able to find a cache of files. So, use what we
             // found to generate a set of categories we should add. We
@@ -176,11 +180,11 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
             S32                 bad_link_count       = 0;
             S32                 good_link_count      = 0;
             S32                 recovered_link_count = 0;
-            cat_map_t::iterator unparented           = mCategoryMap.end();
-            for (item_array_t::const_iterator item_iter = items.begin(); item_iter != items.end(); ++item_iter)
+            const LLInventoryModel::cat_map_t::const_iterator unparented = gInventory.mCategoryMap.end();
+            for (auto const & item_ptr : items)
             {
-                LLViewerInventoryItem    *item = (*item_iter).get();
-                const cat_map_t::iterator cit  = mCategoryMap.find(item->getParentUUID());
+                LLViewerInventoryItem    *item = item_ptr.get();
+                LLInventoryModel::cat_map_t::const_iterator cit  = gInventory.mCategoryMap.find(item->getParentUUID());
 
                 if (cit != unparented)
                 {
@@ -213,7 +217,7 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
                 for (auto const & item_ptr : possible_broken_links)
                 {
                     LLViewerInventoryItem           *item = item_ptr.get();
-                    const cat_map_t::iterator        cit  = mCategoryMap.find(item->getParentUUID());
+                    const LLInventoryModel::cat_map_t::const_iterator        cit  = gInventory.mCategoryMap.find(item->getParentUUID());
                     const LLViewerInventoryCategory *cat  = cit->second.get();
                     if (item->getIsBrokenLink())
                     {
@@ -224,7 +228,7 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
                     else
                     {
                         // was marked as broken because of loading order, its actually fine to load
-                        addItem(item);
+                        gInventory.addItem(item);
                         cached_item_count += 1;
                         ++child_counts[cat->getUUID()];
                         recovered_link_count++;
@@ -241,11 +245,11 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
         {
             // go ahead and add everything after stripping the version
             // information.
-            for (cat_set_t::iterator it = temp_cats.begin(); it != temp_cats.end(); ++it)
+            for (auto const & cat : temp_cats)
             {
-                LLViewerInventoryCategory *llvic = (*it);
+                LLViewerInventoryCategory *llvic = cat;
                 llvic->setVersion(NO_VERSION);
-                addCategory(*it);
+                gInventory.addCategory(cat);
             }
         }
 
@@ -266,13 +270,13 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
         // At this point, we need to set the known descendents for each
         // category which successfully cached so that we do not
         // needlessly fetch descendents for categories which we have.
-        update_map_t::const_iterator no_child_counts = child_counts.end();
-        for (cat_set_t::iterator it = temp_cats.begin(); it != temp_cats.end(); ++it)
+        LLInventoryModel::update_map_t::const_iterator no_child_counts = child_counts.end();
+        for (auto const & cat_ptr : temp_cats)
         {
-            LLViewerInventoryCategory *cat = (*it).get();
+            LLViewerInventoryCategory *cat = cat_ptr.get();
             if (cat->getVersion() != NO_VERSION)
             {
-                update_map_t::const_iterator the_count = child_counts.find(cat->getUUID());
+                LLInventoryModel::update_map_t::const_iterator the_count = child_counts.find(cat->getUUID());
                 if (the_count != no_child_counts)
                 {
                     const S32 num_descendents = (*the_count).second.mValue;
@@ -302,11 +306,14 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
     LL_INFOS(LOG_INV) << "Successfully loaded " << cached_category_count << " categories and " << cached_item_count << " items from cache."
                       << LL_ENDL;
 
-    return rv;
+    //return rv;
 }
 
 // static
-bool LLInventorySkeletonLoader::loadFromFile(std::ifstream &file, cat_array_t &categories, item_array_t &items, changed_items_t &cats_to_update, bool &is_cache_obsolete)
+bool LLInventorySkeletonLoader::loadFromFile(LLInventoryModel::cat_array_t & categories,
+                                             LLInventoryModel::item_array_t &items,
+                                             LLInventoryModel::changed_items_t &cats_to_update,
+                                                               bool            &is_cache_obsolete)
 {
     LL_PROFILE_ZONE_NAMED_COLOR("inventory loadFromFile", 0xFF1111);
 
@@ -334,7 +341,7 @@ bool LLInventorySkeletonLoader::loadFromFile(std::ifstream &file, cat_array_t &c
         if (s_item.has("inv_cache_version"))
         {
             S32 version = s_item["inv_cache_version"].asInteger();
-            if (version == sCurrentInvCacheVersion)
+            if (version == LLInventoryModel::sCurrentInvCacheVersion)
             {
                 // Cache is up to date
                 is_cache_obsolete = false;
@@ -394,4 +401,9 @@ bool LLInventorySkeletonLoader::loadFromFile(std::ifstream &file, cat_array_t &c
     file.close();
 
     return !is_cache_obsolete;
+}
+
+void LLInventorySkeletonLoader::loadChunk()
+{
+
 }

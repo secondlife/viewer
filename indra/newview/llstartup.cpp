@@ -1798,7 +1798,7 @@ bool idle_startup()
 
 		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
-        LLSD inv_skel_lib = response["inventory-skel-lib"];
+        LLSD const & inv_skel_lib = response["inventory-skel-lib"];
         if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
         {
             LL_PROFILE_ZONE_NAMED("load library inv")
@@ -1820,7 +1820,7 @@ bool idle_startup()
         }
         display_startup();
 
-		LLSD inv_skeleton = response["inventory-skeleton"];
+		LLSD const & inv_skeleton = response["inventory-skeleton"];
  		if(inv_skeleton.isDefined())
  		{
             LL_PROFILE_ZONE_NAMED("load personal inv")
@@ -1841,13 +1841,13 @@ bool idle_startup()
 
 		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
-		LLSD inv_basic = response["inventory-basic"];
+		LLSD const & inv_basic = response["inventory-basic"];
  		if(inv_basic.isDefined())
  		{
 			LL_INFOS() << "Basic inventory root folder id is " << inv_basic["folder_id"] << LL_ENDL;
  		}
 
-		LLSD buddy_list = response["buddy-list"];
+		LLSD const & buddy_list = response["buddy-list"];
  		if(buddy_list.isDefined())
  		{
 			LLAvatarTracker::buddy_map_t list;

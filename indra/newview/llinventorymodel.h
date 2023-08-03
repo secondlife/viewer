@@ -54,6 +54,7 @@ class LLInventoryItem;
 class LLInventoryCategory;
 class LLMessageSystem;
 class LLInventoryCollectFunctor;
+class LLInventorySkeletonLoader;
 
 ///----------------------------------------------------------------------------
 /// LLInventoryValidationInfo 
@@ -96,7 +97,9 @@ class LLInventoryModel
 {
 	LOG_CLASS(LLInventoryModel);
 
-public:
+	friend class LLInventorySkeletonLoader;
+
+  public:
 	enum EHasChildren
 	{
 		CHILDREN_NO,
@@ -107,6 +110,7 @@ public:
 	typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	typedef std::set<LLUUID> changed_items_t;
+    typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory>> cat_map_t;
 
     // Rider: This is using the old responder patter.  It should be refactored to 
     // take advantage of coroutines.
@@ -200,7 +204,6 @@ private:
 	// the inventory using several different identifiers.
 	// mInventory member data is the 'master' list of inventory, and
 	// mCategoryMap and mItemMap store uuid->object mappings. 
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
 	typedef std::map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
 	cat_map_t mCategoryMap;
 	item_map_t mItemMap;
