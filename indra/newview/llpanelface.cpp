@@ -1022,6 +1022,52 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             }
         }
 
+        // *NOTE: The "identical" variable is currently only used to decide if
+        // the texgen control should be tentative - this is not used by GLTF
+        // materials. -Cosmic;2022-11-09
+        bool identical         = true;  // true because it is anded below
+        bool identical_diffuse = false;
+        bool identical_norm    = false;
+        bool identical_spec    = false;
+
+        LLTextureCtrl *texture_ctrl      = getChild<LLTextureCtrl>("texture control");
+        LLTextureCtrl *shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
+        LLTextureCtrl *bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+
+        LLUUID id;
+        LLUUID normmap_id;
+        LLUUID specmap_id;
+
+        LLSelectedTE::getTexId(id, identical_diffuse);
+        LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
+        LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
+
+        static S32 selected_te = -1;
+        if ((LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()) && 
+            !LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected()) 
+        {
+            S32 new_selection = LLSelectMgr::getInstance()->getSelection()->getFirstNode()->getLastSelectedTE();
+            if (new_selection != selected_te)
+            {
+                bool te_has_media = objectp->getTE(new_selection) && objectp->getTE(new_selection)->hasMedia();
+                bool te_has_pbr = objectp->getRenderMaterialID(new_selection).notNull();
+
+                if (te_has_pbr && !((mComboMatMedia->getCurrentIndex() == MATMEDIA_MEDIA) && te_has_media))
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_PBR);
+                }
+                else if (te_has_media) 
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_MEDIA);
+                }
+                else if (id.notNull() || normmap_id.notNull() || specmap_id.notNull()) 
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+                }
+                selected_te = new_selection;
+            }
+        }
+
         mComboMatMedia->setEnabled(editable);
 
         LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
@@ -1045,22 +1091,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		updateVisibility();
 
-        // *NOTE: The "identical" variable is currently only used to decide if
-        // the texgen control should be tentative - this is not used by GLTF
-        // materials. -Cosmic;2022-11-09
-		bool identical			= true;	// true because it is anded below
-        bool identical_diffuse	= false;
-        bool identical_norm		= false;
-        bool identical_spec		= false;
-
-		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
-		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
-		LLTextureCtrl*	bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
-		
-		LLUUID id;
-		LLUUID normmap_id;
-		LLUUID specmap_id;
-		
 		// Color swatch
 		{
 			getChildView("color label")->setEnabled(editable);
@@ -1090,9 +1120,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
 		getChildView("ColorTrans")->setEnabled(editable && has_material);
 
-		// Specular map
-		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
-		
 		U8 shiny = 0;
 		bool identical_shiny = false;
 
@@ -1158,11 +1185,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		// Texture
 		{
-			LLSelectedTE::getTexId(id,identical_diffuse);
-
-			// Normal map
-			LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
-
 			mIsAlpha = FALSE;
 			LLGLenum image_format = GL_RGB;
 			bool identical_image_format = false;
