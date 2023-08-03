@@ -30,6 +30,13 @@
 #include "llviewerinventory.h"
 #include "llinventorymodel.h"
 
+enum ELoaderStatus
+{
+    LOAD_SUCCESS = 0,
+    LOAD_CONTINUE,
+    LOAD_FAILURE,
+};
+
 class LLInventorySkeletonLoader
 {
 public:
@@ -46,14 +53,14 @@ public:
 
     LLInventorySkeletonLoader(const LLSD &options, const LLUUID &owner_id);
 
-    void loadChunk();
-    bool loadFromFile(LLInventoryModel::cat_array_t     &categories,
-                      LLInventoryModel::item_array_t    &items,
-                      LLInventoryModel::changed_items_t &cats_to_update,
-                      bool &is_cache_obsolete);
+    // returns LOAD_CONTINUE if there are more chunks to be loaded, returns LOAD_SUCCESS if all chunks have loaded successfully, returns LOAD_FAILURE on errro.
+    ELoaderStatus loadChunk();
+
+    bool loadFromFile(LLInventoryModel::cat_array_t &categories, LLInventoryModel::item_array_t &items,
+                      LLInventoryModel::changed_items_t &cats_to_update, bool &is_cache_obsolete);
 
   private:
-
+    bool rv;
     llifstream file;
 };
 

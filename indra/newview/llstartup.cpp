@@ -329,6 +329,45 @@ void set_flags_and_update_appearance()
     LLInventoryModelBackgroundFetch::instance().start();
 }
 
+static void do_startup_inventory_skeleton_load(std::string const & key_name, LLUUID const & agent_id, EStartupState continuation)
+{
+	static LLInventorySkeletonLoader::ptr_t loader;
+
+	LLSD inv_skeleton = LLLoginInstance::getInstance()->getResponse(key_name);
+
+	if (inv_skeleton.isDefined())
+	{
+		if (!loader)
+		{
+			loader = std::make_unique<LLInventorySkeletonLoader>(inv_skeleton, gAgent.getID());
+		}
+		else
+		{
+			switch (loader->loadChunk())
+			{
+			case LOAD_CONTINUE:
+				// nothing to do until next time slice
+				break;
+			case LOAD_SUCCESS:
+				// if done
+				loader.release();
+				display_startup();
+				LLStartUp::setStartupState(continuation);
+				break;
+			case LOAD_FAILURE:
+			default:
+				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+				break;
+			}
+
+		}
+	}
+	else
+	{
+		LLStartUp::setStartupState(continuation);
+	}
+}
+
 // Returns false to skip other idle processing. Should only return
 // true when all initialization done.
 bool idle_startup()
@@ -1787,55 +1826,28 @@ bool idle_startup()
             }
         }
         display_startup();
-        LLStartUp::setStartupState(STATE_INVENTORY_SKEL);
+        LLStartUp::setStartupState(STATE_INVENTORY_SKEL_LIB);
         display_startup();
         return FALSE;
     }
 
-    if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
+    if (STATE_INVENTORY_SKEL_LIB == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("STATE_INVENTORY_SKEL_LIB")
+		do_startup_inventory_skeleton_load("inventory-skel-lib", gInventory.getLibraryOwnerID(), STATE_INVENTORY_SKEL);
+        display_startup();
+        return FALSE;
+    }
+
+	if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
     {
         LL_PROFILE_ZONE_NAMED("STATE_INVENTORY_SKEL")
-
-		LLSD response = LLLoginInstance::getInstance()->getResponse();
-
-        LLSD const & inv_skel_lib = response["inventory-skel-lib"];
-        if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
-        {
-            LL_PROFILE_ZONE_NAMED("load library inv")
-
-            static LLInventorySkeletonLoader::ptr_t loader;
-            if (!loader)
-            {
-                loader = std::make_unique<LLInventorySkeletonLoader>(inv_skel_lib, gInventory.getLibraryOwnerID());
-			}
-            else
-            {
-                loader->loadChunk();
-            }
-
-            //if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
-            //{
-            //    LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
-            //}
-        }
-        display_startup();
-
-		LLSD const & inv_skeleton = response["inventory-skeleton"];
- 		if(inv_skeleton.isDefined())
- 		{
-            LL_PROFILE_ZONE_NAMED("load personal inv")
-            //if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
- 			//{
- 			//	LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
- 			//}
- 		}
-		display_startup();
-        LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+		do_startup_inventory_skeleton_load("inventory-skeleton", gAgent.getID(), STATE_INVENTORY_SEND2);
         display_startup();
         return FALSE;
     }
 
-    if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
+	if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
     {
         LL_PROFILE_ZONE_NAMED("STATE_INVENTORY_SEND2")
 

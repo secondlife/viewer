@@ -39,11 +39,11 @@ namespace
 }
 
 LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const LLUUID &owner_id)
+    : rv{true}
 {
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
 
-    bool rv = true;
     cat_set_t temp_cats;
 
     for (LLSD const & sd : llsd::inArray(options))
@@ -306,7 +306,6 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
     LL_INFOS(LOG_INV) << "Successfully loaded " << cached_category_count << " categories and " << cached_item_count << " items from cache."
                       << LL_ENDL;
 
-    //return rv;
 }
 
 // static
@@ -403,7 +402,7 @@ bool LLInventorySkeletonLoader::loadFromFile(LLInventoryModel::cat_array_t & cat
     return !is_cache_obsolete;
 }
 
-void LLInventorySkeletonLoader::loadChunk()
+ELoaderStatus LLInventorySkeletonLoader::loadChunk()
 {
-
+    return rv ? LOAD_SUCCESS : LOAD_FAILURE;
 }
