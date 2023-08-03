@@ -3612,7 +3612,6 @@ void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	local_camera_up.normalize();
 	local_camera_up = local_camera_up * inv_root_rot;
 
-
 	// position is based on head position, does not require mAvatarOffset here. - Nyx
 	LLVector3 avatar_ellipsoid(mBodySize.mV[VX] * 0.4f,
 								mBodySize.mV[VY] * 0.4f,
@@ -3633,6 +3632,25 @@ void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	LLVector3 name_position = mRoot->getLastWorldPosition() + (mCurRootToHeadOffset * root_rot);
 	name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));	
 	name_position += pixel_up_vec * NAMETAG_VERTICAL_SCREEN_OFFSET;
+
+	const F32 water_height = getRegion()->getWaterHeight();
+	static const F32 WATER_HEIGHT_DELTA = 0.25f;
+	if (name_position[VZ] < water_height + WATER_HEIGHT_DELTA)
+	{
+		if (LLViewerCamera::getInstance()->getOrigin()[VZ] >= water_height)
+		{
+			name_position[VZ] = water_height;
+		}
+		else // both camera and HUD are below watermark
+		{
+			F32 name_world_height = mNameText->getWorldHeight();
+			F32 max_z_position = water_height - name_world_height;
+			if (name_position[VZ] > max_z_position)
+			{
+				name_position[VZ] = max_z_position;
+			}
+		}
+	}
 
 	mNameText->setPositionAgent(name_position);				
 }
