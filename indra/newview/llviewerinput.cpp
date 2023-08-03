@@ -1028,7 +1028,7 @@ bool LLViewerInput::modeFromString(const std::string& string, S32 *mode)
 	}
 
     S32 val = atoi(string.c_str());
-    if (val >= 0 || val < MODE_COUNT)
+    if (val >= 0 && val < MODE_COUNT)
     {
         *mode = val;
         return true;
