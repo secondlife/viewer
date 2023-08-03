@@ -5,38 +5,52 @@
  height="600"
  layout="topleft"
  min_height="175"
- min_width="250"
+ min_width="500"
  name="contents"
  help_topic="contents"
  title="BULKY THUMBS"
  width="500">
 	<button follows="left|top"
 		height="20"
-		label="Paste from Inventory copy"
+		label="Paste item info from Inventory"
 		layout="topleft"
 		left="10"
-		name="paste_from_inventory"
+		name="paste_items_btn"
 		top="26	"
 		width="200" />
 
+	<button follows="left|top"
+	height="20"
+	label="Paste texture info from Inventory"
+	layout="topleft"
+	left="250"
+	name="paste_textures_btn"
+	top="26	"
+	width="200" />
+	
 	<text_editor
    height="510"
    follows="top|left|right|bottom"
-   left_delta="0"
+   left="10"
    name="inventory_items"
    top_pad="10"
    width="480">
-Entry 1
-Entry 2
-Entry 3
-Entry 4
 	</text_editor>
 	<button follows="left|bottom"
 		height="20"
-		label="Process!"
+		label="Merge items and textures"
 		layout="bottomleft"
 		left="10"
 		name="process_bulky_thumbs"
 		bottom="8"
 		width="200" />
+
+	<button follows="left|bottom"
+	height="20"
+	label="Write Thumbnails"
+	layout="bottomleft"
+	left="250"
+	name="write_bulky_thumbs"
+	bottom="8"
+	width="200" />
 </floater>

@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 class LLTextEditor;
+class LLViewerInventoryItem;
 class LLUUID;
 
 class LLFloaterBulkyThumbs:
@@ -41,14 +42,27 @@ class LLFloaterBulkyThumbs:
         BOOL postBuild() override;
         ~LLFloaterBulkyThumbs();
 
-        LLUICtrl* mPasteFromInventoryBtn;
-        void onPasteFromInventory();
+        LLUICtrl* mPasteItemsBtn;
+        void onPasteItems();
+
+        LLUICtrl* mPasteTexturesBtn;
+        void onPasteTextures();
 
         LLTextEditor* mInventoryItems;
-        void onCommitInventoryItems();
 
         LLUICtrl* mProcessBulkyThumbsBtn;
         void onProcessBulkyThumbs();
+
+        LLUICtrl* mWriteBulkyThumbsBtn;
+        void onWriteBulkyThumbs();
+
+        void recordInventoryItemEntry(LLViewerInventoryItem* item);
+        void recordTextureItemEntry(LLViewerInventoryItem* item);
+
+        std::map<std::string, LLUUID> mItemNamesIDs;
+        std::map<std::string, LLUUID> mTextureNamesIDs;
+
+        std::map<std::string, std::pair< LLUUID, LLUUID>> mNameItemIDTextureId;
 };
 
 #endif // LL_LLFLOATERBULKYTHUMBS_H
