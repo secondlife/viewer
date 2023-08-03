@@ -63,6 +63,7 @@ with the same filename but different name
 
   <texture name="AudioMute_Off" file_name="icons/AudioMute_Off.png" preload="false" />
   <texture name="AudioMute_Over" file_name="icons/AudioMute_Over.png" preload="false" />
+  <texture name="VoiceMute_Off" file_name="icons/VoiceMute_Off.png" preload="false" />
 
   <texture name="Audio_Off" file_name="icons/Audio_Off.png" preload="false" />
   <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
