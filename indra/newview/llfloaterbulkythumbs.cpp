@@ -39,6 +39,7 @@
 #include "llinventoryfunctions.h"
 #include "lltexteditor.h"
 #include "lluuid.h"
+#include "llaisapi.h"
 
 LLFloaterBulkyThumbs::LLFloaterBulkyThumbs(const LLSD& key)
     :   LLFloater("floater_bulky_thumbs")
@@ -101,7 +102,8 @@ void LLFloaterBulkyThumbs::recordTextureItemEntry(LLViewerInventoryItem* item)
     std::map<std::string, LLUUID>::iterator iter = mTextureNamesIDs.find(name);
     if (iter == mTextureNamesIDs.end())
     {
-        LLUUID id = item->getUUID();
+        //LLUUID id = item->getUUID();
+        LLUUID id = item->getAssetUUID();
         mTextureNamesIDs.insert({name, id});
 
         std::string output_line = "TEXR: ";
@@ -199,8 +201,6 @@ void LLFloaterBulkyThumbs::onPasteTextures()
                                                 LLInventoryModel::EXCLUDE_TRASH,
                                                 is_texture);
 
-                std::cout << "CAT: found " << cat_array.size() << " additional categories" << std::endl;
-                std::cout << "ITEM: found " << item_array.size() << " items" << std::endl;
                 for (size_t i = 0; i < item_array.size(); i++)
                 {
                     LLViewerInventoryItem* item = item_array.at(i);
@@ -302,9 +302,55 @@ void LLFloaterBulkyThumbs::onProcessBulkyThumbs()
     mWriteBulkyThumbsBtn->setEnabled(true);
 }
 
+#if 1
+// *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
+// temp code in transition
+void bulkyInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
+{
+    if (cb.notNull())
+    {
+        cb->fire(id);
+    }
+}
+#endif
+
+bool writeThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
+{
+    if (AISAPI::isAvailable())
+    {
+
+        LLSD updates;
+        updates["thumbnail"] = LLSD().with("asset_id", thumbnail_asset_id.asString());
+
+        LLPointer<LLInventoryCallback> cb;
+
+        AISAPI::completion_t cr = boost::bind(&bulkyInventoryCb, cb, _1);
+        AISAPI::UpdateItem(item_id, updates, cr);
+
+        return true;
+    }
+    else
+    {
+        LL_WARNS() << "Unable to write inventory thumbnail because AIS API is not available" << LL_ENDL;
+        return false;
+    }
+}
+
 void LLFloaterBulkyThumbs::onWriteBulkyThumbs()
 {
-	// look at  LLFloaterChangeItemThumbnail::onOpen(const LLSD& key)
+    // look at void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id, LLInventoryObject* obj)
+
+    /**
+    * Results I get - compare with what the manual image update code gives us
+        Senra Blake - bottom - sweatpants - green
+        item ID: 1daf6aab-e42f-42aa-5a85-4d73458a355d
+        thumbnail texture ID: cba71b7c-2335-e15c-7646-ead0f9e817fb
+
+			Correct values (from mnala path) are:
+			Updating thumbnail forSenra Blake - bottom - sweatpants - green: 
+			ID: 1daf6aab-e42f-42aa-5a85-4d73458a355d 
+			THUMB_ID: 8f5db9e7-8d09-c8be-0efd-0a5e4f3c925d
+    */
 
     mInventoryItems->appendText("Writing thumbnails", true);
     std::map<std::string, std::pair< LLUUID, LLUUID>>::iterator iter = mNameItemIDTextureId.begin();
@@ -319,6 +365,12 @@ void LLFloaterBulkyThumbs::onWriteBulkyThumbs()
         output_line += ((*iter).second).second.asString();
         output_line +=  "\n";
         mInventoryItems->appendText(output_line, true);
+
+
+        LLUUID item_id = ((*iter).second).first;
+        LLUUID thumbnail_asset_id = ((*iter).second).second;
+
+        writeThumbnailID(item_id, thumbnail_asset_id);
 
         ++iter;
     }
