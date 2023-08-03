@@ -28,6 +28,7 @@
 #define LL_LLINVENTORYSKELETONLOADER_H
 
 #include "llviewerinventory.h"
+#include "llinventorymodel.h"
 
 class LLInventorySkeletonLoader
 {
@@ -47,9 +48,9 @@ public:
 
     void loadChunk();
     static bool loadFromFile(std::ifstream   &file,
-                             cat_array_t     &categories,
-                             item_array_t    &items,
-                             changed_items_t &cats_to_update,
+                             LLInventoryModel::cat_array_t     &categories,
+                             LLInventoryModel::item_array_t    &items,
+                             LLInventoryModel::changed_items_t &cats_to_update,
                              bool            &is_cache_obsolete);
 
   private:

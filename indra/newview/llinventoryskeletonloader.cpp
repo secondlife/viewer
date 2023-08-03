@@ -157,18 +157,18 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
             // go ahead and add the cats returned during the download
             std::set<LLUUID>::const_iterator not_cached_id = cached_ids.end();
             cached_category_count                          = cached_ids.size();
-            for (cat_set_t::iterator it = temp_cats.begin(); it != temp_cats.end(); ++it)
+            for (auto const & cat : temp_cats)
             {
-                if (cached_ids.find((*it)->getUUID()) == not_cached_id)
+                if (cached_ids.find(cat->getUUID()) == not_cached_id)
                 {
                     // this check is performed so that we do not
                     // mark new folders in the skeleton (and not in cache)
                     // as being cached.
-                    LLViewerInventoryCategory *llvic = (*it);
+                    LLViewerInventoryCategory *llvic = cat;
                     llvic->setVersion(NO_VERSION);
                 }
-                addCategory(*it);
-                ++child_counts[(*it)->getParentUUID()];
+                gInventory.addCategory(cat);
+                ++child_counts[cat->getParentUUID()];
             }
 
             // Add all the items loaded which are parented to a
@@ -202,7 +202,7 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
                         {
                             good_link_count++;
                         }
-                        addItem(item);
+                        gInventory.addItem(item);
                         cached_item_count += 1;
                         ++child_counts[cat->getUUID()];
                     }
@@ -210,10 +210,9 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
             }
             if (possible_broken_links.size() > 0)
             {
-                for (item_array_t::const_iterator item_iter = possible_broken_links.begin(); item_iter != possible_broken_links.end();
-                     ++item_iter)
+                for (auto const & item_ptr : possible_broken_links)
                 {
-                    LLViewerInventoryItem           *item = (*item_iter).get();
+                    LLViewerInventoryItem           *item = item_ptr.get();
                     const cat_map_t::iterator        cit  = mCategoryMap.find(item->getParentUUID());
                     const LLViewerInventoryCategory *cat  = cit->second.get();
                     if (item->getIsBrokenLink())
