@@ -2945,13 +2945,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (mSecondInstance)
 	{
-		// This is the second instance of SL. Turn off voice support,
+		// This is the second instance of SL. Mute voice,
 		// but make sure the setting is *not* persisted.
-		LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
-		if(disable_voice)
+		// Also see LLVivoxVoiceClient::voiceEnabled()
+		LLControlVariable* enable_voice = gSavedSettings.getControl("EnableVoiceChat");
+		if(enable_voice)
 		{
 			const BOOL DO_NOT_PERSIST = FALSE;
-			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
+			enable_voice->setValue(LLSD(FALSE), DO_NOT_PERSIST);
 		}
 	}
 

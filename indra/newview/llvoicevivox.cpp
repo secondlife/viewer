@@ -277,6 +277,7 @@ static void killGateway()
 
 bool LLVivoxVoiceClient::sShuttingDown = false;
 bool LLVivoxVoiceClient::sConnected = false;
+bool LLVivoxVoiceClient::sVoiceInstanceMuted = false;
 LLPumpIO *LLVivoxVoiceClient::sPump = nullptr;
 
 LLVivoxVoiceClient::LLVivoxVoiceClient() :
@@ -354,6 +355,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
     sShuttingDown = false;
     sConnected = false;
     sPump = nullptr;
+    sVoiceInstanceMuted = LLAppViewer::instance()->isSecondInstance();
 
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -951,32 +953,52 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             // cause SLVoice's bind() call to fail with EADDRINUSE. We expect
             // that eventually the OS will time out previous ports, which is
             // why we cycle instead of incrementing indefinitely.
-            U32 portbase = gSavedSettings.getU32("VivoxVoicePort");
-            static U32 portoffset = 0;
+
+            static LLCachedControl<U32> portbase(gSavedSettings, "VivoxVoicePort");
+            static LLCachedControl<std::string> host(gSavedSettings, "VivoxVoiceHost");
+            static LLCachedControl<std::string> loglevel(gSavedSettings, "VivoxDebugLevel");
+            static LLCachedControl<std::string> log_folder(gSavedSettings, "VivoxLogDirectory");
+            static LLCachedControl<std::string> shutdown_timeout(gSavedSettings, "VivoxShutdownTimeout");
             static const U32 portrange = 100;
-            std::string host(gSavedSettings.getString("VivoxVoiceHost"));
-            U32 port = portbase + portoffset;
+            static U32 portoffset = 0;
+            U32 port = 0;
+
+            if (LLAppViewer::instance()->isSecondInstance())
+            {
+                // Ideally need to know amount of instances and
+                // to increment instance_offset on EADDRINUSE.
+                // But for now just use rand
+                static U32 instance_offset = portrange * ll_rand(20);
+                port = portbase + portoffset + portrange;
+            }
+            else
+            {
+                // leave main thread with exclusive port set
+                port = portbase + portoffset;
+            }
             portoffset = (portoffset + 1) % portrange;
             params.args.add("-i");
-            params.args.add(STRINGIZE(host << ':' << port));
+            params.args.add(STRINGIZE(host() << ':' << port));
 
-            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
-            if (loglevel.empty())
-            {
-                loglevel = "0";
-            }
             params.args.add("-ll");
-            params.args.add(loglevel);
-
-            std::string log_folder = gSavedSettings.getString("VivoxLogDirectory");
-
-            if (log_folder.empty())
+            if (loglevel().empty())
             {
-                log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+                params.args.add("0");
+            }
+            else
+            {
+                params.args.add(loglevel);
             }
 
             params.args.add("-lf");
-            params.args.add(log_folder);
+            if (log_folder().empty())
+            {
+                params.args.add(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ""));
+            }
+            else
+            {
+                params.args.add(log_folder);
+            }
 
             // set log file basename and .log
             params.args.add("-lp");
@@ -992,8 +1014,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
                 LLFile::rename(new_log, old_log);
             }
             
-            std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
-            if (!shutdown_timeout.empty())
+            if (!shutdown_timeout().empty())
             {
                 params.args.add("-st");
                 params.args.add(shutdown_timeout);
@@ -1016,7 +1037,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
             sGatewayPtr = LLProcess::create(params);
 
-            mDaemonHost = LLHost(host.c_str(), port);
+            mDaemonHost = LLHost(host().c_str(), port);
         }
         else
         {
@@ -5624,7 +5645,8 @@ bool LLVivoxVoiceClient::voiceEnabled()
 {
     return gSavedSettings.getBOOL("EnableVoiceChat") &&
           !gSavedSettings.getBOOL("CmdLineDisableVoice") &&
-          !gNonInteractive;
+          !gNonInteractive &&
+          !sVoiceInstanceMuted;
 }
 
 void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)

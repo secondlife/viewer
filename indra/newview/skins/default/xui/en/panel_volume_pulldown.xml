@@ -199,7 +199,8 @@
         top_delta="2"
         width="350">
         <check_box.commit_callback
-            function="Vol.updateMediaAutoPlayCheckbox"/>
+            function="Vol.updateCheckbox"
+            parameter="MediaAutoPlay"/>
     </check_box>
     <slider
         control_name="AudioLevelMedia"
@@ -246,7 +247,8 @@
         name="enable_media"
         width="110">
         <check_box.commit_callback
-            function="Vol.updateMediaAutoPlayCheckbox"/>
+            function="Vol.updateCheckbox"
+            parameter="MediaAutoPlay"/>
     </check_box>
     <slider
         control_name="AudioLevelVoice"
@@ -292,5 +294,10 @@
         top_delta="2"
         left_pad="5"
         name="enable_voice_check"
-        width="110"/>
+        width="110"
+        >
+        <check_box.commit_callback
+            function="Vol.updateCheckbox"
+            parameter="VoiceChat"/>
+        </check_box>
 </panel>

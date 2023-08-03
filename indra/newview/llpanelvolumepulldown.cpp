@@ -40,6 +40,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h"
 #include "llsliderctrl.h"
+#include "llvoicevivox.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelVolumePulldown
@@ -50,7 +51,7 @@ LLPanelVolumePulldown::LLPanelVolumePulldown()
 {
 	mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
 	mCommitCallbackRegistrar.add("Vol.SetSounds", boost::bind(&LLPanelVolumePulldown::onClickSetSounds, this));
-	mCommitCallbackRegistrar.add("Vol.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelVolumePulldown::updateMediaAutoPlayCheckbox, this, _1));
+	mCommitCallbackRegistrar.add("Vol.updateCheckbox",	boost::bind(&LLPanelVolumePulldown::updateCheckbox, this, _1, _2));
 	mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
 	buildFromFile( "panel_volume_pulldown.xml");
 }
@@ -90,19 +91,27 @@ void LLPanelVolumePulldown::setControlFalse(const LLSD& user_data)
 		control->set(LLSD(FALSE));
 }
 
-void LLPanelVolumePulldown::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
+void LLPanelVolumePulldown::updateCheckbox(LLUICtrl* ctrl, const LLSD& user_data)
 {
-	std::string name = ctrl->getName();
+    std::string control_name = user_data.asString();
+    if (control_name == "MediaAutoPlay")
+    {
+        std::string name = ctrl->getName();
 
-	// Disable "Allow Media to auto play" only when both
-	// "Streaming Music" and "Media" are unchecked. STORM-513.
-	if ((name == "enable_music") || (name == "enable_media"))
-	{
-		bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
-		bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
+        // Disable "Allow Media to auto play" only when both
+        // "Streaming Music" and "Media" are unchecked. STORM-513.
+        if ((name == "enable_music") || (name == "enable_media"))
+        {
+            bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
+            bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
 
-		getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
-	}
+            getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
+        }
+    }
+    else if (control_name == "VoiceChat")
+    {
+        LLVivoxVoiceClient::unmuteVoiceInstance();
+    }
 }
 
 void LLPanelVolumePulldown::onClickSetSounds()
