@@ -61,6 +61,16 @@ public:
 
   private:
     bool rv;
+    cat_set_t temp_cats;
+    LLInventoryModel::cat_array_t categories;
+    LLInventoryModel::item_array_t items;
+    LLInventoryModel::changed_items_t categories_to_update;
+    LLInventoryModel::update_map_t child_counts;
+    LLInventoryModel::item_array_t possible_broken_links;
+    cat_set_t invalid_categories;  // Used to mark categories that weren't successfully loaded.
+    bool remove_inventory_file = false;
+    std::string inventory_filename;
+    std::string gzip_filename;
     llifstream file;
 };
 
