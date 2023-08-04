@@ -66,7 +66,6 @@
 #include "llviewermenu.h"	// for gMenuBarView
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
-#include "llvoiceclient.h"
 #include "lluictrlfactory.h"
 
 #include "lltoolmgr.h"
@@ -193,12 +192,9 @@ BOOL LLStatusBar::postBuild()
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
     gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(boost::bind(&LLStatusBar::onVoiceChanged, this, _2));
 
-    if (gSavedSettings.getBOOL("EnableVoiceChat"))
+    if (!gSavedSettings.getBOOL("EnableVoiceChat") && LLAppViewer::instance()->isSecondInstance())
     {
-        mBtnVolume->setImageUnselected(LLUI::getUIImage("Audio_Off"));
-    }
-    else
-    {
+        // Indicate that second instance started without sound
         mBtnVolume->setImageUnselected(LLUI::getUIImage("VoiceMute_Off"));
     }
 
@@ -655,11 +651,8 @@ void LLStatusBar::onVoiceChanged(const LLSD& newvalue)
 {
     if (newvalue.asBoolean())
     {
+        // Second instance starts with "VoiceMute_Off" icon, fix it
         mBtnVolume->setImageUnselected(LLUI::getUIImage("Audio_Off"));
-    }
-    else
-    {
-        mBtnVolume->setImageUnselected(LLUI::getUIImage("VoiceMute_Off"));
     }
     refresh();
 }
