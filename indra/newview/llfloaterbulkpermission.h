@@ -103,6 +103,8 @@ private:
 	bool mBulkChangeIncludeSounds;
 	bool mBulkChangeIncludeTextures;
 	bool mBulkChangeIncludeSettings;
+    bool mBulkChangeIncludeMaterials;
+
 	bool mBulkChangeShareWithGroup;
 	bool mBulkChangeEveryoneCopy;
 	bool mBulkChangeNextOwnerModify;
