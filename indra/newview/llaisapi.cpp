@@ -1210,7 +1210,6 @@ void AISUpdate::parseItem(const LLSD& item_map)
         if (mFetch)
         {
             mItemsCreated[item_id] = new_item;
-            mCatDescendentDeltas[new_item->getParentUUID()];
             new_item->setComplete(true);
 
             if (new_item->getParentUUID().isNull())
@@ -1264,7 +1263,6 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
             new_link->setSaleInfo(default_sale_info);
             //LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
             mItemsCreated[item_id] = new_link;
-            mCatDescendentDeltas[parent_id];
             new_link->setComplete(true);
 
             if (new_link->getParentUUID().isNull())
@@ -1381,7 +1379,6 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
                 new_cat->setDescendentCount(descendent_count);
             }
             mCategoriesCreated[category_id] = new_cat;
-            mCatDescendentDeltas[new_cat->getParentUUID()];
         }
 		else if (curr_cat)
 		{
