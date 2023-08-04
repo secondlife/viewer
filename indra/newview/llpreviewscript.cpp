@@ -1624,7 +1624,7 @@ void LLPreviewLSL::draw()
 		setTitle(LLTrans::getString("ScriptWasDeleted"));
 		mScriptEd->setItemRemoved(TRUE);
 	}
-    if (mDirty) 
+    else if (mDirty) 
     {
         std::string item_path = get_category_path(item->getParentUUID());
         getChild<LLUICtrl>("path_txt")->setValue(item_path);
