@@ -38,6 +38,7 @@
 #include "llinventorymodel.h"
 #include "llinventoryfunctions.h"
 #include "lltexteditor.h"
+#include "llmediactrl.h"
 #include "lluuid.h"
 #include "llaisapi.h"
 
@@ -58,16 +59,16 @@ BOOL LLFloaterBulkyThumbs::postBuild()
     mPasteTexturesBtn = getChild<LLUICtrl>("paste_textures_btn");
     mPasteTexturesBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onPasteTextures, this));
 
-    mInventoryItems = getChild<LLTextEditor>("inventory_items");
-    mInventoryItems->setMaxTextLength(0xffff * 0x10);
+    mOutputLog = getChild<LLTextEditor>("output_log");
+    mOutputLog->setMaxTextLength(0xffff * 0x10);
 
-    mProcessBulkyThumbsBtn = getChild<LLUICtrl>("process_bulky_thumbs");
-    mProcessBulkyThumbsBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onProcessBulkyThumbs, this));
-    mProcessBulkyThumbsBtn->setEnabled(false);
+    mMergeItemsTexturesBtn = getChild<LLUICtrl>("merge_items_textures");
+    mMergeItemsTexturesBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onMergeItemsTextures, this));
+    mMergeItemsTexturesBtn->setEnabled(false);
 
-    mWriteBulkyThumbsBtn = getChild<LLUICtrl>("write_bulky_thumbs");
-    mWriteBulkyThumbsBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onWriteBulkyThumbs, this));
-    mWriteBulkyThumbsBtn->setEnabled(false);
+    mWriteThumbnailsBtn = getChild<LLUICtrl>("write_items_thumbnails");
+    mWriteThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onWriteThumbnails, this));
+    mWriteThumbnailsBtn->setEnabled(false);
 
     return true;
 }
@@ -82,36 +83,14 @@ void LLFloaterBulkyThumbs::recordInventoryItemEntry(LLViewerInventoryItem* item)
         LLUUID id = item->getUUID();
         mItemNamesIDs.insert({name, id});
 
-        std::string output_line = "ITEM: ";
-        output_line += name;
-        output_line += "|";
-        output_line += id.asString();
-        output_line +=  "\n";
-        mInventoryItems->appendText(output_line, false);
-    }
-    else
-    {
-        // dupe - do not save
-    }
-}
-
-void LLFloaterBulkyThumbs::recordTextureItemEntry(LLViewerInventoryItem* item)
-{
-    const std::string name = item->getName();
-
-    std::map<std::string, LLUUID>::iterator iter = mTextureNamesIDs.find(name);
-    if (iter == mTextureNamesIDs.end())
-    {
-        //LLUUID id = item->getUUID();
-        LLUUID id = item->getAssetUUID();
-        mTextureNamesIDs.insert({name, id});
-
-        std::string output_line = "TEXR: ";
-        output_line += name;
-        output_line += "|";
-        output_line += id.asString();
-        output_line +=  "\n";
-        mInventoryItems->appendText(output_line, false);
+        mOutputLog->appendText(
+            STRINGIZE(
+                "ITEM " << mItemNamesIDs.size() << "> " <<
+                name <<
+                //" | " <<
+                //id.asString() <<
+                std::endl
+            ), false);
     }
     else
     {
@@ -126,49 +105,85 @@ void LLFloaterBulkyThumbs::onPasteItems()
         return;
     }
 
+    mOutputLog->appendText(
+        STRINGIZE(
+            "\n==== Pasting items from inventory ====" <<
+            std::endl
+        ), false);
+
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
     size_t count = objects.size();
 
-    if (count > 0)
+    for (size_t i = 0; i < count; i++)
     {
-        for (size_t i = 0; i < count; i++)
+        const LLUUID& entry = objects.at(i);
+
+        const LLInventoryCategory* cat = gInventory.getCategory(entry);
+        if (cat)
         {
-            const LLUUID& item_id = objects.at(i);
+            LLInventoryModel::cat_array_t cat_array;
+            LLInventoryModel::item_array_t item_array;
 
-            const LLInventoryCategory* cat = gInventory.getCategory(item_id);
-            if (cat)
+            LLIsType is_object(LLAssetType::AT_OBJECT);
+            gInventory.collectDescendentsIf(cat->getUUID(),
+                                            cat_array,
+                                            item_array,
+                                            LLInventoryModel::EXCLUDE_TRASH,
+                                            is_object);
+
+            LLIsType is_bodypart(LLAssetType::AT_BODYPART);
+            gInventory.collectDescendentsIf(cat->getUUID(),
+                                            cat_array,
+                                            item_array,
+                                            LLInventoryModel::EXCLUDE_TRASH,
+                                            is_bodypart);
+
+            for (size_t i = 0; i < item_array.size(); i++)
             {
-                LLInventoryModel::cat_array_t cat_array;
-                LLInventoryModel::item_array_t item_array;
-                LLIsType is_object(LLAssetType::AT_OBJECT);
-                gInventory.collectDescendentsIf(cat->getUUID(),
-                                                cat_array,
-                                                item_array,
-                                                LLInventoryModel::EXCLUDE_TRASH,
-                                                is_object);
-
-
-                for (size_t i = 0; i < item_array.size(); i++)
-                {
-                    LLViewerInventoryItem* item = item_array.at(i);
-                    recordInventoryItemEntry(item);
-                }
-            }
-
-            LLViewerInventoryItem* item = gInventory.getItem(item_id);
-            if (item)
-            {
-                if (item->getType() == LLAssetType::AT_OBJECT)
-                {
-                    recordInventoryItemEntry(item);
-                }
+                LLViewerInventoryItem* item = item_array.at(i);
+                recordInventoryItemEntry(item);
             }
         }
 
-        mInventoryItems->setCursorAndScrollToEnd();
+        LLViewerInventoryItem* item = gInventory.getItem(entry);
+        if (item)
+        {
+            const LLAssetType::EType item_type = item->getType();
+            if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_BODYPART)
+            {
+                recordInventoryItemEntry(item);
+            }
+        }
+    }
 
-        mProcessBulkyThumbsBtn->setEnabled(true);
+    mOutputLog->setCursorAndScrollToEnd();
+
+    mMergeItemsTexturesBtn->setEnabled(true);
+}
+
+void LLFloaterBulkyThumbs::recordTextureItemEntry(LLViewerInventoryItem* item)
+{
+    const std::string name = item->getName();
+
+    std::map<std::string, LLUUID>::iterator iter = mTextureNamesIDs.find(name);
+    if (iter == mTextureNamesIDs.end())
+    {
+        LLUUID id = item->getAssetUUID();
+        mTextureNamesIDs.insert({name, id});
+
+        mOutputLog->appendText(
+            STRINGIZE(
+                "TEXTURE " << mTextureNamesIDs.size() << "> " <<
+                name <<
+                //" | " <<
+                //id.asString() <<
+                std::endl
+            ), false);
+    }
+    else
+    {
+        // dupe - do not save
     }
 }
 
@@ -179,127 +194,127 @@ void LLFloaterBulkyThumbs::onPasteTextures()
         return;
     }
 
+    mOutputLog->appendText(
+        STRINGIZE(
+            "\n==== Pasting textures from inventory ====" <<
+            std::endl
+        ), false);
+
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
     size_t count = objects.size();
 
-    if (count > 0)
+    for (size_t i = 0; i < count; i++)
     {
-        for (size_t i = 0; i < count; i++)
+        const LLUUID& entry = objects.at(i);
+
+        const LLInventoryCategory* cat = gInventory.getCategory(entry);
+        if (cat)
         {
-            const LLUUID& item_id = objects.at(i);
+            LLInventoryModel::cat_array_t cat_array;
+            LLInventoryModel::item_array_t item_array;
 
-            const LLInventoryCategory* cat = gInventory.getCategory(item_id);
-            if (cat)
+            LLIsType is_object(LLAssetType::AT_TEXTURE);
+            gInventory.collectDescendentsIf(cat->getUUID(),
+                                            cat_array,
+                                            item_array,
+                                            LLInventoryModel::EXCLUDE_TRASH,
+                                            is_object);
+
+            for (size_t i = 0; i < item_array.size(); i++)
             {
-                LLInventoryModel::cat_array_t cat_array;
-                LLInventoryModel::item_array_t item_array;
-                LLIsType is_texture(LLAssetType::AT_TEXTURE);
-                gInventory.collectDescendentsIf(cat->getUUID(),
-                                                cat_array,
-                                                item_array,
-                                                LLInventoryModel::EXCLUDE_TRASH,
-                                                is_texture);
-
-                for (size_t i = 0; i < item_array.size(); i++)
-                {
-                    LLViewerInventoryItem* item = item_array.at(i);
-                    recordTextureItemEntry(item);
-                }
-            }
-
-            LLViewerInventoryItem* item = gInventory.getItem(item_id);
-            if (item)
-            {
-                if (item->getType() == LLAssetType::AT_TEXTURE)
-                {
-                    recordTextureItemEntry(item);
-                }
+                LLViewerInventoryItem* item = item_array.at(i);
+                recordTextureItemEntry(item);
             }
         }
 
-        mInventoryItems->setCursorAndScrollToEnd();
-
-        mProcessBulkyThumbsBtn->setEnabled(true);
+        LLViewerInventoryItem* item = gInventory.getItem(entry);
+        if (item)
+        {
+            const LLAssetType::EType item_type = item->getType();
+            if (item_type == LLAssetType::AT_TEXTURE)
+            {
+                recordTextureItemEntry(item);
+            }
+        }
     }
+
+    mOutputLog->setCursorAndScrollToEnd();
+
+    mMergeItemsTexturesBtn->setEnabled(true);
 }
 
-void LLFloaterBulkyThumbs::onProcessBulkyThumbs()
+void LLFloaterBulkyThumbs::onMergeItemsTextures()
 {
+    mOutputLog->appendText(
+        STRINGIZE(
+            "\n==== Matching items and textures for " <<
+            mItemNamesIDs.size() <<
+            " entries ====" <<
+            std::endl
+        ), false);
+
     std::map<std::string, LLUUID>::iterator item_iter = mItemNamesIDs.begin();
+    size_t index = 1;
+
     while (item_iter != mItemNamesIDs.end())
     {
-        std::string output_line = "PROCESSING: ";
         std::string item_name = (*item_iter).first;
-        output_line += item_name;
-        output_line +=  "\n";
-        mInventoryItems->appendText(output_line, false);
 
-        bool found = false;
-        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.begin();
-        while (texture_iter != mTextureNamesIDs.end())
+        mOutputLog->appendText(
+            STRINGIZE(
+                "MATCHING ITEM (" << index++  << "/" << mItemNamesIDs.size() << ") " << item_name << "> "
+            ), false);
+
+        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+        if (texture_iter != mTextureNamesIDs.end())
         {
-            std::string output_line = "    COMPARING WITH: ";
-            std::string texture_name = (*texture_iter).first;
-            output_line += texture_name;
+            mOutputLog->appendText(
+                STRINGIZE(
+                    "MATCHED" <<
+                    std::endl
+                ), false);
 
-            if (item_name == texture_name)
-            {
-                output_line += " MATCH";
-                found = true;
-                output_line +=  "\n";
-                mInventoryItems->appendText(output_line, false);
-                break;
-            }
-            else
-            {
-                output_line += " NO MATCH";
-            }
-            output_line +=  "\n";
-            mInventoryItems->appendText(output_line, false);
-            mInventoryItems->setCursorAndScrollToEnd();
-
-
-            ++texture_iter;
-        }
-
-        if (found == true)
-        {
             mNameItemIDTextureId.insert({item_name, {(*item_iter).second, (*texture_iter).second}});
         }
         else
         {
-            std::string output_line = "WARNING: ";
-            output_line += "No texture found for ";
-            output_line += item_name;
-            output_line +=  "\n";
-            mInventoryItems->appendText(output_line, false);
-            mInventoryItems->setCursorAndScrollToEnd();
-
+            mOutputLog->appendText(
+                STRINGIZE(
+                    "NO MATCH FOUND" <<
+                    std::endl
+                ), false);
         }
 
         ++item_iter;
     }
 
-    mInventoryItems->appendText("Finished - final list is", true);
-    std::map<std::string, std::pair< LLUUID, LLUUID>>::iterator iter = mNameItemIDTextureId.begin();
-    while (iter != mNameItemIDTextureId.end())
-    {
-        std::string output_line = (*iter).first;
-        output_line += "\n";
-        output_line += "item ID: ";
-        output_line += ((*iter).second).first.asString();
-        output_line += "\n";
-        output_line += "thumbnail texture ID: ";
-        output_line += ((*iter).second).second.asString();
-        output_line +=  "\n";
-        mInventoryItems->appendText(output_line, true);
+    mOutputLog->appendText(
+        STRINGIZE(
+            "==== Matched list of items and textures has " <<
+            mNameItemIDTextureId.size() <<
+            " entries ====" <<
+            std::endl
+        ), true);
 
-        ++iter;
-    }
-    mInventoryItems->setCursorAndScrollToEnd();
+    //std::map<std::string, std::pair< LLUUID, LLUUID>>::iterator iter = mNameItemIDTextureId.begin();
+    //while (iter != mNameItemIDTextureId.end())
+    //{
+    //    std::string output_line = (*iter).first;
+    //    output_line += "\n";
+    //    output_line += "item ID: ";
+    //    output_line += ((*iter).second).first.asString();
+    //    output_line += "\n";
+    //    output_line += "thumbnail texture ID: ";
+    //    output_line += ((*iter).second).second.asString();
+    //    output_line +=  "\n";
+    //    mOutputLog->appendText(output_line, true);
 
-    mWriteBulkyThumbsBtn->setEnabled(true);
+    //    ++iter;
+    //}
+    mOutputLog->setCursorAndScrollToEnd();
+
+    mWriteThumbnailsBtn->setEnabled(true);
 }
 
 #if 1
@@ -331,41 +346,38 @@ bool writeThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
     }
     else
     {
-        LL_WARNS() << "Unable to write inventory thumbnail because AIS API is not available" << LL_ENDL;
+        LL_WARNS() << "Unable to write inventory thumbnail because the AIS API is not available" << LL_ENDL;
         return false;
     }
 }
 
-void LLFloaterBulkyThumbs::onWriteBulkyThumbs()
+void LLFloaterBulkyThumbs::onWriteThumbnails()
 {
-    // look at void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id, LLInventoryObject* obj)
+    mOutputLog->appendText(
+        STRINGIZE(
+            "\n==== Writing thumbnails for " <<
+            mNameItemIDTextureId.size() <<
+            " entries ====" <<
+            std::endl
+        ), false);
 
-    /**
-    * Results I get - compare with what the manual image update code gives us
-        Senra Blake - bottom - sweatpants - green
-        item ID: 1daf6aab-e42f-42aa-5a85-4d73458a355d
-        thumbnail texture ID: cba71b7c-2335-e15c-7646-ead0f9e817fb
-
-			Correct values (from mnala path) are:
-			Updating thumbnail forSenra Blake - bottom - sweatpants - green: 
-			ID: 1daf6aab-e42f-42aa-5a85-4d73458a355d 
-			THUMB_ID: 8f5db9e7-8d09-c8be-0efd-0a5e4f3c925d
-    */
-
-    mInventoryItems->appendText("Writing thumbnails", true);
     std::map<std::string, std::pair< LLUUID, LLUUID>>::iterator iter = mNameItemIDTextureId.begin();
+    size_t index = 1;
+
     while (iter != mNameItemIDTextureId.end())
     {
-        std::string output_line = (*iter).first;
-        output_line += "\n";
-        output_line += "item ID: ";
-        output_line += ((*iter).second).first.asString();
-        output_line += "\n";
-        output_line += "thumbnail texture ID: ";
-        output_line += ((*iter).second).second.asString();
-        output_line +=  "\n";
-        mInventoryItems->appendText(output_line, true);
-
+        mOutputLog->appendText(
+            STRINGIZE(
+                "WRITING THUMB (" << index++  << "/" << mNameItemIDTextureId.size() << ")> " <<
+                (*iter).first <<
+                "\n" <<
+                "item ID: " <<
+                ((*iter).second).first.asString() <<
+                "\n" <<
+                "thumbnail texture ID: " <<
+                ((*iter).second).second.asString() <<
+                "\n"
+            ), true);
 
         LLUUID item_id = ((*iter).second).first;
         LLUUID thumbnail_asset_id = ((*iter).second).second;
@@ -374,5 +386,5 @@ void LLFloaterBulkyThumbs::onWriteBulkyThumbs()
 
         ++iter;
     }
-    mInventoryItems->setCursorAndScrollToEnd();
+    mOutputLog->setCursorAndScrollToEnd();
 }

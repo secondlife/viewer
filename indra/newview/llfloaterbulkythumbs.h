@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 class LLTextEditor;
+class LLMediaCtrl;
 class LLViewerInventoryItem;
 class LLUUID;
 
@@ -48,13 +49,13 @@ class LLFloaterBulkyThumbs:
         LLUICtrl* mPasteTexturesBtn;
         void onPasteTextures();
 
-        LLTextEditor* mInventoryItems;
+        LLTextEditor* mOutputLog;
 
-        LLUICtrl* mProcessBulkyThumbsBtn;
-        void onProcessBulkyThumbs();
+        LLUICtrl* mMergeItemsTexturesBtn;
+        void onMergeItemsTextures();
 
-        LLUICtrl* mWriteBulkyThumbsBtn;
-        void onWriteBulkyThumbs();
+        LLUICtrl* mWriteThumbnailsBtn;
+        void onWriteThumbnails();
 
         void recordInventoryItemEntry(LLViewerInventoryItem* item);
         void recordTextureItemEntry(LLViewerInventoryItem* item);
