@@ -32,6 +32,7 @@
 // Viewer includes
 #include "llcombobox.h"
 #include "llsliderctrl.h"
+#include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
 #include "llvoicechannel.h"
@@ -70,14 +71,14 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 
 	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
 	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
-    mRetryBtn = getChild<LLButton>("retry_btn");
+    mUnmuteBtn = getChild<LLButton>("unmute_btn");
 
 	mCtrlInputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
 	mCtrlOutputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
-    mRetryBtn->setCommitCallback(
-        boost::bind(&LLPanelVoiceDeviceSettings::onCommitRetry, this));
+    mUnmuteBtn->setCommitCallback(
+        boost::bind(&LLPanelVoiceDeviceSettings::onCommitUnmute, this));
 
 	mLocalizedDeviceNames[DEFAULT_DEVICE]				= getString("default_text");
 	mLocalizedDeviceNames["No Device"]					= getString("name_no_device");
@@ -115,16 +116,18 @@ void LLPanelVoiceDeviceSettings::draw()
     if (voice_enabled)
     {
         getChildView("wait_text")->setVisible( !is_in_tuning_mode && mUseTuningMode);
-        getChildView("muted_text")->setVisible(FALSE);
-        mRetryBtn->setVisible(FALSE);
+        getChildView("disabled_text")->setVisible(FALSE);
+        mUnmuteBtn->setVisible(FALSE);
     }
     else
     {
         getChildView("wait_text")->setVisible(FALSE);
-        getChildView("muted_text")->setVisible(TRUE);
 
-        static LLCachedControl<bool> voice_enabled(gSavedSettings, "EnableVoiceChat");
-        mRetryBtn->setVisible(!voice_enabled || LLVoiceClient::isMutedVoiceInstance());
+        static LLCachedControl<bool> chat_enabled(gSavedSettings, "EnableVoiceChat");
+        // If voice isn't enabled, it is either disabled or muted
+        bool voice_disabled = chat_enabled() || LLStartUp::getStartupState() <= STATE_LOGIN_WAIT;
+        getChildView("disabled_text")->setVisible(voice_disabled);
+        mUnmuteBtn->setVisible(!voice_disabled);
     }
 
 	LLPanel::draw();
@@ -357,8 +360,7 @@ void LLPanelVoiceDeviceSettings::onInputDevicesClicked()
 	LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
 }
 
-void LLPanelVoiceDeviceSettings::onCommitRetry()
+void LLPanelVoiceDeviceSettings::onCommitUnmute()
 {
     gSavedSettings.setBOOL("EnableVoiceChat", TRUE);
-    LLVoiceClient::unmuteVoiceInstance();
 }

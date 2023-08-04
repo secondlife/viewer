@@ -295,9 +295,5 @@
         left_pad="5"
         name="enable_voice_check"
         width="110"
-        >
-        <check_box.commit_callback
-            function="Vol.updateCheckbox"
-            parameter="VoiceChat"/>
-        </check_box>
+        />
 </panel>

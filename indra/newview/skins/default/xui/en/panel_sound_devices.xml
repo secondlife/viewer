@@ -168,7 +168,7 @@
      width="20" />
     <text
      type="string"
-     name="muted_text"
+     name="disabled_text"
      text_color="EmphasisColor"
      length="1"
      follows="right|top"
@@ -176,16 +176,16 @@
      layout="topleft"
      left_delta="-100"
      top_delta="5"
-     width="70">
-        Muted
+     width="110">
+        Disabled
     </text>
     <button
        follows="right|top"
        height="23"
-       image_overlay="Refresh_Off"
        layout="topleft"
-       left_pad="1"
-       name="retry_btn"
-       top_delta="-5"
-       width="23" />
+       left_delta="0"
+       name="unmute_btn"
+       label="Unmute"
+       top_delta="-6"
+       width="110" />
 </panel>

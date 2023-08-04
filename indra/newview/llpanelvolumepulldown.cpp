@@ -40,7 +40,6 @@
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h"
 #include "llsliderctrl.h"
-#include "llvoicevivox.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelVolumePulldown
@@ -107,10 +106,6 @@ void LLPanelVolumePulldown::updateCheckbox(LLUICtrl* ctrl, const LLSD& user_data
 
             getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
         }
-    }
-    else if (control_name == "VoiceChat")
-    {
-        LLVivoxVoiceClient::unmuteVoiceInstance();
     }
 }
 

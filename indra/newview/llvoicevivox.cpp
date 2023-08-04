@@ -277,7 +277,6 @@ static void killGateway()
 
 bool LLVivoxVoiceClient::sShuttingDown = false;
 bool LLVivoxVoiceClient::sConnected = false;
-bool LLVivoxVoiceClient::sVoiceInstanceMuted = false;
 LLPumpIO *LLVivoxVoiceClient::sPump = nullptr;
 
 LLVivoxVoiceClient::LLVivoxVoiceClient() :
@@ -355,7 +354,6 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
     sShuttingDown = false;
     sConnected = false;
     sPump = nullptr;
-    sVoiceInstanceMuted = LLAppViewer::instance()->isSecondInstance();
 
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -5645,8 +5643,7 @@ bool LLVivoxVoiceClient::voiceEnabled()
 {
     return gSavedSettings.getBOOL("EnableVoiceChat") &&
           !gSavedSettings.getBOOL("CmdLineDisableVoice") &&
-          !gNonInteractive &&
-          !sVoiceInstanceMuted;
+          !gNonInteractive;
 }
 
 void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)

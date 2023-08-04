@@ -555,16 +555,6 @@ void LLVoiceClient::setVoiceEnabled(bool enabled)
     }
 }
 
-void LLVoiceClient::unmuteVoiceInstance()
-{
-    LLVivoxVoiceClient::unmuteVoiceInstance();
-}
-
-bool LLVoiceClient::isMutedVoiceInstance()
-{
-    return LLVivoxVoiceClient::isMutedVoiceInstance();
-}
-
 void LLVoiceClient::updateMicMuteLogic()
 {
 	// If not configured to use PTT, the mic should be open (otherwise the user will be unable to speak).

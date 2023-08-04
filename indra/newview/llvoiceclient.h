@@ -403,8 +403,6 @@ public:
 	void toggleUserPTTState(void);
 	void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs	
 	void setVoiceEnabled(bool enabled);
-    static void unmuteVoiceInstance();
-    static bool isMutedVoiceInstance();
 
 	void setUsePTT(bool usePTT);
 	void setPTTIsToggle(bool PTTIsToggle);
