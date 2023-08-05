@@ -32,6 +32,7 @@
 #include "llsdutil.h"
 
 #include "llinventorymodel.h"
+#include "llviewercontrol.h"
 
 namespace
 {
@@ -103,29 +104,21 @@ LLInventorySkeletonLoader::LLInventorySkeletonLoader(const LLSD &options, const 
         file.open(inventory_filename);
         if (!file.good())
         {
-            LL_WARNS(LOG_INV) << "failed opening " << inventory_filename << LL_ENDL;
+            LL_WARNS(LOG_INV) << "unable to load inventory, failed opening file " << inventory_filename << LL_ENDL;
         }
     }
 }
 
-// static
-bool LLInventorySkeletonLoader::loadFromFile(LLInventoryModel::cat_array_t & categories,
-                                             LLInventoryModel::item_array_t &items,
-                                             LLInventoryModel::changed_items_t &cats_to_update,
-                                                               bool            &is_cache_obsolete)
+
+ELoaderStatus LLInventorySkeletonLoader::loadChunkFromFile()
 {
     LL_PROFILE_ZONE_NAMED_COLOR("inventory loadFromFile", 0xFF1111);
-
-    if (!file.is_open())
-    {
-        LL_INFOS(LOG_INV) << "unable to load inventory, file failed to open" << LL_ENDL;
-        return false;
-    }
 
     is_cache_obsolete = true;  // Obsolete until proven current
 
     std::string                   line;
     LLPointer<LLSDNotationParser> parser = new LLSDNotationParser();
+    U32 line_count = 0;
     // U32 count  = 0;
     while (std::getline(file, line))
     {
@@ -186,7 +179,7 @@ bool LLInventorySkeletonLoader::loadFromFile(LLInventoryModel::cat_array_t & cat
                 {
                     if (inv_item->getType() == LLAssetType::AT_UNKNOWN)
                     {
-                        cats_to_update.insert(inv_item->getParentUUID());
+                        categories_to_update.insert(inv_item->getParentUUID());
                     }
                     else
                     {
@@ -195,26 +188,39 @@ bool LLInventorySkeletonLoader::loadFromFile(LLInventoryModel::cat_array_t & cat
                 }
             }
         }
+
+        static LLCachedControl<U32> chunk_size(gSavedSettings, "InventorySkelLoadChunkSize");
+        if (++line_count > chunk_size)
+        {
+            return LOAD_CONTINUE;
+        }
     }
 
     file.close();
 
-    return !is_cache_obsolete;
+    return is_cache_obsolete ? LOAD_FAILURE : LOAD_SUCCESS;
 }
 
 ELoaderStatus LLInventorySkeletonLoader::loadChunk()
 {
-    bool is_cache_obsolete = false;
-    S32 cached_category_count = 0;
-    S32 cached_item_count     = 0;
-
-    if (!file.good())
+    if (!file.is_open() || !file.good())
     {
         // failure should have alreadby been logged
         return LOAD_FAILURE;
     }
 
-    if (loadFromFile(categories, items, categories_to_update, is_cache_obsolete))
+    ELoaderStatus status = loadChunkFromFile();
+    if (status != LOAD_SUCCESS)
+    {
+        // continue or faluire to be handled by the caller
+        return status;
+    }
+
+    S32 cached_category_count = 0;
+    S32 cached_item_count     = 0;
+
+    // TODO - remove this check should now always be success by this point
+    if (status == LOAD_SUCCESS)
     {
         // We were able to find a cache of files. So, use what we
         // found to generate a set of categories we should add. We
