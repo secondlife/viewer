@@ -1564,6 +1564,31 @@ ELoadStatus LLBVHLoader::loadAssimp()
     return E_ST_OK;
 }
 
+void copyMat4(LLMatrix4 &lmat, aiMatrix4x4 &aiMat)
+{
+	//Copy the assimp mat4 to LL mat4
+	//Nothing fancy, let's just brute-force copy.
+    lmat.mMatrix[0][0] = aiMat.a1;
+    lmat.mMatrix[0][1] = aiMat.a2;
+    lmat.mMatrix[0][2] = aiMat.a3;
+    lmat.mMatrix[0][3] = aiMat.a4;
+
+    lmat.mMatrix[1][0] = aiMat.b1;
+    lmat.mMatrix[1][1] = aiMat.b2;
+    lmat.mMatrix[1][2] = aiMat.b3;
+    lmat.mMatrix[1][3] = aiMat.b4;
+
+    lmat.mMatrix[2][0] = aiMat.c1;
+    lmat.mMatrix[2][1] = aiMat.c2;
+    lmat.mMatrix[2][2] = aiMat.c3;
+    lmat.mMatrix[2][3] = aiMat.c4;
+
+	lmat.mMatrix[3][0] = aiMat.d1;
+    lmat.mMatrix[3][1] = aiMat.d2;
+    lmat.mMatrix[3][2] = aiMat.d3;
+    lmat.mMatrix[3][3] = aiMat.d4;
+}
+
 void LLBVHLoader::extractJointsFromAssimp()
 {
     if (!mAssimpScene)
@@ -1577,7 +1602,18 @@ void LLBVHLoader::extractJointsFromAssimp()
         return;
     }
 
-    aiAnimation * cur_animation = mAssimpScene->mAnimations[0];     // to do - support extracting Nth animation ?
+	U32 anim_id=0;		//Which animation from the asset.  TODO support extracting Nth animation?
+    aiAnimation * cur_animation = mAssimpScene->mAnimations[anim_id];
+
+	//SPATTERS working here
+	//Not entirely intuitive wh
+	aiNode *scene_node = mAssimpScene->mRootNode;			//The root node of the scene.
+	aiNodeAnim *root_animnode = cur_animation->mChannels[0];	//The root node of the animation (I think 0 is the root joint) 
+	aiNode *root_node;
+	root_node = scene_node->FindNode(root_animnode->mNodeName);				//Find the node by unique name in the scene.
+	aiMatrix4x4 root_transformation = root_node->mTransformation.Inverse();	//Counter rotation for arbitrary orientation into correct frame.
+	//SPATTERS end root transformation acquisition
+
     if (cur_animation)
     {
         LL_INFOS("Assimp") << "assimp data duration " << cur_animation->mDuration << " vs. mNumFrames " << mNumFrames << LL_ENDL;
@@ -1612,6 +1648,18 @@ void LLBVHLoader::extractJointsFromAssimp()
             if (cur_node && cur_node->mNodeName.C_Str())
             {
                 std::string node_name(cur_node->mNodeName.C_Str());
+
+				//SPATTERS Here I am.
+                aiNode *cur_trans_node;
+                cur_trans_node = scene_node->FindNode(cur_node->mNodeName);  // Find the node by unique name in the scene.
+                aiMatrix4x4 cur_ai_transmat = cur_trans_node->mTransformation.Inverse();  // Counter rotation from resting pos to T.
+				LLMatrix4 cur_transmat;
+                copyMat4(cur_transmat, cur_ai_transmat);
+				LLQuaternion counter_rot(cur_transmat);
+				F32 roll,pitch,yaw;
+                counter_rot.getEulerAngles(&roll, &pitch, &yaw);
+
+				LL_INFOS("SPATTERS") << "SPATTERS joint " << node_name << " transform rotations " << roll*RAD_TO_DEG << ", " << pitch*RAD_TO_DEG << ", " << yaw*RAD_TO_DEG << LL_ENDL;
 
                 auto        trans_ptr = mTranslations.find(node_name);
                 if (trans_ptr != mTranslations.end())
