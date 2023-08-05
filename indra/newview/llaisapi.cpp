@@ -706,6 +706,10 @@ void AISAPI::FetchCOF(completion_t callback)
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
                                                          _1, getFn, url, LLUUID::null, LLSD(), callback, FETCHCOF));
 
+    LLSD body;
+    // Only cof folder will be full, but cof can contain an outfit
+    // link with embedded outfit folder for request to parse
+    body["depth"] = 0;
     EnqueueAISCommand("FetchCOF", proc);
 }
 
@@ -1359,17 +1363,6 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 	{
         if (mFetch)
         {
-            // set version only if previous one was already known 
-            // or if we are sure this update has full data and embeded items (depth 0+)
-            // since bulk fetch uses this to decide what still needs fetching
-            if (version > LLViewerInventoryCategory::VERSION_UNKNOWN
-                && (depth >= 0 || (curr_cat && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN)))
-            {
-                // Set version/descendents for newly fetched categories.
-                LL_DEBUGS("Inventory") << "Setting version to " << version
-                    << " for category " << category_id << LL_ENDL;
-                new_cat->setVersion(version);
-            }
             uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
             if (mCatDescendentsKnown.end() != lookup_it)
             {
@@ -1377,6 +1370,26 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
                 LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
                     << " for category " << category_id << LL_ENDL;
                 new_cat->setDescendentCount(descendent_count);
+
+                // set version only if we are sure this update has full data and embeded items
+                // since viewer uses version to decide if folder and content still need fetching
+                if (version > LLViewerInventoryCategory::VERSION_UNKNOWN
+                    && (depth >= 0 || (curr_cat && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN)))
+                {
+                    LL_DEBUGS("Inventory") << "Setting version to " << version
+                        << " for category " << category_id << LL_ENDL;
+                    new_cat->setVersion(version);
+                }
+            }
+            else if (curr_cat
+                     && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN
+                     && version > curr_cat->getVersion())
+            {
+                // Potentially should new_cat->setVersion(unknown) here,
+                // but might be waiting for a callback that would increment
+                LL_DEBUGS("Inventory") << "Category " << category_id
+                    << " is stale. Known version: " << curr_cat->getVersion()
+                    << " server version: " << version << LL_ENDL;
             }
             mCategoriesCreated[category_id] = new_cat;
         }
@@ -1393,20 +1406,22 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 		else
 		{
 			// Set version/descendents for newly created categories.
-			if (category_map.has("version"))
-			{
-				S32 version = category_map["version"].asInteger();
-				LL_DEBUGS("Inventory") << "Setting version to " << version
-									   << " for new category " << category_id << LL_ENDL;
-				new_cat->setVersion(version);
-			}
-			uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
-			if (mCatDescendentsKnown.end() != lookup_it)
-			{
-				S32 descendent_count = lookup_it->second;
-				LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count 
-									   << " for new category " << category_id << LL_ENDL;
-				new_cat->setDescendentCount(descendent_count);
+            uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
+            if (mCatDescendentsKnown.end() != lookup_it)
+            {
+                S32 descendent_count = lookup_it->second;
+                LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
+                    << " for new category " << category_id << LL_ENDL;
+                new_cat->setDescendentCount(descendent_count);
+
+                // Don't set version unles correct children count is present
+                if (category_map.has("version"))
+                {
+                    S32 version = category_map["version"].asInteger();
+                    LL_DEBUGS("Inventory") << "Setting version to " << version
+                        << " for new category " << category_id << LL_ENDL;
+                    new_cat->setVersion(version);
+                }
 			}
 			mCategoriesCreated[category_id] = new_cat;
 			mCatDescendentDeltas[new_cat->getParentUUID()]++;
