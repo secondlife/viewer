@@ -3821,7 +3821,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
 
         if (cofVersion == LLViewerInventoryCategory::VERSION_UNKNOWN)
         {
-            LL_WARNS("AVatar") << "COF version is unknown... not requesting until COF version is known." << LL_ENDL;
+            LL_INFOS("AVatar") << "COF version is unknown... not requesting until COF version is known." << LL_ENDL;
             return;
         }
         else
