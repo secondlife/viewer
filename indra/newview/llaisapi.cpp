@@ -703,13 +703,13 @@ void AISAPI::FetchCOF(completion_t callback)
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
-                                                         _1, getFn, url, LLUUID::null, LLSD(), callback, FETCHCOF));
-
     LLSD body;
     // Only cof folder will be full, but cof can contain an outfit
     // link with embedded outfit folder for request to parse
     body["depth"] = 0;
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+                                                         _1, getFn, url, LLUUID::null, body, callback, FETCHCOF));
+
     EnqueueAISCommand("FetchCOF", proc);
 }
 
