@@ -38,6 +38,7 @@ class LLGLTFMaterial;
 class LLLocalGLTFMaterial;
 class LLTextureCtrl;
 class LLTextBox;
+class LLViewerInventoryItem;
 
 namespace tinygltf
 {
@@ -115,6 +116,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static bool canModifyObjectsMaterial();
     static bool canSaveObjectsMaterial();
     static void saveObjectsMaterialAs();
+    static void onCopyObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id);
     static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
@@ -230,10 +232,10 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static bool capabilitiesAvailable();
 
 private:
-    static void saveMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions);
+    static void saveObjectsMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions, const LLUUID& object_id /* = LLUUID::null */, LLViewerInventoryItem* item /* = nullptr */);
 
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
-    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& owner_permissions);
+    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions);
 
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
