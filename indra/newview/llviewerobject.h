@@ -257,6 +257,7 @@ public:
 	virtual BOOL isRiggedMesh() const				{ return FALSE; }
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
     virtual BOOL isReflectionProbe() const          { return FALSE; }
+    virtual BOOL isMirror() const                   { return FALSE; }
 
 	// This method returns true if the object is over land owned by
 	// the agent, one of its groups, or it encroaches and 

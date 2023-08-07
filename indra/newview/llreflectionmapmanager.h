@@ -148,7 +148,7 @@ private:
     void doProbeUpdate();
 
     // update the specified face of the specified probe
-    void updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray);
+    void updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray, std::vector<LLRenderTarget> &mipChain, U32 probeCount);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
@@ -188,6 +188,8 @@ private:
 
     // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
+    
+    U32 mHeroProbeCount;
 
     // resolution of reflection probes
     U32 mProbeResolution = 128;

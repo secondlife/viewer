@@ -217,7 +217,9 @@ void main()
         {
             color = atmosFragLightingLinear(color, additive, atten);
         }
-        color = texture(heroProbes, vec4(norm.xyz * env_mat, 0), 0).xyz;
+        
+        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+        color = texture(heroProbes, vec4(env_mat * refnormpersp, 0), 0).xyz;
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {

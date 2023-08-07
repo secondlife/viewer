@@ -2761,6 +2761,23 @@ void LLPipeline::markShift(LLDrawable *drawablep)
 	}
 }
 
+void LLPipeline::setMirror(LLDrawable *drawablep, bool is_mirror)
+{
+    if (drawablep && assertInitialized())
+    {
+        if (is_mirror)
+        {
+            drawablep->setState(LLDrawable::MIRROR);
+            mMirrorList.insert(drawablep);
+        }
+        else
+        {
+            mMirrorList.erase(drawablep);
+            drawablep->clearState(LLDrawable::MIRROR);
+        }
+    }
+}
+
 void LLPipeline::shiftObjects(const LLVector3 &offset)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
@@ -5812,6 +5829,11 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
 	{
 		LL_INFOS() << "In mRetexturedList" << LL_ENDL;
 	}
+    
+    if (std::find(mMirrorList.begin(), mMirrorList.end(), drawablep) !=  mMirrorList.end())
+    {
+        LL_INFOS() << "In mMirrorList" << LL_ENDL;
+    }
 	
 	if (std::find(mBuildQ1.begin(), mBuildQ1.end(), drawablep) != mBuildQ1.end())
 	{

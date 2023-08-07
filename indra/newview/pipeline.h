@@ -357,6 +357,7 @@ public:
 	void shiftObjects(const LLVector3 &offset);
 
 	void setLight(LLDrawable *drawablep, bool is_light);
+    void setMirror(LLDrawable *drawablep, bool is_mirror);
 	
 	bool hasRenderBatches(const U32 type) const;
 	LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
@@ -818,6 +819,10 @@ protected:
 	LLDrawable::ordered_drawable_set_t	mLights;
 	light_set_t						mNearbyLights; // lights near camera
 	LLColor4						mHWLightColors[8];
+    
+    
+    LLDrawable::ordered_drawable_set_t  mMirrorList;
+    LLDrawable*                         mNearestMirror;
 	
 	/////////////////////////////////////////////
 	//

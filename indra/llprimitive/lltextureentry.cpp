@@ -696,14 +696,6 @@ S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 	}
 	mMaterial = pMaterialParams;
     
-    // TODO: GZ: We should avoid magic UUIDs in the future, but for development we're using one for the time being.  Remove this later.
-    if (mMaterial->getSpecularID().asString() == "da7ecda1-e780-423f-ce27-26df7dc69cb6")
-    {
-        setRenderableTarget(RT_MIRROR);
-    } else {
-        setRenderableTarget(RT_DISABLED);
-    }
-    
 	return TEM_CHANGE_TEXTURE;
 }
 

@@ -308,6 +308,8 @@ public:
     F32 getReflectionProbeNearClip() const;
     bool getReflectionProbeIsBox() const;
     bool getReflectionProbeIsDynamic() const;
+    
+    BOOL isMirror() const override;
 
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;

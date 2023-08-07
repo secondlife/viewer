@@ -140,7 +140,7 @@ void LLReflectionMapManager::update()
 
     if (mMipChain.empty())
     {
-        U32 res = mProbeResolution;
+        U32 res = mHeroProbeResolution;
         U32 count = log2((F32)res) + 0.5f;
         
         mMipChain.resize(count);
@@ -326,7 +326,7 @@ void LLReflectionMapManager::update()
         mRadiancePass = mRealtimeRadiancePass;
         for (U32 i = 0; i < 6; ++i)
         {
-            updateProbeFace(closestDynamic, i, mProbeResolution, mTexture);
+            updateProbeFace(closestDynamic, i, mProbeResolution, mTexture, mMipChain, mReflectionProbeCount);
         }
         mRealtimeRadiancePass = !mRealtimeRadiancePass;
 
@@ -343,7 +343,7 @@ void LLReflectionMapManager::update()
         mRadiancePass = true;
         for (U32 i = 0; i < 6; ++i)
         {
-            updateProbeFace(mHeroProbe, i, mHeroProbeResolution, mHeroArray);
+            updateProbeFace(mHeroProbe, i, mHeroProbeResolution, mHeroArray, mMipChain, mHeroProbeCount);
         }
 
         // restore "isRadiancePass"
@@ -555,7 +555,7 @@ void LLReflectionMapManager::doProbeUpdate()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(mUpdatingProbe != nullptr);
 
-    updateProbeFace(mUpdatingProbe, mUpdatingFace, mProbeResolution, mTexture);
+    updateProbeFace(mUpdatingProbe, mUpdatingFace, mProbeResolution, mTexture, mMipChain, mReflectionProbeCount);
     
     if (++mUpdatingFace == 6)
     {
@@ -582,14 +582,14 @@ void LLReflectionMapManager::doProbeUpdate()
 // The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
 // At the end of these passes, a radiance map is generated for this probe and placed into the radiance cube map array at the index for this probe.
 // In effect this simulates single-bounce lighting.
-void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray)
+void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray, std::vector<LLRenderTarget> &mipChain, U32 probeCount)
 {
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
     
     LLRenderTarget* target = &mRenderTarget;
     
-    S32 sourceIdx = mReflectionProbeCount;
+    S32 sourceIdx = probeCount;
     
     if (probeResolution == mHeroProbeResolution)
     {
@@ -1327,9 +1327,13 @@ void LLReflectionMapManager::initReflectionMaps()
         
         mHeroProbeResolution = 128;
         
-        mHeroArray = new LLCubeMapArray();
         // Revise when we have both water and mirrors in hero probes.
-        mHeroArray->allocate(mHeroProbeResolution, 3, 2, true);
+        mHeroProbeCount = 1;
+        
+        mHeroArray = new LLCubeMapArray();
+        
+        // We use an extra probe for scratch space on these.
+        mHeroArray->allocate(mHeroProbeResolution, 3, mHeroProbeCount + 1, true);
         
         if (mHeroProbe.isNull()) {
             mHeroProbe = new LLReflectionMap();

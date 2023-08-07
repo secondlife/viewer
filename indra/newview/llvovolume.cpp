@@ -1044,7 +1044,9 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
     {
         updateReflectionProbePtr();
     }
-
+    
+    gPipeline.setMirror(mDrawable, isMirror());
+    
 	updateRadius();
 	bool force_update = true; // avoid non-alpha mDistance update being optimized away
 	mDrawable->updateDistance(*LLViewerCamera::getInstance(), force_update);
@@ -3377,6 +3379,30 @@ F32 LLVOVolume::getLightCutoff() const
 	}
 }
 
+BOOL LLVOVolume::isMirror() const
+{
+    S32 faceCount = getNumFaces();
+    
+    // Temporary hack to set the object to mirror.
+    for (int i = 0; i < faceCount; i++)
+    {
+        const LLTextureEntry* te = getTE(i);
+        
+        if (te->getMaterialParams().notNull())
+        {
+            LLViewerTexture* specularp = getTESpecularMap(0);
+            
+            if (specularp && specularp->getID() == "da7ecda1-e780-423f-ce27-26df7dc69cb6")
+            {
+                LL_INFOS() << "BELLADONNA OF SADNESS" << LL_ENDL;
+                return TRUE;
+            }
+        }
+    }
+    
+    return FALSE;
+}
+
 BOOL LLVOVolume::isReflectionProbe() const
 {
     return getParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE);
@@ -4427,6 +4453,8 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
 	}
    
     updateReflectionProbePtr();
+    
+    gPipeline.setMirror(mDrawable, isMirror());
 }
 
 void LLVOVolume::updateReflectionProbePtr()
