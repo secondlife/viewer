@@ -40,6 +40,7 @@
 #include "llstl.h"
 #include "llapr.h"
 #include "llsdserialize.h"
+#include "llassimpinterface.h"
 
 #include "assimp/DefaultLogger.hpp"
 #include "assimp/scene.h"           // Output data structure
@@ -132,7 +133,6 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 
 LLBVHLoader::LLBVHLoader(bool save_diagnostic_files) :
                              mAssimpImporter(nullptr),
-                             mAssimpScene(nullptr),
                              mSaveDiagnosticFiles(save_diagnostic_files)
 {
     reset();
@@ -167,7 +167,7 @@ void LLBVHLoader::loadAnimationData(const char* buffer,
 
     // Assimp test code
     loadAssimp();
-    if (mAssimpScene && mSaveDiagnosticFiles)
+    if (mAssimp.mScene && mSaveDiagnosticFiles)
     {
         dumpAssimp();
     }
@@ -193,7 +193,7 @@ LLBVHLoader::~LLBVHLoader()
 {
 	std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
 	mJoints.clear();
-    reset();        // Clean up mAssimpImporter and mAssimpScene
+    reset();        // Clean up mAssimpImporter and mAssimp.mScene
 }
 
 static S32 test_transform_chain = 3;
@@ -1072,7 +1072,7 @@ void LLBVHLoader::reset()
         delete mAssimpImporter;
         mAssimpImporter = nullptr;
     }
-    mAssimpScene = nullptr;
+    mAssimp.mScene = nullptr;
 }
 
 //------------------------------------------------------------------------
@@ -1440,7 +1440,7 @@ void LLBVHLoader::dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofs
 
 void LLBVHLoader::dumpAssimpAnimations(llofstream & data_stream)
 {
-    aiAnimation * cur_animation = mAssimpScene->mAnimations[0];     // to do - support extracting Nth animation ?
+    aiAnimation * cur_animation = mAssimp.mScene->mAnimations[0];     // to do - support extracting Nth animation ?
     if (cur_animation)
     {
         if (cur_animation->mName.C_Str())
@@ -1490,15 +1490,15 @@ void LLBVHLoader::dumpAssimp()
     data_stream << "Time: " << LLDate::now() << std::endl;
     data_stream << std::endl;
 
-    data_stream << "mNumAnimations: " << (S32)(mAssimpScene->mNumAnimations) << std::endl;
-    data_stream << "mNumSkeletons: " << (S32)(mAssimpScene->mNumSkeletons) << std::endl;
-    data_stream << "mNumMeshes: " << (S32)(mAssimpScene->mNumMeshes) << std::endl;
-    data_stream << "mNumMaterials: " << (S32)(mAssimpScene->mNumMaterials) << std::endl;
-    data_stream << "mNumTextures: " << (S32)(mAssimpScene->mNumTextures) << std::endl;
-    data_stream << "mNumLights: " << (S32)(mAssimpScene->mNumLights) << std::endl;
-    data_stream << "mNumCameras: " << (S32)(mAssimpScene->mNumCameras) << std::endl;
+    data_stream << "mNumAnimations: " << (S32)(mAssimp.mScene->mNumAnimations) << std::endl;
+    data_stream << "mNumSkeletons: " << (S32)(mAssimp.mScene->mNumSkeletons) << std::endl;
+    data_stream << "mNumMeshes: " << (S32)(mAssimp.mScene->mNumMeshes) << std::endl;
+    data_stream << "mNumMaterials: " << (S32)(mAssimp.mScene->mNumMaterials) << std::endl;
+    data_stream << "mNumTextures: " << (S32)(mAssimp.mScene->mNumTextures) << std::endl;
+    data_stream << "mNumLights: " << (S32)(mAssimp.mScene->mNumLights) << std::endl;
+    data_stream << "mNumCameras: " << (S32)(mAssimp.mScene->mNumCameras) << std::endl;
 
-    if (mAssimpScene->mNumAnimations == 1)
+    if (mAssimp.mScene->mNumAnimations == 1)
     {
         dumpAssimpAnimations(data_stream);
     }
@@ -1513,7 +1513,7 @@ ELoadStatus LLBVHLoader::loadAssimp()
         LL_WARNS("Assimp") << "Already have unexpected importer when loading assimp" << LL_ENDL;
         return E_ST_INTERNAL_ERROR;
     }
-    if (mAssimpScene)
+    if (mAssimp.mScene)
     {
         LL_WARNS("Assimp") << "Already have unexpected scene when loading assimp" << LL_ENDL;
         return E_ST_INTERNAL_ERROR;
@@ -1538,14 +1538,14 @@ ELoadStatus LLBVHLoader::loadAssimp()
         // probably to request more postprocessing than we do in this example.
 
         LL_INFOS("Assimp") << "Loading BVH file into Assimp Importer " << mFilenameAndPath << LL_ENDL;
-        mAssimpScene = mAssimpImporter->ReadFile(mFilenameAndPath,
+        mAssimp.mScene = mAssimpImporter->ReadFile(mFilenameAndPath,
             //aiProcess_CalcTangentSpace |
             aiProcess_Triangulate |
             aiProcess_JoinIdenticalVertices |
             aiProcess_SortByPType);
 
         // Check if the import failed
-        if (mAssimpScene == nullptr)
+        if (mAssimp.mScene == nullptr)
         {
             LL_WARNS("Assimp") << "Unable to read and create Assimp scene from " << mFilenameAndPath << LL_ENDL;
         }
@@ -1564,66 +1564,47 @@ ELoadStatus LLBVHLoader::loadAssimp()
     return E_ST_OK;
 }
 
-void copyMat4(LLMatrix4 &lmat, aiMatrix4x4 &aiMat)
-{
-	//Copy the assimp mat4 to LL mat4
-	//Nothing fancy, let's just brute-force copy.
-    lmat.mMatrix[0][0] = aiMat.a1;
-    lmat.mMatrix[0][1] = aiMat.a2;
-    lmat.mMatrix[0][2] = aiMat.a3;
-    lmat.mMatrix[0][3] = aiMat.a4;
-
-    lmat.mMatrix[1][0] = aiMat.b1;
-    lmat.mMatrix[1][1] = aiMat.b2;
-    lmat.mMatrix[1][2] = aiMat.b3;
-    lmat.mMatrix[1][3] = aiMat.b4;
-
-    lmat.mMatrix[2][0] = aiMat.c1;
-    lmat.mMatrix[2][1] = aiMat.c2;
-    lmat.mMatrix[2][2] = aiMat.c3;
-    lmat.mMatrix[2][3] = aiMat.c4;
-
-	lmat.mMatrix[3][0] = aiMat.d1;
-    lmat.mMatrix[3][1] = aiMat.d2;
-    lmat.mMatrix[3][2] = aiMat.d3;
-    lmat.mMatrix[3][3] = aiMat.d4;
-}
-
 void LLBVHLoader::extractJointsFromAssimp()
 {
-    if (!mAssimpScene)
+    if (!mAssimp.mScene)
     {
         LL_WARNS("Assimp") << "No assimp scene, can't extract joint animations" << LL_ENDL;
         return;     // to do - add errors
     }
-    if (mAssimpScene->mNumAnimations == 0)
+
+	U32 anim_id = 0;
+    if (!mAssimp.setAnimation(anim_id))
     {
-        LL_WARNS("Assimp") << "No assimp animations, can't extract joints" << LL_ENDL;
+        LL_WARNS("Assimp") << "No assimp animations or invalid animation id, can't extract joints" << LL_ENDL;
         return;
     }
 
-	U32 anim_id=0;		//Which animation from the asset.  TODO support extracting Nth animation?
-    aiAnimation * cur_animation = mAssimpScene->mAnimations[anim_id];
+	U32 mesh_id = 0;
+    if (!mAssimp.setMesh(mesh_id))
+    {
+        LL_WARNS("Assimp") << "No assimp meshes or invalid mesh id, can't extract transformation matrices" << LL_ENDL;
+        return;
+    }
 
 	//SPATTERS working here
 	//Not entirely intuitive wh
-	aiNode *scene_node = mAssimpScene->mRootNode;			//The root node of the scene.
-	aiNodeAnim *root_animnode = cur_animation->mChannels[0];	//The root node of the animation (I think 0 is the root joint) 
+	aiNode *scene_node = mAssimp.mScene->mRootNode;			//The root node of the scene.
+	aiNodeAnim *root_animnode = mAssimp.mAnimation->mChannels[0];	//The root node of the animation (I think 0 is the root joint) 
 	aiNode *root_node;
 	root_node = scene_node->FindNode(root_animnode->mNodeName);				//Find the node by unique name in the scene.
 	aiMatrix4x4 root_transformation = root_node->mTransformation.Inverse();	//Counter rotation for arbitrary orientation into correct frame.
 	//SPATTERS end root transformation acquisition
 
-    if (cur_animation)
+    if (mAssimp.mAnimation)
     {
-        LL_INFOS("Assimp") << "assimp data duration " << cur_animation->mDuration << " vs. mNumFrames " << mNumFrames << LL_ENDL;
+        LL_INFOS("Assimp") << "assimp data duration " << mAssimp.mAnimation->mDuration << " vs. mNumFrames " << mNumFrames << LL_ENDL;
 
-        mNumFrames = cur_animation->mDuration + 1;
-        if (cur_animation->mTicksPerSecond <= 0.0)
+        mNumFrames = mAssimp.mAnimation->mDuration + 1;
+        if (mAssimp.mAnimation->mTicksPerSecond <= 0.0)
         {   // Play it safe
-            cur_animation->mTicksPerSecond = 1.0;
+            mAssimp.mAnimation->mTicksPerSecond = 1.0;
         }
-        mFrameTime = (F32)(1.0 / cur_animation->mTicksPerSecond);
+        mFrameTime = (F32) (1.0 / mAssimp.mAnimation->mTicksPerSecond);
 
         // Copied from original BVH code:
         // If the file only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
@@ -1642,9 +1623,9 @@ void LLBVHLoader::extractJointsFromAssimp()
         }
 
         // Extract nodes into mJoints
-        for (S32 node_index = 0; node_index < cur_animation->mNumChannels; node_index++)
+        for (S32 node_index = 0; node_index < mAssimp.mAnimation->mNumChannels; node_index++)
         {
-            aiNodeAnim * cur_node = cur_animation->mChannels[node_index];
+            aiNodeAnim *cur_node = mAssimp.mAnimation->mChannels[node_index];
             if (cur_node && cur_node->mNodeName.C_Str())
             {
                 std::string node_name(cur_node->mNodeName.C_Str());
@@ -1654,7 +1635,7 @@ void LLBVHLoader::extractJointsFromAssimp()
                 cur_trans_node = scene_node->FindNode(cur_node->mNodeName);  // Find the node by unique name in the scene.
                 aiMatrix4x4 cur_ai_transmat = cur_trans_node->mTransformation.Inverse();  // Counter rotation from resting pos to T.
 				LLMatrix4 cur_transmat;
-                copyMat4(cur_transmat, cur_ai_transmat);
+                mAssimp.copyMat4(cur_transmat, cur_ai_transmat);
 				LLQuaternion counter_rot(cur_transmat);
 				F32 roll,pitch,yaw;
                 counter_rot.getEulerAngles(&roll, &pitch, &yaw);

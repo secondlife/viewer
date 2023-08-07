@@ -32,11 +32,13 @@
 #include "llmath.h"
 #include "llapr.h"
 #include "llbvhconsts.h"
+#include "llassimpinterface.h"
 
 #include "assimp/Importer.hpp"      // C++ importer interface
 
 const S32 BVH_PARSER_LINE_SIZE = 2048;
 class LLDataPacker;
+class LLAssimpInterface;
 
 
 // LLAnimKey
@@ -322,7 +324,8 @@ protected:
     // Assimp data
     std::string         mFilenameAndPath;   // Source file (bvh)
     Assimp::Importer *  mAssimpImporter;    // Main assimp library object
-    const aiScene *     mAssimpScene;       // scene data after reading a file
+    //const aiScene *     mAssimpScene;       // scene data after reading a file
+	LLAssimpInterface   mAssimp;
 
     bool mSaveDiagnosticFiles;                // Flag to save extra logging data during import
 };

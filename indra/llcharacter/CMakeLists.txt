@@ -8,6 +8,7 @@ include(Assimp)
 
 set(llcharacter_SOURCE_FILES
     llanimationstates.cpp
+    llassimpinterface.cpp
     llbvhloader.cpp
     llcharacter.cpp
     lleditingmotion.cpp
@@ -34,6 +35,7 @@ set(llcharacter_HEADER_FILES
     CMakeLists.txt
 
     llanimationstates.h
+    llassimpinterface.h
     llbvhloader.h
     llbvhconsts.h
     llcharacter.h
