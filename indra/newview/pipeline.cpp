@@ -8461,13 +8461,14 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         mReflectionMapManager.mIrradianceMaps->bind(channel);
         bound = true;
     }
-    
+    /*
     channel = shader.enableTexture(LLShaderMgr::HERO_PROBE, LLTexUnit::TT_CUBE_MAP_ARRAY);
     if (channel > -1 && mReflectionMapManager.mHeroArray.notNull())
     {
         mReflectionMapManager.mHeroArray->bind(channel);
         bound = true;
     }
+     */
 
     if (bound)
     {

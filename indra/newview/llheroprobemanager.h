@@ -1,6 +1,6 @@
 /**
- * @file llreflectionmapmanager.h
- * @brief LLReflectionMapManager class declaration
+ * @file llheroprobemanager.h
+ * @brief LLHeroProbeManager class declaration
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -43,23 +43,21 @@ class LLViewerObject;
 // reflection probe mininum scale
 #define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
 
-void renderReflectionProbe(LLReflectionMap* probe);
-
-class alignas(16) LLReflectionMapManager
+class alignas(16) LLHeroProbeManager
 {
     LL_ALIGN_NEW
 public:
-    enum class DetailLevel
+    enum class DetailLevel 
     {
         STATIC_ONLY = 0,
         STATIC_AND_DYNAMIC,
         REALTIME = 2
     };
 
-    // allocate an environment map of the given resolution
-    LLReflectionMapManager();
+    // allocate an environment map of the given resolution 
+    LLHeroProbeManager();
 
-    // release any GL state
+    // release any GL state 
     void cleanup();
 
     // maintain reflection probes
@@ -115,7 +113,7 @@ private:
     // returns -1 if allocation failed
     S32 allocateCubeIndex();
 
-    // update the neighbors of the given probe
+    // update the neighbors of the given probe 
     void updateNeighbors(LLReflectionMap* probe);
 
     // update UBO used for rendering (call only once per render pipe flush)
@@ -127,11 +125,15 @@ private:
     // render target for cube snapshots
     // used to generate mipmaps without doing a copy-to-texture
     LLRenderTarget mRenderTarget;
+    
+    LLRenderTarget mHeroRenderTarget;
 
     std::vector<LLRenderTarget> mMipChain;
 
     // storage for reflection probe radiance maps (plus two scratch space cubemaps)
     LLPointer<LLCubeMapArray> mTexture;
+    
+    LLPointer<LLCubeMapArray> mHeroArray;
 
     // vertex buffer for pushing verts to filter shaders
     LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -146,7 +148,7 @@ private:
     void doProbeUpdate();
 
     // update the specified face of the specified probe
-    void updateProbeFace(LLReflectionMap* probe, U32 face);
+    void updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray, std::vector<LLRenderTarget> &mipChain, U32 probeCount);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
@@ -159,6 +161,9 @@ private:
 
     // handle to UBO
     U32 mUBO = 0;
+    
+    // Hero UBO
+    U32 mHeroUBO = 0;
 
     // list of maps being used for rendering
     std::vector<LLReflectionMap*> mReflectionMaps;
@@ -178,12 +183,18 @@ private:
     bool mRealtimeRadiancePass = false;
 
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
+    
+    LLPointer<LLReflectionMap> mHeroProbe;
 
     // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
+    
+    U32 mHeroProbeCount;
 
     // resolution of reflection probes
     U32 mProbeResolution = 128;
+    
+    U32 mHeroProbeResolution = 512;
 
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;
