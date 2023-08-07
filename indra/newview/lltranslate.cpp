@@ -725,7 +725,7 @@ bool LLAzureTranslationHandler::parseResponse(
         return false;
     }
 
-    translation = first["text"].asString();
+    translation = LLURI::unescape(first["text"].asString());
 
     return true;
 }
@@ -825,8 +825,13 @@ LLSD LLAzureTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCorout
 {
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
     LLCore::BufferArrayStream outs(rawbody.get());
+
+    static const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "
+                                             "0123456789"
+                                             "-._~";
+
     outs << "[{\"text\":\"";
-    outs << msg;
+    outs << LLURI::escape(msg, allowed_chars);
     outs << "\"}]";
 
     return adapter->postRawAndSuspend(request, url, rawbody, options, headers);
