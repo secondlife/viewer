@@ -34,11 +34,10 @@
 #include <map> 
 
 #include "assimp/Importer.hpp"      // C++ importer interface
-//#include "assimp/DefaultLogger.hpp"
-//#include "assimp/scene.h"        // Output data structure
-//#include "assimp/postprocess.h"  // Post processing flags
+
 
 struct aiScene;
+struct aiNode;
 struct aiMesh;
 struct aiAnimation;
 struct aiBone;
@@ -52,13 +51,16 @@ class LLAssimpInterface
         void setScene(aiScene* scene) { mScene = scene; }
         bool setMesh(U32 mesh_id);
         bool setAnimation(U32 anim_id);
-        void  createBoneMap();
+        void updateBoneMap();
         void copyMat4(LLMatrix4 &lmat, aiMatrix4x4 &aiMat);
-
+        aiNode* getSceneRootNode();
+        LLMatrix4 getTransMat4(std::string name);
+        LLMatrix4 getOffsetMat4(std::string name);
     public:
         const aiScene* mScene;
         aiMesh* mMesh;
         aiAnimation* mAnimation;
+        aiMatrix4x4 mAIRootTransMat4;
         LLaiBoneMap mBoneMap;
 };
 

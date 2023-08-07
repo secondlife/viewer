@@ -40,7 +40,25 @@ bool LLAssimpInterface::setMesh(U32 mesh_id)
         return false;
     }
     mMesh = mScene->mMeshes[mesh_id];
+
+    if (mMesh->mNumBones==0)
+    {
+        return false;
+    }
+
+    //Get the root transformation matrix, we'll need it later.
+
+    aiNode *root_node = getSceneRootNode()->FindNode(mMesh->mBones[0]->mName);  // Find the node by unique name in the scene.
+    mAIRootTransMat4  = root_node->mTransformation.Inverse();  // Counter rotation for arbitrary orientation into correct frame.
+
+    updateBoneMap();
+
     return true;
+}
+
+aiNode* LLAssimpInterface::getSceneRootNode()
+{ 
+    return mScene->mRootNode;
 }
 
 bool LLAssimpInterface::setAnimation(U32 anim_id)
@@ -53,12 +71,21 @@ bool LLAssimpInterface::setAnimation(U32 anim_id)
     return true;
 }
 
-void LLAssimpInterface::createBoneMap()
+void LLAssimpInterface::updateBoneMap()
 {
-    aiBone *cur_bone = mMesh->mBones[0];
+    mBoneMap.clear();
+
     for(int i=0;i<mMesh->mNumBones;++i)
     {
-        mBoneMap[cur_bone->mName.C_Str()] = cur_bone;
+        string  name = mMesh->mBones[i]->mName.C_Str();
+
+        if (name == "")
+        {
+            LL_WARNS("assimp") << "Bone " << i << " is unnamed." << LL_ENDL;
+            continue;
+        }
+
+        mBoneMap[name] = mMesh->mBones[i];
     }
 }
 
@@ -94,4 +121,33 @@ void LLAssimpInterface::copyMat4(LLMatrix4 &lmat, aiMatrix4x4 &aiMat)
                          << lmat.mMatrix[2][3] << LL_ENDL;
     LL_INFOS("SPATTERS") << "SPATTERS LL: " << lmat.mMatrix[3][0] << ", " << lmat.mMatrix[3][1] << ", " << lmat.mMatrix[3][2] << ", "
                          << lmat.mMatrix[3][3] << LL_ENDL;
+}
+
+LLMatrix4 LLAssimpInterface::getTransMat4( std::string name )
+{
+    //WARNING this name is a small lie.  Returning the inverse matrix.
+
+    aiNode *cur_trans_node = getSceneRootNode()->FindNode(name.c_str());  // Find the node by unique name in the scene.
+    aiMatrix4x4 cur_ai_transmat = cur_trans_node->mTransformation.Inverse();                // Counter rotation from resting pos to T.
+    LLMatrix4   cur_transmat;
+    copyMat4(cur_transmat, cur_ai_transmat);
+    return  cur_transmat;
+}
+
+LLMatrix4 LLAssimpInterface::getOffsetMat4(std::string name)
+{
+    // WARNING this name is a small lie.  Returning the inverse matrix.
+
+    auto cur_bone = mBoneMap.find(name);
+
+    LLMatrix4 cur_transmat;
+
+    if (cur_bone == mBoneMap.end())
+    {
+        LL_WARNS("assimp") << "Assimp did not have a bone with a name matching " << name << " returning 0 ofset matrix." << LL_ENDL;
+    }
+    aiMatrix4x4 cur_ai_transmat = cur_bone->second->mOffsetMatrix.Inverse();        // Counter rotation from resting pos to T.
+    copyMat4(cur_transmat, cur_ai_transmat);
+
+    return cur_transmat;
 }

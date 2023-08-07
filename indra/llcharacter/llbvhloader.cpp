@@ -1586,15 +1586,6 @@ void LLBVHLoader::extractJointsFromAssimp()
         return;
     }
 
-	//SPATTERS working here
-	//Not entirely intuitive wh
-	aiNode *scene_node = mAssimp.mScene->mRootNode;			//The root node of the scene.
-	aiNodeAnim *root_animnode = mAssimp.mAnimation->mChannels[0];	//The root node of the animation (I think 0 is the root joint) 
-	aiNode *root_node;
-	root_node = scene_node->FindNode(root_animnode->mNodeName);				//Find the node by unique name in the scene.
-	aiMatrix4x4 root_transformation = root_node->mTransformation.Inverse();	//Counter rotation for arbitrary orientation into correct frame.
-	//SPATTERS end root transformation acquisition
-
     if (mAssimp.mAnimation)
     {
         LL_INFOS("Assimp") << "assimp data duration " << mAssimp.mAnimation->mDuration << " vs. mNumFrames " << mNumFrames << LL_ENDL;
@@ -1631,12 +1622,10 @@ void LLBVHLoader::extractJointsFromAssimp()
                 std::string node_name(cur_node->mNodeName.C_Str());
 
 				//SPATTERS Here I am.
-                aiNode *cur_trans_node;
-                cur_trans_node = scene_node->FindNode(cur_node->mNodeName);  // Find the node by unique name in the scene.
-                aiMatrix4x4 cur_ai_transmat = cur_trans_node->mTransformation.Inverse();  // Counter rotation from resting pos to T.
-				LLMatrix4 cur_transmat;
-                mAssimp.copyMat4(cur_transmat, cur_ai_transmat);
-				LLQuaternion counter_rot(cur_transmat);
+               
+				LLMatrix4 offset_matrix = mAssimp.getOffsetMat4(node_name);
+
+				LLQuaternion counter_rot(offset_matrix);
 				F32 roll,pitch,yaw;
                 counter_rot.getEulerAngles(&roll, &pitch, &yaw);
 
