@@ -1940,11 +1940,12 @@ void LLMaterialEditor::saveObjectsMaterialAs()
         LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
         return;
     }
-    saveObjectsMaterialAs(func.mMaterial, func.mLocalMaterial, permissions, func.mObjectId, item);
+    const LLUUID item_id = item ? item->getUUID() : LLUUID::null;
+    saveObjectsMaterialAs(func.mMaterial, func.mLocalMaterial, permissions, func.mObjectId, item_id);
 }
 
 
-void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions, const LLUUID& object_id, LLViewerInventoryItem* item) // TODO: item should probably just be an ID at this point
+void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id)
 {
     if (local_material)
     {
@@ -2028,10 +2029,10 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
     }
     else
     {
-        if (item)
+        if (item_id.notNull())
         {
             // Copy existing item from object inventory, and create new composite asset on top of it
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback, _1, _2, permissions, object_id, item->getUUID()));
+            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback, _1, _2, permissions, object_id, item_id));
         }
         else
         {
@@ -2044,71 +2045,74 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
 void LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (0 == option)
+    if (0 != option)
     {
-        LLSD asset;
-        asset["version"] = LLGLTFMaterial::ASSET_VERSION;
-        asset["type"] = LLGLTFMaterial::ASSET_TYPE;
-        // This is the string serialized from LLGLTFMaterial::asJSON
-        asset["data"] = notification["payload"]["data"];
-
-        std::ostringstream str;
-        LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
-
-        LLViewerObject* object = gObjectList.findObject(object_id);
-        if (!object)
-        {
-            return;
-        }
-        const LLInventoryItem* item = object->getInventoryItem(item_id);
-        if (!item)
-        {
-            return;
-        }
-
-        std::string new_name = response["message"].asString();
-        LLInventoryObject::correctInventoryName(new_name);
-        if (new_name.empty())
-        {
-            return;
-        }
-
-        const LLUUID destination_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
-
-        // TODO: Test
-        // TODO: Rename the item
-        LLPointer<LLInventoryCallback> cb = new LLObjectsMaterialItemCallback(permissions, str.str(), new_name);
-        // NOTE: This should be an item copy. Saving a material to an inventory should be disabled when the associated material is no-copy.
-        move_or_copy_inventory_from_object(destination_id,
-                                           object_id,
-                                           item_id,
-                                           cb);
+        return;
     }
+
+    LLSD asset;
+    asset["version"] = LLGLTFMaterial::ASSET_VERSION;
+    asset["type"] = LLGLTFMaterial::ASSET_TYPE;
+    // This is the string serialized from LLGLTFMaterial::asJSON
+    asset["data"] = notification["payload"]["data"];
+
+    std::ostringstream str;
+    LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
+
+    LLViewerObject* object = gObjectList.findObject(object_id);
+    if (!object)
+    {
+        return;
+    }
+    const LLInventoryItem* item = object->getInventoryItem(item_id);
+    if (!item)
+    {
+        return;
+    }
+
+    std::string new_name = response["message"].asString();
+    LLInventoryObject::correctInventoryName(new_name);
+    if (new_name.empty())
+    {
+        return;
+    }
+
+    const LLUUID destination_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+
+    LLPointer<LLInventoryCallback> cb = new LLObjectsMaterialItemCallback(permissions, str.str(), new_name);
+    // NOTE: This should be an item copy. Saving a material to an inventory should be disabled when the associated material is no-copy.
+    move_or_copy_inventory_from_object(destination_id,
+                                       object_id,
+                                       item_id,
+                                       cb);
 }
 
 // static
 void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (0 == option)
+    if (0 != option)
     {
-        LLSD asset;
-        asset["version"] = LLGLTFMaterial::ASSET_VERSION;
-        asset["type"] = LLGLTFMaterial::ASSET_TYPE;
-        // This is the string serialized from LLGLTFMaterial::asJSON
-        asset["data"] = notification["payload"]["data"];
-
-        std::ostringstream str;
-        LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
-
-        std::string new_name = response["message"].asString();
-        LLInventoryObject::correctInventoryName(new_name);
-        if (new_name.empty())
-        {
-            return;
-        }
-        createInventoryItem(str.str(), new_name, std::string(), permissions);
+        return;
     }
+
+    LLSD asset;
+    asset["version"] = LLGLTFMaterial::ASSET_VERSION;
+    asset["type"] = LLGLTFMaterial::ASSET_TYPE;
+    // This is the string serialized from LLGLTFMaterial::asJSON
+    asset["data"] = notification["payload"]["data"];
+
+    std::ostringstream str;
+    LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
+
+    std::string new_name = response["message"].asString();
+    LLInventoryObject::correctInventoryName(new_name);
+    if (new_name.empty())
+    {
+        return;
+    }
+
+    createInventoryItem(str.str(), new_name, std::string(), permissions);
 }
 
 const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type);

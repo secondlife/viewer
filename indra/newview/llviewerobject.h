@@ -494,7 +494,6 @@ public:
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
 	void updateMaterialInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
-	// TODO: Decide if this is worth keeping - Returns NULL if item does not exist or is a category
 	LLInventoryItem* getInventoryItem(const LLUUID& item_id);
 
 	// Get content except for root category

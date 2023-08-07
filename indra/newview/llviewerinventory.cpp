@@ -1609,8 +1609,6 @@ void move_or_copy_inventory_from_object(const LLUUID& destination_id,
                                         const LLUUID& item_id,
                                         LLPointer<LLInventoryCallback> cb)
 {
-    // TODO: Implement
-
     LLViewerObject* object = gObjectList.findObject(object_id);
     if (!object)
     {
