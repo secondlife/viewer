@@ -1623,13 +1623,22 @@ void LLBVHLoader::extractJointsFromAssimp()
 
 				//SPATTERS Here I am.
                
-				LLMatrix4 offset_matrix = mAssimp.getOffsetMat4(node_name);
+				LLMatrix4 offset_matrix = mAssimp.getOffsetMat4(node_name); //Root is right rest look rotated by root.
+
+				// SPATTERS when importing RESTING_idle.bvh, what we are looking for here are angles that
+                // look like the 0th row in the MOTION section of the BVH (or the inverse would be even better) file.
+                // RESTING_idle was created by using the default bvh output options for the mixamo export type.
+
+				// SPATTERS BEGIN exploratory code:
 
 				LLQuaternion counter_rot(offset_matrix);
 				F32 roll,pitch,yaw;
                 counter_rot.getEulerAngles(&roll, &pitch, &yaw);
 
 				LL_INFOS("SPATTERS") << "SPATTERS joint " << node_name << " transform rotations " << roll*RAD_TO_DEG << ", " << pitch*RAD_TO_DEG << ", " << yaw*RAD_TO_DEG << LL_ENDL;
+
+				//SPATTERS END exploratory code
+
 
                 auto        trans_ptr = mTranslations.find(node_name);
                 if (trans_ptr != mTranslations.end())

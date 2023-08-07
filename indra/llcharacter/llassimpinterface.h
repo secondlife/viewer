@@ -42,7 +42,13 @@ struct aiMesh;
 struct aiAnimation;
 struct aiBone;
 
-typedef std::map<std::string, aiBone*> LLaiBoneMap;
+struct LLAssimpBoneData
+{
+    aiBone *mBone;
+    aiMatrix4x4 mWorldTransform;
+};
+   
+typedef std::map<std::string, LLAssimpBoneData> LLaiBoneMap;
 
 class LLAssimpInterface
 {
@@ -53,9 +59,14 @@ class LLAssimpInterface
         bool setAnimation(U32 anim_id);
         void updateBoneMap();
         void copyMat4(LLMatrix4 &lmat, aiMatrix4x4 &aiMat);
+        void generateGlobalTransforms(const aiNode *node, const aiMatrix4x4 &mat);
+
         aiNode* getSceneRootNode();
         LLMatrix4 getTransMat4(std::string name);
         LLMatrix4 getOffsetMat4(std::string name);
+        LLMatrix4 getExperimental(std::string name); //SPATTERS an experiment may not be right.
+        aiMatrix4x4 createIdentityMat4();
+
     public:
         const aiScene* mScene;
         aiMesh* mMesh;
