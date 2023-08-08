@@ -40,7 +40,7 @@
       comment="Name of bold sans-serif font"
       font_hinting="default"
       font_kerning="unfitted"
-      font_spacing="0.5">
+      font_spacing="0">
     <file load_collection="true">NotoSans-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
@@ -54,7 +54,8 @@
       name="SansSerif"
       comment="Name of san-serif font (Truetype file name)"
       font_hinting="default"
-      font_kerning="unfitted">
+      font_kerning="unfitted"
+      font_spacing="0">
     <file load_collection="true">NotoSans-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
@@ -70,7 +71,7 @@
       font_style="BOLD"
       font_hinting="default"
       font_kerning="unfitted"
-      font_spacing="0.5">
+      font_spacing="0">
     <file load_collection="true">NotoSans-SemiBold.ttf</file>
   </font>
 
@@ -79,7 +80,8 @@
       comment="Name of italic sans-serif font"
       font_style="ITALIC"
       font_hinting="default"
-      font_kerning="unfitted">
+      font_kerning="unfitted"
+      font_spacing="0">
     <file load_collection="true">NotoSans-Italic.ttf</file>
   </font>
 
@@ -89,7 +91,7 @@
       font_style="BOLD|ITALIC"
       font_hinting="default"
       font_kerning="unfitted"
-      font_spacing="0.5">
+      font_spacing="0">
     <file load_collection="true">NotoSans-SemiBoldItalic.ttf</file>
   </font>
 
@@ -111,7 +113,8 @@
       name="Helvetica"
       comment="Name of Helvetica font"
       font_hinting="default"
-      font_kerning="unfitted">
+      font_kerning="unfitted"
+      font_spacing="0">
     <file>NotoSans-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
@@ -127,7 +130,7 @@
       font_style="BOLD"
       font_hinting="default"
       font_kerning="unfitted"
-      font_spacing="0.5">
+      font_spacing="0">
     <file>NotoSans-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
@@ -142,7 +145,8 @@
       comment="Name of Helvetica font (italic)"
       font_style="ITALIC"
       font_hinting="default"
-      font_kerning="unfitted">
+      font_kerning="unfitted"
+      font_spacing="0">
     <file>NotoSans-Italic.ttf</file>
     <os name="Windows">
       <file>ariali.ttf</file>
@@ -158,7 +162,7 @@
       font_style="BOLD|ITALIC"
       font_hinting="default"
       font_kerning="unfitted"
-      font_spacing="0.5">
+      font_spacing="0">
     <file>NotoSans-SemiBoldItalic.ttf</file>
     <os name="Windows">
       <file>arialbi.ttf</file>
