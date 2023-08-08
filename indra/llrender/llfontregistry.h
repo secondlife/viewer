@@ -34,22 +34,32 @@ class LLFontGL;
 
 typedef std::vector<std::string> string_vec_t;
 
+enum class EFontHinting : S32
+{
+    DEFAULT = 0,
+    NO_HINTING = 0x8000U,
+    FORCE_AUTOHINT = 0x20,
+};
+
 struct LLFontFileInfo
 {
-    LLFontFileInfo(const std::string& file_name, const std::function<bool(llwchar)>& char_functor = nullptr)
+    LLFontFileInfo(const std::string& file_name, EFontHinting hinting, const std::function<bool(llwchar)>& char_functor = nullptr)
         : FileName(file_name)
         , CharFunctor(char_functor)
+        , mHinting(hinting)
     {
     }
 
-    LLFontFileInfo(const LLFontFileInfo& ffi)
+    LLFontFileInfo(const LLFontFileInfo& ffi, EFontHinting hinting)
         : FileName(ffi.FileName)
         , CharFunctor(ffi.CharFunctor)
+        , mHinting(hinting)
     {
     }
 
     std::string FileName;
     std::function<bool(llwchar)> CharFunctor;
+    EFontHinting mHinting;
 };
 typedef std::vector<LLFontFileInfo> font_file_info_vec_t;
 
@@ -71,10 +81,10 @@ public:
     const std::string& getSize() const { return mSize; }
     void setSize(const std::string& size) { mSize = size; }
 
-    void addFontFile(const std::string& file_name, const std::string& char_functor = LLStringUtil::null);
+    void addFontFile(const std::string& file_name, EFontHinting hinting, const std::string& char_functor = LLStringUtil::null);
     const font_file_info_vec_t & getFontFiles() const { return mFontFiles; }
     void setFontFiles(const font_file_info_vec_t& font_files) { mFontFiles = font_files; }
-    void addFontCollectionFile(const std::string& file_name, const std::string& char_functor = LLStringUtil::null);
+    void addFontCollectionFile(const std::string& file_name, EFontHinting hinting, const std::string& char_functor = LLStringUtil::null);
     const font_file_info_vec_t& getFontCollectionFiles() const { return mFontCollectionFiles; }
     void setFontCollectionFiles(const font_file_info_vec_t& font_collection_files) { mFontCollectionFiles = font_collection_files; }
 

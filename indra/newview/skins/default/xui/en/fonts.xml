@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <fonts>
 
-  <font name="default" comment="default font files (global fallbacks)">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="default"
+      comment="default font files (global fallbacks)">
+    <file load_collection="true" font_hinting="default">Inter-Regular.ttf</file>
     <file functor="is_emoji">TwemojiSVG.ttf</file>
     <os name="Windows">
       <file>meiryo.TTC</file>
@@ -31,9 +33,10 @@
     </os>
   </font>
 
-  <font name="SansSerifBold"
-	comment="Name of bold sans-serif font">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="SansSerifBold"
+      comment="Name of bold sans-serif font">
+    <file load_collection="true" font_hinting="force_auto">Inter-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -42,8 +45,10 @@
       </os>
   </font>
 
-  <font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of san-serif font (Truetype file name)">
+    <file load_collection="true" font_hinting="default">Inter-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -52,60 +57,43 @@
       </os>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of bold sans-serif font"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of bold sans-serif font"
+      font_style="BOLD">
+    <file load_collection="true" font_hinting="force_auto">Inter-SemiBold.ttf</file>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of italic sans-serif font"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of italic sans-serif font"
+      font_style="ITALIC">
+    <file load_collection="true">NotoSans-Italic.ttf</file>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of bold italic sans-serif font"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of bold italic sans-serif font"
+      font_style="BOLD|ITALIC">
+    <file load_collection="true">NotoSans-SemiBoldItalic.ttf</file>
   </font>
 
   <font name="Emoji"
 	comment="Name of emoji font">
     <file>TwemojiSVG.ttf</file>
   </font>
-
-  <font name="Monospace"
-	comment="Name of monospace font">
+  
+  <font
+      name="Monospace"
+      comment="Name of monospace font">
     <file>DejaVuSansMono.ttf</file>
   </font>
 
-  <font name="DejaVu"
-	comment="Name of DejaVu font">
-    <file>DejaVuSans.ttf</file>
-  </font>
 
-  <font name="DejaVu"
-	comment="Name of DejaVu font (bold)"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
-  </font>
-
-  <font name="DejaVu"
-	comment="Name of DejaVu font (italic)"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
-  </font>
-
-  <font name="DejaVu"
-	comment="Name of DejaVu font (bold italic)"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
-  </font>
-
-  <font name="Helvetica"
-	comment="Name of Helvetica font">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font">
+    <file font_hinting="default">Inter-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -114,10 +102,11 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (bold)"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (bold)"
+      font_style="BOLD">
+    <file font_hinting="force_auto">Inter-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -126,10 +115,11 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (italic)"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (italic)"
+      font_style="ITALIC">
+    <file>NotoSans-Italic.ttf</file>
     <os name="Windows">
       <file>ariali.ttf</file>
       </os>
@@ -138,10 +128,11 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (bold italic)"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (bold italic)"
+      font_style="BOLD|ITALIC">
+    <file>NotoSans-SemiBoldItalic.ttf</file>
     <os name="Windows">
       <file>arialbi.ttf</file>
       </os>
@@ -150,10 +141,11 @@
       </os>
   </font>
 
-  <font name="OverrideTest"
-	comment="Name of font to test overriding">
+  <font
+      name="OverrideTest"
+      comment="Name of font to test overriding">
     <file>times.ttf</file>
-    <file>DejaVuSans.ttf</file>
+    <file font_hinting="default">Inter-Regular.ttf</file>
   </font>
 
   <font_size name="Monospace"
@@ -176,12 +168,4 @@
 	     comment="Size of small font (points, or 1/72 of an inch)"
 	     size="7.6"
 	     />
-  <font_size name="SmallLSL"
-         comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
-         size="7"
-         />
-  <font_size name="HugeLSL"
-         comment="Size of huge font for LSL editor (points, or 1/72 of an inch)"
-         size="12"
-         />
 </fonts>

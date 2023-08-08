@@ -144,6 +144,7 @@ LLFontFreetype::LLFontFreetype()
     pFtStream(NULL),
 #endif
     mIsFallback(false),
+    mHinting(EFontHinting::FORCE_AUTOHINT),
     mFTFace(NULL),
     mRenderGlyphCount(0),
     mStyle(0),
@@ -186,7 +187,7 @@ void ft_close_cb(FT_Stream stream) {
 }
 #endif
 
-bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n)
+bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n, EFontHinting hinting)
 {
     // Don't leak face objects.  This is also needed to deal with
     // changed font file names.
@@ -215,6 +216,7 @@ bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
     }
 
     mIsFallback = is_fallback;
+    mHinting = hinting;
     F32 pixels_per_em = (point_size / 72.f)*vert_dpi; // Size in inches * dpi
 
     error = FT_Set_Char_Size(mFTFace,    /* handle to face object           */
@@ -422,7 +424,12 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 
     llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-    return delta.x*(1.f/64.f);
+    if (mFTFace->face_flags & FT_FACE_FLAG_SCALABLE)
+    {
+        // Return the X advance
+        return (F32)(delta.x * (1.0 / 64.0));
+    }
+    return (F32)delta.x;
 }
 
 F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
@@ -437,7 +444,12 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 
     llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-    return delta.x*(1.f/64.f);
+    if (mFTFace->face_flags & FT_FACE_FLAG_SCALABLE)
+    {
+        // Return the X advance
+        return (F32)(delta.x * (1.0 / 64.0));
+    }
+    return (F32)delta.x;
 }
 
 bool LLFontFreetype::hasGlyph(llwchar wch) const
@@ -707,7 +719,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
     if (mFTFace == NULL)
         return;
 
-    FT_Int32 load_flags = FT_LOAD_FORCE_AUTOHINT;
+    FT_Int32 load_flags = (FT_Int32)mHinting;
     if (EFontGlyphType::Color == bitmap_type)
     {
         // We may not actually get a color render so our caller should always examine mFTFace->glyph->bitmap.pixel_mode
@@ -750,7 +762,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
     resetBitmapCache();
-    loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mIsFallback, 0);
+    loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mIsFallback, 0, mHinting);
     if (!mIsFallback)
     {
         // This is the head of the list - need to rebuild ourself and all fallbacks.
