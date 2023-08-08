@@ -2554,6 +2554,40 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Viewer fonts</string>
       </map>
+      <key>google-fonts</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2020 The Inter Project Authors (https://github.com/rsms/inter)</string>
+        <key>description</key>
+        <string>Google fonts</string>
+        <key>license</key>
+        <string>SIL Open Font License, Version 1.1</string>
+        <key>license_file</key>
+        <string>LICENSES/google_inter.txt</string>
+        <key>name</key>
+        <string>google-fonts</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>22bcc72ed59926f00ed58a57f5e3cd3d9d82595f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-google-fonts/releases/assets/195509500</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.0.11083103671</string>
+      </map>
       <key>viewer-manager</key>
       <map>
         <key>platforms</key>
