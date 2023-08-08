@@ -1295,9 +1295,8 @@ bool LLMaterialEditor::updateInventoryItem(const std::string &buffer, const LLUU
     return true;
 }
 
-// Callback intended for when an item is copied from an object's inventory and
-// needs to be modified to reflect the new asset/name. For example: When saving
-// a modified material to the inventory from the build floater.
+// Callback intended for when a material is saved from an object and needs to
+// be modified to reflect the new asset/name.
 class LLObjectsMaterialItemCallback : public LLInventoryCallback
 {
 public:
@@ -1902,12 +1901,22 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     floater_perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Materials"));
     floater_perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Materials"));
 
-    permissions_out.set(item_permissions);
     // *NOTE: A close inspection of LLPermissions::accumulate shows that
     // conflicting UUIDs will be unset. This is acceptable behavior for now.
     // The server will populate creator info based on the item creation method
     // used.
-    permissions_out.accumulate(object_permissions);
+    // *NOTE: As far as I'm aware, there is currently no good way to preserve
+    // creation history when there's no material item present. In that case,
+    // the agent who saved the material will be considered the creator.
+    // -Cosmic,2023-08-07
+    if (item_out)
+    {
+        permissions_out.set(item_permissions);
+    }
+    else
+    {
+        permissions_out.set(object_permissions);
+    }
     permissions_out.accumulate(floater_perm);
 
     return true;
