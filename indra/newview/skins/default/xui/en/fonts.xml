@@ -6,7 +6,7 @@
       comment="default font files (global fallbacks)"
       font_hinting="default"
       font_kerning="unfitted">
-    <file load_collection="true">NotoSans-Regular.ttf</file>
+    <file load_collection="true">Inter-Regular.ttf</file>
     <file functor="is_emoji">TwemojiSVG.ttf</file>
     <os name="Windows">
       <file>meiryo.TTC</file>
@@ -41,7 +41,7 @@
       font_hinting="default"
       font_kerning="unfitted"
       font_spacing="0">
-    <file load_collection="true">NotoSans-SemiBold.ttf</file>
+    <file load_collection="true">Inter-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -56,7 +56,7 @@
       font_hinting="default"
       font_kerning="unfitted"
       font_spacing="0">
-    <file load_collection="true">NotoSans-Regular.ttf</file>
+    <file load_collection="true">Inter-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -72,7 +72,7 @@
       font_hinting="default"
       font_kerning="unfitted"
       font_spacing="0">
-    <file load_collection="true">NotoSans-SemiBold.ttf</file>
+    <file load_collection="true">Inter-SemiBold.ttf</file>
   </font>
 
   <font
@@ -115,7 +115,7 @@
       font_hinting="default"
       font_kerning="unfitted"
       font_spacing="0">
-    <file>NotoSans-Regular.ttf</file>
+    <file>Inter-Regular.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -131,7 +131,7 @@
       font_hinting="default"
       font_kerning="unfitted"
       font_spacing="0">
-    <file>NotoSans-SemiBold.ttf</file>
+    <file>Inter-SemiBold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -178,7 +178,7 @@
       font_hinting="default"
       font_kerning="unfitted">
     <file>times.ttf</file>
-    <file>NotoSans-Regular.ttf</file>
+    <file>Inter-Regular.ttf</file>
   </font>
 
   <font_size name="Monospace"
