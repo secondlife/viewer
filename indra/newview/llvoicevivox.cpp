@@ -967,7 +967,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
                 // to increment instance_offset on EADDRINUSE.
                 // But for now just use rand
                 static U32 instance_offset = portrange * ll_rand(20);
-                port = portbase + portoffset + portrange;
+                port = portbase + portoffset + instance_offset;
             }
             else
             {
