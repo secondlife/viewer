@@ -991,7 +991,8 @@ void LLPanelFace::getState()
 
 void LLPanelFace::updateUI(bool force_set_values /*false*/)
 { //set state of UI to match state of texture entry(ies)  (calls setEnabled, setValue, etc, but NOT setVisible)
-	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+	LLViewerObject* objectp = node ? node->getObject() : NULL;
 
 	if (objectp
 		&& objectp->getPCode() == LL_PCODE_VOLUME
@@ -1046,7 +1047,17 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         if ((LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()) && 
             !LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected()) 
         {
-            S32 new_selection = LLSelectMgr::getInstance()->getSelection()->getFirstNode()->getLastSelectedTE();
+            S32 new_selection = -1; // Don't use getLastSelectedTE, it could have been deselected
+            S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+            for (S32 te = 0; te < num_tes; ++te)
+            {
+                if (node->isTESelected(te))
+                {
+                    new_selection = te;
+                    break;
+                }
+            }
+
             if (new_selection != selected_te)
             {
                 bool te_has_media = objectp->getTE(new_selection) && objectp->getTE(new_selection)->hasMedia();
@@ -4698,13 +4709,6 @@ void LLPanelFace::updateGLTFTextureTransform(float value, U32 pbr_type, std::fun
             edit(&new_transform);
         }
     });
-
-    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
-    if (node)
-    {
-        LLViewerObject* object = node->getObject();
-        sMaterialOverrideSelection.setObjectUpdatePending(object->getID(), node->getLastSelectedTE());
-    }
 }
 
 void LLPanelFace::setMaterialOverridesFromSelection()
@@ -4817,17 +4821,22 @@ bool LLPanelFace::Selection::update()
     return changed;
 }
 
-void LLPanelFace::Selection::setObjectUpdatePending(const LLUUID &object_id, S32 side)
-{
-    mPendingObjectID = object_id;
-    mPendingSide = side;
-}
-
 void LLPanelFace::Selection::onSelectedObjectUpdated(const LLUUID& object_id, S32 side)
 {
-    if (object_id == mSelectedObjectID && side == mSelectedSide)
+    if (object_id == mSelectedObjectID)
     {
-        mChanged = true;
+        if (side == mLastSelectedSide)
+        {
+            mChanged = true;
+        }
+        else if (mLastSelectedSide == -1) // if last selected face was deselected
+        {
+            LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+            if (node && node->isTESelected(side))
+            {
+                mChanged = true;
+            }
+        }
     }
 }
 
@@ -4840,8 +4849,9 @@ bool LLPanelFace::Selection::compareSelection()
     mNeedsSelectionCheck = false;
 
     const S32 old_object_count = mSelectedObjectCount;
+    const S32 old_te_count = mSelectedTECount;
     const LLUUID old_object_id = mSelectedObjectID;
-    const S32 old_side = mSelectedSide;
+    const S32 old_side = mLastSelectedSide;
 
     LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
     LLSelectNode* node = selection->getFirstNode();
@@ -4849,17 +4859,23 @@ bool LLPanelFace::Selection::compareSelection()
     {
         LLViewerObject* object = node->getObject();
         mSelectedObjectCount = selection->getObjectCount();
+        mSelectedTECount = selection->getTECount();
         mSelectedObjectID = object->getID();
-        mSelectedSide = node->getLastSelectedTE();
+        mLastSelectedSide = node->getLastSelectedTE();
     }
     else
     {
         mSelectedObjectCount = 0;
+        mSelectedTECount = 0;
         mSelectedObjectID = LLUUID::null;
-        mSelectedSide = -1;
+        mLastSelectedSide = -1;
     }
 
-    const bool selection_changed = old_object_count != mSelectedObjectCount || old_object_id != mSelectedObjectID || old_side != mSelectedSide;
+    const bool selection_changed =
+        old_object_count != mSelectedObjectCount
+        || old_te_count != mSelectedTECount
+        || old_object_id != mSelectedObjectID
+        || old_side != mLastSelectedSide;
     mChanged = mChanged || selection_changed;
     return selection_changed;
 }

@@ -482,7 +482,6 @@ private:
         // Prevents update() returning true until the provided object is
         // updated. Necessary to prevent controls updating when the mouse is
         // held down.
-        void setObjectUpdatePending(const LLUUID &object_id, S32 side);
         void setDirty() { mChanged = true; };
 
         // Callbacks
@@ -497,11 +496,9 @@ private:
         boost::signals2::scoped_connection mSelectConnection;
         bool mNeedsSelectionCheck = true;
         S32 mSelectedObjectCount = 0;
+        S32 mSelectedTECount = 0;
         LLUUID mSelectedObjectID;
-        S32 mSelectedSide = -1;
-
-        LLUUID mPendingObjectID;
-        S32 mPendingSide = -1;
+        S32 mLastSelectedSide = -1;
     };
 
     static Selection sMaterialOverrideSelection;
