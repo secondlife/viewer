@@ -1840,13 +1840,13 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
     const bool editable = objectp->permModify() && !objectp->isPermanentEnforced();
     bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvailable();
+    bool identical_pbr = true;
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
     if (pbr_ctrl)
     {
         LLUUID pbr_id;
-        bool identical_pbr;
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
@@ -1856,7 +1856,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
     getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
     getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
-    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
+    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && identical_pbr && has_pbr_capabilities);
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
@@ -5096,14 +5096,18 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 
 void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical, bool& has_faces_with_pbr, bool& has_faces_without_pbr)
 {
-    struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
+    struct LLSelectedTEGetmatId : public LLSelectedTEFunctor
     {
         LLSelectedTEGetmatId()
             : mHasFacesWithoutPBR(false)
             , mHasFacesWithPBR(false)
+            , mIdenticalId(true)
+            , mIdenticalOverride(true)
+            , mInitialized(false)
+            , mMaterialOverride(LLGLTFMaterial::sDefault)
         {
         }
-        LLUUID get(LLViewerObject* object, S32 te_index)
+        bool apply(LLViewerObject* object, S32 te_index) override
         {
             LLUUID pbr_id = object->getRenderMaterialID(te_index);
             if (pbr_id.isNull())
@@ -5114,12 +5118,49 @@ void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical, bo
             {
                 mHasFacesWithPBR = true;
             }
-            return pbr_id;
+            if (mInitialized)
+            {
+                if (mPBRId != pbr_id)
+                {
+                    mIdenticalId = false;
+                }
+                
+                LLGLTFMaterial* te_override = object->getTE(te_index)->getGLTFMaterialOverride();
+                if (te_override)
+                {
+                    LLGLTFMaterial override = *te_override;
+                    override.sanitizeAssetMaterial();
+                    mIdenticalOverride &= (override == mMaterialOverride);
+                }
+                else
+                {
+                    mIdenticalOverride &= (mMaterialOverride == LLGLTFMaterial::sDefault);
+                }
+            }
+            else
+            {
+                mInitialized = true;
+                mPBRId = pbr_id;
+                LLGLTFMaterial* override = object->getTE(te_index)->getGLTFMaterialOverride();
+                if (override)
+                {
+                    mMaterialOverride = *override;
+                    mMaterialOverride.sanitizeAssetMaterial();
+                }
+            }
+            return true;
         }
         bool mHasFacesWithoutPBR;
         bool mHasFacesWithPBR;
+        bool mIdenticalId;
+        bool mIdenticalOverride;
+        bool mInitialized;
+        LLGLTFMaterial mMaterialOverride;
+        LLUUID mPBRId;
     } func;
-    identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, id);
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    id = func.mPBRId;
+    identical = func.mIdenticalId && func.mIdenticalOverride;
     has_faces_with_pbr = func.mHasFacesWithPBR;
     has_faces_without_pbr = func.mHasFacesWithoutPBR;
 }
