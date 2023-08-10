@@ -2347,6 +2347,7 @@ void LLInventoryGalleryItem::draw()
         LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
         LLRect border = getChildView("preview_thumbnail")->getRect();
         border.mRight = border.mRight + 1;
+        border.mTop = border.mTop + 1;
         gl_rect_2d(border, border_color.get(), FALSE);
     }
 
