@@ -828,6 +828,7 @@ void LLWindowWin32::close()
 	// Is window is already closed?
 	if (!mWindowHandle)
 	{
+        mWindowThread->close();
 		return;
 	}
 
@@ -4590,7 +4591,7 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
+    : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     ThreadPool::start();
 }

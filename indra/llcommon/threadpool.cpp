@@ -21,11 +21,12 @@
 #include "llevents.h"
 #include "stringize.h"
 
-LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
+LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity, bool auto_shutdown):
     super(name),
     mQueue(name, capacity),
     mName("ThreadPool:" + name),
-    mThreadCount(threads)
+    mThreadCount(threads),
+    mAutomaticShutdown(auto_shutdown)
 {}
 
 void LL::ThreadPool::start()
@@ -39,6 +40,13 @@ void LL::ThreadPool::start()
                 run(tname);
             });
     }
+
+    // Some threads might need to run longer than LLEventPumps
+    if (!mAutomaticShutdown)
+    {
+        return;
+    }
+
     // Listen on "LLApp", and when the app is shutting down, close the queue
     // and join the workers.
     LLEventPumps::instance().obtain("LLApp").listen(
