@@ -2347,6 +2347,7 @@ void LLInventoryGalleryItem::draw()
         LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
         LLRect border = getChildView("preview_thumbnail")->getRect();
         border.mRight = border.mRight + 1;
+        border.mTop = border.mTop + 1;
         gl_rect_2d(border, border_color.get(), FALSE);
     }
 
@@ -2449,7 +2450,19 @@ BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if (mIsFolder && mGallery)
     {
-        mGallery->setRootFolder(mUUID);
+        // setRootFolder can destroy this item.
+        // Delay it until handleDoubleClick processing is complete
+        // or make gallery handle doubleclicks.
+        LLHandle<LLPanel> handle = mGallery->getHandle();
+        LLUUID navigate_to = mUUID;
+        doOnIdleOneTime([handle, navigate_to]()
+                        {
+                            LLInventoryGallery* gallery = (LLInventoryGallery*)handle.get();
+                            if (gallery)
+                            {
+                                gallery->setRootFolder(navigate_to);
+                            }
+                        });
     }
     else
     {

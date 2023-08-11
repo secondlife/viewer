@@ -256,7 +256,7 @@ static bool mLoginStatePastUI = false;
 static bool mBenefitsSuccessfullyInit = false;
 
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
-const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN = 3; // Give region 3 chances
+const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_ABORT = 4; // Give region 4 chances
 
 std::unique_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 std::unique_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -1409,11 +1409,18 @@ bool idle_startup()
 		else
 		{
 			U32 num_retries = regionp->getNumSeedCapRetries();
-            if (num_retries > MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN)
+            if (num_retries > MAX_SEED_CAP_ATTEMPTS_BEFORE_ABORT)
             {
-                // Region will keep trying to get capabilities,
-                // but for now continue as if caps were granted
-                LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+                LL_WARNS("AppInit") << "Failed to get capabilities. Backing up to login screen!" << LL_ENDL;
+                if (gRememberPassword)
+                {
+                    LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+                }
+                else
+                {
+                    LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
+                }
+                reset_login();
             }
 			else if (num_retries > 0)
 			{
