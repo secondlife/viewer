@@ -38,7 +38,10 @@
       left="8"
       right="-8"
       name="output_log"
-      width="480"></text_editor>
+      font="Monospace"
+      text_color="0.1 0.5 0.1 1.0"
+      width="480">
+    </text_editor>
     <button
       follows="left|bottom"
       height="20"
@@ -63,7 +66,7 @@
       label="Write Thumbnails"
       layout="topleft"
       left_delta="0"
-      name="write_items_thumbnails_btn"
+      name="write_thumbnails_btn"
       top_delta="26	"
       width="235" />
     <button

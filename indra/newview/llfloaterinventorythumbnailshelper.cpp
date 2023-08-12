@@ -62,11 +62,11 @@ BOOL LLFloaterInventoryThumbnailsHelper::postBuild()
     mOutputLog = getChild<LLTextEditor>("output_log");
     mOutputLog->setMaxTextLength(0xffff * 0x10);
 
-    mMergeItemsTexturesBtn = getChild<LLUICtrl>("merge_items_textures");
-    mMergeItemsTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onMergeItemsTextures, this));
-    mMergeItemsTexturesBtn->setEnabled(false);
+    //mMergeItemsTexturesBtn = getChild<LLUICtrl>("merge_items_textures");
+    //mMergeItemsTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onMergeItemsTextures, this));
+    //mMergeItemsTexturesBtn->setEnabled(false);
 
-    mWriteThumbnailsBtn = getChild<LLUICtrl>("write_items_thumbnails");
+    mWriteThumbnailsBtn = getChild<LLUICtrl>("write_thumbnails_btn");
     mWriteThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onWriteThumbnails, this));
     mWriteThumbnailsBtn->setEnabled(false);
 
@@ -158,8 +158,6 @@ void LLFloaterInventoryThumbnailsHelper::onPasteItems()
     }
 
     mOutputLog->setCursorAndScrollToEnd();
-
-    mMergeItemsTexturesBtn->setEnabled(true);
 }
 
 void LLFloaterInventoryThumbnailsHelper::recordTextureItemEntry(LLViewerInventoryItem* item)
@@ -240,11 +238,9 @@ void LLFloaterInventoryThumbnailsHelper::onPasteTextures()
     }
 
     mOutputLog->setCursorAndScrollToEnd();
-
-    mMergeItemsTexturesBtn->setEnabled(true);
 }
 
-void LLFloaterInventoryThumbnailsHelper::onMergeItemsTextures()
+void LLFloaterInventoryThumbnailsHelper::mergeItemsTextures()
 {
     mOutputLog->appendText(
         STRINGIZE(
@@ -320,7 +316,7 @@ void LLFloaterInventoryThumbnailsHelper::onMergeItemsTextures()
 #if 1
 // *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
 // temp code in transition
-void bulkyInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
+void inventoryThumbnailsHelperCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 {
     if (cb.notNull())
     {
@@ -329,7 +325,7 @@ void bulkyInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 }
 #endif
 
-bool writeThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
+bool writeInventoryThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
 {
     if (AISAPI::isAvailable())
     {
@@ -339,7 +335,7 @@ bool writeThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
 
         LLPointer<LLInventoryCallback> cb;
 
-        AISAPI::completion_t cr = boost::bind(&bulkyInventoryCb, cb, _1);
+        AISAPI::completion_t cr = boost::bind(&inventoryThumbnailsHelperCb, cb, _1);
         AISAPI::UpdateItem(item_id, updates, cr);
 
         return true;
@@ -382,7 +378,7 @@ void LLFloaterInventoryThumbnailsHelper::onWriteThumbnails()
         LLUUID item_id = ((*iter).second).first;
         LLUUID thumbnail_asset_id = ((*iter).second).second;
 
-        writeThumbnailID(item_id, thumbnail_asset_id);
+        writeInventoryThumbnailID(item_id, thumbnail_asset_id);
 
         ++iter;
     }

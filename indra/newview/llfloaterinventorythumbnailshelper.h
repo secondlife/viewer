@@ -51,8 +51,7 @@ class LLFloaterInventoryThumbnailsHelper:
 
         LLTextEditor* mOutputLog;
 
-        LLUICtrl* mMergeItemsTexturesBtn;
-        void onMergeItemsTextures();
+        void mergeItemsTextures();
 
         LLUICtrl* mWriteThumbnailsBtn;
         void onWriteThumbnails();
