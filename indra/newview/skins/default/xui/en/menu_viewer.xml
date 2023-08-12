@@ -3493,7 +3493,15 @@ function="World.EnvPreset"
                  function="Floater.Show"
                  parameter="bulky_thumbs" />
 			</menu_item_call>
-          <menu_item_call
+            <menu_item_call
+             label="Inventory Thumbnails Helper"
+             name="Inventory Thumbnails Helper"
+				shortcut="control|alt|shift|X">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="inventory_thumbnails_helper" />
+            </menu_item_call>
+            <menu_item_call
            label="FB Connect Test"
            name="FB Connect Test">
             <menu_item_call.on_click
