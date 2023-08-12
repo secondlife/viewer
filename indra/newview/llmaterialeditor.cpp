@@ -1836,6 +1836,10 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
         llassert(LLSelectMgr::getInstance()->getSelection()->getFirstObject());
         return false;
     }
+    if (selected_object->isInventoryPending())
+    {
+        return false;
+    }
     for (PermissionBit op : ops)
     {
         if (op == PERM_MODIFY && selected_object->isPermanentEnforced())
