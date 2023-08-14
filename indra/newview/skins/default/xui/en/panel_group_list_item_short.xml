@@ -71,7 +71,6 @@
      name="visibility_show_btn"
      tool_tip="Show group on my profile"
      top_delta="0"
-     right_delta="0"
      height="20"
      width="20"
      follows="right"

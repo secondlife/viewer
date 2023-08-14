@@ -559,7 +559,6 @@ void LLPanelProfilePick::setAvatarId(const LLUUID& avatar_id)
     {
         mPickName->setEnabled(TRUE);
         mPickDescription->setEnabled(TRUE);
-        mSetCurrentLocationButton->setVisible(TRUE);
     }
     else
     {
@@ -574,7 +573,6 @@ BOOL LLPanelProfilePick::postBuild()
     mSaveButton = getChild<LLButton>("save_changes_btn");
     mCreateButton = getChild<LLButton>("create_changes_btn");
     mCancelButton = getChild<LLButton>("cancel_changes_btn");
-    mSetCurrentLocationButton = getChild<LLButton>("set_to_curr_location_btn");
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
     mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelProfilePick::onSnapshotChanged, this));
@@ -585,7 +583,6 @@ BOOL LLPanelProfilePick::postBuild()
     mSaveButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
     mCreateButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
     mCancelButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickCancel, this));
-    mSetCurrentLocationButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSetLocation, this));
 
     mPickName->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1), NULL);
     mPickName->setEnabled(FALSE);
@@ -745,32 +742,6 @@ BOOL LLPanelProfilePick::isDirty() const
         return TRUE;
     }
     return FALSE;
-}
-
-void LLPanelProfilePick::onClickSetLocation()
-{
-    // Save location for later use.
-    setPosGlobal(gAgent.getPositionGlobal());
-
-    std::string parcel_name, region_name;
-
-    LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-    if (parcel)
-    {
-        mParcelId = parcel->getID();
-        parcel_name = parcel->getName();
-    }
-
-    LLViewerRegion* region = gAgent.getRegion();
-    if (region)
-    {
-        region_name = region->getName();
-    }
-
-    setPickLocation(createLocationText(getLocationNotice(), parcel_name, region_name, getPosGlobal()));
-
-    mLocationChanged = true;
-    enableSaveButton(TRUE);
 }
 
 void LLPanelProfilePick::onClickSave()
