@@ -51,6 +51,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llfloatermediasettings.h"
 #include "llfloaterreg.h"
+#include "llfloatertools.h"
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmaterialeditor.h"
@@ -77,6 +78,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvovolume.h"
+#include "llvoinventorylistener.h"
 #include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexturelist.h"// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
@@ -1100,7 +1102,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
 
-		updateVisibility();
+		updateVisibility(objectp);
 
 		// Color swatch
 		{
@@ -1834,13 +1836,54 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
+// One-off listener that updates the build floater UI when the prim inventory updates
+class PBRPickerItemListener : public LLVOInventoryListener
+{
+protected:
+    LLViewerObject* mObjectp;
+    bool mChangePending = true;
+public:
+
+    PBRPickerItemListener(LLViewerObject* object)
+    : mObjectp(object)
+    {
+        registerVOInventoryListener(mObjectp, nullptr);
+    }
+
+    const bool isListeningFor(const LLViewerObject* objectp) const
+    {
+        return mChangePending && (objectp == mObjectp);
+    }
+
+    void inventoryChanged(LLViewerObject* object,
+        LLInventoryObject::object_list_t* inventory,
+        S32 serial_num,
+        void* user_data) override
+    {
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
+        removeVOInventoryListener();
+        mChangePending = false;
+    }
+
+    ~PBRPickerItemListener()
+    {
+        removeVOInventoryListener();
+        mChangePending = false;
+    }
+};
+
 void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool& has_faces_without_pbr, bool force_set_values)
 {
     has_pbr_material = false;
 
-    const bool editable = objectp->permModify() && !objectp->isPermanentEnforced();
     bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvailable();
     bool identical_pbr = true;
+    const bool settable = has_pbr_capabilities && objectp->permModify() && !objectp->isPermanentEnforced();
+    const bool editable = LLMaterialEditor::canModifyObjectsMaterial();
+    const bool saveable = LLMaterialEditor::canSaveObjectsMaterial();
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
@@ -1850,13 +1893,26 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
-        pbr_ctrl->setEnabled(editable && has_pbr_capabilities);
+        pbr_ctrl->setEnabled(settable);
         pbr_ctrl->setImageAssetID(pbr_id);
     }
 
-    getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
-    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && !has_faces_without_pbr && has_pbr_capabilities);
-    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && identical_pbr && has_pbr_capabilities);
+    const bool inventory_pending = objectp->isInventoryPending();
+    getChildView("pbr_from_inventory")->setEnabled(settable);
+    getChildView("edit_selected_pbr")->setEnabled(editable && !inventory_pending && !has_faces_without_pbr);
+    getChildView("save_selected_pbr")->setEnabled(saveable && !inventory_pending && identical_pbr);
+    if (inventory_pending)
+    {
+        // Reuse the same listener when possible
+        if (!mInventoryListener || !mInventoryListener->isListeningFor(objectp))
+        {
+            mInventoryListener = std::make_unique<PBRPickerItemListener>(objectp);
+        }
+    }
+    else
+    {
+        mInventoryListener = nullptr;
+    }
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
@@ -1881,9 +1937,10 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     }
 }
 
-void LLPanelFace::updateVisibilityGLTF()
+void LLPanelFace::updateVisibilityGLTF(LLViewerObject* objectp /*= nullptr */)
 {
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+    const bool inventory_pending = objectp && objectp->isInventoryPending();
 
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
     radio_pbr_type->setVisible(show_pbr);
@@ -1894,8 +1951,9 @@ void LLPanelFace::updateVisibilityGLTF()
     getChildView("pbr_control")->setVisible(show_pbr_render_material_id);
 
     getChildView("pbr_from_inventory")->setVisible(show_pbr_render_material_id);
-    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id);
-    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id);
+    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id && !inventory_pending);
+    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id && !inventory_pending);
+    getChildView("material_permissions_loading_label")->setVisible(show_pbr_render_material_id && inventory_pending);
 
     getChildView("gltfTextureScaleU")->setVisible(show_pbr);
     getChildView("gltfTextureScaleV")->setVisible(show_pbr);
@@ -2736,7 +2794,7 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	self->refreshMedia();
 }
 
-void LLPanelFace::updateVisibility()
+void LLPanelFace::updateVisibility(LLViewerObject* objectp /* = nullptr */)
 {
     LLRadioGroup* radio_mat_type = findChild<LLRadioGroup>("radio_material_type");
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
@@ -2827,7 +2885,7 @@ void LLPanelFace::updateVisibility()
     getChild<LLSpinCtrl>("rptctrl")->setVisible(show_material || show_media);
 
     // PBR controls
-    updateVisibilityGLTF();
+    updateVisibilityGLTF(objectp);
 }
 
 // static
@@ -3093,11 +3151,7 @@ void LLPanelFace::onSelectPbr(const LLSD& data)
         {
             id = pbr_ctrl->getImageAssetID();
         }
-        if (LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
-        {
-            LLSelectedTEMaterial::setMaterialID(this, id);
-        }
-        else
+        if (!LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
         {
             refresh();
         }
@@ -4994,23 +5048,24 @@ void LLPanelFace::onPbrSelectionChanged(LLInventoryItem* itemp)
         LLSaleInfo sale_info;
         LLSelectMgr::instance().selectGetSaleInfo(sale_info);
 
-        bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this texture?
-        bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this texture?
-        bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply texture belong to the agent?
-        bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply texture not for sale?
+        bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this material?
+        bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this material?
+        bool can_modify = itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgentID); // do we have perm to transfer this material?
+        bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply material belong to the agent?
+        bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply material not for sale?
 
-        if (can_copy && can_transfer)
+        if (can_copy && can_transfer && can_modify)
         {
             pbr_ctrl->setCanApply(true, true);
             return;
         }
 
-        // if texture has (no-transfer) attribute it can be applied only for object which we own and is not for sale
+        // if material has (no-transfer) attribute it can be applied only for object which we own and is not for sale
         pbr_ctrl->setCanApply(false, can_transfer ? true : is_object_owner && not_for_sale);
 
         if (gSavedSettings.getBOOL("TextureLivePreview"))
         {
-            LLNotificationsUtil::add("LivePreviewUnavailable");
+            LLNotificationsUtil::add("LivePreviewUnavailablePBR");
         }
     }
 }

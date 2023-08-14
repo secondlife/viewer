@@ -251,7 +251,9 @@ public:
 	BOOL setNextOwnerBits(const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
 	
 	// This is currently only used in the Viewer to handle calling cards
-	// where the creator is actually used to store the target. Use with care.
+	// where the creator is actually used to store the target.
+	// It is also used for saving a GLTF material on a prim.
+	// Use with care.
 	void setCreator(const LLUUID& creator) { mCreator = creator; }
 	
 	//
