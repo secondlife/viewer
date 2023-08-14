@@ -5815,22 +5815,6 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		args["OBJECTNAME"] = object_name;
 		args["NAME"] = clean_owner_name;
 		S32 known_questions = 0;
-
-		// SL-19346, SL-19528 - No DEBIT warning for GRID & PRIVILEGED
-		if (experienceid.notNull())
-		{
-			const LLSD& experience = LLExperienceCache::instance().get(experienceid);
-			if (!experience.isUndefined())
-			{
-				S32 properties = experience[LLExperienceCache::PROPERTIES].asInteger();
-				if ((properties | LLExperienceCache::PROPERTY_GRID) &&
-					(properties | LLExperienceCache::PROPERTY_PRIVILEGED))
-				{
-					questions ^= SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
-				}
-			}
-		}
-
 		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission
 		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
