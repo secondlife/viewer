@@ -414,3 +414,4 @@ ELoaderStatus LLInventorySkeletonLoader::loadChunk()
 
     return rv ? LOAD_SUCCESS : LOAD_FAILURE;
 }
+
