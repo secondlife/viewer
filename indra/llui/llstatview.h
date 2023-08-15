@@ -63,7 +63,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 protected:
-	std::string mSetting;
-
+	const std::string mSetting;
 };
+
 #endif // LL_STATVIEW_
