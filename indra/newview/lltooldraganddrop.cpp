@@ -1012,8 +1012,12 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
- 		// TODO: Check to see if adding the item was successful; if not, then
-		// we should return false here.
+		// Force the object to update and refetch its inventory so it has this asset.
+		hit_obj->dirtyInventory();
+		hit_obj->requestInventory();
+		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here. This will requre a separate listener
+		// since without listener, we have no way to receive update
 	}
 	else if (!item->getPermissions().allowOperationBy(PERM_TRANSFER,
 													 gAgent.getID()))

@@ -1897,11 +1897,10 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         pbr_ctrl->setImageAssetID(pbr_id);
     }
 
-    const bool inventory_pending = objectp->isInventoryPending();
     getChildView("pbr_from_inventory")->setEnabled(settable);
-    getChildView("edit_selected_pbr")->setEnabled(editable && !inventory_pending && !has_faces_without_pbr);
-    getChildView("save_selected_pbr")->setEnabled(saveable && !inventory_pending && identical_pbr);
-    if (inventory_pending)
+    getChildView("edit_selected_pbr")->setEnabled(editable && !has_faces_without_pbr);
+    getChildView("save_selected_pbr")->setEnabled(saveable && identical_pbr);
+    if (objectp->isInventoryPending())
     {
         // Reuse the same listener when possible
         if (!mInventoryListener || !mInventoryListener->isListeningFor(objectp))
