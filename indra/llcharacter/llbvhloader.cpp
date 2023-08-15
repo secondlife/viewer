@@ -1380,8 +1380,51 @@ void LLBVHLoader::dumpAssimpAnimationVectorKeys(aiVectorKey * vector_keys, S32 c
     }
 }
 
+
+void LLBVHLoader::dumpAssimpAnimationTransform(aiAnimation *cur_animation, llofstream &data_stream)
+{
+    data_stream << "  Transform rotations: " << std::endl;
+    for (S32 index = 0; index < cur_animation->mNumChannels; index++)
+    {
+        aiNodeAnim *cur_node = cur_animation->mChannels[index];
+        if (cur_node && cur_node->mNodeName.C_Str())
+        {
+            std::string node_name(cur_node->mNodeName.C_Str());
+
+            // show the offset matrix for each node
+            LLMatrix4 offset_matrix = mAssimp.getOffsetMat4(node_name);  // Root is right rest look rotated by root.
+
+            LLQuaternion counter_rot(offset_matrix);
+            F32          roll, pitch, yaw;
+            counter_rot.getEulerAngles(&roll, &pitch, &yaw);
+
+			data_stream << "    " << node_name << ":" << std::endl;
+			for (S32 y = 0; y < NUM_VALUES_IN_MAT4; y++)
+			{
+                data_stream << "      ";
+				for (S32 x = 0; x < NUM_VALUES_IN_MAT4; x++)
+				{
+                    F32 val = offset_matrix.mMatrix[y][x];
+                    data_stream << val;
+                    if (x < NUM_VALUES_IN_MAT4 - 1)
+                        data_stream << ", ";
+                    else
+                        data_stream << std::endl;
+                }
+			}
+        }
+        else
+        {
+            data_stream << "    Unexpected missing aiNodeAnim channel " << index << std::endl;
+            break;
+        }
+    }
+}
+
+
 void LLBVHLoader::dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofstream & data_stream)
 {
+    data_stream << "  Channel data: " << std::endl;
     for (S32 index = 0; index < cur_animation->mNumChannels; index++)
     {
         aiNodeAnim * cur_node = cur_animation->mChannels[index];
@@ -1389,15 +1432,21 @@ void LLBVHLoader::dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofs
         {
             std::string node_name(cur_node->mNodeName.C_Str());
             data_stream << "    Node name: " << node_name << std::endl;
-            data_stream << "      mNumPositionKeys: " << (S32)(cur_node->mNumPositionKeys) << " for " << node_name << std::endl;
+
+			// show the offset matrix for this node
+			LLMatrix4 offset_matrix = mAssimp.getOffsetMat4(node_name);  // Root is right rest look rotated by root.
+
+            LLQuaternion counter_rot(offset_matrix);
+            F32          roll, pitch, yaw;
+            counter_rot.getEulerAngles(&roll, &pitch, &yaw);
+
+            data_stream << "      transform rotation: " << roll * RAD_TO_DEG << ", " << pitch * RAD_TO_DEG
+                        << ", " << yaw * RAD_TO_DEG << std::endl;
+
+			data_stream << "      mNumPositionKeys: " << (S32)(cur_node->mNumPositionKeys) << " for " << node_name << std::endl;
             if (cur_node->mNumPositionKeys > 0)
             {
                 dumpAssimpAnimationVectorKeys(cur_node->mPositionKeys, cur_node->mNumPositionKeys, data_stream);
-            }
-            data_stream << "      mNumRotationKeys: " << (S32)(cur_node->mNumRotationKeys) << " for " << node_name << std::endl;
-            if (cur_node->mNumRotationKeys > 0)
-            {
-                dumpAssimpAnimationQuatKeys(cur_node->mRotationKeys, cur_node->mNumRotationKeys, data_stream);
             }
             if (cur_node->mNumScalingKeys > 0)
             {   // see if scaling keys has anything interesting
@@ -1428,6 +1477,12 @@ void LLBVHLoader::dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofs
             else
             {   // no scaling keys
                 data_stream << "      mNumScalingKeys: 0 for " << node_name << std::endl;
+            }
+			// This is the big data dump - rotations that change over time
+            data_stream << "      mNumRotationKeys: " << (S32) (cur_node->mNumRotationKeys) << " for " << node_name << std::endl;
+            if (cur_node->mNumRotationKeys > 0)
+            {
+                dumpAssimpAnimationQuatKeys(cur_node->mRotationKeys, cur_node->mNumRotationKeys, data_stream);
             }
         }
         else
@@ -1463,6 +1518,7 @@ void LLBVHLoader::dumpAssimpAnimations(llofstream & data_stream)
 
         if (cur_animation->mNumChannels > 0)
         {
+            dumpAssimpAnimationTransform(cur_animation, data_stream);
             dumpAssimpAnimationChannels(cur_animation, data_stream);
         }
     }
@@ -1498,7 +1554,17 @@ void LLBVHLoader::dumpAssimp()
     data_stream << "mNumLights: " << (S32)(mAssimp.mScene->mNumLights) << std::endl;
     data_stream << "mNumCameras: " << (S32)(mAssimp.mScene->mNumCameras) << std::endl;
 
-    if (mAssimp.mScene->mNumAnimations == 1)
+    data_stream << "mAIRootTransMat4:" << std::endl;
+    data_stream << "  " << mAssimp.mAIRootTransMat4.a1 << ", " << mAssimp.mAIRootTransMat4.a2
+				<< ", " << mAssimp.mAIRootTransMat4.a3 << ", " << mAssimp.mAIRootTransMat4.a4 << std::endl;
+    data_stream << "  " << mAssimp.mAIRootTransMat4.b1 << ", " << mAssimp.mAIRootTransMat4.b2
+				<< ", " << mAssimp.mAIRootTransMat4.b3 << ", " << mAssimp.mAIRootTransMat4.b4 << std::endl;
+    data_stream << "  " << mAssimp.mAIRootTransMat4.c1 << ", " << mAssimp.mAIRootTransMat4.c2
+				<< ", " << mAssimp.mAIRootTransMat4.c3 << ", " << mAssimp.mAIRootTransMat4.c4 << std::endl;
+    data_stream << "  " << mAssimp.mAIRootTransMat4.d1 << ", " << mAssimp.mAIRootTransMat4.d2
+				<< ", " << mAssimp.mAIRootTransMat4.d3 << ", " << mAssimp.mAIRootTransMat4.d4 << std::endl;
+
+	if (mAssimp.mScene->mNumAnimations == 1)
     {
         dumpAssimpAnimations(data_stream);
     }
