@@ -13,12 +13,13 @@
     <scroll_list
        top="20"
        height="350"
+       draw_stripes="true"
        draw_heading="true"
        follows="all"
        layout="topleft"
        left="8"
        multi_select="true"
-       name="inventory_thumbnails_textures_list"
+       name="inventory_thumbnails_list"
        right="-8"
        tool_tip="Paste items from your inventory">
         <scroll_list.columns
@@ -28,7 +29,7 @@
         <scroll_list.columns
              dynamic_width="true"
              label="Texture Name"
-             name="expires"
+             name="texture"
              relative_width="0.6" />
     </scroll_list>
     <text_editor

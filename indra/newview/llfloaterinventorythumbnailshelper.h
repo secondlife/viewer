@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 class LLTextEditor;
+class LLScrollListCtrl;
 class LLMediaCtrl;
 class LLViewerInventoryItem;
 class LLUUID;
@@ -42,6 +43,8 @@ class LLFloaterInventoryThumbnailsHelper:
         LLFloaterInventoryThumbnailsHelper(const LLSD& key);
         BOOL postBuild() override;
         ~LLFloaterInventoryThumbnailsHelper();
+
+        LLScrollListCtrl* mInventoryThumbnailsList;
 
         LLUICtrl* mPasteItemsBtn;
         void onPasteItems();
@@ -58,6 +61,7 @@ class LLFloaterInventoryThumbnailsHelper:
 
         void recordInventoryItemEntry(LLViewerInventoryItem* item);
         void recordTextureItemEntry(LLViewerInventoryItem* item);
+        void populateThumbnailNames();
 
         std::map<std::string, LLUUID> mItemNamesIDs;
         std::map<std::string, LLUUID> mTextureNamesIDs;

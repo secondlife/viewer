@@ -38,6 +38,7 @@
 #include "llinventorymodel.h"
 #include "llinventoryfunctions.h"
 #include "lltexteditor.h"
+#include "llscrolllistctrl.h"
 #include "llmediactrl.h"
 #include "lluuid.h"
 #include "llaisapi.h"
@@ -66,6 +67,10 @@ BOOL LLFloaterInventoryThumbnailsHelper::postBuild()
     //mMergeItemsTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onMergeItemsTextures, this));
     //mMergeItemsTexturesBtn->setEnabled(false);
 
+    mInventoryThumbnailsList = getChild<LLScrollListCtrl>("inventory_thumbnails_list");
+    mInventoryThumbnailsList->setAllowMultipleSelection(true);
+    mInventoryThumbnailsList->deleteAllItems();
+
     mWriteThumbnailsBtn = getChild<LLUICtrl>("write_thumbnails_btn");
     mWriteThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onWriteThumbnails, this));
     mWriteThumbnailsBtn->setEnabled(false);
@@ -91,6 +96,24 @@ void LLFloaterInventoryThumbnailsHelper::recordInventoryItemEntry(LLViewerInvent
                 //id.asString() <<
                 std::endl
             ), false);
+
+        // TODO: use this ID to get name of texture and display that
+        const LLUUID current_thumbnail_id = item->getThumbnailUUID();
+
+        std::string texture_display = std::string("Not Present");
+        if (!current_thumbnail_id.isNull())
+        {
+            texture_display = current_thumbnail_id.asString();
+        }
+
+        LLSD row;
+        row["columns"][0]["column"] = "name";
+        row["columns"][0]["type"] = "text";
+        row["columns"][0]["value"] = name;
+        row["columns"][1]["column"] = "texture";
+        row["columns"][1]["type"] = "text";
+        row["columns"][1]["value"] = texture_display;
+        mInventoryThumbnailsList->addElement(row);
     }
     else
     {
@@ -238,6 +261,31 @@ void LLFloaterInventoryThumbnailsHelper::onPasteTextures()
     }
 
     mOutputLog->setCursorAndScrollToEnd();
+
+    populateThumbnailNames();
+}
+
+
+void LLFloaterInventoryThumbnailsHelper::populateThumbnailNames()
+{
+    std::map<std::string, LLUUID>::iterator item_iter = mItemNamesIDs.begin();
+
+    while (item_iter != mItemNamesIDs.end())
+    {
+        std::string item_name = (*item_iter).first;
+
+        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+        if (texture_iter != mTextureNamesIDs.end())
+        {
+            const bool case_sensitive = true;
+            LLScrollListItem* entry = mInventoryThumbnailsList->getItemByLabel(item_name, case_sensitive);
+
+            const std::string texture_name = (*texture_iter).first;
+            entry->getColumn(1)->setValue(LLSD(texture_name));
+        }
+
+        ++item_iter;
+    }
 }
 
 void LLFloaterInventoryThumbnailsHelper::mergeItemsTextures()
