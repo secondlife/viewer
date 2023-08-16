@@ -51,9 +51,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>178b16ee9ff67986c8c14413ee68218e</string>
+              <string>dc4a38439f90325b406ec3f7cc4fa66edf0eeec8</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107593/938535/apr_suite-1.4.5.576669-darwin64-576669.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-darwin64-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -75,9 +77,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2997cad03dbd0d70a060276b5671480</string>
+              <string>abb48e031b4bbab5fa48d2872ef2db065f33d8ac</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107594/938548/apr_suite-1.4.5.576669-windows-576669.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -87,16 +91,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec24f5945faa8f13807b83eeaeb994f8</string>
+              <string>8233de9a11f323a03d569db1043ba5198176457b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107592/938547/apr_suite-1.4.5.576669-windows64-576669.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows64-e935465.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.5.576669</string>
+        <string>1.7.2-e935465</string>
       </map>
       <key>boost</key>
       <map>
