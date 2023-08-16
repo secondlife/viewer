@@ -487,9 +487,6 @@ void LLMenuItemGL::draw( void )
 	// let disabled items be highlighted, just don't draw them as such
 	if( getEnabled() && getHighlight() && !mBriefItem)
 	{
-		int debug_count = 0;
-		if (dynamic_cast<LLMenuItemCallGL*>(this))
-			debug_count++;
 		gGL.color4fv( mHighlightBackground.get().mV );
 
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
