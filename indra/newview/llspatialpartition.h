@@ -56,7 +56,7 @@ class LLViewerRegion;
 
 void pushVerts(LLFace* face, U32 mask);
 
-class LLDrawInfo : public LLRefCount
+class LLDrawInfo : public LLRefCount, public LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>
 {
     LL_ALIGN_NEW;
 protected:
@@ -64,6 +64,7 @@ protected:
 	
 public:
 	LLDrawInfo(const LLDrawInfo& rhs)
+	:	LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>("LLDrawInfo")
 	{
 		*this = rhs;
 	}

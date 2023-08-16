@@ -623,7 +623,8 @@ void LLImage::setLastError(const std::string& message)
 //---------------------------------------------------------------------------
 
 LLImageBase::LLImageBase()
-:	mData(NULL),
+:	LLTrace::MemTrackable<LLImageBase>("LLImage"),
+	mData(NULL),
 	mDataSize(0),
 	mWidth(0),
 	mHeight(0),

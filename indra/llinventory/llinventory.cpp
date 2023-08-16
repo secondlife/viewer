@@ -74,7 +74,8 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
 									 const LLUUID& parent_uuid,
 									 LLAssetType::EType type,
 									 const std::string& name) 
-:	mUUID(uuid),
+:	LLTrace::MemTrackable<LLInventoryObject>("LLInventoryObject"),
+	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
 	mName(name),
@@ -84,7 +85,8 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
 }
 
 LLInventoryObject::LLInventoryObject() 
-:	mType(LLAssetType::AT_NONE),
+:	LLTrace::MemTrackable<LLInventoryObject>("LLInventoryObject"),
+	mType(LLAssetType::AT_NONE),
 	mCreationDate(0)
 {
 }

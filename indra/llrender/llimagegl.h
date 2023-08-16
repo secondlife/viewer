@@ -48,7 +48,7 @@ class LLWindow;
 #define MEGA_BYTES_TO_BYTES(x) ((x) << 20)
 
 //============================================================================
-class LLImageGL : public LLRefCount
+class LLImageGL : public LLRefCount, public LLTrace::MemTrackable<LLImageGL>
 {
 	friend class LLTexUnit;
 public:

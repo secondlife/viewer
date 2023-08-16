@@ -89,7 +89,7 @@ class LLVOAvatar :
 	public LLViewerObject,
 	public boost::signals2::trackable
 {
-    LL_ALIGN_NEW;
+	LL_ALIGN_NEW_MEMTRACKABLE(LLViewerObject)
 	LOG_CLASS(LLVOAvatar);
 
 public:

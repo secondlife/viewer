@@ -839,8 +839,8 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 }
 
 LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) 
-:	LLRefCount(),
-
+:	LLTrace::MemTrackable<LLVertexBuffer>("LLVertexBuffer"),
+	LLRefCount(),
 	mNumVerts(0),
 	mNumIndices(0),
 	mAlignedOffset(0),

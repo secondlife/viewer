@@ -35,9 +35,9 @@
 
 class LLViewerDynamicTexture : public LLViewerTexture
 {
-    LL_ALIGN_NEW
-public:
+	LL_ALIGN_NEW_MEMTRACKABLE(LLTexture)
 
+public:
 	enum
 	{
 		LL_VIEWER_DYNAMIC_TEXTURE = LLViewerTexture::DYNAMIC_TEXTURE,

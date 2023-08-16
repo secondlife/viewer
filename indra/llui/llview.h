@@ -96,11 +96,12 @@ private:
 	static std::vector<LLViewDrawContext*> sDrawContextStack;
 };
 
-class LLView 
+class LLView
 :	public LLMouseHandler,			// handles mouse events
 	public LLFocusableElement,		// handles keyboard events
 	public LLMortician,				// lazy deletion
-	public LLHandleProvider<LLView>     // passes out weak references to self
+	public LLHandleProvider<LLView>,     // passes out weak references to self
+	public LLTrace::MemTrackable<LLView> // track memory usage
 {
 public:
 

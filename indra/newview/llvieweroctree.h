@@ -71,7 +71,7 @@ S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVe
 
 //defines data needed for octree of an entry
 //LL_ALIGN_PREFIX(16)
-class LLViewerOctreeEntry : public LLRefCount
+class LLViewerOctreeEntry : public LLRefCount, public LLTrace::MemTrackable<LLViewerOctreeEntry, 16>
 {
     LL_ALIGN_NEW
 	friend class LLViewerOctreeEntryData;
@@ -82,7 +82,7 @@ public:
 		LLDRAWABLE = 0,
 		LLVOCACHEENTRY,
 		NUM_DATA_TYPE
-	}eEntryDataType_t;
+	} eEntryDataType_t;
 
 protected:
 	virtual ~LLViewerOctreeEntry();
@@ -179,7 +179,8 @@ protected:
 //defines an octree group for an octree node, which contains multiple entries.
 //LL_ALIGN_PREFIX(16)
 class LLViewerOctreeGroup
-:	public OctreeListener
+:	public OctreeListener,
+	public LLTrace::MemTrackable<LLViewerOctreeGroup, 16>
 {
     LL_ALIGN_NEW
 	friend class LLViewerOctreeCull;
@@ -203,6 +204,7 @@ public:
 
 	LLViewerOctreeGroup(OctreeNode* node);
 	LLViewerOctreeGroup(const LLViewerOctreeGroup& rhs)
+	: LLTrace::MemTrackable<LLViewerOctreeGroup, 16>("LLViewerOctreeGroup")
 	{
 		*this = rhs;
 	}

@@ -111,8 +111,9 @@ protected:
 //============================================================================
 // Image base class
 
-class LLImageBase 
-:	public LLThreadSafeRefCount
+class LLImageBase
+:	public LLThreadSafeRefCount,
+	public LLTrace::MemTrackable<LLImageBase>
 {
 protected:
 	virtual ~LLImageBase();

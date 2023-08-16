@@ -123,6 +123,28 @@ public:                                     \
         ll_aligned_free_16(ptr);            \
     }
 
+#define LL_ALIGN_NEW_MEMTRACKABLE(cls)                             \
+public:                                                            \
+    void* operator new(size_t size)                                \
+    {                                                              \
+        return LLTrace::MemTrackable<cls>::aligned_new<16>(size);  \
+    }                                                              \
+                                                                   \
+    void operator delete(void* ptr, size_t size)                   \
+    {                                                              \
+        LLTrace::MemTrackable<cls>::aligned_delete<16>(ptr, size); \
+    }                                                              \
+                                                                   \
+    void* operator new[](size_t size)                              \
+    {                                                              \
+        return LLTrace::MemTrackable<cls>::aligned_new<16>(size);  \
+    }                                                              \
+                                                                   \
+    void operator delete[](void* ptr, size_t size)                 \
+    {                                                              \
+        LLTrace::MemTrackable<cls>::aligned_delete<16>(ptr, size); \
+    }
+
 
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------

@@ -37,13 +37,15 @@
 
 ///
 LLViewModel::LLViewModel()
-:	mDirty(false)
+:	LLTrace::MemTrackable<LLViewModel>("LLViewModel"),
+	mDirty(false)
 {
 }
 
 /// Instantiate an LLViewModel with an existing data value
 LLViewModel::LLViewModel(const LLSD& value)
-:	mDirty(false)
+:	LLTrace::MemTrackable<LLViewModel>("LLViewModel"),
+	mDirty(false)
 {
     setValue(value);
 }

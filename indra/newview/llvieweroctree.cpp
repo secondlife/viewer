@@ -231,8 +231,9 @@ S32 AABBSphereIntersectR2(const LLVector4a& min, const LLVector4a& max, const LL
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreeEntry definitions
 //-----------------------------------------------------------------------------------
-LLViewerOctreeEntry::LLViewerOctreeEntry() 
-:	mGroup(NULL),
+LLViewerOctreeEntry::LLViewerOctreeEntry()
+:	LLTrace::MemTrackable<LLViewerOctreeEntry, 16>("LLViewerOctreeEntry"),
+	mGroup(NULL),
 	mBinRadius(0.f),
 	mBinIndex(-1),
 	mVisible(0)
@@ -458,7 +459,8 @@ LLViewerOctreeGroup::~LLViewerOctreeGroup()
 }
 
 LLViewerOctreeGroup::LLViewerOctreeGroup(OctreeNode* node)
-:	mOctreeNode(node),
+:	LLTrace::MemTrackable<LLViewerOctreeGroup, 16>("LLViewerOctreeGroup"),
+	mOctreeNode(node),
 	mAnyVisible(0),
 	mState(CLEAN)
 {

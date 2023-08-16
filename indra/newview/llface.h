@@ -54,11 +54,12 @@ const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
 const U8 FACE_DO_NOT_BATCH_TEXTURES = 255;
 
-class alignas(16) LLFace
+class alignas(16) LLFace : public LLTrace::MemTrackableNonVirtual<LLFace, 16>
 {
     LL_ALIGN_NEW
 public:
 	LLFace(const LLFace& rhs)
+	:	LLTrace::MemTrackableNonVirtual<LLFace, 16>("LLFace")
 	{
 		*this = rhs;
 	}
@@ -85,6 +86,7 @@ public:
 
 public:
 	LLFace(LLDrawable* drawablep, LLViewerObject* objp)
+	:	LLTrace::MemTrackableNonVirtual<LLFace, 16>("LLFace")
 	{
         LL_PROFILE_ZONE_SCOPED;
 		init(drawablep, objp);

@@ -30,7 +30,8 @@
 #include "llfontbitmapcache.h"
 
 LLFontBitmapCache::LLFontBitmapCache()
-:	mNumComponents(0),
+:	LLTrace::MemTrackable<LLFontBitmapCache>("LLFontBitmapCache"),
+	mNumComponents(0),
 	mBitmapWidth(0),
 	mBitmapHeight(0),
 	mBitmapNum(-1),

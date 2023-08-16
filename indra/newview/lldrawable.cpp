@@ -91,6 +91,7 @@ void LLDrawable::incrementVisible()
 
 LLDrawable::LLDrawable(LLViewerObject *vobj, bool new_entry)
 :	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLDRAWABLE),
+	LLTrace::MemTrackable<LLDrawable, 16>("LLDrawable"),
 	mVObjp(vobj)
 {
 	init(new_entry); 
