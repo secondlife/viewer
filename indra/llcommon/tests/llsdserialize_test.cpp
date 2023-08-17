@@ -44,18 +44,10 @@ typedef U32 uint32_t;
 #include "llstring.h"
 #endif
 
-#include "boost/range.hpp"
-#include "boost/foreach.hpp"
-#include "boost/function.hpp"
-#include "boost/bind.hpp"
-#include "boost/phoenix/bind/bind_function.hpp"
-#include "boost/phoenix/core/argument.hpp"
-using namespace boost::phoenix;
-
-#include "../llsd.h"
-#include "../llsdserialize.h"
+#include "llsd.h"
+#include "llsdserialize.h"
 #include "llsdutil.h"
-#include "../llformat.h"
+#include "llformat.h"
 
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -1697,13 +1689,6 @@ namespace tut
     struct TestPythonCompatible
     {
         TestPythonCompatible():
-            // Note the peculiar insertion of __FILE__ into this string. Since
-            // this script is being written into a platform-dependent temp
-            // directory, we can't locate indra/lib/python relative to
-            // Python's __file__. Use __FILE__ instead, navigating relative
-            // to this C++ source file. Use Python raw-string syntax so
-            // Windows pathname backslashes won't mislead Python's string
-            // scanner.
             import_llsd("import os.path\n"
                         "import sys\n"
                         "from llbase import llsd\n")
@@ -1801,7 +1786,7 @@ namespace tut
     // helper for test<3>
     static void writeLLSDArray(std::ostream& out, const LLSD& array)
     {
-        BOOST_FOREACH(LLSD item, llsd::inArray(array))
+        for (LLSD item: llsd::inArray(array))
         {
             LLSDSerialize::toNotation(item, out);
             // It's important to separate with newlines because Python's llsd
@@ -1841,21 +1826,22 @@ namespace tut
         // Create an llsdXXXXXX file containing 'data' serialized to
         // notation.
         NamedTempFile file("llsd",
-                           // NamedTempFile's boost::function constructor
+                           // NamedTempFile's std::function constructor
                            // takes a callable. To this callable it passes the
                            // std::ostream with which it's writing the
                            // NamedTempFile.
-                           boost::bind(writeLLSDArray, _1, cdata));
+                           [cdata](std::ostream& out){ writeLLSDArray(out, cdata); });
 
         python("read C++ notation",
-               placeholders::arg1 <<
+               [this, pydata, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "def parse_each(iterable):\n"
                "    for item in iterable:\n"
                "        yield llsd.parse(item)\n" <<
                pydata <<
                // Don't forget raw-string syntax for Windows pathnames.
-               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
+               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n"; });
     }
 
     template<> template<>
@@ -1869,7 +1855,8 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("write Python notation",
-               placeholders::arg1 <<
+               [this, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "DATA = [\n"
                "    17,\n"
@@ -1881,9 +1868,9 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'w') as f:\n"
+               "with open(r'" << file.getName() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
-               "        print(llsd.format_notation(item).decode(), file=f)\n");
+               "        print(llsd.format_notation(item), file=f)\n"; });
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
