@@ -44,14 +44,23 @@
       left="10"
       name="merge_items_textures"
       bottom="8"
-      width="200" />
+      width="100" />
     <button
       follows="left|bottom"
       height="20"
       label="Write Thumbnails"
       layout="bottomleft"
-      left="250"
+      left="150"
       name="write_items_thumbnails"
       bottom="8"
-      width="200" />
+      width="100" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Missing Thumbnails"
+      layout="bottomleft"
+      left="250"
+      name="display_thumbless_items"
+      bottom="8"
+      width="100" />
 </floater>

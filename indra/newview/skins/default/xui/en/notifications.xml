@@ -12074,4 +12074,18 @@ Would you like to save them first?
        yestext="Yes"/>
   </notification>
     
+    <notification
+  icon="alertmodal.tga"
+  name="ClearInventoryThumbnailsWarning"
+  type="alertmodal">
+        You are about to remove thumbnail images from the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+        <tag>confirm</tag>
+        <usetemplate
+         name="okcancelbuttons"
+         notext="No"
+         yestext="Yes"/>
+    </notification>
+    
 </notifications>

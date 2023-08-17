@@ -1,7 +1,7 @@
 /**
  * @file llfloaterinventorythumbnailshelper.h
  * @author Callum Prentice
- * @brief Helper floater for bulk processing of inventory thumbnails
+ * @brief Helper floater for bulk processing of inventory thumbnails tool
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -31,7 +31,6 @@
 #include "llfloater.h"
 class LLTextEditor;
 class LLScrollListCtrl;
-class LLMediaCtrl;
 class LLViewerInventoryItem;
 class LLUUID;
 
@@ -46,27 +45,38 @@ class LLFloaterInventoryThumbnailsHelper:
 
         LLScrollListCtrl* mInventoryThumbnailsList;
 
+        LLTextEditor* mOutputLog;
+
         LLUICtrl* mPasteItemsBtn;
         void onPasteItems();
 
         LLUICtrl* mPasteTexturesBtn;
         void onPasteTextures();
 
-        LLTextEditor* mOutputLog;
-
-        void mergeItemsTextures();
-
         LLUICtrl* mWriteThumbnailsBtn;
         void onWriteThumbnails();
 
+        LLUICtrl* mLogMissingThumbnailsBtn;
+        void onLogMissingThumbnails();
+
+        LLUICtrl* mClearThumbnailsBtn;
+        void onClearThumbnails();
+
         void recordInventoryItemEntry(LLViewerInventoryItem* item);
         void recordTextureItemEntry(LLViewerInventoryItem* item);
-        void populateThumbnailNames();
+        void updateButtonStates();
+        void updateDisplayList();
+        void writeToLog(std::string logline, bool prepend_newline);
 
-        std::map<std::string, LLUUID> mItemNamesIDs;
+        std::map<std::string, LLViewerInventoryItem*> mItemNamesItems;
         std::map<std::string, LLUUID> mTextureNamesIDs;
 
-        std::map<std::string, std::pair< LLUUID, LLUUID>> mNameItemIDTextureId;
+        enum EListColumnNum
+        {
+            NAME = 0,
+            EXISTING_TEXTURE = 1,
+            NEW_TEXTURE = 2
+        };
 };
 
 #endif // LL_LLFLOATERINVENTORYTHUMBNAILSHELPER_H

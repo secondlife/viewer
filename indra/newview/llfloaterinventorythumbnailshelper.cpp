@@ -3,6 +3,9 @@
  * @author Callum Prentice
  * @brief LLFloaterInventoryThumbnailsHelper class implementation
  *
+ * Usage instructions and some brief notes can be found in Confluence here:
+ * https://lindenlab.atlassian.net/wiki/spaces/~174746736/pages/2928672843/Inventory+Thumbnail+Helper+Tool
+ * 
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
@@ -25,23 +28,20 @@
  * $/LicenseInfo$
  */
 
-/**
- * Floater that appears when buying an object, giving a preview
- * of its contents and their permissions.
- */
-
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterinventorythumbnailshelper.h"
-#include "lluictrlfactory.h"
-#include "llclipboard.h"
-#include "llinventorymodel.h"
-#include "llinventoryfunctions.h"
-#include "lltexteditor.h"
-#include "llscrolllistctrl.h"
-#include "llmediactrl.h"
-#include "lluuid.h"
 #include "llaisapi.h"
+#include "llclipboard.h"
+#include "llinventoryfunctions.h"
+#include "llinventorymodel.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
+#include "llscrolllistctrl.h"
+#include "lltexteditor.h"
+#include "lluictrlfactory.h"
+#include "lluuid.h"
+
+#include "llfloaterinventorythumbnailshelper.h"
 
 LLFloaterInventoryThumbnailsHelper::LLFloaterInventoryThumbnailsHelper(const LLSD& key)
     :   LLFloater("floater_inventory_thumbnails_helper")
@@ -54,66 +54,53 @@ LLFloaterInventoryThumbnailsHelper::~LLFloaterInventoryThumbnailsHelper()
 
 BOOL LLFloaterInventoryThumbnailsHelper::postBuild()
 {
-    mPasteItemsBtn = getChild<LLUICtrl>("paste_items_btn");
-    mPasteItemsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onPasteItems, this));
-
-    mPasteTexturesBtn = getChild<LLUICtrl>("paste_textures_btn");
-    mPasteTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onPasteTextures, this));
+    mInventoryThumbnailsList = getChild<LLScrollListCtrl>("inventory_thumbnails_list");
+    mInventoryThumbnailsList->setAllowMultipleSelection(true);
 
     mOutputLog = getChild<LLTextEditor>("output_log");
     mOutputLog->setMaxTextLength(0xffff * 0x10);
 
-    //mMergeItemsTexturesBtn = getChild<LLUICtrl>("merge_items_textures");
-    //mMergeItemsTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onMergeItemsTextures, this));
-    //mMergeItemsTexturesBtn->setEnabled(false);
+    mPasteItemsBtn = getChild<LLUICtrl>("paste_items_btn");
+    mPasteItemsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onPasteItems, this));
+    mPasteItemsBtn->setEnabled(true);
 
-    mInventoryThumbnailsList = getChild<LLScrollListCtrl>("inventory_thumbnails_list");
-    mInventoryThumbnailsList->setAllowMultipleSelection(true);
-    mInventoryThumbnailsList->deleteAllItems();
+    mPasteTexturesBtn = getChild<LLUICtrl>("paste_textures_btn");
+    mPasteTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onPasteTextures, this));
+    mPasteTexturesBtn->setEnabled(true);
 
     mWriteThumbnailsBtn = getChild<LLUICtrl>("write_thumbnails_btn");
     mWriteThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onWriteThumbnails, this));
     mWriteThumbnailsBtn->setEnabled(false);
 
+    mLogMissingThumbnailsBtn = getChild<LLUICtrl>("log_missing_thumbnails_btn");
+    mLogMissingThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onLogMissingThumbnails, this));
+    mLogMissingThumbnailsBtn->setEnabled(false);
+
+    mClearThumbnailsBtn = getChild<LLUICtrl>("clear_thumbnails_btn");
+    mClearThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onClearThumbnails, this));
+    mClearThumbnailsBtn->setEnabled(false);
+
     return true;
 }
 
+// Records an entry in the pasted items - saves it to a map and writes it to the log
+// window for later confirmation/validation - since it uses a map, duplicates (based on
+// the name) are discarded
 void LLFloaterInventoryThumbnailsHelper::recordInventoryItemEntry(LLViewerInventoryItem* item)
 {
     const std::string name = item->getName();
 
-    std::map<std::string, LLUUID>::iterator iter = mItemNamesIDs.find(name);
-    if (iter == mItemNamesIDs.end())
+    std::map<std::string, LLViewerInventoryItem*>::iterator iter = mItemNamesItems.find(name);
+    if (iter == mItemNamesItems.end())
     {
-        LLUUID id = item->getUUID();
-        mItemNamesIDs.insert({name, id});
+        mItemNamesItems.insert({name, item});
 
-        mOutputLog->appendText(
+        writeToLog(
             STRINGIZE(
-                "ITEM " << mItemNamesIDs.size() << "> " <<
+                "ITEM " << mItemNamesItems.size() << "> " <<
                 name <<
-                //" | " <<
-                //id.asString() <<
                 std::endl
             ), false);
-
-        // TODO: use this ID to get name of texture and display that
-        const LLUUID current_thumbnail_id = item->getThumbnailUUID();
-
-        std::string texture_display = std::string("Not Present");
-        if (!current_thumbnail_id.isNull())
-        {
-            texture_display = current_thumbnail_id.asString();
-        }
-
-        LLSD row;
-        row["columns"][0]["column"] = "name";
-        row["columns"][0]["type"] = "text";
-        row["columns"][0]["value"] = name;
-        row["columns"][1]["column"] = "texture";
-        row["columns"][1]["type"] = "text";
-        row["columns"][1]["value"] = texture_display;
-        mInventoryThumbnailsList->addElement(row);
     }
     else
     {
@@ -121,6 +108,10 @@ void LLFloaterInventoryThumbnailsHelper::recordInventoryItemEntry(LLViewerInvent
     }
 }
 
+// Called when the user has copied items from their inventory and selects the Paste Items button
+// in the UI - iterates over items and folders and saves details of each one.
+// The first use of this tool is for updating NUX items and as such, only looks for OBJECTS,
+// CLOTHING and BODYPARTS - later versions of this tool should make that selection editable.
 void LLFloaterInventoryThumbnailsHelper::onPasteItems()
 {
     if (!LLClipboard::instance().hasContents())
@@ -128,7 +119,7 @@ void LLFloaterInventoryThumbnailsHelper::onPasteItems()
         return;
     }
 
-    mOutputLog->appendText(
+    writeToLog(
         STRINGIZE(
             "\n==== Pasting items from inventory ====" <<
             std::endl
@@ -142,6 +133,7 @@ void LLFloaterInventoryThumbnailsHelper::onPasteItems()
     {
         const LLUUID& entry = objects.at(i);
 
+        // Check for a folder
         const LLInventoryCategory* cat = gInventory.getCategory(entry);
         if (cat)
         {
@@ -162,6 +154,13 @@ void LLFloaterInventoryThumbnailsHelper::onPasteItems()
                                             LLInventoryModel::EXCLUDE_TRASH,
                                             is_bodypart);
 
+            LLIsType is_clothing(LLAssetType::AT_CLOTHING);
+            gInventory.collectDescendentsIf(cat->getUUID(),
+                                            cat_array,
+                                            item_array,
+                                            LLInventoryModel::EXCLUDE_TRASH,
+                                            is_clothing);
+
             for (size_t i = 0; i < item_array.size(); i++)
             {
                 LLViewerInventoryItem* item = item_array.at(i);
@@ -169,20 +168,28 @@ void LLFloaterInventoryThumbnailsHelper::onPasteItems()
             }
         }
 
+        // Check for an item
         LLViewerInventoryItem* item = gInventory.getItem(entry);
         if (item)
         {
             const LLAssetType::EType item_type = item->getType();
-            if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_BODYPART)
+            if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_BODYPART || item_type == LLAssetType::AT_CLOTHING)
             {
                 recordInventoryItemEntry(item);
             }
         }
     }
 
-    mOutputLog->setCursorAndScrollToEnd();
+    // update the main list view based on what we found
+    updateDisplayList();
+
+    // update the buttons enabled state based on what we found/saved
+    updateButtonStates();
 }
 
+// Records a entry in the pasted textures - saves it to a map and writes it to the log
+// window for later confirmation/validation - since it uses a map, duplicates (based on
+// the name) are discarded
 void LLFloaterInventoryThumbnailsHelper::recordTextureItemEntry(LLViewerInventoryItem* item)
 {
     const std::string name = item->getName();
@@ -193,7 +200,7 @@ void LLFloaterInventoryThumbnailsHelper::recordTextureItemEntry(LLViewerInventor
         LLUUID id = item->getAssetUUID();
         mTextureNamesIDs.insert({name, id});
 
-        mOutputLog->appendText(
+        writeToLog(
             STRINGIZE(
                 "TEXTURE " << mTextureNamesIDs.size() << "> " <<
                 name <<
@@ -208,6 +215,8 @@ void LLFloaterInventoryThumbnailsHelper::recordTextureItemEntry(LLViewerInventor
     }
 }
 
+// Called when the user has copied textures from their inventory and selects the Paste Textures
+// button in the UI - iterates over textures and folders and saves details of each one.
 void LLFloaterInventoryThumbnailsHelper::onPasteTextures()
 {
     if (!LLClipboard::instance().hasContents())
@@ -215,7 +224,7 @@ void LLFloaterInventoryThumbnailsHelper::onPasteTextures()
         return;
     }
 
-    mOutputLog->appendText(
+    writeToLog(
         STRINGIZE(
             "\n==== Pasting textures from inventory ====" <<
             std::endl
@@ -260,105 +269,65 @@ void LLFloaterInventoryThumbnailsHelper::onPasteTextures()
         }
     }
 
-    mOutputLog->setCursorAndScrollToEnd();
+    // update the main list view based on what we found
+    updateDisplayList();
 
-    populateThumbnailNames();
+    // update the buttons enabled state based on what we found/saved
+    updateButtonStates();
 }
 
-
-void LLFloaterInventoryThumbnailsHelper::populateThumbnailNames()
+// Updates the main list of entries in the UI based on what is in the maps/storage
+void LLFloaterInventoryThumbnailsHelper::updateDisplayList()
 {
-    std::map<std::string, LLUUID>::iterator item_iter = mItemNamesIDs.begin();
+    mInventoryThumbnailsList->deleteAllItems();
 
-    while (item_iter != mItemNamesIDs.end())
+    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
+    while (item_iter != mItemNamesItems.end())
     {
         std::string item_name = (*item_iter).first;
 
-        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
-        if (texture_iter != mTextureNamesIDs.end())
+        std::string existing_texture_name = std::string();
+        LLUUID existing_thumbnail_id = (*item_iter).second->getThumbnailUUID();
+        if (existing_thumbnail_id != LLUUID::null)
         {
-            const bool case_sensitive = true;
-            LLScrollListItem* entry = mInventoryThumbnailsList->getItemByLabel(item_name, case_sensitive);
-
-            const std::string texture_name = (*texture_iter).first;
-            entry->getColumn(1)->setValue(LLSD(texture_name));
-        }
-
-        ++item_iter;
-    }
-}
-
-void LLFloaterInventoryThumbnailsHelper::mergeItemsTextures()
-{
-    mOutputLog->appendText(
-        STRINGIZE(
-            "\n==== Matching items and textures for " <<
-            mItemNamesIDs.size() <<
-            " entries ====" <<
-            std::endl
-        ), false);
-
-    std::map<std::string, LLUUID>::iterator item_iter = mItemNamesIDs.begin();
-    size_t index = 1;
-
-    while (item_iter != mItemNamesIDs.end())
-    {
-        std::string item_name = (*item_iter).first;
-
-        mOutputLog->appendText(
-            STRINGIZE(
-                "MATCHING ITEM (" << index++  << "/" << mItemNamesIDs.size() << ") " << item_name << "> "
-            ), false);
-
-        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
-        if (texture_iter != mTextureNamesIDs.end())
-        {
-            mOutputLog->appendText(
-                STRINGIZE(
-                    "MATCHED" <<
-                    std::endl
-                ), false);
-
-            mNameItemIDTextureId.insert({item_name, {(*item_iter).second, (*texture_iter).second}});
+            existing_texture_name = existing_thumbnail_id.asString();
         }
         else
         {
-            mOutputLog->appendText(
-                STRINGIZE(
-                    "NO MATCH FOUND" <<
-                    std::endl
-                ), false);
+            existing_texture_name = "none";
         }
+
+        std::string new_texture_name = std::string();
+        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+        if (texture_iter != mTextureNamesIDs.end())
+        {
+            new_texture_name = (*texture_iter).first;
+        }
+        else
+        {
+            new_texture_name = "missing";
+        }
+
+        LLSD row;
+        row["columns"][EListColumnNum::NAME]["column"] = "item_name";
+        row["columns"][EListColumnNum::NAME]["type"] = "text";
+        row["columns"][EListColumnNum::NAME]["value"] = item_name;
+        row["columns"][EListColumnNum::NAME]["font"]["name"] = "Monospace";
+
+        row["columns"][EListColumnNum::EXISTING_TEXTURE]["column"] = "existing_texture";
+        row["columns"][EListColumnNum::EXISTING_TEXTURE]["type"] = "text";
+        row["columns"][EListColumnNum::EXISTING_TEXTURE]["font"]["name"] = "Monospace";
+        row["columns"][EListColumnNum::EXISTING_TEXTURE]["value"] = existing_texture_name;
+
+        row["columns"][EListColumnNum::NEW_TEXTURE]["column"] = "new_texture";
+        row["columns"][EListColumnNum::NEW_TEXTURE]["type"] = "text";
+        row["columns"][EListColumnNum::NEW_TEXTURE]["font"]["name"] = "Monospace";
+        row["columns"][EListColumnNum::NEW_TEXTURE]["value"] = new_texture_name;
+
+        mInventoryThumbnailsList->addElement(row);
 
         ++item_iter;
     }
-
-    mOutputLog->appendText(
-        STRINGIZE(
-            "==== Matched list of items and textures has " <<
-            mNameItemIDTextureId.size() <<
-            " entries ====" <<
-            std::endl
-        ), true);
-
-    //std::map<std::string, std::pair< LLUUID, LLUUID>>::iterator iter = mNameItemIDTextureId.begin();
-    //while (iter != mNameItemIDTextureId.end())
-    //{
-    //    std::string output_line = (*iter).first;
-    //    output_line += "\n";
-    //    output_line += "item ID: ";
-    //    output_line += ((*iter).second).first.asString();
-    //    output_line += "\n";
-    //    output_line += "thumbnail texture ID: ";
-    //    output_line += ((*iter).second).second.asString();
-    //    output_line +=  "\n";
-    //    mOutputLog->appendText(output_line, true);
-
-    //    ++iter;
-    //}
-    mOutputLog->setCursorAndScrollToEnd();
-
-    mWriteThumbnailsBtn->setEnabled(true);
 }
 
 #if 1
@@ -373,6 +342,9 @@ void inventoryThumbnailsHelperCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 }
 #endif
 
+// Makes calls to the AIS v3 API to record the local changes made to the thumbnails.
+// If this is not called, the operations (e.g. set thumbnail or clear thumbnail)
+// appear to work but do not push the changes back to the inventory (local cache view only)
 bool writeInventoryThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
 {
     if (AISAPI::isAvailable())
@@ -395,40 +367,164 @@ bool writeInventoryThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
     }
 }
 
+// Called when the Write Thumbanils button is pushed. Iterates over the name/item and
+// name/.texture maps and where it finds a common name, extracts what is needed and
+// writes the thumbnail accordingly.
 void LLFloaterInventoryThumbnailsHelper::onWriteThumbnails()
 {
-    mOutputLog->appendText(
-        STRINGIZE(
-            "\n==== Writing thumbnails for " <<
-            mNameItemIDTextureId.size() <<
-            " entries ====" <<
-            std::endl
-        ), false);
-
-    std::map<std::string, std::pair< LLUUID, LLUUID>>::iterator iter = mNameItemIDTextureId.begin();
-    size_t index = 1;
-
-    while (iter != mNameItemIDTextureId.end())
+    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
+    while (item_iter != mItemNamesItems.end())
     {
-        mOutputLog->appendText(
-            STRINGIZE(
-                "WRITING THUMB (" << index++  << "/" << mNameItemIDTextureId.size() << ")> " <<
-                (*iter).first <<
-                "\n" <<
-                "item ID: " <<
-                ((*iter).second).first.asString() <<
-                "\n" <<
-                "thumbnail texture ID: " <<
-                ((*iter).second).second.asString() <<
-                "\n"
-            ), true);
+        std::string item_name = (*item_iter).first;
 
-        LLUUID item_id = ((*iter).second).first;
-        LLUUID thumbnail_asset_id = ((*iter).second).second;
+        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+        if (texture_iter != mTextureNamesIDs.end())
+        {
+            LLUUID item_id = (*item_iter).second->getUUID();
 
-        writeInventoryThumbnailID(item_id, thumbnail_asset_id);
+            LLUUID thumbnail_asset_id = (*texture_iter).second;
 
-        ++iter;
+            writeToLog(
+                STRINGIZE(
+                    "WRITING THUMB " <<
+                    (*item_iter).first <<
+                    "\n" <<
+                    "item ID: " <<
+                    item_id <<
+                    "\n" <<
+                    "thumbnail texture ID: " <<
+                    thumbnail_asset_id <<
+                    "\n"
+                ), true);
+
+
+            (*item_iter).second->setThumbnailUUID(thumbnail_asset_id);
+
+            // This additional step (notifying AIS API) is required
+            // to make the changes persist outside of the local cache
+            writeInventoryThumbnailID(item_id, thumbnail_asset_id);
+        }
+
+        ++item_iter;
     }
+
+    updateDisplayList();
+}
+
+// Called when the Log Items with Missing Thumbnails is selected. This merely writes
+// a list of all the items for which the thumbnail ID is Null. Typical use case is to
+// copy from the log window, pasted to Slack to illustrate which items are missing
+// a thumbnail
+void LLFloaterInventoryThumbnailsHelper::onLogMissingThumbnails()
+{
+    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
+    while (item_iter != mItemNamesItems.end())
+    {
+        LLUUID thumbnail_id = (*item_iter).second->getThumbnailUUID();
+
+        if (thumbnail_id == LLUUID::null)
+        {
+            writeToLog(
+                STRINGIZE(
+                    "Missing thumbnail: " <<
+                    (*item_iter).first <<
+                    std::endl
+                ), true);
+        }
+
+        ++item_iter;
+    }
+}
+
+// Called when the Clear Thumbnail button is selected.  Code to perform the clear (really
+// just writing a NULL UUID into the thumbnail field) is behind an "Are you Sure?" dialog
+// since it cannot be undone and potentinally, you could remove the thumbnails from your
+// whole inventory this way.
+void LLFloaterInventoryThumbnailsHelper::onClearThumbnails()
+{
+    // create and show confirmation (Yes/No) textbox since this is a destructive operation
+    LLNotificationsUtil::add("ClearInventoryThumbnailsWarning", LLSD(), LLSD(),
+                             [&](const LLSD & notif, const LLSD & resp)
+    {
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
+        {
+            std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
+            while (item_iter != mItemNamesItems.end())
+            {
+                (*item_iter).second->setThumbnailUUID(LLUUID::null);
+
+                // This additional step (notifying AIS API) is required
+                // to make the changes persist outside of the local cache
+                const LLUUID item_id = (*item_iter).second->getUUID();
+                writeInventoryThumbnailID(item_id, LLUUID::null);
+
+                ++item_iter;
+            }
+
+            updateDisplayList();
+        }
+        else
+        {
+            LL_INFOS() << "Clearing on thumbnails was canceled" << LL_ENDL;
+        }
+    });
+}
+
+// Update the endabled state of some of the UI buttons based on what has
+// been recorded so far.  For example, if there are no valid item/texture pairs,
+// then the Write Thumbnails button is not enabled.
+void LLFloaterInventoryThumbnailsHelper::updateButtonStates()
+{
+    size_t found_count = 0;
+
+    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
+    while (item_iter != mItemNamesItems.end())
+    {
+        std::string item_name = (*item_iter).first;
+
+        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+        if (texture_iter != mTextureNamesIDs.end())
+        {
+            found_count++;
+        }
+
+        ++item_iter;
+    }
+
+    // the "Write Thumbnails" button is only enabled when there is at least one
+    // item with a matching texture ready to be written to the thumbnail field
+    if (found_count > 0)
+    {
+        mWriteThumbnailsBtn->setEnabled(true);
+    }
+    else
+    {
+        mWriteThumbnailsBtn->setEnabled(false);
+    }
+
+    // The "Log Missing Items" and "Clear Thumbnails" buttons are only enabled
+    // when there is at least 1 item that was pasted from inventory (doesn't need
+    // to have a matching texture for these operations)
+    if (mItemNamesItems.size() > 0)
+    {
+        mLogMissingThumbnailsBtn->setEnabled(true);
+        mClearThumbnailsBtn->setEnabled(true);
+    }
+    else
+    {
+        mLogMissingThumbnailsBtn->setEnabled(false);
+        mClearThumbnailsBtn->setEnabled(false);
+    }
+}
+
+// Helper function for writing a line to the log window. Currently the only additional
+// feature is that it scrolls to the bottom each time a line is written but it
+// is envisaged that other common actions will be added here eventually - E.G. write eavh
+// line to the Second Life log too for example.
+void LLFloaterInventoryThumbnailsHelper::writeToLog(std::string logline, bool prepend_newline)
+{
+    mOutputLog->appendText(logline, prepend_newline);
+
     mOutputLog->setCursorAndScrollToEnd();
 }

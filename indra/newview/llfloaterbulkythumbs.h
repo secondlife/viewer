@@ -57,6 +57,9 @@ class LLFloaterBulkyThumbs:
         LLUICtrl* mWriteThumbnailsBtn;
         void onWriteThumbnails();
 
+        LLUICtrl* mDisplayThumbnaillessItemsBtn;
+        void onDisplayThumbnaillessItems();
+
         void recordInventoryItemEntry(LLViewerInventoryItem* item);
         void recordTextureItemEntry(LLViewerInventoryItem* item);
 

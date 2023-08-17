@@ -70,6 +70,10 @@ BOOL LLFloaterBulkyThumbs::postBuild()
     mWriteThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onWriteThumbnails, this));
     mWriteThumbnailsBtn->setEnabled(false);
 
+    mDisplayThumbnaillessItemsBtn = getChild<LLUICtrl>("display_thumbless_items");
+    mDisplayThumbnaillessItemsBtn->setCommitCallback(boost::bind(&LLFloaterBulkyThumbs::onDisplayThumbnaillessItems, this));
+    mDisplayThumbnaillessItemsBtn->setEnabled(true);
+
     return true;
 }
 
@@ -95,6 +99,18 @@ void LLFloaterBulkyThumbs::recordInventoryItemEntry(LLViewerInventoryItem* item)
     else
     {
         // dupe - do not save
+    }
+
+    if (item->getThumbnailUUID() == LLUUID::null)
+    {
+        mOutputLog->appendText(
+            STRINGIZE(
+                "ITEM " << mItemNamesIDs.size() << "> " <<
+                name <<
+                " has no thumbnail" <<
+                //id.asString() <<
+                std::endl
+            ), false);
     }
 }
 
@@ -139,6 +155,13 @@ void LLFloaterBulkyThumbs::onPasteItems()
                                             LLInventoryModel::EXCLUDE_TRASH,
                                             is_bodypart);
 
+            LLIsType is_clothing(LLAssetType::AT_CLOTHING);
+            gInventory.collectDescendentsIf(cat->getUUID(),
+                                            cat_array,
+                                            item_array,
+                                            LLInventoryModel::EXCLUDE_TRASH,
+                                            is_clothing);
+
             for (size_t i = 0; i < item_array.size(); i++)
             {
                 LLViewerInventoryItem* item = item_array.at(i);
@@ -150,7 +173,7 @@ void LLFloaterBulkyThumbs::onPasteItems()
         if (item)
         {
             const LLAssetType::EType item_type = item->getType();
-            if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_BODYPART)
+            if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_BODYPART || item_type == LLAssetType::AT_CLOTHING)
             {
                 recordInventoryItemEntry(item);
             }
@@ -387,4 +410,34 @@ void LLFloaterBulkyThumbs::onWriteThumbnails()
         ++iter;
     }
     mOutputLog->setCursorAndScrollToEnd();
+}
+
+void LLFloaterBulkyThumbs::onDisplayThumbnaillessItems()
+{
+    //std::map<std::string, LLUUID>::iterator item_iter = mItemNamesIDs.begin();
+    //size_t index = 1;
+
+    //mOutputLog->appendText("======= Items with no thumbnail =======", false);
+
+    //while (item_iter != mItemNamesIDs.end())
+    //{
+    //    std::string item_name = (*item_iter).first;
+
+    //    //mOutputLog->appendText(
+    //    //    STRINGIZE(
+    //    //        "MATCHING ITEM (" << index++  << "/" << mItemNamesIDs.size() << ") " << item_name << "> "
+    //    //    ), false);
+
+    //    std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+    //    if (texture_iter == mTextureNamesIDs.end())
+    //    {
+    //        mOutputLog->appendText(
+    //            STRINGIZE(
+    //                "MISSING:" <<
+
+    //                std::endl
+    //            ), false);
+
+    //    }
+    //}
 }
