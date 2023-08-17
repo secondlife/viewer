@@ -33,20 +33,19 @@
 // STL headers
 // std headers
 // external library headers
-#include <boost/bind.hpp>
 // other Linden headers
+#include "lldate.h"
 #include "llerror.h"                // LL_ERRS
+#include "lleventtimer.h"
 #include "llsdutil.h"               // llsd_matches()
 #include "stringize.h"
-#include "lleventtimer.h"
-#include "lldate.h"
 
 /*****************************************************************************
 *   LLEventFilter
 *****************************************************************************/
 LLEventFilter::LLEventFilter(LLEventPump& source, const std::string& name, bool tweak):
     LLEventStream(name, tweak),
-    mSource(source.listen(getName(), boost::bind(&LLEventFilter::post, this, _1)))
+    mSource(source.listen(getName(), [this](const LLSD& event){ return post(event); }))
 {
 }
 
@@ -93,7 +92,7 @@ void LLEventTimeoutBase::actionAfter(F32 seconds, const Action& action)
     if (! mMainloop.connected())
     {
         LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-        mMainloop = mainloop.listen(getName(), boost::bind(&LLEventTimeoutBase::tick, this, _1));
+        mMainloop = mainloop.listen(getName(), [this](const LLSD& event){ return tick(event); });
     }
 }
 
@@ -183,27 +182,6 @@ void LLEventTimeout::setCountdown(F32 seconds)
 bool LLEventTimeout::countdownElapsed() const
 {
     return mTimer.hasExpired();
-}
-
-LLEventTimer* LLEventTimeout::post_every(F32 period, const std::string& pump, const LLSD& data)
-{
-    return LLEventTimer::run_every(
-        period,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
-}
-
-LLEventTimer* LLEventTimeout::post_at(const LLDate& time, const std::string& pump, const LLSD& data)
-{
-    return LLEventTimer::run_at(
-        time,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
-}
-
-LLEventTimer* LLEventTimeout::post_after(F32 interval, const std::string& pump, const LLSD& data)
-{
-    return LLEventTimer::run_after(
-        interval,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
 }
 
 /*****************************************************************************
@@ -311,7 +289,7 @@ bool LLEventThrottleBase::post(const LLSD& event)
             // timeRemaining tells us how much longer it will be until
             // mInterval seconds since the last flush() call. At that time,
             // flush() deferred events.
-            alarmActionAfter(timeRemaining, boost::bind(&LLEventThrottleBase::flush, this));
+            alarmActionAfter(timeRemaining, [this](){ flush(); });
         }
     }
     return false;
@@ -349,7 +327,7 @@ void LLEventThrottleBase::setInterval(F32 interval)
             // and if mAlarm is running, reset that too
             if (alarmRunning())
             {
-                alarmActionAfter(timeRemaining, boost::bind(&LLEventThrottleBase::flush, this));
+                alarmActionAfter(timeRemaining, [this](){ flush(); });
             }
         }
     }
