@@ -38,7 +38,7 @@ from io import StringIO
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
-from llbase import llsd
+import llsd
 
 # we're in llcorehttp/tests ; testrunner.py is found in llmessage/tests
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
