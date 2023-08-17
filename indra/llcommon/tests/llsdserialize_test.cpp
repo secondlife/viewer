@@ -1867,10 +1867,9 @@ namespace tut
                "lines.''',\n"
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
-               // N.B. Using 'print' implicitly adds newlines.
                "with open(r'" << file.getName() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
-               "        print(llsd.format_notation(item), file=f)\n"; });
+               "        f.writelines((llsd.format_notation(item), b'\n'))\n"; });
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
