@@ -266,8 +266,8 @@ void LLInventoryFetchItemsObserver::startFetch()
 
 	LLSD items_llsd;
 
-    typedef std::map<LLUUID, uuid_vec_t> requests_by_fodlers_t;
-    requests_by_fodlers_t requests;
+    typedef std::map<LLUUID, uuid_vec_t> requests_by_folders_t;
+    requests_by_folders_t requests;
 	for (uuid_vec_t::const_iterator it = mIDs.begin(); it < mIDs.end(); ++it)
 	{
         LLViewerInventoryItem* item = gInventory.getItem(*it);
@@ -335,12 +335,19 @@ void LLInventoryFetchItemsObserver::startFetch()
     if (aisv3)
     {
         const S32 MAX_INDIVIDUAL_REQUESTS = 10;
-        for (requests_by_fodlers_t::value_type &folder : requests)
+        for (requests_by_folders_t::value_type &folder : requests)
         {
+            LLViewerInventoryCategory* cat = gInventory.getCategory(folder.first);
             if (folder.second.size() > MAX_INDIVIDUAL_REQUESTS)
             {
                 // requesting one by one will take a while
                 // do whole folder
+                if (cat)
+                {
+                    // Either drop version or use scheduleFolderFetch to force-fetch
+                    // otherwise background fetch will ignore folders with set version
+                    cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
+                }
                 LLInventoryModelBackgroundFetch::getInstance()->start(folder.first);
             }
             else
@@ -355,7 +362,8 @@ void LLInventoryFetchItemsObserver::startFetch()
                     }
                     else if (cat->getViewerDescendentCount() <= folder.second.size())
                     {
-                        // start fetching whole folder since we need all items
+                        // Start fetching whole folder since we need all items
+                        // Drop version or use scheduleFolderFetch
                         cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
                         cat->fetch();
 

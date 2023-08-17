@@ -100,7 +100,8 @@ void LLThumbnailCtrl::draw()
     {
         if( mTexturep->getComponents() == 4 )
         {
-            gl_rect_2d_checkerboard( draw_rect, alpha );
+            const LLColor4 color(.098f, .098f, .098f);
+            gl_rect_2d( draw_rect, color, TRUE);
         }
         
         gl_draw_scaled_image( draw_rect.mLeft, draw_rect.mBottom, draw_rect.getWidth(), draw_rect.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
