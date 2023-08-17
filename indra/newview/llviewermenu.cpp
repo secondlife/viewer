@@ -6141,8 +6141,9 @@ class LLCommunicateNearbyChat : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterIMContainer* im_box = LLFloaterIMContainer::getInstance();
-		bool nearby_visible	= LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->isInVisibleChain();
-		if(nearby_visible && im_box->getSelectedSession() == LLUUID() && im_box->getConversationListItemSize() > 1)
+        LLFloaterIMNearbyChat* floater_nearby = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+        if (floater_nearby->isInVisibleChain() && !floater_nearby->isTornOff() 
+            && im_box->getSelectedSession() == LLUUID() && im_box->getConversationListItemSize() > 1)
 		{
 			im_box->selectNextorPreviousConversation(false);
 		}
