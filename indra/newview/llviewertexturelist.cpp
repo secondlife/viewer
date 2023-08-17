@@ -1290,7 +1290,8 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 										 const std::string& out_filename,
 										 const U8 codec,
 										 const S32 max_image_dimentions,
-										 const S32 min_image_dimentions)
+										 const S32 min_image_dimentions,
+										 bool force_square)
 {	
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	// Load the image
@@ -1329,7 +1330,7 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
         return FALSE;
     }
 	// Convert to j2c (JPEG2000) and save the file locally
-	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image, max_image_dimentions);
+	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image, max_image_dimentions, force_square);
 	if (compressedImage.isNull())
 	{
 		image->setLastError("Couldn't convert the image to jpeg2000.");
@@ -1354,10 +1355,20 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 }
 
 // note: modifies the argument raw_image!!!!
-LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImageRaw> raw_image, const S32 max_image_dimentions)
+LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImageRaw> raw_image, const S32 max_image_dimentions, bool force_square)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	raw_image->biasedScaleToPowerOfTwo(max_image_dimentions);
+    if (force_square)
+    {
+        S32 biggest_side = llmax(raw_image->getWidth(), raw_image->getHeight());
+        S32 square_size = raw_image->biasedDimToPowerOfTwo(biggest_side, max_image_dimentions);
+
+        raw_image->scale(square_size, square_size);
+    }
+    else
+    {
+        raw_image->biasedScaleToPowerOfTwo(max_image_dimentions);
+    }
 	LLPointer<LLImageJ2C> compressedImage = new LLImageJ2C();
 	
 	if (gSavedSettings.getBOOL("LosslessJ2CUpload") &&
