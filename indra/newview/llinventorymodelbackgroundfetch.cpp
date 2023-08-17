@@ -657,7 +657,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         || mLastFetchCount != mFetchCount) // if anything was substracted
     {
         LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << mLastFetchCount << "->" << last_fetch_count << "->" << mFetchCount
-            << ", scheduled fodler fetches: " << (S32)mFetchFolderQueue.size()
+            << ", scheduled folder fetches: " << (S32)mFetchFolderQueue.size()
             << ", scheduled item fetches: " << (S32)mFetchItemQueue.size()
             << LL_ENDL;
         mLastFetchCount = mFetchCount;
@@ -1384,10 +1384,10 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
             while (iter != end)
             {
                 folders.append(*iter);
-                LLUUID fodler_id = iter->get("folder_id").asUUID();
-                if (std::find(mRecursiveCatUUIDs.begin(), mRecursiveCatUUIDs.end(), fodler_id) != mRecursiveCatUUIDs.end())
+                LLUUID folder_id = iter->get("folder_id").asUUID();
+                if (std::find(mRecursiveCatUUIDs.begin(), mRecursiveCatUUIDs.end(), folder_id) != mRecursiveCatUUIDs.end())
                 {
-                    recursive_cats.push_back(fodler_id);
+                    recursive_cats.push_back(folder_id);
                 }
                 if (folders.size() == (S32)(size / 2))
                 {
