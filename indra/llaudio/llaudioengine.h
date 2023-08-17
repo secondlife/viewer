@@ -28,6 +28,7 @@
 #ifndef LL_AUDIOENGINE_H
 #define LL_AUDIOENGINE_H
 
+#include <array>
 #include <list>
 #include <map>
 
