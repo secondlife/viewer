@@ -260,7 +260,7 @@ public:
     }
 
     std::string getName() const { return mPath.string(); }
-    std::string getNormalName() const { return mPath.lexically_normal().string(); }
+    std::string getNormalName() const { return mPath.lexically_normal().make_preferred().string(); }
 
 private:
     boost::filesystem::path mPath;
