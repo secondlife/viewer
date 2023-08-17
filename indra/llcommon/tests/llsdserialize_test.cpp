@@ -1869,7 +1869,7 @@ namespace tut
                // Don't forget raw-string syntax for Windows pathnames.
                "with open(r'" << file.getName() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
-               "        f.writelines((llsd.format_notation(item), b'\n'))\n"; });
+               "        f.writelines((llsd.format_notation(item), b'\\n'))\n"; });
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
