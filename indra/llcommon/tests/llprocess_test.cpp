@@ -234,7 +234,8 @@ public:
         aprchk(apr_dir_remove(mPath.c_str(), gAPRPoolp));
     }
 
-    std::string getName() const { return mPath; }
+    std::string getName() const { return mPath.string(); }
+    std::string getNormalName() const { return mPath.lexically_normal().string(); }
 
 private:
     std::string mPath;
@@ -565,7 +566,13 @@ namespace tut
                                  "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
-        ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
+        std::string expected{ tempdir.getNormalName() };
+#if LL_WINDOWS
+        // SIGH, don't get tripped up by "C:" != "c:" --
+        // but on the Mac, using tolower() fails because "/users" != "/Users"!
+        expected = utf8str_tolower(expected);
+#endif
+        ensure_equals("os.getcwd()", py.run_read(), expected);
     }
 
     template<> template<>
