@@ -16,7 +16,6 @@ if (WINDOWS)
   endif (LLCOMMON_LINK_SHARED)
   target_link_libraries( ll::apr INTERFACE
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}apr-1.lib
-          ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}apriconv-1.lib
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}aprutil-1.lib
           )
 elseif (DARWIN)
