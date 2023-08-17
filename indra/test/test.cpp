@@ -100,7 +100,7 @@ public:
 	RecordToTempFile(apr_pool_t* pPool)
 		: LLError::Recorder(),
 		boost::noncopyable(),
-		mTempFile("log", "", pPool),
+		mTempFile("log", ""),
 		mFile(mTempFile.getName().c_str())
 	{
 	}
