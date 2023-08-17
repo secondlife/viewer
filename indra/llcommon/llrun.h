@@ -38,7 +38,7 @@ class LLRunnable;
 // DEPRECATION WARNING
 // LLRunner is one of several mostly redundant ways to schedule future
 // callbacks on the main thread. It seems to be unused in the current viewer.
-// addRunner() is only called by LLPumpIO::sleepChain().
+// addRunnable() is only called by LLPumpIO::sleepChain().
 // sleepChain() is only called by LLIOSleeper and LLIOSleep.
 // LLIOSleeper is referenced only by tests.
 // LLIOSleep is only called by LLDeferredChain.
