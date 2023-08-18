@@ -121,6 +121,8 @@ const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 const S32 UI_FEATURE_VERSION = 1;
+// for version 1: 1 - inventory, 2 - gltf
+const S32 UI_FEATURE_FLAGS = 1;
 
 // The agent instance.
 LLAgent gAgent;
@@ -568,27 +570,77 @@ void LLAgent::setFirstLogin(bool b)
     if (mFirstLogin)
     {
         // Don't notify new users about new features
-        S32 feature_version = gSavedSettings.getS32("LastUIFeatureVersion");
-        if (feature_version < UI_FEATURE_VERSION)
+        if (getFeatureVersion() <= UI_FEATURE_VERSION)
         {
-            gSavedSettings.setS32("LastUIFeatureVersion", UI_FEATURE_VERSION);
+            setFeatureVersion(UI_FEATURE_VERSION, UI_FEATURE_FLAGS);
         }
     }
 }
 
-void LLAgent::showLatestFeatureNotification()
+void LLAgent::setFeatureVersion(S32 version, S32 flags)
 {
-    // Notify user about new thumbnail support
-    S32 feature_version = gSavedSettings.getS32("LastUIFeatureVersion");
-    if (feature_version < UI_FEATURE_VERSION)
+    LLSD updated_version;
+    updated_version["version"] = version;
+    updated_version["flags"] = flags;
+    gSavedSettings.setLLSD("LastUIFeatureVersion", updated_version);
+}
+
+S32 LLAgent::getFeatureVersion()
+{
+    S32 version;
+    S32 flags;
+    getFeatureVersionAndFlags(version, flags);
+    return version;
+}
+
+void LLAgent::getFeatureVersionAndFlags(S32& version, S32& flags)
+{
+    version = 0;
+    flags = 0;
+    LLSD feature_version = gSavedSettings.getLLSD("LastUIFeatureVersion");
+    if (feature_version.isInteger())
     {
-        // Need to open on top even if called from onOpen,
-        // do on idle to make sure it's on top
-        doOnIdleOneTime([]()
-                        {
-                            LLFloaterReg::showInstance("new_feature_notification");
-                        });
-        gSavedSettings.setS32("LastUIFeatureVersion", UI_FEATURE_VERSION);
+        version = feature_version.asInteger();
+        flags = UI_FEATURE_FLAGS;
+    }
+    else if (feature_version.isMap())
+    {
+        version = feature_version["version"];
+        flags = feature_version["flags"];
+    }
+    else if (!feature_version.isString() && !feature_version.isUndefined())
+    {
+        // is something newer inside?
+        version = UI_FEATURE_VERSION;
+        flags = UI_FEATURE_FLAGS;
+    }
+}
+
+void LLAgent::showLatestFeatureNotification(const std::string key)
+{
+    S32 version;
+    S32 flags; // a single release can have multiple new features
+    getFeatureVersionAndFlags(version, flags);
+    if (version <= UI_FEATURE_VERSION && (flags & UI_FEATURE_FLAGS) != UI_FEATURE_FLAGS)
+    {
+        if (key == "inventory")
+        {
+            S32 flag = 1;
+
+            // Notify user about new thumbnail support
+            if ((flags & flag) == 0)
+            {
+                // Need to open on top even if called from onOpen,
+                // do on idle to make sure it's on top
+                LLSD floater_key(key);
+                doOnIdleOneTime([floater_key]()
+                                {
+                                    LLFloaterReg::showInstance("new_feature_notification", floater_key);
+                                });
+
+                setFeatureVersion(UI_FEATURE_VERSION, flags | flag);
+            }
+        }
     }
 }
 
