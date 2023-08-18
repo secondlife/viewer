@@ -121,7 +121,8 @@ const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 const S32 UI_FEATURE_VERSION = 1;
-// for version 1: 1 - inventory, 2 - gltf
+// For version 1: 1 - inventory, 2 - gltf
+// Will need to change to 3 once either inventory or gltf releases and cause a conflict
 const S32 UI_FEATURE_FLAGS = 1;
 
 // The agent instance.
@@ -601,7 +602,7 @@ void LLAgent::getFeatureVersionAndFlags(S32& version, S32& flags)
     if (feature_version.isInteger())
     {
         version = feature_version.asInteger();
-        flags = UI_FEATURE_FLAGS;
+        flags = 1; // inventory flag
     }
     else if (feature_version.isMap())
     {
@@ -623,23 +624,30 @@ void LLAgent::showLatestFeatureNotification(const std::string key)
     getFeatureVersionAndFlags(version, flags);
     if (version <= UI_FEATURE_VERSION && (flags & UI_FEATURE_FLAGS) != UI_FEATURE_FLAGS)
     {
+        S32 flag = 0;
+
         if (key == "inventory")
         {
-            S32 flag = 1;
-
             // Notify user about new thumbnail support
-            if ((flags & flag) == 0)
-            {
-                // Need to open on top even if called from onOpen,
-                // do on idle to make sure it's on top
-                LLSD floater_key(key);
-                doOnIdleOneTime([floater_key]()
-                                {
-                                    LLFloaterReg::showInstance("new_feature_notification", floater_key);
-                                });
+            flag = 1;
+        }
 
-                setFeatureVersion(UI_FEATURE_VERSION, flags | flag);
-            }
+        if (key == "gltf")
+        {
+            flag = 2;
+        }
+
+        if ((flags & flag) == 0)
+        {
+            // Need to open on top even if called from onOpen,
+            // do on idle to make sure it's on top
+            LLSD floater_key(key);
+            doOnIdleOneTime([floater_key]()
+                            {
+                                LLFloaterReg::showInstance("new_feature_notification", floater_key);
+                            });
+
+            setFeatureVersion(UI_FEATURE_VERSION, flags | flag);
         }
     }
 }
