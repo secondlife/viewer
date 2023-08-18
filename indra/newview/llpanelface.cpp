@@ -492,6 +492,15 @@ LLPanelFace::~LLPanelFace()
     unloadMedia();
 }
 
+void LLPanelFace::onVisibilityChange(BOOL new_visibility)
+{
+    if (new_visibility)
+    {
+        gAgent.showLatestFeatureNotification("gltf");
+    }
+    LLPanel::onVisibilityChange(new_visibility);
+}
+
 void LLPanelFace::draw()
 {
     updateCopyTexButton();
