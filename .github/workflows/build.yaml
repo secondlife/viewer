@@ -241,16 +241,34 @@ jobs:
 
   release:
     needs: build
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
-      # forked from softprops/action-gh-release
-      - uses: secondlife-3p/action-gh-release@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          prerelease: true
-          generate_release_notes: true
-          # the only reason we generate a GH release is to post build products
-          fail_on_unmatched_files: true
-          files: |
-            ${{ needs.build.outputs.installer }}
-            ${{ needs.build.outputs.metadata }}
+          ref: ${{ github.sha }}
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install PyGithub
+        run: pip3 install PyGithub
+
+      - name: Unpack artifacts
+        env:
+          BUILD: ${{ toJSON(needs.build) }}
+        run: .github/workflows/post_artifacts.py
+
+##    # forked from softprops/action-gh-release
+##    - uses: secondlife-3p/action-gh-release@v1
+##      with:
+##        prerelease: true
+##        generate_release_notes: true
+##        # the only reason we generate a GH release is to post build products
+##        fail_on_unmatched_files: true
+##        files: |
+##          ${{ needs.build.outputs.installer }}
+##          ${{ needs.build.outputs.metadata }}
