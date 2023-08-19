@@ -642,6 +642,7 @@ void LLPipeline::cleanup()
 	mCubeVB = NULL;
 
     mReflectionMapManager.cleanup();
+    mHeroProbeManager.cleanup();
 }
 
 //============================================================================
@@ -772,6 +773,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     { // hacky -- allocate auxillary buffer
         gCubeSnapshot = TRUE;
         mReflectionMapManager.initReflectionMaps();
+        mHeroProbeManager.initReflectionMaps();
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
@@ -2441,6 +2443,26 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 
         gGL.setColorMask(true, true);
     }
+    
+    if (sReflectionProbesEnabled && sUseOcclusion > 1 && !LLPipeline::sShadowRender && !gCubeSnapshot)
+    {
+        gGL.setColorMask(false, false);
+        LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+        LLGLDisable cull(GL_CULL_FACE);
+
+        gOcclusionCubeProgram.bind();
+
+        if (mCubeVB.isNull())
+        { //cube VB will be used for issuing occlusion queries
+            mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX);
+        }
+        mCubeVB->setBuffer();
+
+        mHeroProbeManager.doOcclusion();
+        gOcclusionCubeProgram.unbind();
+
+        gGL.setColorMask(true, true);
+    }
 
     if (LLPipeline::sUseOcclusion > 1 &&
 		(sCull->hasOcclusionGroups() || LLVOCachePartition::sNeedsOcclusionCheck))
@@ -3809,6 +3831,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
         {
             //update reflection probe uniform
             mReflectionMapManager.updateUniforms();
+            mHeroProbeManager.updateUniforms();
         }
 
 		U32 cur_type = 0;
@@ -8461,14 +8484,14 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         mReflectionMapManager.mIrradianceMaps->bind(channel);
         bound = true;
     }
-    /*
+    
     channel = shader.enableTexture(LLShaderMgr::HERO_PROBE, LLTexUnit::TT_CUBE_MAP_ARRAY);
-    if (channel > -1 && mReflectionMapManager.mHeroArray.notNull())
+    if (channel > -1 && mHeroProbeManager.mTexture.notNull())
     {
-        mReflectionMapManager.mHeroArray->bind(channel);
+        mHeroProbeManager.mTexture->bind(channel);
         bound = true;
     }
-     */
+     
 
     if (bound)
     {

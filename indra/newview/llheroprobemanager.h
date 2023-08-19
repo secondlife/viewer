@@ -35,13 +35,7 @@ class LLSpatialGroup;
 class LLViewerObject;
 
 // number of reflection probes to keep in vram
-#define LL_MAX_REFLECTION_PROBE_COUNT 256
-
-// reflection probe resolution
-#define LL_IRRADIANCE_MAP_RESOLUTION 64
-
-// reflection probe mininum scale
-#define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
+#define LL_MAX_HERO_PROBE_COUNT 2
 
 class alignas(16) LLHeroProbeManager
 {
@@ -63,30 +57,6 @@ public:
     // maintain reflection probes
     void update();
 
-    // add a probe for the given spatial group
-    LLReflectionMap* addProbe(LLSpatialGroup* group = nullptr);
-    
-    // Populate "maps" with the N most relevant Reflection Maps where N is no more than maps.size()
-    // If less than maps.size() ReflectionMaps are available, will assign trailing elements to nullptr.
-    //  maps -- presized array of Reflection Map pointers
-    void getReflectionMaps(std::vector<LLReflectionMap*>& maps);
-
-    // called by LLSpatialGroup constructor
-    // If spatial group should receive a Reflection Probe, will create one for the specified spatial group
-    LLReflectionMap* registerSpatialGroup(LLSpatialGroup* group);
-
-    // presently hacked into LLViewerObject::setTE
-    // Used by LLViewerObjects that are Reflection Probes
-    // vobj must not be null
-    // Guaranteed to not return null
-    LLReflectionMap* registerViewerObject(LLViewerObject* vobj);
-
-    // reset all state on the next update
-    void reset();
-
-    // called on region crossing to "shift" probes into new coordinate frame
-    void shift(const LLVector4a& offset);
-
     // debug display, called from llspatialpartition if reflection
     // probe debug display is active
     void renderDebug();
@@ -94,28 +64,12 @@ public:
     // call once at startup to allocate cubemap arrays
     void initReflectionMaps();
 
-    // True if currently updating a radiance map, false if currently updating an irradiance map
-    bool isRadiancePass() { return mRadiancePass; }
-
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
 private:
     friend class LLPipeline;
-
-    // initialize mCubeFree array to default values
-    void initCubeFree();
-
-    // delete the probe with the given index in mProbes
-    void deleteProbe(U32 i);
-
-    // get a free cube index
-    // returns -1 if allocation failed
-    S32 allocateCubeIndex();
-
-    // update the neighbors of the given probe 
-    void updateNeighbors(LLReflectionMap* probe);
-
+    
     // update UBO used for rendering (call only once per render pipe flush)
     void updateUniforms();
 
@@ -132,8 +86,6 @@ private:
 
     // storage for reflection probe radiance maps (plus two scratch space cubemaps)
     LLPointer<LLCubeMapArray> mTexture;
-    
-    LLPointer<LLCubeMapArray> mHeroArray;
 
     // vertex buffer for pushing verts to filter shaders
     LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -141,61 +93,28 @@ private:
     // storage for reflection probe irradiance maps
     LLPointer<LLCubeMapArray> mIrradianceMaps;
 
-    // list of free cubemap indices
-    std::list<S32> mCubeFree;
-
-    // perform an update on the currently updating Probe
-    void doProbeUpdate();
-
     // update the specified face of the specified probe
-    void updateProbeFace(LLReflectionMap* probe, U32 face, U32 probeResolution, LLPointer<LLCubeMapArray> cubeArray, std::vector<LLRenderTarget> &mipChain, U32 probeCount);
+    void updateProbeFace(LLReflectionMap* probe, U32 face);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
 
-    // list of reflection maps to kill
-    std::vector<LLPointer<LLReflectionMap> > mKillList;
-
-    // list of reflection maps to create
-    std::vector<LLPointer<LLReflectionMap> > mCreateList;
-
     // handle to UBO
     U32 mUBO = 0;
-    
-    // Hero UBO
-    U32 mHeroUBO = 0;
 
     // list of maps being used for rendering
     std::vector<LLReflectionMap*> mReflectionMaps;
 
     LLReflectionMap* mUpdatingProbe = nullptr;
-    U32 mUpdatingFace = 0;
-
-    // if true, we're generating the radiance map for the current probe, otherwise we're generating the irradiance map.
-    // Update sequence should be to generate the irradiance map from render of the world that has no irradiance,
-    // then generate the radiance map from a render of the world that includes irradiance.
-    // This should avoid feedback loops and ensure that the colors in the radiance maps match the colors in the environment.
-    bool mRadiancePass = false;
-
-    // same as above, but for the realtime probe.
-    // Realtime probes should update all six sides of the irradiance map on "odd" frames and all six sides of the
-    // radiance map on "even" frames.
-    bool mRealtimeRadiancePass = false;
 
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
-    
-    LLPointer<LLReflectionMap> mHeroProbe;
 
     // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
-    
-    U32 mHeroProbeCount;
 
     // resolution of reflection probes
     U32 mProbeResolution = 128;
     
-    U32 mHeroProbeResolution = 512;
-
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;
 

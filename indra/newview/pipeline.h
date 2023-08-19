@@ -39,6 +39,7 @@
 #include "lldrawable.h"
 #include "llrendertarget.h"
 #include "llreflectionmapmanager.h"
+#include "llheroprobemanager.h"
 
 #include <stack>
 
@@ -454,6 +455,7 @@ public:
     void handleShadowDetailChanged();
 
     LLReflectionMapManager mReflectionMapManager;
+    LLHeroProbeManager mHeroProbeManager;
 
 private:
 	void unloadShaders();
