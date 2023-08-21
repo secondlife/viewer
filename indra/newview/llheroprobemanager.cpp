@@ -36,6 +36,11 @@
 #include "llviewercontrol.h"
 #include "llenvironment.h"
 #include "llstartup.h"
+#include "llagent.h"
+#include "llagentcamera.h"
+#include "llviewerwindow.h"
+#include "llviewerjoystick.h"
+#include "llviewermediafocus.h"
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -98,16 +103,60 @@ void LLHeroProbeManager::update()
 
     llassert(mProbes[0] == mDefaultProbe);
     
-    LLVector4a camera_pos;
-    camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
+    LLVector3 camera_pos = LLViewerCamera::instance().getOrigin();
     
+    LLVector4a probe_pos;
+    
+    LLVector3 focus_point;
+    
+    LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
+    if (obj && obj->mDrawable && obj->isSelected())
+    { // focus on selected media object
+        S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
+        if (obj && obj->mDrawable)
+        {
+            LLFace* face = obj->mDrawable->getFace(face_idx);
+            if (face)
+            {
+                focus_point = face->getPositionAgent();
+            }
+        }
+    }
+
+    if (focus_point.isExactlyZero())
+    {
+        if (LLViewerJoystick::getInstance()->getOverrideCamera())
+        { // focus on point under cursor
+            focus_point.set(gDebugRaycastIntersection.getF32ptr());
+        }
+        else if (gAgentCamera.cameraMouselook())
+        { // focus on point under mouselook crosshairs
+            LLVector4a result;
+            result.clear();
+
+            gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, NULL, &result);
+
+            focus_point.set(result.getF32ptr());
+        }
+        else
+        {
+            // focus on alt-zoom target
+            LLViewerRegion* region = gAgent.getRegion();
+            if (region)
+            {
+                focus_point = LLVector3(gAgentCamera.getFocusGlobal() - region->getOriginGlobal());
+            }
+        }
+    }
+    
+    probe_pos.load3(((focus_point + camera_pos) / 2).mV);
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
-        // Probe 0 is always our mirror probe.  Probe N - 1 is our water probe.
-        mProbes[0]->mOrigin.load3(LLViewerCamera::instance().mOrigin.mV);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
+        // Probe 0 is always our mirror probe.
+        mProbes[0]->mOrigin = probe_pos;
         for (U32 j = 0; j < mProbes.size(); j++)
         {
             for (U32 i = 0; i < 6; ++i)
@@ -130,8 +179,6 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
-
-    mLightScale = 1.f;
 
     probe->update(mRenderTarget.getWidth(), face);
     
@@ -458,6 +505,9 @@ void LLHeroProbeManager::cleanup()
 
     glDeleteBuffers(1, &mUBO);
     mUBO = 0;
+    
+    mHeroList.clear();
+    mNearestHero = nullptr;
 }
 
 void LLHeroProbeManager::doOcclusion()
@@ -471,5 +521,21 @@ void LLHeroProbeManager::doOcclusion()
         {
             probe->doOcclusion(eye);
         }
+    }
+}
+
+void LLHeroProbeManager::registerHeroDrawable(LLDrawable* drawablep)
+{
+    if (mHeroList.find(drawablep) == mHeroList.end())
+    {
+        mHeroList.insert(drawablep);
+    }
+}
+
+void LLHeroProbeManager::unregisterHeroDrawable(LLDrawable *drawablep)
+{
+    if (mHeroList.find(drawablep) != mHeroList.end())
+    {
+        mHeroList.erase(drawablep);
     }
 }

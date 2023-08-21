@@ -1045,7 +1045,7 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
         updateReflectionProbePtr();
     }
     
-    gPipeline.setMirror(mDrawable, isMirror());
+    gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
     
 	updateRadius();
 	bool force_update = true; // avoid non-alpha mDistance update being optimized away
@@ -4454,7 +4454,10 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
    
     updateReflectionProbePtr();
     
-    gPipeline.setMirror(mDrawable, isMirror());
+    if (isMirror())
+        gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+    else
+        gPipeline.mHeroProbeManager.unregisterHeroDrawable(mDrawable);
 }
 
 void LLVOVolume::updateReflectionProbePtr()

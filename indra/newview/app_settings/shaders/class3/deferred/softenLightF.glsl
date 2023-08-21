@@ -213,13 +213,14 @@ void main()
         vec3 v = -normalize(pos.xyz);
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
         
+        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+        color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - gloss) * 11).xyz * specularColor;
+        
         if (do_atmospherics)
         {
             color = atmosFragLightingLinear(color, additive, atten);
         }
         
-        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-        color = texture(heroProbes, vec4(env_mat * refnormpersp, 0), 0).xyz;
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {

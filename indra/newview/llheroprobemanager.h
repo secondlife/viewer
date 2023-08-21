@@ -30,6 +30,7 @@
 #include "llrendertarget.h"
 #include "llcubemaparray.h"
 #include "llcubemap.h"
+#include "lldrawable.h"
 
 class LLSpatialGroup;
 class LLViewerObject;
@@ -67,6 +68,9 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
+    void registerHeroDrawable(LLDrawable* drawablep);
+    void unregisterHeroDrawable(LLDrawable* drawablep);
+    
 private:
     friend class LLPipeline;
     
@@ -118,10 +122,10 @@ private:
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;
 
-    // amount to scale local lights during an irradiance map update (set during updateProbeFace and used by LLPipeline)
-    F32 mLightScale = 1.f;
-
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
+    
+    LLDrawable::ordered_drawable_set_t  mHeroList;
+    LLDrawable*                         mNearestHero;
 };
 
