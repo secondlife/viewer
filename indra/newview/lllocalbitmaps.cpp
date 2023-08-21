@@ -982,6 +982,9 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 	LLImageDimensionsInfo image_info;
 	if (!image_info.load(filename,codec))
 	{
+        LLSD args;
+        args["NAME"] = gDirUtilp->getBaseFileName(filename);
+        LLNotificationsUtil::add(image_info.getWarningName(), args);
 		return false;
 	}
 
