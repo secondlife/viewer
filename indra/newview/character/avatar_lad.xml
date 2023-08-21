@@ -1928,8 +1928,8 @@
      edit_group_order="10"
      label_min="Small Hands"
      label_max="Large Hands"
-     value_min="-.3"
-     value_max=".3"
+     value_min="-.5"
+     value_max=".5"
      camera_elevation=".1"
      camera_distance="1.4"
      camera_angle="0">
