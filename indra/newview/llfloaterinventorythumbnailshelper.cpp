@@ -5,7 +5,7 @@
  *
  * Usage instructions and some brief notes can be found in Confluence here:
  * https://lindenlab.atlassian.net/wiki/spaces/~174746736/pages/2928672843/Inventory+Thumbnail+Helper+Tool
- * 
+ *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
@@ -372,43 +372,56 @@ bool writeInventoryThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
 // writes the thumbnail accordingly.
 void LLFloaterInventoryThumbnailsHelper::onWriteThumbnails()
 {
-    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
-    while (item_iter != mItemNamesItems.end())
+    // create and show confirmation (Yes/No) textbox since this is a destructive operation
+    LLNotificationsUtil::add("WriteInventoryThumbnailsWarning", LLSD(), LLSD(),
+                             [&](const LLSD & notif, const LLSD & resp)
     {
-        std::string item_name = (*item_iter).first;
-
-        std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
-        if (texture_iter != mTextureNamesIDs.end())
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
         {
-            LLUUID item_id = (*item_iter).second->getUUID();
+            std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
+            while (item_iter != mItemNamesItems.end())
+            {
+                std::string item_name = (*item_iter).first;
 
-            LLUUID thumbnail_asset_id = (*texture_iter).second;
+                std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
+                if (texture_iter != mTextureNamesIDs.end())
+                {
+                    LLUUID item_id = (*item_iter).second->getUUID();
 
-            writeToLog(
-                STRINGIZE(
-                    "WRITING THUMB " <<
-                    (*item_iter).first <<
-                    "\n" <<
-                    "item ID: " <<
-                    item_id <<
-                    "\n" <<
-                    "thumbnail texture ID: " <<
-                    thumbnail_asset_id <<
-                    "\n"
-                ), true);
+                    LLUUID thumbnail_asset_id = (*texture_iter).second;
+
+                    writeToLog(
+                        STRINGIZE(
+                            "WRITING THUMB " <<
+                            (*item_iter).first <<
+                            "\n" <<
+                            "item ID: " <<
+                            item_id <<
+                            "\n" <<
+                            "thumbnail texture ID: " <<
+                            thumbnail_asset_id <<
+                            "\n"
+                        ), true);
 
 
-            (*item_iter).second->setThumbnailUUID(thumbnail_asset_id);
+                    (*item_iter).second->setThumbnailUUID(thumbnail_asset_id);
 
-            // This additional step (notifying AIS API) is required
-            // to make the changes persist outside of the local cache
-            writeInventoryThumbnailID(item_id, thumbnail_asset_id);
+                    // This additional step (notifying AIS API) is required
+                    // to make the changes persist outside of the local cache
+                    writeInventoryThumbnailID(item_id, thumbnail_asset_id);
+                }
+
+                ++item_iter;
+            }
+
+            updateDisplayList();
         }
-
-        ++item_iter;
-    }
-
-    updateDisplayList();
+        else
+        {
+            LL_INFOS() << "Writing new thumbnails was canceled" << LL_ENDL;
+        }
+    });
 }
 
 // Called when the Log Items with Missing Thumbnails is selected. This merely writes
