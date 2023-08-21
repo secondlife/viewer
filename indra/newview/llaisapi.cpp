@@ -1646,7 +1646,7 @@ void AISUpdate::doUpdate()
 		gInventory.updateCategory(new_category, LLInventoryObserver::CREATE);
 		LL_DEBUGS("Inventory") << "created category " << category_id << LL_ENDL;
 
-        // fetching can receive massive amount of items and fodlers
+        // fetching can receive massive amount of items and folders
         if (gInventory.getChangedIDs().size() > MAX_UPDATE_BACKLOG)
         {
             gInventory.notifyObservers();
@@ -1707,7 +1707,7 @@ void AISUpdate::doUpdate()
 		LL_DEBUGS("Inventory") << "created item " << item_id << LL_ENDL;
 		gInventory.updateItem(new_item, LLInventoryObserver::CREATE);
 
-        // fetching can receive massive amount of items and fodlers
+        // fetching can receive massive amount of items and folders
         if (gInventory.getChangedIDs().size() > MAX_UPDATE_BACKLOG)
         {
             gInventory.notifyObservers();

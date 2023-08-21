@@ -122,7 +122,10 @@ public:
 	bool 			isFirstLogin() const 	{ return mFirstLogin; }
 	bool 			isInitialized() const 	{ return mInitialized; }
 
-    void            showLatestFeatureNotification();
+    void            setFeatureVersion(S32 version, S32 flags);
+    S32             getFeatureVersion();
+    void            getFeatureVersionAndFlags(S32 &version, S32 &flags);
+    void            showLatestFeatureNotification(const std::string key);
 public:
 	std::string		mMOTD; 					// Message of the day
 private:

@@ -140,8 +140,11 @@ void LLTexturePreviewView::draw()
 	{
 		LLRect rctClient = getLocalRect();
 
-		if (4 == m_Image->getComponents())
-			gl_rect_2d_checkerboard(rctClient);
+        if (4 == m_Image->getComponents())
+        {
+            const LLColor4 color(.098f, .098f, .098f);
+            gl_rect_2d(rctClient, color, TRUE);
+        }
 		gl_draw_scaled_image(rctClient.mLeft, rctClient.mBottom, rctClient.getWidth(), rctClient.getHeight(), m_Image);
 
 		bool isLoading = (!m_Image->isFullyLoaded()) && (m_Image->getDiscardLevel() > 0);

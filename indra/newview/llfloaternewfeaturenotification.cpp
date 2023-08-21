@@ -42,6 +42,14 @@ BOOL LLFloaterNewFeatureNotification::postBuild()
 {
     setCanDrag(FALSE);
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
+
+    const std::string title_txt = "title_txt";
+    const std::string dsc_txt = "description_txt";
+    std::string feature = "_" + getKey().asString();
+    
+    getChild<LLUICtrl>(title_txt)->setValue(getString(title_txt + feature));
+    getChild<LLUICtrl>(dsc_txt)->setValue(getString(dsc_txt + feature));
+
     return TRUE;
 }
 
