@@ -106,7 +106,6 @@ void LLHeroProbeManager::update()
 
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
-        
         // Probe 0 is always our mirror probe.  Probe N - 1 is our water probe.
         mProbes[0]->mOrigin.load3(LLViewerCamera::instance().mOrigin.mV);
         for (U32 j = 0; j < mProbes.size(); j++)
@@ -311,8 +310,6 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         }
 
         mMipChain[0].flush();
-
-        gIrradianceGenProgram.unbind();
     }
 }
 
@@ -466,7 +463,6 @@ void LLHeroProbeManager::cleanup()
     mMipChain.clear();
 
     mTexture = nullptr;
-    mIrradianceMaps = nullptr;
 
     mProbes.clear();
 

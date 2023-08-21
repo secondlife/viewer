@@ -10390,6 +10390,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderHeroProbeResolution</key>
+    <map>
+        <key>Comment</key>
+        <string>Resolution to render hero probes used for mirrors, water, etc.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>512</integer>
+    </map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>
