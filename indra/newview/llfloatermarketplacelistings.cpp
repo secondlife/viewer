@@ -481,11 +481,22 @@ void LLFloaterMarketplaceListings::setRootFolder()
                 LLStringUtil::null,
                 [](const LLUUID &new_cat_id)
             {
-                LLFloaterMarketplaceListings *marketplace = LLFloaterReg::findTypedInstance<LLFloaterMarketplaceListings>("marketplace_listings");
+                LLFloaterMarketplaceListings* marketplace = LLFloaterReg::findTypedInstance<LLFloaterMarketplaceListings>("marketplace_listings");
                 if (marketplace)
                 {
-                    // will call setRootFolder again
-                    marketplace->updateView();
+                    if (new_cat_id.notNull())
+                    {
+                        // will call setRootFolder again
+                        marketplace->updateView();
+                    }
+                    // don't update in case of failure, createNewCategory can return
+                    // immediately if cap is missing and will cause a loop
+                    else
+                    {
+                        // unblock
+                        marketplace->mRootFolderCreating = false;
+                        LL_WARNS("SLM") << "Inventory warning: Failed to create marketplace listings folder for a merchant" << LL_ENDL;
+                    }
                 }
             }
             );
