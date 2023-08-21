@@ -12087,6 +12087,7 @@ Would you like to save them first?
          notext="No"
          yestext="Yes"/>
     </notification>
+
     <notification
   icon="alertmodal.tga"
   name="WriteInventoryThumbnailsWarning"
@@ -12099,5 +12100,5 @@ Would you like to save them first?
          name="okcancelbuttons"
          notext="No"
          yestext="Yes"/>
-    </notification
+    </notification>
 </notifications>
