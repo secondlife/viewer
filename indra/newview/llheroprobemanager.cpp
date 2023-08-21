@@ -132,23 +132,8 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
     mLightScale = 1.f;
-    static LLCachedControl<F32> max_local_light_ambiance(gSavedSettings, "RenderReflectionProbeMaxLocalLightAmbiance", 8.f);
-    if (probe->getAmbiance() > max_local_light_ambiance)
-    {
-        mLightScale = max_local_light_ambiance / probe->getAmbiance();
-    }
 
-    {
-        gPipeline.pushRenderTypeMask();
-        
-        //only render sky, water, terrain, and clouds
-        gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY,
-            LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_VOIDWATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::RENDER_TYPE_TERRAIN, LLPipeline::RENDER_TYPE_AVATAR, LLPipeline::END_RENDER_TYPES);
-        
-        probe->update(mRenderTarget.getWidth(), face);
-
-        gPipeline.popRenderTypeMask();
-    }
+    probe->update(mRenderTarget.getWidth(), face);
     
     gPipeline.mRT = &gPipeline.mMainRT;
 
@@ -401,7 +386,7 @@ void LLHeroProbeManager::initReflectionMaps()
     {
         mReset = false;
         mReflectionProbeCount = count;
-        mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderHeroProbeResolution"), (U32)128, (U32)1024));
+        mProbeResolution = nhpo2(1024);
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
 
         mTexture = new LLCubeMapArray();
