@@ -250,7 +250,7 @@
     <key>TextureLivePreview</key>
     <map>
       <key>Comment</key>
-      <string>Preview selections in texture picker immediately</string>
+      <string>Preview selections in texture picker or material picker immediately</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5518,6 +5518,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>LastUIFeatureVersion</key>
+    <map>
+        <key>Comment</key>
+        <string>UI Feature Version number for tracking feature notification between viewer builds</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <string></string>
     </map>
     <key>LastFindPanel</key>
     <map>

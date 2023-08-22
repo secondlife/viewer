@@ -183,11 +183,15 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 // an item.
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+    BOOL pick_reflection_probe = gSavedSettings.getBOOL("SelectReflectionProbes");
+
 	// don't pick transparent so users can't "pay" transparent objects
 	mPick = gViewerWindow->pickImmediate(x, y,
                                          /*BOOL pick_transparent*/ FALSE,
                                          /*BOOL pick_rigged*/ TRUE,
-                                         /*BOOL pick_particle*/ TRUE);
+                                         /*BOOL pick_particle*/ TRUE,
+                                         /*BOOL pick_unselectable*/ TRUE, 
+                                         pick_reflection_probe);
 	mPick.mKeyMask = mask;
 
 	// claim not handled so UI focus stays same

@@ -3610,6 +3610,17 @@ LLInventoryObject* LLViewerObject::getInventoryObject(const LLUUID& item_id)
 	return rv;
 }
 
+LLInventoryItem* LLViewerObject::getInventoryItem(const LLUUID& item_id)
+{
+	LLInventoryObject* iobj = getInventoryObject(item_id);
+	if (!iobj || iobj->getType() == LLAssetType::AT_CATEGORY)
+	{
+		return NULL;
+	}
+	LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(iobj);
+	return item;
+}
+
 void LLViewerObject::getInventoryContents(LLInventoryObject::object_list_t& objects)
 {
 	if(mInventory)

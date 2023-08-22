@@ -115,8 +115,6 @@ public:
     void        setDiffuseAlphaMode(U8 alpha_mode);
     U8          getAlphaMaskCutoff() const;
     void        setAlphaMaskCutoff(U8 cutoff);
-    LLUUID      getMaterialID() const;
-    void        setMaterialID(LLUUID const & material_id);
 
     bool        isNull() const;
     static const LLMaterial null;
