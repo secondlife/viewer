@@ -130,7 +130,7 @@
 
  <radio_group
   follows="top|left"
-  height="260"
+  height="280"
   layout="topleft"
   left_delta="10"
   name="translation_service_rg"
@@ -153,6 +153,12 @@
    layout="topleft"
    name="deepl"
    top_pad="61" />
+  <radio_item
+   initial_value="simulator"
+   label="Simulator"
+   layout="topleft"
+   name="simulator"
+   top_pad="70" />
  </radio_group>
 
   <text
