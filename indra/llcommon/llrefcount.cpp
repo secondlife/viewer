@@ -49,7 +49,7 @@ LLRefCount::LLRefCount() :
 }
 
 LLRefCount::~LLRefCount()
-{ 
+{
 	if (mRef != LL_REFCOUNT_FREE && mRef != 0)
 	{
 		LL_ERRS() << "deleting non-zero reference" << LL_ENDL;
