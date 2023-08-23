@@ -1,65 +1,92 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy currency" title="L$ の購入">
+<floater title="L$の購入" name="buy currency">
 	<floater.string name="buy_currency">
-		約 [LOCALAMOUNT] で L$ [LINDENS] を購入
+		約[LOCALAMOUNT]でL$ [LINDENS]を購入
 	</floater.string>
-	<text name="info_need_more">
-		L$ が足りません
-	</text>
-	<text name="contacting">
-		LindeXとコンタクト中…
-	</text>
-	<text name="info_buying">
-		L$ の購入
-	</text>
-	<text name="balance_label">
-		残高
-	</text>
-	<text name="balance_amount">
-		L$ [AMT]
-	</text>
-	<text name="currency_action">
-		購入希望額
-	</text>
-	<text name="currency_label">
-		L$
-	</text>
-	<line_editor label="L$" name="currency_amt">
-		1234
-	</line_editor>
-	<text name="buying_label">
-		価格
-	</text>
-	<text name="currency_est">
-		約 [LOCALAMOUNT]
-	</text>
-	<text left_delta="3" name="getting_data">
-		見積もり中...
-	</text>
-	<text name="buy_action">
-		[ACTION]
-	</text>
-	<text name="total_label">
-		購入後の残高
-	</text>
-	<text name="total_amount">
-		L$ [AMT]
-	</text>
-	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php 支払方法] | [http://www.secondlife.com/my/account/currency.php 通貨]
-	</text>
-	<text name="exchange_rate_note">
-		金額を再入力して最新換算レートを確認します。
-	</text>
-	<text name="purchase_warning_repurchase">
-		この取引を決定すると、L$ を購入します。オブジェクトは購入しません。
-	</text>
-	<text name="purchase_warning_notenough">
-		購入しようとしている L$ が不足しています。 金額を上げてください。
-	</text>
-	<button label="購入する" name="buy_btn"/>
-	<button label="取り消し" name="cancel_btn"/>
 	<floater.string name="info_cannot_buy">
-		購入できません
+		購入できません。
 	</floater.string>
+	<floater.string name="estimated_zero">
+		US$ 0.00
+	</floater.string>
+	<icon name="normal_background"/>
+	<layout_stack name="outer_stack">
+		<layout_panel name="layout_panel_title">
+			<text name="info_need_more">
+				L$が足りません。
+			</text>
+			<text name="info_buying">
+				L$を購入
+			</text>
+			<view_border name="text_border"/>
+		</layout_panel>
+		<layout_panel name="layout_panel_price">
+			<text name="target_price_label">
+				必要金額
+			</text>
+			<text name="target_price">
+				L$ [AMT]
+			</text>
+		</layout_panel>
+		<layout_panel name="layout_panel_balance">
+			<text name="balance_label">
+				所持金
+			</text>
+			<text name="balance_amount">
+				L$ [AMT]
+			</text>
+		</layout_panel>
+		<layout_panel name="layout_panel_required">
+			<text name="required_label">
+				必要最低金額
+			</text>
+			<text name="required_amount">
+				L$ [AMT]
+			</text>
+		</layout_panel>
+		<layout_panel name="layout_panel_action">
+			<view_border name="text_border_2"/>
+			<text name="currency_action">
+				購入金額を選択
+			</text>
+			<text name="currency_label">
+				L$
+			</text>
+			<line_editor label="L$" name="currency_amt">
+				1234
+			</line_editor>
+			<text name="currency_est">
+				平均[LOCALAMOUNT]
+			</text>
+			<text name="getting_data">
+				見積もり中…
+			</text>
+			<text name="total_label">
+				購入後の残高
+			</text>
+			<text name="total_amount">
+				L$ [AMT]
+			</text>
+		</layout_panel>
+		<layout_panel name="layout_panel_msg">
+			<view_border name="text_border_3"/>
+			<text name="currency_links">
+				[https://accounts.secondlife.com/billing_information/ 支払い方法]｜[https://www.secondlife.com/my/lindex/buy.php L$の購入]
+			</text>
+			<text name="exchange_rate_note">
+				金額を再入力して、最新の為替レートを確認してください。
+			</text>
+			<text name="purchase_warning_repurchase">
+				L$ を受け取ったら、
+もう一度購入してください。
+			</text>
+		</layout_panel>
+		<layout_panel name="layout_panel_buttons">
+			<text name="contacting">
+				LindeXに接続中…
+			</text>
+			<button label="今すぐL$を購入" name="buy_btn"/>
+			<button label="キャンセル" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

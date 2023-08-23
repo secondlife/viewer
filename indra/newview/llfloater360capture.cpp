@@ -64,12 +64,10 @@ LLFloater360Capture::LLFloater360Capture(const LLSD& key)
     // such time as we ask it not to (the dtor). If we crash or
     // otherwise, exit before this is turned off, the Simulator
     // will take care of cleaning up for us.
-    if (gSavedSettings.getBOOL("360CaptureUseInterestListCap"))
-    {
-        // send everything to us for as long as this floater is open
-        const bool send_everything = true;
-        changeInterestListMode(send_everything);
-    }
+    mStartILMode = gAgent.getInterestListMode();
+
+    // send everything to us for as long as this floater is open
+    gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
 }
 
 LLFloater360Capture::~LLFloater360Capture()
@@ -81,13 +79,15 @@ LLFloater360Capture::~LLFloater360Capture()
         mWebBrowser->unloadMediaSource();
     }
 
-    // Tell the Simulator not to send us everything anymore
-    // and revert to the regular "keyhole" frustum of interest
+    // Restore interest list mode to the state when started
+    // Normally LLFloater360Capture tells the Simulator send everything
+    // and now reverts to the regular "keyhole" frustum of interest
     // list updates.
-    if (!LLApp::isExiting() && gSavedSettings.getBOOL("360CaptureUseInterestListCap"))
+    if (!LLApp::isExiting() && 
+        gSavedSettings.getBOOL("360CaptureUseInterestListCap") &&
+        mStartILMode != gAgent.getInterestListMode())
     {
-        const bool send_everything = false;
-        changeInterestListMode(send_everything);
+        gAgent.changeInterestListMode(mStartILMode);
     }
 }
 
@@ -170,52 +170,6 @@ void LLFloater360Capture::onChooseQualityRadioGroup()
     setSourceImageSize();
 }
 
-// Using a new capability, tell the simulator that we want it to send everything
-// it knows about and not just what is in front of the camera, in its view
-// frustum. We need this feature so that the contents of the region that appears
-// in the 6 snapshots which we cannot see and is normally not "considered", is
-// also rendered. Typically, this is turned on when the 360 capture floater is
-// opened and turned off when it is closed.
-// Note: for this version, we do not have a way to determine when "everything"
-// has arrived and has been rendered so for now, the proposal is that users
-// will need to experiment with the low resolution version and wait for some
-// (hopefully) small period of time while the full contents resolves.
-// Pass in a flag to ask the simulator/interest list to "send everything" or
-// not (the default mode)
-void LLFloater360Capture::changeInterestListMode(bool send_everything)
-{
-    LLSD body;
-
-    if (send_everything)
-    {
-        body["mode"] = LLSD::String("360");
-    }
-    else
-    {
-        body["mode"] = LLSD::String("default");
-    }
-
-    if (gAgent.requestPostCapability("InterestList", body, [](const LLSD & response)
-    {
-        LL_INFOS("360Capture") <<
-                               "InterestList capability responded: \n" <<
-                               ll_pretty_print_sd(response) <<
-                               LL_ENDL;
-    }))
-    {
-        LL_INFOS("360Capture") <<
-                               "Successfully posted an InterestList capability request with payload: \n" <<
-                               ll_pretty_print_sd(body) <<
-                               LL_ENDL;
-    }
-    else
-    {
-        LL_INFOS("360Capture") <<
-                               "Unable to post an InterestList capability request with payload: \n" <<
-                               ll_pretty_print_sd(body) <<
-                               LL_ENDL;
-    }
-}
 
 // There is is a setting (360CaptureSourceImageSize) that holds the size
 // (width == height since it's a square) of each of the 6 source snapshots.
@@ -632,11 +586,8 @@ void LLFloater360Capture::capture360Images()
     // display time to encode all 6 images.  It tends to be a fairly linear
     // time for each so we don't need to worry about displaying the time
     // for each - this gives us plenty to use for optimizing
-    LL_INFOS("360Capture") <<
-                           "Time to encode and save 6 images was " <<
-                           encode_time_total <<
-                           " seconds" <<
-                           LL_ENDL;
+    LL_INFOS("360Capture") << "Time to encode and save 6 images was " <<
+                           encode_time_total << " seconds" << LL_ENDL;
 
     // Write the JavaScript file footer (the bottom of the file after the
     // declarations of the actual data URLs array). The footer comprises of
@@ -668,7 +619,7 @@ void LLFloater360Capture::capture360Images()
     // as a change - only the subsequent 5 are
     if (camera_changed_times < 5)
     {
-        LL_INFOS("360Capture") << "Warning: we only captured " << camera_changed_times << " images." << LL_ENDL;
+        LL_WARNS("360Capture") << "360 image capture expected 5 or more images, only captured " << camera_changed_times << " images." << LL_ENDL;
     }
 
     // now we have the 6 shots saved in a well specified location,

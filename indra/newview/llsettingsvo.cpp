@@ -312,7 +312,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(const LLUUID &asset_id, S32 statu
         std::stringstream llsdstream(buffer);
         LLSD llsdsettings;
 
-        if (LLSDSerialize::deserialize(llsdsettings, llsdstream, -1))
+        if (LLSDSerialize::deserialize(llsdsettings, llsdstream, LLSDSerialize::SIZE_UNLIMITED))
         {
             settings = createFromLLSD(llsdsettings);
         }
@@ -379,7 +379,7 @@ LLSettingsBase::ptr_t LLSettingsVOBase::importFile(const std::string &filename)
             return LLSettingsBase::ptr_t();
         }
 
-        if (!LLSDSerialize::deserialize(settings, file, -1))
+        if (!LLSDSerialize::deserialize(settings, file, LLSDSerialize::SIZE_UNLIMITED))
         {
             LL_WARNS("SETTINGS") << "Unable to deserialize settings from '" << filename << "'" << LL_ENDL;
             return LLSettingsBase::ptr_t();

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="スクリプト： 新しいスクリプト">
+<floater name="script ed float" title="スクリプト：新しいスクリプト">
 	<floater.string name="not_allowed">
-		このスクリプトは「コピー不可」のため、表示・編集することができません。 オブジェクト内のスクリプトの表示・編集には、全権限が必要です。
+		このスクリプトは「複製不可」のため、表示・編集することができません。オブジェクト内のスクリプトの表示・編集には、全権限が必要です。
 	</floater.string>
 	<floater.string name="script_running">
 		実行中
 	</floater.string>
 	<floater.string name="Title">
-		スクリプト： [NAME]
+		スクリプト：[NAME]
 	</floater.string>
 	<floater.string name="experience_enabled">
 		オフにして、現在の体験を削除する
@@ -22,7 +22,7 @@
 		クリックして、体験プロフィールを表示する
 	</floater.string>
 	<floater.string name="loading">
-		ロード中...
+		読み込んでいます…
 	</floater.string>
 	<button label="リセット" label_selected="リセット" name="Reset"/>
 	<check_box initial_value="true" label="実行中" name="running"/>

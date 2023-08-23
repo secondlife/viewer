@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Avatar Profile Menu Self">
+	<menu_item_call label="表示名を編集" name="edit_display_name"/>
+	<menu_item_call label="パートナーを編集" name="edit_partner"/>
+	<menu_item_call label="画像をアップロード" name="upload_photo"/>
+	<menu_item_call label="画像を変更" name="change_photo"/>
+	<menu_item_call label="画像を削除" name="remove_photo"/>
+	<menu_item_separator name="separator_copy_options"/>
+	<menu_item_call label="表示名をコピー" name="copy_display_name"/>
+	<menu_item_call label="エージェント名をコピー" name="copy_name"/>
+	<menu_item_call label="エージェントＩＤをコピー" name="copy_id"/>
+</toggleable_menu>

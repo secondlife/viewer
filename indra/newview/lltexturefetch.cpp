@@ -2183,7 +2183,6 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 		LL_DEBUGS(LOG_TXT) << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
 		if (data_size > 0)
 		{
-			LLViewerStatsRecorder::instance().textureFetch(data_size);
 			// *TODO: set the formatted image data here directly to avoid the copy
 
 			// Hold on to body for later copy
@@ -2249,6 +2248,13 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 			mHaveAllData = TRUE;
 		}
 		mRequestedSize = data_size;
+
+		if (mHaveAllData)
+        {
+            LLViewerStatsRecorder::instance().textureFetch();
+        }
+
+        // *TODO: set the formatted image data here directly to avoid the copy
 	}
 	else
 	{
@@ -2258,11 +2264,6 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 	mLoaded = TRUE;
 	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
-	if (LLViewerStatsRecorder::instanceExists())
-	{
-		// Do not create this instance inside thread
-		LLViewerStatsRecorder::instance().log(0.2f);
-	}
 	return data_size ;
 }
 

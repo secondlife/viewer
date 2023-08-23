@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="場所" name="my_environments" title="私の環境">
-	<layout_stack>
-		<layout_panel label="フィルター" name="filter_panel">
+<floater name="my_environments" title="私の環境">
+	<layout_stack name="main_layout">
+		<layout_panel name="filter_panel" label="フィルタ">
+			<icon name="icon_settingsdays"/>
 			<check_box label="日間" name="chk_days"/>
+			<icon name="icon_settingsskies"/>
 			<check_box label="空" name="chk_skies"/>
-			<check_box label="水" name="chk_water"/>
+			<icon name="icon_settingswater"/>
+			<check_box label="水面" name="chk_water"/>
 			<filter_editor label="環境の絞り込み" name="flt_search"/>
 		</layout_panel>
-		<layout_panel label="環境" name="list_panel">
-			<panel label="pnl_inv_wrap" name="pnl_inv_wrap"/>
+		<layout_panel name="list_panel" label="環境">
+			<panel name="pnl_inv_wrap" label="pnl_inv_wrap">
+				<asset_filtered_inv_panel name="pnl_settings"/>
+			</panel>
 		</layout_panel>
-		<layout_panel>
-			<check_box initial_value="false" label="すべてのフォルダを表示" name="chk_showfolders"/>
+		<layout_panel name="lp_showfolders">
+			<check_box label="全てのフォルダを開く" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="pnl_control">
-			<panel label="bottom_panel" name="pnl_bottom">
+			<panel label="ボトムパネル" name="pnl_bottom">
 				<menu_button name="btn_gear" tool_tip="その他のオプションを表示"/>
-				<menu_button name="btn_newsettings" tool_tip="新規設定を作成"/>
-				<button name="btn_del" tool_tip="選択したアイテムを削除"/>
+				<menu_button name="btn_newsettings" tool_tip="新しい設定を作成"/>
+				<button name="btn_del" tool_tip="選択した項目を削除"/>
 			</panel>
 		</layout_panel>
 	</layout_stack>

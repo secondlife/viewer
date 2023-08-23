@@ -28,7 +28,6 @@
 #define LL_LLINVENTORYOBSERVERS_H
 
 #include "lluuid.h"
-#include "llmd5.h"
 #include <string>
 #include <vector>
 
@@ -271,14 +270,15 @@ public:
 	void removeCategory(const LLUUID& cat_id);
 
 protected:
+	typedef LLUUID digest_t; // To clarify the actual usage of this "UUID"
 	struct LLCategoryData
 	{
 		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash);
+		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, const digest_t& name_hash);
 		callback_t	mCallback;
 		S32			mVersion;
 		S32			mDescendentsCount;
-		LLMD5		mItemNameHash;
+		digest_t	mItemNameHash;
 		bool		mIsNameHashInitialized;
 		LLUUID		mCatID;
 	};
