@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<llsd>
-<map>
+<llsd><map>
     <key>installables</key>
     <map>
       <key>SDL</key>
@@ -462,16 +461,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d778c6a3475bc35ee8b9615dfc38b4a9</string>
+              <string>8dd8a7e799362d5c45f2385805f3e857aca4edff</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55025/511964/dictionaries-1.538984-common-538984.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-dictionaries/releases/download/v1.0.2-dev2.d98581c/dictionaries-1.d98581c-common-d98581c.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.538984</string>
+        <string>1.d98581c</string>
       </map>
       <key>dullahan</key>
       <map>
@@ -1629,18 +1630,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d6e7ab8483c348f223fd24028e27a52f</string>
+              <string>3a45d167f60ed26dc1f8467b93ec64676cc7fe34</string>
               <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/93933/844890/llca-202202010217.567974-common-567974.tar.bz2</string>
+              <string>https://github.com/secondlife/llca/releases/download/v202305121625.0-efdf149/llca-202305160024.0-common-efdf149.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202202010217.567974</string>
+        <string>202305160024.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2701,24 +2702,42 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b091b1f13348eedadf66d7d81cb6bc1</string>
+              <string>6ba629ff34c4b14a1f851de707bc35041df8b6a9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/116621/1003286/viewer_manager-3.0.580913-darwin64-580913.tar.bz2</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-bd3aec2/viewer_manager-3.0-bd3aec2-darwin64-bd3aec2.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
           </map>
-          <key>windows</key>
+          <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>647e86470e02509b1cf89829d08dfd46</string>
+              <string>7e086a28db17b0c086a5460e9d62f0c6584560b3</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/116623/1003293/viewer_manager-3.0.580913-windows-580913.tar.bz2</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-bd3aec2/viewer_manager-3.0-bd3aec2-linux64-bd3aec2.tar.zst</string>
             </map>
             <key>name</key>
-            <string>windows</string>
+            <string>linux64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1eab994c0c1df5b2c057878a4071a88320cec978</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-bd3aec2/viewer_manager-3.0-bd3aec2-windows64-bd3aec2.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
           </map>
         </map>
         <key>source</key>
@@ -2726,7 +2745,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>3.0.580913</string>
+        <string>3.0-bd3aec2</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -3400,5 +3419,4 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <string>autobuild</string>
     <key>version</key>
     <string>1.3</string>
-  </map>
-</llsd>
+  </map></llsd>
