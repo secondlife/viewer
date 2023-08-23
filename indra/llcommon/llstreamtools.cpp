@@ -513,3 +513,29 @@ std::istream& operator>>(std::istream& str, const char *tocheck)
 	}
 	return str;
 }
+
+int cat_streambuf::underflow()
+{
+    if (gptr() == egptr())
+    {
+        // here because our buffer is empty
+        std::streamsize size = 0;
+        // Until we've run out of mInputs, try reading the first of them
+        // into mBuffer. If that fetches some characters, break the loop.
+        while (! mInputs.empty()
+               && ! (size = mInputs.front()->sgetn(mBuffer.data(), mBuffer.size())))
+        {
+            // We tried to read mInputs.front() but got zero characters.
+            // Discard the first streambuf and try the next one.
+            mInputs.pop_front();
+        }
+        // Either we ran out of mInputs or we succeeded in reading some
+        // characters, that is, size != 0. Tell base class what we have.
+        setg(mBuffer.data(), mBuffer.data(), mBuffer.data() + size);
+    }
+    // If we fell out of the above loop with mBuffer still empty, return
+    // eof(), otherwise return the next character.
+    return (gptr() == egptr())
+        ? std::char_traits<char>::eof()
+        : std::char_traits<char>::to_int_type(*gptr());
+}

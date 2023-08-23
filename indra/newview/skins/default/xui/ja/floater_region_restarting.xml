@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="region_restarting" title="リージョンの再起動">
 	<string name="RegionName">
-		今 ([NAME]) がいるリージョンを再起動しようとしています。
+		現在あなたがいるリージョン「[NAME]」は、再起動しようとしています。
 
-このままここにいるとログアウトされます。
+このまま、この場所にいるとログアウトされます。
 	</string>
 	<string name="RestartSeconds">
-		再起動までの秒数
-[SECONDS]
+		再起動まであと
+[SECONDS]秒
 	</string>
 	<panel name="layout_panel_1">
 		<text name="region_name">
-			今 (-最長リージョン名-) がいるリージョンを再起動しようとしています。
+			現在あなたがいるリージョン「-最長リージョン名-」は、再起動しようとしています。
 
-このままここにいるとログアウトされます。
+このまま、この場所にいるとログアウトされます。
 		</text>
 		<text name="restart_seconds">
-			再起動までの秒数
-     32767
+			再起動まであと
+32767秒
 		</text>
 	</panel>
 </floater>

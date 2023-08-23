@@ -10,10 +10,10 @@
 		L$[PRICE]
 	</panel.string>
 	<panel.string name="click_through_text_fmt">
-		[TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
+		[TELEPORT]テレポート、[MAP]マップ、[PROFILE]プロフィール
 	</panel.string>
 	<panel.string name="date_fmt">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+		[year,datetime,slt]年[mthnum,datetime,slt]月[day,datetime,slt]日
 	</panel.string>
 	<panel.string name="auto_renew_on">
 		有効
@@ -47,7 +47,7 @@
 					<text name="creation_date_label" value="制作日："/>
 					<text_editor name="creation_date" tool_tip="制作日" value="[date]"/>
 					<text name="price_for_listing_label" value="掲載価格："/>
-					<text_editor name="price_for_listing" tool_tip="掲載価格。">
+					<text_editor name="price_for_listing" tool_tip="掲載価格">
 						[PRICE]
 					</text_editor>
 				</layout_panel>
@@ -75,7 +75,7 @@
 					場所：
 				</text>
 				<text name="classified_location_edit">
-					ロード中...
+					読み込んでいます…
 				</text>
 				<button label="現在地に設定" name="set_to_curr_location_btn"/>
 				<text name="category_label" value="カテゴリ："/>
@@ -95,7 +95,7 @@
 			<button label="テレポート" name="teleport_btn"/>
 		</layout_panel>
 		<layout_panel name="map_btn_lp">
-			<button label="地図" name="show_on_map_btn"/>
+			<button label="マップ" name="show_on_map_btn"/>
 		</layout_panel>
 		<layout_panel name="edit_btn_lp">
 			<button label="編集" name="edit_btn"/>

@@ -75,7 +75,7 @@
      name="remove_friend">
         <menu_item_call.on_click
          function="Avatar.RemoveFriend" />
-        <menu_item_call.on_enable
+        <menu_item_call.on_visible
          function="Avatar.EnableItem"
          parameter="can_delete" />
     </menu_item_call>

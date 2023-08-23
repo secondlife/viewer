@@ -662,9 +662,9 @@ void LLPanelNearByMedia::refreshList()
 				disabled_count++;
 			}
 		}
-	}	
+	}
 	mDisableAllCtrl->setEnabled((gSavedSettings.getBOOL("AudioStreamingMusic") || 
-		                         gSavedSettings.getBOOL("AudioStreamingMedia")) &&
+								 gSavedSettings.getBOOL("AudioStreamingMedia")) &&
 								(media_inst->isAnyMediaShowing() || 
 								 media_inst->isParcelMediaPlaying() ||
 								 media_inst->isParcelAudioPlaying()));

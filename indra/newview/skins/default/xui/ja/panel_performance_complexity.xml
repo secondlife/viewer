@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_performance_complexity">
+	<button name="back_btn"/>
+	<text name="back_lbl">
+		戻る
+	</text>
+	<text name="attachments_title">
+		現在のアバターの複雑度
+	</text>
+	<text name="attachments_desc1">
+		装着物を付けるとアバターがより複雑になります。アバターの複雑度が高い場合、
+	</text>
+	<text name="attachments_desc2">
+		他の人からあなたの詳細が見えず、グラフィック速度が低下する可能性があります。
+	</text>
+	<text name="attachments_desc3">
+		不要な重い装着物を削除すると解決することがあります。
+	</text>
+	<name_list name="obj_list">
+		<name_list.columns label="" name="complex_visual"/>
+		<name_list.columns label="" name="complex_value"/>
+		<name_list.columns label="" name="name"/>
+	</name_list>
+</panel>

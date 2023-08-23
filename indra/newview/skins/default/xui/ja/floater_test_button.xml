@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_test_button">
+	<button label="汎用ボタン" name="generic_button"/>
+	<button name="bottom_delta_button"/>
+	<button name="sans_serif_small_button"/>
+	<button label="自動リサイズ" name="auto_resize_button"/>
+	<button label="クリックでラベル変更" label_selected="新しいラベル" name="label_selected_button"/>
+	<button label="ラベルに影をつけない" name="label_shadow_button"/>
+	<button label="強調色のラベル" name="label_color_button"/>
+	<button label="トグル" label_selected="トグル入" name="label_color_selected_button"/>
+	<button label="無効" label_selected="選択済み" name="label_color_disabled_button"/>
+	<button label="ハイライト" name="highlight_color_button"/>
+	<button label="ホーバーでグローさせない" name="hover_glow_amount_button"/>
+	<button name="image_button"/>
+	<button name="image_color_button"/>
+</floater>

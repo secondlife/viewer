@@ -5110,6 +5110,28 @@ LLControlAVBridge::LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regi
 	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
+void LLControlAVBridge::updateSpatialExtents()
+{
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
+
+	LLControlAvatar* controlAvatar = getVObj()->getControlAvatar();
+
+	LLSpatialGroup* root = (LLSpatialGroup*)mOctree->getListener(0);
+
+	bool rootWasDirty = root->isDirty();
+
+	super::updateSpatialExtents(); // root becomes non-dirty here
+
+	// SL-18251 "On-screen animesh characters using pelvis offset animations
+	// disappear when root goes off-screen"
+	//
+	// Expand extents to include Control Avatar placed outside of the bounds
+	if (controlAvatar && (rootWasDirty || controlAvatar->mPlaying))
+	{
+		root->expandExtents(controlAvatar->mDrawable->getSpatialExtents(), *mDrawable->getXform());
+	}
+}
+
 bool can_batch_texture(LLFace* facep)
 {
 	if (facep->getTextureEntry()->getBumpmap())
@@ -6318,7 +6340,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
-    
+
 	static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
 	texture_index_channels = llmin(texture_index_channels, (S32) max_texture_index);
 	

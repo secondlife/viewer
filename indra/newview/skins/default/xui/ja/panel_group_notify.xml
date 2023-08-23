@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="instant_message" name="panel_group_notify">
+<panel label="インスタントメッセージ" name="panel_group_notify">
 	<string name="message_max_lines_count" value="7"/>
-	<string name="subject_font" value="SANSSERIF_BIG"/>
-	<string name="date_font" value="SANSSERIF"/>
+	<string name="subject_font" value="サンセリフ大"/>
+	<string name="date_font" value="サンセリフ"/>
 	<panel label="header" name="header">
-		<text name="title" value="送信者の名前 / グループ名"/>
+		<group_icon name="group_icon"/>
+		<text name="title" value="送信者の名前／グループ名"/>
 	</panel>
-	<text_editor name="message" value="message"/>
+	<text_editor name="message" value="メッセージ"/>
+	<icon name="attachment_icon"/>
 	<text name="attachment" value="添付アイテム"/>
-	<button label="OK" name="btn_ok"/>
+	<button label="ＯＫ" name="btn_ok"/>
 </panel>

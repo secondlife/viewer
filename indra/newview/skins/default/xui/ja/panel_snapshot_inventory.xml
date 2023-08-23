@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_inventory">
+	<icon name="title_icon"/>
 	<text name="title">
-		インベントリ
+		インベントリに保存
 	</text>
-	<text name="hint_lbl">
-		画像をインベントリに保存するには L$[UPLOAD_COST] の費用がかかります。画像をテクスチャとして保存するには平方形式の 1 つを選択してください。
-	</text>
+	<view_border name="hr"/>
 	<combo_box label="解像度" name="texture_size_combo">
-		<combo_box.item label="現在のウィンドウ (512x512)" name="CurrentWindow"/>
-		<combo_box.item label="小（128x128）" name="Small(128x128)"/>
-		<combo_box.item label="中（256x256）" name="Medium(256x256)"/>
-		<combo_box.item label="大（512x512）" name="Large(512x512)"/>
+		<combo_box.item label="現在のウィンドウ (512✕512)" name="CurrentWindow"/>
+		<combo_box.item label="小（128✕128）" name="Small(128x128)"/>
+		<combo_box.item label="中（256✕256）" name="Medium(256x256)"/>
+		<combo_box.item label="大（512✕512）" name="Large(512x512)"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
-	<spinner label="横幅 x 高さ" name="inventory_snapshot_width"/>
+	<spinner label="横幅✕高さ" name="inventory_snapshot_width"/>
 	<spinner label="" name="inventory_snapshot_height"/>
 	<check_box label="縦横比の固定" name="inventory_keep_aspect_check"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<text name="hint_lbl">
+		画像をテクスチャとして保存する場合は、いずれかの正方形を選択してください。
+	</text>
+	<button label="キャンセル" name="cancel_btn"/>
 	<button label="保存" name="save_btn"/>
 </panel>

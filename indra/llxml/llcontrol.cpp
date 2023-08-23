@@ -806,6 +806,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 			continue;
 		}
 
+		// Got an item.  Load it up.
 		// If not declared, assume it's a string
 		if (!declared)
 		{

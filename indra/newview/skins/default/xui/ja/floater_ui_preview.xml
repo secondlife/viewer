@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gui_preview_tool" title="ＸＵＩプレビューツール">
+	<string name="ExternalEditorNotSet">
+		環境変数LL_XUI_EDITORまたはExternalEditor設定を設定するか、[EDITOR PATH]フィールドにそのパスを指定して、エディターを選択します。
+	</string>
+	<panel name="main_panel">
+		<text name="select_language_label">
+			優先言語：
+		</text>
+		<combo_box name="language_select_combo">
+			<combo_box.item label="ja" name="item1" value="ja"/>
+		</combo_box>
+		<button label="表示" label_selected="表示" name="display_floater" tool_tip="選択したＸＭＬファイルで定義されたＸＵＩフロータを表示します。"/>
+		<button label="非表示" label_selected="非表示" name="close_displayed_floater" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。"/>
+		<button label="編集…" label_selected="編集…" name="edit_floater" tool_tip="選択したＸＭＬファイルによって定義されたＸＵＩフローターを編集します。（外部エディターを開きます）ローカライズされたバージョンが存在しない場合は、enバージョンを開きます。"/>
+		<button label="保存" label_selected="保存" name="save_floater" tool_tip="選択したＸＭＬファイルで定義されたＸＵＩフロータを保存します。"/>
+		<button label="全て保存" label_selected="全て保存" name="save_all_floaters" tool_tip="選択した言語で定義されたすべてのＸＵＩフロータを保存します。"/>
+		<button label="≫" label_selected="≪" name="toggle_overlap_panel" tool_tip="重なっている要素の強調表示と表示パネルを切り替えます。要素を右クリックして、この機能用に選択します。選択した要素は、赤い四角形でマークされます。"/>
+		<text name="select_language_label_2">
+			二次言語：
+		</text>
+		<combo_box name="language_select_combo_2">
+			<combo_box.item label="en" name="item1" value="en"/>
+		</combo_box>
+		<button label="表示" name="display_floater_2" tool_tip="選択したＸＭＬファイルで定義されたＸＵＩフロータを表示します。"/>
+		<button enabled="false" label="非表示" name="close_displayed_floater_2" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。"/>
+		<button label="スキーマをエクスポート" name="export_schema"/>
+		<check_box label="四角形を表示" name="show_rectangles"/>
+		<scroll_list name="name_list">
+			<scroll_list.columns label="タイトル" name="title_column"/>
+			<scroll_list.columns label="ファイル名" name="file_column"/>
+			<scroll_list.columns label="トップレベルのノード" name="top_level_node_column"/>
+		</scroll_list>
+		<panel name="editor_panel">
+			<text name="editor_path_label">
+				エディタのパス：
+			</text>
+			<line_editor name="executable_path_field" tool_tip="フローターＸＭＬファイルを編集するためのエディター（実行可能ファイル）へのフルパス。（引用符は必要ありません）"/>
+			<button follows="left|bottom" label="ブラウズ…" label_selected="ブラウズ…" name="browse_for_executable" tool_tip="フローターＸＭＬファイルを編集するためのエディター（実行可能ファイル）を参照します。"/>
+			<text name="executable_args_label">
+				エディタの引数：
+			</text>
+			<line_editor name="executable_args_field" tool_tip="エディターへのコマンドライン引数。'%FILE%'を使用してターゲット ファイルを参照します。このフィールドが空の場合、「YourProgram.exe FileName.xml」が実行されます"/>
+		</panel>
+		<panel name="vlt_panel">
+			<text name="diff_file_label">
+				差分ファイル：
+			</text>
+			<line_editor name="vlt_diff_path_field" tool_tip="Viewer Localization Toolkitによって生成されたＸＭＬのD0、D1言語差分ファイルへのフルパス"/>
+			<button label="ブラウズ…" label_selected="ブラウズ…" name="browse_for_vlt_diffs" tool_tip="VLTで生成されたD0、D1差分ファイルを参照して、変更されたファイルと要素を強調表示します。"/>
+			<button label="差分をハイライト" label_selected="ハイライトを解除" name="toggle_vlt_diff_highlight" tool_tip="変更された言語データを含むファイルと要素の強調表示を切り替えます。"/>
+		</panel>
+	</panel>
+	<scroll_container follows="top|right|bottom" height="600" layout="topleft" name="overlap_scroll">
+		<panel name="overlap_dummy_panel">
+			<overlap_panel label="オーバーラップパネル" ame="overlap_panel" tool_tip="このパネルには、現在選択されている要素と、それに重なっているすべての要素が水平線で区切られて表示されます。"/>
+			<text name="overlap_panel_label">
+				重なる要素：
+			</text>
+		</panel>
+	</scroll_container>
+</floater>

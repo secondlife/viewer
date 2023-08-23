@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="wearable_item">
-	<button name="btn_delete" tool_tip="アウトフィットから取り除く"/>
-	<text name="item_name" value="..."/>
-	<panel name="btn_lock" tool_tip="これを編集する権限がありません"/>
+	<icon name="hovered_icon"/>
+	<icon name="selected_icon"/>
+	<button name="btn_delete" tool_tip="アウトフィットから削除"/>
+	<icon name="item_icon"/>
+	<text name="item_name" value="…"/>
+	<button name="btn_move_up"/>
+	<button name="btn_move_down"/>
+	<panel name="btn_lock" tool_tip="これを編集する権限がありません">
+		<icon name="btn_lock1"/>
+	</panel>
 	<panel name="btn_edit_panel">
 		<button name="btn_edit" tool_tip="この着用物を編集"/>
 	</panel>
+	<icon name="wearable_type_separator_icon"/>
 </panel>
