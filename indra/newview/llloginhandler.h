@@ -35,7 +35,7 @@ class LLLoginHandler : public LLCommandHandler
  public:
 	// allow from external browsers
 	LLLoginHandler() : LLCommandHandler("login", UNTRUSTED_ALLOW) { }
-	/*virtual*/ bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web);
+	/*virtual*/ bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web);
 
 	// Fill in our internal fields from a SLURL like
 	// secondlife:///app/login?first=Bob&last=Dobbs

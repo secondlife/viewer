@@ -1631,14 +1631,19 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             from_group = message_data["from_group"].asString() == "Y";
         }
 
-
+        EInstantMessage dialog = static_cast<EInstantMessage>(message_data["dialog"].asInteger());
+        LLUUID session_id = message_data["transaction-id"].asUUID();
+        if (session_id.isNull() && dialog == IM_FROM_TASK)
+        {
+            session_id = message_data["asset_id"].asUUID();
+        }
         LLIMProcessing::processNewMessage(
             message_data["from_agent_id"].asUUID(),
             from_group,
             message_data["to_agent_id"].asUUID(),
             message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
-            static_cast<EInstantMessage>(message_data["dialog"].asInteger()),
-            message_data["transaction-id"].asUUID(),
+            dialog,
+            session_id,
             static_cast<U32>(message_data["timestamp"].asInteger()),
             message_data["from_agent_name"].asString(),
             message_data["message"].asString(),

@@ -1114,10 +1114,14 @@
                  label="Open"
                  name="Open"
                  value="Open" />
-				 <combo_box.item
+                <combo_box.item
                  label="Zoom"
                  name="Zoom"
                  value="Zoom" />
+                <combo_box.item
+                 label="Ignore object"
+                 name="Ignoreobject"
+                 value="Ignore" />
                 <combo_box.item
                  label="None"
                  name="None"

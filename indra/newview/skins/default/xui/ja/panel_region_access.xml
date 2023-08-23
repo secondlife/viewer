@@ -3,12 +3,12 @@
 	<tab_container name="tabs">
 		<panel label="不動産マネージャー" name="estate_managers_panel">
 			<text name="estate_manager_label">
-				不動産マネージャー:
+				不動産マネージャー：
 			</text>
 			<name_list name="estate_manager_name_list">
 				<columns label="名前" name="name"/>
 			</name_list>
-			<button label="追加..." name="add_estate_manager_btn"/>
+			<button label="追加…" name="add_estate_manager_btn"/>
 			<button label="削除…" name="remove_estate_manager_btn"/>
 		</panel>
 		<panel label="許可" name="allowed_panel">
@@ -22,7 +22,7 @@
 			<name_list name="allowed_avatar_name_list">
 				<columns label="名前" name="name"/>
 			</name_list>
-			<button label="追加..." name="add_allowed_avatar_btn"/>
+			<button label="追加…" name="add_allowed_avatar_btn"/>
 			<button label="削除…" name="remove_allowed_avatar_btn"/>
 		</panel>
 		<panel label="許可されたグループ" name="allowed_groups_panel">
@@ -36,7 +36,7 @@
 			<name_list name="allowed_group_name_list">
 				<columns label="名前" name="name"/>
 			</name_list>
-			<button label="追加..." name="add_allowed_group_btn"/>
+			<button label="追加…" name="add_allowed_group_btn"/>
 			<button label="削除…" name="remove_allowed_group_btn"/>
 		</panel>
 		<panel label="禁止" name="banned_panel">
@@ -45,15 +45,15 @@
 				<button label="コピー" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
-				常に禁止：
+				常にバン：
 			</text>
 			<name_list name="banned_avatar_name_list">
 				<columns label="名前" name="name"/>
 				<columns label="最後にログインした日" name="last_login_date"/>
-				<columns label="禁止された日付" name="ban_date"/>
-				<columns label="禁止した人：" name="bannedby"/>
+				<columns label="バンされた日付" name="ban_date"/>
+				<columns label="バンした人：" name="bannedby"/>
 			</name_list>
-			<button label="追加..." name="add_banned_avatar_btn"/>
+			<button label="追加…" name="add_banned_avatar_btn"/>
 			<button label="削除…" name="remove_banned_avatar_btn"/>
 		</panel>
 	</tab_container>

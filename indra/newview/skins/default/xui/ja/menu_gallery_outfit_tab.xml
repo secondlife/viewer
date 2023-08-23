@@ -1,23 +1,35 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit">
-	<menu name="New Clothes" label="新しい洋服">
-		<menu_item_call name="New Skirt" label="新しいスカート"/>
-		<menu_item_call name="New Underpants" label="新しい下着"/>
-		<menu_item_call name="New Undershirt" label="新しい肌着"/>
-		<menu_item_call name="New Shirt" label="新しいシャツ"/>
-		<menu_item_call name="New Pants" label="新しいパンツ"/>
-		<menu_item_call name="New Tattoo" label="新しいタトゥー"/>
-		<menu_item_call name="New Physics" label="新しい体"/>
-		<menu_item_call name="New Jacket" label="新しいジャケット"/>
-		<menu_item_call name="New Shoes" label="新しい靴"/>
-		<menu_item_call name="New Gloves" label="新しいグローブ"/>
-		<menu_item_call name="New Alpha" label="新しいアルファ"/>
-		<menu_item_call name="New Socks" label="新しい靴下"/>
+	<menu_item_call label="着る－このアウトフィットに着替える" name="wear_replace"/>
+	<menu_item_call label="着る－このアウトフィットに追加する" name="wear_add"/>
+	<menu_item_call label="脱ぐ－このアウトフィットから取り外す" name="take_off"/>
+	<menu_item_call label="画像をアップロード（L$ [UPLOAD_COST]）" name="upload_photo"/>
+	<menu_item_call label="画像を選択" name="select_photo"/>
+	<menu_item_call label="スナップショットを撮影" name="take_snapshot"/>
+	<menu_item_call label="画像を削除" name="remove_photo"/>
+	<menu_item_separator name="sepatator1"/>
+	<menu label="新しい服装" name="New Clothes">
+		<menu_item_call label="新しいシャツ" name="New Shirt"/>
+		<menu_item_call label="新しいズボン" name="New Pants"/>
+		<menu_item_call label="新しい靴" name="New Shoes"/>
+		<menu_item_call label="新しい靴下" name="New Socks"/>
+		<menu_item_call label="新しいジャケット" name="New Jacket"/>
+		<menu_item_call label="新しいスカート" name="New Skirt"/>
+		<menu_item_call label="新しい手袋" name="New Gloves"/>
+		<menu_item_call label="新しい下着（上半身）" name="New Undershirt"/>
+		<menu_item_call label="新しい下着（下半身）" name="New Underpants"/>
+		<menu_item_call label="新しいアルファ" name="New Alpha"/>
+		<menu_item_call label="新しい物理作用" name="New Physics"/>
+		<menu_item_call label="新しいタトゥ" name="New Tattoo"/>
 	</menu>
-	<menu name="New Body Parts" label="新しいボディーパーツ">
-		<menu_item_call name="New Hair" label="新しい髪"/>
-		<menu_item_call name="New Eyes" label="新しい目"/>
-		<menu_item_call name="New Shape" label="新しいシェイプ"/>
-		<menu_item_call name="New Skin" label="新しい皮膚"/>
+	<menu label="新しい身体部位" name="New Body Parts">
+		<menu_item_call label="新しいシェイプ" name="New Shape"/>
+		<menu_item_call label="新しい肌" name="New Skin"/>
+		<menu_item_call label="新しい髪型" name="New Hair"/>
+		<menu_item_call label="新しい目" name="New Eyes"/>
 	</menu>
+	<menu_item_separator name="sepatator2"/>
+	<menu_item_call label="アウトフィットを編集" name="edit"/>
+	<menu_item_call label="アウトフィットの名前変更" name="rename"/>
+	<menu_item_call label="アウトフィットを削除" name="delete"/>
 </context_menu>

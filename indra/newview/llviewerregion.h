@@ -32,6 +32,7 @@
 #include <string>
 #include <boost/signals2.hpp>
 
+#include "llcorehttputil.h"
 #include "llwind.h"
 #include "v3dmath.h"
 #include "llstring.h"
@@ -280,6 +281,16 @@ public:
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
 
+	// Utilities to post and get via
+    // HTTP using the agent's policy settings and headers.
+    typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
+    bool requestPostCapability(const std::string &capName,
+                               LLSD              &postData,
+                               httpCallback_t     cbSuccess = NULL,
+                               httpCallback_t     cbFailure = NULL);
+    bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+    bool requestDelCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+
     /// implements LLCapabilityProvider
 	/*virtual*/ const LLHost& getHost() const;
 	const U64 		&getHandle() const 			{ return mHandle; }
@@ -334,9 +345,9 @@ public:
 
 	typedef enum
 	{
-		CACHE_MISS_TYPE_FULL = 0,
-		CACHE_MISS_TYPE_CRC,
-		CACHE_MISS_TYPE_NONE
+		CACHE_MISS_TYPE_TOTAL = 0,	// total cache miss - object not in cache
+		CACHE_MISS_TYPE_CRC,		// object in cache, but CRC doesn't match
+		CACHE_MISS_TYPE_NONE		// not a miss:  cache hit
 	} eCacheMissType;
 
 	typedef enum
@@ -489,7 +500,15 @@ public:
 	};
 	typedef std::set<LLViewerRegion*, CompareRegionByLastUpdate> region_priority_list_t;
 
-private:
+	void setInterestListMode(const std::string & new_mode);
+    const std::string & getInterestListMode() const { return mInterestListMode; }
+
+	void resetInterestList();
+
+	static const std::string IL_MODE_DEFAULT;
+    static const std::string IL_MODE_360;
+
+  private:
 	static S32  sNewObjectCreationThrottle;
 	LLViewerRegionImpl * mImpl;
 	LLFrameTimer         mRegionTimer;
@@ -563,10 +582,10 @@ private:
 	class CacheMissItem
 	{
 	public:
-		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type){}
+        CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type) {}
 
-		U32                            mID;     //local object id
-		LLViewerRegion::eCacheMissType mType;   //cache miss type
+		U32                         mID;     //local object id
+        LLViewerRegion::eCacheMissType	mType;  // cache miss type
 
 		typedef std::list<CacheMissItem> cache_miss_list_t;
 	};
@@ -586,6 +605,9 @@ private:
 	LLFrameTimer mMaterialsCapThrottleTimer;
 	LLFrameTimer mRenderInfoRequestTimer;
 	LLFrameTimer mRenderInfoReportTimer;
+
+	// how the server interest list works
+    std::string mInterestListMode;
 
     // list of reflection maps being managed by this llviewer region
     std::vector<LLPointer<LLReflectionMap> > mReflectionMaps;

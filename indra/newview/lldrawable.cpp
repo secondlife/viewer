@@ -760,6 +760,19 @@ void LLDrawable::movePartition()
 	if (part)
 	{
 		part->move(this, getSpatialGroup());
+
+		// SL-18251 "On-screen animesh characters using pelvis offset animations
+		// disappear when root goes off-screen"
+		//
+		// Update extents of the root node when Control Avatar changes it's bounds
+		if (mRenderType == LLPipeline::RENDER_TYPE_CONTROL_AV && isRoot())
+		{
+			LLControlAvatar* controlAvatar = dynamic_cast<LLControlAvatar*>(getVObj().get());
+			if (controlAvatar && controlAvatar->mControlAVBridge)
+			{
+				((LLSpatialGroup*)controlAvatar->mControlAVBridge->mOctree->getListener(0))->setState(LLViewerOctreeGroup::DIRTY);
+			}
+		}
 	}
 }
 
@@ -1206,10 +1219,11 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 			{
 				setSpatialBridge(new LLHUDBridge(this, getRegion()));
 			}
-            else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
-            {
-                setSpatialBridge(new LLControlAVBridge(this, getRegion()));
-            }
+			else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+			{
+				setSpatialBridge(new LLControlAVBridge(this, getRegion()));
+				mVObjp->getControlAvatar()->mControlAVBridge = (LLControlAVBridge*)getSpatialBridge();
+			}
 			// check HUD first, because HUD is also attachment
 			else if (mVObjp->isAttachment())
 			{

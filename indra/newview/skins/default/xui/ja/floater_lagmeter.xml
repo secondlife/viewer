@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="ラグメーター">
 	<floater.string name="max_title_msg">
-		ラグ計測器
+		遅延計測器
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
 	</floater.string>
 	<floater.string name="min_title_msg">
-		ラグ
+		遅延
 	</floater.string>
 	<floater.string name="min_width_px">
 		90
@@ -25,10 +25,10 @@
 		標準、ウィンドウは背景に
 	</floater.string>
 	<floater.string name="client_frame_time_critical_msg">
-		クライアントのフレームレートが [CLIENT_FRAME_RATE_CRITICAL] 以下
+		クライアントのフレームレートが[CLIENT_FRAME_RATE_CRITICAL]以下
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
-		クライアントのフレーム レートが [CLIENT_FRAME_RATE_CRITICAL] と [CLIENT_FRAME_RATE_WARNING] の間
+		クライアントのフレームレートが[CLIENT_FRAME_RATE_CRITICAL]と[CLIENT_FRAME_RATE_WARNING]の間
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
 		標準
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		接続で [NETWORK_PACKET_LOSS_CRITICAL]% を超えるパケットが脱落しています
+		接続で[NETWORK_PACKET_LOSS_CRITICAL]％を超えるパケットが脱落しています。
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		接続で [NETWORK_PACKET_LOSS_WARNING]%～[NETWORK_PACKET_LOSS_CRITICAL]% のパケットが脱落しています
+		接続で[NETWORK_PACKET_LOSS_WARNING]％～[NETWORK_PACKET_LOSS_CRITICAL]％のパケットが脱落しています。
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		標準
@@ -70,16 +70,16 @@
 		300
 	</floater.string>
 	<floater.string name="network_ping_critical_msg">
-		接続の ping 時間が [NETWORK_PING_CRITICAL] ms 以上です
+		接続のping時間が、[NETWORK_PING_CRITICAL]ms以上です
 	</floater.string>
 	<floater.string name="network_ping_warning_msg">
-		接続の ping 時間が [NETWORK_PING_WARNING]～[NETWORK_PING_CRITICAL] ms です
+		接続のping時間が、[NETWORK_PING_WARNING]～[NETWORK_PING_CRITICAL]msです。
 	</floater.string>
 	<floater.string name="network_packet_loss_cause_msg">
-		接続不良または &apos;帯域幅&apos; の設定が高すぎる可能性があります
+		接続不良または、'帯域幅'の設定が高すぎる可能性があります。
 	</floater.string>
 	<floater.string name="network_ping_cause_msg">
-		接続不良またはファイル共有アプリの可能性があります。
+		接続不良または、ファイル共有アプリの可能性があります。
 	</floater.string>
 	<floater.string name="server_text_msg">
 		サーバー
@@ -94,10 +94,10 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		シミュレータのフレームレートが [SERVER_FRAME_RATE_CRITICAL] 以下
+		シミュレータのフレームレートが、[SERVER_FRAME_RATE_CRITICAL]以下
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		シミュレータのフレームレートが [SERVER_FRAME_RATE_CRITICAL] ～ [SERVER_FRAME_RATE_WARNING] の間
+		シミュレータのフレームレートが、[SERVER_FRAME_RATE_CRITICAL]～[SERVER_FRAME_RATE_WARNING]の間
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
 		標準
@@ -121,31 +121,31 @@
 		考えられる原因：シミュレータのロードが重すぎる
 	</floater.string>
 	<floater.string name="smaller_label">
-		&gt;&gt;
+		》
 	</floater.string>
 	<floater.string name="bigger_label">
-		&lt;&lt;
+		《
 	</floater.string>
-	<button name="client_lagmeter" tool_tip="クライアント ラグ ステータス"/>
+	<button name="client_lagmeter" tool_tip="クライアントの遅延ステータス"/>
 	<text name="client">
 		クライアント
 	</text>
 	<text name="client_text">
 		標準
 	</text>
-	<button name="network_lagmeter" tool_tip="ネットワーク ラグ ステータス"/>
+	<button name="network_lagmeter" tool_tip="ネットワークの遅延ステータス"/>
 	<text name="network">
 		ネットワーク
 	</text>
 	<text name="network_text">
 		標準
 	</text>
-	<button name="server_lagmeter" tool_tip="サーバー ラグ ステータス"/>
+	<button name="server_lagmeter" tool_tip="サーバーの遅延ステータス"/>
 	<text name="server">
 		サーバー
 	</text>
 	<text name="server_text">
 		標準
 	</text>
-	<button label="&gt;&gt;" name="minimize" tool_tip="フローターのサイズをトグル"/>
+	<button label="》" name="minimize" tool_tip="フローターのサイズをトグル"/>
 </floater>

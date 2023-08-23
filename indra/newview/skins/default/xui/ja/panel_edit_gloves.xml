@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_gloves_panel">
 	<panel name="avatar_gloves_color_panel">
-		<texture_picker label="テクスチャ" name="Fabric" tool_tip="クリックして写真を選択します"/>
-		<color_swatch label="色・色彩配合" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
+		<texture_picker label="テクスチャ" name="Fabric" tool_tip="クリックして画像を選択します"/>
+		<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">

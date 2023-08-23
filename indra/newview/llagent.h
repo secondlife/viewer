@@ -299,9 +299,15 @@ public:
 	boost::signals2::connection     addRegionChangedCallback(const region_changed_signal_t::slot_type& cb);
 	void                            removeRegionChangedCallback(boost::signals2::connection callback);
 
+
+	void changeInterestListMode(const std::string & new_mode);
+    const std::string & getInterestListMode() const { return mInterestListMode; }
+
 private:
 	LLViewerRegion	*mRegionp;
 	region_changed_signal_t		            mRegionChangedSignal;
+
+    std::string								mInterestListMode;	// How agent wants regions to send updates
 
 	//--------------------------------------------------------------------
 	// History
@@ -553,7 +559,6 @@ public:
 	void			roll(F32 angle);
 	void			yaw(F32 angle);
 	LLVector3		getReferenceUpVector();
-    F32             clampPitchToLimits(F32 angle);
 
 	//--------------------------------------------------------------------
 	// Autopilot

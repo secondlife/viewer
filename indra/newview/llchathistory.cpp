@@ -82,7 +82,7 @@ public:
 	// requests will be throttled from a non-trusted browser
 	LLObjectIMHandler() : LLCommandHandler("objectim", UNTRUSTED_THROTTLE) {}
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
 	{
 		if (params.size() < 1)
 		{

@@ -1,10 +1,14 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="MediaControls">
-	<string name="control_background_image_name">Inspector_Background</string>
-	<string name="skip_step">0.2</string>
+	<string name="control_background_image_name">
+		Inspector_Background
+	</string>
+	<string name="skip_step">
+		0.2
+	</string>
 	<layout_stack name="progress_indicator_area">
 		<layout_panel name="media_progress_indicator">
-			<progress_bar name="media_progress_bar" tool_tip="ローディング"/>
+			<progress_bar name="media_progress_bar" tool_tip="読み込んでいます…"/>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="media_controls">
@@ -41,7 +45,7 @@
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="media_play_position">
-			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="ムービー再生進行"/>
+			<slider_bar name="media_play_slider" tool_tip="ムービー再生進行"/>
 		</layout_panel>
 		<layout_panel name="skip_back">
 			<button name="skip_back_btn" tool_tip="前にステップ"/>
@@ -60,8 +64,8 @@
 			<button name="close_btn" tool_tip="ズームバック"/>
 		</layout_panel>
 		<layout_panel name="new_window">
-			<button name="new_window_btn" tool_tip="URL をブラウザで開く"/>
+			<button name="new_window_btn" tool_tip="ＵＲＬをブラウザで開く"/>
 		</layout_panel>
-		<icon name="media_secure_lock_flag" tool_tip="安全なブラウジング"/>
 	</layout_stack>
+	<icon name="media_secure_lock_flag" tool_tip="安全なブラウジング"/>
 </panel>

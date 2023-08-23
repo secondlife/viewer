@@ -1,48 +1,66 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="場所" name="places panel">
-	<string name="landmarks_tab_title" value="マイ ランドマーク"/>
-	<string name="teleport_history_tab_title" value="テレポートの履歴"/>
-	<filter_editor label="場所をフィルター" name="Filter"/>
-	<panel name="button_panel">
-		<layout_stack name="bottom_bar_ls0">
-			<layout_panel name="lp1">
-				<layout_stack name="bottom_bar_ls1">
-					<layout_panel name="teleport_btn_lp">
-						<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする"/>
+	<string name="landmarks_tab_title" value="ランドマーク"/>
+	<string name="teleport_history_tab_title" value="訪問した場所"/>
+	<string name="favorites_tab_title" value="お気に入り"/>
+	<string name="tooltip_trash_items" value="選択されたランドマークかフォルダを削除"/>
+	<string name="tooltip_trash_history" value="訪問した場所一覧を削除"/>
+	<layout_stack name="places_layout_panel">
+		<layout_panel name="main_panel">
+			<layout_stack name="top_menu_panel">
+				<layout_panel name="filter_panel">
+					<filter_editor label="場所をフィルタ" name="Filter"/>
+				</layout_panel>
+				<layout_panel name="options_gear_btn_panel">
+					<menu_button tool_tip="オプションを表示" name="options_gear_btn"/>
+				</layout_panel>
+				<layout_panel name="options_sort_btn_panel">
+					<menu_button tool_tip="ソートオプションを表示" name="sorting_menu_btn"/>
+				</layout_panel>
+				<layout_panel name="add_btn_panel">
+					<menu_button name="add_menu_btn" tool_tip="新しいランドマークかフォルダを追加"/>
+				</layout_panel>
+				<layout_panel name="trash_btn_panel">
+					<dnd_button name="trash_btn"/>
+				</layout_panel>
+			</layout_stack>
+			<tab_container name="Places Tabs"/>
+			<panel name="panel_place_profile"/>
+			<panel name="panel_landmark_info"/>
+		</layout_panel>
+		<layout_panel auto_resize="false" layout="topleft" height="25" name="button_layout_panel">
+			<panel name="button_panel">
+				<layout_stack name="bottom_bar_ls0">
+					<layout_panel name="lp1">
+						<layout_stack name="bottom_bar_ls1">
+							<layout_panel name="teleport_btn_lp">
+								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする"/>
+							</layout_panel>
+							<layout_panel name="chat_btn_lp">
+								<button label="マップ" name="map_btn" tool_tip="ワールドマップに該当するエリアを表示"/>
+							</layout_panel>
+						</layout_stack>
 					</layout_panel>
-					<layout_panel name="chat_btn_lp">
-						<button label="地図" name="map_btn" tool_tip="世界地図に該当するエリアを表示"/>
+					<layout_panel name="lp_options">
+						<menu_button name="overflow_btn" tool_tip="追加オプションを表示"/>
+					</layout_panel>
+					<layout_panel name="lp2">
+						<layout_stack name="bottom_bar_close_ls3">
+							<layout_panel name="close_btn_lp">
+								<button label="閉じる" name="close_btn"/>
+							</layout_panel>
+						</layout_stack>
 					</layout_panel>
 				</layout_stack>
-			</layout_panel>
-			<layout_panel name="lp2">
-				<layout_stack name="bottom_bar_ls3">
-					<layout_panel name="edit_btn_lp">
-						<button label="編集" name="edit_btn" tool_tip="ランドマークの情報を編集します"/>
+				<layout_stack name="bottom_bar_ls2">
+					<layout_panel name="save_btn_lp">
+						<button label="保存" name="save_btn"/>
 					</layout_panel>
-					<layout_panel name="overflow_btn_lp">
-						<menu_button label="▼" name="overflow_btn" tool_tip="オプションを表示します"/>
+					<layout_panel name="cancel_btn_lp">
+						<button label="キャンセル" name="cancel_btn"/>
 					</layout_panel>
 				</layout_stack>
-				<layout_stack name="bottom_bar_profile_ls">
-					<layout_panel name="profile_btn_lp">
-						<button label="プロフィール" name="profile_btn" tool_tip="場所のプロフィールを表示"/>
-					</layout_panel>
-				</layout_stack>
-				<layout_stack name="bottom_bar_close_ls3">
-					<layout_panel name="close_btn_lp">
-						<button label="閉じる" name="close_btn"/>
-					</layout_panel>
-				</layout_stack>
-			</layout_panel>
-		</layout_stack>
-		<layout_stack name="bottom_bar_ls2">
-			<layout_panel name="save_btn_lp">
-				<button label="保存" name="save_btn"/>
-			</layout_panel>
-			<layout_panel name="cancel_btn_lp">
-				<button label="取り消し" name="cancel_btn"/>
-			</layout_panel>
-		</layout_stack>
-	</panel>
+			</panel>
+		</layout_panel>
+	</layout_stack>
 </panel>

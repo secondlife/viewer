@@ -300,6 +300,10 @@
                  name="Zoom"
                  value="Zoom" />
                 <combo_box.item
+                 label="Ignore object"
+                 name="Ignoreobject"
+                 value="Ignore" />
+                <combo_box.item
                  label="None"
                  name="None"
                  value="None" />
