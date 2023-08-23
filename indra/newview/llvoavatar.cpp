@@ -2568,7 +2568,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	{
         if (!mIsControlAvatar)
         {
-            idleUpdateNameTag( mLastRootPos );
+            idleUpdateNameTag(idleCalcNameTagPosition(mLastRootPos));
         }
         return;
 	}
@@ -2652,7 +2652,9 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	bool voice_enabled = (visualizers_in_calls || LLVoiceClient::getInstance()->inProximalChannel()) &&
 						 LLVoiceClient::getInstance()->getVoiceEnabled(mID);
 
-	idleUpdateVoiceVisualizer( voice_enabled );
+    LLVector3 hud_name_pos = idleCalcNameTagPosition(mLastRootPos);
+
+	idleUpdateVoiceVisualizer(voice_enabled, hud_name_pos);
 	idleUpdateMisc( detailed_update );
 	idleUpdateAppearanceAnimation();
 	if (detailed_update)
@@ -2663,7 +2665,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		idleUpdateWindEffect();
 	}
 		
-	idleUpdateNameTag( mLastRootPos );
+	idleUpdateNameTag(hud_name_pos);
 
     // Complexity has stale mechanics, but updates still can be very rapid
     // so spread avatar complexity calculations over frames to lesen load from
@@ -2699,7 +2701,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     idleUpdateDebugInfo();
 }
 
-void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
+void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled, const LLVector3 &position)
 {
 	bool render_visualizer = voice_enabled;
 	
@@ -2788,24 +2790,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 				}
 			}
 		}
-		
-		//--------------------------------------------------------------------------------------------
-		// here we get the approximate head position and set as sound source for the voice symbol
-		// (the following version uses a tweak of "mHeadOffset" which handle sitting vs. standing)
-		//--------------------------------------------------------------------------------------------
-		
-		if ( isSitting() )
-		{
-			LLVector3 headOffset = LLVector3( 0.0f, 0.0f, mHeadOffset.mV[2] );
-			mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot->getWorldPosition() + headOffset );
-		}
-		else 
-		{
-			LLVector3 tagPos = mRoot->getWorldPosition();
-			tagPos[VZ] -= mPelvisToFoot;
-			tagPos[VZ] += ( mBodySize[VZ] + 0.125f ); // does not need mAvatarOffset -Nyx
-			mVoiceVisualizer->setVoiceSourceWorldPosition( tagPos );
-		}
+        mVoiceVisualizer->setPositionAgent(position);
 	}//if ( voiceEnabled )
 }		
 
@@ -3321,7 +3306,8 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		new_name = TRUE;
     }
 				
-	idleUpdateNameTagPosition(root_pos_last);
+    mNameText->setPositionAgent(root_pos_last);
+
 	idleUpdateNameTagText(new_name);			
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
@@ -3598,7 +3584,7 @@ void LLVOAvatar::invalidateNameTags()
 }
 
 // Compute name tag position during idle update
-void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
+LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
 {
 	LLQuaternion root_rot = mRoot->getWorldRotation();
 	LLQuaternion inv_root_rot = ~root_rot;
@@ -3652,7 +3638,7 @@ void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 		}
 	}
 
-	mNameText->setPositionAgent(name_position);				
+	return name_position;
 }
 
 void LLVOAvatar::idleUpdateNameTagAlpha(bool new_name, F32 alpha)
