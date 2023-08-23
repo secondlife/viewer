@@ -943,11 +943,8 @@ void LLButton::draw()
 			break;
 		}
 
-		S32 y_offset = 2 + (getRect().getHeight() - 20)/2;
-	
 		if (pressed && mDisplayPressedState)
 		{
-			y_offset--;
 			x++;
 		}
 

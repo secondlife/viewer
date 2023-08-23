@@ -4,7 +4,7 @@
 		トップ・スクリプト
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] スクリプトには合計で [TIME] 分かかり、[MEMORY] KB 使用しています。
+		[COUNT]個のスクリプトの実行に[TIME]分かかり、[MEMORY]㎅使用しています。
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		時間
@@ -22,13 +22,13 @@
 		何も見つかりませんでした。
 	</floater.string>
 	<floater.string name="URLs">
-		URL
+		ＵＲＬ
 	</floater.string>
 	<floater.string name="memory">
-		メモリ（KB）
+		メモリ（㎅）
 	</floater.string>
 	<text name="title_text">
-		ロード中．．．
+		読み込んでいます…
 	</text>
 	<scroll_list name="objects_list">
 		<scroll_list.columns label="数" name="score"/>
@@ -38,10 +38,10 @@
 		<scroll_list.columns label="区画" name="parcel"/>
 		<scroll_list.columns label="日付" name="time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
-		<scroll_list.columns label="メモリ（KB）" name="memory"/>
+		<scroll_list.columns label="メモリ（㎅）" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
-		物体ID：
+		物体ＩＤ：
 	</text>
 	<button label="標識を表示" name="show_beacon_btn"/>
 	<text name="obj_name_text">
@@ -55,7 +55,7 @@
 	<text name="parcel_name_text">
 		区画：
 	</text>
-	<button label="フィルター" name="filter_parcel_btn"/>
+	<button label="フィルタ" name="filter_parcel_btn"/>
 	<button label="更新" name="refresh_btn"/>
 	<button label="選択内容を返却" name="return_selected_btn"/>
 	<button label="すべて返却" name="return_all_btn"/>

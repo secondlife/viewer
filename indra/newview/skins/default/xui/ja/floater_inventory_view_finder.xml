@@ -2,7 +2,7 @@
 <floater name="Inventory Finder" title="インベントリ最近取得したアイテム">
 	<check_box label="アニメーション" name="check_animation"/>
 	<check_box label="コーリング・カード" name="check_calling_card"/>
-	<check_box label="服" name="check_clothing"/>
+	<check_box label="服装" name="check_clothing"/>
 	<check_box label="ジェスチャー" name="check_gesture"/>
 	<check_box label="ランドマーク" name="check_landmark"/>
 	<check_box label="ノートカード" name="check_notecard"/>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_test_radiogroup">
+	<radio_group name="parcel_voice_channel">
+		<radio_item label="不動産空間チャネルを使用" name="Estate"/>
+		<radio_item label="プライベート空間チャネルを使用" name="Private"/>
+		<radio_item label="この区画の空間でのボイスチャットを無効化" name="Disabled"/>
+	</radio_group>
+	<radio_group name="simple_radio_group">
+		<radio_item label="label属性のラベル" name="label_radio_item"/>
+		<radio_item label="テキストコンテンツのラベル" name="contents_radio_item"/>
+	</radio_group>
+	<radio_group name="no_border_radio_group">
+		<radio_item label="Fooにはボーダーがありません" name="foo_radio_item"/>
+		<radio_item label="ボーダーのバー無し" name="bar_item"/>
+	</radio_group>
+</floater>

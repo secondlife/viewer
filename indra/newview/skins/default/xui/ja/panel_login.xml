@@ -1,22 +1,36 @@
-<?xml version="1.0" ?>
-<panel name="panel_login">
-	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=ja</panel.string>
-	<panel.string name="sign_up_url">https://join.secondlife.com/</panel.string>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login" focus_root="true">
+	<panel.string name="forgot_password_url">
+		https://secondlife.com/my/account/request.php?lang=ja-JP
+	</panel.string>
+	<panel.string name="sign_up_url">
+		https://join.secondlife.com/?lang=ja
+	</panel.string>
 	<layout_stack name="ui_stack">
+		<layout_panel name="ui_elastic_pad_left"/>
 		<layout_panel name="ui_container">
-			<combo_box label="ユーザー名" name="username_combo" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）"/>
-			<line_editor label="パスワード" name="password_edit"/>
+			<icon name="sl_logo_small"/>
+			<combo_box label="Username" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）" name="username_combo">
+				<combo_box.combo_editor/>
+			</combo_box>
+			<line_editor name="password_edit" label="パスワード"/>
 			<combo_box label="お気に入りの場所" name="start_location_combo">
-				<combo_box.item label="最後にログアウトした場所" name="MyLastLocation"/>
-				<combo_box.item label="ホーム" name="MyHome"/>
+				<combo_box.combo_editor/>
+				<combo_box.item label="最後にいた場所" name="MyLastLocation" value="last"/>
+				<combo_box.item label="ホーム" name="MyHome" value="home"/>
 			</combo_box>
 			<button label="ログイン" name="connect_btn"/>
-			<check_box label="記憶する" name="remember_check"/>
-			<text name="forgot_password_text">パスワードを忘れた場合</text>
-			<combo_box label="グリッドを選択" name="server_combo"/>
-			<text name="sign_up_text">登録</text>
+			<text name="sign_up_text">
+				サインアップ
+			</text>
+			<check_box label="名前を記録" name="remember_name" tool_tip="すでに記憶されているユーザーは、「私」＞「初期設定」＞「詳細設定」＞「記憶されたユーザー名」から削除できます。"/>
+			<check_box label="パスワードを記録" name="remember_password"/>
+			<combo_box label="Select grid" name="server_combo"/>
+			<text name="forgot_password_text">
+				パスワードに関するヘルプ
+			</text>
 		</layout_panel>
-		<check_box name="remember_name" label="記憶する" tool_tip="記憶されたユーザーを削除することができます。私 &gt; プリファレンス&gt; アドバンス &gt; 記憶されたユーザー名"/>
-		<check_box name="remember_password" label="パスワードを記憶する"/>
+		<layout_panel name="ui_elastic_pad_right"/>
 	</layout_stack>
+	<web_browser name="login_html"/>
 </panel>

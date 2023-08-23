@@ -89,6 +89,8 @@ LLLayoutPanel::~LLLayoutPanel()
 	// probably not necessary, but...
 	delete mResizeBar;
 	mResizeBar = NULL;
+
+    gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
 F32 LLLayoutPanel::getAutoResizeFactor() const

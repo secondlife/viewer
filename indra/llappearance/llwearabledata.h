@@ -86,15 +86,6 @@ private:
 	void			pullCrossWearableValues(const LLWearableType::EType type);
 
 	//--------------------------------------------------------------------
-	// Server Communication
-	//--------------------------------------------------------------------
-public:
-	LLUUID			computeBakedTextureHash(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index,
-											BOOL generate_valid_hash = TRUE);
-protected:
-	virtual void	invalidateBakedTextureHash(LLMD5& hash) const {}
-
-	//--------------------------------------------------------------------
 	// Member variables
 	//--------------------------------------------------------------------
 protected:

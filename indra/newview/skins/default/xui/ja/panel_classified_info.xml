@@ -10,10 +10,10 @@
 		L$ [PRICE]
 	</panel.string>
 	<panel.string name="click_through_text_fmt">
-		[TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
+		[TELEPORT]テレポート、[MAP]マップ、[PROFILE]プロフィール
 	</panel.string>
 	<panel.string name="date_fmt">
-		[year,datetime,slt]/[mthnum,datetime,slt]/[day,datetime,slt]
+		[year,datetime,slt]年[mthnum,datetime,slt]月[day,datetime,slt]日
 	</panel.string>
 	<panel.string name="auto_renew_on">
 		有効
@@ -38,7 +38,7 @@
 			<layout_stack name="descr_stack">
 				<layout_panel name="clickthrough_layout_panel">
 					<text name="click_through_label" value="クリック数："/>
-					<text_editor name="click_through_text" tool_tip="Click through data" value="[clicks]"/>
+					<text_editor name="click_through_text" tool_tip="クリックされた回数" value="[clicks]"/>
 				</layout_panel>
 				<layout_panel name="price_layout_panel">
 					<text name="auto_renew_label" value="自動更新："/>
@@ -57,7 +57,7 @@
 				<button label="テレポート" name="teleport_btn"/>
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="地図" name="show_on_map_btn"/>
+				<button label="マップ" name="show_on_map_btn"/>
 			</layout_panel>
 			<layout_panel name="edit_btn_lp">
 				<button label="編集" name="edit_btn"/>

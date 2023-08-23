@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Wearing">
 	<panel.string name="no_attachments">
-		着用しているアタッチメントはありません。
+		着用している装着物はありません。
 	</panel.string>
 	<accordion name="wearables_accordion">
 		<accordion_tab name="tab_wearables" title="着用物"/>
-		<accordion_tab name="tab_temp_attachments" title="一時的なアタッチメント"/>
+		<accordion_tab name="cof_items_list" title="一時的な装着物">
+			<scroll_list name="temp_attachments_list">
+				<scroll_list.columns name="icon"/>
+				<scroll_list.columns name="text"/>
+			</scroll_list>
+		</accordion_tab>
 	</accordion>
 	<panel name="bottom_panel">
-		<menu_button name="options_gear_btn" tool_tip="オプションを表示します"/>
+		<menu_button name="options_gear_btn" tool_tip="オプションを表示します。"/>
+		<icon name="dummy_icon"/>
 	</panel>
 </panel>

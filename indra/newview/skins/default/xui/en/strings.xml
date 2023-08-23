@@ -233,7 +233,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
 	<string name="TooltipFlagGroupBuild">Group Build</string>
 	<string name="TooltipFlagNoBuild">No Build</string>
-	<string name="TooltipFlagNoEdit">Group Build</string>
+	<string name="TooltipFlagNoEdit">No Edit</string>
 	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
 	<string name="TooltipFlagNoFly">No Fly</string>
 	<string name="TooltipFlagGroupScripts">Group Scripts</string>

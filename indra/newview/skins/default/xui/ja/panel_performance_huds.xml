@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_performance_huds">
+	<button name="back_btn"/>
+	<text name="back_lbl">
+		戻る
+	</text>
+	<text name="huds_title">
+		アクティブなＨＵＤ
+	</text>
+	<text name="huds_desc1">
+		使用していないＨＵＤを取り外すとメモリが節約され、Second Lifeの処理が高速化されます。
+	</text>
+	<text name="huds_desc2">
+		注意：ＨＵＤの最小化ボタンを使用しても、ＨＵＤを取り外したことにはなりません。
+	</text>
+	<name_list name="hud_list">
+		<name_list.columns label="" name="complex_visual"/>
+		<name_list.columns label="" name="complex_value"/>
+		<name_list.columns label="" name="name"/>
+	</name_list>
+</panel>

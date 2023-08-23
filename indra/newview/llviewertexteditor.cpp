@@ -1210,7 +1210,11 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLPointer<LLInventoryItem> item_p
 
 void LLViewerTextEditor::openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc )
 {
-	if(item && !item->getCreatorUUID().isNull())
+	if (item && !item->getDescription().empty())
+	{
+		LLAvatarActions::showProfile(LLUUID(item->getDescription()));
+	}
+	else if (item && !item->getCreatorUUID().isNull())
 	{
 		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}

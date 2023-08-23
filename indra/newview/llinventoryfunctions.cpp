@@ -217,8 +217,7 @@ bool contains_nocopy_items(const LLUUID& id)
     return false;
 }
 
-// Generates a string containing the path to the item specified by
-// item_id.
+// Generates a string containing the path to the item specified by id.
 void append_path(const LLUUID& id, std::string& path)
 {
 	std::string temp;
@@ -236,6 +235,36 @@ void append_path(const LLUUID& id, std::string& path)
 		}
 	}
 	path.append(temp);
+}
+
+// Generates a string containing the path name of the object.
+std::string make_path(const LLInventoryObject* object)
+{
+    std::string path;
+    append_path(object->getUUID(), path);
+    return path + "/" + object->getName();
+}
+
+// Generates a string containing the path name of the object specified by id.
+std::string make_inventory_path(const LLUUID& id)
+{
+    if (LLInventoryObject* object = gInventory.getObject(id))
+        return make_path(object);
+    return "";
+}
+
+// Generates a string containing the path name and id of the object.
+std::string make_info(const LLInventoryObject* object)
+{
+    return "'" + make_path(object) + "' (" + object->getUUID().asString() + ")";
+}
+
+// Generates a string containing the path name and id of the object specified by id.
+std::string make_inventory_info(const LLUUID& id)
+{
+    if (LLInventoryObject* object = gInventory.getObject(id))
+        return make_info(object);
+    return "<Inventory object not found!> (" + id.asString() + ")";
 }
 
 void update_marketplace_folder_hierarchy(const LLUUID cat_id)
@@ -1570,6 +1599,7 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         }
         else
         {
+            LL_INFOS("SLM") << "Move category " << make_info(viewer_inv_cat) << " to '" << make_inventory_path(dest_folder) << "'" << LL_ENDL;
             // Reparent the folder
             gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
             // Check the destination folder recursively for no copy items and promote the including folders if any
