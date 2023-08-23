@@ -51,21 +51,17 @@ protected:
 public:
 	LLRefCount();
 
-    inline void validateRefCount() const
-    {
-        llassert(mRef > 0); // ref count below 0, likely corrupted
-        llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
-    }
-
 	inline void ref() const
 	{ 
+		llassert(mRef != LL_REFCOUNT_FREE); // object is deleted
 		mRef++; 
-        validateRefCount();
+		llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
 	} 
 
 	inline S32 unref() const
 	{
-        validateRefCount();
+		llassert(mRef != LL_REFCOUNT_FREE); // object is deleted
+		llassert(mRef > 0); // ref count below 1, likely corrupted
 		if (0 == --mRef)
 		{
             mRef = LL_REFCOUNT_FREE; // set to nonsense yet recognizable value to aid in debugging

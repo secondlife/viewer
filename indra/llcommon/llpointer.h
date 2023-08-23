@@ -129,16 +129,6 @@ protected:
 	void ref();                             
 	void unref();
 #else
-
-	void assign(const LLPointer<Type>& ptr)
-	{
-		if( mPointer != ptr.mPointer )
-		{
-			unref(); 
-			mPointer = ptr.mPointer;
-			ref();
-		}
-	}
 	void ref()                             
 	{ 
 		if (mPointer)
@@ -161,7 +151,18 @@ protected:
 			}
 		}
 	}
-#endif
+#endif // LL_LIBRARY_INCLUDE
+
+	void assign(const LLPointer<Type>& ptr)
+	{
+		if (mPointer != ptr.mPointer)
+		{
+			unref();
+			mPointer = ptr.mPointer;
+			ref();
+		}
+	}
+
 protected:
 	Type*	mPointer;
 };
@@ -264,7 +265,7 @@ protected:
 #ifdef LL_LIBRARY_INCLUDE
 	void ref();                             
 	void unref();
-#else
+#else // LL_LIBRARY_INCLUDE
 	void ref()                             
 	{ 
 		if (mPointer)
@@ -277,9 +278,9 @@ protected:
 	{
 		if (mPointer)
 		{
-			const Type *tempp = mPointer;
+			const Type *temp = mPointer;
 			mPointer = NULL;
-			tempp->unref();
+			temp->unref();
 			if (mPointer != NULL)
 			{
 				LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
@@ -287,7 +288,7 @@ protected:
 			}
 		}
 	}
-#endif
+#endif // LL_LIBRARY_INCLUDE
 protected:
 	const Type*	mPointer;
 };
