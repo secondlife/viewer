@@ -13183,7 +13183,7 @@
     <key>TranslationService</key>
     <map>
       <key>Comment</key>
-      <string>Translation API to use. (google|azure)</string>
+      <string>Translation API to use. (simulator|azure|google|deepl)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
