@@ -76,29 +76,33 @@ std::string click_action_to_string_value( U8 action);
 
 U8 string_value_to_click_action(std::string p_value)
 {
-	if(p_value == "Touch")
+	if (p_value == "Touch")
 	{
 		return CLICK_ACTION_TOUCH;
 	}
-	if(p_value == "Sit")
+	if (p_value == "Sit")
 	{
 		return CLICK_ACTION_SIT;
 	}
-	if(p_value == "Buy")
+	if (p_value == "Buy")
 	{
 		return CLICK_ACTION_BUY;
 	}
-	if(p_value == "Pay")
+	if (p_value == "Pay")
 	{
 		return CLICK_ACTION_PAY;
 	}
-	if(p_value == "Open")
+	if (p_value == "Open")
 	{
 		return CLICK_ACTION_OPEN;
 	}
-	if(p_value == "Zoom")
+	if (p_value == "Zoom")
 	{
 		return CLICK_ACTION_ZOOM;
+	}
+	if (p_value == "Ignore")
+	{
+		return CLICK_ACTION_IGNORE;
 	}
 	if (p_value == "None")
 	{
@@ -129,6 +133,9 @@ std::string click_action_to_string_value( U8 action)
 			break;
 		case CLICK_ACTION_ZOOM:
 			return "Zoom";
+			break;
+		case CLICK_ACTION_IGNORE:
+			return "Ignore";
 			break;
 		case CLICK_ACTION_DISABLED:
 			return "None";
@@ -274,12 +281,12 @@ void LLPanelPermissions::disableAll()
 		combo_click_action->setEnabled(FALSE);
 		combo_click_action->clear();
 	}
-	getChildView("B:")->setVisible(								FALSE);
-	getChildView("O:")->setVisible(								FALSE);
-	getChildView("G:")->setVisible(								FALSE);
-	getChildView("E:")->setVisible(								FALSE);
-	getChildView("N:")->setVisible(								FALSE);
-	getChildView("F:")->setVisible(								FALSE);
+	getChildView("B:")->setVisible(FALSE);
+	getChildView("O:")->setVisible(FALSE);
+	getChildView("G:")->setVisible(FALSE);
+	getChildView("E:")->setVisible(FALSE);
+	getChildView("N:")->setVisible(FALSE);
+	getChildView("F:")->setVisible(FALSE);
 }
 
 void LLPanelPermissions::refresh()
@@ -949,19 +956,19 @@ void LLPanelPermissions::refresh()
 	getChild<LLUICtrl>("search_check")->setValue(include_in_search);
 	getChild<LLUICtrl>("search_check")->setTentative( 				!all_include_in_search);
 
-	// Click action (touch, sit, buy)
+	// Click action (touch, sit, buy, pay, open, play, open media, zoom, ignore)
 	U8 click_action = 0;
 	if (LLSelectMgr::getInstance()->selectionGetClickAction(&click_action))
 	{
 		LLComboBox*	combo_click_action = getChild<LLComboBox>("clickaction");
-		if(combo_click_action)
+		if (combo_click_action)
 		{
 			const std::string combo_value = click_action_to_string_value(click_action);
 			combo_click_action->setValue(LLSD(combo_value));
 		}
 	}
 
-	if(LLSelectMgr::getInstance()->getSelection()->isAttachment())
+	if (LLSelectMgr::getInstance()->getSelection()->isAttachment())
 	{
 		getChildView("checkbox for sale")->setEnabled(FALSE);
 		getChildView("Edit Cost")->setEnabled(FALSE);

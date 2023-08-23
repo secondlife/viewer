@@ -2,11 +2,11 @@
 <panel label="ピック" name="panel_picks">
 	<string name="no_picks" value="ピックなし"/>
 	<text name="Tell everyone about your favorite places in Second Life.">
-		Second Life のお気に入りの場所を紹介しましょう。
+		Second Lifeのお気に入りの場所を紹介しましょう。
 	</text>
 	<button label="新規…" name="new_btn"/>
 	<button label="削除…" name="delete_btn"/>
 	<text name="picks_panel_text">
-		ロード中...
+		読み込んでいます…
 	</text>
 </panel>

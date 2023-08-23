@@ -7,13 +7,13 @@
 		ローカル
 	</floater.string>
 	<floater.string name="grid_world_text">
-		世界
+		ワールド
 	</floater.string>
 	<floater.string name="grid_reference_text">
 		リファレンス
 	</floater.string>
 	<floater.string name="grid_attachment_text">
-		アタッチメント
+		装着物
 	</floater.string>
 	<text name="grid_mode_label" tool_tip="グリッドの不透明度">
 		モード

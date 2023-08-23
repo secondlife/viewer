@@ -41,7 +41,9 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
+#include "llmd5.h"
 #include "llnotificationsutil.h"
+#include "llmd5.h"
 #include "lloutfitobserver.h"
 #include "lloutfitslist.h"
 #include "llselectmgr.h"
@@ -145,7 +147,10 @@ public:
 	// requests will be throttled from a non-trusted browser
 	LLAppearanceHandler() : LLCommandHandler("appearance", UNTRUSTED_THROTTLE) {}
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& params,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		// support secondlife:///app/appearance/show, but for now we just
 		// make all secondlife:///app/appearance SLapps behave this way
@@ -4470,8 +4475,10 @@ public:
 	// not allowed from outside the app
 	LLWearFolderHandler() : LLCommandHandler("wear_folder", UNTRUSTED_BLOCK) { }
 
-	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLMediaCtrl* web)
+	bool handle(const LLSD& tokens,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		LLSD::UUID folder_uuid;
 

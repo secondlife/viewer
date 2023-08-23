@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="dummy_clothing_item">
-	<text name="item_name" value="..."/>
+	<icon name="hovered_icon"/>
+	<icon name="selected_icon"/>
+	<icon name="item_icon"/>
+	<text name="item_name" value="…"/>
 	<panel name="btn_add_panel">
-		<button name="btn_add" tool_tip="この種類のアイテムを追加する"/>
+		<button name="btn_add" tool_tip="この種類のアイテムを追加する。"/>
 	</panel>
+	<icon name="wearable_type_separator_icon"/>
+	<text name="item_name"/>
 </panel>

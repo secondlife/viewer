@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="EVENTS">
-	<string name="no_events" value="イベントなし。"/>
-	<string name="loading" value="ローディング..."/>
-	<layout_stack>
-		<layout_panel>
+<panel name="panel_experience_log" label="イベント">
+	<string name="no_events" value="イベントはありません。"/>
+	<string name="loading" value="読み込んでいます…。"/>
+	<layout_stack name="ls1">
+		<layout_panel name="list panel">
 			<scroll_list name="experience_log_list">
-				<columns label="時間" name="time"/>
-				<columns label="イベント" name="event"/>
-				<columns label="体験" name="experience_name"/>
-				<columns label="オブジェクト" name="object_name"/>
+				<columns name="time" label="時間"/>
+				<columns name="event" label="イベント"/>
+				<columns name="experience_name" label="体験"/>
+				<columns name="object_name" label="オブジェクト"/>
 			</scroll_list>
-			<button label="知らせる" name="btn_notify"/>
-			<button label="プロフィール" name="btn_profile_xp"/>
-			<button label="報告" name="btn_report_xp"/>
+			<button name="btn_notify" label="通知"/>
+			<button name="btn_profile_xp" label="プロフィール"/>
+			<button name="btn_report_xp" label="報告"/>
 		</layout_panel>
 		<layout_panel name="button_panel">
-			<check_box label="すべてのイベント   日数を通知" name="notify_all"/>
-			<button label="クリア" name="btn_clear"/>
-			<button label="&lt;" name="btn_prev"/>
-			<button label="&gt;" name="btn_next"/>
+			<check_box label="すべてのイベント日数を通知" name="notify_all"/>
+			<spinner name="logsizespinner"/>
+			<button name="btn_clear" label="クリア"/>
+			<button name="btn_prev" label="⇦"/>
+			<button name="btn_next" label="⇨"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

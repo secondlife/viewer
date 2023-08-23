@@ -4,20 +4,30 @@
 		空を編集：
 	</string>
 	<string name="edit_water">
-		水を編集：
+		水面を編集
 	</string>
 	<layout_stack name="floater_stack">
 		<layout_panel name="info_panel">
-			<button label="ロード" name="btn_load" tool_tip="持ち物から設定をロードする"/>
-			<button label="インポート" name="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
+			<text name="info_panel_label">
+				名前：
+			</text>
+			<line_editor name="settings_name"/>
+			<button label="読み込む" tool_tip="インベントリから設定を読み込みます。"/>
+			<button label="インポート" tool_tip="ディスクから過去の設定をインポートします。"/>
+		</layout_panel>
+		<layout_panel name="tab_area">
+			<tab_container name="tab_settings">
+        
+      </tab_container>
 		</layout_panel>
 		<layout_panel name="button_panel">
 			<layout_stack name="button_bar_ls">
 				<layout_panel name="save_btn_lp">
 					<button label="保存" name="btn_commit"/>
+					<button name="btn_flyout"/>
 				</layout_panel>
 				<layout_panel name="revert_btn_lp">
-					<button label="キャンセル" name="btn_cancel" tool_tip="最後に保存された状態に戻す"/>
+					<button label="キャンセル" name="btn_cancel" tool_tip="最後に保存された状態に戻す。"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

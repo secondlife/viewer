@@ -49,6 +49,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "lluictrlfactory.h"
+#include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llfloaterregioninfo.h"
 
@@ -83,6 +84,8 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 	mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",	boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",	boost::bind(&LLFloaterTopObjects::onGetByParcelName, this));
 	mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
+
+    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected",        boost::bind(&LLFloaterTopObjects::teleportToSelectedObject, this));
 }
 
 LLFloaterTopObjects::~LLFloaterTopObjects()
@@ -92,10 +95,11 @@ LLFloaterTopObjects::~LLFloaterTopObjects()
 // virtual
 BOOL LLFloaterTopObjects::postBuild()
 {
-	LLScrollListCtrl *objects_list = getChild<LLScrollListCtrl>("objects_list");
-	getChild<LLUICtrl>("objects_list")->setFocus(TRUE);
-	objects_list->setDoubleClickCallback(onDoubleClickObjectsList, this);
-	objects_list->setCommitOnSelectionChange(TRUE);
+    mObjectsScrollList = getChild<LLScrollListCtrl>("objects_list");
+    mObjectsScrollList->setFocus(TRUE);
+    mObjectsScrollList->setDoubleClickCallback(onDoubleClickObjectsList, this);
+    mObjectsScrollList->setCommitOnSelectionChange(TRUE);
+    mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterTopObjects::onSelectionChanged, this));
 
 	setDefaultBtn("show_beacon_btn");
 
@@ -421,6 +425,8 @@ void LLFloaterTopObjects::clearList()
 	mObjectListData.clear();
 	mObjectListIDs.clear();
 	mtotalScore = 0.f;
+
+    onSelectionChanged();
 }
 
 
@@ -506,4 +512,39 @@ void LLFloaterTopObjects::showBeacon()
 	LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
 	std::string tooltip("");
 	LLTracker::trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
+}
+
+void LLFloaterTopObjects::teleportToSelectedObject()
+{
+    std::vector<LLScrollListItem*> selected_items = mObjectsScrollList->getAllSelected();
+    if (selected_items.size() == 1)
+    {
+        LLScrollListItem* first_selected = selected_items.front();
+
+        LLVector3d teleport_location;
+        LLViewerObject *viewer_object = gObjectList.findObject(first_selected->getUUID());
+        if (viewer_object == NULL)
+        {
+            // If we cannot find the object in the viewer list, teleport to the last reported position
+            std::string pos_string =  first_selected->getColumn(3)->getValue().asString();
+
+            F32 x, y, z;
+            S32 matched = sscanf(pos_string.c_str(), "<%g,%g,%g>", &x, &y, &z);
+            if (matched != 3) return;
+
+            LLVector3 pos_agent(x, y, z);
+            teleport_location = gAgent.getPosGlobalFromAgent(pos_agent);
+        }
+        else
+        {
+            // If we can find the object in the viewer list, teleport to the known current position
+            teleport_location = viewer_object->getPositionGlobal();
+        }
+        gAgent.teleportViaLocationLookAt(teleport_location);
+    }
+}
+
+void LLFloaterTopObjects::onSelectionChanged()
+{
+    getChildView("teleport_btn")->setEnabled(mObjectsScrollList->getNumSelected() == 1);
 }

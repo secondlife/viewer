@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="simple_outfit_snapshot" title="アウトフィットのスナップショット">
+	<ui_ctrl name="thumbnail_placeholder"/>
+	<button label="画像を撮影" name="new_snapshot_btn"/>
+	<button label="保存（L$ [UPLOAD_COST]）" name="save_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
+</floater>
