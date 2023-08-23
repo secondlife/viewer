@@ -30,7 +30,7 @@
 #include "llerror.h"
 
 // maximum reference count before sounding memory leak alarm
-const S32 gMaxRefCount = S32_MAX;
+const S32 gMaxRefCount = LL_REFCOUNT_FREE;
 
 LLRefCount::LLRefCount(const LLRefCount& other)
 :	mRef(0)
