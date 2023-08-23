@@ -518,10 +518,7 @@ Function CheckIfAdministrator
         Quit
 lbl_is_admin:
     Return
-/* Unused
-
 FunctionEnd
-*/
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function CheckWillUninstallV2               
