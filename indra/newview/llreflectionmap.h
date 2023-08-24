@@ -52,7 +52,7 @@ public:
 
     // update this environment map
     // resolution - size of cube map to generate
-    void update(U32 resolution, U32 face);
+    void update(U32 resolution, U32 face, bool force_dynamic = false);
 
     // for volume partition probes, try to place this probe in the best spot
     void autoAdjustOrigin();

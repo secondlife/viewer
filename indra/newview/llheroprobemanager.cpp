@@ -157,6 +157,11 @@ void LLHeroProbeManager::update()
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
         // Probe 0 is always our mirror probe.
         mProbes[0]->mOrigin = probe_pos;
+        
+        bool radiance_pass = gPipeline.mReflectionMapManager.isRadiancePass();
+        
+        gPipeline.mReflectionMapManager.mRadiancePass = true;
+        
         for (U32 j = 0; j < mProbes.size(); j++)
         {
             for (U32 i = 0; i < 6; ++i)
@@ -164,6 +169,8 @@ void LLHeroProbeManager::update()
                 updateProbeFace(mProbes[j], i);
             }
         }
+        
+        gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
     }
 }
 
@@ -180,7 +187,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
-    probe->update(mRenderTarget.getWidth(), face);
+    probe->update(mRenderTarget.getWidth(), face, true);
     
     gPipeline.mRT = &gPipeline.mMainRT;
 

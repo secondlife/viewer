@@ -49,7 +49,7 @@ LLReflectionMap::~LLReflectionMap()
     }
 }
 
-void LLReflectionMap::update(U32 resolution, U32 face)
+void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     mLastUpdateTime = gFrameTimeSeconds;
@@ -63,7 +63,8 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     {
         resolution /= 2;
     }
-    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip(), getIsDynamic());
+    
+    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip(), getIsDynamic() || force_dynamic);
 }
 
 void LLReflectionMap::autoAdjustOrigin()

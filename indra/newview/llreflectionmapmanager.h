@@ -104,6 +104,7 @@ public:
 
 private:
     friend class LLPipeline;
+    friend class LLHeroProbeManager;
 
     // initialize mCubeFree array to default values
     void initCubeFree();
