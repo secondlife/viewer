@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="470"
+ height="530"
  layout="topleft"
  name="floater_translation_settings"
  help_topic="translation_settings"
@@ -158,7 +158,7 @@
    label="Simulator"
    layout="topleft"
    name="simulator"
-   top_pad="70" />
+   top_pad="100" />
  </radio_group>
 
   <text
