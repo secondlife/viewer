@@ -17,7 +17,7 @@
      name="EditGLTFMaterial">
         <menu_item_call.on_click
          function="Object.EditGLTFMaterial" />
-        <menu_item_call.on_enable
+        <menu_item_call.on_visible
          function="Object.EnableEditGLTFMaterial"/>
     </menu_item_call>
     <menu_item_call
