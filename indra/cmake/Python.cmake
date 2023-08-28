@@ -40,7 +40,7 @@ elseif (WINDOWS)
     ${regpaths}
     ${pymaybe}
     )
-    include(FindPythonInterp)
+  find_package(Python3 COMPONENTS Interpreter)
 else()
   find_program(python python3)
 
