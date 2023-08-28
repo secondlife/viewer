@@ -242,25 +242,30 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
+    ##if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.sha }}
+##    - name: Checkout code
+##      uses: actions/checkout@v3
+##      with:
+##        ref: ${{ github.sha }}
+##
+##    - name: Setup python
+##      uses: actions/setup-python@v4
+##      with:
+##        python-version: "3.11"
+##
+##    - name: Install PyGithub
+##      run: pip3 install PyGithub
+##
+##    - name: Unpack artifacts
+##      env:
+##        BUILD: ${{ toJSON(needs.build) }}
+##      run: .github/workflows/post_artifacts.py
 
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
+      - uses: actions/download-artifact@v3
 
-      - name: Install PyGithub
-        run: pip3 install PyGithub
-
-      - name: Unpack artifacts
-        env:
-          BUILD: ${{ toJSON(needs.build) }}
-        run: .github/workflows/post_artifacts.py
+      - name: Show what we downloaded
+        run: ls -R
 
 ##    # forked from softprops/action-gh-release
 ##    - uses: secondlife-3p/action-gh-release@v1
