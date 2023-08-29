@@ -102,7 +102,6 @@ public:
 	S32 setTexGen(const U8 index, const U8 texgen);
 	S32 setShiny(const U8 index, const U8 shiny);
 	S32 setFullbright(const U8 index, const U8 t);
-    S32 setRenderableTarget(const U8 index, const U8 target);
 	S32 setMediaFlags(const U8 index, const U8 media_flags);
 	S32 setGlow(const U8 index, const F32 glow);
 	S32 setMaterialID(const U8 index, const LLMaterialID& pMaterialID);

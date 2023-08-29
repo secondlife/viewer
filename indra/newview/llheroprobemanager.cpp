@@ -103,53 +103,71 @@ void LLHeroProbeManager::update()
 
     llassert(mProbes[0] == mDefaultProbe);
     
-    LLVector3 camera_pos = LLViewerCamera::instance().getOrigin();
-    
     LLVector4a probe_pos;
     
-    LLVector3 focus_point;
-    
-    LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
-    if (obj && obj->mDrawable && obj->isSelected())
-    { // focus on selected media object
-        S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
-        if (obj && obj->mDrawable)
-        {
-            LLFace* face = obj->mDrawable->getFace(face_idx);
-            if (face)
-            {
-                focus_point = face->getPositionAgent();
-            }
-        }
-    }
-
-    if (focus_point.isExactlyZero())
+    if (mHeroList.empty())
     {
-        if (LLViewerJoystick::getInstance()->getOverrideCamera())
-        { // focus on point under cursor
-            focus_point.set(gDebugRaycastIntersection.getF32ptr());
-        }
-        else if (gAgentCamera.cameraMouselook())
-        { // focus on point under mouselook crosshairs
-            LLVector4a result;
-            result.clear();
-
-            gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, NULL, &result);
-
-            focus_point.set(result.getF32ptr());
-        }
-        else
-        {
-            // focus on alt-zoom target
-            LLViewerRegion* region = gAgent.getRegion();
-            if (region)
+        LLVector3 focus_point;
+        
+        LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
+        if (obj && obj->mDrawable && obj->isSelected())
+        { // focus on selected media object
+            S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
+            if (obj && obj->mDrawable)
             {
-                focus_point = LLVector3(gAgentCamera.getFocusGlobal() - region->getOriginGlobal());
+                LLFace* face = obj->mDrawable->getFace(face_idx);
+                if (face)
+                {
+                    focus_point = face->getPositionAgent();
+                }
+            }
+        }
+        
+        if (focus_point.isExactlyZero())
+        {
+            if (LLViewerJoystick::getInstance()->getOverrideCamera())
+            { // focus on point under cursor
+                focus_point.set(gDebugRaycastIntersection.getF32ptr());
+            }
+            else if (gAgentCamera.cameraMouselook())
+            { // focus on point under mouselook crosshairs
+                LLVector4a result;
+                result.clear();
+                
+                gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, NULL, &result);
+                
+                focus_point.set(result.getF32ptr());
+            }
+            else
+            {
+                // focus on alt-zoom target
+                LLViewerRegion* region = gAgent.getRegion();
+                if (region)
+                {
+                    focus_point = LLVector3(gAgentCamera.getFocusGlobal() - region->getOriginGlobal());
+                }
+            }
+        }
+        
+        probe_pos.load3(((focus_point)).mV);
+    }
+    else
+    {
+        // Get the nearest hero.
+        float distance = F32_MAX;
+        
+        for (auto drawable : mHeroList)
+        {
+            if (drawable.notNull())
+            {
+                if (drawable->mDistanceWRTCamera < distance)
+                {
+                    probe_pos.load3(drawable->mXform.getPosition().mV);
+                }
             }
         }
     }
     
-    probe_pos.load3(((focus_point + camera_pos) / 2).mV);
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
 
@@ -464,7 +482,7 @@ void LLHeroProbeManager::initReflectionMaps()
         
         mDefaultProbe->mCubeIndex = 0;
         mDefaultProbe->mCubeArray = mTexture;
-        mDefaultProbe->mDistance = 64.f;
+        mDefaultProbe->mDistance = 12.f;
         mDefaultProbe->mRadius = 4096.f;
         mDefaultProbe->mProbeIndex = 0;
         touch_default_probe(mDefaultProbe);
@@ -536,6 +554,7 @@ void LLHeroProbeManager::registerHeroDrawable(LLDrawable* drawablep)
     if (mHeroList.find(drawablep) == mHeroList.end())
     {
         mHeroList.insert(drawablep);
+        LL_INFOS() << "Added hero drawable." << LL_ENDL;
     }
 }
 

@@ -139,7 +139,6 @@ protected:
 	void			sendShiny(U32 shininess);			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
 
-    void            sendMirror();
 	void			sendGlow();
     void            alignTestureLayer();
 
@@ -229,7 +228,6 @@ protected:
 	static void		onCommitShiny(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMirror(LLUICtrl* ctrl, void* userdata);
 	static void     onCommitGlow(				LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);

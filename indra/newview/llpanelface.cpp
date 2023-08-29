@@ -596,17 +596,6 @@ void LLPanelFace::sendFullbright()
 	LLSelectMgr::getInstance()->selectionSetFullbright( fullbright );
 }
 
-void LLPanelFace::sendMirror()
-{
-    LLCheckBoxCtrl* mCheckMirror = getChild<LLCheckBoxCtrl>("checkbox mirror");
-    
-    if (!mCheckMirror)
-        return;
-    
-    LLTextureEntry::eRenderableTarget target = mCheckMirror->get() ? LLTextureEntry::RT_MIRROR : LLTextureEntry::RT_DISABLED;
-    LLSelectMgr::getInstance()->selectionSetRenderableTarget(target);
-}
-
 void LLPanelFace::sendColor()
 {
 	
@@ -3005,12 +2994,6 @@ void LLPanelFace::onCommitFullbright(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->sendFullbright();
-}
-
-void LLPanelFace::onCommitMirror(LLUICtrl* ctrl, void* userdata)
-{
-    LLPanelFace* self = (LLPanelFace*) userdata;
-    self->sendMirror();
 }
 
 // static

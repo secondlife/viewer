@@ -504,16 +504,6 @@ S32 LLTextureEntry::setFullbright(U8 fullbright)
 	return TEM_CHANGE_NONE;
 }
 
-S32 LLTextureEntry::setRenderableTarget(eRenderableTarget target)
-{
-    if (getRenderableTarget() != target) {
-        mRenderableTarget = target;
-        return TEM_CHANGE_TEXTURE;
-    }
-    
-    return TEM_CHANGE_NONE;
-}
-
 S32 LLTextureEntry::setShiny(U8 shiny)
 {
 	shiny &= TEM_SHINY_MASK;

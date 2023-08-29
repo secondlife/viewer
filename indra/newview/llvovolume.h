@@ -209,7 +209,6 @@ public:
 	/*virtual*/ S32		setTEBumpmap(const U8 te, const U8 bump) override;
 	/*virtual*/ S32		setTEShiny(const U8 te, const U8 shiny) override;
 	/*virtual*/ S32		setTEFullbright(const U8 te, const U8 fullbright) override;
-    /*virtual*/ S32     setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget target) override;
 	/*virtual*/ S32		setTEBumpShinyFullbright(const U8 te, const U8 bump) override;
 	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags) override;
 	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow) override;
@@ -295,6 +294,10 @@ public:
 	F32 getLightRadius() const;
 	F32 getLightFalloff(const F32 fudge_factor = 1.f) const;
 	F32 getLightCutoff() const;
+    
+    // Mirrors
+    bool setIsMirror(BOOL is_mirror);
+    void updateMirrorDrawable();
 
     // Reflection Probes
     bool setIsReflectionProbe(BOOL is_probe);

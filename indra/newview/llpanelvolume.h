@@ -58,6 +58,7 @@ public:
 
 	void			sendIsLight();
     
+    void            sendIsMirror();
     // when an object is becoming a refleciton probe, present a dialog asking for confirmation
     // otherwise, send the reflection probe update immediately
     void            sendIsReflectionProbe();
@@ -71,6 +72,7 @@ public:
 	
 	static void 	onCommitIsLight(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
+    static void     onCommitIsMirror(       LLUICtrl* ctrl, void* userdata);
     static void 	onCommitIsReflectionProbe(LLUICtrl* ctrl, void* userdata);
     static void     onCommitProbe(LLUICtrl* ctrl, void* userdata);
 	void 			onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);

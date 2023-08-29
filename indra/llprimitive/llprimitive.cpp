@@ -404,11 +404,6 @@ S32  LLPrimitive::setTEFullbright(const U8 index, const U8 fullbright)
 	return mTextureList.setFullbright(index, fullbright);
 }
 
-S32 LLPrimitive::setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget target)
-{
-    return mTextureList.setRenderableTarget(te, target);
-}
-
 S32  LLPrimitive::setTEMediaFlags(const U8 index, const U8 media_flags)
 {
 	return mTextureList.setMediaFlags(index, media_flags);
@@ -1822,6 +1817,40 @@ bool LLLightParams::fromLLSD(LLSD& sd)
 	return true;
  fail:
 	return false;
+}
+
+//============================================================================
+
+//============================================================================
+
+LLMirrorParams::LLMirrorParams()
+{
+    mType = PARAMS_MIRROR;
+}
+
+BOOL LLMirrorParams::pack(LLDataPacker &dp) const
+{
+    return TRUE;
+}
+
+BOOL LLMirrorParams::unpack(LLDataPacker &dp)
+{
+    return TRUE;
+}
+
+bool LLMirrorParams::operator==(const LLNetworkData& data) const
+{
+    if (data.mType != PARAMS_REFLECTION_PROBE)
+    {
+        return false;
+    }
+    return true;
+}
+
+void LLMirrorParams::copy(const LLNetworkData& data)
+{
+    const LLMirrorParams *param = (LLMirrorParams*)&data;
+    mType = param->mType;
 }
 
 //============================================================================

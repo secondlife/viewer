@@ -1045,7 +1045,10 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
         updateReflectionProbePtr();
     }
     
-    gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+    if (isMirror())
+    {
+        gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+    }
     
 	updateRadius();
 	bool force_update = true; // avoid non-alpha mDistance update being optimized away
@@ -2369,16 +2372,6 @@ S32 LLVOVolume::setTEFullbright(const U8 te, const U8 fullbright)
 	return  res;
 }
 
-S32 LLVOVolume::setTERenderableTarget(const U8 te, const LLTextureEntry::eRenderableTarget mirror)
-{
-    S32 res = LLViewerObject::setTERenderableTarget(te, mirror);
-    if (res)
-    {
-        //gPipeline.markMirror(mDrawable);
-    }
-    return res;
-}
-
 S32 LLVOVolume::setTEBumpShinyFullbright(const U8 te, const U8 bump)
 {
 	S32 res = LLViewerObject::setTEBumpShinyFullbright(te, bump);
@@ -3379,28 +3372,41 @@ F32 LLVOVolume::getLightCutoff() const
 	}
 }
 
-BOOL LLVOVolume::isMirror() const
+bool LLVOVolume::setIsMirror(BOOL is_mirror)
 {
-    S32 faceCount = getNumFaces();
-    
-    // Temporary hack to set the object to mirror.
-    for (int i = 0; i < faceCount; i++)
+    BOOL was_mirror = isMirror();
+    if (is_mirror != was_mirror)
     {
-        const LLTextureEntry* te = getTE(i);
-        
-        if (te->getMaterialParams().notNull())
+        if (is_mirror)
         {
-            LLViewerTexture* specularp = getTESpecularMap(0);
-            
-            if (specularp && specularp->getID() == "da7ecda1-e780-423f-ce27-26df7dc69cb6")
-            {
-                LL_INFOS() << "BELLADONNA OF SADNESS" << LL_ENDL;
-                return TRUE;
-            }
+            setParameterEntryInUse(LLNetworkData::PARAMS_MIRROR, TRUE, true);
+        }
+        else
+        {
+            setParameterEntryInUse(LLNetworkData::PARAMS_MIRROR, FALSE, true);
         }
     }
     
-    return FALSE;
+    updateMirrorDrawable();
+    
+    return was_mirror != is_mirror;
+}
+
+void LLVOVolume::updateMirrorDrawable()
+{
+    if (isMirror())
+    {
+        gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+    }
+    else
+    {
+        gPipeline.mHeroProbeManager.unregisterHeroDrawable(mDrawable);
+    }
+}
+
+BOOL LLVOVolume::isMirror() const
+{
+    return getParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE);
 }
 
 BOOL LLVOVolume::isReflectionProbe() const
