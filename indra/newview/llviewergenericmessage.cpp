@@ -32,9 +32,10 @@
 #include "lldispatcher.h"
 #include "lluuid.h"
 #include "message.h"
+#include "llgenericstreamingmessage.h"
 
 #include "llagent.h"
-
+#include "llgltfmateriallist.h"
 
 LLDispatcher gGenericDispatcher;
 
@@ -90,6 +91,21 @@ void process_generic_message(LLMessageSystem* msg, void**)
 		LL_WARNS() << "GenericMessage " << request << " failed to dispatch" 
 			<< LL_ENDL;
 	}
+}
+
+void process_generic_streaming_message(LLMessageSystem* msg, void**)
+{
+    LLGenericStreamingMessage data;
+    data.unpack(msg);
+    switch (data.mMethod)
+    {
+    case LLGenericStreamingMessage::METHOD_GLTF_MATERIAL_OVERRIDE:
+        gGLTFMaterialList.applyOverrideMessage(msg, data.mData);
+        break;
+    default:
+        LL_WARNS() << "GenericStreamingMessage received unknown method: " << data.mMethod << LL_ENDL;
+        break;
+    }
 }
 
 void process_large_generic_message(LLMessageSystem* msg, void**)

@@ -48,7 +48,7 @@ public:
 
     LLUUID mObjectId;
     U32    mLocalId = 0;
-    std::unordered_map<S32, std::string> mSides; //json per side
+    std::unordered_map<S32, LLSD> mSides; //override LLSD per side
     std::unordered_map<S32, LLPointer<LLGLTFMaterial> > mGLTFMaterial; //GLTF material per side
     U64 mRegionHandle = 0;
 };
