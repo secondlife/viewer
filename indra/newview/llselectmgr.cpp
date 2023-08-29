@@ -1773,14 +1773,16 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 	}
 }
 
-void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
+bool LLObjectSelection::applyRestrictedPbrMaterialToTEs(LLViewerInventoryItem* item)
 {
     if (!item)
     {
-        return;
+        return false;
     }
 
     LLUUID asset_id = item->getAssetUUID();
+
+    bool material_copied_all_faces = true;
 
     for (iterator iter = begin(); iter != end(); ++iter)
     {
@@ -1797,12 +1799,17 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
         {
             if (node->isTESelected(te))
             {
-                //(no-copy) materials must be moved to the object's inventory only once
+                //(no-copy), (no-modify), and (no-transfer) materials must be moved to the object's inventory only once
                 // without making any copies
                 if (!material_copied && asset_id.notNull())
                 {
-                    LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
-                    material_copied = true;
+                    material_copied = (bool)LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+                }
+                if (!material_copied)
+                {
+                    // Applying the material is not possible for this object given the current inventory
+					material_copied_all_faces = false;
+                    break;
                 }
 
                 // apply texture for the selected faces
@@ -1814,6 +1821,8 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
     }
 
     LLGLTFMaterialList::flushUpdates();
+
+    return material_copied_all_faces;
 }
 
 
@@ -1924,6 +1933,8 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
     {
         LLViewerInventoryItem* mItem;
         LLUUID mMatId;
+        bool material_copied_any_face = false;
+        bool material_copied_all_faces = true;
         f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mMatId(id) {}
         bool apply(LLViewerObject* objectp, S32 te)
         {
@@ -1950,14 +1961,19 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         }
     };
 
-    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    bool success = true;
+    if (item &&
+            (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()) ||
+             !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()) ||
+             !item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID())
+            ))
     {
-        getSelection()->applyNoCopyPbrMaterialToTEs(item);
+        success = success && getSelection()->applyRestrictedPbrMaterialToTEs(item);
     }
     else
     {
         f setfunc(item, mat_id);
-        getSelection()->applyToTEs(&setfunc);
+        success = success && getSelection()->applyToTEs(&setfunc);
     }
 
     struct g : public LLSelectedObjectFunctor
@@ -1986,11 +2002,11 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
             return true;
         }
     } sendfunc(item);
-    getSelection()->applyToObjects(&sendfunc);
+    success = success && getSelection()->applyToObjects(&sendfunc);
 
     LLGLTFMaterialList::flushUpdates();
 
-    return true;
+    return success;
 }
 
 //-----------------------------------------------------------------------------

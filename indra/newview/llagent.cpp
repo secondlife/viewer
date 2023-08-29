@@ -120,6 +120,11 @@ const F64 CHAT_AGE_FAST_RATE = 3.0;
 const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
+const S32 UI_FEATURE_VERSION = 1;
+// For version 1: 1 - inventory, 2 - gltf
+// Will need to change to 3 once either inventory or gltf releases and cause a conflict
+const S32 UI_FEATURE_FLAGS = 2;
+
 // The agent instance.
 LLAgent gAgent;
 
@@ -372,7 +377,7 @@ LLAgent::LLAgent() :
 	mHideGroupTitle(FALSE),
 	mGroupID(),
 
-	mInitialized(FALSE),
+	mInitialized(false),
 	mListener(),
 
 	mDoubleTapRunTimer(),
@@ -401,6 +406,7 @@ LLAgent::LLAgent() :
 	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	mTeleportState(TELEPORT_NONE),
 	mRegionp(NULL),
+    mInterestListMode(LLViewerRegion::IL_MODE_DEFAULT),
 
 	mAgentOriginGlobal(),
 	mPositionGlobal(),
@@ -447,7 +453,7 @@ LLAgent::LLAgent() :
 
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
-	mFirstLogin(FALSE),
+	mFirstLogin(false),
 	mOutfitChosen(FALSE),
 
 	mVoiceConnected(false),
@@ -504,7 +510,7 @@ void LLAgent::init()
 
 	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
 
-	mInitialized = TRUE;
+	mInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -559,6 +565,93 @@ void LLAgent::onAppFocusGained()
 	}
 }
 
+void LLAgent::setFirstLogin(bool b)
+{
+    mFirstLogin = b;
+
+    if (mFirstLogin)
+    {
+        // Don't notify new users about new features
+        if (getFeatureVersion() <= UI_FEATURE_VERSION)
+        {
+            setFeatureVersion(UI_FEATURE_VERSION, UI_FEATURE_FLAGS);
+        }
+    }
+}
+
+void LLAgent::setFeatureVersion(S32 version, S32 flags)
+{
+    LLSD updated_version;
+    updated_version["version"] = version;
+    updated_version["flags"] = flags;
+    gSavedSettings.setLLSD("LastUIFeatureVersion", updated_version);
+}
+
+S32 LLAgent::getFeatureVersion()
+{
+    S32 version;
+    S32 flags;
+    getFeatureVersionAndFlags(version, flags);
+    return version;
+}
+
+void LLAgent::getFeatureVersionAndFlags(S32& version, S32& flags)
+{
+    version = 0;
+    flags = 0;
+    LLSD feature_version = gSavedSettings.getLLSD("LastUIFeatureVersion");
+    if (feature_version.isInteger())
+    {
+        version = feature_version.asInteger();
+        flags = 1; // inventory flag
+    }
+    else if (feature_version.isMap())
+    {
+        version = feature_version["version"];
+        flags = feature_version["flags"];
+    }
+    else if (!feature_version.isString() && !feature_version.isUndefined())
+    {
+        // is something newer inside?
+        version = UI_FEATURE_VERSION;
+        flags = UI_FEATURE_FLAGS;
+    }
+}
+
+void LLAgent::showLatestFeatureNotification(const std::string key)
+{
+    S32 version;
+    S32 flags; // a single release can have multiple new features
+    getFeatureVersionAndFlags(version, flags);
+    if (version <= UI_FEATURE_VERSION && (flags & UI_FEATURE_FLAGS) != UI_FEATURE_FLAGS)
+    {
+        S32 flag = 0;
+
+        if (key == "inventory")
+        {
+            // Notify user about new thumbnail support
+            flag = 1;
+        }
+
+        if (key == "gltf")
+        {
+            flag = 2;
+        }
+
+        if ((flags & flag) == 0)
+        {
+            // Need to open on top even if called from onOpen,
+            // do on idle to make sure it's on top
+            LLSD floater_key(key);
+            doOnIdleOneTime([floater_key]()
+                            {
+                                LLFloaterReg::showInstance("new_feature_notification", floater_key);
+                            });
+
+            setFeatureVersion(UI_FEATURE_VERSION, flags | flag);
+        }
+    }
+}
 
 void LLAgent::ageChat()
 {
@@ -894,11 +987,19 @@ boost::signals2::connection LLAgent::addParcelChangedCallback(parcel_changed_cal
 
 // static
 void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion *regionp)
-{
-    if (regionp && regionp->getRegionID() == region_id)
+{	// Changed regions and now have the region capabilities
+    if (regionp)
     {
-        regionp->requestSimulatorFeatures();
-        LLAppViewer::instance()->updateNameLookupUrl(regionp);
+        if (regionp->getRegionID() == region_id)
+        {
+            regionp->requestSimulatorFeatures();
+            LLAppViewer::instance()->updateNameLookupUrl(regionp);
+        }
+
+        if (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360)
+        {
+            gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
+        }
     }
 }
 
@@ -1358,26 +1459,21 @@ LLVector3 LLAgent::getReferenceUpVector()
 void LLAgent::pitch(F32 angle)
 {
 	// don't let user pitch if pointed almost all the way down or up
-	mFrameAgent.pitch(clampPitchToLimits(angle));
-}
 
-
-// Radians, positive is forward into ground
-//-----------------------------------------------------------------------------
-// clampPitchToLimits()
-//-----------------------------------------------------------------------------
-F32 LLAgent::clampPitchToLimits(F32 angle)
-{
 	// A dot B = mag(A) * mag(B) * cos(angle between A and B)
 	// so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
 	//                                  = A dot B for unit vectors
 
 	LLVector3 skyward = getReferenceUpVector();
 
-	const F32 look_down_limit = 179.f * DEG_TO_RAD;;
-	const F32 look_up_limit   =   1.f * DEG_TO_RAD;
+	// SL-19286 Avatar is upside down when viewed from below
+	// after left-clicking the mouse on the avatar and dragging down
+	//
+	// The issue is observed on angle below 10 degrees
+	const F32 look_down_limit = 179.f * DEG_TO_RAD;
+	const F32 look_up_limit   =  10.f * DEG_TO_RAD;
 
-	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
+	F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
 
 	// clamp pitch to limits
 	if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
@@ -1388,8 +1484,11 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 	{
 		angle = look_up_limit - angle_from_skyward;
 	}
-   
-    return angle;
+
+	if (fabs(angle) > 1e-4)
+	{
+		mFrameAgent.pitch(angle);
+	}
 }
 
 
@@ -2906,39 +3005,60 @@ void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferr
     handlePreferredMaturityResult(maturity);
 }
 
+// Using a new capability, tell the simulator that we want it to send everything
+// it knows about and not just what is in front of the camera, in its view
+// frustum. We need this feature so that the contents of the region that appears
+// in the 6 snapshots which we cannot see and is normally not "considered", is
+// also rendered. Typically, this is turned on when the 360 capture floater is
+// opened and turned off when it is closed.
+// Note: for this version, we do not have a way to determine when "everything"
+// has arrived and has been rendered so for now, the proposal is that users
+// will need to experiment with the low resolution version and wait for some
+// (hopefully) small period of time while the full contents resolves.
+// Pass in a flag to ask the simulator/interest list to "send everything" or
+// not (the default mode)
+void LLAgent::changeInterestListMode(const std::string &new_mode)
+{
+    if (new_mode != mInterestListMode)
+    {
+        mInterestListMode = new_mode;
+
+        // Change interest list mode for all regions.  If they are already set for the current mode,
+        // the setting will have no effect.
+        for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+             iter != LLWorld::getInstance()->getRegionList().end();
+             ++iter)
+        {
+            LLViewerRegion *regionp = *iter;
+            if (regionp && regionp->isAlive() && regionp->capabilitiesReceived())
+            {
+                regionp->setInterestListMode(mInterestListMode);
+            }
+        }
+    }
+	else
+	{
+		LL_DEBUGS("360Capture") << "Agent interest list mode is already set to " << mInterestListMode << LL_ENDL;
+	}
+}
+
 
 bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
-    if (!getRegion())
+    if (getRegion())
     {
-        return false;
+        return getRegion()->requestPostCapability(capName, postData, cbSuccess, cbFailure);
     }
-    std::string url = getRegion()->getCapability(capName);
-
-    if (url.empty())
-    {
-        LL_WARNS("Agent") << "Could not retrieve region capability \"" << capName << "\"" << LL_ENDL;
-        return false;
-    }
-
-    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, mHttpPolicy, postData, cbSuccess, cbFailure);
-    return true;
+	return false;
 }
 
 bool LLAgent::requestGetCapability(const std::string &capName, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
-    std::string url;
-
-    url = getRegionCapability(capName);
-
-    if (url.empty())
+    if (getRegion())
     {
-        LL_WARNS("Agent") << "Could not retrieve region capability \"" << capName << "\"" << LL_ENDL;
-        return false;
+        return getRegion()->requestGetCapability(capName, cbSuccess, cbFailure);
     }
-
-    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(url, mHttpPolicy, cbSuccess, cbFailure);
-    return true;
+    return false;
 }
 
 BOOL LLAgent::getAdminOverride() const	

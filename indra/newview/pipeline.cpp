@@ -2488,8 +2488,11 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		for (LLCullResult::sg_iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
-			group->doOcclusion(&camera);
-			group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
+            if (!group->isDead())
+            {
+                group->doOcclusion(&camera);
+                group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
+            }
 		}
 	
 		//apply occlusion culling to object cache tree
@@ -2934,6 +2937,10 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
+        if (group->isDead())
+        {
+            continue;
+        }
 		group->checkOcclusion();
 		if (sUseOcclusion > 1 && group->isOcclusionState(LLSpatialGroup::OCCLUDED))
 		{
@@ -2993,6 +3000,10 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
+        if (group->isDead())
+        {
+            continue;
+        }
 		group->checkOcclusion();
 		if (sUseOcclusion > 1 && group->isOcclusionState(LLSpatialGroup::OCCLUDED))
 		{
@@ -3152,7 +3163,12 @@ void forAllDrawables(LLCullResult::sg_iterator begin,
 {
 	for (LLCullResult::sg_iterator i = begin; i != end; ++i)
 	{
-		for (LLSpatialGroup::element_iter j = (*i)->getDataBegin(); j != (*i)->getDataEnd(); ++j)
+        LLSpatialGroup* group = *i;
+        if (group->isDead())
+        {
+            continue;
+        }
+		for (LLSpatialGroup::element_iter j = group->getDataBegin(); j != group->getDataEnd(); ++j)
 		{
 			if((*j)->hasDrawable())
 			{
@@ -3361,6 +3377,10 @@ void LLPipeline::postSort(LLCamera &camera)
         for (LLCullResult::sg_iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
         {
             LLSpatialGroup *group = *i;
+            if (group->isDead())
+            {
+                continue;
+            }
             if (!sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
             {
                 group->rebuildGeom();
@@ -3379,6 +3399,12 @@ void LLPipeline::postSort(LLCamera &camera)
     for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
     {
         LLSpatialGroup *group = *i;
+
+        if (group->isDead())
+        {
+            continue;
+        }
+
         if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
             (RenderAutoHideSurfaceAreaLimit > 0.f &&
              group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
@@ -6246,7 +6272,7 @@ LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start,
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_PARTICLE);
 		if (part && hasRenderType(part->mDrawableType))
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, local_end, TRUE, FALSE, TRUE, face_hit, &position, NULL, NULL, NULL);
+			LLDrawable* hit = part->lineSegmentIntersect(start, local_end, TRUE, FALSE, TRUE, FALSE, face_hit, &position, NULL, NULL, NULL);
 			if (hit)
 			{
 				drawable = hit;
@@ -6275,6 +6301,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 														bool pick_transparent,
 														bool pick_rigged,
                                                         bool pick_unselectable,
+                                                        bool pick_reflection_probe,
 														S32* face_hit,
 														LLVector4a* intersection,         // return the intersection point
 														LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -6308,7 +6335,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 				LLSpatialPartition* part = region->getSpatialPartition(j);
 				if (part && hasRenderType(part->mDrawableType))
 				{
-					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, face_hit, &position, tex_coord, normal, tangent);
+					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, face_hit, &position, tex_coord, normal, tangent);
 					if (hit)
 					{
 						drawable = hit;
@@ -6365,7 +6392,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 			LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_AVATAR);
 			if (part && hasRenderType(part->mDrawableType))
 			{
-				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, face_hit, &position, tex_coord, normal, tangent);
+				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, face_hit, &position, tex_coord, normal, tangent);
 				if (hit)
 				{
 					LLVector4a delta;
@@ -6453,7 +6480,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, c
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_HUD);
 		if (part)
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, FALSE, TRUE, face_hit, intersection, tex_coord, normal, tangent);
+			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, FALSE, TRUE, FALSE, face_hit, intersection, tex_coord, normal, tangent);
 			if (hit)
 			{
 				drawable = hit;
@@ -6515,6 +6542,25 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
 
     gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
+}
+
+void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
+{
+    assertInitialized();
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
+
+    if (rigged)
+    {
+        mSimplePool->pushRiggedGLTFBatches(type + 1, texture);
+    }
+    else
+    {
+        mSimplePool->pushGLTFBatches(type, texture);
+    }
+
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19
@@ -7169,7 +7215,7 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 					LLVector4a result;
 					result.clear();
 
-					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, NULL, &result);
+					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, TRUE, NULL, &result);
 
 					focus_point.set(result.getF32ptr());
 				}
@@ -8632,8 +8678,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LLRenderPass::PASS_NORMMAP,
         LLRenderPass::PASS_NORMMAP_EMISSIVE,
         LLRenderPass::PASS_NORMSPEC,
-        LLRenderPass::PASS_NORMSPEC_EMISSIVE,
-        LLRenderPass::PASS_GLTF_PBR
+        LLRenderPass::PASS_NORMSPEC_EMISSIVE
     };
 
     LLGLEnable cull(GL_CULL_FACE);
@@ -8695,6 +8740,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         {
             renderObjects(type, false, false, rigged);
         }
+
+        renderGLTFObjects(LLRenderPass::PASS_GLTF_PBR, false, rigged);
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }

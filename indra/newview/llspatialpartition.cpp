@@ -235,6 +235,59 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 	return FALSE;
 }
 
+void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXformMatrix& currentTransform)
+{
+	// Get coordinates of the adding extents
+	const LLVector4a& min = addingExtents[0];
+	const LLVector4a& max = addingExtents[1];
+
+	// Get coordinates of all corners of the bounding box
+	LLVector3 corners[] =
+	{
+		LLVector3(min[0], min[1], min[2]),
+		LLVector3(min[0], min[1], max[2]),
+		LLVector3(min[0], max[1], min[2]),
+		LLVector3(min[0], max[1], max[2]),
+		LLVector3(max[0], min[1], min[2]),
+		LLVector3(max[0], min[1], max[2]),
+		LLVector3(max[0], max[1], min[2]),
+		LLVector3(max[0], max[1], max[2])
+	};
+
+	// New extents (to be expanded)
+	LLVector3 extents[] =
+	{
+		LLVector3(mExtents[0].getF32ptr()),
+		LLVector3(mExtents[1].getF32ptr())
+	};
+
+	LLQuaternion backwardRotation = ~currentTransform.getRotation();
+	for (LLVector3& corner : corners)
+	{
+		// Make coordinates relative to the current position
+		corner -= currentTransform.getPosition();
+		// Rotate coordinates backward to the current rotation
+		corner.rotVec(backwardRotation);
+		// Expand root extents on the current corner
+		for (int j = 0; j < 3; ++j)
+		{
+			if (corner[j] < extents[0][j])
+				extents[0][j] = corner[j];
+			if (corner[j] > extents[1][j])
+				extents[1][j] = corner[j];
+		}
+	}
+
+	// Set new expanded extents
+	mExtents[0].load3(extents[0].mV);
+	mExtents[1].load3(extents[1].mV);
+
+	// Calculate new center and size
+	mBounds[0].setAdd(mExtents[0], mExtents[1]);
+	mBounds[0].mul(0.5f);
+	mBounds[1].setSub(mExtents[0], mExtents[1]);
+	mBounds[1].mul(0.5f);
+}
 
 BOOL LLSpatialGroup::addObject(LLDrawable *drawablep)
 {
@@ -3507,8 +3560,9 @@ public:
 	BOOL mPickTransparent;
 	BOOL mPickRigged;
     BOOL mPickUnselectable;
+    BOOL mPickReflectionProbe;
 
-	LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable,
+	LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, BOOL pick_reflection_probe,
 					  S32* face_hit, LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 		: mStart(start),
 		  mEnd(end),
@@ -3520,7 +3574,8 @@ public:
 		  mHit(NULL),
 		  mPickTransparent(pick_transparent),
 		  mPickRigged(pick_rigged),
-          mPickUnselectable(pick_unselectable)
+          mPickUnselectable(pick_unselectable),
+          mPickReflectionProbe(pick_reflection_probe)
 	{
 	}
 	
@@ -3596,8 +3651,14 @@ public:
 		{
 			LLViewerObject* vobj = drawable->getVObj();
 
-			if (vobj)
+            if (vobj &&
+                (!vobj->isReflectionProbe() || mPickReflectionProbe))
 			{
+				if (vobj->getClickAction() == CLICK_ACTION_IGNORE && !LLFloater::isVisible(gFloaterTools))
+				{
+					return false;
+				}
+
 				LLVector4a intersection;
 				bool skip_check = false;
 				if (vobj->isAvatar())
@@ -3621,7 +3682,9 @@ public:
 					}
 				}
 
-				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mPickRigged, mPickUnselectable, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
+				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, 
+                    (mPickReflectionProbe && vobj->isReflectionProbe()) ? TRUE : mPickTransparent, // always pick transparent when picking selection probe
+                    mPickRigged, mPickUnselectable, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)
@@ -3642,6 +3705,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 													 BOOL pick_transparent,
 													 BOOL pick_rigged,
                                                      BOOL pick_unselectable,
+                                                     BOOL pick_reflection_probe,
 													 S32* face_hit,                   // return the face hit
 													 LLVector4a* intersection,         // return the intersection point
 													 LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -3650,7 +3714,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 	)
 
 {
-	LLOctreeIntersect intersect(start, end, pick_transparent, pick_rigged, pick_unselectable, face_hit, intersection, tex_coord, normal, tangent);
+	LLOctreeIntersect intersect(start, end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, face_hit, intersection, tex_coord, normal, tangent);
 	LLDrawable* drawable = intersect.check(mOctree);
 
 	return drawable;
@@ -3660,6 +3724,7 @@ LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const 
     BOOL pick_transparent,
     BOOL pick_rigged,
     BOOL pick_unselectable,
+    BOOL pick_reflection_probe,
     S32* face_hit,                   // return the face hit
     LLVector4a* intersection,         // return the intersection point
     LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -3668,7 +3733,7 @@ LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const 
 )
 
 {
-    LLOctreeIntersect intersect(start, end, pick_transparent, pick_rigged, pick_unselectable, face_hit, intersection, tex_coord, normal, tangent);
+    LLOctreeIntersect intersect(start, end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, face_hit, intersection, tex_coord, normal, tangent);
     LLDrawable* drawable = intersect.check(getOctreeNode());
 
     return drawable;

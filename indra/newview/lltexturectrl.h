@@ -357,6 +357,7 @@ public:
 protected:
     void refreshLocalList();
     void refreshInventoryFilter();
+    void setImageIDFromItem(const LLInventoryItem* itemp, bool set_selection = true);
 
 	LLPointer<LLViewerTexture> mTexturep;
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;

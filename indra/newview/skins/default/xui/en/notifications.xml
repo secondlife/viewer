@@ -9211,6 +9211,18 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
 
   <notification
    icon="alertmodal.tga"
+   name="LivePreviewUnavailablePBR"
+   type="alert">
+   
+We cannot display a preview of this material because it is no-copy, no-transfer, and/or no-modify.
+  <usetemplate
+    ignoretext="Warn me that Live Preview mode is not available for no-copy, no-transfer, and/or no-modify materials"
+    name="okignore"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="FacePasteFailed"
    type="alertmodal">
 Paste failed. [REASON]
@@ -12122,9 +12134,8 @@ Would you like to save them first?
   <notification
     icon="notifytip.tga"
     name="AutoAdjustHDRSky"
-    persist="true"
     type="alertmodal">
-      You are editing a non-HDR sky that has been automatically converted to HDR.  To remove HDR and tone mapping, set Reflection Probe Ambiance to zero.
+      You are editing a non-HDR sky that has been automatically converted to HDR. To remove HDR and tone mapping, set Reflection Probe Ambiance to zero.
     <usetemplate
         ignoretext="HDR Sky adjustment warning"
         name="okignore"

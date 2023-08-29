@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<contents>
+	<rows name="camera_actions" value="">
+		<columns label="カメラ" name="lst_action"/>
+	</rows>
+	<rows name="look_up" value="look_up">
+		<columns name="lst_action" value="上に向ける"/>
+	</rows>
+	<rows name="look_down" value="look_down">
+		<columns name="lst_action" value="下に向ける"/>
+	</rows>
+	<rows name="move_forward" value="move_forward">
+		<columns name="lst_action" value="カメラを近づける"/>
+	</rows>
+	<rows name="move_backward" value="move_backward">
+		<columns name="lst_action" value="カメラを遠ざける"/>
+	</rows>
+	<rows name="move_forward_fast" value="move_forward_fast">
+		<columns name="lst_action" value="カメラを高速に近づける"/>
+	</rows>
+	<rows name="move_backward_fast" value="move_backward_fast">
+		<columns name="lst_action" value="カメラを高速に遠ざける"/>
+	</rows>
+	<rows name="spin_over" value="spin_over">
+		<columns name="lst_action" value="カメラの仰角を上げる"/>
+	</rows>
+	<rows name="spin_under" value="spin_under">
+		<columns name="lst_action" value="カメラの仰角を下げる"/>
+	</rows>
+	<rows name="pan_up" value="pan_up">
+		<columns name="lst_action" value="カメラの中心を上に移動"/>
+	</rows>
+	<rows name="pan_down" value="pan_down">
+		<columns name="lst_action" value="カメラの中心を下に移動"/>
+	</rows>
+	<rows name="pan_left" value="pan_left">
+		<columns name="lst_action" value="カメラの中心を左に移動"/>
+	</rows>
+	<rows name="pan_right" value="pan_right">
+		<columns name="lst_action" value="カメラの中心を右に移動"/>
+	</rows>
+	<rows name="pan_in" value="pan_in">
+		<columns name="lst_action" value="カメラの中心を拡大"/>
+	</rows>
+	<rows name="pan_out" value="pan_out">
+		<columns name="lst_action" value="カメラの中心を縮小"/>
+	</rows>
+	<rows name="spin_around_ccw" value="spin_around_ccw">
+		<columns name="lst_action" tool_tip="対象に対して、カメラを反時計回りに回します。" value="反時計回り"/>
+	</rows>
+	<rows name="spin_around_cw" value="spin_around_cw">
+		<columns name="lst_action" tool_tip="対象に対して、カメラをカメラを時計回りに回します。" value="時計回り"/>
+	</rows>
+	<rows name="move_forward_sitting" value="move_forward_sitting">
+		<columns name="lst_action" value="座ってカメラを近づける"/>
+	</rows>
+	<rows name="move_backward_sitting" value="move_backward_sitting">
+		<columns name="lst_action" value="座ってカメラを遠ざける"/>
+	</rows>
+	<rows name="spin_over_sitting" value="spin_over_sitting">
+		<columns name="lst_action" value="座ってカメラの仰角を上げる"/>
+	</rows>
+	<rows name="spin_under_sitting" value="spin_under_sitting">
+		<columns name="lst_action" value="座ってカメラの仰角を下げる"/>
+	</rows>
+	<rows name="spin_around_ccw_sitting" value="spin_around_ccw_sitting">
+		<columns name="lst_action" tool_tip="座った状態で対象に対して、カメラを反時計回りに回します。" value="座って反時計回り"/>
+	</rows>
+	<rows name="spin_around_cw_sitting" value="spin_around_cw_sitting">
+		<columns name="lst_action" tool_tip="座った状態で対象に対して、カメラを時計回りに回します。" value="座って時計回り"/>
+	</rows>
+</contents>

@@ -218,7 +218,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     forwardRender();
 
     // final pass, render to depth for depth of field effects
-    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs)
+    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
     { 
         //update depth buffer sampler
         simple_shader = fullbright_shader = &gDeferredFullbrightAlphaMaskProgram;
@@ -514,6 +514,7 @@ void LLDrawPoolAlpha::renderPbrEmissives(std::vector<LLDrawInfo*>& emissives)
     for (LLDrawInfo* draw : emissives)
     {
         llassert(draw->mGLTFMaterial);
+        LLGLDisable cull_face(draw->mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
         draw->mGLTFMaterial->bind(draw->mTexture);
         draw->mVertexBuffer->setBuffer();
         draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
@@ -569,6 +570,7 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
             lastMeshId = draw->mSkinInfo->mHash;
         }
 
+        LLGLDisable cull_face(draw->mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
         draw->mGLTFMaterial->bind(draw->mTexture);
         draw->mVertexBuffer->setBuffer();
         draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);

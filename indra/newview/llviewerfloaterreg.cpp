@@ -98,6 +98,7 @@
 #include "llfloatermyscripts.h"
 #include "llfloatermyenvironment.h"
 #include "llfloaternamedesc.h"
+#include "llfloaternewfeaturenotification.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloaternotificationstabbed.h"
 #include "llfloaterobjectweights.h"
@@ -229,6 +230,7 @@ public:
                 "avatar_picker",
                 "camera",
                 "camera_presets",
+                "change_item_thumbnail"
                 "classified",
                 "add_landmark",
                 "delete_pref_preset",
@@ -247,6 +249,7 @@ public:
                 "message_critical", // Modal!!! Login specific. If this is in use elsewhere, better to create a non modal variant
                 "message_tos", // Modal!!! Login specific.
                 "mute_object_by_name",
+                "new_feature_notification",
                 "publish_classified",
                 "save_pref_preset",
                 "save_camera_preset",
@@ -272,6 +275,7 @@ public:
 	bool handle(
         const LLSD& params,
         const LLSD& query_map,
+        const std::string& grid,
         LLMediaCtrl* web) override
 	{
 		if (params.size() != 1)
@@ -395,6 +399,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("moveview", "floater_moveview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMove>);
 	LLFloaterReg::add("mute_object_by_name", "floater_mute_object.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGetBlockedObjectName>);
 	LLFloaterReg::add("mini_map", "floater_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMap>);
+    LLFloaterReg::add("new_feature_notification", "floater_new_feature_notification.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNewFeatureNotification>);
 
 	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);
 	

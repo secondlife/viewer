@@ -664,9 +664,22 @@ bool idle_startup()
 #else
 				void* window_handle = NULL;
 #endif
-				bool init = gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle());
-				if(init)
+				if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
 				{
+					if (FALSE == gSavedSettings.getBOOL("UseMediaPluginsForStreamingAudio"))
+					{
+						LL_INFOS("AppInit") << "Using default impl to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(gAudiop->createDefaultStreamingAudioImpl());
+					}
+
+					// if the audio engine hasn't set up its own preferred handler for streaming audio
+					// then set up the generic streaming audio implementation which uses media plugins
+					if (NULL == gAudiop->getStreamingAudioImpl())
+					{
+						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
+					}
+
 					gAudiop->setMuted(TRUE);
 				}
 				else
@@ -674,16 +687,6 @@ bool idle_startup()
 					LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
 					delete gAudiop;
 					gAudiop = NULL;
-				}
-
-				if (gAudiop)
-				{
-					// if the audio engine hasn't set up its own preferred handler for streaming audio then set up the generic streaming audio implementation which uses media plugins
-					if (NULL == gAudiop->getStreamingAudioImpl())
-					{
-						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
-						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
-					}
 				}
 			}
 		}
@@ -3617,7 +3620,7 @@ bool process_login_success_response()
 		std::string flag = login_flags["ever_logged_in"];
 		if(!flag.empty())
 		{
-			gAgent.setFirstLogin((flag == "N") ? TRUE : FALSE);
+			gAgent.setFirstLogin(flag == "N");
 		}
 
 		/*  Flag is currently ignored by the viewer.
@@ -3708,7 +3711,7 @@ bool process_login_success_response()
 	std::string fake_initial_outfit_name = gSavedSettings.getString("FakeInitialOutfitName");
 	if (!fake_initial_outfit_name.empty())
 	{
-		gAgent.setFirstLogin(TRUE);
+		gAgent.setFirstLogin(true);
 		sInitialOutfit = fake_initial_outfit_name;
 		if (sInitialOutfitGender.empty())
 		{

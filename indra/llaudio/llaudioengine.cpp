@@ -204,7 +204,8 @@ std::string LLAudioEngine::getInternetStreamURL()
 {
 	if (mStreamingAudioImpl)
 		return mStreamingAudioImpl->getURL();
-	else return std::string();
+
+	return std::string();
 }
 
 
@@ -345,41 +346,42 @@ void LLAudioEngine::idle()
 			}
 			continue;
 		}
-		else
+
+		// Check to see if the current sound is done playing.
+		if (!channelp->isPlaying())
 		{
-			// Check to see if the current sound is done playing, or looped.
-			if (!channelp->isPlaying())
+			sourcep->mCurrentDatap = sourcep->mQueuedDatap;
+			sourcep->mQueuedDatap = NULL;
+
+			// Reset the timer so the source doesn't die.
+			sourcep->mAgeTimer.reset();
+
+			// Make sure we have the buffer set up if we just decoded the data
+			if (sourcep->mCurrentDatap)
+			{
+				updateBufferForData(sourcep->mCurrentDatap);
+			}
+
+			// Actually play the associated data.
+			sourcep->setupChannel();
+			channelp->updateBuffer();
+			sourcep->getChannel()->play();
+			continue;
+		}
+
+		// Check to see if the current sound is looped.
+		if (sourcep->isLoop())
+		{
+			// It's a loop, we need to check and see if we're done with it.
+			if (channelp->mLoopedThisFrame)
 			{
 				sourcep->mCurrentDatap = sourcep->mQueuedDatap;
 				sourcep->mQueuedDatap = NULL;
 
-				// Reset the timer so the source doesn't die.
-				sourcep->mAgeTimer.reset();
-
-				// Make sure we have the buffer set up if we just decoded the data
-				if (sourcep->mCurrentDatap)
-				{
-					updateBufferForData(sourcep->mCurrentDatap);
-				}
-
-				// Actually play the associated data.
+				// Actually, should do a time sync so if we're a loop master/slave
+				// we don't drift away.
 				sourcep->setupChannel();
-				channelp->updateBuffer();
 				sourcep->getChannel()->play();
-			}
-			else if (sourcep->isLoop())
-			{
-				// It's a loop, we need to check and see if we're done with it.
-				if (channelp->mLoopedThisFrame)
-				{
-					sourcep->mCurrentDatap = sourcep->mQueuedDatap;
-					sourcep->mQueuedDatap = NULL;
-
-					// Actually, should do a time sync so if we're a loop master/slave
-					// we don't drift away.
-					sourcep->setupChannel();
-					sourcep->getChannel()->play();
-				}
 			}
 		}
 	}
@@ -396,18 +398,11 @@ void LLAudioEngine::idle()
 	for (source_map::value_type& src_pair : mAllSources)
 	{
 		LLAudioSource *sourcep = src_pair.second;
-		if (sourcep->isMuted())
+		if (sourcep->isMuted() && sourcep->isSyncMaster() && sourcep->getPriority() > max_sm_priority)
 		{
-			continue;
-		}
-		if (sourcep->isSyncMaster())
-		{
-			if (sourcep->getPriority() > max_sm_priority)
-			{
-				sync_masterp = sourcep;
-				master_channelp = sync_masterp->getChannel();
-				max_sm_priority = sourcep->getPriority();
-			}
+			sync_masterp = sourcep;
+			master_channelp = sync_masterp->getChannel();
+			max_sm_priority = sourcep->getPriority();
 		}
 	}
 
@@ -737,7 +732,7 @@ F64 LLAudioEngine::mapWindVecToGain(LLVector3 wind_vec)
 	}
 
 	return (gain);
-} 
+}
 
 
 F64 LLAudioEngine::mapWindVecToPitch(LLVector3 wind_vec)
@@ -964,11 +959,10 @@ void LLAudioEngine::cleanupAudioSource(LLAudioSource *asp)
 	else
 	{
 		LL_DEBUGS("AudioEngine") << "Cleaning up audio sources for "<< asp->getID() <<LL_ENDL;
-	delete asp;
-	mAllSources.erase(iter);
+		delete asp;
+		mAllSources.erase(iter);
+	}
 }
-}
-
 
 bool LLAudioEngine::hasDecodedFile(const LLUUID &uuid)
 {
@@ -1687,19 +1681,18 @@ void LLAudioChannel::setSource(LLAudioSource *sourcep)
 	{
 		LL_DEBUGS("AudioEngine") << "( id: " << sourcep->getID() << ")" << LL_ENDL;
 
-	if (sourcep == mCurrentSourcep)
-	{
-		// Don't reallocate the channel, this will make FMOD goofy.
-		//LL_INFOS() << "Calling setSource with same source!" << LL_ENDL;
+		if (sourcep == mCurrentSourcep)
+		{
+			// Don't reallocate the channel, this will make FMOD goofy.
+			//LL_INFOS() << "Calling setSource with same source!" << LL_ENDL;
+		}
+
+		mCurrentSourcep = sourcep;
+
+		updateBuffer();
+		update3DPosition();
 	}
-
-	mCurrentSourcep = sourcep;
-
-	updateBuffer();
-	update3DPosition();
 }
-}
-
 
 bool LLAudioChannel::updateBuffer()
 {

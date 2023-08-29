@@ -1,2 +1,8 @@
-<?xml version="1.0" ?>
-<floater name="groups" title="記憶されたユーザー名"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="groups" title="記録済みのユーザ名">
+	<scroll_list name="user_list">
+		<scroll_list.columns name="user"/>
+	</scroll_list>
+	<button label="削除" label_selected="削除" name="forget"/>
+	<check_box height="20" label="このユーザー名のローカルデータも削除する" name="delete_data" tool_tip="削除対象：チャット履歴、最後のセッションのスクリーンショット、ブラウザのCookie、テレポート履歴、ツールバー設定など。一部のローカルファイルは、グリッド間で共有されます。"/>
+</floater>

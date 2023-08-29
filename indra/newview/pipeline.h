@@ -206,6 +206,7 @@ public:
 												bool pick_transparent,
 												bool pick_rigged,
                                                 bool pick_unselectable,
+                                                bool pick_reflection_probe,
 												S32* face_hit,                          // return the face hit
 												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -285,7 +286,8 @@ public:
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
-
+    void renderGLTFObjects(U32 type, bool texture = true, bool rigged = false);
+    
     void renderAlphaObjects(bool rigged = false);
 	void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
     void renderFullbrightMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);

@@ -50,6 +50,7 @@
 #include "lltextureview.h"
 #include "lltracker.h"
 #include "llviewercamera.h"
+#include "llviewernetwork.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llviewerregion.h"
@@ -1779,7 +1780,7 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 				// Invoke the event details floater if someone is clicking on an event.
 				LLSD params(LLSD::emptyArray());
 				params.append(event_id);
-				LLCommandDispatcher::dispatch("event", params, LLSD(), NULL, LLCommandHandler::NAV_TYPE_CLICKED, true);
+				LLCommandDispatcher::dispatch("event", params, LLSD(), LLGridManager::getInstance()->getGrid(), NULL, LLCommandHandler::NAV_TYPE_CLICKED, true);
 				break;
 			}
 		case MAP_ITEM_LAND_FOR_SALE:

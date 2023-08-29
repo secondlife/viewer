@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="performance" title="グラフィックの最適化">
+	<string name="fps_text" value="フレーム／秒"/>
+	<string name="max_text" value="（最大）"/>
+	<panel name="panel_top">
+		<panel name="fps_subpanel">
+			<text name="fps_value">
+				167
+			</text>
+			<text name="fps_lbl">
+				フレーム／秒
+			</text>
+			<text name="fps_desc1_lbl">
+				変更が完全に反映されるまで
+			</text>
+			<text name="fps_desc2_lbl">
+				５～１０秒程度かかります。
+			</text>
+		</panel>
+	</panel>
+	<panel name="panel_performance_main">
+		<panel name="autoadjustments_subpanel">
+			<text name="auto_adj_lbl">
+				自動調整設定（推奨）
+			</text>
+			<text name="auto_adj_desc">
+				求めているフレームレートになるように自動調整します。
+			</text>
+			<icon name="icon_arrow4"/>
+		</panel>
+		<panel name="settings_subpanel">
+			<text name="settings_lbl">
+				グラフィック設定
+			</text>
+			<text name="settings_desc">
+				距離、水面、照明などの設定を選択します。
+			</text>
+			<icon name="icon_arrow3"/>
+		</panel>
+		<panel name="nearby_subpanel">
+			<text name="avatars_nearby_lbl">
+				近隣のアバター
+			</text>
+			<text name="avatars_nearby_desc">
+				近くにいるアバターのうち、どのタイプのアバターを完全に表示するかを管理します。
+			</text>
+			<icon name="icon_arrow2"/>
+		</panel>
+		<panel name="complexity_subpanel">
+			<text name="complexity_lbl">
+				アバターの複雑度
+			</text>
+			<text name="complexity_info">
+				ＦＰＳが出ない場合は、アバターの複雑度を減らしてください。
+			</text>
+			<icon name="icon_arrow4"/>
+		</panel>
+		<panel name="huds_subpanel">
+			<text name="huds_lbl">
+				アクティブなＨＵＤ
+			</text>
+			<text name="huds_desc">
+				使用していないＨＵＤを外すと、速度が向上する可能性があります。
+			</text>
+			<icon name="icon_arrow4"/>
+		</panel>
+	</panel>
+	<panel filename="panel_performance_nearby.xml" name="panel_performance_nearby"/>
+	<panel filename="panel_performance_complexity.xml" name="panel_performance_complexity"/>
+	<panel filename="panel_performance_preferences.xml" name="panel_performance_preferences"/>
+	<panel filename="panel_performance_huds.xml" name="panel_performance_huds"/>
+	<panel filename="panel_performance_autoadjustments.xml" name="panel_performance_autoadjustments"/>
+</floater>

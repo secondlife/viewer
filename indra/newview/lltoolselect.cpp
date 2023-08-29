@@ -66,7 +66,9 @@ BOOL LLToolSelect::handleMouseDown(S32 x, S32 y, MASK mask)
 	// do immediate pick query
     BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
     BOOL pick_transparent = gSavedSettings.getBOOL("SelectInvisibleObjects");
-	mPick = gViewerWindow->pickImmediate(x, y, pick_transparent, pick_rigged);
+    BOOL pick_reflection_probe = gSavedSettings.getBOOL("SelectReflectionProbes");
+
+	mPick = gViewerWindow->pickImmediate(x, y, pick_transparent, pick_rigged, FALSE, TRUE, pick_reflection_probe);
 
 	// Pass mousedown to agent
 	LLTool::handleMouseDown(x, y, mask);

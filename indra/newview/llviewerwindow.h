@@ -94,6 +94,7 @@ public:
 		BOOL pick_transparent,
 		BOOL pick_rigged,
 		BOOL pick_particle,
+        BOOL pick_reflection_probe,
 		BOOL pick_surface_info,
 		BOOL pick_unselectable,
 		void (*pick_callback)(const LLPickInfo& pick_info));
@@ -130,6 +131,7 @@ public:
 	BOOL			mPickRigged;
 	BOOL			mPickParticle;
 	BOOL			mPickUnselectable;
+    BOOL            mPickReflectionProbe = FALSE;
 	void		    getSurfaceInfo();
 
 private:
@@ -406,8 +408,9 @@ public:
 								void (*callback)(const LLPickInfo& pick_info),
 								BOOL pick_transparent = FALSE,
 								BOOL pick_rigged = FALSE,
-								BOOL pick_unselectable = FALSE);
-	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_rigged = FALSE, BOOL pick_particle = FALSE, BOOL pick_unselectable = TRUE);
+								BOOL pick_unselectable = FALSE,
+                                BOOL pick_reflection_probes = FALSE);
+	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_rigged = FALSE, BOOL pick_particle = FALSE, BOOL pick_unselectable = TRUE, BOOL pick_reflection_probe = FALSE);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
 										   LLVector4a* intersection);
 
@@ -417,6 +420,7 @@ public:
 									BOOL pick_transparent = FALSE,
 									BOOL pick_rigged = FALSE,
                                     BOOL pick_unselectable = TRUE,
+                                    BOOL pick_reflection_probe = TRUE,
 									S32* face_hit = NULL,
 									LLVector4a *intersection = NULL,
 									LLVector2 *uv = NULL,

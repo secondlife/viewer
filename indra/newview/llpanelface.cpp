@@ -51,6 +51,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llfloatermediasettings.h"
 #include "llfloaterreg.h"
+#include "llfloatertools.h"
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmaterialeditor.h"
@@ -77,6 +78,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvovolume.h"
+#include "llvoinventorylistener.h"
 #include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexturelist.h"// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
@@ -488,6 +490,15 @@ LLPanelFace::LLPanelFace()
 LLPanelFace::~LLPanelFace()
 {
     unloadMedia();
+}
+
+void LLPanelFace::onVisibilityChange(BOOL new_visibility)
+{
+    if (new_visibility)
+    {
+        gAgent.showLatestFeatureNotification("gltf");
+    }
+    LLPanel::onVisibilityChange(new_visibility);
 }
 
 void LLPanelFace::draw()
@@ -991,7 +1002,8 @@ void LLPanelFace::getState()
 
 void LLPanelFace::updateUI(bool force_set_values /*false*/)
 { //set state of UI to match state of texture entry(ies)  (calls setEnabled, setValue, etc, but NOT setVisible)
-	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+	LLViewerObject* objectp = node ? node->getObject() : NULL;
 
 	if (objectp
 		&& objectp->getPCode() == LL_PCODE_VOLUME
@@ -1000,7 +1012,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
 
         bool has_pbr_material;
-        updateUIGLTF(objectp, has_pbr_material, force_set_values);
+        bool has_faces_without_pbr;
+        updateUIGLTF(objectp, has_pbr_material, has_faces_without_pbr, force_set_values);
 
         const bool has_material = !has_pbr_material;
 
@@ -1018,6 +1031,62 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             else
             {
                 mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+            }
+        }
+
+        // *NOTE: The "identical" variable is currently only used to decide if
+        // the texgen control should be tentative - this is not used by GLTF
+        // materials. -Cosmic;2022-11-09
+        bool identical         = true;  // true because it is anded below
+        bool identical_diffuse = false;
+        bool identical_norm    = false;
+        bool identical_spec    = false;
+
+        LLTextureCtrl *texture_ctrl      = getChild<LLTextureCtrl>("texture control");
+        LLTextureCtrl *shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
+        LLTextureCtrl *bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
+
+        LLUUID id;
+        LLUUID normmap_id;
+        LLUUID specmap_id;
+
+        LLSelectedTE::getTexId(id, identical_diffuse);
+        LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
+        LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
+
+        static S32 selected_te = -1;
+        if ((LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()) && 
+            !LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected()) 
+        {
+            S32 new_selection = -1; // Don't use getLastSelectedTE, it could have been deselected
+            S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+            for (S32 te = 0; te < num_tes; ++te)
+            {
+                if (node->isTESelected(te))
+                {
+                    new_selection = te;
+                    break;
+                }
+            }
+
+            if (new_selection != selected_te)
+            {
+                bool te_has_media = objectp->getTE(new_selection) && objectp->getTE(new_selection)->hasMedia();
+                bool te_has_pbr = objectp->getRenderMaterialID(new_selection).notNull();
+
+                if (te_has_pbr && !((mComboMatMedia->getCurrentIndex() == MATMEDIA_MEDIA) && te_has_media))
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_PBR);
+                }
+                else if (te_has_media) 
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_MEDIA);
+                }
+                else if (id.notNull() || normmap_id.notNull() || specmap_id.notNull()) 
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+                }
+                selected_te = new_selection;
             }
         }
 
@@ -1042,24 +1111,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
 
-		updateVisibility();
+		updateVisibility(objectp);
 
-        // *NOTE: The "identical" variable is currently only used to decide if
-        // the texgen control should be tentative - this is not used by GLTF
-        // materials. -Cosmic;2022-11-09
-		bool identical			= true;	// true because it is anded below
-        bool identical_diffuse	= false;
-        bool identical_norm		= false;
-        bool identical_spec		= false;
-
-		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
-		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
-		LLTextureCtrl*	bumpytexture_ctrl = getChild<LLTextureCtrl>("bumpytexture control");
-		
-		LLUUID id;
-		LLUUID normmap_id;
-		LLUUID specmap_id;
-		
 		// Color swatch
 		{
 			getChildView("color label")->setEnabled(editable);
@@ -1089,9 +1142,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
 		getChildView("ColorTrans")->setEnabled(editable && has_material);
 
-		// Specular map
-		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
-		
 		U8 shiny = 0;
 		bool identical_shiny = false;
 
@@ -1157,11 +1207,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		// Texture
 		{
-			LLSelectedTE::getTexId(id,identical_diffuse);
-
-			// Normal map
-			LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
-
 			mIsAlpha = FALSE;
 			LLGLenum image_format = GL_RGB;
 			bool identical_image_format = false;
@@ -1536,7 +1581,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("checkbox fullbright")->setValue((S32)(fullbright_flag != 0));
 			getChildView("checkbox fullbright")->setEnabled(editable && !has_pbr_material);
 			getChild<LLUICtrl>("checkbox fullbright")->setTentative(!identical_fullbright);
-            getChild<LLComboBox>("combobox matmedia")->setEnabledByValue("Materials", !has_pbr_material);
+            mComboMatMedia->setEnabledByValue("Materials", !has_pbr_material);
 		}
 		
 		// Repeats per meter
@@ -1801,36 +1846,87 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
-void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool force_set_values)
+// One-off listener that updates the build floater UI when the prim inventory updates
+class PBRPickerItemListener : public LLVOInventoryListener
+{
+protected:
+    LLViewerObject* mObjectp;
+    bool mChangePending = true;
+public:
+
+    PBRPickerItemListener(LLViewerObject* object)
+    : mObjectp(object)
+    {
+        registerVOInventoryListener(mObjectp, nullptr);
+    }
+
+    const bool isListeningFor(const LLViewerObject* objectp) const
+    {
+        return mChangePending && (objectp == mObjectp);
+    }
+
+    void inventoryChanged(LLViewerObject* object,
+        LLInventoryObject::object_list_t* inventory,
+        S32 serial_num,
+        void* user_data) override
+    {
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
+        removeVOInventoryListener();
+        mChangePending = false;
+    }
+
+    ~PBRPickerItemListener()
+    {
+        removeVOInventoryListener();
+        mChangePending = false;
+    }
+};
+
+void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool& has_faces_without_pbr, bool force_set_values)
 {
     has_pbr_material = false;
 
-    const bool editable = objectp->permModify() && !objectp->isPermanentEnforced();
     bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvailable();
+    bool identical_pbr = true;
+    const bool settable = has_pbr_capabilities && objectp->permModify() && !objectp->isPermanentEnforced();
+    const bool editable = LLMaterialEditor::canModifyObjectsMaterial();
+    const bool saveable = LLMaterialEditor::canSaveObjectsMaterial();
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
     if (pbr_ctrl)
     {
         LLUUID pbr_id;
-        bool identical_pbr;
-        LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr);
-
-        has_pbr_material = pbr_id.notNull();
+        LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
-        pbr_ctrl->setEnabled(editable && has_pbr_capabilities);
+        pbr_ctrl->setEnabled(settable);
         pbr_ctrl->setImageAssetID(pbr_id);
     }
 
-    getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
-    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && has_pbr_capabilities);
-    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && has_pbr_capabilities);
+    getChildView("pbr_from_inventory")->setEnabled(settable);
+    getChildView("edit_selected_pbr")->setEnabled(editable && !has_faces_without_pbr);
+    getChildView("save_selected_pbr")->setEnabled(saveable && identical_pbr);
+    if (objectp->isInventoryPending())
+    {
+        // Reuse the same listener when possible
+        if (!mInventoryListener || !mInventoryListener->isListeningFor(objectp))
+        {
+            mInventoryListener = std::make_unique<PBRPickerItemListener>(objectp);
+        }
+    }
+    else
+    {
+        mInventoryListener = nullptr;
+    }
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
     {
-        const bool new_state = has_pbr_capabilities && has_pbr_material;
+        const bool new_state = has_pbr_capabilities && has_pbr_material && !has_faces_without_pbr;
 
         LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
         LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
@@ -1850,9 +1946,10 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     }
 }
 
-void LLPanelFace::updateVisibilityGLTF()
+void LLPanelFace::updateVisibilityGLTF(LLViewerObject* objectp /*= nullptr */)
 {
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+    const bool inventory_pending = objectp && objectp->isInventoryPending();
 
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
     radio_pbr_type->setVisible(show_pbr);
@@ -1863,8 +1960,9 @@ void LLPanelFace::updateVisibilityGLTF()
     getChildView("pbr_control")->setVisible(show_pbr_render_material_id);
 
     getChildView("pbr_from_inventory")->setVisible(show_pbr_render_material_id);
-    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id);
-    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id);
+    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id && !inventory_pending);
+    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id && !inventory_pending);
+    getChildView("material_permissions_loading_label")->setVisible(show_pbr_render_material_id && inventory_pending);
 
     getChildView("gltfTextureScaleU")->setVisible(show_pbr);
     getChildView("gltfTextureScaleV")->setVisible(show_pbr);
@@ -2705,7 +2803,7 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	self->refreshMedia();
 }
 
-void LLPanelFace::updateVisibility()
+void LLPanelFace::updateVisibility(LLViewerObject* objectp /* = nullptr */)
 {
     LLRadioGroup* radio_mat_type = findChild<LLRadioGroup>("radio_material_type");
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
@@ -2796,7 +2894,7 @@ void LLPanelFace::updateVisibility()
     getChild<LLSpinCtrl>("rptctrl")->setVisible(show_material || show_media);
 
     // PBR controls
-    updateVisibilityGLTF();
+    updateVisibilityGLTF(objectp);
 }
 
 // static
@@ -3062,11 +3160,7 @@ void LLPanelFace::onSelectPbr(const LLSD& data)
         {
             id = pbr_ctrl->getImageAssetID();
         }
-        if (LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
-        {
-            LLSelectedTEMaterial::setMaterialID(this, id);
-        }
-        else
+        if (!LLSelectMgr::getInstance()->selectionSetGLTFMaterial(id))
         {
             refresh();
         }
@@ -4678,13 +4772,6 @@ void LLPanelFace::updateGLTFTextureTransform(float value, U32 pbr_type, std::fun
             edit(&new_transform);
         }
     });
-
-    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
-    if (node)
-    {
-        LLViewerObject* object = node->getObject();
-        sMaterialOverrideSelection.setObjectUpdatePending(object->getID(), node->getLastSelectedTE());
-    }
 }
 
 void LLPanelFace::setMaterialOverridesFromSelection()
@@ -4797,17 +4884,22 @@ bool LLPanelFace::Selection::update()
     return changed;
 }
 
-void LLPanelFace::Selection::setObjectUpdatePending(const LLUUID &object_id, S32 side)
-{
-    mPendingObjectID = object_id;
-    mPendingSide = side;
-}
-
 void LLPanelFace::Selection::onSelectedObjectUpdated(const LLUUID& object_id, S32 side)
 {
-    if (object_id == mSelectedObjectID && side == mSelectedSide)
+    if (object_id == mSelectedObjectID)
     {
-        mChanged = true;
+        if (side == mLastSelectedSide)
+        {
+            mChanged = true;
+        }
+        else if (mLastSelectedSide == -1) // if last selected face was deselected
+        {
+            LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+            if (node && node->isTESelected(side))
+            {
+                mChanged = true;
+            }
+        }
     }
 }
 
@@ -4820,8 +4912,9 @@ bool LLPanelFace::Selection::compareSelection()
     mNeedsSelectionCheck = false;
 
     const S32 old_object_count = mSelectedObjectCount;
+    const S32 old_te_count = mSelectedTECount;
     const LLUUID old_object_id = mSelectedObjectID;
-    const S32 old_side = mSelectedSide;
+    const S32 old_side = mLastSelectedSide;
 
     LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
     LLSelectNode* node = selection->getFirstNode();
@@ -4829,17 +4922,23 @@ bool LLPanelFace::Selection::compareSelection()
     {
         LLViewerObject* object = node->getObject();
         mSelectedObjectCount = selection->getObjectCount();
+        mSelectedTECount = selection->getTECount();
         mSelectedObjectID = object->getID();
-        mSelectedSide = node->getLastSelectedTE();
+        mLastSelectedSide = node->getLastSelectedTE();
     }
     else
     {
         mSelectedObjectCount = 0;
+        mSelectedTECount = 0;
         mSelectedObjectID = LLUUID::null;
-        mSelectedSide = -1;
+        mLastSelectedSide = -1;
     }
 
-    const bool selection_changed = old_object_count != mSelectedObjectCount || old_object_id != mSelectedObjectID || old_side != mSelectedSide;
+    const bool selection_changed =
+        old_object_count != mSelectedObjectCount
+        || old_te_count != mSelectedTECount
+        || old_object_id != mSelectedObjectID
+        || old_side != mLastSelectedSide;
     mChanged = mChanged || selection_changed;
     return selection_changed;
 }
@@ -4958,23 +5057,24 @@ void LLPanelFace::onPbrSelectionChanged(LLInventoryItem* itemp)
         LLSaleInfo sale_info;
         LLSelectMgr::instance().selectGetSaleInfo(sale_info);
 
-        bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this texture?
-        bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this texture?
-        bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply texture belong to the agent?
-        bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply texture not for sale?
+        bool can_copy = itemp->getPermissions().allowCopyBy(gAgentID); // do we have perm to copy this material?
+        bool can_transfer = itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID); // do we have perm to transfer this material?
+        bool can_modify = itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgentID); // do we have perm to transfer this material?
+        bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply material belong to the agent?
+        bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply material not for sale?
 
-        if (can_copy && can_transfer)
+        if (can_copy && can_transfer && can_modify)
         {
             pbr_ctrl->setCanApply(true, true);
             return;
         }
 
-        // if texture has (no-transfer) attribute it can be applied only for object which we own and is not for sale
+        // if material has (no-transfer) attribute it can be applied only for object which we own and is not for sale
         pbr_ctrl->setCanApply(false, can_transfer ? true : is_object_owner && not_for_sale);
 
         if (gSavedSettings.getBOOL("TextureLivePreview"))
         {
-            LLNotificationsUtil::add("LivePreviewUnavailable");
+            LLNotificationsUtil::add("LivePreviewUnavailablePBR");
         }
     }
 }
@@ -5058,16 +5158,75 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
 }
 
-void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical)
+void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical, bool& has_faces_with_pbr, bool& has_faces_without_pbr)
 {
-    struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
+    struct LLSelectedTEGetmatId : public LLSelectedTEFunctor
     {
-        LLUUID get(LLViewerObject* object, S32 te_index)
+        LLSelectedTEGetmatId()
+            : mHasFacesWithoutPBR(false)
+            , mHasFacesWithPBR(false)
+            , mIdenticalId(true)
+            , mIdenticalOverride(true)
+            , mInitialized(false)
+            , mMaterialOverride(LLGLTFMaterial::sDefault)
         {
-            return object->getRenderMaterialID(te_index);
         }
+        bool apply(LLViewerObject* object, S32 te_index) override
+        {
+            LLUUID pbr_id = object->getRenderMaterialID(te_index);
+            if (pbr_id.isNull())
+            {
+                mHasFacesWithoutPBR = true;
+            }
+            else
+            {
+                mHasFacesWithPBR = true;
+            }
+            if (mInitialized)
+            {
+                if (mPBRId != pbr_id)
+                {
+                    mIdenticalId = false;
+                }
+                
+                LLGLTFMaterial* te_override = object->getTE(te_index)->getGLTFMaterialOverride();
+                if (te_override)
+                {
+                    LLGLTFMaterial override = *te_override;
+                    override.sanitizeAssetMaterial();
+                    mIdenticalOverride &= (override == mMaterialOverride);
+                }
+                else
+                {
+                    mIdenticalOverride &= (mMaterialOverride == LLGLTFMaterial::sDefault);
+                }
+            }
+            else
+            {
+                mInitialized = true;
+                mPBRId = pbr_id;
+                LLGLTFMaterial* override = object->getTE(te_index)->getGLTFMaterialOverride();
+                if (override)
+                {
+                    mMaterialOverride = *override;
+                    mMaterialOverride.sanitizeAssetMaterial();
+                }
+            }
+            return true;
+        }
+        bool mHasFacesWithoutPBR;
+        bool mHasFacesWithPBR;
+        bool mIdenticalId;
+        bool mIdenticalOverride;
+        bool mInitialized;
+        LLGLTFMaterial mMaterialOverride;
+        LLUUID mPBRId;
     } func;
-    identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, id);
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    id = func.mPBRId;
+    identical = func.mIdenticalId && func.mIdenticalOverride;
+    has_faces_with_pbr = func.mHasFacesWithPBR;
+    has_faces_without_pbr = func.mHasFacesWithoutPBR;
 }
 
 void LLPanelFace::LLSelectedTEMaterial::getCurrent(LLMaterialPtr& material_ptr, bool& identical_material)
