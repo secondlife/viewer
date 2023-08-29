@@ -723,6 +723,14 @@ void LLFloaterEmojiPicker::closeFloater(bool app_quitting)
     }
 }
 
+// static
+std::list<llwchar>& LLFloaterEmojiPicker::getRecentlyUsed()
+{
+    loadState();
+    return sRecentlyUsed;
+}
+
+// static
 void LLFloaterEmojiPicker::onEmojiUsed(llwchar emoji)
 {
     // Update sRecentlyUsed
@@ -762,6 +770,7 @@ void LLFloaterEmojiPicker::onEmojiUsed(llwchar emoji)
         sFrequentlyUsed.push_back(std::make_pair(emoji, 1));
 }
 
+// static
 void LLFloaterEmojiPicker::loadState()
 {
     if (!sStateFileName.empty())
@@ -844,6 +853,7 @@ void LLFloaterEmojiPicker::loadState()
     }
 }
 
+// static
 void LLFloaterEmojiPicker::saveState()
 {
     if (sStateFileName.empty())
