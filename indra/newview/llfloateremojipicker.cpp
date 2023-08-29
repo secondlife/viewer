@@ -31,9 +31,9 @@
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llemojidictionary.h"
+#include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llkeyboard.h"
-#include "lllineeditor.h"
 #include "llscrollcontainer.h"
 #include "llscrollingpanellist.h"
 #include "llscrolllistctrl.h"
@@ -294,9 +294,9 @@ BOOL LLFloaterEmojiPicker::postBuild()
     mGroups = getChild<LLPanel>("Groups");
     mBadge = getChild<LLPanel>("Badge");
 
-    mFilter = getChild<LLLineEditor>("Filter");
-    mFilter->setKeystrokeCallback([this](LLLineEditor*, void*) { onSearchKeystroke(); }, NULL);
-    mFilter->setFont(LLViewerChat::getChatFont());
+    mFilter = getChild<LLFilterEditor>("Filter");
+    mFilter->setKeystrokeCallback([this](LLUICtrl*, const LLSD&) { onFilterChanged(); });
+    mFilter->setTextChangedCallback([this](LLUICtrl*, const LLSD&) { onFilterChanged(); });
     mFilter->setText(sFilterPattern);
 
     mEmojiScroll = getChild<LLScrollContainer>("EmojiGridContainer");
@@ -588,7 +588,7 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
     }
 }
 
-void LLFloaterEmojiPicker::onSearchKeystroke()
+void LLFloaterEmojiPicker::onFilterChanged()
 {
     sFilterPattern = mFilter->getText();
     fillEmojis();

@@ -60,7 +60,7 @@ private:
     void fillEmojis(bool fromResize = false);
 
     void onGroupButtonClick(LLUICtrl* ctrl);
-    void onSearchKeystroke();
+    void onFilterChanged();
     void onGridMouseEnter();
     void onGridMouseLeave();
     void onGroupButtonMouseEnter(LLUICtrl* ctrl);
@@ -81,7 +81,7 @@ private:
 
     class LLPanel* mGroups { nullptr };
     class LLPanel* mBadge { nullptr };
-    class LLLineEditor* mFilter { nullptr };
+    class LLFilterEditor* mFilter { nullptr };
     class LLScrollContainer* mEmojiScroll { nullptr };
     class LLScrollingPanelList* mEmojiGrid { nullptr };
     class LLEmojiPreviewPanel* mPreview { nullptr };

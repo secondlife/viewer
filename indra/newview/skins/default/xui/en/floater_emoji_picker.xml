@@ -12,19 +12,14 @@
     width="250">
   <floater.string name="title_for_recently_used" value="Recently used"/>
   <floater.string name="title_for_frequently_used" value="Frequently used"/>
-  <line_editor
+  <filter_editor
       name="Filter"
       label="Start typing to filter"
       layout="bottomleft"
       follows="bottom|left|right"
-      text_tentative_color="TextFgTentativeColor"
-      show_label_focused="true"
-      max_length_bytes="63"
-      text_pad_right="5"
-      text_pad_left="5"
       bottom="14"
       left="10"
-      height="29"
+      height="23"
       width="230" />
   <scroll_container
       name="EmojiGridContainer"
