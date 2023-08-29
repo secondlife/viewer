@@ -40,6 +40,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<bool>       autosize;
+		Optional<bool>       noscroll;
 		Optional<S32>        max_emoji,
 		                     padding;
 
@@ -50,6 +51,7 @@ public:
 
 protected:
 	LLPanelEmojiComplete(const LLPanelEmojiComplete::Params&);
+
 public:
 	virtual ~LLPanelEmojiComplete();
 
@@ -62,9 +64,13 @@ public:
 	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 public:
+	const LLWString& getEmojis() const { return mEmojis; }
 	size_t getEmojiCount() const { return mEmojis.size(); }
-	void   setEmojiHint(const std::string& hint);
+	void setEmojis(const LLWString& emojis);
+	void setEmojiHint(const std::string& hint);
+
 protected:
+	void LLPanelEmojiComplete::onEmojisChanged();
 	size_t posToIndex(S32 x, S32 y) const;
 	void select(size_t emoji_idx);
 	void selectNext();
@@ -76,13 +82,14 @@ protected:
 protected:
 	static constexpr auto npos = std::numeric_limits<size_t>::max();
 
-	bool            mAutoSize = false;
+	const bool      mAutoSize = false;
+	const bool      mNoScroll = false;
 	const LLFontGL* mFont;
 	U16             mEmojiWidth = 0;
-	size_t          mMaxVisible = 0;
-	S32             mPadding = 8;
+	const size_t    mMaxVisible = 0;
+	const S32       mPadding = 8;
 	LLRect          mRenderRect;
-	LLUIImagePtr	mSelectedImage;
+	const LLUIImagePtr mSelectedImage;
 
 	LLWString       mEmojis;
 	size_t          mVisibleEmojis = 0;
