@@ -714,6 +714,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             mTexture->bind(channel);
             gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
+            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, 1.f);
 
             U32 res = mMipChain[0].getWidth();
 

@@ -1045,7 +1045,7 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
         updateReflectionProbePtr();
     }
     
-    if (isMirror())
+    //if (isMirror())
     {
         gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
     }

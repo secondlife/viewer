@@ -104,68 +104,41 @@ void LLHeroProbeManager::update()
     llassert(mProbes[0] == mDefaultProbe);
     
     LLVector4a probe_pos;
-    
-    if (mHeroList.empty())
-    {
-        LLVector3 focus_point;
-        
-        LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
-        if (obj && obj->mDrawable && obj->isSelected())
-        { // focus on selected media object
-            S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
-            if (obj && obj->mDrawable)
-            {
-                LLFace* face = obj->mDrawable->getFace(face_idx);
-                if (face)
-                {
-                    focus_point = face->getPositionAgent();
-                }
-            }
-        }
-        
-        if (focus_point.isExactlyZero())
-        {
-            if (LLViewerJoystick::getInstance()->getOverrideCamera())
-            { // focus on point under cursor
-                focus_point.set(gDebugRaycastIntersection.getF32ptr());
-            }
-            else if (gAgentCamera.cameraMouselook())
-            { // focus on point under mouselook crosshairs
-                LLVector4a result;
-                result.clear();
-                
-                gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, NULL, &result);
-                
-                focus_point.set(result.getF32ptr());
-            }
-            else
-            {
-                // focus on alt-zoom target
-                LLViewerRegion* region = gAgent.getRegion();
-                if (region)
-                {
-                    focus_point = LLVector3(gAgentCamera.getFocusGlobal() - region->getOriginGlobal());
-                }
-            }
-        }
-        
-        probe_pos.load3(((focus_point)).mV);
-    }
-    else
+    LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
     {
         // Get the nearest hero.
         float distance = F32_MAX;
         
+        if (mNearestHero.notNull())
+        {
+            distance = mNearestHero->mDistanceWRTCamera;
+        }
+        
         for (auto drawable : mHeroList)
         {
-            if (drawable.notNull())
+            if (drawable.notNull() && drawable != mNearestHero)
             {
                 if (drawable->mDistanceWRTCamera < distance)
                 {
-                    probe_pos.load3(drawable->mXform.getPosition().mV);
+                    mIsInTransition = true;
+                    mNearestHero = drawable;
                 }
             }
         }
+    }
+    
+    if (mIsInTransition && mHeroProbeStrength > 0.f)
+    {
+        mHeroProbeStrength -= 0.05f;
+    }
+    else
+    {
+        if (mNearestHero.notNull())
+            probe_pos.set(mNearestHero->mXform.getPosition().mV[0], mNearestHero->mXform.getPosition().mV[1], camera_pos.mV[2]);
+        
+        
+        if (mHeroProbeStrength < 1.f)
+            mHeroProbeStrength += 0.05f;
     }
     
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
@@ -328,7 +301,8 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             mTexture->bind(channel);
             gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
-
+            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
+            
             U32 res = mMipChain[0].getWidth();
 
             for (int i = 0; i < mMipChain.size(); ++i)
@@ -554,7 +528,6 @@ void LLHeroProbeManager::registerHeroDrawable(LLDrawable* drawablep)
     if (mHeroList.find(drawablep) == mHeroList.end())
     {
         mHeroList.insert(drawablep);
-        LL_INFOS() << "Added hero drawable." << LL_ENDL;
     }
 }
 

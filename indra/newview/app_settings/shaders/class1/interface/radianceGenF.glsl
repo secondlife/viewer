@@ -38,6 +38,7 @@ in vec3 vary_dir;
 uniform float mipLevel;
 uniform int u_width; 
 uniform float max_probe_lod;
+uniform float probe_strength;
 
 
 // =============================================================================================================
@@ -163,5 +164,6 @@ void main()
 {		
 	vec3 N = normalize(vary_dir);
 	frag_color = max(prefilterEnvMap(N), vec4(0));
+    frag_color.a *= probe_strength;
 }
 // =============================================================================================================

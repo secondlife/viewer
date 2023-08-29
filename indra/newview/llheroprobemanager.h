@@ -117,15 +117,18 @@ private:
     U32 mReflectionProbeCount;
 
     // resolution of reflection probes
-    U32 mProbeResolution = 128;
+    U32 mProbeResolution = 1024;
     
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;
+    
+    F32 mHeroProbeStrength = 1.f;
+    bool mIsInTransition = false;
 
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
     
     LLDrawable::ordered_drawable_set_t  mHeroList;
-    LLDrawable*                         mNearestHero;
+    LLPointer<LLDrawable>               mNearestHero;
 };
 
