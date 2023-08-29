@@ -41,6 +41,7 @@ static LLDefaultChildRegistry::Register<LLPanelEmojiComplete> r("emoji_complete"
 
 LLPanelEmojiComplete::Params::Params()
 	: autosize("autosize")
+	, noscroll("noscroll")
 	, max_emoji("max_emoji")
 	, padding("padding")
 	, selected_image("selected_image")
@@ -50,6 +51,7 @@ LLPanelEmojiComplete::Params::Params()
 LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p)
 	: LLUICtrl(p)
 	, mAutoSize(p.autosize)
+	, mNoScroll(p.noscroll)
 	, mMaxVisible(p.max_emoji)
 	, mPadding(p.padding)
 	, mSelectedImage(p.selected_image)
@@ -152,7 +154,7 @@ BOOL LLPanelEmojiComplete::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLPanelEmojiComplete::onCommit()
 {
-	if (npos != mCurSelected)
+	if (mCurSelected < mEmojis.size())
 	{
 		LLWString wstr;
 		wstr.push_back(mEmojis.at(mCurSelected));
@@ -167,6 +169,14 @@ void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_paren
 	updateConstraints();
 }
 
+void LLPanelEmojiComplete::setEmojis(const LLWString& emojis)
+{
+	mEmojis = emojis;
+	mCurSelected = 0;
+
+	onEmojisChanged();
+}
+
 void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 {
 	llwchar curEmoji = (mCurSelected < mEmojis.size()) ? mEmojis.at(mCurSelected) : 0;
@@ -175,6 +185,11 @@ void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 	size_t curEmojiIdx = (curEmoji) ? mEmojis.find(curEmoji) : std::string::npos;
 	mCurSelected = (std::string::npos != curEmojiIdx) ? curEmojiIdx : 0;
 
+	onEmojisChanged();
+}
+
+void LLPanelEmojiComplete::onEmojisChanged()
+{
 	if (mAutoSize)
 	{
 		mVisibleEmojis = std::min(mEmojis.size(), mMaxVisible);
@@ -233,9 +248,13 @@ void LLPanelEmojiComplete::updateConstraints()
 void LLPanelEmojiComplete::updateScrollPos()
 {
 	const size_t cntEmoji = mEmojis.size();
-	if (0 == cntEmoji || cntEmoji < mVisibleEmojis || 0 == mCurSelected)
+	if (mNoScroll || 0 == cntEmoji || cntEmoji < mVisibleEmojis || 0 == mCurSelected)
 	{
 		mScrollPos = 0;
+		if (mCurSelected >= mVisibleEmojis)
+		{
+			mCurSelected = mVisibleEmojis ? mVisibleEmojis - 1 : 0;
+		}
 	}
 	else if (cntEmoji - 1 == mCurSelected)
 	{
@@ -273,11 +292,11 @@ BOOL LLFloaterEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_pare
 				handled = true;
 				break;
 		}
-
 	}
 
 	if (handled)
 		return TRUE;
+
 	return LLFloater::handleKey(key, mask, called_from_parent);
 }
 
