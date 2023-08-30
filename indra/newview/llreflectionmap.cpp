@@ -157,6 +157,9 @@ void LLReflectionMap::autoAdjustOrigin()
             }
 
             mRadius = llmax(sqrtf(r2.getF32()), 8.f);
+
+            // make sure near clip doesn't poke through ground
+            fp[2] = llmax(fp[2], height+mRadius*0.5f);
             
         }
     }
