@@ -2980,7 +2980,10 @@ void LLAppViewer::initStrings()
 	{
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
-		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+		LL_ERRS() << "Viewer failed to find localization and UI files"
+			<< " (strings_path_full = '" << strings_path_full << "')."
+			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
+			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 	}
 	LLTransUtil::parseStrings(strings_file, default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
