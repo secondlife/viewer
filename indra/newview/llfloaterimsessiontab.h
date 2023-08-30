@@ -147,6 +147,8 @@ protected:
 	std::string appendTime();
 	void assignResizeLimits();
 
+	void updateUsedEmojis(LLWString text);
+
 	S32  mFloaterExtraWidth;
 
 	bool mIsNearbyChat;

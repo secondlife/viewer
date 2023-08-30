@@ -591,6 +591,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			S32 channel = 0;
 			stripChannelNumber(text, &channel);
 			
+			updateUsedEmojis(text);
+
 			std::string utf8text = wstring_to_utf8str(text);
 			// Try to trigger a gesture, if not chat to a script.
 			std::string utf8_revised_text;

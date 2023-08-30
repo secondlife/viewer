@@ -669,7 +669,6 @@ void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
     {
         if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
         {
-            onEmojiUsed(icon->getEmoji());
             if (mEmojiPickCallback)
             {
                 mEmojiPickCallback(icon->getEmoji());
