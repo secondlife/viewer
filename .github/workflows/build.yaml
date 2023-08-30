@@ -267,7 +267,7 @@ jobs:
           path: artifacts
 
       - name: Show what we downloaded
-        run: ls -R
+        run: ls -R artifacts
 
       - name: Make output dir
         run: mkdir assets
