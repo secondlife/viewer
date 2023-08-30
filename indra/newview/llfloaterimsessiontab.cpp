@@ -38,6 +38,7 @@
 #include "llchiclet.h"
 #include "llchicletbar.h"
 #include "lldraghandle.h"
+#include "llemojidictionary.h"
 #include "llfloaterreg.h"
 #include "llfloateremojipicker.h"
 #include "llfloaterimsession.h"
@@ -513,7 +514,6 @@ void LLFloaterIMSessionTab::onRecentEmojiPicked(const LLSD& value)
 		if (wstr.size())
 		{
 			llwchar emoji = wstr[0];
-			LLFloaterEmojiPicker::onEmojiUsed(emoji);
 			onEmojiPicked(emoji);
 		}
 	}
@@ -574,6 +574,20 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD& args)
 			gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
 	mChatHistory->appendMessage(chat, chat_args);
+}
+
+void LLFloaterIMSessionTab::updateUsedEmojis(LLWString text)
+{
+	LLEmojiDictionary* dictionary = LLEmojiDictionary::getInstance();
+	llassert_always(dictionary);
+
+	for (llwchar& c : text)
+	{
+		if (dictionary->isEmoji(c))
+		{
+			LLFloaterEmojiPicker::onEmojiUsed(c);
+		}
+	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT("Build Conversation View");
