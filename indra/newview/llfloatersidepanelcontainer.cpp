@@ -67,14 +67,14 @@ void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
 		if (parent == this )
 		{
 			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
-			if ( panel_appearance )
+			if (panel_appearance)
 			{
 				LLPanelEditWearable *edit_wearable_ptr = panel_appearance->getWearable();
 				if (edit_wearable_ptr)
 				{
 					edit_wearable_ptr->onClose();
 				}
-				if(!app_quitting)
+				if (!app_quitting)
 				{
 					panel_appearance->showOutfitsInventoryPanel();
 				}
@@ -93,11 +93,16 @@ void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
 LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_name, const LLSD& params)
 {
 	LLView* view = findChildView(panel_name, true);
-	if (!view) return NULL;
+	if (!view)
+		return NULL;
 
 	if (!getVisible())
 	{
-	openFloater();
+		openFloater();
+	}
+	else if (!hasFocus())
+	{
+		setFocus(TRUE);
 	}
 
 	LLPanel* panel = NULL;
