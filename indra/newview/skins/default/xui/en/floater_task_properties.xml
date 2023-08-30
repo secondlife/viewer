@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="570"
+ height="590"
  layout="topleft"
  name="Task Properties"
  help_topic="item+properties"
@@ -17,7 +17,7 @@
    name="sidepanel"
    top="20"
    label=""
-   height="550"
+   height="570"
    visible="true"
    width="330">
  </panel>

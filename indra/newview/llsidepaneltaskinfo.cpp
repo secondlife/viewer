@@ -76,6 +76,7 @@ static LLPanelInjector<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
 // Default constructor
 LLSidepanelTaskInfo::LLSidepanelTaskInfo()
+    : mVisibleDebugPermissions(true) // space was allocated by default
 {
 	setMouseOpaque(FALSE);
 	LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLSidepanelTaskInfo::refreshAll, this));
@@ -147,12 +148,12 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mDALabelClickAction = getChildView("label click action");
 	mDAComboClickAction = getChild<LLComboBox>("clickaction");
 	mDAPathfindingAttributes = getChild<LLTextBase>("pathfinding_attributes_value");
-	mDAB = getChildView("B:");
-	mDAO = getChildView("O:");
-	mDAG = getChildView("G:");
-	mDAE = getChildView("E:");
-	mDAN = getChildView("N:");
-	mDAF = getChildView("F:");
+	mDAB = getChild<LLUICtrl>("B:");
+	mDAO = getChild<LLUICtrl>("O:");
+	mDAG = getChild<LLUICtrl>("G:");
+	mDAE = getChild<LLUICtrl>("E:");
+	mDAN = getChild<LLUICtrl>("N:");
+	mDAF = getChild<LLUICtrl>("F:");
 	
 	return TRUE;
 }
@@ -202,12 +203,22 @@ void LLSidepanelTaskInfo::disableAll()
 
 	disablePermissions();
 
-	mDAB->setVisible(FALSE);
-	mDAO->setVisible(FALSE);
-	mDAG->setVisible(FALSE);
-	mDAE->setVisible(FALSE);
-	mDAN->setVisible(FALSE);
-	mDAF->setVisible(FALSE);
+    if (mVisibleDebugPermissions)
+    {
+        mDAB->setVisible(FALSE);
+        mDAO->setVisible(FALSE);
+        mDAG->setVisible(FALSE);
+        mDAE->setVisible(FALSE);
+        mDAN->setVisible(FALSE);
+        mDAF->setVisible(FALSE);
+
+        LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+        LLRect parent_rect = parent_floater->getRect();
+        LLRect debug_rect = mDAB->getRect();
+        // use double the debug rect for padding (since it isn't trivial to extract top_pad)
+        parent_floater->reshape(parent_rect.getWidth(), parent_rect.getHeight() - (debug_rect.getHeight() * 2));
+        mVisibleDebugPermissions = false;
+    }
 
 	mOpenBtn->setEnabled(FALSE);
 	mPayBtn->setEnabled(FALSE);
@@ -609,23 +620,23 @@ void LLSidepanelTaskInfo::refresh()
 	
 	if (gSavedSettings.getBOOL("DebugPermissions") )
 	{
-		if (valid_base_perms)
-		{
-			getChild<LLUICtrl>("B:")->setValue("B: " + mask_to_string(base_mask_on));
-			getChildView("B:")->setVisible(							TRUE);
-			
-			getChild<LLUICtrl>("O:")->setValue("O: " + mask_to_string(owner_mask_on));
-			getChildView("O:")->setVisible(							TRUE);
-			
-			getChild<LLUICtrl>("G:")->setValue("G: " + mask_to_string(group_mask_on));
-			getChildView("G:")->setVisible(							TRUE);
-			
-			getChild<LLUICtrl>("E:")->setValue("E: " + mask_to_string(everyone_mask_on));
-			getChildView("E:")->setVisible(							TRUE);
-			
-			getChild<LLUICtrl>("N:")->setValue("N: " + mask_to_string(next_owner_mask_on));
-			getChildView("N:")->setVisible(							TRUE);
-		}
+        if (valid_base_perms)
+        {
+            mDAB->setValue("B: " + mask_to_string(base_mask_on));
+            mDAB->setVisible(							TRUE);
+
+            mDAO->setValue("O: " + mask_to_string(owner_mask_on));
+            mDAO->setVisible(							TRUE);
+
+            mDAG->setValue("G: " + mask_to_string(group_mask_on));
+            mDAG->setVisible(							TRUE);
+
+            mDAE->setValue("E: " + mask_to_string(everyone_mask_on));
+            mDAE->setVisible(							TRUE);
+
+            mDAN->setValue("N: " + mask_to_string(next_owner_mask_on));
+            mDAN->setVisible(							TRUE);
+        }
 
 		U32 flag_mask = 0x0;
 		if (objectp->permMove()) 		flag_mask |= PERM_MOVE;
@@ -633,18 +644,35 @@ void LLSidepanelTaskInfo::refresh()
 		if (objectp->permCopy()) 		flag_mask |= PERM_COPY;
 		if (objectp->permTransfer()) 	flag_mask |= PERM_TRANSFER;
 
-		getChild<LLUICtrl>("F:")->setValue("F:" + mask_to_string(flag_mask));
-		getChildView("F:")->setVisible(								TRUE);
-	}
-	else
-	{
-		getChildView("B:")->setVisible(								FALSE);
-		getChildView("O:")->setVisible(								FALSE);
-		getChildView("G:")->setVisible(								FALSE);
-		getChildView("E:")->setVisible(								FALSE);
-		getChildView("N:")->setVisible(								FALSE);
-		getChildView("F:")->setVisible(								FALSE);
-	}
+        mDAF->setValue("F:" + mask_to_string(flag_mask));
+        mDAF->setVisible(TRUE);
+
+        if (!mVisibleDebugPermissions)
+        {
+            LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+            LLRect parent_rect = parent_floater->getRect();
+            LLRect debug_rect = mDAB->getRect();
+            // use double the debug rect for padding (since it isn't trivial to extract top_pad)
+            parent_floater->reshape(parent_rect.getWidth(), parent_rect.getHeight() + (debug_rect.getHeight() * 2));
+            mVisibleDebugPermissions = true;
+        }
+    }
+    else if (mVisibleDebugPermissions)
+    {
+        mDAB->setVisible(FALSE);
+        mDAO->setVisible(FALSE);
+        mDAG->setVisible(FALSE);
+        mDAE->setVisible(FALSE);
+        mDAN->setVisible(FALSE);
+        mDAF->setVisible(FALSE);
+
+        LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+        LLRect parent_rect = parent_floater->getRect();
+        LLRect debug_rect = mDAB->getRect();
+        // use double the debug rect for padding (since it isn't trivial to extract top_pad)
+        parent_floater->reshape(parent_rect.getWidth(), parent_rect.getHeight() - (debug_rect.getHeight() * 2));
+        mVisibleDebugPermissions = false;
+    }
 
 	BOOL has_change_perm_ability = FALSE;
 	BOOL has_change_sale_ability = FALSE;
