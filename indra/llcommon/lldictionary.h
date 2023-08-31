@@ -87,7 +87,7 @@ protected:
 	}
 	void addEntry(Index index, Entry *entry)
 	{
-		if (!insert(value_type(index, entry)).second)
+		if (!this->emplace(index, entry).second) 
 		{
 			LL_ERRS() << "Dictionary entry already added (attempted to add duplicate entry)" << LL_ENDL;
 		}
