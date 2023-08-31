@@ -215,7 +215,7 @@ jobs:
       - name: Upload executable
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.build.outputs.artifact }}-exe
+          name: "${{ steps.build.outputs.artifact }}-exe"
           if: steps.build.outputs.viewer_exe
           path: ${{ steps.build.outputs.viewer_exe }}
 
