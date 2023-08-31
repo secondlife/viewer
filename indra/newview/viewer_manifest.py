@@ -480,6 +480,12 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+            # emit that as one of the GitHub step outputs
+            GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
+            if GITHUB_OUTPUT:
+                exepath = os.path.join(self.get_dst_prefix(), self.final_exe())
+                with open(GITHUB_OUTPUT, 'a') as outf:
+                    print(f'viewer_exe={exepath}', file=outf)
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list

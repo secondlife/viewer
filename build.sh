@@ -420,9 +420,11 @@ do
               if [ -r "$build_dir/newview/viewer_version.txt" ]
               then
                   begin_section "Viewer Version"
-                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$(<"$build_dir/newview/viewer_version.txt")" --mimetype inline-text \
+                  viewer_version="$(<"$build_dir/newview/viewer_version.txt")"
+                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$viewer_version" --mimetype inline-text \
                       || fatal "Upload of viewer version failed"
                   metadata+=("$build_dir/newview/viewer_version.txt")
+                  echo "viewer_version=$viewer_version" >> "$GITHUB_OUTPUT"
                   end_section "Viewer Version"
               fi
               ;;
@@ -599,14 +601,18 @@ then
 
       # Run upload extensions
       # Ex: bugsplat
-      if [ -d ${build_dir}/packages/upload-extensions ]; then
-          for extension in ${build_dir}/packages/upload-extensions/*.sh; do
-              begin_section "Upload Extension $extension"
-              . $extension
-              [ $? -eq 0 ] || fatal "Upload of extension $extension failed"
-              wait_for_codeticket
-              end_section "Upload Extension $extension"
-          done
+      ## SL-19243 HACK: testing separate GH upload job on Windows
+      if [[ "$arch" != "CYGWIN" ]]
+      then
+          if [ -d ${build_dir}/packages/upload-extensions ]; then
+              for extension in ${build_dir}/packages/upload-extensions/*.sh; do
+                  begin_section "Upload Extension $extension"
+                  . $extension
+                  [ $? -eq 0 ] || fatal "Upload of extension $extension failed"
+                  wait_for_codeticket
+                  end_section "Upload Extension $extension"
+              done
+          fi
       fi
     fi
     end_section "Uploads"

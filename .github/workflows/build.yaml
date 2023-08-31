@@ -19,9 +19,8 @@ jobs:
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     outputs:
-      # pass these from build job to release job
-      installer: ${{ steps.build.outputs.installer }}
-      metadata: ${{ steps.build.outputs.metadata }}
+      viewer_channel: ${{ steps.build.outputs.viewer_channel }}
+      viewer_version: ${{ steps.build.outputs.viewer_version }}
     env:
       AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
@@ -175,6 +174,7 @@ jobs:
                export viewer_channel="${viewer_channel//_/ }"
           else export viewer_channel="Second Life Test"
           fi
+          echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
 
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
@@ -207,24 +207,37 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.build.outputs.artifact }} installer"
+          name: "${{ steps.build.outputs.artifact }}-installer"
           # emitted by build.sh, possibly multiple lines
           path: |
             ${{ steps.build.outputs.installer }}
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ steps.build.outputs.artifact }}-exe
+          if: steps.build.outputs.viewer_exe
+          path: ${{ steps.build.outputs.viewer_exe }}
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.build.outputs.artifact }} symbols"
+          name: "${{ steps.build.outputs.artifact }}-symbols"
           path: |
             ${{ steps.build.outputs.symbolfile }}
 
       - name: Upload metadata
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.build.outputs.artifact }} metadata"
+          # Call this artifact just "Windows" or "macOS" because it's the only
+          # artifact in which we expect files from both platforms with
+          # colliding names (e.g. autobuild-package.xml). Our flatten_files.py
+          # (see release step) resolves collisions by prepending the artifact
+          # name, so when we anticipate collisions, it's good to keep the
+          # artifact name short and sweet.
+          name: "${{ steps.build.outputs.artifact }}"
           # emitted by build.sh, possibly multiple lines
           path: |
             ${{ steps.build.outputs.metadata }}
@@ -234,15 +247,28 @@ jobs:
         # should only be set for viewer-private
         if: steps.build.outputs.physicstpv
         with:
-          name: "${{ steps.build.outputs.artifact }} physics"
+          name: "${{ steps.build.outputs.artifact }}-physics"
           # emitted by build.sh, zero or one lines
           path: |
             ${{ steps.build.outputs.physicstpv }}
 
+  post-windows-symbols:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post windows symbols
+        uses: secondlife/viewer-post-bugsplat-windows
+        with:
+          username: ${{ secrets.BUGSPLAT_USER }}
+          password: ${{ secrets.BUGSPLAT_PASS }}
+          database: "SecondLife_Viewer_2018"
+          channel: ${{ needs.build.outputs.viewer_channel }}
+          version: ${{ needs.build.outputs.viewer_version }}
+
   release:
     needs: build
     runs-on: ubuntu-latest
-    ##if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -268,9 +294,6 @@ jobs:
 
       - name: Show what we downloaded
         run: ls -R artifacts
-
-      - name: Make output dir
-        run: mkdir assets
 
       - name: Reshuffle artifact files
         run: .github/workflows/flatten_files.py assets artifacts
