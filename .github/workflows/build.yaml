@@ -213,10 +213,10 @@ jobs:
             ${{ steps.build.outputs.installer }}
 
       - name: Upload executable
+        if: steps.build.outputs.viewer_exe
         uses: actions/upload-artifact@v3
         with:
           name: "${{ steps.build.outputs.artifact }}-exe"
-          if: steps.build.outputs.viewer_exe
           path: ${{ steps.build.outputs.viewer_exe }}
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
