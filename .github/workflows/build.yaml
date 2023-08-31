@@ -257,7 +257,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post windows symbols
-        uses: secondlife/viewer-post-bugsplat-windows
+        uses: secondlife/viewer-post-bugsplat-windows@main
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
