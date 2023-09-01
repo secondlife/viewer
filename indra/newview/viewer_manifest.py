@@ -1288,6 +1288,7 @@ class DarwinManifest(ViewerManifest):
                                                    'Keychains', 'viewer.keychain')
                     self.run_command(['security', 'unlock-keychain',
                                       '-p', keychain_pwd, viewer_keychain])
+                    sign_retries=3
                     sign_retry_wait=15
                     resources = app_in_dmg + "/Contents/Resources/"
                     plain_sign = glob.glob(resources + "llplugin/*.dylib")
@@ -1296,9 +1297,10 @@ class DarwinManifest(ViewerManifest):
                         resources + "SLPlugin.app/Contents/MacOS/SLPlugin",
                         app_in_dmg,
                         ]
-                    for attempt in range(3):
+                    for attempt in range(sign_retries):
                         if attempt: # second or subsequent iteration
-                            print("codesign failed, waiting {:d} seconds before retrying".format(sign_retry_wait),
+                            print(f"codesign attempt {attempt+1} failed, "
+                                  f"waiting {sign_retry_wait:d} seconds before retrying",
                                   file=sys.stderr)
                             time.sleep(sign_retry_wait)
                             sign_retry_wait*=2
@@ -1329,18 +1331,37 @@ class DarwinManifest(ViewerManifest):
                             # 'err' goes out of scope
                             sign_failed = err
                     else:
-                        print("Maximum codesign attempts exceeded; giving up", file=sys.stderr)
+                        print(f"{sign_retries} codesign attempts failed; giving up",
+                              file=sys.stderr)
                         raise sign_failed
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
-                    self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
+                    self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"),
+                                      app_in_dmg])
 
         finally:
+            # Unmount the image even if exceptions from any of the above 
+            detach_retries = 3
+            detach_retry_wait = 2
             # Empirically, on GitHub we've hit errors like:
             # hdiutil: couldn't eject "disk10" - Resource busy
-            # Try waiting a bit to see if that improves reliability.
-            time.sleep(2)
-            # Unmount the image even if exceptions from any of the above 
-            self.run_command(['hdiutil', 'detach', '-force', devfile])
+            for attempt in range(detach_retries):
+                if attempt:     # second or subsequent iteration
+                    print(f'detach failed, waiting {detach_retry_wait} seconds before retrying',
+                          file=sys.stderr)
+                    # Try waiting a bit to see if that improves reliability.
+                    time.sleep(detach_retry_wait)
+                    detach_retry_wait *= 2
+
+                try:
+                    self.run_command(['hdiutil', 'detach', '-force', devfile])
+                    # if no exception, the detach worked
+                    break
+                except ManifestError as err:
+                    detach_failed = err
+            else:
+                print(f'{detach_retries} detach attempts failed', file=sys.stderr)
+                ## can we carry on anyway??
+                ## raise detach_failed
 
         print("Converting temp disk image to final disk image")
         self.run_command(['hdiutil', 'convert', sparsename, '-format', 'UDZO',
