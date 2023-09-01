@@ -254,7 +254,7 @@ jobs:
 
   post-windows-symbols:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: windows
     steps:
       - name: Post windows symbols
         uses: secondlife/viewer-post-bugsplat-windows@main
