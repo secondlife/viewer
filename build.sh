@@ -604,6 +604,13 @@ then
       ## SL-19243 HACK: testing separate GH upload job on Windows
       if [[ "$arch" != "CYGWIN" ]]
       then
+          # SL-19243 HACK: List contents of xcarchive.zip, before running
+          # upload-mac-symbols.sh which moves it to /tmp
+          if [[ "$arch" == "Darwin" ]]
+          then
+              # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
+              unzip -l "${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+          fi
           if [ -d ${build_dir}/packages/upload-extensions ]; then
               for extension in ${build_dir}/packages/upload-extensions/*.sh; do
                   begin_section "Upload Extension $extension"
@@ -612,13 +619,6 @@ then
                   wait_for_codeticket
                   end_section "Upload Extension $extension"
               done
-          fi
-          # SL-19243 HACK: List contents of xcarchive.zip
-          if [[ "$arch" == "Darwin" ]]
-          then
-              app_dir="${build_dir}/newview/${variant}"
-              xcarchive="$(ls -d "${app_dir}"/*.xcarchive.zip)"
-              unzip -l "$xcarchive"
           fi
       fi
     fi
