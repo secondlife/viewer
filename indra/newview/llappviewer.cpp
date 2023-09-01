@@ -36,6 +36,7 @@
 #include "llenvironment.h"
 #include "llerrorcontrol.h"
 #include "lleventtimer.h"
+#include "llfile.h"
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
@@ -2987,10 +2988,31 @@ void LLAppViewer::initStrings()
 	std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
 	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
 	{
+		if (strings_path_full.empty())
+		{
+			LL_WARNS() << "The file '" << strings_file << "' is not found" << LL_ENDL;
+		}
+		else
+		{
+			llstat st;
+			int rc = LLFile::stat(strings_path_full, &st);
+			if (rc != 0)
+			{
+				LL_WARNS() << "The file '" << strings_path_full << "' failed to get status. Error code: " << rc << LL_ENDL;
+			}
+			else if (S_ISDIR(st.st_mode))
+			{
+				LL_WARNS() << "The filename '" << strings_path_full << "' is a directory name" << LL_ENDL;
+			}
+			else
+			{
+				LL_WARNS() << "The filename '" << strings_path_full << "' doesn't seem to be a regular file name" << LL_ENDL;
+			}
+		}
+
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
-		LL_ERRS() << "Viewer failed to find localization and UI files"
-			<< " (strings_path_full = '" << strings_path_full << "')."
+		LL_ERRS() << "Viewer failed to find localization and UI files."
 			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
 			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 	}
