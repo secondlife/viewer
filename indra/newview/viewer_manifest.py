@@ -406,6 +406,15 @@ class ViewerManifest(LLManifest):
 
         return os.path.relpath(abspath(path), abspath(base))
 
+    def set_github_output_path(self, variable, path):
+        self.set_github_output(variable, os.path.join(self.get_dst_prefix(), path))
+
+    def set_github_output(self, variable, value):
+        GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
+        if GITHUB_OUTPUT:
+            with open(GITHUB_OUTPUT, 'a') as outf:
+                print('='.join((variable, value)), file=outf)
+
 
 class WindowsManifest(ViewerManifest):
     # We want the platform, per se, for every Windows build to be 'win'. The
@@ -481,11 +490,7 @@ class WindowsManifest(ViewerManifest):
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
             # emit that as one of the GitHub step outputs
-            GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
-            if GITHUB_OUTPUT:
-                exepath = os.path.join(self.get_dst_prefix(), self.final_exe())
-                with open(GITHUB_OUTPUT, 'a') as outf:
-                    print(f'viewer_exe={exepath}', file=outf)
+            self.set_github_output_path('viewer_exe', self.final_exe())
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -848,6 +853,7 @@ class DarwinManifest(ViewerManifest):
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
         self.path(os.path.join(self.args['configuration'], self.channel()+".app"), dst="")
+        self.set_github_output_path('viewer_exe', self.channel() + ".app")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
