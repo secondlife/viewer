@@ -109,16 +109,16 @@ void LLHeroProbeManager::update()
         // Get the nearest hero.
         float distance = F32_MAX;
         
-        if (mNearestHero.notNull())
+        if (mNearestHero != nullptr)
         {
-            distance = mNearestHero->mDistanceWRTCamera;
+            distance = mNearestHero->mDrawable->mDistanceWRTCamera;
         }
         
-        for (auto drawable : mHeroList)
+        for (auto drawable : mHeroVOList)
         {
-            if (drawable.notNull() && drawable != mNearestHero)
+            if (drawable != nullptr && drawable != mNearestHero && drawable->mDrawable.notNull())
             {
-                if (drawable->mDistanceWRTCamera < distance)
+                if (drawable->mDrawable->mDistanceWRTCamera < distance)
                 {
                     mIsInTransition = true;
                     mNearestHero = drawable;
@@ -133,8 +133,41 @@ void LLHeroProbeManager::update()
     }
     else
     {
-        if (mNearestHero.notNull())
-            probe_pos.set(mNearestHero->mXform.getPosition().mV[0], mNearestHero->mXform.getPosition().mV[1], camera_pos.mV[2]);
+        
+        if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
+        {
+            
+            LLVector3 hero_pos = mNearestHero->mDrawable->mXform.getPosition();
+            switch (mNearestHero->mirrorPlacementMode()) {
+                case 0:
+                    probe_pos.set(camera_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]);
+                    break;
+                case 1:
+                    
+                    probe_pos.set(hero_pos.mV[0], camera_pos.mV[1], hero_pos.mV[2]);
+                    break;
+                case 2:
+                    
+                    probe_pos.set(hero_pos.mV[0], hero_pos.mV[1], camera_pos.mV[2]);
+                    break;
+                    
+                case 3:
+                    // Find the nearest point relative to the camera on the VOVolume.
+                    LLVector4a hit_pos;
+                    bool hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
+                                                                  LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
+                                                                  -1,
+                                                                  FALSE,
+                                                                  FALSE,
+                                                                  FALSE,
+                                                                  NULL,
+                                                                  &hit_pos);
+                    if (hit)
+                        probe_pos = hit_pos;
+                    
+                    break;
+            }
+        }
         
         
         if (mHeroProbeStrength < 1.f)
@@ -505,7 +538,7 @@ void LLHeroProbeManager::cleanup()
     glDeleteBuffers(1, &mUBO);
     mUBO = 0;
     
-    mHeroList.clear();
+    mHeroVOList.clear();
     mNearestHero = nullptr;
 }
 
@@ -523,18 +556,19 @@ void LLHeroProbeManager::doOcclusion()
     }
 }
 
-void LLHeroProbeManager::registerHeroDrawable(LLDrawable* drawablep)
+void LLHeroProbeManager::registerHeroDrawable(LLVOVolume* drawablep)
 {
-    if (mHeroList.find(drawablep) == mHeroList.end())
-    {
-        mHeroList.insert(drawablep);
-    }
+        if (mHeroVOList.find(drawablep) == mHeroVOList.end())
+        {
+            mHeroVOList.insert(drawablep);
+            LL_INFOS() << "Mirror drawable registered." << LL_ENDL;
+        }
 }
 
-void LLHeroProbeManager::unregisterHeroDrawable(LLDrawable *drawablep)
+void LLHeroProbeManager::unregisterHeroDrawable(LLVOVolume* drawablep)
 {
-    if (mHeroList.find(drawablep) != mHeroList.end())
+    if (mHeroVOList.find(drawablep) != mHeroVOList.end())
     {
-        mHeroList.erase(drawablep);
+        mHeroVOList.erase(drawablep);
     }
 }

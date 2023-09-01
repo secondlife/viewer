@@ -298,6 +298,7 @@ public:
     // Mirrors
     bool setIsMirror(BOOL is_mirror);
     void updateMirrorDrawable();
+    U8   mirrorPlacementMode() const override;
 
     // Reflection Probes
     bool setIsReflectionProbe(BOOL is_probe);

@@ -68,8 +68,8 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
-    void registerHeroDrawable(LLDrawable* drawablep);
-    void unregisterHeroDrawable(LLDrawable* drawablep);
+    void registerHeroDrawable(LLVOVolume* drawablep);
+    void unregisterHeroDrawable(LLVOVolume* drawablep);
     
 private:
     friend class LLPipeline;
@@ -128,7 +128,7 @@ private:
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
     
-    LLDrawable::ordered_drawable_set_t  mHeroList;
-    LLPointer<LLDrawable>               mNearestHero;
+    std::set<LLVOVolume*>               mHeroVOList;
+    LLVOVolume*                         mNearestHero;
 };
 

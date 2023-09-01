@@ -258,6 +258,7 @@ public:
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
     virtual BOOL isReflectionProbe() const          { return FALSE; }
     virtual BOOL isMirror() const                   { return FALSE; }
+    virtual U8   mirrorPlacementMode() const        { return 0; }
 
 	// This method returns true if the object is over land owned by
 	// the agent, one of its groups, or it encroaches and 
@@ -877,6 +878,9 @@ protected:
 	F32 mLinksetCost;
 	F32 mPhysicsCost;
 	F32 mLinksetPhysicsCost;
+    
+    bool    mIsMirror;
+    U8      mMirrorPlacementMode;
     
     // If true, "shrink wrap" this volume in its spatial partition.  See "shrinkWrap"
     bool mShouldShrinkWrap = false;

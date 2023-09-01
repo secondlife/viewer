@@ -249,6 +249,9 @@ LLVOVolume::~LLVOVolume()
 	mTextureAnimp = NULL;
 	delete mVolumeImpl;
 	mVolumeImpl = NULL;
+    
+    if (mIsMirror)
+        gPipeline.mHeroProbeManager.unregisterHeroDrawable(this);
 
 	gMeshRepo.unregisterMesh(this);
 
@@ -1045,9 +1048,9 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
         updateReflectionProbePtr();
     }
     
-    //if (isMirror())
+    if (isMirror())
     {
-        gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+        gPipeline.mHeroProbeManager.registerHeroDrawable(this);
     }
     
 	updateRadius();
@@ -3396,17 +3399,22 @@ void LLVOVolume::updateMirrorDrawable()
 {
     if (isMirror())
     {
-        gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+        gPipeline.mHeroProbeManager.registerHeroDrawable(this);
     }
     else
     {
-        gPipeline.mHeroProbeManager.unregisterHeroDrawable(mDrawable);
+        gPipeline.mHeroProbeManager.unregisterHeroDrawable(this);
     }
 }
 
 BOOL LLVOVolume::isMirror() const
 {
-    return getParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    return mIsMirror;
+}
+
+U8 LLVOVolume::mirrorPlacementMode() const
+{
+    return mMirrorPlacementMode;
 }
 
 BOOL LLVOVolume::isReflectionProbe() const
@@ -4461,9 +4469,9 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
     updateReflectionProbePtr();
     
     if (isMirror())
-        gPipeline.mHeroProbeManager.registerHeroDrawable(mDrawable);
+        gPipeline.mHeroProbeManager.registerHeroDrawable(this);
     else
-        gPipeline.mHeroProbeManager.unregisterHeroDrawable(mDrawable);
+        gPipeline.mHeroProbeManager.unregisterHeroDrawable(this);
 }
 
 void LLVOVolume::updateReflectionProbePtr()

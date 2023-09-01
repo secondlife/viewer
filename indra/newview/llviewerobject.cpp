@@ -1524,11 +1524,43 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					std::string temp_string;
 					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, temp_string, block_num );
 					
+                    std::stringstream ss(temp_string);
+                    std::string word;
+                    bool mirror_detected = false;
+                    while (ss >> word)
+                    {
+                        if (word == "Mirror")
+                        {
+                            mirror_detected = true;
+                            mIsMirror = true;
+                        }
+                        else if (word == "XAlign" && mIsMirror)
+                        {
+                            mMirrorPlacementMode = 0;
+                        }
+                        else if (word == "YAlign" && mIsMirror)
+                        {
+                            mMirrorPlacementMode = 1;
+                        }
+                        else if (word == "ZAlign" && mIsMirror)
+                        {
+                            mMirrorPlacementMode = 2;
+                        }
+                        else if (word == "NearestPoint" && mIsMirror)
+                        {
+                            mMirrorPlacementMode = 3;
+                        }
+                    }
+                    
 					LLColor4U coloru;
 					mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextColor, coloru.mV, 4, block_num);
-
+                        
 					// alpha was flipped so that it zero encoded better
 					coloru.mV[3] = 255 - coloru.mV[3];
+                    
+                    if (mirror_detected)
+                        coloru.mV[3] = 0;
+                    
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
 

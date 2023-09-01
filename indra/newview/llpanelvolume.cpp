@@ -755,10 +755,6 @@ void LLPanelVolume::sendIsMirror()
     }
     LLVOVolume *volobjp = (LLVOVolume *)objectp;
     
-    // Quick hack to set the mirror locally.
-    
-    gPipeline.mHeroProbeManager.registerHeroDrawable(volobjp->mDrawable);
-    
     BOOL value = getChild<LLUICtrl>("Mirror Checkbox Ctrl")->getValue();
     volobjp->setIsMirror(value);
     LL_INFOS() << "update mirror sent" << LL_ENDL;
