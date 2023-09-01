@@ -613,6 +613,13 @@ then
                   end_section "Upload Extension $extension"
               done
           fi
+          # SL-19243 HACK: List contents of xcarchive.zip
+          if [[ "$arch" == "Darwin" ]]
+          then
+              app_dir="${build_dir}/newview/${variant}"
+              xcarchive="$(ls -d "${app_dir}"/*.xcarchive.zip)"
+              unzip -l "$xcarchive"
+          fi
       fi
     fi
     end_section "Uploads"
