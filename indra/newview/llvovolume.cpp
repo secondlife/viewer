@@ -6080,12 +6080,18 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 							LLVertexBuffer* buff = face->getVertexBuffer();
 							if (buff)
 							{
-								if (!face->getGeometryVolume(*volume, face->getTEOffset(), 
-									vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex()))
-								{ //something's gone wrong with the vertex buffer accounting, rebuild this group 
-									group->dirtyGeom();
-									gPipeline.markRebuild(group);
-								}
+                                if (!face->getGeometryVolume(*volume, // volume
+                                    face->getTEOffset(),              // face_index
+                                    vobj->getRelativeXform(),         // mat_vert_in
+                                    vobj->getRelativeXformInvTrans(), // mat_norm_in
+                                    face->getGeomIndex(),             // index_offset
+                                    false,                            // force_rebuild
+                                    true))                            // no_debug_assert
+                                {   // Something's gone wrong with the vertex buffer accounting,
+                                    // rebuild this group with no debug assert because MESH_DIRTY
+                                    group->dirtyGeom();
+                                    gPipeline.markRebuild(group);
+                                }
 
                                 buff->unmapBuffer();
 							}
