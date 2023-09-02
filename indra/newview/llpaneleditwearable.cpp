@@ -663,7 +663,7 @@ void LLPanelEditWearable::updateMetricLayout(BOOL new_value)
         LLUIString current_metric, replacment_metric;
         current_metric = new_value ? mMeters : mFeet;
         replacment_metric = new_value ? mFeet : mMeters;
-        mHeigthValue.setArg( "[METRIC1]", current_metric.getString() );
+        mHeightValue.setArg( "[METRIC1]", current_metric.getString() );
         mReplacementMetricUrl.setArg( "[URL_METRIC2]", std::string("[secondlife:///app/metricsystem ") + replacment_metric.getString() + std::string("]"));
 }
 
@@ -671,11 +671,11 @@ void LLPanelEditWearable::updateAvatarHeightLabel()
 {
         mTxtAvatarHeight->setText(LLStringUtil::null);
         LLStyle::Params param;
-        param.color = mAvatarHeigthLabelColor;
-        mTxtAvatarHeight->appendText(mHeigth, false, param);
-        param.color = mAvatarHeigthValueLabelColor;
-        mTxtAvatarHeight->appendText(mHeigthValue, false, param);
-        param.color = mAvatarHeigthLabelColor; // using mAvatarHeigthLabelColor for '/' separator
+        param.color = mAvatarHeightLabelColor;
+        mTxtAvatarHeight->appendText(mHeight, false, param);
+        param.color = mAvatarHeightValueLabelColor;
+        mTxtAvatarHeight->appendText(mHeightValue, false, param);
+        param.color = mAvatarHeightLabelColor; // using mAvatarHeightLabelColor for '/' separator
         mTxtAvatarHeight->appendText(" / ", false, param);
         mTxtAvatarHeight->appendText(this->mReplacementMetricUrl, false, param);
 }
@@ -815,14 +815,14 @@ BOOL LLPanelEditWearable::postBuild()
         // init all strings
         mMeters         = mPanelShape->getString("meters");
         mFeet           = mPanelShape->getString("feet");
-        mHeigth         = mPanelShape->getString("height") + " ";
-        mHeigthValue    = "[HEIGHT] [METRIC1]";
+        mHeight         = mPanelShape->getString("height") + " ";
+        mHeightValue    = "[HEIGHT] [METRIC1]";
         mReplacementMetricUrl   = "[URL_METRIC2]";
 
-        std::string color = mPanelShape->getString("heigth_label_color");
-        mAvatarHeigthLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
-        color = mPanelShape->getString("heigth_value_label_color");
-        mAvatarHeigthValueLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
+        std::string color = mPanelShape->getString("height_label_color");
+        mAvatarHeightLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
+        color = mPanelShape->getString("height_value_label_color");
+        mAvatarHeightValueLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
         gSavedSettings.getControl("HeightUnits")->getSignal()->connect(boost::bind(&LLPanelEditWearable::changeHeightUnits, this, _2));
         updateMetricLayout(gSavedSettings.getBOOL("HeightUnits"));
 
@@ -1352,7 +1352,7 @@ void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
                 }
 
                 std::string avatar_height_str = llformat("%.2f", new_size);
-                mHeigthValue.setArg("[HEIGHT]", avatar_height_str);
+                mHeightValue.setArg("[HEIGHT]", avatar_height_str);
                 updateAvatarHeightLabel();
         }
 

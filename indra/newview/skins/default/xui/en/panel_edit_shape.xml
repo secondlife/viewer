@@ -11,8 +11,8 @@
      <string name="meters">Meters</string>
      <string name="feet">Feet</string>
      <string name="height">Height:</string>
-     <string name="heigth_label_color" translate="false">White_50</string>
-     <string name="heigth_value_label_color" translate="false">White</string>
+     <string name="height_label_color" translate="false">White_50</string>
+     <string name="height_value_label_color" translate="false">White</string>
      <text
          follows="top|left|right"
          font="SansSerifSmallBold"
