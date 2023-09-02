@@ -1947,6 +1947,14 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
     return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item_out);
 }
 
+bool LLMaterialEditor::canClipboardObjectsMaterial()
+{
+    LLSelectedTEGetMatData func(true);
+    LLPermissions permissions;
+    LLViewerInventoryItem* item_out;
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
+}
+
 void LLMaterialEditor::saveObjectsMaterialAs()
 {
     LLSelectedTEGetMatData func(true);
