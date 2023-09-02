@@ -153,7 +153,7 @@ pre_build()
     RELEASE_CRASH_REPORTING=ON
     HAVOK=ON
     SIGNING=()
-    if [ "$arch" == "Darwin" -a "$variant" == "Release" ]
+    if [[ "$arch" == "Darwin" && "$variant" == "Release" ]]
     then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                   "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
     fi
@@ -177,24 +177,27 @@ pre_build()
         VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
     fi
 
-    # don't spew credentials into build log
-    set +x
     # expect these variables to be set in the environment from GitHub secrets
-    if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
+    if [[ -n "$BUGSPLAT_DB" ]]
     then
-        # older mechanism involving build-secrets repo -
-        # if build_secrets_checkout isn't set, report its name
-        bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
-        if [ -r "$bugsplat_sh" ]
-        then # show that we're doing this, just not the contents
-            echo source "$bugsplat_sh"
-            source "$bugsplat_sh"
-        else
-            fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
+        # don't spew credentials into build log
+        set +x
+        if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
+        then
+            # older mechanism involving build-secrets repo -
+            # if build_secrets_checkout isn't set, report its name
+            bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
+            if [ -r "$bugsplat_sh" ]
+            then # show that we're doing this, just not the contents
+                echo source "$bugsplat_sh"
+                source "$bugsplat_sh"
+            else
+                fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
+            fi
         fi
+        set -x
+        export BUGSPLAT_USER BUGSPLAT_PASS
     fi
-    set -x
-    export BUGSPLAT_USER BUGSPLAT_PASS
 
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
@@ -578,11 +581,23 @@ then
           # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
           if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
           then
+              # BugSplat wants to see xcarchive.zip
+              # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
+              symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+              if [[ ! -f "$symbol_file" ]]
+              then
+                  # symbol tarball we prep for (e.g.) Breakpad
+                  symbol_file="$VIEWER_SYMBOL_FILE"
+              else
+                  # SL-19243 HACK: List contents of xcarchive.zip, before running
+                  # upload-mac-symbols.sh which moves it to /tmp
+                  unzip -l "$symbol_file"
+              fi
               # Upload crash reporter file
-              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
+              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbol_file" \
                   || fatal "Upload of symbolfile failed"
               wait_for_codeticket
-              symbolfile+=("$VIEWER_SYMBOL_FILE")
+              symbolfile+=("$symbol_file")
           fi
 
           # Upload the llphysicsextensions_tpv package, if one was produced
@@ -604,13 +619,6 @@ then
       ## SL-19243 HACK: testing separate GH upload job on Windows
       if [[ "$arch" != "CYGWIN" ]]
       then
-          # SL-19243 HACK: List contents of xcarchive.zip, before running
-          # upload-mac-symbols.sh which moves it to /tmp
-          if [[ "$arch" == "Darwin" ]]
-          then
-              # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
-              unzip -l "${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
-          fi
           if [ -d ${build_dir}/packages/upload-extensions ]; then
               for extension in ${build_dir}/packages/upload-extensions/*.sh; do
                   begin_section "Upload Extension $extension"
