@@ -853,7 +853,7 @@ class DarwinManifest(ViewerManifest):
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
         self.path(os.path.join(self.args['configuration'], self.channel()+".app"), dst="")
-        self.set_github_output_path('viewer_exe', self.channel() + ".app")
+        self.set_github_output_path('viewer_exe', self.channel() + ".app/")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
