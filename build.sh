@@ -616,8 +616,8 @@ then
 
       # Run upload extensions
       # Ex: bugsplat
-      ## SL-19243 HACK: testing separate GH upload job on Windows
-      if [[ "$arch" != "CYGWIN" ]]
+      ## SL-19243 HACK: testing separate GH upload jobs
+      if false
       then
           if [ -d ${build_dir}/packages/upload-extensions ]; then
               for extension in ${build_dir}/packages/upload-extensions/*.sh; do
