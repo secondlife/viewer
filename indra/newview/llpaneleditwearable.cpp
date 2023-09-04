@@ -1462,6 +1462,9 @@ LLPanel* LLPanelEditWearable::getPanel(LLWearableType::EType type)
 
                 case LLWearableType::WT_PHYSICS:
                         return mPanelPhysics;
+
+                default:
+                        return NULL;
         }
 
         return NULL;
