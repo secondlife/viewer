@@ -3627,7 +3627,7 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
 		{
 			name_position[VZ] = water_height;
 		}
-		else // both camera and HUD are below watermark
+		else if (mNameText) // both camera and HUD are below watermark
 		{
 			F32 name_world_height = mNameText->getWorldHeight();
 			F32 max_z_position = water_height - name_world_height;
