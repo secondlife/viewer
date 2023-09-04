@@ -1197,10 +1197,16 @@ bool LLMaterialEditor::saveIfNeeded()
     }
     else
     { 
-        //make a new inventory item
-        std::string res_desc = buildMaterialDescription();
+        // Make a new inventory item and set upload permissions
         LLPermissions local_permissions;
         local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+
+        U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
+        U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
+        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+        local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+
+        std::string res_desc = buildMaterialDescription();
         createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);
 
         // We do not update floater with uploaded asset yet, so just close it.
