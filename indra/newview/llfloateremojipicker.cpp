@@ -534,9 +534,10 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
         for (const LLEmojiGroup& group : groups)
         {
             // List all categories in group
-            for (const std::string& category : group.Categories)
+            for (std::string category : group.Categories)
             {
                 // List all emojis in category
+                LLStringUtil::toLower(category);
                 const LLEmojiDictionary::cat2descrs_map_t::const_iterator& item = category2Descr.find(category);
                 if (item != category2Descr.end())
                 {
@@ -548,9 +549,10 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
     else
     {
         // List all categories in the selected group
-        for (const std::string& category : groups[sSelectedGroupIndex].Categories)
+        for (std::string category : groups[sSelectedGroupIndex].Categories)
         {
             // List all emojis in category
+            LLStringUtil::toLower(category);
             const LLEmojiDictionary::cat2descrs_map_t::const_iterator& item = category2Descr.find(category);
             if (item != category2Descr.end())
             {
