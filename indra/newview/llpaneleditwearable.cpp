@@ -1466,8 +1466,6 @@ LLPanel* LLPanelEditWearable::getPanel(LLWearableType::EType type)
                 default:
                         return NULL;
         }
-
-        return NULL;
 }
 
 void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std::string &edit_group)
