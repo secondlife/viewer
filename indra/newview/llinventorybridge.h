@@ -46,6 +46,7 @@ class LLMenuGL;
 class LLCallingCardObserver;
 class LLViewerJointAttachment;
 class LLFolderView;
+struct LLMoveInv;
 
 typedef std::vector<std::string> menuentry_vec_t;
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
@@ -279,8 +280,8 @@ public:
 		mShowDescendantsCount(false)
 	{}
 		
-	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm = TRUE);
-	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg, BOOL is_link = FALSE, BOOL user_confirm = TRUE);
+	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm = TRUE, LLPointer<LLInventoryCallback> cb = NULL);
+	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg, BOOL is_link = FALSE, BOOL user_confirm = TRUE, LLPointer<LLInventoryCallback> cb = NULL);
     void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
     void callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_category);
 
@@ -747,7 +748,7 @@ void rez_attachment(LLViewerInventoryItem* item,
 BOOL move_inv_category_world_to_agent(const LLUUID& object_id, 
 									  const LLUUID& category_id,
 									  BOOL drop,
-									  void (*callback)(S32, void*) = NULL,
+									  std::function<void(S32, void*, const LLMoveInv *)> callback = NULL,
 									  void* user_data = NULL,
 									  LLInventoryFilter* filter = NULL);
 
@@ -778,7 +779,7 @@ struct LLMoveInv
     LLUUID mObjectID;
     LLUUID mCategoryID;
     two_uuids_list_t mMoveList;
-    void (*mCallback)(S32, void*);
+    std::function<void(S32, void*, const LLMoveInv*)> mCallback;
     void* mUserData;
 };
 

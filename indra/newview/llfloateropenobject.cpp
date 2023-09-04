@@ -184,9 +184,14 @@ void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category
 	
 	// Copy and/or move the items into the newly created folder.
 	// Ignore any "you're going to break this item" messages.
-	BOOL success = move_inv_category_world_to_agent(object_id, category_id, TRUE,
-													callbackMoveInventory, 
-													(void*)wear_data);
+	BOOL success = move_inv_category_world_to_agent(object_id,
+                                                    category_id,
+                                                    TRUE,
+                                                    [](S32 result, void* data, const LLMoveInv*)
+                                                    {
+                                                        callbackMoveInventory(result, data);
+                                                    },
+                                                    (void*)wear_data);
 	if (!success)
 	{
 		delete wear_data;
