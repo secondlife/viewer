@@ -703,7 +703,7 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 
         for (U32 i = start; i <= end; ++i)
         {
-            if (!v->isFinite3())
+            if (!v[i].isFinite3())
             {
                 LL_ERRS() << "Non-finite vertex position data detected." << LL_ENDL;
             }
