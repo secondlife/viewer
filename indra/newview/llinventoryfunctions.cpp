@@ -454,7 +454,10 @@ void copy_inventory_category(LLInventoryModel* model,
     inventory_func_type func = [model, cat, root_copy_id, move_no_copy_items, callback](const LLUUID &new_id)
     {
         copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
-        callback(new_id);
+        if (callback)
+        {
+            callback(new_id);
+        }
     };
 	gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
 }

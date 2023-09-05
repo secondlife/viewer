@@ -51,16 +51,17 @@
 LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
 {
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    //LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-    LLUUID selected_id = mUUIDs.front();
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2, selected_id));
-    registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2, selected_id));
+    registrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2));
+    registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2));
     registrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
     registrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
 
-    std::set<LLUUID> uuids{selected_id};
+    std::set<LLUUID> uuids(mUUIDs.begin(), mUUIDs.end());
     registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
+
+    enable_registrar.add("Inventory.CanSetUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
     
     LLContextMenu* menu = createFromFile("menu_gallery_inventory.xml");
 
@@ -69,49 +70,52 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
     return menu;
 }
 
-void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLUUID& selected_id)
+void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
 {
     std::string action = userdata.asString();
-    LLInventoryObject* obj = gInventory.getObject(selected_id);
+    LLInventoryObject* obj = gInventory.getObject(mUUIDs.front());
     if(!obj) return;
 
     if ("open_selected_folder" == action)
     {
-        mGallery->setRootFolder(selected_id);
+        mGallery->setRootFolder(mUUIDs.front());
     }
     else if ("open_in_new_window" == action)
     {
-        new_folder_window(selected_id);
+        new_folder_window(mUUIDs.front());
     }
     else if ("properties" == action)
     {
-        show_item_profile(selected_id);
+        show_item_profile(mUUIDs.front());
     }
     else if ("restore" == action)
     {
-        LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
-        if(cat)
+        for (LLUUID& selected_id : mUUIDs)
         {
-            const LLUUID new_parent = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(cat->getType()));
-            // do not restamp children on restore
-            gInventory.changeCategoryParent(cat, new_parent, false);
-        }
-        else
-        {
-            LLViewerInventoryItem* item = gInventory.getItem(selected_id);
-            if(item)
+            LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
+            if (cat)
             {
-                bool is_snapshot = (item->getInventoryType() == LLInventoryType::IT_SNAPSHOT);
-
-                const LLUUID new_parent = gInventory.findCategoryUUIDForType(is_snapshot? LLFolderType::FT_SNAPSHOT_CATEGORY : LLFolderType::assetTypeToFolderType(item->getType()));
+                const LLUUID new_parent = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(cat->getType()));
                 // do not restamp children on restore
-                gInventory.changeItemParent(item, new_parent, false);
+                gInventory.changeCategoryParent(cat, new_parent, false);
+            }
+            else
+            {
+                LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+                if (item)
+                {
+                    bool is_snapshot = (item->getInventoryType() == LLInventoryType::IT_SNAPSHOT);
+
+                    const LLUUID new_parent = gInventory.findCategoryUUIDForType(is_snapshot ? LLFolderType::FT_SNAPSHOT_CATEGORY : LLFolderType::assetTypeToFolderType(item->getType()));
+                    // do not restamp children on restore
+                    gInventory.changeItemParent(item, new_parent, false);
+                }
             }
         }
     }
     else if ("copy_uuid" == action)
     {
-        LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+        LLViewerInventoryItem* item = gInventory.getItem(mUUIDs.front());
         if(item)
         {
             LLUUID asset_id = item->getProtectedAssetUUID();
@@ -123,15 +127,18 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("purge" == action)
     {
-        remove_inventory_object(selected_id, NULL);
+        for (LLUUID& selected_id : mUUIDs)
+        {
+            remove_inventory_object(selected_id, NULL);
+        }
     }
     else if ("goto" == action)
     {
-        show_item_original(selected_id);
+        show_item_original(mUUIDs.front());
     }
     else if ("thumbnail" == action)
     {
-        LLSD data(selected_id);
+        LLSD data(mUUIDs.front());
         LLFloaterReg::showInstance("change_item_thumbnail", data);
     }
     else if ("cut" == action)
@@ -165,61 +172,70 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("rename" == action)
     {
-        LLSD args;
-        args["NAME"] = obj->getName();
-
-        LLSD payload;
-        payload["id"] = selected_id;
-
-        LLNotificationsUtil::add("RenameItem", args, payload, boost::bind(onRename, _1, _2));
+        rename(mUUIDs.front());
     }
     else if ("open" == action || "open_original" == action)
     {
-        LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+        LLViewerInventoryItem* item = gInventory.getItem(mUUIDs.front());
         if (item)
         {
-            LLInvFVBridgeAction::doAction(item->getType(), selected_id , &gInventory);
+            LLInvFVBridgeAction::doAction(item->getType(), mUUIDs.front(), &gInventory);
         }
     }
     else if ("ungroup_folder_items" == action)
     {
-        ungroup_folder_items(selected_id);
+        ungroup_folder_items(mUUIDs.front());
     }
     else if ("take_off" == action || "detach" == action)
     {
-        LLAppearanceMgr::instance().removeItemFromAvatar(selected_id);
+        for (LLUUID& selected_id : mUUIDs)
+        {
+            LLAppearanceMgr::instance().removeItemFromAvatar(selected_id);
+        }
     }
     else if ("wear_add" == action)
     {
-        LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, false); // Don't replace if adding.
+        for (LLUUID& selected_id : mUUIDs)
+        {
+            LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, false); // Don't replace if adding.
+        }
     }
     else if ("wear" == action)
     {
-        LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, true);
+        for (LLUUID& selected_id : mUUIDs)
+        {
+            LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, true);
+        }
     }
     else if ("activate" == action)
     {
-        LLGestureMgr::instance().activateGesture(selected_id);
+        for (LLUUID& selected_id : mUUIDs)
+        {
+            LLGestureMgr::instance().activateGesture(selected_id);
 
-        LLViewerInventoryItem* item = gInventory.getItem(selected_id);
-        if (!item) return;
+            LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+            if (!item) return;
 
-        gInventory.updateItem(item);
+            gInventory.updateItem(item);
+        }
         gInventory.notifyObservers();
     }
     else if ("deactivate" == action)
     {
-        LLGestureMgr::instance().deactivateGesture(selected_id);
+        for (LLUUID& selected_id : mUUIDs)
+        {
+            LLGestureMgr::instance().deactivateGesture(selected_id);
 
-        LLViewerInventoryItem* item = gInventory.getItem(selected_id);
-        if (!item) return;
+            LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+            if (!item) return;
 
-        gInventory.updateItem(item);
+            gInventory.updateItem(item);
+        }
         gInventory.notifyObservers();
     }
     else if ("replace_links" == action)
     {
-        LLFloaterReg::showInstance("linkreplace", LLSD(selected_id));
+        LLFloaterReg::showInstance("linkreplace", LLSD(mUUIDs.front()));
     }
     else if ("copy_slurl" == action)
     {
@@ -236,7 +252,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
             };
             LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
         };
-        LLLandmark* landmark = LLLandmarkActions::getLandmark(selected_id, copy_slurl_cb);
+        LLLandmark* landmark = LLLandmarkActions::getLandmark(mUUIDs.front(), copy_slurl_cb);
         if (landmark)
         {
             copy_slurl_cb(landmark);
@@ -246,7 +262,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     {
         LLSD key;
         key["type"] = "landmark";
-        key["id"] = selected_id;
+        key["id"] = mUUIDs.front();
         LLFloaterSidePanelContainer::showPanel("places", key);
     }
     else if ("show_on_map" == action)
@@ -264,7 +280,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
                 }
             }
         };
-        LLLandmark* landmark = LLLandmarkActions::getLandmark(selected_id, show_on_map_cb);
+        LLLandmark* landmark = LLLandmarkActions::getLandmark(mUUIDs.front(), show_on_map_cb);
         if(landmark)
         {
             show_on_map_cb(landmark);
@@ -272,13 +288,27 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     }
     else if ("save_as" == action)
     {
-        LLPreviewTexture* preview_texture = LLFloaterReg::getTypedInstance<LLPreviewTexture>("preview_texture", selected_id);
+        LLPreviewTexture* preview_texture = LLFloaterReg::getTypedInstance<LLPreviewTexture>("preview_texture", mUUIDs.front());
         if (preview_texture)
         {
             preview_texture->openToSave();
             preview_texture->saveAs();
         }
     }
+}
+
+void LLInventoryGalleryContextMenu::rename(const LLUUID& item_id)
+{
+    LLInventoryObject* obj = gInventory.getObject(item_id);
+    if (!obj) return;
+
+    LLSD args;
+    args["NAME"] = obj->getName();
+
+    LLSD payload;
+    payload["id"] = mUUIDs.front();
+
+    LLNotificationsUtil::add("RenameItem", args, payload, boost::bind(onRename, _1, _2));
 }
 
 void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLSD& response)
@@ -311,25 +341,39 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
     }
 }
 
-void LLInventoryGalleryContextMenu::fileUploadLocation(const LLSD& userdata, const LLUUID& selected_id)
+void LLInventoryGalleryContextMenu::fileUploadLocation(const LLSD& userdata)
 {
     const std::string param = userdata.asString();
     if (param == "model")
     {
-        gSavedPerAccountSettings.setString("ModelUploadFolder", selected_id.asString());
+        gSavedPerAccountSettings.setString("ModelUploadFolder", mUUIDs.front().asString());
     }
     else if (param == "texture")
     {
-        gSavedPerAccountSettings.setString("TextureUploadFolder", selected_id.asString());
+        gSavedPerAccountSettings.setString("TextureUploadFolder", mUUIDs.front().asString());
     }
     else if (param == "sound")
     {
-        gSavedPerAccountSettings.setString("SoundUploadFolder", selected_id.asString());
+        gSavedPerAccountSettings.setString("SoundUploadFolder", mUUIDs.front().asString());
     }
     else if (param == "animation")
     {
-        gSavedPerAccountSettings.setString("AnimationUploadFolder", selected_id.asString());
+        gSavedPerAccountSettings.setString("AnimationUploadFolder", mUUIDs.front().asString());
     }
+}
+
+bool LLInventoryGalleryContextMenu::canSetUploadLocation(const LLSD& userdata)
+{
+    if (mUUIDs.size() != 1)
+    {
+        return false;
+    }
+    LLInventoryCategory* cat = gInventory.getCategory(mUUIDs.front());
+    if (!cat)
+    {
+        return false;
+    }
+    return true;
 }
 
 bool is_inbox_folder(LLUUID item_id)

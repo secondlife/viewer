@@ -82,10 +82,12 @@ public:
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
     BOOL handleKeyHere(KEY key, MASK mask) override;
-    void moveUp();
-    void moveDown();
-    void moveLeft();
-    void moveRight();
+    void moveUp(MASK mask);
+    void moveDown(MASK mask);
+    void moveLeft(MASK mask);
+    void moveRight(MASK mask);
+    void toggleSelectionRange(S32 start_idx, S32 end_idx);
+    void toggleSelectionRangeFromLast(const LLUUID target);
 
     void onFocusLost() override;
     void onFocusReceived() override;
@@ -130,6 +132,8 @@ public:
     void deselectItem(const LLUUID& category_id);
     void clearSelection();
     void changeItemSelection(const LLUUID& item_id, bool scroll_to_selection = false);
+    void addItemSelection(const LLUUID& item_id, bool scroll_to_selection = false);
+    bool toggleItemSelection(const LLUUID& item_id, bool scroll_to_selection = false);
     void scrollToShowItem(const LLUUID& item_id);
     void signalSelectionItemID(const LLUUID& category_id);
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
@@ -174,6 +178,15 @@ public:
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
 
 protected:
+    void paste(const LLUUID& dest,
+               std::vector<LLUUID>& objects,
+               bool is_cut_mode,
+               const LLUUID& marketplacelistings_id);
+    void pasteAsLink(const LLUUID& dest,
+                     std::vector<LLUUID>& objects,
+                     const LLUUID& current_outfit_id,
+                     const LLUUID& marketplacelistings_id,
+                     const LLUUID& my_outifts_id);
 
     bool applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
     bool checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring);
@@ -185,8 +198,8 @@ protected:
     LLGalleryGestureObserver*          mGestureObserver;
     LLInventoryObserver*               mInventoryObserver;
     selection_deque                    mSelectedItemIDs;
-    LLUUID                             mItemToSelect;
-    bool                               mNeedsSelection;
+    selection_deque                    mItemsToSelect;
+    LLUUID                             mLastSelectedUUID;
     bool                               mIsInitialized;
     bool                               mRootDirty;
 
