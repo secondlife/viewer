@@ -61,6 +61,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
+#define LUA_FILTER L"Script files (*.lua)\0*.lua\0"
 #endif
 
 #ifdef LL_DARWIN
@@ -218,6 +219,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		mOFN.lpstrFilter = DICTIONARY_FILTER \
 			L"\0";
 		break;
+    case FFLOAD_LUA:
+        mOFN.lpstrFilter = LUA_FILTER \
+            L"\0";
+        break;
 	default:
 		res = FALSE;
 		break;

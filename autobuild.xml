@@ -1810,6 +1810,48 @@
         <key>version</key>
         <string>1.0.561752</string>
       </map>
+      <key>lualibs</key>
+      <map>
+        <key>copyright</key>
+        <string>Lua by Lua.org, PUC-Rio.</string>
+        <key>description</key>
+        <string>LUA libs API</string>
+        <key>license</key>
+        <string>lua</string>
+        <key>license_file</key>
+        <string>LICENSES/lua.txt</string>
+        <key>name</key>
+        <string>lualibs</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>55bd833166d03f1467e2c7f24fa9143e</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87775/805841/openssl-1.1.1l.563846-windows-563846.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6dc51cd8cad422ab1dcd67cc59af119d</string>
+              <key>url</key>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/118146/1013526/lualibs-5.4.581683-windows64-581683.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>5.4.581683</string>
+      </map>
       <key>mesa</key>
       <map>
         <key>license</key>
