@@ -30,6 +30,7 @@ include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(LLWindow)
+include(LLWebRTC)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
@@ -689,6 +690,7 @@ set(viewer_SOURCE_FILES
     llvoiceclient.cpp
     llvoicevisualizer.cpp
     llvoicevivox.cpp
+    llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -1333,6 +1335,7 @@ set(viewer_HEADER_FILES
     llvoiceclient.h
     llvoicevisualizer.h
     llvoicevivox.h
+    llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1433,6 +1436,7 @@ if (LINUX)
 endif (LINUX)
 
 if (WINDOWS)
+
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
          llwindebug.cpp
@@ -1724,6 +1728,7 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/uriparser.dll
+      ${CMAKE_BINARY_DIR}/llwebrtc/Release/llwebrtc.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
@@ -1920,6 +1925,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         llmeshoptimizer
+        llwebrtc
         ll::ndof
         lllogin
         llprimitive

@@ -480,11 +480,11 @@ void audio_update_volume(bool force_update)
 
 		if (!gViewerWindow->getActive() && (gSavedSettings.getBOOL("MuteWhenMinimized")))
 		{
-			voice_inst->setMuteMic(true);
+			//voice_inst->setMuteMic(true);
 		}
 		else
 		{
-			voice_inst->setMuteMic(false);
+			//voice_inst->setMuteMic(false);
 		}
 	}
 }
