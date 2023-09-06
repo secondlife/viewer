@@ -1953,6 +1953,32 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
     return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item_out);
 }
 
+bool LLMaterialEditor::canClipboardObjectsMaterial()
+{
+    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 1)
+    {
+        return false;
+    }
+
+    struct LLSelectedTEGetNullMat : public LLSelectedTEFunctor
+    {
+        bool apply(LLViewerObject* objectp, S32 te_index)
+        {
+            return objectp->getRenderMaterialID(te_index).isNull();
+        }
+    } null_func;
+
+    if (LLSelectMgr::getInstance()->getSelection()->applyToTEs(&null_func))
+    {
+        return true;
+    }
+
+    LLSelectedTEGetMatData func(true);
+    LLPermissions permissions;
+    LLViewerInventoryItem* item_out;
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
+}
+
 void LLMaterialEditor::saveObjectsMaterialAs()
 {
     LLSelectedTEGetMatData func(true);
