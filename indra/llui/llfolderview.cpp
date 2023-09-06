@@ -611,6 +611,7 @@ void LLFolderView::clearSelection()
 	}
 
 	mSelectedItems.clear();
+    mNeedsScroll = false;
 }
 
 std::set<LLFolderViewItem*> LLFolderView::getSelectionList() const
