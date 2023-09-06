@@ -70,6 +70,11 @@ LLResizeHandle::LLResizeHandle(const LLResizeHandle::Params& p)
 	}
 }
 
+LLResizeHandle::~LLResizeHandle()
+{
+    gFocusMgr.removeKeyboardFocusWithoutCallback(this);
+}
+
 
 BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {

@@ -663,9 +663,22 @@ bool idle_startup()
 #else
 				void* window_handle = NULL;
 #endif
-				bool init = gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle());
-				if(init)
+				if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
 				{
+					if (FALSE == gSavedSettings.getBOOL("UseMediaPluginsForStreamingAudio"))
+					{
+						LL_INFOS("AppInit") << "Using default impl to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(gAudiop->createDefaultStreamingAudioImpl());
+					}
+
+					// if the audio engine hasn't set up its own preferred handler for streaming audio
+					// then set up the generic streaming audio implementation which uses media plugins
+					if (NULL == gAudiop->getStreamingAudioImpl())
+					{
+						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
+					}
+
 					gAudiop->setMuted(TRUE);
 				}
 				else
@@ -673,16 +686,6 @@ bool idle_startup()
 					LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
 					delete gAudiop;
 					gAudiop = NULL;
-				}
-
-				if (gAudiop)
-				{
-					// if the audio engine hasn't set up its own preferred handler for streaming audio then set up the generic streaming audio implementation which uses media plugins
-					if (NULL == gAudiop->getStreamingAudioImpl())
-					{
-						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
-						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
-					}
 				}
 			}
 		}
@@ -3260,7 +3263,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 		// are actually arrays, and we want to format them as comma separated          
 		// strings, so special case those.                                             
 		LLSDSerialize::toXML(cert_info[iter->first], std::cout);
-		if((iter->first== std::string(CERT_KEY_USAGE)) |
+		if((iter->first == std::string(CERT_KEY_USAGE)) ||
 		   (iter->first == std::string(CERT_EXTENDED_KEY_USAGE)))
 		{
 			value = "";

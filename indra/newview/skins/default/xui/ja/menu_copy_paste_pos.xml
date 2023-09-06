@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Copy Paste Position Menu">
+	<menu_item_call label="すべてをコピー" name="psr_copy"/>
+	<menu_item_call label="位置をコピー" name="pos_copy"/>
+	<menu_item_call label="すべてペースト" name="psr_paste"/>
+	<menu_item_call label="位置をペースト" name="pos_paste"/>
+</toggleable_menu>

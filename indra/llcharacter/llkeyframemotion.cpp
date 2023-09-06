@@ -497,13 +497,20 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 		// request asset
 		mAssetStatus = ASSET_FETCHED;
 
-        LL_DEBUGS("Animation") << "Requesting data fetch for: " << mID << LL_ENDL;
-		character_id = new LLUUID(mCharacter->getID());
-		gAssetStorage->getAssetData(mID,
-						LLAssetType::AT_ANIMATION,
-						onLoadComplete,
-						(void *)character_id,
-						FALSE);
+        if (mID.notNull())
+        {
+            LL_DEBUGS("Animation") << "Requesting data fetch for: " << mID << LL_ENDL;
+            character_id = new LLUUID(mCharacter->getID());
+            gAssetStorage->getAssetData(mID,
+                                        LLAssetType::AT_ANIMATION,
+                                        onLoadComplete,
+                                        (void*)character_id,
+                                        FALSE);
+        }
+        else
+        {
+            LL_INFOS("Animation") << "Attempted to fetch animation " << mName << " with null id for character " << mCharacter->getID() << LL_ENDL;
+        }
 
 		return STATUS_HOLD;
 	case ASSET_FETCHED:

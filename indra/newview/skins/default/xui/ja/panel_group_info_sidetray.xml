@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="グループインベントリ" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
-		保存していない変更があります
+		保存していない変更があります。
 	</panel.string>
 	<panel.string name="want_apply_text">
 		変更を保存しますか？
 	</panel.string>
 	<panel.string name="group_join_btn">
-		参加 （L$[AMOUNT]）
+		入会費（L$ [AMOUNT]）
 	</panel.string>
 	<panel.string name="group_join_free">
 		無料
 	</panel.string>
 	<panel name="group_info_top">
-		<text_editor name="group_name" value="（ローディング...）"/>
+		<text_editor name="group_name" value="（読み込んでいます…）"/>
 		<line_editor label="新しいグループの名前を入力してください" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
 		<layout_panel name="group_accordions">
 			<accordion name="groups_accordion">
 				<accordion_tab name="group_general_tab" title="一般"/>
-				<accordion_tab name="group_roles_tab" title="役割 &amp; メンバー"/>
+				<accordion_tab name="group_roles_tab" title="役割とメンバー"/>
 				<accordion_tab name="group_notices_tab" title="通知"/>
 				<accordion_tab name="group_land_tab" title="土地・資産"/>
 				<accordion_tab name="group_experiences_tab" title="体験"/>

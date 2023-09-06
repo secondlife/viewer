@@ -62,6 +62,7 @@ public:
 	bool dispatch(const std::string& cmd,
 				  const LLSD& params,
 				  const LLSD& query_map,
+                  const std::string& grid,
 				  LLMediaCtrl* web,
 				  const std::string& nav_type,
 				  bool trusted_browser);
@@ -98,6 +99,7 @@ void LLCommandHandlerRegistry::add(const char* cmd,
 bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 										const LLSD& params,
 										const LLSD& query_map,
+										const std::string& grid,
 										LLMediaCtrl* web,
 										const std::string& nav_type,
 										bool trusted_browser)
@@ -165,7 +167,7 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 		}
 	}
 	if (!info.mHandler) return false;
-	return info.mHandler->handle(params, query_map, web);
+	return info.mHandler->handle(params, query_map, grid, web);
 }
 
 void LLCommandHandlerRegistry::notifySlurlBlocked()
@@ -220,12 +222,13 @@ LLCommandHandler::~LLCommandHandler()
 bool LLCommandDispatcher::dispatch(const std::string& cmd,
 								   const LLSD& params,
 								   const LLSD& query_map,
+								   const std::string& grid,
 								   LLMediaCtrl* web,
 								   const std::string& nav_type,
 								   bool trusted_browser)
 {
 	return LLCommandHandlerRegistry::instance().dispatch(
-		cmd, params, query_map, web, nav_type, trusted_browser);
+		cmd, params, query_map, grid, web, nav_type, trusted_browser);
 }
 
 static std::string lookup(LLCommandHandler::EUntrustedAccess value);

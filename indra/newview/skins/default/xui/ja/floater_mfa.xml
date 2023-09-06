@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater title="二段階認証トークンが必要です" name="mfa_challenge">
+	<text name="token_prompt_text">
+		トークンのプロンプト
+	</text>
+	<line_editor name="token_edit"/>
+	<button label="続ける" name="continue_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
+</floater>
