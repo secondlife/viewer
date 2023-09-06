@@ -24,13 +24,13 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
 #include "llvoiceclient.h"
-#include "llviewercontrol.h"
-#include "llviewerwindow.h"
 #include "llvoicevivox.h"
+#include "llvoicewebrtc.h"
 #include "llviewernetwork.h"
+#include "llviewercontrol.h"
 #include "llcommandhandler.h"
+#include "lldir.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
@@ -161,6 +161,10 @@ void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &age
 	{
 		mVoiceModule = (LLVoiceModuleInterface *)LLVivoxVoiceClient::getInstance();
 	}
+    if (voice_server == "webrtc")
+    {
+        mVoiceModule = (LLVoiceModuleInterface *) LLWebRTCVoiceClient::getInstance();
+    }
 	else
 	{
 		mVoiceModule = NULL;
