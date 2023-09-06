@@ -70,7 +70,7 @@ public:
 	void setEmojiHint(const std::string& hint);
 
 protected:
-	void LLPanelEmojiComplete::onEmojisChanged();
+	void onEmojisChanged();
 	size_t posToIndex(S32 x, S32 y) const;
 	void select(size_t emoji_idx);
 	void selectNext();
