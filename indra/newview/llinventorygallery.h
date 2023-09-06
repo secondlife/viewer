@@ -80,6 +80,7 @@ public:
     void onVisibilityChange(BOOL new_visibility) override;
     BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
+    void startDrag();
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
     BOOL handleKeyHere(KEY key, MASK mask) override;
     void moveUp(MASK mask);
@@ -199,7 +200,7 @@ protected:
     LLInventoryObserver*               mInventoryObserver;
     selection_deque                    mSelectedItemIDs;
     selection_deque                    mItemsToSelect;
-    LLUUID                             mLastSelectedUUID;
+    LLUUID                             mLastInteractedUUID;
     bool                               mIsInitialized;
     bool                               mRootDirty;
 
