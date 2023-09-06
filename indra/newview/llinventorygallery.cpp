@@ -217,6 +217,14 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
 
     gIdleCallbacks.deleteFunction(onIdle, (void*)this);
 
+    for (const LLUUID& id : mSelectedItemIDs)
+    {
+        if (mItemMap[id])
+        {
+            mItemMap[id]->setSelected(FALSE);
+        }
+    }
+
     mFolderID = cat_id;
     mItemsToSelect.clear();
     mSelectedItemIDs.clear();
@@ -1153,7 +1161,7 @@ void LLInventoryGallery::moveUp(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastSelectedUUID];
+        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
         if (item)
         {
             if (mask == MASK_NONE || mask == MASK_CONTROL)
@@ -1180,10 +1188,10 @@ void LLInventoryGallery::moveUp(MASK mask)
             {
                 S32 n = mItemIndexMap[item];
                 S32 target  = llmax(0, n - mItemsInRow);
-                toggleSelectionRange(target, n - 1);
                 if (target != n)
                 {
                     item = mIndexToItemMap[target];
+                    toggleSelectionRangeFromLast(item->getUUID());
                     item->setFocus(TRUE);
                     claimEditHandler();
                 }
@@ -1198,7 +1206,7 @@ void LLInventoryGallery::moveDown(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastSelectedUUID];
+        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
         if (item)
         {
             if (mask == MASK_NONE || mask == MASK_CONTROL)
@@ -1225,10 +1233,10 @@ void LLInventoryGallery::moveDown(MASK mask)
             {
                 S32 n = mItemIndexMap[item];
                 S32 target = llmin(mItemsAddedCount - 1, n + mItemsInRow);
-                toggleSelectionRange(n + 1, target);
                 if (target != n)
                 {
                     item = mIndexToItemMap[target];
+                    toggleSelectionRangeFromLast(item->getUUID());
                     item->setFocus(TRUE);
                     claimEditHandler();
                 }
@@ -1243,10 +1251,10 @@ void LLInventoryGallery::moveLeft(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastSelectedUUID];
+        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
         if (mask == MASK_SHIFT)
         {
-            item = mItemMap[mLastSelectedUUID];
+            item = mItemMap[mLastInteractedUUID];
         }
         if (item)
         {
@@ -1265,7 +1273,15 @@ void LLInventoryGallery::moveLeft(MASK mask)
             }
             else if (mask == MASK_SHIFT)
             {
-                toggleItemSelection(item_id, true);
+                if (item->isSelected())
+                {
+                    toggleItemSelection(mLastInteractedUUID, true);
+                }
+                else
+                {
+                    toggleItemSelection(item_id, true);
+                }
+                mLastInteractedUUID = item_id;
             }
             else
             {
@@ -1283,7 +1299,7 @@ void LLInventoryGallery::moveRight(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastSelectedUUID];
+        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
         if (item)
         {
             S32 n = mItemIndexMap[item];
@@ -1300,7 +1316,15 @@ void LLInventoryGallery::moveRight(MASK mask)
             }
             else if (mask == MASK_SHIFT)
             {
-                toggleItemSelection(item_id, true);
+                if (item->isSelected())
+                {
+                    toggleItemSelection(mLastInteractedUUID, true);
+                }
+                else
+                {
+                    toggleItemSelection(item_id, true);
+                }
+                mLastInteractedUUID = item_id;
             }
             else
             {
@@ -1315,35 +1339,62 @@ void LLInventoryGallery::moveRight(MASK mask)
 void LLInventoryGallery::toggleSelectionRange(S32 start_idx, S32 end_idx)
 {
     LLInventoryGalleryItem* item = NULL;
-    for (S32 i = start_idx; i <= end_idx; i++)
+    if (end_idx > start_idx)
     {
-        item = mIndexToItemMap[i];
-        LLUUID item_id = item->getUUID();
-        toggleItemSelection(item_id, true);
+        for (S32 i = start_idx; i <= end_idx; i++)
+        {
+            item = mIndexToItemMap[i];
+            LLUUID item_id = item->getUUID();
+            toggleItemSelection(item_id, true);
+        }
+    }
+    else
+    {
+        for (S32 i = start_idx; i >= end_idx; i--)
+        {
+            item = mIndexToItemMap[i];
+            LLUUID item_id = item->getUUID();
+            toggleItemSelection(item_id, true);
+        }
     }
 }
 
 void LLInventoryGallery::toggleSelectionRangeFromLast(const LLUUID target)
 {
-    if (mLastSelectedUUID == target)
+    if (mLastInteractedUUID == target)
     {
         return;
     }
-    LLInventoryGalleryItem* last_item = mItemMap[mLastSelectedUUID];
+    LLInventoryGalleryItem* last_item = mItemMap[mLastInteractedUUID];
     LLInventoryGalleryItem* next_item = mItemMap[target];
     if (last_item && next_item)
     {
         S32 last_idx = mItemIndexMap[last_item];
         S32 next_idx = mItemIndexMap[next_item];
-        if (last_idx < next_idx)
+        if (next_item->isSelected())
         {
-            toggleSelectionRange(last_idx + 1, next_idx);
+            if (last_idx < next_idx)
+            {
+                toggleSelectionRange(last_idx, next_idx - 1);
+            }
+            else
+            {
+                toggleSelectionRange(last_idx, next_idx + 1);
+            }
         }
         else
         {
-            toggleSelectionRange(next_idx, last_idx - 1);
+            if (last_idx < next_idx)
+            {
+                toggleSelectionRange(last_idx + 1, next_idx);
+            }
+            else
+            {
+                toggleSelectionRange(last_idx - 1, next_idx);
+            }
         }
     }
+    mLastInteractedUUID = next_item->getUUID();
 }
 
 void LLInventoryGallery::onFocusLost()
@@ -1408,7 +1459,6 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
     {
         if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) == mSelectedItemIDs.end())
         {
-            mSelectedItemIDs.clear();
             changeItemSelection(item_id, false);
         }
         uuid_vec_t selected_uuids(mSelectedItemIDs.begin(), mSelectedItemIDs.end());
@@ -1426,10 +1476,10 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
         }
     }
     mSelectedItemIDs.clear();
+    mItemsToSelect.clear();
 
     if ((mItemMap.count(item_id) == 0) || mNeedsArrange)
     {
-        mItemsToSelect.clear();
         mItemsToSelect.push_back(item_id);
         return;
     }
@@ -1446,7 +1496,7 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
     }
     mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
-    mLastSelectedUUID = item_id;
+    mLastInteractedUUID = item_id;
 
     if (scroll_to_selection)
     {
@@ -1473,7 +1523,7 @@ void LLInventoryGallery::addItemSelection(const LLUUID& item_id, bool scroll_to_
     }
     mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
-    mLastSelectedUUID = item_id;
+    mLastInteractedUUID = item_id;
 
     if (scroll_to_selection)
     {
@@ -1507,9 +1557,9 @@ bool LLInventoryGallery::toggleItemSelection(const LLUUID& item_id, bool scroll_
         }
         mSelectedItemIDs.push_back(item_id);
         signalSelectionItemID(item_id);
-        mLastSelectedUUID = item_id;
         result = true;
     }
+    mLastInteractedUUID = item_id;
 
     if (scroll_to_selection)
     {
@@ -2338,6 +2388,43 @@ BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
     return handled;
 }
 
+void LLInventoryGallery::startDrag()
+{
+    std::vector<EDragAndDropType> types;
+    uuid_vec_t ids;
+    LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_AGENT;
+    for (LLUUID& selected_id : mSelectedItemIDs)
+    {
+        const LLInventoryItem* item = gInventory.getItem(selected_id);
+        if (item)
+        {
+            if (item->getPermissions().getOwner() == ALEXANDRIA_LINDEN_ID)
+            {
+                src = LLToolDragAndDrop::SOURCE_LIBRARY;
+            }
+
+            EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(item->getType());
+            types.push_back(type);
+            ids.push_back(selected_id);
+        }
+
+        const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);        
+        if (cat && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
+            && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
+        {
+            if (cat->getOwnerID() == ALEXANDRIA_LINDEN_ID)
+            {
+                src = LLToolDragAndDrop::SOURCE_LIBRARY;
+            }
+
+            EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
+            types.push_back(type);
+            ids.push_back(selected_id);
+        }
+    }
+    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, LLToolDragAndDrop::SOURCE_AGENT);
+}
+
 bool LLInventoryGallery::areViewsInitialized()
 {
     return mGalleryCreated && mItemBuildQuery.empty();
@@ -2620,7 +2707,7 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         mGallery->toggleSelectionRangeFromLast(mUUID);
     }
-    else
+    else if (!isSelected())
     {
         mGallery->changeItemSelection(mUUID, false);
     }
@@ -2663,28 +2750,10 @@ BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
         S32 screen_y;
         localPointToScreen(x, y, &screen_x, &screen_y );
 
-        if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
+        if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y) && mGallery)
         {
-            const LLInventoryItem *item = gInventory.getItem(mUUID);
-            if(item)
-            {
-                EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(item->getType());
-                LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_LIBRARY;
-                if(item->getPermissions().getOwner() == gAgent.getID())
-                {
-                    src = LLToolDragAndDrop::SOURCE_AGENT;
-                }
-                LLToolDragAndDrop::getInstance()->beginDrag(type, item->getUUID(), src);
-                return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask );
-            }
-
-            const LLInventoryCategory *cat = gInventory.getCategory(mUUID);
-            if(cat && gInventory.isObjectDescendentOf(mUUID, gInventory.getRootFolderID())
-                   && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
-            {
-                LLToolDragAndDrop::getInstance()->beginDrag(LLViewerAssetType::lookupDragAndDropType(cat->getType()), cat->getUUID(), LLToolDragAndDrop::SOURCE_AGENT);
-                return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask );
-            }
+            mGallery->startDrag();
+            return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask);
         }
     }
     return LLUICtrl::handleHover(x,y,mask);
