@@ -30,8 +30,10 @@
 class LLLUAmanager
 {
 public:
-    static void runScriptFile(const std::string &filename);
-    static void runScriptLine(const std::string &cmd);
+    typedef std::function<void(std::string msg)> script_finished_fn;
+
+    static void runScriptFile(const std::string &filename, script_finished_fn cb = script_finished_fn());
+    static void runScriptLine(const std::string &cmd, script_finished_fn cb = script_finished_fn());
 };
 
 

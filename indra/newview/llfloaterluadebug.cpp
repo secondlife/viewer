@@ -71,8 +71,13 @@ LLFloaterLUADebug::~LLFloaterLUADebug()
 
 void LLFloaterLUADebug::onExecuteClicked()
 {
+    mResultOutput->setValue("");
+
     std::string cmd = mLineInput->getText();
-    LLLUAmanager::runScriptLine(cmd);
+    LLLUAmanager::runScriptLine(cmd, [this](std::string msg)
+        { 
+            mResultOutput->setText(msg);
+        });
 }
 
 void LLFloaterLUADebug::onBtnBrowse()
@@ -81,12 +86,17 @@ void LLFloaterLUADebug::onBtnBrowse()
 }
 
 void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filenames)
-{
+{   
+    mResultOutput->setValue("");
+
     std::string filepath = filenames[0];
     if (!filepath.empty())
     {
         mScriptPath->setText(filepath);
-        LLLUAmanager::runScriptFile(filepath);
+        LLLUAmanager::runScriptFile(filepath, [this](std::string msg) 
+            { 
+                mResultOutput->setText(msg); 
+            });
     }
 }
 

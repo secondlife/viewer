@@ -81,13 +81,27 @@ int lua_wear_by_name(lua_State *L)
     return 1;
 }
 
-bool checkLua(lua_State *L, int r)
+int lua_open_floater(lua_State *L)
+{
+    std::string floater_name(lua_tostring(L, 1));
+
+    LLSD key;
+    if (floater_name == "profile")
+    {
+        key["id"] = gAgentID;
+    }
+    LLFloaterReg::showInstance(floater_name, key);
+
+    return 1;
+}
+
+bool checkLua(lua_State *L, int r, std::string &error_msg)
 {
     if (r != LUA_OK)
     {
-        std::string lua_error = lua_tostring(L, -1);
+        error_msg = lua_tostring(L, -1);
 
-        LL_WARNS() << lua_error << LL_ENDL;
+        LL_WARNS() << error_msg << LL_ENDL;
         return false;
     }
     return true;
@@ -95,18 +109,19 @@ bool checkLua(lua_State *L, int r)
 
 void initLUA(lua_State *L)
 {
-    lua_register(L, "lua_printWarning", lua_printWarning);
+    lua_register(L, "print_warning", lua_printWarning);
 
-    lua_register(L, "lua_avatar_sit", lua_avatar_sit);
-    lua_register(L, "lua_avatar_stand", lua_avatar_stand);
+    lua_register(L, "avatar_sit", lua_avatar_sit);
+    lua_register(L, "avatar_stand", lua_avatar_stand);
 
-    lua_register(L, "lua_nearby_chat_send", lua_nearby_chat_send);
-    lua_register(L, "lua_wear_by_name", lua_wear_by_name);
+    lua_register(L, "nearby_chat_send", lua_nearby_chat_send);
+    lua_register(L, "wear_by_name", lua_wear_by_name);
+    lua_register(L, "open_floater", lua_open_floater);
 }
 
-void LLLUAmanager::runScriptFile(const std::string &filename)
+void LLLUAmanager::runScriptFile(const std::string &filename, script_finished_fn cb)
 {
-    LLCoros::instance().launch("LUAScriptFileCoro", [filename]()
+    LLCoros::instance().launch("LUAScriptFileCoro", [filename, cb]()
     {
         lua_State *L = luaL_newstate();
         luaL_openlibs(L);
@@ -121,32 +136,43 @@ void LLLUAmanager::runScriptFile(const std::string &filename)
 
         lua_register(L, "sleep", LUA_sleep_func);
 
-        if (checkLua(L, luaL_dofile(L, filename.c_str())))
+        std::string lua_error;
+        if (checkLua(L, luaL_dofile(L, filename.c_str()), lua_error))
         {
             lua_getglobal(L, "call_once_func");
             if (lua_isfunction(L, -1))
             {
-                if (checkLua(L, lua_pcall(L, 0, 0, 0))) {}
+                if (checkLua(L, lua_pcall(L, 0, 0, 0), lua_error)) {}
             }
         }
-
         lua_close(L);
+
+        if (cb) 
+        {
+            cb(lua_error);
+        }
     });
 }
 
-void LLLUAmanager::runScriptLine(const std::string &cmd) 
+void LLLUAmanager::runScriptLine(const std::string &cmd, script_finished_fn cb)
 {
-    LLCoros::instance().launch("LUAScriptFileCoro", [cmd]()
+    LLCoros::instance().launch("LUAScriptFileCoro", [cmd, cb]()
     {
         lua_State *L = luaL_newstate();
         luaL_openlibs(L);
         initLUA(L);
         int r = luaL_dostring(L, cmd.c_str());
+
+        std::string lua_error;
         if (r != LUA_OK)
         {
-            std::string lua_error = lua_tostring(L, -1);
-            LL_WARNS() << lua_error << LL_ENDL;
+            lua_error = lua_tostring(L, -1);
         }
         lua_close(L);
+
+        if (cb) 
+        {
+            cb(lua_error);
+        }
     });
 }
