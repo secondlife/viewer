@@ -4344,7 +4344,8 @@ void LLPanelFace::onPasteTexture()
         || objectp->getPCode() != LL_PCODE_VOLUME
         || !objectp->permModify()
         || objectp->isPermanentEnforced()
-        || selected_count > 1)
+        || selected_count > 1
+        || !LLMaterialEditor::canClipboardObjectsMaterial())
     {
         // not supposed to happen
         LL_WARNS() << "Failed to paste texture due to missing or wrong selection" << LL_ENDL;
