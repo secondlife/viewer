@@ -530,7 +530,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
 // w - weight of sample (distance and angular attenuation)
 // dw - weight of sample (distance only)
 // i - index of probe 
-vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int i)
+vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int i, vec3 amblit)
 {
     // parallax adjustment
     vec3 v;
@@ -556,9 +556,12 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
 
     v -= c;
     v = env_mat * v;
-    {
-        return textureLod(irradianceProbes, vec4(v.xyz, refIndex[i].x), 0).rgb * refParams[i].x;
-    }
+    
+    vec3 col = textureLod(irradianceProbes, vec4(v.xyz, refIndex[i].x), 0).rgb * refParams[i].x;
+
+    col = mix(amblit, col, min(refParams[i].x, 1.0));
+
+    return col;
 }
 
 vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
@@ -619,7 +622,7 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
     return col[1]+col[0];
 }
 
-vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
+vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
 {
     // modified copy/paste of sampleProbes follows, will likely diverge from sampleProbes further
     // as irradiance map mixing is tuned independently of radiance map mixing
@@ -649,7 +652,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
             float w = 0;
             float dw = 0;
 
-            vec3 refcol = tapIrradianceMap(pos, dir, w, dw, refSphere[i].xyz, i);
+            vec3 refcol = tapIrradianceMap(pos, dir, w, dw, refSphere[i].xyz, i, amblit);
 
             col[p] += refcol*w;
             wsum[p] += w;
@@ -679,14 +682,14 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
 }
 
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
 {
     // TODO - don't hard code lods
     float reflection_lods = max_probe_lod;
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm);
+    ambenv = sampleProbeAmbient(pos, norm, amblit);
 
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
@@ -712,14 +715,14 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
 {
     preProbeSample(pos);
-    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, transparent);
+    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, transparent, amblit);
 }
 
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, vec3 amblit)
 {
     // don't sample automatic probes for water
     sample_automatic = false;
@@ -728,7 +731,7 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
     // always include void probe on water
     probeIndex[probeInfluences++] = 0;
 
-    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, false);
+    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, false, amblit);
 
     // fudge factor to get PBR water at a similar luminance ot legacy water
     glossenv *= 0.4;
@@ -783,14 +786,14 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
 }
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit)
 {
     float reflection_lods = max_probe_lod;
     preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm);
+    ambenv = sampleProbeAmbient(pos, norm, amblit);
 
     if (glossiness > 0.0)
     {

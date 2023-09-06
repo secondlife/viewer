@@ -34,7 +34,7 @@ uniform mat3 env_mat;
 vec3 srgb_to_linear(vec3 c);
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear)
 {
     ambenv = vec3(reflection_probe_ambiance * 0.25);
     
@@ -44,9 +44,9 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 }
 
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, vec3 amblit_linear)
 {
-    sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness, false);
+    sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness, false, amblit_linear);
 }
 
 vec4 sampleReflectionProbesDebug(vec3 pos)
@@ -56,7 +56,7 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
 }
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear)
 {
     ambenv = vec3(reflection_probe_ambiance * 0.25);
     
