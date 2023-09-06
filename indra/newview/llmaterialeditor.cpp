@@ -1949,6 +1949,24 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
 
 bool LLMaterialEditor::canClipboardObjectsMaterial()
 {
+    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 1)
+    {
+        return false;
+    }
+
+    struct LLSelectedTEGetNullMat : public LLSelectedTEFunctor
+    {
+        bool apply(LLViewerObject* objectp, S32 te_index)
+        {
+            return objectp->getRenderMaterialID(te_index).isNull();
+        }
+    } null_func;
+
+    if (LLSelectMgr::getInstance()->getSelection()->applyToTEs(&null_func))
+    {
+        return true;
+    }
+
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
