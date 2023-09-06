@@ -267,7 +267,7 @@ jobs:
 
   post-mac-symbols:
     needs: build
-    runs-on: macos
+    runs-on: macos-latest
     steps:
       - name: Post Mac symbols
         uses: secondlife/viewer-post-bugsplat-mac@main
