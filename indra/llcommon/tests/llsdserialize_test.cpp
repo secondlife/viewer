@@ -2081,7 +2081,7 @@ namespace tut
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
-               "        f.write(serialized)\n");
+               "        f.write(serialized)\n";});
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
