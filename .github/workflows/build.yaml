@@ -34,8 +34,8 @@ jobs:
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
-      # Ensure that viewer builds engage Bugsplat.
-      BUGSPLAT_DB: "SecondLife_Viewer_2018"
+      # Ensure that Linden viewer builds engage Bugsplat.
+      BUGSPLAT_DB: ${{ matrix.configuration != 'ReleaseOS' && 'SecondLife_Viewer_2018' || '' }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       build_coverity: false
