@@ -2171,10 +2171,9 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
     if (LINUX)
       # TBD
     endif (LINUX)
-  endif (USE_BUGSPLAT)
 
-  # for both Bugsplat and Breakpad
-  add_dependencies(llpackage generate_symbols)
+    add_dependencies(llpackage generate_symbols)
+  endif (USE_BUGSPLAT)
 endif ()
 
 if (LL_TESTS)
