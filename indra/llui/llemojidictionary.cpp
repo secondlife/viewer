@@ -204,7 +204,8 @@ void LLEmojiDictionary::loadTranslations()
     {
         const LLSD& sd = *it;
         const std::string& name = sd["Name"].asStringRef();
-        const std::string& category = sd["Category"].asStringRef();
+        std::string category = sd["Category"].asString();
+        LLStringUtil::toLower(category);
         if (!name.empty() && !category.empty())
         {
             mTranslations[name] = category;
