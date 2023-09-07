@@ -231,9 +231,29 @@ LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
 class LLInventoryHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
-	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_CLICK_ONLY) { }
-	
+    LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_THROTTLE) { }
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (params.size() < 1)
+        {
+            return true; // don't block, will fail later
+        }
+
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
 	bool handle(const LLSD& params,
                 const LLSD& query_map,
                 const std::string& grid,
