@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="inventory_item">
-	<text name="item_name" value="..."/>
+	<icon name="hovered_icon"/>
+	<icon name="selected_icon"/>
+	<icon name="item_icon"/>
+	<text name="item_name" value="…"/>
 </panel>

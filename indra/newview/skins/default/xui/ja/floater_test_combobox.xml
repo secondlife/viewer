@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_test_combobox">
+	<text type="string" length="1" height="16" layout="topleft" left="10" top="24" width="200">
+		現実の使い道（ログイン場所）：
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_box.item label="最後に訪れた場所" name="MyLastLocation" value="last"/>
+		<combo_box.item label="自分の家" name="MyHome" value="home"/>
+		<combo_box.item label="＜リージョン（地域）名を入力＞" name="Typeregionname" value=""/>
+	</combo_box>
+	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
+		最小のコンボボックス：
+	</text>
+	<combo_box name="minimal_combo">
+		<combo_box.item label="最初" name="item1" value="first"/>
+		<combo_box.item label="２つ目" name="item2" value="second"/>
+	</combo_box>
+	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
+		テキスト入力を許可：
+	</text>
+	<combo_box name="text_entry_combo">
+		<combo_box.item label="最初の項目" name="item1" value="first"/>
+		<combo_box.item label="２つ目の項目" name="item2" value="second"/>
+	</combo_box>
+	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
+		テキスト入力を許可。デフォルトは２つ目の項目：
+	</text>
+	<combo_box name="text_entry_combo2">
+		<combo_box.item label="最初の項目" name="item1" value="first"/>
+		<combo_box.item label="２つ目の項目" name="item2" value="second"/>
+	</combo_box>
+	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
+		２文字まで入力可能：
+	</text>
+	<combo_box name="state_combo">
+		<combo_box.item label="CA" name="item1" value="ca"/>
+		<combo_box.item label="NY" name="item2" value="ny"/>
+		<combo_box.item label="TX" name="item3" value="tx"/>
+	</combo_box>
+</floater>

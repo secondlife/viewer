@@ -18,8 +18,11 @@
 	<string name="StartupRequireDriverUpdate">
 		Nie można zainicjować grafiki. Zaktualizuj sterowniki!
 	</string>
+	<string name="BuildConfig">
+		Konfiguracja budowania: [BUILD_CONFIG]
+	</string>
 	<string name="AboutPosition">
-Położenie [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] w [REGION] zlokalizowanym w &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+Położenie [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] w [REGION] zlokalizowanym w &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (koordynaty globalne [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
@@ -28,27 +31,52 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="AboutSystem">
 Procesor (CPU): [CPU]
 Pamięć (Memory): [MEMORY_MB] MB
-Wersja OS (OS Version): [OS_VERSION]
-Sprzedawca karty graficznej (Graphics Card Vendor): [GRAPHICS_CARD_VENDOR]
+System operacyjny (OS Version): [OS_VERSION]
+Dostawca karty graficznej (Graphics Card Vendor): [GRAPHICS_CARD_VENDOR]
 Karta graficzna (Graphics Card): [GRAPHICS_CARD]
 	</string>
 	<string name="AboutDriver">
-		Sterownik karty graficznej Windows (Driver Version): [GRAPHICS_DRIVER_VERSION]
+		Sterownik karty graficznej (Driver Version): [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutOGL">
+		Wersja OpenGL: [OPENGL_VERSION]
+	</string>
+	<string name="AboutSettings">
+Rozmiar okna (Window size): [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Dostrojenie rozmiaru czcionki: [FONT_SIZE_ADJUSTMENT]pt
+Skalowanie interfejsu (UI Scaling): [UI_SCALE]
+Pole widzenia (Draw Distance): [DRAW_DISTANCE]m
+Przepustowość (Bandwidth): [NET_BANDWITH]kbit/s
+Mnożnik poziomu detali (LOD Factor): [LOD_FACTOR]
+Jakość wyświetlania (Render quality): [RENDER_QUALITY]
+Zaawansowane oświetlenie (Advanced Lighting Model): [GPU_SHADERS]
+Pamięć tekstur (Texture memory): [TEXTURE_MEMORY]MB
+Pamięć podręczna dysku (Disk cache): [DISK_CACHE_INFO]
+	</string>
+	<string name="AboutOSXHiDPI">
+		Tryb obrazu HiDPI: [HIDPI]
 	</string>
 	<string name="AboutLibs">
-Wersja OpenGL: [OPENGL_VERSION]
-
 Wersja dekodera J2C: [J2C_VERSION]
 Wersja sterownika dźwięku (Audio Driver): [AUDIO_DRIVER_VERSION]
-Wersja CEF: [LIBCEF_VERSION]
+[LIBCEF_VERSION]
 Wersja LibVLC: [LIBVLC_VERSION]
 Wersja serwera głosu (Voice Server): [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Pakiety utracone: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</string>
+	<string name="AboutTime">
+		[day, datetime, slt] [month, datetime, slt] [year, datetime, slt], [hour24, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] SLT
+	</string>
+	<string name="LocalTime">
+		[day, datetime, local] [month, datetime, local] [year, datetime, local], [hour24, datetime, local]:[min, datetime, local]:[second, datetime, local]
+	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Błąd podczas pobierania informacji o wydaniu.
+	</string>
+	<string name="BuildConfiguration">
+		Konfiguracja budowania
 	</string>
 	<string name="ProgressRestoring">
 		Przywracanie...
@@ -123,22 +151,28 @@ Wersja serwera głosu (Voice Server): [VOICE_VERSION]
 		Pobieranie ubrania...
 	</string>
 	<string name="InvalidCertificate">
-		Serwer zwrócił nieważny lub zniekształcony certyfikat. Proszę skontaktuj się z administratorem siatki.
+		Serwer zwrócił nieważny lub zniekształcony certyfikat. Proszę skontaktuj się z administratorem świata.
 	</string>
 	<string name="CertInvalidHostname">
-		Nazwa hosta jest nieważna, proszę sprawdź SLURL lub nazwę hosta siatki.
+		Nazwa hosta jest nieważna, proszę sprawdź SLURL lub nazwę hosta świata.
 	</string>
 	<string name="CertExpired">
-		Termin ważności certyfikatu zwróconego przez siatkę minął. Proszę sprawdzić swój zegar systemowy lub skontaktować się z administratorem siatki.
+		Termin ważności certyfikatu zwróconego przez świat minął. Proszę sprawdzić swój zegar systemowy lub skontaktować się z administratorem świata.
 	</string>
 	<string name="CertKeyUsage">
-		Certyfikat zwrócony przez serwer nie może być użyty dla SSL. Proszę skontaktuj się z administratorem siatki.
+		Certyfikat zwrócony przez serwer nie może być użyty dla SSL. Proszę skontaktuj się z administratorem świata.
 	</string>
 	<string name="CertBasicConstraints">
-		Zbyt wiele certyfikatów w łańcuchu certyfikatów serwera. Proszę skontaktować się z administratorem siatki.
+		Zbyt wiele certyfikatów w łańcuchu certyfikatów serwera. Proszę skontaktować się z administratorem świata.
+	</string>
+	<string name="CertInvalid">
+		Nie udało się załadować certyfikatu. Skontaktuj się ze swoim administratorem świata.
 	</string>
 	<string name="CertInvalidSignature">
-		Podpis certyfikatu zwrócony przez siatkę nie mógł zostać zweryfikowany. Proszę skontaktować się z administratorem siatki.
+		Podpis certyfikatu zwrócony przez świat nie mógł zostać zweryfikowany. Proszę skontaktować się z administratorem świata.
+	</string>
+	<string name="CertAllocationFailure">
+		Nie udało się przydzielić pamięci openssl dla certyfikatu.
 	</string>
 	<string name="LoginFailedNoNetwork">
 		Błąd sieci: Brak połączenia z siecią, sprawdź status swojego połączenia internetowego.
@@ -149,12 +183,22 @@ Wersja serwera głosu (Voice Server): [VOICE_VERSION]
 	<string name="Quit">
 		Wyłącz
 	</string>
+	<string name="AgniGridLabel">
+		Second Life: świat główny (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Second Life Beta: świat testowy (Aditi)
+	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Przeglądarka używana przez Ciebie nie ma już dostępu do Second Life. Proszę przejść na poniższą stronę i pobrać nową:
 http://secondlife.com/download
 
 Więcej informacji w naszym FAQ:
 http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginFailed">
+		Logowanie nieudane.
+Jeśli uważasz, że to błąd, skontaktuj się z support@secondlife.com.
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
 		Opcjonalna aktualizacja jest dostępna: [VERSION].
@@ -170,6 +214,7 @@ http://secondlife.com/viewer-access-faq
 Upewnij się, że wpisano poprawnie:
     * Login (np. bobsmith12 czy steller.sunshine)
     * Hasło
+	* Token weryfikacji dwuetapowej (gdy włączona)
 Sprawdź też, czy klawisz Caps Lock nie jest wciśnięty.
 	</string>
 	<string name="LoginFailedPasswordChanged">
@@ -199,14 +244,17 @@ Osoby posiadające darmowe konta nie mogą się teraz zalogować, aby ludzie pos
 Jeśli myślisz, że to błąd skontaktuj się z
 support@secondlife.com
 	</string>
+	<string name="PacificTime">
+		czas pacyficzny
+	</string>
 	<string name="LoginFailedAcountSuspended">
 		Twoje konto jest niedostępne do
-[TIME] czasu pacyficznego.
+[TIME].
+Jeśli myślisz, że to błąd skontaktuj się z support@secondlife.com
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		Nie jesteśmy w stanie na tą chwilę wykonać Twojego żądania.
-Aby uzyskać pomoc skontaktuj się ze wsparciem: http://secondlife.com/support
-Jeśli nie możesz zmienić swojego hasła zadzwoń pod numer (866) 476-9763.
+Aby uzyskać pomoc skontaktuj się ze wsparciem: http://support.secondlife.com
 	</string>
 	<string name="LoginFailedTransformError">
 		Podczas logowania wykryto niespójność danych.
@@ -215,7 +263,7 @@ Skontaktuj się z nami: support@secondlife.com
 	<string name="LoginFailedAccountMaintenance">
 		Twoje konto jest w trakcie drobnych konserwacji.
 Nie będzie ono dostępne do
-[TIME] czasu pacyficznego.
+[TIME].
 Jeśli myślisz, że to błąd skontaktuj się z support@secondlife.com
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
@@ -223,8 +271,7 @@ Jeśli myślisz, że to błąd skontaktuj się z support@secondlife.com
 	</string>
 	<string name="LoginFailedPendingLogout">
 		System w tej chwili Cię wylogowywuje.
-Twoje konto będzie niedostępne do
-[TIME] czasu pacyficznego.
+Poczekaj chwilę, zanim spróbujesz zalogować się ponownie.
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		Nie można utworzyć poprawnej sesji.
@@ -282,6 +329,10 @@ Spróbuj zalogować się ponownie za minutę.
 		System rozpoczął wylogowywanie Twojej ostatniej sesji.
 Spróbuj zalogować się ponownie za minutę.
 	</string>
+	<string name="LoginFailedAuthenticationMFARequired">
+		Wprowadź nowy token z aplikacji do uwierzytelniania wieloskładnikowego.
+Jeśli myślisz, że to błąd skontaktuj się z support@secondlife.com
+	</string>
 	<string name="AgentLostConnection">
 		Ten region może mieć problemy. Sprawdź podłączenie do Internetu.
 	</string>
@@ -302,60 +353,6 @@ Spróbuj zalogować się ponownie za minutę.
 	</string>
 	<string name="TestingDisconnect">
 		Testowanie rozłączenia klienta
-	</string>
-	<string name="SocialFacebookConnecting">
-		Łączenie z Facebookiem...
-	</string>
-	<string name="SocialFacebookPosting">
-		Wysyłanie...
-	</string>
-	<string name="SocialFacebookDisconnecting">
-		Rozłączanie z Facebookiem...
-	</string>
-	<string name="SocialFacebookErrorConnecting">
-		Problem z łączeniem z Facebookiem
-	</string>
-	<string name="SocialFacebookErrorPosting">
-		Problem z wysyłaniem na Facebooka
-	</string>
-	<string name="SocialFacebookErrorDisconnecting">
-		Problem z rozłączaniem z Facebookiem
-	</string>
-	<string name="SocialFlickrConnecting">
-		Łączenie z Flickr...
-	</string>
-	<string name="SocialFlickrPosting">
-		Wysyłanie...
-	</string>
-	<string name="SocialFlickrDisconnecting">
-		Rozłączanie z Flickr...
-	</string>
-	<string name="SocialFlickrErrorConnecting">
-		Problem z łączeniem z Flickr
-	</string>
-	<string name="SocialFlickrErrorPosting">
-		Problem z wysyłaniem na Flickr
-	</string>
-	<string name="SocialFlickrErrorDisconnecting">
-		Problem z rozłączaniem z Flickr
-	</string>
-	<string name="SocialTwitterConnecting">
-		Łączenie z Twitterem...
-	</string>
-	<string name="SocialTwitterPosting">
-		Wysyłanie...
-	</string>
-	<string name="SocialTwitterDisconnecting">
-		Rozłączanie z Twitterem...
-	</string>
-	<string name="SocialTwitterErrorConnecting">
-		Problem z łączeniem z Twitterem
-	</string>
-	<string name="SocialTwitterErrorPosting">
-		Problem z wysyłaniem na Twittera
-	</string>
-	<string name="SocialTwitterErrorDisconnecting">
-		Problem z rozłączaniem z Twittera
 	</string>
 	<string name="BlackAndWhite">
 		Czerń i biel
@@ -436,29 +433,56 @@ Spróbuj zalogować się ponownie za minutę.
 		Nie możesz założyć folderu, który zawiera więcej niż [AMOUNT] przedmiotów. Możesz zmienić ten limit w Zaawansowane &gt; Pokaż ustawienia debugowania &gt; WearFolderLimit.
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT]L$: "/>
+	<string name="TooltipSLIcon">
+		Link do strony znajdującej się w oficjalnej domenie SecondLife.com lub LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
-		Nie możesz rezzować obiektów w skrzynce nadawczej kupca
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Jeden lub kilka z tych obiektów nie może zostać sprzedany / przetransferowany.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		Twoja skrzynka nadawcza kupca akceptuje tylko przedmioty bezpośrednio z Twojej Szafy.
+		Nie możesz rezzować obiektów z folderu rzeczy na Marketplace
 	</string>
 	<string name="TooltipOutboxWorn">
-		Nie możesz umieszczać w skrzynce nadawczej kupca przedmiotów, które masz na sobie założone
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Nie możesz umieszczać wizytówek w skrzynce nadawczej kupca
+		Nie możesz umieszczać na Marketplace przedmiotów, które masz na sobie założone
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Głębokość zagnieżdżonych folderów przekracza 3
+		Głębokość zagnieżdżonych folderów przekracza [AMOUNT]. Zmniejsz ilość zagdzieżdżeń; Spakuj przedmioty w pudełka, jeśli to pomoże.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Ilość podfolderów w folderze najwyższego poziomu przekracza 20
+		Ilość podfolderów przekracza [AMOUNT]. Zmniejsz ilość folderów; Spakuj przedmioty w pudełka, jeśli to pomoże.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Ilość pozycji w folderze najwyższego poziomu przekracza 200
+		Ilość rzeczy przekracza [AMOUNT]. Jeśli chcesz sprzedać więcej, niż [AMOUNT] rzeczy jako jedną pozycję, to musisz je spakować w pudełka.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Ilość przedmiotów w folderze Magazynowym przekracza [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Możesz przenosić foldery lub przedmioty wyłącznie do kart WSZYSTKO lub NIEPRZYPISANE. Wybierz teraz jedną z tych kart i spróbuj ponownie.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Jeden lub kilka z tych obiektów nie może zostać sprzedany / przetransferowany
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Marketplace akceptuje tylko przedmioty bezpośrednio z Twojej Szafy.
+	</string>
+	<string name="TooltipOutboxLinked">
+		Nie możesz sprzedać zlinkowanych folderów lub przedmiotów na Marketplace
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Nie możesz umieszczać wizytówek na Marketplace
+	</string>
+	<string name="TooltipOutboxDragActive">
+		Nie można przenieść wylistowanej rzeczy
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Nie możesz przenieść folderu głównego rzeczy na Marketplace
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Wszystkie rzeczy w folderze Magazynowym muszą mieć ten sam typ i zezwolenia
+	</string>
+	<string name="TooltipOutfitNotInInventory">
+		W "Strojach" możesz umieszczać tylko przedmioty lub stroje z własnej Szafy
+	</string>
+	<string name="TooltipCantCreateOutfit">
+		Jeden lub więcej przedmiotów nie może być użyty w "Strojach"
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Nie możesz przenieść folderu do jego obiektu podrzędnego
@@ -521,6 +545,9 @@ Spróbuj zalogować się ponownie za minutę.
 		Kliknij aby uruchomić komendę secondlife://
 	</string>
 	<string name="CurrentURL" value=" Obecny URL: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Kliknij aby utworzyć wiadomość e-mail
+	</string>
 	<string name="SLurlLabelTeleport">
 		Teleportuj do
 	</string>
@@ -569,6 +596,15 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="BUTTON_HELP">
 		Pokaż Pomoc
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+Przedmioty tego typu nie mogą być dołączane
+do notek z tego regionu.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+Tylko przedmioty z nieograniczonymi
+uprawnieniami 'następnego właściciela'
+mogą być dołączane do notek.
+	</string>
 	<string name="Searching">
 		Wyszukiwanie...
 	</string>
@@ -588,7 +624,7 @@ Spróbuj zalogować się ponownie za minutę.
 		(brak danych)
 	</string>
 	<string name="AvatarNameWaiting">
-		(ładowanie)
+		(Wczytywanie...)
 	</string>
 	<string name="AvatarNameMultiple">
 		(kilka)
@@ -628,6 +664,31 @@ Spróbuj zalogować się ponownie za minutę.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Status nieznany
+	</string>
+	<string name="AssetUploadServerUnreacheble">
+		Usługa niedostępna.
+	</string>
+	<string name="AssetUploadServerDifficulties">
+		Serwer doświadcza nieoczekiwanych trudności.
+	</string>
+	<string name="AssetUploadServerUnavaliable">
+		Usługa niedostępna lub osiągnięto limit czasu.
+	</string>
+	<string name="AssetUploadRequestInvalid">
+		Błąd podczas przesyłania. Odwiedź
+http://secondlife.com/support aby uzyskać pomoc.
+	</string>
+	<string name="SettingValidationError">
+		Walidacja nie powiodła się - importowanie ustawień [NAME]
+	</string>
+	<string name="SettingImportFileError">
+		Nie można otworzyć pliku [FILE]
+	</string>
+	<string name="SettingParseFileError">
+		Nie można otworzyć pliku [FILE]
+	</string>
+	<string name="SettingTranslateError">
+		Nie można przetłumaczyć windlight [NAME]
 	</string>
 	<string name="texture">
 		tekstury
@@ -698,15 +759,18 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="favorite">
 		ulubione
 	</string>
+	<string name="symbolic link">
+		link
+	</string>
 	<string name="symbolic folder link">
 		link folderu
+	</string>
+	<string name="settings blob">
+		otoczenie
 	</string>
 	<string name="mesh">
 		mesz
 	</string>
-    <string name="settings">
-        ustawień
-    </string>
 	<string name="AvatarEditingAppearance">
 		(Edycja wyglądu)
 	</string>
@@ -714,7 +778,7 @@ Spróbuj zalogować się ponownie za minutę.
 		Śpi
 	</string>
 	<string name="AvatarDoNotDisturb">
-		Zajęty
+		Zajęty/a
 	</string>
 	<string name="AvatarMuted">
 		Wyciszony
@@ -957,10 +1021,10 @@ Spróbuj zalogować się ponownie za minutę.
 		Nie można znaleźć Podstawy lub Stawu.
 	</string>
 	<string name="NearbyChatTitle">
-		Czat lokalny
+		Czat w pobliżu
 	</string>
 	<string name="NearbyChatLabel">
-		(Czat lokalny)
+		(Czat w pobliżu)
 	</string>
 	<string name="whisper">
 		szepcze:
@@ -1034,14 +1098,17 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="ChangeYourDefaultAnimations">
 		Zmieniać Twoje domyślne animacje
 	</string>
+	<string name="ForceSitAvatar">
+		Zmuszać Twojego awatara do siadania
+	</string>
+	<string name="ChangeEnvSettings">
+		Zmieniać Twoje ustawienia otoczenia
+	</string>
 	<string name="NotConnected">
 		Brak połączenia
 	</string>
 	<string name="AgentNameSubst">
 		(Ty)
-	</string>
-	<string name="JoinAnExperience">
-		Rozpocznij przygodę
 	</string>
 	<string name="SilentlyManageEstateAccess">
 		Wyciszyć powiadomienia o zmianach zezwoleń Majątku
@@ -1172,6 +1239,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="tattoo">
 		Tatuaż
 	</string>
+	<string name="universal">
+		Warstwa uniwersalna
+	</string>
 	<string name="physics">
 		Fizyka
 	</string>
@@ -1213,6 +1283,9 @@ Spróbuj zalogować się ponownie za minutę.
 	</string>
 	<string name="tattoo_not_worn">
 		Tatuaż nie jest założony
+	</string>
+	<string name="universal_not_worn">
+		Warstwa uniwersalna nie jest założona
 	</string>
 	<string name="physics_not_worn">
 		Fizyka nie jest założona
@@ -1260,13 +1333,16 @@ Spróbuj zalogować się ponownie za minutę.
 		Nowa spódnica
 	</string>
 	<string name="create_new_alpha">
-		Nowe alpha
+		Nowa warstwa alpha
 	</string>
 	<string name="create_new_tattoo">
 		Nowy tatuaż
 	</string>
+	<string name="create_new_universal">
+		Nowa warstwa uniwersalna
+	</string>
 	<string name="create_new_physics">
-		Nową fizyka
+		Nowa fizyka
 	</string>
 	<string name="create_new_invalid">
 		nieprawidłowy
@@ -1284,7 +1360,7 @@ Spróbuj zalogować się ponownie za minutę.
 		Ogłoszenia grupowe
 	</string>
 	<string name="GroupNotifySentBy">
-		Wysłane przez
+		Wysłał/a
 	</string>
 	<string name="GroupNotifyAttached">
 		Załączone:
@@ -1325,6 +1401,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="BodyPartsRightLeg">
 		Prawa noga
 	</string>
+	<string name="BodyPartsEnhancedSkeleton">
+		Rozszerzony szkielet
+	</string>
 	<string name="GraphicsQualityLow">
 		Niska
 	</string>
@@ -1340,17 +1419,35 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="InventoryNoMatchingItems">
 		Nie udało Ci się znaleźć tego, czego szukasz? Spróbuj [secondlife:///app/search/all/[SEARCH_TERM] Wyszukiwarki].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Nie udało Ci się znaleźć tego, czego szukasz? Spróbuj [secondlife:///app/inventory/filters Filtrowania].
+	</string>
 	<string name="PlacesNoMatchingItems">
-		Nie udało Ci się znaleźć tego, czego szukasz? Spróbuj [secondlife:///app/search/places/[SEARCH_TERM] Wyszukiwarki].
+		Aby dodać miejsce do ulubionych, kliknij gwiazdkę po prawej stronie nazwy lokalizacji.
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Przeciągnij landmark tutaj aby dodać go do swoich ulubionych.
+		Aby dodać miejsce do ulubionych, kliknij gwiazdkę po prawej stronie nazwy lokalizacji, a następnie zapisz landmark na pasku "Ulubione".
+	</string>
+	<string name="MarketplaceNoListing">
+		Nie masz jeszcze żadnych przedmiotów na Marketplace.
+	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Niczego nie znaleziono. Sprawdź pisownię i spróbuj ponownie.
 	</string>
 	<string name="InventoryNoTexture">
 		Nie posiadasz kopii tej tekstury w swojej Szafie.
 	</string>
 	<string name="InventoryInboxNoItems">
 		Przedmioty zakupione na Marketplace pojawią się tutaj. Możesz następnie przeciągnąć je do głównej części Szafy.
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		Otwórz okno z opcjami odtwarzania.
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		Odtwarzaj wybrany gest w świecie.
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		Otwórz okno z opcjami odtwarzania.
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		Każdy może sprzedawać przedmioty na Marketplace.
@@ -1376,29 +1473,110 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] Sklep na Marketplace] zwraca błędy.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Wystapił błąd podczas otwierania listy rzeczy z Marketplace.
+Jeśli ciągle otrzymujesz tą wiadomość, to skontaktuj się z pomocą techniczną Second Life: http://support.secondlife.com
+	</string>
+	<string name="InventoryMarketplaceConnectionError">
+		Wystapił błąd podczas łączenia z Marketplace.
+Jeśli ciągle otrzymujesz tą wiadomość, to skontaktuj się z pomocą techniczną Second Life: http://support.secondlife.com
+	</string>
+	<string name="InventoryMarketplaceConnectionErrorReason">
+		Wystapił błąd podczas łączenia z Marketplace. Powód: [REASON]
+Jeśli ciągle otrzymujesz tą wiadomość, to skontaktuj się z pomocą techniczną Second Life: http://support.secondlife.com
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Twój folder rzeczy na Marketplace jest pusty.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Przeciągnij foldery do tego obszaru, aby dodać je na listę sprzedaży w [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+	<string name="InventoryItemsCount">
+		( [ITEMS_COUNT] elementów )
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		folder Magazynowy musi być zawarty w folderze wersji
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Błąd: wszystkie przedmioty w folderze Magazynowym muszą mieć ten sam typ i być niekopiowalne
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Błąd: folder Magazynowy nie może zawierać podfolderów
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Uwaga: folder jest pusty
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Uwaga: tworzę folder Magazynowy
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Uwaga: tworzę folder wersji
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Uwaga: przenoszę przedmioty
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Uwaga: zawartość folderu przeniesiona do folderu Magazynowego, usuwam pusty katalog
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Błąd: przedmioty bez praw kopiowania muszą się znajdować w folderze Magazynowym
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Uwaga: przedmioty muszą się znajdować w folderze wersji
+	</string>
+	<string name="Marketplace Validation Error">
+		: Błąd:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Uwaga:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Uwaga: folder wersji musi zawierać przynajmniej jedną pozycję
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Uwaga: folder Magazynowy musi zawierać przynajmniej jedną pozycję
+	</string>
+	<string name="Marketplace Validation No Error">
+		Brak błędów lub ostrzeżeń
+	</string>
 	<string name="Marketplace Error None">
 		Brak błędów
 	</string>
+	<string name="Marketplace Error Prefix">
+		Błąd:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Błąd: Przed wysłaniem przedmiotów na Marketplace musisz zostać kupcem (darmowe).
+		Przed wysłaniem przedmiotów na Marketplace musisz zostać kupcem (darmowe).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Błąd: Ten folder nie ma zawartości.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Błąd: Ta pozycja nie może zostać załadowana, ponieważ Twoje konto kupca ma zbyt wiele nieprzypisanych przedmiotów. Aby naprawić ten błąd zaloguj się na stronę Marketplace i zmniejsz ilość nieprzypisanych (unassociated) przedmiotów.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Błąd: Ta pozycja zawiera zbyt wiele elementów. Umieść przedmioty razem w pudełkach, aby zmniejszyć ich całkowitą liczbę do mniej niż 200.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Błąd: Ta pozycja zawiera zbyt wiele zagnieżdżonych folderów. Zreorganizuj wszystko tak, aby były obecne maksymalnie 3 poziomy zagnieżdżonych folderów.
+	<string name="Marketplace Error Not Accepted">
+		Nie można przenieść tego przedmiotu.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Błąd: Ta pozycja nie może być sprzedana na Marketplace.
+		Ta pozycja nie może być sprzedana na Marketplace.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Błąd: Wystąpił problem z tą pozycją. Spróbuj ponownie później.
+	<string name="MarketplaceNoID">
+		Brak Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		na liście
+	</string>
+	<string name="MarketplaceActive">
+		aktywne
+	</string>
+	<string name="MarketplaceMax">
+		maks
+	</string>
+	<string name="MarketplaceStock">
+		magazyn
+	</string>
+	<string name="MarketplaceNoStock">
+		brak w Magazynie
+	</string>
+	<string name="MarketplaceUpdating">
+		aktualizacja...
+	</string>
+	<string name="UploadFeeInfo">
+		Opłata zależy od Twojego poziomu członkostwa. Wyższe poziomy to niższe opłaty. [https://secondlife.com/my/account/membership.php? Więcej]
 	</string>
 	<string name="Open landmarks">
 		Otwórz landmarki
@@ -1445,6 +1623,7 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="Scripts" value=" Skrypty,"/>
 	<string name="Sounds" value=" Dźwięki,"/>
 	<string name="Textures" value=" Tekstury,"/>
+	<string name="Settings" value=" Otoczenia," />
 	<string name="Snapshots" value=" Zdjęcia,"/>
 	<string name="No Filters" value="Nie "/>
 	<string name="Since Logoff" value=" - od wylogowania"/>
@@ -1614,7 +1793,7 @@ Spróbuj zalogować się ponownie za minutę.
 		Usta
 	</string>
 	<string name="Chin">
-		Szczęka
+		Podbródek
 	</string>
 	<string name="Left Ear">
 		Lewe ucho
@@ -1676,6 +1855,51 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="Avatar Center">
 		Środek awatara
 	</string>
+	<string name="Left Ring Finger">
+		Lewy palec serdeczny
+	</string>
+	<string name="Right Ring Finger">
+		Prawy palec serdeczny
+	</string>
+	<string name="Tail Base">
+		Podstawa ogona
+	</string>
+	<string name="Tail Tip">
+		Koniec ogona
+	</string>
+	<string name="Left Wing">
+		Lewe skrzydło
+	</string>
+	<string name="Right Wing">
+		Prawe skrzydło
+	</string>
+	<string name="Jaw">
+		Szczęka
+	</string>
+	<string name="Alt Left Ear">
+		Lewe ucho 2
+	</string>
+	<string name="Alt Right Ear">
+		Prawe ucho 2
+	</string>
+	<string name="Alt Left Eye">
+		Lewe oko 2
+	</string>
+	<string name="Alt Right Eye">
+		Prawe oko 2
+	</string>
+	<string name="Tongue">
+		Język
+	</string>
+	<string name="Groin">
+		Krocze
+	</string>
+	<string name="Left Hind Foot">
+		Lewa tylna stopa
+	</string>
+	<string name="Right Hind Foot">
+		Prawa tylna stopa
+	</string>
 	<string name="Invalid Attachment">
 		Nieprawidłowy punkt dodatku
 	</string>
@@ -1705,6 +1929,42 @@ Spróbuj zalogować się ponownie za minutę.
 	</string>
 	<string name="TodayOld">
 		Dołączył dzisiaj
+	</string>
+	<string name="av_render_everyone_now">
+		Wszyscy mogą Cię obecnie widzieć.
+	</string>
+	<string name="av_render_not_everyone">
+		Możesz nie być widziany/a przez niektóre osoby wokół Ciebie.
+	</string>
+	<string name="av_render_over_half">
+		Możesz nie być widziany/a przez ponad połowę osób wokół Ciebie.
+	</string>
+	<string name="av_render_most_of">
+		Możesz nie być widziany/a przez większość osób wokół Ciebie.
+	</string>
+	<string name="av_render_anyone">
+		Wszystkie osoby znajdujące się wokół Ciebie nie mogą Cię widzieć.
+	</string>
+	<string name="hud_description_total">
+		Twój HUD
+	</string>
+	<string name="hud_name_with_joint">
+		[OBJ_NAME] (założone na [JNT_NAME])
+	</string>
+	<string name="hud_render_memory_warning">
+		[HUD_DETAILS] używa dużo pamięci tekstur
+	</string>
+	<string name="hud_render_cost_warning">
+		[HUD_DETAILS] zawiera dużo obiektów i tekstur, jakie są ciężkie w renderowaniu
+	</string>
+	<string name="hud_render_heavy_textures_warning">
+		[HUD_DETAILS] zawiera dużo tekstur w wielkich rozmiarach
+	</string>
+	<string name="hud_render_cramped_warning">
+		[HUD_DETAILS] zawiera zbyt dużo obiektów
+	</string>
+	<string name="hud_render_textures_warning">
+		[HUD_DETAILS] zawiera zbyt dużo tekstur
 	</string>
 	<string name="AgeYearsA">
 		[COUNT] rok
@@ -1764,10 +2024,10 @@ Spróbuj zalogować się ponownie za minutę.
 		Pracownik Linden Lab
 	</string>
 	<string name="PaymentInfoUsed">
-		Płatności: Dane użyte
+		Płatności: Dane w użyciu
 	</string>
 	<string name="PaymentInfoOnFile">
-		Płatności: Dane znane
+		Płatności: Dane przypisane
 	</string>
 	<string name="NoPaymentInfoOnFile">
 		Płatności: Dane nieznane
@@ -1823,6 +2083,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="CompileQueueUnknownFailure">
 		Nieznany błąd podczas pobierania
 	</string>
+	<string name="CompileNoExperiencePerm">
+		Pomijanie skryptu [SCRIPT] z Przygodą [EXPERIENCE].
+	</string>
 	<string name="CompileQueueTitle">
 		Postęp rekompilacji
 	</string>
@@ -1857,10 +2120,13 @@ Spróbuj zalogować się ponownie za minutę.
 		Zapisywanie zakończone.
 	</string>
 	<string name="UploadFailed">
-		Ładowanie nieudane:
+		Przesyłanie nieudane:
 	</string>
 	<string name="ObjectOutOfRange">
 		Skrypt (obiekt poza zasięgiem)
+	</string>
+	<string name="ScriptWasDeleted">
+		Skrypt (usunięty z zawartości obiektu)
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Obiekt [OBJECT] należący do [OWNER]
@@ -1894,6 +2160,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="NoGroupDataFound">
 		Brak informacji na temat grupy
 	</string>
+	<string name="AlreadyInGroup">
+		Jesteś już w tej grupie
+	</string>
 	<string name="IMParentEstate">
 		majątek rodziców
 	</string>
@@ -1916,22 +2185,34 @@ Spróbuj zalogować się ponownie za minutę.
 		wszystkie majątki, które nadzorujesz dla [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Dozwoleni Rezydenci: ([ALLOWEDAGENTS], maks. [MAXACCESS])
+		Zawsze dozwoleni: ([ALLOWEDAGENTS], maks. [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		Dozwolone Grupy: ([ALLOWEDGROUPS], maks. [MAXACCESS])
+		Zawsze dozwolone grupy: ([ALLOWEDGROUPS], maks. [MAXACCESS])
 	</string>
 	<string name="RegionInfoEstateManagers">
 		Zarządcy Majątku: ([ESTATEMANAGERS], maks. [MAXMANAGERS])
 	</string>
 	<string name="RegionInfoBannedResidents">
-		Zbanowani Rezydenci: ([BANNEDAGENTS], maks. [MAXBANNED])
+		Zawsze zbanowani: ([BANNEDAGENTS], maks. [MAXBANNED])
 	</string>
 	<string name="RegionInfoListTypeAllowedAgents">
-		Dozwoleni Rezydenci
+		zawsze dozwoleni rezydenci
 	</string>
 	<string name="RegionInfoListTypeBannedAgents">
-		Zbanowani Rezydenci
+		zawsze zbanowani rezydenci
+	</string>
+	<string name="RegionInfoAllEstates">
+		wszystkie majątki
+	</string>
+	<string name="RegionInfoManagedEstates">
+		zarządzane majątki
+	</string>
+	<string name="RegionInfoThisEstate">
+		ten majątek
+	</string>
+	<string name="AndNMore">
+		i [EXTRA_COUNT] więcej
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Pamięć skryptów działki
@@ -1976,7 +2257,7 @@ Spróbuj zalogować się ponownie za minutę.
 		Klatka piersiowa
 	</string>
 	<string name="ATTACH_HEAD">
-		Głowa
+		Czaszka
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Lewe ramię
@@ -1997,7 +2278,7 @@ Spróbuj zalogować się ponownie za minutę.
 		Prawa stopa
 	</string>
 	<string name="ATTACH_BACK">
-		Plecy
+		Kręgosłup
 	</string>
 	<string name="ATTACH_PELVIS">
 		Miednica
@@ -2027,13 +2308,13 @@ Spróbuj zalogować się ponownie za minutę.
 		Prawe górne ramię
 	</string>
 	<string name="ATTACH_RLARM">
-		Prawe dolne ramię
+		Prawe przedramię
 	</string>
 	<string name="ATTACH_LUARM">
 		Lewe górne ramię
 	</string>
 	<string name="ATTACH_LLARM">
-		Lewe dolne ramię
+		Lewe przedramię
 	</string>
 	<string name="ATTACH_RHIP">
 		Biodro prawe
@@ -2056,11 +2337,11 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="ATTACH_BELLY">
 		Brzuch
 	</string>
-	<string name="ATTACH_RPEC">
-		Prawa pierś
-	</string>
-	<string name="ATTACH_LPEC">
+	<string name="ATTACH_LEFT_PEC">
 		Lewa pierś
+	</string>
+	<string name="ATTACH_RIGHT_PEC">
+		Prawa pierś
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
 		HUD środek 2
@@ -2091,6 +2372,51 @@ Spróbuj zalogować się ponownie za minutę.
 	</string>
 	<string name="ATTACH_AVATAR_CENTER">
 		Środek awatara
+	</string>
+	<string name="ATTACH_LHAND_RING1">
+		Lewy palec serdeczny
+	</string>
+	<string name="ATTACH_RHAND_RING1">
+		Prawy palec serdeczny
+	</string>
+	<string name="ATTACH_TAIL_BASE">
+		Podstawa ogona
+	</string>
+	<string name="ATTACH_TAIL_TIP">
+		Koniec ogona
+	</string>
+	<string name="ATTACH_LWING">
+		Lewe skrzydło
+	</string>
+	<string name="ATTACH_RWING">
+		Prawe skrzydło
+	</string>
+	<string name="ATTACH_FACE_JAW">
+		Szczęka
+	</string>
+	<string name="ATTACH_FACE_LEAR">
+		Lewe ucho 2
+	</string>
+	<string name="ATTACH_FACE_REAR">
+		Prawe ucho 2
+	</string>
+	<string name="ATTACH_FACE_LEYE">
+		Lewe oko 2
+	</string>
+	<string name="ATTACH_FACE_REYE">
+		Prawe oko 2
+	</string>
+	<string name="ATTACH_FACE_TONGUE">
+		Język
+	</string>
+	<string name="ATTACH_GROIN">
+		Krocze
+	</string>
+	<string name="ATTACH_HIND_LFOOT">
+		Lewa tylna stopa
+	</string>
+	<string name="ATTACH_HIND_RFOOT">
+		Prawa tylna stopa
 	</string>
 	<string name="CursorPos">
 		Linia [LINE], Kolumna [COLUMN]
@@ -2129,7 +2455,7 @@ Spróbuj zalogować się ponownie za minutę.
 		Brak umowy dla tego majątku.
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		Brak umowy dla tego majątku. Działka w tym majątku została sprzedana przez właściciela majątku, a nie przez Linden Lab. Skontaktuj się z właścicielem majątku w celu uzyskania szczegółów sprzedaży.
+		Brak umowy dla tego majątku. Działka w tym majątku została sprzedana przez właściciela majątku. Skontaktuj się z właścicielem majątku w celu uzyskania szczegółów sprzedaży.
 	</string>
 	<string name="covenant_last_modified" value="Ostatnia modyfikacja: "/>
 	<string name="none_text" value=" (brak) "/>
@@ -2146,6 +2472,27 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="RegionSettings">
 		Ustawienia regionu
 	</string>
+	<string name="NoEnvironmentSettings">
+		Ten region nie obsługuje ustawień otoczenia.
+	</string>
+	<string name="EnvironmentSun">
+		Słońce
+	</string>
+	<string name="EnvironmentMoon">
+		Księżyc
+	</string>
+	<string name="EnvironmentBloom">
+		Blask
+	</string>
+	<string name="EnvironmentCloudNoise">
+		Szum chmur
+	</string>
+	<string name="EnvironmentNormalMap">
+		Mapa normalnych
+	</string>
+	<string name="EnvironmentTransparent">
+		Przezroczyste
+	</string>
 	<string name="ClassifiedClicksTxt">
 		Kliknij: [TELEPORT] teleportuj, [MAP] mapa, [PROFILE] profil
 	</string>
@@ -2153,10 +2500,22 @@ Spróbuj zalogować się ponownie za minutę.
 		(zostanie zaktualizowane po publikacji)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Nie dodałeś/aś nic do Ulubionych i Reklam. Kliknij na przycisk + poniżej, aby dodać miejsce do Ulubionych lub Reklam.
+		Nie dodano nic do Miejsc i Reklam. Kliknij na przycisk Nowe, aby utworzyć Miejsce lub Reklamę.
+	</string>
+	<string name="NoPicksText">
+		Nie dodano żadnych Miejsc. Kliknij na przycisk Nowe, aby utworzyć Miejsce.
+	</string>
+	<string name="NoClassifiedsText">
+		Nie dodano żadnych reklam. Kliknij na przycisk Nowa, aby utworzyć reklamę.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		Brak ulubionych miejsc/reklam
+	</string>
+	<string name="NoAvatarPicksText">
+		Brak ulubionych miejsc
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		Brak reklam
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Ładowanie...
@@ -2228,14 +2587,11 @@ Spróbuj zalogować się ponownie za minutę.
 		Anuluj
 	</string>
 	<string name="UploadingCosts">
-		Załadowanie [NAME] kosztuje [AMOUNT]L$
-	</string>
-	<string name="BuyingCosts">
-		Cena zakupu tego wynosi [AMOUNT]L$
+		Przesyłanie [NAME] kosztuje [AMOUNT]L$
 	</string>
 	<string name="UnknownFileExtension">
 		Nieznane rozszerzenie pliku .%s
-Oczekiwane .wav, .tga, .bmp, .jpg, .jpeg, lub .bvh
+Oczekiwane .wav, .tga, .bmp, .jpg, .jpeg, lub .anim
 	</string>
 	<string name="MuteObject2">
 		Zablokuj
@@ -2327,6 +2683,9 @@ Oczekiwane .wav, .tga, .bmp, .jpg, .jpeg, lub .bvh
 	<string name="Linden Location">
 		Lokalizacja Lindenów
 	</string>
+	<string name="Adult">
+		Dla dorosłych
+	</string>
 	<string name="Arts&amp;Culture">
 		Sztuka i Kultura
 	</string>
@@ -2383,7 +2742,7 @@ Błąd:
 	<string name="MBUnableToAccessFile">
 		Aplikacja [APP_NAME] nie odnalazła poszukiwanego pliku.
 
-Może być to spowodowane aktywnością kilku kopii oprogramowania w tej samej chwili lub Twój system błędnie odczytuje proces zakończenia dla uruchomionych aplikacji.
+Może być to spowodowane aktywnością kilku kopii oprogramowania w tej samej chwili lub Twój system błędnie uważa, że plik jest otwarty / zablokowany.
 Jeżeli nadal otrzymujesz ten komunikat, uruchom swój komputer ponownie.
 Jeżeli problem nadal występuje, proponujemy całkowite odinstalowanie aplikacji [APP_NAME] oraz ponowną jej instalację.
 	</string>
@@ -2448,7 +2807,7 @@ Uruchomione w oknie.
 Ustaw tryb koloru swojego wyświetlacza na 32-bity.
 	</string>
 	<string name="MBAlpha">
-		Aplikacja [APP_NAME] nie może zostać uruchomiona, ponieważ nie jest możliwe dostanie się na kanał 8 bitowy alpha. Najczęściej jest to spowodowane błędami sterowników karty video.
+		Aplikacja [APP_NAME] nie może zostać uruchomiona, ponieważ nie może uzyskać dostępu do 8 bitowego kanału alpha. Najczęściej jest to spowodowane błędami sterowników karty video.
 Upewnij się, że posiadasz najnowsze aktualizacje sterowników karty video.
 Dodatkowo, sprawdź czy Twój monitor posiada poprawną konfigurację koloru (32-bity) w Panel Sterowania &gt; Ekran &gt; Ustawienia.
 Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
@@ -2467,7 +2826,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 
 Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
-	<string name="5 O&apos;Clock Shadow">
+	<string name="5 O'Clock Shadow">
 		Cień na godzinie 5
 	</string>
 	<string name="All White">
@@ -3997,9 +4356,6 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="IM_to_label">
 		Do
 	</string>
-	<string name="IM_moderator_label">
-		(Moderator)
-	</string>
 	<string name="Saved_message">
 		(Zapisano [LONG_TIMESTAMP])
 	</string>
@@ -4011,6 +4367,12 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="OfflineStatus">
 		niedostępny/a
+	</string>
+	<string name="not_online_msg">
+		Ta osoba jest niedostępna - wiadomość zostanie zapisana i dostarczona później.
+	</string>
+	<string name="not_online_inventory">
+		Ta osoba jest niedostępna - przedmiot został zapisany.
 	</string>
 	<string name="answered_call">
 		Twoja rozmowa głosowa została odebrana
@@ -4046,19 +4408,13 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Konferencja z [AGENT_NAME]
 	</string>
 	<string name="inventory_item_offered-im">
-		Zaoferowano przedmiot
+		Zaoferowano przedmiot: '[ITEM_NAME]'
+	</string>
+	<string name="inventory_folder_offered-im">
+		Zaoferowano folder: '[ITEM_NAME]'
 	</string>
 	<string name="share_alert">
 		Przeciągaj tutaj rzeczy z Szafy
-	</string>
-	<string name="facebook_post_success">
-		Wysłałeś/aś post na Facebooka.
-	</string>
-	<string name="flickr_post_success">
-		Wysłałeś/aś post na Flickr.
-	</string>
-	<string name="twitter_post_success">
-		Wysłałeś/aś post na Twittera.
 	</string>
 	<string name="no_session_message">
 		(Sesja IM wygasła)
@@ -4076,10 +4432,10 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Zablokowałeś/aś tego Rezydenta. Wysłanie wiadomości odblokuje go automatycznie.
 	</string>
 	<string name="generic">
-		Błąd zapytania, proszę spróbować później
+		Zamknij i ponownie otwórz rozmowę - lub przeloguj się i spróbuj ponownie.
 	</string>
 	<string name="generic_request_error">
-		Błąd. Spróbuj ponownie za kilka minut.
+		Zamknij i ponownie otwórz rozmowę - lub przeloguj się i spróbuj ponownie.
 	</string>
 	<string name="insufficient_perms_error">
 		Nie masz wystarczających uprawnień.
@@ -4131,6 +4487,9 @@ Jeśli nie pojawi się w ciągu kilku minut może to oznaczać, że została pom
 	<string name="unread_chat_multiple">
 		[SOURCES] powiedział/a coś nowego
 	</string>
+	<string name="teleport_preamble_compact_chat">
+		Jesteś teraz w
+	</string>
 	<string name="session_initialization_timed_out_error">
 		Inicjalizacja sesji wygasła
 	</string>
@@ -4140,11 +4499,17 @@ Jeśli nie pojawi się w ciągu kilku minut może to oznaczać, że została pom
 	<string name="paid_you_ldollars">
 		[NAME] zapłacił/a Tobie [AMOUNT]L$ [REASON].
 	</string>
+	<string name="paid_you_ldollars_gift">
+		[NAME] zapłacił/a Tobie [AMOUNT]L$: [REASON]
+	</string>
 	<string name="paid_you_ldollars_no_reason">
 		[NAME] zapłacił/a Tobie [AMOUNT]L$.
 	</string>
 	<string name="you_paid_ldollars">
 		Zapłacono [NAME] [AMOUNT]L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_gift">
+		Zapłacono [NAME] [AMOUNT]L$: [REASON]
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Zapłacono [AMOUNT]L$.
@@ -4157,6 +4522,9 @@ Jeśli nie pojawi się w ciągu kilku minut może to oznaczać, że została pom
 	</string>
 	<string name="you_paid_failure_ldollars">
 		Nie udało się zapłacić [NAME] [AMOUNT]L$ [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_gift">
+		Nie udało się zapłacić [NAME] [AMOUNT]L$: [REASON]
 	</string>
 	<string name="you_paid_failure_ldollars_no_info">
 		Nie udało się zapłacić [AMOUNT]L$.
@@ -4186,25 +4554,25 @@ Jeśli nie pojawi się w ciągu kilku minut może to oznaczać, że została pom
 		aby dołączyć do grupy
 	</string>
 	<string name="to upload">
-		aby załadować
+		aby przesłać
 	</string>
 	<string name="to publish a classified ad">
 		publikacja reklamy
 	</string>
-	<string name="giving">
-		Dajesz [AMOUNT]L$
-	</string>
 	<string name="uploading_costs">
-		Ładowanie kosztuje [AMOUNT]L$
+		Przesyłanie kosztuje [AMOUNT]L$
 	</string>
 	<string name="this_costs">
 		To kosztuje [AMOUNT]L$
 	</string>
 	<string name="buying_selected_land">
-		Kupno wybranej działki za [AMOUNT]L$
+		Działka kosztuje
 	</string>
 	<string name="this_object_costs">
-		Ten obiekt kosztuje [AMOUNT]L$
+		Obiekt kosztuje
+	</string>
+	<string name="giving">
+		Chcesz dać
 	</string>
 	<string name="group_role_everyone">
 		Każdy
@@ -4219,7 +4587,7 @@ Jeśli nie pojawi się w ciągu kilku minut może to oznaczać, że została pom
 		Obecnie w SL
 	</string>
 	<string name="uploading_abuse_report">
-		Ładowanie...
+		Przesyłanie...
 
 Raport o Nadużyciu
 	</string>
@@ -4267,6 +4635,9 @@ Raport o Nadużyciu
 	</string>
 	<string name="New Tattoo">
 		Nowy tatuaż
+	</string>
+	<string name="New Universal">
+		Nowa warstwa uniwersalna
 	</string>
 	<string name="New Physics">
 		Nowa fizyka
@@ -4394,6 +4765,15 @@ Raport o Nadużyciu
 	<string name="Female - Wow">
 		Kobieta - Wow
 	</string>
+	<string name="New Day">
+		Nowy cykl dnia
+	</string>
+	<string name="New Water">
+		Nowa woda
+	</string>
+	<string name="New Sky">
+		Nowe niebo
+	</string>
 	<string name="AvatarBirthDateFormat">
 		[day,datetime,slt].[mthnum,datetime,slt].[year,datetime,slt]
 	</string>
@@ -4403,10 +4783,19 @@ Raport o Nadużyciu
 	<string name="texture_load_dimensions_error">
 		Nie można załadować obrazów większych niż [WIDTH]*[HEIGHT]
 	</string>
+	<string name="outfit_photo_load_dimensions_error">
+		Maks. rozmiar zdjęcia stroju to [WIDTH]*[HEIGHT]. Przeskaluj lub użyj innego.
+	</string>
+	<string name="outfit_photo_select_dimensions_error">
+		Maks. rozmiar zdjęcia stroju to [WIDTH]*[HEIGHT]. Użyj innej tekstury.
+	</string>
+	<string name="outfit_photo_verify_dimensions_error">
+		Nie można sprawdzić wymiarów zdjęcia. Poczekaj, aż pojawi się na podglądzie.
+	</string>
 	<string name="server_is_down">
 		Pomimo naszych najlepszych starań wystąpił niespodziewany problem.
 
-Proszę sprawdzić czy na stronie status.secondlifegrid.net nie zostały umieszczone informacje o rozpoznanych problemach serwera.
+Proszę sprawdzić czy na https://status.secondlifegrid.net nie zostały umieszczone informacje o rozpoznanych problemach serwera.
 Jeśli problemy będą występowały nadal, proszę sprawdź sieć i ustawienia firewall.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4466,6 +4855,18 @@ Jeśli problemy będą występowały nadal, proszę sprawdź sieć i ustawienia 
 	<string name="Chat">
 		Czat
 	</string>
+	<string name="BaseMembership">
+		Podstawowe
+	</string>
+	<string name="InternalMembership">
+		Wewnętrzne
+	</string>
+	<string name="MembershipUpgradeText">
+		Zmień plan członkostwa
+	</string>
+	<string name="MembershipPremiumText">
+		Moje członkostwo Premium
+	</string>
 	<string name="DeleteItems">
 		Usunąć zaznaczone obiekty?
 	</string>
@@ -4476,7 +4877,7 @@ Jeśli problemy będą występowały nadal, proszę sprawdź sieć i ustawienia 
 		W tym stroju nie ma elementów
 	</string>
 	<string name="ExternalEditorNotSet">
-		Wybierz edytor używając ustawień ExternalEditor.
+		Wybierz edytor poprzez ustawienie zmiennej środowiska LL_SCRIPT_EDITOR lub ustawienie ExternalEditor.
 	</string>
 	<string name="ExternalEditorNotFound">
 		Nie odnaleziono zewnętrznego edytora wskazanego przez Ciebie.
@@ -4507,6 +4908,24 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Divide">
 		Podziel
 	</string>
+	<string name="LMB">
+		LPM
+	</string>
+	<string name="MMB">
+		ŚPM
+	</string>
+	<string name="RMB">
+		PPM
+	</string>
+	<string name="MB4">
+		Mysz4
+	</string>
+	<string name="MB5">
+		Mysz5
+	</string>
+	<string name="Double LMB">
+		Podwójny LPM
+	</string>
 	<string name="BeaconParticle">
 		Emitery cząsteczek (niebieski)
 	</string>
@@ -4525,8 +4944,17 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="BeaconMedia">
 		Emitery mediów (biały)
 	</string>
+	<string name="BeaconSun">
+		Emiter kierunku Słońca (pomarańczowy)
+	</string>
+	<string name="BeaconMoon">
+		Emiter kierunku Księżyca (purpurowy)
+	</string>
 	<string name="ParticleHiding">
 		Ukryj cząsteczki
+	</string>
+	<string name="Command_360_Capture_Label">
+		Zdjęcie 360°
 	</string>
 	<string name="Command_AboutLand_Label">
 		O działce
@@ -4535,7 +4963,7 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 		Wygląd
 	</string>
 	<string name="Command_Avatar_Label">
-		Awatar
+		Biblioteka awatarów
 	</string>
 	<string name="Command_Build_Label">
 		Buduj
@@ -4552,8 +4980,14 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Command_Destinations_Label">
 		Cele podróży
 	</string>
+	<string name="Command_Environments_Label">
+		Otoczenia
+	</string>
 	<string name="Command_Gestures_Label">
 		Gesty
+	</string>
+	<string name="Command_Grid_Status_Label">
+		Status świata
 	</string>
 	<string name="Command_HowTo_Label">
 		Samouczek
@@ -4564,17 +4998,11 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Command_Map_Label">
 		Mapa
 	</string>
-	<string name="Command_Marketplace_Label">
-		Marketplace
-	</string>
 	<string name="Command_MiniMap_Label">
 		Minimapa
 	</string>
 	<string name="Command_Move_Label">
 		Ruch
-	</string>
-	<string name="Command_Outbox_Label">
-		Skrzynka nadawcza kupca
 	</string>
 	<string name="Command_People_Label">
 		Ludzie
@@ -4591,6 +5019,9 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Command_Profile_Label">
 		Profil
 	</string>
+	<string name="Command_Report_Abuse_Label">
+		Zgłoś nadużycie
+	</string>
 	<string name="Command_Search_Label">
 		Szukaj
 	</string>
@@ -4605,6 +5036,9 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	</string>
 	<string name="Command_Voice_Label">
 		Pobliski głos
+	</string>
+	<string name="Command_360_Capture_Tooltip">
+		Uchwyć równoprostokątny obraz 360°
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Informacje o miejscu, które odwiedzasz
@@ -4630,14 +5064,14 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Command_Destinations_Tooltip">
 		Punkty, jakie mogą być interesujące
 	</string>
-	<string name="Command_Facebook_Tooltip">
-		Wyślij na Facebooka
-	</string>
-	<string name="Command_Flickr_Tooltip">
-		Wyślij na Flickr
+	<string name="Command_Environments_Tooltip">
+		Otoczenia
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gesty Twojego awatara
+	</string>
+	<string name="Command_Grid_Status_Tooltip">
+		Pokaż obecny status świata
 	</string>
 	<string name="Command_HowTo_Tooltip">
 		Jak wykonywać zwyczajne rzeczy
@@ -4651,14 +5085,14 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Command_Marketplace_Tooltip">
 		Idź na zakupy
 	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Sprzedawaj owoce swojej kreatywności
+	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Pokaż ludzi w pobliżu
 	</string>
 	<string name="Command_Move_Tooltip">
 		Poruszanie Twoim awatarem
-	</string>
-	<string name="Command_Outbox_Tooltip">
-		Przenieś przedmioty na Marketplace, aby je sprzedać
 	</string>
 	<string name="Command_People_Tooltip">
 		Znajomi, grupy i ludzie w pobliżu
@@ -4674,6 +5108,9 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	</string>
 	<string name="Command_Profile_Tooltip">
 		Edytuj lub zobacz swój profil
+	</string>
+	<string name="Command_Report_Abuse_Tooltip">
+		Zgłoś nadużycie
 	</string>
 	<string name="Command_Search_Tooltip">
 		Znajdź miejsca, wydarzenia i ludzi
@@ -4756,6 +5193,99 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="UserDictionary">
 		[Użytkownika]
 	</string>
+	<string name="experience_tools_experience">
+		Przygoda
+	</string>
+	<string name="ExperienceNameNull">
+		(bez przygody)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(przygoda bez nazwy)
+	</string>
+	<string name="Land-Scope">
+		Zakres: Ziemia
+	</string>
+	<string name="Grid-Scope">
+		Zakres: Cały świat
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		ZEZWALAM
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		BLOKUJĘ
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		TWORZĘ
+	</string>
+	<string name="Admin_Experiences_Tab">
+		ZARZĄDZAM
+	</string>
+	<string name="Recent_Experiences_Tab">
+		OSTATNIE
+	</string>
+	<string name="Owned_Experiences_Tab">
+		MOJE
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], maks. [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		kontrolować klawisze
+	</string>
+	<string name="ExperiencePermission3">
+		animować Twojego awatara
+	</string>
+	<string name="ExperiencePermission4">
+		dołączać do Twojego awatara
+	</string>
+	<string name="ExperiencePermission9">
+		śledzić Twoją kamerę
+	</string>
+	<string name="ExperiencePermission10">
+		kontrolować Twoją kamerę
+	</string>
+	<string name="ExperiencePermission11">
+		teleportować Cię
+	</string>
+	<string name="ExperiencePermission12">
+		automatycznie akceptować uprawnienia przygody
+	</string>
+	<string name="ExperiencePermission16">
+		zmuszać Twojego awatara do siadania
+	</string>
+	<string name="ExperiencePermission17">
+		zmieniać Twoje ustawienia otoczenia
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		wykonać nieznaną operację: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Kontrola klawiszy
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Rozpoczynanie animacji
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Dołączanie
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Śledzenie kamery
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Kontrola kamery
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Teleportacja
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Uprawnienia
+	</string>
+	<string name="ExperiencePermissionShort16">
+		Siadanie
+	</string>
+	<string name="ExperiencePermissionShort17">
+		Otoczenie
+	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Rozmowy nie są zapisywane do dziennika. Jeśli chcesz zacząć je logować wybierz "Zapisywanie: tylko dziennik" lub "Zapisywanie: dziennik i logi rozmów" w Preferencje > Czat.
 	</string>
@@ -4767,5 +5297,53 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	</string>
 	<string name="loading_chat_logs">
 		Wczytywanie...
+	</string>
+	<string name="na">
+		n/d
+	</string>
+	<string name="preset_combo_label">
+		-Lista jest pusta-
+	</string>
+	<string name="Default">
+		Domyślne
+	</string>
+	<string name="none_paren_cap">
+		(Brak)
+	</string>
+	<string name="no_limit">
+		Bez limitu
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		Kształt fizyczny zawiera trójkąty, które są zbyt małe. Spróbuj uprościć model fizyczny.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		Kształt fizyczny zawiera uszkodzone dane. Spróbuj poprawić model fizyczny.
+	</string>
+	<string name="Mav_Details_MAV_BLOCK_MISSING">
+		Brakujące dane. Upewnij się, że wysoki LOD jest obecny i prawidłowy. Ustaw model fizyczny, jeśli nie jest obecny.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		Kształt fizyczny zawiera niepoprawną wersję. Ustaw poprawną wersję dla modelu fizycznego.
+	</string>
+	<string name="couldnt_resolve_host">
+		DNS nie mógł znaleźć nazwy hosta ([HOSTNAME]).
+Sprawdź, czy możesz połączyć się z www.secondlife.com
+Jeśli możesz, ale nadal otrzymujesz ten błąd, to przejdź
+do sekcji pomocy technicznej i zgłoś ten problem.
+	</string>
+	<string name="ssl_peer_certificate">
+		Serwer logowania nie mógł zweryfikować się poprzez SSL.
+Jeśli nadal będziesz otrzymywać ten błąd, to przejdź
+do sekcji wsparcia witryny SecondLife.com i zgłoś problem.
+	</string>
+	<string name="ssl_connect_error">
+		Często oznacza to, że zegar komputera jest ustawiony nieprawidłowo.
+Przejdź do Panelu Sterowania i upewnij się, że godzina i data
+są ustawione prawidłowo.
+Sprawdź również, czy twoja sieć i zapora są poprawnie skonfigurowane.
+Jeśli nadal będziesz otrzymywać ten błąd, to przejdź
+do sekcji wsparcia witryny SecondLife.com i zgłoś problem.
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge Base]
 	</string>
 </strings>

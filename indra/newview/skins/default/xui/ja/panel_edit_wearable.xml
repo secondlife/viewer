@@ -34,19 +34,19 @@
 		手袋を編集中
 	</string>
 	<string name="edit_undershirt_title">
-		下着（上）を編集中
+		下着（上半身）を編集中
 	</string>
 	<string name="edit_underpants_title">
-		下着（下）を編集中
+		下着（下半身）を編集中
 	</string>
 	<string name="edit_alpha_title">
 		アルファマスクを編集中
 	</string>
 	<string name="edit_tattoo_title">
-		タトゥーを編集中
+		タトゥを編集中
 	</string>
 	<string name="edit_universal_title">
-		ユニバーサルを編集中
+		全般を編集中
 	</string>
 	<string name="edit_physics_title">
 		物理作用の編集中
@@ -67,7 +67,7 @@
 		シャツ：
 	</string>
 	<string name="pants_desc_text">
-		パンツ：
+		ズボン：
 	</string>
 	<string name="shoes_desc_text">
 		靴：
@@ -85,10 +85,10 @@
 		手袋：
 	</string>
 	<string name="undershirt_desc_text">
-		下着シャツ：
+		下着（上半身）：
 	</string>
 	<string name="underpants_desc_text">
-		下着パンツ：
+		下着（下半身）：
 	</string>
 	<string name="alpha_desc_text">
 		アルファマスク：
@@ -97,7 +97,7 @@
 		タトゥ：
 	</string>
 	<string name="universal_desc_text">
-		ユニバーサル：
+		全般：
 	</string>
 	<string name="physics_desc_text">
 		物理作用：
@@ -116,7 +116,7 @@
 	<panel name="button_panel">
 		<layout_stack name="button_panel_ls">
 			<layout_panel name="save_as_btn_lp">
-				<button label="別名で保存" name="save_as_button"/>
+				<button label="名前をつけて保存" name="save_as_button"/>
 			</layout_panel>
 			<layout_panel name="revert_btn_lp">
 				<button label="変更を元に戻す" name="revert_button"/>

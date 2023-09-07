@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_performance_autoadjustments">
+	<button name="back_btn"/>
+	<text name="back_lbl">
+		戻る
+	</text>
+	<text name="settings_title">
+		設定を自動調整
+	</text>
+	<button label="推奨設定にリセット" name="defaults_btn"/>
+	<view_border name="border0"/>
+	<text name="targetfps_desc">
+		目標フレームレート
+	</text>
+	<spinner name="target_fps" tool_tip="ビューアーは、グラフィック設定を調整することでこれを実現しようとします。"/>
+	<text name="display_desc">
+		お使いのディスプレイは、最大[FPS_LIMIT]fpsをサポートしています。
+	</text>
+	<text name="settings_desc">
+		影響する設定
+	</text>
+	<combo_box name="TuningFPSStrategy">
+		<combo_box.item label="アバターのみ" name="av_only" value="0"/>
+		<combo_box.item label="アバターとワールド" name="av_and_scene" value="1"/>
+		<combo_box.item label="ワールドのみ" name="scene_only" value="2"/>
+	</combo_box>
+	<button label="今すぐ自動調整" name="start_autotune" tool_tip="ビューアーは、目標ＦＰＳを満たすように設定が調整されるまで停止します。"/>
+	<button label="キャンセル" name="stop_autotune" tool_tip="自動調整を中断します。"/>
+	<text name="wip_desc">
+		調整中です…
+	</text>
+	<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビューアーは、このフローターが閉じていても停止するまで、目標ＦＰＳを満たすように設定を継続的に調整します。">
+  </check_box>
+	<radio_group name="autotune_lock_type">
+		<radio_item label="このログインセッションのみ" name="one_session_lock" value="0"/>
+		<radio_item label="今後のログインセッションから" name="next_session_lock" value="1"/>
+	</radio_group>
+	<view_border name="border_vsync"/>
+	<check_box label="VSyncを有効化" tool_tip="垂直同期を有効にして、画面のティアリングや途切れを軽減します。"/>
+	<text name="vsync_desc">
+		モニターのリフレッシュレートをフレームレートと同期させます。
+	</text>
+	<text name="vsync_desc_limit">
+		注意：VSyncをオンにすると、フレームレートが[FPS_LIMIT]fpsに制限されます。
+	</text>
+	<view_border name="border1"/>
+	<text name="simplify_dist_desc">
+		遠くにあるアバターの表示の詳細度を減らすと、グラフィックスの速度が向上します。
+	</text>
+	<check_box label="アバターをさらに簡素化" name="AutoTuneImpostorByDistEnabled" tool_tip="有効にするとビューアは、MaxNonImpostorsの設定を調整して、完全にレンダリングされるアバターを指定された半径内のアバターに限定します。"/>
+	<spinner name="ffa_autotune"/>
+	<text name="dist_meters">
+		メートル
+	</text>
+	<view_border name="border2"/>
+	<text name="dist_limits_desc">
+		自動設定が影響を及ぼす距離範囲を選択します。
+	</text>
+	<text name="min_dist_lbl">
+		最小距離
+	</text>
+	<spinner name="min_dd_autotune"/>
+	<text name="pref_dist_lbl">
+		最大距離
+	</text>
+	<spinner name="pref_dd_autotune"/>
+</panel>

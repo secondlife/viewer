@@ -1,30 +1,60 @@
-<?xml version="1.0" ?>
-<panel name="GroupCreation" label="グループ作成">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="グループ作成" name="GroupCreation">
+	<panel.string name="current_membership">
+		（あなたのメンバーシップ）
+	</panel.string>
 	<panel name="group_info_top">
-		<line_editor name="group_name_editor" label="ここにグループ名を入力する"/>
+		<line_editor label="グループ名をここに入力してください。" name="group_name_editor"/>
 	</panel>
-	<layout_panel name="group_info"/>
 	<layout_stack name="layout">
-		<texture_picker name="insignia" tool_tip="クリックして写真を選択すする"/>
-		<text_editor name="charter">グループ チャーター</text_editor>
-		<button name="back" tool_tip="グループのリストに戻る"/>
-		<text name="info_deletion">ご注意：7 日後、メンバーのいないグループ（作成者以外）は削除されます。</text>
-		<check_box name="check_enrollment_fee" label="参加費用" tool_tip="グループへの参加費用の有無を設定する"/>
-		<combo_box.item name="pg" label="一般的なコンテンツ"/>
-		<scroll_list.rows name="basic" value="ベーシック（プレースホルダー）"/>
-		<button name="btn_create" label="L$ [COST] でグループを作成する" tool_tip="新しいグループを作成する"/>
-		<text name="fee_information">グループ作成費用は会員レベルにより異なります。[https://secondlife.com/my/account/membership.php 詳細]</text>
-		<scroll_list.rows name="premium" value="プレミアム（プレースホルダー）"/>
-		<check_box name="open_enrollement" label="どなたでも参加できます" tool_tip="招待されていない新メンバーがこのグループに参加できるように設定する。"/>
-		<combo_item name="select_mature">- 成熟度評価を選択する -</combo_item>
-		<spinner name="spin_enrollment_fee" label="L$" tool_tip="新メンバーは参加費用が確認された際、グループ参加費用を支払う必要があります。"/>
-		<combo_box.item name="mature" label="控えめなコンテンツ"/>
+		<layout_panel name="group_info">
+			<panel name="group_info_top">
+				<texture_picker name="insignia" tool_tip="クリックして写真を選択"/>
+				<text_editor name="charter">
+					グループ憲章
+				</text_editor>
+			</panel>
+			<panel name="preferences_container">
+				<check_box label="誰でも加入可能" name="open_enrollement" tool_tip="このグループが招待なしで、新しいメンバーに参加できるようにするかどうかを設定します。"/>
+				<check_box label="入会費" name="check_enrollment_fee" tool_tip="グループへへの加入に入会費が必要かどうかを設定します。"/>
+				<spinner name="spin_enrollment_fee" tool_tip="登録料がチェックされている場合、新しいメンバーはグループに参加するためにこの料金を支払う必要があります。"/>
+				<combo_box name="group_mature_check" tool_tip="レーティングは、グループで許可されるコンテンツと行動のタイプを指定します。">
+					<combo_item name="select_mature" value="Select">
+						－レーティングの選択－
+					</combo_item>
+					<combo_box.item label="Moderateコンテンツ" name="mature" value="Mature"/>
+					<combo_box.item label="Generalコンテンツ" name="pg" value="Not Mature"/>
+				</combo_box>
+			</panel>
+		</layout_panel>
+		<layout_panel name="create_info">
+			<text name="fee_information">
+				グループを作成するための料金は、メンバーシップレベルに基づいています。[https://secondlife.com/my/account/membership.php 詳細]
+			</text>
+			<scroll_list name="membership_list">
+				<scroll_list.columns name="clmn_name"/>
+				<scroll_list.columns name="clmn_price"/>
+				<scroll_list.rows name="basic" value="基本（プレースホルダ）"/>
+				<scroll_list.rows name="plc2" value=""/>
+				<scroll_list.rows name="premium" value="プレミアム（プレースホルダ）"/>
+			</scroll_list>
+		</layout_panel>
+		<layout_panel name="create_actions">
+			<layout_stack name="button_row_ls">
+				<layout_panel name="layout_crt">
+          
+        </layout_panel>
+				<layout_panel name="layout_crt">
+					<button label="グループ作成：L$[COST]" name="btn_create" tool_tip="新しいグループを作成"/>
+					<button name="back" label="キャンセル" tool_tip="グループ一覧に戻ります。"/>
+				</layout_panel>
+				<layout_panel name="layout_crt">
+          
+        </layout_panel>
+			</layout_stack>
+			<text name="info_deletion">
+				注：４８時間メンバーが２人未満のグループは、自動的に解散されます。
+			</text>
+		</layout_panel>
 	</layout_stack>
-	<layout_panel name="layout_crt"/>
-	<layout_stack name="button_row_ls"/>
-	<layout_panel name="create_actions"/>
-	<panel name="preferences_container"/>
-	<combo_box name="group_mature_check" tool_tip="レーティング区分は、グループ内でどのようなコンテンツや行動が許されるかを指定するものです"/>
-	<scroll_list name="membership_list"/>
-	<layout_panel name="create_info"/>
 </panel>

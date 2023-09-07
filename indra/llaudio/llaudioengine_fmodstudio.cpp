@@ -208,10 +208,6 @@ bool LLAudioEngine_FMODSTUDIO::init(void* userdata, const std::string &app_title
     }
 #endif
 
-    // set up our favourite FMOD-native streaming audio implementation if none has already been added
-    if (!getStreamingAudioImpl()) // no existing implementation added
-        setStreamingAudioImpl(new LLStreamingAudio_FMODSTUDIO(mSystem));
-
     LL_INFOS("AppInit") << "LLAudioEngine_FMODSTUDIO::init() FMOD Studio initialized correctly" << LL_ENDL;
 
     int r_numbuffers, r_samplerate, r_channels;
@@ -250,6 +246,13 @@ std::string LLAudioEngine_FMODSTUDIO::getDriverName(bool verbose)
         }
     }
     return "FMOD STUDIO";
+}
+
+
+// create our favourite FMOD-native streaming audio implementation
+LLStreamingAudioInterface *LLAudioEngine_FMODSTUDIO::createDefaultStreamingAudioImpl() const
+{
+    return new LLStreamingAudio_FMODSTUDIO(mSystem);
 }
 
 

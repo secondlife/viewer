@@ -97,6 +97,8 @@ private:
 		// Called by LLWorldMap when a region name has been resolved to a
 		// location in-world, used by places-panel display.
 
+    static bool handleGrid(const LLSLURL& slurl);
+
 	friend class LLTeleportHandler;
 };
 
@@ -155,7 +157,7 @@ bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl,
 	LL_INFOS() << "cmd: " << slurl.getAppCmd() << " path: " << slurl.getAppPath() << " query: " << slurl.getAppQuery() << LL_ENDL;
 	const LLSD& query_map = LLURI::queryMap(slurl.getAppQuery());
 	bool handled = LLCommandDispatcher::dispatch(
-			slurl.getAppCmd(), slurl.getAppPath(), query_map, web, nav_type, trusted_browser);
+			slurl.getAppCmd(), slurl.getAppPath(), query_map, slurl.getGrid(), web, nav_type, trusted_browser);
 
 	// alert if we didn't handle this secondlife:///app/ SLURL
 	// (but still return true because it is a valid app SLURL)
@@ -184,6 +186,11 @@ bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, const std::string
 		return true;
 	}
 
+    if (!handleGrid(slurl))
+    {
+        return true;
+    }
+
 	// Request a region handle by name
 	LLWorldMapMessage::getInstance()->sendNamedRegionRequest(slurl.getRegion(),
 									  LLURLDispatcherImpl::regionNameCallback,
@@ -202,31 +209,39 @@ void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const LLSLURL& s
     }
 }
 
+bool LLURLDispatcherImpl::handleGrid(const LLSLURL& slurl)
+{
+    if (LLGridManager::getInstance()->getGrid(slurl.getGrid())
+        != LLGridManager::getInstance()->getGrid())
+    {
+        LLSD args;
+        args["SLURL"] = slurl.getLocationString();
+        args["CURRENT_GRID"] = LLGridManager::getInstance()->getGridLabel();
+        std::string grid_label =
+            LLGridManager::getInstance()->getGridLabel(slurl.getGrid());
+
+        if (!grid_label.empty())
+        {
+            args["GRID"] = grid_label;
+        }
+        else
+        {
+            args["GRID"] = slurl.getGrid();
+        }
+        LLNotificationsUtil::add("CantTeleportToGrid", args);
+        return false;
+    }
+    return true;
+}
+
 /* static */
 void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL& slurl, const LLUUID& snapshot_id, bool teleport)
 {
-
-  // we can't teleport cross grid at this point
-	if(   LLGridManager::getInstance()->getGrid(slurl.getGrid())
-	   != LLGridManager::getInstance()->getGrid())
-	{
-		LLSD args;
-		args["SLURL"] = slurl.getLocationString();
-		args["CURRENT_GRID"] = LLGridManager::getInstance()->getGridLabel();
-		std::string grid_label = 
-			LLGridManager::getInstance()->getGridLabel(slurl.getGrid());
-		
-		if(!grid_label.empty())
-		{
-			args["GRID"] = grid_label;
-		}
-		else 
-		{
-			args["GRID"] = slurl.getGrid();
-		}
-		LLNotificationsUtil::add("CantTeleportToGrid", args);
-		return;
-	}
+    if (!handleGrid(slurl))
+    {
+        // we can't teleport cross grid at this point
+        return;
+    }
 	
 	LLVector3d global_pos = from_region_handle(region_handle);
 	global_pos += LLVector3d(slurl.getPosition());
@@ -274,8 +289,10 @@ public:
 						&LLTeleportHandler::from_event);
 	}
 
-	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLMediaCtrl* web)
+	bool handle(const LLSD& tokens,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		// construct a "normal" SLURL, resolve the region to
 		// a global position, and teleport to it
@@ -297,7 +314,7 @@ public:
 
 		LLSD payload;
 		payload["region_name"] = region_name;
-		payload["callback_url"] = LLSLURL(region_name, coords).getSLURLString();
+		payload["callback_url"] = LLSLURL(grid, region_name, coords).getSLURLString();
 
 		LLNotificationsUtil::add("TeleportViaSLAPP", args, payload);
 		return true;

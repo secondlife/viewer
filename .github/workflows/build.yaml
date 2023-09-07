@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: ["actions*"]
+    branches: [main, "actions*"]
     tags: ["*"]
 
 jobs:
@@ -12,11 +12,14 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-12-xl]
-        configuration: [Release]
+        configuration: [Release, ReleaseOS]
         python-version: ["3.11"]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+        exclude:
+          - runner: macos-12-xl
+            configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -75,7 +78,7 @@ jobs:
           repository: secondlife/master-message-template
           path: .master-message-template
 
-      - name: Install autobuild
+      - name: Install autobuild and python dependencies
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages

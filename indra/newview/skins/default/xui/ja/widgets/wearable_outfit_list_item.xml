@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<inventory_list_item>
+	<default_style/>
+	<worn_style/>
+	<item_icon name="item_icon"/>
+	<item_name name="item_name" value="…"/>
+	<add_btn name="add_wearable"/>
+	<remove_btn name="remove_wearable"/>
+</inventory_list_item>
