@@ -39,6 +39,8 @@
 #include "json/reader.h"
 #include "llcorehttputil.h"
 #include "llurlregistry.h"
+#include "llagent.h"
+#include "llviewerregion.h"
 #include "stringize.h"
 
 
@@ -155,7 +157,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("verifyKeyCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
@@ -176,7 +178,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
     std::string url = this->getKeyVerificationURL(key);
     if (url.empty())
     {
-        LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
+        LL_INFOS("Translate") << "No key verification URL" << LL_ENDL;
         return;
     }
 
@@ -210,7 +212,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("translateMessageCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
@@ -230,6 +232,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     if (url.empty())
     {
         LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
+		failure(0,"no translation URL");
         return;
     }
 
@@ -1178,21 +1181,11 @@ std::string LLSimulatorTranslationHandler::getTranslateURL(
     const std::string& to_lang,
     const std::string& text) const
 {
-	// FIXME REPLACE CODE HERE
-
-    std::string url;
-    LLSD key = getAPIKey();
-    if (key.isMap())
+    if (gAgent.getRegion())
     {
-        url = key["domain"].asString();
-
-        if (*url.rbegin() != '/')
-        {
-            url += "/";
-        }
-        url += std::string("v2/translate");
+        return gAgent.getRegion()->getCapability("Translate");
     }
-    return url;
+    return std::string("");
 }
 
 
@@ -1200,20 +1193,7 @@ std::string LLSimulatorTranslationHandler::getTranslateURL(
 std::string LLSimulatorTranslationHandler::getKeyVerificationURL(
     const LLSD& key) const
 {
-	// FIXME REPLACE CODE HERE
-
-    std::string url;
-    if (key.isMap())
-    {
-        url = key["domain"].asString();
-
-        if (*url.rbegin() != '/')
-        {
-            url += "/";
-        }
-        url += std::string("v2/translate");
-    }
-    return url;
+	return std::string("");
 }
 
 //virtual
@@ -1288,15 +1268,14 @@ bool LLSimulatorTranslationHandler::parseResponse(
 // virtual
 bool LLSimulatorTranslationHandler::isConfigured() const
 {
-	// FIXME REPLACE CODE HERE
-    return getAPIKey().isMap();
+	return true;
 }
 
 //static
 std::string LLSimulatorTranslationHandler::parseErrorResponse(
     const std::string& body)
 {
-	// FIXME REPLACE DEEPL CODE HERE
+	// FIXME REPLACE CODE HERE
     // Example: "{\"message\":\"One of the request inputs is not valid.\"}"
 
     Json::Value root;
@@ -1316,11 +1295,9 @@ std::string LLSimulatorTranslationHandler::parseErrorResponse(
 }
 
 // static
-LLSD LLSimulatorTranslationHandler::getAPIKey()
-{
-	// FIXME REPLACE CODE HERE
-    static LLCachedControl<LLSD> deepl_key(gSavedSettings, "DeepLTranslateAPIKey");
-    return deepl_key;
+LLSD LLSimulatorTranslationHandler::getAPIKey() 
+{ 
+    return LLSD(); 
 }
 
 // static
@@ -1332,11 +1309,10 @@ std::string LLSimulatorTranslationHandler::getAPILanguageCode(const std::string&
 
 /*virtual*/
 void LLSimulatorTranslationHandler::verifyKey(const LLSD& key, LLTranslate::KeyVerificationResult_fn fnc)
-{
-	// FIXME REPLACE CODE HERE
-    LLCoros::instance().launch("DeepL /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
-                                                                this, LLTranslate::SERVICE_DEEPL, key, fnc));
+{ 
+    return;
 }
+
 /*virtual*/
 void LLSimulatorTranslationHandler::initHttpHeader(
     LLCore::HttpHeaders::ptr_t headers,
