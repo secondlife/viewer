@@ -1285,6 +1285,45 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 	<< LL_ENDL;
 }
 
+bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
+                                           const std::string& out_filename,
+                                           const S32 max_image_dimentions,
+                                           const S32 min_image_dimentions)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+    // make a copy, since convertToUploadFile scales raw image
+    LLPointer<LLImageRaw> scale_image = new LLImageRaw(
+        raw_image->getData(),
+        raw_image->getWidth(),
+        raw_image->getHeight(),
+        raw_image->getComponents());
+
+    LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(scale_image, max_image_dimentions);
+    if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
+    {
+        std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
+                                      min_image_dimentions,
+                                      min_image_dimentions,
+                                      compressedImage->getWidth(),
+                                      compressedImage->getHeight());
+        compressedImage->setLastError(reason);
+        return false;
+    }
+    if (compressedImage.isNull())
+    {
+        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
+        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
+        return false;
+    }
+    if (!compressedImage->save(out_filename))
+    {
+        compressedImage->setLastError("Couldn't create the jpeg2000 image for upload.");
+        LL_INFOS() << "Couldn't create output file : " << out_filename << LL_ENDL;
+        return false;
+    }
+    return true;
+}
 
 BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 										 const std::string& out_filename,

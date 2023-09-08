@@ -323,7 +323,7 @@ public:
 	void onFilterEdit(const std::string& search_string);
 
 	void setCanApply(bool can_preview, bool can_apply, bool inworld_image = true);
-    void setDimentionsLimits(S32 max_dim, S32 min_dim);
+    void setMinDimentionsLimits(S32 min_dim);
 	void setTextureSelectedCallback(const texture_selected_callback& cb) { mTextureSelectedCallback = cb; }
 	void setOnFloaterCloseCallback(const floater_close_callback& cb) { mOnFloaterCloseCallback = cb; }
 	void setOnFloaterCommitCallback(const floater_commit_callback& cb) { mOnFloaterCommitCallback = cb; }

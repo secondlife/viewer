@@ -92,6 +92,10 @@ class LLViewerTextureList
 	friend class LLLocalBitmap;
 	
 public:
+    static bool createUploadFile(LLPointer<LLImageRaw> raw_image,
+                                 const std::string& out_filename,
+                                 const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT,
+                                 const S32 min_image_dimentions = 0);
     static BOOL createUploadFile(const std::string& filename,
                                  const std::string& out_filename,
                                  const U8 codec,
