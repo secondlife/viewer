@@ -119,6 +119,11 @@ std::string LLAudioEngine_OpenAL::getDriverName(bool verbose)
 	return version.str();
 }
 
+LLStreamingAudioInterface *LLAudioEngine_OpenAL::createDefaultStreamingAudioImpl() const
+{
+    return new LLStreamingAudio_OpenAL();
+}
+
 // virtual
 void LLAudioEngine_OpenAL::allocateListener()
 {
