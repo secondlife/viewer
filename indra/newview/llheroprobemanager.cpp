@@ -105,74 +105,120 @@ void LLHeroProbeManager::update()
     
     LLVector4a probe_pos;
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
+    if (mHeroVOList.size() > 0)
     {
-        // Get the nearest hero.
-        float distance = F32_MAX;
-        
-        if (mNearestHero != nullptr)
         {
-            distance = mNearestHero->mDrawable->mDistanceWRTCamera;
-        }
-        
-        for (auto drawable : mHeroVOList)
-        {
-            if (drawable != nullptr && drawable != mNearestHero && drawable->mDrawable.notNull())
+            if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
             {
-                if (drawable->mDrawable->mDistanceWRTCamera < distance)
-                {
-                    mIsInTransition = true;
-                    mNearestHero = drawable;
+                LLVector3 hero_pos = mNearestHero->getPosition();
+                
+                // Make sure our camera is clamped to the hero's bounding box.
+                camera_pos.clamp(mNearestHero->getBoundingBoxAgent().getMinAgent(), mNearestHero->getBoundingBoxAgent().getMaxAgent());
+                bool hit = false;
+                LLVector4a hit_pos;
+                LLVector3 focus_point;
+                LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
+                LLQuaternion camera_rot;
+                
+                switch (mNearestHero->mirrorPlacementMode()) {
+                    case 0:
+                        probe_pos.set(camera_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]);
+                        break;
+                    case 1:
+                        
+                        probe_pos.set(hero_pos.mV[0], camera_pos.mV[1], hero_pos.mV[2]);
+                        break;
+                    case 2:
+                        
+                        probe_pos.set(hero_pos.mV[0], hero_pos.mV[1], camera_pos.mV[2]);
+                        break;
+                        
+                    case 3:
+                        // Find the nearest point relative to the camera on the VOVolume.
+                        hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
+                                                                      LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
+                                                                      -1,
+                                                                      FALSE,
+                                                                      FALSE,
+                                                                      FALSE,
+                                                                      NULL,
+                                                                      &hit_pos);
+                        if (hit)
+                            probe_pos = hit_pos;
+                        break;
+                        
+                    case 4:
+                        probe_pos.load3(hero_pos.mV);
+                        break;
+                    case 5:
+                        focus_point.set(hero_pos.mV[0] - mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[0], hero_pos.mV[1], hero_pos.mV[2]);
+                        probe_pos.load3(focus_point.mV);
+                        break;
+                    case 6:
+                        focus_point.set(hero_pos.mV[0] + mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[0], hero_pos.mV[1], hero_pos.mV[2]);
+                        probe_pos.load3(focus_point.mV);
+                        break;
+                    case 7:
+
+                        if (obj && obj->mDrawable && obj->isSelected())
+                        { // focus on selected media object
+                            S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
+                            if (obj && obj->mDrawable)
+                            {
+                                LLFace* face = obj->mDrawable->getFace(face_idx);
+                                if (face)
+                                {
+                                    focus_point = face->getPositionAgent();
+                                }
+                            }
+                        }
+
+                        if (focus_point.isExactlyZero())
+                        {
+                            if (LLViewerJoystick::getInstance()->getOverrideCamera())
+                            { // focus on point under cursor
+                                focus_point.set(gDebugRaycastIntersection.getF32ptr());
+                            }
+                            else if (gAgentCamera.cameraMouselook())
+                            { // focus on point under mouselook crosshairs
+                                LLVector4a result;
+                                result.clear();
+
+                                gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, TRUE, NULL, &result);
+
+                                focus_point.set(result.getF32ptr());
+                            }
+                            else
+                            {
+                                // focus on alt-zoom target
+                                LLViewerRegion* region = gAgent.getRegion();
+                                if (region)
+                                {
+                                    focus_point = LLVector3(gAgentCamera.getFocusGlobal() - region->getOriginGlobal());
+                                }
+                            }
+                        }
+                        
+                        probe_pos.load3(focus_point.mV);
+                        
+                        break;
+                    case 8:
+                        camera_rot.setAngleAxis(180, 0, 0, 1);
+                        focus_point = camera_pos - hero_pos;
+                        focus_point.rotVec(camera_rot);
+                        probe_pos.load3((camera_pos + focus_point).mV);
+                        break;
                 }
             }
+            
+            mHeroProbeStrength = 1;
         }
-    }
-    
-    if (mIsInTransition && mHeroProbeStrength > 0.f)
-    {
-        mHeroProbeStrength -= 0.05f;
     }
     else
     {
-        
-        if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
-        {
-            
-            LLVector3 hero_pos = mNearestHero->mDrawable->mXform.getPosition();
-            switch (mNearestHero->mirrorPlacementMode()) {
-                case 0:
-                    probe_pos.set(camera_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]);
-                    break;
-                case 1:
-                    
-                    probe_pos.set(hero_pos.mV[0], camera_pos.mV[1], hero_pos.mV[2]);
-                    break;
-                case 2:
-                    
-                    probe_pos.set(hero_pos.mV[0], hero_pos.mV[1], camera_pos.mV[2]);
-                    break;
-                    
-                case 3:
-                    // Find the nearest point relative to the camera on the VOVolume.
-                    LLVector4a hit_pos;
-                    bool hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
-                                                                  LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
-                                                                  -1,
-                                                                  FALSE,
-                                                                  FALSE,
-                                                                  FALSE,
-                                                                  NULL,
-                                                                  &hit_pos);
-                    if (hit)
-                        probe_pos = hit_pos;
-                    
-                    break;
-            }
-        }
-        
-        
-        if (mHeroProbeStrength < 1.f)
-            mHeroProbeStrength += 0.05f;
+        probe_pos.load3(camera_pos.mV);
     }
+    
     
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
@@ -224,7 +270,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     LLGLDepthTest depth(GL_FALSE, GL_FALSE);
     LLGLDisable cull(GL_CULL_FACE);
     LLGLDisable blend(GL_BLEND);
-
+    
     // downsample to placeholder map
     {
         gGL.matrixMode(gGL.MM_MODELVIEW);
@@ -558,6 +604,7 @@ void LLHeroProbeManager::doOcclusion()
 
 void LLHeroProbeManager::registerHeroDrawable(LLVOVolume* drawablep)
 {
+    mNearestHero = drawablep;
         if (mHeroVOList.find(drawablep) == mHeroVOList.end())
         {
             mHeroVOList.insert(drawablep);

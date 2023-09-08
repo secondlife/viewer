@@ -280,6 +280,9 @@ void main()
 
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
+
+            color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - spec.a) * 11).xyz * spec.rgb;
+
         }
 
         color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);

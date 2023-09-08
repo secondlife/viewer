@@ -314,7 +314,9 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mLastUpdateCached(FALSE),
 	mCachedMuteListUpdateTime(0),
 	mCachedOwnerInMuteList(false),
-	mRiggedAttachedWarned(false)
+	mRiggedAttachedWarned(false),
+mIsMirror(false),
+mMirrorPlacementMode(3)
 {
 	if (!is_global)
 	{
@@ -1148,6 +1150,61 @@ U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector
 	return parent_id;
 }
 
+void detectMirror(const std::string &str, bool &mirror, U8 &mode)
+{
+    
+    std::stringstream ss(str);
+    std::string word;
+    while (ss >> word)
+    {
+        if (word == "IsMirror")
+        {
+            mirror = true;
+        }
+        else if (word == "XAlign" && mirror)
+        {
+            LL_INFOS() << "Mirror wants camera X placement." << LL_ENDL;
+            mode = 0;
+        }
+        else if (word == "YAlign" && mirror)
+        {
+            LL_INFOS() << "Mirror wants camera Y placement." << LL_ENDL;
+            mode = 1;
+        }
+        else if (word == "ZAlign" && mirror)
+        {
+            LL_INFOS() << "Mirror wants camera Z placement." << LL_ENDL;
+            mode = 2;
+        }
+        else if (word == "NearestPoint" && mirror)
+        {
+            LL_INFOS() << "Mirror wants nearest point placement." << LL_ENDL;
+            mode = 3;
+        }
+        else if (word == "Center" && mirror)
+        {
+            LL_INFOS() << "Mirror wants center of object." << LL_ENDL;
+            mode = 4;
+        }
+        else if (word == "XMin" && mirror)
+        {
+            mode = 5;
+        }
+        else if (word == "XMax" && mirror)
+        {
+            mode = 6;
+        }
+        else if (word == "FocusPoint" && mirror)
+        {
+            mode = 7;
+        }
+        else if (word == "Reflected" && mirror)
+        {
+            mode = 8;
+        }
+    }
+}
+
 U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 void **user_data,
 					 U32 block_num,
@@ -1524,42 +1581,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					std::string temp_string;
 					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, temp_string, block_num );
 					
-                    std::stringstream ss(temp_string);
-                    std::string word;
-                    bool mirror_detected = false;
-                    while (ss >> word)
-                    {
-                        if (word == "Mirror")
-                        {
-                            mirror_detected = true;
-                            mIsMirror = true;
-                        }
-                        else if (word == "XAlign" && mIsMirror)
-                        {
-                            mMirrorPlacementMode = 0;
-                        }
-                        else if (word == "YAlign" && mIsMirror)
-                        {
-                            mMirrorPlacementMode = 1;
-                        }
-                        else if (word == "ZAlign" && mIsMirror)
-                        {
-                            mMirrorPlacementMode = 2;
-                        }
-                        else if (word == "NearestPoint" && mIsMirror)
-                        {
-                            mMirrorPlacementMode = 3;
-                        }
-                    }
+                    detectMirror(temp_string, mIsMirror, mMirrorPlacementMode);
                     
 					LLColor4U coloru;
 					mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextColor, coloru.mV, 4, block_num);
                         
 					// alpha was flipped so that it zero encoded better
 					coloru.mV[3] = 255 - coloru.mV[3];
-                    
-                    if (mirror_detected)
-                        coloru.mV[3] = 0;
                     
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
@@ -1940,6 +1968,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				{
 					std::string temp_string;
 					dp->unpackString(temp_string, "Text");
+                    
+                    detectMirror(temp_string, mIsMirror, mMirrorPlacementMode);
+                    
 					LLColor4U coloru;
 					dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
 					coloru.mV[3] = 255 - coloru.mV[3];
