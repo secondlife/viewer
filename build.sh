@@ -550,31 +550,10 @@ then
     begin_section "Uploads"
     # Upload installer
     package=$(installer_$arch)
-    if [ x"$package" = x ] || test -d "$package"
+    if [ x"$package" != x ] && test -d "$package"
     then
-      fatal "No installer found from `pwd`"
-      succeeded=$build_coverity
-    else
       # Upload base package.
-      retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
-          || fatal "Upload of installer failed"
-      wait_for_codeticket
       installer+=("$package")
-
-      # Upload additional packages.
-      for package_id in $additional_packages
-      do
-        package=$(installer_$arch "$package_id")
-        if [ x"$package" != x ]
-        then
-          retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
-              || fatal "Upload of installer $package_id failed"
-          wait_for_codeticket
-          installer+=("$package")
-        else
-          record_failure "Failed to find additional package for '$package_id'."
-        fi
-      done
 
       if [ "$last_built_variant" = "Release" ]
       then
@@ -588,45 +567,19 @@ then
               then
                   # symbol tarball we prep for (e.g.) Breakpad
                   symbol_file="$VIEWER_SYMBOL_FILE"
-              else
-                  # SL-19243 HACK: List contents of xcarchive.zip, before running
-                  # upload-mac-symbols.sh which moves it to /tmp
-                  unzip -l "$symbol_file"
               fi
               # Upload crash reporter file
-              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbol_file" \
-                  || fatal "Upload of symbolfile failed"
-              wait_for_codeticket
               symbolfile+=("$symbol_file")
           fi
 
           # Upload the llphysicsextensions_tpv package, if one was produced
-          # *TODO: Make this an upload-extension
           # Only upload this package when building the private repo so the
           # artifact is private.
-          if [[ "$GITHUB_REPOSITORY" == "secondlife/viewer-private" && \
+          if [[ "x$GITHUB_REPOSITORY" == "xsecondlife/viewer-private" && \
                 -r "$build_dir/llphysicsextensions_package" ]]
           then
               llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
-                  || fatal "Upload of physics extensions package failed"
               physicstpv+=("$llphysicsextensions_package")
-          fi
-      fi
-
-      # Run upload extensions
-      # Ex: bugsplat
-      ## SL-19243 HACK: testing separate GH upload jobs
-      if false
-      then
-          if [ -d ${build_dir}/packages/upload-extensions ]; then
-              for extension in ${build_dir}/packages/upload-extensions/*.sh; do
-                  begin_section "Upload Extension $extension"
-                  . $extension
-                  [ $? -eq 0 ] || fatal "Upload of extension $extension failed"
-                  wait_for_codeticket
-                  end_section "Upload Extension $extension"
-              done
           fi
       fi
     fi
