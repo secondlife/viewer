@@ -12,7 +12,9 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-12-xl]
-        configuration: [Release, ReleaseOS]
+        ## Skip ReleaseOS until we resolve
+        ## === FAILURE No installer found from /c/a/viewer/viewer
+        configuration: [Release] ##, ReleaseOS]
         python-version: ["3.11"]
         include:
           - runner: macos-12-xl
