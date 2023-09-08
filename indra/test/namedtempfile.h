@@ -67,14 +67,31 @@ public:
 
     std::string getName() const { return mPath.string(); }
 
-    void peep()
+    template <typename CALLABLE>
+    void peep_via(CALLABLE&& callable) const
     {
-        std::cout << "File '" << mPath << "' contains:\n";
+        std::forward<CALLABLE>(callable)(stringize("File '", mPath, "' contains:"));
         boost::filesystem::ifstream reader(mPath, std::ios::binary);
         std::string line;
         while (std::getline(reader, line))
-            std::cout << line << '\n';
-        std::cout << "---\n";
+            std::forward<CALLABLE>(callable)(line);
+        std::forward<CALLABLE>(callable)("---");
+    }
+
+    void peep_log() const
+    {
+        peep_via([](const std::string& line){ LL_DEBUGS() << line << LL_ENDL; });
+    }
+
+    void peep(std::ostream& out=std::cout) const
+    {
+        peep_via([&out](const std::string& line){ out << line << '\n'; });
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const NamedTempFile& self)
+    {
+        self.peep(out);
+        return out;
     }
 
     static boost::filesystem::path temp_path(const std::string_view& pfx="",
