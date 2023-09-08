@@ -461,7 +461,7 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
         bool showDivider = true;
         bool mixedFolder = maxRows;
         LLEmojiGridRow* row = nullptr;
-        if (!mixedFolder)
+        if (!mixedFolder && !isupper(category.front()))
         {
             LLStringUtil::capitalize(category);
         }

@@ -204,8 +204,7 @@ void LLEmojiDictionary::loadTranslations()
     {
         const LLSD& sd = *it;
         const std::string& name = sd["Name"].asStringRef();
-        std::string category = sd["Category"].asString();
-        LLStringUtil::toLower(category);
+        const std::string& category = sd["Category"].asStringRef();
         if (!name.empty() && !category.empty())
         {
             mTranslations[name] = category;
@@ -373,22 +372,17 @@ llwchar LLEmojiDictionary::loadIcon(const LLSD& sd)
     return (1 == icon.size()) ? icon[0] : L'\0';
 }
 
-static inline std::list<std::string> loadStrings(const LLSD& sd, const std::string key)
-{
-    auto toLower = [](std::string& str) { LLStringUtil::toLower(str); };
-    return llsd_array_to_list<std::string>(sd[key], toLower);
-}
-
 std::list<std::string> LLEmojiDictionary::loadCategories(const LLSD& sd)
 {
-    static const std::string categoriesKey("Categories");
-    return loadStrings(sd, categoriesKey);
+    static const std::string key("Categories");
+    return llsd_array_to_list<std::string>(sd[key]);
 }
 
 std::list<std::string> LLEmojiDictionary::loadShortCodes(const LLSD& sd)
 {
-    static const std::string shortCodesKey("ShortCodes");
-    return loadStrings(sd, shortCodesKey);
+    static const std::string key("ShortCodes");
+    auto toLower = [](std::string& str) { LLStringUtil::toLower(str); };
+    return llsd_array_to_list<std::string>(sd[key], toLower);
 }
 
 void LLEmojiDictionary::translateCategories(std::list<std::string>& categories)
