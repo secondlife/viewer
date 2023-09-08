@@ -70,7 +70,7 @@ public:
     void peep()
     {
         std::cout << "File '" << mPath << "' contains:\n";
-        boost::filesystem::ifstream reader(mPath);
+        boost::filesystem::ifstream reader(mPath, std::ios::binary);
         std::string line;
         while (std::getline(reader, line))
             std::cout << line << '\n';
@@ -103,7 +103,7 @@ protected:
     {
         // Create file in a temporary place.
         mPath = temp_path(pfx, sfx);
-        boost::filesystem::ofstream out{ mPath };
+        boost::filesystem::ofstream out{ mPath, std::ios::binary };
         // Write desired content.
         func(out);
     }
