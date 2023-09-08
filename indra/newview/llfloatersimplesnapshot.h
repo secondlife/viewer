@@ -63,6 +63,7 @@ public:
 
     void postSave();
     static void uploadThumbnail(const std::string &file_path, const LLUUID &inventory_id, const LLUUID &task_id);
+    static void uploadThumbnail(LLPointer<LLImageRaw> raw_image, const LLUUID& inventory_id, const LLUUID& task_id);
 
     class Impl;
     friend class Impl;

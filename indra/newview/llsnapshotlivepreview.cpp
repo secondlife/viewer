@@ -876,37 +876,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
 
 bool LLSnapshotLivePreview::createUploadFile(const std::string &out_filename, const S32 max_image_dimentions, const S32 min_image_dimentions)
 {
-    // make a copy, since convertToUploadFile modifies raw image
-    LLPointer<LLImageRaw> raw_image = new LLImageRaw(
-        mPreviewImage->getData(),
-        mPreviewImage->getWidth(),
-        mPreviewImage->getHeight(),
-        mPreviewImage->getComponents());
-
-    LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(raw_image, max_image_dimentions);
-    if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
-    {
-        std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
-            min_image_dimentions,
-            min_image_dimentions,
-            compressedImage->getWidth(),
-            compressedImage->getHeight());
-        compressedImage->setLastError(reason);
-        return FALSE;
-    }
-    if (compressedImage.isNull())
-    {
-        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
-        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
-        return false;
-    }
-    if (!compressedImage->save(out_filename))
-    {
-        compressedImage->setLastError("Couldn't create the jpeg2000 image for upload.");
-        LL_INFOS() << "Couldn't create output file : " << out_filename << LL_ENDL;
-        return false;
-    }
-    return true;
+    return LLViewerTextureList::createUploadFile(mPreviewImage, out_filename, max_image_dimentions, min_image_dimentions);
 }
 
 // We actually estimate the data size so that we do not require actual compression when showing the preview

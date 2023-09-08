@@ -1197,15 +1197,12 @@ void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply, bool 
 	mPreviewSettingChanged = true;
 }
 
-void LLFloaterTexturePicker::setDimentionsLimits(S32 max_dim, S32 min_dim)
+void LLFloaterTexturePicker::setMinDimentionsLimits(S32 min_dim)
 {
-    mMaxDim = max_dim;
     mMinDim = min_dim;
 
     std::string formatted_dims = llformat("%dx%d", mMinDim, mMinDim);
     mResolutionWarning->setTextArg("[MINTEXDIM]", formatted_dims);
-    formatted_dims = llformat("%dx%d", mMaxDim, mMaxDim);
-    mResolutionWarning->setTextArg("[MAXTEXDIM]", formatted_dims);
 }
 
 void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )

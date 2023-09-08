@@ -398,6 +398,21 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
 }
 
 // static
+void LLFloaterSimpleSnapshot::uploadThumbnail(LLPointer<LLImageRaw> raw_image, const LLUUID& inventory_id, const LLUUID& task_id)
+{
+    std::string temp_file = gDirUtilp->getTempFilename();
+    if (!LLViewerTextureList::createUploadFile(raw_image, temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
+    {
+        LLSD notif_args;
+        notif_args["REASON"] = LLImage::getLastError().c_str();
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
+        return;
+    }
+    uploadImageUploadFile(temp_file, inventory_id, task_id);
+}
+
+// static
 void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file, const LLUUID &inventory_id, const LLUUID &task_id)
 {
     LLSD data;
