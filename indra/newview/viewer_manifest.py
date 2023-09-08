@@ -489,8 +489,11 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-            # emit that as one of the GitHub step outputs
-            self.set_github_output_path('viewer_exe', self.final_exe())
+            # Emit the whole app image as one of the GitHub step outputs. The
+            # current get_dst_prefix() is the top-level contents of the app
+            # directory -- so hop outward to the directory containing the app
+            # name.
+            self.set_github_output_path('viewer_app', os.pardir)
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -853,8 +856,9 @@ class DarwinManifest(ViewerManifest):
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
         self.path(os.path.join(self.args['configuration'], self.channel()+".app"), dst="")
-        # capture the entire destination app bundle
-        self.set_github_output_path('viewer_exe', '')
+        # capture the entire destination app bundle, including the containing
+        # .app directory
+        self.set_github_output_path('viewer_app', os.pardir)
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")

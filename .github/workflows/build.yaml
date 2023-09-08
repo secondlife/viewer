@@ -223,11 +223,16 @@ jobs:
             ${{ steps.build.outputs.installer }}
 
       - name: Upload executable
-        if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.viewer_exe
+        if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ steps.build.outputs.artifact }}-exe"
-          path: ${{ steps.build.outputs.viewer_exe }}
+          name: "${{ steps.build.outputs.artifact }}-app"
+          # The directory specified as viewer_app contains the directory
+          # containing the application image. Strip out any other build
+          # detritus from the artifact.
+          path: |
+            ${{ steps.build.outputs.viewer_app }}
+            "!${{ steps.build.outputs.viewer_app }}/*.bat"
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
