@@ -30,8 +30,16 @@
 
 #include "llagent.h"
 #include "llappearancemgr.h"
+#include "llcallbacklist.h"
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
+#include "llfloatersidepanelcontainer.h"
+#include "llvoavatarself.h"
+#include "llviewermenu.h"
+#include "llviewermenufile.h"
+#include "llviewerwindow.h"
+
+#include <boost/algorithm/string/replace.hpp>
 
 extern "C"
 {
@@ -95,6 +103,66 @@ int lua_open_floater(lua_State *L)
     return 1;
 }
 
+int lua_close_all_floaters(lua_State *L)
+{
+    close_all_windows();
+    return 1;
+}
+
+int lua_snapshot_to_file(lua_State *L)
+{
+    std::string filename(lua_tostring(L, 1));
+
+    //don't take snapshot from coroutine
+    doOnIdleOneTime([filename]()
+    {
+        gViewerWindow->saveSnapshot(filename,
+                                gViewerWindow->getWindowWidthRaw(),
+                                gViewerWindow->getWindowHeightRaw(),
+                                gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                                gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                                FALSE,
+                                LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+                                LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
+    });
+
+    return 1;
+}
+
+int lua_open_wearing_tab(lua_State *L)
+{ 
+    LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "now_wearing")); 
+    return 1;
+}
+
+int lua_set_debug_setting_bool(lua_State *L) 
+{
+    std::string setting_name(lua_tostring(L, 1));
+    bool value(lua_toboolean(L, 2));
+
+    gSavedSettings.setBOOL(setting_name, value);
+    return 1;
+}
+
+    int lua_get_avatar_name(lua_State *L)
+{
+    std::string name = gAgentAvatarp->getFullname();
+    lua_pushstring(L, name.c_str());
+    return 1;
+}
+
+int lua_is_avatar_flying(lua_State *L)
+{
+    lua_pushboolean(L, gAgent.getFlying());
+    return 1;
+}
+
+int lua_env_setting_event(lua_State *L)
+{ 
+    handle_env_setting_event(lua_tostring(L, 1));
+    return 1;
+}
+
 bool checkLua(lua_State *L, int r, std::string &error_msg)
 {
     if (r != LUA_OK)
@@ -117,6 +185,15 @@ void initLUA(lua_State *L)
     lua_register(L, "nearby_chat_send", lua_nearby_chat_send);
     lua_register(L, "wear_by_name", lua_wear_by_name);
     lua_register(L, "open_floater", lua_open_floater);
+    lua_register(L, "close_all_floaters", lua_close_all_floaters);
+    lua_register(L, "open_wearing_tab", lua_open_wearing_tab);
+    lua_register(L, "snapshot_to_file", lua_snapshot_to_file);
+
+    lua_register(L, "get_avatar_name", lua_get_avatar_name);
+    lua_register(L, "is_avatar_flying", lua_is_avatar_flying);
+
+    lua_register(L, "env_setting_event", lua_env_setting_event);
+    lua_register(L, "set_debug_setting_bool", lua_set_debug_setting_bool);
 }
 
 void LLLUAmanager::runScriptFile(const std::string &filename, script_finished_fn cb)
