@@ -55,7 +55,9 @@ typedef U32 uint32_t;
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
+#include <cctype>
 #include <functional>
+#include <iomanip>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
 typedef std::function<bool(std::istream& istr, LLSD& data, llssize max_bytes)> ParserFunction;
@@ -64,6 +66,81 @@ std::vector<U8> string_to_vector(const std::string& str)
 {
 	return std::vector<U8>(str.begin(), str.end());
 }
+
+// Format a given byte string as 2-digit hex values, no separators
+// Usage: std::cout << hexdump(somestring) << ...
+class hexdump
+{
+public:
+    hexdump(const char* data, size_t len):
+        hexdump(reinterpret_cast<const U8*>(data), len)
+    {}
+
+    hexdump(const U8* data, size_t len):
+        mData(data, data + len)
+    {}
+
+    hexdump(const hexdump&) = delete;
+    hexdump& operator=(const hexdump&) = delete;
+
+    friend std::ostream& operator<<(std::ostream& out, const hexdump& self)
+    {
+        auto oldfmt{ out.flags() };
+        auto oldfill{ out.fill() };
+        out.setf(std::ios_base::hex, std::ios_base::basefield);
+        out.fill('0');
+        for (auto c : self.mData)
+        {
+            out << std::setw(2) << unsigned(c);
+        }
+        out.setf(oldfmt, std::ios_base::basefield);
+        out.fill(oldfill);
+        return out;
+    }
+
+private:
+    std::vector<U8> mData;
+};
+
+// Format a given byte string as a mix of printable characters and, for each
+// non-printable character, "\xnn"
+// Usage: std::cout << hexmix(somestring) << ...
+class hexmix
+{
+public:
+    hexmix(const char* data, size_t len):
+        mData(data, len)
+    {}
+
+    hexmix(const hexmix&) = delete;
+    hexmix& operator=(const hexmix&) = delete;
+
+    friend std::ostream& operator<<(std::ostream& out, const hexmix& self)
+    {
+        auto oldfmt{ out.flags() };
+        auto oldfill{ out.fill() };
+        out.setf(std::ios_base::hex, std::ios_base::basefield);
+        out.fill('0');
+        for (auto c : self.mData)
+        {
+            // std::isprint() must be passed an unsigned char!
+            if (std::isprint(static_cast<unsigned char>(c)))
+            {
+                out << c;
+            }
+            else
+            {
+                out << "\\x" << std::setw(2) << unsigned(c);
+            }
+        }
+        out.setf(oldfmt, std::ios_base::basefield);
+        out.fill(oldfill);
+        return out;
+    }
+
+private:
+    std::string mData;
+};
 
 namespace tut
 {
@@ -1909,7 +1986,14 @@ namespace tut
             auto buffstr{ buffer.str() };
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
+            LL_DEBUGS("topy") << "Wrote length: "
+                                  << hexdump(reinterpret_cast<const char*>(&bufflen),
+                                             sizeof(bufflen))
+                                  << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
+            LL_DEBUGS("topy") << "Wrote data:   "
+                                  << hexmix(buffstr.c_str(), buffstr.length())
+                                  << LL_ENDL;
         }
     }
 
@@ -1938,8 +2022,8 @@ namespace tut
             "    else:\n"
             "        raise AssertionError('Too many data items')\n";
 
-        // Create an llsdXXXXXX file containing 'data' serialized to
-        // notation.
+        // Create an llsdXXXXXX file containing 'data' serialized per
+        // FormatterFunction.
         NamedTempFile file("llsd",
                            // NamedTempFile's function constructor
                            // takes a callable. To this callable it passes the
@@ -1958,11 +2042,13 @@ namespace tut
                "lenformat = struct.Struct('i')\n"
                "def parse_each(inf):\n"
                "    for rawlen in iter(partial(inf.read, lenformat.size), b''):\n"
+               "        print('Read length:', ''.join(('%02x' % b) for b in rawlen))\n"
                "        len = lenformat.unpack(rawlen)[0]\n"
                // Since llsd.parse() has no max_bytes argument, instead of
                // passing the input stream directly to parse(), read the item
                // into a distinct bytes object and parse that.
                "        data = inf.read(len)\n"
+               "        print('Read data:  ', repr(data))\n"
                "        try:\n"
                "            frombytes = llsd.parse(data)\n"
                "        except llsd.LLSDParseError as err:\n"
