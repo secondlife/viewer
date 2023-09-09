@@ -110,194 +110,57 @@ void LLHeroProbeManager::update()
         {
             if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
             {
-                LLVector3 hero_pos = mNearestHero->getPosition();
+                LLVector3 hero_pos = mNearestHero->mDrawable->mXform.getWorldPosition();
                 
-                // Make sure our camera is clamped to the hero's bounding box.
-                camera_pos.clamp(mNearestHero->getBoundingBoxAgent().getMinAgent(), mNearestHero->getBoundingBoxAgent().getMaxAgent());
                 bool hit = false;
                 LLVector4a hit_pos;
                 LLVector3 focus_point;
                 LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
                 LLQuaternion camera_rot;
+                F32 angleInRadians = 180 * DEG_TO_RAD;
+
+                LLMatrix4 rotationMatrix;
+
+                LLVector3 translatedPoint;
+                LLVector3 rotatedTranslatedPoint;
+                LLVector3 rotatedPoint;
                 
                 switch (mNearestHero->mirrorPlacementMode()) {
                     case 0:
-                        probe_pos.set(camera_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]);
+                        
+                        hero_pos.mV[1] = camera_pos.mV[1];
+                        
+                        rotationMatrix.rotate(angleInRadians, LLVector4(1, 0, 0, 0));
+                        
+                        translatedPoint = camera_pos - hero_pos;
+                        rotatedTranslatedPoint = translatedPoint * rotationMatrix;
+                        rotatedPoint = rotatedTranslatedPoint + hero_pos;
+                        
+                        probe_pos.load3(rotatedPoint.mV);
                         break;
                     case 1:
                         
-                        probe_pos.set(hero_pos.mV[0], camera_pos.mV[1], hero_pos.mV[2]);
+                        hero_pos.mV[2] = camera_pos.mV[2];
+                        
+                        rotationMatrix.rotate(angleInRadians, LLVector4(0, 1, 0, 0));
+                        
+                        translatedPoint = camera_pos - hero_pos;
+                        rotatedTranslatedPoint = translatedPoint * rotationMatrix;
+                        rotatedPoint = rotatedTranslatedPoint + hero_pos;
+                        
+                        probe_pos.load3(rotatedPoint.mV);
                         break;
                     case 2:
                         
-                        probe_pos.set(hero_pos.mV[0], hero_pos.mV[1], camera_pos.mV[2]);
-                        break;
+                        hero_pos.mV[0] = camera_pos.mV[0];
                         
-                    case 3:
-                        // Find the nearest point relative to the camera on the VOVolume.
-                        hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
-                                                                      LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
-                                                                      -1,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      NULL,
-                                                                      &hit_pos);
-                        if (hit)
-                            probe_pos = hit_pos;
-                        break;
+                        rotationMatrix.rotate(angleInRadians, LLVector4(0, 0, 1, 0));
                         
-                    case 4:
-                        probe_pos.load3(hero_pos.mV);
-                        break;
-                    case 5:
-                        focus_point.set(hero_pos.mV[0] - mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[0], hero_pos.mV[1], hero_pos.mV[2]);
-                        probe_pos.load3(focus_point.mV);
-                        break;
-                    case 6:
-                        focus_point.set(hero_pos.mV[0] + mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[0], hero_pos.mV[1], hero_pos.mV[2]);
-                        probe_pos.load3(focus_point.mV);
-                        break;
-                    case 7:
-                        focus_point.set(hero_pos.mV[0], hero_pos.mV[1] - mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[1], hero_pos.mV[2]);
-                        probe_pos.load3(focus_point.mV);
-                        break;
-                    case 8:
-                        focus_point.set(hero_pos.mV[0], hero_pos.mV[1] + mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[1], hero_pos.mV[2]);
-                        probe_pos.load3(focus_point.mV);
-                        break;
-                    case 9:
-                        focus_point.set(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2] - mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[2]);
-                        probe_pos.load3(focus_point.mV);
-                        break;
-                    case 10:
-                        focus_point.set(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2] + mNearestHero->getBoundingBoxAgent().getExtentLocal().mV[2]);
-                        probe_pos.load3(focus_point.mV);
-                        break;
-                    case 11:
-
-                        if (obj && obj->mDrawable && obj->isSelected())
-                        { // focus on selected media object
-                            S32 face_idx = LLViewerMediaFocus::getInstance()->getFocusedFace();
-                            if (obj && obj->mDrawable)
-                            {
-                                LLFace* face = obj->mDrawable->getFace(face_idx);
-                                if (face)
-                                {
-                                    focus_point = face->getPositionAgent();
-                                }
-                            }
-                        }
-
-                        if (focus_point.isExactlyZero())
-                        {
-                            if (LLViewerJoystick::getInstance()->getOverrideCamera())
-                            { // focus on point under cursor
-                                focus_point.set(gDebugRaycastIntersection.getF32ptr());
-                            }
-                            else if (gAgentCamera.cameraMouselook())
-                            { // focus on point under mouselook crosshairs
-                                LLVector4a result;
-                                result.clear();
-
-                                gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, TRUE, NULL, &result);
-
-                                focus_point.set(result.getF32ptr());
-                            }
-                            else
-                            {
-                                // focus on alt-zoom target
-                                LLViewerRegion* region = gAgent.getRegion();
-                                if (region)
-                                {
-                                    focus_point = LLVector3(gAgentCamera.getFocusGlobal() - region->getOriginGlobal());
-                                }
-                            }
-                        }
+                        translatedPoint = camera_pos - hero_pos;
+                        rotatedTranslatedPoint = translatedPoint * rotationMatrix;
+                        rotatedPoint = rotatedTranslatedPoint + hero_pos;
                         
-                        probe_pos.load3(focus_point.mV);
-                        
-                        break;
-                    case 12:
-                        
-                        hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
-                                                                      LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
-                                                                      -1,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      NULL,
-                                                                      &hit_pos);
-                        if (hit)
-                        {
-                            hero_pos.mV[0] = hit_pos.getF32ptr()[0];
-                            hero_pos.mV[1] = hit_pos.getF32ptr()[1];
-                            hero_pos.mV[2] = hit_pos.getF32ptr()[2];
-                        }
-                        
-                        camera_rot.setAngleAxis(180, 1, 0, 0);
-                        focus_point = camera_pos - hero_pos;
-                        focus_point.rotVec(camera_rot);
-                        probe_pos.load3((camera_pos + focus_point).mV);
-                        break;
-                    case 13:
-                        
-                        hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
-                                                                      LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
-                                                                      -1,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      NULL,
-                                                                      &hit_pos);
-                        if (hit)
-                        {
-                            hero_pos.mV[0] = hit_pos.getF32ptr()[0];
-                            hero_pos.mV[1] = hit_pos.getF32ptr()[1];
-                            hero_pos.mV[2] = hit_pos.getF32ptr()[2];
-                        }
-                        
-                        camera_rot.setAngleAxis(180, 0, 1, 0);
-                        focus_point = camera_pos - hero_pos;
-                        focus_point.rotVec(camera_rot);
-                        probe_pos.load3((camera_pos + focus_point).mV);
-                        break;
-                    case 14:
-                        
-                        hit = mNearestHero->lineSegmentIntersect(LLVector4a(camera_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]),
-                                                                      LLVector4a(hero_pos.mV[0], hero_pos.mV[1], hero_pos.mV[2]),
-                                                                      -1,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      FALSE,
-                                                                      NULL,
-                                                                      &hit_pos);
-                        if (hit)
-                        {
-                            hero_pos.mV[0] = hit_pos.getF32ptr()[0];
-                            hero_pos.mV[1] = hit_pos.getF32ptr()[1];
-                            hero_pos.mV[2] = hit_pos.getF32ptr()[2];
-                        }
-                        
-                        camera_rot.setAngleAxis(180, 0, 0, 1);
-                        focus_point = camera_pos - hero_pos;
-                        focus_point.rotVec(camera_rot);
-                        probe_pos.load3((camera_pos + focus_point).mV);
-                        break;
-                    case 15:
-                        probe_pos.set(camera_pos.mV[0], camera_pos.mV[1], hero_pos.mV[2]);
-                        break;
-                    case 16:
-                        probe_pos.set(camera_pos.mV[0], hero_pos.mV[1], camera_pos.mV[2]);
-                        break;
-                    case 17:
-                        probe_pos.set(hero_pos.mV[0], camera_pos.mV[1], camera_pos.mV[2]);
-                        break;
-                    case 18:
-                        probe_pos.load3(camera_pos.mV);
-                        break;
-                    case 19:
-                        probe_pos.load3(((camera_pos + hero_pos) / 2).mV);
+                        probe_pos.load3(rotatedPoint.mV);
                         break;
                 }
             }
@@ -345,6 +208,14 @@ void LLHeroProbeManager::update()
 // In effect this simulates single-bounce lighting.
 void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
+    // Make our object invisible.
+    
+    if (mNearestHero)
+    {
+        mNearestHero->setDrawableState(LLDrawable::FORCE_INVISIBLE, true);
+        gPipeline.markRebuild( mNearestHero->mDrawable, LLDrawable::REBUILD_ALL);
+    }
+    
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
@@ -353,7 +224,8 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     gPipeline.mRT = &gPipeline.mMainRT;
 
     S32 sourceIdx = mReflectionProbeCount;
-
+    
+    
     // Unlike the reflectionmap manager, all probes are considered "realtime" for hero probes.
     sourceIdx += 1;
 
@@ -511,6 +383,12 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         }
 
         mMipChain[0].flush();
+    }
+    
+    if (mNearestHero)
+    {
+        mNearestHero->clearDrawableState(LLDrawable::FORCE_INVISIBLE, true);
+        gPipeline.markRebuild( mNearestHero->mDrawable, LLDrawable::REBUILD_ALL);
     }
 }
 

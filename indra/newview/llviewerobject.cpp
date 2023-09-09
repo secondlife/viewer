@@ -1161,85 +1161,17 @@ void detectMirror(const std::string &str, bool &mirror, U8 &mode)
         {
             mirror = true;
         }
-        else if (word == "XAlign" && mirror)
+        else if (word == "ReflectedX" && mirror)
         {
             mode = 0;
         }
-        else if (word == "YAlign" && mirror)
+        else if (word == "ReflectedY" && mirror)
         {
             mode = 1;
         }
-        else if (word == "ZAlign" && mirror)
-        {
-            mode = 2;
-        }
-        else if (word == "NearestPoint" && mirror)
-        {
-            mode = 3;
-        }
-        else if (word == "Center" && mirror)
-        {
-            mode = 4;
-        }
-        else if (word == "XMin" && mirror)
-        {
-            mode = 5;
-        }
-        else if (word == "XMax" && mirror)
-        {
-            mode = 6;
-        }
-        else if (word == "YMin" && mirror)
-        {
-            mode = 7;
-        }
-        else if (word == "YMax" && mirror)
-        {
-            mode = 8;
-        }
-        else if (word == "ZMin" && mirror)
-        {
-            mode = 9;
-        }
-        else if (word == "ZMax" && mirror)
-        {
-            mode = 10;
-        }
-        else if (word == "FocusPoint" && mirror)
-        {
-            mode = 11;
-        }
-        else if (word == "ReflectedX" && mirror)
-        {
-            mode = 12;
-        }
-        else if (word == "ReflectedY" && mirror)
-        {
-            mode = 13;
-        }
         else if (word == "ReflectedZ" && mirror)
         {
-            mode = 14;
-        }
-        else if (word == "XYAlign" && mirror)
-        {
-            mode = 15;
-        }
-        else if (word == "XZAlign" && mirror)
-        {
-            mode = 16;
-        }
-        else if (word == "ZYAlign" && mirror)
-        {
-            mode = 17;
-        }
-        else if (word == "XYZAlign" && mirror)
-        {
-            mode = 18;
-        }
-        else if (word == "XYZAlignCenter" && mirror)
-        {
-            mode = 19;
+            mode = 2;
         }
     }
 }
