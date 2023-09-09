@@ -112,10 +112,8 @@ void LLHeroProbeManager::update()
             {
                 LLVector3 hero_pos = mNearestHero->mDrawable->mXform.getWorldPosition();
                 
-                bool hit = false;
                 LLVector4a hit_pos;
                 LLVector3 focus_point;
-                LLViewerObject* obj = LLViewerMediaFocus::getInstance()->getFocusedObject();
                 LLQuaternion camera_rot;
                 F32 angleInRadians = 180 * DEG_TO_RAD;
 
