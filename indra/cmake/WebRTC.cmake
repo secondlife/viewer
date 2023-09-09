@@ -1,43 +1,41 @@
 # -*- cmake -*-
-include(CMakeCopyIfDifferent)
 
-include(Linking)
+include(FetchContent)
 
-include_guard()
-
-set(WEBRTC_ROOT ${CMAKE_BINARY_DIR}/../../webrtc/src)
-file(COPY ${WEBRTC_ROOT}/out/Default/obj/webrtc.lib
-    DESTINATION ${CMAKE_BINARY_DIR}/packages/lib/release
+if (WINDOWS)
+FetchContent_Declare(
+  webrtc
+  URL      http://localhost:8000/webrtc.windows_x86_64.tar.bz2
+  URL_HASH MD5=dfb692562770dc8c877ebfe4302e2881
+  FIND_PACKAGE_ARGS NAMES webrtc
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
 )
-set(WEBRTC_INCLUDE_DIR ${CMAKE_BINARY_DIR}/packages/include/webrtc)
-file(MAKE_DIRECTORY ${WEBRTC_INCLUDE_DIR})
-
-file(COPY ${WEBRTC_ROOT}/api
-          ${WEBRTC_ROOT}/media/base 
-          ${WEBRTC_ROOT}/media/engine
-          ${WEBRTC_ROOT}/rtc_base
-          ${WEBRTC_ROOT}/pc
-          ${WEBRTC_ROOT}/p2p
-          ${WEBRTC_ROOT}/call
-          ${WEBRTC_ROOT}/media
-          ${WEBRTC_ROOT}/system_wrappers
-          ${WEBRTC_ROOT}/common_video
-          ${WEBRTC_ROOT}/video
-          ${WEBRTC_ROOT}/common_audio
-          ${WEBRTC_ROOT}/logging
-          ${WEBRTC_ROOT}/third_party/abseil-cpp/absl
-    DESTINATION ${WEBRTC_INCLUDE_DIR}
-    FILES_MATCHING PATTERN "*.h"
-)
-
-add_library(ll::webrtc STATIC IMPORTED)
-
-if (LINUX)
-  target_link_libraries( ll::webrtc INTERFACE ../webrtc/src/obj/Default/webrtc)
 elseif (DARWIN)
-  target_link_libraries( ll::webrtc INTERFACE ../webrtc/src/obj/Default/webrtc)
-elseif (WINDOWS)
-  set_target_properties( ll::webrtc PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/packages/lib/release/webrtc.lib)
-  target_link_libraries( ll::webrtc INTERFACE ${CMAKE_BINARY_DIR}/packages/lib/release/webrtc.lib)
-endif (LINUX)
-target_include_directories( ll::webrtc INTERFACE "${WEBRTC_INCLUDE_DIR}")
+FetchContent_Declare(
+  webrtc
+  URL      http://localhost:8000/webrtc.macos_x86_64.tar.bz2
+  URL_HASH MD5=cfbcac7da897a862f9791ea29330b814
+  FIND_PACKAGE_ARGS NAMES webrtc
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
+)
+endif (WINDOWS)
+
+FetchContent_MakeAvailable(webrtc)
+
+set(WEBRTC_PATH ${webrtc_SOURCE_DIR})
+
+
+add_library( ll::webrtc INTERFACE IMPORTED )
+
+
+if (WINDOWS)
+  target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.lib" )
+elseif (DARWIN)
+  target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.a" )
+elseif (LINUX)
+  target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.a" )
+endif (WINDOWS)
+target_include_directories( ll::webrtc SYSTEM INTERFACE "${WEBRTC_PATH}/include" "${WEBRTC_PATH}/include/third_party/abseil-cpp")
+
