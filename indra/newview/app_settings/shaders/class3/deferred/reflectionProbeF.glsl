@@ -71,9 +71,6 @@ layout (std140) uniform ReflectionProbes
 
     // number of reflection probes present in refSphere
     int refmapCount;
-    
-    vec4 heroPosition[1];
-    int heroProbeCount;
 };
 
 // Inputs
@@ -522,10 +519,6 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
     vec3 d = normalize(v);
 
     v = env_mat * v;
-    
-#if defined(HERO_PROBES)
-    vec3 mirror = textureLod(heroProbes, vec4(v.xyz, 0), lod).rgb;
-#endif
     
     vec4 ret = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod) * refParams[i].y;
 
