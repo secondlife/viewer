@@ -1163,27 +1163,22 @@ void detectMirror(const std::string &str, bool &mirror, U8 &mode)
         }
         else if (word == "XAlign" && mirror)
         {
-            LL_INFOS() << "Mirror wants camera X placement." << LL_ENDL;
             mode = 0;
         }
         else if (word == "YAlign" && mirror)
         {
-            LL_INFOS() << "Mirror wants camera Y placement." << LL_ENDL;
             mode = 1;
         }
         else if (word == "ZAlign" && mirror)
         {
-            LL_INFOS() << "Mirror wants camera Z placement." << LL_ENDL;
             mode = 2;
         }
         else if (word == "NearestPoint" && mirror)
         {
-            LL_INFOS() << "Mirror wants nearest point placement." << LL_ENDL;
             mode = 3;
         }
         else if (word == "Center" && mirror)
         {
-            LL_INFOS() << "Mirror wants center of object." << LL_ENDL;
             mode = 4;
         }
         else if (word == "XMin" && mirror)
@@ -1194,13 +1189,57 @@ void detectMirror(const std::string &str, bool &mirror, U8 &mode)
         {
             mode = 6;
         }
-        else if (word == "FocusPoint" && mirror)
+        else if (word == "YMin" && mirror)
         {
             mode = 7;
         }
-        else if (word == "Reflected" && mirror)
+        else if (word == "YMax" && mirror)
         {
             mode = 8;
+        }
+        else if (word == "ZMin" && mirror)
+        {
+            mode = 9;
+        }
+        else if (word == "ZMax" && mirror)
+        {
+            mode = 10;
+        }
+        else if (word == "FocusPoint" && mirror)
+        {
+            mode = 11;
+        }
+        else if (word == "ReflectedX" && mirror)
+        {
+            mode = 12;
+        }
+        else if (word == "ReflectedY" && mirror)
+        {
+            mode = 13;
+        }
+        else if (word == "ReflectedZ" && mirror)
+        {
+            mode = 14;
+        }
+        else if (word == "XYAlign" && mirror)
+        {
+            mode = 15;
+        }
+        else if (word == "XZAlign" && mirror)
+        {
+            mode = 16;
+        }
+        else if (word == "ZYAlign" && mirror)
+        {
+            mode = 17;
+        }
+        else if (word == "XYZAlign" && mirror)
+        {
+            mode = 18;
+        }
+        else if (word == "XYZAlignCenter" && mirror)
+        {
+            mode = 19;
         }
     }
 }
