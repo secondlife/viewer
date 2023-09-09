@@ -407,7 +407,8 @@ class ViewerManifest(LLManifest):
         return os.path.relpath(abspath(path), abspath(base))
 
     def set_github_output_path(self, variable, path):
-        self.set_github_output(variable, os.path.join(self.get_dst_prefix(), path))
+        self.set_github_output(variable,
+                               os.path.normpath(os.path.join(self.get_dst_prefix(), path)))
 
     def set_github_output(self, variable, value):
         GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
@@ -492,11 +493,8 @@ class WindowsManifest(ViewerManifest):
             # Emit the whole app image as one of the GitHub step outputs. The
             # current get_dst_prefix() is the top-level contents of the app
             # directory -- so hop outward to the directory containing the app
-            # name. But upload_artifact refuses to deal with '..', so resolve
-            # the path before setting viewer_app.
-            self.set_github_output_path(
-                'viewer_app',
-                os.path.abspath(os.path.join(self.get_dst_prefix(), os.pardir)))
+            # name.
+            self.set_github_output_path('viewer_app', os.pardir)
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -861,9 +859,7 @@ class DarwinManifest(ViewerManifest):
         self.path(os.path.join(self.args['configuration'], self.channel()+".app"), dst="")
         # capture the entire destination app bundle, including the containing
         # .app directory
-        self.set_github_output_path(
-            'viewer_app',
-            os.path.abspath(os.path.join(self.get_dst_prefix(), os.pardir)))
+        self.set_github_output_path('viewer_app', os.pardir)
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
