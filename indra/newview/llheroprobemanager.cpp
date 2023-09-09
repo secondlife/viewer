@@ -206,14 +206,6 @@ void LLHeroProbeManager::update()
 // In effect this simulates single-bounce lighting.
 void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
-    // Make our object invisible.
-    
-    if (mNearestHero)
-    {
-        mNearestHero->setDrawableState(LLDrawable::FORCE_INVISIBLE, true);
-        gPipeline.markRebuild( mNearestHero->mDrawable, LLDrawable::REBUILD_ALL);
-    }
-    
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
@@ -381,12 +373,6 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         }
 
         mMipChain[0].flush();
-    }
-    
-    if (mNearestHero)
-    {
-        mNearestHero->clearDrawableState(LLDrawable::FORCE_INVISIBLE, true);
-        gPipeline.markRebuild( mNearestHero->mDrawable, LLDrawable::REBUILD_ALL);
     }
 }
 
