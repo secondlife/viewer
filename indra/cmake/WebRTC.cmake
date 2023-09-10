@@ -6,7 +6,7 @@ if (WINDOWS)
     if( ADDRESS_SIZE EQUAL 32 )
         FetchContent_Declare(
               webrtc
-              URL https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86.tar.bz2
+              URL "https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86.tar.bz2"
               FIND_PACKAGE_ARGS NAMES webrtc
               DOWNLOAD_EXTRACT_TIMESTAMP TRUE
               DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
@@ -15,7 +15,7 @@ if (WINDOWS)
     else ( ADDRESS_SIZE EQUAL 32 )
         FetchContent_Declare(
               webrtc
-              URL https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86_64.tar.bz2
+              URL "https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86_64.tar.bz2"
               FIND_PACKAGE_ARGS NAMES webrtc
               DOWNLOAD_EXTRACT_TIMESTAMP TRUE
               DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
@@ -25,7 +25,7 @@ if (WINDOWS)
 elseif (DARWIN)
     FetchContent_Declare(
       webrtc
-      URL https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.macos_x86_64.tar.bz2
+      URL "https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.macos_x86_64.tar.bz2"
       FIND_PACKAGE_ARGS NAMES webrtc
       DOWNLOAD_EXTRACT_TIMESTAMP TRUE
       DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
