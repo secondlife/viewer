@@ -28,12 +28,21 @@
 #define LLWEBRTC_IMPL_H
 
 #define LL_MAKEDLL
+#if defined(_WIN32) || defined(_WIN64)
 #define WEBRTC_WIN 1
+#elif defined(__APPLE__)
+#define WEBRTC_MAC 1
+#define WEBRTC_POSIX 1
+#elif __linux__
+#define WEBRTC_LINUX 1
+#endif
+
 #include "llwebrtc.h"
 // WebRTC Includes
 #ifdef WEBRTC_WIN
 #pragma warning(disable : 4996)
 #endif // WEBRTC_WIN
+
 #include "api/scoped_refptr.h"
 #include "rtc_base/ref_count.h"
 #include "rtc_base/ref_counted_object.h"
