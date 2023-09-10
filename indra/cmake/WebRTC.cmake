@@ -3,23 +3,34 @@
 include(FetchContent)
 
 if (WINDOWS)
-FetchContent_Declare(
-  webrtc
-  URL      http://localhost:8000/webrtc.windows_x86_64.tar.bz2
-  URL_HASH MD5=dfb692562770dc8c877ebfe4302e2881
-  FIND_PACKAGE_ARGS NAMES webrtc
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-  DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
-)
+    if( ADDRESS_SIZE EQUAL 32 )
+        FetchContent_Declare(
+              webrtc
+              URL https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86.tar.bz2
+              URL_HASH MD5=0d55e58efceed3fb48085a5f0c58881c
+              FIND_PACKAGE_ARGS NAMES webrtc
+              DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+              DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
+            )
+    else ( ADDRESS_SIZE EQUAL 32 )
+        FetchContent_Declare(
+              webrtc
+              URL https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86_64.tar.bz2
+              URL_HASH MD5=dfb692562770dc8c877ebfe4302e2881
+              FIND_PACKAGE_ARGS NAMES webrtc
+              DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+              DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
+            )
+    endif ( ADDRESS_SIZE EQUAL 32 )
 elseif (DARWIN)
-FetchContent_Declare(
-  webrtc
-  URL      http://localhost:8000/webrtc.macos_x86_64.tar.bz2
-  URL_HASH MD5=cfbcac7da897a862f9791ea29330b814
-  FIND_PACKAGE_ARGS NAMES webrtc
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-  DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
-)
+    FetchContent_Declare(
+      webrtc
+      URL https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.macos_x86_64.tar.bz2
+      URL_HASH MD5=cfbcac7da897a862f9791ea29330b814
+      FIND_PACKAGE_ARGS NAMES webrtc
+      DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+      DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
+    )
 endif (WINDOWS)
 
 FetchContent_MakeAvailable(webrtc)
