@@ -182,7 +182,7 @@ if (LINUX OR DARWIN)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
 
-  list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
+#  list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
