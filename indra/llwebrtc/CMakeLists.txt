@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-#set(CMAKE_GENERATOR_TOOLSET "clang-cl")
+set(CMAKE_GENERATOR_TOOLSET "CLangCL")
 
 include(00-Common)
 include(Linking)
@@ -52,6 +52,10 @@ target_include_directories( llwebrtc  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 if (WINDOWS)
     set_property(TARGET llwebrtc PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+    ADD_CUSTOM_COMMAND(TARGET llwebrtc POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       $<TARGET_FILE:llwebrtc>
+                               ${SHARED_LIB_STAGING_DIR})
 endif (WINDOWS)
 
 ADD_CUSTOM_COMMAND(TARGET llwebrtc POST_BUILD
