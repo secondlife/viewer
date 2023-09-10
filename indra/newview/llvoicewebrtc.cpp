@@ -87,30 +87,18 @@ namespace {
 
     static const std::string VOICE_SERVER_TYPE = "WebRTC";
 
-    // Don't retry connecting to the daemon more frequently than this:
-    const F32 DAEMON_CONNECT_THROTTLE_SECONDS = 1.0f;
-    const int DAEMON_CONNECT_RETRY_MAX = 3;
-
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.5f;
 
     // Timeout for connection to WebRTC 
     const F32 CONNECT_ATTEMPT_TIMEOUT = 300.0f;
     const F32 CONNECT_DNS_TIMEOUT = 5.0f;
-    const int CONNECT_RETRY_MAX = 3;
 
-    const F32 LOGIN_ATTEMPT_TIMEOUT = 30.0f;
     const F32 LOGOUT_ATTEMPT_TIMEOUT = 5.0f;
-    const int LOGIN_RETRY_MAX = 3;
-
-    const F32 PROVISION_RETRY_TIMEOUT = 2.0;
-    const int PROVISION_RETRY_MAX = 5;
-
+    
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
     const F32 MINUSCULE_ANGLE_COS = (F32) cos(0.5f * FOUR_DEGREES);
-
-    const F32 SESSION_JOIN_TIMEOUT = 30.0f;
 
     // Defines the maximum number of times(in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine()
     // which is treated as normal. The is the number of frames to wait for a channel join before giving up.  This was changed 
@@ -126,9 +114,6 @@ namespace {
 
     // Maximum length of capture buffer recordings in seconds.
     const F32 CAPTURE_BUFFER_MAX_TIME = 10.f;
-
-    const int ERROR_WebRTC_OBJECT_NOT_FOUND = 1001;
-    const int ERROR_WebRTC_NOT_LOGGED_IN = 1007;
 }
 
 static int scale_mic_volume(float volume)
@@ -829,7 +814,7 @@ void LLWebRTCVoiceClient::OnVoiceAccountProvisioned(const LLSD& result)
 		result["jsep"]["type"] == "answer" && 
 		result["jsep"].has("sdp"))
     {
-        channelSDP = result["jsep"]["sdp"];
+        channelSDP = result["jsep"]["sdp"].asString();
     }
     std::string voiceAccountServerUri;
     std::string voiceUserName = gAgent.getID().asString();
@@ -1468,6 +1453,8 @@ bool LLWebRTCVoiceClient::waitForChannel()
                 << " VoiceEnabled=" << mVoiceEnabled
                 << LL_ENDL;
             return !sShuttingDown;
+        case VOICE_CHANNEL_STATE_CHECK_EFFECTS:
+            break;
         }
     } while (true);
 }

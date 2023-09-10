@@ -61,7 +61,7 @@ class LLWebRTCVoiceClient :	public LLSingleton<LLWebRTCVoiceClient>,
                             public llwebrtc::LLWebRTCDevicesObserver,
                             public llwebrtc::LLWebRTCSignalingObserver
 {
-	LLSINGLETON(LLWebRTCVoiceClient);
+    LLSINGLETON_C11(LLWebRTCVoiceClient);
 	LOG_CLASS(LLWebRTCVoiceClient);
 	virtual ~LLWebRTCVoiceClient();
 
@@ -69,26 +69,26 @@ public:
 	/// @name LLVoiceModuleInterface virtual implementations
 	///  @see LLVoiceModuleInterface
 	//@{
-	virtual void init(LLPumpIO *pump);	// Call this once at application startup (creates connector)
-	virtual void terminate();	// Call this to clean up during shutdown
+	void init(LLPumpIO *pump) override;	// Call this once at application startup (creates connector)
+	void terminate() override;	// Call this to clean up during shutdown
 	
-	virtual const LLVoiceVersionInfo& getVersion();
+	const LLVoiceVersionInfo& getVersion() override;
 	
-	virtual void updateSettings(); // call after loading settings and whenever they change
+	void updateSettings() override; // call after loading settings and whenever they change
 
 	// Returns true if WebRTC has successfully logged in and is not in error state	
-	virtual bool isVoiceWorking() const;
+	bool isVoiceWorking() const override;
 
 	/////////////////////
 	/// @name Tuning
 	//@{
-	virtual void tuningStart();
-	virtual void tuningStop();
-	virtual bool inTuningMode();
+	void tuningStart() override;
+	void tuningStop() override;
+	bool inTuningMode() override;
 	
-	virtual void tuningSetMicVolume(float volume);
-	virtual void tuningSetSpeakerVolume(float volume);
-	virtual float tuningGetEnergy(void);
+	void tuningSetMicVolume(float volume) override;
+	void tuningSetSpeakerVolume(float volume) override;
+	float tuningGetEnergy(void) override;
 	//@}
 	
 	/////////////////////
@@ -96,40 +96,40 @@ public:
 	//@{
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
 	// i.e. when the daemon is running and connected, and the device lists are populated.
-	virtual bool deviceSettingsAvailable();
-	virtual bool deviceSettingsUpdated();  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
+	bool deviceSettingsAvailable() override;
+	bool deviceSettingsUpdated() override;  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
 	
 	// Requery the WebRTC daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
 	// (use this if you want to know when it's done).
 	// If you pass false, you'll have no way to know when the query finishes, but the device lists will not appear empty in the interim.
-	virtual void refreshDeviceLists(bool clearCurrentList = true);
+	void refreshDeviceLists(bool clearCurrentList = true) override;
 	
-	virtual void setCaptureDevice(const std::string& name);
-	virtual void setRenderDevice(const std::string& name);
+	void setCaptureDevice(const std::string& name) override;
+	void setRenderDevice(const std::string& name) override;
 	
-	virtual LLVoiceDeviceList& getCaptureDevices();
-	virtual LLVoiceDeviceList& getRenderDevices();
+	LLVoiceDeviceList& getCaptureDevices() override;
+	LLVoiceDeviceList& getRenderDevices() override;
 	//@}	
 	
-	virtual void getParticipantList(std::set<LLUUID> &participants);
-	virtual bool isParticipant(const LLUUID& speaker_id);
+	void getParticipantList(std::set<LLUUID> &participants) override;
+	bool isParticipant(const LLUUID& speaker_id) override;
 
 	// Send a text message to the specified user, initiating the session if necessary.
 	// virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
 	
 	// close any existing text IM session with the specified user
-	virtual void endUserIMSession(const LLUUID &uuid);
+	void endUserIMSession(const LLUUID &uuid) override;
 
 	// Returns true if calling back the session URI after the session has closed is possible.
 	// Currently this will be false only for PSTN P2P calls.		
 	// NOTE: this will return true if the session can't be found. 
-	virtual BOOL isSessionCallBackPossible(const LLUUID &session_id);
+	BOOL isSessionCallBackPossible(const LLUUID &session_id) override;
 	
 	// Returns true if the session can accepte text IM's.
 	// Currently this will be false only for PSTN P2P calls.
 	// NOTE: this will return true if the session can't be found. 
-	virtual BOOL isSessionTextIMPossible(const LLUUID &session_id);
+	BOOL isSessionTextIMPossible(const LLUUID &session_id) override;
 	
 	
 	////////////////////////////
@@ -137,21 +137,21 @@ public:
 	//@{
 	// returns true iff the user is currently in a proximal (local spatial) channel.
 	// Note that gestures should only fire if this returns true.
-	virtual bool inProximalChannel();
+	bool inProximalChannel() override;
 	
-	virtual void setNonSpatialChannel(const std::string &uri,
-									  const std::string &credentials);
+	void setNonSpatialChannel(const std::string &uri,
+									  const std::string &credentials) override;
 	
-	virtual bool setSpatialChannel(const std::string &uri,
-								   const std::string &credentials);
+	bool setSpatialChannel(const std::string &uri,
+								   const std::string &credentials) override;
 	
-	virtual void leaveNonSpatialChannel();
+	void leaveNonSpatialChannel() override;
 	
-	virtual void leaveChannel(void);	
+	void leaveChannel(void) override;
 	
 	// Returns the URI of the current channel, or an empty string if not currently in a channel.
 	// NOTE that it will return an empty string if it's in the process of joining a channel.
-	virtual std::string getCurrentChannel();
+	std::string getCurrentChannel() override;
 	//@}
 	
 	
@@ -159,59 +159,59 @@ public:
 	/// @name invitations
 	//@{
 	// start a voice channel with the specified user
-	virtual void callUser(const LLUUID &uuid);	
-	virtual bool isValidChannel(std::string &channelHandle);
-	virtual bool answerInvite(std::string &channelHandle);
-	virtual void declineInvite(std::string &channelHandle);
+	void callUser(const LLUUID &uuid) override;
+	bool isValidChannel(std::string &channelHandle) override;
+	bool answerInvite(std::string &channelHandle) override;
+	void declineInvite(std::string &channelHandle) override;
 	//@}
 	
 	/////////////////////////
 	/// @name Volume/gain
 	//@{
-	virtual void setVoiceVolume(F32 volume);
-	virtual void setMicGain(F32 volume);
+	void setVoiceVolume(F32 volume) override;
+	void setMicGain(F32 volume) override;
 	//@}
 	
 	/////////////////////////
 	/// @name enable disable voice and features
 	//@{
-	virtual bool voiceEnabled();
-	virtual void setVoiceEnabled(bool enabled);
-	virtual BOOL lipSyncEnabled();	
-	virtual void setLipSyncEnabled(BOOL enabled);
-	virtual void setMuteMic(bool muted);		// Set the mute state of the local mic.
+	bool voiceEnabled() override;
+	void setVoiceEnabled(bool enabled) override;
+	BOOL lipSyncEnabled() override;
+	void setLipSyncEnabled(BOOL enabled) override;
+	void setMuteMic(bool muted) override;		// Set the mute state of the local mic.
 	//@}
 		
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
-	virtual BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
-	virtual std::string getDisplayName(const LLUUID& id);
-	virtual BOOL isParticipantAvatar(const LLUUID &id);
-	virtual BOOL getIsSpeaking(const LLUUID& id);
-	virtual BOOL getIsModeratorMuted(const LLUUID& id);
-	virtual F32 getCurrentPower(const LLUUID& id);		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	virtual BOOL getOnMuteList(const LLUUID& id);
-	virtual F32 getUserVolume(const LLUUID& id);
-	virtual void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)	
+	BOOL getVoiceEnabled(const LLUUID& id) override;		// true if we've received data for this avatar
+	std::string getDisplayName(const LLUUID& id) override;
+	BOOL isParticipantAvatar(const LLUUID &id) override;
+	BOOL getIsSpeaking(const LLUUID& id) override;
+	BOOL getIsModeratorMuted(const LLUUID& id) override;
+	F32 getCurrentPower(const LLUUID& id) override;		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
+	BOOL getOnMuteList(const LLUUID& id) override;
+	F32 getUserVolume(const LLUUID& id) override;
+	void setUserVolume(const LLUUID& id, F32 volume) override; // set's volume for specified agent, from 0-1 (where .5 is nominal)
 	//@}
 	
 	// authorize the user
-	virtual void userAuthorized(const std::string& user_id,
-								const LLUUID &agentID);
+	void userAuthorized(const std::string& user_id,
+								const LLUUID &agentID) override;
 	
 	//////////////////////////////
 	/// @name Status notification
 	//@{
-	virtual void addObserver(LLVoiceClientStatusObserver* observer);
-	virtual void removeObserver(LLVoiceClientStatusObserver* observer);
-	virtual void addObserver(LLFriendObserver* observer);
-	virtual void removeObserver(LLFriendObserver* observer);		
-	virtual void addObserver(LLVoiceClientParticipantObserver* observer);
-	virtual void removeObserver(LLVoiceClientParticipantObserver* observer);
+	void addObserver(LLVoiceClientStatusObserver* observer) override;
+	void removeObserver(LLVoiceClientStatusObserver* observer) override;
+	void addObserver(LLFriendObserver* observer) override;
+	void removeObserver(LLFriendObserver* observer) override;
+	void addObserver(LLVoiceClientParticipantObserver* observer) override;
+	void removeObserver(LLVoiceClientParticipantObserver* observer) override;
 	//@}
 	
-	virtual std::string sipURIFromID(const LLUUID &id);
+	std::string sipURIFromID(const LLUUID &id) override;
 	//@}
 
 	/// @name LLVoiceEffectInterface virtual implementations
@@ -221,20 +221,20 @@ public:
 	//////////////////////////
 	/// @name Accessors
 	//@{
-	virtual bool setVoiceEffect(const LLUUID& id);
-	virtual const LLUUID getVoiceEffect();
-	virtual LLSD getVoiceEffectProperties(const LLUUID& id);
+	bool setVoiceEffect(const LLUUID& id) override;
+	const LLUUID getVoiceEffect() override;
+	LLSD getVoiceEffectProperties(const LLUUID& id) override;
 
-	virtual void refreshVoiceEffectLists(bool clear_lists);
-	virtual const voice_effect_list_t& getVoiceEffectList() const;
-	virtual const voice_effect_list_t& getVoiceEffectTemplateList() const;
+	void refreshVoiceEffectLists(bool clear_lists) override;
+	const voice_effect_list_t& getVoiceEffectList() const override;
+	const voice_effect_list_t& getVoiceEffectTemplateList() const override;
 	//@}
 
 	//////////////////////////////
 	/// @name Status notification
 	//@{
-	virtual void addObserver(LLVoiceEffectObserver* observer);
-	virtual void removeObserver(LLVoiceEffectObserver* observer);
+	void addObserver(LLVoiceEffectObserver* observer) override;
+	void removeObserver(LLVoiceEffectObserver* observer) override;
 	//@}
 
 	//////////////////////////////
@@ -263,13 +263,13 @@ public:
 	//////////////////////////////
 	/// @name Effect preview buffer
 	//@{
-	virtual void enablePreviewBuffer(bool enable);
-	virtual void recordPreviewBuffer();
-	virtual void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null);
-	virtual void stopPreviewBuffer();
+	void enablePreviewBuffer(bool enable) override;
+	void recordPreviewBuffer() override;
+	void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null) override;
+	void stopPreviewBuffer() override;
 
-	virtual bool isPreviewRecording();
-	virtual bool isPreviewPlaying();
+	bool isPreviewRecording() override;
+	bool isPreviewPlaying() override;
 	//@}
 
 	//@}
@@ -773,7 +773,7 @@ private:
 	std::string getAudioSessionURI();
 	std::string getAudioSessionHandle();
 			
-    void setHidden(bool hidden); //virtual
+    void setHidden(bool hidden) override; //virtual
 	void sendPositionAndVolumeUpdate(void);
 
 	void sendFriendsListUpdates();

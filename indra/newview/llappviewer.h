@@ -43,6 +43,7 @@
 #ifndef LL_LLAPPVIEWER_H
 #define LL_LLAPPVIEWER_H
 
+#include "llapp.h"
 #include "llallocator.h"
 #include "llapr.h"
 #include "llcontrol.h"

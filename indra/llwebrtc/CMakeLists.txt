@@ -13,11 +13,6 @@ include(WebRTC)
 
 project(llwebrtc)
 
-message(STATUS "C Compiler executable: ${CMAKE_C_COMPILER}")
-message(STATUS "CXX Compiler executable: ${CMAKE_CXX_COMPILER}")
-message(STATUS "Linker executable: ${CMAKE_LINKER}")
-message(STATUS "SharedLib: ${SHARED_LIB_STAGING_DIR}")
-
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 
 
@@ -34,10 +29,11 @@ set(llwebrtc_HEADER_FILES
 list(APPEND llwebrtc_SOURCE_FILES ${llwebrtc_HEADER_FILES})
 
 add_library (llwebrtc SHARED ${llwebrtc_SOURCE_FILES})
-
+    
 set_target_properties(llwebrtc PROPERTIES PUBLIC_HEADER llwebrtc.h)
 
-target_link_libraries(llwebrtc PRIVATE ll::webrtc 
+if (WINDOWS)
+    target_link_libraries(llwebrtc PRIVATE ll::webrtc 
                                        secur32
                                        winmm
                                        dmoguids
@@ -45,13 +41,23 @@ target_link_libraries(llwebrtc PRIVATE ll::webrtc
                                        msdmo
                                        strmiids
                                        iphlpapi)
-target_include_directories( llwebrtc  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+elseif (DARWIN)
+    target_link_libraries(llwebrtc PRIVATE ll::webrtc)
+elseif (LINUX)
+    target_link_libraries(llwebrtc PRIVATE ll::webrtc)
+endif (WINDOWS)
+    
+target_include_directories( llwebrtc  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-set_property(TARGET llwebrtc PROPERTY
-  MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+if (WINDOWS)
+    set_property(TARGET llwebrtc PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+endif (WINDOWS)
 
-install(TARGETS llwebrtc RUNTIME DESTINATION "${CMAKE_BINARY_DIR}/sharedlibs/RelWithDebInfo")
-
+ADD_CUSTOM_COMMAND(TARGET llwebrtc POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       $<TARGET_FILE:llwebrtc>
+                               ${SHARED_LIB_STAGING_DIR})
 # Add tests
 if (LL_TESTS)
 endif (LL_TESTS)

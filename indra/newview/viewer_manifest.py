@@ -547,6 +547,12 @@ class Windows_x86_64_Manifest(ViewerManifest):
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['buildtype'])):
+            # WebRTC libraries
+            for libfile in (
+                    'llwebrtc.dll',
+            ):
+                self.path(libfile)
+
             # Get fmodstudio dll if needed
             if self.args['fmodstudio'] == 'ON':
                 if(self.args['buildtype'].lower() == 'debug'):
@@ -989,6 +995,14 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     if not added:
                         print("Skipping %s" % dst)
                     return added
+
+                # WebRTC libraries
+                with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                          'sharedlibs', self.args['buildtype'], 'Resources')):
+                    for libfile in (
+                            'libllwebrtc.dylib',
+                    ):
+                        self.path(libfile)
 
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a

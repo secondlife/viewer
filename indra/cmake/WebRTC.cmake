@@ -26,16 +26,30 @@ FetchContent_MakeAvailable(webrtc)
 
 set(WEBRTC_PATH ${webrtc_SOURCE_DIR})
 
-
 add_library( ll::webrtc INTERFACE IMPORTED )
 
-
 if (WINDOWS)
-  target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.lib" )
+    target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.lib" )
 elseif (DARWIN)
-  target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.a" )
+    FIND_LIBRARY(COREAUDIO_LIBRARY CoreAudio)
+    FIND_LIBRARY(COREGRAPHICS_LIBRARY CoreGraphics)
+    FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY AudioToolbox)
+    FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
+    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+    
+    target_link_libraries( ll::webrtc INTERFACE
+        "${WEBRTC_PATH}/lib/libwebrtc.a"
+        ${COREAUDIO_LIBRARY}
+        ${AUDIOTOOLBOX_LIBRARY}
+        ${COREGRAPHICS_LIBRARY}
+        ${COREFOUNDATION_LIBRARY}
+        ${COCOA_LIBRARY}
+    )
 elseif (LINUX)
-  target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/webrtc.a" )
+    target_link_libraries( ll::webrtc INTERFACE "${WEBRTC_PATH}/lib/libwebrtc.a" )
 endif (WINDOWS)
-target_include_directories( ll::webrtc SYSTEM INTERFACE "${WEBRTC_PATH}/include" "${WEBRTC_PATH}/include/third_party/abseil-cpp")
+
+message("PATH: ${WEBRTC_PATH}/include")
+    
+target_include_directories( ll::webrtc INTERFACE "${WEBRTC_PATH}/include" "${WEBRTC_PATH}/include/third_party/abseil-cpp")
 
