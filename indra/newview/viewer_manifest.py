@@ -37,6 +37,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 viewer_dir = os.path.dirname(__file__)
@@ -490,11 +491,8 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-            # Emit the whole app image as one of the GitHub step outputs. The
-            # current get_dst_prefix() is the top-level contents of the app
-            # directory -- so hop outward to the directory containing the app
-            # name.
-            self.set_github_output_path('viewer_app', os.pardir)
+            # Emit the whole app image as one of the GitHub step outputs.
+            self.set_github_output_path('viewer_app', '')
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -855,11 +853,39 @@ class DarwinManifest(ViewerManifest):
         return bool(set(["package", "unpacked"]).intersection(self.args['actions']))
 
     def construct(self):
-        # copy over the build result (this is a no-op if run within the xcode script)
-        self.path(os.path.join(self.args['configuration'], self.channel()+".app"), dst="")
-        # capture the entire destination app bundle, including the containing
-        # .app directory
-        self.set_github_output_path('viewer_app', os.pardir)
+        # copy over the build result (this is a no-op if run within the xcode
+        # script)
+        appname = self.channel() + ".app"
+        self.path(os.path.join(self.args['configuration'], appname), dst="")
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
+        # When running as a GitHub Action job, RUNNER_TEMP is the recommended
+        # temp directory. If we're not running on GitHub, don't create this
+        # temp directory or this symlink: we don't clean them up, trusting
+        # that the runner is itself transient. On a dev machine, that would
+        # result in temp-directory clutter.
+        if RUNNER_TEMP:
+            # We want an artifact containing the "Second Life Mumble.app"
+            # directory, which in turn contains the whole app bundle.
+            # Unfortunately, the directory that contains the .app directory
+            # also contains other stuff, notably the xcarchive.zip, which is
+            # itself enormous. Create a temp directory containing only (a link
+            # to) our .app dir, and specify that as the directory to upload.
+            wrapdir = tempfile.mkdtemp(dir=RUNNER_TEMP)
+            applink = os.path.join(wrapdir, appname)
+            # This link will be used by a different job step, so link to an
+            # absolute path: we can't guarantee that the other step will have
+            # the same current directory.
+            # diagnostic output
+            parentdir = os.path.abspath(os.path.join(self.get_dst_prefix(), os.pardir))
+            for dir in parentdir, os.path.join(parentdir, appname):
+                print(f'Contents of {dir}:')
+                for item in os.listdir(dir):
+                    print(f'  {item}')
+            # end diagnostic output
+            appreal = os.path.abspath(os.path.join(self.get_dst_prefix(), os.pardir, appname))
+            print(f"Linking {applink} => {appreal}")
+            os.symlink(appreal, applink)
+            self.set_github_output_path('viewer_app', wrapdir)
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
