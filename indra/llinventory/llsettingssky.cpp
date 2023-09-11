@@ -1449,6 +1449,7 @@ F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
 
 F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust) const
 {
+#if 0
     // feed cloud shadow back into reflection probe ambiance to mimic pre-reflection-probe behavior 
     // without brightening dark/interior spaces
     F32 probe_ambiance = getReflectionProbeAmbiance(auto_adjust);
@@ -1459,6 +1460,9 @@ F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool 
     }
 
     return probe_ambiance;
+#else
+    return getReflectionProbeAmbiance(auto_adjust);
+#endif
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const

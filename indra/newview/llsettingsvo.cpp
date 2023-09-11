@@ -742,7 +742,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     {
         if (psky->getReflectionProbeAmbiance() != 0.f)
         {
-            shader->uniform3fv(LLShaderMgr::AMBIENT, getAmbientColor().mV);
+            shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
