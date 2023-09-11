@@ -499,9 +499,12 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-            # Emit the whole app image as one of the GitHub step outputs. When
-            # we feed upload-artifact multiple absolute pathnames, even just
-            # for exclusion, it ends up creating several extraneous directory
+            # Emit the whole app image as one of the GitHub step outputs. We
+            # want the whole app -- but NOT the extraneous build products that
+            # get tossed into the same directory, such as the installer and
+            # the symbols tarball, so add exclusions. When we feed
+            # upload-artifact multiple absolute pathnames, even just for
+            # exclusion, it ends up creating several extraneous directory
             # levels within the artifact -- so try using only relative paths.
             # One problem: as of right now, our current directory os.getcwd()
             # is not the same as the initial working directory for this job
@@ -517,6 +520,7 @@ class WindowsManifest(ViewerManifest):
                                    *(('!' + os.path.join(appbase, pattern))
                                      for pattern in (
                                              'secondlife-bin.*',
+                                             '*_Setup.exe',
                                              '*.bat',
                                              '*.tar.bz2',
                                              '*.nsi')))
