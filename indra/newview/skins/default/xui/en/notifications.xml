@@ -11986,5 +11986,13 @@ Would you like to save them first?
        notext="No"
        yestext="Yes"/>
   </notification>
-    
+
+  <notification
+   icon="notifytip.tga"
+   name="IncorrectFormat"
+   priority="high"
+   type="notifytip">
+Unable to upload &apos;[NAME]&apos; due to the following reason: incorrect image format.
+  </notification>
+
 </notifications>

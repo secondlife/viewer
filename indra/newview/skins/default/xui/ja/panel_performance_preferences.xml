@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_performance_preferences">
+	<button name="back_btn"/>
+	<text name="back_lbl">
+		戻る
+	</text>
+	<text name="settings_title">
+		グラフィック設定
+	</text>
+	<button label="拡張設定を開く" name="advanced_btn"/>
+	<button label="推奨設定にリセット" name="defaults_btn"/>
+	<view_border name="border0"/>
+	<text name="quality_lbl">
+		品質と速度
+	</text>
+	<text name="fastest_lbl">
+		距離と速度
+	</text>
+	<radio_group name="graphics_quality">
+		<radio_item name="0"/>
+		<radio_item name="1"/>
+		<radio_item name="2"/>
+		<radio_item name="3"/>
+		<radio_item name="4"/>
+		<radio_item name="5"/>
+		<radio_item name="6"/>
+	</radio_group>
+	<text name="quality_lbl">
+		最高品位
+	</text>
+	<text name="quality_desc">
+		ショートカットを選択すると、手動で行った変更がすべてリセットされます。
+	</text>
+	<view_border name="border2"/>
+	<text name="distance_lbl">
+		距離
+	</text>
+	<text name="faster_lbl">
+		速度
+	</text>
+	<slider name="draw_distance"/>
+	<text name="draw_distance_m">
+		ｍ
+	</text>
+	<text name="farther_lbl">
+		遠景
+	</text>
+	<text name="distance_desc1">
+		ズームアウト時に遠くまで見たい場合は、距離を長く設定してください。
+	</text>
+	<view_border name="border3"/>
+	<text name="environment_lbl">
+		環境
+	</text>
+	<text name="enhancements_desc">
+		この設定によりリアリズムは向上しますが、速度が低下する可能性があります。
+	</text>
+	<check_box label="大気（周辺）シェーダー" name="atmospheric_shaders"/>
+	<check_box label="高度な光源モデル" name="advanced_lighting_model"/>
+	<text name="RenderShadowDetailText">
+		影：
+	</text>
+	<combo_box name="ShadowDetail">
+		<combo_box.item label="なし" name="0" value="0"/>
+		<combo_box.item label="太陽／月" name="1" value="1"/>
+		<combo_box.item label="太陽／月＋プロジェクター" name="2" value="2"/>
+	</combo_box>
+	<view_border name="border3"/>
+	<text name="water_lbl">
+		水面
+	</text>
+	<text name="water_desc">
+		水面の効果を簡素化するかオフにすると、フレームレートが大幅に向上します。
+	</text>
+	<check_box label="透明な水" name="TransparentWater"/>
+	<text name="ReflectionsText">
+		水面の反射：
+	</text>
+	<combo_box name="Reflections">
+		<combo_box.item label="なし；不透明" name="0" value="-2"/>
+		<combo_box.item label="なし；透明" name="0" value="-1"/>
+		<combo_box.item label="最小限" name="0" value="0"/>
+		<combo_box.item label="地形と樹木" name="1" value="1"/>
+		<combo_box.item label="全ての静的なオブジェクト" name="2" value="2"/>
+		<combo_box.item label="全てのアバターとオブジェクト" name="3" value="3"/>
+		<combo_box.item label="全て" name="4" value="4"/>
+	</combo_box>
+	<view_border name="border4"/>
+	<text name="photo_lbl">
+		写真
+	</text>
+	<text name="photo_desc">
+		詳細度を最大にすると撮影に適した画像になりますが、フレームレートが下がります。
+	</text>
+	<spinner label="距離の詳細：" name="render_volume_lod"/>
+	<text name="photo_desc">
+		（0.0～4.0の値を入れてください）
+	</text>
+	<text name="1_lbl">
+		1
+	</text>
+	<text name="2_lbl">
+		2
+	</text>
+	<text name="3_lbl">
+		3
+	</text>
+	<text name="4_lbl">
+		4
+	</text>
+	<text name="5_lbl">
+		5
+	</text>
+	<text name="6_lbl">
+		6
+	</text>
+	<text name="7_lbl">
+		7
+	</text>
+</panel>

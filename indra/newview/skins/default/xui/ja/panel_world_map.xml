@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="world_map">
 	<panel.string name="Loading">
-		ローディング...
+		読み込んでいます…
 	</panel.string>
 	<panel.string name="InvalidLocation">
 		無効な位置
@@ -31,10 +31,10 @@
 		北西
 	</panel.string>
 	<panel.string name="world_map_person">
-		1 人
+		1人
 	</panel.string>
 	<panel.string name="world_map_people">
-		[NUMBER] 人
+		[NUMBER]人
 	</panel.string>
 	<text label="北" name="floater_map_north" text="北">
 		北

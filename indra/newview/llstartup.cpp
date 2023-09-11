@@ -663,9 +663,22 @@ bool idle_startup()
 #else
 				void* window_handle = NULL;
 #endif
-				bool init = gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle());
-				if(init)
+				if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
 				{
+					if (FALSE == gSavedSettings.getBOOL("UseMediaPluginsForStreamingAudio"))
+					{
+						LL_INFOS("AppInit") << "Using default impl to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(gAudiop->createDefaultStreamingAudioImpl());
+					}
+
+					// if the audio engine hasn't set up its own preferred handler for streaming audio
+					// then set up the generic streaming audio implementation which uses media plugins
+					if (NULL == gAudiop->getStreamingAudioImpl())
+					{
+						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
+					}
+
 					gAudiop->setMuted(TRUE);
 				}
 				else
@@ -673,16 +686,6 @@ bool idle_startup()
 					LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
 					delete gAudiop;
 					gAudiop = NULL;
-				}
-
-				if (gAudiop)
-				{
-					// if the audio engine hasn't set up its own preferred handler for streaming audio then set up the generic streaming audio implementation which uses media plugins
-					if (NULL == gAudiop->getStreamingAudioImpl())
-					{
-						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
-						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
-					}
 				}
 			}
 		}
@@ -2416,6 +2419,34 @@ void login_callback(S32 option, void *userdata)
 	}
 }
 
+void release_notes_coro(const std::string url)
+{
+    if (url.empty())
+    {
+        return;
+    }
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("releaseNotesCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setHeadersOnly(true); // only making sure it isn't 404 or something like that
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        return;
+    }
+
+    LLWeb::loadURLInternal(url);
+}
+
 /**
 * Check if user is running a new version of the viewer.
 * Display the Release Notes if it's not overriden by the "UpdaterShowReleaseNotes" setting.
@@ -2448,7 +2479,8 @@ void show_release_notes_if_required()
             LLEventPumps::instance().obtain("relnotes").listen(
                 "showrelnotes",
                 [](const LLSD& url) {
-                LLWeb::loadURLInternal(url.asString());
+                    LLCoros::instance().launch("releaseNotesCoro",
+                    boost::bind(&release_notes_coro, url.asString()));
                 return false;
             });
         }
@@ -2456,7 +2488,9 @@ void show_release_notes_if_required()
 #endif // LL_RELEASE_FOR_DOWNLOAD
         {
             LLSD info(LLAppViewer::instance()->getViewerInfo());
-            LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+            std::string url = info["VIEWER_RELEASE_NOTES_URL"].asString();
+            LLCoros::instance().launch("releaseNotesCoro",
+                                       boost::bind(&release_notes_coro, url));
         }
         release_notes_shown = true;
     }

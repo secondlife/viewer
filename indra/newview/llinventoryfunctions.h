@@ -78,8 +78,18 @@ void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory*
 
 void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& root_copy_id, bool move_no_copy_items);
 
-// Generates a string containing the path to the item specified by item_id.
+// Generates a string containing the path to the object specified by id (not including the object name).
 void append_path(const LLUUID& id, std::string& path);
+
+// Generates a string containing the path name of the object.
+std::string make_path(const LLInventoryObject* object);
+// Generates a string containing the path name of the object specified by id.
+std::string make_inventory_path(const LLUUID& id);
+
+// Generates a string containing the path name and id of the object.
+std::string make_info(const LLInventoryObject* object);
+// Generates a string containing the path name and id of the object specified by id.
+std::string make_inventory_info(const LLUUID& id);
 
 typedef boost::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)> validation_callback_t;
 

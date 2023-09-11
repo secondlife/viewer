@@ -90,6 +90,7 @@ public:
 	// initialization/startup/shutdown
 	virtual bool init(void *userdata, const std::string &app_title);
 	virtual std::string getDriverName(bool verbose) = 0;
+	virtual LLStreamingAudioInterface *createDefaultStreamingAudioImpl() const = 0;
 	virtual void shutdown();
 
 	// Used by the mechanics of the engine
@@ -468,13 +469,13 @@ struct SoundData
 		const LLUUID& owner_id, 
 		const F32 gain, 					  
 		const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
-		const LLVector3d &pos_global = LLVector3d::zero)
+		const LLVector3d &pos_global = LLVector3d::zero) :
+		audio_uuid(audio_uuid),
+		owner_id(owner_id),
+		gain(gain),
+		type(type),
+		pos_global(pos_global)
 	{
-		this->audio_uuid = audio_uuid;
-		this->owner_id = owner_id;
-		this->gain = gain;
-		this->type = type;
-		this->pos_global = pos_global;
 	}
 };
 

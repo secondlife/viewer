@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater title="EXPERIENCE PROFILE">
+<floater name="experience_profile" title="体験プロフィール">
 	<floater.string name="empty_slurl">
-		(なし)
+		（なし）
 	</floater.string>
 	<floater.string name="maturity_icon_general">
-		&quot;Parcel_PG_Light&quot;
+		"Parcel_PG_Light"
 	</floater.string>
 	<floater.string name="maturity_icon_moderate">
-		&quot;Parcel_M_Light&quot;
+		"Parcel_M_Light"
 	</floater.string>
 	<floater.string name="maturity_icon_adult">
-		&quot;Parcel_R_Light&quot;
+		"Parcel_R_Light"
 	</floater.string>
 	<text name="edit_title" value="体験プロフィール"/>
 	<tab_container name="tab_container">

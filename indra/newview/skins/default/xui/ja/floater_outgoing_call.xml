@@ -4,7 +4,7 @@
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		近くのボイスチャット
+		近隣のボイスチャット
 	</floater.string>
 	<floater.string name="anonymous">
 		匿名ユーザー
@@ -13,28 +13,28 @@
 		がコールしています。
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		がコンファレンスチャットで、ボイスチャットに参加しました。
+		が会話チャットで、ボイスチャットに参加しました。
 	</floater.string>
 	<text name="connecting">
-		[CALLEE_NAME] に接続中
+		[CALLEE_NAME]に接続中
 	</text>
 	<text name="calling">
-		[CALLEE_NAME] にコール中
+		[CALLEE_NAME]をコール中
 	</text>
 	<text name="noanswer">
-		繋がりませんでした。  あとでもう一度お試しください。
+		繋がりませんでした。あとでもう一度お試しください。
 	</text>
 	<text name="nearby">
-		[VOICE_CHANNEL_NAME] への接続が切れました。  [RECONNECT_NEARBY]
+		[VOICE_CHANNEL_NAME]への接続が切れました。[RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P_by_other">
-		コールを切りました。  [RECONNECT_NEARBY]
+		コールを切りました。[RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P_by_agent">
-		コールを終了しました。  [RECONNECT_NEARBY]
+		コールを終了しました。[RECONNECT_NEARBY]
 	</text>
 	<text name="leaving">
-		[CURRENT_CHAT] を終了します。
+		[CURRENT_CHAT]を終了します。
 	</text>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 </floater>
