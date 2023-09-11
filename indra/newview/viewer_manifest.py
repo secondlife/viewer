@@ -417,7 +417,7 @@ class ViewerManifest(LLManifest):
         if GITHUB_OUTPUT and values:
             with open(GITHUB_OUTPUT, 'a') as outf:
                 if len(values) == 1:
-                    print('='.join((variable, value)), file=outf)
+                    print('='.join((variable, values[0])), file=outf)
                 else:
                     delim = secrets.token_hex(8)
                     print('<<'.join((variable, delim)), file=outf)
