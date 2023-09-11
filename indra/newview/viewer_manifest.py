@@ -34,6 +34,7 @@ import os.path
 import plistlib
 import random
 import re
+import secrets
 import shutil
 import subprocess
 import sys
@@ -411,11 +412,18 @@ class ViewerManifest(LLManifest):
         self.set_github_output(variable,
                                os.path.normpath(os.path.join(self.get_dst_prefix(), path)))
 
-    def set_github_output(self, variable, value):
+    def set_github_output(self, variable, *values):
         GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
-        if GITHUB_OUTPUT:
+        if GITHUB_OUTPUT and values:
             with open(GITHUB_OUTPUT, 'a') as outf:
-                print('='.join((variable, value)), file=outf)
+                if len(values) == 1:
+                    print('='.join((variable, value)), file=outf)
+                else:
+                    delim = secrets.token_hex(8)
+                    print('<<'.join((variable, delim)), file=outf)
+                    for value in values:
+                        print(value, file=outf)
+                    print(delim, file=outf)
 
 
 class WindowsManifest(ViewerManifest):
@@ -492,7 +500,12 @@ class WindowsManifest(ViewerManifest):
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
             # Emit the whole app image as one of the GitHub step outputs.
-            self.set_github_output_path('viewer_app', '')
+            self.set_github_output('viewer_app',
+                                   self.get_dst_prefix(), # whole app directory
+                                   '!secondlife-bin.*',   # except for this stuff
+                                   '!*.bat',
+                                   '!*.tar.bz2',
+                                   '!*.nsi')
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
