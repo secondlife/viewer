@@ -500,12 +500,15 @@ class WindowsManifest(ViewerManifest):
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
             # Emit the whole app image as one of the GitHub step outputs.
-            self.set_github_output('viewer_app',
-                                   self.get_dst_prefix(), # whole app directory
-                                   '!secondlife-bin.*',   # except for this stuff
-                                   '!*.bat',
-                                   '!*.tar.bz2',
-                                   '!*.nsi')
+            appbase = self.relpath(self.get_dst_prefix(), base=os.getcwd())
+            self.set_github_output('viewer_app', appbase,
+                                   # except for this stuff
+                                   *(('!' + os.path.join(appbase, pattern))
+                                     for pattern in (
+                                             'secondlife-bin.*',
+                                             '*.bat',
+                                             '*.tar.bz2',
+                                             '*.nsi')))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
