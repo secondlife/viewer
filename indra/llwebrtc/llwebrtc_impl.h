@@ -41,6 +41,7 @@
 // WebRTC Includes
 #ifdef WEBRTC_WIN
 #pragma warning(disable : 4996)
+#pragma warning(disable : 4068)
 #endif // WEBRTC_WIN
 
 #include "api/scoped_refptr.h"
