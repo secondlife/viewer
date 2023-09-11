@@ -550,7 +550,7 @@ then
     begin_section "Uploads"
     # Upload installer
     package=$(installer_$arch)
-    if [ x"$package" != x ] && test -d "$package"
+    if [ x"$package" != x ] && test -f "$package"
     then
       # Upload base package.
       installer+=("$package")
