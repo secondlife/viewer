@@ -254,8 +254,6 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		// From panel_preferences_move.xml
 		("CameraAngle")
 		("CameraOffsetScale")
-		("EditCameraMovement")
-		("AppearanceCameraMovement")
 		// From llagentcamera.cpp
 		("CameraOffsetBuild")
 		("TrackFocusObject")
