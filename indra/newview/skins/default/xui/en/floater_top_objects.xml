@@ -273,4 +273,17 @@
       <button.commit_callback
           function="TopObjects.ReturnAll" />
     </button>
+    <button
+     follows="bottom|left"
+     height="23"
+     label="Teleport to selected"
+     layout="topleft"
+     left_pad="10"
+     name="teleport_btn"
+     enabled="false"
+     top_delta="0"
+     width="160">
+      <button.commit_callback
+          function="TopObjects.TeleportToSelected" />
+</button>
 </floater>

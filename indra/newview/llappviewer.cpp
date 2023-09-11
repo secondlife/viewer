@@ -1540,14 +1540,19 @@ bool LLAppViewer::doFrame()
                     LLFloaterSimpleOutfitSnapshot::update();
                     gGLActive = FALSE;
                 }
-		}
+
+                if (LLViewerStatsRecorder::instanceExists())
+                {
+                    LLViewerStatsRecorder::instance().idle();
+                }
+            }
 		}
 
 		{
 			LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df pauseMainloopTimeout" )
-		pingMainloopTimeout("Main:Sleep");
+		    pingMainloopTimeout("Main:Sleep");
 
-		pauseMainloopTimeout();
+		    pauseMainloopTimeout();
 		}
 
 		// Sleep and run background threads

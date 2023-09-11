@@ -14,7 +14,7 @@
 	<string name="sale_pending_text" value="（販売処理中）"/>
 	<string name="group_owned_text" value="（グループ所有）"/>
 	<string name="price_text" value="L$"/>
-	<string name="area_text" value="平方メートル"/>
+	<string name="area_text" value="㎡"/>
 	<string name="all_residents_text" value="すべての住人"/>
 	<string name="group_text" value="グループ"/>
 	<string name="can_resell">
@@ -36,10 +36,10 @@
 		この場所の情報は現在ご利用いただけません。あとでもう一度お試しください。
 	</string>
 	<string name="server_forbidden_text">
-		この場所の情報は、アクセス制限のためご利用いただけません。  許可については区画所有者にお問い合わせください。
+		この場所の情報は、アクセス制限のためご利用いただけません。許可については区画所有者にお問い合わせください。
 	</string>
 	<string name="acquired_date">
-		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日[wkday,datetime,local]　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
@@ -73,7 +73,7 @@
 						<button label="土地情報" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
-				<accordion_tab name="region_information_tab" title="リージョン（地域）     ">
+				<accordion_tab name="region_information_tab" title="リージョン（地域）">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="リージョン:"/>
 						<text name="region_name" value="Mooseland"/>
@@ -87,12 +87,12 @@
 						<text name="region_group">
 							The Mighty Moose of mooseville soundvillemoose
 						</text>
-						<button label="地域 / 不動産" name="region_info_btn"/>
+						<button label="リージョン（地域）／不動産" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
-				<accordion_tab name="estate_information_tab" title="エステート（不動産）">
+				<accordion_tab name="estate_information_tab" title="不動産（不動産）">
 					<panel name="estate_information_panel">
-						<text name="estate_name_label" value="エステート："/>
+						<text name="estate_name_label" value="不動産："/>
 						<text name="estate_rating_label" value="レーティング："/>
 						<text name="estate_owner_label" value="所有者："/>
 						<text name="estate_owner" value="長い所有者の名前をテスト"/>

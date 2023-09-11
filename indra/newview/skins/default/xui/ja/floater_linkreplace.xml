@@ -1,2 +1,34 @@
-<?xml version="1.0" ?>
-<floater name="linkreplace" title="インベントリ リンク交換"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="linkreplace" title="インベントリのリンク置換え">
+	<string name="Ready">
+		準備中…
+	</string>
+	<string name="TargetNotFound">
+		置換先のアイテムは見つかりませんでした。
+	</string>
+	<string name="ItemsIdentical">
+		置換元と置換先が同一です。
+	</string>
+	<string name="ItemsFound">
+		[NUM]件のリンクが見つかりました。
+	</string>
+	<string name="ItemsRemaining">
+		残りリンク数：[NUM]件
+	</string>
+	<string name="ReplaceFinished">
+		インベントリのリンクの置換えが完了しました。
+	</string>
+	<text name="source_label">
+		置換元：
+	</text>
+	<inventory_link_replace_drop_target name="source_uuid_editor" tool_tip="置換えたいインベントリ内のアイテムを、ここへドラッグ・アンド・ドロップしてください。"/>
+	<text type="string" name="target_label">
+		置換先：
+	</text>
+	<inventory_link_replace_drop_target name="target_uuid_editor" tool_tip="新しいインベントリ内のアイテムを、ここへドラッグ・アンド・ドロップしてください。"/>
+	<text type="string" name="status_text">
+		準備中…
+	</text>
+	<button name="btn_refresh" label="リフレッシュ"/>
+	<button name="btn_start" label="開始"/>
+</floater>

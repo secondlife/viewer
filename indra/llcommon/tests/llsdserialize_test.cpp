@@ -1801,7 +1801,7 @@ namespace tut
                                    "    import llsd\n"
                                    "except ImportError:\n"
                                    // older llbase.llsd module
-                                   "    raise\n");
+                                   "    from llbase import llsd\n");
 
     // helper for TestPythonCompatible
     template <typename CONTENT>

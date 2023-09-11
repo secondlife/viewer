@@ -1,6 +1,87 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="フォントのテスト">
-	<text name="linea">
-		オーバーライドテスト - Times Romanでここに表示されます。 （default/xui/en-us フォルダー内）
+<floater name="contents" title="フォントテスト">
+	<text type="string" length="1" bottom_delta="40" follows="left|top|right" height="16" layout="topleft" left="16">
+		小さいサンセリフ
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerifMedium" height="16" layout="topleft" left="16">
+		普通の大きさのサンセリフ
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" height="16" layout="topleft" left="16">
+		サンセリフ。スタイル設定無し（普通の大きさと同じ）
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerifLarge" height="16" layout="topleft" left="16">
+		大きいサンセリフ
+	</text>
+	<text type="string" length="1" bottom_delta="36" follows="left|top|right" font="SansSerifHuge" height="32" layout="topleft" left="16">
+		サンセリフ size=huge
+	</text>
+	<text type="string" length="1" bottom_delta="36" follows="left|top|right" font="SansSerifHuge" font.style.="BOLD" height="32" layout="topleft" left="16">
+		巨大なサンセリフ style=BOLD
+	</text>
+	<text type="string" length="1" bottom_delta="36" follows="left|top|right" font="SansSerifBold" font.size="Huge" height="32" layout="topleft" left="16">
+		ボールドのサンセリフ size=huge
+	</text>
+	<text type="string" length="1" bottom_delta="40" follows="left|top|right" font="Monospace" height="16" layout="topleft" left="16">
+		等幅
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Monospace" font.size="Large" height="16" layout="topleft" left="16">
+		等幅 size=large
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerifLarge" font.style="BOLD" height="16" layout="topleft" left="16">
+		大きなサンセリフ style=BOLD
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerifBold" height="16" layout="topleft" left="16">
+		ボールドのサンセリフ
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="BOLD" height="16" layout="topleft" left="16">
+		サンセリフ style=BOLD（ボールドのサンセリフと一緒）
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="ITALIC" height="16" layout="topleft" left="16">
+		サンセリフ style=ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
+		サンセリフ style=BOLD|ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
+		サンセリフ style=BOLD|ITALIC shadow=soft
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="UNDERLINE" height="16" layout="topleft" left="16">
+		サンセリフ style=UNDERLINE
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font_shadow="none" height="16" layout="topleft" left="16">
+		サンセリフ style=hard
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" height="16" layout="topleft" left="16">
+		サンセリフ shadow=soft
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" height="16" layout="topleft" left="16">
+		DejaVu
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="BOLD" height="16" layout="topleft" left="16">
+		DejaVu style=BOLD
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="ITALIC" height="16" layout="topleft" left="16">
+		DejaVu style=ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
+		DejaVu style=BOLD|ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
+		DejaVu size=Large style=BOLD|ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" height="16" layout="topleft" left="16">
+		Helvetica
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD" height="16" layout="topleft" left="16">
+		Helvetica style=BOLD
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="ITALIC" height="16" layout="topleft" left="16">
+		Helvetica style=ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
+		Helvetica style=BOLD|ITALIC
+	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
+		Helvetica size=Large style=BOLD|ITALIC
 	</text>
 </floater>

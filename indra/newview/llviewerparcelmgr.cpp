@@ -72,12 +72,16 @@
 
 #include "llenvironment.h"
 
-const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
+const F32 PARCEL_BAN_LINES_DRAW_SECS_ON_COLLISION = 10.f;
+const F32 PARCEL_COLLISION_DRAW_SECS_ON_PROXIMITY = 1.f;
 
 
 // Globals
 
 U8* LLViewerParcelMgr::sPackedOverlay = NULL;
+S32 LLViewerParcelMgr::PARCEL_BAN_LINES_HIDE = 0;
+S32 LLViewerParcelMgr::PARCEL_BAN_LINES_ON_COLLISION = 1;
+S32 LLViewerParcelMgr::PARCEL_BAN_LINES_ON_PROXIMITY = 2;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
@@ -892,13 +896,18 @@ void LLViewerParcelMgr::render()
 
 void LLViewerParcelMgr::renderParcelCollision()
 {
+    static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , PARCEL_BAN_LINES_ON_COLLISION);
+
 	// check for expiration
-	if (mCollisionTimer.getElapsedTimeF32() > PARCEL_COLLISION_DRAW_SECS)
+    F32 expiration = (ban_lines_mode == PARCEL_BAN_LINES_ON_PROXIMITY)
+        ? PARCEL_COLLISION_DRAW_SECS_ON_PROXIMITY
+        : PARCEL_BAN_LINES_DRAW_SECS_ON_COLLISION;
+	if (mCollisionTimer.getElapsedTimeF32() > expiration)
 	{
-		mRenderCollision = FALSE;
+		mRenderCollision = false;
 	}
 
-	if (mRenderCollision && gSavedSettings.getBOOL("ShowBanLines"))
+	if (mRenderCollision && ban_lines_mode != PARCEL_BAN_LINES_HIDE)
 	{
 		LLViewerRegion* regionp = gAgent.getRegion();
 		if (regionp)
@@ -1842,8 +1851,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			 sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)
 	{
 		// We're about to collide with this parcel
-		parcel_mgr.mRenderCollision = TRUE;
-		parcel_mgr.mCollisionTimer.reset();
+        static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , PARCEL_BAN_LINES_ON_COLLISION);
+        if (ban_lines_mode == PARCEL_BAN_LINES_ON_PROXIMITY)
+        {
+            parcel_mgr.resetCollisionTimer();
+        }
 
 		// Differentiate this parcel if we are banned from it.
 		if (sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)

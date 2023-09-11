@@ -9,9 +9,9 @@
 	<text name="preview_label">
 		プレビュー：
 	</text>
-	<combo_box label="服の種類" name="clothing_type_combo">
+	<combo_box label="服装の種類" name="clothing_type_combo">
 		<item label="画像" name="Image" value="画像"/>
-		<item label="髪" name="Hair" value="髪"/>
+		<item label="髪型" name="Hair" value="髪型"/>
 		<item label="女性の頭" name="FemaleHead" value="女性の頭"/>
 		<item label="女性の上半身" name="FemaleUpperBody" value="女性の上半身"/>
 		<item label="女性の下半身" name="FemaleLowerBody" value="女性の下半身"/>
@@ -22,11 +22,10 @@
 		<item label="スカルプトプリム" name="SculptedPrim" value="スカルプトプリム"/>
 	</combo_box>
 	<text name="bad_image_text">
-		イメージを読み取れません。
-
-24bitTarga(.tga)でイメージを保存してください。
+		画像を読み込めませんでした。
+24bitのTarga（.tga）形式で画像を保存してください。
 	</text>
 	<check_box label="可逆圧縮" name="lossless_check"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
 	<button label="アップロードﾞL$[AMOUNT]" name="ok_btn"/>
 </floater>

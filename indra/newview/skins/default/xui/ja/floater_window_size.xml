@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="window_size" title="ウィンドウサイズ">
 	<string name="resolution_format">
-		[RES_X] x [RES_Y]
+		[RES_X]x[RES_Y]
 	</string>
 	<text name="windowsize_text">
 		ウィンドウのサイズを設定：

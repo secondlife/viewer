@@ -1,77 +1,85 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="プロフィール" name="panel_profile">
-	<string name="status_online">
-		オンライン中
-	</string>
-	<string name="status_offline">
-		オフライン中
-	</string>
+<panel name="panel_profile" label="プロフィール">
+	<string name="date_format" value="ＳＬでの誕生日：[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
+	<string name="age_format" value="[AGE]経過"/>
+	<string name="partner_text" value="パートナー：[LINK]"/>
 	<string name="CaptionTextAcctInfo">
-		[ACCTTYPE]
+		アカウント：[ACCTTYPE]
 [PAYMENTINFO]
 	</string>
-	<string name="payment_update_link_url">
-		http://www.secondlife.com/account/billing.php?lang=en
-	</string>
-	<string name="partner_edit_link_url">
-		http://www.secondlife.com/account/partners.php?lang=en
-	</string>
-	<string name="my_account_link_url" value="http://secondlife.com/account"/>
-	<string name="no_partner_text" value="なし"/>
-	<string name="no_group_text" value="なし"/>
-	<string name="RegisterDateFormat">
-		[REG_DATE]
-	</string>
-	<string name="name_text_args">
-		[NAME]
-	</string>
-	<string name="display_name_text_args">
-		[DISPLAY_NAME]
-	</string>
-	<string name="FSDev" value="開発者"/>
-	<string name="FSSupp" value="サポート"/>
-	<string name="FSQualityAssurance" value="バグハンター"/>
-	<string name="FSGW" value="ゲートウェイ"/>
-	<text name="name_label" value="名前："/>
-	<button label="名前：" name="set_name" tool_tip="表示名を設定"/>
-	<panel name="name_holder">
-		<text_editor name="complete_name" value="(ロード中...)"/>
-	</panel>
-	<layout_stack name="imagepositioner">
-		<layout_panel name="label_stack">
-			<text name="status" value="ステータス不明"/>
-			<text name="label" value="Second Life 生年月日："/>
-			<text name="label2" value="アカウント："/>
-			<text name="partner_label" value="パートナー："/>
+	<string name="BadgeBeta" value="オリジナルβテスター"/>
+	<string name="BadgeBetaLifetime" value="β会員"/>
+	<string name="BadgeLifetime" value="会員"/>
+	<string name="BadgeLinden" value="Linden Lab社員"/>
+	<string name="BadgePremiumLifetime" value="プレミアム会員"/>
+	<string name="BadgePremiumPlusLifetime" value="プレミアム・プラス会員"/>
+	<layout_stack name="image_stack">
+		<layout_panel name="image_panel">
+			<icon name="2nd_life_pic"/>
+			<loading_indicator name="image_upload_indicator"/>
+		</layout_panel>
+		<layout_panel name="basics_panel">
+			<line_editor name="user_name" value="（読み込んでいます…）"/>
+			<line_editor name="sl_birth_date" value="（読み込んでいます…）"/>
+			<line_editor name="user_age" value="（読み込んでいます…）"/>
+		</layout_panel>
+		<layout_panel name="partner_layout">
+			<text name="partner_link" value="パートナー：（読み込んでいます…）"/>
+		</layout_panel>
+		<layout_panel name="partner_spacer_layout"/>
+		<layout_panel name="badge_layout">
+			<icon name="badge_icon"/>
+			<text name="badge_text" value="バッチのテスト"/>
+		</layout_panel>
+		<layout_panel name="friend_layout">
+			<text name="friend_text" value="あなたはフレンドです。"/>
+		</layout_panel>
+		<layout_panel name="online_layout">
+			<icon name="online_icon"/>
+			<text name="online_text" value="オンライン"/>
+		</layout_panel>
+		<layout_panel name="offline_layout">
+			<icon name="offline_icon"/>
+			<text name="offline_text" value="オフライン"/>
+		</layout_panel>
+		<layout_panel name="account_layout">
+			<text name="account_info" value="アカウント：（読み込んでいます…）"/>
+		</layout_panel>
+		<layout_panel name="indicator_stack">
+			<loading_indicator name="progress_indicator"/>
+		</layout_panel>
+		<layout_panel name="settings_panel">
+			<text name="search_label" value="自分のプロフィールを検索結果に反映："/>
+			<combo_box name="show_in_search" tool_tip="検索結果から、あなたを見つけてもらいましょう。">
+				<combo_box.item name="Hide" label="表示しない" value="0"/>
+				<combo_box.item name="Show" label="表示する" value="1"/>
+			</combo_box>
+		</layout_panel>
+		<layout_panel name="menu_panel">
+			<menu_button label="アクション" name="agent_actions_menu"/>
 		</layout_panel>
 	</layout_stack>
-	<text name="Groups:" value="グループ："/>
-	<button label="+" label_selected="+" name="group_invite" tool_tip="グループに招待"/>
-	<layout_stack name="aboutpositioner">
-		<layout_panel name="about_stack">
-			<text name="About:" value="詳細："/>
+	<layout_stack name="main_stack">
+		<layout_panel name="display_name_panel">
+			<line_editor name="display_name" value="（読み込んでいます…）"/>
+			<icon tool_tip="フレンドは、自分のオンライン状況を見ることができます。" name="can_see_online"/>
+			<icon tool_tip="フレンドは、自分のオンライン状況を見ることができません。" name="cant_see_online"/>
+			<icon tool_tip="フレンドは、自分がマップのどこにいるかを知ることができます。" name="can_see_on_map"/>
+			<icon tool_tip="フレンドは、自分がマップのどこにいるかを知ることができません。" name="cant_see_on_map"/>
+			<icon tool_tip="フレンドは、自分のオブジェクトを編集できます。" name="can_edit_objects"/>
+			<icon tool_tip="フレンドは、自分のオブジェクトを編集できません。" name="cant_edit_objects"/>
 		</layout_panel>
-		<layout_panel name="give_stack">
-			<text name="Give item:" value="アイテムを渡す："/>
-			<text name="Give inventory" tool_tip="インベントリのアイテムをここにドロップしてこの人に渡します。">
-				インベントリのアイテムをここにドロップしてください。
-			</text>
+		<layout_panel name="about_panel">
+			<text_editor name="sl_description_edit"/>
 		</layout_panel>
-	</layout_stack>
-	<layout_stack name="buttonstack">
-		<layout_panel name="left_buttonstack">
-			<button label="地図上で見つける" label_selected="地図上で見つける" name="show_on_map_btn" tool_tip="住人を地図上で探す"/>
-			<button label="お金を払う" label_selected="お金を払う" name="pay" tool_tip="住人にお金を支払う"/>
+		<layout_panel name="about_buttons_panel">
+			<button name="save_description_changes" label="保存"/>
+			<button name="discard_description_changes" label="破棄"/>
+			<view_border name="cost_text_border"/>
 		</layout_panel>
-		<layout_panel name="middle_buttonstack">
-			<button label="テレポートを送る" label_selected="テレポートを送る" name="teleport" tool_tip="住人にテレポートを送る"/>
-			<button label="インスタントメッセージ" label_selected="インスタントメッセージ" name="im" tool_tip="インスタントメッセージを開きます"/>
-		</layout_panel>
-		<layout_panel name="right_buttonstack">
-			<button label="フレンド登録" label_selected="フレンド登録" name="add_friend" tool_tip="フレンド登録を申し出ます"/>
-			<button label="ブロック" name="block" tool_tip="この住人をブロックする"/>
-			<button label="ブロック解除" name="unblock" tool_tip="この住人のブロックを解除する"/>
+		<layout_panel name="groups_panel">
+			<text name="group_label" value="グループのメンバーシップ"/>
+			<group_list name="group_list"/>
 		</layout_panel>
 	</layout_stack>
-	<check_box label="検索に表示" name="show_in_search_checkbox"/>
 </panel>
