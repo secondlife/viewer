@@ -794,14 +794,36 @@
            name="LandShow"
            tear_off="true">
           <menu_item_check
-             label="Ban Lines"
-             name="Ban Lines">
+             label="Hide Ban Lines"
+             name="Hide Ban Lines">
             <menu_item_check.on_check
-               control="ShowBanLines" />
+             function="World.CheckBanLines"
+             parameter="0" />
             <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="ShowBanLines" />
+             function="World.ShowBanLines"
+             parameter="0" />
           </menu_item_check>
+          <menu_item_check
+             label="Show Ban Lines On Collision"
+             name="Show Ban Lines On Collision">
+            <menu_item_check.on_check
+             function="World.CheckBanLines"
+             parameter="1" />
+            <menu_item_check.on_click
+             function="World.ShowBanLines"
+             parameter="1" />
+          </menu_item_check>
+          <menu_item_check
+             label="Show Ban Lines On Proximity"
+             name="Show Ban Lines On Proximity">
+            <menu_item_check.on_check
+             function="World.CheckBanLines"
+             parameter="2" />
+            <menu_item_check.on_click
+             function="World.ShowBanLines"
+             parameter="2" />
+          </menu_item_check>
+          <menu_item_separator />
            <menu_item_check
                  label="Beacons"
                  name="beacons"
@@ -3481,15 +3503,30 @@ function="World.EnvPreset"
                 <menu_item_call.on_click
                  function="Advanced.DumpRegionObjectCache" />
             </menu_item_call>
-        
-<menu_item_call
-             label="Interest List: Full Update"
-             name="Interest List: Full Update"
+			<menu_item_check
+             label="Record Stats to File"
+             name="Stats Recorder File">
+				<menu_item_check.on_check
+                 function="Advanced.CheckStatsRecorder" />
+				<menu_item_check.on_click
+                 function="Advanced.ToggleStatsRecorder" />
+			</menu_item_check>
+			<menu_item_check
+		     label="Interest Lists 360 Mode"
+             name="Interest List: 360 Mode"
              shortcut="alt|shift|I">
-                <menu_item_call.on_click
-                 function="Advanced.InterestListFullUpdate" />
-            </menu_item_call>
-        </menu>
+			   <menu_item_check.on_check
+				function="Advanced.CheckInterestList360Mode" />
+			   <menu_item_check.on_click
+				  function="Advanced.ToggleInterestList360Mode" />
+            </menu_item_check>
+			<menu_item_call
+             label="Reset Interest Lists"
+             name="Reset Interest Lists">
+				<menu_item_call.on_click
+                 function="Advanced.ResetInterestLists" />
+			</menu_item_call>
+		</menu>
         <menu
          create_jump_keys="true"
          label="UI"
@@ -3502,13 +3539,6 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
              parameter="http://duckduckgo.com"/>
-          </menu_item_call>
-          <menu_item_call
-           label="FB Connect Test"
-           name="FB Connect Test">
-            <menu_item_call.on_click
-             function="Advanced.WebContentTest"
-             parameter="https://cryptic-ridge-1632.herokuapp.com/"/>
           </menu_item_call>
           <menu_item_call
              label="Dump SelectMgr"

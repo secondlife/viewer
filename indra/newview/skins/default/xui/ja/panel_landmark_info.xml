@@ -13,28 +13,49 @@
 		この位置の情報は現在ご利用いただけません。あとでもう一度お試しください。
 	</string>
 	<string name="server_forbidden_text">
-		この位置の情報は、アクセス制限のためご利用いただけません。  許可については区画所有者にお問い合わせください。
+		この位置の情報は、アクセス制限のためご利用いただけません。許可については区画所有者にお問い合わせください。
 	</string>
 	<string name="acquired_date">
-		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日（[wkday,datetime,local]）　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
 	</string>
+	<string name="icon_PG" value="Parcel_PG_Dark"/>
+	<string name="icon_M" value="Parcel_M_Dark"/>
+	<string name="icon_R" value="Parcel_R_Dark"/>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<text name="region_title" value="SampleRegion"/>
-			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<texture_picker name="logo"/>
+			<text name="parcel_title" value="SampleParcel, Name Long"/>
+			<text name="region_title">
+				リージョン（地域）：[REGIONAMEPOS]
+			</text>
+			<text name="parcel_owner_label" value="所有者："/>
+			<text name="parcel_owner" value="一時的な所有者"/>
 			<expandable_text name="description" value="Du waltz die spritz"/>
+			<icon name="maturity_icon"/>
 			<text name="maturity_value" value="不明"/>
 			<panel name="landmark_info_panel">
+				<view_border name="lod_tab_border"/>
+				<text name="this_landmark">
+					ランドマーク：
+				</text>
 				<text name="owner_label" value="所有者："/>
-				<text name="creator_label" value="制作者："/>
-				<text name="created_label" value="制作日："/>
+				<text name="owner"/>
+				<text name="creator_label" value="作成者："/>
+				<text name="creator"/>
+				<text name="created_label" value="作成日："/>
+				<text name="created"/>
 			</panel>
 			<panel name="landmark_edit_panel">
-				<text name="title_label" value="タイトル："/>
-				<text name="notes_label" value="メモ："/>
-				<text name="folder_label" value="ランドマークの位置："/>
+				<text value="タイトル："/>
+				<line_editor name="title_value"/>
+				<button name="edit_btn" tool_tip="ランドマーク情報を編集"/>
+				<line_editor name="title_editor"/>
+				<text name="notes_label" value="ノート："/>
+				<text_editor name="notes_editor"/>
+				<text name="folder_label" value="ランドマークの場所："/>
+				<combo_box name="folder_combo"/>
 			</panel>
 		</panel>
 	</scroll_container>

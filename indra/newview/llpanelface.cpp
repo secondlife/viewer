@@ -1975,7 +1975,8 @@ void LLPanelFace::updateCopyTexButton()
     LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
     mMenuClipboardTexture->setEnabled(objectp && objectp->getPCode() == LL_PCODE_VOLUME && objectp->permModify() 
                                                     && !objectp->isPermanentEnforced() && !objectp->isInventoryPending() 
-                                                    && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1));
+                                                    && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
+                                                    && LLMaterialEditor::canClipboardObjectsMaterial());
     std::string tooltip = (objectp && objectp->isInventoryPending()) ? LLTrans::getString("LoadingContents") : getString("paste_options");
     mMenuClipboardTexture->setToolTip(tooltip);
 }
@@ -4147,7 +4148,8 @@ void LLPanelFace::onCopyTexture()
         || objectp->getPCode() != LL_PCODE_VOLUME
         || !objectp->permModify()
         || objectp->isPermanentEnforced()
-        || selected_count > 1)
+        || selected_count > 1
+        || !LLMaterialEditor::canClipboardObjectsMaterial())
     {
         return;
     }
@@ -4342,7 +4344,8 @@ void LLPanelFace::onPasteTexture()
         || objectp->getPCode() != LL_PCODE_VOLUME
         || !objectp->permModify()
         || objectp->isPermanentEnforced()
-        || selected_count > 1)
+        || selected_count > 1
+        || !LLMaterialEditor::canClipboardObjectsMaterial())
     {
         // not supposed to happen
         LL_WARNS() << "Failed to paste texture due to missing or wrong selection" << LL_ENDL;

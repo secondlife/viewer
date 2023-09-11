@@ -1,31 +1,57 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="ColorPicker" title="カラーピッカー">
-	<text name="r_val_text">
-		赤：
-	</text>
-	<text name="g_val_text">
-		緑：
-	</text>
-	<text name="b_val_text">
-		青：
-	</text>
+	<tab_container name="color_type_container">
+		<panel name="RGB" label="RGB">
+			<text name="r_val_text">
+				赤：
+			</text>
+			<spinner name="rspin"/>
+			<text name="g_val_text">
+				緑：
+			</text>
+			<spinner name="gspin"/>
+			<text name="b_val_text">
+				青：
+			</text>
+			<spinner name="bspin"/>
+		</panel>
+		<panel name="LSL" label="LSL">
+			<text name="r_val_text_float">
+				赤：
+			</text>
+			<spinner decimal_digits="3" name="rspin_float"/>
+			<text name="g_val_text_float">
+				緑：
+			</text>
+			<spinner decimal_digits="3" name="gspin_float"/>
+			<text name="b_val_text_float">
+				青：
+			</text>
+			<spinner decimal_digits="3" name="bspin_float"/>
+		</panel>
+	</tab_container>
 	<text name="h_val_text">
 		色相：
 	</text>
+	<spinner name="hspin"/>
 	<text name="s_val_text">
-		色調：
+		彩度：
 	</text>
+	<spinner name="sspin"/>
 	<text name="l_val_text">
 		輝度：
 	</text>
+	<spinner name="lspin"/>
+	<text name="hex_text">
+		Hex #
+	</text>
+	<line_editor name="hex_value"/>
 	<check_box label="すぐ適用" name="apply_immediate"/>
-	<button label="" label_selected="" name="color_pipette"/>
-	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
-	<button label="OK" label_selected="OK" name="select_btn"/>
-	<text name="Current color:">
+	<button name="color_pipette"/>
+	<button label="ＯＫ" name="select_btn"/>
+	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
+	<text tool_tip="パレットの下にドラッグして保存" name="Current color:">
 		現在の色：
 	</text>
-	<text name="(Drag below to save.)">
-		（下にドラッグして保存）
-	</text>
+	<menu_button menu_filename="menu_copy_color_picker.xml" name="clipboard_color" tool_tip="色のコピー時のオプション"/>
 </floater>

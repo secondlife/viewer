@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="360capture" title="３６０度Ｓショット">
+	<panel name="ui_panel_left">
+		<text name="quality_level_label">
+			品質
+		</text>
+		<radio_group name="360_quality_selection">
+			<radio_item label="プレビュー（高速）" name="preview_quality" tool_tip="プレビュー程度の品質"/>
+			<radio_item label="通常" name="medium_quality" value="512" tool_tip="通常品質"/>
+			<radio_item label="高" name="high_quality" value="1024" tool_tip="高品質"/>
+			<radio_item label="最高品位" name="maximum_quality" value="2048" tool_tip="最高品質"/>
+		</radio_group>
+		<check_box label="アバターをすべて隠す" name="360_hide_avatar"/>
+		<button label="３６０度画像を作成" name="capture_button"/>
+		<button label="名前をつけて保存…" name="save_local_button"/>
+	</panel>
+	<panel name="ui_panel_right">
+		<web_browser name="360capture_contents"/>
+		<text name="statusbar">
+			クリックとドラッグで視点変更
+		</text>
+	</panel>
+</floater>

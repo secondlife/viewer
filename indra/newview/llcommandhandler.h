@@ -42,7 +42,7 @@ public:
 	LLFooHandler() : LLCommandHandler("foo", UNTRUSTED_BLOCK) { }
 
     // Your code here
-	bool handle(const LLSD& tokens, const LLSD& query_map,
+	bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid,
 				LLMediaCtrl* web)
 	{
 		if (tokens.size() < 1) return false;
@@ -90,6 +90,7 @@ public:
 
 	virtual bool handle(const LLSD& params,
 						const LLSD& query_map,
+						const std::string& grid,
 						LLMediaCtrl* web) = 0;
 		// For URL secondlife:///app/foo/bar/baz?cat=1&dog=2
 		// @params - array of "bar", "baz", possibly empty
@@ -106,6 +107,7 @@ public:
 	static bool dispatch(const std::string& cmd,
 						 const LLSD& params,
 						 const LLSD& query_map,
+						 const std::string& grid,
 						 LLMediaCtrl* web,
 						 const std::string& nav_type,
 						 bool trusted_browser);

@@ -235,6 +235,59 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 	return FALSE;
 }
 
+void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXformMatrix& currentTransform)
+{
+	// Get coordinates of the adding extents
+	const LLVector4a& min = addingExtents[0];
+	const LLVector4a& max = addingExtents[1];
+
+	// Get coordinates of all corners of the bounding box
+	LLVector3 corners[] =
+	{
+		LLVector3(min[0], min[1], min[2]),
+		LLVector3(min[0], min[1], max[2]),
+		LLVector3(min[0], max[1], min[2]),
+		LLVector3(min[0], max[1], max[2]),
+		LLVector3(max[0], min[1], min[2]),
+		LLVector3(max[0], min[1], max[2]),
+		LLVector3(max[0], max[1], min[2]),
+		LLVector3(max[0], max[1], max[2])
+	};
+
+	// New extents (to be expanded)
+	LLVector3 extents[] =
+	{
+		LLVector3(mExtents[0].getF32ptr()),
+		LLVector3(mExtents[1].getF32ptr())
+	};
+
+	LLQuaternion backwardRotation = ~currentTransform.getRotation();
+	for (LLVector3& corner : corners)
+	{
+		// Make coordinates relative to the current position
+		corner -= currentTransform.getPosition();
+		// Rotate coordinates backward to the current rotation
+		corner.rotVec(backwardRotation);
+		// Expand root extents on the current corner
+		for (int j = 0; j < 3; ++j)
+		{
+			if (corner[j] < extents[0][j])
+				extents[0][j] = corner[j];
+			if (corner[j] > extents[1][j])
+				extents[1][j] = corner[j];
+		}
+	}
+
+	// Set new expanded extents
+	mExtents[0].load3(extents[0].mV);
+	mExtents[1].load3(extents[1].mV);
+
+	// Calculate new center and size
+	mBounds[0].setAdd(mExtents[0], mExtents[1]);
+	mBounds[0].mul(0.5f);
+	mBounds[1].setSub(mExtents[0], mExtents[1]);
+	mBounds[1].mul(0.5f);
+}
 
 BOOL LLSpatialGroup::addObject(LLDrawable *drawablep)
 {
@@ -3601,6 +3654,11 @@ public:
             if (vobj &&
                 (!vobj->isReflectionProbe() || mPickReflectionProbe))
 			{
+				if (vobj->getClickAction() == CLICK_ACTION_IGNORE && !LLFloater::isVisible(gFloaterTools))
+				{
+					return false;
+				}
+
 				LLVector4a intersection;
 				bool skip_check = false;
 				if (vobj->isAvatar())
@@ -4018,7 +4076,8 @@ void LLCullResult::assertDrawMapsEmpty()
 	{
 		if (mRenderMapSize[i] != 0)
 		{
-			LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!" << LL_ENDL;
+			LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!"
+				<< " (mRenderMapSize[" << i << "] = " << mRenderMapSize[i] << ")" << LL_ENDL;
 		}
 	}
 }

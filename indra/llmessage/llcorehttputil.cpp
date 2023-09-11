@@ -1329,6 +1329,48 @@ void HttpCoroutineAdapter::trivialPostCoro(std::string url, LLCore::HttpRequest:
 }
 
 
+/*static*/
+void HttpCoroutineAdapter::callbackHttpDel(const std::string &url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success,
+                                           completionCallback_t failure)
+{
+    LLCoros::instance().launch("HttpCoroutineAdapter::genericDelCoro",
+                               boost::bind(&HttpCoroutineAdapter::trivialDelCoro, url, policyId, success, failure));
+}
+
+/*static*/
+void HttpCoroutineAdapter::trivialDelCoro(std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success,
+                                          completionCallback_t failure)
+{
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericDelCoro", policyId));
+    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t                  httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+
+    LL_INFOS("HttpCoroutineAdapter", "genericDelCoro") << "Generic DEL for " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url, httpOpts);
+
+    LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        if (failure)
+        {
+            failure(httpResults);
+        }
+    }
+    else
+    {
+        if (success)
+        {
+            success(result);
+        }
+    }
+}
+
+
 
 } // end namespace LLCoreHttpUtil
 

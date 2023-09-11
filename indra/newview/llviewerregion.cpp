@@ -105,6 +105,9 @@ S32  LLViewerRegion::sLastCameraUpdated = 0;
 S32  LLViewerRegion::sNewObjectCreationThrottle = -1;
 LLViewerRegion::vocache_entry_map_t LLViewerRegion::sRegionCacheCleanup;
 
+const std::string LLViewerRegion::IL_MODE_DEFAULT = "default";
+const std::string LLViewerRegion::IL_MODE_360     = "360";
+
 typedef std::map<std::string, std::string> CapabilityMap;
 
 static void log_capabilities(const CapabilityMap &capmap);
@@ -132,8 +135,8 @@ class LLRegionHandler : public LLCommandHandler
 public:
     // requests will be throttled from a non-trusted browser
     LLRegionHandler() : LLCommandHandler("region", UNTRUSTED_THROTTLE) {}
-       
-    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+
+    bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
     {
         // make sure that we at least have a region name
         int num_params = params.size();
@@ -144,6 +147,10 @@ public:
            
         // build a secondlife://{PLACE} SLurl from this SLapp
         std::string url = "secondlife://";
+        if (!grid.empty())
+        {
+            url += grid + "/secondlife/";
+        }
 		boost::regex name_rx("[A-Za-z0-9()_%]+");
 		boost::regex coord_rx("[0-9]+");
         for (int i = 0; i < num_params; i++)
@@ -644,7 +651,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mInvisibilityCheckHistory(-1),
 	mPaused(FALSE),
 	mRegionCacheHitCount(0),
-	mRegionCacheMissCount(0)
+	mRegionCacheMissCount(0),
+    mInterestListMode(IL_MODE_DEFAULT)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -2685,14 +2693,10 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id, bool valid)
 	return NULL;
 }
 
-void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type)
+void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType cache_miss_type)
 {
 	mRegionCacheMissCount++;
-#if 0
-	mCacheMissList.insert(CacheMissItem(id, miss_type));
-#else
-	mCacheMissList.push_back(CacheMissItem(id, miss_type));
-#endif
+    mCacheMissList.push_back(CacheMissItem(id, cache_miss_type));
 }
 
 //check if a non-cacheable object is already created.
@@ -2771,10 +2775,10 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		}
 	}
 	else
-	{
+	{	// Total miss, don't have the object in cache
 		// LL_INFOS() << "Cache miss for " << local_id << LL_ENDL;
-		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
-        cache_miss_type = CACHE_MISS_TYPE_FULL;
+        addCacheMiss(local_id, CACHE_MISS_TYPE_TOTAL);
+        cache_miss_type = CACHE_MISS_TYPE_TOTAL;
 	}
 
 	return false;
@@ -2782,7 +2786,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 
 void LLViewerRegion::addCacheMissFull(const U32 local_id)
 {
-	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
+	addCacheMiss(local_id, CACHE_MISS_TYPE_TOTAL);
 }
 
 void LLViewerRegion::requestCacheMisses()
@@ -2833,7 +2837,6 @@ void LLViewerRegion::requestCacheMisses()
 	mCacheDirty = TRUE ;
 	// LL_INFOS() << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << LL_ENDL;
 	LLViewerStatsRecorder::instance().requestCacheMissesEvent(mCacheMissList.size());
-	LLViewerStatsRecorder::instance().log(0.2f);
 
 	mCacheMissList.clear();
 }
@@ -3358,6 +3361,9 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();
+
+		// Set the region to the desired interest list mode
+        setInterestListMode(gAgent.getInterestListMode());
 	}
 }
 
@@ -3376,7 +3382,111 @@ void LLViewerRegion::logActiveCapabilities() const
 	log_capabilities(mImpl->mCapabilities);
 }
 
-LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
+
+bool LLViewerRegion::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url = getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Region") << "Could not retrieve region " << getRegionID()
+			<< " POST capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, gAgent.getAgentPolicy(), postData, cbSuccess, cbFailure);
+    return true;
+}
+
+bool LLViewerRegion::requestGetCapability(const std::string &capName, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url;
+
+    url = getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Region") << "Could not retrieve region " << getRegionID()
+                           << " GET capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(url, gAgent.getAgentPolicy(), cbSuccess, cbFailure);
+    return true;
+}
+
+bool LLViewerRegion::requestDelCapability(const std::string &capName, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url;
+
+    url = getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Region") << "Could not retrieve region " << getRegionID() << " DEL capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpDel(url, gAgent.getAgentPolicy(), cbSuccess, cbFailure);
+    return true;
+}
+
+void LLViewerRegion::setInterestListMode(const std::string &new_mode)
+{
+    if (new_mode != mInterestListMode)
+    {
+        mInterestListMode = new_mode;
+
+		if (mInterestListMode != std::string(IL_MODE_DEFAULT) && mInterestListMode != std::string(IL_MODE_360))
+		{
+			LL_WARNS("360Capture") << "Region " << getRegionID() << " setInterestListMode() invalid interest list mode: " 
+				<< mInterestListMode << ", setting to default" << LL_ENDL;
+            mInterestListMode = IL_MODE_DEFAULT;
+		}
+
+		LLSD body;
+        body["mode"] = mInterestListMode;
+        if (requestPostCapability("InterestList", body,
+                                  [](const LLSD &response) {
+                                      LL_DEBUGS("360Capture") << "InterestList capability responded: \n"
+                                          << ll_pretty_print_sd(response) << LL_ENDL;
+                                  }))
+        {
+            LL_DEBUGS("360Capture") << "Region " << getRegionID()
+                                    << " Successfully posted an InterestList capability request with payload: \n"
+                                    << ll_pretty_print_sd(body) << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("360Capture") << "Region " << getRegionID() 
+								   << " Unable to post an InterestList capability request with payload: \n"
+                                   << ll_pretty_print_sd(body) << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_DEBUGS("360Capture") << "Region " << getRegionID() << "No change, skipping Interest List mode POST to "
+								<< new_mode << " mode" << LL_ENDL;
+    }
+}
+
+
+void LLViewerRegion::resetInterestList()
+{
+	if (requestDelCapability("InterestList", [](const LLSD &response) {
+							LL_DEBUGS("360Capture") << "InterestList capability DEL responded: \n" << ll_pretty_print_sd(response) << LL_ENDL;
+						}))
+	{
+		LL_DEBUGS("360Capture") << "Region " << getRegionID() << " Successfully reset InterestList capability" << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("360Capture") << "Region " << getRegionID() << " Unable to DEL InterestList capability request" << LL_ENDL;
+	}
+}
+
+
+LLSpatialPartition *LLViewerRegion::getSpatialPartition(U32 type)
 {
 	if (type < mImpl->mObjectPartition.size() && type < PARTITION_VO_CACHE)
 	{

@@ -594,6 +594,7 @@ Henri Beauchamp
 	VWR-4157
 	SL-15175
 	SL-19110
+	SL-19159
 herina Bode
 Hikkoshi Sakai
 	VWR-429
@@ -932,6 +933,8 @@ Lexi Frua
 Lillie Cordeaux
 Lilly Zenovka
 Lizzy Macarthur
+Logue Takacs
+	INTL-490
 Luban Yiyuan
 Luc Starsider
 Luminous Luminos
@@ -1188,6 +1191,7 @@ PanteraPolnocy
 	SL-18891
 	SL-18904
 	SL-18937
+	SL-19207
 	SL-19681
 Parvati Silverweb
 Patric Mills

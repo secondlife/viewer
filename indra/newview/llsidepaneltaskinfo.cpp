@@ -854,7 +854,7 @@ void LLSidepanelTaskInfo::refresh()
 	const BOOL all_include_in_search = LLSelectMgr::getInstance()->selectionGetIncludeInSearch(&include_in_search);
 	getChildView("search_check")->setEnabled(has_change_sale_ability && all_volume);
 	getChild<LLUICtrl>("search_check")->setValue(include_in_search);
-	getChild<LLUICtrl>("search_check")->setTentative( 				!all_include_in_search);
+	getChild<LLUICtrl>("search_check")->setTentative(!all_include_in_search);
 
 	// Click action (touch, sit, buy)
 	U8 click_action = 0;
@@ -1155,7 +1155,8 @@ static U8 string_value_to_click_action(std::string p_value)
 void LLSidepanelTaskInfo::onCommitClickAction(LLUICtrl* ctrl, void*)
 {
 	LLComboBox* box = (LLComboBox*)ctrl;
-	if (!box) return;
+	if (!box)
+		return;
 	std::string value = box->getValue().asString();
 	U8 click_action = string_value_to_click_action(value);
 	doClickAction(click_action);

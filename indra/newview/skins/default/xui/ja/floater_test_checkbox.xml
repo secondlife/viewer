@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_test_checkbox">
+	<check_box label="おおっ！これはチェックボックスのようだ！" name="show_location_checkbox"/>
+	<check_box label="最小のチェックボックス" name="minimal_checkbox"/>
+	<check_box label="無効状態のチェックボックス" name="disabled_checkbox"/>
+	<check_box label="有効時の文字色" name="text_enabled_color_checkbox"/>
+	<check_box label="無効時の文字色" name="text_disabled_color_checkbox"/>
+	<check_box label="チェックボックスの初期値" name="initial_value_checkbox"/>
+	<check_box label="等幅フォント" name="font_checkbox"/>
+</floater>

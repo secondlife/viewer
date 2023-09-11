@@ -1664,7 +1664,7 @@ class LLMetricSystemHandler : public LLCommandHandler
 public:
         LLMetricSystemHandler() : LLCommandHandler("metricsystem", UNTRUSTED_CLICK_ONLY) { }
 
-        bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+        bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
         {
                 // change height units TRUE for meters and FALSE for feet
                 BOOL new_value = (gSavedSettings.getBOOL("HeightUnits") == FALSE) ? TRUE : FALSE;

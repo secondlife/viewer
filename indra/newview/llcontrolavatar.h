@@ -35,9 +35,12 @@ class LLControlAvatar:
 {
     LOG_CLASS(LLControlAvatar);
 
+    using super = LLVOAvatar;
+
 public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual void 			initInstance(); // Called after construction to initialize the class.
+    virtual void initInstance(); // Called after construction to initialize the class.
+    virtual void markDead();
 	virtual	~LLControlAvatar();
 
 	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
@@ -88,6 +91,7 @@ public:
     F32 mGlobalScale;
 
     LLVOVolume *mRootVolp;
+    class LLControlAVBridge* mControlAVBridge;
 
     bool mMarkedForDeath;
 
