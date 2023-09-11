@@ -523,7 +523,7 @@ void LLFloaterTopObjects::teleportToSelectedObject()
 
         LLVector3d teleport_location;
         LLViewerObject *viewer_object = gObjectList.findObject(first_selected->getUUID());
-        if (viewer_object == NULL)
+        if (viewer_object == nullptr)
         {
             // If we cannot find the object in the viewer list, teleport to the last reported position
             std::string pos_string =  first_selected->getColumn(3)->getValue().asString();

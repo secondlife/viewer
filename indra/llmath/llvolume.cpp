@@ -5482,14 +5482,12 @@ bool LLVolumeFace::cacheOptimize()
 	new_indices.push_back(tri->mVertex[2]->mIdx);
 	tri->complete();
 
-	//U32 breaks = 0;
 	for (U32 i = 1; i < mNumIndices/3; ++i)
 	{
 		cache.updateScores();
 		tri = cache.mBestTriangle;
 		if (!tri)
 		{
-			//breaks++;
 			for (U32 j = 0; j < triangle_data.size(); ++j)
 			{
 				if (triangle_data[j].mActive)
@@ -5630,9 +5628,6 @@ bool LLVolumeFace::cacheOptimize()
 	mTexCoords = tc;
 	mWeights = wght;    
 	mTangents = binorm;
-
-	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
-	//LL_INFOS() << result << LL_ENDL;
 
 	return true;
 }

@@ -1405,7 +1405,7 @@ void LLAgent::pitch(F32 angle)
 		angle = look_up_limit - angle_from_skyward;
 	}
 
-	if (fabs(angle) > 1e-4)
+	if (fabs(angle) > 1e-4f)
 	{
 		mFrameAgent.pitch(angle);
 	}
