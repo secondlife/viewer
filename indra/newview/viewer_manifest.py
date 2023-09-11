@@ -1004,6 +1004,12 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     ):
                         self.path(libfile)
 
+                        oldpath = os.path.join("@rpath", libfile)
+                        self.run_command(
+                            ['install_name_tool', '-change', oldpath,
+                             '@executable_path/../Resources/%s' % libfile,
+                             executable])
+
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a
                 # symlink from sub-app/Contents/Resources to the real .dylib.
