@@ -549,6 +549,13 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
         {
             LL_WARNS() << "Failed to download folder: " << request_id << " Requesting known content separately" << LL_ENDL;
             mFetchFolderQueue.push_back(FetchQueueInfo(request_id, FT_CONTENT_RECURSIVE));
+
+            // set folder's version to prevent viewer from trying to request folder indefinetely
+            LLViewerInventoryCategory* cat(gInventory.getCategory(request_id));
+            if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                cat->setVersion(0);
+            }
         }
     }
     else
