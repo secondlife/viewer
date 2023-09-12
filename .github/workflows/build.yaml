@@ -265,10 +265,17 @@ jobs:
 
   post-windows-symbols:
     needs: build
-    runs-on: windows
+    runs-on: ubuntu-latest
     steps:
+      - name: Checkout viewer-build-util
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/viewer-build-util
+          ref: main
+          path: .util
+
       - name: Post Windows symbols
-        uses: secondlife/viewer-post-bugsplat-windows@main
+        uses: .util/post-bugsplat-windows
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
@@ -278,10 +285,17 @@ jobs:
 
   post-mac-symbols:
     needs: build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
+      - name: Checkout viewer-build-util
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/viewer-build-util
+          ref: main
+          path: .util
+
       - name: Post Mac symbols
-        uses: secondlife/viewer-post-bugsplat-mac@main
+        uses: .util/post-bugsplat-mac
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
