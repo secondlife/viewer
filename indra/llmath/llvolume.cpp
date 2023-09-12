@@ -5626,28 +5626,28 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
                     mWeights[dst_idx].loadua(data.w[src_idx].mV);
                 }
             }
+
+            // put back in normalized coordinate frame
+            LLVector4a inv_scale(1.f/mNormalizedScale.mV[0], 1.f / mNormalizedScale.mV[1], 1.f / mNormalizedScale.mV[2]);
+            LLVector4a scale;
+            scale.load3(mNormalizedScale.mV);
+            scale.getF32ptr()[3] = 1.f;
+
+            for (int i = 0; i < mNumVertices; ++i)
+            {
+                mPositions[i].mul(inv_scale);
+                mNormals[i].mul(scale);
+                mNormals[i].normalize3();
+                F32 w = mTangents[i].getF32ptr()[3];
+                mTangents[i].mul(scale);
+                mTangents[i].normalize3();
+                mTangents[i].getF32ptr()[3] = w;
+            }
         }
         else
         {
             // blew past the max vertex size limit, use legacy tangent generation which never adds verts
             createTangents();
-        }
-
-        // put back in normalized coordinate frame
-        LLVector4a inv_scale(1.f/mNormalizedScale.mV[0], 1.f / mNormalizedScale.mV[1], 1.f / mNormalizedScale.mV[2]);
-        LLVector4a scale;
-        scale.load3(mNormalizedScale.mV);
-        scale.getF32ptr()[3] = 1.f;
-
-        for (int i = 0; i < mNumVertices; ++i)
-        {
-            mPositions[i].mul(inv_scale);
-            mNormals[i].mul(scale);
-            mNormals[i].normalize3();
-            F32 w = mTangents[i].getF32ptr()[3];
-            mTangents[i].mul(scale);
-            mTangents[i].normalize3();
-            mTangents[i].getF32ptr()[3] = w;
         }
     }
 
