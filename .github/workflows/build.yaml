@@ -263,19 +263,26 @@ jobs:
           path: |
             ${{ steps.build.outputs.physicstpv }}
 
+  sign-and-package-windows:
+    needs: build
+    runs-on: windows
+    steps:
+      - name: Sign and package Windows viewer
+        uses: secondlife/viewer-build-util/sign-pkg-windows@main
+
+  sign-and-package-mac:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: Sign and package Mac viewer
+        uses: secondlife/viewer-build-util/sign-pkg-mac@main
+
   post-windows-symbols:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout viewer-build-util
-        uses: actions/checkout@v3
-        with:
-          repository: secondlife/viewer-build-util
-          ref: main
-          path: .util
-
       - name: Post Windows symbols
-        uses: ./.util/post-bugsplat-windows
+        uses: secondlife/viewer-build-util/post-bugsplat-windows@main
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
@@ -287,15 +294,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout viewer-build-util
-        uses: actions/checkout@v3
-        with:
-          repository: secondlife/viewer-build-util
-          ref: main
-          path: .util
-
       - name: Post Mac symbols
-        uses: ./.util/post-bugsplat-mac
+        uses: secondlife/viewer-build-util/post-bugsplat-mac@main
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
