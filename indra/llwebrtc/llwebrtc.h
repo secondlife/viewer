@@ -106,6 +106,7 @@ class LLWebRTCSignalingObserver
     virtual void OnIceGatheringState(IceGatheringState state) = 0;
     virtual void OnIceCandidate(const LLWebRTCIceCandidate& candidate) = 0;
     virtual void OnOfferAvailable(const std::string& sdp) = 0;
+    virtual void OnRenegotiationNeeded() = 0;
     virtual void OnAudioEstablished(LLWebRTCAudioInterface *audio_interface) = 0;
 };
 
