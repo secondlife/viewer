@@ -1948,7 +1948,7 @@ namespace tut
                            { writeLLSDArray(serialize, out, cdata); });
 
         python("read C++ " + desc,
-               [this, pydata, &file](std::ostream& out) {
+               [pydata, &file](std::ostream& out) {
                out <<
                import_llsd <<
                "from functools import partial\n"
@@ -2062,7 +2062,7 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("Python " + pyformatter,
-               [this, &file](std::ostream& out) {
+               [pyformatter, &file](std::ostream& out) {
                out <<
                import_llsd <<
                "import struct\n"
@@ -2081,7 +2081,7 @@ namespace tut
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
-               "        f.write(serialized)\n");
+               "        f.write(serialized)\n";});
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
