@@ -275,7 +275,7 @@ jobs:
           path: .util
 
       - name: Post Windows symbols
-        uses: .util/post-bugsplat-windows/action.yaml
+        uses: ./.util/post-bugsplat-windows
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
@@ -295,7 +295,7 @@ jobs:
           path: .util
 
       - name: Post Mac symbols
-        uses: .util/post-bugsplat-mac/action.yaml
+        uses: ./.util/post-bugsplat-mac
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
