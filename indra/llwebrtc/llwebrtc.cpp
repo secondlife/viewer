@@ -389,6 +389,36 @@ void LLWebRTCImpl::OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGath
 void LLWebRTCImpl::OnConnectionChange(webrtc::PeerConnectionInterface::PeerConnectionState new_state)
 {
     RTC_LOG(LS_ERROR) << __FUNCTION__ << " Peer Connection State Change " << new_state;
+
+    switch (new_state)
+    {
+        case webrtc::PeerConnectionInterface::PeerConnectionState::kConnected:
+        {
+            if (new_state == webrtc::PeerConnectionInterface::PeerConnectionState::kConnected)
+            {
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnAudioEstablished(this);
+                }
+            }
+            break;
+        }
+        case webrtc::PeerConnectionInterface::PeerConnectionState::kDisconnected:
+        {
+            if (new_state == webrtc::PeerConnectionInterface::PeerConnectionState::kConnected)
+            {
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnRenegotiationNeeded();
+                }
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
 }
 
 void LLWebRTCImpl::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
@@ -447,10 +477,6 @@ void LLWebRTCImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
         RTC_LOG(LS_ERROR) << ToString(error.type()) << ": " << error.message();
         return;
     }
-    for (auto &observer : mSignalingObserverList)
-    {
-        observer->OnAudioEstablished(this);
-    }
 }
 
 //
@@ -467,6 +493,7 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     auto        desc = mPeerConnection->pending_local_description();
     std::string sdp;
     desc->ToString(&sdp);
+    RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp;
     for (auto &observer : mSignalingObserverList)
     {
         observer->OnOfferAvailable(sdp);

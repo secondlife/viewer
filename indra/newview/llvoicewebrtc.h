@@ -252,6 +252,7 @@ public:
     void OnIceGatheringState(IceGatheringState state) override;
     void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate) override;
     void OnOfferAvailable(const std::string &sdp) override;
+    void OnRenegotiationNeeded() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
     //@}
 
@@ -651,7 +652,19 @@ private:
     //---
     void voiceControlCoro();
     void voiceControlStateMachine();
+
     int  mVoiceControlState;
+    LLMutex mVoiceStateMutex;
+	void setVoiceControlState(int new_voice_control_state)
+	{ 
+		LLMutexLock lock(&mVoiceStateMutex);
+		mVoiceControlState = new_voice_control_state; 
+	}
+    int  getVoiceControlState()
+	{ 
+		LLMutexLock lock(&mVoiceStateMutex);
+		return mVoiceControlState; 
+	}
 
     bool endAndDisconnectSession();
 
