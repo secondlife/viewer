@@ -3733,6 +3733,10 @@ bool LLVOAvatar::isVisuallyMuted()
         {
             muted = true;
         }
+        else if (mIsControlAvatar)
+        {
+            muted = isTooSlow();
+        }
 		else 
 		{
 			muted = isTooComplex() || isTooSlow();
