@@ -12,7 +12,6 @@
 #if ! defined(LL_WORKQUEUE_H)
 #define LL_WORKQUEUE_H
 
-#include "llcoros.h"
 #include "llexception.h"
 #include "llinstancetracker.h"
 #include "threadsafeschedule.h"
@@ -200,20 +199,8 @@ namespace LL
         }
 
         /**
-         * Post work to another WorkQueue to be run at a specified time,
-         * blocking the calling coroutine until then, returning the result to
-         * caller on completion.
-         *
-         * In general, we assume that each thread's default coroutine is busy
-         * servicing its WorkQueue or whatever. To try to prevent mistakes, we
-         * forbid calling waitForResult() from a thread's default coroutine.
-         */
-        template <typename CALLABLE>
-        auto waitForResult(const TimePoint& time, CALLABLE&& callable);
-
-        /**
-         * Post work to another WorkQueue, blocking the calling coroutine
-         * until then, returning the result to caller on completion.
+         * Post work, blocking the calling coroutine until then, returning the
+         * result to caller on completion.
          *
          * In general, we assume that each thread's default coroutine is busy
          * servicing its WorkQueue or whatever. To try to prevent mistakes, we
@@ -222,8 +209,40 @@ namespace LL
         template <typename CALLABLE>
         auto waitForResult(CALLABLE&& callable)
         {
-            return waitForResult(TimePoint::clock::now(), std::move(callable));
+            return waitForResult(TimePoint::clock::now(), std::forward<CALLABLE>(callable));
         }
+
+        /**
+         * Post work to be run at a specified time, blocking the calling
+         * coroutine until then, returning the result to caller on completion.
+         *
+         * In general, we assume that each thread's default coroutine is busy
+         * servicing its WorkQueue or whatever. To try to prevent mistakes, we
+         * forbid calling waitForResult() from a thread's default coroutine.
+         */
+        template <typename CALLABLE>
+        auto waitForResult(const TimePoint& time, CALLABLE&& callable)
+        {
+            checkCoroutine("waitForResult()");
+            return waitForResult_(time, std::forward<CALLABLE>(callable));
+        }
+
+        /**
+         * Post work, blocking the calling coroutine until then, returning the
+         * result to caller on completion.
+         */
+        template <typename CALLABLE>
+        auto waitForResult_(CALLABLE&& callable)
+        {
+            return waitForResult_(TimePoint::clock::now(), std::forward<CALLABLE>(callable));
+        }
+
+        /**
+         * Post work to be run at a specified time, blocking the calling
+         * coroutine until then, returning the result to caller on completion.
+         */
+        template <typename CALLABLE>
+        auto waitForResult_(const TimePoint& time, CALLABLE&& callable);
 
         /*--------------------------- worker API ---------------------------*/
 
@@ -561,9 +580,8 @@ namespace LL
     };
 
     template <typename CALLABLE>
-    auto WorkQueue::waitForResult(const TimePoint& time, CALLABLE&& callable)
+    auto WorkQueue::waitForResult_(const TimePoint& time, CALLABLE&& callable)
     {
-        checkCoroutine("waitForResult()");
         // derive callable's return type so we can specialize for void
         return WaitForResult<CALLABLE, decltype(std::forward<CALLABLE>(callable)())>()
             (this, time, std::forward<CALLABLE>(callable));
