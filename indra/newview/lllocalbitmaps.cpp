@@ -984,7 +984,11 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 	{
         LLSD args;
         args["NAME"] = gDirUtilp->getBaseFileName(filename);
-        LLNotificationsUtil::add(image_info.getWarningName(), args);
+        if (!image_info.getWarningName().empty())
+        {
+            args["REASON"] = LLTrans::getString(image_info.getWarningName());
+        }
+        LLNotificationsUtil::add("CannotUploadTexture", args);
 		return false;
 	}
 
@@ -1000,6 +1004,7 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 
 		LLSD notif_args;
 		notif_args["REASON"] = mImageLoadError;
+        notif_args["NAME"] = gDirUtilp->getBaseFileName(filename);
 		LLNotificationsUtil::add("CannotUploadTexture", notif_args);
 
 		return false;
