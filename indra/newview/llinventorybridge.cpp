@@ -2321,13 +2321,32 @@ void LLFolderBridge::buildDisplayName() const
 std::string LLFolderBridge::getLabelSuffix() const
 {
     static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime", 0.5f);
+    static LLCachedControl<bool> xui_debug(gSavedSettings, "DebugShowXUINames", 0);
     
     if (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay())
     {
         return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
     }
     std::string suffix = "";
-    if(mShowDescendantsCount)
+    if (xui_debug)
+    {
+        LLInventoryModel::cat_array_t* cats;
+        LLInventoryModel::item_array_t* items;
+        gInventory.getDirectDescendentsOf(getUUID(), cats, items);
+        
+        LLViewerInventoryCategory* cat = gInventory.getCategory(getUUID());
+        if (cat)
+        {
+            LLStringUtil::format_map_t args;
+            args["[FOLDER_COUNT]"] = llformat("%d", cats->size());
+            args["[ITEMS_COUNT]"] = llformat("%d", items->size());
+            args["[VERSION]"] = llformat("%d", cat->getVersion());
+            args["[VIEWER_DESCENDANT_COUNT]"] = llformat("%d", cats->size() + items->size());
+            args["[SERVER_DESCENDANT_COUNT]"] = llformat("%d", cat->getDescendentCount());
+            suffix = " " + LLTrans::getString("InventoryFolderDebug", args);
+        }
+    }
+    else if(mShowDescendantsCount)
     {
         LLInventoryModel::cat_array_t cat_array;
         LLInventoryModel::item_array_t item_array;
