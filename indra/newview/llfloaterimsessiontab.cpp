@@ -522,6 +522,7 @@ void LLFloaterIMSessionTab::onRecentEmojiPicked(const LLSD& value)
 void LLFloaterIMSessionTab::onEmojiPicked(llwchar emoji)
 {
 	mInputEditor->insertEmoji(emoji);
+	mInputEditor->setFocus(TRUE);
 }
 
 void LLFloaterIMSessionTab::onEmojiPickerClosed()
