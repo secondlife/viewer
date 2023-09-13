@@ -655,10 +655,13 @@ private:
 
     int  mVoiceControlState;
     LLMutex mVoiceStateMutex;
-	void setVoiceControlState(int new_voice_control_state)
+	void setVoiceControlStateUnless(int new_voice_control_state, int unless=-1)
 	{ 
 		LLMutexLock lock(&mVoiceStateMutex);
-		mVoiceControlState = new_voice_control_state; 
+		if (mVoiceControlState != unless)
+		{
+            mVoiceControlState = new_voice_control_state;
+		} 
 	}
     int  getVoiceControlState()
 	{ 
