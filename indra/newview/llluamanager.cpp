@@ -253,3 +253,22 @@ void LLLUAmanager::runScriptLine(const std::string &cmd, script_finished_fn cb)
         }
     });
 }
+
+void LLLUAmanager::runScriptOnLogin()
+{
+    std::string filename = gSavedSettings.getString("AutorunLuaScriptName");
+    if (filename.empty()) 
+    {
+        LL_INFOS() << "Script name wasn't set." << LL_ENDL;
+        return;
+    }
+
+    filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
+    if (!gDirUtilp->fileExists(filename)) 
+    {
+        LL_INFOS() << filename << " was not found." << LL_ENDL;
+        return;
+    }
+
+    runScriptFile(filename);
+}

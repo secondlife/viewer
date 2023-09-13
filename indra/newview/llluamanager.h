@@ -34,6 +34,8 @@ public:
 
     static void runScriptFile(const std::string &filename, script_finished_fn cb = script_finished_fn());
     static void runScriptLine(const std::string &cmd, script_finished_fn cb = script_finished_fn());
+
+    static void runScriptOnLogin();
 };
 
 

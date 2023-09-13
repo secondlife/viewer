@@ -207,6 +207,7 @@
 #include "llstacktrace.h"
 
 #include "threadpool.h"
+#include "llluamanager.h"
 #include "llperfstats.h"
 
 
@@ -2360,6 +2361,8 @@ bool idle_startup()
 		LLUIUsage::instance().clear();
 
         LLPerfStats::StatsRecorder::setAutotuneInit();
+
+        LLLUAmanager::runScriptOnLogin();
 
 		return TRUE;
 	}
