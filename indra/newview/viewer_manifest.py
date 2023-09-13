@@ -28,6 +28,7 @@ $/LicenseInfo$
 """
 import errno
 import glob
+import itertools
 import json
 import os
 import os.path
@@ -718,46 +719,38 @@ class WindowsManifest(ViewerManifest):
             self.package_file = "copied_deps"    
 
     def nsi_file_commands(self, install=True):
-        def wpath(path):
-            if path.endswith('/') or path.endswith(os.path.sep):
-                path = path[:-1]
-            path = path.replace('/', '\\')
-            return path
-
-        result = ""
+        result = []
         dest_files = [pair[1] for pair in self.file_list if pair[0] and os.path.isfile(pair[1])]
         # sort deepest hierarchy first
         dest_files.sort(key=lambda f: (f.count(os.path.sep), f), reverse=True)
         out_path = None
         for pkg_file in dest_files:
-            rel_file = os.path.normpath(pkg_file.replace(self.get_dst_prefix()+os.path.sep,''))
-            installed_dir = wpath(os.path.join('$INSTDIR', os.path.dirname(rel_file)))
-            pkg_file = wpath(os.path.normpath(pkg_file))
-            if installed_dir != out_path:
-                if install:
-                    out_path = installed_dir
-                    result += 'SetOutPath ' + out_path + '\n'
+            pkg_file = os.path.normpath(pkg_file)
+            rel_file = self.relpath(pkg_file)
+            installed_dir = os.path.join('$INSTDIR', os.path.dirname(rel_file))
+            if install and installed_dir != out_path:
+                out_path = installed_dir
+                # emit SetOutPath every time it changes
+                result.append('SetOutPath ' + out_path)
             if install:
-                result += 'File ' + pkg_file + '\n'
+                result.append('File ' + rel_file)
             else:
-                result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
+                # Note that '$INSTDIR' is purely textual here: we write
+                # exactly that into the .nsi file for NSIS to interpret.
+                result.append('Delete ' + os.path.join('$INSTDIR', rel_file))
 
         # at the end of a delete, just rmdir all the directories
         if not install:
-            deleted_file_dirs = [os.path.dirname(pair[1].replace(self.get_dst_prefix()+os.path.sep,'')) for pair in self.file_list]
-            # find all ancestors so that we don't skip any dirs that happened to have no non-dir children
-            deleted_dirs = []
-            for d in deleted_file_dirs:
-                deleted_dirs.extend(path_ancestors(d))
+            deleted_file_dirs = [os.path.dirname(self.relpath(f)) for f in dest_files]
+            # find all ancestors so that we don't skip any dirs that happened
+            # to have no non-dir children
+            deleted_dirs = set(itertools.chain.from_iterable(path_ancestors(d)
+                                                             for d in deleted_file_dirs))
             # sort deepest hierarchy first
-            deleted_dirs.sort(key=lambda f: (f.count(os.path.sep), f), reverse=True)
-            prev = None
-            for d in deleted_dirs:
-                if d != prev:   # skip duplicates
-                    result += 'RMDir ' + wpath(os.path.join('$INSTDIR', os.path.normpath(d))) + '\n'
-                prev = d
+            for d in sorted(deleted_dirs, key=lambda f: (f.count(os.path.sep), f), reverse=True):
+                result.append('RMDir ' + os.path.join('$INSTDIR', os.path.normpath(d)))
 
-        return result
+        return '\n'.join(result)
 
     def package_finish(self):
         # a standard map of strings for replacing in the templates
@@ -854,7 +847,9 @@ class WindowsManifest(ViewerManifest):
         except StopIteration:
             pass
 
-        self.run_command([nsis_path, '/V2', self.dst_path_of(tempfile)])
+        # Because we've written relative pathnames into tempfile, run nsis
+        # with their base directory as current.
+        self.run_command([nsis_path, '/V2', tempfile], cwd=self.get_dst_prefix())
 
         self.sign(installer_file)
         self.created_path(self.dst_path_of(installer_file))
