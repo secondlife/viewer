@@ -522,8 +522,7 @@ class WindowsManifest(ViewerManifest):
                                              'secondlife-bin.*',
                                              '*_Setup.exe',
                                              '*.bat',
-                                             '*.tar.bz2',
-                                             '*.nsi')))
+                                             '*.tar.bz2')))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -831,14 +830,20 @@ class WindowsManifest(ViewerManifest):
         # Check two paths, one for Program Files, and one for Program Files (x86).
         # Yay 64bit windows.
         nsis_path = "makensis.exe"
-        for program_files in '${programfiles}', '${programfiles(x86)}':
-            for nesis_path in 'NSIS', 'NSIS\\Unicode':
-                possible_path = os.path.expandvars(f"{program_files}\\{nesis_path}\\makensis.exe")
-                if os.path.exists(possible_path):
-                    nsis_path = possible_path
-                    break
+        try:
+            for program_files in os.getenv('programfiles'), os.getenv('programfiles(x86)'):
+                if program_files:
+                    for subpath in 'NSIS', r'NSIS\Unicode':
+                        possible_path = os.path.join(program_files, subpath, nsis_path)
+                        if os.path.isfile(possible_path):
+                            nsis_path = possible_path
+                            # don't just break: we need to exit multiple
+                            # levels of 'for' loop
+                            raise StopIteration()
+        except StopIteration:
+            pass
 
-        self.run_command([possible_path, '/V2', self.dst_path_of(tempfile)])
+        self.run_command([nsis_path, '/V2', self.dst_path_of(tempfile)])
 
         self.sign(installer_file)
         self.created_path(self.dst_path_of(installer_file))
