@@ -229,6 +229,7 @@ void LLFloaterForgetUser::forgetUser(const std::string &userid, const std::strin
 {
     // Remove creds
     gSecAPIHandler->removeFromCredentialMap("login_list", grid, userid);
+    gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, userid);
 
     LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(grid);
     if (cred.notNull() && cred->userID() == userid)
