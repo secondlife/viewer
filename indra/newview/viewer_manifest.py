@@ -805,12 +805,22 @@ class WindowsManifest(ViewerManifest):
             engage_registry="SetRegView 32"
             program_files=""
 
+        # Dump the installers/windows directory into the raw app image tree
+        # because NSIS needs those files. But don't use path() because we
+        # don't want them installed with the viewer - they're only for use by
+        # the installer itself.
+        shutil.copytree(os.path.join(self.get_src_prefix(), 'installers', 'windows'),
+                        os.path.join(self.get_dst_prefix(), 'installers', 'windows'))        
+
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
                 "%%VERSION%%":version_vars,
-                "%%SOURCE%%":self.get_src_prefix(),
+                # The template references "%%SOURCE%%\installers\windows\...".
+                # Now that we've copied that directory into the app image
+                # tree, we can just replace %%SOURCE%% with '.'.
+                "%%SOURCE%%":'.',
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%PROGRAMFILES%%":program_files,
