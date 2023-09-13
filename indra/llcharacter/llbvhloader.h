@@ -288,6 +288,7 @@ protected:
 
     void            dumpAssimp();       // Diagnostic dump to file
     void            dumpAssimpAnimations(llofstream & data_stream);
+    void            dumpAssimpAnimationTransform(aiAnimation * cur_animation, llofstream & data_stream);
     void            dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofstream & data_stream);
     void            dumpAssimpAnimationVectorKeys(aiVectorKey * vector_keys, S32 count, llofstream & data_stream);
     void            dumpAssimpAnimationQuatKeys(aiQuatKey * quat_keys, S32 count, llofstream & data_stream);
