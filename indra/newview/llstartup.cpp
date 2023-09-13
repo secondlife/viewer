@@ -3795,7 +3795,9 @@ bool process_login_success_response()
 
 
 	// Only save mfa_hash for future logins if the user wants their info remembered.
-	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && gSavedSettings.getBOOL("RememberPassword"))
+	if(response.has("mfa_hash")
+       && gSavedSettings.getBOOL("RememberUser")
+       && LLLoginInstance::getInstance()->saveMFA())
 	{
 		std::string grid(LLGridManager::getInstance()->getGridId());
 		std::string user_id(gUserCredential->userID());
@@ -3803,6 +3805,13 @@ bool process_login_success_response()
 		// TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
 		gSecAPIHandler->syncProtectedMap();
 	}
+    else if (!LLLoginInstance::getInstance()->saveMFA())
+    {
+        std::string grid(LLGridManager::getInstance()->getGridId());
+        std::string user_id(gUserCredential->userID());
+        gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
+        gSecAPIHandler->syncProtectedMap();
+    }
 
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
