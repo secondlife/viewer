@@ -712,8 +712,6 @@ private:
 	// We should kill the voice daemon in case of connection alert 
 	bool mTerminateDaemon;
 	
-	friend class LLWebRTCProtocolParser;
-	
 	std::string mAccountName;
 	std::string mAccountPassword;
     std::string mChannelSDP;
@@ -954,118 +952,6 @@ private:
     static LLPumpIO* sPump;
 
     LLEventMailDrop mWebRTCPump;
-};
-
-
-/** 
- * @class LLWebRTCProtocolParser
- * @brief This class helps construct new LLIOPipe specializations
- * @see LLIOPipe
- *
- * THOROUGH_DESCRIPTION
- */
-class LLWebRTCProtocolParser : public LLIOPipe
-{
-	LOG_CLASS(LLWebRTCProtocolParser);
-public:
-	LLWebRTCProtocolParser();
-	virtual ~LLWebRTCProtocolParser();
-	
-protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	virtual EStatus process_impl(
-								 const LLChannelDescriptors& channels,
-								 buffer_ptr_t& buffer,
-								 bool& eos,
-								 LLSD& context,
-								 LLPumpIO* pump);
-	//@}
-	
-	std::string 	mInput;
-	
-	// Expat control members
-	XML_Parser		parser;
-	int				responseDepth;
-	bool			ignoringTags;
-	bool			isEvent;
-	int				ignoreDepth;
-	
-	// Members for processing responses. The values are transient and only valid within a call to processResponse().
-	int				returnCode;
-	int				statusCode;
-	std::string		statusString;
-	std::string		requestId;
-	std::string		actionString;
-	std::string		connectorHandle;
-	std::string		versionID;
-	std::string		mBuildID;
-	std::string		accountHandle;
-	std::string		sessionHandle;
-	std::string		sessionGroupHandle;
-	std::string		alias;
-	std::string		applicationString;
-	
-	// Members for processing events. The values are transient and only valid within a call to processResponse().
-	std::string		eventTypeString;
-	int				state;
-	std::string		uriString;
-	bool			isChannel;
-	bool			incoming;
-	bool			enabled;
-	std::string		nameString;
-	std::string		audioMediaString;
-	std::string     deviceString;
-	std::string		displayNameString;
-	int				participantType;
-	bool			isLocallyMuted;
-	bool			isModeratorMuted;
-	bool			isSpeaking;
-	int				volume;
-	F32				energy;
-	std::string		messageHeader;
-	std::string		messageBody;
-	std::string		notificationType;
-	bool			hasText;
-	bool			hasAudio;
-	bool			hasVideo;
-	bool			terminated;
-	std::string		blockMask;
-	std::string		presenceOnly;
-	std::string		autoAcceptMask;
-	std::string		autoAddAsBuddy;
-	int				numberOfAliases;
-	std::string		subscriptionHandle;
-	std::string		subscriptionType;
-	S32				id;
-	std::string		descriptionString;
-	LLDate			expirationDate;
-	bool			hasExpired;
-	S32				fontType;
-	S32				fontStatus;
-	std::string		mediaCompletionType;
-	
-	// Members for processing text between tags
-	std::string		textBuffer;
-	bool			accumulateText;
-	
-	void			reset();
-	
-	void			processResponse(std::string tag);
-	
-	static void XMLCALL ExpatStartTag(void *data, const char *el, const char **attr);
-	static void XMLCALL ExpatEndTag(void *data, const char *el);
-	static void XMLCALL ExpatCharHandler(void *data, const XML_Char *s, int len);
-	
-	void			StartTag(const char *tag, const char **attr);
-	void			EndTag(const char *tag);
-	void			CharData(const char *buffer, int length);
-	LLDate			expiryTimeStampToLLDate(const std::string& WebRTC_ts);
-
 };
 
 class LLWebRTCSecurity :	public LLSingleton<LLWebRTCSecurity>

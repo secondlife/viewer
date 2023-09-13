@@ -341,6 +341,28 @@ void LLWebRTCImpl::setMute(bool mute)
         });
 }
 
+void LLWebRTCImpl::setSpeakerVolume(float volume)
+{
+    mSignalingThread->PostTask(
+        [this, volume]()
+        {
+            auto receivers = mPeerConnection->GetReceivers();
+
+            RTC_LOG(LS_INFO) << __FUNCTION__ << "Set volume" << receivers.size();
+            for (auto &receiver : receivers)
+            {
+                webrtc::MediaStreamTrackInterface *track = receiver->track().get();
+                if (track->kind() == webrtc::MediaStreamTrackInterface::kAudioKind)
+                {
+                    webrtc::AudioTrackInterface* audio_track = static_cast<webrtc::AudioTrackInterface*>(track);
+                    webrtc::AudioSourceInterface* source = audio_track->GetSource();
+                    source->SetVolume(10.0 * volume);
+
+                }
+            }
+        });
+}
+
 //
 // PeerConnectionObserver implementation.
 //

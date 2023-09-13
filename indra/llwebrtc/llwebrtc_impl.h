@@ -125,6 +125,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     // LLWebRTCAudioInterface
     //
     void setMute(bool mute) override;
+    void setSpeakerVolume(float folume) override; // range 0.0-1.0
 
     //
     // PeerConnectionObserver implementation.

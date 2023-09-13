@@ -93,6 +93,7 @@ class LLWebRTCAudioInterface
 {
   public:
     virtual void setMute(bool mute) = 0;
+    virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
 };
 
 class LLWebRTCSignalingObserver
