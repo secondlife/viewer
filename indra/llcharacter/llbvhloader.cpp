@@ -1613,6 +1613,8 @@ void LLBVHLoader::extractJointsFromAssimp()
             mLoopOutPoint = mDuration;
         }
 
+		bool use_resting = true;		//SPATTERS TODO pick this up from UI and apply on demand.
+
         // Extract nodes into mJoints
         for (S32 node_index = 0; node_index < mAssimp.mAnimation->mNumChannels; node_index++)
         {
@@ -1620,25 +1622,6 @@ void LLBVHLoader::extractJointsFromAssimp()
             if (cur_node && cur_node->mNodeName.C_Str())
             {
                 std::string node_name(cur_node->mNodeName.C_Str());
-
-				//SPATTERS Here I am.
-               
-				LLMatrix4 offset_matrix = mAssimp.getOffsetMat4(node_name); //Root is right rest look rotated by root.
-
-				// SPATTERS when importing RESTING_idle.bvh, what we are looking for here are angles that
-                // look like the 0th row in the MOTION section of the BVH (or the inverse would be even better) file.
-                // RESTING_idle was created by using the default bvh output options for the mixamo export type.
-
-				// SPATTERS BEGIN exploratory code:
-
-				LLQuaternion counter_rot(offset_matrix);
-				F32 roll,pitch,yaw;
-                counter_rot.getEulerAngles(&roll, &pitch, &yaw);
-
-				LL_INFOS("SPATTERS") << "SPATTERS joint " << node_name << " transform rotations " << roll*RAD_TO_DEG << ", " << pitch*RAD_TO_DEG << ", " << yaw*RAD_TO_DEG << LL_ENDL;
-
-				//SPATTERS END exploratory code
-
 
                 auto        trans_ptr = mTranslations.find(node_name);
                 if (trans_ptr != mTranslations.end())
@@ -1667,11 +1650,24 @@ void LLBVHLoader::extractJointsFromAssimp()
                         const aiQuatKey &cur_quat = cur_node->mRotationKeys[key_index];
                         LLQuaternion     ll_quat(cur_quat.mValue.x, cur_quat.mValue.y, cur_quat.mValue.z, cur_quat.mValue.w);
                         F32              roll, pitch, yaw;
+
+                        if (use_resting)
+                        {
+                            const aiQuatKey &airesting_quat = cur_node->mRotationKeys[0];
+                            LLQuaternion     resting_quat(airesting_quat.mValue.x,
+                                                          airesting_quat.mValue.y,
+                                                          airesting_quat.mValue.z,
+                                                          airesting_quat.mValue.w);
+                            ll_quat = ll_quat * ~resting_quat;
+                        }
+
                         ll_quat.getEulerAngles(&roll, &pitch, &yaw);
+
                         key.mRot[0] = roll * RAD_TO_DEG;
                         key.mRot[1] = pitch * RAD_TO_DEG;
                         key.mRot[2] = yaw * RAD_TO_DEG;
 
+						
                         if (joint->mNumChannels == 6 && key_index < cur_node->mNumPositionKeys)
                         {
                             const aiVectorKey &cur_vector = cur_node->mPositionKeys[key_index];

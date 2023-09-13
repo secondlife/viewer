@@ -172,7 +172,8 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("priority")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPriority, this));
     getChild<LLUICtrl>("scale")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitScale, this));
     getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
-	getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
+    getChild<LLUICtrl>("use_resting")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitResting, this));
+    getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
 	getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopIn, this, _1));
 	getChild<LLUICtrl>("loop_out_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopOut, this));
 	getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopOut, this, _1));
@@ -348,7 +349,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 			getChild<LLSlider>("playback_slider")->setMaxValue(1.0);
 
 			getChild<LLUICtrl>("loop_check")->setValue(LLSD(motionp->getLoop()));
-			getChild<LLUICtrl>("loop_in_point")->setValue(LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));
+            getChild<LLUICtrl>("loop_in_point")->setValue(LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));
 			getChild<LLUICtrl>("loop_out_point")->setValue(LLSD(motionp->getLoopOut() / motionp->getDuration() * 100.f));
             getChild<LLUICtrl>("priority")->setValue(LLSD((F32) motionp->getPriority()));
             getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
@@ -883,6 +884,34 @@ void LLFloaterBvhPreview::onCommitScale()
 	motionp->adjustPositionScale( scale );
 
 	resetMotion();
+}
+
+//-----------------------------------------------------------------------------
+// onCommitResting()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitResting()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+    // Scale is percentage scale it down.
+    bool use_resting = (bool) getChild<LLUICtrl>("use_resting")->getValue().asReal();
+
+    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+    if (!motionp)
+    {
+        LL_WARNS("BVH") << "onCommitScale() - no motion found for " << mMotionID << LL_ENDL;
+        return;
+    }
+
+	if (use_resting)
+    {
+		LL_INFOS("SPATTERS") << "SPATTERS TODO:  Need to go through the animation and multiply rotation keys by the 0th frame's rotation." << LL_ENDL;
+	}
+
+    resetMotion();
 }
 
 //-----------------------------------------------------------------------------

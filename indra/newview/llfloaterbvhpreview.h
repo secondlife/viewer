@@ -92,6 +92,7 @@ public:
 	void onSliderMove();
 	void onCommitBaseAnim();
 	void onCommitLoop();
+	void onCommitResting();
 	void onCommitLoopIn();
 	void onCommitLoopOut();
 	bool validateLoopIn(const LLSD& data);

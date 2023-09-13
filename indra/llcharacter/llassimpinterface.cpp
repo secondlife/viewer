@@ -26,10 +26,13 @@
 
 #include "linden_common.h"
 #include "llassimpinterface.h"
+#include "lldir.h"
+#include "llsdserialize.h"
 
 #include "assimp/DefaultLogger.hpp"
 #include "assimp/scene.h"           // Output data structure
 #include "assimp/postprocess.h"     // Post processing flags
+
 
 using namespace std;
 
@@ -145,15 +148,6 @@ void LLAssimpInterface::copyMat4(LLMatrix4 &lmat, aiMatrix4x4 &aiMat)
     lmat.mMatrix[3][1] = aiMat.d2;
     lmat.mMatrix[3][2] = aiMat.d3;
     lmat.mMatrix[3][3] = aiMat.d4;
-
-    LL_INFOS("SPATTERS") << "SPATTERS LL: " << lmat.mMatrix[0][0] << ", " << lmat.mMatrix[0][1] << ", " << lmat.mMatrix[0][2] << ", "
-                         << lmat.mMatrix[0][3] << LL_ENDL;
-    LL_INFOS("SPATTERS") << "SPATTERS LL: " << lmat.mMatrix[1][0] << ", " << lmat.mMatrix[1][1] << ", " << lmat.mMatrix[1][2] << ", "
-                         << lmat.mMatrix[1][3] << LL_ENDL;
-    LL_INFOS("SPATTERS") << "SPATTERS LL: " << lmat.mMatrix[2][0] << ", " << lmat.mMatrix[2][1] << ", " << lmat.mMatrix[2][2] << ", "
-                         << lmat.mMatrix[2][3] << LL_ENDL;
-    LL_INFOS("SPATTERS") << "SPATTERS LL: " << lmat.mMatrix[3][0] << ", " << lmat.mMatrix[3][1] << ", " << lmat.mMatrix[3][2] << ", "
-                         << lmat.mMatrix[3][3] << LL_ENDL;
 }
 
 LLMatrix4 LLAssimpInterface::getTransMat4( std::string name )
@@ -179,30 +173,9 @@ LLMatrix4 LLAssimpInterface::getOffsetMat4(std::string name)
     {
         LL_WARNS("assimp") << "Assimp did not have a bone with a name matching " << name << " returning 0 ofset matrix." << LL_ENDL;
     }
-    aiMatrix4x4 cur_ai_transmat = cur_bone->second.mBone->mOffsetMatrix;//.Inverse();        // Counter rotation from resting pos to T.
+    aiMatrix4x4 cur_ai_transmat = cur_bone->second.mBone->mOffsetMatrix;  //.Inverse();        // Counter rotation from resting pos to T.
 
     cur_ai_transmat = cur_ai_transmat * mAIRootTransMat4;
-    copyMat4(cur_transmat, cur_ai_transmat);
-
-    return cur_transmat;
-}
-
-LLMatrix4 LLAssimpInterface::getExperimental(std::string name)
-{
-    //Exploratory code, probably not correct.
-
-    auto cur_bone = mBoneMap.find(name);
-
-    LLMatrix4 cur_transmat;
-
-    if (cur_bone == mBoneMap.end())
-    {
-        LL_WARNS("assimp") << "Assimp did not have a bone with a name matching " << name << " returning 0 ofset matrix." << LL_ENDL;
-    }
-    aiMatrix4x4 cur_ai_transmat = cur_bone->second.mBone->mOffsetMatrix;
-
-
-    cur_ai_transmat = cur_ai_transmat * cur_bone->second.mWorldTransform;
     copyMat4(cur_transmat, cur_ai_transmat);
 
     return cur_transmat;

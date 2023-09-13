@@ -231,6 +231,16 @@ Maximum animation length is [MAX_LENGTH] seconds.
      width="100"
      name="loop_check"
      tool_tip="Makes this animation loop" />
+    <check_box
+     top_pad="0"
+     follows="left|top"
+     height="14"
+     label="Use Resting Pose"
+     layout="topleft"
+     left_pad="10"
+     width="100"
+     name="use_resting"
+     tool_tip="Animations with a default pose of the resting pose will appear twisted. Correct them to TPose." />
     <spinner
      follows="left|top"
      height="23"

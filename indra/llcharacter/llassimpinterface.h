@@ -64,7 +64,6 @@ class LLAssimpInterface
         aiNode* getSceneRootNode();
         LLMatrix4 getTransMat4(std::string name);
         LLMatrix4 getOffsetMat4(std::string name);
-        LLMatrix4 getExperimental(std::string name); //SPATTERS an experiment may not be right.
         aiMatrix4x4 createIdentityMat4();
 
     public:
@@ -73,6 +72,7 @@ class LLAssimpInterface
         aiAnimation* mAnimation;
         aiMatrix4x4 mAIRootTransMat4;
         LLaiBoneMap mBoneMap;
+        LLSD mResting;
 };
 
 #endif // LL_ASSIMPINTERFACE_H
