@@ -603,7 +603,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
 
     U32 retry = 0;
 
-    setVoiceControlState(VOICE_STATE_TP_WAIT);
+    setVoiceControlStateUnless(VOICE_STATE_TP_WAIT, VOICE_STATE_SESSION_RETRY);
 
     do
     {
@@ -628,18 +628,18 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
             }
             else
             {
-                setVoiceControlState(VOICE_STATE_START_SESSION);
+                setVoiceControlStateUnless(VOICE_STATE_START_SESSION, VOICE_STATE_SESSION_RETRY);
             }
             break;
 
         case VOICE_STATE_START_SESSION:
-            if (establishVoiceConnection())
+            if (establishVoiceConnection() && getVoiceControlState() != VOICE_STATE_SESSION_RETRY)
             {
-                setVoiceControlState(VOICE_STATE_WAIT_FOR_SESSION_START);
+                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_SESSION_START, VOICE_STATE_SESSION_RETRY);
             }
             else
             {
-                setVoiceControlState(VOICE_STATE_SESSION_RETRY);
+                setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
             }
             break;
 
@@ -649,23 +649,25 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
 				std::string channel_sdp;
 				{
 					LLMutexLock lock(&mVoiceStateMutex);
-					channel_sdp = mChannelSDP;
-				}
-				if (!channel_sdp.empty() && getVoiceControlState() != VOICE_STATE_SESSION_RETRY)
-				{
-					setVoiceControlState(VOICE_STATE_PROVISION_ACCOUNT);
+					if (mVoiceControlState == VOICE_STATE_SESSION_RETRY)
+					{
+						break;
+					}
+                    if (!mChannelSDP.empty())
+                    {
+                        mVoiceControlState = VOICE_STATE_PROVISION_ACCOUNT;
+                    }
 				}
 				break;
 			}
         case VOICE_STATE_PROVISION_ACCOUNT:
-			// getVoiceControlState() can change while provisionVoiceAccount is happening
-            if (!provisionVoiceAccount() && getVoiceControlState() == VOICE_STATE_SESSION_RETRY)
+            if (!provisionVoiceAccount())
             {
-                setVoiceControlState(VOICE_STATE_SESSION_RETRY);
+                setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
             }
             else 
 			{
-                setVoiceControlState(VOICE_STATE_SESSION_PROVISION_WAIT);
+                setVoiceControlStateUnless(VOICE_STATE_SESSION_PROVISION_WAIT, VOICE_STATE_SESSION_RETRY);
 			}
             break;
         case VOICE_STATE_SESSION_PROVISION_WAIT:
@@ -692,11 +694,11 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                     current_delay++;
                     llcoro::suspendUntilTimeout(1.f);
                 }
-                setVoiceControlState(VOICE_STATE_WAIT_FOR_EXIT);
+                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
             }
             else
             {
-                setVoiceControlState(VOICE_STATE_DONE);
+                setVoiceControlStateUnless(VOICE_STATE_DONE);
             }
             break;
 
@@ -707,7 +709,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                     performMicTuning();
                 }
 
-                setVoiceControlState(VOICE_STATE_WAIT_FOR_CHANNEL);
+                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_CHANNEL, VOICE_STATE_SESSION_RETRY);
             }
             break;
 
@@ -715,7 +717,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
             {
                 if (!waitForChannel())  // todo: split into more states like login/fonts
                 {
-                    setVoiceControlState(VOICE_STATE_DISCONNECT);
+                    setVoiceControlStateUnless(VOICE_STATE_DISCONNECT, VOICE_STATE_SESSION_RETRY);
                 }
 				// on true, it's a retry, so let the state stand.
             }
@@ -725,18 +727,18 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
             LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;
             endAndDisconnectSession();
             retry = 0; // Connected without issues
-            setVoiceControlState(VOICE_STATE_WAIT_FOR_EXIT);
+            setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
             break;
 
         case VOICE_STATE_WAIT_FOR_EXIT:
             if (mRelogRequested && mVoiceEnabled)
             {
                 LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
-                setVoiceControlState(VOICE_STATE_TP_WAIT);
+                setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
             }
             else
             {
-                setVoiceControlState(VOICE_STATE_DONE);
+                setVoiceControlStateUnless(VOICE_STATE_DONE);
             }
             break;
 
@@ -839,7 +841,7 @@ void LLWebRTCVoiceClient::OnVoiceAccountProvisioned(const LLSD& result)
                        << (voicePassword.empty() ? "not set" : "set") << " channel sdp " << channelSDP << LL_ENDL;
 
     setLoginInfo(voiceUserName, voicePassword, channelSDP);
-    setVoiceControlState(VOICE_STATE_SESSION_ESTABLISHED);
+    setVoiceControlStateUnless(VOICE_STATE_SESSION_ESTABLISHED, VOICE_STATE_SESSION_RETRY);
 }
 
 void LLWebRTCVoiceClient::OnVoiceAccountProvisionFailure(std::string url, int retries, LLSD body, const LLSD& result)
@@ -2902,7 +2904,7 @@ void LLWebRTCVoiceClient::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface * 
 void LLWebRTCVoiceClient::OnRenegotiationNeeded()
 {
     LL_INFOS("Voice") << "On Renegotiation Needed." << LL_ENDL;
-    setVoiceControlState(VOICE_STATE_SESSION_RETRY);
+    setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
 }
 
 /////////////////////////////
