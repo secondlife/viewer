@@ -234,7 +234,6 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <check_box
      top_pad="0"
      follows="left|top"
-     height="14"
      label="Use Resting Pose"
      layout="topleft"
      left_pad="10"

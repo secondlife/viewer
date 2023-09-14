@@ -1724,7 +1724,7 @@ void LLBVHLoader::extractJointsFromAssimp()
                                                           airesting_quat.mValue.y,
                                                           airesting_quat.mValue.z,
                                                           airesting_quat.mValue.w);
-                            ll_quat = ll_quat * ~resting_quat;
+                            ll_quat = ~resting_quat * ll_quat;
                         }
 
                         ll_quat.getEulerAngles(&roll, &pitch, &yaw);
