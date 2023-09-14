@@ -425,15 +425,13 @@ void LLWebRTCImpl::OnConnectionChange(webrtc::PeerConnectionInterface::PeerConne
             }
             break;
         }
-        case webrtc::PeerConnectionInterface::PeerConnectionState::kDisconnected:
+        case webrtc::PeerConnectionInterface::PeerConnectionState::kFailed:
         {
-            if (new_state == webrtc::PeerConnectionInterface::PeerConnectionState::kConnected)
+            for (auto &observer : mSignalingObserverList)
             {
-                for (auto &observer : mSignalingObserverList)
-                {
-                    observer->OnRenegotiationNeeded();
-                }
+                observer->OnRenegotiationNeeded();
             }
+
             break;
         }
         default:
