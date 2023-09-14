@@ -169,11 +169,24 @@ int lua_env_setting_event(lua_State *L)
 
 int lua_run_ui_command(lua_State *L)
 {
-	std::string func_name = lua_tostring(L,1);
-	LL_WARNS("LUA") << "running ui func " << func_name << LL_ENDL;
+	int top = lua_gettop(L);
+	std::string func_name;
+	if (top >= 1)
+	{
+		func_name = lua_tostring(L,1);
+	}
+	std::string parameter;
+	if (top >= 2)
+	{
+		parameter = lua_tostring(L,2);
+	}
+	LL_WARNS("LUA") << "running ui func " << func_name << " parameter " << parameter << LL_ENDL;
 	LLSD event;
 	event["function"] = func_name;
-	event["parameter"] = LLSD(); 
+	if (!parameter.empty())
+	{
+		event["parameter"] = parameter; 
+	}
 	sUIListener.call(event);
 
 	return 1;
