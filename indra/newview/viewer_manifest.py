@@ -719,6 +719,16 @@ class WindowsManifest(ViewerManifest):
             self.package_file = "copied_deps"    
 
     def nsi_file_commands(self, install=True):
+        def INSTDIR(path):
+            # Note that '$INSTDIR' is purely textual here: we write
+            # exactly that into the .nsi file for NSIS to interpret.
+            # Pass the result through normpath() to handle the case in which
+            # path is the empty string. On Windows, that produces "$INSTDIR\".
+            # Unfortunately, if that's the last item on a line, NSIS takes
+            # that as line continuation and misinterprets the following line.
+            # Ensure we don't emit a trailing backslash.
+            return os.path.normpath(os.path.join('$INSTDIR', path))
+
         result = []
         dest_files = [pair[1] for pair in self.file_list if pair[0] and os.path.isfile(pair[1])]
         # sort deepest hierarchy first
@@ -727,7 +737,7 @@ class WindowsManifest(ViewerManifest):
         for pkg_file in dest_files:
             pkg_file = os.path.normpath(pkg_file)
             rel_file = self.relpath(pkg_file)
-            installed_dir = os.path.join('$INSTDIR', os.path.dirname(rel_file))
+            installed_dir = INSTDIR(os.path.dirname(rel_file))
             if install and installed_dir != out_path:
                 out_path = installed_dir
                 # emit SetOutPath every time it changes
@@ -735,9 +745,7 @@ class WindowsManifest(ViewerManifest):
             if install:
                 result.append('File ' + rel_file)
             else:
-                # Note that '$INSTDIR' is purely textual here: we write
-                # exactly that into the .nsi file for NSIS to interpret.
-                result.append('Delete ' + os.path.join('$INSTDIR', rel_file))
+                result.append('Delete ' + INSTDIR(rel_file))
 
         # at the end of a delete, just rmdir all the directories
         if not install:
@@ -748,7 +756,7 @@ class WindowsManifest(ViewerManifest):
                                                              for d in deleted_file_dirs))
             # sort deepest hierarchy first
             for d in sorted(deleted_dirs, key=lambda f: (f.count(os.path.sep), f), reverse=True):
-                result.append('RMDir ' + os.path.join('$INSTDIR', os.path.normpath(d)))
+                result.append('RMDir ' + INSTDIR(d))
 
         return '\n'.join(result)
 
@@ -855,7 +863,7 @@ class WindowsManifest(ViewerManifest):
             print(f' {tempfile} '.center(72, '='))
             with open(self.dst_path_of(tempfile)) as nsi:
                 for line in nsi:
-                    print(line)
+                    print(line, end='') # already includes '\n'
             print(72 * '=')
             raise
 
