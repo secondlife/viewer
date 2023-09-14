@@ -38,6 +38,7 @@
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
+#include "lluilistener.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -51,6 +52,9 @@ extern "C"
 #if LL_WINDOWS
 #pragma comment(lib, "liblua54.a")
 #endif
+
+// FIXME extremely hacky way to get to the UI Listener framework. There's almost certainly a cleaner way.
+extern LLUIListener sUIListener;
 
 int lua_printWarning(lua_State *L)
 {
@@ -163,6 +167,18 @@ int lua_env_setting_event(lua_State *L)
     return 1;
 }
 
+int lua_run_ui_command(lua_State *L)
+{
+	std::string func_name = lua_tostring(L,1);
+	LL_WARNS("LUA") << "running ui func " << func_name << LL_ENDL;
+	LLSD event;
+	event["function"] = func_name;
+	event["parameter"] = LLSD(); 
+	sUIListener.call(event);
+
+	return 1;
+}
+
 bool checkLua(lua_State *L, int r, std::string &error_msg)
 {
     if (r != LUA_OK)
@@ -194,6 +210,8 @@ void initLUA(lua_State *L)
 
     lua_register(L, "env_setting_event", lua_env_setting_event);
     lua_register(L, "set_debug_setting_bool", lua_set_debug_setting_bool);
+
+    lua_register(L, "run_ui_command", lua_run_ui_command);
 }
 
 void LLLUAmanager::runScriptFile(const std::string &filename, script_finished_fn cb)

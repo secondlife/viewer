@@ -171,6 +171,8 @@ extern BOOL gShaderProfileFrame;
 // Globals
 //
 
+LLUIListener sUIListener;
+
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
 LLMenuGL		*gPopupMenuView = NULL;
@@ -347,8 +349,6 @@ public:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
-
-static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
