@@ -37,6 +37,8 @@
 namespace llwebrtc
 {
 
+const float VOLUME_SCALE_WEBRTC = 3.0f;
+
 void LLWebRTCImpl::init()
 {
     mAnswerReceived = false;
@@ -356,7 +358,7 @@ void LLWebRTCImpl::setSpeakerVolume(float volume)
                 {
                     webrtc::AudioTrackInterface* audio_track = static_cast<webrtc::AudioTrackInterface*>(track);
                     webrtc::AudioSourceInterface* source = audio_track->GetSource();
-                    source->SetVolume(10.0 * volume);
+                    source->SetVolume(VOLUME_SCALE_WEBRTC * volume);
 
                 }
             }

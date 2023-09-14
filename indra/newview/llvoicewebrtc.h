@@ -829,7 +829,7 @@ private:
 	
 	bool		mSpeakerVolumeDirty;
 	bool		mSpeakerMuteDirty;
-	int			mSpeakerVolume;
+	float		mSpeakerVolume;
 
 	int			mMicVolume;
 	bool		mMicVolumeDirty;

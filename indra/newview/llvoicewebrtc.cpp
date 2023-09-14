@@ -833,7 +833,6 @@ void LLWebRTCVoiceClient::OnVoiceAccountProvisioned(const LLSD& result)
                        << (voicePassword.empty() ? "not set" : "set") << " channel sdp " << channelSDP << LL_ENDL;
 
     setLoginInfo(voiceUserName, voicePassword, channelSDP);
-    setVoiceControlStateUnless(VOICE_STATE_SESSION_ESTABLISHED, VOICE_STATE_SESSION_RETRY);
 }
 
 void LLWebRTCVoiceClient::OnVoiceAccountProvisionFailure(std::string url, int retries, LLSD body, const LLSD& result)
@@ -1518,6 +1517,10 @@ bool LLWebRTCVoiceClient::runSession(const sessionStatePtr_t &session)
         {
             return false;
         }
+        if (getVoiceControlState() == VOICE_STATE_SESSION_RETRY) 
+		{
+			break; 
+		}
 
         if (mSessionTerminateRequested)
         {
@@ -2825,17 +2828,20 @@ void LLWebRTCVoiceClient::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface * 
 {
     LL_INFOS("Voice") << "On AudioEstablished." << LL_ENDL;
     mWebRTCAudioInterface = audio_interface;
+    float speaker_volume  = 0;
     audio_interface->setMute(true);
     {
         LLMutexLock lock(&mVoiceStateMutex);
-
-        audio_interface->setSpeakerVolume(mSpeakerVolume);
+        speaker_volume = mSpeakerVolume;
     }
+	audio_interface->setSpeakerVolume(mSpeakerVolume);
+    setVoiceControlStateUnless(VOICE_STATE_SESSION_ESTABLISHED, VOICE_STATE_SESSION_RETRY);
 }
 
 void LLWebRTCVoiceClient::OnRenegotiationNeeded()
 {
     LL_INFOS("Voice") << "On Renegotiation Needed." << LL_ENDL;
+    mRelogRequested = TRUE;
     setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
 }
 
