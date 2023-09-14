@@ -1012,20 +1012,16 @@ BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (mSelectedItemIDs.size() > 0)
     {
-        selection_deque::iterator iter = mSelectedItemIDs.begin();
-        if (mItemMap[*iter])
-        {
-            mItemMap[*iter]->setFocus(false);
-            setFocus(true);
-        }
+        setFocus(true);
     }
-    clearSelection();
+    mLastInteractedUUID = LLUUID::null;
 
     // Scroll is going to always return true
     BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
 
-    if (mSelectedItemIDs.empty())
+    if (mLastInteractedUUID.isNull()) // no child were hit
     {
+        clearSelection();
         if (mInventoryGalleryMenu && mFolderID.notNull())
         {
             uuid_vec_t selected_uuids;
@@ -1487,6 +1483,7 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
         && std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) != mSelectedItemIDs.end())
     {
         // Already selected
+        mLastInteractedUUID = item_id;
         return;
     }
 
@@ -1514,6 +1511,7 @@ void LLInventoryGallery::addItemSelection(const LLUUID& item_id, bool scroll_to_
     if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) != mSelectedItemIDs.end())
     {
         // Already selected
+        mLastInteractedUUID = item_id;
         return;
     }
 
@@ -2707,7 +2705,7 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         mGallery->toggleSelectionRangeFromLast(mUUID);
     }
-    else if (!isSelected())
+    else
     {
         mGallery->changeItemSelection(mUUID, false);
     }
@@ -2724,6 +2722,15 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+    if (!isSelected())
+    {
+        mGallery->changeItemSelection(mUUID, false);
+    }
+    else
+    {
+        // refresh last interacted
+        mGallery->addItemSelection(mUUID, false);
+    }
     setFocus(TRUE);
     mGallery->claimEditHandler();
     mGallery->showContextMenu(this, x, y, mUUID);
