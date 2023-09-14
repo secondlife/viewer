@@ -849,7 +849,15 @@ class WindowsManifest(ViewerManifest):
 
         # Because we've written relative pathnames into tempfile, run nsis
         # with their base directory as current.
-        self.run_command([nsis_path, '/V2', tempfile], cwd=self.get_dst_prefix())
+        try:
+            self.run_command([nsis_path, '/V2', tempfile], cwd=self.get_dst_prefix())
+        except ManifestError as err:
+            print(f' {tempfile} '.center(72, '='))
+            with open(self.dst_path_of(tempfile)) as nsi:
+                for line in nsi:
+                    print(line)
+            print(72 * '=')
+            raise
 
         self.sign(installer_file)
         self.created_path(self.dst_path_of(installer_file))
