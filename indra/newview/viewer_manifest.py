@@ -996,7 +996,8 @@ class DarwinManifest(ViewerManifest):
                     # work, we need the build to noisily fail!
                     oldpath = subprocess.check_output(
                         ['objdump', '--macho', '--dylib-id', '--non-verbose',
-                         os.path.join(relpkgdir, "BugsplatMac.framework", "BugsplatMac")]
+                         os.path.join(relpkgdir, "BugsplatMac.framework", "BugsplatMac")],
+                        text=True
                         ).splitlines()[-1]  # take the last line of output
                     self.run_command(
                         ['install_name_tool', '-change', oldpath,
