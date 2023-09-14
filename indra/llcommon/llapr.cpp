@@ -38,6 +38,12 @@ const S32 FULL_VOLATILE_APR_POOL = 1024 ; //number of references to LLVolatileAP
 
 bool gAPRInitialized = false;
 
+int abortfunc(int retcode)
+{
+    LL_WARNS("APR") << "Allocation failure in apr pool with code " << (S32)retcode << LL_ENDL;
+    return 0;
+}
+
 void ll_init_apr()
 {
 	// Initialize APR and create the global pool
@@ -45,7 +51,7 @@ void ll_init_apr()
 	
 	if (!gAPRPoolp)
 	{
-		apr_pool_create(&gAPRPoolp, NULL);
+		apr_pool_create_ex(&gAPRPoolp, NULL, abortfunc, NULL);
 	}
 
 	if(!LLAPRFile::sAPRFilePoolp)
