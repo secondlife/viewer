@@ -58,6 +58,7 @@
 #include "llsdutil.h"
 #include <deque>
 
+const S32 LLInventoryFetchItemsObserver::MAX_INDIVIDUAL_ITEM_REQUESTS = 7;
 const F32 LLInventoryFetchItemsObserver::FETCH_TIMER_EXPIRY = 60.0f;
 
 
@@ -334,10 +335,9 @@ void LLInventoryFetchItemsObserver::startFetch()
 
     if (aisv3)
     {
-        const S32 MAX_INDIVIDUAL_REQUESTS = 7;
         for (requests_by_folders_t::value_type &folder : requests)
         {
-            if (folder.second.size() > MAX_INDIVIDUAL_REQUESTS)
+            if (folder.second.size() > MAX_INDIVIDUAL_ITEM_REQUESTS)
             {
                 // requesting one by one will take a while
                 // do whole folder

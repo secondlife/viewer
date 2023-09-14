@@ -104,6 +104,9 @@ public:
 
 	/*virtual*/ void startFetch();
 	/*virtual*/ void changed(U32 mask);
+
+    // For attempts to group requests if too many items are requested
+    static const S32 MAX_INDIVIDUAL_ITEM_REQUESTS;
 private:
 	LLTimer mFetchingPeriod;
 

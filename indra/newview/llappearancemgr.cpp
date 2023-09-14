@@ -4486,8 +4486,7 @@ public:
                     // AIS can fetch couple items, but if there
                     // is more than a dozen it will be very slow
                     // it's faster to get whole folder in such case
-                    const S32 MAX_INDIVIDUAL_FETCH = 10;
-                    if (incomplete_count > MAX_INDIVIDUAL_FETCH
+                    if (incomplete_count > LLInventoryFetchItemsObserver::MAX_INDIVIDUAL_ITEM_REQUESTS
                         || (incomplete_count > 1 && complete_count == 0))
                     {
                         LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch(*it, true);
