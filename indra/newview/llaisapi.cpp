@@ -741,8 +741,10 @@ void AISAPI::FetchCategoryLinks(const LLUUID &catId, completion_t callback)
         (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend),
         _1, _2, _3, _5, _6);
 
+    LLSD body;
+    body["depth"] = 0;
     LLCoprocedureManager::CoProcedure_t proc(
-        boost::bind(&AISAPI::InvokeAISCommandCoro, _1, getFn, url, LLUUID::null, LLSD(), callback, FETCHCATEGORYLINKS));
+        boost::bind(&AISAPI::InvokeAISCommandCoro, _1, getFn, url, LLUUID::null, body, callback, FETCHCATEGORYLINKS));
 
     EnqueueAISCommand("FetchCategoryLinks", proc);
 }
@@ -1337,13 +1339,6 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
         return;
     }
 
-	// Check descendent count first, as it may be needed
-	// to populate newly created categories
-	if (category_map.has("_embedded"))
-	{
-		parseDescendentCount(category_id, category_map["_embedded"]);
-	}
-
 	LLPointer<LLViewerInventoryCategory> new_cat;
 	if (curr_cat)
 	{
@@ -1366,6 +1361,13 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 	// *NOTE: unpackMessage does not unpack version or descendent count.
 	if (rv)
 	{
+        // Check descendent count first, as it may be needed
+        // to populate newly created categories
+        if (category_map.has("_embedded"))
+        {
+            parseDescendentCount(category_id, new_cat->getPreferredType(), category_map["_embedded"]);
+        }
+
         if (mFetch)
         {
             uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
@@ -1379,10 +1381,20 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
                 // set version only if we are sure this update has full data and embeded items
                 // since viewer uses version to decide if folder and content still need fetching
                 if (version > LLViewerInventoryCategory::VERSION_UNKNOWN
-                    && (depth >= 0 || (curr_cat && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN)))
+                    && depth >= 0)
                 {
-                    LL_DEBUGS("Inventory") << "Setting version to " << version
-                        << " for category " << category_id << LL_ENDL;
+                    if (curr_cat && curr_cat->getVersion() > version)
+                    {
+                        LL_WARNS("Inventory") << "Version was " << curr_cat->getVersion()
+                            << ", but fetch returned version " << version
+                            << " for category " << category_id << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_DEBUGS("Inventory") << "Setting version to " << version
+                            << " for category " << category_id << LL_ENDL;
+                    }
+
                     new_cat->setVersion(version);
                 }
             }
@@ -1445,27 +1457,21 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 	}
 }
 
-void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embedded)
+void AISUpdate::parseDescendentCount(const LLUUID& category_id, LLFolderType::EType type, const LLSD& embedded)
 {
-    if (mType == AISAPI::FETCHCOF)
+    // We can only determine true descendent count if this contains all descendent types.
+    if (embedded.has("categories") &&
+        embedded.has("links") &&
+        embedded.has("items"))
     {
-        // contains only links
-        if (embedded.has("links"))
-        {
-            mCatDescendentsKnown[category_id] = embedded["links"].size();
-        }
+        mCatDescendentsKnown[category_id] = embedded["categories"].size();
+        mCatDescendentsKnown[category_id] += embedded["links"].size();
+        mCatDescendentsKnown[category_id] += embedded["items"].size();
     }
-    else
+    else if (mFetch && embedded.has("links") && (type == LLFolderType::FT_CURRENT_OUTFIT || type == LLFolderType::FT_OUTFIT))
     {
-        // We can only determine true descendent count if this contains all descendent types.
-        if (embedded.has("categories") &&
-            embedded.has("links") &&
-            embedded.has("items"))
-        {
-            mCatDescendentsKnown[category_id] = embedded["categories"].size();
-            mCatDescendentsKnown[category_id] += embedded["links"].size();
-            mCatDescendentsKnown[category_id] += embedded["items"].size();
-        }
+        // COF and outfits contain links only
+        mCatDescendentsKnown[category_id] = embedded["links"].size();
     }
 }
 

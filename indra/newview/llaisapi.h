@@ -118,7 +118,7 @@ public:
 	void parseLink(const LLSD& link_map, S32 depth);
 	void parseItem(const LLSD& link_map);
 	void parseCategory(const LLSD& link_map, S32 depth);
-	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
+	void parseDescendentCount(const LLUUID& category_id, LLFolderType::EType type, const LLSD& embedded);
 	void parseEmbedded(const LLSD& embedded, S32 depth);
 	void parseEmbeddedLinks(const LLSD& links, S32 depth);
 	void parseEmbeddedItems(const LLSD& items);

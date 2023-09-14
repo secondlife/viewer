@@ -334,21 +334,14 @@ void LLInventoryFetchItemsObserver::startFetch()
 
     if (aisv3)
     {
-        const S32 MAX_INDIVIDUAL_REQUESTS = 10;
+        const S32 MAX_INDIVIDUAL_REQUESTS = 7;
         for (requests_by_folders_t::value_type &folder : requests)
         {
-            LLViewerInventoryCategory* cat = gInventory.getCategory(folder.first);
             if (folder.second.size() > MAX_INDIVIDUAL_REQUESTS)
             {
                 // requesting one by one will take a while
                 // do whole folder
-                if (cat)
-                {
-                    // Either drop version or use scheduleFolderFetch to force-fetch
-                    // otherwise background fetch will ignore folders with set version
-                    cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
-                }
-                LLInventoryModelBackgroundFetch::getInstance()->start(folder.first);
+                LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
             }
             else
             {
@@ -360,12 +353,11 @@ void LLInventoryFetchItemsObserver::startFetch()
                         // start fetching whole folder since it's not ready either way
                         cat->fetch();
                     }
-                    else if (cat->getViewerDescendentCount() <= folder.second.size())
+                    else if (cat->getViewerDescendentCount() <= folder.second.size()
+                             || cat->getDescendentCount() <= folder.second.size())
                     {
                         // Start fetching whole folder since we need all items
-                        // Drop version or use scheduleFolderFetch
-                        cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
-                        cat->fetch();
+                        LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
 
                     }
                     else
@@ -382,6 +374,7 @@ void LLInventoryFetchItemsObserver::startFetch()
                     // Isn't supposed to happen? We should have all folders
                     // and if item exists, folder is supposed to exist as well.
                     llassert(false);
+                    LL_WARNS("Inventory") << "Missing folder: " << folder.first << " fetching items individually" << LL_ENDL;
 
                     // get items one by one
                     for (LLUUID &item_id : folder.second)
