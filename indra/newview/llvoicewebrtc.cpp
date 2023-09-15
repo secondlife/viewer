@@ -704,7 +704,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                 break;
 
             case VOICE_STATE_WAIT_FOR_EXIT:
-                if (mRelogRequested && mVoiceEnabled)
+                if (mVoiceEnabled)
                 {
                     LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
                     setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
