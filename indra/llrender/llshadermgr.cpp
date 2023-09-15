@@ -588,11 +588,22 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
 		else
 		{
-			//set version to 1.40
-			shader_code_text[shader_code_count++] = strdup("#version 140\n");
-			//some implementations of GLSL 1.30 require integer precision be explicitly declared
-			extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
-			extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
+            if (type == GL_GEOMETRY_SHADER)
+            {
+                //set version to 1.50
+                shader_code_text[shader_code_count++] = strdup("#version 150\n");
+                //some implementations of GLSL 1.30 require integer precision be explicitly declared
+                extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
+                extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
+            }
+            else
+            {
+                //set version to 1.40
+                shader_code_text[shader_code_count++] = strdup("#version 140\n");
+                //some implementations of GLSL 1.30 require integer precision be explicitly declared
+                extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
+                extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
+            }
 		}
 
 		extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
@@ -1452,6 +1463,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("water_edge");
     mReservedUniforms.push_back("sun_up_factor");
     mReservedUniforms.push_back("moonlight_color");
+
+    mReservedUniforms.push_back("debug_normal_draw_length");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

@@ -91,6 +91,8 @@ LLGLSLShader	gTwoTextureCompareProgram;
 LLGLSLShader	gOneTextureFilterProgram;
 LLGLSLShader	gDebugProgram;
 LLGLSLShader    gSkinnedDebugProgram;
+LLGLSLShader	gNormalDebugProgram[NORMAL_DEBUG_SHADER_COUNT];
+LLGLSLShader	gSkinnedNormalDebugProgram[NORMAL_DEBUG_SHADER_COUNT];
 LLGLSLShader	gClipProgram;
 LLGLSLShader	gAlphaMaskProgram;
 LLGLSLShader	gBenchmarkProgram;
@@ -2690,6 +2692,33 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gDebugProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = make_rigged_variant(gDebugProgram, gSkinnedDebugProgram);
 		success = success && gDebugProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+        for (S32 variant = 0; variant < NORMAL_DEBUG_SHADER_COUNT; ++variant)
+        {
+            LLGLSLShader& shader = gNormalDebugProgram[variant];
+            LLGLSLShader& skinned_shader = gSkinnedNormalDebugProgram[variant];
+            shader.mName = "Normal Debug Shader";
+            shader.mShaderFiles.clear();
+            shader.mShaderFiles.push_back(make_pair("interface/normaldebugV.glsl", GL_VERTEX_SHADER));
+            // *NOTE: Geometry shaders have a reputation for being slow.
+            // Consider using compute shaders instead, which have a reputation
+            // for being fast. This geometry shader in particular seems to run
+            // fine on my machine, but I won't vouch for this in
+            // performance-critical areas.  -Cosmic,2023-09-28
+            shader.mShaderFiles.push_back(make_pair("interface/normaldebugG.glsl", GL_GEOMETRY_SHADER));
+            shader.mShaderFiles.push_back(make_pair("interface/normaldebugF.glsl", GL_FRAGMENT_SHADER));
+            shader.mRiggedVariant = &skinned_shader;
+            shader.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+            if (variant == NORMAL_DEBUG_SHADER_WITH_TANGENTS)
+            {
+                shader.addPermutation("HAS_ATTRIBUTE_TANGENT", "1");
+            }
+            success = make_rigged_variant(shader, skinned_shader);
+            success = success && shader.createShader(NULL, NULL);
+        }
 	}
 
 	if (success)
