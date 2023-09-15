@@ -246,15 +246,15 @@ bool LLWebRTCImpl::initializeConnection()
     config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     webrtc::PeerConnectionInterface::IceServer server;
     server.uri = "stun:stun.l.google.com:19302";
-    // config.servers.push_back(server);
-    // server.uri = "stun:stun1.l.google.com:19302";
-    // config.servers.push_back(server);
-    // server.uri = "stun:stun2.l.google.com:19302";
-    // config.servers.push_back(server);
-    // server.uri = "stun:stun3.l.google.com:19302";
-    // config.servers.push_back(server);
-    // server.uri = "stun:stun4.l.google.com:19302";
-    // config.servers.push_back(server);
+    config.servers.push_back(server);
+    server.uri = "stun:stun1.l.google.com:19302";
+    config.servers.push_back(server);
+    server.uri = "stun:stun2.l.google.com:19302";
+    config.servers.push_back(server);
+    server.uri = "stun:stun3.l.google.com:19302";
+    config.servers.push_back(server);
+    server.uri = "stun:stun4.l.google.com:19302";
+    config.servers.push_back(server);
 
     webrtc::PeerConnectionDependencies pc_dependencies(this);
     auto error_or_peer_connection = mPeerConnectionFactory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));

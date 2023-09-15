@@ -595,7 +595,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
 
     U32 retry = 0;
 
-    setVoiceControlStateUnless(VOICE_STATE_TP_WAIT, VOICE_STATE_SESSION_RETRY);
+    setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
 
     do
     {
@@ -611,90 +611,89 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
 
         switch (getVoiceControlState())
         {
-        case VOICE_STATE_TP_WAIT:
-            // starting point for voice
-            if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+            case VOICE_STATE_TP_WAIT:
+                // starting point for voice
+                if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+                {
+                    LL_DEBUGS("Voice") << "Suspending voiceControlCoro() momentarily for teleport. Tuning: " << mTuningMode
+                                       << ". Relog: " << mRelogRequested << LL_ENDL;
+                    llcoro::suspendUntilTimeout(1.0);
+                }
+                else
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_START_SESSION, VOICE_STATE_SESSION_RETRY);
+                }
+                break;
+
+            case VOICE_STATE_START_SESSION:
+                if (establishVoiceConnection() && getVoiceControlState() != VOICE_STATE_SESSION_RETRY)
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_SESSION_START, VOICE_STATE_SESSION_RETRY);
+                }
+                else
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
+                }
+                break;
+
+            case VOICE_STATE_WAIT_FOR_SESSION_START:
             {
-                LL_DEBUGS("Voice") << "Suspending voiceControlCoro() momentarily for teleport. Tuning: " << mTuningMode << ". Relog: " << mRelogRequested << LL_ENDL;
                 llcoro::suspendUntilTimeout(1.0);
-            }
-            else
-            {
-                setVoiceControlStateUnless(VOICE_STATE_START_SESSION, VOICE_STATE_SESSION_RETRY);
-            }
-            break;
-
-        case VOICE_STATE_START_SESSION:
-            if (establishVoiceConnection() && getVoiceControlState() != VOICE_STATE_SESSION_RETRY)
-            {
-                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_SESSION_START, VOICE_STATE_SESSION_RETRY);
-            }
-            else
-            {
-                setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
-            }
-            break;
-
-        case VOICE_STATE_WAIT_FOR_SESSION_START:
-			{
-				llcoro::suspendUntilTimeout(1.0);
-				std::string channel_sdp;
-				{
-					LLMutexLock lock(&mVoiceStateMutex);
-					if (mVoiceControlState == VOICE_STATE_SESSION_RETRY)
-					{
-						break;
-					}
+                std::string channel_sdp;
+                {
+                    LLMutexLock lock(&mVoiceStateMutex);
+                    if (mVoiceControlState == VOICE_STATE_SESSION_RETRY)
+                    {
+                        break;
+                    }
                     if (!mChannelSDP.empty())
                     {
                         mVoiceControlState = VOICE_STATE_PROVISION_ACCOUNT;
                     }
-				}
-				break;
-			}
-        case VOICE_STATE_PROVISION_ACCOUNT:
-            if (!provisionVoiceAccount())
-            {
-                setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
-            }
-            else 
-			{
-                setVoiceControlStateUnless(VOICE_STATE_SESSION_PROVISION_WAIT, VOICE_STATE_SESSION_RETRY);
-			}
-            break;
-        case VOICE_STATE_SESSION_PROVISION_WAIT:
-            llcoro::suspendUntilTimeout(1.0);
-            break;
-
-
-        case VOICE_STATE_SESSION_RETRY:
-            giveUp(); // cleans sockets and session
-            if (mRelogRequested)
-            {
-                // We failed to connect, give it a bit time before retrying.
-                retry++;
-                F32 full_delay = llmin(5.f * (F32)retry, 60.f);
-                F32 current_delay = 0.f;
-                LL_INFOS("Voice") << "Voice failed to establish session after " << retry
-                                  << " tries. Will attempt to reconnect in " << full_delay
-                                  << " seconds" << LL_ENDL;
-                while (current_delay < full_delay && !sShuttingDown)
-                {
-                    // Assuming that a second has passed is not accurate,
-                    // but we don't need accurancy here, just to make sure
-                    // that some time passed and not to outlive voice itself
-                    current_delay++;
-                    llcoro::suspendUntilTimeout(1.f);
                 }
-                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
+                break;
             }
-            else
-            {
-                setVoiceControlStateUnless(VOICE_STATE_DONE);
-            }
-            break;
+            case VOICE_STATE_PROVISION_ACCOUNT:
+                if (!provisionVoiceAccount())
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
+                }
+                else
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_SESSION_PROVISION_WAIT, VOICE_STATE_SESSION_RETRY);
+                }
+                break;
+            case VOICE_STATE_SESSION_PROVISION_WAIT:
+                llcoro::suspendUntilTimeout(1.0);
+                break;
 
-        case VOICE_STATE_SESSION_ESTABLISHED:
+            case VOICE_STATE_SESSION_RETRY:
+                giveUp();  // cleans sockets and session
+                if (mRelogRequested)
+                {
+                    // We failed to connect, give it a bit time before retrying.
+                    retry++;
+                    F32 full_delay    = llmin(5.f * (F32) retry, 60.f);
+                    F32 current_delay = 0.f;
+                    LL_INFOS("Voice") << "Voice failed to establish session after " << retry << " tries. Will attempt to reconnect in "
+                                      << full_delay << " seconds" << LL_ENDL;
+                    while (current_delay < full_delay && !sShuttingDown)
+                    {
+                        // Assuming that a second has passed is not accurate,
+                        // but we don't need accurancy here, just to make sure
+                        // that some time passed and not to outlive voice itself
+                        current_delay++;
+                        llcoro::suspendUntilTimeout(1.f);
+                    }
+                    setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
+                }
+                else
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_DONE);
+                }
+                break;
+
+            case VOICE_STATE_SESSION_ESTABLISHED:
             {
                 if (mTuningMode)
                 {
@@ -705,39 +704,52 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
             }
             break;
 
-        case VOICE_STATE_WAIT_FOR_CHANNEL:
+            case VOICE_STATE_WAIT_FOR_CHANNEL:
             {
-                if (!waitForChannel())  // todo: split into more states like login/fonts
+                if ((!waitForChannel()) || !mVoiceEnabled)  // todo: split into more states like login/fonts
                 {
                     setVoiceControlStateUnless(VOICE_STATE_DISCONNECT, VOICE_STATE_SESSION_RETRY);
                 }
-				// on true, it's a retry, so let the state stand.
+                // on true, it's a retry, so let the state stand.
             }
             break;
 
-        case VOICE_STATE_DISCONNECT:
-            LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;
-            endAndDisconnectSession();
-            retry = 0; // Connected without issues
-            setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
-            break;
+            case VOICE_STATE_DISCONNECT:
+                LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;
+                breakVoiceConnection(true);
+                retry = 0;  // Connected without issues
+                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
+                break;
 
-        case VOICE_STATE_WAIT_FOR_EXIT:
-            if (mRelogRequested && mVoiceEnabled)
+            case VOICE_STATE_WAIT_FOR_EXIT:
+                if (mRelogRequested && mVoiceEnabled)
+                {
+                    LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
+                    setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
+                }
+                else
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_DONE);
+                }
+                break;
+
+            case VOICE_STATE_DONE:
+                if (mVoiceEnabled)
+                {
+                    setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
+                }
+                else 
+				{
+                    llcoro::suspendUntilTimeout(1.0);
+				}
+                break;
+            default:
             {
-                LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
-                setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
+                LL_WARNS("Voice") << "Unknown voice control state " << getVoiceControlState() << LL_ENDL;
+                break;
             }
-            else
-            {
-                setVoiceControlStateUnless(VOICE_STATE_DONE);
-            }
-            break;
-
-        case VOICE_STATE_DONE:
-            break;
         }
-    } while (getVoiceControlState() > 0);
+    } while (true);
 
     if (sShuttingDown)
     {
@@ -747,15 +759,6 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
 
     mIsCoroutineActive = false;
     LL_INFOS("Voice") << "exiting" << LL_ENDL;
-}
-
-bool LLWebRTCVoiceClient::endAndDisconnectSession()
-{
-    LL_DEBUGS("Voice") << LL_ENDL;
-
-    breakVoiceConnection(true);
-
-    return true;
 }
 
 bool LLWebRTCVoiceClient::callbackEndDaemon(const LLSD& data)
@@ -883,57 +886,40 @@ bool LLWebRTCVoiceClient::establishVoiceConnection()
 
 bool LLWebRTCVoiceClient::breakVoiceConnection(bool corowait)
 {
-    LL_DEBUGS("Voice") << "( wait=" << corowait << ")" << LL_ENDL;
-    bool retval(true);
 
-    mShutdownComplete = false;
-    connectorShutdown();
+	LL_INFOS("Voice") << "Breaking voice account." << LL_ENDL;
 
-    if (corowait)
+    while ((!gAgent.getRegion() || !gAgent.getRegion()->capabilitiesReceived()) && !sShuttingDown)
     {
-        LLSD timeoutResult(LLSDMap("connector", "timeout"));
-
-        LLSD result = llcoro::suspendUntilEventOnWithTimeout(mWebRTCPump, LOGOUT_ATTEMPT_TIMEOUT, timeoutResult);
-        LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
-
-        retval = result.has("connector");
-    }
-    else
-    {
-        mRelogRequested = false; //stop the control coro
-        // If we are not doing a corowait then we must sleep until the connector has responded
-        // otherwise we may very well close the socket too early.
-#if LL_WINDOWS
-        if (!mShutdownComplete)
-        {
-            // The situation that brings us here is a call from ::terminate()
-            // At this point message system is already down so we can't wait for
-            // the message, yet we need to receive "connector shutdown response".
-            // Either wait a bit and emulate it or check gMessageSystem for specific message
-            _sleep(1000);
-            if (sConnected)
-            {
-                sConnected = false;
-                LLSD WebRTCevent(LLSDMap("connector", LLSD::Boolean(false)));
-                mWebRTCPump.post(WebRTCevent);
-            }
-            mShutdownComplete = true;
-        }
-#endif
+		LL_DEBUGS("Voice") << "no capabilities for voice breaking; waiting " << LL_ENDL;
+		// *TODO* Pump a message for wake up.
+		llcoro::suspend();
     }
 
-    LL_DEBUGS("Voice") << "closing SLVoice socket" << LL_ENDL;
-    closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
-    cleanUp();
-    sConnected = false;
+    if (sShuttingDown)
+    {
+		return false;
+    }
 
-    return retval;
+    std::string url = gAgent.getRegionCapability("ProvisionVoiceAccountRequest");
+
+    LL_DEBUGS("Voice") << "region ready for voice break; url=" << url << LL_ENDL;
+
+    LL_DEBUGS("Voice") << "sending ProvisionVoiceAccountRequest (breaking) (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
+
+    LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("parcelVoiceInfoRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
+
+    LLVoiceWebRTCStats::getInstance()->provisionAttemptStart();
+    LLSD body;
+    body["logout"] = TRUE;
+    httpAdapter->postAndSuspend(httpRequest, url, body);
+    return true;
 }
 
 bool LLWebRTCVoiceClient::loginToWebRTC()
 {
-
-
     mRelogRequested = false;
     mIsLoggedIn = true;
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
@@ -956,41 +942,9 @@ void LLWebRTCVoiceClient::logoutOfWebRTC(bool wait)
 {
     if (mIsLoggedIn)
     {
-        // Ensure that we'll re-request provisioning before logging in again
         mAccountPassword.clear();
-
-        logoutSendMessage();
-
-        if (wait)
-        {
-            LLSD timeoutResult(LLSDMap("logout", "timeout"));
-            LLSD result;
-
-            do
-            {
-                LL_DEBUGS("Voice")
-                    << "waiting for logout response on "
-                    << mWebRTCPump.getName()
-                    << LL_ENDL;
-
-                result = llcoro::suspendUntilEventOnWithTimeout(mWebRTCPump, LOGOUT_ATTEMPT_TIMEOUT, timeoutResult);
-
-                if (sShuttingDown)
-                {
-                    break;
-                }
-
-                LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
-                // Don't get confused by prior queued events -- note that it's
-                // very important that mWebRTCPump is an LLEventMailDrop, which
-                // does queue events.
-            } while (! result["logout"]);
-        }
-        else
-        {
-            LL_DEBUGS("Voice") << "not waiting for logout" << LL_ENDL;
-        }
-
+        breakVoiceConnection(wait);
+        // Ensure that we'll re-request provisioning before logging in again
         mIsLoggedIn = false;
     }
 }
@@ -1314,10 +1268,7 @@ typedef enum e_voice_wait_for_channel_state
     VOICE_CHANNEL_STATE_START_CHANNEL_PROCESSING,
     VOICE_CHANNEL_STATE_PROCESS_CHANNEL,
     VOICE_CHANNEL_STATE_NEXT_CHANNEL_DELAY,
-    VOICE_CHANNEL_STATE_NEXT_CHANNEL_CHECK,
-    VOICE_CHANNEL_STATE_LOGOUT,
-    VOICE_CHANNEL_STATE_RELOG,
-    VOICE_CHANNEL_STATE_DONE,
+    VOICE_CHANNEL_STATE_NEXT_CHANNEL_CHECK
 } EVoiceWaitForChannelState;
 
 bool LLWebRTCVoiceClient::waitForChannel()
@@ -1422,52 +1373,8 @@ bool LLWebRTCVoiceClient::waitForChannel()
                     << " RelogRequested=" << mRelogRequested
                     << " VoiceEnabled=" << mVoiceEnabled
                     << LL_ENDL;
-                state = VOICE_CHANNEL_STATE_LOGOUT;
-                break;
+                return !sShuttingDown;
             }
-
-        case VOICE_CHANNEL_STATE_LOGOUT:
-            logoutOfWebRTC(true /*bool wait*/);
-            if (mRelogRequested)
-            {
-                state = VOICE_CHANNEL_STATE_RELOG;
-            }
-            else
-            {
-                state = VOICE_CHANNEL_STATE_DONE;
-            }
-            break;
-
-        case VOICE_CHANNEL_STATE_RELOG:
-            LL_DEBUGS("Voice") << "Relog Requested, restarting provisioning" << LL_ENDL;
-            if (!provisionVoiceAccount())
-            {
-                if (sShuttingDown)
-                {
-                    return false;
-                }
-                LL_WARNS("Voice") << "provisioning voice failed; giving up" << LL_ENDL;
-                giveUp();
-                return false;
-            }
-            if (mVoiceEnabled && mRelogRequested)
-            {
-                state = VOICE_CHANNEL_STATE_LOGIN;
-            }
-            else
-            {
-                state = VOICE_CHANNEL_STATE_DONE;
-            }
-            break;
-        case VOICE_CHANNEL_STATE_DONE:
-            LL_DEBUGS("Voice")
-                << "exiting"
-                << " RelogRequested=" << mRelogRequested
-                << " VoiceEnabled=" << mVoiceEnabled
-                << LL_ENDL;
-            return !sShuttingDown;
-        case VOICE_CHANNEL_STATE_CHECK_EFFECTS:
-            break;
         }
     } while (true);
 }
