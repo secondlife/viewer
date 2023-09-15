@@ -1227,7 +1227,6 @@ bool LLWebRTCVoiceClient::terminateAudioSession(bool wait)
 typedef enum e_voice_wait_for_channel_state
 {
     VOICE_CHANNEL_STATE_LOGIN = 0, // entry point
-    VOICE_CHANNEL_STATE_CHECK_EFFECTS,
     VOICE_CHANNEL_STATE_START_CHANNEL_PROCESSING,
     VOICE_CHANNEL_STATE_PROCESS_CHANNEL,
     VOICE_CHANNEL_STATE_NEXT_CHANNEL_DELAY,
