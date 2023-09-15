@@ -223,8 +223,8 @@ Maximum animation length is [MAX_LENGTH] seconds.
      tool_tip="Scales position movement by this animation"
      width="120" />
     <check_box
-     top_pad="0"
-     height="14"
+     top_pad="3"
+     height="16"
      label="Loop"
      layout="topleft"
      left="10"
@@ -233,11 +233,10 @@ Maximum animation length is [MAX_LENGTH] seconds.
      tool_tip="Makes this animation loop" />
     <check_box
      top_pad="0"
-     follows="left|top"
+     height="0"
      label="Use Resting Pose"
      layout="topleft"
      left_pad="10"
-     width="100"
      name="use_resting"
      tool_tip="Animations with a default pose of the resting pose will appear twisted. Correct them to TPose." />
     <spinner
