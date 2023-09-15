@@ -95,4 +95,14 @@
      name="browse_btn"
      top_delta="-2"
      width="75" />
+    <button
+     follows="left|bottom"
+     height="25"
+     label="Run"
+     label_selected="Run"
+     layout="topleft"
+     left_pad="5"
+     name="run_btn"
+     top_delta="-2"
+     width="50" />
 </floater>

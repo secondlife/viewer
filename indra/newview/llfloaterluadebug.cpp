@@ -57,6 +57,7 @@ BOOL LLFloaterLUADebug::postBuild()
 
     getChild<LLButton>("execute_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onExecuteClicked, this));
     getChild<LLButton>("browse_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnBrowse, this));
+    getChild<LLButton>("run_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnRun, this));
 
 #if !LL_WINDOWS
     getChild<LLButton>("execute_btn")->setEnabled(false);
@@ -83,6 +84,17 @@ void LLFloaterLUADebug::onExecuteClicked()
 void LLFloaterLUADebug::onBtnBrowse()
 {
     (new LLFilePickerReplyThread(boost::bind(&LLFloaterLUADebug::runSelectedScript, this, _1), LLFilePicker::FFLOAD_LUA, false))->getFile();
+}
+
+void LLFloaterLUADebug::onBtnRun()
+{
+	std::vector<std::string> filenames;
+	std::string filepath = mScriptPath->getText();
+	if (!filepath.empty())
+	{
+		filenames.push_back(filepath);
+		runSelectedScript(filenames);
+	}
 }
 
 void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filenames)

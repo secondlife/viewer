@@ -49,6 +49,7 @@ class LLFloaterLUADebug :
 
     void onExecuteClicked();
     void onBtnBrowse();
+    void onBtnRun();
 
     void runSelectedScript(const std::vector<std::string> &filenames);
 
