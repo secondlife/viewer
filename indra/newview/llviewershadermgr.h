@@ -156,6 +156,14 @@ extern LLGLSLShader         gRadianceGenProgram;
 extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
+enum NormalDebugShaderVariant : S32
+{
+    NORMAL_DEBUG_SHADER_DEFAULT,
+    NORMAL_DEBUG_SHADER_WITH_TANGENTS,
+    NORMAL_DEBUG_SHADER_COUNT
+};
+extern LLGLSLShader			gNormalDebugProgram[NORMAL_DEBUG_SHADER_COUNT];
+extern LLGLSLShader			gSkinnedNormalDebugProgram[NORMAL_DEBUG_SHADER_COUNT];
 extern LLGLSLShader			gClipProgram;
 extern LLGLSLShader			gBenchmarkProgram;
 extern LLGLSLShader         gReflectionProbeDisplayProgram;
