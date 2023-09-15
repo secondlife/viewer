@@ -669,8 +669,6 @@ private:
 		return mVoiceControlState; 
 	}
 
-    bool endAndDisconnectSession();
-
     bool callbackEndDaemon(const LLSD& data);
     bool provisionVoiceAccount();
     void OnVoiceAccountProvisioned(const LLSD& body);
