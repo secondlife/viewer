@@ -369,23 +369,10 @@ void LLWebRTCVoiceClient::terminate()
     {
         return;
     }
-
-    // needs to be done manually here since we will not get another pass in 
-    // coroutines... that mechanism is long since gone.
-    if (mIsLoggedIn)
-    {
-        logoutOfWebRTC(false);
-    }
     
-	if(sConnected)
-	{
-        breakVoiceConnection(false);
-        sConnected = false;
-	}
-	else
-	{
-		mRelogRequested = false;
-	}
+	mRelogRequested = false;
+    mVoiceEnabled   = false;
+    llwebrtc::init();
 
     sShuttingDown = true;
     sPump = NULL;
@@ -540,8 +527,7 @@ void LLWebRTCVoiceClient::idle(void* user_data)
 typedef enum e_voice_control_coro_state
 {
     VOICE_STATE_ERROR = -1,
-    VOICE_STATE_DONE = 0,
-    VOICE_STATE_TP_WAIT, // entry point
+    VOICE_STATE_TP_WAIT = 0, // entry point
     VOICE_STATE_START_DAEMON,
     VOICE_STATE_PROVISION_ACCOUNT,
     VOICE_STATE_SESSION_PROVISION_WAIT,
@@ -685,12 +671,8 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                         current_delay++;
                         llcoro::suspendUntilTimeout(1.f);
                     }
-                    setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
                 }
-                else
-                {
-                    setVoiceControlStateUnless(VOICE_STATE_DONE);
-                }
+                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
                 break;
 
             case VOICE_STATE_SESSION_ESTABLISHED:
@@ -729,20 +711,10 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                 }
                 else
                 {
-                    setVoiceControlStateUnless(VOICE_STATE_DONE);
+                    llcoro::suspendUntilTimeout(1.0);
                 }
                 break;
 
-            case VOICE_STATE_DONE:
-                if (mVoiceEnabled)
-                {
-                    setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
-                }
-                else 
-				{
-                    llcoro::suspendUntilTimeout(1.0);
-				}
-                break;
             default:
             {
                 LL_WARNS("Voice") << "Unknown voice control state " << getVoiceControlState() << LL_ENDL;
@@ -750,15 +722,6 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
             }
         }
     } while (true);
-
-    if (sShuttingDown)
-    {
-        // LLWebRTCVoiceClient might be already dead
-        return;
-    }
-
-    mIsCoroutineActive = false;
-    LL_INFOS("Voice") << "exiting" << LL_ENDL;
 }
 
 bool LLWebRTCVoiceClient::callbackEndDaemon(const LLSD& data)
