@@ -86,6 +86,7 @@ private:
     class LLScrollContainer* mEmojiScroll { nullptr };
     class LLScrollingPanelList* mEmojiGrid { nullptr };
     class LLEmojiPreviewPanel* mPreview { nullptr };
+    class LLTextBox* mDummy { nullptr };
 
     pick_callback_t mEmojiPickCallback;
     close_callback_t mFloaterCloseCallback;

@@ -15,9 +15,9 @@
   <filter_editor
       name="Filter"
       label="Start typing to filter"
-      layout="bottomleft"
-      follows="bottom|left|right"
-      bottom="14"
+      layout="topleft"
+      follows="top|left|right"
+      top="27"
       left="10"
       height="23"
       width="230" />
@@ -25,9 +25,9 @@
       name="EmojiGridContainer"
       layout="topleft"
       follows="all"
-      top="25"
+      top="50"
       left="0"
-      height="325"
+      height="300"
       width="250">
     <scrolling_panel_list
         name="EmojiGrid"
@@ -59,4 +59,15 @@
       width="20"
       />
   </panel>
+  <text
+      name="Dummy"
+      type="string"
+      layout="bottomleft"
+      follows="bottom|left|right"
+      halign="center"
+      valign="center"
+      bottom="14"
+      left="10"
+      height="23"
+      width="230">No emoji selected</text>
 </floater>
