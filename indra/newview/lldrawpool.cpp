@@ -567,14 +567,19 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, bool texture, bool batch_text
 
 void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 {
-	if (params.mModelMatrix != gGLLastMatrix)
+	applyModelMatrix(params.mModelMatrix);
+}
+
+void LLRenderPass::applyModelMatrix(const LLMatrix4* model_matrix)
+{
+	if (model_matrix != gGLLastMatrix)
 	{
-		gGLLastMatrix = params.mModelMatrix;
+		gGLLastMatrix = model_matrix;
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.loadMatrix(gGLModelView);
-		if (params.mModelMatrix)
+		if (model_matrix)
 		{
-			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
+			gGL.multMatrix((GLfloat*) model_matrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;
 	}
