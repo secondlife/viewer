@@ -347,6 +347,12 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
 
         if (obj)
         {
+            if (gShowObjectUpdates)
+            { // display a cyan blip for override updates when "Show Updates to Objects" enabled
+                LLColor4 color(0.f, 1.f, 1.f, 1.f);
+                gPipeline.addDebugBlip(obj->getPositionAgent(), color);
+            }
+
             const LLSD& tes = data["te"];
             const LLSD& od = data["od"];
 
