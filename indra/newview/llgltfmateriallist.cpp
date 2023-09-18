@@ -337,6 +337,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
     const LLHost& host = msg->getSender();
     
     LLViewerRegion* region = LLWorld::instance().getRegion(host);
+    llassert(region);
 
     if (region)
     {
@@ -345,43 +346,47 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         gObjectList.getUUIDFromLocal(id, local_id, host.getAddress(), host.getPort());
         LLViewerObject* obj = gObjectList.findObject(id);
 
-        if (obj)
+        // NOTE: obj may be null if the viewer hasn't heard about the object yet, cache update in any case
+
+        if (obj && gShowObjectUpdates)
+        { // display a cyan blip for override updates when "Show Updates to Objects" enabled
+            LLColor4 color(0.f, 1.f, 1.f, 1.f);
+            gPipeline.addDebugBlip(obj->getPositionAgent(), color);
+        }
+
+        const LLSD& tes = data["te"];
+        const LLSD& od = data["od"];
+
+        if (tes.isArray())
         {
-            if (gShowObjectUpdates)
-            { // display a cyan blip for override updates when "Show Updates to Objects" enabled
-                LLColor4 color(0.f, 1.f, 1.f, 1.f);
-                gPipeline.addDebugBlip(obj->getPositionAgent(), color);
-            }
+            LLGLTFOverrideCacheEntry cache;
+            cache.mLocalId = local_id;
+            cache.mObjectId = id;
+            cache.mRegionHandle = region->getHandle();
 
-            const LLSD& tes = data["te"];
-            const LLSD& od = data["od"];
-
-            if (tes.isArray())
+            for (int i = 0; i < tes.size(); ++i)
             {
-                LLGLTFOverrideCacheEntry cache;
-                cache.mLocalId = local_id;
-                cache.mObjectId = id;
-                cache.mRegionHandle = region->getHandle();
+                LLGLTFMaterial* mat = new LLGLTFMaterial(); // setTEGLTFMaterialOverride and cache will take ownership
+                mat->applyOverrideLLSD(od[i]);
 
-                for (int i = 0; i < tes.size(); ++i)
+                S32 te = tes[i].asInteger();
+
+                cache.mSides[te] = od[i];
+                cache.mGLTFMaterial[te] = mat;
+
+                if (obj)
                 {
-                    S32 te = tes[i].asInteger();
-                    LLGLTFMaterial* mat = new LLGLTFMaterial(); // setTEGLTFMaterialOverride will take ownership
-                    mat->applyOverrideLLSD(od[i]);
                     obj->setTEGLTFMaterialOverride(te, mat);
-
-                    cache.mSides[te] = od[i];
-                    cache.mGLTFMaterial[te] = mat;
-
                     if (obj->getTE(te) && obj->getTE(te)->isSelected())
                     {
                         handle_gltf_override_message.doSelectionCallbacks(id, te);
                     }
                 }
-
-                region->cacheFullUpdateGLTFOverride(cache);
             }
+
+            region->cacheFullUpdateGLTFOverride(cache);
         }
+
     }
 }
 
