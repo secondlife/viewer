@@ -228,8 +228,13 @@ void LLFloaterForgetUser::processForgetUser()
 void LLFloaterForgetUser::forgetUser(const std::string &userid, const std::string &fav_id, const std::string &grid, bool delete_data)
 {
     // Remove creds
-    gSecAPIHandler->removeFromCredentialMap("login_list", grid, userid);
-    gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, userid);
+    std::string grid_id = LLGridManager::getInstance()->getGridId(grid);
+    if (grid_id.empty())
+    {
+        grid_id = grid;
+    }
+    gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid_id, userid); // doesn't write
+    gSecAPIHandler->removeFromCredentialMap("login_list", grid, userid); // write operation
 
     LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(grid);
     if (cred.notNull() && cred->userID() == userid)
