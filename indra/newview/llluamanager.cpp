@@ -107,6 +107,20 @@ int lua_open_floater(lua_State *L)
     return 1;
 }
 
+int lua_close_floater(lua_State *L)
+{
+    std::string floater_name(lua_tostring(L, 1));
+
+    LLSD key;
+    if (floater_name == "profile")
+    {
+        key["id"] = gAgentID;
+    }
+    LLFloaterReg::hideInstance(floater_name, key);
+
+    return 1;
+}
+
 int lua_close_all_floaters(lua_State *L)
 {
     close_all_windows();
@@ -214,6 +228,7 @@ void initLUA(lua_State *L)
     lua_register(L, "nearby_chat_send", lua_nearby_chat_send);
     lua_register(L, "wear_by_name", lua_wear_by_name);
     lua_register(L, "open_floater", lua_open_floater);
+    lua_register(L, "close_floater", lua_close_floater);
     lua_register(L, "close_all_floaters", lua_close_all_floaters);
     lua_register(L, "open_wearing_tab", lua_open_wearing_tab);
     lua_register(L, "snapshot_to_file", lua_snapshot_to_file);
