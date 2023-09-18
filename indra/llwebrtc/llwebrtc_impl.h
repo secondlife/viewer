@@ -160,6 +160,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     void OnSetLocalDescriptionComplete(webrtc::RTCError error) override;
 
   protected:
+
+    bool                                                       initializeConnectionThreaded();
+
     std::unique_ptr<rtc::Thread>                               mNetworkThread;
     std::unique_ptr<rtc::Thread>                               mWorkerThread;
     std::unique_ptr<rtc::Thread>                               mSignalingThread;

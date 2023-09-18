@@ -55,7 +55,7 @@ void LLWebRTCImpl::init()
     mSignalingThread->SetName("WebRTCSignalingThread", nullptr);
     mSignalingThread->Start();
 
-    mSignalingThread->PostTask(
+    mWorkerThread->PostTask(
         [this]()
         {
             mDeviceModule = webrtc::CreateAudioDeviceWithDataObserver(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
@@ -68,7 +68,7 @@ void LLWebRTCImpl::init()
 
 void LLWebRTCImpl::refreshDevices()
 {
-    mSignalingThread->PostTask([this]() { updateDevices(); });
+    mWorkerThread->PostTask([this]() { updateDevices(); });
 }
 
 void LLWebRTCImpl::setDevicesObserver(LLWebRTCDevicesObserver *observer) { mVoiceDevicesObserverList.emplace_back(observer); }
@@ -85,41 +85,48 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
 
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
 {
-    mSignalingThread->PostTask(
+    mWorkerThread->PostTask(
         [this, id]()
         {
+            mDeviceModule->StopRecording();
             int16_t captureDeviceCount = mDeviceModule->RecordingDevices();
             for (int16_t index = 0; index < captureDeviceCount; index++)
             {
                 char name[webrtc::kAdmMaxDeviceNameSize];
                 char guid[webrtc::kAdmMaxGuidSize];
                 mDeviceModule->RecordingDeviceName(index, name, guid);
-                if (id == guid || id == name)
+                if (id == guid || id == "Default")
                 {
+                    RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << index;
                     mDeviceModule->SetRecordingDevice(index);
                     break;
                 }
             }
+            mDeviceModule->InitRecording();
+            mDeviceModule->StartRecording();
         });
 }
 
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
 {
-    mSignalingThread->PostTask(
+    mWorkerThread->PostTask(
         [this, id]()
         {
+            mDeviceModule->StopPlayout();
             int16_t renderDeviceCount = mDeviceModule->RecordingDevices();
             for (int16_t index = 0; index < renderDeviceCount; index++)
             {
                 char name[webrtc::kAdmMaxDeviceNameSize];
                 char guid[webrtc::kAdmMaxGuidSize];
                 mDeviceModule->PlayoutDeviceName(index, name, guid);
-                if (id == guid || id == name)
+                if (id == guid || id == "Default")
                 {
                     mDeviceModule->SetPlayoutDevice(index);
                     break;
                 }
             }
+            mDeviceModule->InitPlayout();
+            mDeviceModule->StartPlayout();
         });
 }
 
@@ -156,7 +163,7 @@ void LLWebRTCImpl::updateDevices()
 
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
-    mSignalingThread->PostTask(
+    mWorkerThread->PostTask(
         [this, enable]()
         {
             if (enable)
@@ -181,7 +188,7 @@ void LLWebRTCImpl::OnCaptureData(const void    *audio_samples,
                                  const size_t   num_channels,
                                  const uint32_t samples_per_sec)
 {
-    if (bytes_per_sample != 4)
+    if (bytes_per_sample != 2)
     {
         return;
     }
@@ -220,28 +227,31 @@ void LLWebRTCImpl::unsetSignalingObserver(LLWebRTCSignalingObserver *observer)
     }
 }
 
+
 bool LLWebRTCImpl::initializeConnection()
 {
     RTC_DCHECK(!mPeerConnection);
-    RTC_DCHECK(!mPeerConnectionFactory);
+    RTC_DCHECK(mPeerConnectionFactory);
     mAnswerReceived        = false;
+
+    mSignalingThread->PostTask([this]() { initializeConnectionThreaded(); });
+    return true;
+}
+
+
+
+bool LLWebRTCImpl::initializeConnectionThreaded()
+{
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
                                                                  mSignalingThread.get(),
-                                                                 nullptr /* default_adm */,
+                                                                 mDeviceModule,
                                                                  webrtc::CreateBuiltinAudioEncoderFactory(),
                                                                  webrtc::CreateBuiltinAudioDecoderFactory(),
                                                                  nullptr /* video_encoder_factory */,
                                                                  nullptr /* video_decoder_factory */,
                                                                  nullptr /* audio_mixer */,
                                                                  nullptr /* audio_processing */);
-
-    if (!mPeerConnectionFactory)
-    {
-        shutdownConnection();
-        return false;
-    }
-
     webrtc::PeerConnectionInterface::RTCConfiguration config;
     config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     webrtc::PeerConnectionInterface::IceServer server;
@@ -272,16 +282,34 @@ bool LLWebRTCImpl::initializeConnection()
 
     cricket::AudioOptions audioOptions;
     audioOptions.auto_gain_control = true;
-    audioOptions.echo_cancellation = true;
+    audioOptions.echo_cancellation = false;  // incompatible with opus stereo
     audioOptions.noise_suppression = true;
 
     rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
     rtc::scoped_refptr<webrtc::AudioTrackInterface>  audio_track(
-        mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(cricket::AudioOptions()).get()));
+        mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
     audio_track->set_enabled(true);
     stream->AddTrack(audio_track);
 
     mPeerConnection->AddTrack(audio_track, {"SLStream"});
+
+    auto senders = mPeerConnection->GetSenders();
+
+    for (auto &sender : senders)
+    {
+        webrtc::RtpParameters      params;
+        webrtc::RtpCodecParameters codecparam;
+        codecparam.name                       = "opus";
+        codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+        codecparam.clock_rate                 = 48000;
+        codecparam.num_channels               = 1;
+        codecparam.parameters["stereo"]       = "0";
+        codecparam.parameters["sprop-stereo"] = "0";
+
+        params.codecs.push_back(codecparam);
+        sender->SetParameters(params);
+    }
+
     mPeerConnection->SetLocalDescription(rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
 
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
@@ -297,6 +325,12 @@ void LLWebRTCImpl::shutdownConnection()
 
 void LLWebRTCImpl::AnswerAvailable(const std::string &sdp)
 {
+    std::istringstream sdp_stream(sdp);
+    std::string        sdp_line;
+    while (std::getline(sdp_stream, sdp_line))
+    {
+        RTC_LOG(LS_INFO) << __FUNCTION__ << " Remote SDP: " << sdp_line;
+    }
     mSignalingThread->PostTask(
         [this, sdp]()
         {
@@ -515,10 +549,28 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     auto        desc = mPeerConnection->pending_local_description();
     std::string sdp;
     desc->ToString(&sdp);
-    RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp;
+    // mangle the sdp as this is the only way currently to bump up
+    // the send audio rate to 48k
+    std::istringstream sdp_stream(sdp);
+    std::ostringstream sdp_mangled_stream;
+    std::string        sdp_line;
+    while (std::getline(sdp_stream, sdp_line)) {
+        int bandwidth = 0;
+        int payload_id = 0;
+        RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_line;
+        // force mono
+        if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
+        {
+            sdp_mangled_stream << sdp_line << "\n";
+        }
+        else
+        {
+            sdp_mangled_stream << sdp_line << "\n";
+        }
+    }
     for (auto &observer : mSignalingObserverList)
     {
-        observer->OnOfferAvailable(sdp);
+        observer->OnOfferAvailable(sdp_mangled_stream.str());
     }
 }
 
