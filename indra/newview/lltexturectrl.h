@@ -184,8 +184,7 @@ public:
 
 	void			setCanApply(bool can_preview, bool can_apply);
 
-	void			setImmediateFilterPermMask(PermissionMask mask)
-					{ mImmediateFilterPermMask = mask; }
+	void			setImmediateFilterPermMask(PermissionMask mask);
 	void			setDnDFilterPermMask(PermissionMask mask)
 						{ mDnDFilterPermMask = mask; }
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
@@ -351,6 +350,7 @@ public:
 	void 			setBakeTextureEnabled(BOOL enabled);
 
     void setInventoryPickType(LLTextureCtrl::EPickInventoryType type);
+    void setImmediateFilterPermMask(PermissionMask mask);
 
     static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
 

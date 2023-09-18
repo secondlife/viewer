@@ -1010,6 +1010,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		&& objectp->permModify())
 	{
 		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
+        BOOL attachment = objectp->isAttachment();
 
         bool has_pbr_material;
         bool has_faces_without_pbr;
@@ -1306,6 +1307,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					
 					texture_ctrl->setBakeTextureEnabled(TRUE);
 				}
+
+                if (attachment)
+                {
+                    // attachments are in world and in inventory,
+                    // server doesn't support changing permissions
+                    // in such case
+                    texture_ctrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+                }
+                else
+                {
+                    texture_ctrl->setImmediateFilterPermMask(PERM_NONE);
+                }
 			}
 
 			if (shinytexture_ctrl)
@@ -1313,6 +1326,15 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				shinytexture_ctrl->setTentative( !identical_spec );
 				shinytexture_ctrl->setEnabled( editable && !has_pbr_material);
 				shinytexture_ctrl->setImageAssetID( specmap_id );
+
+                if (attachment)
+                {
+                    shinytexture_ctrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+                }
+                else
+                {
+                    shinytexture_ctrl->setImmediateFilterPermMask(PERM_NONE);
+                }
 			}
 
 			if (bumpytexture_ctrl)
@@ -1320,6 +1342,15 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				bumpytexture_ctrl->setTentative( !identical_norm );
 				bumpytexture_ctrl->setEnabled( editable && !has_pbr_material);
 				bumpytexture_ctrl->setImageAssetID( normmap_id );
+
+                if (attachment)
+                {
+                    bumpytexture_ctrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+                }
+                else
+                {
+                    bumpytexture_ctrl->setImmediateFilterPermMask(PERM_NONE);
+                }
 			}
 		}
 
@@ -1904,6 +1935,15 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
         pbr_ctrl->setEnabled(settable);
         pbr_ctrl->setImageAssetID(pbr_id);
+
+        if (objectp->isAttachment())
+        {
+            pbr_ctrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER | PERM_MODIFY);
+        }
+        else
+        {
+            pbr_ctrl->setImmediateFilterPermMask(PERM_NONE);
+        }
     }
 
     getChildView("pbr_from_inventory")->setEnabled(settable);

@@ -1339,6 +1339,12 @@ void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryT
     }
 }
 
+void LLFloaterTexturePicker::setImmediateFilterPermMask(PermissionMask mask)
+{
+    mImmediateFilterPermMask = mask;
+    mInventoryPanel->setFilterPermMask(mask);
+}
+
 void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle)
 {
     std::vector<std::string>::const_iterator iter = filenames.begin();
@@ -1524,6 +1530,17 @@ void LLTextureCtrl::setCanApply(bool can_preview, bool can_apply)
 	{
 		floaterp->setCanApply(can_preview, can_apply);
 	}
+}
+
+void LLTextureCtrl::setImmediateFilterPermMask(PermissionMask mask)
+{
+    mImmediateFilterPermMask = mask;
+
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
+    if (floaterp)
+    {
+        floaterp->setImmediateFilterPermMask(mask);
+    }
 }
 
 void LLTextureCtrl::setVisible( BOOL visible ) 

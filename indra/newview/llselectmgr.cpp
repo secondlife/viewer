@@ -1852,10 +1852,24 @@ bool LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mImageID(id) {}
 		bool apply(LLViewerObject* objectp, S32 te)
 		{
-		    if(objectp && !objectp->permModify())
+		    if(!objectp || !objectp->permModify())
 		    {
 		        return false;
 		    }
+
+            // Might be better to run willObjectAcceptInventory
+            if (mItem && objectp->isAttachment())
+            {
+                const LLPermissions& perm = mItem->getPermissions();
+                BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+                if (!unrestricted)
+                {
+                    // Attachments are in world and in inventory simultaneously,
+                    // at the moment server doesn't support such a situation.
+                    return false;
+                }
+            }
+
 		    if (mItem)
 			{
                 LLToolDragAndDrop::dropTextureOneFace(objectp,
@@ -1938,9 +1952,20 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mMatId(id) {}
         bool apply(LLViewerObject* objectp, S32 te)
         {
-            if (objectp && !objectp->permModify())
+            if (!objectp || !objectp->permModify())
             {
                 return false;
+            }
+            if (mItem && objectp->isAttachment())
+            {
+                const LLPermissions& perm = mItem->getPermissions();
+                BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+                if (!unrestricted)
+                {
+                    // Attachments are in world and in inventory simultaneously,
+                    // at the moment server doesn't support such a situation.
+                    return false;
+                }
             }
             LLUUID asset_id = mMatId;
             if (mItem)
@@ -2256,7 +2281,19 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
     if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
     {
         LLViewerObject *object = mSelectedObjects->getFirstRootObject();
-        if (!object) return;
+        if (!object)
+        {
+            return;
+        }
+        const LLPermissions& perm = item->getPermissions();
+        BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+        BOOL attached = object->isAttachment();
+        if (attached && !unrestricted)
+        {
+            // Attachments are in world and in inventory simultaneously,
+            // at the moment server doesn't support such a situation.
+            return;
+        }
         LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
     }
     getSelection()->applyToTEs(&setfunc);
@@ -2316,7 +2353,19 @@ void LLSelectMgr::selectionSetShiny(U8 shiny, const LLUUID &image_id)
     if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
     {
         LLViewerObject *object = mSelectedObjects->getFirstRootObject();
-        if (!object) return;
+        if (!object)
+        {
+            return;
+        }
+        const LLPermissions& perm = item->getPermissions();
+        BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+        BOOL attached = object->isAttachment();
+        if (attached && !unrestricted)
+        {
+            // Attachments are in world and in inventory simultaneously,
+            // at the moment server doesn't support such a situation.
+            return;
+        }
         LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
     }
     getSelection()->applyToTEs(&setfunc);
