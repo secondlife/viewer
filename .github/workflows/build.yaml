@@ -321,20 +321,20 @@ jobs:
         with:
           input-path: artifacts
           output-path: assets
-          exclude: |
-            # The *-app artifacts are for use only by the signing and
-            # packaging steps. Once we've generated signed installers, we no
-            # longer need them, and we CERTAINLY don't want to publish
-            # thousands of individual files as separate URLs.
+          # The *-app artifacts are for use only by the signing and
+          # packaging steps. Once we've generated signed installers, we no
+          # longer need them, and we CERTAINLY don't want to publish
+          # thousands of individual files as separate URLs.
+          exclude: |-
             Windows-app
             macOS-app
-          prefix: |
-            # Use just "Windows" or "macOS" prefix because these are the only
-            # artifacts in which we expect files from both platforms with
-            # colliding names (e.g. autobuild-package.xml). release-artifacts
-            # normally resolves collisions by prepending the artifact name, so
-            # when we anticipate collisions, it's good to keep the prefix
-            # short and sweet.
+          # Use just "Windows" or "macOS" prefix because these are the only
+          # artifacts in which we expect files from both platforms with
+          # colliding names (e.g. autobuild-package.xml). release-artifacts
+          # normally resolves collisions by prepending the artifact name, so
+          # when we anticipate collisions, it's good to keep the prefix
+          # short and sweet.
+          prefix: |-
             Windows-metadata=Windows
             macOS-metadata=macOS
 
