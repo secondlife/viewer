@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#if LL_SDL
+#if LL_LINUX
 
 #include "linden_common.h"
 #include "llkeyboardsdl.h"

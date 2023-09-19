@@ -29,6 +29,7 @@
 
 // Simple Directmedia Layer (http://libsdl.org/) implementation of LLWindow class
 
+#if LL_LINUX
 #include "llwindow.h"
 #include "lltimer.h"
 
@@ -228,4 +229,5 @@ public:
 
 S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 type);
 
+#endif //LL_LINUX
 #endif //LL_LLWINDOWSDL_H
