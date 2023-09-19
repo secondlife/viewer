@@ -59,7 +59,8 @@ class LLWebRTCVoiceClient :	public LLSingleton<LLWebRTCVoiceClient>,
 							virtual public LLVoiceModuleInterface,
 							virtual public LLVoiceEffectInterface,
                             public llwebrtc::LLWebRTCDevicesObserver,
-                            public llwebrtc::LLWebRTCSignalingObserver
+                            public llwebrtc::LLWebRTCSignalingObserver,
+                            public llwebrtc::LLWebRTCDataObserver
 {
     LLSINGLETON_C11(LLWebRTCVoiceClient);
 	LOG_CLASS(LLWebRTCVoiceClient);
@@ -254,6 +255,13 @@ public:
     void OnOfferAvailable(const std::string &sdp) override;
     void OnRenegotiationNeeded() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
+    //@}
+    
+    /////////////////////////
+    /// @name Data Notification
+    /// LLWebRTCDataObserver
+    //@{
+    void OnDataReceived(const std::string& data, bool binary) override;
     //@}
 
 	void processIceUpdates();
@@ -761,7 +769,8 @@ private:
 	
 	llwebrtc::LLWebRTCDeviceInterface *mWebRTCDeviceInterface;
     llwebrtc::LLWebRTCSignalInterface *mWebRTCSignalingInterface;
-    llwebrtc::LLWebRTCAudioInterface *mWebRTCAudioInterface;
+    llwebrtc::LLWebRTCAudioInterface  *mWebRTCAudioInterface;
+    llwebrtc::LLWebRTCDataInterface   *mWebRTCDataInterface;
 
 	LLVoiceDeviceList mCaptureDevices;
 	LLVoiceDeviceList mRenderDevices;

@@ -66,11 +66,13 @@ namespace llwebrtc
 class LLWebRTCImpl : public LLWebRTCDeviceInterface,
                      public LLWebRTCSignalInterface,
                      public LLWebRTCAudioInterface,
+                     public LLWebRTCDataInterface,
                      public webrtc::AudioDeviceDataObserver,
                      public webrtc::PeerConnectionObserver,
                      public webrtc::CreateSessionDescriptionObserver,
                      public webrtc::SetRemoteDescriptionObserverInterface,
-                     public webrtc::SetLocalDescriptionObserverInterface
+                     public webrtc::SetLocalDescriptionObserverInterface,
+                     public webrtc::DataChannelObserver
 
 {
   public:
@@ -126,6 +128,13 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     //
     void setMute(bool mute) override;
     void setSpeakerVolume(float folume) override; // range 0.0-1.0
+    
+    //
+    // LLWebRTCDataInterface
+    //
+    void sendData(const std::string& data, bool binary=false) override;
+    void setDataObserver(LLWebRTCDataObserver *observer) override;
+    void unsetDataObserver(LLWebRTCDataObserver *observer) override;
 
     //
     // PeerConnectionObserver implementation.
@@ -158,6 +167,12 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     // SetLocalDescriptionObserverInterface implementation.
     //
     void OnSetLocalDescriptionComplete(webrtc::RTCError error) override;
+    
+    //
+    // DataChannelObserver implementation.
+    //
+    void OnStateChange() override {}
+    void OnMessage(const webrtc::DataBuffer& buffer) override;
 
   protected:
 
@@ -184,6 +199,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     bool                                                       mAnswerReceived;
 
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>        mPeerConnection;
+    
+    std::vector<LLWebRTCDataObserver *>                        mDataObserverList;
+    rtc::scoped_refptr<webrtc::DataChannelInterface>           mDataChannel;
 };
         
 }

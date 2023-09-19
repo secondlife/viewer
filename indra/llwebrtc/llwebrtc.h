@@ -96,6 +96,21 @@ class LLWebRTCAudioInterface
     virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
 };
 
+class LLWebRTCDataObserver
+{
+public:
+    virtual void OnDataReceived(const std::string& data, bool binary) = 0;
+};
+
+class LLWebRTCDataInterface
+{
+public:
+    virtual void sendData(const std::string& data, bool binary=false) = 0;
+
+    virtual void setDataObserver(LLWebRTCDataObserver *observer) = 0;
+    virtual void unsetDataObserver(LLWebRTCDataObserver *observer) = 0;
+};
+
 class LLWebRTCSignalingObserver
 {
   public: 
@@ -124,6 +139,7 @@ class LLWebRTCSignalInterface
 
 LLSYMEXPORT LLWebRTCDeviceInterface* getDeviceInterface();
 LLSYMEXPORT LLWebRTCSignalInterface* getSignalingInterface();
+LLSYMEXPORT LLWebRTCDataInterface* getDataInterface();
 }
 
 #endif // LLWEBRTC_H
