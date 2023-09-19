@@ -317,7 +317,7 @@ jobs:
           path: artifacts
 
       - name: Reshuffle artifact files
-        run: secondlife/viewer-build-util/release-artifacts@main
+        uses: secondlife/viewer-build-util/release-artifacts@main
         with:
           input-path: artifacts
           output-path: assets
