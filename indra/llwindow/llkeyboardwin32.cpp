@@ -182,7 +182,7 @@ void LLKeyboardWin32::resetMaskKeys()
 //}
 
 
-MASK LLKeyboardWin32::updateModifiers()
+MASK LLKeyboardWin32::updateModifiers(U32 mask)
 {
     //RN: this seems redundant, as we should have already received the appropriate
     // messages for the modifier keys
@@ -321,4 +321,4 @@ U16  LLKeyboardWin32::inverseTranslateExtendedKey(const KEY translated_key)
     return inverseTranslateKey(converted_key);
 }
 
-#endif
+#endif // LL_WINDOWS

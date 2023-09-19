@@ -584,6 +584,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
 
+            # SDL2
+            self.path("SDL2.dll")
+
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -928,6 +931,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
+                    self.path("libSDL2-*.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
@@ -1406,7 +1410,7 @@ class Linux_x86_64_Manifest(LinuxManifest):
             pkgdir = self.args['package_dir']
 
         relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so*")
@@ -1415,6 +1419,15 @@ class Linux_x86_64_Manifest(LinuxManifest):
 
             self.path_optional("libjemalloc*.so")
 
+            self.path("libdb*.so")
+            self.path("libuuid.so*")
+            self.path("libdirectfb-1.*.so.*")
+            self.path("libfusion-1.*.so.*")
+            self.path("libdirect-1.*.so.*")
+            self.path("libopenjp2.so*")
+            self.path("libdirectfb-1.4.so.5")
+            self.path("libfusion-1.4.so.5")
+            self.path("libdirect-1.4.so.5*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname

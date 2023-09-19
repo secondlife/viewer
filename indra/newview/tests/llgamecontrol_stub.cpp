@@ -1,10 +1,10 @@
 /**
- * @file llkeyboardheadless.h
- * @brief Handler for assignable key bindings
+ * @file llgamecontrol_stub.h
+ * @brief Stubbery for LLGameControl
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,25 +24,53 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDHEADLESS_H
-#define LL_LLKEYBOARDHEADLESS_H
+#include "llgamecontrol.h"
 
-#include "llkeyboard.h"
+#include "SDL2/SDL_events.h"
 
-class LLKeyboardHeadless : public LLKeyboard
+
+void LLGameControl::addKeyButtonMap(U16 key, U8 button)
 {
-public:
-    LLKeyboardHeadless();
-    ~LLKeyboardHeadless() {};
+}
 
-    bool    handleKeyUp(const U16 key, MASK mask) override;
-    bool    handleKeyDown(const U16 key, MASK mask) override;
-    void    resetMaskKeys() override;
-    MASK    currentMask(bool for_mouse_event) override;
-    void    scanKeyboard() override;
-#ifdef LL_DARWIN
-    void    handleModifier(MASK mask) override;
-#endif
-};
+void LLGameControl::removeKeyButtonMap(U16 key)
+{
+}
 
-#endif
+void LLGameControl::addKeyAxisMap(U16 key, U8 axis, bool positive)
+{
+}
+
+void LLGameControl::removeKeyAxisMap(U16 key)
+{
+}
+
+void LLGameControl::onKeyDown(U16 key, U32 mask)
+{
+}
+
+void LLGameControl::onKeyUp(U16 key, U32 mask)
+{
+}
+
+// static
+bool LLGameControl::isInitialized()
+{
+    return false;
+}
+
+// static
+void LLGameControl::init()
+{
+}
+
+// static
+void LLGameControl::terminate()
+{
+}
+
+// static
+void LLGameControl::processEvents(bool app_has_focus)
+{
+}
+

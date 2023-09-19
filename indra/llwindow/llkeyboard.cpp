@@ -29,6 +29,7 @@
 #include "llkeyboard.h"
 
 #include "llwindowcallbacks.h"
+#include "llgamecontrol.h"
 
 //
 // Globals
@@ -161,6 +162,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
+    LLGameControl::clearAllKeys();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
@@ -271,6 +273,43 @@ bool LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
     }
 
     LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
+
+    return handled;
+}
+
+bool LLKeyboard::handleKeyDown(const U16 key, const U32 mask)
+{
+    U32 translated_mask = updateModifiers(mask);
+
+    KEY     translated_key = 0;
+    bool    handled = false;
+    if(translateKey(key, &translated_key))
+    {
+        handled = handleTranslatedKeyDown(translated_key, translated_mask);
+    }
+    if (!handled)
+    {
+        LLGameControl::onKeyDown(translated_key, translated_mask);
+    }
+
+    return handled;
+}
+
+
+bool LLKeyboard::handleKeyUp(const U16 key, const U32 mask)
+{
+    U32 translated_mask = updateModifiers(mask);
+
+    KEY     translated_key = 0;
+    bool    handled = false;
+    if(translateKey(key, &translated_key))
+    {
+        handled = handleTranslatedKeyUp(translated_key, translated_mask);
+    }
+    if (!handled)
+    {
+        LLGameControl::onKeyUp(translated_key, translated_mask);
+    }
 
     return handled;
 }
