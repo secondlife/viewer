@@ -127,6 +127,18 @@ int lua_close_all_floaters(lua_State *L)
     return 1;
 }
 
+int lua_click_child(lua_State *L)
+{
+	std::string parent_name(lua_tostring(L, 1));
+	std::string child_name(lua_tostring(L, 2));
+
+	LLFloater *floater = LLFloaterReg::findInstance(parent_name);
+	LLUICtrl *child = floater->getChild<LLUICtrl>(child_name, true);
+	child->onCommit();
+
+	return 1;
+}
+
 int lua_snapshot_to_file(lua_State *L)
 {
     std::string filename(lua_tostring(L, 1));
@@ -230,6 +242,7 @@ void initLUA(lua_State *L)
     lua_register(L, "open_floater", lua_open_floater);
     lua_register(L, "close_floater", lua_close_floater);
     lua_register(L, "close_all_floaters", lua_close_all_floaters);
+	lua_register(L, "click_child", lua_click_child);
     lua_register(L, "open_wearing_tab", lua_open_wearing_tab);
     lua_register(L, "snapshot_to_file", lua_snapshot_to_file);
 
