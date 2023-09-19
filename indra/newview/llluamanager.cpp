@@ -34,6 +34,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llnotificationsutil.h"
 #include "llvoavatarself.h"
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
@@ -62,6 +63,18 @@ int lua_printWarning(lua_State *L)
 
     LL_WARNS() << msg << LL_ENDL;
     return 1;
+}
+
+bool checkLua(lua_State *L, int r, std::string &error_msg)
+{
+    if (r != LUA_OK)
+    {
+        error_msg = lua_tostring(L, -1);
+
+        LL_WARNS() << error_msg << LL_ENDL;
+        return false;
+    }
+    return true;
 }
 
 int lua_avatar_sit(lua_State *L)
@@ -181,6 +194,59 @@ int lua_env_setting_event(lua_State *L)
     return 1;
 }
 
+void handle_notification_dialog(const LLSD &notification, const LLSD &response, lua_State *L, std::string response_cb)
+{
+    if (!response_cb.empty())
+    {
+        S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+        lua_pushinteger(L, option);
+        lua_setglobal(L, response_cb.c_str());
+    }
+}
+
+int lua_show_notification(lua_State *L)
+{
+    std::string notification(lua_tostring(L, 1));
+
+    if (lua_type(L, 2) == LUA_TTABLE)
+    {
+        LLSD args;
+
+        // push first key
+        lua_pushnil(L);
+        while (lua_next(L, 2) != 0)
+        {
+            // right now -2 is key, -1 is value
+            lua_rawgeti(L, -1, 1);
+            lua_rawgeti(L, -2, 2);
+            std::string key = lua_tostring(L, -2);
+            std::string value = lua_tostring(L, -1);
+            args[key] = value;
+            lua_pop(L, 3);
+        } 
+
+        std::string response_cb;
+        if (lua_type(L, 3) == LUA_TSTRING)
+        {
+            response_cb = lua_tostring(L, 3);
+        }
+
+        LLNotificationsUtil::add(notification, args, LLSD(), boost::bind(handle_notification_dialog, _1, _2, L, response_cb));
+    }
+    else if (lua_type(L, 2) == LUA_TSTRING)
+    {
+        std::string response_cb = lua_tostring(L, 2);
+        LLNotificationsUtil::add(notification, LLSD(), LLSD(), boost::bind(handle_notification_dialog, _1, _2, L, response_cb));
+    }
+    else 
+    {
+        LLNotificationsUtil::add(notification);
+    }
+
+    return 1;
+}
+
 int lua_run_ui_command(lua_State *L)
 {
 	int top = lua_gettop(L);
@@ -206,18 +272,6 @@ int lua_run_ui_command(lua_State *L)
 	return 1;
 }
 
-bool checkLua(lua_State *L, int r, std::string &error_msg)
-{
-    if (r != LUA_OK)
-    {
-        error_msg = lua_tostring(L, -1);
-
-        LL_WARNS() << error_msg << LL_ENDL;
-        return false;
-    }
-    return true;
-}
-
 void initLUA(lua_State *L)
 {
     lua_register(L, "print_warning", lua_printWarning);
@@ -239,6 +293,8 @@ void initLUA(lua_State *L)
     lua_register(L, "env_setting_event", lua_env_setting_event);
     lua_register(L, "set_debug_setting_bool", lua_set_debug_setting_bool);
 
+    lua_register(L, "show_notification", lua_show_notification);
+ 
     lua_register(L, "run_ui_command", lua_run_ui_command);
 }
 
