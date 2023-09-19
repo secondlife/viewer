@@ -314,7 +314,22 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
 
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
 
-    return mPeerConnection != nullptr;
+    webrtc::DataChannelInit init;
+    init.ordered = true;
+    init.reliable = true;
+    auto data_channel_or_error = mPeerConnection->CreateDataChannelOrError("SLData", &init);
+    if (data_channel_or_error.ok())
+    {
+        mDataChannel = std::move(data_channel_or_error.value());
+    }
+    else
+    {
+        shutdownConnection();
+        return false;
+    }
+    mDataChannel->RegisterObserver(this);
+    
+    return true;
 }
 
 void LLWebRTCImpl::shutdownConnection()
@@ -574,9 +589,42 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     }
 }
 
+//
+// DataChannelObserver implementation
+//
+void LLWebRTCImpl::OnMessage(const webrtc::DataBuffer& buffer)
+{
+    std::string data((const char*)buffer.data.cdata(), buffer.size());
+    for (auto &observer : mDataObserverList)
+    {
+        observer->OnDataReceived(data, buffer.binary);
+    }
+}
+
+void LLWebRTCImpl::sendData(const std::string& data, bool binary)
+{
+    rtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
+    webrtc::DataBuffer buffer(cowBuffer, binary);
+    mDataChannel->Send(buffer);
+}
+
+void LLWebRTCImpl::setDataObserver(LLWebRTCDataObserver* observer) { mDataObserverList.emplace_back(observer); }
+
+void LLWebRTCImpl::unsetDataObserver(LLWebRTCDataObserver* observer)
+{
+    std::vector<LLWebRTCDataObserver *>::iterator it =
+        std::find(mDataObserverList.begin(), mDataObserverList.end(), observer);
+    if (it != mDataObserverList.end())
+    {
+        mDataObserverList.erase(it);
+    }
+}
+
 rtc::RefCountedObject<LLWebRTCImpl> *gWebRTCImpl = nullptr;
 LLWebRTCDeviceInterface             *getDeviceInterface() { return gWebRTCImpl; }
 LLWebRTCSignalInterface             *getSignalingInterface() { return gWebRTCImpl; }
+LLWebRTCDataInterface               *getDataInterface() { return gWebRTCImpl; }
+
 
 void init()
 {

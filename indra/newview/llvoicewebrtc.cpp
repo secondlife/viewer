@@ -361,6 +361,9 @@ void LLWebRTCVoiceClient::init(LLPumpIO *pump)
 
 	mWebRTCSignalingInterface = llwebrtc::getSignalingInterface();
     mWebRTCSignalingInterface->setSignalingObserver(this);
+    
+    mWebRTCDataInterface = llwebrtc::getDataInterface();
+    mWebRTCDataInterface->setDataObserver(this);
 }
 
 void LLWebRTCVoiceClient::terminate()
@@ -2706,6 +2709,12 @@ void LLWebRTCVoiceClient::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface * 
 	audio_interface->setSpeakerVolume(mSpeakerVolume);
     setVoiceControlStateUnless(VOICE_STATE_SESSION_ESTABLISHED, VOICE_STATE_SESSION_RETRY);
 }
+
+void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
+{
+    
+}
+
 
 void LLWebRTCVoiceClient::OnRenegotiationNeeded()
 {
