@@ -103,7 +103,7 @@ void process_generic_streaming_message(LLMessageSystem* msg, void**)
         gGLTFMaterialList.applyOverrideMessage(msg, data.mData);
         break;
     default:
-        LL_WARNS() << "GenericStreamingMessage received unknown method: " << data.mMethod << LL_ENDL;
+        LL_WARNS_ONCE() << "Received unknown method" << LL_ENDL;
         break;
     }
 }
