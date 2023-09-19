@@ -2181,65 +2181,6 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	//set up pointers if the data mask is different ...
 	bool setup = (sLastMask != data_mask);
 
-	if (gDebugGL && data_mask != 0)
-	{ //make sure data requirements are fulfilled
-		LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-		if (shader)
-		{
-			U32 required_mask = 0;
-			for (U32 i = 0; i < LLVertexBuffer::TYPE_TEXTURE_INDEX; ++i)
-			{
-				if (shader->getAttribLocation(i) > -1)
-				{
-					U32 required = 1 << i;
-					if ((data_mask & required) == 0)
-					{
-						LL_WARNS() << "Missing attribute: " << LLShaderMgr::instance()->mReservedAttribs[i] << LL_ENDL;
-					}
-
-					required_mask |= required;
-				}
-			}
-
-			if ((data_mask & required_mask) != required_mask)
-			{
-				
-				U32 unsatisfied_mask = (required_mask & ~data_mask);
-
-                for (U32 i = 0; i < TYPE_MAX; i++)
-                {
-                    U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
-                    switch (unsatisfied_flag)
-                    {
-                        case 0: break;
-                        case MAP_VERTEX: LL_INFOS() << "Missing vert pos" << LL_ENDL; break;
-                        case MAP_NORMAL: LL_INFOS() << "Missing normals" << LL_ENDL; break;
-                        case MAP_TEXCOORD0: LL_INFOS() << "Missing TC 0" << LL_ENDL; break;
-                        case MAP_TEXCOORD1: LL_INFOS() << "Missing TC 1" << LL_ENDL; break;
-                        case MAP_TEXCOORD2: LL_INFOS() << "Missing TC 2" << LL_ENDL; break;
-                        case MAP_TEXCOORD3: LL_INFOS() << "Missing TC 3" << LL_ENDL; break;
-                        case MAP_COLOR: LL_INFOS() << "Missing vert color" << LL_ENDL; break;
-                        case MAP_EMISSIVE: LL_INFOS() << "Missing emissive" << LL_ENDL; break;
-                        case MAP_TANGENT: LL_INFOS() << "Missing tangent" << LL_ENDL; break;
-                        case MAP_WEIGHT: LL_INFOS() << "Missing weight" << LL_ENDL; break;
-                        case MAP_WEIGHT4: LL_INFOS() << "Missing weightx4" << LL_ENDL; break;
-                        case MAP_CLOTHWEIGHT: LL_INFOS() << "Missing clothweight" << LL_ENDL; break;
-                        case MAP_TEXTURE_INDEX: LL_INFOS() << "Missing tex index" << LL_ENDL; break;
-                        default: LL_INFOS() << "Missing who effin knows: " << unsatisfied_flag << LL_ENDL;
-                    }
-                }
-
-                // TYPE_INDEX is beyond TYPE_MAX, so check for it individually
-                if (unsatisfied_mask & (1 << TYPE_INDEX))
-                {
-                   LL_INFOS() << "Missing indices" << LL_ENDL;
-                }
-
-				LL_ERRS() << "Shader consumption mismatches data provision." << LL_ENDL;
-			}
-		}
-	}
-
 	if (useVBOs())
 	{
 		if (mGLArray)
