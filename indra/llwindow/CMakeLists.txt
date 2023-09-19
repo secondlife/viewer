@@ -17,6 +17,7 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
+include(SDL2)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
@@ -57,7 +58,7 @@ set(llwindow_LINK_LIBRARIES
         ll::glh_linear
         ll::glext
         ll::uilibraries
-        ll::SDL
+        ll::SDL2
         )
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level

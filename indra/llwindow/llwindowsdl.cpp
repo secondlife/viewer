@@ -25,7 +25,7 @@
  * $/LicenseInfo$
  */
 
-#if LL_SDL
+#if LL_LINUX
 
 #include "linden_common.h"
 
@@ -2694,4 +2694,4 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     return rtns;
 }
 
-#endif // LL_SDL
+#endif // LL_LINUX

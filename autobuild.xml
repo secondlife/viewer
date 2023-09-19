@@ -7,21 +7,59 @@
     <string>autobuild</string>
     <key>installables</key>
     <map>
-      <key>SDL</key>
+      <key>SDL2</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
+        <key>description</key>
+        <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/SDL2.txt</string>
+        <key>name</key>
+        <string>SDL2</string>
         <key>platforms</key>
         <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b604f580297063f6947935599ceba1af08f99eeb</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-pre-2/SDL2-2.28.0-darwin64-5bc2593.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
           <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ea2df03bfc35c06acf23dd9e734adac</string>
+              <string>a2651810f466675b8f6092695c1832b48da8c003</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1103/2554/SDL-1.2.15-linux64-501092.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-pre-2/SDL2-2.28.0-linux64-5bc2593.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c1e49df2732b84509b0c03b4bbce661a</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-pre-2/SDL2-2.28.0-windows64-5bc2593.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
           </map>
         </map>
         <key>license</key>

@@ -146,6 +146,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
+#define HAVE_M_PI
+#include <SDL2/SDL.h>
 
 #if LL_WINDOWS
 #   include <share.h> // For _SH_DENYWR in processMarkerFiles
@@ -1111,6 +1113,7 @@ bool LLAppViewer::init()
     {
         LLViewerJoystick::getInstance()->init(false);
     }
+    SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
 
     try
     {
@@ -1900,6 +1903,7 @@ bool LLAppViewer::cleanup()
         // Turn off Space Navigator and similar devices
         LLViewerJoystick::getInstance()->terminate();
     }
+    SDL_Quit();
 
     LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 
