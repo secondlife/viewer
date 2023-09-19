@@ -242,13 +242,7 @@ jobs:
         if: matrix.configuration != 'ReleaseOS'
         uses: actions/upload-artifact@v3
         with:
-          # Call this artifact just "Windows" or "macOS" because it's the only
-          # artifact in which we expect files from both platforms with
-          # colliding names (e.g. autobuild-package.xml). Our flatten_files.py
-          # (see release step) resolves collisions by prepending the artifact
-          # name, so when we anticipate collisions, it's good to keep the
-          # artifact name short and sweet.
-          name: "${{ steps.build.outputs.artifact }}"
+          name: "${{ steps.build.outputs.artifact }}-metadata"
           # emitted by build.sh, possibly multiple lines
           path: |
             ${{ steps.build.outputs.metadata }}
@@ -314,37 +308,35 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: build
+    needs: [sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-##    - name: Install PyGithub
-##      run: pip3 install PyGithub
-##
-##    - name: Unpack artifacts
-##      env:
-##        BUILD: ${{ toJSON(needs.build) }}
-##      run: .github/workflows/post_artifacts.py
-
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
 
-      - name: Show what we downloaded
-        run: ls -R artifacts
-
       - name: Reshuffle artifact files
-        run: .github/workflows/flatten_files.py assets artifacts
+        run: secondlife/viewer-build-util/release-artifacts@main
+        with:
+          input-path: artifacts
+          output-path: assets
+          exclude: |
+            # The *-app artifacts are for use only by the signing and
+            # packaging steps. Once we've generated signed installers, we no
+            # longer need them, and we CERTAINLY don't want to publish
+            # thousands of individual files as separate URLs.
+            Windows-app
+            macOS-app
+          prefix: |
+            # Use just "Windows" or "macOS" prefix because these are the only
+            # artifacts in which we expect files from both platforms with
+            # colliding names (e.g. autobuild-package.xml). release-artifacts
+            # normally resolves collisions by prepending the artifact name, so
+            # when we anticipate collisions, it's good to keep the prefix
+            # short and sweet.
+            Windows-metadata=Windows
+            macOS-metadata=macOS
 
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
