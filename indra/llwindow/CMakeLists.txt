@@ -17,9 +17,11 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
+include(SDL2)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
+    llgamecontrol.cpp
     llkeyboard.cpp
     llkeyboardheadless.cpp
     llwindowheadless.cpp
@@ -31,6 +33,7 @@ set(llwindow_HEADER_FILES
     CMakeLists.txt
 
     llcursortypes.h
+    llgamecontrol.h
     llkeyboard.h
     llkeyboardheadless.h
     llwindowheadless.h
@@ -57,7 +60,7 @@ set(llwindow_LINK_LIBRARIES
         ll::glh_linear
         ll::glext
         ll::uilibraries
-        ll::SDL
+        ll::SDL2
         )
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
