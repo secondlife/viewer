@@ -94,9 +94,6 @@ private:
     // vertex buffer for pushing verts to filter shaders
     LLPointer<LLVertexBuffer> mVertexBuffer;
 
-    // storage for reflection probe irradiance maps
-    LLPointer<LLCubeMapArray> mIrradianceMaps;
-
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face);
     

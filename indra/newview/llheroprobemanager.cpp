@@ -300,12 +300,9 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             {
                 LL_PROFILE_GPU_ZONE("probe mip copy");
                 mTexture->bind(0);
-                //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
+
                 glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
-                //if (i == 0)
-                //{
-                    //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
-                //}
+
                 mTexture->unbind();
             }
             mMipChain[i].flush();
@@ -458,7 +455,7 @@ void LLHeroProbeManager::renderDebug()
 
 void LLHeroProbeManager::initReflectionMaps()
 {
-    U32 count = LL_MAX_REFLECTION_PROBE_COUNT;
+    U32 count = LL_MAX_HERO_PROBE_COUNT;
 
     if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {
@@ -471,9 +468,6 @@ void LLHeroProbeManager::initReflectionMaps()
 
         // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
         mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
-
-        mIrradianceMaps = new LLCubeMapArray();
-        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
 
         if (mDefaultProbe.isNull())
         {
