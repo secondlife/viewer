@@ -544,6 +544,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
 
+        # copy SDL2 libs
+        if(self.args['buildtype'].lower() == 'debug'):
+            with self.prefix(src=debpkgdir):
+                self.path("SDL2d.dll")
+        else:
+            with self.prefix(src=relpkgdir):
+                self.path("SDL2.dll")
+
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['buildtype'])):
@@ -1312,7 +1320,7 @@ class Linux_i686_Manifest(LinuxManifest):
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so")
@@ -1324,7 +1332,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdb*.so")
             self.path("libexpat.so.*")
             self.path("libuuid.so*")
-            self.path("libSDL-1.2.so.*")
+            self.path("libSDL2.so.*")
             self.path("libdirectfb-1.*.so.*")
             self.path("libfusion-1.*.so.*")
             self.path("libdirect-1.*.so.*")
