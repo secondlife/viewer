@@ -864,7 +864,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                 else
                 {
                     // Already fetched, check if anything inside needs fetching
-                    if (fetch_info.mFetchType == FT_RECURSIVE)
+                    if (fetch_info.mFetchType == FT_RECURSIVE
+                        || fetch_info.mFetchType == FT_FOLDER_AND_CONTENT)
                     {
                         LLInventoryModel::cat_array_t * categories(NULL);
                         LLInventoryModel::item_array_t * items(NULL);
