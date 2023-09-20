@@ -1273,6 +1273,7 @@ class DarwinManifest(ViewerManifest):
         volname=CHANNEL_VENDOR_BASE+" Installer"  # DO NOT CHANGE without understanding comment above
 
         imagename = self.installer_base_name()
+        self.set_github_output('imagename', imagename)
 
         sparsename = imagename + ".sparseimage"
         finalname = imagename + ".dmg"
@@ -1292,7 +1293,7 @@ class DarwinManifest(ViewerManifest):
             
         try:
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
-            volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
+            volpath = re.search(r'HFS\s+(.+)', hdi_output).group(1).strip()
 
             # Copy everything in to the mounted .dmg
 

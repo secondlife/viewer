@@ -24,6 +24,7 @@ jobs:
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
+      imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
@@ -280,6 +281,9 @@ jobs:
     steps:
       - name: Sign and package Mac viewer
         uses: secondlife/viewer-build-util/sign-pkg-mac@main
+        with:
+          channel: ${{ needs.build.outputs.viewer_channel }}
+          imagename: ${{ needs.build.outputs.imagename }}
 
   post-windows-symbols:
     needs: build
