@@ -4421,6 +4421,17 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
 	return result;
 }
 
+/*
+const LLInventoryObject* LLInventoryModel::findByFullPath(const std::string& path)
+{
+	vector<std::string> path_elts;
+	boost::algorithm::split(path_elts, path, boost::is_any_of("/"));
+	for(path_elts, auto e)
+	{
+	}
+}
+*/
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------

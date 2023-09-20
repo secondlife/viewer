@@ -40,6 +40,8 @@
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
 #include "lluilistener.h"
+#include "llanimationstates.h"
+#include "llinventoryfunctions.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -187,7 +189,7 @@ int lua_set_debug_setting_bool(lua_State *L)
     return 1;
 }
 
-    int lua_get_avatar_name(lua_State *L)
+int lua_get_avatar_name(lua_State *L)
 {
     std::string name = gAgentAvatarp->getFullname();
     lua_pushstring(L, name.c_str());
@@ -198,6 +200,39 @@ int lua_is_avatar_flying(lua_State *L)
 {
     lua_pushboolean(L, gAgent.getFlying());
     return 1;
+}
+
+int lua_play_animation(lua_State *L)
+{
+	std::string anim_name = lua_tostring(L,1);
+
+	EAnimRequest req = ANIM_REQUEST_START;
+	if (lua_gettop(L) > 1)
+	{
+		req = (EAnimRequest) (int) lua_tonumber(L, 2);
+	}
+
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLNameItemCollector has_name(anim_name);
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+									cat_array,
+									item_array,
+									LLInventoryModel::EXCLUDE_TRASH,
+									has_name);
+	for (auto& item: item_array)
+	{
+		if (item->getType() == LLAssetType::AT_ANIMATION)
+		{
+			LLUUID anim_id = item->getAssetUUID();
+			LL_INFOS() << "Playing animation " << anim_id << LL_ENDL;
+			gAgent.sendAnimationRequest(anim_id, req);
+			return 1;
+		}
+	}
+	LL_WARNS() << "No animation found for name " << anim_name << LL_ENDL;
+
+	return 1;
 }
 
 int lua_env_setting_event(lua_State *L)
@@ -302,6 +337,7 @@ void initLUA(lua_State *L)
 
     lua_register(L, "get_avatar_name", lua_get_avatar_name);
     lua_register(L, "is_avatar_flying", lua_is_avatar_flying);
+    lua_register(L, "play_animation", lua_play_animation);
 
     lua_register(L, "env_setting_event", lua_env_setting_event);
     lua_register(L, "set_debug_setting_bool", lua_set_debug_setting_bool);
