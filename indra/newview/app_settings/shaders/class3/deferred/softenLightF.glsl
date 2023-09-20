@@ -69,9 +69,9 @@ vec3  scaleSoftClipFragLinear(vec3 l);
 
 // reflection probe interface
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent);
+    vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent);
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
 float getDepth(vec2 pos_screen);
@@ -117,10 +117,10 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 l); //surface point to light
 
 
-void adjustIrradiance(inout vec3 irradiance, vec3 amblit_linear, float ambocc)
+void adjustIrradiance(inout vec3 irradiance, float ambocc)
 {
     // use sky settings ambient or irradiance map sample, whichever is brighter
-    irradiance = max(amblit_linear, irradiance);
+    //irradiance = max(amblit_linear, irradiance);
 
 #if defined(HAS_SSAO)
     irradiance = mix(ssao_effect_mat * min(irradiance.rgb*ssao_irradiance_scale, vec3(ssao_irradiance_max)), irradiance.rgb, ambocc);
@@ -194,9 +194,9 @@ void main()
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
         
-        sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false);
+        sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false, amblit_linear);
         
-        adjustIrradiance(irradiance, amblit_linear, ambocc);
+        adjustIrradiance(irradiance, ambocc);
 
         vec3 diffuseColor;
         vec3 specularColor;
@@ -232,9 +232,9 @@ void main()
         vec3 glossenv = vec3(0);
         vec3 legacyenv = vec3(0);
 
-        sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity, false);
+        sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity, false, amblit_linear);
         
-        adjustIrradiance(irradiance, amblit_linear, ambocc);
+        adjustIrradiance(irradiance, ambocc);
 
         // apply lambertian IBL only (see pbrIbl)
         color.rgb = irradiance;

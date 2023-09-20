@@ -10665,7 +10665,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.5</real>
+    <real>1.0</real>
   </map>
   <key>RenderSkyAutoAdjustHDRScale</key>
   <map>
@@ -10678,6 +10678,73 @@
     <key>Value</key>
     <real>2.0</real>
   </map>
+  <key>RendeSkyAutoAdjustBlueHorizonScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Blue Horizon Scale value to use when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>RendeSkyAutoAdjustBlueDensityScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Blue Horizon Scale value to use when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>RenderSkyAutoAdjustSunColorScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Sun color scalar when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>RenderSkyAutoAdjustProbeAmbiance</key>
+  <map>
+    <key>Comment</key>
+    <string>Probe ambiance value when auto-adjusting legacy skies</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.001</real>
+  </map>
+  <key>RenderSkySunlightScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Sunlight scale fudge factor for matching with pre-PBR viewer</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>RenderSkyAmbientScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Ambient scale fudge factor for matching with pre-PBR viewer</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.7</real>
+  </map>
+  
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
     <key>Comment</key>

@@ -157,6 +157,10 @@ void LLReflectionMap::autoAdjustOrigin()
             }
 
             mRadius = llmax(sqrtf(r2.getF32()), 8.f);
+
+            // make sure near clip doesn't poke through ground
+            fp[2] = llmax(fp[2], height+mRadius*0.5f);
+            
         }
     }
     else if (mViewerObject)
@@ -203,6 +207,14 @@ F32 LLReflectionMap::getNearClip()
     if (mViewerObject && mViewerObject->getVolume())
     {
         ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeNearClip();
+    }
+    else if (mGroup)
+    {
+        ret = mRadius * 0.5f; // default to half radius for automatic object probes
+    }
+    else
+    {
+        ret = 1.f; // default to 1m for automatic terrain probes
     }
 
     return llmax(ret, MINIMUM_NEAR_CLIP);

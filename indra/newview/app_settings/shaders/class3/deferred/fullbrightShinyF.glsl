@@ -49,7 +49,7 @@ vec3 srgb_to_linear(vec3 c);
 
 // reflection probe interface
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent);
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
 
@@ -80,7 +80,7 @@ void main()
     vec3 legacyenv;
     vec3 norm = normalize(vary_texcoord1.xyz);
     vec4 spec = vec4(0,0,0,0);
-    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, vec2(0), pos.xyz, norm.xyz, spec.a, env_intensity, false);
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, vec2(0), pos.xyz, norm.xyz, spec.a, env_intensity, false, amblit);
 
     color.rgb = legacy_adjust(color.rgb);
     color.rgb = srgb_to_linear(color.rgb);

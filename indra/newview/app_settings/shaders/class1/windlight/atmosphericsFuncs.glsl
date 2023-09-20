@@ -39,7 +39,8 @@ uniform float max_y;
 uniform vec3  glow;
 uniform float scene_light_strength;
 uniform float sun_moon_glow_factor;
-uniform float sky_hdr_scale;
+uniform float sky_sunlight_scale;
+uniform float sky_ambient_scale;
 
 float getAmbientClamp() { return 1.0f; }
 
@@ -148,12 +149,9 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 
     // multiply to get similar colors as when the "scaleSoftClip" implementation was doubling color values
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
-    sunlit *= 1.5;
-    amblit *= 0.5;
+    sunlit *= sky_sunlight_scale;
+    amblit *= sky_ambient_scale;
     
-    // override amblit with ambient_color if sky probe ambiance is not zero
-    amblit = mix(amblit, ambient_color, clamp(sky_hdr_scale-1.0, 0.0, 1.0));
-
     amblit = srgb_to_linear(amblit);
     amblit *= ambientLighting(norm, light_dir);
 }
