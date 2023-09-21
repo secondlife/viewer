@@ -52,6 +52,8 @@ extern "C"
 #include "lua/lualib.h"
 }
 
+#include <cstring>                  // std::memcpy()
+
 #if LL_WINDOWS
 #pragma comment(lib, "liblua54.a")
 #endif
@@ -503,4 +505,252 @@ void LLLUAmanager::runScriptOnLogin()
     }
 
     runScriptFile(filename);
+}
+
+std::string lua_tostdstring(lua_State* L, int index)
+{
+    size_t len;
+    const char* strval{ lua_tolstring(L, index, &len) };
+    return { strval, len };
+}
+
+// By analogy with existing lua_tomumble() functions, return an LLSD object
+// corresponding to the Lua object at stack index 'index' in state L.
+// This function assumes that a Lua caller is fully aware that they're trying
+// to call a viewer function. In other words, the caller must specifically
+// construct Lua data convertible to LLSD.
+LLSD lua_tollsd(lua_State* L, int index)
+{
+    switch (lua_type(L, index))
+    {
+    case LUA_TNONE:
+    case LUA_TNIL:
+        return {};
+
+    case LUA_TBOOLEAN:
+        return bool(lua_toboolean(L, index));
+
+    case LUA_TNUMBER:
+    {
+        // check if integer truncation leaves the number intact
+        lua_Integer intval{ lua_tointeger(L, index) };
+        lua_Number  numval{ lua_tonumber(L, index) };
+        if (lua_Number(intval) == numval)
+        {
+            return intval;
+        }
+        else
+        {
+            return numval;
+        }
+    }
+
+    case LUA_TSTRING:
+        return lua_tostdstring(L, index);
+
+    case LUA_TUSERDATA:
+    {
+        LLSD::Binary binary(lua_objlen(L, index));
+        std::memcpy(binary.data(), lua_touserdata(L, index), binary.size());
+        return binary;
+    }
+
+    case LUA_TTABLE:
+    {
+        // A Lua table correctly constructed to convert to LLSD will have
+        // either consecutive integer keys starting at 1, which we represent
+        // as an LLSD array (with Lua index 1 at C++ index 0), or will have
+        // all string keys.
+        // Possible looseness could include:
+        // - All integer keys >= 1, but with "holes," could produce an LLSD
+        //   array with isUndefined() entries at unspecified keys. We could
+        //   specify a maximum size of allowable gap, and throw an error if a
+        //   gap exceeds that size.
+        // - A mix of integer and string keys could produce an LLSD map in
+        //   which the integer keys are converted to string. (Key conversion
+        //   must be performed in C++, not Lua, to avoid confusing
+        //   lua_next().)
+        // - However, since in Lua t[0] and t["0"] are distinct table entries,
+        //   do not consider converting numeric string keys to int to return
+        //   an LLSD array.
+        // But until we get more experience with actual Lua scripts in
+        // practice, let's say that any deviation is a Lua coding error.
+        // An important property of the strict definition above is that most
+        // conforming data blobs can make a round trip across the language
+        // boundary and still compare equal. A non-conforming data blob would
+        // lose that property.
+        // Known exceptions to round trip identity:
+        // - Empty LLSD map and empty LLSD array convert to empty Lua table.
+        //   But empty Lua table converts to isUndefined() LLSD object.
+        // - LLSD::Real with integer value returns as LLSD::Integer.
+        // - LLSD::UUID, LLSD::Date and LLSD::URI all convert to Lua string,
+        //   and so return as LLSD::String.
+        lua_pushnil(L);             // first key
+        if (! lua_next(L, index))
+        {
+            // it's a table, but the table is empty -- no idea if it should be
+            // modeled as empty array or empty map -- return isUndefined(),
+            // which can be consumed as either
+            return {};
+        }
+        // key is at index -2, value at index -1
+        // from here until lua_next() returns 0, have to lua_pop(2) if we
+        // return early
+        // Remember the type of the first key
+        auto firstkeytype{ lua_type(L, -2) };
+        switch (firstkeytype)
+        {
+        case LUA_TNUMBER:
+        {
+            LLSD result{ LLSD::emptyArray() };
+            // right away expand the result array to the size we'll need
+            result[lua_objlen(L, index) - 1] = LLSD();
+            // track the consecutive indexes we require
+            LLSD::Integer expected_index{ 0 };
+            do
+            {
+                auto arraykeytype{ lua_type(L, -2) };
+                switch (arraykeytype)
+                {
+                case LUA_TNUMBER:
+                {
+                    lua_Number actual_index{ lua_tonumber(L, -2) };
+                    if (actual_index != lua_Number(++expected_index))
+                    {
+                        // key isn't consecutive starting at 1 (may not even be an
+                        // integer) - this doesn't fit our LLSD array constraints
+                        lua_pop(L, 2);
+                        return luaL_error(L, "Expected array key %d, got %f instead",
+                                          int(expected_index), actual_index);
+                    }
+
+                    result.append(lua_tollsd(L, -1));
+                    break;
+                }
+
+                case LUA_TSTRING:
+                    // break out strings specially to report the value
+                    lua_pop(L, 2);
+                    return luaL_error(L, "Cannot convert string array key '%s' to LLSD",
+                                      lua_tostring(L, -2));
+
+                default:
+                    lua_pop(L, 2);
+                    return luaL_error(L, "Cannot convert %s array key to LLSD",
+                                      lua_typename(L, arraykeytype));
+                }
+
+                // remove value, keep key for next iteration
+                lua_pop(L, 1);
+            } while (lua_next(L, index) != 0);
+            return result;
+        }
+
+        case LUA_TSTRING:
+        {
+            LLSD result{ LLSD::emptyMap() };
+            do
+            {
+                auto mapkeytype{ lua_type(L, -2) };
+                if (mapkeytype != LUA_TSTRING)
+                {
+                    lua_pop(L, 2);
+                    return luaL_error(L, "Cannot convert %s map key to LLSD",
+                                      lua_typename(L, mapkeytype));
+                }
+                
+                result[lua_tostdstring(L, -2)] = lua_tollsd(L, -1);
+                // remove value, keep key for next iteration
+                lua_pop(L, 1);
+            } while (lua_next(L, index) != 0);
+            return result;
+        }
+
+        default:
+            lua_pop(L, 2);
+            return luaL_error(L, "Cannot convert %s table key to LLSD",
+                              lua_typename(L, firstkeytype));
+        }
+    }
+
+    default:
+        // Other Lua entities (e.g. function, C function, light userdata,
+        // thread, userdata) are not convertible to LLSD, indicating a coding
+        // error in the caller.
+        return luaL_error(L, "Cannot convert type %s to LLSD",
+                          lua_typename(L, lua_type(L, index)));
+    }
+}
+
+// By analogy with existing lua_pushmumble() functions, push onto state L's
+// stack a Lua object corresponding to the passed LLSD object.
+int lua_pushllsd(lua_State* L, const LLSD& data)
+{
+    switch (data.type())
+    {
+    case LLSD::TypeUndefined:
+        lua_pushnil(L);
+        break;
+
+    case LLSD::TypeBoolean:
+        lua_pushboolean(L, data.asBoolean());
+        break;
+
+    case LLSD::TypeInteger:
+        lua_pushinteger(L, data.asInteger());
+        break;
+
+    case LLSD::TypeReal:
+        lua_pushnumber(L, data.asReal());
+        break;
+
+    case LLSD::TypeBinary:
+    {
+        auto binary{ data.asBinary() };
+        std::memcpy(lua_newuserdata(L, binary.size()), binary.data(), binary.size());
+        break;
+    }
+
+    case LLSD::TypeMap:
+    {
+        // push a new table with space for our non-array keys
+        lua_createtable(L, 0, data.size());
+        for (const auto& pair: llsd::inMap(data))
+        {
+            // push value -- so now table is at -2, value at -1
+            lua_pushllsd(L, pair.second);
+            // pop value, assign to table[key]
+            lua_setfield(L, -2, pair.first.c_str());
+        }
+        break;
+    }
+
+    case LLSD::TypeArray:
+    {
+        // push a new table with space for array entries
+        lua_createtable(L, data.size(), 0);
+        lua_Integer index{ 0 };
+        for (const auto& item: llsd::inArray(data))
+        {
+            // push new index value: table at -2, index at -1
+            lua_pushinteger(L, ++index);
+            // push new array value: table at -3, index at -2, value at -1
+            lua_pushllsd(L, item);
+            // pop key and value, assign table[key] = value
+            lua_settable(L, -3);
+        }
+        break;
+    }
+
+    case LLSD::TypeString:
+    case LLSD::TypeUUID:
+    case LLSD::TypeDate:
+    case LLSD::TypeURI:
+    default:
+    {
+        auto strdata{ data.asString() };
+        lua_pushlstring(L, strdata.c_str(), strdata.length());
+        break;
+    }
+    }
 }
