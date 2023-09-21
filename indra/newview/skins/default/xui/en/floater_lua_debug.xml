@@ -10,7 +10,7 @@
  save_rect="true"
  title="LUA DEBUG"
  single_instance="true" 
- width="530">
+ width="535">
     <text
      type="string"
      length="1"
@@ -37,7 +37,7 @@
      name="lua_cmd"
      select_on_focus="true"
      top_delta="30"
-     width="415" />
+     width="435" />
     <button
      follows="left|bottom"
      height="25"
@@ -55,7 +55,7 @@
      layout="topleft"
      name="result_text"
      follows="left|top"
-     width="495"
+     width="515"
      top_delta="40"
      word_wrap="true" />
     <text
@@ -84,7 +84,7 @@
      name="script_path"
      select_on_focus="true"
      top_delta="-2"
-     width="315" />
+     width="320" />
     <button
      follows="left|bottom"
      height="25"
@@ -94,7 +94,7 @@
      left_pad="5"
      name="browse_btn"
      top_delta="-2"
-     width="75" />
+     width="70" />
     <button
      follows="left|bottom"
      height="25"
@@ -103,6 +103,5 @@
      layout="topleft"
      left_pad="5"
      name="run_btn"
-     top_delta="-2"
      width="50" />
 </floater>

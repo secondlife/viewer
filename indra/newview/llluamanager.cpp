@@ -79,6 +79,25 @@ bool checkLua(lua_State *L, int r, std::string &error_msg)
     return true;
 }
 
+LLSD luatable_to_llsd(lua_State *L, S32 idx)
+{
+    LLSD args;
+
+    // push first key
+    lua_pushnil(L);
+    while (lua_next(L, idx) != 0)
+    {
+        // right now -2 is key, -1 is value
+        lua_rawgeti(L, -1, 1);
+        lua_rawgeti(L, -2, 2);
+        std::string key = lua_tostring(L, -2);
+        std::string value = lua_tostring(L, -1);
+        args[key] = value;
+        lua_pop(L, 3);
+    } 
+    return args;
+}
+
 int lua_avatar_sit(lua_State *L)
 {
     gAgent.sitDown();
@@ -258,20 +277,7 @@ int lua_show_notification(lua_State *L)
 
     if (lua_type(L, 2) == LUA_TTABLE)
     {
-        LLSD args;
-
-        // push first key
-        lua_pushnil(L);
-        while (lua_next(L, 2) != 0)
-        {
-            // right now -2 is key, -1 is value
-            lua_rawgeti(L, -1, 1);
-            lua_rawgeti(L, -2, 2);
-            std::string key = lua_tostring(L, -2);
-            std::string value = lua_tostring(L, -1);
-            args[key] = value;
-            lua_pop(L, 3);
-        } 
+        LLSD args = luatable_to_llsd(L, 2);
 
         std::string response_cb;
         if (lua_type(L, 3) == LUA_TSTRING)
@@ -292,6 +298,57 @@ int lua_show_notification(lua_State *L)
     }
 
     return 1;
+}
+
+int lua_add_menu_item(lua_State *L)
+{
+    std::string menu(lua_tostring(L, 1));
+    if (lua_type(L, 2) == LUA_TTABLE)
+    {
+        LLSD args = luatable_to_llsd(L, 2);
+
+        LLMenuItemCallGL::Params item_params;
+        item_params.name  = args["name"];
+        item_params.label = args["label"];
+
+        LLUICtrl::CommitCallbackParam item_func;
+        item_func.function_name = args["function"];
+        if (args.has("parameter"))
+        {
+            item_func.parameter = args["parameter"];
+        }
+        item_params.on_click = item_func;
+
+        LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+        gMenuBarView->findChildMenuByName(menu, true)->append(menu_item);
+    }
+
+    return 1;
+}
+
+int lua_add_menu_separator(lua_State *L)
+{
+    std::string menu(lua_tostring(L, 1));
+    gMenuBarView->findChildMenuByName(menu, true)->addSeparator();
+
+    return 1;
+}
+
+int lua_add_menu(lua_State *L)
+{ 
+    if (lua_type(L, 1) == LUA_TTABLE)
+    {
+        LLSD args = luatable_to_llsd(L, 1);
+
+        LLMenuGL::Params item_params;
+        item_params.name  = args["name"];
+        item_params.label = args["label"];
+
+        LLMenuGL *menu = LLUICtrlFactory::create<LLMenuGL>(item_params);
+        gMenuBarView->appendMenu(menu);
+    }
+
+    return 1; 
 }
 
 int lua_run_ui_command(lua_State *L)
@@ -343,6 +400,10 @@ void initLUA(lua_State *L)
     lua_register(L, "set_debug_setting_bool", lua_set_debug_setting_bool);
 
     lua_register(L, "show_notification", lua_show_notification);
+    lua_register(L, "add_menu_separator", lua_add_menu_separator);
+    lua_register(L, "add_menu_item", lua_add_menu_item);
+    lua_register(L, "add_menu", lua_add_menu);
+    
  
     lua_register(L, "run_ui_command", lua_run_ui_command);
 }
