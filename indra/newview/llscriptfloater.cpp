@@ -335,7 +335,7 @@ void LLScriptFloater::hideToastsIfNeeded()
 
 	// find channel
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(LLChannelManager::getInstance()->findChannelByID(
-		LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID));
 	// update notification channel state
 	if(channel)
 	{

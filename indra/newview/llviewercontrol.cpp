@@ -815,9 +815,6 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AudioLevelMusic", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "AudioLevelMedia", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "AudioLevelVoice", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "AudioLevelDoppler", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "AudioLevelRolloff", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "AudioLevelUnderwaterRolloff", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteAudio", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteMusic", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteMedia", handleAudioVolumeChanged);
