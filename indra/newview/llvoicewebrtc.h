@@ -60,6 +60,7 @@ class LLWebRTCVoiceClient :	public LLSingleton<LLWebRTCVoiceClient>,
 							virtual public LLVoiceEffectInterface,
                             public llwebrtc::LLWebRTCDevicesObserver,
                             public llwebrtc::LLWebRTCSignalingObserver,
+                            public llwebrtc::LLWebRTCAudioObserver,
                             public llwebrtc::LLWebRTCDataObserver
 {
     LLSINGLETON_C11(LLWebRTCVoiceClient);
@@ -79,6 +80,8 @@ public:
 
 	// Returns true if WebRTC has successfully logged in and is not in error state	
 	bool isVoiceWorking() const override;
+
+	std::string sipURIFromID(const LLUUID &id) override;
 
 	/////////////////////
 	/// @name Tuning
@@ -212,7 +215,6 @@ public:
 	void removeObserver(LLVoiceClientParticipantObserver* observer) override;
 	//@}
 	
-	std::string sipURIFromID(const LLUUID &id) override;
 	//@}
 
 	/// @name LLVoiceEffectInterface virtual implementations
@@ -242,8 +244,8 @@ public:
     /// @name Devices change notification
 	//  LLWebRTCDevicesObserver
     //@{
-	void OnRenderDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices)  override;
-    void OnCaptureDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices) override;
+    void OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
+                          const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices) override;
     //@}
 
 	//////////////////////////////
@@ -255,6 +257,13 @@ public:
     void OnOfferAvailable(const std::string &sdp) override;
     void OnRenegotiationNeeded() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
+    //@}
+
+	//////////////////////////////
+    /// @name Signaling notification
+    //  LLWebRTCAudioObserver
+    //@{
+	void OnAudioLevel(float level) override;
     //@}
     
     /////////////////////////
@@ -307,7 +316,7 @@ protected:
 	struct participantState
 	{
 	public:
-		participantState(const std::string &uri);
+		participantState(const LLUUID& agent_id);
 		
 	        bool updateMuteState();	// true if mute state has changed
 		bool isAvatar();
@@ -348,7 +357,7 @@ protected:
         static ptr_t createSession();
 		~sessionState();
 		
-        participantStatePtr_t addParticipant(const std::string &uri);
+        participantStatePtr_t addParticipant(const LLUUID& agent_id);
         void removeParticipant(const participantStatePtr_t &participant);
 		void removeAllParticipants();
 
@@ -496,7 +505,6 @@ protected:
 	void sessionRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle);
 	void participantAddedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString, std::string &displayNameString, int participantType);
 	void participantRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString);
-	void participantUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, bool isModeratorMuted, bool isSpeaking, int volume, F32 energy);
 	void voiceServiceConnectionStateChangedEvent(int statusCode, std::string &statusString, std::string &build_id);
 	void auxAudioPropertiesEvent(F32 energy);
 	void messageEvent(std::string &sessionHandle, std::string &uriString, std::string &alias, std::string &messageHeader, std::string &messageBody, std::string &applicationString);
@@ -545,7 +553,7 @@ protected:
 	void filePlaybackSetMode(bool vox = false, float speed = 1.0f);
 	
     participantStatePtr_t findParticipantByID(const LLUUID& id);
-	
+    participantStatePtr_t addParticipantByID(const LLUUID &id);	
 
 #if 0
 	////////////////////////////////////////
@@ -556,7 +564,7 @@ protected:
 	sessionIterator sessionsBegin(void);
 	sessionIterator sessionsEnd(void);
 #endif
-
+    void              sessionEstablished();
     sessionStatePtr_t findSession(const std::string &handle);
     sessionStatePtr_t findSessionBeingCreatedByURI(const std::string &uri);
     sessionStatePtr_t findSession(const LLUUID &participant_id);
