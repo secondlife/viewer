@@ -357,6 +357,9 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         const LLSD& tes = data["te"];
         const LLSD& od = data["od"];
 
+        constexpr U32 MAX_TES = 45;
+        bool has_te[MAX_TES] = { false };
+
         if (tes.isArray())
         {
             LLGLTFOverrideCacheEntry cache;
@@ -364,13 +367,15 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
             cache.mObjectId = id;
             cache.mRegionHandle = region->getHandle();
 
-            for (int i = 0; i < tes.size(); ++i)
+            U32 count = llmin(tes.size(), MAX_TES);
+            for (U32 i = 0; i < count; ++i)
             {
                 LLGLTFMaterial* mat = new LLGLTFMaterial(); // setTEGLTFMaterialOverride and cache will take ownership
                 mat->applyOverrideLLSD(od[i]);
 
                 S32 te = tes[i].asInteger();
 
+                has_te[te] = true;
                 cache.mSides[te] = od[i];
                 cache.mGLTFMaterial[te] = mat;
 
@@ -380,6 +385,20 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                     if (obj->getTE(te) && obj->getTE(te)->isSelected())
                     {
                         handle_gltf_override_message.doSelectionCallbacks(id, te);
+                    }
+                }
+            }
+
+            if (obj)
+            { // null out overrides on TEs that shouldn't have them
+                U32 count = llmin(obj->getNumTEs(), MAX_TES);
+                for (U32 i = 0; i < count; ++i)
+                {
+                    LLTextureEntry* te = obj->getTE(i);
+                    if (te && te->getGLTFMaterialOverride())
+                    {
+                        obj->setTEGLTFMaterialOverride(i, nullptr);
+                        handle_gltf_override_message.doSelectionCallbacks(id, i);
                     }
                 }
             }
