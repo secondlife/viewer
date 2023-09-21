@@ -298,12 +298,10 @@ void LLToolDragAndDrop::setDragStart(S32 x, S32 y)
 
 BOOL LLToolDragAndDrop::isOverThreshold(S32 x,S32 y)
 {
-	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold", 3);
-	
 	S32 mouse_delta_x = x - mDragStartX;
 	S32 mouse_delta_y = y - mDragStartY;
 	
-	return (mouse_delta_x * mouse_delta_x) + (mouse_delta_y * mouse_delta_y) > drag_and_drop_threshold * drag_and_drop_threshold;
+	return (mouse_delta_x * mouse_delta_x) + (mouse_delta_y * mouse_delta_y) > DRAG_N_DROP_DISTANCE_THRESHOLD * DRAG_N_DROP_DISTANCE_THRESHOLD;
 }
 
 void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
@@ -566,12 +564,13 @@ BOOL LLToolDragAndDrop::handleKey(KEY key, MASK mask)
 
 BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 {
+    const F32 DRAG_N_DROP_TOOLTIP_DELAY = 0.10000000149f;
 	if (!mToolTipMsg.empty())
 	{
 		LLToolTipMgr::instance().unblockToolTips();
 		LLToolTipMgr::instance().show(LLToolTip::Params()
 			.message(mToolTipMsg)
-			.delay_time(gSavedSettings.getF32( "DragAndDropToolTipDelay" )));
+			.delay_time(DRAG_N_DROP_TOOLTIP_DELAY));
 		return TRUE;
 	}
 	return FALSE;

@@ -63,6 +63,13 @@ bool get_is_predefined_texture(LLUUID asset_id);
 LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = false);
 bool get_can_copy_texture(LLUUID image_id);
 
+const LLUUID DEFAULT_BLANK_NORMAL_TEXTURE("5b53359e-59dd-d8a2-04c3-9e65134da47a");
+const LLUUID DEFAULT_OBJECT_NORMAL_TEXTURE("85f28839-7a1c-b4e3-d71d-967792970a7b");
+const LLUUID DEFAULT_OBJECT_SPECULAR_TEXTURE("87e0e8f7-8729-1ea8-cfc9-8915773009db");
+const LLUUID DEFAULT_OBJECT_TEXTURE("89556747-24cb-43ed-920b-47caed15465f");
+const LLUUID UI_IMAGE_WHITE("5748decc-f629-461c-9a36-a35a221fe21f");
+const LLUUID UI_IMAGE_INVISIBLE("89556747-24cb-43ed-920b-47caed15465f");
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
 

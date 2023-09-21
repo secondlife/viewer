@@ -107,7 +107,7 @@ const F32 FLEXIBLE_OBJECT_DEFAULT_LENGTH = 1.0f;
 const BOOL FLEXIBLE_OBJECT_DEFAULT_USING_COLLISION_SPHERE = FALSE;
 const BOOL FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE = FALSE;
 
-const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // old inverted texture: "7595d345-a24c-e7ef-f0bd-78793792133e";
+const LLUUID SCULPT_DEFAULT_TEXTURE("be293869-d0d9-0a69-5989-ad27f1946fd4"); // old inverted texture: "7595d345-a24c-e7ef-f0bd-78793792133e";
 
 // Texture rotations are sent over the wire as a S16.  This is used to scale the actual float
 // value to a S16.   Don't use 7FFF as it introduces some odd rounding with 180 since it 
@@ -1946,7 +1946,7 @@ bool LLFlexibleObjectData::fromLLSD(LLSD& sd)
 LLSculptParams::LLSculptParams()
 {
 	mType = PARAMS_SCULPT;
-	mSculptTexture.set(SCULPT_DEFAULT_TEXTURE);
+	mSculptTexture = SCULPT_DEFAULT_TEXTURE;
 	mSculptType = LL_SCULPT_TYPE_SPHERE;
 }
 
@@ -2032,7 +2032,7 @@ void LLSculptParams::setSculptTexture(const LLUUID& texture_id, U8 sculpt_type)
 	U8 flags = sculpt_type & LL_SCULPT_FLAG_MASK;
 	if (sculpt_type != (type | flags) || type > LL_SCULPT_TYPE_MAX)
 	{
-		mSculptTexture.set(SCULPT_DEFAULT_TEXTURE);
+		mSculptTexture = SCULPT_DEFAULT_TEXTURE;
 		mSculptType = LL_SCULPT_TYPE_SPHERE;
 	}
 	else

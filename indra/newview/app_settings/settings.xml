@@ -2029,17 +2029,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>DebugInventoryFilters</key>
-    <map>
-      <key>Comment</key>
-      <string>Turn on debugging display for inventory filtering</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>DebugPermissions</key>
     <map>
       <key>Comment</key>
@@ -2171,435 +2160,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-  <key>DebugSlshareLogTag</key>
-    <map>
-      <key>Comment</key>
-      <string>Request slshare-service debug logging</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string/>
-    </map>
-  <key>DebugStatModeFPS</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeBandwidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModePacketLoss</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatMode</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeKTrisDrawnFr</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeKTrisDrawnSec</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeTotalObjs</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeNewObjs</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeTextureCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeRawCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeGLMem</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeFormattedMem</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeRawMem</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeBoundMem</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModePacketsIn</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModePacketsOut</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeObjects</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeTexture</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeAsset</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeLayers</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeActualIn</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeActualOut</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeTimeDialation</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimFPS</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModePhysicsFPS</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModePinnedObjects</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeLowLODObjects</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeMemoryAllocated</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeAgentUpdatesSec</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeMainAgents</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeChildAgents</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimObjects</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimActiveObjects</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimActiveScripts</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimScriptEvents</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimInPPS</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimOutPPS</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeSimPendingDownloads</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
     </map>
     <key>SimPendingUploads</key>
     <map>
@@ -2788,17 +2348,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>DefaultBlankNormalTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Blank' in texture picker for normal maps. (UUID texture reference)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>5b53359e-59dd-d8a2-04c3-9e65134da47a</string>
-  </map>
 	<key>DefaultFemaleAvatar</key>
 	<map>
 	  <key>Comment</key>
@@ -2832,28 +2381,6 @@
 	  <key>Value</key>
 	  <string>Male Shape &amp; Outfit</string>
 	</map>
-  <key>DefaultObjectNormalTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Default' in texture picker for normal map. (UUID texture reference)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>85f28839-7a1c-b4e3-d71d-967792970a7b</string>
-  </map>
-  <key>DefaultObjectSpecularTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Default' in texture picker for specular map. (UUID texture reference)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>87e0e8f7-8729-1ea8-cfc9-8915773009db</string>
-  </map>
   <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
@@ -2864,17 +2391,6 @@
       <string>String</string>
       <key>Value</key>
       <string>89556747-24cb-43ed-920b-47caed15465f</string>
-    </map>
-    <key>DefaultUploadCost</key>
-    <map>
-      <key>Comment</key>
-      <string>Default sound/image/file upload cost(in case economy data is not available).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>10</integer>
     </map>
     <key>DestinationGuideURL</key>
     <map>
@@ -2986,83 +2502,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>DisplayAvatarAgentTarget</key>
-    <map>
-      <key>Comment</key>
-      <string>Show avatar positioning locators (animation debug)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>DisplayChat</key>
-    <map>
-      <key>Comment</key>
-      <string>Display Latest Chat message on LCD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>DisplayDebug</key>
-    <map>
-      <key>Comment</key>
-      <string>Display Network Information on LCD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>DisplayDebugConsole</key>
-    <map>
-      <key>Comment</key>
-      <string>Display Console Debug Information on LCD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>DisplayIM</key>
-    <map>
-      <key>Comment</key>
-      <string>Display Latest IM message on LCD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>DisplayLinden</key>
-    <map>
-      <key>Comment</key>
-      <string>Display Account Information on LCD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>DisplayRegion</key>
-    <map>
-      <key>Comment</key>
-      <string>Display Location information on LCD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
@@ -3128,72 +2567,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>DragAndDropToolTipDelay</key>
-    <map>
-      <key>Comment</key>
-      <string>Seconds before displaying tooltip when performing drag and drop operation</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.10000000149</real>
-    </map>
-    <key>DragAndDropDistanceThreshold</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of pixels that mouse should move before triggering drag and drop mode</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>3</integer>
-    </map>
-    <key>DropShadowButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Drop shadow width for buttons (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
-    <key>DropShadowFloater</key>
-    <map>
-      <key>Comment</key>
-      <string>Drop shadow width for floaters (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
-    </map>
-    <key>DropShadowSlider</key>
-    <map>
-      <key>Comment</key>
-      <string>Drop shadow width for sliders (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>3</integer>
-    </map>
-    <key>DropShadowTooltip</key>
-    <map>
-      <key>Comment</key>
-      <string>Drop shadow width for tooltips (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>4</integer>
     </map>
     <key>DynamicCameraStrength</key>
     <map>
@@ -12822,17 +12195,6 @@
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
-    <key>UIImgWhiteUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
-    </map>
     <key>UILineEditorCursorThickness</key>
     <map>
       <key>Comment</key>
@@ -13636,17 +12998,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>UseEnvironmentFromRegion</key>
-    <map>
-      <key>Comment</key>
-      <string>Choose whether to use the region's environment settings, or override them with the local settings.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnvironmentPersistAcrossLogin</key>
     <map>
       <key>Comment</key>
@@ -13657,62 +13008,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>UseDayCycle</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use use a day cycle or a fixed sky.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WaterPresetName</key>
-    <map>
-      <key>Comment</key>
-      <string>Water preset to use. May be superseded by region settings.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>Default</string>
-    </map>
-    <key>SkyPresetName</key>
-    <map>
-      <key>Comment</key>
-      <string>Sky preset to use. May be superseded by region settings or by a day cycle (see DayCycleName).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>Default</string>
-    </map>
-    <key>DayCycleName</key>
-    <map>
-      <key>Comment</key>
-      <string>Day cycle to use. May be superseded by region settings.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>Default</string>
-    </map>
-    <key>UseExternalBrowser</key>
-    <!-- deprecated (see MAINT-4127) -->
-    <map>
-      <key>Comment</key>
-      <string>(Deprecated) Use default browser when opening web pages instead of in-world browser.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <boolean>1</boolean>
     </map>
     <key>PreferredBrowserBehavior</key>
     <map>
@@ -14976,28 +14271,6 @@
       <key>Value</key>
       <real>120.0</real>
     </map>
-    <key>DestinationGuideHintTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of seconds to wait before telling resident about destination guide.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1200.0</real>
-    </map>
-    <key>SidePanelHintTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of seconds to wait before telling resident about side panel.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>300.0</real>
-    </map>
     <key>GroupMembersSortOrder</key>
     <map>
       <key>Comment</key>
@@ -16064,17 +15337,6 @@
     <string>U32</string>
     <key>Value</key>
     <integer>7000</integer>
-  </map>
-  <key>DisablePrecacheDelayAfterTeleporting</key>
-  <map>
-    <key>Comment</key>
-    <string>Disables the artificial delay in the viewer that precaches some incoming assets</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
   </map>
   <key>VersionChannelName</key>
     <map>

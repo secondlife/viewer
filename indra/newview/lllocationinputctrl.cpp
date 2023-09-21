@@ -230,10 +230,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 
 	// Can't access old mTextEntry fields as they are protected, so lets build new params
 	// That is C&P from LLComboBox::createLineEditor function
-	static LLUICachedControl<S32> drop_shadow_button ("DropShadowButton", 0);
 	S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
 	LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-	text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * drop_shadow_button;
+	text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * BTN_DROP_SHADOW;
 
 	LLLineEditor::Params params = p.combo_editor;
 	params.rect(text_entry_rect);

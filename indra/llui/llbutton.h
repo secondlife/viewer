@@ -43,10 +43,10 @@
 //
 
 // PLEASE please use these "constants" when building your own buttons.
-// They are loaded from settings.xml at run time.
 extern S32	LLBUTTON_H_PAD;
 extern S32	BTN_HEIGHT_SMALL;
 extern S32	BTN_HEIGHT;
+extern S32	BTN_DROP_SHADOW;
 
 //
 // Helpful functions
