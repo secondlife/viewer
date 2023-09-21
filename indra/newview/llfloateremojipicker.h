@@ -56,6 +56,7 @@ public:
 
     static std::list<llwchar>& getRecentlyUsed();
     static void onEmojiUsed(llwchar emoji);
+    static void onRecentlyUsedChanged();
     static void loadState();
     static void saveState();
 
