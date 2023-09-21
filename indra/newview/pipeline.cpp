@@ -5891,7 +5891,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
 		light->setSpotExponent(0.f);
 		light->setSpotCutoff(180.f);
 	}
-	else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
+	else if (gAvatarBacklight)
 	{
         LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
 		LLVector3 opposite_pos = -light_dir;

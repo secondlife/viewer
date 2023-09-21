@@ -88,7 +88,7 @@ LLScreenChannel* LLChannelManager::createNotificationChannel()
 {
 	//  creating params for a channel
 	LLScreenChannelBase::Params p;
-	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
+	p.id = NOTIFICATION_CHANNEL_UUID;
 	p.channel_align = CA_RIGHT;
 	p.toast_align = NA_TOP;
 
@@ -108,7 +108,7 @@ void LLChannelManager::onLoginCompleted()
 		if (!channel) continue;
 
 		// don't calc notifications for Nearby Chat
-		if(channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
+		if(channel->getChannelID() == NEARBY_CHAT_CHANNEL_UUID)
 		{
 			continue;
 		}
@@ -130,7 +130,7 @@ void LLChannelManager::onLoginCompleted()
 	{
 		// create a channel for the StartUp Toast
 		LLScreenChannelBase::Params p;
-		p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
+		p.id = STARTUP_CHANNEL_UUID;
 		p.channel_align = CA_RIGHT;
 		mStartUpChannel = createChannel(p);
 
@@ -164,7 +164,7 @@ void LLChannelManager::onStartUpToastClose()
 	{
 		mStartUpChannel->setVisible(FALSE);
 		mStartUpChannel->closeStartUpToast();
-		removeChannelByID(LLUUID(gSavedSettings.getString("StartUpChannelUUID")));
+		removeChannelByID(STARTUP_CHANNEL_UUID);
 		mStartUpChannel = NULL;
 	}
 
@@ -258,12 +258,12 @@ LLNotificationsUI::LLScreenChannel* LLChannelManager::getNotificationScreenChann
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 	(LLNotificationsUI::LLChannelManager::getInstance()->
-										findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+										findChannelByID(NOTIFICATION_CHANNEL_UUID));
 
 	if (channel == NULL)
 	{
-		LL_WARNS() << "Can't find screen channel by NotificationChannelUUID" << LL_ENDL;
-		llassert(!"Can't find screen channel by NotificationChannelUUID");
+		LL_WARNS() << "Can't find screen channel by Notification Channel UUID" << LL_ENDL;
+		llassert(!"Can't find screen channel by Notification Channel UUID");
 	}
 
 	return channel;

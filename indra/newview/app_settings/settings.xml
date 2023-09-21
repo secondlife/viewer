@@ -137,17 +137,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>AdvanceOutfitSnapshot</key>
-    <map>
-      <key>Comment</key>
-      <string>Display advanced parameter settings in outfit snaphot interface</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>AgentPause</key>
     <map>
       <key>Comment</key>
@@ -214,17 +203,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>AnimationDebug</key>
-    <map>
-      <key>Comment</key>
-      <string>Show active animations in a bubble above avatars head</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>AppearanceCameraMovement</key>
     <map>
       <key>Comment</key>
@@ -269,17 +247,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AskedAboutCrashReports</key>
-    <map>
-      <key>Comment</key>
-      <string>Turns off dialog asking if you want to enable crash reporting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>AuctionShowFence</key>
     <map>
       <key>Comment</key>
@@ -301,17 +268,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.5</real>
-    </map>
-    <key>AudioLevelDoppler</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale of doppler effect on moving audio sources (1.0 = normal, &lt;1.0 = diminished doppler effect, &gt;1.0 = enhanced doppler effect)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
     </map>
     <key>AudioLevelMaster</key>
     <map>
@@ -357,28 +313,6 @@
       <key>Value</key>
       <real>0.3</real>
     </map>
-    <key>AudioLevelRolloff</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls the distance-based dropoff of audio volume (fraction or multiple of default audio rolloff)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
-    <key>AudioLevelUnderwaterRolloff</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls the distance-based dropoff of audio volume underwater(fraction or multiple of default audio rolloff)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>5.0</real>
-    </map>
     <key>AudioLevelSFX</key>
     <map>
       <key>Comment</key>
@@ -405,17 +339,6 @@
     <map>
       <key>Comment</key>
       <string>Audio level of voice chat</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.5</real>
-    </map>
-    <key>AudioLevelWind</key>
-    <map>
-      <key>Comment</key>
-      <string>Audio level of wind noise when standing still</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -456,17 +379,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>AutoAcceptNewInventory</key>
-    <map>
-      <key>Comment</key>
-      <string>Automatically accept new notecards/textures/landmarks</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>AutoLeveling</key>
     <map>
       <key>Comment</key>
@@ -477,17 +389,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>AutoLoadWebProfiles</key>
-    <map>
-      <key>Comment</key>
-      <string>Automatically load ALL profile webpages without asking first.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>AutoLogin</key>
     <map>
@@ -676,17 +577,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>AvatarBacklight</key>
-    <map>
-      <key>Comment</key>
-      <string>Add rim lighting to avatar rendering to approximate shininess of skin</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>AvatarFeathering</key>
     <map>
       <key>Comment</key>
@@ -698,32 +588,6 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
-    <key>AvatarPickerSortOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies sort key for textures in avatar picker (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
-    <key>AvatarPosFinalOffset</key>
-    <map>
-      <key>Comment</key>
-      <string>After-everything-else fixup for avatar position.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-      </array>
-    </map>
     <key>AvatarPickerURL</key>
     <map>
       <key>Comment</key>
@@ -734,50 +598,6 @@
       <string>String</string>
       <key>Value</key>
       <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
-    </map>
-    <key>AvatarRotateThresholdSlow</key>
-    <map>
-      <key>Comment</key>
-      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving slowly (degrees)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <integer>60</integer>
-    </map>
-    <key>AvatarRotateThresholdFast</key>
-    <map>
-      <key>Comment</key>
-      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving fast (degrees)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
-    <key>AvatarBakedTextureUploadTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifes the maximum time in seconds to wait before sending your baked textures for avatar appearance.  Set to 0 to disable and wait until all baked textures are at highest resolution.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>60</integer>
-    </map>
-    <key>AvatarBakedLocalTextureUpdateTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifes the maximum time in seconds to wait before updating your appearance during appearance mode.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>10</integer>
     </map>
     <key>AvatarPhysics</key>
     <map>
@@ -2275,17 +2095,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>AnimatedObjectsIgnoreLimits</key>
-  <map>
-    <key>Comment</key>
-    <string>Ignore server-enforced limits on animated objects. This is only useful for server testing.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>AnimatedObjectsAllowLeftClick</key>
   <map>
     <key>Comment</key>
@@ -2296,17 +2105,6 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
-  </map>
-  <key>AnimatedObjectsGlobalScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Temporary testing: allow an extra scale factor to be forced on animated objects.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.00</real>
   </map>
   <key>AnimatedObjectsMaxLegalOffset</key>
   <map>
@@ -2329,17 +2127,6 @@
     <string>F32</string>
     <key>Value</key>
     <real>64.0</real>
-  </map>
-  <key>AvatarBoundingBoxComplexity</key>
-  <map>
-    <key>Comment</key>
-    <string>How many aspects to consider for avatar bounding box</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>S32</string>
-    <key>Value</key>
-    <integer>3</integer>
   </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
@@ -13333,50 +13120,6 @@
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
-    <key>StartUpChannelUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>B56AF90D-6684-48E4-B1E4-722D3DEB2CB6</string>
-    </map>
-    <key>NearByChatChannelUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>E1158BD6-661C-4981-9DAD-4DCBFF062502</string>
-    </map>
-    <key>NotificationChannelUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>AEED3193-8709-4693-8558-7452CCA97AE5</string>
-    </map>
-    <key>AlertChannelUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>F3E07BC8-A973-476D-8C7F-F3B7293975D1</string>
-    </map>
     <key>UIImgWhiteUUID</key>
     <map>
       <key>Comment</key>
@@ -15305,17 +15048,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AssetStorageLogFrequency</key>
-        <map>
-        <key>Comment</key>
-        <string>Seconds between display of AssetStorage info in log (0 for never)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>60.0</real>
-        </map>
     <key>LogWearableAssetSave</key>
     <map>
       <key>Comment</key>
@@ -15608,17 +15340,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AvatarInspectorTooltipDelay</key>
-    <map>
-      <key>Comment</key>
-      <string>Seconds before displaying avatar inspector tooltip</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.35</real>
-    </map>
     <key>ObjectInspectorTooltipDelay</key>
     <map>
       <key>Comment</key>
@@ -15827,17 +15548,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-     <key>AllowBottomTrayButtonReordering</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow user to move and hide bottom tray buttons</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>AllowSelectAvatar</key>
     <map>

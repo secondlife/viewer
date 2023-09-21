@@ -1616,8 +1616,9 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		const LLUUID& blocked_id;
 	};
 
-	LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
-			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
+    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID,
+        OfferMatcher(blocked_id));
 }
 
 
@@ -5737,8 +5738,9 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
         const LLUUID& blocked_id;
     };
 
-    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
-            gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(task_id));
+    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID,
+        OfferMatcher(task_id));
 }
 
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);

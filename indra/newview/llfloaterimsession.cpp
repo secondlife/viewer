@@ -651,7 +651,7 @@ void LLFloaterIMSession::setDocked(bool docked, bool pop_on_undock)
 	// update notification channel state
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
-											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+											findChannelByID(LLNotificationsUI::NOTIFICATION_CHANNEL_UUID));
 	
 	if(!isChatMultiTab())
 	{
@@ -687,7 +687,7 @@ void LLFloaterIMSession::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
-											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+											findChannelByID(LLNotificationsUI::NOTIFICATION_CHANNEL_UUID));
 
 	LLFloaterIMSessionTab::setVisible(visible);
 
@@ -865,7 +865,7 @@ void LLFloaterIMSession::updateMessages()
 					// remove embedded notification from channel
 					LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 							(LLNotificationsUI::LLChannelManager::getInstance()->
-																findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+																findChannelByID(LLNotificationsUI::NOTIFICATION_CHANNEL_UUID));
 					if (getVisible())
 					{
 						// toast will be automatically closed since it is not storable toast

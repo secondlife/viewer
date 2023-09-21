@@ -228,8 +228,8 @@ void display_stats()
 		LLMemory::logMemoryInfo(TRUE) ;
 		gRecentMemoryTime.reset();
 	}
-    F32 asset_storage_log_freq = gSavedSettings.getF32("AssetStorageLogFrequency");
-    if (asset_storage_log_freq > 0.f && gAssetStorageLogTime.getElapsedTimeF32() >= asset_storage_log_freq)
+    const F32 ASSET_STORAGE_LOG_FREQUENCY = 60.f;
+    if (gAssetStorageLogTime.getElapsedTimeF32() >= ASSET_STORAGE_LOG_FREQUENCY)
     {
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("DS - Asset Storage");
         gAssetStorageLogTime.reset();
