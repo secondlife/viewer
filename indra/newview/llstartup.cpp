@@ -2215,7 +2215,7 @@ bool idle_startup()
 		static LLFrameTimer wearables_timer;
 
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
-		static LLCachedControl<F32> max_wearables_time(gSavedSettings, "ClothingLoadingDelay");
+		const F32 MAX_WEARABLES_TIME = 10.f;
 
 		if (!gAgent.isOutfitChosen() && isAgentAvatarValid())
 		{
@@ -2234,7 +2234,7 @@ bool idle_startup()
 		
 		display_startup();
 
-		if (gAgent.isOutfitChosen() && (wearables_time > max_wearables_time))
+		if (gAgent.isOutfitChosen() && (wearables_time > MAX_WEARABLES_TIME))
 		{
 			if (gInventory.isInventoryUsable())
 			{

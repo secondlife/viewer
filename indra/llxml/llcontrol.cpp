@@ -1497,8 +1497,6 @@ DECL_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
 LLSD test_llsd = LLSD()["testing1"] = LLSD()["testing2"];
 DECL_LLCC(LLSD, test_llsd);
 
-static LLCachedControl<std::string> test_BrowserHomePage("BrowserHomePage", "hahahahahha", "Not the real comment");
-
 void test_cached_control()
 {
 #define TEST_LLCC(T, V) if((T)mySetting_##T != V) LL_ERRS() << "Fail "#T << LL_ENDL
@@ -1515,8 +1513,6 @@ void test_cached_control()
 	TEST_LLCC(LLColor3, LLColor3(1.0f, 0.f, 0.5f));
 	TEST_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
 //There's no LLSD comparsion for LLCC yet. TEST_LLCC(LLSD, test_llsd); 
-
-	if((std::string)test_BrowserHomePage != "http://www.secondlife.com") LL_ERRS() << "Fail BrowserHomePage" << LL_ENDL;
 }
 #endif // TEST_CACHED_CONTROL
 

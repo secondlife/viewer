@@ -2148,13 +2148,15 @@ void LLViewerWindow::initBase()
 	gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
 	gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 
+    const F32 CHAT_PERSIST_TIME = 20.f;
+
 	// Console
 	llassert( !gConsole );
 	LLConsole::Params cp;
 	cp.name("console");
 	cp.max_lines(gSavedSettings.getS32("ConsoleBufferSize"));
 	cp.rect(getChatConsoleRect());
-	cp.persist_time(gSavedSettings.getF32("ChatPersistTime"));
+	cp.persist_time(CHAT_PERSIST_TIME);
 	cp.font_size_index(gSavedSettings.getS32("ChatFontSize"));
 	cp.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
 	gConsole = LLUICtrlFactory::create<LLConsole>(cp);

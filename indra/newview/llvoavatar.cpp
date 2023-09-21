@@ -9262,9 +9262,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-    static LLCachedControl<bool> block_some_avatars(gSavedSettings, "BlockSomeAvatarAppearanceVisualParams");
-	bool drop_visual_params_debug = block_some_avatars && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
-	if( num_blocks > 1 && !drop_visual_params_debug)
+	if( num_blocks > 1)
 	{
 		//LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
 		
@@ -9309,14 +9307,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	}
 	else
 	{
-		if (drop_visual_params_debug)
-		{
-			LL_INFOS() << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << LL_ENDL;
-		}
-		else
-		{
-			LL_DEBUGS("Avatar") << "AvatarAppearance msg received without any parameters, object: " << getID() << LL_ENDL;
-		}
+        LL_DEBUGS("Avatar") << "AvatarAppearance msg received without any parameters, object: " << getID() << LL_ENDL;
 	}
 
 	LLVisualParam* appearance_version_param = getVisualParam(11000);
