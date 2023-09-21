@@ -86,8 +86,8 @@ LLToolPie::LLToolPie()
 	mMouseSteerX(-1),
 	mMouseSteerY(-1),
 	mClickAction(0),
-	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
-	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") ),
+	mClickActionBuyEnabled( TRUE ),
+	mClickActionPayEnabled( TRUE ),
 	mDoubleClickTimer()
 {
 }

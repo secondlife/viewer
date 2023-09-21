@@ -102,9 +102,9 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mActive				( TRUE ),
 	  mCanApplyImmediately	( show_apply_immediate ),
 	  mContextConeOpacity	( 0.f ),
-      mContextConeInAlpha   ( 0.f ),
-      mContextConeOutAlpha   ( 0.f ),
-      mContextConeFadeTime   ( 0.f )
+      mContextConeInAlpha   (CONTEXT_CONE_IN_ALPHA),
+      mContextConeOutAlpha   (CONTEXT_CONE_OUT_ALPHA),
+      mContextConeFadeTime   (CONTEXT_CONE_FADE_TIME)
 {
 	buildFromFile ( "floater_color_picker.xml");
 
@@ -116,10 +116,6 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 		mApplyImmediateCheck->setEnabled(FALSE);
 		mApplyImmediateCheck->set(FALSE);
 	}
-
-    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
-    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
-    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 LLFloaterColorPicker::~LLFloaterColorPicker()

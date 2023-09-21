@@ -528,13 +528,6 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 // or for things that are performance critical.  JC
 static void settings_to_globals()
 {
-	LLBUTTON_H_PAD		= gSavedSettings.getS32("ButtonHPad");
-	BTN_HEIGHT_SMALL	= gSavedSettings.getS32("ButtonHeightSmall");
-	BTN_HEIGHT			= gSavedSettings.getS32("ButtonHeight");
-
-	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
-	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
-
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLContextCoreProfile");
@@ -4271,7 +4264,8 @@ bool LLAppViewer::initCache()
 
     LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 
-	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
+    const U32 CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS = 128;
+	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS, getObjectCacheVersion());
 
     return true;
 }

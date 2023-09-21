@@ -107,15 +107,11 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
 	mCloseOnSelect(FALSE),
     mExcludeAgentFromSearchResults(FALSE),
     mContextConeOpacity	(0.f),
-    mContextConeInAlpha(0.f),
-    mContextConeOutAlpha(0.f),
-    mContextConeFadeTime(0.f)
+    mContextConeInAlpha(CONTEXT_CONE_IN_ALPHA),
+    mContextConeOutAlpha(CONTEXT_CONE_OUT_ALPHA),
+    mContextConeFadeTime(CONTEXT_CONE_FADE_TIME)
 {
 	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
-
-    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
-    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
-    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
