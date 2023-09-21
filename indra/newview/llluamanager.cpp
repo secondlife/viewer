@@ -79,7 +79,7 @@ bool checkLua(lua_State *L, int r, std::string &error_msg)
     return true;
 }
 
-LLSD luatable_to_llsd(lua_State *L, S32 idx)
+LLSD luatable_to_llsd_string(lua_State *L, S32 idx)
 {
     LLSD args;
 
@@ -277,7 +277,7 @@ int lua_show_notification(lua_State *L)
 
     if (lua_type(L, 2) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd(L, 2);
+        LLSD args = luatable_to_llsd_string(L, 2);
 
         std::string response_cb;
         if (lua_type(L, 3) == LUA_TSTRING)
@@ -305,7 +305,7 @@ int lua_add_menu_item(lua_State *L)
     std::string menu(lua_tostring(L, 1));
     if (lua_type(L, 2) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd(L, 2);
+        LLSD args = luatable_to_llsd_string(L, 2);
 
         LLMenuItemCallGL::Params item_params;
         item_params.name  = args["name"];
@@ -338,17 +338,37 @@ int lua_add_menu(lua_State *L)
 { 
     if (lua_type(L, 1) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd(L, 1);
+        LLSD args = luatable_to_llsd_string(L, 1);
 
         LLMenuGL::Params item_params;
         item_params.name  = args["name"];
         item_params.label = args["label"];
+        item_params.can_tear_off = args["tear_off"];
 
         LLMenuGL *menu = LLUICtrlFactory::create<LLMenuGL>(item_params);
         gMenuBarView->appendMenu(menu);
     }
 
     return 1; 
+}
+
+int lua_add_branch(lua_State *L)
+{
+    std::string menu(lua_tostring(L, 1));
+    if (lua_type(L, 2) == LUA_TTABLE)
+    {
+        LLSD args = luatable_to_llsd_string(L, 2);
+
+        LLMenuGL::Params item_params;
+        item_params.name  = args["name"];
+        item_params.label = args["label"];
+        item_params.can_tear_off = args["tear_off"];
+
+        LLMenuGL *branch = LLUICtrlFactory::create<LLMenuGL>(item_params);
+        gMenuBarView->findChildMenuByName(menu, true)->appendMenu(branch);
+    }
+
+    return 1;
 }
 
 int lua_run_ui_command(lua_State *L)
@@ -403,7 +423,7 @@ void initLUA(lua_State *L)
     lua_register(L, "add_menu_separator", lua_add_menu_separator);
     lua_register(L, "add_menu_item", lua_add_menu_item);
     lua_register(L, "add_menu", lua_add_menu);
-    
+    lua_register(L, "add_branch", lua_add_branch);
  
     lua_register(L, "run_ui_command", lua_run_ui_command);
 }

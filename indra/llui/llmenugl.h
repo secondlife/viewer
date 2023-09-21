@@ -558,12 +558,12 @@ public:
     // Add the menu item to this menu.
     virtual BOOL append( LLMenuItemGL* item );
 
+    // add a menu - this will create a cascading menu
+    virtual BOOL appendMenu(LLMenuGL *menu);
+
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
-
-	// add a menu - this will create a cascading menu
-	virtual BOOL appendMenu( LLMenuGL* menu );
 
 	// Used in LLContextMenu and in LLTogleableMenu
 	// to add an item of context menu branch
