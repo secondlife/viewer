@@ -190,7 +190,7 @@ BOOL	LLPanelFace::postBuild()
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(mTextureCtrl)
 	{
-		mTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectTexture" )));
+		mTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_TEXTURE);
 		mTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitTexture, this, _2) );
 		mTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelTexture, this, _2) );
 		mTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectTexture, this, _2) );
@@ -207,7 +207,7 @@ BOOL	LLPanelFace::postBuild()
 	mShinyTextureCtrl = getChild<LLTextureCtrl>("shinytexture control");
 	if(mShinyTextureCtrl)
 	{
-		mShinyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectSpecularTexture" )));
+		mShinyTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_SPECULAR_TEXTURE);
 		mShinyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectSpecularTexture, this, _2) );
@@ -224,8 +224,8 @@ BOOL	LLPanelFace::postBuild()
 	mBumpyTextureCtrl = getChild<LLTextureCtrl>("bumpytexture control");
 	if(mBumpyTextureCtrl)
 	{
-		mBumpyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectNormalTexture" )));
-		mBumpyTextureCtrl->setBlankImageAssetID(LLUUID( gSavedSettings.getString( "DefaultBlankNormalTexture" )));
+		mBumpyTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_NORMAL_TEXTURE);
+		mBumpyTextureCtrl->setBlankImageAssetID(DEFAULT_BLANK_NORMAL_TEXTURE);
 		mBumpyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectNormalTexture, this, _2) );
@@ -3797,7 +3797,7 @@ void LLPanelFace::onCopyTexture()
                         LLUUID id = mat_data["NormMap"].asUUID();
                         if (id.notNull() && !get_can_copy_texture(id))
                         {
-                            mat_data["NormMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["NormMap"] = DEFAULT_OBJECT_TEXTURE;
                             mat_data["NormMapNoCopy"] = true;
                         }
 
@@ -3807,7 +3807,7 @@ void LLPanelFace::onCopyTexture()
                         LLUUID id = mat_data["SpecMap"].asUUID();
                         if (id.notNull() && !get_can_copy_texture(id))
                         {
-                            mat_data["SpecMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["SpecMap"] = DEFAULT_OBJECT_TEXTURE;
                             mat_data["SpecMapNoCopy"] = true;
                         }
 

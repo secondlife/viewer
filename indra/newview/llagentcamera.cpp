@@ -1919,7 +1919,8 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 					}
 					else
 					{
-						target_lag = vel * gSavedSettings.getF32("DynamicCameraStrength") / 30.f;
+                        LLCachedControl<F32> dynamic_camera_strength(gSavedSettings, "DynamicCameraStrength");
+						target_lag = vel * dynamic_camera_strength / 30.f;
 					}
 
 					mCameraLag = lerp(mCameraLag, target_lag, lag_interp);

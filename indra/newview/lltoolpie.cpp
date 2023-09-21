@@ -765,8 +765,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	{
 		S32 delta_x = x - mMouseDownX;
 		S32 delta_y = y - mMouseDownY;
-		S32 threshold = gSavedSettings.getS32("DragAndDropDistanceThreshold");
-		if (delta_x * delta_x + delta_y * delta_y > threshold * threshold)
+		if (delta_x * delta_x + delta_y * delta_y > DRAG_N_DROP_DISTANCE_THRESHOLD * DRAG_N_DROP_DISTANCE_THRESHOLD)
 		{
 			startCameraSteering();
 			steerCameraWithMouse(x, y);

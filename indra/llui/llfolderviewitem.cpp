@@ -596,15 +596,13 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 {
-	static LLCachedControl<S32> drag_and_drop_threshold(*LLUI::getInstance()->mSettingGroups["config"],"DragAndDropDistanceThreshold", 3);
-
 	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
 
 	if( hasMouseCapture() && isMovable() )
 	{
 			LLFolderView* root = getRoot();
 
-		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > drag_and_drop_threshold() * drag_and_drop_threshold() 
+		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > DRAG_N_DROP_DISTANCE_THRESHOLD * DRAG_N_DROP_DISTANCE_THRESHOLD
 			&& root->getAllowDrag()
 			&& root->getCurSelectedItem()
 			&& root->startDrag())
