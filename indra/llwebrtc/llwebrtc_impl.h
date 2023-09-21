@@ -83,6 +83,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     ~LLWebRTCImpl() {}
 
     void init();
+    void terminate();
 
     //
     // LLWebRTCDeviceInterface
@@ -126,8 +127,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     //
     // LLWebRTCAudioInterface
     //
+    void setAudioObserver(LLWebRTCAudioObserver *observer) override;
+    void unsetAudioObserver(LLWebRTCAudioObserver *observer) override;
     void setMute(bool mute) override;
     void setSpeakerVolume(float folume) override; // range 0.0-1.0
+    void requestAudioLevel() override;
     
     //
     // LLWebRTCDataInterface
@@ -144,7 +148,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     void OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface>                     receiver,
                     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>> &streams) override;
     void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
-    void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override {}
+    void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override;
     void OnRenegotiationNeeded() override {}
     void OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState new_state) override {};
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState new_state) override;
@@ -171,7 +175,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     //
     // DataChannelObserver implementation.
     //
-    void OnStateChange() override {}
+    void OnStateChange() override;
     void OnMessage(const webrtc::DataBuffer& buffer) override;
 
   protected:
@@ -200,6 +204,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
 
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>        mPeerConnection;
     
+    std::vector<LLWebRTCAudioObserver *>                       mAudioObserverList;
+
     std::vector<LLWebRTCDataObserver *>                        mDataObserverList;
     rtc::scoped_refptr<webrtc::DataChannelInterface>           mDataChannel;
 };

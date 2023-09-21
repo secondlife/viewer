@@ -45,6 +45,7 @@
 namespace llwebrtc
 {
 LLSYMEXPORT void init();
+LLSYMEXPORT void terminate();
 
 struct LLWebRTCIceCandidate
 {
@@ -69,8 +70,7 @@ typedef std::vector<LLWebRTCVoiceDevice> LLWebRTCVoiceDeviceList;
 class LLWebRTCDevicesObserver
 {
   public:
-    virtual void OnRenderDevicesChanged(const LLWebRTCVoiceDeviceList &render_devices) = 0;
-    virtual void OnCaptureDevicesChanged(const LLWebRTCVoiceDeviceList &capture_devices) = 0;
+    virtual void OnDevicesChanged(const LLWebRTCVoiceDeviceList &render_devices, const LLWebRTCVoiceDeviceList &capture_devices) = 0;
 };
 
 class LLWebRTCDeviceInterface
@@ -89,11 +89,20 @@ class LLWebRTCDeviceInterface
     virtual double getTuningMicrophoneEnergy() = 0;
 };
 
+class LLWebRTCAudioObserver
+{
+  public:
+    virtual void OnAudioLevel(float level)   = 0;
+};
+
 class LLWebRTCAudioInterface
 {
   public:
+    virtual void setAudioObserver(LLWebRTCAudioObserver *observer)  = 0;
+    virtual void unsetAudioObserver(LLWebRTCAudioObserver *observer) = 0;
     virtual void setMute(bool mute) = 0;
     virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
+    virtual void requestAudioLevel() = 0;
 };
 
 class LLWebRTCDataObserver
