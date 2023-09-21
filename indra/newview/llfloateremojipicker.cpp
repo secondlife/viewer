@@ -772,6 +772,18 @@ void LLFloaterEmojiPicker::onEmojiUsed(llwchar emoji)
 }
 
 // static
+void LLFloaterEmojiPicker::onRecentlyUsedChanged()
+{
+    if (sSelectedGroupIndex)
+        return;
+
+    if (LLFloaterEmojiPicker* picker = getInstance())
+    {
+        picker->fillEmojis();
+    }
+}
+
+// static
 void LLFloaterEmojiPicker::loadState()
 {
     if (!sStateFileName.empty())
