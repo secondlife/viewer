@@ -2100,7 +2100,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 				
 float LLWebRTCVoiceClient::tuningGetEnergy(void)
 {
-    return mWebRTCDeviceInterface->getTuningMicrophoneEnergy();
+    return mWebRTCDeviceInterface->getAudioLevel();
 }
 
 bool LLWebRTCVoiceClient::deviceSettingsAvailable()
@@ -2357,9 +2357,14 @@ void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(void)
         }
 	}
 
-	if (mWebRTCAudioInterface)
+    if (mWebRTCDataInterface && mWebRTCAudioInterface)
     {
-        mWebRTCAudioInterface->requestAudioLevel();
+        Json::FastWriter writer;
+        Json::Value      root;
+        root["p"]             = (uint32_t) ((F32)mWebRTCDeviceInterface->getAudioLevel() * 256);
+        std::string json_data = writer.write(root);
+
+        mWebRTCDataInterface->sendData(json_data, false);
     }
 	
 	
@@ -2611,19 +2616,6 @@ void LLWebRTCVoiceClient::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface * 
     }
 	audio_interface->setSpeakerVolume(mSpeakerVolume);
     setVoiceControlStateUnless(VOICE_STATE_SESSION_ESTABLISHED, VOICE_STATE_SESSION_RETRY);
-}
-
-void LLWebRTCVoiceClient::OnAudioLevel(float level) 
-{
-    if (mWebRTCDataInterface)
-    {
-        Json::FastWriter writer;
-        Json::Value      root;
-        root["p"]     = (uint32_t) (level * 256);
-        std::string json_data = writer.write(root);
-
-        mWebRTCDataInterface->sendData(json_data, false);
-    }
 }
 
 void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)

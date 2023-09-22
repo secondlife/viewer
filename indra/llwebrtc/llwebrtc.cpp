@@ -39,6 +39,34 @@ namespace llwebrtc
 
 const float VOLUME_SCALE_WEBRTC = 3.0f;
 
+
+double LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
+
+void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
+                                         const size_t   num_samples,
+                                         const size_t   bytes_per_sample,
+                                         const size_t   num_channels,
+                                         const uint32_t samples_per_sec)
+{
+    double       energy  = 0;
+    const short *samples = (const short *) audio_samples;
+    for (size_t index = 0; index < num_samples * num_channels; index++)
+    {
+        double sample = (static_cast<double>(samples[index]) / (double) 32768);
+        energy += sample * sample;
+    }
+    mMicrophoneEnergy = std::sqrt(energy);
+}
+
+void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
+                                        const size_t   num_samples,
+                                        const size_t   bytes_per_sample,
+                                        const size_t   num_channels,
+                                        const uint32_t samples_per_sec)
+{
+}
+
+
 void LLWebRTCImpl::init()
 {
     mAnswerReceived = false;
@@ -58,9 +86,10 @@ void LLWebRTCImpl::init()
     mWorkerThread->PostTask(
         [this]()
         {
+            mAudioDeviceObserver = new LLAudioDeviceObserver;
             mDeviceModule = webrtc::CreateAudioDeviceWithDataObserver(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
                                                                       mTaskQueueFactory.get(),
-                                                                      std::unique_ptr<webrtc::AudioDeviceDataObserver>(this));
+                                                                      std::unique_ptr<webrtc::AudioDeviceDataObserver>(mAudioDeviceObserver));
             mDeviceModule->Init();
             mDeviceModule->SetStereoRecording(false);
             mDeviceModule->EnableBuiltInAEC(false);
@@ -83,6 +112,10 @@ void LLWebRTCImpl::terminate()
     mWorkerThread->BlockingCall(
         [this]()
         {
+            if (mDeviceModule)
+            {
+                mDeviceModule->Terminate();
+            }
             mDeviceModule = nullptr;
             mTaskQueueFactory = nullptr;
 
@@ -229,32 +262,6 @@ void LLWebRTCImpl::setTuningMode(bool enable)
                 mDeviceModule->StopRecording();
             }
         });
-}
-
-double LLWebRTCImpl::getTuningMicrophoneEnergy() { return mTuningEnergy; }
-
-void LLWebRTCImpl::OnCaptureData(const void    *audio_samples,
-                                 const size_t   num_samples,
-                                 const size_t   bytes_per_sample,
-                                 const size_t   num_channels,
-                                 const uint32_t samples_per_sec)
-{
-    double       energy  = 0;
-    const short *samples = (const short *) audio_samples;
-    for (size_t index = 0; index < num_samples * num_channels; index++)
-    {
-        double sample = (static_cast<double>(samples[index]) / (double) 32768);
-        energy += sample * sample;
-    }
-    mTuningEnergy = std::sqrt(energy);
-}
-
-void LLWebRTCImpl::OnRenderData(const void    *audio_samples,
-                                const size_t   num_samples,
-                                const size_t   bytes_per_sample,
-                                const size_t   num_channels,
-                                const uint32_t samples_per_sec)
-{
 }
 
 //
@@ -470,16 +477,9 @@ void LLWebRTCImpl::setSpeakerVolume(float volume)
         });
 }
 
-void LLWebRTCImpl::requestAudioLevel()
+double LLWebRTCImpl::getAudioLevel()
 {
-    mWorkerThread->PostTask(
-        [this]()
-        {
-           for (auto &observer : mAudioObserverList)
-           {
-               observer->OnAudioLevel((float)mTuningEnergy);
-           }
-        });
+    return mAudioDeviceObserver->getMicrophoneEnergy();
 }
 
 //

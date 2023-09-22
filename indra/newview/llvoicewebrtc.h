@@ -263,7 +263,6 @@ public:
     /// @name Signaling notification
     //  LLWebRTCAudioObserver
     //@{
-	void OnAudioLevel(float level) override;
     //@}
     
     /////////////////////////
