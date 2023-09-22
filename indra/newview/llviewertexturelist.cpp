@@ -588,7 +588,6 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 												   LLHost request_from_host)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	static LLCachedControl<bool> fast_cache_fetching_enabled(gSavedSettings, "FastCacheFetchEnabled", true);
 
 	LLPointer<LLViewerFetchedTexture> imagep ;
 	switch(texture_type)
@@ -633,11 +632,9 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 		imagep->forceActive() ;
 	}
 
-	if(fast_cache_fetching_enabled)
-	{
-		mFastCacheList.insert(imagep);
-		imagep->setInFastCacheList(true);
-	}
+    mFastCacheList.insert(imagep);
+    imagep->setInFastCacheList(true);
+
 	return imagep ;
 }
 

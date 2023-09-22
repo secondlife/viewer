@@ -2491,17 +2491,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableIMChatPopups</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable Incoming IM Chat Popups</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
@@ -2623,17 +2612,6 @@
       <key>Value</key>
       <integer>6</integer>
     </map>
-    <key>EffectScriptChatParticles</key>
-      <map>
-      <key>Comment</key>
-      <string>1 = normal behavior, 0 = disable display of swirling lights when scripts communicate</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnableGrab</key>
     <map>
       <key>Comment</key>
@@ -2711,39 +2689,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnergyFromTop</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>20</integer>
-    </map>
-    <key>EnergyHeight</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>40</integer>
-    </map>
-    <key>EnergyWidth</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>175</integer>
-    </map>
     <key>EventURL</key>
     <map>
       <key>Comment</key>
@@ -2755,61 +2700,6 @@
       <key>Value</key>
       <string>http://events.[GRID]/viewer/embed/event/[EVENT_ID]</string>
     </map>
-    <key>FastCacheFetchEnabled</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable texture fast cache fetching if set</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <string>1</string>
-    </map>
-	<key>FeatureManagerHTTPTable</key>
-      <map>
-        <key>Comment</key>
-        <string>Deprecated</string>
-        <key>Persist</key>
-        <integer>0</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string></string>
-    </map>
-    <key>FPSLogFrequency</key>
-        <map>
-        <key>Comment</key>
-        <string>Seconds between display of FPS in log (0 for never)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>10.0</real>
-        </map>
-    <key>FilterItemsMaxTimePerFrameVisible</key>
-    <map>
-        <key>Comment</key>
-        <string>Max time devoted to items filtering per frame for visible inventory listings (in milliseconds)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>S32</string>
-        <key>Value</key>
-        <integer>10</integer>
-    </map>
-    <key>FilterItemsMaxTimePerFrameUnvisible</key>
-    <map>
-        <key>Comment</key>
-        <string>Max time devoted to items filtering per frame for non visible inventory listings (in milliseconds)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>S32</string>
-        <key>Value</key>
-        <integer>1</integer>
-    </map>
     <key>MainWorkTime</key>
     <map>
         <key>Comment</key>
@@ -2820,72 +2710,6 @@
         <string>F32</string>
         <key>Value</key>
         <real>0.1</real>
-    </map>
-    <key>QueueInventoryFetchTimeout</key>
-    <map>
-        <key>Comment</key>
-        <string>Max time llcompilequeue will wait for inventory fetch to complete (in seconds)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>300.0</real>
-    </map>
-    <key>FindLandArea</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables filtering of land search results by area</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>FindLandPrice</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables filtering of land search results by price</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FindLandType</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls which type of land you are searching for in Find Land interface ("All", "Auction", "For Sale")</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>All</string>
-    </map>
-    <key>FindPeopleOnline</key>
-    <map>
-      <key>Comment</key>
-      <string>Limits people search to only users who are logged on</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FindPlacesPictures</key>
-    <map>
-      <key>Comment</key>
-      <string>Display only results of find places that have pictures</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>FirstName</key>
     <map>
@@ -3402,17 +3226,6 @@
       <key>Value</key>
       <real>0.75</real>
     </map>
-    <key>FolderLoadingMessageWaitTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Seconds to wait before showing the LOADING... text in folder views</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.5</real>
-    </map>
     <key>FontScreenDPI</key>
     <map>
       <key>Comment</key>
@@ -3600,28 +3413,6 @@
       <key>Value</key>
       <integer>32</integer>
     </map>
-    <key>GroupNotifyBoxHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>Height of group notice messages</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>260</integer>
-    </map>
-    <key>GroupNotifyBoxWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Width of group notice messages</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>305</integer>
-    </map>
     <key>HelpURLFormat</key>
     <map>
       <key>Comment</key>
@@ -3710,17 +3501,6 @@
       <key>Value</key>
       <string />
     </map>
-    <key>HtmlHelpLastPage</key>
-    <map>
-      <key>Comment</key>
-      <string>Last URL visited via help system</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string />
-    </map>
     <key>HttpPipelining</key>
     <map>
       <key>Comment</key>
@@ -3743,32 +3523,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>IMShowTimestamps</key>
-    <map>
-      <key>Comment</key>
-      <string>Show timestamps in IM</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>IMShowControlPanel</key>
     <map>
       <key>Comment</key>
       <string>Show IM Control Panel</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-     <key>IMShowContentPanel</key>
-    <map>
-      <key>Comment</key>
-      <string>Show Toolbar and Body Panels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3841,28 +3599,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
-    </map>
-     <key>InspectorFadeTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Fade out timing for inspectors</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.5</real>
-    </map>
-	<key>InspectorShowTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Stay timing for inspectors</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>3.0</real>
     </map>
     <key>InstallLanguage</key>
     <map>
@@ -4281,17 +4017,6 @@
         <string>F32</string>
       <key>Value</key>
         <real>2.0</real>
-    </map>
-    <key>LCDDestination</key>
-    <map>
-      <key>Comment</key>
-      <string>Which LCD to use</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>LeapCommand</key>
     <map>
@@ -6059,28 +5784,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>NotifyBoxHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>Height of notification messages</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>200</integer>
-    </map>
-    <key>NotifyBoxWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Width of notification messages</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>305</integer>
     </map>
     <key>NotificationConferenceIMOptions</key>
     <map>
@@ -13869,17 +13572,6 @@
       <key>Value</key>
       <real>-1.0</real>
     </map>
-    <key>ForcePeriodicRenderingTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Periodically enable all rendering masks for a single frame.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>-1.0</real>
-    </map>
     <key>ZoomDirect</key>
     <map>
       <key>Comment</key>
@@ -14348,17 +14040,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableGroupInfo</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable viewing and editing of group info from web link</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnablePlaceProfile</key>
     <map>
       <key>Comment</key>
@@ -14370,43 +14051,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnablePicks</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable editing of picks from web link</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>EnableWorldMap</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable opening world map from web link</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
   <key>EnableAvatarPay</key>
   <map>
     <key>Comment</key>
     <string>Enable paying other avatars from web link</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>EnableVoiceCall</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable voice calls from web link</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -14429,17 +14077,6 @@
   <map>
     <key>Comment</key>
     <string>Enable opening inventory from web link</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>EnableSearch</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable opening search from web link</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -15327,17 +14964,6 @@
     <key>Value</key>
     <integer>1000</integer>
     </map>
-  <key>FMODExStreamBufferSize</key>
-  <map>
-    <key>Comment</key>
-    <string>Sets the streaming buffer size (in milliseconds) for FMOD Ex or FMOD Studio</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>7000</integer>
-  </map>
   <key>VersionChannelName</key>
     <map>
       <key>Comment</key>

@@ -333,9 +333,9 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-    static LLCachedControl<S32> time_visible(*LLUI::getInstance()->mSettingGroups["config"], "FilterItemsMaxTimePerFrameVisible", 10);
-    static LLCachedControl<S32> time_invisible(*LLUI::getInstance()->mSettingGroups["config"], "FilterItemsMaxTimePerFrameUnvisible", 1);
-    filter.resetTime(llclamp((mParentPanel.get()->getVisible() ? time_visible() : time_invisible()), 1, 100));
+    const S32 TIME_VISIBLE = 10; // in milliseconds
+    const S32 TIME_INVISIBLE = 1;
+    filter.resetTime(llclamp((mParentPanel.get()->getVisible() ? TIME_VISIBLE : TIME_INVISIBLE), 1, 100));
 
     // Note: we filter the model, not the view
 	getViewModelItem()->filter(filter);
