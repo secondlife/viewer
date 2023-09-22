@@ -109,6 +109,7 @@ class LLWebRTCDataObserver
 {
 public:
     virtual void OnDataReceived(const std::string& data, bool binary) = 0;
+    virtual void OnDataChannelReady()   = 0;
 };
 
 class LLWebRTCDataInterface
