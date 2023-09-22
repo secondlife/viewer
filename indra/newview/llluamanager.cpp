@@ -48,7 +48,6 @@
 extern "C"
 {
 #include "lua/lua.h"
-#include "lua/luaconf.h"
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
 }
@@ -551,7 +550,7 @@ LLSD lua_tollsd(lua_State* L, int index)
 
     case LUA_TUSERDATA:
     {
-        LLSD::Binary binary(lua_objlen(L, index));
+        LLSD::Binary binary(lua_rawlen(L, index));
         std::memcpy(binary.data(), lua_touserdata(L, index), binary.size());
         return binary;
     }
@@ -605,7 +604,7 @@ LLSD lua_tollsd(lua_State* L, int index)
         {
             LLSD result{ LLSD::emptyArray() };
             // right away expand the result array to the size we'll need
-            result[lua_objlen(L, index) - 1] = LLSD();
+            result[lua_rawlen(L, index) - 1] = LLSD();
             // track the consecutive indexes we require
             LLSD::Integer expected_index{ 0 };
             do
