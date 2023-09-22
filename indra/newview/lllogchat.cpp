@@ -651,6 +651,27 @@ std::string LLLogChat::oldLogFileName(std::string filename)
 	return scanResult;
 }
 
+bool LLLogChat::transcriptFilesExist()
+{
+    std::string pattern = "*." + LL_TRANSCRIPT_FILE_EXTENSION;
+    // get Users log directory
+    std::string dirname = gDirUtilp->getPerAccountChatLogsDir();
+
+    // add final OS dependent delimiter
+    dirname += gDirUtilp->getDirDelimiter();
+
+    LLDirIterator iter(dirname, pattern);
+    std::string filename;
+    while (iter.next(filename))
+    {
+        std::string fullname = gDirUtilp->add(dirname, filename);
+        if (isTranscriptFileFound(fullname))
+        {
+            return true;
+        }
+    }
+    return false;
+}
 // static
 void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string>& list_of_transcriptions)
 {
