@@ -1156,20 +1156,29 @@ namespace tut
 		chain.clear();
 
 		// pump for a bit and make sure all 3 chains are running
-		pump_loop(mPump,0.1f);
+		for (int retry = 0; mPump->runningChains() < 3 && retry < 10; ++retry)
+		{
+			pump_loop(mPump, 0.1f);
+		}
 		count = mPump->runningChains();
-		// ensure_equals("client chain onboard", count, 3); commented out because it fails frequently - appears to be timing sensitive
+		ensure_equals("client chain onboard", count, 3);
 		LL_DEBUGS() << "** request should have been sent." << LL_ENDL;
 
 		// pump for long enough the the client socket closes, and the
 		// server socket should not be closed yet.
-		pump_loop(mPump,0.2f);
+		for (int retry = 0; mPump->runningChains() == 3 && retry < 10; ++retry)
+		{
+			pump_loop(mPump, 0.1f);
+		}
 		count = mPump->runningChains();
 		ensure_equals("client chain timed out ", count, 2);
 		LL_DEBUGS() << "** client chain should be closed." << LL_ENDL;
 
 		// At this point, the socket should be closed by the timeout
-		pump_loop(mPump,1.0f);
+		for (int retry = 0; mPump->runningChains() > 1 && retry < 10; ++retry)
+		{
+			pump_loop(mPump, 0.1f);
+		}
 		count = mPump->runningChains();
 		ensure_equals("accepted socked close", count, 1);
 		LL_DEBUGS() << "** Sleeper should have timed out.." << LL_ENDL;
