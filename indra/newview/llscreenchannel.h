@@ -39,6 +39,8 @@ namespace LLNotificationsUI
     const LLUUID NEARBY_CHAT_CHANNEL_UUID("E1158BD6-661C-4981-9DAD-4DCBFF062502");
     const LLUUID STARTUP_CHANNEL_UUID("B56AF90D-6684-48E4-B1E4-722D3DEB2CB6");
 
+    const S32 NOTIFY_BOX_WIDTH = 305;
+
 typedef enum e_notification_toast_alignment
 {
 	NA_TOP, 

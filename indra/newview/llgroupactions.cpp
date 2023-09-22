@@ -88,12 +88,6 @@ public:
 			return true;
 		}
 
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableGroupInfo"))
-		{
-			LLNotificationsUtil::add("NoGroupInfo", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
-
 		if (tokens.size() < 1)
 		{
 			return false;

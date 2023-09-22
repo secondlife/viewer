@@ -209,11 +209,11 @@ void display_update_camera()
 void display_stats()
 {
 	LL_PROFILE_ZONE_SCOPED
-	F32 fps_log_freq = gSavedSettings.getF32("FPSLogFrequency");
-	if (fps_log_freq > 0.f && gRecentFPSTime.getElapsedTimeF32() >= fps_log_freq)
+	const F32 FPS_LOG_FREQUENCY = 10.f;
+	if (gRecentFPSTime.getElapsedTimeF32() >= FPS_LOG_FREQUENCY)
 	{
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("DS - FPS");
-		F32 fps = gRecentFrameCount / fps_log_freq;
+		F32 fps = gRecentFrameCount / FPS_LOG_FREQUENCY;
 		LL_INFOS() << llformat("FPS: %.02f", fps) << LL_ENDL;
 		gRecentFrameCount = 0;
 		gRecentFPSTime.reset();

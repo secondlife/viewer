@@ -48,6 +48,8 @@
 #include "llstreamingaudio.h"
 
 /////////////////////////////////////////////////////////
+const U32 FMODEX_DECODE_BUFFER_SIZE = 1000; // in milliseconds
+const U32 FMODEX_STREAM_BUFFER_SIZE = 7000; // in milliseconds
 
 LLViewerAudio::LLViewerAudio() :
 	mDone(true),
@@ -116,7 +118,7 @@ void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI
 
 			LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
 			if (stream && stream->supportsAdjustableBufferSizes())
-				stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"), gSavedSettings.getU32("FMODExDecodeBufferSize"));
+				stream->setBufferSizes(FMODEX_STREAM_BUFFER_SIZE, FMODEX_DECODE_BUFFER_SIZE);
 
 			gAudiop->startInternetStream(mNextStreamURI);
 		}
@@ -183,7 +185,7 @@ bool LLViewerAudio::onIdleUpdate()
                     LL_DEBUGS("AudioEngine") << "Audio fade in: " << mNextStreamURI << LL_ENDL;
 					LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
 					if(stream && stream->supportsAdjustableBufferSizes())
-						stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+						stream->setBufferSizes(FMODEX_STREAM_BUFFER_SIZE, FMODEX_DECODE_BUFFER_SIZE);
 
 					gAudiop->startInternetStream(mNextStreamURI);
 				}
