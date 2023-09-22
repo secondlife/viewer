@@ -53,15 +53,74 @@ extern "C"
 }
 
 #include <cstring>                  // std::memcpy()
+#include <map>
+#include <string_view>
 
 #if LL_WINDOWS
 #pragma comment(lib, "liblua54.a")
 #endif
 
+LLSD lua_tollsd(lua_State* L, int index);
+void lua_pushllsd(lua_State* L, const LLSD& data);
+
 // FIXME extremely hacky way to get to the UI Listener framework. There's almost certainly a cleaner way.
 extern LLUIListener sUIListener;
 
-int lua_printWarning(lua_State *L)
+/**
+ * LuaFunction is a base class containing a static registry of its static
+ * subclass call() methods. call() is NOT virtual: instead, each subclass
+ * constructor passes a pointer to its distinct call() method to the base-
+ * class constructor, along with a name by which to register that method.
+ *
+ * The init() method walks the registry and registers each such name with the
+ * passed lua_State.
+ */
+class LuaFunction
+{
+public:
+    typedef int (*funcptr)(lua_State* L);
+    LuaFunction(const std::string_view& name, funcptr function)
+    {
+        getRegistry().emplace(name, function);
+    }
+
+    static void init(lua_State* L)
+    {
+        for (const auto& pair: getRegistry())
+        {
+            lua_register(L, pair.first.c_str(), pair.second);
+        }
+    }
+
+private:
+    using Registry = std::map<std::string, funcptr>;
+    static Registry& getRegistry()
+    {
+        // use a function-local static to ensure it's initialized
+        static Registry registry;
+        return registry;
+    }
+};
+
+/**
+ * lua_function(name) is a macro to facilitate defining C++ functions
+ * available to Lua. It defines a subclass of LuaFunction and declares a
+ * static instance of that subclass, thereby forcing the compiler to call its
+ * constructor at module initialization time. The constructor passes the
+ * stringized instance name to its LuaFunction base-class constructor, along
+ * with a pointer to the static subclass call() method. It then emits the
+ * call() method definition header, to be followed by a method body enclosed
+ * in curly braces as usual.
+ */
+#define lua_function(name)                      \
+static struct name##_ : public LuaFunction      \
+{                                               \
+    name##_(): LuaFunction(#name, &call) {}     \
+    static int call(lua_State* L);              \
+} name;                                         \
+int name##_::call(lua_State* L)
+
+lua_function(print_warning)
 {
     std::string msg(lua_tostring(L, 1));
 
@@ -81,38 +140,19 @@ bool checkLua(lua_State *L, int r, std::string &error_msg)
     return true;
 }
 
-LLSD luatable_to_llsd_string(lua_State *L, S32 idx)
-{
-    LLSD args;
-
-    // push first key
-    lua_pushnil(L);
-    while (lua_next(L, idx) != 0)
-    {
-        // right now -2 is key, -1 is value
-        lua_rawgeti(L, -1, 1);
-        lua_rawgeti(L, -2, 2);
-        std::string key = lua_tostring(L, -2);
-        std::string value = lua_tostring(L, -1);
-        args[key] = value;
-        lua_pop(L, 3);
-    } 
-    return args;
-}
-
-int lua_avatar_sit(lua_State *L)
+lua_function(avatar_sit)
 {
     gAgent.sitDown();
     return 1;
 }
 
-int lua_avatar_stand(lua_State *L)
+lua_function(avatar_stand)
 {
     gAgent.standUp();
     return 1;
 }
 
-int lua_nearby_chat_send(lua_State *L)
+lua_function(nearby_chat_send)
 {
     std::string msg(lua_tostring(L, 1));
     LLFloaterIMNearbyChat *nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -121,7 +161,7 @@ int lua_nearby_chat_send(lua_State *L)
     return 1;
 }
 
-int lua_wear_by_name(lua_State *L)
+lua_function(wear_by_name)
 {
     std::string folder_name(lua_tostring(L, 1));
     LLAppearanceMgr::instance().wearOutfitByName(folder_name);
@@ -129,7 +169,7 @@ int lua_wear_by_name(lua_State *L)
     return 1;
 }
 
-int lua_open_floater(lua_State *L)
+lua_function(open_floater)
 {
     std::string floater_name(lua_tostring(L, 1));
 
@@ -143,7 +183,7 @@ int lua_open_floater(lua_State *L)
     return 1;
 }
 
-int lua_close_floater(lua_State *L)
+lua_function(close_floater)
 {
     std::string floater_name(lua_tostring(L, 1));
 
@@ -157,13 +197,13 @@ int lua_close_floater(lua_State *L)
     return 1;
 }
 
-int lua_close_all_floaters(lua_State *L)
+lua_function(close_all_floaters)
 {
     close_all_windows();
     return 1;
 }
 
-int lua_click_child(lua_State *L)
+lua_function(click_child)
 {
 	std::string parent_name(lua_tostring(L, 1));
 	std::string child_name(lua_tostring(L, 2));
@@ -175,7 +215,7 @@ int lua_click_child(lua_State *L)
 	return 1;
 }
 
-int lua_snapshot_to_file(lua_State *L)
+lua_function(snapshot_to_file)
 {
     std::string filename(lua_tostring(L, 1));
 
@@ -195,13 +235,13 @@ int lua_snapshot_to_file(lua_State *L)
     return 1;
 }
 
-int lua_open_wearing_tab(lua_State *L)
+lua_function(open_wearing_tab)
 { 
     LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "now_wearing")); 
     return 1;
 }
 
-int lua_set_debug_setting_bool(lua_State *L) 
+lua_function(set_debug_setting_bool) 
 {
     std::string setting_name(lua_tostring(L, 1));
     bool value(lua_toboolean(L, 2));
@@ -210,20 +250,20 @@ int lua_set_debug_setting_bool(lua_State *L)
     return 1;
 }
 
-int lua_get_avatar_name(lua_State *L)
+lua_function(get_avatar_name)
 {
     std::string name = gAgentAvatarp->getFullname();
     lua_pushstring(L, name.c_str());
     return 1;
 }
 
-int lua_is_avatar_flying(lua_State *L)
+lua_function(is_avatar_flying)
 {
     lua_pushboolean(L, gAgent.getFlying());
     return 1;
 }
 
-int lua_play_animation(lua_State *L)
+lua_function(play_animation)
 {
 	std::string anim_name = lua_tostring(L,1);
 
@@ -256,7 +296,7 @@ int lua_play_animation(lua_State *L)
 	return 1;
 }
 
-int lua_env_setting_event(lua_State *L)
+lua_function(env_setting_event)
 { 
     handle_env_setting_event(lua_tostring(L, 1));
     return 1;
@@ -273,13 +313,13 @@ void handle_notification_dialog(const LLSD &notification, const LLSD &response, 
     }
 }
 
-int lua_show_notification(lua_State *L)
+lua_function(show_notification)
 {
     std::string notification(lua_tostring(L, 1));
 
     if (lua_type(L, 2) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd_string(L, 2);
+        LLSD args = lua_tollsd(L, 2);
 
         std::string response_cb;
         if (lua_type(L, 3) == LUA_TSTRING)
@@ -302,12 +342,12 @@ int lua_show_notification(lua_State *L)
     return 1;
 }
 
-int lua_add_menu_item(lua_State *L)
+lua_function(add_menu_item)
 {
     std::string menu(lua_tostring(L, 1));
     if (lua_type(L, 2) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd_string(L, 2);
+        LLSD args = lua_tollsd(L, 2);
 
         LLMenuItemCallGL::Params item_params;
         item_params.name  = args["name"];
@@ -328,7 +368,7 @@ int lua_add_menu_item(lua_State *L)
     return 1;
 }
 
-int lua_add_menu_separator(lua_State *L)
+lua_function(add_menu_separator)
 {
     std::string menu(lua_tostring(L, 1));
     gMenuBarView->findChildMenuByName(menu, true)->addSeparator();
@@ -336,11 +376,11 @@ int lua_add_menu_separator(lua_State *L)
     return 1;
 }
 
-int lua_add_menu(lua_State *L)
+lua_function(add_menu)
 { 
     if (lua_type(L, 1) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd_string(L, 1);
+        LLSD args = lua_tollsd(L, 1);
 
         LLMenuGL::Params item_params;
         item_params.name  = args["name"];
@@ -354,12 +394,12 @@ int lua_add_menu(lua_State *L)
     return 1; 
 }
 
-int lua_add_branch(lua_State *L)
+lua_function(add_branch)
 {
     std::string menu(lua_tostring(L, 1));
     if (lua_type(L, 2) == LUA_TTABLE)
     {
-        LLSD args = luatable_to_llsd_string(L, 2);
+        LLSD args = lua_tollsd(L, 2);
 
         LLMenuGL::Params item_params;
         item_params.name  = args["name"];
@@ -373,7 +413,7 @@ int lua_add_branch(lua_State *L)
     return 1;
 }
 
-int lua_run_ui_command(lua_State *L)
+lua_function(run_ui_command)
 {
 	int top = lua_gettop(L);
 	std::string func_name;
@@ -400,34 +440,7 @@ int lua_run_ui_command(lua_State *L)
 
 void initLUA(lua_State *L)
 {
-    lua_register(L, "print_warning", lua_printWarning);
-
-    lua_register(L, "avatar_sit", lua_avatar_sit);
-    lua_register(L, "avatar_stand", lua_avatar_stand);
-
-    lua_register(L, "nearby_chat_send", lua_nearby_chat_send);
-    lua_register(L, "wear_by_name", lua_wear_by_name);
-    lua_register(L, "open_floater", lua_open_floater);
-    lua_register(L, "close_floater", lua_close_floater);
-    lua_register(L, "close_all_floaters", lua_close_all_floaters);
-	lua_register(L, "click_child", lua_click_child);
-    lua_register(L, "open_wearing_tab", lua_open_wearing_tab);
-    lua_register(L, "snapshot_to_file", lua_snapshot_to_file);
-
-    lua_register(L, "get_avatar_name", lua_get_avatar_name);
-    lua_register(L, "is_avatar_flying", lua_is_avatar_flying);
-    lua_register(L, "play_animation", lua_play_animation);
-
-    lua_register(L, "env_setting_event", lua_env_setting_event);
-    lua_register(L, "set_debug_setting_bool", lua_set_debug_setting_bool);
-
-    lua_register(L, "show_notification", lua_show_notification);
-    lua_register(L, "add_menu_separator", lua_add_menu_separator);
-    lua_register(L, "add_menu_item", lua_add_menu_item);
-    lua_register(L, "add_menu", lua_add_menu);
-    lua_register(L, "add_branch", lua_add_branch);
- 
-    lua_register(L, "run_ui_command", lua_run_ui_command);
+    LuaFunction::init(L);
 }
 
 void LLLUAmanager::runScriptFile(const std::string &filename, script_finished_fn cb)
