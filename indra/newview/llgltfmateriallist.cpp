@@ -360,8 +360,8 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         constexpr U32 MAX_TES = 45;
         bool has_te[MAX_TES] = { false };
 
-        if (tes.isArray())
-        {
+        if (tes.isArray()) // NOTE: if no "te" array exists, this is a malformed message (null out all overrides will come in as an empty te array)
+        { 
             LLGLTFOverrideCacheEntry cache;
             cache.mLocalId = local_id;
             cache.mObjectId = id;
@@ -395,7 +395,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                 for (U32 i = 0; i < count; ++i)
                 {
                     LLTextureEntry* te = obj->getTE(i);
-                    if (te && te->getGLTFMaterialOverride())
+                    if (!has_te[i] && te && te->getGLTFMaterialOverride())
                     {
                         obj->setTEGLTFMaterialOverride(i, nullptr);
                         handle_gltf_override_message.doSelectionCallbacks(id, i);
