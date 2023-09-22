@@ -471,9 +471,7 @@ BOOL LLFloaterPreference::postBuild()
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
 {
-	std::vector<std::string> list_of_transcriptions_file_names;
-	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions_file_names);
-	getChild<LLButton>("delete_transcripts")->setEnabled(list_of_transcriptions_file_names.size() > 0);
+	getChild<LLButton>("delete_transcripts")->setEnabled(LLLogChat::transcriptFilesExist());
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
