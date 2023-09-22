@@ -786,6 +786,8 @@ private:
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;
 
+	uint32_t mAudioLevel;
+
 	bool mIsInitialized;
 	bool mShutdownComplete;
 	

@@ -2359,12 +2359,17 @@ void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(void)
 
     if (mWebRTCDataInterface && mWebRTCAudioInterface)
     {
-        Json::FastWriter writer;
-        Json::Value      root;
-        root["p"]             = (uint32_t) ((F32)mWebRTCDeviceInterface->getAudioLevel() * 256);
-        std::string json_data = writer.write(root);
+        uint32_t audio_level = (uint32_t) ((F32) mWebRTCDeviceInterface->getAudioLevel() * 256);
+        if (audio_level != mAudioLevel)
+        {
+            Json::FastWriter writer;
+            Json::Value      root;
+            root["p"]             = (uint32_t) ((F32) mWebRTCDeviceInterface->getAudioLevel() * 256);
+            std::string json_data = writer.write(root);
 
-        mWebRTCDataInterface->sendData(json_data, false);
+            mWebRTCDataInterface->sendData(json_data, false);
+            mAudioLevel = audio_level;
+        }
     }
 	
 	
