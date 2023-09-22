@@ -63,11 +63,31 @@
 namespace llwebrtc
 {
 
+class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
+{
+  public:
+    double getMicrophoneEnergy();
+
+    void OnCaptureData(const void    *audio_samples,
+                       const size_t   num_samples,
+                       const size_t   bytes_per_sample,
+                       const size_t   num_channels,
+                       const uint32_t samples_per_sec) override;
+
+    void OnRenderData(const void    *audio_samples,
+                      const size_t   num_samples,
+                      const size_t   bytes_per_sample,
+                      const size_t   num_channels,
+                      const uint32_t samples_per_sec) override;
+
+  protected:
+    double mMicrophoneEnergy;
+};
+
 class LLWebRTCImpl : public LLWebRTCDeviceInterface,
                      public LLWebRTCSignalInterface,
                      public LLWebRTCAudioInterface,
                      public LLWebRTCDataInterface,
-                     public webrtc::AudioDeviceDataObserver,
                      public webrtc::PeerConnectionObserver,
                      public webrtc::CreateSessionDescriptionObserver,
                      public webrtc::SetRemoteDescriptionObserverInterface,
@@ -77,7 +97,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
 {
   public:
     LLWebRTCImpl() : 
-        mTuningEnergy(0.0)
+        mAudioDeviceObserver(nullptr)
     {
     }
     ~LLWebRTCImpl() {}
@@ -98,20 +118,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     void setRenderDevice(const std::string& id) override;
 
     void setTuningMode(bool enable) override;
-    double getTuningMicrophoneEnergy() override;
-
-
-    void OnCaptureData(const void    *audio_samples,
-                       const size_t   num_samples,
-                       const size_t   bytes_per_sample,
-                       const size_t   num_channels,
-                       const uint32_t samples_per_sec) override;
-
-    void OnRenderData(const void    *audio_samples,
-                      const size_t   num_samples,
-                      const size_t   bytes_per_sample,
-                      const size_t   num_channels,
-                      const uint32_t samples_per_sec) override;
+    double getAudioLevel() override;
 
     //
     // LLWebRTCSignalInterface
@@ -131,7 +138,6 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     void unsetAudioObserver(LLWebRTCAudioObserver *observer) override;
     void setMute(bool mute) override;
     void setSpeakerVolume(float folume) override; // range 0.0-1.0
-    void requestAudioLevel() override;
     
     //
     // LLWebRTCDataInterface
@@ -195,7 +201,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     rtc::scoped_refptr<webrtc::AudioDeviceModule>              mDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
 
-    double mTuningEnergy;
+    LLAudioDeviceObserver *                                    mAudioDeviceObserver;
 
     // signaling
     std::vector<LLWebRTCSignalingObserver *>                   mSignalingObserverList;
