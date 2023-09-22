@@ -39,6 +39,7 @@ namespace llwebrtc
 
 const float VOLUME_SCALE_WEBRTC = 3.0f;
 
+LLAudioDeviceObserver::LLAudioDeviceObserver() : mMicrophoneEnergy(0.0), mSumVector {0} {}
 
 double LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
 
@@ -48,14 +49,26 @@ void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
                                          const size_t   num_channels,
                                          const uint32_t samples_per_sec)
 {
-    double       energy  = 0;
+    float       energy  = 0;
     const short *samples = (const short *) audio_samples;
     for (size_t index = 0; index < num_samples * num_channels; index++)
     {
-        double sample = (static_cast<double>(samples[index]) / (double) 32768);
+        float sample = (static_cast<float>(samples[index]) / (float) 32768);
         energy += sample * sample;
     }
-    mMicrophoneEnergy = std::sqrt(energy);
+
+    // smooth it.
+    size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
+    float totalSum = 0; 
+    int i;
+    for (i = 0; i < (buffer_size - 1); i++)
+    {
+        mSumVector[i] = mSumVector[i + 1];
+        totalSum += mSumVector[i];
+    }
+    mSumVector[i] = energy;
+    totalSum += energy;
+    mMicrophoneEnergy = std::sqrt(totalSum / (num_samples * buffer_size));
 }
 
 void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
@@ -479,7 +492,7 @@ void LLWebRTCImpl::setSpeakerVolume(float volume)
 
 double LLWebRTCImpl::getAudioLevel()
 {
-    return mAudioDeviceObserver->getMicrophoneEnergy();
+    return 20*mAudioDeviceObserver->getMicrophoneEnergy();
 }
 
 //

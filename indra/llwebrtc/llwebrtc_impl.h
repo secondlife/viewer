@@ -66,6 +66,8 @@ namespace llwebrtc
 class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
 {
   public:
+    LLAudioDeviceObserver();
+
     double getMicrophoneEnergy();
 
     void OnCaptureData(const void    *audio_samples,
@@ -81,7 +83,8 @@ class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
                       const uint32_t samples_per_sec) override;
 
   protected:
-    double mMicrophoneEnergy;
+    float mSumVector[30];  // 300 ms of smoothing
+    float mMicrophoneEnergy;
 };
 
 class LLWebRTCImpl : public LLWebRTCDeviceInterface,

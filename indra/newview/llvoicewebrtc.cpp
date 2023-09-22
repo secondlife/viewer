@@ -87,6 +87,7 @@ namespace {
     const F32 VOLUME_SCALE_WEBRTC = 0.01f;
 
     const F32 SPEAKING_TIMEOUT = 1.f;
+    const F32 SPEAKING_AUDIO_LEVEL = 0.05;
 
     static const std::string VOICE_SERVER_TYPE = "WebRTC";
 
@@ -2366,16 +2367,28 @@ void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(void)
 
     if (mWebRTCDataInterface && mWebRTCAudioInterface)
     {
-        uint32_t audio_level = (uint32_t) ((F32) mWebRTCDeviceInterface->getAudioLevel() * 256);
-        if (audio_level != mAudioLevel)
+        F32 audio_level = 0.0;
+        
+		if (!mMuteMic)
+        {
+            audio_level = (F32) mWebRTCDeviceInterface->getAudioLevel();
+        }
+        uint32_t uint_audio_level = (uint32_t) (audio_level * 256);
+        if (uint_audio_level != mAudioLevel)
         {
             Json::FastWriter writer;
-            Json::Value      root;
-            root["p"]             = (uint32_t) ((F32) mWebRTCDeviceInterface->getAudioLevel() * 256);
+            Json::Value  root;
+            root["p"]             = uint_audio_level;
             std::string json_data = writer.write(root);
 
             mWebRTCDataInterface->sendData(json_data, false);
-            mAudioLevel = audio_level;
+            mAudioLevel                       = uint_audio_level;
+            participantStatePtr_t participant = findParticipantByID(gAgentID);
+            if (participant) 
+			{
+                participant->mPower = audio_level;
+                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;  
+			}
         }
     }
 	
@@ -2677,10 +2690,12 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
                 {
                     removeParticipantByID(agent_id);
                 }
-                participant->mPower      = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mPower)).asInt()) / 256;
+                F32 energyRMS = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mPower)).asInt()) / 256;
+				// convert to decibles
+                participant->mPower = energyRMS;
                 /* WebRTC appears to have deprecated VAD, but it's still in the Audio Processing Module so maybe we
 				   can use it at some point when we actually process frames. */
-                participant->mIsSpeaking = participant->mPower > 0.05;  
+                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;  
 			}
         }
     }
@@ -4446,10 +4461,16 @@ void LLWebRTCVoiceClient::leaveChannel(void)
 
 void LLWebRTCVoiceClient::setMuteMic(bool muted)
 {
+    participantStatePtr_t participant = findParticipantByID(gAgentID);
+    if (participant)
+	{
+        participant->mPower = 0.0;
+	}
     if (mWebRTCAudioInterface)
 	{
         mWebRTCAudioInterface->setMute(muted);
 	}
+    mMuteMic = muted;
 }
 
 void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
@@ -4625,16 +4646,17 @@ BOOL LLWebRTCVoiceClient::getIsModeratorMuted(const LLUUID& id)
 	return result;
 }
 
-F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID& id)
-{		
-	F32 result = 0;
-    participantStatePtr_t participant(findParticipantByID(id));
-	if(participant)
+F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
+{
+    F32 result = 0;
+    if (!mMuteMic)
 	{
-        LL_WARNS("Voice") << "Power:" << participant->mPower << LL_ENDL;
-		result = participant->mPower*4;
+		participantStatePtr_t participant(findParticipantByID(id));
+		if (participant)
+		{
+			result = participant->mPower * 4;
+		}
 	}
-	
 	return result;
 }
 
