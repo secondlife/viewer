@@ -554,7 +554,8 @@ protected:
 	
     participantStatePtr_t findParticipantByID(const LLUUID& id);
     participantStatePtr_t addParticipantByID(const LLUUID &id);	
-
+    void removeParticipantByID(const LLUUID &id);
+    
 #if 0
 	////////////////////////////////////////
 	// voice sessions.

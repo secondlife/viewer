@@ -87,11 +87,6 @@ void LLWebRTCImpl::terminate()
                 mDeviceModule = nullptr;
             }
         });
-
-    mNetworkThread->Stop();
-    mWorkerThread->Stop();
-    mSignalingThread->Stop();
-
 }
 
 
