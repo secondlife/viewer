@@ -833,7 +833,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     }
 
     const LLSD& ds = data["ds"];
-    if (data.isBoolean())
+    if (ds.isBoolean())
     {
         mDoubleSided = ds.asBoolean();
         mOverrideDoubleSided = true;
