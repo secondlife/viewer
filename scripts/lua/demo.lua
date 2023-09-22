@@ -29,6 +29,17 @@ function demo_avatar()
     wear_by_name("Petrol Sue")
     sleep(8)
 
+    run_ui_command("Self.ToggleSitStand")
+    sleep(2)
+    run_ui_command("Self.ToggleSitStand")
+    sleep(2)
+
+    run_ui_command("View.ZoomOut")
+    run_ui_command("View.ZoomOut")
+    run_ui_command("EditShape")
+    sleep(6)
+    close_floater("appearance")
+
 end
 
 function demo_ui()
@@ -37,8 +48,18 @@ function demo_ui()
   -- adding items to 'Build' menu
   -- popup_and_wait_ok("Extend UI")
 
+  popup_and_wait_ok("UI interaction")
+  open_floater("inventory")
+  open_floater("preferences")
+  open_floater("nearby_chat")
+  nearby_chat_send("Hello World!")
+
+  sleep(5)
+  close_all_floaters()
+
+
   notif_response = nil
-  args = {{"MESSAGE", "Extend the UI now?"}}
+  args = {{"MESSAGE", "Customize the UI now?"}}
   show_notification("GenericAlertYesCancel", args, "notif_response")
   while not notif_response do
     sleep(0.2)
