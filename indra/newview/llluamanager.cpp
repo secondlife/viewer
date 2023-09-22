@@ -684,7 +684,7 @@ LLSD lua_tollsd(lua_State* L, int index)
 
 // By analogy with existing lua_pushmumble() functions, push onto state L's
 // stack a Lua object corresponding to the passed LLSD object.
-int lua_pushllsd(lua_State* L, const LLSD& data)
+void lua_pushllsd(lua_State* L, const LLSD& data)
 {
     switch (data.type())
     {
