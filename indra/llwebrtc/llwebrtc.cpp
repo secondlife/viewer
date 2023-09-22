@@ -78,13 +78,22 @@ void LLWebRTCImpl::terminate()
                 mPeerConnection->Close();
                 mPeerConnection = nullptr;
             }
+            mPeerConnectionFactory = nullptr;
         });
     mWorkerThread->BlockingCall(
         [this]()
         {
-            if (mDeviceModule)
+            mDeviceModule = nullptr;
+            mTaskQueueFactory = nullptr;
+
+        });
+    mNetworkThread->BlockingCall(
+        [this]()
+        {
+            if (mDataChannel)
             {
-                mDeviceModule = nullptr;
+                mDataChannel->Close();
+                mDataChannel = nullptr;
             }
         });
 }
@@ -681,6 +690,10 @@ void LLWebRTCImpl::OnStateChange()
     {
         case webrtc::DataChannelInterface::kOpen:
             RTC_LOG(LS_INFO) << __FUNCTION__ << " Data Channel State Open";
+            for (auto &observer : mDataObserverList)
+            {
+                observer->OnDataChannelReady();
+            }
             break;
         case webrtc::DataChannelInterface::kConnecting:
             RTC_LOG(LS_INFO) << __FUNCTION__ << " Data Channel State Connecting";

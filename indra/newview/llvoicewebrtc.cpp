@@ -2682,6 +2682,16 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
     }
 }
 
+void LLWebRTCVoiceClient::OnDataChannelReady() 
+{
+	// send a join
+    Json::FastWriter writer;
+    Json::Value      root;
+    root["j"]        = true;
+    std::string json_data = writer.write(root);
+    mWebRTCDataInterface->sendData(json_data, false);
+}
+
 
 void LLWebRTCVoiceClient::OnRenegotiationNeeded()
 {

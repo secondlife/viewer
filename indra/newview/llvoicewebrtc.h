@@ -271,6 +271,7 @@ public:
     /// LLWebRTCDataObserver
     //@{
     void OnDataReceived(const std::string& data, bool binary) override;
+    void OnDataChannelReady() override;
     //@}
 
 	void processIceUpdates();
