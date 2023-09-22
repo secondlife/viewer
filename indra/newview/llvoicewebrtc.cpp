@@ -2619,7 +2619,7 @@ void LLWebRTCVoiceClient::OnAudioLevel(float level)
     {
         Json::FastWriter writer;
         Json::Value      root;
-        root["p"]             = (UINT32) (level * 256);
+        root["p"]     = (uint32_t) (level * 256);
         std::string json_data = writer.write(root);
 
         mWebRTCDataInterface->sendData(json_data, false);
@@ -2656,9 +2656,6 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
         }
         for (auto &participant_id : voice_data.getMemberNames())
         {
-            std::string foo = participant_id;
-            LL_WARNS("Voice") << "Participant ID (" << participant_id << "):" << data << LL_ENDL;
- 
             LLUUID agent_id(participant_id);
             if (agent_id.isNull())
             {
@@ -2666,8 +2663,16 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
                 continue;
             }
             participantStatePtr_t participant = findParticipantByID(agent_id);
+            if (!participant && voice_data[participant_id].get("j", Json::Value(false)).asBool())
+            {
+                participant = addParticipantByID(agent_id);
+            }
 			if (participant)
 			{
+                if(voice_data[participant_id].get("l", Json::Value(false)).asBool())
+                {
+                    removeParticipantByID(agent_id);
+                }
                 participant->mPower      = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mPower)).asInt()) / 256;
                 /* WebRTC appears to have deprecated VAD, but it's still in the Audio Processing Module so maybe we
 				   can use it at some point when we actually process frames. */
@@ -3842,6 +3847,18 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::addParticipantBy
     return result;
 }
 
+void LLWebRTCVoiceClient::removeParticipantByID(const LLUUID &id)
+{
+    participantStatePtr_t result;
+    if (mAudioSession)
+    {
+        participantStatePtr_t participant = mAudioSession->findParticipantByID(id);
+        if (participant)
+        {
+            mAudioSession->removeParticipant(participant);
+        }
+    }
+}
 
 
 // Check for parcel boundary crossing
