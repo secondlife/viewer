@@ -45,6 +45,7 @@
 #include "llcommon.h"
 #include "lluuid.h"
 #include "llinstantmessage.h"
+#include "stringize.h"
 
 namespace tut
 {
@@ -1170,8 +1171,11 @@ namespace tut
 		{
 			pump_loop(mPump, 0.1f);
 		}
+		// We used to test for count == 2 here, but on a slow test machine it
+		// can happen that not just one but two chains close before we reach
+		// this point.
 		count = mPump->runningChains();
-		ensure_equals("client chain timed out ", count, 2);
+		ensure(stringize("client chain timed out: count ", count), count < 3);
 		LL_DEBUGS() << "** client chain should be closed." << LL_ENDL;
 
 		// At this point, the socket should be closed by the timeout
