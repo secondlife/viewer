@@ -2982,7 +2982,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                      move_it != move_inv->mMoveList.end();
                      ++move_it)
                 {
-                    cb->fire(move_it->second);
+                    if (cb)
+                    {
+                        cb->fire(move_it->second);
+                    }
                 }
             };
 			accept = move_inv_category_world_to_agent(cat_id, mUUID, drop, callback, NULL, filter);
