@@ -6,11 +6,11 @@
 	<text name="parcels_listed"/>
 	<text name="memory_used"/>
 	<text name="loading_text">
-		読み込んでいます…
+		読み込み中…
 	</text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="サイズ （㎅）" name="size"/>
-		<scroll_list.columns label="ＵＲＬ" name="urls"/>
+		<scroll_list.columns label="サイズ (KB)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
 		<scroll_list.columns label="オブジェクトの所有者" name="owner"/>
 		<scroll_list.columns label="区画" name="parcel"/>

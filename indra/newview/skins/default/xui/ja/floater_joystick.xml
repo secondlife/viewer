@@ -4,11 +4,11 @@
 		なし
 	</floater.string>
 	<text name="joystick_lbl">
-		ジョイスティック：
+		ジョイスティック:
 	</text>
-	<spinner label="Ｘ軸マッピング" name="JoystickAxis1"/>
-	<spinner label="Ｙ軸マッピング" name="JoystickAxis2"/>
-	<spinner label="Ｚ軸マッピング" name="JoystickAxis0"/>
+	<spinner label="X軸マッピング" name="JoystickAxis1"/>
+	<spinner label="Y軸マッピング" name="JoystickAxis2"/>
+	<spinner label="Z軸マッピング" name="JoystickAxis0"/>
 	<spinner label="ピッチ・マッピング" name="JoystickAxis4"/>
 	<spinner label="ヨー・マッピング" name="JoystickAxis5"/>
 	<spinner label="ロール・マッピング" name="JoystickAxis3"/>
@@ -17,25 +17,25 @@
 	<check_box label="3Dカーソル" name="Cursor3D"/>
 	<check_box label="自動レベル" name="AutoLeveling"/>
 	<text name="Control Modes:">
-		制御モード：
+		制御モード:
 	</text>
 	<check_box label="アバター" name="JoystickAvatarEnabled"/>
 	<check_box label="造る" name="JoystickBuildEnabled"/>
 	<check_box label="フライ・カメラ" name="JoystickFlycamEnabled"/>
 	<text name="XScale">
-		Ｘスケール
+		Xスケール
 	</text>
 	<spinner name="AvatarAxisScale1"/>
 	<spinner name="BuildAxisScale1"/>
 	<spinner name="FlycamAxisScale1"/>
 	<text name="YScale">
-		Ｙスケール
+		Yスケール
 	</text>
 	<spinner name="AvatarAxisScale2"/>
 	<spinner name="BuildAxisScale2"/>
 	<spinner name="FlycamAxisScale2"/>
 	<text name="ZScale">
-		Ｚスケール
+		Zスケール
 	</text>
 	<spinner name="AvatarAxisScale0"/>
 	<spinner name="BuildAxisScale0"/>
@@ -58,19 +58,19 @@
 	<spinner name="BuildAxisScale3"/>
 	<spinner name="FlycamAxisScale3"/>
 	<text name="XDeadZone">
-		Ｘデッド・ゾーン
+		Xデッドゾーン
 	</text>
 	<spinner name="AvatarAxisDeadZone1"/>
 	<spinner name="BuildAxisDeadZone1"/>
 	<spinner name="FlycamAxisDeadZone1"/>
 	<text name="YDeadZone">
-		Ｙデッド・ゾーン
+		Yデッドゾーン
 	</text>
 	<spinner name="AvatarAxisDeadZone2"/>
 	<spinner name="BuildAxisDeadZone2"/>
 	<spinner name="FlycamAxisDeadZone2"/>
 	<text name="ZDeadZone">
-		Ｚデッド・ゾーン
+		Zデッドゾーン
 	</text>
 	<spinner name="AvatarAxisDeadZone0"/>
 	<spinner name="BuildAxisDeadZone0"/>
@@ -82,7 +82,7 @@
 	<spinner name="BuildAxisDeadZone4"/>
 	<spinner name="FlycamAxisDeadZone4"/>
 	<text name="YawDeadZone">
-		ヨー・デッド・ゾーン
+		ヨー・デッドゾーン
 	</text>
 	<spinner name="AvatarAxisDeadZone5"/>
 	<spinner name="BuildAxisDeadZone5"/>
@@ -107,15 +107,15 @@
 	</text>
 	<spinner label="" name="FlycamAxisDeadZone6"/>
 	<button label="SpaceNavigatorのデフォルト設定" name="SpaceNavigatorDefaults"/>
-	<button label="ＯＫ" label_selected="ＯＫ" name="ok_btn"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 	<stat_view label="ジョイスティック・モニター" name="axis_view">
-		<stat_bar label="軸０" name="axis0"/>
-		<stat_bar label="軸１" name="axis1"/>
-		<stat_bar label="軸２" name="axis2"/>
-		<stat_bar label="軸３" name="axis3"/>
-		<stat_bar label="軸４" name="axis4"/>
-		<stat_bar label="軸５" name="axis5"/>
+		<stat_bar label="軸0" name="axis0"/>
+		<stat_bar label="軸1" name="axis1"/>
+		<stat_bar label="軸2" name="axis2"/>
+		<stat_bar label="軸3" name="axis3"/>
+		<stat_bar label="軸4" name="axis4"/>
+		<stat_bar label="軸5" name="axis5"/>
 	</stat_view>
 	<string name="NoDevice">
 		デバイスは検出されませんでした。

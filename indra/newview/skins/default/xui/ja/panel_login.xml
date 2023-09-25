@@ -10,21 +10,21 @@
 		<layout_panel name="ui_elastic_pad_left"/>
 		<layout_panel name="ui_container">
 			<icon name="sl_logo_small"/>
-			<combo_box label="Username" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）" name="username_combo">
+			<combo_box label="ユーザ名" tool_tip="登録時に自分で選んだユーザ名(例: bobsmith12、Steller Sunshineなど)" name="username_combo">
 				<combo_box.combo_editor/>
 			</combo_box>
 			<line_editor name="password_edit" label="パスワード"/>
 			<combo_box label="お気に入りの場所" name="start_location_combo">
 				<combo_box.combo_editor/>
 				<combo_box.item label="最後にいた場所" name="MyLastLocation" value="last"/>
-				<combo_box.item label="ホーム" name="MyHome" value="home"/>
+				<combo_box.item label="マイホーム" name="MyHome" value="ﾏｲﾎｰﾑ"/>
 			</combo_box>
 			<button label="ログイン" name="connect_btn"/>
 			<text name="sign_up_text">
 				サインアップ
 			</text>
-			<check_box label="名前を記録" name="remember_name" tool_tip="すでに記憶されているユーザーは、「私」＞「初期設定」＞「詳細設定」＞「記憶されたユーザー名」から削除できます。"/>
-			<check_box label="パスワードを記録" name="remember_password"/>
+			<check_box label="名前を記憶" name="remember_name" tool_tip="既に記憶されているユーザは、「私」&gt;「初期設定」&gt;「詳細設定」&gt;「記憶されたユーザ名」から削除できます。"/>
+			<check_box label="パスワードを記憶" name="remember_password"/>
 			<combo_box label="Select grid" name="server_combo"/>
 			<text name="forgot_password_text">
 				パスワードに関するヘルプ

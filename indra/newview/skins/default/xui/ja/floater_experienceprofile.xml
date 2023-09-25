@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="experience_profile" title="体験プロフィール">
 	<floater.string name="empty_slurl">
-		（なし）
+		(なし)
 	</floater.string>
 	<floater.string name="maturity_icon_general">
 		"Parcel_PG_Light"
@@ -23,22 +23,22 @@
 						</layout_panel>
 						<layout_panel name="maturity panel">
 							<text name="ContentRating">
-								評価：
+								評価:
 							</text>
 						</layout_panel>
 						<layout_panel name="location panel">
 							<text name="Location">
-								場所：
+								場所:
 							</text>
 						</layout_panel>
 						<layout_panel>
 							<text name="Owner">
-								所有者：
+								所有者:
 							</text>
 						</layout_panel>
 						<layout_panel name="group_panel">
 							<text name="Group">
-								グループ：
+								グループ:
 							</text>
 						</layout_panel>
 						<layout_panel name="perm panel">
@@ -57,19 +57,19 @@
 		<panel name="edit_panel_experience_info">
 			<scroll_container name="edit_xp_scroll">
 				<panel name="edit_scrolling_panel">
-					<text name="edit_experience_title_label" value="名前："/>
-					<text name="edit_experience_desc_label" value="説明："/>
+					<text name="edit_experience_title_label" value="名前:"/>
+					<text name="edit_experience_desc_label" value="説明:"/>
 					<button label="グループ" name="Group_btn"/>
 					<text name="edit_ContentRating">
-						評価：
+						評価:
 					</text>
-					<icons_combo_box label="Moderate" name="edit_ContentRatingText" tool_tip="体験のレーティング区分を上げると、体験を許可したすべての住人の権限がリセットされます。">
-						<icons_combo_box.item label="Adult" name="Adult" value="42"/>
-						<icons_combo_box.item label="Moderate" name="Mature" value="21"/>
-						<icons_combo_box.item label="全般" name="PG" value="13"/>
+					<icons_combo_box label="モデレート" name="edit_ContentRatingText" tool_tip="体験のレーティング区分を上げると、体験を許可したすべての住人の権限がリセットされます。">
+						<icons_combo_box.item label="アダルト" name="Adult" value="42"/>
+						<icons_combo_box.item label="モデレート" name="Mature" value="21"/>
+						<icons_combo_box.item label="一般" name="PG" value="13"/>
 					</icons_combo_box>
 					<text name="edit_Location">
-						場所：
+						場所:
 					</text>
 					<button label="現在に設定" name="location_btn"/>
 					<button label="場所をクリア" name="clear_btn"/>

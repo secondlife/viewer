@@ -2,12 +2,12 @@
 <panel name="panel_postcard_settings">
 	<combo_box label="解像度" name="postcard_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
-		<combo_box.item label="６４０✕４８０" name="640x480"/>
-		<combo_box.item label="８００✕６００" name="800x600"/>
-		<combo_box.item label="１０２４✕７６８" name="1024x768"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
-	<spinner label="横幅✕高さ" name="postcard_snapshot_width"/>
+	<spinner label="横幅 x 高さ" name="postcard_snapshot_width"/>
 	<check_box label="縦横比の固定" name="postcard_keep_aspect_check"/>
-	<slider label="品質：" name="image_quality_slider"/>
+	<slider label="品質:" name="image_quality_slider"/>
 </panel>

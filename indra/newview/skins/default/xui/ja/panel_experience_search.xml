@@ -4,13 +4,13 @@
 		「[TEXT]」は見つかりませんでした。
 	</string>
 	<string name="no_results">
-		検索結果：なし
+		検索結果: なし
 	</string>
 	<string name="searching">
-		検索しています…。
+		検索しています…
 	</string>
 	<string name="loading">
-		読み込みんでいます…。
+		読み込み中…
 	</string>
 	<string name="maturity_icon_general">
 		"Parcel_PG_Light"
@@ -23,25 +23,25 @@
 	</string>
 	<panel name="search_panel">
 		<text name="lbl name part">
-			名前の一部を入力してください：
+			名前の一部を入力してください:
 		</text>
 		<line_editor name="edit"/>
 		<button label="進む" name="find"/>
 		<text name="lbl max content rating">
-			コンテンツの最大レーティング：
+			コンテンツの最大レーティング:
 		</text>
-		<icons_combo_box label="Moderate" name="maturity">
+		<icons_combo_box label="モデレート" name="maturity">
 			<icons_combo_box.drop_down_button/>
-			<icons_combo_box.item label="Adult" name="Adult" value="42"/>
-			<icons_combo_box.item label="Moderate" name="Mature" value="21"/>
-			<icons_combo_box.item label="General" name="PG" value="13"/>
+			<icons_combo_box.item label="アダルト" name="Adult" value="42"/>
+			<icons_combo_box.item label="モデレート" name="Mature" value="21"/>
+			<icons_combo_box.item label="一般" name="PG" value="13"/>
 		</icons_combo_box>
 		<scroll_list name="search_results">
 			<columns name="maturity" label=""/>
 			<columns name="experience_name" label="名前"/>
 			<columns name="owner" label="所有者"/>
 		</scroll_list>
-		<button label="ＯＫ" label_selected="ＯＫ" name="ok_btn"/>
+		<button label="OK" label_selected="OK" name="ok_btn"/>
 		<button label="キャンセル" name="cancel_btn"/>
 		<button label="プロフィール表示" name="profile_btn"/>
 		<button label="⇦" name="left_btn"/>

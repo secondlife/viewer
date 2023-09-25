@@ -2,11 +2,11 @@
 <person_view>
 	<avatar_icon/>
 	<last_interaction_time_textbox name="last_interaction_time_textbox"/>
-	<permission_edit_theirs_icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集することはできません。"/>
+	<permission_edit_theirs_icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集できます"/>
 	<permission_edit_mine_icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトの編集や、削除、取得することができます。"/>
 	<permission_map_icon tool_tip="このフレンドは、マップ上であなたのいる場所を探すことができます。" name="permission_map_icon"/>
 	<permission_online_icon name="permission_online_icon" tool_tip="このフレンドは、あなたがオンラインになったことがわかります。"/>
 	<info_btn name="info_btn" tool_tip="詳細情報"/>
-	<profile_btn name="profile_btn" tool_tip="プロフィールを見る"/>
+	<profile_btn name="profile_btn" tool_tip="プロフィールの表示"/>
 	<output_monitor name="speaking_indicator"/>
 </person_view>

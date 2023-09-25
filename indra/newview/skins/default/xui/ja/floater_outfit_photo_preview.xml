@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="outfit_photo_preview">
 	<floater.string name="Title">
-		テスクチャ：[NAME]
+		テスクチャ: [NAME]
 	</floater.string>
 	<floater.string name="exceed_limits">
-		アウトフィット画像の最大サイズは[MAX_WIDTH]✕[MAX_HEIGHT]です。他のテスクチャを選択してください。
+		アウトフィット画像の最大サイズは、[MAX_WIDTH] x [MAX_HEIGHT]です。他のテスクチャを選択してください。
 	</floater.string>
 	<floater.string name="photo_confirmation">
-		この画像を[OUTFIT]のアウトフィット画像にしますか？
+		この画像を[OUTFIT]のアウトフィット画像にしますか?
 	</floater.string>
 	<text name="dimensions">
-		[WIDTH]px✕[HEIGHT]px
+		[WIDTH]px x [HEIGHT]px
 	</text>
 	<text name="notification"/>
-	<button label="ＯＫ" name="ok_btn"/>
+	<button label="OK" name="ok_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

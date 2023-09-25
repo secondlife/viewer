@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
 	<defaultlabel>
-		（不明）
+		(不明)
 	</defaultlabel>
 	<defaultwidget>
 		なし
@@ -14,7 +14,7 @@
 			この場所には、Webコンテンツが含まれています。
 		</tooltip>
 		<playtip name="web_playtip">
-			Web コンテンツを表示する
+			Web コンテンツを表示
 		</playtip>
 	</widgetset>
 	<widgetset name="movie">
@@ -22,10 +22,10 @@
 			ムービー
 		</label>
 		<tooltip name="movie_tooltip">
-			この場所には、ムービーがあります。
+			この場所には、ムービーがあります
 		</tooltip>
 		<playtip name="movie_playtip">
-			ムービーを再生する
+			ムービーを再生
 		</playtip>
 	</widgetset>
 	<widgetset name="image">
@@ -44,7 +44,7 @@
 			オーディオ
 		</label>
 		<tooltip name="audio_tooltip">
-			この場所には、オーディオがあります。
+			この場所には、オーディオがあります
 		</tooltip>
 		<playtip name="audio_playtip">
 			この場所のオーディオを再生する
@@ -75,12 +75,12 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			─なし─
+			- なし -
 		</label>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			─なし─
+			- なし -
 		</label>
 	</mimetype>
 	<mimetype name="audio/*">
@@ -100,7 +100,7 @@
 	</mimetype>
 	<mimetype menu="1" name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
-			ムービー（QuickTime）
+			ムービー(QuickTime)
 		</label>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -110,7 +110,7 @@
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
-			Oggオーディオ／ビデオ
+			Oggオーディオ/ビデオ
 		</label>
 	</mimetype>
 	<mimetype name="application/pdf">
@@ -125,17 +125,17 @@
 	</mimetype>
 	<mimetype name="application/rtf">
 		<label name="application/rtf_label">
-			リッチ・テキスト（RTF）
+			リッチテキスト(RTF)
 		</label>
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
-			同期マルチメディア統合言語（SMIL）
+			同期マルチメディア統合言語(SMIL)
 		</label>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			Webページ（XHTML）
+			Webページ(XHTML)
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -150,52 +150,52 @@
 	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
-			オーディオ（MIDI）
+			オーディオ(MIDI)
 		</label>
 	</mimetype>
 	<mimetype name="audio/mpeg">
 		<label name="audio/mpeg_label">
-			オーディオ（MP3）
+			オーディオ(MP3)
 		</label>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
 		<label name="audio/x-aiff_label">
-			オーディオ（AIFF）
+			オーディオ(AIFF)
 		</label>
 	</mimetype>
 	<mimetype name="audio/x-wav">
 		<label name="audio/x-wav_label">
-			オーディオ（WAV）
+			オーディオ(WAV)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
 		<label name="image/bmp_label">
-			画像（BMP）
+			画像(BMP)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="image/gif">
 		<label name="image/gif_label">
-			画像（GIF）
+			画像(GIF)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="image/jpeg">
 		<label name="image/jpeg_label">
-			画像（JPEG）
+			画像(JPEG)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="image/png">
 		<label name="image/png_label">
-			画像（PNG）
+			画像(PNG)
 		</label>
 	</mimetype>
 	<mimetype name="image/svg+xml">
 		<label name="image/svg+xml_label">
-			画像（SVG）
+			画像(SVG)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="image/tiff">
 		<label name="image/tiff_label">
-			画像（TIFF）
+			画像(TIFF)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="text/html">
@@ -215,12 +215,12 @@
 	</mimetype>
 	<mimetype menu="1" name="video/mpeg">
 		<label name="video/mpeg_label">
-			ムービー（MPEG）
+			ムービー(MPEG)
 		</label>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
-			ムービー（MP4）
+			ムービー(MP4)
 		</label>
 	</mimetype>
 	<mimetype name="application/octet-stream">
@@ -230,22 +230,22 @@
 	</mimetype>
 	<mimetype menu="1" name="video/quicktime">
 		<label name="video/quicktime_label">
-			ムービー（QuickTime）
+			ムービー(QuickTime)
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
-			ムービー（Windows Media ASF）
+			ムービー(Windows Media ASF)
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
-			ムービー（Windows Media WMV）
+			ムービー(Windows Media WMV)
 		</label>
 	</mimetype>
 	<mimetype menu="1" name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
-			ムービー（AVI）
+			ムービー(AVI)
 		</label>
 	</mimetype>
 </mimetypes>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="gallery_item_panel">
 	<string name="worn_string">
-		（着用中）
+		(着用中)
 	</string>
 	<icon name="preview_outfit"/>
 	<panel name="text_bg_panel">
@@ -9,7 +9,7 @@
 			夏のヒップスター、ピアス、ピアス、ピアス、ピアス
 		</text>
 		<text name="outfit_worn_text">
-			（着用中）
+			(着用中)
 		</text>
 	</panel>
 </panel>

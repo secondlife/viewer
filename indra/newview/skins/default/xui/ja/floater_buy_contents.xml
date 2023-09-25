@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_buy_contents" title="中身の購入">
 	<text name="contains_text">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt;に含まれるもの：
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt;に含まれるもの:
 	</text>
 	<scroll_list name="item_list"/>
 	<text name="buy_text">
-		[NAME]から、L$ [AMOUNT]で購入しますか？
+		[NAME]から、L$ [AMOUNT]で購入しますか?
 	</text>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 	<button label="購入" label_selected="購入" name="buy_btn"/>

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="experince_list_editor">
 	<panel.string name="loading">
-		読み込んでいます…
+		読み込み中…
 	</panel.string>
 	<panel.string name="panel_allowed">
-		許可された体験：
+		許可された体験:
 	</panel.string>
 	<panel.string name="panel_blocked">
-		ブロックされた体験：
+		ブロックされた体験:
 	</panel.string>
 	<panel.string name="panel_trusted">
-		キー体験：
+		キー体験:
 	</panel.string>
 	<panel.string name="no_results">
-		（空）
+		(空)
 	</panel.string>
 	<text name="text_name">
 		体験リスト

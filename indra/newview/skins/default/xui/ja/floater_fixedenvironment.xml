@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Fixed Environment" title="固定された環境">
 	<string name="edit_sky">
-		空を編集：
+		空を編集:
 	</string>
 	<string name="edit_water">
-		水面を編集
+		水を編集
 	</string>
 	<layout_stack name="floater_stack">
 		<layout_panel name="info_panel">
 			<text name="info_panel_label">
-				名前：
+				名前:
 			</text>
 			<line_editor name="settings_name"/>
 			<button label="読み込む" tool_tip="インベントリから設定を読み込みます。"/>
@@ -17,8 +17,8 @@
 		</layout_panel>
 		<layout_panel name="tab_area">
 			<tab_container name="tab_settings">
-        
-      </tab_container>
+				
+			</tab_container>
 		</layout_panel>
 		<layout_panel name="button_panel">
 			<layout_stack name="button_bar_ls">

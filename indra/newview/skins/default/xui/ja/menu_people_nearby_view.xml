@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_group_plus">
-	<menu_item_check label="最近の発言者で並べ替え" name="sort_by_recent_speakers"/>
-	<menu_item_check label="名前で並べ替え" name="sort_name"/>
-	<menu_item_check label="距離で並べ替え" name="sort_distance"/>
-	<menu_item_check label="到着した順に並べ替え" name="sort_arrival"/>
+	<menu_item_check label="最近の発言者でソート" name="sort_by_recent_speakers"/>
+	<menu_item_check label="名前でソート" name="sort_name"/>
+	<menu_item_check label="距離でソート" name="sort_distance"/>
+	<menu_item_check label="到着した順にソート" name="sort_arrival"/>
 	<menu_item_check label="人物のアイコン表示" name="view_icons"/>
 	<menu_item_check label="マップを表示" name="view_map"/>
-	<menu_item_check label="ユーザー名を非表示" name="view_usernames"/>
+	<menu_item_check label="ユーザ名を非表示" name="view_usernames"/>
 </toggleable_menu>

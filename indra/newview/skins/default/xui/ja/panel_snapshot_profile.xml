@@ -5,15 +5,15 @@
 	</text>
 	<combo_box label="解像度" name="profile_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
-		<combo_box.item label="640✕480" name="640x480"/>
-		<combo_box.item label="800✕600" name="800x600"/>
-		<combo_box.item label="1024✕768" name="1024x768"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
-	<spinner label="横幅✕高さ" name="profile_snapshot_width"/>
+	<spinner label="横幅 x 高さ" name="profile_snapshot_width"/>
 	<check_box label="縦横比の固定" name="profile_keep_aspect_check"/>
 	<text name="caption_label">
-		キャプション：
+		キャプション:
 	</text>
 	<check_box label="場所を含む" name="add_location_cb"/>
 	<button label="キャンセル" name="cancel_btn"/>

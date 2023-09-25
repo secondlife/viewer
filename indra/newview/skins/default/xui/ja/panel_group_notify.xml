@@ -5,10 +5,10 @@
 	<string name="date_font" value="サンセリフ"/>
 	<panel label="header" name="header">
 		<group_icon name="group_icon"/>
-		<text name="title" value="送信者の名前／グループ名"/>
+		<text name="title" value="送信者の名前/グループ名"/>
 	</panel>
 	<text_editor name="message" value="メッセージ"/>
 	<icon name="attachment_icon"/>
-	<text name="attachment" value="添付アイテム"/>
-	<button label="ＯＫ" name="btn_ok"/>
+	<text name="attachment" value="装着物"/>
+	<button label="OK" name="btn_ok"/>
 </panel>

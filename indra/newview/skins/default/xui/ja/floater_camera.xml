@@ -35,7 +35,7 @@
 		<panel_camera_item name="mouselook_view" tool_tip="マウスルックビュー"/>
 		<combo_box name="preset_combo">
 			<combo_list mouse_wheel_opaque="true"/>
-			<combo_box.item label="プリセットを使用" name="Use preset" value="default"/>
+			<combo_box.item label="プリセットを使用" name="Use preset" value="デフォルト"/>
 		</combo_box>
 		<button name="gear_btn" tool_tip="カメラのプリセット"/>
 		<button label="プリセットを保存…" name="save_preset_btn"/>

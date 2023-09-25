@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="拡張" name="advanced">
 	<panel.string name="aspect_ratio_text">
-		[NUM]：[DEN]
+		[NUM]:[DEN]
 	</panel.string>
 	<text name="Cache:">
-		キャッシュ：
+		キャッシュ:
 	</text>
-	<spinner label="キャッシュ容量（256～9984㎆）" name="cachesizespinner"/>
+	<spinner label="キャッシュ容量(256～9984MB)" name="cachesizespinner"/>
 	<text name="text_box5">
-		㎆
+		MB
 	</text>
 	<button label="キャッシュをクリア" label_selected="キャッシュをクリア" name="clear_cache"/>
 	<text name="Cache location">
-		キャッシュ保存先：
+		キャッシュ保存先:
 	</text>
 	<button label="参照" label_selected="参照" name="set_cache"/>
 	<button label="デフォルトの場所" label_selected="デフォルトの場所" name="default_cache_location"/>
 	<text name="UI Size:">
-		ＵＩのサイズ：
+		UIのサイズ:
 	</text>
 	<text name="HUD Size:">
-		ＨＵＤのスケール：
+		HUDのスケール:
 	</text>
-	<check_box label="スクリプトのエラーを表示：" name="show_script_errors"/>
+	<check_box label="スクリプトのエラーを表示:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="近隣チャット" name="0"/>
 		<radio_item label="別々のウィンドウ" name="1"/>
 	</radio_group>
-	<check_box label="複数のビューアを許可" name="allow_multiple_viewer_check"/>
+	<check_box label="複数のビューアーを許可" name="allow_multiple_viewer_check"/>
 	<check_box label="ログイン時にグリッド選択を表示" name="show_grid_selection_check"/>
 	<check_box label="拡張メニューを表示" name="show_advanced_menu_check"/>
 	<check_box label="開発メニューを表示" name="show_develop_menu_check"/>
-	<button label="記録済みのユーザ名" name="remembered_usernames"/>
+	<button label="記憶済のユーザ名" name="remembered_usernames"/>
 	<button label="デフォルトの作成権限" name="default_creation_permissions"/>
 </panel>

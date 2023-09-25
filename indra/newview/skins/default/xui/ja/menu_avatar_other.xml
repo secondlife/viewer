@@ -19,9 +19,9 @@
 	<menu_item_call label="支払う" name="Pay..."/>
 	<menu_item_separator/>
 	<context_menu label="このアバターの描画" name="Render Avatar">
-		<menu_item_check name="常に完全描画する" label="Always full detail"/>
-		<menu_item_check name="描画しない" label="Never full detail"/>
-		<menu_item_call name="通常の描画設定" label="Remove from exceptions"/>
+		<menu_item_check label="常に完全描画する" name="AlwaysRenderFully"/>
+		<menu_item_check label="描画しない" name="DoNotRender"/>
+		<menu_item_call label="通常の描画設定" name="RenderNormally"/>
 		<menu_item_separator/>
 		<menu_item_call label="例外…" name="RenderExceptions"/>
 	</context_menu>

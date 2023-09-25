@@ -2,18 +2,18 @@
 <panel name="edit_universal_panel">
 	<scroll_container name="avatar_universal_scroll">
 		<panel name="avatar_universal_color_panel">
-			<texture_picker label="頭部のタトゥ" name="Head Universal Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="上部のタトゥ" name="Upper Universal Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="下部のタトゥ" name="Lower Universal Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="スカートのタトゥ" name="Skirt Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="髪の毛のタトゥ" name="Hair Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="目のタトゥ" name="Eyes Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="左腕のタトゥ" name="Left Arm Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="左脚のタトゥ" name="Left Leg Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="予備１のタトゥ" name="Aux1 Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="予備２のタトゥ" name="Aux2 Tattoo" tool_tip="クリックして画像を選択する"/>
-			<texture_picker label="予備３のタトゥ" name="Aux3 Tattoo" tool_tip="クリックして画像を選択する"/>
-			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
+			<texture_picker label="頭部のタトゥ" name="Head Universal Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="上半身のタトゥ" name="Upper Universal Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="下部のタトゥ" name="Lower Universal Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="スカートのタトゥ" name="Skirt Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="髪の毛のタトゥ" name="Hair Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="目のタトゥ" name="Eyes Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="左腕のタトゥ" name="Left Arm Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="左脚のタトゥ" name="Left Leg Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="予備1のタトゥ" name="Aux1 Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="予備2のタトゥ" name="Aux2 Tattoo" tool_tip="画像をクリックして選択"/>
+			<texture_picker label="予備3のタトゥ" name="Aux3 Tattoo" tool_tip="画像をクリックして選択"/>
+			<color_swatch label="色/明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
 		</panel>
 	</scroll_container>
 </panel>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect_object">
 	<string name="Creator">
-		制作者：[CREATOR]
+		制作者: [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
 		[CREATOR]によるチェック
@@ -11,7 +11,7 @@
 		L$[AMOUNT]
 	</string>
 	<string name="PriceFree">
-		無料です！
+		無料です!
 	</string>
 	<string name="Touch">
 		触る
@@ -34,7 +34,7 @@ owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 	<text name="object_media_url">
 		http://www.superdupertest.com
 	</text>
-	<button label="買う" name="buy_btn"/>
+	<button label="購入" name="buy_btn"/>
 	<button label="支払う" name="pay_btn"/>
 	<button label="コピーを取る" name="take_free_copy_btn"/>
 	<button label="触る" name="touch_btn"/>

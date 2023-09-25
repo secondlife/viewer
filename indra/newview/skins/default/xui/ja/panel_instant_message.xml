@@ -8,7 +8,7 @@
 		<group_icon name="group_icon"/>
 		<avatar_icon name="adhoc_icon"/>
 		<text name="user_name" value="テスト文字列　無視してください"/>
-		<text name="time_box" value="23：30"/>
+		<text name="time_box" value="23:30"/>
 	</panel>
 	<text name="message"/>
 </panel>

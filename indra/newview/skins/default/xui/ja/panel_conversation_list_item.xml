@@ -6,7 +6,7 @@
 			<icon name="selected_icon"/>
 		</layout_panel>
 		<layout_panel name="conversation_title_panel">
-			<text name="conversation_title" value="（読み込み中）"/>
+			<text name="conversation_title" value="(読み込み中)"/>
 			<output_monitor name="speaking_indicator"/>
 		</layout_panel>
 	</layout_stack>

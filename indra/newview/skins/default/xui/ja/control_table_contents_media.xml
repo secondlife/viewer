@@ -4,10 +4,10 @@
 		<columns type="icontext" label="サウンドとメディア" name="lst_action" value="Audio_Press"/>
 	</rows>
 	<rows name="toggle_pause_media" value="toggle_pause_media">
-		<columns name="lst_action" value="メディアの再生／停止"/>
+		<columns name="lst_action" value="メディアの再生/停止"/>
 	</rows>
 	<rows name="toggle_enable_media" value="toggle_enable_media">
-		<columns name="lst_action" value="全てのメディアを再生／停止"/>
+		<columns name="lst_action" value="全てのメディアを再生/停止"/>
 	</rows>
 	<rows name="voice_follow_key" value="voice_follow_key">
 		<columns name="lst_action" value="ボイスチャット"/>
@@ -22,6 +22,6 @@
 		<columns name="lst_action" value="ジェスチャーを開始"/>
 	</rows>
 	<rows name="script_trigger_lbutton" value="script_trigger_lbutton">
-		<columns name="lst_action" value="インタラクト（左クリックスクリプト）"/>
+		<columns name="lst_action" value="インタラクト(左クリックスクリプト)"/>
 	</rows>
 </contents>

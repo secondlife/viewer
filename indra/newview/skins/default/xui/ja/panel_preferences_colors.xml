@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="色" name="colors_panel">
 	<text name="effects_color_textbox">
-		自分のエフェクト（選択ビーム）：
+		自分のエフェクト(選択ビーム):
 	</text>
 	<color_swatch name="effect_color_swatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 	<text name="font_colors">
@@ -29,16 +29,16 @@
 		所有者
 	</text>
 	<text name="text_box9">
-		ＵＲＬ
+		URL
 	</text>
 	<text name="bubble_chat">
-		名前の表示の背景色（吹き出しチャットにも適用）：
+		名前の表示の背景色(吹き出しチャットにも適用):
 	</text>
 	<color_swatch name="background" tool_tip="名前の表示色を選択"/>
-	<slider label="不透明度：" name="bubble_chat_opacity" tool_tip="名前の表示の不透明度を選択"/>
+	<slider label="不透明度:" name="bubble_chat_opacity" tool_tip="名前の表示の不透明度を選択"/>
 	<text name="floater_opacity">
-		フローターの透過度：
+		フローターの透過度:
 	</text>
-	<slider label="アクティブなフローター：" name="active"/>
-	<slider label="非アクティブなフローター：" name="inactive"/>
+	<slider label="アクティブなフローター:" name="active"/>
+	<slider label="非アクティブなフローター:" name="inactive"/>
 </panel>

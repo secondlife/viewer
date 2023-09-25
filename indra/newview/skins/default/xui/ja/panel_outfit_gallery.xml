@@ -7,16 +7,16 @@
 		あなたは、まだアウトフィットを持っていません。[secondlife:///app/search/all/ 検索]してみてください。
 	</string>
 	<string name="no_matched_outfits_msg">
-		お探しのものが見つかりませんでしたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]してみてください。
+		お探しのものが見つかりましたか? [secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。
 	</string>
 	<text name="no_outfits_txt">
 		検索中…
 	</text>
 	<scroll_container name="gallery_scroll_panel">
-    
-    
-    
-  </scroll_container>
+		
+		
+		
+	</scroll_container>
 	<panel name="bottom_panel">
 		<menu_button tool_tip="追加オプションを表示" name="options_gear_btn"/>
 		<icon name="dummy_icon"/>
@@ -24,7 +24,7 @@
 			[COUNT]個
 		</text>
 		<text name="avatar_complexity_label">
-			複雑度：[WEIGHT]
+			複雑度: [WEIGHT]
 		</text>
 		<button name="trash_btn" tool_tip="選択されたアウトフィットを削除"/>
 	</panel>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
 	<floater.string name="step_anim">
-		再生するアニメーション：
+		再生するアニメーション:
 	</floater.string>
 	<floater.string name="step_sound">
-		再生するサウンド：
+		再生するサウンド:
 	</floater.string>
 	<floater.string name="step_chat">
-		発言するチャット：
+		発言するチャット:
 	</floater.string>
 	<floater.string name="step_wait">
-		待機：
+		待機:
 	</floater.string>
 	<floater.string name="stop_txt">
 		停止
@@ -19,28 +19,28 @@
 		プレビュー
 	</floater.string>
 	<floater.string name="none_text">
-		－なし－
+		-- なし --
 	</floater.string>
 	<floater.string name="Title">
-		ジェスチャー：[NAME]
+		ジェスチャー: [NAME]
 	</floater.string>
 	<text name="desc_label">
-		説明：
+		説明:
 	</text>
 	<text name="trigger_label">
-		トリガー：
+		トリガー:
 	</text>
 	<text name="replace_text" tool_tip="トリガーワードをこれらの単語に置き換えます。たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
-		置換：
+		置換:
 	</text>
 	<line_editor name="replace_editor" tool_tip="トリガーワードをこれらの単語に置き換えます。たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
 	<text name="key_label">
-		ショートカット：
+		ショートカット:
 	</text>
 	<combo_box label="なし" name="modifier_combo"/>
 	<combo_box label="なし" name="key_combo"/>
 	<text name="library_label">
-		ライブラリ：
+		ライブラリ:
 	</text>
 	<scroll_list name="library_list">
 		<scroll_list.rows name="action_animation" value="アニメーション"/>
@@ -48,26 +48,26 @@
 		<scroll_list.rows name="action_chat" value="チャット"/>
 		<scroll_list.rows name="action_wait" value="待機"/>
 	</scroll_list>
-	<button label="追加＞＞" name="add_btn"/>
+	<button label="追加&gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
-		手順：
+		手順:
 	</text>
 	<button label="上" name="up_btn"/>
 	<button label="下" name="down_btn"/>
 	<button label="削除" name="delete_btn"/>
 	<text name="options_text">
-		（オプション）
+		(オプション)
 	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="開始" name="start"/>
 		<radio_item label="停止" name="stop"/>
 	</radio_group>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
-	<check_box label="時間（秒）：" name="wait_time_check"/>
+	<check_box label="時間(秒):" name="wait_time_check"/>
 	<text name="help_label">
-		待機ステップを入れていない場合、すべてのステップが同時に実行されます。
+		待機ステップを入れない限りは、すべてのステップが同時に起こります。
 	</text>
-	<check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーとなる語句を入力するか、ホットキーを押すことで実行されます。通常、同じキーバインディングを使用するゼスチャーがある場合、そのゼスチャーは非アクティブになります。"/>
+	<check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。 1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>
 </floater>

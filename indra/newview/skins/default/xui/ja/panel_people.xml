@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="人物" name="people_panel">
-	<string name="no_recent_people" value="最近交流があった人物はいません。一緒に何かする仲間をお探しですか？[secondlife:///app/search/people 検索]か[secondlife:///app/worldmap ワールドマップ]をお試しください。"/>
-	<string name="no_filtered_recent_people" value="お探しの人物は見つかりましたか？[secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。"/>
-	<string name="no_one_near" value="近くに誰もいません。一緒に何かする仲間をお探しですか？[secondlife:///app/search/people 検索]か[secondlife:///app/worldmap ワールドマップ]をお試しください。"/>
-	<string name="no_one_filtered_near" value="お探しの人物は見つかりましたか？[secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。"/>
+	<string name="no_recent_people" value="最近交流があった人物はいません。一緒に何かする仲間をお探しですか?[secondlife:///app/search/people 検索]か[secondlife:///app/worldmap ワールドマップ]をお試しください。"/>
+	<string name="no_filtered_recent_people" value="お探しの人物は見つかりましたか? [secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。"/>
+	<string name="no_one_near" value="近くに誰もいません。一緒に何かする仲間をお探しですか?[secondlife:///app/search/people 検索]か[secondlife:///app/worldmap ワールドマップ]をお試しください。"/>
+	<string name="no_one_filtered_near" value="お探しの人物は見つかりましたか? [secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。"/>
 	<string name="no_friends_online" value="オンラインのフレンドはいません"/>
 	<string name="no_friends" value="フレンドはいません"/>
 	<string name="no_friends_msg">
 		フレンドを見つけるには、[secondlife:///app/search/people 検索]をするか、人物を右クリックしてフレンド登録してください。
-一緒に何かするフレンドをお探しですか？[secondlife:///app/worldmap ワールドマップ]をお試しください。
+一緒に何かするフレンドをお探しですか?[secondlife:///app/worldmap ワールドマップ]をお試しください。
 	</string>
 	<string name="no_filtered_friends_msg">
-		お探しのフレンドは見つかりましたか？[secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。
+		お探しの人物は見つかりましたか? [secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。
 	</string>
-	<string name="no_filtered_groups_msg" value="お探しのフレンドは見つかりましたか？[secondlife:///app/search/groups/[SEARCH_TERM] 検索]をお試しください。"/>
+	<string name="no_filtered_groups_msg" value="お探しのグループは見つかりましたか? [secondlife:///app/search/groups/[SEARCH_TERM] 検索]をお試しください。"/>
 	<string name="no_groups_msg" value="グループをお探しですか？[secondlife:///app/search/groups 検索]をお試しください。"/>
-	<string name="MiniMapToolTipMsg" value="[地域]（ダブルクリックでマップを開く。Shift‐ドラッグで水平・垂直移動）"/>
-	<string name="AltMiniMapToolTipMsg" value="[地域]（ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動）"/>
+	<string name="MiniMapToolTipMsg" value="[地域](ダブルクリックでマップを開く。Shift‐ドラッグで水平・垂直移動)"/>
+	<string name="AltMiniMapToolTipMsg" value="[地域](ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動)"/>
 	<string name="GroupCountWithInfo" value="あなたは現在、[COUNT]グループに属しています。あと[REMAINING]グループに参加することができます。[secondlife:/// 上限を増やす]"/>
 	<tab_container name="tabs">
 		<panel label="近隣" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">
 				<filter_editor label="人物をフィルタ" name="nearby_filter_input"/>
 				<button name="gear_btn" tool_tip="選択した人物に対するアクション"/>
-				<menu_button name="nearby_view_btn" tool_tip="表示／並べ替えのオプション"/>
+				<menu_button name="nearby_view_btn" tool_tip="表示/並べ替え オプション"/>
 				<button name="add_friend_btn" tool_tip="フレンド登録を申し込みます"/>
-				<dnd_button name="nearby_del_btn" tool_tip="フレンドとして選択されている人物を削除"/>
+				<dnd_button name="nearby_del_btn" tool_tip="選択されているフレンドを削除"/>
 			</panel>
 		</panel>
 		<panel label="フレンド" name="friends_panel">
 			<panel label="bottom_panel" name="friends_buttons_panel">
 				<filter_editor label="人物をフィルタ" name="friends_filter_input"/>
 				<button name="gear_btn" tool_tip="選択した人物に対するアクション"/>
-				<menu_button name="friends_view_btn" tool_tip="表示／並べ替えのオプション"/>
+				<menu_button name="friends_view_btn" tool_tip="表示/並べ替え オプション"/>
 				<button name="friends_add_btn" tool_tip="フレンド登録を申し込みます"/>
-				<dnd_button name="friends_del_btn" tool_tip="フレンドとして選択されている人物を削除"/>
+				<dnd_button name="friends_del_btn" tool_tip="選択されているフレンドを削除"/>
 			</panel>
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="オンライン"/>
@@ -46,8 +46,8 @@
 			<panel label="bottom_panel" name="groups_buttons_panel">
 				<filter_editor label="グループをフィルタ" name="groups_filter_input"/>
 				<menu_button name="groups_gear_btn" tool_tip="選択したグループに対するアクション"/>
-				<menu_button name="groups_view_btn" tool_tip="表示／並べ替えのオプション"/>
-				<menu_button name="plus_btn" tool_tip="グループに参加／新規グループを作成します"/>
+				<menu_button name="groups_view_btn" tool_tip="表示/並べ替え オプション"/>
+				<menu_button name="plus_btn" tool_tip="グループに参加/新規グループを作成します"/>
 				<dnd_button name="minus_btn" tool_tip="選択したグループから脱退"/>
 			</panel>
 			<text name="groupcount">
@@ -58,7 +58,7 @@
 			<panel label="bottom_panel" name="recent_buttons_panel">
 				<filter_editor label="人物をフィルタ" name="recent_filter_input"/>
 				<button name="gear_btn" tool_tip="選択した人物に対するアクション"/>
-				<menu_button name="recent_view_btn" tool_tip="表示／並べ替えのオプション"/>
+				<menu_button name="recent_view_btn" tool_tip="表示/並べ替え オプション"/>
 				<button name="add_friend_btn" tool_tip="フレンド登録を申し込みます。"/>
 				<dnd_button name="recent_del_btn" tool_tip="選択されているフレンドを削除"/>
 			</panel>

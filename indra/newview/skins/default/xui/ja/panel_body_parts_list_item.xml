@@ -4,7 +4,7 @@
 	<icon name="selected_icon"/>
 	<icon name="item_icon"/>
 	<text name="item_name" value="…"/>
-	<panel name="btn_lock" tool_tip="これを編集する権限がありません。">
+	<panel name="btn_lock" tool_tip="編集権限がありません。">
 		<icon name="btn_lock1"/>
 	</panel>
 	<panel name="btn_edit_panel">

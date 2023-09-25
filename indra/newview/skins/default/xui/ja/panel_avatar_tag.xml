@@ -4,7 +4,7 @@
 		<text name="sender_tag_name">
 			Angela Tester
 		</text>
-		<text name="tag_time" value="23：30"/>
+		<text name="tag_time" value="23:30"/>
 	</panel>
 	<text_editor name="msg_text">
 		いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす

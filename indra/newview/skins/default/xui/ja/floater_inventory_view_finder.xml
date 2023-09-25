@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Inventory Finder" title="インベントリ最近取得したアイテム">
 	<check_box label="アニメーション" name="check_animation"/>
-	<check_box label="コーリング・カード" name="check_calling_card"/>
+	<check_box label="コーリングカード" name="check_calling_card"/>
 	<check_box label="服装" name="check_clothing"/>
 	<check_box label="ジェスチャー" name="check_gesture"/>
 	<check_box label="ランドマーク" name="check_landmark"/>
@@ -13,14 +13,14 @@
 	<check_box label="テクスチャ" name="check_texture"/>
 	<check_box label="スナップショット" name="check_snapshot"/>
 	<check_box label="設定" name="check_settings"/>
-	<button label="すべて" label_selected="すべて" name="All"/>
+	<button label="全て" label_selected="全て" name="All"/>
 	<button label="なし" label_selected="なし" name="None"/>
 	<check_box label="常にフォルダを表示" name="check_show_empty"/>
 	<check_box label="自作" name="check_created_by_me"/>
-	<check_box label="他のユーザー作成" name="check_created_by_others"/>
+	<check_box label="他のユーザ作成" name="check_created_by_others"/>
 	<check_box label="ログオフ以降" name="check_since_logoff"/>
 	<text name="- OR -">
-		－または－
+		- または -
 	</text>
 	<radio_group name="date_search_direction">
 		<radio_item label="より新しい" name="newer"/>

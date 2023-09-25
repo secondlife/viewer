@@ -34,7 +34,7 @@
 					<layout_panel name="lp1">
 						<layout_stack name="bottom_bar_ls1">
 							<layout_panel name="teleport_btn_lp">
-								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする"/>
+								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポート"/>
 							</layout_panel>
 							<layout_panel name="chat_btn_lp">
 								<button label="マップ" name="map_btn" tool_tip="ワールドマップに該当するエリアを表示"/>

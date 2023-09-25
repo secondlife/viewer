@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_inventory_add">
 	<menu label="アップロード" name="upload">
-		<menu_item_call label="画像 （L$ [COST]）…" name="Upload Image"/>
-		<menu_item_call label="サウンド （L$ [COST]）…" name="Upload Sound"/>
-		<menu_item_call label="アニメーション （L$ [COST]）…" name="Upload Animation"/>
-		<menu_item_call label="モデル" name="Upload Model"/>
-		<menu_item_call label="一括 （ファイルにつき L$ [COST]）…" name="Bulk Upload"/>
+		<menu_item_call label="画像 (L$ [COST])…" name="Upload Image"/>
+		<menu_item_call label="サウンド (L$ [COST])…" name="Upload Sound"/>
+		<menu_item_call label="アニメーション (L$ [COST])…" name="Upload Animation"/>
+		<menu_item_call label="モデル…" name="Upload Model"/>
+		<menu_item_call label="一括 (ファイルにつき L$ [COST])…" name="Bulk Upload"/>
 	</menu>
 	<menu_item_call label="新規フォルダ" name="New Folder"/>
 	<menu_item_call label="新規スクリプト" name="New Script"/>
-	<menu_item_call label="新しいノートカード" name="New Note"/>
+	<menu_item_call label="新規ノートカード" name="New Note"/>
 	<menu_item_call label="新規ジェスチャー" name="New Gesture"/>
 	<menu label="新しい服装" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
@@ -19,22 +19,22 @@
 		<menu_item_call label="新しいジャケット" name="New Jacket"/>
 		<menu_item_call label="新しいスカート" name="New Skirt"/>
 		<menu_item_call label="新しい手袋" name="New Gloves"/>
-		<menu_item_call label="新しい下着（上半身）" name="New Undershirt"/>
-		<menu_item_call label="新しい下着（下半身）" name="New Underpants"/>
-		<menu_item_call label="新しいアルファ" name="New Alpha"/>
+		<menu_item_call label="新しい下着(上半身)" name="New Undershirt"/>
+		<menu_item_call label="新しい下着(下半身)" name="New Underpants"/>
+		<menu_item_call label="新規アルファ" name="New Alpha"/>
 		<menu_item_call label="新しいタトゥ" name="New Tattoo"/>
 		<menu_item_call label="新しいユニバーサル" name="New Universal"/>
-		<menu_item_call label="新しい物理作用" name="New Physics"/>
+		<menu_item_call label="新規の物理作用" name="New Physics"/>
 	</menu>
 	<menu label="新しい身体部位" name="New Body Parts">
-		<menu_item_call label="新しいシェイプ（体型）" name="New Shape"/>
+		<menu_item_call label="新しいシェイプ" name="New Shape"/>
 		<menu_item_call label="新しいスキン" name="New Skin"/>
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい目" name="New Eyes"/>
 	</menu>
 	<menu label="新しい環境設定" name="New Settings">
 		<menu_item_call label="新しい空" name="New Sky"/>
-		<menu_item_call label="新しい水面" name="New Water"/>
+		<menu_item_call label="新しい水" name="New Water"/>
 		<menu_item_call label="新しいデイサイクル" name="New Day Cycle"/>
 	</menu>
 </menu>

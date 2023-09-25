@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-	<rows name="camera_actions" value="">
-		<columns label="カメラ" name="lst_action"/>
+	<rows enabled="false" name="camera_actions" value="">
+		<columns type="icontext" label="カメラ" name="lst_action" value="Cam_FreeCam_Off"/>
 	</rows>
 	<rows name="look_up" value="look_up">
 		<columns name="lst_action" value="上に向ける"/>

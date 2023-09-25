@@ -2,12 +2,12 @@
 <floater name="floater_about" title="[CAPITALIZED_APP_NAME]について">
 	<tab_container name="about_tab">
 		<panel label="情報" name="support_panel">
-			<button label="コピー" name="copy_btn"/>
+			<button label="クリップボードにコピー" name="copy_btn"/>
 			<button label="更新の確認" name="update_btn"/>
 		</panel>
 		<panel label="クレジット" name="credits_panel">
 			<text name="linden_intro">
-				Second Life は Lindens によって開発され、以下のオープンソースの貢献があります：
+				Second Life は Lindens によって開発され、以下のオープンソースの貢献があります:
 			</text>
 			<text_editor name="contrib_names">
 				Dummy Nameは実行時間に置き換えられます。
@@ -36,16 +36,12 @@ SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
 xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
 xxHash Copyright (C) 2012-2020 Yann Collet.
 zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
-
-Second Life ビューアでは Havok (TM) Physics が使用されています。
+Second Life ビューアーでは Havok (TM) Physics が使用されています。
 (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors).
 無断複写・複製・転載を禁じます。詳細については www.havok.com をご参照ください。
-
 このソフトウェアには、NVIDIA Corporationによるソースコードが含まれます。
-
 無断複写・複製・転載を禁じます。詳細については licenses.txt をご参照ください。
-
-ボイスチャットのオーディオコーディング：Polycom(R) Siren14(TM) (ITU-T Rec.G.722.1 Annex C)
+ボイスチャットのオーディオコーディング:Polycom(R) Siren14(TM) (ITU-T Rec.G.722.1 Annex C)
 			</text_editor>
 		</panel>
 	</tab_container>

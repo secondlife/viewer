@@ -8,21 +8,21 @@
 	<menu_item_call label="リスト" name="Marketplace List"/>
 	<menu_item_call label="リストから取り除く" name="Marketplace Unlist"/>
 	<menu_item_call label="有効に" name="Marketplace Activate"/>
-	<menu_item_call label="無効に" name="Marketplace Deactivate"/>
+	<menu_item_call label="無効化" name="Marketplace Deactivate"/>
 	<menu_item_separator name="Marketplace Listings Separator"/>
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="開く" name="Task Open"/>
 	<menu_item_call label="再生" name="Task Play"/>
 	<menu_item_call label="プロパティ" name="Task Properties"/>
-	<menu_item_call label="名前の変更" name="Task Rename"/>
+	<menu_item_call label="名前変更" name="Task Rename"/>
 	<menu_item_call label="削除" name="Task Remove"/>
 	<menu_item_call label="ごみ箱を空に" name="Empty Trash"/>
 	<menu_item_call label="遺失物フォルダを空に" name="Empty Lost And Found"/>
-	<menu_item_call label="新しいフォルダ" name="New Folder"/>
+	<menu_item_call label="新規フォルダ" name="New Folder"/>
 	<menu_item_call label="新しいアウトフィット" name="New Outfit"/>
-	<menu_item_call label="新しいスクリプト" name="New Script"/>
-	<menu_item_call label="新しいノートカード" name="New Note"/>
-	<menu_item_call label="新しいジェスチャー" name="New Gesture"/>
+	<menu_item_call label="新規スクリプト" name="New Script"/>
+	<menu_item_call label="新規ノートカード" name="New Note"/>
+	<menu_item_call label="新規ジェスチャー" name="New Gesture"/>
 	<menu label="新しい服装" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
 		<menu_item_call label="新しいズボン" name="New Pants"/>
@@ -31,22 +31,22 @@
 		<menu_item_call label="新しいジャケット" name="New Jacket"/>
 		<menu_item_call label="新しいスカート" name="New Skirt"/>
 		<menu_item_call label="新しい手袋" name="New Gloves"/>
-		<menu_item_call label="新しい下着（上）" name="New Undershirt"/>
-		<menu_item_call label="新しい下着（下）" name="New Underpants"/>
-		<menu_item_call label="新しいアルファマスク" name="New Alpha Mask"/>
+		<menu_item_call label="新しい下着(上)" name="New Undershirt"/>
+		<menu_item_call label="新しい下着(下)" name="New Underpants"/>
+		<menu_item_call label="新規アルファマスク" name="New Alpha Mask"/>
 		<menu_item_call label="新しいタトゥ" name="New Tattoo"/>
 		<menu_item_call label="新しいユニバーサル" name="New Universal"/>
 		<menu_item_call label="新規の物理作用" name="New Physics"/>
 	</menu>
 	<menu label="新しい身体部位" name="New Body Parts">
-		<menu_item_call label="新しいシェイプ(体型)" name="New Shape"/>
+		<menu_item_call label="新しいシェイプ" name="New Shape"/>
 		<menu_item_call label="新しいスキン" name="New Skin"/>
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい眼" name="New Eyes"/>
 	</menu>
 	<menu label="新しい設定" name="New Settings">
 		<menu_item_call label="新しい空" name="New Sky"/>
-		<menu_item_call label="新しい水面" name="New Water"/>
+		<menu_item_call label="新しい水" name="New Water"/>
 		<menu_item_call label="新しいデイサイクル" name="New Day Cycle"/>
 	</menu>
 	<menu label="次のデフォルトとして使用" name="upload_def">
@@ -58,21 +58,21 @@
 	<menu label="種類を変更" name="Change Type">
 		<menu_item_call label="デフォルト" name="Default"/>
 		<menu_item_call label="手袋" name="Gloves"/>
-		<menu_item_call label="上着" name="Jacket"/>
+		<menu_item_call label="ジャケット" name="Jacket"/>
 		<menu_item_call label="ズボン" name="Pants"/>
 		<menu_item_call label="シェイプ" name="Shape"/>
 		<menu_item_call label="靴" name="Shoes"/>
 		<menu_item_call label="シャツ" name="Shirt"/>
 		<menu_item_call label="スカート" name="Skirt"/>
-		<menu_item_call label="下着（上半身）" name="Underpants"/>
-		<menu_item_call label="下着（下半身）" name="Undershirt"/>
+		<menu_item_call label="下着(上半身)" name="Underpants"/>
+		<menu_item_call label="下着(下半身)" name="Undershirt"/>
 	</menu>
 	<menu_item_call label="テレポート" name="Landmark Open"/>
 	<menu_item_call label="開く" name="Animation Open"/>
 	<menu_item_call label="開く" name="Sound Open"/>
-	<menu_item_call label="着用中のアウトフィットと入れ替え" name="Replace Outfit"/>
+	<menu_item_call label="着用中のアウトフィットを置換" name="Replace Outfit"/>
 	<menu_item_call label="着用中のアウトフィットに追加" name="Add To Outfit"/>
-	<menu_item_call label="着用中のアウトフィットから取り外す" name="Remove From Outfit"/>
+	<menu_item_call label="このアウトフィットから取り除く" name="Remove From Outfit"/>
 	<menu_item_call label="アウトフィット一覧をクリップボードにコピー" name="Copy outfit list to clipboard"/>
 	<menu_item_separator name="Outfit Separator"/>
 	<menu_item_call label="オリジナルを探す" name="Find Original"/>
@@ -81,14 +81,14 @@
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="オリジナルを開く" name="Open Original"/>
 	<menu_item_call label="プロパティ" name="Properties"/>
-	<menu_item_call label="名前を変更" name="Rename"/>
-	<menu_item_call label="アセットのＵＵＩＤをコピー" name="Copy Asset UUID"/>
+	<menu_item_call label="名前変更" name="Rename"/>
+	<menu_item_call label="アセットのUUIDをコピー" name="Copy Asset UUID"/>
 	<menu_item_call label="メインパネルで表示" name="Show in Main Panel"/>
 	<menu_item_call label="カット" name="Cut"/>
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="ペースト" name="Paste"/>
 	<menu_item_call label="リンクとしてペースト" name="Paste As Link"/>
-	<menu_item_call label="リンクを置き換える" name="Replace Links"/>
+	<menu_item_call label="リンクを置換" name="Replace Links"/>
 	<menu_item_separator name="Paste Separator"/>
 	<menu_item_call label="削除" name="Delete"/>
 	<menu_item_call label="システムフォルダを削除" name="Delete System Folder"/>
@@ -101,7 +101,7 @@
 	<menu_item_call label="マップに表示" name="show_on_map"/>
 	<menu_item_separator name="Animation Separator"/>
 	<menu_item_call label="インワールドで再生" name="Animation Play"/>
-	<menu_item_call label="ローカルで再生" name="Animation Audition"/>
+	<menu_item_call label="ローカル再生" name="Animation Audition"/>
 	<menu_item_call label="インスタントメッセージを送信" name="Send Instant Message"/>
 	<menu_item_call label="テレポートをオファー…" name="Offer Teleport..."/>
 	<menu_item_call label="テレポートをリクエスト…" name="Request Teleport..."/>
@@ -113,7 +113,7 @@
 	<menu_item_separator name="Wearable And Object Separator"/>
 	<menu_item_call label="装着" name="Wearable And Object Wear"/>
 	<menu label="装着先" name="Attach To"/>
-	<menu label="HUD 装着先" name="Attach To HUD"/>
+	<menu label="HUDに装着" name="Attach To HUD"/>
 	<menu_item_call label="触る" name="Attachment Touch"/>
 	<menu_item_call label="編集" name="Wearable Edit"/>
 	<menu_item_call label="追加" name="Wearable Add"/>
@@ -125,5 +125,5 @@
 	<menu_item_separator layout="topleft"/>
 	<menu_item_call label="マーケットプレイスのリストにコピー" name="Marketplace Copy"/>
 	<menu_item_call label="マーケットプレイスのリストに移動" name="Marketplace Move"/>
-	<menu_item_call label="－オプションなし－" name="--no options--"/>
+	<menu_item_call label="--オプションなし--" name="--no options--"/>
 </menu>

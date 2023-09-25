@@ -108,15 +108,15 @@
 		ルートジョイント名が不正です。「hip」を使用してください。
 	</floater.string>
 	<text name="name_label">
-		名前：
+		名前:
 	</text>
 	<text name="description_label">
-		説明：
+		説明:
 	</text>
 	<spinner label="優先度" name="priority" tool_tip="このアニメーションでどのアニメーションを上書きできるかを決めます"/>
 	<check_box label="ループ" name="loop_check" tool_tip="このアニメーションをループ再生にします"/>
-	<spinner label="イン（％）" name="loop_in_point" tool_tip="アニメーションのループ復帰点を設定します"/>
-	<spinner label="アウト（％）" name="loop_out_point" tool_tip="アニメーションのループ終了点を設定します"/>
+	<spinner label="イン(%)" name="loop_in_point" tool_tip="アニメーションのループ復帰点を設定"/>
+	<spinner label="アウト(%)" name="loop_out_point" tool_tip="アニメーションのループ終了点を設定"/>
 	<text name="hand_label">
 		手のポーズ
 	</text>
@@ -139,7 +139,7 @@
 		表情
 	</text>
 	<combo_box name="emote_combo" tool_tip="アニメーション再生中の顔の表情を決めます">
-		<item label="（なし）" name="[None]"/>
+		<item label="(なし)" name="[None]"/>
 		<item label="アーーーーー" name="Aaaaah"/>
 		<item label="恐れる" name="Afraid"/>
 		<item label="怒る" name="Angry"/>
@@ -169,14 +169,14 @@
 		<item label="座る" name="Sitting"/>
 		<item label="飛ぶ" name="Flying"/>
 	</combo_box>
-	<spinner label="イーズ・イン（秒）" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間（秒）"/>
-	<spinner label="イーズ・アウト（秒）" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間（秒）"/>
+	<spinner label="イーズ・イン(秒)" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間(秒)"/>
+	<spinner label="イーズ・アウト(秒)" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間(秒)"/>
 	<button name="play_btn" tool_tip="アニメーションを再生する。"/>
 	<button name="pause_btn" tool_tip="アニメーションを一時停止する。"/>
-	<button name="stop_btn" tool_tip="アニメーションの再生を停止する。"/>
+	<button name="stop_btn" tool_tip="アニメーションの再生を停止"/>
 	<text name="bad_animation_text">
 		アニメーションファイルを読み取れません。Poser 4からエクスポートしたBVHファイルをお勧めします。
 	</text>
-	<button label="アップロード（L$ [AMOUNT]）" name="ok_btn"/>
+	<button label="アップロード (L$ [AMOUNT])" name="ok_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="空中の光の散乱密度" name="panel_settings_sky_density">
+<panel label="密度" name="panel_settings_sky_density">
 	<layout_stack>
 		<layout_panel>
-			<slider name="rayleigh_exponential" label="レイリー散乱の指数："/>
-			<slider name="rayleigh_exponential_scale" label="レイリー散乱の指数係数："/>
-			<slider name="rayleigh_linear" label="レイリー散乱の線形項："/>
-			<slider name="rayleigh_constant" label="レイリー散乱の定数："/>
-			<slider name="rayleigh_max_altitude" label="レイリー散乱の最大高度："/>
+			<slider name="rayleigh_exponential" label="レイリー指数項:"/>
+			<slider name="rayleigh_exponential_scale" label="レイリー指数スケール:"/>
+			<slider name="rayleigh_linear" label="レイリー線形項:"/>
+			<slider name="rayleigh_constant" label="レイリー定数項:"/>
+			<slider name="rayleigh_max_altitude" label="レイリー最大高度:"/>
 		</layout_panel>
 		<layout_panel>
-			<slider name="mie_exponential" label="ミー散乱の指数："/>
-			<slider name="mie_exponential_scale" label="ミー散乱の指数係数："/>
-			<slider name="mie_linear" label="ミー散乱の線形項："/>
-			<slider name="mie_constant" label="ミー散乱の定数"/>
-			<slider name="mie_aniso_factor" label="ミー散乱の異方性因子："/>
-			<slider name="mie_max_altitude" label="ミー散乱の最高高度："/>
+			<slider name="mie_exponential" label="Mie指数項:"/>
+			<slider name="mie_exponential_scale" label="Mie指数スケール:"/>
+			<slider name="mie_linear" label="Mie線形期間:"/>
+			<slider name="mie_constant" label="Mie定数項:"/>
+			<slider name="mie_aniso_factor" label="Mieアニソ係数:"/>
+			<slider name="mie_max_altitude" label="Mieの最高高度:"/>
 		</layout_panel>
 		<layout_panel>
-			<slider name="absorption_exponential" label="光の吸収の指数："/>
-			<slider name="absorption_exponential_scale" label="光の吸収の指数係数："/>
-			<slider name="absorption_linear" label="光の吸収の線形項："/>
-			<slider name="absorption_constant" label="光の吸収の定数："/>
-			<slider name="absorption_max_altitude" label="光の吸収の最大高度："/>
+			<slider name="absorption_exponential" label="吸収指数項:"/>
+			<slider name="absorption_exponential_scale" label="吸収指数スケール:"/>
+			<slider name="absorption_linear" label="吸収線形項:"/>
+			<slider name="absorption_constant" label="吸収定数項:"/>
+			<slider name="absorption_max_altitude" label="吸収最大高度:"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

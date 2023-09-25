@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_texture">
 	<floater.string name="Title">
-		テクスチャ：[NAME]
+		テスクチャ: [NAME]
 	</floater.string>
 	<floater.string name="Copy">
 		インベントリにコピー
@@ -9,10 +9,10 @@
 	<layout_stack name="preview_stack">
 		<layout_panel name="texture_panel">
 			<text name="desc txt">
-				説明：
+				説明:
 			</text>
 			<text name="dimensions">
-				[WIDTH]px✕[HEIGHT]px
+				[WIDTH]px x [HEIGHT]px
 			</text>
 			<text name="aspect_ratio">
 				縦横比のプレビュー
@@ -20,7 +20,7 @@
 			<combo_box name="combo_aspect_ratio" tool_tip="固定した縦横比のプレビュー"/>
 		</layout_panel>
 		<layout_panel name="buttons_panel">
-			<button label="ＯＫ" name="Keep"/>
+			<button label="OK" name="Keep"/>
 			<button label="破棄" name="Discard"/>
 			<button label="名前をつけて保存" name="save_tex_btn"/>
 		</layout_panel>

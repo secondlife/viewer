@@ -7,7 +7,7 @@
 	<text name="item_name" value="…"/>
 	<button name="btn_move_up"/>
 	<button name="btn_move_down"/>
-	<panel name="btn_lock" tool_tip="これを編集する権限がありません">
+	<panel name="btn_lock" tool_tip="編集権限がありません。">
 		<icon name="btn_lock1"/>
 	</panel>
 	<panel name="btn_edit_panel">

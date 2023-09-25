@@ -3,27 +3,27 @@
 	<menu label="私" name="File">
 		<menu_item_call label="初期設定…" name="Preferences..."/>
 		<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
-		<menu_item_check label="グリッドピッカーを表示する" name="Show Grid Picker"/>
+		<menu_item_check label="グリッドピッカーを表示" name="Show Grid Picker"/>
 		<menu_item_call label="[APP_NAME]を終了" name="Quit"/>
 	</menu>
 	<menu label="ヘルプ" name="Help">
-		<menu_item_call label="ハウツー…" name="How To"/>
+		<menu_item_call label="ガイドブック" name="How To"/>
 		<menu_item_call label="クイックスタート" name="Quickstart"/>
 		<menu_item_call label="ナレッジベース" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
-		<menu_item_call label="コミュニティ フォーラム" name="Community Forums"/>
+		<menu_item_call label="コミュニティフォーラム" name="Community Forums"/>
 		<menu_item_call label="日本語サポートページ" name="Support portal"/>
 		<menu_item_call label="[SECOND_LIFE]ニュース" name="Second Life News"/>
 		<menu_item_call label="[SECOND_LIFE]ブログ" name="Second Life Blogs"/>
-		<menu_item_call label="バグを報告する" name="Report Bug"/>
+		<menu_item_call label="バグを報告" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME]について" name="About Second Life"/>
 	</menu>
-	<menu_item_check label="デバッグメニューを表示する" name="Show Debug Menu"/>
+	<menu_item_check label="デバッグメニューを表示" name="Show Debug Menu"/>
 	<menu label="デバッグ" name="Debug">
 		<menu_item_call label="デバッグ設定を表示" name="Debug Settings"/>
 		<menu_item_call label="XUIプレビューツール" name="UI Preview Tool"/>
 		<menu label="UI テスト" name="UI Tests"/>
-		<menu_item_call label="ウィンドウのサイズを設定…" name="Set Window Size..."/>
+		<menu_item_call label="ウィンドウサイズ設定…" name="Set Window Size..."/>
 		<menu_item_call label="利用規約を表示" name="TOS"/>
 		<menu_item_call label="クリティカルメッセージを表示" name="Critical"/>
 		<menu_item_call label="メディアブラウザ" name="Media Browser"/>
@@ -34,6 +34,6 @@
 			<menu_item_check label="エラー" name="Error"/>
 			<menu_item_check label="なし" name="None"/>
 		</menu>
-		<menu_item_call label="通知コンソールを表示する" name="Show Notifications Console"/>
+		<menu_item_call label="通知コンソールを表示" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

@@ -7,7 +7,7 @@
 		フィート
 	</string>
 	<string name="height">
-		高さ：
+		高さ:
 	</string>
 	<text name="avatar_height"/>
 	<panel label="シャツ" name="accordion_panel">

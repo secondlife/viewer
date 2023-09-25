@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="ban_duration" title="バン期間">
+<floater name="ban_duration" title="バンする期間">
 	<text name="duration_textbox">
-		バンする期間：
+		バンする期間:
 	</text>
 	<radio_group name="ban_duration_radio">
 		<radio_item label="常時" name="always_radio">
@@ -14,6 +14,6 @@
 	<text name="hours_textbox">
 		時間
 	</text>
-	<button label="Ok" name="ok_btn"/>
+	<button label="OK" name="ok_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

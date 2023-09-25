@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_gear_default">
 	<menu_item_call label="新しいインベントリウィンドウ" name="new_window"/>
-	<menu_item_check label="名前で並べ替え" name="sort_by_name"/>
-	<menu_item_check label="新しい順に並べ替え" name="sort_by_recent"/>
+	<menu_item_check label="名前でソート" name="sort_by_name"/>
+	<menu_item_check label="新しい順にソート" name="sort_by_recent"/>
 	<menu_item_check label="フォルダを常に名前順に並べる" name="sort_folders_by_name"/>
 	<menu_item_check label="システムフォルダを上にソートする" name="sort_system_folders_to_top"/>
 	<menu_item_separator/>
@@ -15,7 +15,7 @@
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="オリジナルを表示" name="Find Original"/>
 	<menu_item_call label="すべてのリンクを表示" name="Find All Links"/>
-	<menu_item_call label="リンクを置き換える" name="Replace Links"/>
+	<menu_item_call label="リンクを置換" name="Replace Links"/>
 	<menu_item_separator/>
 	<menu_item_call label="ごみ箱を空にする" name="empty_trash"/>
 </toggleable_menu>

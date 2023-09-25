@@ -42,15 +42,9 @@
 		<layout_panel name="create_actions">
 			<layout_stack name="button_row_ls">
 				<layout_panel name="layout_crt">
-          
-        </layout_panel>
-				<layout_panel name="layout_crt">
 					<button label="グループ作成：L$[COST]" name="btn_create" tool_tip="新しいグループを作成"/>
 					<button name="back" label="キャンセル" tool_tip="グループ一覧に戻ります。"/>
 				</layout_panel>
-				<layout_panel name="layout_crt">
-          
-        </layout_panel>
 			</layout_stack>
 			<text name="info_deletion">
 				注：４８時間メンバーが２人未満のグループは、自動的に解散されます。

@@ -1,38 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="panel_profile" label="プロフィール">
-	<string name="date_format" value="ＳＬでの誕生日：[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
-	<string name="age_format" value="[AGE]経過"/>
-	<string name="partner_text" value="パートナー：[LINK]"/>
-	<string name="CaptionTextAcctInfo">
-		アカウント：[ACCTTYPE]
-[PAYMENTINFO]
-	</string>
-	<string name="BadgeBeta" value="オリジナルβテスター"/>
-	<string name="BadgeBetaLifetime" value="β会員"/>
-	<string name="BadgeLifetime" value="会員"/>
-	<string name="BadgeLinden" value="Linden Lab社員"/>
-	<string name="BadgePremiumLifetime" value="プレミアム会員"/>
-	<string name="BadgePremiumPlusLifetime" value="プレミアム・プラス会員"/>
+<panel label="プロフィール" name="panel_profile">
+	<string name="date_format" value="SLでの誕生日: [year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
+	<string name="age_format" value="[AGE]歳"/>
+	<string name="partner_text" value="パートナー: [LINK]"/>
 	<layout_stack name="image_stack">
 		<layout_panel name="image_panel">
 			<icon name="2nd_life_pic"/>
 			<loading_indicator name="image_upload_indicator"/>
 		</layout_panel>
 		<layout_panel name="basics_panel">
-			<line_editor name="user_name" value="（読み込んでいます…）"/>
-			<line_editor name="sl_birth_date" value="（読み込んでいます…）"/>
-			<line_editor name="user_age" value="（読み込んでいます…）"/>
+			<line_editor name="user_name" value="(読み込んでいます…)"/>
+			<line_editor name="sl_birth_date" value="(読み込んでいます…)"/>
+			<line_editor name="user_age" value="(読み込んでいます…)"/>
 		</layout_panel>
 		<layout_panel name="partner_layout">
-			<text name="partner_link" value="パートナー：（読み込んでいます…）"/>
+			<text name="partner_link" value="パートナー:(読み込んでいます…)"/>
 		</layout_panel>
 		<layout_panel name="partner_spacer_layout"/>
-		<layout_panel name="badge_layout">
-			<icon name="badge_icon"/>
-			<text name="badge_text" value="バッチのテスト"/>
-		</layout_panel>
-		<layout_panel name="friend_layout">
-			<text name="friend_text" value="あなたはフレンドです。"/>
+		<layout_panel name="frind_layout">
+			<text name="frind_text" value="あなたはフレンドです。"/>
 		</layout_panel>
 		<layout_panel name="online_layout">
 			<icon name="online_icon"/>
@@ -43,15 +29,15 @@
 			<text name="offline_text" value="オフライン"/>
 		</layout_panel>
 		<layout_panel name="account_layout">
-			<text name="account_info" value="アカウント：（読み込んでいます…）"/>
+			<text name="account_info" value="アカウント: (読み込んでいます…)"/>
 		</layout_panel>
 		<layout_panel name="indicator_stack">
 			<loading_indicator name="progress_indicator"/>
 		</layout_panel>
 		<layout_panel name="settings_panel">
-			<text name="search_label" value="自分のプロフィールを検索結果に反映："/>
+			<text name="search_label" value="自分のプロフィールを検索結果に反映:"/>
 			<combo_box name="show_in_search" tool_tip="検索結果から、あなたを見つけてもらいましょう。">
-				<combo_box.item name="Hide" label="表示しない" value="0"/>
+				<combo_box.item name="Hide" label="非表示" value="0"/>
 				<combo_box.item name="Show" label="表示する" value="1"/>
 			</combo_box>
 		</layout_panel>
@@ -61,13 +47,13 @@
 	</layout_stack>
 	<layout_stack name="main_stack">
 		<layout_panel name="display_name_panel">
-			<line_editor name="display_name" value="（読み込んでいます…）"/>
-			<icon tool_tip="フレンドは、自分のオンライン状況を見ることができます。" name="can_see_online"/>
-			<icon tool_tip="フレンドは、自分のオンライン状況を見ることができません。" name="cant_see_online"/>
-			<icon tool_tip="フレンドは、自分がマップのどこにいるかを知ることができます。" name="can_see_on_map"/>
-			<icon tool_tip="フレンドは、自分がマップのどこにいるかを知ることができません。" name="cant_see_on_map"/>
-			<icon tool_tip="フレンドは、自分のオブジェクトを編集できます。" name="can_edit_objects"/>
-			<icon tool_tip="フレンドは、自分のオブジェクトを編集できません。" name="cant_edit_objects"/>
+			<line_editor name="display_name" value="(読み込んでいます…)"/>
+			<icon tool_tip="フレンドは自分のオンライン状況を見ることができる" name="can_see_online"/>
+			<icon tool_tip="フレンドは自分のオンライン状況を見ることができない" name="cant_see_online"/>
+			<icon tool_tip="フレンドは自分がマップのどこにいるかを知ることができる" name="can_see_on_map"/>
+			<icon tool_tip="フレンドは自分がマップのどこにいるかを知ることができない" name="cant_see_on_map"/>
+			<icon tool_tip="フレンドは自分のオブジェクトを編集できる" name="can_edit_objects"/>
+			<icon tool_tip="フレンドは自分のオブジェクトを編集できない" name="cant_edit_objects"/>
 		</layout_panel>
 		<layout_panel name="about_panel">
 			<text_editor name="sl_description_edit"/>

@@ -9,6 +9,6 @@
 	<text name="Preset">
 		プリセットを選択
 	</text>
-	<button label="ＯＫ" name="ok"/>
+	<button label="OK" name="ok"/>
 	<button label="キャンセル" name="cancel"/>
 </floater>

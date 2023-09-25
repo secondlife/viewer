@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="グラフィック" name="Display panel">
-	<text follows="top|left|right" height="16" layout="topleft" left="5" top="5" width="100">
-		使用中のプリセット：
-	</text>
+<panel label="表示" name="Display panel">
 	<text name="preset_text">
-		（なし）
+		(なし)
 	</text>
 	<text name="QualitySpeed">
-		品質と速度：
+		品質と速度:
 	</text>
 	<text name="ShadersPrefText">
 		低
@@ -27,33 +24,23 @@
 	<text name="BetterText">
 		品質優先
 	</text>
-	<icon name="LowGraphicsDivet"/>
-	<icon name="LowMidGraphicsDivet"/>
-	<icon name="MidGraphicsDivet"/>
-	<icon name="MidHighGraphicsDivet"/>
-	<icon name="HighGraphicsDivet"/>
-	<icon name="HighUltraGraphicsDivet"/>
-	<icon name="UltraGraphicsDivet"/>
-	<slider name="QualityPerformanceSelection"/>
-	<slider control_name="RenderFarClip" label="描画距離：" name="DrawDistance"/>
+	<slider control_name="RenderFarClip" label="描画距離:" name="DrawDistance"/>
 	<text name="DrawDistanceMeterText2">
-		ｍ
+		m
 	</text>
-	<check_box initial_value="true" label="大気（周辺）シェーダー" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="高度な光源モデル" name="UseLightShaders"/>
-	<button label="自動調整" name="AutoAdjustmentsButton"/>
-	<slider label="アバターの最大複雑度：" name="IndirectMaxComplexity" tool_tip="どの程度の複雑度で他のアバターをJellyDollとして描画するを設定します。"/>
+	<check_box initial_value="true" label="周囲(大気)シェーダー" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="高度なライティングモデル" name="UseLightShaders"/>
+	<slider label="アバターの最大複雑度:" name="IndirectMaxComplexity" tool_tip="どの程度の複雑度で他のアバターをJellyDollとして描画するを設定します。"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
 	<text name="IndirectMaxComplexityLink">
-		[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これはなんですか？]
+		[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これはなんですか?]
 	</text>
-	<check_box label="フレンドは常に描画" name="AlwaysRenderFriends"/>
+	<check_box initial_value="true" label="フレンドは常に描画" name="AlwaysRenderFriends"/>
 	<button label="例外…" name="RenderExceptionsButton"/>
 	<button label="設定をプリセットとして保存…" name="PrefSaveButton"/>
-	<button label="プリセットを読み込む…" name="PrefLoadButton"/>
-	<button label="プリセットを削除…" name="PrefDeleteButton"/>
+	<button label="プリセットをロード…" name="PrefLoadButton"/>
 	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
 	<button label="拡張設定…" name="AdvancedSettings"/>

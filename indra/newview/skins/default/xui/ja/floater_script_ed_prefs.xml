@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_script_colors" title="スクリプトの色">
 	<text name="color_pickers_label">
-		希望の色を選択：
+		希望の色を選択:
 	</text>
 	<text name="text_label">
 		テキスト

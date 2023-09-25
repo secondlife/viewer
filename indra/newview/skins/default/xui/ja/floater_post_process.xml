@@ -23,7 +23,7 @@
 		<panel label="暗視" name="wmiNightVisionPanel">
 			<check_box label="有効" name="wmiNightVisionToggle"/>
 			<text name="wmiNightVisionBrightMultText">
-				光の増幅（マルチ）
+				光の増幅(マルチ)
 			</text>
 			<text name="wmiNightVisionNoiseSizeText">
 				ノイズ・サイズ

@@ -3,15 +3,15 @@
 	<scroll_container name="avatar_alpha_color_panel_scroll">
 		<panel name="avatar_alpha_color_panel">
 			<check_box name="lower alpha texture invisible"/>
-			<texture_picker label="アルファ（下半身）" name="Lower Alpha" tool_tip="クリックで画像を選択できます。"/>
+			<texture_picker label="アルファ(下半身)" name="Lower Alpha" tool_tip="画像をクリックして選択"/>
 			<check_box name="upper alpha texture invisible"/>
-			<texture_picker label="アルファ（上半身）" name="Upper Alpha" tool_tip="クリックで画像を選択できます。"/>
+			<texture_picker label="アルファ(上半身)" name="Upper Alpha" tool_tip="画像をクリックして選択"/>
 			<check_box name="head alpha texture invisible"/>
-			<texture_picker label="頭部のアルファ" name="Head Alpha" tool_tip="クリックで画像を選択できます。"/>
+			<texture_picker label="頭部のアルファ" name="Head Alpha" tool_tip="画像をクリックして選択"/>
 			<check_box name="eye alpha texture invisible"/>
-			<texture_picker label="瞳のアルファ" name="Eye Alpha" tool_tip="クリックで画像を選択できます。"/>
+			<texture_picker label="瞳のアルファ" name="Eye Alpha" tool_tip="画像をクリックして選択"/>
 			<check_box name="hair alpha texture invisible"/>
-			<texture_picker label="髪のアルファ" name="Hair Alpha" tool_tip="クリックで画像を選択できます。"/>
+			<texture_picker label="髪のアルファ" name="Hair Alpha" tool_tip="画像をクリックして選択"/>
 		</panel>
 	</scroll_container>
 </panel>

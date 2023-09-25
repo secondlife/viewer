@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="着用可能なもの" name="panel_edit_wearable">
+<panel label="着用物" name="panel_edit_wearable">
 	<string name="edit_shape_title">
 		シェイプを編集中
 	</string>
@@ -34,10 +34,10 @@
 		手袋を編集中
 	</string>
 	<string name="edit_undershirt_title">
-		下着（上半身）を編集中
+		下着(上半身)を編集中
 	</string>
 	<string name="edit_underpants_title">
-		下着（下半身）を編集中
+		下着(下半身)を編集中
 	</string>
 	<string name="edit_alpha_title">
 		アルファマスクを編集中
@@ -49,63 +49,63 @@
 		全般を編集中
 	</string>
 	<string name="edit_physics_title">
-		物理作用の編集中
+		物理の編集
 	</string>
 	<string name="shape_desc_text">
-		シェイプ：
+		シェイプ:
 	</string>
 	<string name="skin_desc_text">
-		スキン：
+		スキン:
 	</string>
 	<string name="hair_desc_text">
-		髪：
+		髪:
 	</string>
 	<string name="eyes_desc_text">
-		目：
+		目:
 	</string>
 	<string name="shirt_desc_text">
-		シャツ：
+		シャツ:
 	</string>
 	<string name="pants_desc_text">
-		ズボン：
+		ズボン:
 	</string>
 	<string name="shoes_desc_text">
-		靴：
+		靴:
 	</string>
 	<string name="socks_desc_text">
-		靴下：
+		靴下:
 	</string>
 	<string name="jacket_desc_text">
-		ジャケット：
+		ジャケット:
 	</string>
 	<string name="skirt_desc_text">
-		スカート：
+		スカート:
 	</string>
 	<string name="gloves_desc_text">
-		手袋：
+		手袋:
 	</string>
 	<string name="undershirt_desc_text">
-		下着（上半身）：
+		下着(上半身):
 	</string>
 	<string name="underpants_desc_text">
-		下着（下半身）：
+		下着(下半身):
 	</string>
 	<string name="alpha_desc_text">
-		アルファマスク：
+		アルファマスク:
 	</string>
 	<string name="tattoo_desc_text">
-		タトゥ：
+		タトゥ:
 	</string>
 	<string name="universal_desc_text">
-		全般：
+		全般:
 	</string>
 	<string name="physics_desc_text">
-		物理作用：
+		物理作用:
 	</string>
 	<labeled_back_button label="保存" name="back_btn" tool_tip="アウトフィットの編集に戻る"/>
 	<text name="edit_wearable_title" value="シェイプを編集中"/>
 	<panel label="シャツ" name="wearable_type_panel">
-		<text name="description_text" value="シェイプ："/>
+		<text name="description_text" value="シェイプ:"/>
 		<radio_group name="sex_radio">
 			<radio_item label="" name="sex_male" tool_tip="男性" value="1"/>
 			<radio_item label="" name="sex_female" tool_tip="女性" value="0"/>

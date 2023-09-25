@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="ピック" name="panel_picks">
+<panel label="選択" name="panel_picks">
 	<string name="no_picks" value="ピックなし"/>
 	<text name="Tell everyone about your favorite places in Second Life.">
-		Second Lifeのお気に入りの場所を紹介しましょう。
+		Second Life のお気に入りの場所を紹介しましょう。
 	</text>
 	<button label="新規…" name="new_btn"/>
 	<button label="削除…" name="delete_btn"/>

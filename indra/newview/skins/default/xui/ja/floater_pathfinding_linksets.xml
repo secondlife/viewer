@@ -19,25 +19,25 @@
 		[NUM_TOTAL]個中[NUM_SELECTED]個が選択されました。
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
-		このリージョン（地域）は経路探索に対応していません。
+		このリージョン(地域)は経路探索に対応していません。
 	</floater.string>
 	<floater.string name="linkset_terrain_name">
 		[Terrain]
 	</floater.string>
 	<floater.string name="linkset_terrain_description">
-		－
+		--
 	</floater.string>
 	<floater.string name="linkset_terrain_owner">
-		－
+		--
 	</floater.string>
 	<floater.string name="linkset_terrain_scripted">
-		－
+		--
 	</floater.string>
 	<floater.string name="linkset_terrain_land_impact">
-		－
+		--
 	</floater.string>
 	<floater.string name="linkset_terrain_dist_from_you">
-		－
+		--
 	</floater.string>
 	<floater.string name="linkset_owner_loading">
 		[Loading]
@@ -92,7 +92,7 @@
 	</floater.string>
 	<panel name="pathfinding_linksets_main">
 		<text name="linksets_filter_label">
-			フィルタ：
+			フィルタ:
 		</text>
 		<text name="linksets_name_label">
 			名前
@@ -112,23 +112,23 @@
 		<button label="適用" name="apply_filters"/>
 		<button label="クリア" name="clear_filters"/>
 		<scroll_list name="objects_scroll_list">
-			<scroll_list.columns label="名前（ルートプリム）" name="name"/>
-			<scroll_list.columns label="説明（ルートプリム）" name="description"/>
+			<scroll_list.columns label="名前(ルートプリム)" name="name"/>
+			<scroll_list.columns label="説明(ルートプリム)" name="description"/>
 			<scroll_list.columns label="所有者" name="owner"/>
 			<scroll_list.columns label="スクリプト" name="scripted"/>
 			<scroll_list.columns label="ランドインパクト" name="land_impact"/>
 			<scroll_list.columns label="距離" name="dist_from_you"/>
 			<scroll_list.columns label="経路探索で使用" name="linkset_use"/>
-			<scroll_list.columns label="Ａ％" name="a_percent"/>
-			<scroll_list.columns label="Ｂ％" name="b_percent"/>
-			<scroll_list.columns label="Ｃ％" name="c_percent"/>
-			<scroll_list.columns label="Ｄ％" name="d_percent"/>
+			<scroll_list.columns label="A%" name="a_percent"/>
+			<scroll_list.columns label="B%" name="b_percent"/>
+			<scroll_list.columns label="C%" name="c_percent"/>
+			<scroll_list.columns label="D%" name="d_percent"/>
 		</scroll_list>
 		<text name="messaging_status">
-			リンクセット：
+			リンクセット:
 		</text>
 		<button label="リスト更新" name="refresh_objects_list"/>
-		<button label="すべて選択" name="select_all_objects"/>
+		<button label="全て選択" name="select_all_objects"/>
 		<button label="何も選択しない" name="select_none_objects"/>
 	</panel>
 	<panel name="pathfinding_linksets_actions">
@@ -147,36 +147,36 @@
 			経路探索属性を編集する
 		</text>
 		<text name="walkability_coefficients_label">
-			歩行可能性：
+			歩行可能性:
 		</text>
 		<text name="edit_a_label">
-			Ａ
+			A
 		</text>
-		<line_editor name="edit_a_value" tool_tip="タイプＡのキャラクターの歩行可能性。キャラクタータイプの例はヒューマノイドです。"/>
+		<line_editor name="edit_a_value" tool_tip="タイプAのキャラクターの歩行可能性。キャラクタータイプの例はヒューマノイドです。"/>
 		<text name="edit_b_label">
-			Ｂ
+			B
 		</text>
-		<line_editor name="edit_b_value" tool_tip="タイプＢのキャラクターの歩行可能性。キャラクタータイプの例はクリーチャーです。"/>
+		<line_editor name="edit_b_value" tool_tip="タイプBのキャラクターの歩行可能性。キャラクタータイプの例はクリーチャーです。"/>
 		<text name="edit_c_label">
-			Ｃ
+			C
 		</text>
-		<line_editor name="edit_c_value" tool_tip="タイプＣのキャラクターの歩行可能性。キャラクタータイプの例はメカニカルです。"/>
+		<line_editor name="edit_c_value" tool_tip="タイプCのキャラクターの歩行可能性。キャラクタータイプの例はメカニカルです。"/>
 		<text name="edit_d_label">
-			Ｄ
+			D
 		</text>
-		<line_editor name="edit_d_value" tool_tip="タイプＤのキャラクターの歩行可能性。キャラクタータイプの例はその他です。"/>
+		<line_editor name="edit_d_value" tool_tip="タイプDのキャラクターの歩行可能性。キャラクタータイプの例はその他です。"/>
 		<button label="変更を適用" name="apply_edit_values"/>
 		<text name="suggested_use_a_label">
-			（ヒューマノイド）
+			(ヒューマノイド)
 		</text>
 		<text name="suggested_use_b_label">
-			（クリーチャー）
+			(クリーチャー)
 		</text>
 		<text name="suggested_use_c_label">
-			（メカニカル）
+			(メカニカル)
 		</text>
 		<text name="suggested_use_d_label">
-			（その他）
+			(その他)
 		</text>
 	</panel>
 </floater>
