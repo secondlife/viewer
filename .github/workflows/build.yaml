@@ -279,11 +279,36 @@ jobs:
     needs: build
     runs-on: macos-latest
     steps:
+      - name: Unpack Mac notarization credentials
+        id: note-creds
+        shell: bash
+        run: |
+          # In NOTARIZE_CREDS_MACOS we expect to find:
+          # USERNAME="..."
+          # PASSWORD="..."
+          # ASC_PROVIDER="..."
+          eval "${{ secrets.NOTARIZE_CREDS_MACOS }}
+          echo "::add-mask::$USERNAME"
+          echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$ASC_PROVIDER"
+          echo "note_user=$USERNAME" >> "$GITHUB_OUTPUT"
+          echo "note_pass=$PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "note_asc=$ASC_PROVIDER" >> "$GITHUB_OUTPUT"
+          # If we didn't manage to retrieve all of these credentials, better
+          # find out sooner than later.
+          [[ -n "$USERNAME" && -n "$PASSWORD && -n "$ASC_PROVIDER" ]]
+
       - name: Sign and package Mac viewer
         uses: secondlife/viewer-build-util/sign-pkg-mac@main
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
+          cert_base64: ${{ secrets.SIGNING_CERT_MACOS }}
+          cert_name: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
+          cert_pass: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
+          note_user: ${{ steps.note-creds.outputs.note_user }}
+          note_pass: ${{ steps.note-creds.outputs.note_pass }}
+          note_asc: ${{ steps.note-creds.outputs.note_asc }}
 
   post-windows-symbols:
     needs: build
