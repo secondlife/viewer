@@ -176,6 +176,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mSelectedItemPinned( FALSE ),
 	mCanApply(true),
 	mCanPreview(true),
+    mLimitsSet(false),
     mMaxDim(S32_MAX),
     mMinDim(0),
 	mPreviewSettingChanged(false),
@@ -282,7 +283,7 @@ bool LLFloaterTexturePicker::updateImageStats()
         S32 height = mTexturep->getFullHeight();
 		if (width > 0 && height > 0)
 		{
-            if (width != height
+            if ((mLimitsSet && (width != height))
                 || width < mMinDim
                 || width > mMaxDim
                 || height < mMinDim
@@ -1200,6 +1201,7 @@ void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply, bool 
 void LLFloaterTexturePicker::setMinDimentionsLimits(S32 min_dim)
 {
     mMinDim = min_dim;
+    mLimitsSet = true;
 
     std::string formatted_dims = llformat("%dx%d", mMinDim, mMinDim);
     mResolutionWarning->setTextArg("[MINTEXDIM]", formatted_dims);
