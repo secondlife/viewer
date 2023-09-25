@@ -118,11 +118,20 @@ void LLHeroProbeManager::update()
                 F32 angleInRadians = 180 * DEG_TO_RAD;
 
                 LLMatrix4 rotationMatrix;
+                
+                rotationMatrix.rotate(angleInRadians, LLVector4(mNearestHero->mDrawable->getFace(0)->getAverageNormal()));
 
                 LLVector3 translatedPoint;
                 LLVector3 rotatedTranslatedPoint;
                 LLVector3 rotatedPoint;
                 
+                translatedPoint = camera_pos - hero_pos;
+                rotatedTranslatedPoint = translatedPoint * rotationMatrix;
+                rotatedPoint = rotatedTranslatedPoint + hero_pos;
+                
+                probe_pos.load3(rotatedPoint.mV);
+
+                /*
                 switch (mNearestHero->mirrorPlacementMode()) {
                     case 0:
                         
@@ -161,6 +170,7 @@ void LLHeroProbeManager::update()
                         probe_pos.load3(rotatedPoint.mV);
                         break;
                 }
+                 */
             }
             
             mHeroProbeStrength = 1;

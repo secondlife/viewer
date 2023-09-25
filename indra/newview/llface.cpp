@@ -488,6 +488,33 @@ U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &no
 	return mGeomIndex;
 }
 
+LLVector3 LLFace::getAverageNormal()
+{
+    if (!mHasAverageNormal)
+    {
+        if (mVertexBuffer.notNull())
+        {
+            if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL))
+            {
+                LLStrider<LLVector3> normals;
+                mVertexBuffer->getNormalStrider(normals, mGeomIndex, mGeomCount);
+                LLVector3 normal_total;
+                
+                for (int i = 0; i < mVertexBuffer->getNumVerts(); i++)
+                {
+                    normal_total += *normals.get();
+                    normals++;
+                }
+                
+                mAverageNormal = normal_total / mVertexBuffer->getNumVerts();
+                mHasAverageNormal = true;
+            }
+        }
+    }
+    
+    return mAverageNormal;
+}
+
 void LLFace::updateCenterAgent()
 {
 	if (mDrawablep->isActive())
