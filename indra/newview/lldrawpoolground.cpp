@@ -53,11 +53,11 @@ void LLDrawPoolGround::prerender()
 
 void LLDrawPoolGround::render(S32 pass)
 {
-	if (mDrawFace.empty() || !gSavedSettings.getBOOL("RenderGround"))
+	if (mDrawFace.empty() || !LLGLSLShader::sCurBoundShaderPtr || !gSavedSettings.getBOOL("RenderGround"))
 	{
 		return;
-	}	
-	
+	}
+
 	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
