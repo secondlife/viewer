@@ -222,7 +222,7 @@ public:
 	LLVOCacheEntry::vocache_entry_set_t   mVisibleEntries; //must-be-created visible entries wait for objects creation.	
 	LLVOCacheEntry::vocache_entry_priority_list_t mWaitingList; //transient list storing sorted visible entries waiting for object creation.
 	std::set<U32>                          mNonCacheableCreatedList; //list of local ids of all non-cacheable objects
-    LLVOCacheEntry::vocache_gltf_overrides_map_t mGLTFOverridesJson; // for materials
+    LLVOCacheEntry::vocache_gltf_overrides_map_t mGLTFOverridesLLSD; // for materials
 
 	// time?
 	// LRU info?
@@ -795,7 +795,7 @@ void LLViewerRegion::loadObjectCache()
 	{
         LLVOCache & vocache = LLVOCache::instance();
 		vocache.readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap);
-        vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesJson);
+        vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesLLSD);
 
 		if (mImpl->mCacheMap.empty())
 		{
@@ -825,7 +825,7 @@ void LLViewerRegion::saveObjectCache()
         LLVOCache & instance = LLVOCache::instance();
 
         instance.writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled);
-        instance.writeGenericExtrasToCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesJson, mCacheDirty, removal_enabled);
+        instance.writeGenericExtrasToCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesLLSD, mCacheDirty, removal_enabled);
 		mCacheDirty = FALSE;
 	}
 
@@ -2664,7 +2664,7 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 void LLViewerRegion::cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data)
 {
     U32 local_id = override_data.mLocalId;
-    mImpl->mGLTFOverridesJson[local_id] = override_data;
+    mImpl->mGLTFOverridesLLSD[local_id] = override_data;
 }
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
@@ -3656,8 +3656,8 @@ std::string LLViewerRegion::getSimHostName()
 
 void LLViewerRegion::loadCacheMiscExtras(U32 local_id)
 {
-    auto iter = mImpl->mGLTFOverridesJson.find(local_id);
-    if (iter != mImpl->mGLTFOverridesJson.end())
+    auto iter = mImpl->mGLTFOverridesLLSD.find(local_id);
+    if (iter != mImpl->mGLTFOverridesLLSD.end())
     {
         LLGLTFMaterialList::loadCacheOverrides(iter->second);
     }
@@ -3669,8 +3669,8 @@ void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
     llassert(obj);
 
     U32 local_id = obj->getLocalID();
-    auto iter = mImpl->mGLTFOverridesJson.find(local_id);
-    if (iter != mImpl->mGLTFOverridesJson.end())
+    auto iter = mImpl->mGLTFOverridesLLSD.find(local_id);
+    if (iter != mImpl->mGLTFOverridesLLSD.end())
     {
         llassert(iter->second.mGLTFMaterial.size() == iter->second.mSides.size());
 

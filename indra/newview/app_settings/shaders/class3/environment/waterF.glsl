@@ -124,7 +124,7 @@ vec3 transform_normal(vec3 vNt)
 }
 
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness);
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, vec3 amblit_linear);
 
 vec3 getPositionWithNDC(vec3 ndc);
 
@@ -237,7 +237,7 @@ void main()
     
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss);
+    sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
 
     irradiance       = vec3(0);
 

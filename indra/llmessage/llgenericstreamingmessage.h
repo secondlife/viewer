@@ -1,11 +1,10 @@
-/** 
- * @file llviewergenericmessage.h
- * @brief Handle processing of "generic messages" which contain short lists of strings.
- * @author James Cook
+/**
+ * @file llgenericstreamingmessage.h
+ * @brief Generic Streaming Message helpers.  Shared between viewer and simulator.
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,23 +24,27 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERGENERICMESSAGE_H
-#define LLVIEWERGENERICMESSAGE_H
+#pragma once
 
-class LLUUID;
-class LLDispatcher;
+#include <string>
+#include "stdtypes.h"
+
 class LLMessageSystem;
 
+class LLGenericStreamingMessage
+{
+public:
+    enum Method : U16
+    {
+        METHOD_GLTF_MATERIAL_OVERRIDE = 0x4175,
+        METHOD_UNKNOWN = 0xFFFF,
+    };
 
-void send_generic_message(const std::string& method,
-						  const std::vector<std::string>& strings,
-						  const LLUUID& invoice = LLUUID::null);
+    void send(LLMessageSystem* msg);
+    void unpack(LLMessageSystem* msg);
 
-void process_generic_message(LLMessageSystem* msg, void**);
-void process_generic_streaming_message(LLMessageSystem* msg, void**);
-void process_large_generic_message(LLMessageSystem* msg, void**);
+    Method mMethod = METHOD_UNKNOWN;
+    std::string mData;
+};
 
 
-extern LLDispatcher gGenericDispatcher;
-
-#endif

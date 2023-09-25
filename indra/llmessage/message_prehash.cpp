@@ -1367,6 +1367,7 @@ char const* const _PREHASH_MuteType = LLMessageStringTable::getInstance()->getSt
 char const* const _PREHASH_IMViaEMail = LLMessageStringTable::getInstance()->getString("IMViaEMail");
 char const* const _PREHASH_RentPrice = LLMessageStringTable::getInstance()->getString("RentPrice");
 char const* const _PREHASH_GenericMessage = LLMessageStringTable::getInstance()->getString("GenericMessage");
+char const* const _PREHASH_GenericStreamingMessage = LLMessageStringTable::getInstance()->getString("GenericStreamingMessage");
 char const* const _PREHASH_ChildAgentAlive = LLMessageStringTable::getInstance()->getString("ChildAgentAlive");
 char const* const _PREHASH_AssetType = LLMessageStringTable::getInstance()->getString("AssetType");
 char const* const _PREHASH_SpawnPointBlock = LLMessageStringTable::getInstance()->getString("SpawnPointBlock");

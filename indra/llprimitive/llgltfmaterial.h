@@ -176,6 +176,7 @@ public:
     // get the contents of this LLGLTFMaterial as a json string
     std::string asJSON(bool prettyprint = false) const;
 
+
     // initialize from given tinygltf::Model
     // model - the model to reference
     // mat_index - index of material in model's material array
@@ -185,6 +186,14 @@ public:
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
     void applyOverride(const LLGLTFMaterial& override_mat);
+    
+    // apply the given LLSD override data
+    void applyOverrideLLSD(const LLSD& data);
+
+    // Get the given override on this LLGLTFMaterial as LLSD
+    // override_mat -- the override source data
+    // data -- output LLSD object (should be passed in empty)
+    void getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data);
 
     // For base materials only (i.e. assets). Clears transforms to
     // default since they're not supported in assets yet.

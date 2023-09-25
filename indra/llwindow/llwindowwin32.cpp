@@ -352,6 +352,11 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
+    void glReady()
+    {
+        mGLReady = true;
+    }
+
     // initialzie DXGI adapter (for querying available VRAM)
     void initDX();
     
@@ -410,6 +415,9 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     HWND mWindowHandle = NULL;
     HDC mhDC = 0;
 
+    // *HACK: Attempt to prevent startup crashes by deferring memory accounting
+    // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
+    bool mGLReady = false;
     // best guess at available video memory in MB
     std::atomic<U32> mAvailableVRAM;
 
@@ -1719,6 +1727,13 @@ const	S32   max_format  = (S32)num_formats - 1;
 
 	// ok to post quit messages now
 	mPostQuit = TRUE;
+
+    // *HACK: Attempt to prevent startup crashes by deferring memory accounting
+    // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
+    mWindowThread->post([=]()
+    {
+        mWindowThread->glReady();
+    });
 
 	if (auto_show)
 	{
@@ -4692,6 +4707,8 @@ void debugEnumerateGraphicsAdapters()
 
 void LLWindowWin32::LLWindowWin32Thread::initDX()
 {
+    if (!mGLReady) { return; }
+
     if (mDXGIAdapter == NULL)
     {
         debugEnumerateGraphicsAdapters();
@@ -4726,6 +4743,8 @@ void LLWindowWin32::LLWindowWin32Thread::initDX()
 
 void LLWindowWin32::LLWindowWin32Thread::initD3D()
 {
+    if (!mGLReady) { return; }
+
     if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandle != 0)
     {
         mD3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -4752,6 +4771,8 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
 void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
 {
     LL_PROFILE_ZONE_SCOPED;
+    if (!mGLReady) { return; }
+
     if (mDXGIAdapter != nullptr)
     {
         // NOTE: what lies below is hand wavy math based on compatibility testing and observation against a variety of hardware
@@ -4825,8 +4846,6 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     sWindowThreadId = std::this_thread::get_id();
     LogChange logger("Window");
 
-    initDX();
-
     //as good a place as any to up the MM timer resolution (see ms_sleep)
     //attempt to set timer resolution to 1ms
     TIMECAPS tc;
@@ -4839,9 +4858,12 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
+        // lazily call initD3D inside this loop to catch when mGLReady has been set to true
+        initDX();
+
         if (mWindowHandle != 0)
         {
-            // lazily call initD3D inside this loop to catch when mWindowHandle has been set
+            // lazily call initD3D inside this loop to catch when mWindowHandle has been set, and mGLReady has been set to true
             // *TODO: Shutdown if this fails when mWindowHandle exists
             initD3D();
 

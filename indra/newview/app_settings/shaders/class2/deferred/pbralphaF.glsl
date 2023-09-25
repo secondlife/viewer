@@ -92,7 +92,7 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, 
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent);
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
 
 void waterClip(vec3 pos);
 
@@ -224,11 +224,8 @@ void main()
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true);
-    // Take maximium of legacy ambient vs irradiance sample as irradiance
-    // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
-    irradiance       = max(amblit,irradiance);
-
+    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
+    
     vec3 diffuseColor;
     vec3 specularColor;
     calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);

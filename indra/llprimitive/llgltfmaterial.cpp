@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "llgltfmaterial.h"
+#include "llsdserialize.h"
 
 // NOTE -- this should be the one and only place tiny_gltf.h is included
 #include "tinygltf/tiny_gltf.h"
@@ -689,6 +690,177 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
         {
             mTextureTransform[i].mRotation = override_mat.mTextureTransform[i].mRotation;
+        }
+    }
+}
+
+void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    llassert(data.isUndefined());
+
+    // make every effort to shave bytes here
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        LLUUID& texture_id = mTextureId[i];
+        const LLUUID& override_texture_id = override_mat.mTextureId[i];
+        if (override_texture_id.notNull() && override_texture_id != texture_id)
+        {
+            data["tex"][i] = LLSD::UUID(override_texture_id);
+        }
+
+    }
+
+    if (override_mat.mBaseColor != getDefaultBaseColor())
+    {
+        data["bc"] = override_mat.mBaseColor.getValue();
+    }
+
+    if (override_mat.mEmissiveColor != getDefaultEmissiveColor())
+    {
+        data["ec"] = override_mat.mEmissiveColor.getValue();
+    }
+
+    if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
+    {
+        data["mf"] = override_mat.mMetallicFactor;
+    }
+
+    if (override_mat.mRoughnessFactor != getDefaultRoughnessFactor())
+    {
+        data["rf"] = override_mat.mRoughnessFactor;
+    }
+
+    if (override_mat.mAlphaMode != getDefaultAlphaMode() || override_mat.mOverrideAlphaMode)
+    {
+        data["am"] = override_mat.mAlphaMode;
+    }
+
+    if (override_mat.mAlphaCutoff != getDefaultAlphaCutoff())
+    {
+        data["ac"] = override_mat.mAlphaCutoff;
+    }
+
+    if (override_mat.mDoubleSided != getDefaultDoubleSided() || override_mat.mOverrideDoubleSided)
+    {
+        data["ds"] = override_mat.mDoubleSided;
+    }
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
+        {
+            data["ti"][i]["o"] = override_mat.mTextureTransform[i].mOffset.getValue();
+        }
+
+        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
+        {
+            data["ti"][i]["s"] = override_mat.mTextureTransform[i].mScale.getValue();
+        }
+
+        if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
+        {
+            data["ti"][i]["r"] = override_mat.mTextureTransform[i].mRotation;
+        }
+    }
+
+#if 0
+    {
+        std::ostringstream ostr;
+        LLSDSerialize::serialize(data, ostr, LLSDSerialize::LLSD_NOTATION);
+        std::string param_str(ostr.str());
+        LL_INFOS() << param_str << LL_ENDL;
+        LL_INFOS() << "Notation size: " << param_str.size() << LL_ENDL;
+    }
+
+    {
+        std::ostringstream ostr;
+        LLSDSerialize::serialize(data, ostr, LLSDSerialize::LLSD_BINARY);
+        std::string param_str(ostr.str());
+        LL_INFOS() << "Binary size: " << param_str.size() << LL_ENDL;
+    }
+#endif
+}
+
+
+void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
+{
+    const LLSD& tex = data["tex"];
+
+    if (tex.isArray())
+    {
+        for (int i = 0; i < tex.size(); ++i)
+        {
+            mTextureId[i] = tex[i].asUUID();
+        }
+    }
+
+    const LLSD& bc = data["bc"];
+    if (bc.isDefined())
+    {
+        mBaseColor.setValue(bc);
+    }
+
+    const LLSD& ec = data["ec"];
+    if (ec.isDefined())
+    {
+        mEmissiveColor.setValue(ec);
+    }
+
+    const LLSD& mf = data["mf"];
+    if (mf.isReal())
+    {
+        mMetallicFactor = mf.asReal();
+    }
+
+    const LLSD& rf = data["rf"];
+    if (rf.isReal())
+    {
+        mRoughnessFactor = rf.asReal();
+    }
+
+    const LLSD& am = data["am"];
+    if (am.isInteger())
+    {
+        mAlphaMode = (AlphaMode) am.asInteger();
+    }
+
+    const LLSD& ac = data["ac"];
+    if (ac.isReal())
+    {
+        mAlphaCutoff = ac.asReal();
+    }
+
+    const LLSD& ds = data["ds"];
+    if (ds.isBoolean())
+    {
+        mDoubleSided = ds.asBoolean();
+        mOverrideDoubleSided = true;
+    }
+
+    const LLSD& ti = data["ti"];
+    if (ti.isArray())
+    {
+        for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+        {
+            const LLSD& o = ti[i]["o"];
+            if (o.isDefined())
+            {
+                mTextureTransform[i].mOffset.setValue(o);
+            }
+
+            const LLSD& s = ti[i]["s"];
+            if (s.isDefined())
+            {
+                mTextureTransform[i].mScale.setValue(s);
+            }
+
+            const LLSD& r = ti[i]["r"];
+            if (r.isReal())
+            {
+                mTextureTransform[i].mRotation = r.asReal();
+            }
         }
     }
 }

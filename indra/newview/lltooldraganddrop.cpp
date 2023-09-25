@@ -1648,6 +1648,8 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
 	if(attached && !unrestricted)
 	{
+        // Attachments are in world and in inventory simultaneously,
+        // at the moment server doesn't support such a situation.
 		return ACCEPT_NO_LOCKED;
 	}
 	else if(modify && transfer && volume && !worn)

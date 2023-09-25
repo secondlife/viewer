@@ -32,6 +32,7 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+
 //=========================================================================
 namespace
 {
@@ -134,6 +135,8 @@ const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 const std::string LLSettingsSky::SETTING_REFLECTION_PROBE_AMBIANCE("reflection_probe_ambiance");
 
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("651510b8-5f4d-8991-1592-e7eeab2a5a06");
+
+F32 LLSettingsSky::sAutoAdjustProbeAmbiance = 1.f;
 
 static const LLUUID DEFAULT_SUN_ID("32bfbcea-24b1-fb9d-1ef9-48a28a63730f"); // dataserver
 static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
@@ -1438,7 +1441,7 @@ F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
 {
     if (auto_adjust && canAutoAdjust())
     {
-        return 1.f;
+        return sAutoAdjustProbeAmbiance;
     }
 
     return mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
@@ -1446,6 +1449,7 @@ F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
 
 F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust) const
 {
+#if 0
     // feed cloud shadow back into reflection probe ambiance to mimic pre-reflection-probe behavior 
     // without brightening dark/interior spaces
     F32 probe_ambiance = getReflectionProbeAmbiance(auto_adjust);
@@ -1456,6 +1460,9 @@ F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool 
     }
 
     return probe_ambiance;
+#else
+    return getReflectionProbeAmbiance(auto_adjust);
+#endif
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const

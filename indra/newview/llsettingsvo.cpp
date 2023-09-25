@@ -721,6 +721,15 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
     static LLCachedControl<F32> auto_adjust_ambient_scale(gSavedSettings, "RenderSkyAutoAdjustAmbientScale", 0.75f);
     static LLCachedControl<F32> auto_adjust_hdr_scale(gSavedSettings, "RenderSkyAutoAdjustHDRScale", 2.f);
+    static LLCachedControl<F32> auto_adjust_blue_horizon_scale(gSavedSettings, "RenderSkyAutoAdjustBlueHorizonScale", 1.f);
+    static LLCachedControl<F32> auto_adjust_blue_density_scale(gSavedSettings, "RenderSkyAutoAdjustBlueDensityScale", 1.f);
+    static LLCachedControl<F32> auto_adjust_sun_color_scale(gSavedSettings, "RenderSkyAutoAdjustSunColorScale", 1.f);
+    static LLCachedControl<F32> auto_adjust_probe_ambiance(gSavedSettings, "RenderSkyAutoAdjustProbeAmbiance", 1.f);
+    static LLCachedControl<F32> sunlight_scale(gSavedSettings, "RenderSkySunlightScale", 1.5f);
+    static LLCachedControl<F32> ambient_scale(gSavedSettings, "RenderSkyAmbientScale", 1.5f);
+
+    shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, sunlight_scale);
+    shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
 
     static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
     F32 probe_ambiance = getTotalReflectionProbeAmbiance(cloud_shadow_scale);
@@ -733,14 +742,23 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     {
         if (psky->getReflectionProbeAmbiance() != 0.f)
         {
-            shader->uniform3fv(LLShaderMgr::AMBIENT, getAmbientColor().mV);
+            shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
         { // auto-adjust legacy sky to take advantage of probe ambiance 
             shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * auto_adjust_ambient_scale).mV);
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
-            probe_ambiance = 1.f;  // NOTE -- must match LLSettingsSky::getReflectionProbeAmbiance value for "auto_adjust" true
+            LLColor3 blue_horizon = getBlueHorizon() * auto_adjust_blue_horizon_scale;
+            LLColor3 blue_density = getBlueDensity() * auto_adjust_blue_density_scale;
+            LLColor3 sun_diffuse = getSunDiffuse() * auto_adjust_sun_color_scale;
+            
+            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_diffuse.mV);
+            shader->uniform3fv(LLShaderMgr::BLUE_DENSITY, blue_density.mV);
+            shader->uniform3fv(LLShaderMgr::BLUE_HORIZON, blue_horizon.mV);
+
+            LLSettingsSky::sAutoAdjustProbeAmbiance = auto_adjust_probe_ambiance;
+            probe_ambiance = auto_adjust_probe_ambiance;  // NOTE -- must match LLSettingsSky::getReflectionProbeAmbiance value for "auto_adjust" true
         }
         else
         {
@@ -755,7 +773,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());
     shader->uniform1f(LLShaderMgr::DENSITY_MULTIPLIER, getDensityMultiplier());
     shader->uniform1f(LLShaderMgr::DISTANCE_MULTIPLIER, getDistanceMultiplier());
-
+    
     shader->uniform1f(LLShaderMgr::GAMMA, g);
 }
 

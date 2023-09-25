@@ -101,6 +101,9 @@ public:
 
     static void loadCacheOverrides(const LLGLTFOverrideCacheEntry& override);
 
+    // Apply an override update with the given data
+    void applyOverrideMessage(LLMessageSystem* msg, const std::string& data);
+
 private:
     friend class LLGLTFMaterialOverrideDispatchHandler;
     // save an override update that we got from the simulator for later (for example, if an override arrived for an unknown object)
