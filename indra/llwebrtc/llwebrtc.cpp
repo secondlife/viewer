@@ -26,6 +26,7 @@
 
 #include "llwebrtc_impl.h"
 #include <algorithm>
+#include <format>
 
 #include "api/audio_codecs/audio_decoder_factory.h"
 #include "api/audio_codecs/audio_encoder_factory.h"
@@ -394,11 +395,26 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
         codecparam.name                       = "opus";
         codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
         codecparam.clock_rate                 = 48000;
-        codecparam.num_channels               = 1;
-        codecparam.parameters["stereo"]       = "0";
-        codecparam.parameters["sprop-stereo"] = "0";
+        codecparam.num_channels               = 2;
+        codecparam.parameters["stereo"]       = "1";
+        codecparam.parameters["sprop-stereo"] = "1";
         params.codecs.push_back(codecparam);
         sender->SetParameters(params);
+    }
+
+    auto receivers = mPeerConnection->GetReceivers();
+    for (auto& receiver : receivers)
+    {
+        webrtc::RtpParameters params;
+        webrtc::RtpCodecParameters codecparam;
+        codecparam.name                       = "opus";
+        codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+        codecparam.clock_rate                 = 48000;
+        codecparam.num_channels               = 2;
+        codecparam.parameters["stereo"]       = "1";
+        codecparam.parameters["sprop-stereo"] = "1";
+        params.codecs.push_back(codecparam);
+        receiver->SetParameters(params);
     }
 
     mPeerConnection->SetLocalDescription(rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
@@ -416,12 +432,9 @@ void LLWebRTCImpl::shutdownConnection()
 
 void LLWebRTCImpl::AnswerAvailable(const std::string &sdp)
 {
-    std::istringstream sdp_stream(sdp);
-    std::string        sdp_line;
-    while (std::getline(sdp_stream, sdp_line))
-    {
-        RTC_LOG(LS_INFO) << __FUNCTION__ << " Remote SDP: " << sdp_line;
-    }
+
+    RTC_LOG(LS_INFO) << __FUNCTION__ << " Remote SDP: " << sdp;
+
     mSignalingThread->PostTask(
         [this, sdp]()
         {
@@ -661,20 +674,28 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     std::istringstream sdp_stream(sdp);
     std::ostringstream sdp_mangled_stream;
     std::string        sdp_line;
+    int                opus_payload = 0;
     while (std::getline(sdp_stream, sdp_line)) {
         int bandwidth = 0;
         int payload_id = 0;
-        RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_line;
-        // force mono
+        // force mono down, stereo up
         if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
         {
             sdp_mangled_stream << sdp_line << "\n";
+            opus_payload = payload_id;
+        }
+        else if (sdp_line.rfind(std::format("a=fmtp:{}", opus_payload)) == 0) 
+        {
+            sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
+                               << " stereo=1;sprop-stereo=0;minptime=10;useinbandfec=1;maxplaybackrate=48000\n";
         }
         else
         {
             sdp_mangled_stream << sdp_line << "\n";
         }
     }
+    RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_mangled_stream.str();
+    ;
     for (auto &observer : mSignalingObserverList)
     {
         observer->OnOfferAvailable(sdp_mangled_stream.str());
