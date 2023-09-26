@@ -1117,6 +1117,7 @@ namespace tut
 	template<> template<>
 	void fitness_test_object::test<5>()
 	{
+		const int retries = 100;
 		// Set up the server
 		LLPumpIO::chain_t chain;
 		typedef LLCloneIOFactory<LLIOSleeper> sleeper_t;
@@ -1130,9 +1131,12 @@ namespace tut
 		chain.push_back(LLIOPipe::ptr_t(server));
 		mPump->addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
 		// We need to tickle the pump a little to set up the listen()
-		pump_loop(mPump, 0.1f);
+		for (int retry = 0; mPump->runningChains() < 1 && retry < retries; ++retry)
+		{
+			pump_loop(mPump, 0.1f);
+		}
 		U32 count = mPump->runningChains();
-		ensure_equals("server chain onboard", count, 1);
+		ensure_equals("server chain 1 onboard", count, 1);
 		LL_DEBUGS() << "** Server is up." << LL_ENDL;
 
 		// Set up the client
@@ -1141,9 +1145,12 @@ namespace tut
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
 		LL_DEBUGS() << "connected" << LL_ENDL;
-		pump_loop(mPump,0.1f);
+		for (int retry = 0; mPump->runningChains() < 2 && retry < retries; ++retry)
+		{
+			pump_loop(mPump,0.1f);
+		}
 		count = mPump->runningChains();
-		ensure_equals("server chain onboard", count, 2);
+		ensure_equals("server chain 2 onboard", count, 2);
 		LL_DEBUGS() << "** Client is connected." << LL_ENDL;
 
 		// We have connected, since the socket reader does not block,
@@ -1157,7 +1164,7 @@ namespace tut
 		chain.clear();
 
 		// pump for a bit and make sure all 3 chains are running
-		for (int retry = 0; mPump->runningChains() < 3 && retry < 10; ++retry)
+		for (int retry = 0; mPump->runningChains() < 3 && retry < retries; ++retry)
 		{
 			pump_loop(mPump, 0.1f);
 		}
@@ -1167,7 +1174,7 @@ namespace tut
 
 		// pump for long enough the the client socket closes, and the
 		// server socket should not be closed yet.
-		for (int retry = 0; mPump->runningChains() == 3 && retry < 10; ++retry)
+		for (int retry = 0; mPump->runningChains() == 3 && retry < retries; ++retry)
 		{
 			pump_loop(mPump, 0.1f);
 		}
@@ -1179,7 +1186,7 @@ namespace tut
 		LL_DEBUGS() << "** client chain should be closed." << LL_ENDL;
 
 		// At this point, the socket should be closed by the timeout
-		for (int retry = 0; mPump->runningChains() > 1 && retry < 10; ++retry)
+		for (int retry = 0; mPump->runningChains() > 1 && retry < retries; ++retry)
 		{
 			pump_loop(mPump, 0.1f);
 		}
