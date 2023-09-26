@@ -490,28 +490,6 @@ U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &no
 
 LLVector3 LLFace::getAverageNormal()
 {
-    if (!mHasAverageNormal)
-    {
-        if (mVertexBuffer.notNull())
-        {
-            if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL))
-            {
-                LLStrider<LLVector3> normals;
-                mVertexBuffer->getNormalStrider(normals, mGeomIndex, mGeomCount);
-                LLVector3 normal_total;
-                
-                for (int i = 0; i < mVertexBuffer->getNumVerts(); i++)
-                {
-                    normal_total += *normals.get();
-                    normals++;
-                }
-                
-                mAverageNormal = normal_total / mVertexBuffer->getNumVerts();
-                mHasAverageNormal = true;
-            }
-        }
-    }
-    
     return mAverageNormal;
 }
 
@@ -1916,14 +1894,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			F32* normals = (F32*) norm.get();
 			LLVector4a* src = vf.mNormals;
 			LLVector4a* end = src+num_vertices;
-			
+
+            LLVector4a normal_total;
+
 			while (src < end)
 			{	
 				LLVector4a normal;
 				mat_normal.rotate(*src++, normal);
 				normal.store4a(normals);
+                normal_total.add(normal);
 				normals += 4;
 			}
+
+			normal_total.div(LLVector4a(num_vertices));
+
+			mAverageNormal = LLVector3(normal_total[0], normal_total[1], normal_total[2]);
 		}
 		
 		if (rebuild_tangent)

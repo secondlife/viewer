@@ -1161,18 +1161,25 @@ void detectMirror(const std::string &str, bool &mirror, U8 &mode)
         {
             mirror = true;
         }
-        else if (word == "ReflectedX" && mirror)
-        {
-            mode = 0;
-        }
-        else if (word == "ReflectedY" && mirror)
-        {
-            mode = 1;
-        }
-        else if (word == "ReflectedZ" && mirror)
-        {
-            mode = 2;
-        }
+
+		if (mirror)
+		{
+			bool num = false;
+            std::string::const_iterator it = word.begin();
+            while (it != word.end())
+            {
+                num = std::isdigit(*it);
+                ++it;
+
+				if (!num)
+					break;
+            }
+
+			if (num)
+			{
+                mode = atoi(word.c_str());
+			}
+		}
     }
 }
 

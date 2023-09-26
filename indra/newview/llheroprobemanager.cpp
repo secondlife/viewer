@@ -110,7 +110,8 @@ void LLHeroProbeManager::update()
         {
             if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
             {
-                LLVector3 hero_pos = mNearestHero->mDrawable->mXform.getWorldPosition();
+
+                LLVector3 hero_pos = mNearestHero->mDrawable->getFace(mNearestHero->mirrorPlacementMode())->getPositionAgent();
                 
                 LLVector4a hit_pos;
                 LLVector3 focus_point;
@@ -119,7 +120,7 @@ void LLHeroProbeManager::update()
 
                 LLMatrix4 rotationMatrix;
                 
-                rotationMatrix.rotate(angleInRadians, LLVector4(mNearestHero->mDrawable->getFace(0)->getAverageNormal()));
+                rotationMatrix.rotate(angleInRadians, LLVector4(mNearestHero->mDrawable->getFace(mNearestHero->mirrorPlacementMode())->getAverageNormal()));
 
                 LLVector3 translatedPoint;
                 LLVector3 rotatedTranslatedPoint;
