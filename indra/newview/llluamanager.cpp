@@ -53,10 +53,11 @@ extern "C"
 #include "lua/lualib.h"
 }
 
+#include <algorithm>
 #include <cstring>                  // std::memcpy()
 #include <map>
-#include <set>
 #include <string_view>
+#include <vector>
 
 #if LL_WINDOWS
 #pragma comment(lib, "liblua54.a")
@@ -477,6 +478,17 @@ lua_function(post_on_pump)
     return 1;
 }
 
+lua_function(listen_events)
+{
+    if (! lua_isfunction(L, -1))
+    {
+        return luaL_typerror(L, 1, "function");
+    }
+    // return the distinct LLEventPump name so Lua code can post that with a
+    // request as the reply pump
+    return 1;
+}
+
 void initLUA(lua_State *L)
 {
     LuaFunction::init(L);
@@ -571,6 +583,16 @@ std::string lua_tostdstring(lua_State* L, int index)
 // This function assumes that a Lua caller is fully aware that they're trying
 // to call a viewer function. In other words, the caller must specifically
 // construct Lua data convertible to LLSD.
+//
+// For proper error handling, we REQUIRE that the Lua runtime be compiled as
+// C++ so errors are raised as C++ exceptions rather than as longjmp() calls:
+// http://www.lua.org/manual/5.4/manual.html#4.4
+// "Internally, Lua uses the C longjmp facility to handle errors. (Lua will
+// use exceptions if you compile it as C++; search for LUAI_THROW in the
+// source code for details.)"
+// Some blocks within this function construct temporary C++ objects in the
+// expectation that these objects will be properly destroyed even if code
+// reached by that block raises a Lua error.
 LLSD lua_tollsd(lua_State* L, int index)
 {
     switch (lua_type(L, index))
@@ -612,7 +634,7 @@ LLSD lua_tollsd(lua_State* L, int index)
     {
         // A Lua table correctly constructed to convert to LLSD will have
         // either consecutive integer keys starting at 1, which we represent
-        // as an LLSD array (with Lua index 1 at C++ index 0), or will have
+        // as an LLSD array (with Lua key 1 at C++ index 0), or will have
         // all string keys.
         //
         // In the belief that Lua table traversal skips "holes," that is, it
@@ -652,7 +674,7 @@ LLSD lua_tollsd(lua_State* L, int index)
             // which can be consumed as either
             return {};
         }
-        // key is at index -2, value at index -1
+        // key is at stack index -2, value at index -1
         // from here until lua_next() returns 0, have to lua_pop(2) if we
         // return early
         LuaPopper popper(L, 2);
@@ -668,11 +690,16 @@ LLSD lua_tollsd(lua_State* L, int index)
             // same as the length operator '#'; but the length operator states
             // that it might stop at any "hole" in the subject table.
             // Moreover, the Lua next() function (and presumably lua_next())
-            // traverses a table in unspecified order, even for numeric
-            // indices (emphasized in the doc).
+            // traverses a table in unspecified order, even for numeric keys
+            // (emphasized in the doc).
             // Make a preliminary pass over the whole table to validate and to
-            // collect indexes.
-            std::set<LLSD::Integer> indexes;
+            // collect keys.
+            std::vector<LLSD::Integer> keys;
+            // Try to determine the length of the table. If the length
+            // operator is truthful, avoid allocations while we grow the keys
+            // vector. Even if it's not, we can still grow the vector, albeit
+            // a little less efficiently.
+            keys.reserve(luaL_len(L, index));
             do
             {
                 auto arraykeytype{ lua_type(L, -2) };
@@ -680,21 +707,21 @@ LLSD lua_tollsd(lua_State* L, int index)
                 {
                 case LUA_TNUMBER:
                 {
-                    int isnum;
-                    lua_Integer indexint{ lua_tointegerx(L, -2, &isnum) };
-                    if (! isnum)
+                    int isint;
+                    lua_Integer intkey{ lua_tointegerx(L, -2, &isint) };
+                    if (! isint)
                     {
                         // key isn't an integer - this doesn't fit our LLSD
                         // array constraints
                         return luaL_error(L, "Expected integer array key, got %f instead",
                                           lua_tonumber(L, -2));
                     }
-                    if (indexint < 1)
+                    if (intkey < 1)
                     {
-                        return luaL_error(L, "array key %d out of bounds", int(indexint));
+                        return luaL_error(L, "array key %d out of bounds", int(intkey));
                     }
 
-                    indexes.insert(LLSD::Integer(indexint));
+                    keys.push_back(LLSD::Integer(intkey));
                     break;
                 }
 
@@ -715,28 +742,29 @@ LLSD lua_tollsd(lua_State* L, int index)
             // Table keys are all integers: are they reasonable integers?
             // Arbitrary max: may bite us, but more likely to protect us
             size_t array_max{ 10000 };
-            if (indexes.size() > array_max)
+            if (keys.size() > array_max)
             {
                 return luaL_error(L, "Conversion from Lua to LLSD array limited to %d entries",
                                   int(array_max));
             }
-            // We know the smallest index is >= 1. Check the largest. We also
-            // know the set is NOT empty, else we wouldn't have gotten here.
-            LLSD::Integer highindex = *indexes.rbegin();
-            if ((highindex - LLSD::Integer(indexes.size())) > 100)
+            // We know the smallest key is >= 1. Check the largest. We also
+            // know the vector is NOT empty, else we wouldn't have gotten here.
+            std::sort(keys.begin(), keys.end());
+            LLSD::Integer highkey = *keys.rbegin();
+            if ((highkey - LLSD::Integer(keys.size())) > 100)
             {
                 // Looks like we've gone beyond intentional array gaps into
-                // crazy index territory.
+                // crazy key territory.
                 return luaL_error(L, "Gaps in Lua table too large for conversion to LLSD array");
             }
             // right away expand the result array to the size we'll need
             LLSD result{ LLSD::emptyArray() };
-            result[highindex - 1] = LLSD();
+            result[highkey - 1] = LLSD();
             // Traverse the table again, and this time populate result array.
             lua_pushnil(L);         // first key
             while (lua_next(L, index))
             {
-                // key at index -2, value at index -1
+                // key at stack index -2, value at index -1
                 // We've already validated lua_tointegerx() for each key.
                 // Don't forget to subtract 1 from Lua key for LLSD subscript!
                 result[LLSD::Integer(lua_tointeger(L, -2)) - 1] = lua_tollsd(L, -1);
