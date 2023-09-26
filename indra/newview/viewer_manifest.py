@@ -933,7 +933,10 @@ class DarwinManifest(ViewerManifest):
             tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
             print(f'Creating {tarpath} from {self.get_dst_prefix()}')
             with tarfile.open(tarpath, mode="w:bz2") as tarball:
-                tarball.add(self.get_dst_prefix())
+                # store in the tarball as just 'Second Life Mumble.app'
+                # instead of 'Users/someone/.../newview/Release/Second...'
+                tarball.add(self.get_dst_prefix(),
+                            arcname=os.path.basename(self.get_dst_prefix()))
             self.set_github_output_path('viewer_app', tarpath)
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
