@@ -10,7 +10,7 @@
       <key>SDL2</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
+        <string>Copyright (C) 1997-2022 Sam Lantinga (slouken@libsdl.org)</string>
         <key>description</key>
         <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
         <key>license</key>
@@ -26,11 +26,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b604f580297063f6947935599ceba1af08f99eeb</string>
+              <string>fd6368b53609b078b4ed8816bad1d1de2756f4f2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-pre-2/SDL2-2.28.0-darwin64-5bc2593.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0/SDL2-2.28.0-darwin64-5991c8f.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -40,11 +40,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a2651810f466675b8f6092695c1832b48da8c003</string>
+              <string>6e84f14a6786c17806e3997dd34c856efcb92773</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-pre-2/SDL2-2.28.0-linux64-5bc2593.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0/SDL2-2.28.0-linux64-5991c8f.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -54,26 +54,24 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c1e49df2732b84509b0c03b4bbce661a</string>
+              <string>48e8d971dfa8025353293ead7d41a2a77b004faa</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-pre-2/SDL2-2.28.0-windows64-5bc2593.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0/SDL2-2.28.0-windows64-5991c8f.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/SDL.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
+        <key>vcs_branch</key>
+        <string>HEAD</string>
+        <key>vcs_revision</key>
+        <string>5991c8f0ea56e807eadafc12624a295936873a52</string>
+        <key>vcs_url</key>
+        <string>https://github.com/secondlife/3p-sdl2</string>
         <key>version</key>
-        <string>1.2.15</string>
-        <key>name</key>
-        <string>SDL</string>
-        <key>description</key>
-        <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
+        <string>2.28.0</string>
       </map>
       <key>apr_suite</key>
       <map>
