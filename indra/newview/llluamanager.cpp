@@ -482,7 +482,7 @@ lua_function(listen_events)
 {
     if (! lua_isfunction(L, -1))
     {
-        return luaL_typerror(L, 1, "function");
+        return luaL_typeerror(L, 1, "function");
     }
     // return the distinct LLEventPump name so Lua code can post that with a
     // request as the reply pump
