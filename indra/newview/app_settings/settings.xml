@@ -698,17 +698,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>BrowserProxyExclusions</key>
-    <map>
-      <key>Comment</key>
-      <string>[NOT USED]</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string />
-    </map>
     <key>BrowserProxyPort</key>
     <map>
       <key>Comment</key>
@@ -719,17 +708,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>3128</integer>
-    </map>
-    <key>BrowserProxySocks45</key>
-    <map>
-      <key>Comment</key>
-      <string>[NOT USED]</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
     </map>
     <key>Socks5ProxyEnabled</key>
     <map>
@@ -1245,51 +1223,6 @@
         <real>0.75</real>
       </array>
     </map>
-    <key>CameraOffsetFrontView</key>
-    <map>
-      <key>Comment</key>
-      <string>Initial camera offset from avatar in Front View</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>2.2</real>
-        <real>0.0</real>
-        <real>0.0</real>
-      </array>
-    </map>
-    <key>CameraOffsetGroupView</key>
-    <map>
-      <key>Comment</key>
-      <string>Initial camera offset from avatar in Group View</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>-1.0</real>
-        <real>0.7</real>
-        <real>0.5</real>
-      </array>
-    </map>
-    <key>CameraOffsetCustomPreset</key>
-    <map>
-      <key>Comment</key>
-      <string>Initial camera offset from avatar for the custom camera preset</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>-3.0</real>
-        <real>0.0</real>
-        <real>0.75</real>
-      </array>
-    </map>
     <key>CameraOffsetScale</key>
     <map>
       <key>Comment</key>
@@ -1487,17 +1420,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>ChatHistoryTornOff</key>
-    <map>
-      <key>Comment</key>
-      <string>Show chat history window separately from Communicate window.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>ChatLoadGroupMaxMembers</key>
     <map>
@@ -1764,17 +1686,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>ChatBarCustomWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Stores customized width of chat bar.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>CoroutineStackSize</key>
     <map>
@@ -2601,17 +2512,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>IncludeEnhancedSkeleton</key>
-    <map>
-      <key>Comment</key>
-      <string>Include extended skeleton joints when rendering skinned meshes.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>MinObjectsForUnlinkConfirm</key>
     <map>
       <key>Comment</key>
@@ -3124,17 +3024,6 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
-    <key>FlycamZoomDirect</key>
-    <map>
-      <key>Comment</key>
-      <string>Map flycam zoom axis directly to camera zoom.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>FlyingAtExit</key>
     <map>
       <key>Comment</key>
@@ -3150,51 +3039,6 @@
     <map>
       <key>Comment</key>
       <string>Initial focus point offset relative to avatar for the camera preset Rear View (x-axis is forward)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3D</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>FocusOffsetFrontView</key>
-    <map>
-      <key>Comment</key>
-      <string>Initial focus point offset relative to avatar for the camera preset Front View</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3D</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-      </array>
-    </map>
-    <key>FocusOffsetGroupView</key>
-    <map>
-      <key>Comment</key>
-      <string>Initial focus point offset relative to avatar for the camera preset Group View</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3D</string>
-      <key>Value</key>
-      <array>
-        <real>1.5</real>
-        <real>0.7</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>FocusOffsetCustomPreset</key>
-    <map>
-      <key>Comment</key>
-      <string>Initial focus point offset relative to avatar for the custom camera preset (x-axis is forward)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3296,17 +3140,6 @@
     <map>
       <key>Comment</key>
       <string>Always show grid dropdown on login screen</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ForceMandatoryUpdate</key>
-    <map>
-      <key>Comment</key>
-      <string>For QA: On next startup, forces the auto-updater to run</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3699,17 +3532,6 @@
 		<key>Value</key>
 		<integer>1</integer>
 	</map>
-    <key>InventoryOutboxDisplayBoth</key>
-    <map>
-        <key>Comment</key>
-        <string>(Deprecated) Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
 	<key>InventoryOutboxLogging</key>
 	<map>
 		<key>Comment</key>
@@ -4172,17 +3994,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>LastFindPanel</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls which find operation appears by default when clicking "Find" button </string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>find_all_panel</string>
-    </map>
     <key>LastName</key>
     <map>
       <key>Comment</key>
@@ -4239,105 +4050,6 @@
       <string>0.0.0</string>
     </map>
 
-    <key>LastSnapshotToProfileHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>The height of the last profile snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>768</integer>
-    </map>
-    <key>LastSnapshotToEmailHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>The height of the last email snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>768</integer>
-    </map>
-    <key>LastSnapshotToProfileWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>The width of the last profile snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1024</integer>
-    </map>
-    <key>LastSnapshotToEmailWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>The width of the last email snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1024</integer>
-    </map>
-    <key>LastSnapshotToDiskHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>The height of the last disk snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>768</integer>
-    </map>
-    <key>LastSnapshotToDiskWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>The width of the last disk snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1024</integer>
-    </map>
-    <key>LastSnapshotToInventoryHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>The height of the last texture snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>512</integer>
-    </map>
-    <key>LastSnapshotToInventoryWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>The width of the last texture snapshot, in px</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>512</integer>
-    </map>
-    <key>LeftClickShowMenu</key>
-    <map>
-      <key>Comment</key>
-      <string>Unused obsolete setting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>LimitDragDistance</key>
     <map>
       <key>Comment</key>
@@ -4504,17 +4216,6 @@
     <key>Value</key>
     <real>40.0</real>
   </map>
-  <key>LoginSRVPump</key>
-  <map>
-    <key>Comment</key>
-    <string>(Deprecated) Name of the message pump that handles SRV request)</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>LLAres</string>
-  </map>
   <key>LogMessages</key>
     <map>
       <key>Comment</key>
@@ -4602,17 +4303,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>60.0</real>
-    </map>
-    <key>MapOverlayIndex</key>
-    <map>
-      <key>Comment</key>
-      <string>Currently selected world map type</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>MapScale</key>
     <map>
@@ -7104,17 +6794,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RadioLandBrushSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of land modification brush (0 = small, 1 = medium, 2 = large)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>LandBrushForce</key>
         <map>
         <key>Comment</key>
@@ -7126,17 +6805,6 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
-    <key>MediaBrowserWindowLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum number of media brower windows that can be open at once in the media browser floater (0 for no limit)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
-    </map>
     <key>WebContentWindowLimit</key>
     <map>
       <key>Comment</key>
@@ -7414,17 +7082,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-  <key>RenderAvatar</key>
-    <map>
-      <key>Comment</key>
-      <string>Render Avatars</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
   <key>RenderAvatarCloth</key>
     <map>
@@ -9801,17 +9458,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SecondLifeEnterprise</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables Second Life Enterprise features</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SelectMovableOnly</key>
     <map>
       <key>Comment</key>
@@ -10058,17 +9704,6 @@
     <map>
       <key>Comment</key>
       <string>Show log in SL window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowEmptyFoldersWhenSearching</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows folders that do not have any visible contents when applying a filter to inventory</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10417,136 +10052,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowPGSearchAll</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of search All that are flagged as general</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ShowMatureSearchAll</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of search All that are flagged as moderate</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowAdultSearchAll</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of search All that are flagged as adult</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowPGGroups</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find groups that are flagged as general</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ShowMatureGroups</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find groups that are flagged as moderate</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowAdultGroups</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find groups that are flagged as adult</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowPGClassifieds</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as general</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ShowMatureClassifieds</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as moderate</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowAdultClassifieds</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as adult</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowPGEvents</key>
-    <map>
-      <key>Comment</key>
-      <string>Display results of find events that are flagged as general</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>ShowMatureEvents</key>
     <map>
       <key>Comment</key>
@@ -10782,17 +10287,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>ShowToolBar</key>
-    <map>
-      <key>Comment</key>
-      <string>Show toolbar at bottom of screen</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
 	<key>ShowTutorial</key>
 	<map>
@@ -11389,28 +10883,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>TexturePickerShowFolders</key>
-    <map>
-      <key>Comment</key>
-      <string>Show folders with no texures in texture picker</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>TexturePickerSortOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies sort key for textures in texture picker (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
     <key>TextureReverseByteRange</key>
     <map>
       <key>Comment</key>
@@ -11457,17 +10929,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>3000.0</real>
-    </map>
-    <key>UpdaterMaximumBandwidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Obsolete: this parameter is no longer used.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>500.0</real>
     </map>
     <key>ToolTipDelay</key>
     <map>
@@ -11666,28 +11127,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>6</integer>
-    </map>
-    <key>UICheckboxctrlBtnSize</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Checkbox Control Button Size</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>13</integer>
-    </map>
-    <key>UICheckboxctrlHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Checkbox Control Height</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>16</integer>
     </map>
     <key>UICheckboxctrlHPad</key>
     <map>
@@ -12096,17 +11535,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>LastSystemUIScaleFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>OBSOLETE: System UI scale factor is now automatically and independently from UIScaleFactor applied</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
     <key>UIScrollbarSize</key>
     <map>
       <key>Comment</key>
@@ -12426,17 +11854,6 @@
       <key>Value</key>
       <integer>16</integer>
     </map>
-    <key>UISpinctrlDefaultLabelWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>UI spin control default label width</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>10</integer>
-    </map>
     <key>UISpinctrlSpacing</key>
     <map>
       <key>Comment</key>
@@ -12557,39 +11974,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>3</integer>
-    </map>
-    <key>UpdaterServiceCheckPeriod</key>
-    <map>
-      <key>Comment</key>
-      <string>Obsolete; no longer used.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>3600</integer>
-    </map>
-    <key>UpdaterServiceURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Obsolete; no longer used.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://update.secondlife.com</string>
-    </map>
-    <key>UpdaterServicePath</key>
-    <map>
-      <key>Comment</key>
-      <string>Obsolete: no longer used</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>update</string>
     </map>
     <key>UpdaterWillingToTest</key>
     <map>
@@ -12788,17 +12172,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>SocialPhotoResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Default resolution when sharing photo using the social floaters</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>[i800,i600]</string>
     </map>
     <key>sourceid</key>
     <map>
