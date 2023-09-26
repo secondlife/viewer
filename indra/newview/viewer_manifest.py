@@ -932,7 +932,7 @@ class DarwinManifest(ViewerManifest):
             # must itself be a symlink to some specific Versions subdir.
             tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
             print(f'Creating {tarpath} from {self.get_dst_prefix()}')
-            with tarfile.open(tarpath, mode="x:bz2") as tarball:
+            with tarfile.open(tarpath, mode="w:bz2") as tarball:
                 tarball.add(self.get_dst_prefix())
             self.set_github_output_path('viewer_app', tarpath)
 
