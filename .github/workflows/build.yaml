@@ -287,7 +287,7 @@ jobs:
           # USERNAME="..."
           # PASSWORD="..."
           # ASC_PROVIDER="..."
-          eval "${{ secrets.NOTARIZE_CREDS_MACOS }}
+          eval "${{ secrets.NOTARIZE_CREDS_MACOS }}"
           echo "::add-mask::$USERNAME"
           echo "::add-mask::$PASSWORD"
           echo "::add-mask::$ASC_PROVIDER"
@@ -296,7 +296,7 @@ jobs:
           echo "note_asc=$ASC_PROVIDER" >> "$GITHUB_OUTPUT"
           # If we didn't manage to retrieve all of these credentials, better
           # find out sooner than later.
-          [[ -n "$USERNAME" && -n "$PASSWORD && -n "$ASC_PROVIDER" ]]
+          [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$ASC_PROVIDER" ]]
 
       - name: Sign and package Mac viewer
         uses: secondlife/viewer-build-util/sign-pkg-mac@main
