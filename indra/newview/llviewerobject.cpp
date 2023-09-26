@@ -6034,7 +6034,7 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
       }
 	  default:
 	  {
-		  LL_INFOS() << "Unknown param type." << LL_ENDL;
+		  LL_INFOS_ONCE() << "Unknown param type: " << param_type << LL_ENDL;
 		  break;
 	  }
 	};
