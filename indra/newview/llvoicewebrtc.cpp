@@ -746,7 +746,6 @@ bool LLWebRTCVoiceClient::callbackEndDaemon(const LLSD& data)
     return false;
 }
 
-
 bool LLWebRTCVoiceClient::provisionVoiceAccount()
 {
     LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
@@ -2153,127 +2152,6 @@ void LLWebRTCVoiceClient::giveUp()
 	cleanUp();
 }
 
-static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVector3d &pos, LLVector3 &vel)
-{
-	F32 nat[3], nup[3], nl[3]; // the new at, up, left vectors and the  new position and velocity
-//	F32 nvel[3]; 
-	F64 npos[3];
-	
-	// The original XML command was sent like this:
-	/*
-			<< "<Position>"
-				<< "<X>" << pos[VX] << "</X>"
-				<< "<Y>" << pos[VZ] << "</Y>"
-				<< "<Z>" << pos[VY] << "</Z>"
-			<< "</Position>"
-			<< "<Velocity>"
-				<< "<X>" << mAvatarVelocity[VX] << "</X>"
-				<< "<Y>" << mAvatarVelocity[VZ] << "</Y>"
-				<< "<Z>" << mAvatarVelocity[VY] << "</Z>"
-			<< "</Velocity>"
-			<< "<AtOrientation>"
-				<< "<X>" << l.mV[VX] << "</X>"
-				<< "<Y>" << u.mV[VX] << "</Y>"
-				<< "<Z>" << a.mV[VX] << "</Z>"
-			<< "</AtOrientation>"
-			<< "<UpOrientation>"
-				<< "<X>" << l.mV[VZ] << "</X>"
-				<< "<Y>" << u.mV[VY] << "</Y>"
-				<< "<Z>" << a.mV[VZ] << "</Z>"
-			<< "</UpOrientation>"
-			<< "<LeftOrientation>"
-				<< "<X>" << l.mV [VY] << "</X>"
-				<< "<Y>" << u.mV [VZ] << "</Y>"
-				<< "<Z>" << a.mV [VY] << "</Z>"
-			<< "</LeftOrientation>";
-	*/
-
-#if 1
-	// This was the original transform done when building the XML command
-	nat[0] = left.mV[VX];
-	nat[1] = up.mV[VX];
-	nat[2] = at.mV[VX];
-
-	nup[0] = left.mV[VZ];
-	nup[1] = up.mV[VY];
-	nup[2] = at.mV[VZ];
-
-	nl[0] = left.mV[VY];
-	nl[1] = up.mV[VZ];
-	nl[2] = at.mV[VY];
-
-	npos[0] = pos.mdV[VX];
-	npos[1] = pos.mdV[VZ];
-	npos[2] = pos.mdV[VY];
-
-//	nvel[0] = vel.mV[VX];
-//	nvel[1] = vel.mV[VZ];
-//	nvel[2] = vel.mV[VY];
-
-	for(int i=0;i<3;++i) {
-		at.mV[i] = nat[i];
-		up.mV[i] = nup[i];
-		left.mV[i] = nl[i];
-		pos.mdV[i] = npos[i];
-	}
-	
-	// This was the original transform done in the SDK
-	nat[0] = at.mV[2];
-	nat[1] = 0; // y component of at vector is always 0, this was up[2]
-	nat[2] = -1 * left.mV[2];
-
-	// We override whatever the application gives us
-	nup[0] = 0; // x component of up vector is always 0
-	nup[1] = 1; // y component of up vector is always 1
-	nup[2] = 0; // z component of up vector is always 0
-
-	nl[0] = at.mV[0];
-	nl[1] = 0;  // y component of left vector is always zero, this was up[0]
-	nl[2] = -1 * left.mV[0];
-
-	npos[2] = pos.mdV[2] * -1.0;
-	npos[1] = pos.mdV[1];
-	npos[0] = pos.mdV[0];
-
-	for(int i=0;i<3;++i) {
-		at.mV[i] = nat[i];
-		up.mV[i] = nup[i];
-		left.mV[i] = nl[i];
-		pos.mdV[i] = npos[i];
-	}
-#else
-	// This is the compose of the two transforms (at least, that's what I'm trying for)
-	nat[0] = at.mV[VX];
-	nat[1] = 0; // y component of at vector is always 0, this was up[2]
-	nat[2] = -1 * up.mV[VZ];
-
-	// We override whatever the application gives us
-	nup[0] = 0; // x component of up vector is always 0
-	nup[1] = 1; // y component of up vector is always 1
-	nup[2] = 0; // z component of up vector is always 0
-
-	nl[0] = left.mV[VX];
-	nl[1] = 0;  // y component of left vector is always zero, this was up[0]
-	nl[2] = -1 * left.mV[VY];
-
-	npos[0] = pos.mdV[VX];
-	npos[1] = pos.mdV[VZ];
-	npos[2] = pos.mdV[VY] * -1.0;
-
-	nvel[0] = vel.mV[VX];
-	nvel[1] = vel.mV[VZ];
-	nvel[2] = vel.mV[VY];
-
-	for(int i=0;i<3;++i) {
-		at.mV[i] = nat[i];
-		up.mV[i] = nup[i];
-		left.mV[i] = nl[i];
-		pos.mdV[i] = npos[i];
-	}
-	
-#endif
-}
-
 void LLWebRTCVoiceClient::setHidden(bool hidden)
 {
     mHidden = hidden;
@@ -2291,82 +2169,39 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
 
 void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(void)
 {	
-	if (mSpatialCoordsDirty && inSpatialChannel())
-	{
-		LLVector3 l, u, a, vel;
-		LLVector3d pos;
 
-		mSpatialCoordsDirty = false;
-
-        LLMatrix3 avatarRot = mAvatarRot.getMatrix3();
-
-//		LL_DEBUGS("Voice") << "Sending speaker position " << mAvatarPosition << LL_ENDL;
-		l = avatarRot.getLeftRow();
-		u = avatarRot.getUpRow();
-		a = avatarRot.getFwdRow();
-
-        pos = mAvatarPosition;
-		vel = mAvatarVelocity;
-
-		// SLIM SDK: the old SDK was doing a transform on the passed coordinates that the new one doesn't do anymore.
-		// The old transform is replicated by this function.
-		oldSDKTransform(l, u, a, pos, vel);
-        
-        if (mHidden)
-        {
-            for (int i=0;i<3;++i)
-            {
-                pos.mdV[i] = VX_NULL_POSITION;
-            }
-        }
-
-		LLVector3d	earPosition;
-		LLVector3	earVelocity;
-		LLMatrix3	earRot;
-		
-		switch(mEarLocation)
-		{
-			case earLocCamera:
-			default:
-				earPosition = mCameraPosition;
-				earVelocity = mCameraVelocity;
-				earRot = mCameraRot;
-			break;
-			
-			case earLocAvatar:
-				earPosition = mAvatarPosition;
-				earVelocity = mAvatarVelocity;
-				earRot = avatarRot;
-			break;
-			
-			case earLocMixed:
-				earPosition = mAvatarPosition;
-				earVelocity = mAvatarVelocity;
-				earRot = mCameraRot;
-			break;
-		}
-
-		l = earRot.getLeftRow();
-		u = earRot.getUpRow();
-		a = earRot.getFwdRow();
-
-        pos = earPosition;
-		vel = earVelocity;
-
-		
-		oldSDKTransform(l, u, a, pos, vel);
-		
-        if (mHidden)
-        {
-            for (int i=0;i<3;++i)
-            {
-                pos.mdV[i] = VX_NULL_POSITION;
-            }
-        }
-	}
 
     if (mWebRTCDataInterface && mWebRTCAudioInterface)
     {
+        Json::Value  root = Json::objectValue;
+        
+        if (mSpatialCoordsDirty && inSpatialChannel())
+        {
+            root["sp"] = Json::objectValue;
+            root["sp"]["x"] = (int)(mAvatarPosition[0]*100);
+            root["sp"]["y"] = (int)(mAvatarPosition[1]*100);
+            root["sp"]["z"] = (int)(mAvatarPosition[2]*100);
+            root["sh"] = Json::objectValue;
+            root["sh"]["x"] = (int)(mAvatarRot[0]*100);
+            root["sh"]["y"] = (int)(mAvatarRot[1]*100);
+            root["sh"]["z"] = (int)(mAvatarRot[2]*100);
+            root["sh"]["w"] = (int)(mAvatarRot[3]*100);
+
+            
+            root["lp"] = Json::objectValue;
+            root["lp"]["x"] = (int)(mCameraPosition[0]*100);
+            root["lp"]["y"] = (int)(mCameraPosition[1]*100);
+            root["lp"]["z"] = (int)(mCameraPosition[2]*100);
+            root["lh"] = Json::objectValue;
+            root["lh"]["x"] = (int)(mCameraRot[0]*100);
+            root["lh"]["y"] = (int)(mCameraRot[1]*100);
+            root["lh"]["z"] = (int)(mCameraRot[2]*100);
+            root["lh"]["w"] = (int)(mCameraRot[3]*100);
+
+            mSpatialCoordsDirty = false;
+        }
+        
+        
         F32 audio_level = 0.0;
         
 		if (!mMuteMic)
@@ -2376,19 +2211,24 @@ void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(void)
         uint32_t uint_audio_level = (uint32_t) (audio_level * 256);
         if (uint_audio_level != mAudioLevel)
         {
-            Json::FastWriter writer;
-            Json::Value  root;
             root["p"]             = uint_audio_level;
-            std::string json_data = writer.write(root);
-
-            mWebRTCDataInterface->sendData(json_data, false);
             mAudioLevel                       = uint_audio_level;
             participantStatePtr_t participant = findParticipantByID(gAgentID);
-            if (participant) 
-			{
+            if (participant)
+            {
                 participant->mPower = audio_level;
-                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;  
-			}
+                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;
+            }
+        }
+        
+        
+        if (root.size() > 0)
+        {
+            
+            Json::FastWriter writer;
+            std::string json_data = writer.write(root);
+            
+            mWebRTCDataInterface->sendData(json_data, false);
         }
     }
 	
@@ -4361,7 +4201,6 @@ void LLWebRTCVoiceClient::updatePosition(void)
 	LLViewerRegion *region = gAgent.getRegion();
 	if(region && isAgentAvatarValid())
 	{
-		LLMatrix3 rot;
 		LLVector3d pos;
         LLQuaternion qrot;
 		
@@ -4369,13 +4208,12 @@ void LLWebRTCVoiceClient::updatePosition(void)
 		// They're currently always set to zero.
 		
 		// Send the current camera position to the voice code
-		rot.setRows(LLViewerCamera::getInstance()->getAtAxis(), LLViewerCamera::getInstance()->getLeftAxis (),  LLViewerCamera::getInstance()->getUpAxis());		
 		pos = gAgent.getRegion()->getPosGlobalFromRegion(LLViewerCamera::getInstance()->getOrigin());
 		
 		LLWebRTCVoiceClient::getInstance()->setCameraPosition(
 															 pos,				// position
 															 LLVector3::zero, 	// velocity
-															 rot);				// rotation matrix
+                                                            LLViewerCamera::getInstance()->getQuaternion()); // rotation matrix
 		
 		// Send the current avatar position to the voice code
         qrot = gAgentAvatarp->getRootJoint()->getWorldRotation();
@@ -4392,7 +4230,7 @@ void LLWebRTCVoiceClient::updatePosition(void)
 	}
 }
 
-void LLWebRTCVoiceClient::setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot)
+void LLWebRTCVoiceClient::setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot)
 {
 	mCameraRequestedPosition = position;
 	

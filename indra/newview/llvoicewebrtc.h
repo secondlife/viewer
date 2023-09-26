@@ -521,7 +521,7 @@ protected:
 	/////////////////////////////
 	// Sending updates of current state
 	void updatePosition(void);
-	void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
+	void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 	void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 	bool channelFromRegion(LLViewerRegion *region, std::string &name);
 
@@ -823,7 +823,7 @@ private:
 	LLVector3d	mCameraPosition;
 	LLVector3d	mCameraRequestedPosition;
 	LLVector3	mCameraVelocity;
-	LLMatrix3	mCameraRot;
+	LLQuaternion mCameraRot;
 
 	LLVector3d	mAvatarPosition;
 	LLVector3	mAvatarVelocity;
