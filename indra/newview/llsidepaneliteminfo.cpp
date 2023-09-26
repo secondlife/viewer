@@ -257,6 +257,17 @@ void LLSidepanelItemInfo::refresh()
         }
 		return;
 	}
+
+    if (mObjectID.notNull())
+    {
+        LLViewerObject* object = gObjectList.findObject(mObjectID);
+        if (object)
+        {
+            // Object exists, but object's content is not nessesary
+            // loaded, so assume item exists as well
+            return;
+        }
+    }
     
     if (mParentFloater)
     {
