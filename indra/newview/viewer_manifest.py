@@ -39,6 +39,7 @@ import secrets
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 
@@ -918,32 +919,22 @@ class DarwinManifest(ViewerManifest):
         RUNNER_TEMP = os.getenv('RUNNER_TEMP')
         # When running as a GitHub Action job, RUNNER_TEMP is the recommended
         # temp directory. If we're not running on GitHub, don't create this
-        # temp directory or this symlink: we don't clean them up, trusting
+        # temp directory or this tarball: we don't clean them up, trusting
         # that the runner is itself transient. On a dev machine, that would
         # result in temp-directory clutter.
         if RUNNER_TEMP:
-            # We want an artifact containing the "Second Life Mumble.app"
-            # directory, which in turn contains the whole app bundle.
-            # Unfortunately, the directory that contains the .app directory
-            # also contains other stuff, notably the xcarchive.zip, which is
-            # itself enormous. Create a temp directory containing only (a link
-            # to) our .app dir, and specify that as the directory to upload.
-            wrapdir = tempfile.mkdtemp(dir=RUNNER_TEMP)
-            applink = os.path.join(wrapdir, appname)
-            # This link will be used by a different job step, so link to an
-            # absolute path: we can't guarantee that the other step will have
-            # the same current directory.
-            # diagnostic output
-            parentdir = os.path.abspath(os.path.join(self.get_dst_prefix(), os.pardir))
-            for dir in parentdir, os.path.join(parentdir, appname):
-                print(f'Contents of {dir}:')
-                for item in os.listdir(dir):
-                    print(f'  {item}')
-            # end diagnostic output
-            appreal = os.path.abspath(os.path.join(self.get_dst_prefix(), os.pardir, appname))
-            print(f"Linking {applink} => {appreal}")
-            os.symlink(appreal, applink)
-            self.set_github_output_path('viewer_app', wrapdir)
+            # Per GitHub's actions/upload-artifact documentation
+            # https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
+            # we must package the app bundle with tar before posting as an
+            # artifact. Posting individual files follows symlinks, which
+            # causes problems, especially with frameworks: a framework's top
+            # level must contain symlinks into its Versions/Current, which
+            # must itself be a symlink to some specific Versions subdir.
+            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
+            print(f'Creating {tarpath} from {self.get_dst_prefix()}')
+            with tarfile.open(tarpath, mode="x:bz2") as tarball:
+                tarball.add(self.get_dst_prefix())
+            self.set_github_output_path('viewer_app', tarpath)
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
