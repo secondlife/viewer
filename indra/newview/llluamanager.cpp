@@ -31,11 +31,15 @@
 #include "llagent.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
+#include "llerror.h"
 #include "llevents.h"
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llinstancetracker.h"
+#include "llleaplistener.h"
 #include "llnotificationsutil.h"
+#include "lluuid.h"
 #include "llvoavatarself.h"
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
@@ -43,6 +47,7 @@
 #include "lluilistener.h"
 #include "llanimationstates.h"
 #include "llinventoryfunctions.h"
+#include "stringize.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -54,8 +59,10 @@ extern "C"
 }
 
 #include <algorithm>
+#include <cstdlib>                  // std::rand()
 #include <cstring>                  // std::memcpy()
 #include <map>
+#include <memory>                   // std::unique_ptr
 #include <string_view>
 #include <vector>
 
@@ -63,11 +70,105 @@ extern "C"
 #pragma comment(lib, "liblua54.a")
 #endif
 
+std::string lua_tostdstring(lua_State* L, int index);
+void lua_pushstdstring(lua_State* L, const std::string& str);
 LLSD lua_tollsd(lua_State* L, int index);
 void lua_pushllsd(lua_State* L, const LLSD& data);
 
 // FIXME extremely hacky way to get to the UI Listener framework. There's almost certainly a cleaner way.
 extern LLUIListener sUIListener;
+
+/**
+ * LuaListener is based on LLLeap. It serves an analogous function.
+ *
+ * Each LuaListener instance has an int key, generated randomly to
+ * inconvenience malicious Lua scripts wanting to mess with others. The idea
+ * is that a given lua_State stores in its Registry:
+ * - "event.listener": the int key of the corresponding LuaListener, if any
+ * - "event.function": the Lua function to be called with incoming events
+ * The original thought was that LuaListener would itself store the Lua
+ * function -- but surprisingly, there is no C/C++ type in the API that stores
+ * a Lua function.
+ *
+ * (We considered storing in "event.listener" the LuaListener pointer itself
+ * as a light userdata, but the problem would be if Lua code overwrote that.
+ * We want to prevent any Lua script from crashing the viewer, intentionally
+ * or otherwise. Safer to use a key lookup.)
+ *
+ * Like LLLeap, each LuaListener instance also has an associated
+ * LLLeapListener to respond to LLEventPump management commands.
+ */
+class LuaListener: public LLInstanceTracker<LuaListener, int>
+{
+    using super = LLInstanceTracker<LuaListener, int>;
+public:
+    LuaListener(lua_State* L):
+        super(getUniqueKey()),
+        mState(L),
+        mReplyPump(LLUUID::generateNewID().asString()),
+        mListener(new LLLeapListener(std::bind(&LuaListener::connect, this, _1, _2)))
+    {
+        mReplyConnection = connect(mReplyPump, "LuaListener");
+    }
+
+    std::string getReplyName() const { return mReplyPump.getName(); }
+    std::string getCommandName() const { return mListener->getPumpName(); }
+
+private:
+    static int getUniqueKey()
+    {
+        // Find a random key that does NOT already correspond to a LuaListener
+        // instance. Passing a duplicate key to LLInstanceTracker would do Bad
+        // Things.
+        int key;
+        do
+        {
+            key = std::rand();
+        } while (LuaListener::getInstance(key));
+        // This is theoretically racy, if we were instantiating new
+        // LuaListeners on multiple threads. Don't.
+        return key;
+    }
+
+    LLBoundListener connect(LLEventPump& pump, const std::string_view& listener)
+    {
+        return pump.listen(listener,
+                           std::bind(&LuaListener::call_lua, mState, pump.getName(), _1));
+    }
+
+    static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
+    {
+        // push the registered Lua callback function stored in our registry as
+        // "event.function"
+        lua_getfield(L, LUA_REGISTRYINDEX, "event.function");
+        llassert(lua_isfunction(L, -1));
+        // pass pump name
+        lua_pushstdstring(L, pump);
+        // then the data blob
+        lua_pushllsd(L, data);
+        // call the registered Lua listener function; allow it to return bool;
+        // no message handler
+        auto status = lua_pcall(L, 2, 1, 0);
+        bool result{ false };
+        if (status != LUA_OK)
+        {
+            LL_WARNS("Lua") << "Error in listen_events() callback: "
+                            << lua_tostdstring(L, -1) << LL_ENDL;
+        }
+        else
+        {
+            result = lua_toboolean(L, -1);
+        }
+        // discard either the error message or the bool return value
+        lua_pop(L, 1);
+        return result;
+    }
+
+    lua_State* mState;
+    LLEventStream mReplyPump;
+    LLTempBoundListener mReplyConnection;
+    std::unique_ptr<LLLeapListener> mListener;
+};
 
 /**
  * LuaPopper is an RAII struct whose role is to pop some number of entries
@@ -150,37 +251,41 @@ static struct name##_ : public LuaFunction      \
     static int call(lua_State* L);              \
 } name;                                         \
 int name##_::call(lua_State* L)
+// {
+//     ... supply method body here, referencing 'L' ...
+// }
+
+lua_function(print_debug)
+{
+    LL_DEBUGS("Lua") << luaL_where(L, 1) << ": " << lua_tostring(L, 1) << LL_ENDL;
+    lua_pop(L, 1);
+    return 0;
+}
+
+lua_function(print_info)
+{
+    LL_INFOS("Lua") << luaL_where(L, 1) << ": " << lua_tostring(L, 1) << LL_ENDL;
+    lua_pop(L, 1);
+    return 0;
+}
 
 lua_function(print_warning)
 {
-    std::string msg(lua_tostring(L, 1));
-
-    LL_WARNS() << msg << LL_ENDL;
-    return 1;
-}
-
-bool checkLua(lua_State *L, int r, std::string &error_msg)
-{
-    if (r != LUA_OK)
-    {
-        error_msg = lua_tostring(L, -1);
-
-        LL_WARNS() << error_msg << LL_ENDL;
-        return false;
-    }
-    return true;
+    LL_WARNS("Lua") << luaL_where(L, 1) << ": " << lua_tostring(L, 1) << LL_ENDL;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(avatar_sit)
 {
     gAgent.sitDown();
-    return 1;
+    return 0;
 }
 
 lua_function(avatar_stand)
 {
     gAgent.standUp();
-    return 1;
+    return 0;
 }
 
 lua_function(nearby_chat_send)
@@ -189,7 +294,8 @@ lua_function(nearby_chat_send)
     LLFloaterIMNearbyChat *nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
     nearby_chat->sendChatFromViewer(msg, CHAT_TYPE_NORMAL, gSavedSettings.getBOOL("PlayChatAnim"));
 
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(wear_by_name)
@@ -197,7 +303,8 @@ lua_function(wear_by_name)
     std::string folder_name(lua_tostring(L, 1));
     LLAppearanceMgr::instance().wearOutfitByName(folder_name);
 
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(open_floater)
@@ -211,7 +318,8 @@ lua_function(open_floater)
     }
     LLFloaterReg::showInstance(floater_name, key);
 
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(close_floater)
@@ -225,13 +333,14 @@ lua_function(close_floater)
     }
     LLFloaterReg::hideInstance(floater_name, key);
 
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(close_all_floaters)
 {
     close_all_windows();
-    return 1;
+    return 0;
 }
 
 lua_function(click_child)
@@ -243,7 +352,8 @@ lua_function(click_child)
 	LLUICtrl *child = floater->getChild<LLUICtrl>(child_name, true);
 	child->onCommit();
 
-	return 1;
+	lua_pop(L, 2);
+	return 0;
 }
 
 lua_function(snapshot_to_file)
@@ -263,13 +373,14 @@ lua_function(snapshot_to_file)
                                 LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
     });
 
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(open_wearing_tab)
 { 
     LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "now_wearing")); 
-    return 1;
+    return 0;
 }
 
 lua_function(set_debug_setting_bool) 
@@ -278,7 +389,8 @@ lua_function(set_debug_setting_bool)
     bool value(lua_toboolean(L, 2));
 
     gSavedSettings.setBOOL(setting_name, value);
-    return 1;
+    lua_pop(L, 2);
+    return 0;
 }
 
 lua_function(get_avatar_name)
@@ -296,6 +408,9 @@ lua_function(is_avatar_flying)
 
 lua_function(play_animation)
 {
+	// on exit, pop all passed arguments, so always return 0
+	LuaPopper popper(L, lua_gettop(L));
+
 	std::string anim_name = lua_tostring(L,1);
 
 	EAnimRequest req = ANIM_REQUEST_START;
@@ -319,18 +434,19 @@ lua_function(play_animation)
 			LLUUID anim_id = item->getAssetUUID();
 			LL_INFOS() << "Playing animation " << anim_id << LL_ENDL;
 			gAgent.sendAnimationRequest(anim_id, req);
-			return 1;
+			return 0;
 		}
 	}
 	LL_WARNS() << "No animation found for name " << anim_name << LL_ENDL;
 
-	return 1;
+	return 0;
 }
 
 lua_function(env_setting_event)
 { 
     handle_env_setting_event(lua_tostring(L, 1));
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 void handle_notification_dialog(const LLSD &notification, const LLSD &response, lua_State *L, std::string response_cb)
@@ -370,7 +486,8 @@ lua_function(show_notification)
         LLNotificationsUtil::add(notification);
     }
 
-    return 1;
+    lua_pop(L, lua_gettop(L));
+    return 0;
 }
 
 lua_function(add_menu_item)
@@ -396,7 +513,8 @@ lua_function(add_menu_item)
         gMenuBarView->findChildMenuByName(menu, true)->append(menu_item);
     }
 
-    return 1;
+    lua_pop(L, lua_gettop(L));
+    return 0;
 }
 
 lua_function(add_menu_separator)
@@ -404,7 +522,8 @@ lua_function(add_menu_separator)
     std::string menu(lua_tostring(L, 1));
     gMenuBarView->findChildMenuByName(menu, true)->addSeparator();
 
-    return 1;
+    lua_pop(L, 1);
+    return 0;
 }
 
 lua_function(add_menu)
@@ -422,7 +541,8 @@ lua_function(add_menu)
         gMenuBarView->appendMenu(menu);
     }
 
-    return 1; 
+    lua_pop(L, lua_gettop(L));
+    return 0; 
 }
 
 lua_function(add_branch)
@@ -441,7 +561,8 @@ lua_function(add_branch)
         gMenuBarView->findChildMenuByName(menu, true)->appendMenu(branch);
     }
 
-    return 1;
+    lua_pop(L, lua_gettop(L));
+    return 0;
 }
 
 lua_function(run_ui_command)
@@ -466,7 +587,8 @@ lua_function(run_ui_command)
 	}
 	sUIListener.call(event);
 
-	return 1;
+	lua_pop(L, top);
+	return 0;
 }
 
 lua_function(post_on_pump)
@@ -475,18 +597,69 @@ lua_function(post_on_pump)
     LLSD data{ lua_tollsd(L, -1) };
     lua_pop(L, 2);
     LLEventPumps::instance().obtain(pumpname).post(data);
-    return 1;
+    return 0;
 }
 
 lua_function(listen_events)
 {
-    if (! lua_isfunction(L, -1))
+    if (! lua_isfunction(L, 1))
     {
         return luaL_typeerror(L, 1, "function");
     }
-    // return the distinct LLEventPump name so Lua code can post that with a
-    // request as the reply pump
-    return 1;
+
+    // Get the lua_State* for the main thread of this state, in case we were
+    // called from a coroutine thread. We're going to make callbacks into Lua
+    // code, and we want to do it on the main thread rather than a (possibly
+    // suspended) coroutine thread.
+    // Registry table is at pseudo-index LUA_REGISTRYINDEX
+    // Main thread is at registry key LUA_RIDX_MAINTHREAD
+    auto regtype{ lua_geti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD) };
+    // Not finding the main thread at the documented place isn't a user error,
+    // it's a Problem
+    llassert(regtype == LUA_TTHREAD);
+    lua_State* mainthread{ lua_tothread(L, -1) };
+    // pop the main thread
+    lua_pop(L, 1);
+
+    LuaListener::ptr_t listener;
+    // Does the main thread already have a LuaListener stored in the registry?
+    // That is, has this Lua chunk already called listen_events()?
+    auto keytype{ lua_getfield(mainthread, LUA_REGISTRYINDEX, "event.listener") };
+    llassert(keytype == LUA_TNIL || keytype == LUA_TINTEGER);
+    if (keytype == LUA_TINTEGER)
+    {
+        // We do already have a LuaListener. Retrieve it.
+        listener = LuaListener::getInstance(lua_tointeger(mainthread, -1));
+        // pop the int "event.listener" key
+        lua_pop(mainthread, 1);
+        // Nobody should have destroyed this LuaListener instance!
+        llassert(listener);
+    }
+    else
+    {
+        // pop the nil "event.listener" key
+        lua_pop(mainthread, 1);
+        // instantiate a new LuaListener, binding the mainthread state
+        listener.reset(new LuaListener(mainthread));
+        // set its key in the field where we'll look for it later
+        lua_pushinteger(mainthread, listener->getKey());
+        lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.listener");
+    }
+
+    // Now that we've found or created our LuaListener, store the passed Lua
+    // function as the callback. Beware: our caller passed the function on L's
+    // stack, but we want to store it on the mainthread registry.
+    if (L != mainthread)
+    {
+        // push 1 value (the Lua function) from L's stack to mainthread's
+        lua_xmove(L, mainthread, 1)
+    }
+    lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.function");
+
+    // return the reply pump name and the command pump name on caller's lua_State
+    lua_pushstdstring(L, listener->getReplyPump());
+    lua_pushstdstring(L, listener->getCommandPump());
+    return 2;
 }
 
 void initLUA(lua_State *L)
@@ -494,61 +667,119 @@ void initLUA(lua_State *L)
     LuaFunction::init(L);
 }
 
-void LLLUAmanager::runScriptFile(const std::string &filename, script_finished_fn cb)
+/**
+ * RAII class to manage the lifespan of a lua_State
+ */
+class LuaState
+{
+public:
+    LuaState(const std::string_view& desc, script_finished_fn cb):
+        mDesc(desc),
+        mCallback(cb),
+        mState(luaL_newstate())
+    {
+        luaL_openlibs(mState);
+        initLUA(mState);
+    }
+
+    LuaState(const LuaState&) = delete;
+    LuaState& operator=(const LuaState&) = delete;
+
+    ~LuaState()
+    {
+        // Did somebody call listen_events() on this LuaState?
+        // That is, is there a LuaListener key in its registry?
+        auto keytype{ lua_getfield(mState, LUA_REGISTRYINDEX, "event.listener") };
+        if (keytype == LUA_TINTEGER)
+        {
+            // We do have a LuaListener. Retrieve it.
+            auto listener{ LuaListener::getInstance(lua_tointeger(mState, -1)) };
+            // pop the int "event.listener" key
+            lua_pop(mState, 1);
+            // destroy this LuaListener instance
+            if (listener)
+            {
+                auto lptr{ listener.get() };
+                listener.reset();
+                delete lptr;
+            }
+        }
+
+        lua_close(mState);
+
+        if (mCallback)
+        {
+            // mError potentially set by previous checkLua() call(s)
+            mCallback(mError);
+        }    
+    }
+
+    bool checkLua(int r)
+    {
+        if (r != LUA_OK)
+        {
+            mError = lua_tostring(mState, -1);
+            lua_pop(mState, 1);
+
+            LL_WARNS() << mDesc << ": " << mError << LL_ENDL;
+            return false;
+        }
+        return true;
+    }
+
+    operator lua_State*() const { return mState; }
+
+private:
+    std::string mDesc;
+    script_finished_fn mCallback;
+    lua_State* mState;
+    std::string mError;
+};
+
+void LLLUAmanager::runScriptFile(const std::string_view &filename, script_finished_fn cb)
 {
     LLCoros::instance().launch("LUAScriptFileCoro", [filename, cb]()
     {
-        lua_State *L = luaL_newstate();
-        luaL_openlibs(L);
-        initLUA(L);
+        LuaState L(stringize("runScriptFile('", filename, "')"), cb);
 
         auto LUA_sleep_func = [](lua_State *L)
         {
             F32 seconds = lua_tonumber(L, -1);
+            lua_pop(L, 1);
             llcoro::suspendUntilTimeout(seconds);
             return 0;
         };
 
         lua_register(L, "sleep", LUA_sleep_func);
 
-        std::string lua_error;
-        if (checkLua(L, luaL_dofile(L, filename.c_str()), lua_error))
+        if (L.checkLua(luaL_dofile(L, filename.c_str())))
         {
             lua_getglobal(L, "call_once_func");
             if (lua_isfunction(L, -1))
             {
-                if (checkLua(L, lua_pcall(L, 0, 0, 0), lua_error)) {}
+                // call call_once_func(), setting internal error message if
+                // error
+                L.checkLua(lua_pcall(L, 0, 0, 0));
             }
-        }
-        lua_close(L);
-
-        if (cb) 
-        {
-            cb(lua_error);
         }
     });
 }
 
-void LLLUAmanager::runScriptLine(const std::string &cmd, script_finished_fn cb)
+void LLLUAmanager::runScriptLine(const std::string_view &cmd, script_finished_fn cb)
 {
     LLCoros::instance().launch("LUAScriptFileCoro", [cmd, cb]()
     {
-        lua_State *L = luaL_newstate();
-        luaL_openlibs(L);
-        initLUA(L);
-        int r = luaL_dostring(L, cmd.c_str());
+        // find a suitable abbreviation for the cmd string
+        std::string_view shortcmd{ cmd };
+        const size_t shortlen = 40;
+        std::string::size_type eol = shortcmd.find_first_of("\r\n");
+        if (eol != std::string::npos)
+            shortcmd = shortcmd.substr(0, eol);
+        if (shortcmd.length() > shortlen)
+            shortcmd = shortcmd.substr(0, shortlen) + "...";
 
-        std::string lua_error;
-        if (r != LUA_OK)
-        {
-            lua_error = lua_tostring(L, -1);
-        }
-        lua_close(L);
-
-        if (cb) 
-        {
-            cb(lua_error);
-        }
+        LuaState L(stringize("runScriptLine('", shortcmd, "')"), cb);
+        L.checkLua(luaL_dostring(L, cmd.c_str()));
     });
 }
 
@@ -576,6 +807,11 @@ std::string lua_tostdstring(lua_State* L, int index)
     size_t len;
     const char* strval{ lua_tolstring(L, index, &len) };
     return { strval, len };
+}
+
+void lua_pushstdstring(lua_State* L, const std::string& str)
+{
+    lua_pushlstring(L, str.c_str(), str.length());
 }
 
 // By analogy with existing lua_tomumble() functions, return an LLSD object
