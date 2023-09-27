@@ -515,6 +515,7 @@ void LLPanelFace::draw()
     if (sMaterialOverrideSelection.update())
     {
         setMaterialOverridesFromSelection();
+        LLMaterialEditor::updateLive();
     }
 }
 

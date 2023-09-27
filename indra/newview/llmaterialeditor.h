@@ -110,7 +110,6 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void onSelectionChanged(); // live overrides selection changes
 
     static void updateLive();
-    static void updateLive(const LLUUID &object_id, S32 te);
     static void loadLive();
 
     static bool canModifyObjectsMaterial();
