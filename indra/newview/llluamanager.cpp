@@ -106,7 +106,8 @@ public:
         super(getUniqueKey()),
         mState(L),
         mReplyPump(LLUUID::generateNewID().asString()),
-        mListener(new LLLeapListener(std::bind(&LuaListener::connect, this, _1, _2)))
+        mListener(new LLLeapListener(std::bind(&LuaListener::connect, this,
+                                               std::placeholders::_1, std::placeholders::_2)))
     {
         mReplyConnection = connect(mReplyPump, "LuaListener");
     }
@@ -133,7 +134,8 @@ private:
     LLBoundListener connect(LLEventPump& pump, const std::string& listener)
     {
         return pump.listen(listener,
-                           std::bind(&LuaListener::call_lua, mState, pump.getName(), _1));
+                           std::bind(&LuaListener::call_lua, mState, pump.getName(),
+                                     std::placeholders::_1));
     }
 
     static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
