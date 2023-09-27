@@ -130,7 +130,7 @@ private:
         return key;
     }
 
-    LLBoundListener connect(LLEventPump& pump, const std::string_view& listener)
+    LLBoundListener connect(LLEventPump& pump, const std::string& listener)
     {
         return pump.listen(listener,
                            std::bind(&LuaListener::call_lua, mState, pump.getName(), _1));
@@ -257,22 +257,25 @@ int name##_::call(lua_State* L)
 
 lua_function(print_debug)
 {
-    LL_DEBUGS("Lua") << luaL_where(L, 1) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 1);
+    luaL_where(L, 1);
+    LL_DEBUGS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
+    lua_pop(L, 2);
     return 0;
 }
 
 lua_function(print_info)
 {
-    LL_INFOS("Lua") << luaL_where(L, 1) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 1);
+    luaL_where(L, 1);
+    LL_INFOS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
+    lua_pop(L, 2);
     return 0;
 }
 
 lua_function(print_warning)
 {
-    LL_WARNS("Lua") << luaL_where(L, 1) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 1);
+    luaL_where(L, 1);
+    LL_WARNS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
+    lua_pop(L, 2);
     return 0;
 }
 
@@ -625,15 +628,16 @@ lua_function(listen_events)
     // Does the main thread already have a LuaListener stored in the registry?
     // That is, has this Lua chunk already called listen_events()?
     auto keytype{ lua_getfield(mainthread, LUA_REGISTRYINDEX, "event.listener") };
-    llassert(keytype == LUA_TNIL || keytype == LUA_TINTEGER);
-    if (keytype == LUA_TINTEGER)
+    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
+    if (keytype == LUA_TNUMBER)
     {
         // We do already have a LuaListener. Retrieve it.
-        listener = LuaListener::getInstance(lua_tointeger(mainthread, -1));
+        int isint;
+        listener = LuaListener::getInstance(lua_tointegerx(mainthread, -1, &isint));
         // pop the int "event.listener" key
         lua_pop(mainthread, 1);
         // Nobody should have destroyed this LuaListener instance!
-        llassert(listener);
+        llassert(isint && listener);
     }
     else
     {
@@ -652,13 +656,13 @@ lua_function(listen_events)
     if (L != mainthread)
     {
         // push 1 value (the Lua function) from L's stack to mainthread's
-        lua_xmove(L, mainthread, 1)
+        lua_xmove(L, mainthread, 1);
     }
     lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.function");
 
     // return the reply pump name and the command pump name on caller's lua_State
-    lua_pushstdstring(L, listener->getReplyPump());
-    lua_pushstdstring(L, listener->getCommandPump());
+    lua_pushstdstring(L, listener->getReplyName());
+    lua_pushstdstring(L, listener->getCommandName());
     return 2;
 }
 
@@ -673,7 +677,7 @@ void initLUA(lua_State *L)
 class LuaState
 {
 public:
-    LuaState(const std::string_view& desc, script_finished_fn cb):
+    LuaState(const std::string_view& desc, LLLUAmanager::script_finished_fn cb):
         mDesc(desc),
         mCallback(cb),
         mState(luaL_newstate())
@@ -690,14 +694,17 @@ public:
         // Did somebody call listen_events() on this LuaState?
         // That is, is there a LuaListener key in its registry?
         auto keytype{ lua_getfield(mState, LUA_REGISTRYINDEX, "event.listener") };
-        if (keytype == LUA_TINTEGER)
+        if (keytype == LUA_TNUMBER)
         {
             // We do have a LuaListener. Retrieve it.
-            auto listener{ LuaListener::getInstance(lua_tointeger(mState, -1)) };
+            int isint;
+            auto listener{ LuaListener::getInstance(lua_tointegerx(mState, -1, &isint)) };
             // pop the int "event.listener" key
             lua_pop(mState, 1);
-            // destroy this LuaListener instance
-            if (listener)
+            // if we got a LuaListener instance, destroy it
+            // (if (! isint), lua_tointegerx() returned 0, but key 0 might
+            // validly designate someone ELSE's LuaListener)
+            if (isint && listener)
             {
                 auto lptr{ listener.get() };
                 listener.reset();
@@ -731,12 +738,12 @@ public:
 
 private:
     std::string mDesc;
-    script_finished_fn mCallback;
+    LLLUAmanager::script_finished_fn mCallback;
     lua_State* mState;
     std::string mError;
 };
 
-void LLLUAmanager::runScriptFile(const std::string_view &filename, script_finished_fn cb)
+void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn cb)
 {
     LLCoros::instance().launch("LUAScriptFileCoro", [filename, cb]()
     {
@@ -765,7 +772,7 @@ void LLLUAmanager::runScriptFile(const std::string_view &filename, script_finish
     });
 }
 
-void LLLUAmanager::runScriptLine(const std::string_view &cmd, script_finished_fn cb)
+void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
 {
     LLCoros::instance().launch("LUAScriptFileCoro", [cmd, cb]()
     {
@@ -776,7 +783,7 @@ void LLLUAmanager::runScriptLine(const std::string_view &cmd, script_finished_fn
         if (eol != std::string::npos)
             shortcmd = shortcmd.substr(0, eol);
         if (shortcmd.length() > shortlen)
-            shortcmd = shortcmd.substr(0, shortlen) + "...";
+            shortcmd = stringize(shortcmd.substr(0, shortlen), "...");
 
         LuaState L(stringize("runScriptLine('", shortcmd, "')"), cb);
         L.checkLua(luaL_dostring(L, cmd.c_str()));
