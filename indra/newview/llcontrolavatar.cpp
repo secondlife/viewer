@@ -362,6 +362,7 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
 void LLControlAvatar::markDead()
 {
+    mRootVolp = NULL;
     super::markDead();
     mControlAVBridge = NULL;
 }
