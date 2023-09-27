@@ -1300,17 +1300,8 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
-
-	llassert(pos.isFinite());
-	llassert(size.isFinite());
-
-	llassert(!llisnan(pos.mV[0]));
-	llassert(!llisnan(pos.mV[1]));
-	llassert(!llisnan(pos.mV[2]));
-
-	llassert(!llisnan(size.mV[0]));
-	llassert(!llisnan(size.mV[1]));
-	llassert(!llisnan(size.mV[2]));
+    if (!pos.isFinite() || !size.isFinite())
+        return;
 
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
