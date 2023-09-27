@@ -2101,8 +2101,16 @@ BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
 		return mDropCallback(this, item);
 	}
 
-	// no callback installed, so just set the image ids and carry on.
-	setImageAssetID( item->getAssetUUID() );
+    // no callback installed, so just set the image ids and carry on.
+    LLUUID asset_id = item->getAssetUUID();
+
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL && asset_id.isNull())
+    {
+        // If an inventory material has a null asset, consider it a valid blank material(gltf)
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    }
+
+	setImageAssetID(asset_id);
 	mImageItemID = item->getUUID();
 	return TRUE;
 }
