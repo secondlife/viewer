@@ -674,7 +674,7 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     std::istringstream sdp_stream(sdp);
     std::ostringstream sdp_mangled_stream;
     std::string        sdp_line;
-    int                opus_payload = 0;
+    char               opus_payload[10];
     while (std::getline(sdp_stream, sdp_line)) {
         int bandwidth = 0;
         int payload_id = 0;
@@ -682,9 +682,9 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
         if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
         {
             sdp_mangled_stream << sdp_line << "\n";
-            opus_payload = payload_id;
+            sprintf(opus_payload,"%d",payload_id);
         }
-        else if (sdp_line.rfind(std::format("a=fmtp:{}", opus_payload)) == 0) 
+        else if (sdp_line.rfind(std::string("a=fmtp:") + opus_payload) == 0) 
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
                                << " stereo=1;sprop-stereo=0;minptime=10;useinbandfec=1;maxplaybackrate=48000\n";
