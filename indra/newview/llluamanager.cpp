@@ -621,7 +621,7 @@ lua_function(listen_events)
     auto regtype{ lua_geti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD) };
     // Not finding the main thread at the documented place isn't a user error,
     // it's a Problem
-    llassert(regtype == LUA_TTHREAD);
+    llassert_always(regtype == LUA_TTHREAD);
     lua_State* mainthread{ lua_tothread(L, -1) };
     // pop the main thread
     lua_pop(L, 1);
