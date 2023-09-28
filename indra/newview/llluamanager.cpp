@@ -1195,7 +1195,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     case LLSD::TypeURI:
     default:
     {
-        lua_pushstdstring(data.asString());
+        lua_pushstdstring(L, data.asString());
         break;
     }
     }
