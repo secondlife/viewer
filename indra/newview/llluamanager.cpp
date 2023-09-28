@@ -226,6 +226,15 @@ public:
         }
     }
 
+    static lua_CFunction get(const std::string& key)
+    {
+        // use find() instead of subscripting to avoid creating an entry for
+        // unknown key
+        const auto& registry{ getRegistry() };
+        auto found{ registry.find(key) };
+        return (found == registry.end())? nullptr : found->second;
+    }
+
 private:
     using Registry = std::map<std::string, lua_CFunction>;
     static Registry& getRegistry()
@@ -668,11 +677,6 @@ lua_function(listen_events)
     return 2;
 }
 
-void initLUA(lua_State *L)
-{
-    LuaFunction::init(L);
-}
-
 /**
  * RAII class to manage the lifespan of a lua_State
  */
@@ -685,7 +689,9 @@ public:
         mState(luaL_newstate())
     {
         luaL_openlibs(mState);
-        initLUA(mState);
+        LuaFunction::init(mState);
+        // Try to make print() write to our log.
+        lua_register(mState, "print", LuaFunction::get("print_info"));
     }
 
     LuaState(const LuaState&) = delete;
@@ -747,9 +753,10 @@ private:
 
 void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn cb)
 {
-    LLCoros::instance().launch("LUAScriptFileCoro", [filename, cb]()
+    std::string desc{ stringize("runScriptFile('", filename, "')") };
+    LLCoros::instance().launch(desc, [desc, filename, cb]()
     {
-        LuaState L(stringize("runScriptFile('", filename, "')"), cb);
+        LuaState L(desc, cb);
 
         auto LUA_sleep_func = [](lua_State *L)
         {
@@ -776,18 +783,19 @@ void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn
 
 void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
 {
-    LLCoros::instance().launch("LUAScriptFileCoro", [cmd, cb]()
-    {
-        // find a suitable abbreviation for the cmd string
-        std::string_view shortcmd{ cmd };
-        const size_t shortlen = 40;
-        std::string::size_type eol = shortcmd.find_first_of("\r\n");
-        if (eol != std::string::npos)
-            shortcmd = shortcmd.substr(0, eol);
-        if (shortcmd.length() > shortlen)
-            shortcmd = stringize(shortcmd.substr(0, shortlen), "...");
+    // find a suitable abbreviation for the cmd string
+    std::string_view shortcmd{ cmd };
+    const size_t shortlen = 40;
+    std::string::size_type eol = shortcmd.find_first_of("\r\n");
+    if (eol != std::string::npos)
+        shortcmd = shortcmd.substr(0, eol);
+    if (shortcmd.length() > shortlen)
+        shortcmd = stringize(shortcmd.substr(0, shortlen), "...");
 
-        LuaState L(stringize("runScriptLine('", shortcmd, "')"), cb);
+    std::string desc{ stringize("runScriptLine('", shortcmd, "')") };
+    LLCoros::instance().launch(desc, [desc, cmd, cb]()
+    {
+        LuaState L(desc, cb);
         L.checkLua(luaL_dostring(L, cmd.c_str()));
     });
 }
