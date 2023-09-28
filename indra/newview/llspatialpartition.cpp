@@ -1616,6 +1616,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 //  - a linked rigged drawable face has the wrong draw order index
 bool check_rigged_group(LLDrawable* drawable)
 {
+#if 0
     if (drawable->isState(LLDrawable::RIGGED))
     {
         LLSpatialGroup* group = drawable->getSpatialGroup();
@@ -1663,7 +1664,7 @@ bool check_rigged_group(LLDrawable* drawable)
             }
         }
     }
-
+#endif
     return true;
 }
 
