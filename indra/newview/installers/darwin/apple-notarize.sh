@@ -14,7 +14,7 @@ if [[ -f "$CONFIG_FILE" ]]; then
     ditto -c -k --keepParent "$app_file" "$zip_file"
 
     if [[ -f "$zip_file" ]]; then
-        notarytool submit --wait --primary-bundle-id "com.secondlife.viewer" --username "$USERNAME" --password "$PASSWORD" --asc-provider "$ASC_PROVIDER" "$zip_file"
+        xcrun notarytool submit "$zip_file" --apple-id "$USERNAME" --password "$PASSWORD" --team-id "$ASC_PROVIDER" --wait
 
         if [[ $? -eq 0 ]]; then
             xcrun stapler staple "$app_file"
