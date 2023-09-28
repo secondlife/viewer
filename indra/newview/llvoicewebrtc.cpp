@@ -1124,7 +1124,7 @@ bool LLWebRTCVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession
     // tell peers that this participant has joined.
 
     Json::FastWriter writer;
-    Json::Value      root;
+    Json::Value      root = getPositionAndVolumeUpdateJson(true);
     root["j"]             = true;
     std::string json_data = writer.write(root);
     mWebRTCDataInterface->sendData(json_data, false);
@@ -2167,60 +2167,63 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
     }
 }
 
-void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(void)
+Json::Value LLWebRTCVoiceClient::getPositionAndVolumeUpdateJson(bool force)
+{
+    Json::Value root = Json::objectValue;
+
+    if ((mSpatialCoordsDirty || force) && inSpatialChannel())
+    {
+        root["sp"]      = Json::objectValue;
+        root["sp"]["x"] = (int) (mAvatarPosition[0] * 100);
+        root["sp"]["y"] = (int) (mAvatarPosition[1] * 100);
+        root["sp"]["z"] = (int) (mAvatarPosition[2] * 100);
+        root["sh"]      = Json::objectValue;
+        root["sh"]["x"] = (int) (mAvatarRot[0] * 100);
+        root["sh"]["y"] = (int) (mAvatarRot[1] * 100);
+        root["sh"]["z"] = (int) (mAvatarRot[2] * 100);
+        root["sh"]["w"] = (int) (mAvatarRot[3] * 100);
+
+        root["lp"]      = Json::objectValue;
+        root["lp"]["x"] = (int) (mCameraPosition[0] * 100);
+        root["lp"]["y"] = (int) (mCameraPosition[1] * 100);
+        root["lp"]["z"] = (int) (mCameraPosition[2] * 100);
+        root["lh"]      = Json::objectValue;
+        root["lh"]["x"] = (int) (mCameraRot[0] * 100);
+        root["lh"]["y"] = (int) (mCameraRot[1] * 100);
+        root["lh"]["z"] = (int) (mCameraRot[2] * 100);
+        root["lh"]["w"] = (int) (mCameraRot[3] * 100);
+
+        mSpatialCoordsDirty = false;
+    }
+
+    F32 audio_level = 0.0;
+
+    if (!mMuteMic)
+    {
+        audio_level = (F32) mWebRTCDeviceInterface->getAudioLevel();
+    }
+    uint32_t uint_audio_level = mMuteMic ? 0 : (uint32_t) (audio_level * 128);
+    if (force || (uint_audio_level != mAudioLevel))
+    {
+        root["p"]                         = uint_audio_level;
+        mAudioLevel                       = uint_audio_level;
+        participantStatePtr_t participant = findParticipantByID(gAgentID);
+        if (participant)
+        {
+            participant->mPower      = audio_level;
+            participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;
+        }
+    }
+    return root;
+}
+
+void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate()
 {	
 
 
     if (mWebRTCDataInterface && mWebRTCAudioInterface)
     {
-        Json::Value  root = Json::objectValue;
-        
-        if (mSpatialCoordsDirty && inSpatialChannel())
-        {
-            root["sp"] = Json::objectValue;
-            root["sp"]["x"] = (int)(mAvatarPosition[0]*100);
-            root["sp"]["y"] = (int)(mAvatarPosition[1]*100);
-            root["sp"]["z"] = (int)(mAvatarPosition[2]*100);
-            root["sh"] = Json::objectValue;
-            root["sh"]["x"] = (int)(mAvatarRot[0]*100);
-            root["sh"]["y"] = (int)(mAvatarRot[1]*100);
-            root["sh"]["z"] = (int)(mAvatarRot[2]*100);
-            root["sh"]["w"] = (int)(mAvatarRot[3]*100);
-
-            
-            root["lp"] = Json::objectValue;
-            root["lp"]["x"] = (int)(mCameraPosition[0]*100);
-            root["lp"]["y"] = (int)(mCameraPosition[1]*100);
-            root["lp"]["z"] = (int)(mCameraPosition[2]*100);
-            root["lh"] = Json::objectValue;
-            root["lh"]["x"] = (int)(mCameraRot[0]*100);
-            root["lh"]["y"] = (int)(mCameraRot[1]*100);
-            root["lh"]["z"] = (int)(mCameraRot[2]*100);
-            root["lh"]["w"] = (int)(mCameraRot[3]*100);
-
-            mSpatialCoordsDirty = false;
-        }
-        
-        
-        F32 audio_level = 0.0;
-        
-		if (!mMuteMic)
-        {
-            audio_level = (F32) mWebRTCDeviceInterface->getAudioLevel();
-        }
-        uint32_t uint_audio_level = mMuteMic ? 0 : (uint32_t) (audio_level * 128);
-        if (uint_audio_level != mAudioLevel)
-        {
-            root["p"]					      = uint_audio_level;
-            mAudioLevel                       = uint_audio_level;
-            participantStatePtr_t participant = findParticipantByID(gAgentID);
-            if (participant)
-            {
-                participant->mPower = audio_level;
-                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;
-            }
-        }
-        
+        Json::Value root = getPositionAndVolumeUpdateJson(false);
         
         if (root.size() > 0)
         {

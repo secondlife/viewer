@@ -40,6 +40,7 @@ class LLWebRTCProtocolParser;
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include <queue>
+#include "json/reader.h"
 
 #ifdef LL_USESYSTEMLIBS
 # include "expat.h"
@@ -806,7 +807,8 @@ private:
 	std::string getAudioSessionHandle();
 			
     void setHidden(bool hidden) override; //virtual
-	void sendPositionAndVolumeUpdate(void);
+    Json::Value getPositionAndVolumeUpdateJson(bool force);
+	void sendPositionAndVolumeUpdate();
 
 	void sendFriendsListUpdates();
 
