@@ -651,7 +651,7 @@ void LLWebRTCImpl::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     std::istringstream sdp_stream(sdp);
     std::ostringstream sdp_mangled_stream;
     std::string        sdp_line;
-    int                opus_payload = 0;
+    std::string opus_payload;
     while (std::getline(sdp_stream, sdp_line))
     {
         int bandwidth  = 0;
@@ -660,9 +660,9 @@ void LLWebRTCImpl::OnSuccess(webrtc::SessionDescriptionInterface *desc)
         if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
         {
             sdp_mangled_stream << sdp_line << "\n";
-            opus_payload = payload_id;
+            opus_payload = std::to_string(payload_id);
         }
-        else if (sdp_line.rfind(std::format("a=fmtp:{}", opus_payload)) == 0)
+        else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
                                << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000\n";
