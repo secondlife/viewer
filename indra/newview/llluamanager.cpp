@@ -50,6 +50,7 @@
 #include "llinventoryfunctions.h"
 #include "stringize.h"
 #include "lltoolplacer.h"
+#include "llviewerregion.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -608,6 +609,86 @@ lua_function(rez_prim)
     bool res = LLToolPlacer::rezNewObject(type, NULL, 0, TRUE, gAgent.getPositionAgent(), obj_pos, gAgent.getRegion(), 0);
 
     LL_INFOS() << "Rezing a prim: type " << LLPrimitive::pCodeToString(type) << ", coordinates: " << obj_pos << " Success: " << res << LL_ENDL;
+
+    lua_pop(L, lua_gettop(L));
+    return 0;
+}
+
+
+void move_to_dest(const LLVector3d &target_global, lua_State *L, std::string response_cb) 
+{
+    struct Data
+    {
+        lua_State *L;
+        std::string response_cb;
+    };
+
+    Data *data = new Data();
+    data->L = L;
+    if (!response_cb.empty()) 
+    {
+        data->response_cb = response_cb;
+    }
+
+    auto handle_dest_reached = [](BOOL success, void *user_data)
+    {
+        Data *cb_data = static_cast<Data *>(user_data);
+        if (!cb_data->response_cb.empty())
+        {
+            S32 result = success ? 1 : -1;
+            lua_pushinteger(cb_data->L, result);
+            lua_setglobal(cb_data->L, cb_data->response_cb.c_str());
+        }
+    };
+
+    gAgent.startAutoPilotGlobal(target_global, std::string(), NULL, handle_dest_reached, data, 0.f, 0.03f, FALSE);
+}
+
+// move_by({x,y}, "lua_cb_func")
+// avatar is the reference point
+lua_function(move_by)
+{
+    lua_rawgeti(L, 1, 1);
+    F32 x = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_rawgeti(L, 1, 2);
+    F32 y = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    LLVector3d dest = gAgent.getRegion()->getPosGlobalFromRegion(gAgent.getPositionAgent() + LLVector3(x, y, 0));
+
+    std::string response_cb;
+    if (lua_type(L, 2) == LUA_TSTRING)
+    {
+        response_cb = lua_tostring(L, 2);
+    }
+    move_to_dest(dest, L, response_cb);
+
+    lua_pop(L, lua_gettop(L));
+    return 0;
+}
+
+// move_to({x,y,z}, "lua_cb_func")
+// region coordinates are used
+lua_function(move_to)
+{
+    lua_rawgeti(L, 1, 1);
+    F32 x = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_rawgeti(L, 1, 2);
+    F32 y = lua_tonumber(L, -1);
+    lua_rawgeti(L, 1, 3);
+    F32 z = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    LLVector3d dest = gAgent.getRegion()->getPosGlobalFromRegion(LLVector3(x, y, z));
+
+    std::string response_cb;
+    if (lua_type(L, 2) == LUA_TSTRING)
+    {
+        response_cb = lua_tostring(L, 2);
+    }
+    move_to_dest(dest, L, response_cb);
 
     lua_pop(L, lua_gettop(L));
     return 0;
