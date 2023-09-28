@@ -49,6 +49,7 @@
 #include "llanimationstates.h"
 #include "llinventoryfunctions.h"
 #include "stringize.h"
+#include "lltoolplacer.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -585,6 +586,28 @@ lua_function(add_branch)
         LLMenuGL *branch = LLUICtrlFactory::create<LLMenuGL>(item_params);
         gMenuBarView->findChildMenuByName(menu, true)->appendMenu(branch);
     }
+
+    lua_pop(L, lua_gettop(L));
+    return 0;
+}
+
+// rez_prim({x, y}, prim_type)
+// avatar is the reference point
+lua_function(rez_prim)
+{
+    lua_rawgeti(L, 1, 1);
+    F32 x = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    lua_rawgeti(L, 1, 2);
+    F32 y = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    S32 type(lua_tonumber(L, 2));  // primitive shapes 1-8
+
+    LLVector3 obj_pos = gAgent.getPositionAgent() + LLVector3(x, y, -0.5);
+    bool res = LLToolPlacer::rezNewObject(type, NULL, 0, TRUE, gAgent.getPositionAgent(), obj_pos, gAgent.getRegion(), 0);
+
+    LL_INFOS() << "Rezing a prim: type " << LLPrimitive::pCodeToString(type) << ", coordinates: " << obj_pos << " Success: " << res << LL_ENDL;
 
     lua_pop(L, lua_gettop(L));
     return 0;
