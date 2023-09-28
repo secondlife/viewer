@@ -106,6 +106,7 @@ void LLWebRTCImpl::init()
                                                                       std::unique_ptr<webrtc::AudioDeviceDataObserver>(mAudioDeviceObserver));
             mDeviceModule->Init();
             mDeviceModule->SetStereoRecording(false);
+            mDeviceModule->SetStereoPlayout(true);
             mDeviceModule->EnableBuiltInAEC(false);
             updateDevices();
         });
@@ -321,6 +322,8 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
     apm_config.noise_suppression.enabled  = true;
     apm_config.noise_suppression.level    = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
     apm_config.transient_suppression.enabled = true;
+    apm_config.pipeline.multi_channel_render = true;
+    apm_config.pipeline.multi_channel_capture = true;
     //
     apm->ApplyConfig(apm_config);
 
@@ -416,8 +419,8 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
         params.codecs.push_back(codecparam);
         receiver->SetParameters(params);
     }
-
-    mPeerConnection->SetLocalDescription(rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
+    webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
+    mPeerConnection->CreateOffer(this, offerOptions);
 
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
     
@@ -516,6 +519,16 @@ void LLWebRTCImpl::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface>  
                               const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>> &streams)
 {
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << receiver->id();
+    webrtc::RtpParameters  params;
+    webrtc::RtpCodecParameters codecparam;
+    codecparam.name                       = "opus";
+    codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+    codecparam.clock_rate                 = 48000;
+    codecparam.num_channels               = 2;
+    codecparam.parameters["stereo"]       = "1";
+    codecparam.parameters["sprop-stereo"] = "1";
+    params.codecs.push_back(codecparam);
+    receiver->SetParameters(params);
 }
 
 void LLWebRTCImpl::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
@@ -632,11 +645,47 @@ void LLWebRTCImpl::OnSuccess(webrtc::SessionDescriptionInterface *desc)
     std::string sdp;
     desc->ToString(&sdp);
     RTC_LOG(LS_INFO) << sdp;
+;
+    // mangle the sdp as this is the only way currently to bump up
+    // the send audio rate to 48k
+    std::istringstream sdp_stream(sdp);
+    std::ostringstream sdp_mangled_stream;
+    std::string        sdp_line;
+    int                opus_payload = 0;
+    while (std::getline(sdp_stream, sdp_line))
+    {
+        int bandwidth  = 0;
+        int payload_id = 0;
+        // force mono down, stereo up
+        if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
+        {
+            sdp_mangled_stream << sdp_line << "\n";
+            opus_payload = payload_id;
+        }
+        else if (sdp_line.rfind(std::format("a=fmtp:{}", opus_payload)) == 0)
+        {
+            sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
+                               << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000\n";
+        }
+        else
+        {
+            sdp_mangled_stream << sdp_line << "\n";
+        }
+    }
+    
+    webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdp_mangled_stream.str());
 
-    RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
+
+
+    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(
+                                             webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdp_mangled_stream.str())),
+        rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
+    RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_mangled_stream.str();
+
+
     for (auto &observer : mSignalingObserverList)
     {
-        observer->OnOfferAvailable(sdp);
+        observer->OnOfferAvailable(sdp_mangled_stream.str());
     }
 }
 
@@ -669,36 +718,12 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     auto        desc = mPeerConnection->pending_local_description();
     std::string sdp;
     desc->ToString(&sdp);
-    // mangle the sdp as this is the only way currently to bump up
-    // the send audio rate to 48k
-    std::istringstream sdp_stream(sdp);
-    std::ostringstream sdp_mangled_stream;
-    std::string        sdp_line;
-    char               opus_payload[10];
-    while (std::getline(sdp_stream, sdp_line)) {
-        int bandwidth = 0;
-        int payload_id = 0;
-        // force mono down, stereo up
-        if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
-        {
-            sdp_mangled_stream << sdp_line << "\n";
-            sprintf(opus_payload,"%d",payload_id);
-        }
-        else if (sdp_line.rfind(std::string("a=fmtp:") + opus_payload) == 0) 
-        {
-            sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
-                               << " stereo=1;sprop-stereo=0;minptime=10;useinbandfec=1;maxplaybackrate=48000\n";
-        }
-        else
-        {
-            sdp_mangled_stream << sdp_line << "\n";
-        }
-    }
-    RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_mangled_stream.str();
+
+    RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp;
     ;
     for (auto &observer : mSignalingObserverList)
     {
-        observer->OnOfferAvailable(sdp_mangled_stream.str());
+        observer->OnOfferAvailable(sdp);
     }
 }
 
