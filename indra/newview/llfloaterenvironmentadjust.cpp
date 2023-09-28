@@ -495,10 +495,12 @@ void LLFloaterEnvironmentAdjust::updateGammaLabel()
     if (ambiance != 0.f)
     {
         childSetValue("scene_gamma_label", getString("hdr_string"));
+        getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setToolTip(getString("hdr_tooltip"));
     }
     else
     {
         childSetValue("scene_gamma_label", getString("brightness_string"));
+        getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setToolTip(std::string());
     }
 }
 
