@@ -141,6 +141,12 @@ private:
 
     static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
     {
+        if (! lua_checkstack(L, 3))
+        {
+            LL_WARNS("Lua") << "Cannot extend Lua stack to call listen_events() callback"
+                            << LL_ENDL;
+            return false;
+        }
         // push the registered Lua callback function stored in our registry as
         // "event.function"
         lua_getfield(L, LUA_REGISTRYINDEX, "event.function");
@@ -412,12 +418,14 @@ lua_function(set_debug_setting_bool)
 lua_function(get_avatar_name)
 {
     std::string name = gAgentAvatarp->getFullname();
+    luaL_checkstack(L, 1, nullptr);
     lua_pushstring(L, name.c_str());
     return 1;
 }
 
 lua_function(is_avatar_flying)
 {
+    luaL_checkstack(L, 1, nullptr);
     lua_pushboolean(L, gAgent.getFlying());
     return 1;
 }
@@ -471,6 +479,7 @@ void handle_notification_dialog(const LLSD &notification, const LLSD &response, 
     {
         S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
+        luaL_checkstack(L, 1, nullptr);
         lua_pushinteger(L, option);
         lua_setglobal(L, response_cb.c_str());
     }
@@ -607,10 +616,10 @@ lua_function(run_ui_command)
 	return 0;
 }
 
-lua_function(post_on_pump)
+lua_function(post_on)
 {
-    std::string pumpname{ lua_tostring(L, -2) };
-    LLSD data{ lua_tollsd(L, -1) };
+    std::string pumpname{ lua_tostring(L, 1) };
+    LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
     LLEventPumps::instance().obtain(pumpname).post(data);
     return 0;
@@ -622,6 +631,7 @@ lua_function(listen_events)
     {
         return luaL_typeerror(L, 1, "function");
     }
+    luaL_checkstack(L, 2, nullptr);
 
     // Get the lua_State* for the main thread of this state, in case we were
     // called from a coroutine thread. We're going to make callbacks into Lua
@@ -637,6 +647,7 @@ lua_function(listen_events)
     // pop the main thread
     lua_pop(L, 1);
 
+    luaL_checkstack(mainthread, 1, nullptr);
     LuaListener::ptr_t listener;
     // Does the main thread already have a LuaListener stored in the registry?
     // That is, has this Lua chunk already called listen_events()?
@@ -853,6 +864,7 @@ std::string lua_tostdstring(lua_State* L, int index)
 
 void lua_pushstdstring(lua_State* L, const std::string& str)
 {
+    luaL_checkstack(L, 1, nullptr);
     lua_pushlstring(L, str.c_str(), str.length());
 }
 
@@ -944,6 +956,11 @@ LLSD lua_tollsd(lua_State* L, int index)
         // - LLSD::Real with integer value returns as LLSD::Integer.
         // - LLSD::UUID, LLSD::Date and LLSD::URI all convert to Lua string,
         //   and so return as LLSD::String.
+
+        // This is the most important of the luaL_checkstack() calls because a
+        // deeply nested Lua structure will enter this case at each level, and
+        // we'll need another 2 stack slots to traverse each nested table.
+        luaL_checkstack(L, 2, nullptr);
         lua_pushnil(L);             // first key
         if (! lua_next(L, index))
         {
@@ -1092,6 +1109,8 @@ LLSD lua_tollsd(lua_State* L, int index)
 // stack a Lua object corresponding to the passed LLSD object.
 void lua_pushllsd(lua_State* L, const LLSD& data)
 {
+    // might need 2 slots for array or map
+    luaL_checkstack(L, 2, nullptr);
     switch (data.type())
     {
     case LLSD::TypeUndefined:
@@ -1136,15 +1155,13 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     {
         // push a new table with space for array entries
         lua_createtable(L, data.size(), 0);
-        lua_Integer index{ 0 };
+        lua_Integer key{ 0 };
         for (const auto& item: llsd::inArray(data))
         {
-            // push new index value: table at -2, index at -1
-            lua_pushinteger(L, ++index);
-            // push new array value: table at -3, index at -2, value at -1
+            // push new array value: table at -2, value at -1
             lua_pushllsd(L, item);
-            // pop key and value, assign table[key] = value
-            lua_settable(L, -3);
+            // pop value, assign table[key] = value
+            lua_seti(L, -2, ++key);
         }
         break;
     }
@@ -1155,8 +1172,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     case LLSD::TypeURI:
     default:
     {
-        auto strdata{ data.asString() };
-        lua_pushlstring(L, strdata.c_str(), strdata.length());
+        lua_pushstdstring(data.asString());
         break;
     }
     }
