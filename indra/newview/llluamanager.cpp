@@ -32,6 +32,7 @@
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
 #include "llerror.h"
+#include "lleventcoro.h"
 #include "llevents.h"
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
@@ -274,6 +275,7 @@ lua_function(print_debug)
     return 0;
 }
 
+// also used for print(); see LuaState constructor
 lua_function(print_info)
 {
     luaL_where(L, 1);
@@ -675,6 +677,29 @@ lua_function(listen_events)
     lua_pushstdstring(L, listener->getReplyName());
     lua_pushstdstring(L, listener->getCommandName());
     return 2;
+}
+
+lua_function(await_event)
+{
+    // await_event(pumpname [, timeout [, value to return if timeout (default nil)]])
+    auto pumpname{ lua_tostdstring(L, 1) };
+    LLSD result;
+    if (lua_gettop(L) > 1)
+    {
+        auto timeout{ lua_tonumber(L, 2) };
+        // with no 3rd argument, should be LLSD()
+        auto dftval{ lua_tollsd(L, 3) };
+        lua_pop(L, lua_gettop(L));
+        result = llcoro::suspendUntilEventOnWithTimeout(pumpname, timeout, dftval);
+    }
+    else
+    {
+        // no timeout
+        lua_pop(L, 1);
+        result = llcoro::suspendUntilEventOn(pumpname);
+    }
+    lua_pushllsd(L, result);
+    return 1;
 }
 
 /**
