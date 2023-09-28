@@ -2514,6 +2514,7 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
             LL_WARNS("Voice") << "Expected object from data channel:" << data << LL_ENDL;
             return;
         }
+        bool new_participant = false; 
         for (auto &participant_id : voice_data.getMemberNames())
         {
             LLUUID agent_id(participant_id);
@@ -2525,6 +2526,7 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
             participantStatePtr_t participant = findParticipantByID(agent_id);
             if (!participant && voice_data[participant_id].get("j", Json::Value(false)).asBool())
             {
+                new_participant = true;
                 participant = addParticipantByID(agent_id);
             }
 			if (participant)
@@ -2538,9 +2540,16 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
                 participant->mPower = energyRMS;
                 /* WebRTC appears to have deprecated VAD, but it's still in the Audio Processing Module so maybe we
 				   can use it at some point when we actually process frames. */
-                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL;  
+                participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL; 
 			}
         }
+        if (new_participant) 
+		{
+            Json::FastWriter writer;
+            Json::Value      root = getPositionAndVolumeUpdateJson(true);
+            std::string json_data = writer.write(root);
+            mWebRTCDataInterface->sendData(json_data, false);
+		}
     }
 }
 
@@ -4493,7 +4502,7 @@ F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
 	participantStatePtr_t participant(findParticipantByID(id));
 	if (participant)
 	{
-		result = participant->mPower * 3.5;
+		result = participant->mPower * 3.0;
 	}
 	return result;
 }
