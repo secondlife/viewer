@@ -855,11 +855,12 @@ void LLSidepanelTaskInfo::refresh()
 	U8 click_action = 0;
 	if (LLSelectMgr::getInstance()->selectionGetClickAction(&click_action))
 	{
-		LLComboBox*	ComboClickAction = getChild<LLComboBox>("clickaction");
-		if (ComboClickAction)
-		{
-			ComboClickAction->setCurrentByIndex((S32)click_action);
-		}
+        if (click_action > CLICK_ACTION_OPEN_MEDIA)
+        {
+            // Doesn't list media, nor play
+            click_action -= 2;
+        }
+        getChild<LLComboBox>("clickaction")->setCurrentByIndex((S32)click_action);
 	}
 	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
@@ -1143,6 +1144,8 @@ static U8 string_value_to_click_action(std::string p_value)
 		return CLICK_ACTION_ZOOM;
 	if (p_value == "None")
 		return CLICK_ACTION_DISABLED;
+    if (p_value == "Ignore")
+        return CLICK_ACTION_IGNORE;
 	return CLICK_ACTION_TOUCH;
 }
 
