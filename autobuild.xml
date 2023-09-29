@@ -2701,12 +2701,28 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b091b1f13348eedadf66d7d81cb6bc1</string>
+              <string>6db9317ed29ccb00c2f75758f4aa2d4cd8784f46</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/116621/1003286/viewer_manager-3.0.580913-darwin64-580913.tar.bz2</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-83fb46a/viewer_manager-3.0-83fb46a-darwin64-83fb46a.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>426d3b30681b747056027ca21136ae56b188cd47</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-83fb46a/viewer_manager-3.0-83fb46a-linux64-83fb46a.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
@@ -2720,13 +2736,27 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>fe8e9ee00f53f11a7417a7bcf1db069e25dace5d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-83fb46a/viewer_manager-3.0-83fb46a-windows64-83fb46a.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
         <key>source</key>
         <string>https://bitbucket.org/lindenlab/vmp-standalone</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>3.0.580913</string>
+        <string>3.0-83fb46a</string>
       </map>
       <key>vlc-bin</key>
       <map>
