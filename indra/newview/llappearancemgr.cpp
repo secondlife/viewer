@@ -2776,9 +2776,33 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
     else
 	{
 		selfStartPhase("wear_inventory_category_fetch");
-		callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
-															   &LLAppearanceMgr::instance(),
-															   category->getUUID(), copy, append));
+        if (AISAPI::isAvailable() && category->getPreferredType() == LLFolderType::FT_OUTFIT)
+        {
+            // for reliability just fetch it whole, linked items included
+            LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)category;
+            LLUUID cat_id = category->getUUID();
+            cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+            AISAPI::FetchCategoryLinks(cat_id,
+                                       [cat_id, copy, append](const LLUUID& id)
+                                       {
+                                           LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+                                           if (cat)
+                                           {
+                                               cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+                                           }
+                                           if (id.isNull())
+                                           {
+                                               LL_WARNS() << "failed to fetch category, attempting to wear as is " << cat_id << LL_ENDL;
+                                           }
+                                           LLAppearanceMgr::instance().wearCategoryFinal(cat_id, copy, append);
+                                       });
+        }
+        else
+        {
+            callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+                                                                    &LLAppearanceMgr::instance(),
+                                                                    category->getUUID(), copy, append));
+        }
 	}
 }
 
@@ -2787,7 +2811,7 @@ S32 LLAppearanceMgr::getActiveCopyOperations() const
 	return LLCallAfterInventoryCopyMgr::getInstanceCount(); 
 }
 
-void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
+void LLAppearanceMgr::wearCategoryFinal(const LLUUID& cat_id, bool copy_items, bool append)
 {
 	LL_INFOS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 
