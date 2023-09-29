@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="機器の設定" name="device_settings_panel">
 	<panel.string name="default_text">
 		デフォルト
 	</panel.string>
 	<string name="name_no_device">
-		機器が設定されていません
+		機器が設定されていません。
 	</string>
 	<string name="name_default_system_device">
 		デフォルトのシステム機器
@@ -16,9 +16,9 @@
 		出力
 	</text>
 	<text name="My volume label">
-		マイク音量:
+		マイク音量：
 	</text>
-	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します"/>
+	<slider_bar name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します。"/>
 	<text name="wait_text">
 		しばらくお待ちください。
 	</text>

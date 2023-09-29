@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="deletable_wearable_item">
-	<button name="btn_delete" tool_tip="アウトフィットから取り除く"/>
-	<text name="item_name" value="..."/>
+	<icon name="hovered_icon"/>
+	<icon name="selected_icon"/>
+	<button name="btn_delete" tool_tip="アウトフィットから削除"/>
+	<icon name="item_icon"/>
+	<text name="item_name" value="…"/>
+	<icon name="wearable_type_separator_icon"/>
 </panel>

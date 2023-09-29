@@ -4,6 +4,6 @@
 	<button label="新規…" name="new_btn"/>
 	<button label="削除…" name="delete_btn"/>
 	<text name="classifieds_panel_text">
-		ロード中...
+		読み込んでいます…
 	</text>
 </panel>

@@ -237,6 +237,59 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 	return FALSE;
 }
 
+void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXformMatrix& currentTransform)
+{
+	// Get coordinates of the adding extents
+	const LLVector4a& min = addingExtents[0];
+	const LLVector4a& max = addingExtents[1];
+
+	// Get coordinates of all corners of the bounding box
+	LLVector3 corners[] =
+	{
+		LLVector3(min[0], min[1], min[2]),
+		LLVector3(min[0], min[1], max[2]),
+		LLVector3(min[0], max[1], min[2]),
+		LLVector3(min[0], max[1], max[2]),
+		LLVector3(max[0], min[1], min[2]),
+		LLVector3(max[0], min[1], max[2]),
+		LLVector3(max[0], max[1], min[2]),
+		LLVector3(max[0], max[1], max[2])
+	};
+
+	// New extents (to be expanded)
+	LLVector3 extents[] =
+	{
+		LLVector3(mExtents[0].getF32ptr()),
+		LLVector3(mExtents[1].getF32ptr())
+	};
+
+	LLQuaternion backwardRotation = ~currentTransform.getRotation();
+	for (LLVector3& corner : corners)
+	{
+		// Make coordinates relative to the current position
+		corner -= currentTransform.getPosition();
+		// Rotate coordinates backward to the current rotation
+		corner.rotVec(backwardRotation);
+		// Expand root extents on the current corner
+		for (int j = 0; j < 3; ++j)
+		{
+			if (corner[j] < extents[0][j])
+				extents[0][j] = corner[j];
+			if (corner[j] > extents[1][j])
+				extents[1][j] = corner[j];
+		}
+	}
+
+	// Set new expanded extents
+	mExtents[0].load3(extents[0].mV);
+	mExtents[1].load3(extents[1].mV);
+
+	// Calculate new center and size
+	mBounds[0].setAdd(mExtents[0], mExtents[1]);
+	mBounds[0].mul(0.5f);
+	mBounds[1].setSub(mExtents[0], mExtents[1]);
+	mBounds[1].mul(0.5f);
+}
 
 BOOL LLSpatialGroup::addObject(LLDrawable *drawablep)
 {
@@ -1247,17 +1300,8 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
-
-	llassert(pos.isFinite());
-	llassert(size.isFinite());
-
-	llassert(!llisnan(pos.mV[0]));
-	llassert(!llisnan(pos.mV[1]));
-	llassert(!llisnan(pos.mV[2]));
-
-	llassert(!llisnan(size.mV[0]));
-	llassert(!llisnan(size.mV[1]));
-	llassert(!llisnan(size.mV[2]));
+    if (!pos.isFinite() || !size.isFinite())
+        return;
 
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
@@ -1572,6 +1616,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 //  - a linked rigged drawable face has the wrong draw order index
 bool check_rigged_group(LLDrawable* drawable)
 {
+#if 0
     if (drawable->isState(LLDrawable::RIGGED))
     {
         LLSpatialGroup* group = drawable->getSpatialGroup();
@@ -1619,7 +1664,7 @@ bool check_rigged_group(LLDrawable* drawable)
             }
         }
     }
-
+#endif
     return true;
 }
 
@@ -3950,6 +3995,11 @@ public:
 
 			if (vobj)
 			{
+				if (vobj->getClickAction() == CLICK_ACTION_IGNORE && !LLFloater::isVisible(gFloaterTools))
+				{
+					return false;
+				}
+
 				LLVector4a intersection;
 				bool skip_check = false;
 				if (vobj->isAvatar())

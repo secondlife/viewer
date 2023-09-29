@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
+	<defaultlabel>
+		（不明）
+	</defaultlabel>
+	<defaultwidget>
+		なし
+	</defaultwidget>
 	<widgetset name="web">
 		<label name="web_label">
-			Web コンテンツ
+			Webコンテンツ
 		</label>
 		<tooltip name="web_tooltip">
-			このロケーションには Web コンテンツが含まれています
+			この場所には、Webコンテンツが含まれています。
 		</tooltip>
 		<playtip name="web_playtip">
 			Web コンテンツを表示する
@@ -16,7 +22,7 @@
 			ムービー
 		</label>
 		<tooltip name="movie_tooltip">
-			ここにはムービーがあります
+			この場所には、ムービーがあります。
 		</tooltip>
 		<playtip name="movie_playtip">
 			ムービーを再生する
@@ -27,10 +33,10 @@
 			画像
 		</label>
 		<tooltip name="image_tooltip">
-			このロケーションには画像があります
+			この場所には、画像があります
 		</tooltip>
 		<playtip name="image_playtip">
-			このロケーションの画像を表示する
+			この場所の画像を表示する
 		</playtip>
 	</widgetset>
 	<widgetset name="audio">
@@ -38,10 +44,10 @@
 			オーディオ
 		</label>
 		<tooltip name="audio_tooltip">
-			このロケーションにはオーディオがあります
+			この場所には、オーディオがあります。
 		</tooltip>
 		<playtip name="audio_playtip">
-			このロケーションのオーディオを再生する
+			この場所のオーディオを再生する
 		</playtip>
 	</widgetset>
 	<widgetset name="none">
@@ -49,7 +55,7 @@
 			コンテンツなし
 		</label>
 		<tooltip name="none_tooltip">
-			ここにメディアなし
+			この場所には、メディアがありません。
 		</tooltip>
 	</widgetset>
 	<scheme name="rtsp">
@@ -59,12 +65,12 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			- なし -
+			─なし─
 		</label>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			- なし -
+			─なし─
 		</label>
 	</mimetype>
 	<mimetype name="audio/*">
@@ -89,22 +95,22 @@
 	</mimetype>
 	<mimetype name="application/javascript">
 		<label name="application/javascript_label">
-			Javascript
+			JavaScript
 		</label>
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
-			Ogg オーディオ・ビデオ
+			Oggオーディオ／ビデオ
 		</label>
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">
-			PDF ドキュメント
+			PDFドキュメント
 		</label>
 	</mimetype>
 	<mimetype name="application/postscript">
 		<label name="application/postscript_label">
-			Postscript ドキュメント
+			PostScriptドキュメント
 		</label>
 	</mimetype>
 	<mimetype name="application/rtf">
@@ -114,17 +120,17 @@
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
-			Synchronized Multimedia Integration Language （SMIL）
+			同期マルチメディア統合言語（SMIL）
 		</label>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			Web ページ（XHTML）
+			Webページ（XHTML）
 		</label>
 	</mimetype>
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
-			マクロメディアディレクター
+			Macromedia Director
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -179,7 +185,7 @@
 	</mimetype>
 	<mimetype name="text/html">
 		<label name="text/html_label">
-			Web ページ
+			Webページ
 		</label>
 	</mimetype>
 	<mimetype name="text/plain">
@@ -209,12 +215,12 @@
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
-			ムービー（Windows Media ASF)
+			ムービー（Windows Media ASF）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
-			ムービー（Windows Media WMV)
+			ムービー（Windows Media WMV）
 		</label>
 	</mimetype>
 	<mimetype name="video/x-msvideo">

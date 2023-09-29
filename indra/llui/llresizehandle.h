@@ -45,6 +45,7 @@ public:
 		Params();
 	};
 
+    ~LLResizeHandle();
 protected:
 	LLResizeHandle(const LLResizeHandle::Params&);
 	friend class LLUICtrlFactory;

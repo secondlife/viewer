@@ -233,7 +233,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
 	<string name="TooltipFlagGroupBuild">Group Build</string>
 	<string name="TooltipFlagNoBuild">No Build</string>
-	<string name="TooltipFlagNoEdit">Group Build</string>
+	<string name="TooltipFlagNoEdit">No Edit</string>
 	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
 	<string name="TooltipFlagNoFly">No Fly</string>
 	<string name="TooltipFlagGroupScripts">Group Scripts</string>
@@ -3932,6 +3932,8 @@ Abuse Report</string>
 
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+  <string name="texture_load_format_error">Incorrect image format.</string>
+  <string name="texture_load_empty_file">File is empty.</string>
   <string name="outfit_photo_load_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please resize or use another image</string>
   <string name="outfit_photo_select_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please select another texture</string>
   <string name="outfit_photo_verify_dimensions_error">Cannot verify photo dimensions. Please wait until photo size is displayed in picker</string>

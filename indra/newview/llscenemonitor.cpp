@@ -657,19 +657,6 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
 			}
 		}
 
-		typedef LLTrace::StatType<LLTrace::MemAccumulator> trace_mem;
-		for (auto& it : trace_mem::instance_snapshot())
-		{
-			os << it.getName() << "(KiB)";
-
-			for (S32 frame = 1; frame <= frame_count; frame++)
-			{
-				os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(it).valueInUnits<LLUnits::Kilobytes>();
-			}
-
-			os << '\n';
-		}
-
 		os.flush();
 		os.close();
 	}

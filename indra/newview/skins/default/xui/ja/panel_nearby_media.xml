@@ -16,15 +16,15 @@
 		（再生中）
 	</string>
 	<panel name="minimized_controls">
-		<button label="すべて停止" name="all_nearby_media_disable_btn" tool_tip="近くのメディアをすべてオフにします"/>
-		<button label="すべて開始" name="all_nearby_media_enable_btn" tool_tip="近くのメディアをすべてオンにします"/>
+		<button label="すべて停止" name="all_nearby_media_disable_btn" tool_tip="近隣のメディアをすべてオフにします"/>
+		<button label="すべて開始" name="all_nearby_media_enable_btn" tool_tip="近隣のメディアをすべてオンにします"/>
 		<button name="open_prefs_btn" tool_tip="メディアの設定を開きます"/>
-		<button label="詳細 &gt;&gt;" label_selected="&lt;&lt; 簡易" name="more_btn" tool_tip="アドバンスコントロール"/>
-		<button label="詳細 &gt;&gt;" label_selected="簡易 &lt;&lt;" name="less_btn" tool_tip="アドバンスコントロール"/>
+		<button label="詳細　≫" label_selected="≪　簡易" name="more_btn" tool_tip="拡張コントロール"/>
+		<button label="詳細　≫" label_selected="≪　簡易" name="less_btn" tool_tip="拡張コントロール"/>
 	</panel>
 	<panel name="nearby_media_panel">
 		<text name="nearby_media_title">
-			近くのメディア
+			近隣のメディア
 		</text>
 		<text name="show_text">
 			表示：
@@ -54,7 +54,7 @@
 					<button name="pause_btn" tool_tip="選択したメディアを一時停止"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
-					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="選択したメディアの音量"/>
+					<slider_bar name="volume_slider" tool_tip="選択したメディアの音量"/>
 				</layout_panel>
 				<layout_panel name="mute">
 					<button name="mute_btn" tool_tip="選択したメディアの音をミュート"/>

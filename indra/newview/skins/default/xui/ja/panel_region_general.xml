@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="地域" name="General">
+<panel label="リージョン（地域）" name="General">
 	<text name="region_text_lbl">
-		地域：
+		リージョン（地域）：
 	</text>
 	<text left_delta="70" name="region_text">
 		未知
 	</text>
-	<text name="version_channel_text_lbl" width="100">
+	<text name="version_channel_text_lbl">
 		バージョン：
 	</text>
 	<text left_delta="70" name="version_channel_text">
@@ -37,8 +37,8 @@
 		<icons_combo_box.item label="General" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="適用" name="apply_btn"/>
-	<button label="住人 1 名をホームにテレポート..." name="kick_btn"/>
-	<button label="住人全員をホームにテレポート..." name="kick_all_btn"/>
-	<button label="メッセージを地域に送信..." name="im_btn"/>
-	<button label="テレハブの管理..." name="manage_telehub_btn"/>
+	<button label="住人 1 名をホームにテレポート…" name="kick_btn"/>
+	<button label="住人全員をホームにテレポート…" name="kick_all_btn"/>
+	<button label="メッセージを地域に送信…" name="im_btn"/>
+	<button label="テレハブの管理…" name="manage_telehub_btn"/>
 </panel>

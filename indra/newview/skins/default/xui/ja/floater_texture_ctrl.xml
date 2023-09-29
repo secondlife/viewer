@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="texture picker" title="テクスチャの選択">
 	<floater.string name="choose_picture">
-		クリックして写真を選択
+		クリックして画像を選択
 	</floater.string>
 	<floater.string name="pick title">
-		ピック:
+		ピック：
 	</floater.string>
 	<text name="Multiple">
 		複数のテクスチャ
@@ -18,14 +18,14 @@
 	<button label="なし" label_selected="なし" name="None"/>
 	<button label="" label_selected="" name="Pipette"/>
 	<text name="preview_disabled" value="プレビュー無効"/>
-	<filter_editor label="テクスチャをフィルター" name="inventory search editor"/>
+	<filter_editor label="テクスチャをフィルタ" name="inventory search editor"/>
 	<check_box initial_value="false" label="フォルダを表示" name="show_folders_check"/>
 	<button label="追加" label_selected="追加" name="l_add_btn"/>
 	<button label="削除" label_selected="削除" name="l_rem_btn"/>
 	<button label="アップロード" label_selected="アップロード" name="l_upl_btn"/>
 	<scroll_list name="l_name_list">
 		<column label="名前" name="unit_name"/>
-		<column label="ID" name="unit_id_HIDDEN"/>
+		<column label="ＩＤ" name="unit_id_HIDDEN"/>
 	</scroll_list>
 	<combo_box name="l_bake_use_texture_combo_box" tool_tip="構築（ベーク）するテクスチャを選択">
 		<combo_box.item label="なし" name="None"/>
@@ -42,7 +42,7 @@
 		<combo_box.item label="BAKED_AUX3" name="BAKED_AUX3"/>
 	</combo_box>
 	<check_box initial_value="false" label="基本となるメッシュリージョンを隠す" name="hide_base_mesh_region"/>
-	<button label="OK" label_selected="OK" name="Select"/>
-	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<button label="ＯＫ" label_selected="ＯＫ" name="Select"/>
+	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<check_box initial_value="true" label="今すぐ適用" name="apply_immediate_check"/>
 </floater>

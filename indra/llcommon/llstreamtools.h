@@ -27,8 +27,10 @@
 #ifndef LL_STREAM_TOOLS_H
 #define LL_STREAM_TOOLS_H
 
+#include <deque>
 #include <iostream>
 #include <string>
+#include <vector>
 
 // unless specifed otherwise these all return input_stream.good()
 
@@ -113,6 +115,27 @@ LL_COMMON_API std::streamsize fullread(
 
 LL_COMMON_API std::istream& operator>>(std::istream& str, const char *tocheck);
 
+/**
+ * cat_streambuf is a std::streambuf subclass that accepts a variadic number
+ * of std::streambuf* (e.g. some_istream.rdbuf()) and virtually concatenates
+ * their contents.
+ */
+// derived from https://stackoverflow.com/a/49441066/5533635
+class cat_streambuf: public std::streambuf
+{
+private:
+    std::deque<std::streambuf*> mInputs;
+    std::vector<char> mBuffer;
+
+public:
+    // only valid for std::streambuf* arguments
+    template <typename... Inputs>
+    cat_streambuf(Inputs... inputs):
+        mInputs{inputs...},
+        mBuffer(1024)
+    {}
+
+    int underflow() override;
+};
+
 #endif
-
-
