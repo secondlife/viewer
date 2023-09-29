@@ -13,27 +13,24 @@
 	<text name="ItemcountText">
 		Articles :
 	</text>
-	<filter_editor label="Saisir ici le texte de la recherche" name="inventory search editor"/>
-	<combo_box name="search_type">
-		<item label="Nom" name="Name" value="search_by_name"/>
-		<item label="Créateur" name="Creator" value="search_by_creator"/>
-		<item label="Description" name="Description" value="search_by_description"/>
-		<item label="UUID" name="UUID" value="search_by_UUID"/>
-	</combo_box>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="MON INVENTAIRE" name="All Items"/>
-		<recent_inventory_panel label="RÉCENT" name="Recent Items"/>
-		<inventory_panel label="PORTÉ" name="Worn Items"/>
-	</tab_container>
-	<layout_stack name="bottom_panel">
-		<layout_panel name="options_gear_btn_panel">
-			<menu_button name="options_gear_btn" tool_tip="Afficher d&apos;autres options"/>
-		</layout_panel>
-		<layout_panel name="add_btn_panel">
-			<button name="add_btn" tool_tip="Ajouter un nouvel article"/>
-		</layout_panel>
-		<layout_panel name="trash_btn_panel">
-			<dnd_button name="trash_btn" tool_tip="Supprimer l&apos;article sélectionné"/>
-		</layout_panel>
-	</layout_stack>
+    <layout_stack name="top_stack">
+        <layout_panel name="filter_layout_panel">
+            <combo_box name="search_type">
+                <item label="Nom" name="Name" value="search_by_name"/>
+                <item label="Créateur" name="Creator" value="search_by_creator"/>
+                <item label="Description" name="Description" value="search_by_description"/>
+                <item label="UUID" name="UUID" value="search_by_UUID"/>
+            </combo_box>
+            <filter_editor label="Saisir ici le texte de la recherche" name="inventory search editor"/>
+            <menu_button name="options_gear_btn" tool_tip="Afficher d&apos;autres options"/>
+            <button name="add_btn" tool_tip="Ajouter un nouvel article"/>
+        </layout_panel>
+    </layout_stack>
+    <panel name="default_inventory_panel">
+        <tab_container name="inventory filter tabs">
+            <inventory_panel label="MON INVENTAIRE" name="All Items"/>
+            <recent_inventory_panel label="RÉCENT" name="Recent Items"/>
+            <inventory_panel label="PORTÉ" name="Worn Items"/>
+        </tab_container>
+    </panel>
 </panel>
