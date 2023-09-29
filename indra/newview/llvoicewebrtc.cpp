@@ -2524,9 +2524,10 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
                 continue;
             }
             participantStatePtr_t participant = findParticipantByID(agent_id);
-            if (!participant && voice_data[participant_id].get("j", Json::Value(false)).asBool())
+            bool joined = voice_data[participant_id].get("j", Json::Value(false)).asBool();
+            new_participant |= joined;
+            if (!participant && joined)
             {
-                new_participant = true;
                 participant = addParticipantByID(agent_id);
             }
 			if (participant)
