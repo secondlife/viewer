@@ -92,7 +92,7 @@ void LLHeroProbeManager::update()
     {
         U32 res = mProbeResolution;
         U32 count = log2((F32)res) + 0.5f;
-        
+
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
@@ -102,80 +102,44 @@ void LLHeroProbeManager::update()
     }
 
     llassert(mProbes[0] == mDefaultProbe);
-    
+
     LLVector4a probe_pos;
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
     if (mHeroVOList.size() > 0)
     {
+        if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
         {
-            if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
-            {
+            U8        mode     = mNearestHero->mirrorPlacementMode();
+            mode    = llmin(mNearestHero->mDrawable->getNumFaces() - 1, mode);
 
-                LLVector3 hero_pos = mNearestHero->mDrawable->getFace(mNearestHero->mirrorPlacementMode())->getPositionAgent();
-                
-                LLVector4a hit_pos;
-                LLVector3 focus_point;
-                LLQuaternion camera_rot;
-                F32 angleInRadians = 180 * DEG_TO_RAD;
+            LLFace   *face     = mNearestHero->mDrawable->getFace(mode);
+            LLVector3 hero_pos = face->getPositionAgent();
 
-                LLMatrix4 rotationMatrix;
-                
-                rotationMatrix.rotate(angleInRadians, LLVector4(mNearestHero->mDrawable->getFace(mNearestHero->mirrorPlacementMode())->getAverageNormal()));
 
-                LLVector3 translatedPoint;
-                LLVector3 rotatedTranslatedPoint;
-                LLVector3 rotatedPoint;
-                
-                translatedPoint = camera_pos - hero_pos;
-                rotatedTranslatedPoint = translatedPoint * rotationMatrix;
-                rotatedPoint = rotatedTranslatedPoint + hero_pos;
-                
-                probe_pos.load3(rotatedPoint.mV);
+            // Calculate the average normal.
+            LLVector4a *posp = face->getViewerObject()->getVolume()->getVolumeFace(face->getTEOffset()).mPositions;
+            U16        *indp = face->getViewerObject()->getVolume()->getVolumeFace(face->getTEOffset()).mIndices;
+            // get first three vertices (first triangle)
+            LLVector4a v0 = posp[indp[0]];
+            LLVector4a   v1 = posp[indp[1]];
+            LLVector4a   v2 = posp[indp[2]];
 
-                /*
-                switch (mNearestHero->mirrorPlacementMode()) {
-                    case 0:
-                        
-                        hero_pos.mV[1] = camera_pos.mV[1];
-                        
-                        rotationMatrix.rotate(angleInRadians, LLVector4(1, 0, 0, 0));
-                        
-                        translatedPoint = camera_pos - hero_pos;
-                        rotatedTranslatedPoint = translatedPoint * rotationMatrix;
-                        rotatedPoint = rotatedTranslatedPoint + hero_pos;
-                        
-                        probe_pos.load3(rotatedPoint.mV);
-                        break;
-                    case 1:
-                        
-                        hero_pos.mV[2] = camera_pos.mV[2];
-                        
-                        rotationMatrix.rotate(angleInRadians, LLVector4(0, 1, 0, 0));
-                        
-                        translatedPoint = camera_pos - hero_pos;
-                        rotatedTranslatedPoint = translatedPoint * rotationMatrix;
-                        rotatedPoint = rotatedTranslatedPoint + hero_pos;
-                        
-                        probe_pos.load3(rotatedPoint.mV);
-                        break;
-                    case 2:
-                        
-                        hero_pos.mV[0] = camera_pos.mV[0];
-                        
-                        rotationMatrix.rotate(angleInRadians, LLVector4(0, 0, 1, 0));
-                        
-                        translatedPoint = camera_pos - hero_pos;
-                        rotatedTranslatedPoint = translatedPoint * rotationMatrix;
-                        rotatedPoint = rotatedTranslatedPoint + hero_pos;
-                        
-                        probe_pos.load3(rotatedPoint.mV);
-                        break;
-                }
-                 */
-            }
-            
-            mHeroProbeStrength = 1;
+            v1.sub(v0);
+            v2.sub(v0);
+            LLVector3 face_normal = LLVector3(v1[0], v1[1], v1[2]) % LLVector3(v2[0], v2[1], v2[2]);
+
+            face_normal.normalize();
+            face_normal *= face->getXform()->getWorldRotation();
+
+            LLVector3 offset = camera_pos - hero_pos;
+            LLVector3 project = face_normal * (offset * face_normal);
+            LLVector3 reject  = offset - project;
+            LLVector3 point   = (reject - project) + hero_pos;
+
+            probe_pos.load3(point.mV);
         }
+            
+        mHeroProbeStrength = 1;
     }
     else
     {
