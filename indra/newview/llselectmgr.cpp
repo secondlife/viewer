@@ -2420,6 +2420,38 @@ void LLSelectMgr::selectionSetFullbright(U8 fullbright)
 	getSelection()->applyToObjects(&sendfunc);
 }
 
+void LLSelectMgr::selectionSetMirror(U8 mirror)
+{
+    struct f1 : public LLSelectedTEFunctor
+    {
+        U8 mMirror;
+        f1(U8 mirror) : mMirror(mirror) {};
+        bool apply(LLViewerObject *object, S32 face)
+        {
+            if (object->permModify())
+            {
+                // update viewer side color in anticipation of update from simulator
+                object->setTEMirror(face, mMirror);
+            }
+            return true;
+        }
+    } func1(mirror);
+    mSelectedObjects->applyToTEs(&func1);
+
+    struct f2 : public LLSelectedObjectFunctor
+    {
+        virtual bool apply(LLViewerObject *object)
+        {
+            if (object->permModify())
+            {
+                object->sendTEUpdate();
+            }
+            return true;
+        }
+    } func2;
+    mSelectedObjects->applyToObjects(&func2);
+}
+
 // This function expects media_data to be a map containing relevant
 // media data name/value pairs (e.g. home_url, etc.)
 void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)

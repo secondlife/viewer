@@ -2412,15 +2412,6 @@ even though the user gets a free copy.
              width="278" />
             <check_box
              height="16"
-             label="Mirror"
-             layout="topleft"
-             left="10"
-             name="Mirror Checkbox Ctrl"
-             tool_tip="Causes object to be a mirror"
-             top_pad="8"
-             width="60" />
-            <check_box
-             height="16"
              label="Light"
              layout="topleft"
              left="10"

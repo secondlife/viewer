@@ -377,6 +377,15 @@ S32 LLPrimTextureList::setMaterialParams(const U8 index, const LLMaterialPtr pMa
 	return TEM_CHANGE_NONE;
 }
 
+S32 LLPrimTextureList::setMirror(const U8 index, const U8 mirror)
+{
+    if (index < mEntryList.size())
+    {
+        return mEntryList[index]->setMirror(mirror);
+    }
+    return TEM_CHANGE_NONE;
+}
+
 LLMaterialPtr LLPrimTextureList::getMaterialParams(const U8 index)
 {
 	if (index < mEntryList.size())

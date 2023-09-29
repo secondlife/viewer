@@ -304,7 +304,8 @@ BOOL	LLPanelFace::postBuild()
 
 	LLComboBox*		mComboTexGen;
 
-	LLCheckBoxCtrl	*mCheckFullbright;
+	LLCheckBoxCtrl *mCheckFullbright;
+    LLCheckBoxCtrl *mCheckMirror;
 	
 	LLTextBox*		mLabelColorTransp;
 	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
@@ -428,6 +429,12 @@ BOOL	LLPanelFace::postBuild()
 	{
 		mCheckFullbright->setCommitCallback(LLPanelFace::onCommitFullbright, this);
 	}
+
+    mCheckMirror = getChild<LLCheckBoxCtrl>("checkbox mirror");
+    if (mCheckMirror)
+    {
+        mCheckMirror->setCommitCallback(LLPanelFace::onCommitMirror, this);
+    }
 
 	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 	if(mComboTexGen)
@@ -606,6 +613,15 @@ void LLPanelFace::sendFullbright()
 	if(!mCheckFullbright)return;
 	U8 fullbright = mCheckFullbright->get() ? TEM_FULLBRIGHT_MASK : 0;
 	LLSelectMgr::getInstance()->selectionSetFullbright( fullbright );
+}
+
+void LLPanelFace::sendMirror()
+{
+    LLCheckBoxCtrl *mCheckMirror = getChild<LLCheckBoxCtrl>("checkbox mirror");
+    if (!mCheckMirror)
+        return;
+    U8 mirror = mCheckMirror->get() ? 1 : 0;
+    LLSelectMgr::getInstance()->selectionSetMirror(mirror);
 }
 
 void LLPanelFace::sendColor()
@@ -1619,6 +1635,15 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             mComboMatMedia->setEnabledByValue("Materials", !has_pbr_material);
 		}
 		
+        {
+            U8   mirror         = 0;
+            bool identical_mirror = false;
+            LLSelectedTE::getMirror(mirror, identical_mirror);
+            getChild<LLUICtrl>("checkbox mirror")->setValue(mirror);
+            getChildView("checkbox mirror")->setEnabled(editable);
+            getChild<LLUICtrl>("checkbox mirror")->setTentative(!identical_mirror);
+        }
+
 		// Repeats per meter
 		{
 			F32 repeats_diff = 1.f;
@@ -3140,6 +3165,13 @@ void LLPanelFace::onCommitFullbright(LLUICtrl* ctrl, void* userdata)
 }
 
 // static
+void LLPanelFace::onCommitMirror(LLUICtrl *ctrl, void *userdata)
+{
+    LLPanelFace *self = (LLPanelFace *) userdata;
+    self->sendMirror();
+}
+
+// static
 void LLPanelFace::onCommitGlow(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
@@ -4179,6 +4211,12 @@ void LLPanelFace::onPasteColor(LLViewerObject* objectp, S32 te)
             if (te_data["te"].has("glow"))
             {
                 objectp->setTEGlow(te, (F32)te_data["te"]["glow"].asReal());
+            }
+
+            // Mirror
+            if (te_data["te"].has("mirror"))
+            {
+                objectp->setTEMirror(te, te_data["te"]["glow"].asInteger());
             }
         }
     }

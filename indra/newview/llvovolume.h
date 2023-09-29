@@ -211,7 +211,8 @@ public:
 	/*virtual*/ S32		setTEFullbright(const U8 te, const U8 fullbright) override;
 	/*virtual*/ S32		setTEBumpShinyFullbright(const U8 te, const U8 bump) override;
 	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags) override;
-	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow) override;
+    /*virtual*/ S32     setTEGlow(const U8 te, const F32 glow) override;
+    /*virtual*/ S32     setTEMirror(const U8 te, const U8 mirror) override;
 	/*virtual*/ S32		setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID) override;
 	
 	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);

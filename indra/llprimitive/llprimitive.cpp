@@ -414,6 +414,11 @@ S32 LLPrimitive::setTEGlow(const U8 index, const F32 glow)
 	return mTextureList.setGlow(index, glow);
 }
 
+S32 LLPrimitive::setTEMirror(const U8 index, const U8 mirror)
+{
+	return mTextureList.setMirror(index, mirror);
+}
+
 void LLPrimitive::setAllTESelected(bool sel)
 {
 	for (int i = 0, cnt = getNumTEs(); i < cnt; i++)
@@ -1213,6 +1218,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+    U8     mirror[MAX_TES];
 	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
@@ -1251,6 +1257,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
 			glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+            mirror[face_index] = te->getMirror();
 
 			// Directly sending material_ids is not safe!
 			memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);	/* Flawfinder: ignore */ 
@@ -1277,6 +1284,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
+        *cur_ptr++ = 0;
+        cur_ptr += packTEField(cur_ptr, (U8 *) mirror, 1, last_face_index, MVT_U8);
 	}
    	mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
@@ -1298,6 +1307,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
+    U8     mirror[MAX_TES];
 	U8     material_data[MAX_TES*16];
 	
 	const U32 MAX_TE_BUFFER = 4096;
@@ -1336,6 +1346,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+            mirror[face_index] = te->getMirror();
 
 			// Directly sending material_ids is not safe!
 			memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);	/* Flawfinder: ignore */ 
@@ -1361,7 +1372,9 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
-		cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, (U8 *) material_data, 16, last_face_index, MVT_LLUUID);
+        *cur_ptr++ = 0;
+        cur_ptr += packTEField(cur_ptr, (U8 *) mirror, 1, last_face_index, MVT_U8);
 	}
 
 	dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
@@ -1454,6 +1467,7 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEMediaTexGen(i, tec.media_flags[i]);
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, tec.material_ids[i]);
+        retval |= setTEMirror(i, tec.mirror[i]);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
 		// as all zeros.  However, the subtraction and addition must be done in unsigned
@@ -1502,6 +1516,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     U8          media_flags[MAX_TES];
     U8          glow[MAX_TES];
     material_id_type material_data[MAX_TES];
+    U8          mirror[MAX_TES];
     
     memset((void*)scale_s, 0, sizeof(scale_s));
     memset((void*)scale_t, 0, sizeof(scale_t));
@@ -1511,6 +1526,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     memset((void*)bump, 0, sizeof(bump));
     memset((void*)media_flags, 0, sizeof(media_flags));
     memset((void*)glow, 0, sizeof(glow));
+    memset((void*) mirror, 0, sizeof(mirror));
 
 	S32 size;
 	U32 face_count = 0;
@@ -1552,7 +1568,8 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
             unpack_TEField<S16>(image_rot, face_count, cur_ptr, buffer_end, MVT_S16) &&
             unpack_TEField<U8>(bump, face_count, cur_ptr, buffer_end, MVT_U8) &&
             unpack_TEField<U8>(media_flags, face_count, cur_ptr, buffer_end, MVT_U8) &&
-            unpack_TEField<U8>(glow, face_count, cur_ptr, buffer_end, MVT_U8)))
+            unpack_TEField<U8>(glow, face_count, cur_ptr, buffer_end, MVT_U8) &&
+			unpack_TEField<U8>(mirror, face_count, cur_ptr, buffer_end, MVT_U8)))
     {
         LL_WARNS("TEXTUREENTRY") << "Failure parsing Texture Entry Message due to malformed TE Field! Dropping changes on the floor. " << LL_ENDL;
         return 0;
@@ -1579,6 +1596,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, material_ids[i]);
+        retval |= setTEMirror(i, mirror[i]);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
 		// as all zeros.  However, the subtraction and addition must be done in unsigned

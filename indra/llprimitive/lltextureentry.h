@@ -134,6 +134,8 @@ public:
     S32  setGlow(F32 glow);
 	S32  setMaterialID(const LLMaterialID& pMaterialID);
 	S32  setMaterialParams(const LLMaterialPtr pMaterialParams);
+
+	S32  setMirror(U8 mirror);
     
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
@@ -162,6 +164,8 @@ public:
     F32  getGlow() const { return mGlow; }
 	const LLMaterialID& getMaterialID() const { return mMaterialID; };
 	const LLMaterialPtr getMaterialParams() const { return mMaterial; };
+
+	U8 getMirror() const { return mMirror; }
 
     // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
     // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
@@ -237,6 +241,7 @@ protected:
 	bool                mMaterialUpdatePending;
 	LLMaterialID        mMaterialID;
 	LLMaterialPtr		mMaterial;
+    U8					mMirror;
     
     // Reference to GLTF material asset state
     // On the viewer, this should be the same LLGLTFMaterial instance that exists in LLGLTFMaterialList

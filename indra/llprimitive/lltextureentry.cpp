@@ -319,6 +319,12 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
         }
     }
 
+	w = "mirror";
+	if (sd.has(w))
+	{
+        setMirror((U8) sd[w].asInteger());
+	}
+
 	return true;
 fail:
 	return false;
@@ -687,6 +693,13 @@ S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 	mMaterial = pMaterialParams;
     
 	return TEM_CHANGE_TEXTURE;
+} 
+
+S32 LLTextureEntry::setMirror(const U8 mirror)
+{
+    mMirror = mirror;
+
+    return TEM_CHANGE_TEXTURE;
 }
 
 void LLTextureEntry::setMediaData(const LLMediaEntry &media_entry)

@@ -2412,6 +2412,21 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 	return  res;
 }
 
+S32 LLVOVolume::setTEMirror(const U8 te, const U8 mirror)
+{
+    S32 res = LLViewerObject::setTEMirror(te, mirror);
+    if (res)
+    {
+        if (mDrawable)
+        {
+            gPipeline.markTextured(mDrawable);
+            shrinkWrap();
+        }
+        mFaceMappingChanged = TRUE;
+    }
+    return res;
+}
+
 void LLVOVolume::setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams, U32 te)
 {
 	LLVOVolume* pVol = (LLVOVolume*)gObjectList.findObject(objectID);

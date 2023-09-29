@@ -123,6 +123,15 @@
              name="checkbox fullbright"
              top_pad="4"
              width="81" />
+	        <check_box
+	         height="16"
+	         label="Mirror"
+	         layout="topleft"
+	         left="10"
+	         name="Mirror Checkbox Ctrl"
+	         tool_tip="Causes object to be a mirror"
+	         top_pad="8"
+	         width="60" />
             <view_border
              bevel_style="none"
              follows="top|left"

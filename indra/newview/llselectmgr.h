@@ -661,6 +661,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
+    void selectionSetMirror(const U8 mirror);
 	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func, int specific_te = -1);
 	void selectionRemoveMaterial();
 

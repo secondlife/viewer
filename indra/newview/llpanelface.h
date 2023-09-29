@@ -145,6 +145,7 @@ protected:
 	void			sendFullbright();		// applies and sends full bright
 
 	void			sendGlow();
+    void			sendMirror();
     void            alignTestureLayer();
 
     void            updateCopyTexButton();
@@ -234,6 +235,7 @@ protected:
 	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
 	static void     onCommitGlow(				LLUICtrl* ctrl, void *userdata);
+	static void     onCommitMirror(				LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 
@@ -613,6 +615,7 @@ public:
 		DEF_GET_TE_STATE(F32,F32,getScaleS,1.0f, true, 0.001f)
 		DEF_GET_TE_STATE(F32,F32,getScaleT,1.0f, true, 0.001f)
 		DEF_GET_TE_STATE(F32,F32,getGlow,0.0f, true, 0.001f)
+		DEF_GET_TE_STATE(U8,U8,getMirror,0, false, 0)
 		DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen,LLTextureEntry::TEX_GEN_DEFAULT, false, LLTextureEntry::TEX_GEN_DEFAULT)
 		DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black);
 	};

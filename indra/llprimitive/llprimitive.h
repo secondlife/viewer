@@ -425,6 +425,7 @@ struct LLTEContents
 	U8	   media_flags[MAX_TES];
     U8     glow[MAX_TES];
 	LLMaterialID material_ids[MAX_TES];
+	U8     mirror[MAX_TES];
 
 	static const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -501,7 +502,8 @@ public:
 	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
     virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
-	virtual void setTESelected(const U8 te, bool sel);
+    virtual void setTESelected(const U8 te, bool sel);
+    virtual S32  setTEMirror(const U8 te, const U8 mirror);
 
 	LLMaterialPtr getTEMaterialParams(const U8 index);
     

@@ -5390,6 +5390,28 @@ S32 LLViewerObject::setTEGlow(const U8 te, const F32 glow)
 	return retval;
 }
 
+
+S32 LLViewerObject::setTEMirror(const U8 te, const U8 mirror)
+{
+    S32                   retval = 0;
+    const LLTextureEntry *tep    = getTE(te);
+    if (!tep)
+    {
+        LL_WARNS() << "No texture entry for te " << (S32) te << ", object " << mID << LL_ENDL;
+    }
+    else if (mirror != tep->getMirror())
+    {
+        retval = LLPrimitive::setTEMirror(te, mirror);
+        setChanged(TEXTURE);
+        if (mDrawable.notNull() && retval)
+        {
+            gPipeline.markTextured(mDrawable);
+			// Geenz TODO: add to the hero probe manager's list of possible surfaces.
+        }
+    }
+    return retval;
+}
+
 S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
 	S32 retval = 0;
