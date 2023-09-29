@@ -10421,8 +10421,19 @@
         <key>Type</key>
         <string>S32</string>
         <key>Value</key>
-        <integer>512</integer>
+        <integer>1024</integer>
     </map>
+	<key>RenderHeroProbeDistance</key>
+	<map>
+		<key>Comment</key>
+		<string>Distance in meters for hero probes to render out to.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>16</real>
+	</map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>

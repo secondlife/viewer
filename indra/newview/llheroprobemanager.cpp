@@ -436,7 +436,7 @@ void LLHeroProbeManager::initReflectionMaps()
     {
         mReset = false;
         mReflectionProbeCount = count;
-        mProbeResolution = nhpo2(1024);
+        mProbeResolution      = gSavedSettings.getS32("RenderHeroProbeResolution");
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
 
         mTexture = new LLCubeMapArray();
@@ -457,7 +457,7 @@ void LLHeroProbeManager::initReflectionMaps()
         
         mDefaultProbe->mCubeIndex = 0;
         mDefaultProbe->mCubeArray = mTexture;
-        mDefaultProbe->mDistance = 12.f;
+        mDefaultProbe->mDistance  = gSavedSettings.getF32("RenderHeroProbeDistance");
         mDefaultProbe->mRadius = 4096.f;
         mDefaultProbe->mProbeIndex = 0;
         touch_default_probe(mDefaultProbe);
