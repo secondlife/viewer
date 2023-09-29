@@ -10434,6 +10434,17 @@
 		<key>Value</key>
 		<real>16</real>
 	</map>
+	<key>RenderHeroProbeNearClipOffset</key>
+	<map>
+		<key>Comment</key>
+		<string>Distance offset in meters for hero probes to near clip.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>2.1</real>
+	</map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>

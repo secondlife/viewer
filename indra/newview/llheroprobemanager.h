@@ -95,7 +95,7 @@ private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
 
     // update the specified face of the specified probe
-    void updateProbeFace(LLReflectionMap* probe, U32 face);
+    void updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
