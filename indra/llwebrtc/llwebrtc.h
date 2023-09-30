@@ -86,7 +86,7 @@ class LLWebRTCDeviceInterface
     virtual void unsetDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;
 
     virtual void setTuningMode(bool enable) = 0;
-    virtual double getAudioLevel() = 0;
+    virtual float getTuningAudioLevel() = 0;
 };
 
 class LLWebRTCAudioObserver
@@ -100,7 +100,8 @@ class LLWebRTCAudioInterface
     virtual void setAudioObserver(LLWebRTCAudioObserver *observer)  = 0;
     virtual void unsetAudioObserver(LLWebRTCAudioObserver *observer) = 0;
     virtual void setMute(bool mute) = 0;
-    virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0                                = 0;
+    virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
+    virtual float getAudioLevel() = 0;
 };
 
 class LLWebRTCDataObserver
