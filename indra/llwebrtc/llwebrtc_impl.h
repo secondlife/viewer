@@ -68,7 +68,7 @@ class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
   public:
     LLAudioDeviceObserver();
 
-    double getMicrophoneEnergy();
+    float getMicrophoneEnergy();
 
     void OnCaptureData(const void    *audio_samples,
                        const size_t   num_samples,
@@ -100,7 +100,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
 {
   public:
     LLWebRTCImpl() : 
-        mAudioDeviceObserver(nullptr)
+        mTuningAudioDeviceObserver(nullptr), mPeerAudioDeviceObserver(nullptr)
     {
     }
     ~LLWebRTCImpl() {}
@@ -121,7 +121,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     void setRenderDevice(const std::string& id) override;
 
     void setTuningMode(bool enable) override;
-    double getAudioLevel() override;
+    float getTuningAudioLevel() override;
 
     //
     // LLWebRTCSignalInterface
@@ -141,6 +141,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     void unsetAudioObserver(LLWebRTCAudioObserver *observer) override;
     void setMute(bool mute) override;
     void setSpeakerVolume(float folume) override; // range 0.0-1.0
+    float getAudioLevel() override;
     
     //
     // LLWebRTCDataInterface
@@ -201,10 +202,16 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
 
     // Devices
     void updateDevices();
-    rtc::scoped_refptr<webrtc::AudioDeviceModule>              mDeviceModule;
+    rtc::scoped_refptr<webrtc::AudioDeviceModule>              mTuningDeviceModule;
+    rtc::scoped_refptr<webrtc::AudioDeviceModule>              mPeerDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
 
-    LLAudioDeviceObserver *                                    mAudioDeviceObserver;
+    // accessors in webrtc aren't apparently implemented yet.
+    int32_t                                                    mPlayoutDevice;
+    int32_t                                                    mRecordingDevice;
+
+    LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
+    LLAudioDeviceObserver *                                    mPeerAudioDeviceObserver;
 
     // signaling
     std::vector<LLWebRTCSignalingObserver *>                   mSignalingObserverList;

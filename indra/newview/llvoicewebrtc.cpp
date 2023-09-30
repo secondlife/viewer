@@ -884,6 +884,7 @@ bool LLWebRTCVoiceClient::breakVoiceConnection(bool corowait)
     LLSD body;
     body["logout"] = TRUE;
     httpAdapter->postAndSuspend(httpRequest, url, body);
+    mWebRTCSignalingInterface->shutdownConnection();
     return true;
 }
 
@@ -1265,6 +1266,7 @@ bool LLWebRTCVoiceClient::waitForChannel()
 
 		if (getVoiceControlState() == VOICE_STATE_SESSION_RETRY) 
 		{
+            mIsProcessingChannels = false;
             return true;
 		}
 
@@ -2107,7 +2109,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 				
 float LLWebRTCVoiceClient::tuningGetEnergy(void)
 {
-    return mWebRTCDeviceInterface->getAudioLevel();
+    return mWebRTCDeviceInterface->getTuningAudioLevel();
 }
 
 bool LLWebRTCVoiceClient::deviceSettingsAvailable()
@@ -2200,7 +2202,7 @@ Json::Value LLWebRTCVoiceClient::getPositionAndVolumeUpdateJson(bool force)
 
     if (!mMuteMic)
     {
-        audio_level = (F32) mWebRTCDeviceInterface->getAudioLevel();
+        audio_level = (F32) mWebRTCAudioInterface->getAudioLevel();
     }
     uint32_t uint_audio_level = mMuteMic ? 0 : (uint32_t) (audio_level * 128);
     if (force || (uint_audio_level != mAudioLevel))
@@ -2564,6 +2566,8 @@ void LLWebRTCVoiceClient::OnRenegotiationNeeded()
 {
     LL_INFOS("Voice") << "On Renegotiation Needed." << LL_ENDL;
     mRelogRequested = TRUE;
+    mIsProcessingChannels = FALSE;
+    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGIN_RETRY);
     setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
 }
 
@@ -4503,7 +4507,7 @@ F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
 	participantStatePtr_t participant(findParticipantByID(id));
 	if (participant)
 	{
-		result = participant->mPower * 3.0;
+		result = participant->mPower * 2.0;
 	}
 	return result;
 }
