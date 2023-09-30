@@ -10870,3 +10870,12 @@ void LLPipeline::rebuildDrawInfo()
     }
 }
 
+void LLPipeline::rebuildTerrain()
+{
+    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+        iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+    {
+        LLViewerRegion* region = *iter;
+        region->dirtyAllPatches();
+    }
+}

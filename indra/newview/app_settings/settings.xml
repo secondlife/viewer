@@ -10932,6 +10932,17 @@
       <key>Value</key>
       <real>8.0</real>
     </map>
+    <key>RenderTerrainPBRNormalsEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>EXPERIMENTAL: Change normal gen for PBR Terrain.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderTrackerBeacon</key>
     <map>
       <key>Comment</key>
