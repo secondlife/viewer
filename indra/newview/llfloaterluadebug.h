@@ -26,6 +26,7 @@
 #ifndef LL_LLFLOATERLUADEBUG_H
 #define LL_LLFLOATERLUADEBUG_H
 
+#include "llevents.h"
 #include "llfloater.h"
 
 extern "C"
@@ -54,6 +55,8 @@ class LLFloaterLUADebug :
     void runSelectedScript(const std::vector<std::string> &filenames);
 
 private:
+    LLTempBoundListener mOutConnection;
+
     LLTextEditor* mResultOutput;
     LLLineEditor* mLineInput;
     LLLineEditor* mScriptPath;

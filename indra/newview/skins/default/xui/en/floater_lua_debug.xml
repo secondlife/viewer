@@ -55,6 +55,7 @@
      layout="topleft"
      name="result_text"
      follows="left|top"
+     max_length="65536" 
      width="515"
      top_delta="40"
      word_wrap="true" />

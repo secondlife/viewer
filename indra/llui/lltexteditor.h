@@ -241,7 +241,9 @@ protected:
 	// Undoable operations
 	void			addChar(llwchar c); // at mCursorPos
 	S32				addChar(S32 pos, llwchar wc);
+public:
 	void			addLineBreakChar(BOOL group_together = FALSE);
+protected:
 	S32				overwriteChar(S32 pos, llwchar wc);
 	void			removeChar();
 	S32 			removeChar(S32 pos);

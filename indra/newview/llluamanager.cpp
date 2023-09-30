@@ -66,6 +66,7 @@ extern "C"
 #include <cstring>                  // std::memcpy()
 #include <map>
 #include <memory>                   // std::unique_ptr
+#include <sstream>
 #include <string_view>
 #include <vector>
 
@@ -109,8 +110,10 @@ public:
         super(getUniqueKey()),
         mState(L),
         mReplyPump(LLUUID::generateNewID().asString()),
-        mListener(new LLLeapListener(std::bind(&LuaListener::connect, this,
-                                               std::placeholders::_1, std::placeholders::_2)))
+        mListener(
+            new LLLeapListener(
+                [this](LLEventPump& pump, const std::string& listener)
+                { return connect(pump, listener); }))
     {
         mReplyConnection = connect(mReplyPump, "LuaListener");
     }
@@ -136,13 +139,15 @@ private:
 
     LLBoundListener connect(LLEventPump& pump, const std::string& listener)
     {
-        return pump.listen(listener,
-                           std::bind(&LuaListener::call_lua, mState, pump.getName(),
-                                     std::placeholders::_1));
+        return pump.listen(
+            listener,
+            [mState=mState, pumpname=pump.getName()](const LLSD& data)
+            { return call_lua(mState, pumpname, data); });
     }
 
     static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
     {
+        LL_INFOS("Lua") << "LuaListener::call_lua('" << pump << "', " << data << ")" << LL_ENDL;
         if (! lua_checkstack(L, 3))
         {
             LL_WARNS("Lua") << "Cannot extend Lua stack to call listen_events() callback"
@@ -275,28 +280,63 @@ int name##_::call(lua_State* L)
 //     ... supply method body here, referencing 'L' ...
 // }
 
+// This function consumes ALL Lua stack arguments and returns concatenated
+// message string
+std::string lua_print_msg(lua_State* L, const std::string_view& level)
+{
+    // On top of existing Lua arguments, push 'where' info
+    luaL_checkstack(L, 1, nullptr);
+    luaL_where(L, 1);
+    // start with the 'where' info at the top of the stack
+    std::ostringstream out;
+    out << lua_tostring(L, -1);
+    lua_pop(L, 1);
+    const char* sep = "";           // 'where' info ends with ": "
+    // now iterate over arbitrary args, calling Lua tostring() on each and
+    // concatenating with separators
+    for (int p = 1; p <= lua_gettop(L); ++p)
+    {
+        out << sep;
+        sep = " ";
+        // push Lua tostring() function -- note, semantically different from
+        // lua_tostring()!
+        lua_getglobal(L, "tostring");
+        // Now the stack is arguments 1 .. N, plus tostring().
+        // Rotate downwards, producing stack args 2 .. N, tostring(), arg1.
+        lua_rotate(L, 1, -1);
+        // pop tostring() and arg1, pushing tostring(arg1)
+        // (ignore potential error code from lua_pcall() because, if there was
+        // an error, we expect the stack top to be an error message -- which
+        // we'll print)
+        lua_pcall(L, 1, 1, 0);
+        // stack now holds args 2 .. N, tostring(arg1)
+        out << lua_tostring(L, -1);
+    }
+    // pop everything
+    lua_settop(L, 0);
+    // capture message string
+    std::string msg{ out.str() };
+    // put message out there for any interested party (*koff* LLFloaterLUADebug *koff*)
+    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
+    return msg;
+}
+
 lua_function(print_debug)
 {
-    luaL_where(L, 1);
-    LL_DEBUGS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 2);
+    LL_DEBUGS("Lua") << lua_print_msg(L, "DEBUG") << LL_ENDL;
     return 0;
 }
 
 // also used for print(); see LuaState constructor
 lua_function(print_info)
 {
-    luaL_where(L, 1);
-    LL_INFOS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 2);
+    LL_INFOS("Lua") << lua_print_msg(L, "INFO") << LL_ENDL;
     return 0;
 }
 
 lua_function(print_warning)
 {
-    luaL_where(L, 1);
-    LL_WARNS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 2);
+    LL_WARNS("Lua") << lua_print_msg(L, "WARN") << LL_ENDL;
     return 0;
 }
 
@@ -421,7 +461,7 @@ lua_function(get_avatar_name)
 {
     std::string name = gAgentAvatarp->getFullname();
     luaL_checkstack(L, 1, nullptr);
-    lua_pushstring(L, name.c_str());
+    lua_pushstdstring(L, name);
     return 1;
 }
 
@@ -513,7 +553,7 @@ lua_function(show_notification)
         LLNotificationsUtil::add(notification);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -540,7 +580,7 @@ lua_function(add_menu_item)
         gMenuBarView->findChildMenuByName(menu, true)->append(menu_item);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -568,7 +608,7 @@ lua_function(add_menu)
         gMenuBarView->appendMenu(menu);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0; 
 }
 
@@ -588,7 +628,7 @@ lua_function(add_branch)
         gMenuBarView->findChildMenuByName(menu, true)->appendMenu(branch);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -610,7 +650,7 @@ lua_function(rez_prim)
 
     LL_INFOS() << "Rezing a prim: type " << LLPrimitive::pCodeToString(type) << ", coordinates: " << obj_pos << " Success: " << res << LL_ENDL;
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -664,7 +704,7 @@ lua_function(move_by)
     }
     move_to_dest(dest, L, response_cb);
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -690,7 +730,7 @@ lua_function(move_to)
     }
     move_to_dest(dest, L, response_cb);
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -716,15 +756,16 @@ lua_function(run_ui_command)
 	}
 	sUIListener.call(event);
 
-	lua_pop(L, top);
+	lua_settop(L, 0);
 	return 0;
 }
 
 lua_function(post_on)
 {
-    std::string pumpname{ lua_tostring(L, 1) };
+    std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
+    LL_INFOS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
     LLEventPumps::instance().obtain(pumpname).post(data);
     return 0;
 }
@@ -804,7 +845,7 @@ lua_function(await_event)
         auto timeout{ lua_tonumber(L, 2) };
         // with no 3rd argument, should be LLSD()
         auto dftval{ lua_tollsd(L, 3) };
-        lua_pop(L, lua_gettop(L));
+        lua_settop(L, 0);
         result = llcoro::suspendUntilEventOnWithTimeout(pumpname, timeout, dftval);
     }
     else
