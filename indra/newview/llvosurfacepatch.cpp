@@ -214,6 +214,7 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 
 void LLVOSurfacePatch::updateFaceSize(S32 idx)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (idx != 0)
 	{
 		LL_WARNS() << "Terrain partition requested invalid face!!!" << LL_ENDL;
