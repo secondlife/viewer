@@ -37,7 +37,7 @@
 //
 
 constexpr char DEFAULT_EMOJI_HELPER_FLOATER[] = "emoji_complete";
-constexpr S32 HELPER_FLOATER_OFFSET_X = 20;
+constexpr S32 HELPER_FLOATER_OFFSET_X = 0;
 constexpr S32 HELPER_FLOATER_OFFSET_Y = 0;
 
 // ============================================================================
@@ -113,6 +113,7 @@ void LLEmojiHelper::showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, c
 	rct.setLeftTopAndSize(floater_x - HELPER_FLOATER_OFFSET_X, floater_y - HELPER_FLOATER_OFFSET_Y + rct.getHeight(), rct.getWidth(), rct.getHeight());
 	pHelperFloater->setRect(rct);
 	pHelperFloater->openFloater(LLSD().with("hint", short_code));
+    gFloaterView->adjustToFitScreen(pHelperFloater, FALSE);
 }
 
 void LLEmojiHelper::hideHelper(const LLUICtrl* ctrl_p)
