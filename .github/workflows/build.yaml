@@ -286,17 +286,17 @@ jobs:
           # In NOTARIZE_CREDS_MACOS we expect to find:
           # USERNAME="..."
           # PASSWORD="..."
-          # ASC_PROVIDER="..."
+          # TEAM_ID="..."
           eval "${{ secrets.NOTARIZE_CREDS_MACOS }}"
           echo "::add-mask::$USERNAME"
           echo "::add-mask::$PASSWORD"
-          echo "::add-mask::$ASC_PROVIDER"
+          echo "::add-mask::$TEAM_ID"
           echo "note_user=$USERNAME" >> "$GITHUB_OUTPUT"
           echo "note_pass=$PASSWORD" >> "$GITHUB_OUTPUT"
-          echo "note_asc=$ASC_PROVIDER" >> "$GITHUB_OUTPUT"
+          echo "note_team=$TEAM_ID" >> "$GITHUB_OUTPUT"
           # If we didn't manage to retrieve all of these credentials, better
           # find out sooner than later.
-          [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$ASC_PROVIDER" ]]
+          [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
 
       - name: Sign and package Mac viewer
         uses: secondlife/viewer-build-util/sign-pkg-mac@main
@@ -308,7 +308,7 @@ jobs:
           cert_pass: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
           note_user: ${{ steps.note-creds.outputs.note_user }}
           note_pass: ${{ steps.note-creds.outputs.note_pass }}
-          note_asc: ${{ steps.note-creds.outputs.note_asc }}
+          note_team: ${{ steps.note-creds.outputs.note_team }}
 
   post-windows-symbols:
     needs: build
