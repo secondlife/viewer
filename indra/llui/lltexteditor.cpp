@@ -1169,12 +1169,15 @@ void LLTextEditor::addChar(llwchar wc)
 
 	if (!mReadOnly && mShowEmojiHelper)
 	{
-		LLWString wtext(getWText()); S32 shortCodePos;
+		S32 shortCodePos;
+		LLWString wtext(getWText());
 		if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
 		{
-			const LLRect cursorRect = getLocalRectFromDocIndex(mCursorPos - 1);
-			const LLWString shortCode = wtext.substr(shortCodePos, mCursorPos - shortCodePos);
-			LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, wstring_to_utf8str(shortCode), std::bind(&LLTextEditor::handleEmojiCommit, this, std::placeholders::_1));
+			const LLRect cursorRect(getLocalRectFromDocIndex(shortCodePos));
+			const LLWString wpart(wtext.substr(shortCodePos, mCursorPos - shortCodePos));
+			const std::string part(wstring_to_utf8str(wpart));
+			auto cb = [this](llwchar emoji) { handleEmojiCommit(emoji); };
+			LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, part, cb);
 		}
 	}
 
