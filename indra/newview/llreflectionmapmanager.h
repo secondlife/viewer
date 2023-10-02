@@ -84,6 +84,12 @@ public:
     // reset all state on the next update
     void reset();
 
+    // pause all updates other than the default probe
+    void pause();
+
+    // unpause (see pause)
+    void resume();
+
     // called on region crossing to "shift" probes into new coordinate frame
     void shift(const LLVector4a& offset);
 
@@ -191,5 +197,8 @@ private:
 
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
+
+    // if true, only update the default probe
+    bool mPaused = false;
 };
 

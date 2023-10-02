@@ -244,10 +244,13 @@ void LLReflectionMapManager::update()
             continue;
         }
         
-        if (probe != mDefaultProbe && !probe->isRelevant())
-        {
+        if (probe != mDefaultProbe && 
+            (!probe->isRelevant() || mPaused))
+        { // skip irrelevant probes (or all non-default probes if paused)
             continue;
         }
+
+        
 
         LLVector4a d;
 
@@ -805,6 +808,16 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 void LLReflectionMapManager::reset()
 {
     mReset = true;
+}
+
+void LLReflectionMapManager::pause()
+{
+    mPaused = true;
+}
+
+void LLReflectionMapManager::resume()
+{
+    mPaused = false;
 }
 
 void LLReflectionMapManager::shift(const LLVector4a& offset)
