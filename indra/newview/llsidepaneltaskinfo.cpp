@@ -73,6 +73,32 @@ LLSidepanelTaskInfo* LLSidepanelTaskInfo::sActivePanel = NULL;
 
 static LLPanelInjector<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
+static std::string click_action_to_string_value(U8 click_action)
+{
+    switch (click_action)
+    {
+        case CLICK_ACTION_TOUCH:
+            return "Touch";
+        case CLICK_ACTION_SIT:
+            return "Sit";
+        case CLICK_ACTION_BUY:
+            return "Buy";
+        case CLICK_ACTION_PAY:
+            return "Pay";
+        case CLICK_ACTION_OPEN:
+            return "Open";
+        case CLICK_ACTION_ZOOM:
+            return "Zoom";
+        case CLICK_ACTION_DISABLED:
+            return "None";
+        case CLICK_ACTION_IGNORE:
+            return "Ignore";
+        default:
+            return "Touch";
+    }
+    return "Touch";
+}
+
 // Default constructor
 LLSidepanelTaskInfo::LLSidepanelTaskInfo()
 {
@@ -855,12 +881,7 @@ void LLSidepanelTaskInfo::refresh()
 	U8 click_action = 0;
 	if (LLSelectMgr::getInstance()->selectionGetClickAction(&click_action))
 	{
-        if (click_action > CLICK_ACTION_OPEN_MEDIA)
-        {
-            // Doesn't list media, nor play
-            click_action -= 2;
-        }
-        getChild<LLComboBox>("clickaction")->setCurrentByIndex((S32)click_action);
+        getChild<LLComboBox>("clickaction")->setValue(click_action_to_string_value(click_action));
 	}
 	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
