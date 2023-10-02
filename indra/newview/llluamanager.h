@@ -27,6 +27,9 @@
 #ifndef LL_LLLUAMANAGER_H
 #define LL_LLLUAMANAGER_H
 
+#include <functional>
+#include <string>
+
 class LLLUAmanager
 {
 public:

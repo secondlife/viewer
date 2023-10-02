@@ -2291,6 +2291,11 @@ if (LL_TESTS)
     "${test_libs}"
     )
 
+  LL_ADD_INTEGRATION_TEST(llluamanager
+    "llluamanager.cpp"
+    "${test_libs}"
+    )
+
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"

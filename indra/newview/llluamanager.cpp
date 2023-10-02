@@ -28,19 +28,24 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
+#include "llerror.h"
+#include "lleventcoro.h"
+#include "lleventfilter.h"
+#include "llevents.h"
+#include "llinstancetracker.h"
+#include "llleaplistener.h"
+#include "lluuid.h"
+#include "stringize.h"
+
+// skip all these link dependencies for integration testing
+#ifndef LL_TEST
 #include "llagent.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
-#include "llerror.h"
-#include "lleventcoro.h"
-#include "llevents.h"
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llinstancetracker.h"
-#include "llleaplistener.h"
 #include "llnotificationsutil.h"
-#include "lluuid.h"
 #include "llvoavatarself.h"
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
@@ -48,9 +53,13 @@
 #include "lluilistener.h"
 #include "llanimationstates.h"
 #include "llinventoryfunctions.h"
-#include "stringize.h"
 #include "lltoolplacer.h"
 #include "llviewerregion.h"
+
+// FIXME extremely hacky way to get to the UI Listener framework. There's
+// a cleaner way.
+extern LLUIListener sUIListener;
+#endif // ! LL_TEST
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -79,9 +88,6 @@ void lua_pushstdstring(lua_State* L, const std::string& str);
 LLSD lua_tollsd(lua_State* L, int index);
 void lua_pushllsd(lua_State* L, const LLSD& data);
 
-// FIXME extremely hacky way to get to the UI Listener framework. There's almost certainly a cleaner way.
-extern LLUIListener sUIListener;
-
 /**
  * LuaListener is based on LLLeap. It serves an analogous function.
  *
@@ -109,13 +115,20 @@ public:
     LuaListener(lua_State* L):
         super(getUniqueKey()),
         mState(L),
-        mReplyPump(LLUUID::generateNewID().asString()),
         mListener(
             new LLLeapListener(
-                [this](LLEventPump& pump, const std::string& listener)
-                { return connect(pump, listener); }))
+                [L](LLEventPump& pump, const std::string& listener)
+                { return connect(L, pump, listener); }))
     {
-        mReplyConnection = connect(mReplyPump, "LuaListener");
+        mReplyConnection = connect(L, mReplyPump, "LuaListener");
+    }
+
+    LuaListener(const LuaListener&) = delete;
+    LuaListener& operator=(const LuaListener&) = delete;
+
+    ~LuaListener()
+    {
+        LL_DEBUGS("Lua") << "~LuaListener('" << mReplyPump.getName() << "')" << LL_ENDL;
     }
 
     std::string getReplyName() const { return mReplyPump.getName(); }
@@ -137,12 +150,12 @@ private:
         return key;
     }
 
-    LLBoundListener connect(LLEventPump& pump, const std::string& listener)
+    static LLBoundListener connect(lua_State* L, LLEventPump& pump, const std::string& listener)
     {
         return pump.listen(
             listener,
-            [mState=mState, pumpname=pump.getName()](const LLSD& data)
-            { return call_lua(mState, pumpname, data); });
+            [L, pumpname=pump.getName()](const LLSD& data)
+            { return call_lua(L, pumpname, data); });
     }
 
     static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
@@ -181,7 +194,11 @@ private:
     }
 
     lua_State* mState;
-    LLEventStream mReplyPump;
+#ifndef LL_TEST
+    LLEventStream mReplyPump{ LLUUID::generateNewID().asString() };
+#else
+    LLEventLogProxyFor<LLEventStream> mReplyPump{ "luapump", false };
+#endif
     LLTempBoundListener mReplyConnection;
     std::unique_ptr<LLLeapListener> mListener;
 };
@@ -340,6 +357,7 @@ lua_function(print_warning)
     return 0;
 }
 
+#ifndef LL_TEST
 lua_function(avatar_sit)
 {
     gAgent.sitDown();
@@ -759,6 +777,7 @@ lua_function(run_ui_command)
 	lua_settop(L, 0);
 	return 0;
 }
+#endif // ! LL_TEST
 
 lua_function(post_on)
 {
@@ -812,8 +831,10 @@ lua_function(listen_events)
     {
         // pop the nil "event.listener" key
         lua_pop(mainthread, 1);
-        // instantiate a new LuaListener, binding the mainthread state
-        listener.reset(new LuaListener(mainthread));
+        // instantiate a new LuaListener, binding the mainthread state -- but
+        // use a no-op deleter: we do NOT want to delete this new LuaListener
+        // on return from listen_events()!
+        listener.reset(new LuaListener(mainthread), [](LuaListener*){});
         // set its key in the field where we'll look for it later
         lua_pushinteger(mainthread, listener->getKey());
         lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.listener");
@@ -983,6 +1004,7 @@ void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
 
 void LLLUAmanager::runScriptOnLogin()
 {
+#ifndef LL_TEST
     std::string filename = gSavedSettings.getString("AutorunLuaScriptName");
     if (filename.empty()) 
     {
@@ -998,6 +1020,7 @@ void LLLUAmanager::runScriptOnLogin()
     }
 
     runScriptFile(filename);
+#endif // ! LL_TEST
 }
 
 std::string lua_tostdstring(lua_State* L, int index)

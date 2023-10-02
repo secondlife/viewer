@@ -54,10 +54,11 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
-#include "stringize.h"
 #include "llerror.h"
-#include "llsdutil.h"
+#include "lleventfilter.h"
 #include "llexception.h"
+#include "llsdutil.h"
+#include "stringize.h"
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -71,7 +72,9 @@ LLEventPumps::LLEventPumps():
         { "LLEventStream",   [](const std::string& name, bool tweak)
                              { return new LLEventStream(name, tweak); } },
         { "LLEventMailDrop", [](const std::string& name, bool tweak)
-                             { return new LLEventMailDrop(name, tweak); } }
+                             { return new LLEventMailDrop(name, tweak); } },
+        { "LLEventLogProxy", [](const std::string& name, bool tweak)
+                             { return new LLEventLogProxyFor<LLEventStream>(name, tweak); } }
     },
     mTypes
     {
