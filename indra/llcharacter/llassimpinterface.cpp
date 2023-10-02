@@ -49,10 +49,16 @@ aiMatrix4x4 LLAssimpInterface::createIdentityMat4()
 
 bool LLAssimpInterface::setMesh(U32 mesh_id)
 {
-    if (mesh_id > mScene->mNumMeshes)
+    if (!mScene ||
+        !mScene->mMeshes)
     {
         return false;
     }
+    if (mesh_id >= mScene->mNumMeshes)
+    {
+        return false;
+    }
+
     mMesh = mScene->mMeshes[mesh_id];
 
     if (mMesh->mNumBones==0)
@@ -171,7 +177,8 @@ LLMatrix4 LLAssimpInterface::getOffsetMat4(std::string name)
 
     if (cur_bone == mBoneMap.end())
     {
-        LL_WARNS("assimp") << "Assimp did not have a bone with a name matching " << name << " returning 0 ofset matrix." << LL_ENDL;
+        LL_WARNS("assimp") << "Assimp did not have a bone with a name matching " << name << " returning 0 offset matrix." << LL_ENDL;
+        return cur_transmat;
     }
     aiMatrix4x4 cur_ai_transmat = cur_bone->second.mBone->mOffsetMatrix;  //.Inverse();        // Counter rotation from resting pos to T.
 
