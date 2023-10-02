@@ -62,6 +62,7 @@
 #include "llfocusmgr.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
+#include "llgamecontrollermanager.h"
 #include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
@@ -147,8 +148,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
-#define HAVE_M_PI
-#include <SDL2/SDL.h>
 
 #if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in processMarkerFiles
@@ -1121,9 +1120,10 @@ bool LLAppViewer::init()
     {
         LLViewerJoystick::getInstance()->init(false);
     }
-    SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
+    LLGameControllerManager::init();
 
-	try {
+	try
+    {
 		initializeSecHandler();
 	}
 	catch (LLProtectedDataException&)
@@ -1471,6 +1471,7 @@ bool LLAppViewer::doFrame()
 				joystick->scanJoystick();
 				gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
+                LLGameControllerManager::processEvents();
 			}
 
 			// Update state based on messages, user input, object idle.
@@ -1905,7 +1906,7 @@ bool LLAppViewer::cleanup()
         // Turn off Space Navigator and similar devices
         LLViewerJoystick::getInstance()->terminate();
     }
-    SDL_Quit();
+    LLGameControllerManager::terminate();
 
 	LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 
