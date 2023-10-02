@@ -28,6 +28,7 @@ include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(LLWindow)
+include(SDL2)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
@@ -312,6 +313,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llflyoutcombobtn.cpp
+    llgamecontrollermanager.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -981,6 +983,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llflyoutcombobtn.h
+    llgamecontrollermanager.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -2264,6 +2267,7 @@ if (LL_TESTS)
           lllogin
           llplugin
           llappearance
+          ll::SDL2
     )
 
   set_source_files_properties(
@@ -2315,6 +2319,7 @@ if (LL_TESTS)
           lllogin
           llprimitive
           lllogin
+          ll::SDL2
           )
 
   LL_ADD_INTEGRATION_TEST(cppfeatures
