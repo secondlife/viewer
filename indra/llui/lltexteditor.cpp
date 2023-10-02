@@ -1022,7 +1022,7 @@ S32 LLTextEditor::remove(S32 pos, S32 length, bool group_with_next_op)
 	// store text segments
 	getSegmentsInRange(segments_to_remove, pos, pos + length, false);
 	
-	if(pos <= end_pos)
+	if (pos <= end_pos)
 	{
 		removedChar = execute( new TextCmdRemove( pos, group_with_next_op, end_pos - pos, segments_to_remove ) );
 	}
@@ -1046,11 +1046,12 @@ S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
 // a pseudo-tab (up to for spaces in a row)
 void LLTextEditor::removeCharOrTab()
 {
-	if( !getEnabled() )
+	if (!getEnabled())
 	{
 		return;
 	}
-	if( mCursorPos > 0 )
+
+	if (mCursorPos > 0)
 	{
 		S32 chars_to_remove = 1;
 
@@ -1062,14 +1063,14 @@ void LLTextEditor::removeCharOrTab()
 			if (offset > 0)
 			{
 				chars_to_remove = offset % SPACES_PER_TAB;
-				if( chars_to_remove == 0 )
+				if (chars_to_remove == 0)
 				{
 					chars_to_remove = SPACES_PER_TAB;
 				}
 
-				for( S32 i = 0; i < chars_to_remove; i++ )
+				for (S32 i = 0; i < chars_to_remove; i++)
 				{
-					if (text[ mCursorPos - i - 1] != ' ')
+					if (text[mCursorPos - i - 1] != ' ')
 					{
 						// Fewer than a full tab's worth of spaces, so
 						// just delete a single character.
@@ -1083,8 +1084,10 @@ void LLTextEditor::removeCharOrTab()
 		for (S32 i = 0; i < chars_to_remove; i++)
 		{
 			setCursorPos(mCursorPos - 1);
-			remove( mCursorPos, 1, FALSE );
+			remove(mCursorPos, 1, false);
 		}
+
+		tryToShowEmojiHelper();
 	}
 	else
 	{
@@ -1095,7 +1098,7 @@ void LLTextEditor::removeCharOrTab()
 // Remove a single character from the text
 S32 LLTextEditor::removeChar(S32 pos)
 {
-	return remove( pos, 1, FALSE );
+	return remove(pos, 1, false);
 }
 
 void LLTextEditor::removeChar()
@@ -1104,10 +1107,12 @@ void LLTextEditor::removeChar()
 	{
 		return;
 	}
+
 	if (mCursorPos > 0)
 	{
 		setCursorPos(mCursorPos - 1);
 		removeChar(mCursorPos);
+		tryToShowEmojiHelper();
 	}
 	else
 	{
@@ -1166,20 +1171,7 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
-
-	if (!mReadOnly && mShowEmojiHelper)
-	{
-		S32 shortCodePos;
-		LLWString wtext(getWText());
-		if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
-		{
-			const LLRect cursorRect(getLocalRectFromDocIndex(shortCodePos));
-			const LLWString wpart(wtext.substr(shortCodePos, mCursorPos - shortCodePos));
-			const std::string part(wstring_to_utf8str(wpart));
-			auto cb = [this](llwchar emoji) { handleEmojiCommit(emoji); };
-			LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, part, cb);
-		}
-	}
+	tryToShowEmojiHelper();
 
 	if (!mReadOnly && mAutoreplaceCallback != NULL)
 	{
@@ -1197,6 +1189,23 @@ void LLTextEditor::addChar(llwchar wc)
 			setCursorPos(new_cursor_pos);
 		}
 	}
+}
+
+void LLTextEditor::tryToShowEmojiHelper()
+{
+    if (mReadOnly || !mShowEmojiHelper)
+        return;
+
+    S32 shortCodePos;
+    LLWString wtext(getWText());
+    if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
+    {
+        const LLRect cursorRect(getLocalRectFromDocIndex(shortCodePos));
+        const LLWString wpart(wtext.substr(shortCodePos, mCursorPos - shortCodePos));
+        const std::string part(wstring_to_utf8str(wpart));
+        auto cb = [this](llwchar emoji) { handleEmojiCommit(emoji); };
+        LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, part, cb);
+    }
 }
 
 void LLTextEditor::addLineBreakChar(BOOL group_together)
