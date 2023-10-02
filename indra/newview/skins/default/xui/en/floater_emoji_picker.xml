@@ -54,6 +54,7 @@
       background_visible="true"
       background_opaque="true"
       bg_opaque_color="FrogGreen"
+      tab_stop="false"
       bottom="0"
       height="2"
       width="20"

@@ -514,7 +514,7 @@ BOOL LLView::focusNext(LLView::child_list_t & result)
 		{
 			next = result.rbegin();
 		}
-		if((*next)->isCtrl())
+		if ((*next)->isCtrl() && ((LLUICtrl*)*next)->hasTabStop())
 		{
 			LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
 			ctrl->setFocus(TRUE);
