@@ -412,9 +412,6 @@ BOOL LLMaterialEditor::postBuild()
 
     if (mIsOverride)
     {
-        // Material override change success callback
-        LLGLTFMaterialList::addSelectionUpdateCallback(&LLMaterialEditor::updateLive);
-
         // Live editing needs a recovery mechanism on cancel
         mBaseColorTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
         mMetallicTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
@@ -542,12 +539,6 @@ void LLMaterialEditor::draw()
 {
     if (mIsOverride)
     {
-        bool selection_empty = LLSelectMgr::getInstance()->getSelection()->isEmpty();
-        if (selection_empty && mHasSelection)
-        {
-            mSelectionNeedsUpdate = true;
-        }
-
         if (mSelectionNeedsUpdate)
         {
             mSelectionNeedsUpdate = false;
@@ -1790,22 +1781,6 @@ void LLMaterialEditor::updateLive()
     mOverrideInProgress = false;
 }
 
-void LLMaterialEditor::updateLive(const LLUUID &object_id, S32 te)
-{
-    if (mOverrideObjectId != object_id
-        || mOverrideObjectTE != te)
-    {
-        // Ignore if waiting for override,
-        // if not waiting, mark selection dirty
-        mSelectionNeedsUpdate |= !mOverrideInProgress;
-        return;
-    }
-
-    // update for currently displayed object and face
-    mSelectionNeedsUpdate = true;
-    mOverrideInProgress = false;
-}
-
 void LLMaterialEditor::loadLive()
 {
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("live_material_editor");
@@ -2816,7 +2791,7 @@ public:
             // something went wrong update selection
             LLMaterialEditor::updateLive();
         }
-        // else we will get updateLive(obj, id) from applied overrides
+        // else we will get updateLive() from panel face
     }
 
     bool getResult() { return mSuccess; }

@@ -58,7 +58,7 @@ U32 wpo2(U32 i);
 
 // texture memory accounting (for OS X)
 static LLMutex sTexMemMutex;
-static std::unordered_map<U32, U32> sTextureAllocs;
+static std::unordered_map<U32, U64> sTextureAllocs;
 static U64 sTextureBytes = 0;
 
 // track a texture alloc on the currently bound texture.
@@ -67,7 +67,7 @@ static void alloc_tex_image(U32 width, U32 height, U32 pixformat)
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
     U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
-    S32 size = LLImageGL::dataFormatBytes(pixformat, width, height);
+    U64 size = LLImageGL::dataFormatBytes(pixformat, width, height);
 
     llassert(size >= 0);
 
@@ -296,7 +296,7 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
 }
 
 //static
-S32 LLImageGL::dataFormatBytes(S32 dataformat, S32 width, S32 height)
+S64 LLImageGL::dataFormatBytes(S32 dataformat, S32 width, S32 height)
 {
     switch (dataformat)
     {
@@ -312,8 +312,8 @@ S32 LLImageGL::dataFormatBytes(S32 dataformat, S32 width, S32 height)
     default:
         break;
     }
-	S32 bytes ((width*height*dataFormatBits(dataformat)+7)>>3);
-	S32 aligned = (bytes+3)&~3;
+	S64 bytes (((S64)width * (S64)height * (S64)dataFormatBits(dataformat)+7)>>3);
+	S64 aligned = (bytes+3)&~3;
 	return aligned;
 }
 
@@ -518,7 +518,7 @@ void LLImageGL::init(BOOL usemipmaps)
 	// so that it is obvious by visual inspection if we forgot to
 	// init a field.
 
-	mTextureMemory = (S32Bytes)0;
+	mTextureMemory = S64Bytes(0);
 	mLastBindTime = 0.f;
 
 	mPickMask = NULL;
@@ -1744,7 +1744,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     }
 
     
-    mTextureMemory = (S32Bytes)getMipBytes(mCurrentDiscardLevel);
+    mTextureMemory = (S64Bytes)getMipBytes(mCurrentDiscardLevel);
     mTexelsInGLTexture = getWidth() * getHeight();
 
     // mark this as bound at this point, so we don't throw it out immediately
@@ -1938,9 +1938,9 @@ void LLImageGL::destroyGLTexture()
 
 	if (mTexName != 0)
 	{
-		if(mTextureMemory != S32Bytes(0))
+		if(mTextureMemory != S64Bytes(0))
 		{
-			mTextureMemory = (S32Bytes)0;
+			mTextureMemory = (S64Bytes)0;
 		}
 		
 		LLImageGL::deleteTextures(1, &mTexName);
@@ -2036,7 +2036,7 @@ S32 LLImageGL::getWidth(S32 discard_level) const
 	return width;
 }
 
-S32 LLImageGL::getBytes(S32 discard_level) const
+S64 LLImageGL::getBytes(S32 discard_level) const
 {
 	if (discard_level < 0)
 	{
@@ -2049,7 +2049,7 @@ S32 LLImageGL::getBytes(S32 discard_level) const
 	return dataFormatBytes(mFormatPrimary, w, h);
 }
 
-S32 LLImageGL::getMipBytes(S32 discard_level) const
+S64 LLImageGL::getMipBytes(S32 discard_level) const
 {
 	if (discard_level < 0)
 	{
@@ -2057,7 +2057,7 @@ S32 LLImageGL::getMipBytes(S32 discard_level) const
 	}
 	S32 w = mWidth>>discard_level;
 	S32 h = mHeight>>discard_level;
-	S32 res = dataFormatBytes(mFormatPrimary, w, h);
+	S64 res = dataFormatBytes(mFormatPrimary, w, h);
 	if (mUseMipMaps)
 	{
 		while (w > 1 && h > 1)
