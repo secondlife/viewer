@@ -1449,45 +1449,6 @@ void LLInventoryPanel::onFocusReceived()
 	// inventory now handles cut/copy/paste/delete
 	LLEditMenuHandler::gEditMenuHandler = mFolderRoot.get();
 
-    // Tab support, when tabbing into this view, select first item
-    // (ideally needs to account for scroll)
-    bool select_first = mSelectThisID.isNull() && mFolderRoot.get() && mFolderRoot.get()->getSelectedCount() == 0;
-
-    if (select_first)
-    {
-        LLFolderViewFolder::folders_t::const_iterator folders_it = mFolderRoot.get()->getFoldersBegin();
-        LLFolderViewFolder::folders_t::const_iterator folders_end = mFolderRoot.get()->getFoldersEnd();
-
-        for (; folders_it != folders_end; ++folders_it)
-        {
-            const LLFolderViewFolder* folder_view = *folders_it;
-            if (folder_view->getVisible())
-            {
-                const LLFolderViewModelItemInventory* modelp = static_cast<const LLFolderViewModelItemInventory*>(folder_view->getViewModelItem());
-                setSelectionByID(modelp->getUUID(), TRUE);
-                select_first = false;
-                break;
-            }
-        }
-    }
-
-    if (select_first)
-    {
-        LLFolderViewFolder::items_t::const_iterator items_it = mFolderRoot.get()->getItemsBegin();
-        LLFolderViewFolder::items_t::const_iterator items_end = mFolderRoot.get()->getItemsEnd();
-
-        for (; items_it != items_end; ++items_it)
-        {
-            const LLFolderViewItem* item_view = *items_it;
-            if (item_view->getVisible())
-            {
-                const LLFolderViewModelItemInventory* modelp = static_cast<const LLFolderViewModelItemInventory*>(item_view->getViewModelItem());
-                setSelectionByID(modelp->getUUID(), TRUE);
-                break;
-            }
-        }
-    }
-
 	LLPanel::onFocusReceived();
 }
 
@@ -2256,6 +2217,53 @@ void LLInventorySingleFolderPanel::initFromParams(const Params& p)
 
     mParams = p;
     LLPanel::initFromParams(mParams);
+}
+
+void LLInventorySingleFolderPanel::onFocusReceived()
+{
+    // Tab support, when tabbing into this view, select first item
+    // (ideally needs to account for scroll)
+    bool select_first = mSelectThisID.isNull() && mFolderRoot.get() && mFolderRoot.get()->getSelectedCount() == 0;
+
+    if (select_first)
+    {
+        LLFolderViewFolder::folders_t::const_iterator folders_it = mFolderRoot.get()->getFoldersBegin();
+        LLFolderViewFolder::folders_t::const_iterator folders_end = mFolderRoot.get()->getFoldersEnd();
+
+        for (; folders_it != folders_end; ++folders_it)
+        {
+            const LLFolderViewFolder* folder_view = *folders_it;
+            if (folder_view->getVisible())
+            {
+                const LLFolderViewModelItemInventory* modelp = static_cast<const LLFolderViewModelItemInventory*>(folder_view->getViewModelItem());
+                setSelectionByID(modelp->getUUID(), TRUE);
+                // quick and dirty fix: don't scroll on switching focus
+                // todo: better 'tab' support, one that would work for LLInventoryPanel
+                mFolderRoot.get()->stopAutoScollining();
+                select_first = false;
+                break;
+            }
+        }
+    }
+
+    if (select_first)
+    {
+        LLFolderViewFolder::items_t::const_iterator items_it = mFolderRoot.get()->getItemsBegin();
+        LLFolderViewFolder::items_t::const_iterator items_end = mFolderRoot.get()->getItemsEnd();
+
+        for (; items_it != items_end; ++items_it)
+        {
+            const LLFolderViewItem* item_view = *items_it;
+            if (item_view->getVisible())
+            {
+                const LLFolderViewModelItemInventory* modelp = static_cast<const LLFolderViewModelItemInventory*>(item_view->getViewModelItem());
+                setSelectionByID(modelp->getUUID(), TRUE);
+                mFolderRoot.get()->stopAutoScollining();
+                break;
+            }
+        }
+    }
+    LLInventoryPanel::onFocusReceived();
 }
 
 void LLInventorySingleFolderPanel::initFolderRoot(const LLUUID& start_folder_id)
