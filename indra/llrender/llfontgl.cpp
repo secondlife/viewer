@@ -423,7 +423,7 @@ S32 LLFontGL::render(const LLWString &text, S32 begin_offset, F32 x, F32 y, cons
 	return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
 }
 
-S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses, BOOL use_color) const
+S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses, BOOL use_color) const
 {
 	return render(utf8str_to_wstring(text), begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
 }
@@ -488,7 +488,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars) const
 	return getWidthF32(wchars, 0, S32_MAX);
 }
 
-F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max_chars ) const
+F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max_chars) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidthF32(wtext.c_str(), begin_offset, max_chars);
