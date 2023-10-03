@@ -2175,6 +2175,27 @@ Json::Value LLWebRTCVoiceClient::getPositionAndVolumeUpdateJson(bool force)
 
     if ((mSpatialCoordsDirty || force) && inSpatialChannel())
     {
+        LLVector3d earPosition;
+        LLQuaternion  earRot;
+        switch (mEarLocation)
+        {
+            case earLocCamera:
+            default:
+                earPosition = mCameraPosition;
+                earRot      = mCameraRot;
+                break;
+
+            case earLocAvatar:
+                earPosition = mAvatarPosition;
+                earRot      = mAvatarRot;
+                break;
+
+            case earLocMixed:
+                earPosition = mAvatarPosition;
+                earRot      = mCameraRot;
+                break;
+        }
+
         root["sp"]      = Json::objectValue;
         root["sp"]["x"] = (int) (mAvatarPosition[0] * 100);
         root["sp"]["y"] = (int) (mAvatarPosition[1] * 100);
@@ -2186,14 +2207,14 @@ Json::Value LLWebRTCVoiceClient::getPositionAndVolumeUpdateJson(bool force)
         root["sh"]["w"] = (int) (mAvatarRot[3] * 100);
 
         root["lp"]      = Json::objectValue;
-        root["lp"]["x"] = (int) (mCameraPosition[0] * 100);
-        root["lp"]["y"] = (int) (mCameraPosition[1] * 100);
-        root["lp"]["z"] = (int) (mCameraPosition[2] * 100);
+        root["lp"]["x"] = (int) (earPosition[0] * 100);
+        root["lp"]["y"] = (int) (earPosition[1] * 100);
+        root["lp"]["z"] = (int) (earPosition[2] * 100);
         root["lh"]      = Json::objectValue;
-        root["lh"]["x"] = (int) (mCameraRot[0] * 100);
-        root["lh"]["y"] = (int) (mCameraRot[1] * 100);
-        root["lh"]["z"] = (int) (mCameraRot[2] * 100);
-        root["lh"]["w"] = (int) (mCameraRot[3] * 100);
+        root["lh"]["x"] = (int) (earRot[0] * 100);
+        root["lh"]["y"] = (int) (earRot[1] * 100);
+        root["lh"]["z"] = (int) (earRot[2] * 100);
+        root["lh"]["w"] = (int) (earRot[3] * 100);
 
         mSpatialCoordsDirty = false;
     }
