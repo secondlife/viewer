@@ -662,9 +662,7 @@ void LLInspectObject::onClickOpen()
 
 void LLInspectObject::onClickMoreInfo()
 {
-	LLSD key;
-	key["task"] = "task";
-	LLFloaterSidePanelContainer::showPanel("inventory", key);
+    LLFloaterReg::showInstance("task_properties");
 	closeFloater();
 }
 

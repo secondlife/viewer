@@ -66,9 +66,8 @@ public:
 	void clearSelections(bool clearMain, bool clearInbox);
     std::set<LLFolderViewItem*> getInboxSelectionList();
 
-	void showItemInfoPanel();
-	void showTaskInfoPanel();
 	void showInventoryPanel();
+    void initInventoryViews();
 
 	// checks can share selected item(s)
 	bool canShare();
@@ -76,12 +75,12 @@ public:
 	void onToggleInboxBtn();
 
 	void enableInbox(bool enabled);
+    void toggleInbox();
+    void hideInbox();
 	
 	void openInbox();
 	
 	bool isInboxEnabled() const { return mInboxEnabled; }
-
-	void updateVerbs();
 
 	static void cleanup();
 
@@ -103,27 +102,14 @@ protected:
 private:
 	LLPanel*					mInventoryPanel; // Main inventory view
 	LLHandle<LLInventoryPanel>	mInventoryPanelInbox;
-	LLSidepanelItemInfo*		mItemPanel; // Individual item view
-	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
 	LLPanelMainInventory*		mPanelMainInventory;
 
+    LLLayoutPanel* mInboxLayoutPanel;
+
 protected:
-	void 						onInfoButtonClicked();
-	void 						onShareButtonClicked();
-	void 						onShopButtonClicked();
-	void 						onWearButtonClicked();
-	void 						onPlayButtonClicked();
-	void 						onTeleportButtonClicked();
 	void 						onBackButtonClicked();
 
 private:
-	LLButton*					mInfoBtn;
-	LLButton*					mShareBtn;
-	LLButton*					mWearBtn;
-	LLButton*					mPlayBtn;
-	LLButton*					mTeleportBtn;
-	LLButton*					mShopBtn;
-
 	bool						mInboxEnabled;
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;

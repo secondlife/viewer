@@ -27,8 +27,8 @@
 #ifndef LL_LLSIDEPANELTASKINFO_H
 #define LL_LLSIDEPANELTASKINFO_H
 
-#include "llsidepanelinventorysubpanel.h"
 #include "lluuid.h"
+#include "llpanel.h"
 #include "llselectmgr.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,14 +43,14 @@ class LLNameBox;
 class LLViewerObject;
 class LLTextBase;
 
-class LLSidepanelTaskInfo : public LLSidepanelInventorySubpanel
+class LLSidepanelTaskInfo : public LLPanel
 {
 public:
 	LLSidepanelTaskInfo();
 	virtual ~LLSidepanelTaskInfo();
 
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
+	BOOL postBuild() override;
+	void onVisibilityChange ( BOOL new_visibility ) override;
 
 	void setObjectSelection(LLObjectSelectionHandle selection);
 
@@ -58,10 +58,12 @@ public:
 	LLViewerObject* getFirstSelectedObject();
 
 	static LLSidepanelTaskInfo *getActivePanel();
+    void dirty();
+    static void onIdle( void* user_data );
 protected:
-	/*virtual*/ void refresh();	// refresh all labels as needed
-	/*virtual*/ void save();
-	/*virtual*/ void updateVerbs();
+	void refresh() override;	// refresh all labels as needed
+	void save();
+	void updateVerbs();
 
 	void refreshAll(); // ignore current keyboard focus and update all fields
 
@@ -103,6 +105,8 @@ private:
 	LLUUID			mCreatorID;
 	LLUUID			mOwnerID;
 	LLUUID			mLastOwnerID;
+    
+    bool mIsDirty;
 
 protected:
 	void 						onOpenButtonClicked();
@@ -121,6 +125,10 @@ protected:
 private:
 	LLPointer<LLViewerObject>	mObject;
 	LLObjectSelectionHandle		mObjectSelection;
+
+    // mVisibleDebugPermissions doesn't nessesarily matche state
+    // of viewes and is primarily for floater resize
+    bool                        mVisibleDebugPermissions;
 	static LLSidepanelTaskInfo* sActivePanel;
 	
 private:
@@ -148,12 +156,12 @@ private:
 	LLView*		mDALabelClickAction;
 	LLComboBox*	mDAComboClickAction;
 	LLTextBase* mDAPathfindingAttributes;
-	LLView*		mDAB;
-	LLView*		mDAO;
-	LLView*		mDAG;
-	LLView*		mDAE;
-	LLView*		mDAN;
-	LLView*		mDAF;
+    LLUICtrl*   mDAB;
+    LLUICtrl*   mDAO;
+    LLUICtrl*   mDAG;
+    LLUICtrl*   mDAE;
+    LLUICtrl*   mDAN;
+    LLUICtrl*   mDAF;
 };
 
 

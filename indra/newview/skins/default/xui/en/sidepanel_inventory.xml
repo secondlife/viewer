@@ -6,8 +6,7 @@
 	  layout="topleft"
 	  min_height="350"
 	  min_width="240"
-	  name="objects panel"
-	  width="333">
+	  name="objects panel">
     <panel
 		 follows="all"
 		 layout="topleft"
@@ -17,25 +16,22 @@
 		 label=""
 		 height="570"
 		 visible="true"
-		 default_tab_group="1"
-		 width="330">
+		 default_tab_group="1">
       <layout_stack
               follows="left|right|top|bottom"
               layout="topleft"
               left="0"
               top="0"
-							tab_group="1"
+              tab_group="1"
               orientation="vertical"
               name="inventory_layout_stack"
-              height="535"
-              width="330">
+              height="560">
              <layout_panel
                  name="main_inventory_layout_panel"
                  layout="topleft"
                  auto_resize="true"
                  user_resize="true"
                  min_dim="150"
-                 width="330"
                  follows="bottom|left|right"
                  height="300">
                  <panel
@@ -47,17 +43,15 @@
                       name="panel_main_inventory"
                       top="0"
                       label=""
-                      height="300"
-                      width="330" />
+                      height="300" />
              </layout_panel>
 			    <layout_panel
-                 width="330"
                  layout="topleft"
                  auto_resize="false"
                  user_resize="true"
                  follows="left|right|top"
                  name="inbox_layout_panel"
-                 visible="false"
+                 visible="true"
                  min_dim="35"
                  expanded_min_dim="90"
                  height="235">
@@ -69,17 +63,15 @@
                       class="panel_marketplace_inbox"
                       top="0"
                       label=""
-                      height="235"
-                      width="330">
+                      height="235">
                      <string name="InboxLabelWithArg">Received items ([NUM])</string>
                      <string name="InboxLabelNoArg">Received items</string>
                      <button
                         control_name="InventoryInboxToggleState"
                         label="Received items"
-												font="SansSerifMedium"
+                        font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
-                        width="308"
                         image_unselected="MarketplaceBtn_Off"
                         image_selected="MarketplaceBtn_Selected"
                         halign="left"
@@ -89,7 +81,8 @@
                         tab_stop="false"
                         pad_left="35"
                         top="0"
-                        left="10" />
+                        left="5"
+                        right="-5" />
                      <text
                         type="string"
                         length="1"
@@ -101,174 +94,35 @@
                         name="inbox_fresh_new_count"
                         font="SansSerifMedium"
                         halign="right"
-                        top_pad="0"
-                        width="300">
+                        top_pad="0">
                         [NUM] new
                      </text>
                      <panel
                         name="inbox_inventory_placeholder_panel"
                         follows="all"
-                        left="10"
-                        bottom="235"
-                        width="308"
+                        left="5"
+                        right="-5"
                         top="35"
+                        height="200"
                         bg_opaque_color="InventoryBackgroundColor"
                         background_visible="true"
                         background_opaque="true"
                         tool_tip="Drag and drop items to your inventory to use them"
                         >
                         <text name="inbox_inventory_placeholder"
-															type="string"
-															follows="all"
-															layout="topleft"
-															top="0"
-															left="0"
-															width="308"
-															height="200"
-															wrap="true"
-															halign="center">
-Purchases from the marketplace will be delivered here.
-												</text>
+                            type="string"
+                            follows="all"
+                            layout="topleft"
+                            top="0"
+                            height="200"
+                            wrap="true"
+                            halign="center"
+                            valign="center">
+                          Purchases from the marketplace will be delivered here.
+                        </text>
                     </panel>
                  </panel>
              </layout_panel>
          </layout_stack>
-			<panel follows="bottom|left|right"
-					 height="30"
-					 layout="topleft"
-					 name="button_panel"
-					 left="9"
-					 top_pad="7"
-					 width="308">
-				<layout_stack follows="bottom|left|right"
-											height="23"
-											layout="topleft"
-											mouse_opaque="false"
-											name="button_panel_ls"
-											left="0"
-											orientation="horizontal"
-											top="0"
-											width="308">	
-			    <layout_panel follows="bottom|left|right"
-												height="23"
-												layout="bottomleft"
-												left="0"			
-												mouse_opaque="false"
-												name="info_btn_lp"
-												auto_resize="true"
-												width="101">
-						<button enabled="true"
-										follows="bottom|left|right"
-										height="23"
-										label="Profile"
-										layout="topleft"
-										left="1"
-										name="info_btn"
-										tool_tip="Show object profile"
-										top="0"
-										width="100" />
-			    </layout_panel>
-			    <layout_panel
-                     follows="bottom|left|right"
-                     height="23"
-                     layout="bottomleft"
-                     left_pad="1"			
-                     mouse_opaque="false"
-                     name="share_btn_lp"
-                     auto_resize="true"
-                     width="100">
-                    <button
-                         enabled="true"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Share"
-                         layout="topleft"
-                         left="1"
-                         name="share_btn"
-                         tool_tip="Share an inventory item"
-                         top="0"
-                         width="99" />
-			    </layout_panel>
-			    <layout_panel
-                     follows="bottom|left|right"
-                     height="23"
-                     layout="bottomleft"
-                     left_pad="1"			
-                     mouse_opaque="false"
-                     name="shop_btn_lp"
-                     auto_resize="true"
-                     width="100">
-                    <button
-                         enabled="true"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Shop"
-                         layout="topleft"
-                         left="1"
-                         name="shop_btn"
-                         tool_tip="Open Marketplace webpage"
-                         top="0"
-                         width="99" />
-                    <button
-                         enabled="false"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Wear"
-                         layout="topleft"
-                         left="1"
-                         name="wear_btn"
-                         tool_tip="Wear seleceted outfit"
-                         top="0"
-                         width="99" />
-                    <button
-                         enabled="false"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Play"
-                         layout="topleft"
-                         name="play_btn"
-                         left="1"
-                         top="0"
-                         width="99" />
-                    <button
-                         enabled="false"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Teleport"
-                         layout="topleft"
-                         left="1"
-                         name="teleport_btn"
-                         tool_tip="Teleport to the selected area"
-                         top="0"
-                         width="99" />
-			    </layout_panel>
-			</layout_stack>
-		</panel>
-	</panel>
-	<panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 class="sidepanel_item_info"
-		 filename="sidepanel_item_info.xml"
-		 name="sidepanel__item_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="false"
-		 width="330">
-	</panel>
-	<panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 class="sidepanel_task_info"
-		 filename="sidepanel_task_info.xml"
-		 name="sidepanel__task_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="false"
-		 width="330">
 	</panel>
 </panel>

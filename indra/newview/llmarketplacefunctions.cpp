@@ -700,10 +700,9 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
                 // If it's a folder known to the marketplace, let's check it's in proper shape
                 if (LLMarketplaceData::instance().isListed(*id_it) || LLMarketplaceData::instance().isVersionFolder(*id_it))
                 {
-                    LLInventoryCategory* cat = (LLInventoryCategory*)(obj);
                     // can trigger notifyObservers
                     // can cause more structural changes
-                    validate_marketplacelistings(cat);
+                    LLMarketplaceValidator::getInstance()->validateMarketplaceListings(obj->getUUID());
                 }
             }
             else
@@ -897,7 +896,7 @@ void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot
 // Get/Post/Put requests to the SLM Server using the SLM API
 void LLMarketplaceData::getSLMListings()
 {
-    const LLUUID marketplaceFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    const LLUUID marketplaceFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     setUpdating(marketplaceFolderId, true);
 
     LLCoros::instance().launch("getSLMListings",
@@ -1804,7 +1803,7 @@ bool LLMarketplaceData::isUpdating(const LLUUID& folder_id, S32 depth)
     }
     else
     {
-        const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         std::set<LLUUID>::iterator it = mPendingUpdateSet.find(marketplace_listings_uuid);
         if (it != mPendingUpdateSet.end())
         {
@@ -1848,8 +1847,7 @@ void LLMarketplaceData::decrementValidationWaiting(const LLUUID& folder_id, S32 
         if (found->second <= 0)
         {
             mValidationWaitingList.erase(found);
-            LLInventoryCategory *cat = gInventory.getCategory(folder_id);
-            validate_marketplacelistings(cat);
+            LLMarketplaceValidator::getInstance()->validateMarketplaceListings(folder_id);
             update_marketplace_category(folder_id);
             gInventory.notifyObservers();
         }

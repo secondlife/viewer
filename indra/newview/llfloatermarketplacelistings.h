@@ -33,6 +33,7 @@
 #include "llinventorypanel.h"
 #include "llnotificationptr.h"
 #include "llmodaldialog.h"
+#include "llmultifloater.h"
 #include "lltexteditor.h"
 
 class LLInventoryCategoriesObserver;
@@ -139,6 +140,7 @@ private:
 	LLTextBox *		mInventoryTitle;
 
 	LLUUID			mRootFolderId;
+    bool            mRootFolderCreating;
 	LLPanelMarketplaceListings * mPanelListings;
     bool            mPanelListingsSet;
 };
@@ -221,6 +223,12 @@ public:
 	virtual void onOpen(const LLSD& key);
     
 private:
+};
+
+class LLMultiItemProperties : public LLMultiFloater
+{
+public:
+	LLMultiItemProperties(const LLSD& key);
 };
 
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H

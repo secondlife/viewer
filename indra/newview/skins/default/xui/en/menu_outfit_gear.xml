@@ -40,32 +40,11 @@
          parameter="take_off" />
     </menu_item_call>
     <menu_item_call
-     label="Upload Photo (L$[UPLOAD_COST])"
+     label="Image..."
      layout="topleft"
-     name="upload_photo">
+     name="thumbnail">
         <on_click
-         function="Gear.UploadPhoto" />
-    </menu_item_call>
-    <menu_item_call
-     label="Select Photo"
-     layout="topleft"
-     name="select_photo">
-        <on_click
-         function="Gear.SelectPhoto" />
-    </menu_item_call>
-    <menu_item_call
-     label="Take a Snapshot"
-     layout="topleft"
-     name="take_snapshot">
-        <on_click
-         function="Gear.TakeSnapshot" />
-    </menu_item_call>
-    <menu_item_call
-     label="Remove Photo"
-     layout="topleft"
-     name="remove_photo">
-        <on_click
-         function="Gear.RemovePhoto" />
+         function="Gear.Thumbnail" />
     </menu_item_call>
   <menu_item_separator name="sepatator1" />
             <!-- copied (with minor modifications) from menu_inventory_add.xml -->
