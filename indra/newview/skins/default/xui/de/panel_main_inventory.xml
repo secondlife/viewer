@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		Geholte [ITEM_COUNT] Bestellungen und [CATEGORY_COUNT] Ordner [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">INVENTAR</panel.string>
 	<text name="ItemcountText">
 		Objekte:
 	</text>

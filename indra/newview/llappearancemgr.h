@@ -338,7 +338,9 @@ public:
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
 
 // Invoke a given callable after category contents are fully fetched.
+void callAfterCOFFetch(nullary_func_t cb);
 void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb);
+void callAfterCategoryLinksFetch(const LLUUID &cat_id, nullary_func_t cb);
 
 // Wear all items in a uuid vector.
 void wear_multiple(const uuid_vec_t& ids, bool replace);

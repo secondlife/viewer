@@ -6,8 +6,7 @@
  layout="topleft"
  min_height="300"
  min_width="240"
- name="main inventory panel"
- width="330">
+ name="main inventory panel">
   <panel.string
    name="Itemcount">
   </panel.string>
@@ -23,211 +22,325 @@
    name="ItemcountUnknown">
     Fetched [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders [FILTER]
   </panel.string>
+  <panel.string name="inventory_title">INVENTORY</panel.string>
+  <panel.string name="default_mode_btn">Multi_Folder_Mode</panel.string>
+  <panel.string name="single_folder_mode_btn">Single_Folder_Mode</panel.string>
   <text
-		     type="string"
-		     length="1"
-		     follows="left|top|right"
-		     height="13"
-		     layout="topleft"
-    		 left="12"
-		     name="ItemcountText"
-		     font="SansSerifMedium"
-		     text_color="InventoryItemLinkColor"
-		     use_ellipses="true"
-		     top_pad="0"
-		     width="300">
+     type="string"
+     length="1"
+     follows="left|top|right"
+     height="13"
+     layout="topleft"
+  	 left="12"
+  	 right="-12"
+     name="ItemcountText"
+     font="SansSerifMedium"
+     text_color="InventoryItemLinkColor"
+     use_ellipses="true"
+     top_pad="0">
     Items:
   </text>
-  <combo_box
-   height="23"
-   layout="topleft"
-   left="10"
-   top="18"
-   name="search_type"
-   follows="top|left"
-   width="88">
-    <item
-     label="Name"
-     name="Name"
-     value="search_by_name"/>
-    <item
-     label="Creator"
-     name="Creator"
-     value="search_by_creator"/>
-    <item
-     label="Description"
-     name="Description"
-     value="search_by_description"/>
-    <item
-     label="UUID"
-     name="UUID"
-     value="search_by_UUID"/>
-  </combo_box>
-  <menu_button
-   follows="top|left"
-   tool_tip="Show search visibility options"
-   height="23"
-   image_overlay="Inv_Toolbar_SearchVisibility"
-   layout="topleft"
-   left_pad="3"
-   name="options_visibility_btn"
-   width="31" />
-  <filter_editor
-   text_pad_left="10"
+  <layout_stack
    follows="left|top|right"
-   height="23"
-   label="Enter search text"
-   layout="topleft"
-   left_pad="3"
-   max_length_chars="300"
-   highlight_text_field="true"
-   name="inventory search editor"
-   width="177" />
-  <tab_container
+   height="25"
+   animate="false"
+   top_pad="10"
+   left="2"
+   right="-4"
+   orientation="horizontal">
+    <layout_panel
+     border="false"
+     bevel_style="in"
+     user_resize="false"
+     auto_resize="false"
+     height="25"
+     width="65"
+     name="nav_buttons"
+     visible="false">
+     <button
+      follows="top|left"
+      height="23"
+      image_selected="Single_Folder_Back"
+      image_pressed="Single_Folder_Back"
+      image_unselected="Single_Folder_Back"
+      scale_image="false"
+      layout="topleft"
+      left="3"
+      top="2"
+      name="back_btn"
+      tool_tip="Back"
+      width="20" />
+     <button
+      follows="top|left"
+      height="23"
+      image_selected="Single_Folder_Forward"
+      image_pressed="Single_Folder_Forward"
+      image_unselected="Single_Folder_Forward"
+      scale_image="false"
+      layout="topleft"
+      left_pad="1"
+      name="forward_btn"
+      tool_tip="Forward"
+      width="20" />
+     <button
+      follows="top|left"
+      height="23"
+      image_selected="Single_Folder_Up"
+      image_pressed="Single_Folder_Up"
+      image_unselected="Single_Folder_Up"
+      scale_image="false"
+      layout="topleft"
+      left_pad="1"
+      name="up_btn"
+      tool_tip="Go up one level"
+      width="20" />
+    </layout_panel>
+    <layout_panel
+      border="false"
+      bevel_style="in"
+      user_resize="false"
+      height="25"
+      width="381"
+      visible="true">
+      <combo_box
+       height="23"
+       layout="topleft"
+       left="2"
+       top="0"
+       name="search_type"
+       tool_tip="Search by"
+       follows="top|left"
+       width="67">
+       <item
+        label="Name"
+        name="Name"
+        value="search_by_name"/>
+       <item
+        label="Creator"
+        name="Creator"
+        value="search_by_creator"/>
+       <item
+        label="Description"
+        name="Description"
+        value="search_by_description"/>
+       <item
+        label="UUID"
+        name="UUID"
+        value="search_by_UUID"/>
+      </combo_box>
+      <menu_button
+       follows="top|left"
+       tool_tip="Search visibility options"
+       height="23"
+       image_overlay="Inv_Toolbar_SearchVisibility"
+       layout="topleft"
+       left_pad="1"
+       name="options_visibility_btn"
+       width="31" />
+      <filter_editor
+       text_pad_left="10"
+       follows="left|top|right"
+       height="23"
+       label="Enter search text"
+       layout="topleft"
+       left_pad="1"
+       max_length_chars="300"
+       highlight_text_field="true"
+       name="inventory search editor"
+       width="150" />
+      <menu_button
+       follows="top|right"
+       tool_tip="Actions"
+       height="23"
+       image_hover_unselected="Toolbar_Middle_Over"
+       image_overlay="OptionsMenu_Off"
+       image_selected="Toolbar_Middle_Selected"
+       image_unselected="Toolbar_Middle_Off"
+       layout="topleft"
+       left_pad="1"
+       name="options_gear_btn"
+       width="31" />
+      <menu_button
+       follows="top|right"
+       tool_tip="View &amp; sort options"
+       height="23"
+       image_hover_unselected="Toolbar_Middle_Over"
+       image_overlay="Conv_toolbar_sort"
+       image_selected="Toolbar_Middle_Selected"
+       image_unselected="Toolbar_Middle_Off"
+       layout="topleft"
+       left_pad="1"
+       name="view_btn"
+       width="31" />
+      <button
+       follows="top|right"
+       height="23"
+       image_hover_unselected="Toolbar_Middle_Over"
+       image_overlay="AddItem_Off"
+       image_selected="Toolbar_Middle_Selected"
+       image_unselected="Toolbar_Middle_Off"
+       layout="topleft"
+       left_pad="1"
+       name="add_btn"
+       tool_tip="Create new item"
+       width="31" />
+      <button
+       follows="top|right"
+       tool_tip="Switch between views"
+       height="23"
+       image_hover_unselected="Toolbar_Middle_Over"
+       image_overlay="Single_Folder_Mode"
+       image_selected="Toolbar_Middle_Selected"
+       image_unselected="Toolbar_Middle_Off"
+       layout="topleft"
+       left_pad="1"
+       name="view_mode_btn"
+       width="31" />
+    </layout_panel>
+    </layout_stack>
+    <panel
      follows="all"
      halign="center"
-     height="339"
+     height="372"
+     layout="topleft"
+     left="3"
+     right="-3"
+     name="default_inventory_panel"
+     top_pad="5">
+      <tab_container
+       follows="all"
+       halign="center"
+       height="372"
+       layout="topleft"
+       left="0"
+       name="inventory filter tabs"
+       tab_height="30"
+       tab_position="top"
+       tab_min_width="100"
+       top="0">
+        <inventory_panel
+         bg_opaque_color="DkGray2"
+         bg_alpha_color="DkGray2"
+         background_visible="true"
+         border="false"
+         bevel_style="none"
+         follows="all"
+         label="MY INVENTORY"
+         help_topic="my_inventory_tab"
+         layout="topleft"
+         name="All Items"
+         sort_order_setting="InventorySortOrder"
+         show_item_link_overlays="true"
+         preinitialize_views="false"
+         scroll.reserve_scroll_corner="false">
+            <folder double_click_override="true"/>
+        </inventory_panel>
+        <recent_inventory_panel
+         bg_opaque_color="DkGray2"
+         bg_alpha_color="DkGray2"
+         background_visible="true"
+         border="false"
+         bevel_style="none"
+         follows="all"
+         label="RECENT"
+         help_topic="recent_inventory_tab"
+         layout="topleft"
+         name="Recent Items"
+         show_item_link_overlays="true"
+         preinitialize_views="false"
+         scroll.reserve_scroll_corner="false">
+            <folder double_click_override="true"/>
+        </recent_inventory_panel>
+        <inventory_panel
+         name="Worn Items"
+         label="WORN"
+         show_empty_message="false"
+         follows="all"
+         layout="topleft"
+         bg_opaque_color="DkGray2"
+         bg_alpha_color="DkGray2"
+         background_visible="true"
+         preinitialize_views="false"
+         border="false"
+         bevel_style="none"
+         scroll.reserve_scroll_corner="false">
+            <folder double_click_override="true"/>
+        </inventory_panel>
+      </tab_container>
+    </panel>
+    <panel
+     follows="all"
+     halign="center"
+     height="375"
      layout="topleft"
      left="7"
-     name="inventory filter tabs"
-     tab_height="30"
-     tab_position="top"
-     tab_min_width="100"
-     top_pad="10"
-     width="312">
-    <inventory_panel
-     bg_opaque_color="DkGray2"
-     bg_alpha_color="DkGray2"
-     background_visible="true"
-     border="false"
-     bevel_style="none"
-     follows="all"
-     height="338"
-     label="MY INVENTORY"
-     help_topic="my_inventory_tab"
-     layout="topleft"
-     left="0"
-     name="All Items"
-     sort_order_setting="InventorySortOrder"
-     show_item_link_overlays="true"
-     top="16"
-     width="288" />
-    <recent_inventory_panel
-     bg_opaque_color="DkGray2"
-     bg_alpha_color="DkGray2"
-     background_visible="true"
-     border="false"
-     bevel_style="none"
-     follows="all"
-     height="338"
-     label="RECENT"
-     help_topic="recent_inventory_tab"
-     layout="topleft"
-     left_delta="0"
-     name="Recent Items"
-     show_item_link_overlays="true"
-     width="290" />
-       <inventory_panel
-      name="Worn Items"
-      label="WORN"
-      show_empty_message="false"
+     name="combination_view_inventory"
+     top_delta="0"
+     visible="false">
+     <layout_stack
       follows="all"
       layout="topleft"
-      width="290"
-      bg_opaque_color="DkGray2"
-      bg_alpha_color="DkGray2"
-      background_visible="true"
-      border="false"
-      bevel_style="none"
-      scroll.reserve_scroll_corner="false">
-  </inventory_panel>
-  </tab_container>
-  <layout_stack
-   animate="false"
-   border_size="0"
-   follows="left|right|bottom"
-   height="25"
-   layout="topleft"
-   orientation="horizontal"
-   top_pad="0"
-   left="10"
-   name="bottom_panel"
-   width="307">
-      <layout_panel
-       auto_resize="false"
-       height="25"
-       layout="topleft"
-       name="options_gear_btn_panel"
-       width="32">
-          <menu_button
-           follows="bottom|left"
-           tool_tip="Show additional options"
-           height="25"
-           image_hover_unselected="Toolbar_Left_Over"
-           image_overlay="OptionsMenu_Off"
-           image_selected="Toolbar_Left_Selected"
-           image_unselected="Toolbar_Left_Off"
-           layout="topleft"
-           left="0"
-           name="options_gear_btn"
-           top="0"
-           width="31" />
-      </layout_panel>
-      <layout_panel
-       auto_resize="false"
-       height="25"
-       layout="topleft"
-       name="add_btn_panel"
-       width="32">
-          <button
-           follows="bottom|left"
-           height="25"
-           image_hover_unselected="Toolbar_Middle_Over"
-           image_overlay="AddItem_Off"
-           image_selected="Toolbar_Middle_Selected"
-           image_unselected="Toolbar_Middle_Off"
-           layout="topleft"
-           left="0"
-           name="add_btn"
-           tool_tip="Add new item"
-           top="0"
-           width="31" />
-      </layout_panel>
-      <layout_panel
-       auto_resize="true"
-       height="25"
-       layout="topleft"
-       name="dummy_panel"
-       width="212">
-          <icon
-           follows="bottom|left|right"
-           height="25"
-           image_name="Toolbar_Middle_Off"
-           layout="topleft"
-           left="0"
-           top="0"
-           name="dummy_icon"
-           width="211" />
-      </layout_panel>
-      <layout_panel
-       auto_resize="false"
-       height="25"
-       layout="topleft"
-       name="trash_btn_panel"
-       width="31">
-          <dnd_button
-           follows="bottom|left"
-           height="25"
-           image_hover_unselected="Toolbar_Right_Over"
-           image_overlay="TrashItem_Off"
-           image_selected="Toolbar_Right_Selected"
-           image_unselected="Toolbar_Right_Off"
-           left="0"
-           layout="topleft"
-           name="trash_btn"
-           tool_tip="Remove selected item"
-           top="0"
-           width="31"/>
-      </layout_panel>
-  </layout_stack>
+      height="375"
+      name="combination_view_stack"
+      animate="false"
+      drag_handle_thickness="6"
+      drag_handle_first_indent="18"
+      drag_handle_second_indent="18"
+      drag_handle_shift="5"
+      show_drag_handle="true"
+      top="0"
+      left="0"
+      orientation="vertical">
+       <layout_panel
+        border="false"
+        bevel_style="in"
+        user_resize="true"
+        auto_resize="true"
+        height="248"
+        min_width="150"
+        name="comb_gallery_layout">
+        <panel
+         class="inventory_gallery"
+         filename="panel_inventory_gallery.xml"
+         left="0"
+         top="1"
+         height="248"
+         name="comb_gallery_view_inv"
+         background_visible="true"
+         follows="all"
+         layout="topleft">
+        </panel>
+       </layout_panel>
+       <layout_panel
+        border="false"
+        bevel_style="in"
+        user_resize="true"
+        auto_resize="true"
+        height="127"
+        min_height="100"
+        name="comb_inventory_layout">
+        <single_folder_inventory_panel
+         name="comb_single_folder_inv"
+         follows="all"
+         left="0"
+         top="1"
+         height="127"
+         layout="topleft"
+         show_item_link_overlays="true"
+         bg_opaque_color="DkGray2"
+         bg_alpha_color="DkGray2"
+         background_visible="true"
+         border="false"
+         bevel_style="none"
+         scroll.reserve_scroll_corner="false">
+         <item
+          single_folder_mode="true"
+          folder_indentation="-8"/>
+         <folder
+          single_folder_mode="true"
+          folder_indentation="-8"/>
+        </single_folder_inventory_panel>
+       </layout_panel>
+     </layout_stack>
+    </panel>
 </panel>

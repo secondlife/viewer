@@ -133,6 +133,7 @@ public:
 	 * Share items with the picked avatars.
 	 */
 	static void shareWithAvatars(LLView * panel);
+    static void shareWithAvatars(const uuid_set_t inventory_selected_uuids, LLFloater* root_floater);
 
 	/**
 	 * Block/unblock the avatar by id.
