@@ -1036,7 +1036,7 @@ AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& 
         mFetchDepth = request_body["depth"].asInteger();
     }
 
-    mTimer.setTimerExpirySec(EXPIRY_SECONDS_LIVE);
+    mTimer.setTimerExpirySec(AIS_EXPIRY_SECONDS);
     mTimer.start();
 	parseUpdate(update);
 }
@@ -1062,7 +1062,7 @@ void AISUpdate::checkTimeout()
     {
         llcoro::suspend();
         LLCoros::checkStop();
-        mTimer.setTimerExpirySec(EXPIRY_SECONDS_LIVE);
+        mTimer.setTimerExpirySec(AIS_EXPIRY_SECONDS);
     }
 }
 
