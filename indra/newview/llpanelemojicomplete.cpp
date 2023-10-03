@@ -32,6 +32,7 @@
 #include "lluictrlfactory.h"
 
 constexpr U32 MIN_MOUSE_MOVE_DELTA = 4;
+constexpr U32 MIN_SHORT_CODE_WIDTH = 100;
 
 // ============================================================================
 // LLPanelEmojiComplete
@@ -42,6 +43,7 @@ static LLDefaultChildRegistry::Register<LLPanelEmojiComplete> r("emoji_complete"
 LLPanelEmojiComplete::Params::Params()
 	: autosize("autosize")
 	, noscroll("noscroll")
+	, vertical("vertical")
 	, max_emoji("max_emoji")
 	, padding("padding")
 	, selected_image("selected_image")
@@ -52,11 +54,13 @@ LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p
 	: LLUICtrl(p)
 	, mAutoSize(p.autosize)
 	, mNoScroll(p.noscroll)
+	, mVertical(p.vertical)
 	, mMaxVisible(p.max_emoji)
 	, mPadding(p.padding)
 	, mSelectedImage(p.selected_image)
+	, mIconFont(LLFontGL::getFontEmojiHuge())
+	, mTextFont(LLFontGL::getFontSansSerifBig())
 {
-	setFont(p.font);
 }
 
 LLPanelEmojiComplete::~LLPanelEmojiComplete()
@@ -65,29 +69,61 @@ LLPanelEmojiComplete::~LLPanelEmojiComplete()
 
 void LLPanelEmojiComplete::draw()
 {
-	if (!mEmojis.empty())
-	{
-		const S32 centerY = mRenderRect.getCenterY();
-		const size_t firstVisibleIdx = mScrollPos, lastVisibleIdx = llmin(mScrollPos + mVisibleEmojis, mEmojis.size()) - 1;
+    if (mEmojis.empty())
+        return;
 
-		if (mCurSelected >= firstVisibleIdx && mCurSelected <= lastVisibleIdx)
-		{
-			const S32 emoji_left = mRenderRect.mLeft + (mCurSelected - firstVisibleIdx) * mEmojiWidth;
-			const S32 emoji_height = mFont->getLineHeight() + mPadding;
-			mSelectedImage->draw(emoji_left, centerY - emoji_height / 2, mEmojiWidth, emoji_height);
-		}
+    const size_t firstVisibleIdx = mScrollPos;
+    const size_t lastVisibleIdx = llmin(mScrollPos + mVisibleEmojis, mEmojis.size()) - 1;
 
-		U32 left = mRenderRect.mLeft + mPadding;
-		for (U32 curIdx = firstVisibleIdx; curIdx <= lastVisibleIdx; curIdx++)
-		{
-			mFont->render(
-				mEmojis, curIdx,
-				left, centerY,
-				LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW_SOFT,
-				1, S32_MAX, nullptr, false, true);
-			left += mEmojiWidth;
-		}
-	}
+    if (mCurSelected >= firstVisibleIdx && mCurSelected <= lastVisibleIdx)
+    {
+        S32 x, y, width, height;
+        if (mVertical)
+        {
+            x = mRenderRect.mLeft;
+            y = mRenderRect.mTop - (mCurSelected - firstVisibleIdx + 1) * mEmojiHeight;
+            width = mRenderRect.getWidth();
+            height = mEmojiHeight;
+        }
+        else
+        {
+            x = mRenderRect.mLeft + (mCurSelected - firstVisibleIdx) * mEmojiWidth;
+            y = mRenderRect.mBottom;
+            width = mEmojiWidth;
+            height = mRenderRect.getHeight();
+        }
+        mSelectedImage->draw(x, y, width, height);
+    }
+
+    S32 iconCenterX = mRenderRect.mLeft + mEmojiWidth / 2;
+    S32 iconCenterY = mRenderRect.mTop - mEmojiHeight / 2;
+    S32 textLeft = mVertical ? mRenderRect.mLeft + mEmojiWidth + mPadding : 0;
+    S32 textWidth = mVertical ? getRect().getWidth() - textLeft - mPadding : 0;
+
+    for (U32 curIdx = firstVisibleIdx; curIdx <= lastVisibleIdx; curIdx++)
+    {
+        mIconFont->render(mEmojis, curIdx, iconCenterX, iconCenterY,
+            LLColor4::white, LLFontGL::HCENTER, LLFontGL::VCENTER, LLFontGL::NORMAL,
+            LLFontGL::DROP_SHADOW_SOFT, 1, S32_MAX, nullptr, false, true);
+        if (mVertical)
+        {
+            llwchar emoji = mEmojis[curIdx];
+            auto& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
+            auto it = emoji2descr.find(emoji);
+            if (it != emoji2descr.end())
+            {
+                const std::string& shortCode = it->second->ShortCodes.front();
+                mTextFont->renderUTF8(shortCode, 0, textLeft, iconCenterY, LLColor4::white,
+                    LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                    shortCode.size(), textWidth, NULL, FALSE, FALSE);
+            }
+            iconCenterY -= mEmojiHeight;
+        }
+        else
+        {
+            iconCenterX += mEmojiWidth;
+        }
+    }
 }
 
 BOOL LLPanelEmojiComplete::handleHover(S32 x, S32 y, MASK mask)
@@ -182,10 +218,30 @@ void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 	llwchar curEmoji = (mCurSelected < mEmojis.size()) ? mEmojis.at(mCurSelected) : 0;
 
 	mEmojis = LLEmojiDictionary::instance().findMatchingEmojis(hint);
-	size_t curEmojiIdx = (curEmoji) ? mEmojis.find(curEmoji) : std::string::npos;
+	size_t curEmojiIdx = curEmoji ? mEmojis.find(curEmoji) : std::string::npos;
 	mCurSelected = (std::string::npos != curEmojiIdx) ? curEmojiIdx : 0;
 
 	onEmojisChanged();
+}
+
+U32 LLPanelEmojiComplete::getMaxShortCodeWidth() const
+{
+    U32 max_width = 0;
+    auto& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
+    for (llwchar emoji : mEmojis)
+    {
+        auto it = emoji2descr.find(emoji);
+        if (it != emoji2descr.end())
+        {
+            const std::string& shortCode = it->second->ShortCodes.front();
+            S32 width = mTextFont->getWidth(shortCode);
+            if (width > max_width)
+            {
+                max_width = width;
+            }
+        }
+    }
+    return max_width;
 }
 
 void LLPanelEmojiComplete::onEmojisChanged()
@@ -193,7 +249,18 @@ void LLPanelEmojiComplete::onEmojisChanged()
 	if (mAutoSize)
 	{
 		mVisibleEmojis = std::min(mEmojis.size(), mMaxVisible);
-		reshape(mVisibleEmojis * mEmojiWidth, getRect().getHeight(), false);
+        if (mVertical)
+        {
+            U32 maxShortCodeWidth = getMaxShortCodeWidth();
+            U32 shortCodeWidth = std::max(maxShortCodeWidth, MIN_SHORT_CODE_WIDTH);
+            S32 width = mEmojiWidth + shortCodeWidth + mPadding * 2;
+            reshape(width, mVisibleEmojis * mEmojiHeight, false);
+        }
+        else
+        {
+            S32 height = getRect().getHeight();
+            reshape(mVisibleEmojis * mEmojiWidth, height, false);
+        }
 	}
 	else
 	{
@@ -207,7 +274,8 @@ size_t LLPanelEmojiComplete::posToIndex(S32 x, S32 y) const
 {
 	if (mRenderRect.pointInRect(x, y))
 	{
-		return mScrollPos + llmin((size_t)x / mEmojiWidth, mEmojis.size() - 1);
+		U32 pos = mVertical ? (U32)(mRenderRect.mTop - y) / mEmojiHeight : x / mEmojiWidth;
+		return mScrollPos + llmin((size_t)pos, mEmojis.size() - 1);
 	}
 	return npos;
 }
@@ -228,21 +296,32 @@ void LLPanelEmojiComplete::selectPrevious()
 	select(mCurSelected - 1 >= 0 ? mCurSelected - 1 : mEmojis.size() - 1);
 }
 
-void LLPanelEmojiComplete::setFont(const LLFontGL* fontp)
-{
-	mFont = fontp;
-	updateConstraints();
-}
-
 void LLPanelEmojiComplete::updateConstraints()
 {
-	const S32 ctrlWidth = getLocalRect().getWidth();
+    mRenderRect = getLocalRect();
+    S32 ctrlWidth = mRenderRect.getWidth();
+    S32 ctrlHeight = mRenderRect.getHeight();
 
-	mEmojiWidth = mFont->getWidthF32(u8"\U0001F431") + mPadding * 2;
-	mVisibleEmojis = ctrlWidth / mEmojiWidth;
-	mRenderRect = getLocalRect().stretch((ctrlWidth - mVisibleEmojis * mEmojiWidth) / -2, 0);
+    mEmojiHeight = mIconFont->getLineHeight() + mPadding * 2;
+    mEmojiWidth = mIconFont->getWidthF32(u8"\U0001F431") + mPadding * 2;
+    if (mVertical)
+    {
+        mVisibleEmojis = ctrlHeight / mEmojiHeight;
+        mRenderRect.mBottom = mRenderRect.mTop - mVisibleEmojis * mEmojiHeight;
+    }
+    else
+    {
+        mVisibleEmojis = ctrlWidth / mEmojiWidth;
+        S32 padding = (ctrlWidth - mVisibleEmojis * mEmojiWidth) / 2;
+        mRenderRect.mLeft += padding;
+        mRenderRect.mRight -= padding;
+        if (mEmojiHeight > ctrlHeight)
+        {
+            mEmojiHeight = ctrlHeight;
+        }
+    }
 
-	updateScrollPos();
+    updateScrollPos();
 }
 
 void LLPanelEmojiComplete::updateScrollPos()
@@ -302,11 +381,23 @@ BOOL LLFloaterEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_pare
 
 void LLFloaterEmojiComplete::onOpen(const LLSD& key)
 {
-	mEmojiCtrl->setEmojiHint(key["hint"].asString());
-	if (0 == mEmojiCtrl->getEmojiCount())
-	{
-		LLEmojiHelper::instance().hideHelper();
-	}
+    mEmojiCtrl->setEmojiHint(key["hint"].asString());
+    if (0 == mEmojiCtrl->getEmojiCount())
+    {
+        LLEmojiHelper::instance().hideHelper();
+        return;
+    }
+
+    if (mEmojiCtrl->isAutoSize())
+    {
+        LLRect outer_rect = getRect();
+        const LLRect& inner_rect = mEmojiCtrl->getRect();
+        outer_rect.mTop = outer_rect.mBottom + inner_rect.mBottom * 2 + inner_rect.getHeight();
+        outer_rect.mRight = outer_rect.mLeft + inner_rect.mLeft * 2 + inner_rect.getWidth();
+        setRect(outer_rect);
+    }
+
+    gFloaterView->adjustToFitScreen(this, FALSE);
 }
 
 BOOL LLFloaterEmojiComplete::postBuild()

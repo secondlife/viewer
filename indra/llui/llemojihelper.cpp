@@ -109,11 +109,12 @@ void LLEmojiHelper::showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, c
 	}
 
 	LLFloater* pHelperFloater = mHelperHandle.get();
-	LLRect rct = pHelperFloater->getRect();
-	rct.setLeftTopAndSize(floater_x - HELPER_FLOATER_OFFSET_X, floater_y - HELPER_FLOATER_OFFSET_Y + rct.getHeight(), rct.getWidth(), rct.getHeight());
-	pHelperFloater->setRect(rct);
+	LLRect rect = pHelperFloater->getRect();
+	S32 left = floater_x - HELPER_FLOATER_OFFSET_X;
+	S32 top = floater_y - HELPER_FLOATER_OFFSET_Y + rect.getHeight();
+	rect.setLeftTopAndSize(left, top, rect.getWidth(), rect.getHeight());
+	pHelperFloater->setRect(rect);
 	pHelperFloater->openFloater(LLSD().with("hint", short_code));
-    gFloaterView->adjustToFitScreen(pHelperFloater, FALSE);
 }
 
 void LLEmojiHelper::hideHelper(const LLUICtrl* ctrl_p)

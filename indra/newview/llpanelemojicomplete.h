@@ -41,6 +41,7 @@ public:
 	{
 		Optional<bool>       autosize;
 		Optional<bool>       noscroll;
+		Optional<bool>       vertical;
 		Optional<S32>        max_emoji,
 		                     padding;
 
@@ -68,6 +69,8 @@ public:
 	size_t getEmojiCount() const { return mEmojis.size(); }
 	void setEmojis(const LLWString& emojis);
 	void setEmojiHint(const std::string& hint);
+	bool isAutoSize() const { return mAutoSize; }
+	U32 getMaxShortCodeWidth() const;
 
 protected:
 	void onEmojisChanged();
@@ -75,7 +78,6 @@ protected:
 	void select(size_t emoji_idx);
 	void selectNext();
 	void selectPrevious();
-	void setFont(const LLFontGL* fontp);
 	void updateConstraints();
 	void updateScrollPos();
 
@@ -84,14 +86,17 @@ protected:
 
 	const bool      mAutoSize = false;
 	const bool      mNoScroll = false;
-	const LLFontGL* mFont;
-	U16             mEmojiWidth = 0;
+	const bool      mVertical = false;
 	const size_t    mMaxVisible = 0;
 	const S32       mPadding = 8;
-	LLRect          mRenderRect;
 	const LLUIImagePtr mSelectedImage;
+	const LLFontGL* mIconFont;
+	const LLFontGL* mTextFont;
 
 	LLWString       mEmojis;
+	LLRect          mRenderRect;
+	U16             mEmojiWidth = 0;
+	U16             mEmojiHeight = 0;
 	size_t          mVisibleEmojis = 0;
 	size_t          mFirstVisible = 0;
 	size_t          mScrollPos = 0;
