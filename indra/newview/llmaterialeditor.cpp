@@ -1530,7 +1530,7 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
             }
             if (item)
             {
-                const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+                const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
                 LLUUID parent_id = item->getParentUUID();
                 if (mObjectUUID.notNull() || marketplacelistings_id == parent_id || gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID()))
                 {

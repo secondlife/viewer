@@ -2425,7 +2425,6 @@ void LLInventorySingleFolderPanel::doShare()
 
 LLAssetFilteredInventoryPanel::LLAssetFilteredInventoryPanel(const Params& p)
     : LLInventoryPanel(p)
-    , mAssetType(LLAssetType::AT_NONE)
 {
 }
 

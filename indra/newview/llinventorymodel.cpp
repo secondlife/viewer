@@ -3269,7 +3269,7 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 void LLInventoryModel::createCommonSystemCategories()
 {
     //amount of System Folder we should wait for
-    sPendingSystemFolders = 8;
+    sPendingSystemFolders = 9;
 
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_TRASH);
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_FAVORITE);
