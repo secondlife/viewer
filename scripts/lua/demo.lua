@@ -1,5 +1,5 @@
 function popup_and_wait_ok(message)
-  args = {{"MESSAGE", message}}
+  args = {MESSAGE=message}
   notif_response = nil
   show_notification("GenericAlertOK", args, "notif_response")
   while not notif_response do
@@ -20,8 +20,31 @@ function demo_environment()
     sleep(2)
 end
 
+function demo_rez()
+  for x=-1,1,1 do
+    for y=-1,1,1 do
+      rez_prim2({x,y,-1},1)
+    end
+  end
+end
+
 function demo_avatar()
     popup_and_wait_ok("Change Avatar")
+
+    local dest = {10,10,0}
+    move_by(dest, "autopilot_response")
+    while not autopilot_response do
+      sleep(0.2)
+    end
+
+    local response = autopilot_response
+
+    if response == 1 then
+      sleep(1)
+      demo_rez()
+      sleep(2)
+    end
+    
     wear_by_name("Greg")
     run_ui_command("Avatar.ResetSelfSkeletonAndAnimations")
     sleep(8)
@@ -34,8 +57,7 @@ function demo_avatar()
     run_ui_command("Self.ToggleSitStand")
     sleep(2)
 
-    run_ui_command("View.ZoomOut")
-    run_ui_command("View.ZoomOut")
+    --run_ui_command("View.ZoomOut")
     run_ui_command("EditShape")
     sleep(6)
     close_floater("appearance")
@@ -59,7 +81,7 @@ function demo_ui()
 
 
   notif_response = nil
-  args = {{"MESSAGE", "Customize the UI now?"}}
+  args = {MESSAGE="Customize the UI now?"}
   show_notification("GenericAlertYesCancel", args, "notif_response")
   while not notif_response do
     sleep(0.2)
@@ -72,40 +94,45 @@ function demo_ui()
   menu_name = "BuildTools"
   add_menu_separator(menu_name)
 
-  params = {{"name", "user_sit"}, {"label", "Sit!"},
-          {"function", "Self.ToggleSitStand"}}
+  params = {name="user_sit",
+            label="Sit!"}
+  params["function"]="Self.ToggleSitStand"
 
   add_menu_item(menu_name, params)
 
-  params = {{"name", "user_midnight"}, {"label", "Set night"},
-          {"function", "World.EnvSettings"}, {"parameter", "midnight"}}
+  params = {name="user_midnight",label="Set night",parameter="midnight"}
+  params["function"] = "World.EnvSettings"
 
   add_menu_item(menu_name, params)
 
   -- adding new custom menu
   new_menu_name = "user_menu"
-  params = {{"name", new_menu_name}, {"label", "My Secret Menu"}, {"tear_off", "true"}}
+  params = {name=new_menu_name,label="My Secret Menu",tear_off="true"}
   add_menu(params)
 
   -- adding new item to the new menu
-  params = {{"name", "user_debug"}, {"label", "Console"},
-          {"function", "Advanced.ToggleConsole"}, {"parameter", "debug"}}
+  params = {name="user_debug",label="Console",
+            parameter="debug"}
+  params["function"] = "Advanced.ToggleConsole"
 
   add_menu_item(new_menu_name, params)
 
   -- adding new branch
   new_branch = "user_floaters"
-  params = {{"name", new_branch}, {"label", "Open Floater"}, {"tear_off", "true"}}
+  params = {name=new_branch, label="Open Floater",tear_off="true"}
   add_branch(new_menu_name, params)
 
   -- adding items to the branch
-  params = {{"name", "user_permissions"}, {"label", "Default permissions"},
-          {"function", "Floater.ToggleOrBringToFront"}, {"parameter", "perms_default"}}
+  params = {name="user_permissions",label="Default permissions",
+            parameter="perms_default"}
+  params["function"] = "Floater.ToggleOrBringToFront"
+
 
   add_menu_item(new_branch, params)
 
-  params = {{"name", "user_beacons"}, {"label", "Beacons"},
-          {"function", "Floater.ToggleOrBringToFront"}, {"parameter", "beacons"}}
+  params = {name="user_beacons",label="Beacons",
+            parameter="beacons"}
+  params["function"] = "Floater.ToggleOrBringToFront"
 
   add_menu_item(new_branch, params)
   sleep(5)

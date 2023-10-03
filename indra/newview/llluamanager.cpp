@@ -596,16 +596,50 @@ lua_function(add_branch)
 // avatar is the reference point
 lua_function(rez_prim)
 {
-    lua_rawgeti(L, 1, 1);
-    F32 x = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    lua_rawgeti(L, 1, 2);
-    F32 y = lua_tonumber(L, -1);
-    lua_pop(L, 1);
+	lua_rawgeti(L, 1, 1);
+	F32 x = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+	lua_rawgeti(L, 1, 2);
+	F32 y = lua_tonumber(L, -1);
+	lua_pop(L, 1);
 
-    S32 type(lua_tonumber(L, 2));  // primitive shapes 1-8
+	S32 type(lua_tonumber(L, 2));  // primitive shapes 1-8
 
-    LLVector3 obj_pos = gAgent.getPositionAgent() + LLVector3(x, y, -0.5);
+	LLVector3 obj_pos = gAgent.getPositionAgent() + LLVector3(x, y, -0.5);
+    bool res = LLToolPlacer::rezNewObject(type, NULL, 0, TRUE, gAgent.getPositionAgent(), obj_pos, gAgent.getRegion(), 0);
+
+    LL_INFOS() << "Rezing a prim: type " << LLPrimitive::pCodeToString(type) << ", coordinates: " << obj_pos << " Success: " << res << LL_ENDL;
+
+    lua_pop(L, lua_gettop(L));
+    return 0;
+}
+
+// rez_prim2({x, y,z}, prim_type)
+// avatar is the reference point
+lua_function(rez_prim2)
+{
+	luaL_checktype(L, 1, LUA_TTABLE);
+	S32 type(lua_tonumber(L,2));
+	lua_pop(L,1);
+		
+	lua_pushinteger(L, 1);
+    lua_gettable(L, -2);
+	F32 x = lua_tonumber(L,-1);
+	lua_pop(L,1);
+
+	lua_pushinteger(L, 2);
+    lua_gettable(L, -2);
+	F32 y = lua_tonumber(L,-1);
+	lua_pop(L,1);
+
+	lua_pushinteger(L, 3);
+    lua_gettable(L, -2);
+	F32 z = lua_tonumber(L,-1);
+	lua_pop(L,1);
+	 
+	LL_INFOS() << "x " << x << " y " << y << " z " << z << " type " << type << LL_ENDL;
+
+    LLVector3 obj_pos = gAgent.getPositionAgent() + LLVector3(x, y, z);
     bool res = LLToolPlacer::rezNewObject(type, NULL, 0, TRUE, gAgent.getPositionAgent(), obj_pos, gAgent.getRegion(), 0);
 
     LL_INFOS() << "Rezing a prim: type " << LLPrimitive::pCodeToString(type) << ", coordinates: " << obj_pos << " Success: " << res << LL_ENDL;
