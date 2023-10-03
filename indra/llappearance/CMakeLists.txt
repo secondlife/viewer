@@ -21,7 +21,6 @@ set(llappearance_SOURCE_FILES
     lltexglobalcolor.cpp
     lltexlayer.cpp
     lltexlayerparams.cpp
-    lltexturemanagerbridge.cpp
     llwearable.cpp
     llwearabledata.cpp
     llwearabletype.cpp
@@ -44,7 +43,6 @@ set(llappearance_HEADER_FILES
     lltexglobalcolor.h
     lltexlayer.h
     lltexlayerparams.h
-    lltexturemanagerbridge.h
     llwearable.h
     llwearabledata.h
     llwearabletype.h

@@ -290,4 +290,13 @@
                     function="Inventory.EnvironmentEnabled" />
         </menu_item_call>
     </menu>
+    <menu_item_separator/>
+    <menu_item_call
+     label="Shop..."
+     layout="topleft"
+     name="Shop">
+        <menu_item_call.on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="shop" />
+    </menu_item_call>
 </menu>

@@ -51,6 +51,7 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llviewerstats.h"
+#include "llviewertexturelist.h"
 #include "llwindow.h"
 #include "llworld.h"
 #include <boost/filesystem.hpp>
@@ -871,6 +872,11 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
 		}
 	}
     return mPreviewImageEncoded;
+}
+
+bool LLSnapshotLivePreview::createUploadFile(const std::string &out_filename, const S32 max_image_dimentions, const S32 min_image_dimentions)
+{
+    return LLViewerTextureList::createUploadFile(mPreviewImage, out_filename, max_image_dimentions, min_image_dimentions);
 }
 
 // We actually estimate the data size so that we do not require actual compression when showing the preview

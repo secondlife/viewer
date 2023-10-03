@@ -3284,6 +3284,30 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 
   <notification
    icon="alertmodal.tga"
+   label="Rename Selected Item"
+   name="RenameItem"
+   type="alertmodal">
+    Choose a new name for:
+[NAME]
+   <tag>confirm</tag>
+    <form name="form">
+    <input name="new_name" type="text" width="300">
+      [NAME]
+    </input>
+    <button
+     default="true"
+     index="0"
+     name="OK"
+     text="OK"/>
+    <button
+     index="1"
+     name="Cancel"
+     text="Cancel"/>
+   </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
@@ -6129,7 +6153,54 @@ Are you sure you want to delete them?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteThumbnail"
+   type="alertmodal">
+    <unique/>
+    Delete the image for this item? There is no undo.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Don't show me this again"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Delete"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ThumbnailDimentionsLimit"
+   type="alertmodal">
+    <unique/>
+    Only square images from 64 to 256 pixels per side are allowed.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ThumbnailInsufficientPermissions"
+   type="alertmodal">
+    <unique/>
+    Only copy and transfer free images can be assigned as thumbnails.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ThumbnailOutfitPhoto"
+   type="alertmodal">
+    <unique/>
+    To add an image to an outfit, use the Outfit Gallery window, or right-click on the outfit folder and select "Image..."
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
   <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
@@ -6367,6 +6438,22 @@ Your trash is overflowing. This may cause problems logging in.
          name="okcancelbuttons"
          notext="I will empty trash later"
          yestext="Check trash folder"/>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="InventoryLimitReachedAIS"
+   type="notifytip">
+Your inventory is experiencing issues. Please, contact support.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InventoryLimitReachedAISAlert"
+   type="alertmodal">
+Your inventory is experiencing issues. Please, contact support.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -11901,16 +11988,41 @@ Packing: [PACK_TIME]s [PSIZE]KB
 Unpacking: [UNPACK_TIME]s [USIZE]KB
     <tag>fail</tag>
   </notification>
-  
+
+    <notification
+     icon="alertmodal.tga"
+     label="Prompt for MFA Token"
+     name="PromptMFAToken"
+     type="alertmodal">
+        [MESSAGE]
+        <tag>confirm</tag>
+        <form name="form">
+            <input name="token" type="text" width="400" />
+            <button
+             default="true"
+             index="0"
+             name="continue"
+             text="Continue"/>
+            <button
+             index="1"
+             name="cancel"
+             text="Cancel"/>
+        </form>
+    </notification>
+
   <notification
    icon="alertmodal.tga"
    label="Prompt for MFA Token"
-   name="PromptMFAToken"
+   name="PromptMFATokenWithSave"
    type="alertmodal">
     [MESSAGE]
     <tag>confirm</tag>
     <form name="form">
       <input name="token" type="text" width="400" />
+      <ignore
+       name="ignore"
+       checkbox_only="true"
+       text="Remember this computer for 30 days."/>
       <button
        default="true"
        index="0"
