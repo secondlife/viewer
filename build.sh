@@ -118,13 +118,11 @@ installer_CYGWIN()
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
 
 # Build up these arrays as we go
-installer=()
 metadata=()
 symbolfile=()
 physicstpv=()
 # and dump them to GITHUB_OUTPUT when done
 cleanup="$cleanup ; \
-arrayoutput installer ; \
 arrayoutput metadata ; \
 arrayoutput symbolfile ; \
 arrayoutput physicstpv"
@@ -553,8 +551,6 @@ then
     if [ x"$package" != x ] && test -f "$package"
     then
       # Upload base package.
-      installer+=("$package")
-
       if [ "$last_built_variant" = "Release" ]
       then
           # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
