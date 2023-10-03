@@ -131,10 +131,12 @@ void LLWebRTCImpl::terminate()
         {
             if (mTuningDeviceModule)
             {
+                mTuningDeviceModule->StopRecording();
                 mTuningDeviceModule->Terminate();
             }
             if (mPeerDeviceModule)
             {
+                mPeerDeviceModule->StopRecording();
                 mPeerDeviceModule->Terminate();
             }
             mTuningDeviceModule = nullptr;
@@ -174,12 +176,24 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
     mWorkerThread->PostTask(
         [this, id]()
         {
-            bool was_tuning_recording = mTuningDeviceModule->Recording();
-
-            if (was_tuning_recording)
+            int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
+            for (int16_t i = 0; i < captureDeviceCount; i++)
             {
-                mTuningDeviceModule->StopRecording();
+                char name[webrtc::kAdmMaxDeviceNameSize];
+                char guid[webrtc::kAdmMaxGuidSize];
+                mTuningDeviceModule->RecordingDeviceName(i, name, guid);
+                if (id == guid || id == "Default")  // first one in list is default
+                {
+                    RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
+                    mRecordingDevice = i;
+                    break;
+                }
             }
+            mTuningDeviceModule->StopRecording();
+            mTuningDeviceModule->SetRecordingDevice(mRecordingDevice);
+            mTuningDeviceModule->InitMicrophone();
+            mTuningDeviceModule->InitRecording();
+            mTuningDeviceModule->StartRecording();
             bool was_peer_recording = false;
             if (mPeerDeviceModule)
             {
@@ -188,29 +202,6 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
                 {
                     mPeerDeviceModule->StopRecording();
                 }
-            }
-            int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
-            for (int16_t i = 0; i < captureDeviceCount; i++)
-            {
-                char name[webrtc::kAdmMaxDeviceNameSize];
-                char guid[webrtc::kAdmMaxGuidSize];
-                mTuningDeviceModule->RecordingDeviceName(i, name, guid);
-                if (id == guid || id == "Default") // first one in list is default
-                {
-                    RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
-                    mRecordingDevice = i;
-                    break;
-                }
-            }
-            mTuningDeviceModule->SetRecordingDevice(mRecordingDevice);
-            mTuningDeviceModule->InitMicrophone();
-            mTuningDeviceModule->InitRecording();
-            if (was_tuning_recording)
-            {
-                mTuningDeviceModule->StartRecording();
-            }
-            if (mPeerDeviceModule)
-            {
                 mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
                 mPeerDeviceModule->InitMicrophone();
                 mPeerDeviceModule->InitRecording();
@@ -227,20 +218,6 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
     mWorkerThread->PostTask(
         [this, id]()
         {
-            bool was_tuning_playing = mTuningDeviceModule->Playing();
-            if (was_tuning_playing)
-            {
-                mTuningDeviceModule->StopPlayout();
-            }
-            bool was_peer_playing = false;
-            if (mPeerDeviceModule)
-            {
-                was_peer_playing = mPeerDeviceModule->Playing();
-                if (was_tuning_playing)
-                {
-                    mPeerDeviceModule->StopPlayout();
-                }
-            }
             int16_t renderDeviceCount = mTuningDeviceModule->PlayoutDevices();
             for (int16_t i = 0; i < renderDeviceCount; i++)
             {
@@ -254,6 +231,22 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                     break;
                 }
             }
+            mTuningDeviceModule->SetSpeakerMute(true);
+            bool was_tuning_playing = mTuningDeviceModule->Playing();
+            if (was_tuning_playing)
+            {
+                mTuningDeviceModule->StopPlayout();
+            }
+            bool was_peer_mute = false;
+            if (mPeerDeviceModule)
+            {
+                mPeerDeviceModule->SpeakerMute(&was_peer_mute);
+                if (!was_peer_mute)
+                {
+                    mPeerDeviceModule->SetSpeakerMute(true);
+                }
+            }
+
             mTuningDeviceModule->SetPlayoutDevice(mPlayoutDevice);
             mTuningDeviceModule->InitSpeaker();
             mTuningDeviceModule->InitPlayout();
@@ -266,11 +259,11 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                 mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
                 mPeerDeviceModule->InitSpeaker();
                 mPeerDeviceModule->InitPlayout();
-                if (was_peer_playing)
-                {
-                    mPeerDeviceModule->StartPlayout();
-                }
+                mPeerDeviceModule->StartPlayout();
+                mPeerDeviceModule->SetSpeakerMute(was_peer_mute);
+                
             }
+            mTuningDeviceModule->SetSpeakerMute(false);
         });
 }
 
@@ -303,29 +296,42 @@ void LLWebRTCImpl::updateDevices()
 
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
-    mWorkerThread->PostTask(
+    mWorkerThread->BlockingCall(
         [this, enable]()
         {
             if (enable)
             {
+
                 mTuningDeviceModule->StartRecording();
                 mTuningDeviceModule->SetMicrophoneMute(false);
+
+
+                mTuningDeviceModule->SetSpeakerMute(false);
+
                 if (mPeerDeviceModule)
                 {
                     mPeerDeviceModule->StopRecording();
-                    mPeerDeviceModule->StopPlayout();
+                    mPeerDeviceModule->SetSpeakerMute(true);
                 }
             }
             else
             {
-                mTuningDeviceModule->StopRecording();
                 if (mPeerDeviceModule)
                 {
-                    mPeerDeviceModule->StartPlayout();
                     mPeerDeviceModule->StartRecording();
+                    mPeerDeviceModule->SetSpeakerMute(false);
                 }
             }
         });
+    // set_enabled shouldn't be done on the worker thread
+    if (mPeerConnection)
+    {
+        auto senders = mPeerConnection->GetSenders();
+        for (auto &sender : senders)
+        {
+            sender->track()->set_enabled(enable ? false : !mMute);
+        }
+    }
 }
 
 //
@@ -538,18 +544,15 @@ void LLWebRTCImpl::AnswerAvailable(const std::string &sdp)
 
 void LLWebRTCImpl::setMute(bool mute)
 {
-    mSignalingThread->PostTask(
-        [this, mute]()
-        {
-            auto senders = mPeerConnection->GetSenders();
+    mMute = mute;
+    auto senders = mPeerConnection->GetSenders();
 
-            RTC_LOG(LS_INFO) << __FUNCTION__ << (mute ? "disabling" : "enabling") << " streams count " << senders.size();
+    RTC_LOG(LS_INFO) << __FUNCTION__ << (mute ? "disabling" : "enabling") << " streams count " << senders.size();
 
-            for (auto &sender : senders)
-            {
-                sender->track()->set_enabled(!mute);
-            }
-        });
+    for (auto &sender : senders)
+    {
+        sender->track()->set_enabled(!mMute);
+    }
 }
 
 void LLWebRTCImpl::setSpeakerVolume(float volume)
