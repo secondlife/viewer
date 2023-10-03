@@ -28,19 +28,24 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
+#include "llerror.h"
+#include "lleventcoro.h"
+#include "lleventfilter.h"
+#include "llevents.h"
+#include "llinstancetracker.h"
+#include "llleaplistener.h"
+#include "lluuid.h"
+#include "stringize.h"
+
+// skip all these link dependencies for integration testing
+#ifndef LL_TEST
 #include "llagent.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
-#include "llerror.h"
-#include "lleventcoro.h"
-#include "llevents.h"
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llinstancetracker.h"
-#include "llleaplistener.h"
 #include "llnotificationsutil.h"
-#include "lluuid.h"
 #include "llvoavatarself.h"
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
@@ -48,9 +53,13 @@
 #include "lluilistener.h"
 #include "llanimationstates.h"
 #include "llinventoryfunctions.h"
-#include "stringize.h"
 #include "lltoolplacer.h"
 #include "llviewerregion.h"
+
+// FIXME extremely hacky way to get to the UI Listener framework. There's
+// a cleaner way.
+extern LLUIListener sUIListener;
+#endif // ! LL_TEST
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -66,6 +75,7 @@ extern "C"
 #include <cstring>                  // std::memcpy()
 #include <map>
 #include <memory>                   // std::unique_ptr
+#include <sstream>
 #include <string_view>
 #include <vector>
 
@@ -77,9 +87,6 @@ std::string lua_tostdstring(lua_State* L, int index);
 void lua_pushstdstring(lua_State* L, const std::string& str);
 LLSD lua_tollsd(lua_State* L, int index);
 void lua_pushllsd(lua_State* L, const LLSD& data);
-
-// FIXME extremely hacky way to get to the UI Listener framework. There's almost certainly a cleaner way.
-extern LLUIListener sUIListener;
 
 /**
  * LuaListener is based on LLLeap. It serves an analogous function.
@@ -108,11 +115,20 @@ public:
     LuaListener(lua_State* L):
         super(getUniqueKey()),
         mState(L),
-        mReplyPump(LLUUID::generateNewID().asString()),
-        mListener(new LLLeapListener(std::bind(&LuaListener::connect, this,
-                                               std::placeholders::_1, std::placeholders::_2)))
+        mListener(
+            new LLLeapListener(
+                [L](LLEventPump& pump, const std::string& listener)
+                { return connect(L, pump, listener); }))
     {
-        mReplyConnection = connect(mReplyPump, "LuaListener");
+        mReplyConnection = connect(L, mReplyPump, "LuaListener");
+    }
+
+    LuaListener(const LuaListener&) = delete;
+    LuaListener& operator=(const LuaListener&) = delete;
+
+    ~LuaListener()
+    {
+        LL_DEBUGS("Lua") << "~LuaListener('" << mReplyPump.getName() << "')" << LL_ENDL;
     }
 
     std::string getReplyName() const { return mReplyPump.getName(); }
@@ -134,15 +150,17 @@ private:
         return key;
     }
 
-    LLBoundListener connect(LLEventPump& pump, const std::string& listener)
+    static LLBoundListener connect(lua_State* L, LLEventPump& pump, const std::string& listener)
     {
-        return pump.listen(listener,
-                           std::bind(&LuaListener::call_lua, mState, pump.getName(),
-                                     std::placeholders::_1));
+        return pump.listen(
+            listener,
+            [L, pumpname=pump.getName()](const LLSD& data)
+            { return call_lua(L, pumpname, data); });
     }
 
     static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
     {
+        LL_INFOS("Lua") << "LuaListener::call_lua('" << pump << "', " << data << ")" << LL_ENDL;
         if (! lua_checkstack(L, 3))
         {
             LL_WARNS("Lua") << "Cannot extend Lua stack to call listen_events() callback"
@@ -176,7 +194,11 @@ private:
     }
 
     lua_State* mState;
-    LLEventStream mReplyPump;
+#ifndef LL_TEST
+    LLEventStream mReplyPump{ LLUUID::generateNewID().asString() };
+#else
+    LLEventLogProxyFor<LLEventStream> mReplyPump{ "luapump", false };
+#endif
     LLTempBoundListener mReplyConnection;
     std::unique_ptr<LLLeapListener> mListener;
 };
@@ -275,31 +297,67 @@ int name##_::call(lua_State* L)
 //     ... supply method body here, referencing 'L' ...
 // }
 
+// This function consumes ALL Lua stack arguments and returns concatenated
+// message string
+std::string lua_print_msg(lua_State* L, const std::string_view& level)
+{
+    // On top of existing Lua arguments, push 'where' info
+    luaL_checkstack(L, 1, nullptr);
+    luaL_where(L, 1);
+    // start with the 'where' info at the top of the stack
+    std::ostringstream out;
+    out << lua_tostring(L, -1);
+    lua_pop(L, 1);
+    const char* sep = "";           // 'where' info ends with ": "
+    // now iterate over arbitrary args, calling Lua tostring() on each and
+    // concatenating with separators
+    for (int p = 1; p <= lua_gettop(L); ++p)
+    {
+        out << sep;
+        sep = " ";
+        // push Lua tostring() function -- note, semantically different from
+        // lua_tostring()!
+        lua_getglobal(L, "tostring");
+        // Now the stack is arguments 1 .. N, plus tostring().
+        // Rotate downwards, producing stack args 2 .. N, tostring(), arg1.
+        lua_rotate(L, 1, -1);
+        // pop tostring() and arg1, pushing tostring(arg1)
+        // (ignore potential error code from lua_pcall() because, if there was
+        // an error, we expect the stack top to be an error message -- which
+        // we'll print)
+        lua_pcall(L, 1, 1, 0);
+        // stack now holds args 2 .. N, tostring(arg1)
+        out << lua_tostring(L, -1);
+    }
+    // pop everything
+    lua_settop(L, 0);
+    // capture message string
+    std::string msg{ out.str() };
+    // put message out there for any interested party (*koff* LLFloaterLUADebug *koff*)
+    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
+    return msg;
+}
+
 lua_function(print_debug)
 {
-    luaL_where(L, 1);
-    LL_DEBUGS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 2);
+    LL_DEBUGS("Lua") << lua_print_msg(L, "DEBUG") << LL_ENDL;
     return 0;
 }
 
 // also used for print(); see LuaState constructor
 lua_function(print_info)
 {
-    luaL_where(L, 1);
-    LL_INFOS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 2);
+    LL_INFOS("Lua") << lua_print_msg(L, "INFO") << LL_ENDL;
     return 0;
 }
 
 lua_function(print_warning)
 {
-    luaL_where(L, 1);
-    LL_WARNS("Lua") << lua_tostring(L, 2) << ": " << lua_tostring(L, 1) << LL_ENDL;
-    lua_pop(L, 2);
+    LL_WARNS("Lua") << lua_print_msg(L, "WARN") << LL_ENDL;
     return 0;
 }
 
+#ifndef LL_TEST
 lua_function(avatar_sit)
 {
     gAgent.sitDown();
@@ -421,7 +479,7 @@ lua_function(get_avatar_name)
 {
     std::string name = gAgentAvatarp->getFullname();
     luaL_checkstack(L, 1, nullptr);
-    lua_pushstring(L, name.c_str());
+    lua_pushstdstring(L, name);
     return 1;
 }
 
@@ -513,7 +571,7 @@ lua_function(show_notification)
         LLNotificationsUtil::add(notification);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -540,7 +598,7 @@ lua_function(add_menu_item)
         gMenuBarView->findChildMenuByName(menu, true)->append(menu_item);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -568,7 +626,7 @@ lua_function(add_menu)
         gMenuBarView->appendMenu(menu);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0; 
 }
 
@@ -588,7 +646,7 @@ lua_function(add_branch)
         gMenuBarView->findChildMenuByName(menu, true)->appendMenu(branch);
     }
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -644,7 +702,7 @@ lua_function(rez_prim2)
 
     LL_INFOS() << "Rezing a prim: type " << LLPrimitive::pCodeToString(type) << ", coordinates: " << obj_pos << " Success: " << res << LL_ENDL;
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -698,7 +756,7 @@ lua_function(move_by)
     }
     move_to_dest(dest, L, response_cb);
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -724,7 +782,7 @@ lua_function(move_to)
     }
     move_to_dest(dest, L, response_cb);
 
-    lua_pop(L, lua_gettop(L));
+    lua_settop(L, 0);
     return 0;
 }
 
@@ -750,15 +808,17 @@ lua_function(run_ui_command)
 	}
 	sUIListener.call(event);
 
-	lua_pop(L, top);
+	lua_settop(L, 0);
 	return 0;
 }
+#endif // ! LL_TEST
 
 lua_function(post_on)
 {
-    std::string pumpname{ lua_tostring(L, 1) };
+    std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
+    LL_INFOS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
     LLEventPumps::instance().obtain(pumpname).post(data);
     return 0;
 }
@@ -805,8 +865,10 @@ lua_function(listen_events)
     {
         // pop the nil "event.listener" key
         lua_pop(mainthread, 1);
-        // instantiate a new LuaListener, binding the mainthread state
-        listener.reset(new LuaListener(mainthread));
+        // instantiate a new LuaListener, binding the mainthread state -- but
+        // use a no-op deleter: we do NOT want to delete this new LuaListener
+        // on return from listen_events()!
+        listener.reset(new LuaListener(mainthread), [](LuaListener*){});
         // set its key in the field where we'll look for it later
         lua_pushinteger(mainthread, listener->getKey());
         lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.listener");
@@ -838,7 +900,7 @@ lua_function(await_event)
         auto timeout{ lua_tonumber(L, 2) };
         // with no 3rd argument, should be LLSD()
         auto dftval{ lua_tollsd(L, 3) };
-        lua_pop(L, lua_gettop(L));
+        lua_settop(L, 0);
         result = llcoro::suspendUntilEventOnWithTimeout(pumpname, timeout, dftval);
     }
     else
@@ -976,6 +1038,7 @@ void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
 
 void LLLUAmanager::runScriptOnLogin()
 {
+#ifndef LL_TEST
     std::string filename = gSavedSettings.getString("AutorunLuaScriptName");
     if (filename.empty()) 
     {
@@ -991,6 +1054,7 @@ void LLLUAmanager::runScriptOnLogin()
     }
 
     runScriptFile(filename);
+#endif // ! LL_TEST
 }
 
 std::string lua_tostdstring(lua_State* L, int index)

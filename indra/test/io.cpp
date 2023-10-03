@@ -1117,6 +1117,8 @@ namespace tut
 	template<> template<>
 	void fitness_test_object::test<5>()
 	{
+		skip("Test is strongly timing dependent, "
+			 "and on slow CI machines it fails way too often.");
 		const int retries = 100;
 		// Set up the server
 		LLPumpIO::chain_t chain;

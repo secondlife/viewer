@@ -54,6 +54,14 @@ BOOL LLFloaterLUADebug::postBuild()
     mResultOutput = getChild<LLTextEditor>("result_text");
     mLineInput = getChild<LLLineEditor>("lua_cmd");
     mScriptPath = getChild<LLLineEditor>("script_path");
+    mOutConnection = LLEventPumps::instance().obtain("lua output")
+        .listen("LLFloaterLUADebug",
+                [mResultOutput=mResultOutput](const LLSD& data)
+                {
+                    mResultOutput->insertText(data.asString());
+                    mResultOutput->addLineBreakChar(true);
+                    return false;
+                });
 
     getChild<LLButton>("execute_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onExecuteClicked, this));
     getChild<LLButton>("browse_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnBrowse, this));
@@ -77,7 +85,7 @@ void LLFloaterLUADebug::onExecuteClicked()
     std::string cmd = mLineInput->getText();
     LLLUAmanager::runScriptLine(cmd, [this](std::string msg)
         { 
-            mResultOutput->setText(msg);
+            mResultOutput->insertText(msg);
         });
 }
 
@@ -107,7 +115,7 @@ void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filena
         mScriptPath->setText(filepath);
         LLLUAmanager::runScriptFile(filepath, [this](std::string msg) 
             { 
-                mResultOutput->setText(msg); 
+                mResultOutput->insertText(msg); 
             });
     }
 }

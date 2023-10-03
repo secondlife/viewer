@@ -41,8 +41,11 @@
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
 #include "llsidepaneliteminfo.h"
+#include "llsidepaneltaskinfo.h"
+#include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltrans.h"
+#include "llviewerwindow.h"
 
 ///----------------------------------------------------------------------------
 /// LLPanelMarketplaceListings
@@ -227,18 +230,31 @@ void LLPanelMarketplaceListings::onTabChange()
 
 void LLPanelMarketplaceListings::onAddButtonClicked()
 {
-	// Find active panel
-	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
-	if (panel)
-	{
-        LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-        llassert(marketplacelistings_id.notNull());
-        LLFolderType::EType preferred_type = LLFolderType::lookup("category");
-        LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
-        gInventory.notifyObservers();
-        panel->setSelectionByID(category, TRUE);
-        panel->getRootFolder()->setNeedsAutoRename(TRUE);
+    LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    llassert(marketplacelistings_id.notNull());
+    LLFolderType::EType preferred_type = LLFolderType::lookup("category");
+    LLHandle<LLPanel> handle = getHandle();
+    gInventory.createNewCategory(
+        marketplacelistings_id,
+        preferred_type,
+        LLStringUtil::null,
+        [handle](const LLUUID &new_cat_id)
+    {
+        // Find active panel
+        LLPanel *marketplace_panel = handle.get();
+        if (!marketplace_panel)
+        {
+            return;
+        }
+        LLInventoryPanel* panel = (LLInventoryPanel*)marketplace_panel->getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+        if (panel)
+        {
+            gInventory.notifyObservers();
+            panel->setSelectionByID(new_cat_id, TRUE);
+            panel->getRootFolder()->setNeedsAutoRename(TRUE);
+        }
     }
+    );
 }
 
 void LLPanelMarketplaceListings::onAuditButtonClicked()
@@ -359,6 +375,7 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryTitle(NULL)
 , mPanelListings(NULL)
 , mPanelListingsSet(false)
+, mRootFolderCreating(false)
 {
 }
 
@@ -431,7 +448,7 @@ void LLFloaterMarketplaceListings::fetchContents()
 	{
         LLMarketplaceData::instance().setDataFetchedSignal(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
         LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_LOADING);
-		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId);
+		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId, true);
         LLMarketplaceData::instance().getSLMListings();
 	}
 }
@@ -444,15 +461,50 @@ void LLFloaterMarketplaceListings::setRootFolder()
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
 		return;
 	}
+    if (!gInventory.isInventoryUsable())
+    {
+        return;
+    }
     
+    LLFolderType::EType preferred_type = LLFolderType::FT_MARKETPLACE_LISTINGS;
 	// We are a merchant. Get the Marketplace listings folder, create it if needs be.
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	if (marketplacelistings_id.isNull())
-	{
-		// We should never get there unless the inventory fails badly
-		LL_ERRS("SLM") << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << LL_ENDL;
-		return;
-	}
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(preferred_type);
+
+    if (marketplacelistings_id.isNull())
+    {
+        if (!mRootFolderCreating)
+        {
+            mRootFolderCreating = true;
+            gInventory.createNewCategory(
+                gInventory.getRootFolderID(),
+                preferred_type,
+                LLStringUtil::null,
+                [](const LLUUID &new_cat_id)
+            {
+                LLFloaterMarketplaceListings* marketplace = LLFloaterReg::findTypedInstance<LLFloaterMarketplaceListings>("marketplace_listings");
+                if (marketplace)
+                {
+                    if (new_cat_id.notNull())
+                    {
+                        // will call setRootFolder again
+                        marketplace->updateView();
+                    }
+                    // don't update in case of failure, createNewCategory can return
+                    // immediately if cap is missing and will cause a loop
+                    else
+                    {
+                        // unblock
+                        marketplace->mRootFolderCreating = false;
+                        LL_WARNS("SLM") << "Inventory warning: Failed to create marketplace listings folder for a merchant" << LL_ENDL;
+                    }
+                }
+            }
+            );
+        }
+        return;
+    }
+
+    mRootFolderCreating = false;
     
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
@@ -539,6 +591,11 @@ void LLFloaterMarketplaceListings::updateView()
     if (mRootFolderId.isNull() && is_merchant)
     {
         setRootFolder();
+    }
+    if (mRootFolderCreating)
+    {
+        // waiting for callback
+        return;
     }
 
     // Update the bottom initializing status and progress dial if we are initializing or if we're a merchant and still loading
@@ -843,14 +900,17 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     LLUUID cat_id(key.asUUID());
     if (cat_id.isNull())
     {
-        cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     }
 
     // Validates the folder
     if (cat_id.notNull())
     {
-        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-        validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3), false);
+        LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+            cat_id,
+            NULL,
+            boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3),
+            false);
     }
     
     // Handle the listing folder being processed
@@ -954,18 +1014,44 @@ LLFloaterItemProperties::~LLFloaterItemProperties()
 
 BOOL LLFloaterItemProperties::postBuild()
 {
-    // On the standalone properties floater, we have no need for a back button...
-    LLSidepanelItemInfo* panel = getChild<LLSidepanelItemInfo>("item_panel");
-    LLButton* back_btn = panel->getChild<LLButton>("back_btn");
-    back_btn->setVisible(FALSE);
-    
 	return LLFloater::postBuild();
 }
 
 void LLFloaterItemProperties::onOpen(const LLSD& key)
 {
     // Tell the panel which item it needs to visualize
-    LLSidepanelItemInfo* panel = getChild<LLSidepanelItemInfo>("item_panel");
-    panel->setItemID(key["id"].asUUID());
+    LLPanel* panel = findChild<LLPanel>("sidepanel");
+    
+    LLSidepanelItemInfo* item_panel = dynamic_cast<LLSidepanelItemInfo*>(panel);
+    if (item_panel)
+    {
+        item_panel->setItemID(key["id"].asUUID());
+        if (key.has("object"))
+        {
+            item_panel->setObjectID(key["object"].asUUID());
+        }
+        item_panel->setParentFloater(this);
+    }
+    
+    LLSidepanelTaskInfo* task_panel = dynamic_cast<LLSidepanelTaskInfo*>(panel);
+    if (task_panel)
+    {
+        task_panel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
+    }
 }
 
+LLMultiItemProperties::LLMultiItemProperties(const LLSD& key)
+	: LLMultiFloater(LLSD())
+{
+	// start with a small rect in the top-left corner ; will get resized
+	LLRect rect;
+	rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 350, 350);
+	setRect(rect);
+	LLFloater* last_floater = LLFloaterReg::getLastFloaterInGroup(key.asString());
+	if (last_floater)
+	{
+		stackWith(*last_floater);
+	}
+	setTitle(LLTrans::getString("MultiPropertiesTitle"));
+	buildTabContainer();
+}

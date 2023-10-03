@@ -69,7 +69,7 @@ public:
 	virtual bool				checkFolder(const LLFolderViewModelItem* folder) const = 0;
 
 	virtual void 				setEmptyLookupMessage(const std::string& message) = 0;
-	virtual std::string			getEmptyLookupMessage() const = 0;
+    virtual std::string			getEmptyLookupMessage(bool is_empty_folder = false) const = 0;
 
 	virtual bool				showAllResults() const = 0;
 
@@ -125,7 +125,7 @@ public:
 	virtual void setFolderView(LLFolderView* folder_view) = 0;
 	virtual LLFolderViewFilter& getFilter() = 0;
 	virtual const LLFolderViewFilter& getFilter() const = 0;
-	virtual std::string getStatusText() = 0;
+	virtual std::string getStatusText(bool is_empty_folder = false) = 0;
 
 	virtual bool startDrag(std::vector<LLFolderViewModelItem*>& items) = 0;
 };
@@ -159,6 +159,8 @@ public:
 	virtual void openItem( void ) = 0;
 	virtual void closeItem( void ) = 0;
 	virtual void selectItem(void) = 0;
+
+    virtual void navigateToFolder(bool new_window = false, bool change_mode = false) = 0;
     
     virtual BOOL isItemWearable() const { return FALSE; }
 
@@ -392,7 +394,7 @@ public:
 		// sort everything
 		mTargetSortVersion++;
 	}
-	virtual std::string getStatusText();
+	virtual std::string getStatusText(bool is_empty_folder = false);
 	virtual void filter();
 
 	void setFolderView(LLFolderView* folder_view) { mFolderView = folder_view;}

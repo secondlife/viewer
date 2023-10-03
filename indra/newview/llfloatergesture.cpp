@@ -211,7 +211,7 @@ BOOL LLFloaterGesture::postBuild()
 	getChildView("play_btn")->setVisible( true);
 	getChildView("stop_btn")->setVisible( false);
 	setDefaultBtn("play_btn");
-	mGestureFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE, false);
+	mGestureFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
 
 	uuid_vec_t folders;
 	folders.push_back(mGestureFolderID);
