@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+    layout="topleft"
+    name="Gallery">
+    <menu_item_call
+     label="Share"
+     layout="topleft"
+     name="Share">
+        <menu_item_call.on_click
+         function="Inventory.Share" />
+    </menu_item_call>
+    <menu_item_call
+     label="Empty Trash"
+     layout="topleft"
+     name="Empty Trash">
+        <menu_item_call.on_click
+         function="Inventory.EmptyTrash"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Empty Lost And Found"
+     layout="topleft"
+     name="Empty Lost And Found">
+        <menu_item_call.on_click
+         function="Inventory.EmptyLostAndFound"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Teleport"
+     layout="topleft"
+     name="Landmark Open">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="open" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Folder Wearables Separator" />
+    <menu_item_call
+     label="Replace Current Outfit"
+     layout="topleft"
+     name="Replace Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="replaceoutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Add To Current Outfit"
+     layout="topleft"
+     name="Add To Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="addtooutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove From Current Outfit"
+     layout="topleft"
+     name="Remove From Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="removefromoutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy outfit list to clipboard"
+     layout="topleft"
+     name="Copy outfit list to clipboard">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="copyoutfittoclipboard" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Outfit Separator" />
+    <menu_item_call
+     label="Find Original"
+     layout="topleft"
+     name="Find Original">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="goto" />
+    </menu_item_call>
+    <menu_item_call
+     label="Purge Item"
+     layout="topleft"
+     name="Purge Item">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="purge"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Restore Item"
+     layout="topleft"
+     name="Restore Item">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="restore" />
+    </menu_item_call>
+    <menu_item_call
+     label="Open"
+     layout="topleft"
+     name="Open">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="open" />
+    </menu_item_call>
+    <menu_item_call
+     label="Open Original"
+     layout="topleft"
+     name="Open Original">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="open_original" />
+    </menu_item_call>
+    <menu_item_call
+     label="Properties"
+     layout="topleft"
+     name="Properties">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="properties" />
+    </menu_item_call>
+    <menu_item_call
+     label="Image..."
+     layout="topleft"
+     name="thumbnail">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="thumbnail" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy Asset UUID"
+     layout="topleft"
+     name="Copy Asset UUID">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="copy_uuid" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Copy Separator" />
+    <menu_item_call
+     label="Open"
+     layout="topleft"
+     name="open_in_current_window">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="open_selected_folder" />
+    </menu_item_call>
+    <menu_item_call
+     label="Open in new window"
+     layout="topleft"
+     name="open_in_new_window">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="open_in_new_window" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Open Folder Separator" />
+    <menu_item_call
+     label="Rename"
+     layout="topleft"
+     name="Rename">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="rename" />
+    </menu_item_call>
+    <menu_item_call
+     label="Cut"
+     layout="topleft"
+     name="Cut">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="cut" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy"
+     layout="topleft"
+     name="Copy">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     layout="topleft"
+     name="Paste">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste As Link"
+     layout="topleft"
+     name="Paste As Link">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="paste_link" />
+    </menu_item_call>
+    <menu_item_call
+     label="Replace Links"
+     layout="topleft"
+     name="Replace Links">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="replace_links" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Paste Separator" />
+    <menu_item_call
+     label="Delete"
+     layout="topleft"
+     name="Delete">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="delete" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete System Folder"
+     layout="topleft"
+     name="Delete System Folder">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="delete_system_folder" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+     label="Play"
+     layout="topleft"
+     name="Sound Play">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="sound_play" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Landmark Separator" />
+    <menu_item_call
+    label="Copy SLurl"
+    layout="topleft"
+    name="url_copy">
+       <menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="copy_slurl" />
+   </menu_item_call> 
+   <menu_item_call
+     label="About Landmark"
+     layout="topleft"
+     name="About Landmark">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="about" />
+    </menu_item_call>
+   <menu_item_call
+     label="Show on Map"
+     layout="topleft"
+     name="show_on_map">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="show_on_map" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Animation Separator" />
+    <menu_item_call
+     label="Play Inworld"
+     layout="topleft"
+     name="Animation Play">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="playworld" />
+    </menu_item_call>
+    <menu_item_call
+     label="Play Locally"
+     layout="topleft"
+     name="Animation Audition">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="playlocal" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Send Instant Message Separator" />
+    <menu_item_call
+     label="Send Instant Message"
+     layout="topleft"
+     name="Send Instant Message">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="begin_im" />
+    </menu_item_call>
+    <menu_item_call
+     label="Offer Teleport..."
+     layout="topleft"
+     name="Offer Teleport...">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="lure" />
+    </menu_item_call>
+    <menu_item_call
+     label="Request Teleport..."
+     layout="topleft"
+     name="Request Teleport...">
+        <menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="request_lure" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Gesture Separator" />
+    <menu_item_call
+     label="Activate"
+     layout="topleft"
+     name="Activate">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="activate" />
+    </menu_item_call>
+    <menu_item_call
+     label="Deactivate"
+     layout="topleft"
+     name="Deactivate">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="deactivate" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Texture Separator" />
+    <menu_item_call
+     label="Save As"
+     layout="topleft"
+     name="Save As">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="save_as" />
+    </menu_item_call>
+  <menu_item_call
+ label="Save Selected As"
+ layout="topleft"
+ name="Save Selected As">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="save_selected_as" />
+  </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Wearable And Object Separator"/>
+    <menu_item_call
+     label="Wear"
+     layout="topleft"
+     name="Wearable And Object Wear">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="wear" />
+    </menu_item_call>
+    <menu
+     label="Attach To"
+     layout="topleft"
+     name="Attach To" />
+    <menu
+     label="Attach To HUD"
+     layout="topleft"
+     name="Attach To HUD" />
+    <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="Attachment Touch">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="touch" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="Wearable Edit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="edit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Add"
+     layout="topleft"
+     name="Wearable Add">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="wear_add" />
+    </menu_item_call>
+    <menu_item_call
+     label="Detach From Yourself"
+     layout="topleft"
+     name="Detach From Yourself">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="detach" />
+    </menu_item_call>
+    <menu_item_call
+     label="Take Off"
+     layout="topleft"
+     name="Take Off">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="take_off" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Settings Separator" />
+    <menu_item_call
+            name="Settings Apply Local"
+            layout="topleft"
+            label="Apply Only To Myself">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_local" />
+    </menu_item_call>
+    <menu_item_call
+            name="Settings Apply Parcel"
+            layout="topleft"
+            label="Apply To Parcel">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_parcel" />
+    </menu_item_call>
+  <menu_item_separator
+   layout="topleft"
+   name="Subfolder Separator" />
+  <menu_item_call
+   label="Create folder from selected"
+   layout="topleft"
+   name="New folder from selected">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="new_folder_from_selected" />
+  </menu_item_call>
+  <menu_item_call
+   label="Ungroup folder items"
+   layout="topleft"
+   name="Ungroup folder items">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="ungroup_folder_items" />
+  </menu_item_call>
+  <menu
+   label="Use as default for"
+   layout="topleft"
+   name="upload_def">
+    <menu_item_call
+     label="Image uploads"
+     layout="topleft"
+     name="Image uploads">
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+        parameter="texture" />
+      <menu_item_call.on_visible
+       function="Inventory.CanSetUploadLocation" />
+    </menu_item_call>
+    <menu_item_call
+     label="Sound uploads"
+     layout="topleft"
+     name="Sound uploads">
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="sound" />
+      <menu_item_call.on_visible
+       function="Inventory.CanSetUploadLocation" />
+    </menu_item_call>
+    <menu_item_call
+     label="Animation uploads"
+     layout="topleft"
+     name="Animation uploads">
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="animation" />
+      <menu_item_call.on_visible
+       function="Inventory.CanSetUploadLocation" />
+    </menu_item_call>
+    <menu_item_call
+     label="Model uploads"
+     layout="topleft"
+     name="Model uploads">
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="model" />
+      <menu_item_call.on_visible
+       function="Inventory.CanSetUploadLocation" />
+    </menu_item_call>
+  </menu>
+	<menu_item_separator
+	 layout="topleft"
+	 name="Marketplace Separator" />
+	<menu_item_call
+        label="Copy to Marketplace Listings"
+        layout="topleft"
+        name="Marketplace Copy">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="copy_to_marketplace_listings" />
+	</menu_item_call>
+	<menu_item_call
+        label="Move to Marketplace Listings"
+        layout="topleft"
+        name="Marketplace Move">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="move_to_marketplace_listings" />
+	</menu_item_call>
+	<menu_item_call
+     label="--no options--"
+     layout="topleft"
+     name="--no options--" />
+    <menu_item_separator
+     layout="topleft" />
+</context_menu>

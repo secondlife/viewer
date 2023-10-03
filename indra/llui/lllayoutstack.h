@@ -59,6 +59,8 @@ public:
 		Optional<S32>			drag_handle_thickness;
 		Optional<S32>			drag_handle_shift;
 
+        Optional<LLUIColor>     drag_handle_color;
+
 		Params();
 	};
 
@@ -89,6 +91,7 @@ public:
 	void updateLayout();
 
 	S32 getPanelSpacing() const { return mPanelSpacing; }
+    void setPanelSpacing(S32 val);
 	
 	static void updateClass();
 
@@ -128,6 +131,7 @@ private:
 	S32  mDragHandleSecondIndent;
 	S32  mDragHandleThickness;
 	S32  mDragHandleShift;
+    LLUIColor mDragHandleColor;
 }; // end class LLLayoutStack
 
 

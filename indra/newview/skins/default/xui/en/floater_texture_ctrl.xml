@@ -83,6 +83,22 @@
      top_pad="4">
         [DIMENSIONS]
     </text>
+    <text
+     type="string"
+     text_color="Yellow"
+     length="1"
+     word_wrap="true"
+     follows="left|top"
+     height="56"
+     width="164"
+     layout="topleft"
+     left="8"
+     name="over_limit_lbl"
+     visible="false"
+     top_delta="0">
+        Selected texture is [TEXDIM]. Inventory image must be square, no less than [MINTEXDIM].
+    </text>
+    
 <!--  middle: inventory mode -->
 
     <button

@@ -106,6 +106,7 @@ public:
 
 	LLPointer<LLImageFormatted>	getFormattedImage();
 	LLPointer<LLImageRaw>		getEncodedImage();
+    bool createUploadFile(const std::string &out_file, const S32 max_image_dimentions, const S32 min_image_dimentions);
 
 	/// Sets size of preview thumbnail image and the surrounding rect.
 	void setThumbnailPlaceholderRect(const LLRect& rect) {mThumbnailPlaceholderRect = rect; }

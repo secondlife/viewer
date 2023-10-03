@@ -35,7 +35,7 @@
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
-#include "llagentbenefits.h"
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -122,9 +122,8 @@ void LLOutfitsList::onOpen(const LLSD& info)
 {
     if (!mIsInitialized)
     {
-        const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
         // Start observing changes in Current Outfit category.
-        mCategoriesObserver->addCategory(cof, boost::bind(&LLOutfitsList::onCOFChanged, this));
+        LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLOutfitsList::onCOFChanged, this));
     }
 
     LLOutfitListBase::onOpen(info);
@@ -1112,10 +1111,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
 
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
 
-    registrar.add("Gear.UploadPhoto", boost::bind(&LLOutfitListGearMenuBase::onUploadFoto, this));
-    registrar.add("Gear.SelectPhoto", boost::bind(&LLOutfitListGearMenuBase::onSelectPhoto, this));
-    registrar.add("Gear.TakeSnapshot", boost::bind(&LLOutfitListGearMenuBase::onTakeSnapshot, this));
-    registrar.add("Gear.RemovePhoto", boost::bind(&LLOutfitListGearMenuBase::onRemovePhoto, this));
+    registrar.add("Gear.Thumbnail", boost::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
     registrar.add("Gear.SortByName", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
 
     enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
@@ -1232,7 +1228,6 @@ bool LLOutfitListGearMenuBase::onEnable(LLSD::String param)
 
 bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
 {
-	getMenu()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     const LLUUID& selected_outfit_id = getSelectedOutfitID();
     if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
     {
@@ -1251,24 +1246,11 @@ bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
     return true;
 }
 
-void LLOutfitListGearMenuBase::onUploadFoto()
+void LLOutfitListGearMenuBase::onThumbnail()
 {
-
-}
-
-void LLOutfitListGearMenuBase::onSelectPhoto()
-{
-
-}
-
-void LLOutfitListGearMenuBase::onTakeSnapshot()
-{
-
-}
-
-void LLOutfitListGearMenuBase::onRemovePhoto()
-{
-
+    const LLUUID& selected_outfit_id = getSelectedOutfitID();
+    LLSD data(selected_outfit_id);
+    LLFloaterReg::showInstance("change_item_thumbnail", data);
 }
 
 void LLOutfitListGearMenuBase::onChangeSortOrder()
@@ -1288,10 +1270,7 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     if (!mMenu) return;
     mMenu->setItemVisible("expand", TRUE);
     mMenu->setItemVisible("collapse", TRUE);
-    mMenu->setItemVisible("upload_photo", FALSE);
-    mMenu->setItemVisible("select_photo", FALSE);
-    mMenu->setItemVisible("take_snapshot", FALSE);
-    mMenu->setItemVisible("remove_photo", FALSE);
+    mMenu->setItemVisible("thumbnail", FALSE); // Never visible?
     mMenu->setItemVisible("sepatator3", FALSE);
     mMenu->setItemVisible("sort_folders_by_name", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();

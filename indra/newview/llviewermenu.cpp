@@ -402,14 +402,14 @@ void set_merchant_SLM_menu()
     LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
     gToolBarView->enableCommand(command->id(), true);
 
-    const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     if (marketplacelistings_id.isNull())
     {
         U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
         bool is_merchant = (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) || (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT);
         if (is_merchant)
         {
-            gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+            gInventory.ensureCategoryForTypeExists(LLFolderType::FT_MARKETPLACE_LISTINGS);
             LL_WARNS("SLM") << "Creating the marketplace listings folder for a merchant" << LL_ENDL;
         }
     }
@@ -3065,9 +3065,7 @@ void handle_object_inspect()
 	LLViewerObject* selected_objectp = selection->getFirstRootObject();
 	if (selected_objectp)
 	{
-		LLSD key;
-		key["task"] = "task";
-		LLFloaterSidePanelContainer::showPanel("inventory", key);
+        LLFloaterReg::showInstance("task_properties");
 	}
 	
 	/*

@@ -6,6 +6,7 @@
 	<panel.string name="ItemcountCompleted">
 		[ITEM_COUNT] obiekty [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">MOJA SZAFA</panel.string>
 	<text name="ItemcountText">
 		Obiekty:
 	</text>
