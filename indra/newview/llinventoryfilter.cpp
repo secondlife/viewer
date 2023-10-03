@@ -63,6 +63,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 	mFilterTypes(p.types),
 	mFilterUUID(p.uuid),
 	mFilterLinks(p.links),
+    mFilterThumbnails(p.thumbnails),
 	mSearchVisibility(p.search_visibility)
 {
 }
@@ -81,7 +82,8 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0),
-	mSearchType(SEARCHTYPE_NAME)
+	mSearchType(SEARCHTYPE_NAME),
+    mSingleFolderMode(false)
 {
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
@@ -157,6 +159,8 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 	passed = passed && checkAgainstCreator(listener);
 	passed = passed && checkAgainstSearchVisibility(listener);
 
+    passed = passed && checkAgainstFilterThumbnails(listener->getUUID());
+
 	return passed;
 }
 
@@ -194,16 +198,22 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	// when applying a filter, matching folders get their contents downloaded first
 	// but make sure we are not interfering with pre-download
 	if (isNotDefault()
-		&& LLStartUp::getStartupState() > STATE_WEARABLES_WAIT)
+		&& LLStartUp::getStartupState() > STATE_WEARABLES_WAIT
+        && !LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress())
     {
         LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
-        if (!cat || (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN))
+        if ((!cat && folder_id.notNull()) || (cat && cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN))
         {
             // At the moment background fetch only cares about VERSION_UNKNOWN,
             // so do not check isCategoryComplete that compares descendant count
-            LLInventoryModelBackgroundFetch::instance().start(folder_id);
+            LLInventoryModelBackgroundFetch::instance().start(folder_id, false);
         }
 	}
+
+    if (!checkAgainstFilterThumbnails(folder_id))
+    {
+        return false;
+    }
 
 	// Marketplace folder filtering
     const U32 filterTypes = mFilterOps.mFilterTypes;
@@ -565,6 +575,19 @@ bool LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewModelItemInven
 	return TRUE;
 }
 
+bool LLInventoryFilter::checkAgainstFilterThumbnails(const LLUUID& object_id) const
+{
+    const LLInventoryObject *object = gInventory.getObject(object_id);
+    if (!object) return true;
+
+    const bool is_thumbnail = object->getThumbnailUUID().notNull();
+    if (is_thumbnail && (mFilterOps.mFilterThumbnails == FILTER_EXCLUDE_THUMBNAILS))
+        return false;
+    if (!is_thumbnail && (mFilterOps.mFilterThumbnails == FILTER_ONLY_THUMBNAILS))
+        return false;
+    return true;
+}
+
 bool LLInventoryFilter::checkAgainstCreator(const LLFolderViewModelItemInventory* listener) const
 {
 	if (!listener) return TRUE;
@@ -594,6 +617,9 @@ bool LLInventoryFilter::checkAgainstSearchVisibility(const LLFolderViewModelItem
 	const BOOL is_link = object->getIsLinkType();
 	if (is_link && ((mFilterOps.mSearchVisibility & VISIBILITY_LINKS) == 0))
 		return FALSE;
+
+    if (listener->isItemInOutfits() && ((mFilterOps.mSearchVisibility & VISIBILITY_OUTFITS) == 0))
+        return FALSE;
 
 	if (listener->isItemInTrash() && ((mFilterOps.mSearchVisibility & VISIBILITY_TRASH) == 0))
 		return FALSE;
@@ -733,6 +759,32 @@ void LLInventoryFilter::setFilterSettingsTypes(U64 types)
     mFilterOps.mFilterTypes |= FILTERTYPE_SETTINGS;
 }
 
+void LLInventoryFilter::setFilterThumbnails(U64 filter_thumbnails)
+{
+    if (mFilterOps.mFilterThumbnails != filter_thumbnails)
+    {
+        if (mFilterOps.mFilterThumbnails == FILTER_EXCLUDE_THUMBNAILS
+            && filter_thumbnails == FILTER_ONLY_THUMBNAILS)
+        {
+            setModified(FILTER_RESTART);
+        }
+        else if (mFilterOps.mFilterThumbnails == FILTER_ONLY_THUMBNAILS
+            && filter_thumbnails == FILTER_EXCLUDE_THUMBNAILS)
+        {
+            setModified(FILTER_RESTART);
+        }
+        else if (mFilterOps.mFilterThumbnails == FILTER_INCLUDE_THUMBNAILS)
+        {
+            setModified(FILTER_MORE_RESTRICTIVE);
+        }
+        else
+        {
+            setModified(FILTER_LESS_RESTRICTIVE);
+        }
+    }
+    mFilterOps.mFilterThumbnails = filter_thumbnails;
+}
+
 void LLInventoryFilter::setFilterEmptySystemFolders()
 {
 	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
@@ -789,6 +841,24 @@ void LLInventoryFilter::toggleSearchVisibilityLinks()
 	{
 		setModified(hide_links ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
 	}
+}
+
+void LLInventoryFilter::toggleSearchVisibilityOutfits()
+{
+    bool hide_outfits = mFilterOps.mSearchVisibility & VISIBILITY_OUTFITS;
+    if (hide_outfits)
+    {
+        mFilterOps.mSearchVisibility &= ~VISIBILITY_OUTFITS;
+    }
+    else
+    {
+        mFilterOps.mSearchVisibility |= VISIBILITY_OUTFITS;
+    }
+
+    if (hasFilterString())
+    {
+        setModified(hide_outfits ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
+    }
 }
 
 void LLInventoryFilter::toggleSearchVisibilityTrash()
@@ -1515,6 +1585,11 @@ U64 LLInventoryFilter::getSearchVisibilityTypes() const
 	return mFilterOps.mSearchVisibility;
 }
 
+U64 LLInventoryFilter::getFilterThumbnails() const
+{
+    return mFilterOps.mFilterThumbnails;
+}
+
 bool LLInventoryFilter::hasFilterString() const
 {
 	return mFilterSubString.size() > 0;
@@ -1592,9 +1667,9 @@ void LLInventoryFilter::setDefaultEmptyLookupMessage(const std::string& message)
 	mDefaultEmptyLookupMessage = message;
 }
 
-std::string LLInventoryFilter::getEmptyLookupMessage() const
+std::string LLInventoryFilter::getEmptyLookupMessage(bool is_empty_folder) const
 {
-	if (isDefault() && !mDefaultEmptyLookupMessage.empty())
+	if ((isDefault() || is_empty_folder) && !mDefaultEmptyLookupMessage.empty())
 	{
 		return LLTrans::getString(mDefaultEmptyLookupMessage);
 	}
@@ -1617,7 +1692,7 @@ bool LLInventoryFilter::areDateLimitsSet()
 
 bool LLInventoryFilter::showAllResults() const
 {
-	return hasFilterString();
+	return hasFilterString() && !mSingleFolderMode;
 }
 
 

@@ -122,8 +122,7 @@ const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 const S32 UI_FEATURE_VERSION = 1;
 // For version 1: 1 - inventory, 2 - gltf
-// Will need to change to 3 once either inventory or gltf releases and cause a conflict
-const S32 UI_FEATURE_FLAGS = 2;
+const S32 UI_FEATURE_FLAGS = 3;
 
 // The agent instance.
 LLAgent gAgent;

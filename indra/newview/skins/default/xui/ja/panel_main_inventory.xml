@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダーを取得しました。[FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">インベントリ</panel.string>
 	<text name="ItemcountText">
 		アイテム：
 	</text>

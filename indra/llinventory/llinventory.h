@@ -70,6 +70,7 @@ public:
 	virtual const LLUUID& getUUID() const; // inventoryID that this item points to
 	virtual const LLUUID& getLinkedUUID() const; // inventoryID that this item points to, else this item's inventoryID
 	const LLUUID& getParentUUID() const;
+	virtual const LLUUID& getThumbnailUUID() const;
 	virtual const std::string& getName() const;
 	virtual LLAssetType::EType getType() const;
 	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
@@ -84,6 +85,7 @@ public:
 	void setUUID(const LLUUID& new_uuid);
 	virtual void rename(const std::string& new_name);
 	void setParent(const LLUUID& new_parent);
+	virtual void setThumbnailUUID(const LLUUID& thumbnail_uuid);
 	void setType(LLAssetType::EType type);
 	virtual void setCreationDate(time_t creation_date_utc); // only stored for items
 
@@ -108,6 +110,7 @@ public:
 protected:
 	LLUUID mUUID;
 	LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
+	LLUUID mThumbnailUUID;
 	LLAssetType::EType mType;
 	std::string mName;
 	time_t mCreationDate; // seconds from 1/1/1970, UTC
@@ -203,9 +206,6 @@ public:
 	// Helper Functions
 	//--------------------------------------------------------------------
 public:
-	// Pack all information needed to reconstruct this item into the given binary bucket.
-	S32 packBinaryBucket(U8* bin_bucket, LLPermissions* perm_override = NULL) const;
-	void unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size);
 	LLSD asLLSD() const;
 	void asLLSD( LLSD& sd ) const;
 	bool fromLLSD(const LLSD& sd, bool is_new = true);
@@ -253,6 +253,7 @@ public:
 	LLFolderType::EType getPreferredType() const;
 	void setPreferredType(LLFolderType::EType type);
 	LLSD asLLSD() const;
+    LLSD asAISCreateCatLLSD() const;
 	bool fromLLSD(const LLSD& sd);
 
 	//--------------------------------------------------------------------

@@ -92,11 +92,20 @@ class LLViewerTextureList
 	friend class LLLocalBitmap;
 	
 public:
+    static bool createUploadFile(LLPointer<LLImageRaw> raw_image,
+                                 const std::string& out_filename,
+                                 const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT,
+                                 const S32 min_image_dimentions = 0);
     static BOOL createUploadFile(const std::string& filename,
                                  const std::string& out_filename,
                                  const U8 codec,
-                                 const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image, const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT, bool force_lossless = false);
+                                 const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT,
+                                 const S32 min_image_dimentions = 0,
+                                 bool force_square = false);
+	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image,
+                                                     const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT,
+                                                     bool force_square = false,
+                                                     bool force_lossless = false);
 	static void processImageNotInDatabase( LLMessageSystem *msg, void **user_data );
 
 public:

@@ -57,7 +57,6 @@
 #include "llviewerwindow.h"
 #include "lldrawable.h"
 #include "llfloaterinspect.h"
-#include "llfloaterproperties.h"
 #include "llfloaterreporter.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
@@ -7129,8 +7128,6 @@ void dialog_refresh_all()
 	{
 		gMenuAttachmentOther->arrange();
 	}
-
-	LLFloaterProperties::dirtyAll();
 
 	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 	if(inspect_instance)

@@ -15,52 +15,25 @@
          function="Inventory.GearDefault.Custom.Action"
          parameter="new_window" />
     </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
-    <menu_item_check
-     label="Sort by Name"
+    <menu_item_call
+     label="Collapse All Folders"
      layout="topleft"
-     name="sort_by_name">
+     name="close_folders">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
-         parameter="sort_by_name" />
-        <on_check
-         function="Inventory.GearDefault.Check"
-         parameter="sort_by_name" />
-    </menu_item_check>
-    <menu_item_check
-     label="Sort by Most Recent"
+         parameter="close_folders" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
+    </menu_item_call>
+    <menu_item_call
+     label="Close All Windows"
      layout="topleft"
-     name="sort_by_recent">
+     name="close_windows">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
-         parameter="sort_by_recent" />
-        <on_check
-         function="Inventory.GearDefault.Check"
-         parameter="sort_by_recent" />         
-    </menu_item_check>
-    <menu_item_check
-     label="Sort Folders Always by Name"
-     layout="topleft"
-     name="sort_folders_by_name">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="sort_folders_by_name" />
-        <on_check
-         function="Inventory.GearDefault.Check"
-         parameter="sort_folders_by_name" />
-    </menu_item_check>
-    <menu_item_check
-     label="Sort System Folders to Top"
-     layout="topleft"
-     name="sort_system_folders_to_top">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="sort_system_folders_to_top" />
-        <on_check
-         function="Inventory.GearDefault.Check"
-         parameter="sort_system_folders_to_top" />
-    </menu_item_check>
+         parameter="close_inv_windows" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
@@ -79,29 +52,6 @@
          function="Inventory.GearDefault.Custom.Action"
          parameter="reset_filters" />
     </menu_item_call>
-    <menu_item_call
-     label="Close All Folders"
-     layout="topleft"
-     name="close_folders">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="close_folders" />
-    </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
-    <menu_item_call
-     label="Empty Lost and Found"
-     layout="topleft"
-     name="empty_lostnfound">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="empty_lostnfound" />
-        <on_enable
-         function="Inventory.GearDefault.Enable"
-         parameter="empty_lostnfound" />
-    </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
     <menu_item_call 
          label="Save Texture As"
          layout="topleft"
@@ -119,7 +69,8 @@
      name="Share"
      visible="true">
      <on_click
-         function="Inventory.Share" />
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="share" />
      <on_enable
          function="Inventory.GearDefault.Enable"
          parameter="share" />
@@ -154,9 +105,25 @@
              function="Inventory.GearDefault.Custom.Action"
              parameter="replace_links" />
         </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
-
+    <menu_item_separator>
+        <menu_item_separator.on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
+    </menu_item_separator>
+    <menu_item_call
+     label="Empty Lost and Found"
+     layout="topleft"
+     name="empty_lostnfound">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="empty_lostnfound" />
+        <on_enable
+         function="Inventory.GearDefault.Enable"
+         parameter="empty_lostnfound" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
+    </menu_item_call>
     <menu_item_call
      label="Empty Trash"
      layout="topleft"
@@ -167,5 +134,8 @@
         <on_enable
          function="Inventory.GearDefault.Enable"
          parameter="empty_trash" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
     </menu_item_call>
 </toggleable_menu>

@@ -2,17 +2,17 @@
 <floater
  positioning="cascading"
  legacy_header_height="18"
- can_minimize="true"
+ can_minimize="false"
  can_resize="false"
  can_close="true"
  height="305"
  layout="topleft"
- name="simple_outfit_snapshot"
- single_instance="true"
+ name="simple_snapshot"
+ single_instance="false"
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="OUTFIT SNAPSHOT"
+ title="ITEM SNAPSHOT"
  width="351">
   <ui_ctrl
    layout="topleft"
@@ -36,7 +36,7 @@
    height="22"
    layout="topleft"
    left_pad="10"
-   label="Save (L$[UPLOAD_COST])"
+   label="Save"
    name="save_btn"
    width="90" />
   <button
