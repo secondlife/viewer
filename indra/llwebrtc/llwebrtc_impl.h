@@ -100,7 +100,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
 {
   public:
     LLWebRTCImpl() : 
-        mTuningAudioDeviceObserver(nullptr), mPeerAudioDeviceObserver(nullptr)
+        mTuningAudioDeviceObserver(nullptr), mPeerAudioDeviceObserver(nullptr), mMute(true)
     {
     }
     ~LLWebRTCImpl() {}
@@ -209,6 +209,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
     // accessors in webrtc aren't apparently implemented yet.
     int32_t                                                    mPlayoutDevice;
     int32_t                                                    mRecordingDevice;
+    bool                                                       mMute;
 
     LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
     LLAudioDeviceObserver *                                    mPeerAudioDeviceObserver;

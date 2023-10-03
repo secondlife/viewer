@@ -2479,7 +2479,6 @@ void LLWebRTCVoiceClient::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface * 
     mWebRTCAudioInterface = audio_interface;
     mWebRTCAudioInterface->setAudioObserver(this);
     float speaker_volume  = 0;
-    audio_interface->setMute(true);
     {
         LLMutexLock lock(&mVoiceStateMutex);
         speaker_volume = mSpeakerVolume;
@@ -4872,6 +4871,7 @@ void LLWebRTCVoiceClient::sessionState::for_eachPredicate(const LLWebRTCVoiceCli
 
 void LLWebRTCVoiceClient::sessionEstablished()
 {
+    mWebRTCAudioInterface->setMute(mMuteMic);
 	addSession(gAgent.getRegion()->getRegionID().asString()); 
 }
 
