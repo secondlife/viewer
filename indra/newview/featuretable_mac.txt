@@ -1,4 +1,4 @@
-version 53
+version 54
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -42,7 +42,7 @@ RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	8192
 RenderObjectBump			1	1
-RenderLocalLights			1	1
+RenderLocalLightCount		1	4096
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
@@ -85,7 +85,7 @@ RenderAvatarMaxComplexity          1	35000
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
-RenderLocalLights			1	0
+RenderLocalLightCount		1	8
 RenderMaxPartCount			1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
@@ -97,7 +97,7 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
 RenderFSAASamples			1	0
-RenderReflectionsEnabled    1   0
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
@@ -115,7 +115,7 @@ RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
 RenderMaxPartCount			1	2048
-RenderLocalLights			1	1
+RenderLocalLightCount		1	256
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
@@ -144,7 +144,7 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderLocalLights			1	1
+RenderLocalLightCount		1	512
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
@@ -173,7 +173,7 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderLocalLights			1	1
+RenderLocalLightCount		1	1024
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
@@ -202,7 +202,7 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderLocalLights			1	1
+RenderLocalLightCount		1	2048
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
@@ -231,7 +231,7 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderLocalLights			1	1
+RenderLocalLightCount		1	4096
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
@@ -258,7 +258,7 @@ RenderAvatarMaxNonImpostors 1   16
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
-RenderLocalLights			1	1
+RenderLocalLightCount		1	8192
 RenderMaxPartCount			1	8192
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
@@ -298,7 +298,7 @@ list safe
 RenderAnisotropic			1	0
 RenderAvatarMaxNonImpostors 1	16
 RenderAvatarMaxComplexity          1	80000
-RenderLocalLights			1	0
+RenderLocalLightCount		1	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
 RenderDeferredSSAO			0	0
@@ -313,7 +313,6 @@ RenderDeferredSSAO			1	0
 
 list Intel
 RenderAnisotropic			1	0
-RenderLocalLights			1	0
 RenderFSAASamples			1	0
 
 list GL3

@@ -413,9 +413,6 @@ void LLViewerShaderMgr::setShaders()
         gViewerWindow->setCursor(UI_CURSOR_WAIT);
     }
 
-    // Lighting
-    gPipeline.setLightingDetail(-1);
-
     // Shaders
     LL_INFOS("ShaderLoading") << "\n~~~~~~~~~~~~~~~~~~\n Loading Shaders:\n~~~~~~~~~~~~~~~~~~" << LL_ENDL;
     LL_INFOS("ShaderLoading") << llformat("Using GLSL %d.%d", gGLManager.mGLSLVersionMajor, gGLManager.mGLSLVersionMinor) << LL_ENDL;
@@ -579,21 +576,6 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	// All of these have to load for any shaders to function
 	
 	S32 sum_lights_class = 3;
-
-	// class one cards will get the lower sum lights
-	// class zero we're not going to think about
-	// since a class zero card COULD be a ridiculous new card
-	// and old cards should have the features masked
-	if(LLFeatureManager::getInstance()->getGPUClass() == GPU_CLASS_1)
-	{
-		sum_lights_class = 2;
-	}
-
-	// If we have sun and moon only checked, then only sum those lights.
-	if (gPipeline.getLightingDetail() == 0)
-	{
-		sum_lights_class = 1;
-	}
 
 #if LL_DARWIN
 	// Work around driver crashes on older Macs when using deferred rendering

@@ -9046,16 +9046,16 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderLocalLights</key>
+  <key>RenderLocalLightCount</key>
   <map>
     <key>Comment</key>
-    <string>Whether or not to render local lights.</string>
+    <string>Number of local lights to render.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>Boolean</string>
+    <string>S32</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>256</integer>
   </map>
   <key>RenderShadowSplitExponent</key>
   <map>
