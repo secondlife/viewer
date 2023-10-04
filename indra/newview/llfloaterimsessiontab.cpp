@@ -986,6 +986,8 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 	}
 
 	mInputButtonPanel->setVisible(isTornOff());
+
+	setFocus(TRUE);
 }
 
 
