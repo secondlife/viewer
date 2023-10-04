@@ -6,7 +6,7 @@ version 2.0
 // numbers. Each message must be numbered relative to the
 // other messages of that type. The current highest number 
 // for each type is listed below:
-// Low: 430
+// Low: 431
 // Medium: 18
 // High: 30
 // PLEASE UPDATE THIS WHEN YOU ADD A NEW MESSAGE!
@@ -9130,6 +9130,39 @@ version 2.0
 		{	Name			Variable	1	}
 		{	Description		Variable	1	}
 
+	}
+}
+
+// viewer->sim
+// GameControlInput - input from game controller
+// This message is split into two Variable chunks:
+//
+//   AxisData = list of {Index:Value} pairs.  Value is an S16 that maps to range [-1, 1].
+//   ButtonData = list of indices of pressed buttons
+//
+// Any Axis ommitted from the message is assumed by the receiving Simulator to be unchanged
+// from its last message.
+//
+// Any Button ommitted from the message is assumed by the receiving Simulator to be unpressed.
+//
+// Since GameControlInput messages are sent unreliably: whenenver the changes stop the last
+// message will be resent a few times in the hopes the server finally receives it.
+//
+{
+	GameControlInput Medium 431 NotTrusted Zerocoded
+	{
+		AgentData		Single
+		{	AgentID		LLUUID	}
+		{	SessionID	LLUUID	}
+	}
+	{
+		AxisData			Variable
+		{ Index				U8 }
+		{ Value				S16 }
+	}
+	{
+		ButtonData			Variable
+		{ Data				Variable 1 }
 	}
 }
 

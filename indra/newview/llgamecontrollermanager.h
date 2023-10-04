@@ -32,14 +32,7 @@
 #include "llsingleton.h"
 #include "stdtypes.h"
 
-
-// LLGameControllerState is a minimal class for storing axes and buttons values
-class LLGameControllerState
-{
-public:
-    std::vector<S16> mAxes; // [ -32768, 32767 ]
-    std::vector<bool> mButtons;
-};
+class LLMessageSystem;
 
 // LLGameControllerManager is a singleton with pure static public interface
 class LLGameControllerManager : public LLSingleton<LLGameControllerManager>
@@ -54,7 +47,6 @@ public:
 	static void init();
 	static void terminate();
     static void processEvents();
-    static bool hasInput();
-    static const LLGameControllerState& getState();
+    static bool packGameControlInput(LLMessageSystem* msg);
 };
 

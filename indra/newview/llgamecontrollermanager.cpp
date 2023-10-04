@@ -30,7 +30,27 @@
 #include "SDL2/SDL_gamecontroller.h"
 #include "SDL2/SDL_joystick.h"
 
+#include "llagent.h"
+#include "message.h"
+
+// LLGameControllerState is a minimal class for storing axes and buttons values
+class LLGameControllerState
+{
+public:
+    LLGameControllerState()
+    {
+        mAxes.resize(SDL_CONTROLLER_AXIS_MAX, 0);
+        mPrevAxes.resize(SDL_CONTROLLER_AXIS_MAX, 0);
+        mButtons.resize(SDL_CONTROLLER_BUTTON_MAX, false);
+    }
+
+    std::vector<S16> mAxes; // [ -32768, 32767 ]
+    std::vector<S16> mPrevAxes;
+    std::vector<bool> mButtons;
+};
+
 LLGameControllerState g_controllerState;
+
 LLGameControllerManager* g_manager = nullptr;
 std::vector<SDL_GameControllerAxis> g_axisEnums;
 std::vector<SDL_GameControllerButton> g_buttonEnums;
@@ -85,31 +105,6 @@ std::ostream& operator<<(std::ostream& out, SDL_Joystick* j)
     out << " }";
     return out;
 }
-
-/*
-void onJoyDeviceAdded(const SDL_Event& event)
-{
-    int device_index = event.cdevice.which;
-    SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(device_index);
-    bool is_controller = SDL_IsGameController(device_index);
-    SDL_Joystick* joystick = nullptr;
-    joystick = SDL_JoystickOpen(device_index);
-    LL_DEBUGS("SDL2") << "index=" << device_index
-        << " is_controller=" << is_controller
-        << " id=0x" << std::hex << id << std::dec
-        << " joystick=" << joystick << LL_ENDL;
-}
-
-void onJoyDeviceRemoved(const SDL_Event& event)
-{
-    int device_index = event.cdevice.which;
-    SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(device_index);
-    SDL_Joystick* joystick = SDL_JoystickFromInstanceID(id);
-    LL_DEBUGS("SDL2") << "index=" << device_index
-        << " id=0x" << std::hex << id << std::dec
-        << " joystick=" << joystick << LL_ENDL;
-}
-*/
 
 void onControllerDeviceAdded(const SDL_Event& event)
 {
@@ -169,7 +164,28 @@ void onControllerDeviceRemoved(const SDL_Event& event)
 
 void onControllerButton(const SDL_Event& event)
 {
-    LL_DEBUGS("SDL2") << "button i=" << event.cbutton.button << " state=" << event.cbutton.state << LL_ENDL;
+    U8 button = event.cbutton.button;
+    if (button < g_controllerState.mButtons.size())
+    {
+        bool state = (bool)(event.cbutton.state == SDL_PRESSED);
+        LL_DEBUGS("SDL2") << " button i=" << (S32)(event.cbutton.button)
+            << " state:" << g_controllerState.mButtons[button] << "-->" << state << LL_ENDL;
+        g_controllerState.mButtons[button] = state;
+        g_hasInput = true;
+    }
+}
+
+void onControllerAxis(const SDL_Event& event)
+{
+    U8 axis = event.caxis.axis;
+    if (axis < g_controllerState.mAxes.size())
+    {
+        S16 value = event.caxis.value;
+        LL_DEBUGS("SDL2") << " axis i=" << (S32)(event.caxis.axis)
+            << " state:" << g_controllerState.mAxes[axis] << "-->" << value << LL_ENDL;
+        g_controllerState.mAxes[axis] = value;
+        g_hasInput = true;
+    }
 }
 
 LLGameControllerManager::~LLGameControllerManager()
@@ -196,9 +212,6 @@ void LLGameControllerManager::init()
         g_manager = LLGameControllerManager::getInstance();
         //SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
         SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
-
-        g_controllerState.mAxes.resize(SDL_CONTROLLER_AXIS_MAX);
-        g_controllerState.mButtons.resize(SDL_CONTROLLER_BUTTON_MAX);
 
         g_axisEnums = {
             SDL_CONTROLLER_AXIS_LEFTX,
@@ -252,75 +265,78 @@ void LLGameControllerManager::processEvents()
     SDL_Event event;
     while (g_manager && SDL_PollEvent(&event))
     {
-        /*
-        LL_DEBUGS("SDL2") << "type=" << event.type << LL_ENDL;
-        if (event.type == SDL_JOYDEVICEADDED)
+        switch (event.type)
         {
-            onJoyDeviceAdded(event);
-        }
-        else if (event.type == SDL_JOYDEVICEREMOVED)
-        {
-            onJoyDeviceRemoved(event);
-        }
-        else
-        */
-        if (event.type == SDL_CONTROLLERDEVICEADDED)
-        {
-            onControllerDeviceAdded(event);
-        }
-        else if (event.type == SDL_CONTROLLERDEVICEREMOVED)
-        {
-            onControllerDeviceRemoved(event);
-        }
-        else if (event.type == SDL_CONTROLLERBUTTONDOWN)
-        {
-            onControllerButton(event);
+            case SDL_CONTROLLERDEVICEADDED:
+                onControllerDeviceAdded(event);
+                break;
+            case SDL_CONTROLLERDEVICEREMOVED:
+                onControllerDeviceRemoved(event);
+                break;
+            case SDL_CONTROLLERBUTTONDOWN:
+                /* FALLTHROUGH */
+            case SDL_CONTROLLERBUTTONUP:
+                onControllerButton(event);
+                break;
+            case SDL_CONTROLLERAXISMOTION:
+                onControllerAxis(event);
+                break;
+            default:
+                break;
         }
     }
+}
 
-    /*
-    // copy state
-    for (auto controller : g_controllers)
+// static
+bool LLGameControllerManager::packGameControlInput(LLMessageSystem* msg)
+{
+    if (g_hasInput && msg)
     {
-        size_t num_axes = g_controllerState.mAxes.size();
-        for (size_t a = 0; a < num_axes; ++a)
+        msg->newMessageFast(_PREHASH_GameControlInput);
+        msg->nextBlock("AgentData");
+        msg->addUUID("AgentID", gAgentID);
+        msg->addUUID("SessionID", gAgentSessionID);
+
+        size_t num_axes_packed = 0;
+        size_t num_indices = g_controllerState.mAxes.size();
+        for (U8 i = 0; i < num_indices; ++i)
         {
-            if (SDL_GameControllerHasAxis(controller, g_axisEnums[a]))
+            if (g_controllerState.mAxes[i] != g_controllerState.mPrevAxes[i])
             {
-                S16 old_state = g_controllerState.mAxes[a];
-                g_controllerState.mAxes[a] = SDL_GameControllerGetAxis(controller, g_axisEnums[a]);
-                if (old_state != g_controllerState.mAxes[a])
-                {
-                    LL_DEBUGS("SDL2") << "a=" << a << " " << old_state << "-->" << g_controllerState.mAxes[a] << LL_ENDL;
-                }
+                // only pack an axis if it differes from previously packed value
+                msg->nextBlockFast(_PREHASH_AxisData);
+                msg->addU8Fast(_PREHASH_Index, i);
+                msg->addS16Fast(_PREHASH_Value, g_controllerState.mAxes[i]);
+                g_controllerState.mPrevAxes[i] = g_controllerState.mAxes[i];
+                ++num_axes_packed;
             }
         }
-        size_t num_buttons = g_controllerState.mButtons.size();
-        for (size_t b = 0; b < num_buttons; ++b)
+
+        // we expect the typical number of simultaneously pressed buttons to be one or two
+        // which means it is more compact to send the list of pressed button indices
+        // instead of a U32 bitmask
+        std::vector<U8> buttons;
+        num_indices = g_controllerState.mButtons.size();
+        for (size_t i = 0; i < num_indices; ++i)
         {
-            if (SDL_GameControllerHasButton(controller, g_buttonEnums[b]))
+            if (g_controllerState.mButtons[i])
             {
-                bool old_state = g_controllerState.mButtons[b];
-                g_controllerState.mButtons[b] = SDL_GameControllerGetButton(controller, g_buttonEnums[b]);
-                if (old_state != g_controllerState.mButtons[b])
-                {
-                    LL_DEBUGS("SDL2") << "b=" << b << " " << old_state << "-->" << g_controllerState.mButtons[b] << LL_ENDL;
-                }
+                buttons.push_back(i);
             }
         }
+        if (!buttons.empty())
+        {
+            msg->nextBlockFast(_PREHASH_ButtonData);
+            msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
+        }
+        // TODO: remove this LL_DEBUGS, and num_axes_packed later
+        LL_DEBUGS("game_control_input") << "num_axes=" << num_axes_packed << " num_buttons=" << buttons.size() << LL_ENDL;
+        g_hasInput = false;
+        return true;
+
+        // TODO: resend last GameControlInput a few times on a timer
+        // to help reduce the likelihood of a lost "final send"
     }
-    */
+    return false;
 }
 
-// static
-bool LLGameControllerManager::hasInput()
-{
-    // TODO: determine if this is useful or not
-    return g_hasInput;
-}
-
-// static
-const LLGameControllerState& LLGameControllerManager::getState()
-{
-    return g_controllerState;
-}
