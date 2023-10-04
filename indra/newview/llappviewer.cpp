@@ -1484,7 +1484,13 @@ bool LLAppViewer::doFrame()
                 joystick->scanJoystick();
                 gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
+
                 LLGameControllerManager::processEvents();
+                // to help minimize lag we send GameInput packets ASAP
+                if (LLGameControllerManager::packGameControlInput(gMessageSystem))
+                {
+		            gAgent.sendMessage();
+                }
 			}
 
             // Update state based on messages, user input, object idle.
