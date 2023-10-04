@@ -4617,7 +4617,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
     if (!pick_unselectable)
     {
-        if (!LLSelectMgr::instance().canSelectObject(this))
+        if (!LLSelectMgr::instance().canSelectObject(this, TRUE))
         {
             return FALSE;
         }
