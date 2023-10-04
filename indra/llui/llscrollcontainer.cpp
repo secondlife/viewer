@@ -105,8 +105,8 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	LLView::addChild( mBorder );
 
-	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-	mInnerRect.stretch( -getBorderWidth()  );
+	mInnerRect = getLocalRect();
+	mInnerRect.stretch( -getBorderWidth() );
 
 	LLRect vertical_scroll_rect = mInnerRect;
 	vertical_scroll_rect.mLeft = vertical_scroll_rect.mRight - scrollbar_size;
@@ -124,8 +124,9 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mScrollbar[VERTICAL] = LLUICtrlFactory::create<LLScrollbar> (sbparams);
 	LLView::addChild( mScrollbar[VERTICAL] );
 	
-	LLRect horizontal_scroll_rect = mInnerRect;
-	horizontal_scroll_rect.mTop = horizontal_scroll_rect.mBottom + scrollbar_size;
+	LLRect horizontal_scroll_rect;
+	horizontal_scroll_rect.mTop = scrollbar_size;
+	horizontal_scroll_rect.mRight = mInnerRect.getWidth();
 	sbparams.name("scrollable horizontal");
 	sbparams.rect(horizontal_scroll_rect);
 	sbparams.orientation(LLScrollbar::HORIZONTAL);
@@ -134,7 +135,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	sbparams.page_size(mInnerRect.getWidth());
 	sbparams.step_size(VERTICAL_MULTIPLE);
 	sbparams.visible(false);
-	sbparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT);
+	sbparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
 	sbparams.change_callback(p.scroll_callback);
 	mScrollbar[HORIZONTAL] = LLUICtrlFactory::create<LLScrollbar> (sbparams);
 	LLView::addChild( mScrollbar[HORIZONTAL] );

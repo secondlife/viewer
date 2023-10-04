@@ -163,6 +163,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 :	LLPanel(p),
 	mHasClickCallback(p.click_callback.isProvided()),
 	mPadding(p.padding),
+	mMaxWidth(p.max_width),
 	mTextBox(NULL),
 	mInfoButton(NULL),
 	mPlayMediaButton(NULL),
@@ -272,7 +273,7 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 
 	// do this *after* we've had our size set in LLPanel::initFromParams();
 	const S32 REALLY_LARGE_HEIGHT = 10000;
-	mTextBox->reshape(p.max_width, REALLY_LARGE_HEIGHT);
+	mTextBox->reshape(mMaxWidth, REALLY_LARGE_HEIGHT);
 
 	if (p.styled_message.isProvided())
 	{
@@ -288,16 +289,19 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 		mTextBox->setText(p.message());
 	}
 
-	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth() + 1);
+	updateTextBox();
+	snapToChildren();
+}
+
+void LLToolTip::updateTextBox()
+{
+	S32 text_width = llmin(mMaxWidth, mTextBox->getTextPixelWidth() + 1);
 	S32 text_height = mTextBox->getTextPixelHeight();
 	mTextBox->reshape(text_width, text_height);
-	if (mInfoButton)
-	{
-		LLRect text_rect = mTextBox->getRect();
-		LLRect icon_rect = mInfoButton->getRect();
-		mTextBox->translate(0, icon_rect.getCenterY() - text_rect.getCenterY());
-	}
-
+}
+ 
+void LLToolTip::snapToChildren()
+{
 	// reshape tooltip panel to fit text box
 	LLRect tooltip_rect = calcBoundingRect();
 	tooltip_rect.mTop += mPadding;
@@ -305,7 +309,14 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 	tooltip_rect.mBottom = 0;
 	tooltip_rect.mLeft = 0;
 
-	mTextBox->reshape(mTextBox->getRect().getWidth(), llmax(mTextBox->getRect().getHeight(), tooltip_rect.getHeight() - 2 * mPadding));
+	if (mInfoButton)
+	{
+		mTextBox->reshape(mTextBox->getRect().getWidth(), llmax(mTextBox->getRect().getHeight(), tooltip_rect.getHeight() - 2 * mPadding));
+
+		LLRect text_rect = mTextBox->getRect();
+		LLRect icon_rect = mInfoButton->getRect();
+		mInfoButton->translate(0, text_rect.getCenterY() - icon_rect.getCenterY());
+	}
 
 	setShape(tooltip_rect);
 }
@@ -428,7 +439,10 @@ void LLToolTipMgr::createToolTip(const LLToolTip::Params& params)
 	}
 	tooltip_params.rect = LLRect (0, 1, 1, 0);
 
-	mToolTip = LLUICtrlFactory::create<LLToolTip> (tooltip_params);
+	if (tooltip_params.create_callback.isProvided())
+		mToolTip = tooltip_params.create_callback()(tooltip_params);
+	else
+		mToolTip = LLUICtrlFactory::create<LLToolTip> (tooltip_params);
 
 	gToolTipView->addChild(mToolTip);
 

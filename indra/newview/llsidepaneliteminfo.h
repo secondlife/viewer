@@ -27,42 +27,55 @@
 #ifndef LL_LLSIDEPANELITEMINFO_H
 #define LL_LLSIDEPANELITEMINFO_H
 
-#include "llsidepanelinventorysubpanel.h"
+#include "llinventoryobserver.h"
+#include "llpanel.h"
+#include "llstyle.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLSidepanelItemInfo
 // Object properties for inventory side panel.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+class LLAvatarName;
 class LLButton;
+class LLFloater;
+class LLIconCtrl;
 class LLViewerInventoryItem;
 class LLItemPropertiesObserver;
 class LLObjectInventoryObserver;
 class LLViewerObject;
 class LLPermissions;
+class LLTextBox;
 
-class LLSidepanelItemInfo : public LLSidepanelInventorySubpanel
+class LLSidepanelItemInfo : public LLPanel, public LLInventoryObserver
 {
 public:
 	LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
 	virtual ~LLSidepanelItemInfo();
 	
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 	/*virtual*/ void reset();
 
 	void setObjectID(const LLUUID& object_id);
 	void setItemID(const LLUUID& item_id);
-	void setEditMode(BOOL edit);
+    void setParentFloater(LLFloater* parent); // For simplicity
 
 	const LLUUID& getObjectID() const;
 	const LLUUID& getItemID() const;
 
 	// if received update and item id (from callback) matches internal ones, update UI
 	void onUpdateCallback(const LLUUID& item_id, S32 received_update_id);
+    
+    void changed(U32 mask) override;
+    void dirty();
+    
+    static void onIdle( void* user_data );
+    void updateOwnerName(const LLUUID& owner_id, const LLAvatarName& owner_name, const LLStyle::Params& style_params);
+    void updateCreatorName(const LLUUID& creator_id, const LLAvatarName& creator_name, const LLStyle::Params& style_params);
 
 protected:
-	/*virtual*/ void refresh();
-	/*virtual*/ void save();
+	void refresh() override;
+	void save();
 
 	LLViewerInventoryItem* findItem() const;
 	LLViewerObject*  findObject() const;
@@ -75,14 +88,23 @@ private:
 	void startObjectInventoryObserver();
 	void stopObjectInventoryObserver();
 	void setPropertiesFieldsEnabled(bool enabled);
+    
+    boost::signals2::connection mOwnerCacheConnection;
+    boost::signals2::connection mCreatorCacheConnection;
 
 	LLUUID mItemID; 	// inventory UUID for the inventory item.
 	LLUUID mObjectID; 	// in-world task UUID, or null if in agent inventory.
-	LLItemPropertiesObserver* mPropertiesObserver; // for syncing changes to item
 	LLObjectInventoryObserver* mObjectInventoryObserver; // for syncing changes to items inside an object
 
 	// We can send multiple properties updates simultaneously, make sure only last response counts and there won't be a race condition.
 	S32 mUpdatePendingId;
+    bool mIsDirty;         // item properties need to be updated
+    LLFloater* mParentFloater;
+
+    LLUICtrl* mChangeThumbnailBtn;
+    LLIconCtrl* mItemTypeIcon;
+    LLTextBox* mLabelOwnerName;
+    LLTextBox* mLabelCreatorName;
 
 	//
 	// UI Elements
@@ -94,6 +116,7 @@ protected:
 	void 						onCommitDescription();
 	void 						onCommitPermissions(LLUICtrl* ctrl);
 	void 						updatePermissions();
+    void 						onEditThumbnail();
 	void 						onCommitSaleInfo(LLUICtrl* ctrl);
 	void 						updateSaleInfo();
 	void 						onCommitChanges(LLPointer<LLViewerInventoryItem> item);

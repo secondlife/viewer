@@ -42,35 +42,11 @@
         parameter="take_off" />
     </menu_item_call>
     <menu_item_call
-        label="Upload Photo (L$[UPLOAD_COST])"
-        layout="topleft"
-        name="upload_photo">
+     label="Image..."
+     layout="topleft"
+     name="thumbnail">
         <on_click
-        function="Outfit.UploadPhoto" />
-    </menu_item_call>
-    <menu_item_call
-        label="Select Photo"
-        layout="topleft"
-        name="select_photo">
-        <on_click
-        function="Outfit.SelectPhoto" />
-    </menu_item_call>
-    <menu_item_call
-        label="Take a Snapshot"
-        layout="topleft"
-        name="take_snapshot">
-        <on_click
-        function="Outfit.TakeSnapshot" />
-    </menu_item_call>
-    <menu_item_call
-        label="Remove Photo"
-        layout="topleft"
-        name="remove_photo">
-        <on_click
-        function="Outfit.RemovePhoto" />
-        <on_visible
-        function="Outfit.OnVisible"
-        parameter="remove_photo" />
+         function="Outfit.Thumbnail" />
     </menu_item_call>
     <menu_item_separator name="sepatator1" />
     <menu

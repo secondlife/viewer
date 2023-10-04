@@ -95,6 +95,20 @@ namespace
 
 
 //=========================================================================
+void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID& parent_id, std::function<void(const LLUUID&)> created_cb)
+{
+    inventory_result_fn cb = NULL;
+
+    if (created_cb != NULL)
+    {
+        cb = [created_cb](LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)
+        {
+            created_cb(inventory_id);
+        };
+    }
+    createNewInventoryItem(stype, parent_id, cb);
+}
+
 void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback)
 {
     LLTransactionID tid;
