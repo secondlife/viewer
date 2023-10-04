@@ -546,11 +546,9 @@ then
   if $build_viewer
   then
     begin_section "Uploads"
-    # Upload installer
     package=$(installer_$arch)
-    if [ x"$package" != x ] && test -f "$package"
+    if [ x"$package" != x ]
     then
-      # Upload base package.
       if [ "$last_built_variant" = "Release" ]
       then
           # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
