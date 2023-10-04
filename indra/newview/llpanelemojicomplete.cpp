@@ -29,10 +29,12 @@
 #include "llemojidictionary.h"
 #include "llemojihelper.h"
 #include "llpanelemojicomplete.h"
+#include "llscrollbar.h"
 #include "lluictrlfactory.h"
 
 constexpr U32 MIN_MOUSE_MOVE_DELTA = 4;
 constexpr U32 MIN_SHORT_CODE_WIDTH = 100;
+constexpr U32 DEF_PADDING = 8;
 
 // ============================================================================
 // LLPanelEmojiComplete
@@ -41,26 +43,35 @@ constexpr U32 MIN_SHORT_CODE_WIDTH = 100;
 static LLDefaultChildRegistry::Register<LLPanelEmojiComplete> r("emoji_complete");
 
 LLPanelEmojiComplete::Params::Params()
-	: autosize("autosize")
-	, noscroll("noscroll")
-	, vertical("vertical")
-	, max_emoji("max_emoji")
-	, padding("padding")
-	, selected_image("selected_image")
+    : autosize("autosize")
+    , noscroll("noscroll")
+    , vertical("vertical")
+    , max_visible("max_visible")
+    , padding("padding", DEF_PADDING)
+    , selected_image("selected_image")
 {
 }
 
 LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p)
-	: LLUICtrl(p)
-	, mAutoSize(p.autosize)
-	, mNoScroll(p.noscroll)
-	, mVertical(p.vertical)
-	, mMaxVisible(p.max_emoji)
-	, mPadding(p.padding)
-	, mSelectedImage(p.selected_image)
-	, mIconFont(LLFontGL::getFontEmojiHuge())
-	, mTextFont(LLFontGL::getFontSansSerifBig())
+    : LLUICtrl(p)
+    , mAutoSize(p.autosize)
+    , mNoScroll(p.noscroll)
+    , mVertical(p.vertical)
+    , mMaxVisible(p.max_visible)
+    , mPadding(p.padding)
+    , mSelectedImage(p.selected_image)
+    , mIconFont(LLFontGL::getFontEmojiHuge())
+    , mTextFont(LLFontGL::getFontSansSerifBig())
+    , mScrollbar(nullptr)
 {
+    if (mVertical)
+    {
+        LLScrollbar::Params sbparams;
+        sbparams.orientation(LLScrollbar::VERTICAL);
+        sbparams.change_callback([this](S32 index, LLScrollbar*) { onScrollbarChange(index); });
+        mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
+        addChild(mScrollbar);
+    }
 }
 
 LLPanelEmojiComplete::~LLPanelEmojiComplete()
@@ -69,13 +80,15 @@ LLPanelEmojiComplete::~LLPanelEmojiComplete()
 
 void LLPanelEmojiComplete::draw()
 {
+    LLUICtrl::draw();
+
     if (mEmojis.empty())
         return;
 
     const size_t firstVisibleIdx = mScrollPos;
-    const size_t lastVisibleIdx = llmin(mScrollPos + mVisibleEmojis, mEmojis.size()) - 1;
+    const size_t lastVisibleIdx = llmin(mScrollPos + mVisibleEmojis, mTotalEmojis);
 
-    if (mCurSelected >= firstVisibleIdx && mCurSelected <= lastVisibleIdx)
+    if (mCurSelected >= firstVisibleIdx && mCurSelected < lastVisibleIdx)
     {
         S32 x, y, width, height;
         if (mVertical)
@@ -100,7 +113,7 @@ void LLPanelEmojiComplete::draw()
     S32 textLeft = mVertical ? mRenderRect.mLeft + mEmojiWidth + mPadding : 0;
     S32 textWidth = mVertical ? getRect().getWidth() - textLeft - mPadding : 0;
 
-    for (U32 curIdx = firstVisibleIdx; curIdx <= lastVisibleIdx; curIdx++)
+    for (U32 curIdx = firstVisibleIdx; curIdx < lastVisibleIdx; curIdx++)
     {
         mIconFont->render(mEmojis, curIdx, iconCenterX, iconCenterY,
             LLColor4::white, LLFontGL::HCENTER, LLFontGL::VCENTER, LLFontGL::NORMAL,
@@ -128,100 +141,154 @@ void LLPanelEmojiComplete::draw()
 
 BOOL LLPanelEmojiComplete::handleHover(S32 x, S32 y, MASK mask)
 {
-	LLVector2 curHover(x, y);
-	if ((mLastHover - curHover).lengthSquared() > MIN_MOUSE_MOVE_DELTA)
-	{
-		mCurSelected = posToIndex(x, y);
-		mLastHover = curHover;
-	}
+    if (mScrollbar && mScrollbar->getVisible() && childrenHandleHover(x, y, mask))
+        return TRUE;
 
-	return TRUE;
+    LLVector2 curHover(x, y);
+    if ((mLastHover - curHover).lengthSquared() > MIN_MOUSE_MOVE_DELTA)
+    {
+        size_t index = posToIndex(x, y);
+        if (index < mTotalEmojis)
+            mCurSelected = index;
+        mLastHover = curHover;
+    }
+
+    return TRUE;
 }
 
 BOOL LLPanelEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	bool handled = false;
-	if (MASK_NONE == mask)
-	{
-		switch (key)
-		{
-			case KEY_LEFT:
-			case KEY_UP:
-				selectPrevious();
-				handled = true;
-				break;
-			case KEY_RIGHT:
-			case KEY_DOWN:
-				selectNext();
-				handled = true;
-				break;
-			case KEY_RETURN:
-				if (!mEmojis.empty())
-				{
-					onCommit();
-					handled = true;
-				}
-				break;
-		}
-	}
+    bool handled = false;
+    if (mTotalEmojis && MASK_NONE == mask)
+    {
+        switch (key)
+        {
+        case KEY_HOME:
+            select(0);
+            handled = true;
+            break;
 
-	if (handled)
-	{
-		return TRUE;
-	}
-	return LLUICtrl::handleKey(key, mask, called_from_parent);
+        case KEY_END:
+            select(mTotalEmojis - 1);
+            handled = true;
+            break;
+
+        case KEY_PAGE_DOWN:
+            select(mCurSelected + mVisibleEmojis - 1);
+            handled = true;
+            break;
+
+        case KEY_PAGE_UP:
+            select(mCurSelected - llmin(mCurSelected, mVisibleEmojis + 1));
+            handled = true;
+            break;
+
+        case KEY_LEFT:
+        case KEY_UP:
+            selectPrevious();
+            handled = true;
+            break;
+
+        case KEY_RIGHT:
+        case KEY_DOWN:
+            selectNext();
+            handled = true;
+            break;
+
+        case KEY_RETURN:
+            onCommit();
+            handled = true;
+            break;
+        }
+    }
+
+    if (handled)
+    {
+        return TRUE;
+    }
+
+    return LLUICtrl::handleKey(key, mask, called_from_parent);
 }
 
 BOOL LLPanelEmojiComplete::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	mCurSelected = posToIndex(x, y);
-	mLastHover = LLVector2(x, y);
+    if (mScrollbar && mScrollbar->getVisible() && childrenHandleMouseDown(x, y, mask))
+        return TRUE;
 
-	return TRUE;
+    mCurSelected = posToIndex(x, y);
+    mLastHover = LLVector2(x, y);
+
+    return TRUE;
 }
 
 BOOL LLPanelEmojiComplete::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	mCurSelected = posToIndex(x, y);
-	onCommit();
+    if (mScrollbar && mScrollbar->getVisible() && childrenHandleMouseUp(x, y, mask))
+        return TRUE;
 
-	return TRUE;
+    mCurSelected = posToIndex(x, y);
+    onCommit();
+
+    return TRUE;
+}
+
+BOOL LLPanelEmojiComplete::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+    if (mNoScroll)
+        return FALSE;
+
+    if (mScrollbar && mScrollbar->getVisible() && mScrollbar->handleScrollWheel(x, y, clicks))
+    {
+        mCurSelected = posToIndex(x, y);
+        return TRUE;
+    }
+
+    if (mTotalEmojis > mVisibleEmojis)
+    {
+        mScrollPos = llclamp<size_t>(mScrollPos + clicks, 0, mTotalEmojis - mVisibleEmojis);
+        mCurSelected = posToIndex(x, y);
+        return TRUE;
+    }
+
+    return FALSE;
 }
 
 void LLPanelEmojiComplete::onCommit()
 {
-	if (mCurSelected < mEmojis.size())
-	{
-		LLWString wstr;
-		wstr.push_back(mEmojis.at(mCurSelected));
-		setValue(wstring_to_utf8str(wstr));
-		LLUICtrl::onCommit();
-	}
+    if (mCurSelected < mTotalEmojis)
+    {
+        LLWString wstr;
+        wstr.push_back(mEmojis.at(mCurSelected));
+        setValue(wstring_to_utf8str(wstr));
+        LLUICtrl::onCommit();
+    }
 }
 
 void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	LLUICtrl::reshape(width, height, called_from_parent);
-	updateConstraints();
+    LLUICtrl::reshape(width, height, called_from_parent);
+    updateConstraints();
 }
 
 void LLPanelEmojiComplete::setEmojis(const LLWString& emojis)
 {
-	mEmojis = emojis;
-	mCurSelected = 0;
+    mEmojis = emojis;
+    mTotalEmojis = mEmojis.size();
+    mCurSelected = 0;
 
-	onEmojisChanged();
+    onEmojisChanged();
 }
 
 void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 {
-	llwchar curEmoji = (mCurSelected < mEmojis.size()) ? mEmojis.at(mCurSelected) : 0;
+    llwchar curEmoji = mCurSelected < mTotalEmojis ? mEmojis.at(mCurSelected) : 0;
 
-	mEmojis = LLEmojiDictionary::instance().findMatchingEmojis(hint);
-	size_t curEmojiIdx = curEmoji ? mEmojis.find(curEmoji) : std::string::npos;
-	mCurSelected = (std::string::npos != curEmojiIdx) ? curEmojiIdx : 0;
+    mEmojis = LLEmojiDictionary::instance().findMatchingEmojis(hint);
+    mTotalEmojis = mEmojis.size();
+    size_t curEmojiIdx = curEmoji ? mEmojis.find(curEmoji) : std::string::npos;
+    mCurSelected = std::string::npos != curEmojiIdx ? curEmojiIdx : 0;
 
-	onEmojisChanged();
+    onEmojisChanged();
 }
 
 U32 LLPanelEmojiComplete::getMaxShortCodeWidth() const
@@ -246,79 +313,101 @@ U32 LLPanelEmojiComplete::getMaxShortCodeWidth() const
 
 void LLPanelEmojiComplete::onEmojisChanged()
 {
-	if (mAutoSize)
-	{
-		mVisibleEmojis = std::min(mEmojis.size(), mMaxVisible);
+    if (mAutoSize)
+    {
+        S32 width, height;
+        mVisibleEmojis = llmin(mTotalEmojis, mMaxVisible);
         if (mVertical)
         {
             U32 maxShortCodeWidth = getMaxShortCodeWidth();
-            U32 shortCodeWidth = std::max(maxShortCodeWidth, MIN_SHORT_CODE_WIDTH);
-            S32 width = mEmojiWidth + shortCodeWidth + mPadding * 2;
-            reshape(width, mVisibleEmojis * mEmojiHeight, false);
+            U32 shortCodeWidth = llmax(maxShortCodeWidth, MIN_SHORT_CODE_WIDTH);
+            width = mEmojiWidth + shortCodeWidth + mPadding * 2;
+            if (!mNoScroll && mVisibleEmojis < mTotalEmojis)
+            {
+                width += mScrollbar->getThickness();
+            }
+            height = mVisibleEmojis * mEmojiHeight;
         }
         else
         {
-            S32 height = getRect().getHeight();
-            reshape(mVisibleEmojis * mEmojiWidth, height, false);
+            width = mVisibleEmojis * mEmojiWidth;
+            height = getRect().getHeight();
         }
-	}
-	else
-	{
-		updateConstraints();
-	}
+        LLUICtrl::reshape(width, height, false);
+    }
 
-	mScrollPos = llmin(mScrollPos, mEmojis.size());
+    updateConstraints();
+}
+
+void LLPanelEmojiComplete::onScrollbarChange(S32 index)
+{
+    mScrollPos = llclamp<size_t>(index, 0, mTotalEmojis - mVisibleEmojis);
 }
 
 size_t LLPanelEmojiComplete::posToIndex(S32 x, S32 y) const
 {
-	if (mRenderRect.pointInRect(x, y))
-	{
-		U32 pos = mVertical ? (U32)(mRenderRect.mTop - y) / mEmojiHeight : x / mEmojiWidth;
-		return mScrollPos + llmin((size_t)pos, mEmojis.size() - 1);
-	}
-	return npos;
+    if (mRenderRect.pointInRect(x, y))
+    {
+        U32 pos = mVertical ? (U32)(mRenderRect.mTop - y) / mEmojiHeight : x / mEmojiWidth;
+        return llmin(mScrollPos + pos, mTotalEmojis - 1);
+    }
+    return std::string::npos;
 }
 
 void LLPanelEmojiComplete::select(size_t emoji_idx)
 {
-	mCurSelected = llclamp<size_t>(emoji_idx, 0, mEmojis.size());
-	updateScrollPos();
+    mCurSelected = llclamp<size_t>(emoji_idx, 0, mTotalEmojis - 1);
+
+    updateScrollPos();
 }
 
 void LLPanelEmojiComplete::selectNext()
 {
-	select(mCurSelected + 1 < mEmojis.size() ? mCurSelected + 1 : 0);
+    if (!mTotalEmojis)
+        return;
+
+    mCurSelected = (mCurSelected < mTotalEmojis - 1) ? mCurSelected + 1 : 0;
+
+    updateScrollPos();
 }
 
 void LLPanelEmojiComplete::selectPrevious()
 {
-	select(mCurSelected - 1 >= 0 ? mCurSelected - 1 : mEmojis.size() - 1);
+    if (!mTotalEmojis)
+        return;
+
+    mCurSelected = (mCurSelected && mCurSelected < mTotalEmojis) ? mCurSelected - 1 : mTotalEmojis - 1;
+
+    updateScrollPos();
 }
 
 void LLPanelEmojiComplete::updateConstraints()
 {
     mRenderRect = getLocalRect();
-    S32 ctrlWidth = mRenderRect.getWidth();
-    S32 ctrlHeight = mRenderRect.getHeight();
 
-    mEmojiHeight = mIconFont->getLineHeight() + mPadding * 2;
     mEmojiWidth = mIconFont->getWidthF32(u8"\U0001F431") + mPadding * 2;
     if (mVertical)
     {
-        mVisibleEmojis = ctrlHeight / mEmojiHeight;
+        mEmojiHeight = mIconFont->getLineHeight() + mPadding * 2;
         mRenderRect.mBottom = mRenderRect.mTop - mVisibleEmojis * mEmojiHeight;
+        if (!mNoScroll && mVisibleEmojis < mTotalEmojis)
+        {
+            mRenderRect.mRight -= mScrollbar->getThickness();
+            mScrollbar->setDocSize(mTotalEmojis);
+            mScrollbar->setPageSize(mVisibleEmojis);
+            mScrollbar->setOrigin(mRenderRect.mRight, 0);
+            mScrollbar->reshape(mScrollbar->getThickness(), mRenderRect.mTop, TRUE);
+            mScrollbar->setVisible(TRUE);
+        }
+        else
+        {
+            mScrollbar->setVisible(FALSE);
+        }
     }
     else
     {
-        mVisibleEmojis = ctrlWidth / mEmojiWidth;
-        S32 padding = (ctrlWidth - mVisibleEmojis * mEmojiWidth) / 2;
-        mRenderRect.mLeft += padding;
-        mRenderRect.mRight -= padding;
-        if (mEmojiHeight > ctrlHeight)
-        {
-            mEmojiHeight = ctrlHeight;
-        }
+        mEmojiHeight = mRenderRect.getHeight();
+        mRenderRect.stretch((mRenderRect.getWidth() - mVisibleEmojis * mEmojiWidth) / -2, 0);
     }
 
     updateScrollPos();
@@ -326,23 +415,27 @@ void LLPanelEmojiComplete::updateConstraints()
 
 void LLPanelEmojiComplete::updateScrollPos()
 {
-	const size_t cntEmoji = mEmojis.size();
-	if (mNoScroll || 0 == cntEmoji || cntEmoji < mVisibleEmojis || 0 == mCurSelected)
-	{
-		mScrollPos = 0;
-		if (mCurSelected >= mVisibleEmojis)
-		{
-			mCurSelected = mVisibleEmojis ? mVisibleEmojis - 1 : 0;
-		}
-	}
-	else if (cntEmoji - 1 == mCurSelected)
-	{
-		mScrollPos = mCurSelected - mVisibleEmojis + 1;
-	}
-	else
-	{
-		mScrollPos = mCurSelected - ((float)mCurSelected / (cntEmoji - 2) * (mVisibleEmojis - 2));
-	}
+    if (mNoScroll || 0 == mTotalEmojis || mTotalEmojis < mVisibleEmojis || 0 == mCurSelected)
+    {
+        mScrollPos = 0;
+        if (mCurSelected >= mVisibleEmojis)
+        {
+            mCurSelected = mVisibleEmojis ? mVisibleEmojis - 1 : 0;
+        }
+    }
+    else if (mTotalEmojis - 1 == mCurSelected)
+    {
+        mScrollPos = mTotalEmojis - mVisibleEmojis;
+    }
+    else
+    {
+        mScrollPos = mCurSelected - ((float)mCurSelected / (mTotalEmojis - 2) * (mVisibleEmojis - 2));
+    }
+
+    if (mScrollbar && mScrollbar->getVisible())
+    {
+        mScrollbar->setDocPos(mScrollPos);
+    }
 }
 
 // ============================================================================
@@ -350,33 +443,33 @@ void LLPanelEmojiComplete::updateScrollPos()
 //
 
 LLFloaterEmojiComplete::LLFloaterEmojiComplete(const LLSD& sdKey)
-	: LLFloater(sdKey)
+    : LLFloater(sdKey)
 {
-	// This floater should hover on top of our dependent (with the dependent having the focus)
-	setFocusStealsFrontmost(false);
-	setAutoFocus(false);
-	setBackgroundVisible(false);
-	setIsChrome(true);
+    // This floater should hover on top of our dependent (with the dependent having the focus)
+    setFocusStealsFrontmost(false);
+    setAutoFocus(false);
+    setBackgroundVisible(false);
+    setIsChrome(true);
 }
 
 BOOL LLFloaterEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	bool handled = false;
-	if (MASK_NONE == mask)
-	{
-		switch (key)
-		{
-			case KEY_ESCAPE:
-				LLEmojiHelper::instance().hideHelper();
-				handled = true;
-				break;
-		}
-	}
+    bool handled = false;
+    if (MASK_NONE == mask)
+    {
+        switch (key)
+        {
+            case KEY_ESCAPE:
+                LLEmojiHelper::instance().hideHelper();
+                handled = true;
+                break;
+        }
+    }
 
-	if (handled)
-		return TRUE;
+    if (handled)
+        return TRUE;
 
-	return LLFloater::handleKey(key, mask, called_from_parent);
+    return LLFloater::handleKey(key, mask, called_from_parent);
 }
 
 void LLFloaterEmojiComplete::onOpen(const LLSD& key)
@@ -402,30 +495,33 @@ void LLFloaterEmojiComplete::onOpen(const LLSD& key)
 
 BOOL LLFloaterEmojiComplete::postBuild()
 {
-	mEmojiCtrl = findChild<LLPanelEmojiComplete>("emoji_complete_ctrl");
-	mEmojiCtrl->setCommitCallback(
-		std::bind([&](const LLSD& sdValue)
-		{
-			setValue(sdValue);
-			onCommit();
-		}, std::placeholders::_2));
-	mEmojiCtrlHorz = getRect().getWidth() - mEmojiCtrl->getRect().getWidth();
+    mEmojiCtrl = findChild<LLPanelEmojiComplete>("emoji_complete_ctrl");
+    mEmojiCtrl->setCommitCallback(
+        [this](LLUICtrl* ctrl, const LLSD& param)
+        {
+            setValue(param);
+            onCommit();
+        });
 
-	return LLFloater::postBuild();
+    mEmojiCtrlHorz = getRect().getWidth() - mEmojiCtrl->getRect().getWidth();
+    mEmojiCtrlVert = getRect().getHeight() - mEmojiCtrl->getRect().getHeight();
+
+    return LLFloater::postBuild();
 }
 
 void LLFloaterEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	if (!called_from_parent)
-	{
-		LLRect rctFloater = getRect(), rctCtrl = mEmojiCtrl->getRect();
-		rctFloater.mRight = rctFloater.mLeft + rctCtrl.getWidth() + mEmojiCtrlHorz;
-		setRect(rctFloater);
-
-		return;
-	}
-
-	LLFloater::reshape(width, height, called_from_parent);
+    if (called_from_parent)
+    {
+        LLFloater::reshape(width, height, called_from_parent);
+    }
+    else
+    {
+        LLRect outer(getRect()), inner(mEmojiCtrl->getRect());
+        outer.mRight = outer.mLeft + inner.getWidth() + mEmojiCtrlHorz;
+        outer.mTop = outer.mBottom + inner.getHeight() + mEmojiCtrlVert;
+        setRect(outer);
+    }
 }
 
 // ============================================================================

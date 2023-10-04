@@ -353,7 +353,7 @@
                  name="emoji_recent_icons_ctrl"
                  follows="top|left|right"
                  layout="topleft"
-                 max_emoji="20"
+                 max_visible="20"
                  top="0"
                  left="1"
                  right="-65"
