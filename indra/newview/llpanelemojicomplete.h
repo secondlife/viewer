@@ -29,79 +29,83 @@
 #include "llfloater.h"
 #include "lluictrl.h"
 
+class LLScrollbar;
+
 // ============================================================================
 // LLPanelEmojiComplete
 //
 
 class LLPanelEmojiComplete : public LLUICtrl
 {
-	friend class LLUICtrlFactory;
+    friend class LLUICtrlFactory;
 public:
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<bool>       autosize;
-		Optional<bool>       noscroll;
-		Optional<bool>       vertical;
-		Optional<S32>        max_emoji,
-		                     padding;
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<bool>       autosize;
+        Optional<bool>       noscroll;
+        Optional<bool>       vertical;
+        Optional<S32>        max_visible,
+                             padding;
 
-		Optional<LLUIImage*> selected_image;
+        Optional<LLUIImage*> selected_image;
 
-		Params();
-	};
+        Params();
+    };
 
 protected:
-	LLPanelEmojiComplete(const LLPanelEmojiComplete::Params&);
+    LLPanelEmojiComplete(const LLPanelEmojiComplete::Params&);
 
 public:
-	virtual ~LLPanelEmojiComplete();
+    virtual ~LLPanelEmojiComplete();
 
-	void draw() override;
-	BOOL handleHover(S32 x, S32 y, MASK mask) override;
-	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
-	void onCommit() override;
-	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
+    void draw() override;
+    BOOL handleHover(S32 x, S32 y, MASK mask) override;
+    BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
+    BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+    BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+    BOOL handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+    void onCommit() override;
+    void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 public:
-	const LLWString& getEmojis() const { return mEmojis; }
-	size_t getEmojiCount() const { return mEmojis.size(); }
-	void setEmojis(const LLWString& emojis);
-	void setEmojiHint(const std::string& hint);
-	bool isAutoSize() const { return mAutoSize; }
-	U32 getMaxShortCodeWidth() const;
+    const LLWString& getEmojis() const { return mEmojis; }
+    size_t getEmojiCount() const { return mEmojis.size(); }
+    void setEmojis(const LLWString& emojis);
+    void setEmojiHint(const std::string& hint);
+    bool isAutoSize() const { return mAutoSize; }
+    U32 getMaxShortCodeWidth() const;
 
 protected:
-	void onEmojisChanged();
-	size_t posToIndex(S32 x, S32 y) const;
-	void select(size_t emoji_idx);
-	void selectNext();
-	void selectPrevious();
-	void updateConstraints();
-	void updateScrollPos();
+    void onEmojisChanged();
+    void onScrollbarChange(S32 index);
+    size_t posToIndex(S32 x, S32 y) const;
+    void select(size_t emoji_idx);
+    void selectNext();
+    void selectPrevious();
+    void updateConstraints();
+    void updateScrollPos();
 
 protected:
-	static constexpr auto npos = std::numeric_limits<size_t>::max();
+    const bool      mAutoSize;
+    const bool      mNoScroll;
+    const bool      mVertical;
+    const size_t    mMaxVisible;
+    const S32       mPadding;
+    const LLUIImagePtr mSelectedImage;
+    const LLFontGL* mIconFont;
+    const LLFontGL* mTextFont;
 
-	const bool      mAutoSize = false;
-	const bool      mNoScroll = false;
-	const bool      mVertical = false;
-	const size_t    mMaxVisible = 0;
-	const S32       mPadding = 8;
-	const LLUIImagePtr mSelectedImage;
-	const LLFontGL* mIconFont;
-	const LLFontGL* mTextFont;
-
-	LLWString       mEmojis;
-	LLRect          mRenderRect;
-	U16             mEmojiWidth = 0;
-	U16             mEmojiHeight = 0;
-	size_t          mVisibleEmojis = 0;
-	size_t          mFirstVisible = 0;
-	size_t          mScrollPos = 0;
-	size_t          mCurSelected = 0;
-	LLVector2       mLastHover;
+    LLWString       mEmojis;
+    LLScrollbar*    mScrollbar;
+    LLRect          mRenderRect;
+    U16             mEmojiWidth = 0;
+    U16             mEmojiHeight = 0;
+    size_t          mTotalEmojis = 0;
+    size_t          mVisibleEmojis = 0;
+    size_t          mFirstVisible = 0;
+    size_t          mScrollPos = 0;
+    size_t          mCurSelected = 0;
+    LLVector2       mLastHover;
 };
 
 // ============================================================================
@@ -111,17 +115,18 @@ protected:
 class LLFloaterEmojiComplete : public LLFloater
 {
 public:
-	LLFloaterEmojiComplete(const LLSD& sdKey);
+    LLFloaterEmojiComplete(const LLSD& sdKey);
 
 public:
-	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
-	void onOpen(const LLSD& key) override;
-	BOOL postBuild() override;
-	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
+    BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
+    void onOpen(const LLSD& key) override;
+    BOOL postBuild() override;
+    void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 protected:
-	LLPanelEmojiComplete* mEmojiCtrl = nullptr;
-	S32                   mEmojiCtrlHorz = 0;
+    LLPanelEmojiComplete* mEmojiCtrl = nullptr;
+    S32 mEmojiCtrlHorz = 0;
+    S32 mEmojiCtrlVert = 0;
 };
 
 // ============================================================================
