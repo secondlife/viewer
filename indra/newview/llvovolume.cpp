@@ -5854,7 +5854,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else
 						{
-							if (te->getColor().mV[3] > 0.f || te->getGlow() > 0.f)
+                            F32 alpha;
+                            if (is_pbr)
+                            {
+                                alpha = gltf_mat ? gltf_mat->mBaseColor.mV[3] : 1.0;
+                            }
+                            else
+                            {
+                                alpha = te->getColor().mV[3];
+                            }
+                            if (alpha > 0.f || te->getGlow() > 0.f)
 							{ //only treat as alpha in the pipeline if < 100% transparent
 								drawablep->setState(LLDrawable::HAS_ALPHA);
 								add_face(sAlphaFaces, alpha_count, facep);
