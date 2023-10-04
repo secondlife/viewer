@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<llsd>
-<map>
+<llsd><map>
     <key>installables</key>
     <map>
       <key>SDL</key>
@@ -492,9 +491,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>439d92ec73f0500ba1671faad2bd8090</string>
+              <string>6bb33eb9818f8b166e3bad22ba84fec0f9b397fa</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104637/916643/dullahan-1.12.4.202209142017_91.1.21_g9dd45fe_chromium-91.0.4472.114-darwin64-575005.tar.bz2</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0/dullahan-1.14.0.202310042042_117.2.2_ge80c977_chromium-117.0.5938.132-darwin64-bb8417d.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -516,16 +517,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d06bee9b2517fbb09ba1a65e6d675361</string>
+              <string>7100f36b969d3c09bcaf50df988b4035c77e3158</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104639/916659/dullahan-1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows64-575005.tar.bz2</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0/dullahan-1.14.0.202310042145_117.2.2_ge80c977_chromium-117.0.5938.132-windows64-bb8417d.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114</string>
+        <string>1.14.0.202310042145_117.2.2_ge80c977_chromium-117.0.5938.132</string>
       </map>
       <key>expat</key>
       <map>
@@ -3400,5 +3403,4 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <string>autobuild</string>
     <key>version</key>
     <string>1.3</string>
-  </map>
-</llsd>
+  </map></llsd>
