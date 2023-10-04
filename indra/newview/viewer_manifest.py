@@ -813,6 +813,8 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 "%%ENGAGEREGISTRY%%":engage_registry,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
+        self.package_file = installer_file
+
 
 class Darwin_x86_64_Manifest(ViewerManifest):
     build_data_json_platform = 'mac'
@@ -1183,6 +1185,8 @@ class Darwin_x86_64_Manifest(ViewerManifest):
     def package_finish(self):
         imagename = self.installer_base_name()
         self.set_github_output('imagename', imagename)
+        finalname = imagename + ".dmg"
+        self.package_file = finalname
 
 
 class LinuxManifest(ViewerManifest):
