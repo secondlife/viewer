@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
+#include "hexdump.h"
 #include "llerror.h"
 #include "lleventcoro.h"
 #include "lleventfilter.h"
@@ -1070,6 +1071,122 @@ void lua_pushstdstring(lua_State* L, const std::string& str)
     lua_pushlstring(L, str.c_str(), str.length());
 }
 
+// Usage:  std::cout << lua_what(L, stackindex) << ...;
+// Reports on the Lua value found at the passed stackindex.
+// If cast to std::string, returns the corresponding string value.
+class lua_what
+{
+public:
+    lua_what(lua_State* state, int idx):
+        L(state),
+        index(idx)
+    {}
+
+    friend std::ostream& operator<<(std::ostream& out, const lua_what& self)
+    {
+        switch (lua_type(self.L, self.index))
+        {
+        case LUA_TNONE:
+            // distinguish acceptable but non-valid index
+            out << "none";
+            break;
+
+        case LUA_TNIL:
+            out << "nil";
+            break;
+
+        case LUA_TBOOLEAN:
+        {
+            auto oldflags { out.flags() };
+            out << std::boolalpha << lua_toboolean(self.L, self.index);
+            out.flags(oldflags);
+            break;
+        }
+
+        case LUA_TNUMBER:
+            out << lua_tonumber(self.L, self.index);
+            break;
+
+        case LUA_TSTRING:
+            out << std::quoted(lua_tostdstring(self.L, self.index));
+            break;
+
+        case LUA_TUSERDATA:
+        {
+            const size_t maxlen = 20;
+            auto binlen{ lua_rawlen(self.L, self.index) };
+            LLSD::Binary binary(std::min(maxlen, binlen));
+            std::memcpy(binary.data(), lua_touserdata(self.L, self.index), binary.size());
+            out << LL::hexdump(binary);
+            if (binlen > maxlen)
+            {
+                out << "...(" << (binlen - maxlen) << " more)";
+            }
+            break;
+        }
+
+        case LUA_TLIGHTUSERDATA:
+            out << lua_touserdata(self.L, self.index);
+            break;
+
+        default:
+            // anything else, don't bother trying to report value, just type
+            out << lua_typename(self.L, lua_type(self.L, self.index));
+            break;
+        }
+        return out;
+    }
+
+    operator std::string() const { return stringize(*this); }
+
+private:
+    lua_State* L;
+    int index;
+};
+
+// Usage:  std::cout << lua_stack(L) << ...;
+// Reports on the contents of the Lua stack.
+// If cast to std::string, returns the corresponding string value.
+class lua_stack
+{
+public:
+    lua_stack(lua_State* state):
+        L(state)
+    {}
+
+    friend std::ostream& operator<<(std::ostream& out, const lua_stack& self)
+    {
+        const char* sep = "stack: [";
+        for (int index = 1; index <= lua_gettop(self.L); ++index)
+        {
+            out << sep << lua_what(self.L, index);
+            sep = ", ";
+        }
+        out << ']';
+        return out;
+    }
+
+    operator std::string() const { return stringize(*this); }
+
+private:
+    lua_State* L;
+};
+
+// log exit from any block declaring an instance of DebugExit, regardless of
+// how control leaves that block
+struct DebugExit
+{
+    DebugExit(const std::string& name): mName(name) {}
+    DebugExit(const DebugExit&) = delete;
+    DebugExit& operator=(const DebugExit&) = delete;
+    ~DebugExit()
+    {
+        LL_DEBUGS("Lua") << "exit " << mName << LL_ENDL;
+    }
+
+    std::string mName;
+};
+
 // By analogy with existing lua_tomumble() functions, return an LLSD object
 // corresponding to the Lua object at stack index 'index' in state L.
 // This function assumes that a Lua caller is fully aware that they're trying
@@ -1087,6 +1204,9 @@ void lua_pushstdstring(lua_State* L, const std::string& str)
 // reached by that block raises a Lua error.
 LLSD lua_tollsd(lua_State* L, int index)
 {
+    LL_DEBUGS("Lua") << "lua_tollsd(" << index << ") of " << lua_gettop(L) << " stack entries: "
+                     << lua_what(L, index) << LL_ENDL;
+    DebugExit log_exit("lua_tollsd()");
     switch (lua_type(L, index))
     {
     case LUA_TNONE:
@@ -1158,17 +1278,36 @@ LLSD lua_tollsd(lua_State* L, int index)
         // - LLSD::Real with integer value returns as LLSD::Integer.
         // - LLSD::UUID, LLSD::Date and LLSD::URI all convert to Lua string,
         //   and so return as LLSD::String.
+        // - Lua does not store any table key whose value is nil. An LLSD
+        //   array with isUndefined() entries produces a Lua table with
+        //   "holes" in the int key sequence; this converts back to an LLSD
+        //   array containing corresponding isUndefined() entries -- except
+        //   when one or more of the final entries isUndefined(). These are
+        //   simply dropped, producing a shorter LLSD array than the original.
+        // - For the same reason, any keys in an LLSD map whose value
+        //   isUndefined() are simply discarded in the converted Lua table.
+        //   This converts back to an LLSD map lacking those keys.
+        // - If it's important to preserve the original length of an LLSD
+        //   array whose final entries are undefined, or the full set of keys
+        //   for an LLSD map some of whose values are undefined, store an
+        //   LLSD::emptyArray() or emptyMap() instead. These will be
+        //   represented in Lua as empty table, which should convert back to
+        //   undefined LLSD. Naturally, though, those won't survive a second
+        //   round trip.
 
         // This is the most important of the luaL_checkstack() calls because a
         // deeply nested Lua structure will enter this case at each level, and
         // we'll need another 2 stack slots to traverse each nested table.
         luaL_checkstack(L, 2, nullptr);
+        LL_DEBUGS("Lua") << "checking for empty table" << LL_ENDL;
         lua_pushnil(L);             // first key
+        LL_DEBUGS("Lua") << lua_stack(L) << LL_ENDL;
         if (! lua_next(L, index))
         {
             // it's a table, but the table is empty -- no idea if it should be
             // modeled as empty array or empty map -- return isUndefined(),
             // which can be consumed as either
+            LL_DEBUGS("Lua") << "empty table" << LL_ENDL;
             return {};
         }
         // key is at stack index -2, value at index -1
@@ -1177,6 +1316,8 @@ LLSD lua_tollsd(lua_State* L, int index)
         LuaPopper popper(L, 2);
         // Remember the type of the first key
         auto firstkeytype{ lua_type(L, -2) };
+        LL_DEBUGS("Lua") << "table not empty, first key type " << lua_typename(L, firstkeytype)
+                         << LL_ENDL;
         switch (firstkeytype)
         {
         case LUA_TNUMBER:
@@ -1254,6 +1395,7 @@ LLSD lua_tollsd(lua_State* L, int index)
                 // crazy key territory.
                 return luaL_error(L, "Gaps in Lua table too large for conversion to LLSD array");
             }
+            LL_DEBUGS("Lua") << "collected " << keys.size() << " keys, max " << highkey << LL_ENDL;
             // right away expand the result array to the size we'll need
             LLSD result{ LLSD::emptyArray() };
             result[highkey - 1] = LLSD();
@@ -1263,8 +1405,10 @@ LLSD lua_tollsd(lua_State* L, int index)
             {
                 // key at stack index -2, value at index -1
                 // We've already validated lua_tointegerx() for each key.
+                auto key{ lua_tointeger(L, -2) };
+                LL_DEBUGS("Lua") << "key " << key << ':' << LL_ENDL;
                 // Don't forget to subtract 1 from Lua key for LLSD subscript!
-                result[LLSD::Integer(lua_tointeger(L, -2)) - 1] = lua_tollsd(L, -1);
+                result[LLSD::Integer(key) - 1] = lua_tollsd(L, -1);
                 // remove value, keep key for next iteration
                 lua_pop(L, 1);
             }
@@ -1283,8 +1427,10 @@ LLSD lua_tollsd(lua_State* L, int index)
                     return luaL_error(L, "Cannot convert %s map key to LLSD",
                                       lua_typename(L, mapkeytype));
                 }
-                
-                result[lua_tostdstring(L, -2)] = lua_tollsd(L, -1);
+
+                auto key{ lua_tostdstring(L, -2) };
+                LL_DEBUGS("Lua") << "map key " << std::quoted(key) << ':' << LL_ENDL;
+                result[key] = lua_tollsd(L, -1);
                 // remove value, keep key for next iteration
                 lua_pop(L, 1);
             } while (lua_next(L, index) != 0);
