@@ -57,7 +57,6 @@ LLThumbnailCtrl::LLThumbnailCtrl(const LLThumbnailCtrl::Params& p)
 ,   mFallbackImagep(p.fallback_image)
 ,   mInteractable(p.interactable())
 ,   mShowLoadingPlaceholder(p.show_loading())
-,	mPriority(LLGLTexture::BOOST_PREVIEW)
 {
     mLoadingPlaceholderString = LLTrans::getString("texture_loading");
     
@@ -201,9 +200,8 @@ void LLThumbnailCtrl::setValue(const LLSD& value)
         if (mImageAssetID.notNull())
         {
             // Should it support baked textures?
-            mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_THUMBNAIL);
             
-            mTexturep->setBoostLevel(mPriority);
             mTexturep->forceToSaveRawImage(0);
             
             S32 desired_draw_width = mTexturep->getWidth();
