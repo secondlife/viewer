@@ -53,6 +53,25 @@ struct LLEmojiGroup
 };
 
 // ============================================================================
+// LLEmojiSearchResult class
+//
+
+struct LLEmojiSearchResult
+{
+    llwchar Character;
+    std::string String;
+    std::size_t Begin, End;
+
+    LLEmojiSearchResult(llwchar character, const std::string& string, std::size_t begin, std::size_t end)
+        : Character(character)
+        , String(string)
+        , Begin(begin)
+        , End(end)
+    {
+    }
+};
+
+// ============================================================================
 // LLEmojiDictionary class
 //
 
@@ -70,6 +89,7 @@ public:
 
     static void initClass();
     LLWString findMatchingEmojis(const std::string& needle) const;
+    void findByShortCode(std::vector<LLEmojiSearchResult>& result, const std::string& needle) const;
     const LLEmojiDescriptor* getDescriptorFromEmoji(llwchar emoji) const;
     const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;
     std::string getNameFromEmoji(llwchar ch) const;
