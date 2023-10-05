@@ -2420,7 +2420,7 @@ void LLInventoryGallery::startDrag()
             ids.push_back(selected_id);
         }
     }
-    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, LLToolDragAndDrop::SOURCE_AGENT);
+    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, src);
 }
 
 bool LLInventoryGallery::areViewsInitialized()
