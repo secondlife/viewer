@@ -108,10 +108,10 @@ void LLPanelEmojiComplete::draw()
         mSelectedImage->draw(x, y, width, height);
     }
 
-    S32 iconCenterX = mRenderRect.mLeft + mEmojiWidth / 2;
-    S32 iconCenterY = mRenderRect.mTop - mEmojiHeight / 2;
-    S32 textLeft = mVertical ? mRenderRect.mLeft + mEmojiWidth + mPadding : 0;
-    S32 textWidth = mVertical ? getRect().getWidth() - textLeft - mPadding : 0;
+    F32 iconCenterX = mRenderRect.mLeft + (F32)mEmojiWidth / 2;
+    F32 iconCenterY = mRenderRect.mTop - (F32)mEmojiHeight / 2;
+    F32 textLeft = mVertical ? mRenderRect.mLeft + mEmojiWidth + mPadding : 0;
+    F32 textWidth = mVertical ? getRect().getWidth() - textLeft - mPadding : 0;
 
     for (U32 curIdx = firstVisibleIdx; curIdx < lastVisibleIdx; curIdx++)
     {
@@ -122,9 +122,33 @@ void LLPanelEmojiComplete::draw()
         if (mVertical)
         {
             const std::string& shortCode = mEmojis[curIdx].String;
-            mTextFont->renderUTF8(shortCode, 0, textLeft, iconCenterY, LLColor4::white,
-                LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                shortCode.size(), textWidth, NULL, FALSE, FALSE);
+            F32 x0 = textLeft;
+            F32 x1 = textWidth;
+            if (mEmojis[curIdx].Begin)
+            {
+                std::string text = shortCode.substr(0, mEmojis[curIdx].Begin);
+                mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::white,
+                    LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                    text.size(), x1, NULL, FALSE, FALSE);
+                x0 += mTextFont->getWidthF32(text);
+                x1 = textLeft + textWidth - x0;
+            }
+            if (x1 > 0 && mEmojis[curIdx].End > mEmojis[curIdx].Begin)
+            {
+                std::string text = shortCode.substr(mEmojis[curIdx].Begin, mEmojis[curIdx].End - mEmojis[curIdx].Begin);
+                mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::yellow6,
+                    LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                    text.size(), x1, NULL, FALSE, FALSE);
+                x0 += mTextFont->getWidthF32(text);
+                x1 = textLeft + textWidth - x0;
+            }
+            if (x1 > 0 && mEmojis[curIdx].End < shortCode.size())
+            {
+                std::string text = shortCode.substr(mEmojis[curIdx].End);
+                mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::white,
+                    LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                    text.size(), x1, NULL, FALSE, FALSE);
+            }
             iconCenterY -= mEmojiHeight;
         }
         else
