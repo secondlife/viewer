@@ -118,13 +118,11 @@ installer_CYGWIN()
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
 
 # Build up these arrays as we go
-installer=()
 metadata=()
 symbolfile=()
 physicstpv=()
 # and dump them to GITHUB_OUTPUT when done
 cleanup="$cleanup ; \
-arrayoutput installer ; \
 arrayoutput metadata ; \
 arrayoutput symbolfile ; \
 arrayoutput physicstpv"
@@ -548,40 +546,29 @@ then
   if $build_viewer
   then
     begin_section "Uploads"
-    # Upload installer
-    package=$(installer_$arch)
-    if [ x"$package" != x ] && test -f "$package"
+    # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
+    if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-      # Upload base package.
-      installer+=("$package")
+        # BugSplat wants to see xcarchive.zip
+        # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
+        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+        if [[ ! -f "$symbol_file" ]]
+        then
+            # symbol tarball we prep for (e.g.) Breakpad
+            symbol_file="$VIEWER_SYMBOL_FILE"
+        fi
+        # Upload crash reporter file
+        symbolfile+=("$symbol_file")
+    fi
 
-      if [ "$last_built_variant" = "Release" ]
-      then
-          # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
-          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
-          then
-              # BugSplat wants to see xcarchive.zip
-              # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
-              symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
-              if [[ ! -f "$symbol_file" ]]
-              then
-                  # symbol tarball we prep for (e.g.) Breakpad
-                  symbol_file="$VIEWER_SYMBOL_FILE"
-              fi
-              # Upload crash reporter file
-              symbolfile+=("$symbol_file")
-          fi
-
-          # Upload the llphysicsextensions_tpv package, if one was produced
-          # Only upload this package when building the private repo so the
-          # artifact is private.
-          if [[ "x$GITHUB_REPOSITORY" == "xsecondlife/viewer-private" && \
-                -r "$build_dir/llphysicsextensions_package" ]]
-          then
-              llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-              physicstpv+=("$llphysicsextensions_package")
-          fi
-      fi
+    # Upload the llphysicsextensions_tpv package, if one was produced
+    # Only upload this package when building the private repo so the
+    # artifact is private.
+    if [[ "x$GITHUB_REPOSITORY" == "xsecondlife/viewer-private" && \
+          -r "$build_dir/llphysicsextensions_package" ]]
+    then
+        llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
+        physicstpv+=("$llphysicsextensions_package")
     fi
     end_section "Uploads"
   else
