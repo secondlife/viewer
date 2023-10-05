@@ -192,6 +192,8 @@ void LLEmojiDictionary::findByShortCode(std::vector<LLEmojiSearchResult>& result
             return false;
         };
 
+    std::map<std::size_t, std::vector<LLEmojiSearchResult>> results;
+
     for (const LLEmojiDescriptor& d : mEmojis)
     {
         if (d.ShortCodes.empty())
@@ -202,8 +204,17 @@ void LLEmojiDictionary::findByShortCode(std::vector<LLEmojiSearchResult>& result
         std::size_t begin, end;
         if (search(begin, end, shortCode))
         {
-            result.emplace_back(d.Character, shortCode, begin, end);
+            results[begin].emplace_back(d.Character, shortCode, begin, end);
         }
+    }
+
+    for (const auto& it : results)
+    {
+#ifdef __cpp_lib_containers_ranges
+        result.append_range(it.second);
+#else
+        result.insert(result.end(), it.second.cbegin(), it.second.cend());
+#endif
     }
 }
 
