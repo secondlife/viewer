@@ -361,6 +361,9 @@ jobs:
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
         with:
+          # name the release page for the build number so we can find it
+          # easily (analogous to looking up a codeticket build page)
+          name: "v${{ github.run_id }}"
           prerelease: true
           generate_release_notes: true
           # the only reason we generate a GH release is to post build products
