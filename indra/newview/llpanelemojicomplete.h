@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "llemojidictionary.h"
 #include "llfloater.h"
 #include "lluictrl.h"
 
@@ -68,7 +69,6 @@ public:
     void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 public:
-    const LLWString& getEmojis() const { return mEmojis; }
     size_t getEmojiCount() const { return mEmojis.size(); }
     void setEmojis(const LLWString& emojis);
     void setEmojiHint(const std::string& hint);
@@ -95,7 +95,7 @@ protected:
     const LLFontGL* mIconFont;
     const LLFontGL* mTextFont;
 
-    LLWString       mEmojis;
+    std::vector<LLEmojiSearchResult> mEmojis;
     LLScrollbar*    mScrollbar;
     LLRect          mRenderRect;
     U16             mEmojiWidth = 0;

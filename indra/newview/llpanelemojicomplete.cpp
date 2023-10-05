@@ -82,7 +82,7 @@ void LLPanelEmojiComplete::draw()
 {
     LLUICtrl::draw();
 
-    if (mEmojis.empty())
+    if (!mTotalEmojis)
         return;
 
     const size_t firstVisibleIdx = mScrollPos;
@@ -115,21 +115,16 @@ void LLPanelEmojiComplete::draw()
 
     for (U32 curIdx = firstVisibleIdx; curIdx < lastVisibleIdx; curIdx++)
     {
-        mIconFont->render(mEmojis, curIdx, iconCenterX, iconCenterY,
+        LLWString text(1, mEmojis[curIdx].Character);
+        mIconFont->render(text, 0, iconCenterX, iconCenterY,
             LLColor4::white, LLFontGL::HCENTER, LLFontGL::VCENTER, LLFontGL::NORMAL,
             LLFontGL::DROP_SHADOW_SOFT, 1, S32_MAX, nullptr, false, true);
         if (mVertical)
         {
-            llwchar emoji = mEmojis[curIdx];
-            auto& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
-            auto it = emoji2descr.find(emoji);
-            if (it != emoji2descr.end())
-            {
-                const std::string& shortCode = it->second->ShortCodes.front();
-                mTextFont->renderUTF8(shortCode, 0, textLeft, iconCenterY, LLColor4::white,
-                    LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    shortCode.size(), textWidth, NULL, FALSE, FALSE);
-            }
+            const std::string& shortCode = mEmojis[curIdx].String;
+            mTextFont->renderUTF8(shortCode, 0, textLeft, iconCenterY, LLColor4::white,
+                LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                shortCode.size(), textWidth, NULL, FALSE, FALSE);
             iconCenterY -= mEmojiHeight;
         }
         else
@@ -257,9 +252,8 @@ void LLPanelEmojiComplete::onCommit()
 {
     if (mCurSelected < mTotalEmojis)
     {
-        LLWString wstr;
-        wstr.push_back(mEmojis.at(mCurSelected));
-        setValue(wstring_to_utf8str(wstr));
+        LLSD value(wstring_to_utf8str(LLWString(1, mEmojis[mCurSelected].Character)));
+        setValue(value);
         LLUICtrl::onCommit();
     }
 }
@@ -272,7 +266,23 @@ void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_paren
 
 void LLPanelEmojiComplete::setEmojis(const LLWString& emojis)
 {
-    mEmojis = emojis;
+    mEmojis.clear();
+
+    auto& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
+    for (const llwchar& emoji : emojis)
+    {
+        std::string shortCode;
+        if (mVertical)
+        {
+            auto it = emoji2descr.find(emoji);
+            if (it != emoji2descr.end() && !it->second->ShortCodes.empty())
+            {
+                shortCode = it->second->ShortCodes.front();
+            }
+        }
+        mEmojis.emplace_back(emoji, shortCode, 0, 0);
+    }
+
     mTotalEmojis = mEmojis.size();
     mCurSelected = 0;
 
@@ -281,12 +291,20 @@ void LLPanelEmojiComplete::setEmojis(const LLWString& emojis)
 
 void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 {
-    llwchar curEmoji = mCurSelected < mTotalEmojis ? mEmojis.at(mCurSelected) : 0;
+    llwchar curEmoji = mCurSelected < mTotalEmojis ? mEmojis[mCurSelected].Character : 0;
 
-    mEmojis = LLEmojiDictionary::instance().findMatchingEmojis(hint);
+    LLEmojiDictionary::instance().findByShortCode(mEmojis, hint);
     mTotalEmojis = mEmojis.size();
-    size_t curEmojiIdx = curEmoji ? mEmojis.find(curEmoji) : std::string::npos;
-    mCurSelected = std::string::npos != curEmojiIdx ? curEmojiIdx : 0;
+
+    mCurSelected = 0;
+    for (size_t i = 1; i < mTotalEmojis; ++i)
+    {
+        if (mEmojis[i].Character == curEmoji)
+        {
+            mCurSelected = i;
+            break;
+        }
+    }
 
     onEmojisChanged();
 }
@@ -294,18 +312,12 @@ void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 U32 LLPanelEmojiComplete::getMaxShortCodeWidth() const
 {
     U32 max_width = 0;
-    auto& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
-    for (llwchar emoji : mEmojis)
+    for (const LLEmojiSearchResult& result : mEmojis)
     {
-        auto it = emoji2descr.find(emoji);
-        if (it != emoji2descr.end())
+        S32 width = mTextFont->getWidth(result.String);
+        if (width > max_width)
         {
-            const std::string& shortCode = it->second->ShortCodes.front();
-            S32 width = mTextFont->getWidth(shortCode);
-            if (width > max_width)
-            {
-                max_width = width;
-            }
+            max_width = width;
         }
     }
     return max_width;

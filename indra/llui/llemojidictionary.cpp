@@ -143,6 +143,70 @@ LLWString LLEmojiDictionary::findMatchingEmojis(const std::string& needle) const
     return result;
 }
 
+void LLEmojiDictionary::findByShortCode(std::vector<LLEmojiSearchResult>& result, const std::string& needle) const
+{
+    result.clear();
+
+    if (needle.empty() || needle.front() != ':')
+        return;
+
+    auto search = [needle](std::size_t& begin, std::size_t& end, const std::string& shortCode) -> bool
+        {
+            begin = 0;
+            end = 1;
+            std::size_t index = 1;
+            // Search for begin
+            char d = tolower(needle[index++]);
+            while (end < shortCode.size())
+            {
+                char s = tolower(shortCode[end++]);
+                if (s == d)
+                {
+                    begin = end - 1;
+                    break;
+                }
+            }
+            if (!begin)
+                return false;
+            // Search for end
+            d = tolower(needle[index++]);
+            while (end < shortCode.size() && index <= needle.size())
+            {
+                char s = tolower(shortCode[end++]);
+                if (s == d)
+                {
+                    if (index == needle.size())
+                        return true;
+                    d = tolower(needle[index++]);
+                    continue;
+                }
+                switch (s)
+                {
+                case L'-':
+                case L'_':
+                case L'+':
+                    continue;
+                }
+                break;
+            }
+            return false;
+        };
+
+    for (const LLEmojiDescriptor& d : mEmojis)
+    {
+        if (d.ShortCodes.empty())
+            continue;
+        const std::string& shortCode = d.ShortCodes.front();
+        if (shortCode.size() < needle.size() || shortCode.front() != needle.front())
+            continue;
+        std::size_t begin, end;
+        if (search(begin, end, shortCode))
+        {
+            result.emplace_back(d.Character, shortCode, begin, end);
+        }
+    }
+}
+
 const LLEmojiDescriptor* LLEmojiDictionary::getDescriptorFromEmoji(llwchar emoji) const
 {
     const auto it = mEmoji2Descr.find(emoji);
