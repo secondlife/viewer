@@ -28,12 +28,14 @@
 #define LL_LLFLOATERBVHPREVIEW_H
 
 #include "llassettype.h"
+#include "llbvhloader.h"
 #include "llfloaternamedesc.h"
 #include "lldynamictexture.h"
 #include "llcharacter.h"
 #include "llquaternion.h"
 #include "llextendedstatus.h"
 
+class LLKeyframeMotion;
 class LLVOAvatar;
 class LLViewerJointMesh;
 
@@ -111,21 +113,20 @@ public:
     void onCommitPercent();
     bool validatePercent(const LLSD &data);
     static void onBtnOK(void *);
-	static void onSaveComplete(const LLUUID& asset_uuid,
-									   LLAssetType::EType type,
-									   void* user_data,
-									   S32 status, LLExtStat ext_status);
+
 private:
 	void        setAnimCallbacks() ;
     const joint_alias_map_t & getAnimationJointAliases();
 
 
 protected:
-	void			draw();
-	void			resetMotion();
-	void			updateMotionTime();
+    LLKeyframeMotion *	buildImportedMotion();
+	void				draw();
+	void				resetMotion();
+    void				updateMotionTime();
 
 	LLPointer< LLPreviewAnimation > mAnimPreview;
+
 	S32					mLastMouseX;
 	S32					mLastMouseY;
 	LLButton*			mPlayButton;
@@ -133,12 +134,15 @@ protected:
 	LLButton*			mStopButton;
 	LLRect				mPreviewRect;
 	LLRectf				mPreviewImageRect;
-	LLAssetID			mMotionID;
-	LLTransactionID		mTransactionID;
+	LLAssetID			mMotionID;			// New asset id
+	LLTransactionID		mTransactionID;		// Transaction for uploading new asset
 	LLAnimPauseRequest	mPauseRequest;
     F32					mOriginalDuration;
 
 	std::map<std::string, LLUUID>	mIDList;
+
+	LLBVHLoader * mBVHLoader;
+	bool mUseResting;		// apply resting pose to animation
 };
 
 #endif  // LL_LLFLOATERBVHPREVIEW_H

@@ -138,12 +138,18 @@ LLBVHLoader::LLBVHLoader(bool save_diagnostic_files) :
     reset();
 }
 
+LLBVHLoader::~LLBVHLoader()
+{
+    resetJoints();
+    reset();  // Clean up mAssimpImporter and mAssimp.mScene
+}
 
 void LLBVHLoader::loadAnimationData(const char* buffer,
                         S32 &errorLine,
                         const joint_alias_map_t& joint_alias_map,
                         const std::string& full_path_filename,
-                        S32 transform_type)
+                        S32 transform_type,
+						bool use_resting)
 {
     mFilenameAndPath = full_path_filename;
     mTransformType = transform_type;        // Passed in from globals for development
@@ -155,46 +161,24 @@ void LLBVHLoader::loadAnimationData(const char* buffer,
         makeTranslation(iter->first, iter->second);
     }
 
-
-// don't read BVH file!
-//	char error_text[128];		/* Flawfinder: ignore */
-//	S32 error_line;
-//	mStatus = loadBVHFile(buffer, error_text, error_line); //Reads all joints in BVH file.
-//    LL_DEBUGS("BVH") << "Joint data from file " << mFilenameAndPath << LL_ENDL;
-//    dumpJointInfo(mJoints);
+	// Historical roadside marker: this is where original bvh file loader was called
 
     mStatus = E_ST_OK;
 
-    // Assimp test code
-    loadAssimp();
-    if (mAssimp.mScene && mSaveDiagnosticFiles)
+    // Load animation via assimp library
+    mStatus = loadAssimp();
+    if (mStatus != E_ST_OK)
     {
-        dumpAssimp();
-    }
-
-	if (mStatus != E_ST_OK)
-	{
 		LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 		errorLine = getLineNumber();
         return;
 	}
 
-	applyTranslations();    // Map between joints found in file and the aliased names.
-	optimize();
-
-	LL_DEBUGS("BVH") << "After translations and optimize from file " << mFilenameAndPath << LL_ENDL;
-    dumpJointInfo(mJoints);      // to do - more useful before/after comparison
+	buildAnimationFromAssimp(use_resting);
 
 	mInitialized = true;
 }
 
-
-LLBVHLoader::~LLBVHLoader()
-{
-	std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
-	mJoints.clear();
-    reset();        // Clean up mAssimpImporter and mAssimp.mScene
-}
 
 static S32 test_transform_chain = 3;
 
@@ -1075,6 +1059,13 @@ void LLBVHLoader::reset()
     mAssimp.mScene = nullptr;
 }
 
+void LLBVHLoader::resetJoints()
+{
+    std::for_each(mJoints.begin(), mJoints.end(), DeletePointer());
+    mJoints.clear();
+}
+
+
 //------------------------------------------------------------------------
 // LLBVHLoader::getLine()
 //------------------------------------------------------------------------
@@ -1592,7 +1583,9 @@ ELoadStatus LLBVHLoader::loadAssimp()
         DefaultLogger::create(assimp_log_name.c_str(), Logger::VERBOSE);
         DefaultLogger::get()->info("SL assimp animation loading logging");
         LL_INFOS("Assimp") << "Writing animation import log file " << assimp_log_name << LL_ENDL;
-   }
+    }
+
+	ELoadStatus load_status = E_ST_OK;
 
     try
     {
@@ -1614,12 +1607,13 @@ ELoadStatus LLBVHLoader::loadAssimp()
         if (mAssimp.mScene == nullptr)
         {
             LL_WARNS("Assimp") << "Unable to read and create Assimp scene from " << mFilenameAndPath << LL_ENDL;
+            load_status = E_ST_INTERNAL_ERROR;
         }
-        extractJointsFromAssimp();
     }
     catch (...)
     {   // to do - some better handling / alert to user?
         LL_WARNS("Assimp") << "Unhandled exception trying to use Assimp asset import library" << LL_ENDL;
+        load_status = E_ST_INTERNAL_ERROR;
     }
 
     if (mSaveDiagnosticFiles)
@@ -1627,10 +1621,28 @@ ELoadStatus LLBVHLoader::loadAssimp()
         DefaultLogger::kill();
     }
 
-    return E_ST_OK;
+    return load_status;
 }
 
-void LLBVHLoader::extractJointsFromAssimp()
+// Extract motion data out of assimp scene into joints, transform and optimize
+//   Will be called when toggling the "use rest pose" checkbox
+void LLBVHLoader::buildAnimationFromAssimp(bool use_resting)
+{
+    extractJointsFromAssimp(use_resting);
+    if (mAssimp.mScene && mSaveDiagnosticFiles)
+    {
+        dumpAssimp();
+    }
+
+    applyTranslations();  // Map between joints found in file and the aliased names.
+    optimize();
+
+    LL_DEBUGS("BVH") << "After translations and optimize from file " << mFilenameAndPath << LL_ENDL;
+    dumpJointInfo(mJoints);  // to do - more useful before/after comparison
+}
+
+// Pull out the animation data from the assimp scene and put it into mJoints and set duration values
+void LLBVHLoader::extractJointsFromAssimp(bool use_resting)
 {
     if (!mAssimp.mScene)
     {
@@ -1652,9 +1664,15 @@ void LLBVHLoader::extractJointsFromAssimp()
         return;
     }
 
+	// Clear any existing data (may be re-reading from assimp)
+    resetJoints();
+
     if (mAssimp.mAnimation)
     {
-        LL_INFOS("Assimp") << "assimp data duration " << mAssimp.mAnimation->mDuration << " vs. mNumFrames " << mNumFrames << LL_ENDL;
+        LL_INFOS("Assimp") << "extractJointsFromAssimp() data duration "
+			<< mAssimp.mAnimation->mDuration << " vs. mNumFrames " << mNumFrames
+			<< (use_resting ? ".  Using rest pose" : ".  Not using rest pose")
+			<< LL_ENDL;
 
         mNumFrames = mAssimp.mAnimation->mDuration + 1;
         if (mAssimp.mAnimation->mTicksPerSecond <= 0.0)
@@ -1679,9 +1697,7 @@ void LLBVHLoader::extractJointsFromAssimp()
             mLoopOutPoint = mDuration;
         }
 
-		bool use_resting = true;		//SPATTERS TODO pick this up from UI and apply on demand.
-
-        // Extract nodes into mJoints
+		// Extract nodes into mJoints
         for (S32 node_index = 0; node_index < mAssimp.mAnimation->mNumChannels; node_index++)
         {
             aiNodeAnim *cur_node = mAssimp.mAnimation->mChannels[node_index];

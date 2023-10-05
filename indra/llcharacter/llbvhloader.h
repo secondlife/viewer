@@ -208,7 +208,8 @@ public:
         S32 &errorLine,
         const joint_alias_map_t& joint_alias_map,
         const std::string& full_path_filename,
-        S32 transform_type);
+        S32 transform_type,
+		bool use_resting);
 
     bool    isInitialized()     { return mInitialized; }
     F32     getDuration()       { return mDuration; }
@@ -217,6 +218,8 @@ public:
 
     bool serialize(LLDataPacker& dp);       // writes contents to datapacker
 
+	// Extract motion data out of assimp scene into joints, transform and optimize
+    void buildAnimationFromAssimp(bool use_resting);
 
  /*
 	// Status Codes
@@ -255,7 +258,7 @@ public:
 	static const char *ST_BAD_ROOT;
 */
 
-protected:
+  protected:
     //Create a new joint translation
     void makeTranslation(const std::string & LLAnimKey, const std::string & value);
 
@@ -266,10 +269,10 @@ protected:
 	// Returns status code.
 //	ELoadStatus loadBVHFile(const char *buffer, char *error_text, S32 &error_line);
 
-    // Debugging and testing
-	void dumpJointInfo(LLAnimJointVector & joints);
+	// Extract motion data out of assimp scene into joints
+    void extractJointsFromAssimp(bool use_resting);
 
-	// Applies translations to BVH data loaded.
+    // Applies translations to BVH data loaded.
 	void applyTranslations();
 
 	// Returns the number of lines scanned.
@@ -282,16 +285,20 @@ protected:
     // reset everything
 	void            reset();
 
+    // Clean up joints
+    void resetJoints();
+
     // Assimp functions
     ELoadStatus     loadAssimp();                   // Load library and scene from file
-    void            extractJointsFromAssimp();      // Extract data out of assimp scene into joints
 
-    void            dumpAssimp();       // Diagnostic dump to file
+    // Debugging and testing
+    void            dumpAssimp();  // Diagnostic dump to file
     void            dumpAssimpAnimations(llofstream & data_stream);
     void            dumpAssimpAnimationTransform(aiAnimation * cur_animation, llofstream & data_stream);
     void            dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofstream & data_stream);
     void            dumpAssimpAnimationVectorKeys(aiVectorKey * vector_keys, S32 count, llofstream & data_stream);
     void            dumpAssimpAnimationQuatKeys(aiQuatKey * quat_keys, S32 count, llofstream & data_stream);
+    void			dumpJointInfo(LLAnimJointVector &joints);
 
 	// Consumes one line of input from file.
 	bool getLine(apr_file_t *fp);

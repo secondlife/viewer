@@ -126,7 +126,8 @@ std::string STATUS[] =
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
 LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) :
-	LLFloaterNameDesc(filename)
+	LLFloaterNameDesc(filename),
+	mBVHLoader(NULL)
 {
 	mLastMouseX = 0;
 	mLastMouseY = 0;
@@ -243,7 +244,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 	std::string exten = gDirUtilp->getExtension(mFilename);
 
-    LLBVHLoader loader(gSavedSettings.getBOOL(TAG_AnimationImportDiagnosticFiles));
+	mBVHLoader = new LLBVHLoader(gSavedSettings.getBOOL(TAG_AnimationImportDiagnosticFiles));
 
 	if (exten == "bvh" || exten == "fbx")
 	{
@@ -271,9 +272,11 @@ BOOL LLFloaterBvhPreview::postBuild()
                 S32 line_number = 0;
                 const joint_alias_map_t & joint_alias_map = getAnimationJointAliases();
 
+				bool use_resting = (bool) getChild<LLUICtrl>("use_resting")->getValue().asReal();
                 // Read and parse the animation file into internal joint data
-                loader.loadAnimationData(file_buffer, line_number, joint_alias_map, mFilenameAndPath, gSavedSettings.getS32("AnimationImportTransform"));
-                ELoadStatus load_status = loader.getStatus();
+                mBVHLoader->loadAnimationData(file_buffer, line_number, joint_alias_map, mFilenameAndPath,
+                                              gSavedSettings.getS32("AnimationImportTransform"), use_resting);
+                ELoadStatus load_status = mBVHLoader->getStatus();
 
 				if(load_status == E_ST_NO_XLT_FILE)
 				{
@@ -294,36 +297,14 @@ BOOL LLFloaterBvhPreview::postBuild()
 		}
 	}
 
-	if (loader.isInitialized() && loader.getDuration() <= MAX_ANIM_DURATION)
+	if (mBVHLoader->isInitialized() && mBVHLoader->getDuration() <= MAX_ANIM_DURATION)
 	{
 		// generate unique id for this motion
 		mTransactionID.generate();
-		mMotionID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 
-		// motion will be returned, but it will be in a load-pending state, as this is a new motion
-		// this motion will not request an asset transfer until next update, so we have a chance to
-		// load the keyframe data locally
-		motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
-
-		// create data buffer for keyframe initialization
-		S32 buffer_size = loader.getOutputSize();
-		U8* buffer = new U8[buffer_size];
-
-		LLDataPackerBinaryBuffer dp(buffer, buffer_size);
-
-		// Create LLKeyFrameMotion from BVH data by serializing from the file we
-        // read into a binary anim format, then deserialize that into a LLKeyFrameMotion object
-		LL_INFOS("BVH") << "Serializing from animation loader into motion data" << LL_ENDL;
-		loader.serialize(dp);
-		dp.reset();
-		LL_INFOS("BVH") << "Deserializing motion into animation data" << LL_ENDL;
-		bool success = motionp && motionp->deserialize(dp, mMotionID, false);
-		LL_INFOS("BVH") << (success ? "Success: " : "Failed")
-            << "Done: output animation data size " << dp.getCurrentSize() << " bytes" << LL_ENDL;
-
-		delete []buffer;
-
-		if (success)
+		// create mMotionID and extract animation data into new LLKeyframeMotion
+		motionp = buildImportedMotion();
+        if (motionp)
 		{
 			setAnimCallbacks() ;
 
@@ -364,29 +345,27 @@ BOOL LLFloaterBvhPreview::postBuild()
 			seconds_string = llformat(" - %.2f seconds", motionp->getDuration());
 
 			setTitle(mFilename + std::string(seconds_string));
-		}
+        }
 		else
 		{
 			mAnimPreview = NULL;
 			mMotionID.setNull();
 			getChild<LLUICtrl>("bad_animation_text")->setValue(getString("failed_to_initialize"));
 		}
-
-        mOriginalDuration = motionp->getDuration();
 	}
 	else
 	{
-		if (loader.getDuration() > MAX_ANIM_DURATION)
+		if (mBVHLoader->getDuration() > MAX_ANIM_DURATION)
 		{
 			LLUIString out_str = getString("anim_too_long");
-			out_str.setArg("[LENGTH]", llformat("%.1f", loader.getDuration()));
+			out_str.setArg("[LENGTH]", llformat("%.1f", mBVHLoader->getDuration()));
 			out_str.setArg("[MAX_LENGTH]", llformat("%.1f", MAX_ANIM_DURATION));
 			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
 		}
 		else
 		{
 			LLUIString out_str = getString("failed_file_read");
-			out_str.setArg("[STATUS]", getString(STATUS[loader.getStatus()]));
+			out_str.setArg("[STATUS]", getString(STATUS[mBVHLoader->getStatus()]));
 			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
 		}
 
@@ -400,15 +379,75 @@ BOOL LLFloaterBvhPreview::postBuild()
 	return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
 LLFloaterBvhPreview::~LLFloaterBvhPreview()
 {
-	mAnimPreview = NULL;
+    mAnimPreview = NULL;
+
+    LL_DEBUGS("BVH") << "LLFloaterBvhPreview destructor "
+		<< (mBVHLoader ? "deleting" : "NULL") << " mBVHLoader" << LL_ENDL;
+
+    if (mBVHLoader)
+    {
+        delete mBVHLoader;
+        mBVHLoader = NULL;
+    }
 
 	setEnabled(FALSE);
 }
+
+
+// Get rid of any existing motion and load a new one from assimp
+LLKeyframeMotion * LLFloaterBvhPreview::buildImportedMotion()
+{
+	if (mMotionID.notNull() && mAnimPreview && mAnimPreview->getDummyAvatar())
+    {
+        LL_DEBUGS("BVH") << "buildImportedMotion removing motion " << mMotionID << LL_ENDL;
+        mAnimPreview->getDummyAvatar()->removeMotion(mMotionID);
+        mMotionID.setNull();
+    }
+
+	mMotionID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
+
+    // motion will be returned, but it will be in a load-pending state, as this is a new motion
+    // this motion will not request an asset transfer until next update, so we have a chance to
+    // load the keyframe data locally
+    LLKeyframeMotion * motionp = (LLKeyframeMotion *) mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
+
+    if (motionp)
+    {
+        // create data buffer for keyframe initialization
+        S32 buffer_size = mBVHLoader->getOutputSize();
+        U8 *buffer      = new U8[buffer_size];
+
+        LLDataPackerBinaryBuffer dp(buffer, buffer_size);
+
+        // Create LLKeyFrameMotion from BVH data by serializing from the file we
+        // read into a binary anim format, then deserialize that into a LLKeyFrameMotion object
+        LL_INFOS("BVH") << "Serializing from animation loader into motion data" << LL_ENDL;
+
+        mBVHLoader->serialize(dp);
+        dp.reset();
+
+		LL_INFOS("BVH") << "Deserializing motion into animation data" << LL_ENDL;
+        bool success = motionp->deserialize(dp, mMotionID, false);
+        LL_INFOS("BVH") << (success ? "Success: " : "Failed") << "Done: output animation data size "
+						<< dp.getCurrentSize() << " bytes" << LL_ENDL;
+
+        delete[] buffer;
+		if (!success)
+		{
+            mAnimPreview->getDummyAvatar()->removeMotion(mMotionID);
+            mMotionID.setNull();
+            motionp = NULL;
+        }
+    }
+    return motionp;
+}
+
 
 //-----------------------------------------------------------------------------
 // draw()
@@ -894,22 +933,32 @@ void LLFloaterBvhPreview::onCommitResting()
     if (!getEnabled() || !mAnimPreview)
         return;
 
-    // Scale is percentage scale it down.
+    // Get check to apply rest pose or not
     bool use_resting = (bool) getChild<LLUICtrl>("use_resting")->getValue().asReal();
 
+	// Ensure we have a motion (tbd- really needed?)
     LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
     LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
-
     if (!motionp)
     {
-        LL_WARNS("BVH") << "onCommitScale() - no motion found for " << mMotionID << LL_ENDL;
+        LL_WARNS("BVH") << "onCommitResting() - no motion found for " << mMotionID << LL_ENDL;
         return;
     }
 
-	if (use_resting)
+	mUseResting = use_resting;
+
+	LL_INFOS("BVH") << "Rebuilding animation" << (mUseResting ? " not " : " ")
+		<< "applying rest pose data" << LL_ENDL;
+
+	// Re-build motion from assimp data
+	// TBD - are there other values that need to be extracted and set like the startup code?
+	motionp = buildImportedMotion();
+    if (!motionp)
     {
-		LL_INFOS("SPATTERS") << "SPATTERS TODO:  Need to go through the animation and multiply rotation keys by the 0th frame's rotation." << LL_ENDL;
-	}
+        LL_WARNS("BVH") << "onCommitResting() - unable to rebuild motion"
+			<< (mUseResting ? " not " : " ") << "applying rest pose data" << LL_ENDL;
+        return;
+    }
 
     resetMotion();
 }

@@ -50,11 +50,8 @@ aiMatrix4x4 LLAssimpInterface::createIdentityMat4()
 bool LLAssimpInterface::setMesh(U32 mesh_id)
 {
     if (!mScene ||
-        !mScene->mMeshes)
-    {
-        return false;
-    }
-    if (mesh_id >= mScene->mNumMeshes)
+        !mScene->mMeshes ||
+        mesh_id >= mScene->mNumMeshes)
     {
         return false;
     }
