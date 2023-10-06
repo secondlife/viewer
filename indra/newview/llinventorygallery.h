@@ -39,6 +39,7 @@ class LLInventoryGalleryItem;
 class LLScrollContainer;
 class LLTextBox;
 class LLThumbnailsObserver;
+class LLThumbnailCtrl;
 class LLGalleryGestureObserver;
 
 class LLInventoryGalleryContextMenu;
@@ -246,6 +247,7 @@ private:
     int mRowCount;
     int mItemsAddedCount;
     bool mGalleryCreated;
+    bool mLoadThumbnailsImmediately;
     bool mNeedsArrange;
 
     /* Params */
@@ -342,6 +344,7 @@ public:
     LLAssetType::EType getAssetType() { return mType; }
     void setThumbnail(LLUUID id);
     void setGallery(LLInventoryGallery* gallery) { mGallery = gallery; }
+    void setLoadImmediately(bool val);
     bool isFolder() { return mIsFolder; }
     bool isLink() { return mIsLink; }
     EInventorySortGroup getSortGroup() { return mSortGroup; }
@@ -354,6 +357,7 @@ private:
     LLUUID mUUID;
     LLTextBox* mNameText;
     LLPanel* mTextBgPanel;
+    LLThumbnailCtrl* mThumbnailCtrl;
     bool     mSelected;
     bool     mWorn;
     bool     mDefaultImage;
