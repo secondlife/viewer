@@ -2309,9 +2309,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da7317e4a81609f624f84780f28b07de</string>
+              <string>b84ccb1606b3fc5b216d0123a23a4922e02b6bd8</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86972/801630/tracy-v0.7.8.563351-darwin64-563351.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.8.1-235e98f/tracy-v0.8.1.235e98f-darwin64-235e98f.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2321,11 +2323,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b649ee6591e67d2341e886b3fc3484a7</string>
+              <string>54f126b85f179362cf0b6024e3cd621b53d68703</string>
               <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86974/801642/tracy-v0.7.8.563351-windows64-563351.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.8.1-235e98f/tracy-v0.8.1.235e98f-windows64-235e98f.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2336,9 +2338,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>license_file</key>
         <string>LICENSES/tracy_license.txt</string>
         <key>copyright</key>
-        <string>Copyright (c) 2017-2021, Bartosz Taudul (wolf@nereid.pl)</string>
+        <string>Copyright (c) 2017-2022, Bartosz Taudul (wolf@nereid.pl)</string>
         <key>version</key>
-        <string>v0.7.8.563351</string>
+        <string>v0.8.1.235e98f</string>
         <key>name</key>
         <string>tracy</string>
         <key>canonical_repo</key>
