@@ -108,6 +108,34 @@ void LLHeroProbeManager::update()
     F32        near_clip  = 0.1f;
     if (mHeroVOList.size() > 0)
     {
+        // Find our nearest hero candidate.
+
+        float last_distance = 99999.f;
+
+        for (auto vo : mHeroVOList)
+        {
+            if (vo)
+            {
+                if (vo->mDrawable.notNull())
+                {
+                    if (vo->mDrawable->mDistanceWRTCamera < last_distance)
+                    {
+                        mNearestHero = vo;
+                        last_distance = vo->mDrawable->mDistanceWRTCamera;
+                    }
+                }
+                else
+                {
+                    // Valid drawables only please.  Unregister this one.
+                    unregisterHeroDrawable(vo);
+                }
+            }
+            else
+            {
+                unregisterHeroDrawable(vo);
+            }
+        }
+
         if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
         {
             U8        mode     = mNearestHero->mirrorPlacementMode();
@@ -226,7 +254,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
         // perform a gaussian blur on the super sampled render before downsampling
         {
             gGaussianProgram.bind();
-            gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
+            gGaussianProgram.uniform1f(resScale, 1.f / mProbeResolution);
             S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
 
             // horizontal
@@ -521,12 +549,11 @@ void LLHeroProbeManager::doOcclusion()
 
 void LLHeroProbeManager::registerHeroDrawable(LLVOVolume* drawablep)
 {
-    mNearestHero = drawablep;
-        if (mHeroVOList.find(drawablep) == mHeroVOList.end())
-        {
-            mHeroVOList.insert(drawablep);
-            LL_INFOS() << "Mirror drawable registered." << LL_ENDL;
-        }
+    if (mHeroVOList.find(drawablep) == mHeroVOList.end())
+    {
+        mHeroVOList.insert(drawablep);
+        LL_INFOS() << "Mirror drawable registered." << LL_ENDL;
+    }
 }
 
 void LLHeroProbeManager::unregisterHeroDrawable(LLVOVolume* drawablep)
