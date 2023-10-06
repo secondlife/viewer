@@ -1780,6 +1780,10 @@ bool LLObjectSelection::applyRestrictedPbrMaterialToTEs(LLViewerInventoryItem* i
     }
 
     LLUUID asset_id = item->getAssetUUID();
+    if (asset_id.isNull())
+    {
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    }
 
     bool material_copied_all_faces = true;
 
@@ -1976,6 +1980,10 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                     return false;
                 }
                 asset_id = mItem->getAssetUUID();
+                if (asset_id.isNull())
+                {
+                    asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+                }
             }
 
             // Blank out most override data on the object and send to server

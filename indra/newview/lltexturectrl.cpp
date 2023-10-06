@@ -213,15 +213,38 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 				mModeSelector->selectByValue(0);
 				onModeSelect(0,this);
 			}
-			
-			LLUUID item_id = findItemID(mImageAssetID, FALSE);
+
+            LLUUID item_id;
+            LLFolderView* root_folder = mInventoryPanel->getRootFolder();
+            if (root_folder && root_folder->getCurSelectedItem())
+            {
+                LLFolderViewItem* last_selected = root_folder->getCurSelectedItem();
+                LLFolderViewModelItemInventory* inv_view = static_cast<LLFolderViewModelItemInventory*>(last_selected->getViewModelItem());
+
+                LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
+
+                if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL
+                    && mImageAssetID == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID
+                    && itemp && itemp->getAssetUUID().isNull())
+                {
+                    item_id = inv_view->getUUID();
+                }
+                else if (itemp && itemp->getAssetUUID() == mImageAssetID)
+                {
+                    item_id = inv_view->getUUID();
+                }
+            }
+            if (item_id.isNull())
+            {
+                item_id = findItemID(mImageAssetID, FALSE);
+            }
 			if (item_id.isNull())
 			{
 				mInventoryPanel->getRootFolder()->clearSelection();
 			}
 			else
 			{
-				LLInventoryItem* itemp = gInventory.getItem(image_id);
+				LLInventoryItem* itemp = gInventory.getItem(item_id);
 				if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
 				{
 					// no copy texture
@@ -741,14 +764,22 @@ void LLFloaterTexturePicker::draw()
 
 const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL copyable_only, BOOL ignore_library)
 {
-	if (asset_id.isNull())
+    LLUUID loockup_id = asset_id;
+	if (loockup_id.isNull())
 	{
-		return LLUUID::null;
+        if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        {
+            loockup_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+        }
+        else
+        {
+            return LLUUID::null;
+        }
 	}
 
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
-	LLAssetIDMatches asset_id_matches(asset_id);
+	LLAssetIDMatches asset_id_matches(loockup_id);
 	gInventory.collectDescendentsIf(LLUUID::null,
 							cats,
 							items,
@@ -816,7 +847,14 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
                     LLFolderViewModelItemInventory* inv_view = static_cast<LLFolderViewModelItemInventory*>(last_selected->getViewModelItem());
 
                     LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
-                    if (itemp && itemp->getAssetUUID() == mImageAssetID)
+
+                    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL
+                        && mImageAssetID == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID
+                        && itemp && itemp->getAssetUUID().isNull())
+                    {
+                        inventory_id = inv_view->getUUID();
+                    }
+                    else if (itemp && itemp->getAssetUUID() == mImageAssetID)
                     {
                         inventory_id = inv_view->getUUID();
                     }
