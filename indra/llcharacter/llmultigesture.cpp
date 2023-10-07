@@ -68,6 +68,8 @@ void LLMultiGesture::reset()
 	mCurrentStep = 0;
 	mWaitTimer.reset();
 	mWaitingTimer = FALSE;
+	mTriggeredByKey = FALSE;
+	mKeyReleased = FALSE;
 	mWaitingAnimations = FALSE;
 	mWaitingAtEnd = FALSE;
 	mRequestedAnimIDs.clear();
