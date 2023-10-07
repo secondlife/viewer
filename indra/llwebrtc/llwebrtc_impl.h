@@ -190,8 +190,6 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface,
 
   protected:
 
-    bool                                                       initializeConnectionThreaded();
-
     std::unique_ptr<rtc::Thread>                               mNetworkThread;
     std::unique_ptr<rtc::Thread>                               mWorkerThread;
     std::unique_ptr<rtc::Thread>                               mSignalingThread;

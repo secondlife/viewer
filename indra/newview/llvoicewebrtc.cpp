@@ -99,6 +99,7 @@ namespace {
     const F32 CONNECT_DNS_TIMEOUT = 5.0f;
 
     const F32 LOGOUT_ATTEMPT_TIMEOUT = 5.0f;
+    const S32 PROVISION_WAIT_TIMEOUT_SEC = 5;
     
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
@@ -587,6 +588,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
     LLCoros::set_consuming(true);
 
     U32 retry = 0;
+    U32 provisionWaitTimeout = 0;
 
     setVoiceControlStateUnless(VOICE_STATE_TP_WAIT);
 
@@ -653,11 +655,16 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                 }
                 else
                 {
+                    provisionWaitTimeout = 0;
                     setVoiceControlStateUnless(VOICE_STATE_SESSION_PROVISION_WAIT, VOICE_STATE_SESSION_RETRY);
                 }
                 break;
             case VOICE_STATE_SESSION_PROVISION_WAIT:
                 llcoro::suspendUntilTimeout(1.0);
+                if (provisionWaitTimeout++ > PROVISION_WAIT_TIMEOUT_SEC)
+				{
+                    setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
+				}
                 break;
 
             case VOICE_STATE_SESSION_RETRY:
@@ -2424,16 +2431,17 @@ void LLWebRTCVoiceClient::processIceUpdates()
 
         if (mIceCandidates.size())
         {
-            LLSD body;
-
+            LLSD candidates    = LLSD::emptyArray();
+            body["candidates"] = LLSD::emptyArray();
             for (auto &ice_candidate : mIceCandidates)
             {
                 LLSD body_candidate;
                 body_candidate["sdpMid"]        = ice_candidate.sdp_mid;
                 body_candidate["sdpMLineIndex"] = ice_candidate.mline_index;
                 body_candidate["candidate"]     = ice_candidate.candidate;
-                body["candidates"].append(body_candidate);
+                candidates.append(body_candidate);
             }
+            body["candidates"] = candidates;
             mIceCandidates.clear();
         }
         else if (mIceCompleted)
@@ -2566,13 +2574,6 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
                 participant->mIsSpeaking = participant->mPower > SPEAKING_AUDIO_LEVEL; 
 			}
         }
-        if (new_participant) 
-		{
-            Json::FastWriter writer;
-            Json::Value      root = getPositionAndVolumeUpdateJson(true);
-            std::string json_data = writer.write(root);
-            mWebRTCDataInterface->sendData(json_data, false);
-		}
     }
 }
 

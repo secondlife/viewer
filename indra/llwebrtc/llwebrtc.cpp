@@ -356,12 +356,6 @@ bool LLWebRTCImpl::initializeConnection()
     RTC_DCHECK(mPeerConnectionFactory);
     mAnswerReceived = false;
 
-    mSignalingThread->PostTask([this]() { initializeConnectionThreaded(); });
-    return true;
-}
-
-bool LLWebRTCImpl::initializeConnectionThreaded()
-{
     rtc::scoped_refptr<webrtc::AudioProcessing> apm = webrtc::AudioProcessingBuilder().Create();
     webrtc::AudioProcessing::Config             apm_config;
     apm_config.echo_canceller.enabled         = false;
@@ -375,8 +369,6 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
     apm_config.transient_suppression.enabled  = true;
     apm_config.pipeline.multi_channel_render  = true;
     apm_config.pipeline.multi_channel_capture = true;
-    //
-    apm->ApplyConfig(apm_config);
 
     mWorkerThread->BlockingCall(
         [this]()
@@ -396,6 +388,8 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
             mPeerDeviceModule->InitSpeaker();
             mPeerDeviceModule->InitRecording();
             mPeerDeviceModule->InitPlayout();
+            mPeerDeviceModule->StopPlayout();
+            mPeerDeviceModule->StopRecording();
         });
 
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
@@ -408,9 +402,13 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
                                                                  nullptr /* video_decoder_factory */,
                                                                  nullptr /* audio_mixer */,
                                                                  apm);
+    apm->ApplyConfig(apm_config);
+
     webrtc::PeerConnectionInterface::RTCConfiguration config;
     config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     webrtc::PeerConnectionInterface::IceServer server;
+    server.uri = "stun:roxie-turn.staging.secondlife.io:3478";
+    config.servers.push_back(server);
     server.uri = "stun:stun.l.google.com:19302";
     config.servers.push_back(server);
     server.uri = "stun:stun1.l.google.com:19302";
@@ -430,6 +428,7 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
     }
     else
     {
+        RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection: " << error_or_peer_connection.error().message();
         shutdownConnection();
         return false;
     }
@@ -493,20 +492,47 @@ bool LLWebRTCImpl::initializeConnectionThreaded()
     webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
     mPeerConnection->CreateOffer(this, offerOptions);
 
-    RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
-
     return true;
 }
 
 void LLWebRTCImpl::shutdownConnection()
 {
-    mDataChannel->Close();
-    mDataChannel = nullptr;
-    mPeerConnection->Close();
-    mPeerDeviceModule->Terminate();
-    mPeerDeviceModule      = nullptr;
-    mPeerConnection        = nullptr;
-    mPeerConnectionFactory = nullptr;
+    mSignalingThread->PostTask(
+        [this]()
+        {
+            if (mPeerConnection)
+            {
+                mPeerConnection->Close();
+                mPeerConnection = nullptr;
+            }
+            mPeerConnectionFactory = nullptr;
+        });
+    mWorkerThread->PostTask(
+        [this]()
+        {
+            if (mTuningDeviceModule)
+            {
+                mTuningDeviceModule->StopRecording();
+                mTuningDeviceModule->Terminate();
+            }
+            if (mPeerDeviceModule)
+            {
+                mPeerDeviceModule->StopRecording();
+                mPeerDeviceModule->Terminate();
+            }
+            mTuningDeviceModule = nullptr;
+            mPeerDeviceModule   = nullptr;
+            mTaskQueueFactory   = nullptr;
+        });
+    mNetworkThread->PostTask(
+        [this]()
+        {
+            if (mDataChannel)
+            {
+                mDataChannel->Close();
+                mDataChannel = nullptr;
+            }
+        });
 }
 
 void LLWebRTCImpl::AnswerAvailable(const std::string &sdp)
@@ -519,26 +545,6 @@ void LLWebRTCImpl::AnswerAvailable(const std::string &sdp)
             RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->peer_connection_state();
             mPeerConnection->SetRemoteDescription(webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdp),
                                                   rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface>(this));
-            mAnswerReceived = true;
-            for (auto &observer : mSignalingObserverList)
-            {
-                for (auto &candidate : mCachedIceCandidates)
-                {
-                    LLWebRTCIceCandidate ice_candidate;
-                    ice_candidate.candidate   = candidate->candidate().ToString();
-                    ice_candidate.mline_index = candidate->sdp_mline_index();
-                    ice_candidate.sdp_mid     = candidate->sdp_mid();
-                    observer->OnIceCandidate(ice_candidate);
-                }
-                mCachedIceCandidates.clear();
-                if (mPeerConnection->ice_gathering_state() == webrtc::PeerConnectionInterface::IceGatheringState::kIceGatheringComplete)
-                {
-                    for (auto &observer : mSignalingObserverList)
-                    {
-                        observer->OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::IceGatheringState::ICE_GATHERING_COMPLETE);
-                    }
-                }
-            }
         });
 }
 
@@ -769,6 +775,19 @@ void LLWebRTCImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
         RTC_LOG(LS_ERROR) << ToString(error.type()) << ": " << error.message();
         return;
     }
+    mAnswerReceived = true;
+    for (auto &observer : mSignalingObserverList)
+    {
+        for (auto &candidate : mCachedIceCandidates)
+        {
+            LLWebRTCIceCandidate ice_candidate;
+            ice_candidate.candidate   = candidate->candidate().ToString();
+            ice_candidate.mline_index = candidate->sdp_mline_index();
+            ice_candidate.sdp_mid     = candidate->sdp_mid();
+            observer->OnIceCandidate(ice_candidate);
+        }
+        mCachedIceCandidates.clear();
+    }
 }
 
 //
@@ -776,6 +795,7 @@ void LLWebRTCImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
 //
 void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
 {
+#if 0
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
     if (!error.ok())
     {
@@ -792,6 +812,7 @@ void LLWebRTCImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
     {
         observer->OnOfferAvailable(sdp);
     }
+#endif
 }
 
 void LLWebRTCImpl::setAudioObserver(LLWebRTCAudioObserver *observer) { mAudioObserverList.emplace_back(observer); }
