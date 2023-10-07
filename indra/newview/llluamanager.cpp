@@ -1299,6 +1299,11 @@ LLSD lua_tollsd(lua_State* L, int index)
         // deeply nested Lua structure will enter this case at each level, and
         // we'll need another 2 stack slots to traverse each nested table.
         luaL_checkstack(L, 2, nullptr);
+        // BEFORE we push nil to initialize the lua_next() traversal, convert
+        // 'index' to absolute! Our caller might have passed a relative index;
+        // we do, below: lua_tollsd(L, -1). If 'index' is -1, then when we
+        // push nil, what we find at index -1 is nil, not the table!
+        index = lua_absindex(L, index);
         LL_DEBUGS("Lua") << "checking for empty table" << LL_ENDL;
         lua_pushnil(L);             // first key
         LL_DEBUGS("Lua") << lua_stack(L) << LL_ENDL;

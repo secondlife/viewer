@@ -218,14 +218,6 @@ namespace tut
         LLSD mSend, mExpect;
     };
 
-    bool will_be_nil(const LLSD& data)
-    {
-        // undefined LLSD converts to Lua nil.
-        // empty LLSD array or empty LLSD map converts to nil.
-        return (data.isUndefined() ||
-                ((data.isArray() || data.isMap()) && data.size() == 0));
-    }
-
     template<> template<>
     void object::test<3>()
     {
@@ -259,15 +251,12 @@ namespace tut
         LLSD send_array{ LLSD::emptyArray() }, expect_array{ LLSD::emptyArray() };
         for (const auto& item: items)
         {
-            // BUG AVOIDANCE:
-            // As of 2023-10-04, lua_tollsd() hits access violation in
-            // lua_next() when handed a table nested in another table.
-            if (! (item.mSend.isArray() || item.mSend.isMap()))
-            {
-                send_array.append(item.mSend);
-                expect_array.append(item.mExpect);
-            }
+            send_array.append(item.mSend);
+            expect_array.append(item.mExpect);
         }
+        // exercise the array tail trimming below
+        send_array.append(items[0].mSend);
+        expect_array.append(items[0].mExpect);
         // Lua takes a table value of nil to mean: don't store this key. An
         // LLSD array containing undefined entries (converted to nil) leaves
         // "holes" in the Lua table. These will be converted back to undefined
@@ -275,9 +264,9 @@ namespace tut
         // simply omitted from the table -- so the table converts back to a
         // shorter LLSD array. We've constructed send_array and expect_array
         // according to 'items' above -- but truncate from expect_array any
-        // trailing entries that will map to Lua nil.
+        // trailing entries whose mSend will map to Lua nil.
         while (expect_array.size() > 0 &&
-               will_be_nil(expect_array[expect_array.size() - 1]))
+               send_array[expect_array.size() - 1].isUndefined())
         {
             expect_array.erase(expect_array.size() - 1);
         }
@@ -287,20 +276,26 @@ namespace tut
         LLSD send_map{ LLSD::emptyMap() }, expect_map{ LLSD::emptyMap() };
         for (const auto& item: items)
         {
-            // BUG AVOIDANCE:
-            // see comment in the send_array construction loop above
-            if (! (item.mSend.isArray() || item.mSend.isMap()))
+            send_map[item.mName] = item.mSend;
+            // see comment in the expect_array truncation loop above --
+            // Lua never stores table entries with nil values
+            if (item.mSend.isDefined())
             {
-                send_map[item.mName] = item.mSend;
-                // see comment in the expect_array truncation loop above --
-                // keep this test because Lua never stores table entries with
-                // nil values
-                if (! will_be_nil(item.mExpect))
-                {
-                    expect_map[item.mName] = item.mExpect;
-                }
+                expect_map[item.mName] = item.mExpect;
             }
         }
         round_trip("map", send_map, expect_map);
+
+        // deeply nested map: exceed Lua's default stack space (20),
+        // i.e. verify that we have the right checkstack() calls
+        for (int i = 0; i < 20; ++i)
+        {
+            LLSD new_send_map{ send_map }, new_expect_map{ expect_map };
+            new_send_map["nested map"] = send_map;
+            new_expect_map["nested map"] = expect_map;
+            send_map = new_send_map;
+            expect_map = new_expect_map;
+        }
+        round_trip("nested map", send_map, expect_map);
     }
 } // namespace tut
