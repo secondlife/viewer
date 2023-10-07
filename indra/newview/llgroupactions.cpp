@@ -398,7 +398,7 @@ void LLGroupActions::inspect(const LLUUID& group_id)
 }
 
 // static
-void LLGroupActions::show(const LLUUID& group_id)
+void LLGroupActions::show(const LLUUID &group_id, bool expand_notices_tab)
 {
 	if (group_id.isNull())
 		return;
@@ -406,6 +406,10 @@ void LLGroupActions::show(const LLUUID& group_id)
 	LLSD params;
 	params["group_id"] = group_id;
 	params["open_tab_name"] = "panel_group_info_sidetray";
+    if (expand_notices_tab) 
+    {
+        params["action"] = "show_notices";
+    }
 
 	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
     LLFloater *floater = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("people");

@@ -134,6 +134,15 @@ void LLPanelGroup::onOpen(const LLSD& key)
 		if(panel_notices)
 			panel_notices->refreshNotices();
 	}
+    if (str_action == "show_notices")
+    {
+        setGroupID(group_id);
+
+        LLAccordionCtrl *tab_ctrl = getChild<LLAccordionCtrl>("groups_accordion");
+        tab_ctrl->collapseAllTabs();
+        getChild<LLAccordionCtrlTab>("group_notices_tab")->setDisplayChildren(true);
+        tab_ctrl->arrange();
+    }
 
 }
 
