@@ -2865,6 +2865,15 @@ BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
 		}
 	}
 
+	// Try for a new-format gesture
+	if (LLGestureMgr::instance().triggerGestureRelease(key, mask))
+	{
+		LL_DEBUGS() << "LLviewerWindow::handleKey new gesture release feature" << LL_ENDL;
+		LLViewerEventRecorder::instance().logKeyEvent(key,mask);
+		return TRUE;
+	}
+	//Old format gestures do not support this, so no need to implement it.
+
 	// don't pass keys on to world when something in ui has focus
 	return gFocusMgr.childHasKeyboardFocus(mRootView)
 		|| LLMenuGL::getKeyboardMode()

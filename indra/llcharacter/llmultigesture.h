@@ -83,8 +83,17 @@ public:
 	// We're waiting for triggered animations to stop playing
 	BOOL mWaitingAnimations;
 
+	// We're waiting for key release
+	BOOL mWaitingKeyRelease;
+
 	// We're waiting a fixed amount of time
 	BOOL mWaitingTimer;
+
+	// We're waiting for triggered animations to stop playing
+	BOOL mTriggeredByKey;
+
+	// Has the key been released?
+	BOOL mKeyReleased;
 
 	// Waiting after the last step played for all animations to complete
 	BOOL mWaitingAtEnd;
@@ -210,6 +219,7 @@ public:
 
 const U32 WAIT_FLAG_TIME		= 0x01;
 const U32 WAIT_FLAG_ALL_ANIM	= 0x02;
+const U32 WAIT_FLAG_KEY_RELEASE	= 0x04;
 
 class LLGestureStepWait : public LLGestureStep
 {
