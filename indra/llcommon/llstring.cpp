@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llsd.h"
+#include <unicode/uchar.h>
 #include <vector>
 
 #if LL_WINDOWS
@@ -832,6 +833,40 @@ std::vector<std::string> LLStringOps::sMonthShortList;
 std::string LLStringOps::sDayFormat;
 std::string LLStringOps::sAM;
 std::string LLStringOps::sPM;
+
+// static
+bool LLStringOps::isEmoji(llwchar wch)
+{
+	int ublock = ublock_getCode(wch);
+	switch (ublock)
+	{
+		case UBLOCK_GENERAL_PUNCTUATION:
+		case UBLOCK_LETTERLIKE_SYMBOLS:
+		case UBLOCK_ARROWS:
+		case UBLOCK_MISCELLANEOUS_TECHNICAL:
+		case UBLOCK_ENCLOSED_ALPHANUMERICS:
+		case UBLOCK_GEOMETRIC_SHAPES:
+		case UBLOCK_MISCELLANEOUS_SYMBOLS:
+		case UBLOCK_DINGBATS:
+		case UBLOCK_CJK_SYMBOLS_AND_PUNCTUATION:
+		case UBLOCK_ENCLOSED_CJK_LETTERS_AND_MONTHS:
+		case UBLOCK_MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS:
+		case UBLOCK_EMOTICONS:
+		case UBLOCK_TRANSPORT_AND_MAP_SYMBOLS:
+#if U_ICU_VERSION_MAJOR_NUM > 56
+		// Boost uses ICU so we can't update it independently
+		case UBLOCK_SUPPLEMENTAL_SYMBOLS_AND_PICTOGRAPHS:
+#endif // U_ICU_VERSION_MAJOR_NUM > 56
+			return true;
+		default:
+#if U_ICU_VERSION_MAJOR_NUM > 56
+			return false;
+#else
+			// See https://en.wikipedia.org/wiki/Supplemental_Symbols_and_Pictographs
+			return wch >= 0x1F900 && wch <= 0x1F9FF;
+#endif // U_ICU_VERSION_MAJOR_NUM > 56
+	}
+}
 
 
 S32	LLStringOps::collate(const llwchar* a, const llwchar* b)

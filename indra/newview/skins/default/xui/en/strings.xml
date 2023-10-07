@@ -485,9 +485,9 @@ http://secondlife.com/support for help fixing this problem.
 	<!-- build floater -->
 	<string name="multiple_textures">Multiple</string>
 
-<string name="use_texture">Use texture</string>
-    <string name="manip_hint1">Move mouse cursor over ruler</string>
-    <string name="manip_hint2">to snap to grid</string>
+	<string name="use_texture">Use texture</string>
+	<string name="manip_hint1">Move mouse cursor over ruler</string>
+	<string name="manip_hint2">to snap to grid</string>
 
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
@@ -502,14 +502,14 @@ http://secondlife.com/support for help fixing this problem.
 
 	<!-- Chat -->
 	<string name="NearbyChatTitle">Nearby chat</string>
-  <string name="NearbyChatLabel">(Nearby chat)</string>
+	<string name="NearbyChatLabel">(Nearby chat)</string>
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 	<string name="ringing">Connecting to in-world Voice Chat...</string>
 	<string name="connected">Connected</string>
 	<string name="unavailable">Voice not available at your current location</string>
 	<string name="hang_up">Disconnected from in-world Voice Chat</string>
-  <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
+	<string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
 	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>

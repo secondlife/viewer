@@ -60,6 +60,7 @@ public:
 								ignore_tab,
 								commit_on_focus_lost,
 								show_context_menu,
+								show_emoji_helper,
 								enable_tooltip_paste,
 								auto_indent;
 
@@ -90,6 +91,9 @@ public:
 	void	setParseHighlights(BOOL parsing) {mParseHighlights=parsing;}
 
 	static S32		spacesPerTab();
+
+	void    insertEmoji(llwchar emoji);
+	void    handleEmojiCommit(llwchar emoji);
 
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -202,6 +206,9 @@ public:
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }
 
+	void			setShowEmojiHelper(bool show);
+	bool			getShowEmojiHelper() const { return mShowEmojiHelper; }
+
 	void			setPassDelete(BOOL b) { mPassDelete = b; }
 
 protected:
@@ -248,6 +255,7 @@ protected:
 	S32				insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
 	S32				remove(S32 pos, S32 length, bool group_with_next_op);
 
+	void			tryToShowEmojiHelper();
 	void			focusLostHelper();
 	void			updateAllowingLanguageInput();
 	BOOL			hasPreeditString() const;
@@ -318,6 +326,7 @@ private:
 
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
+	bool			mShowEmojiHelper;
 	bool			mEnableTooltipPaste;
 	bool			mPassDelete;
 	bool			mKeepSelectionOnReturn;	// disabling of removing selected text after pressing of Enter

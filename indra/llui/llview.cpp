@@ -520,7 +520,7 @@ BOOL LLView::focusNext(LLView::child_list_t & result)
 		{
 			next = result.rbegin();
 		}
-		if((*next)->isCtrl())
+		if ((*next)->isCtrl() && ((LLUICtrl*)*next)->hasTabStop())
 		{
 			LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
 			ctrl->setFocus(TRUE);
@@ -1337,7 +1337,7 @@ void LLView::drawDebugRect()
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
 												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-												S32_MAX, S32_MAX, NULL, FALSE);
+												S32_MAX, S32_MAX, NULL, /*use_ellipses*/FALSE, /*use_color*/FALSE);
 		}
 	}
 	LLUI::popMatrix();
@@ -1966,7 +1966,7 @@ private:
 class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
 {
 	LLSINGLETON_EMPTY_CTOR(SortByTabOrder);
-	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const 
+	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const override
 	{
 		children.sort(CompareByTabOrder(parent->getTabOrder(), parent->getDefaultTabGroup()));
 	}
@@ -1990,7 +1990,7 @@ const LLViewQuery & LLView::getTabOrderQuery()
 class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRootsFilter>
 {
 	LLSINGLETON_EMPTY_CTOR(LLFocusRootsFilter);
-	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
 	{
 		return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
 	}

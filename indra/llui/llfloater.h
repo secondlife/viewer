@@ -255,8 +255,8 @@ public:
 	std::string		getShortTitle() const;
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
-	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
-	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
+	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE, BOOL resize = FALSE);
+	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE, BOOL resize = FALSE);
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void		removeDependentFloater(LLFloater* dependent);
 	BOOL			isMinimized() const				{ return mMinimized; }
@@ -313,6 +313,9 @@ public:
 	/*virtual*/ void setVisible(BOOL visible); // do not override
 	/*virtual*/ void onVisibilityChange ( BOOL new_visibility ); // do not override
 	
+	bool            canFocusStealFrontmost() const { return mFocusStealsFrontmost; }
+	void            setFocusStealsFrontmost(bool wants_frontmost) { mFocusStealsFrontmost = wants_frontmost; }
+
 	void			setFrontmost(BOOL take_focus = TRUE, BOOL restore = TRUE);
      virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
 	
@@ -481,6 +484,7 @@ private:
 	BOOL			mCanTearOff;
 	BOOL			mCanMinimize;
 	BOOL			mCanClose;
+    bool            mFocusStealsFrontmost = true;	// FALSE if we don't want the currently focused floater to cover this floater without user interaction
 	BOOL			mDragOnLeft;
 	BOOL			mResizable;
 

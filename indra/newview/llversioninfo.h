@@ -47,7 +47,7 @@ class LLStoreListener;
 class LLVersionInfo: public LLSingleton<LLVersionInfo>
 {
 	LLSINGLETON(LLVersionInfo);
-	void initSingleton();
+	void initSingleton() override;
 public:
 	~LLVersionInfo();
 

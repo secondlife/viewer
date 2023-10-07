@@ -189,6 +189,8 @@ public:
 	static bool isAlnum(char a) { return isalnum((unsigned char)a) != 0; }
 	static bool isAlnum(llwchar a) { return iswalnum(a) != 0; }
 
+	static bool isEmoji(llwchar wch);
+
 	static S32	collate(const char* a, const char* b) { return strcoll(a, b); }
 	static S32	collate(const llwchar* a, const llwchar* b);
 
@@ -355,6 +357,8 @@ public:
 	static void	replaceNonstandardASCII( string_type& string, T replacement );
 	static void	replaceChar( string_type& string, T target, T replacement );
 	static void replaceString( string_type& string, string_type target, string_type replacement );
+	static string_type capitalize(const string_type& str);
+	static void capitalize(string_type& str);
 	
 	static BOOL	containsNonprintable(const string_type& string);
 	static void	stripNonprintable(string_type& string);
@@ -1591,6 +1595,29 @@ void LLStringUtilBase<T>::replaceTabsWithSpaces( string_type& str, size_type spa
 		}
 	}
 	str = out_str;
+}
+
+//static
+template<class T>
+std::basic_string<T> LLStringUtilBase<T>::capitalize(const string_type& str)
+{
+	string_type result(str);
+	capitalize(result);
+	return result;
+}
+
+//static
+template<class T>
+void LLStringUtilBase<T>::capitalize(string_type& str)
+{
+	if (str.size())
+	{
+		auto last = str[0] = toupper(str[0]);
+		for (U32 i = 1; i < str.size(); ++i)
+		{
+			last = (last == ' ' || last == '-' || last == '_') ? str[i] = toupper(str[i]) : str[i];
+		}
+	}
 }
 
 //static

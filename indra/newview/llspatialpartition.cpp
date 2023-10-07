@@ -4421,7 +4421,8 @@ void LLCullResult::assertDrawMapsEmpty()
 	{
 		if (mRenderMapSize[i] != 0)
 		{
-			LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!" << LL_ENDL;
+			LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!"
+				<< " (mRenderMapSize[" << i << "] = " << mRenderMapSize[i] << ")" << LL_ENDL;
 		}
 	}
 }
