@@ -138,6 +138,8 @@ bool get_can_copy_texture(LLUUID asset_id)
     return get_is_predefined_texture(asset_id) || get_copy_free_item_by_asset_id(asset_id).notNull();
 }
 
+S32 LLFloaterTexturePicker::sLastPickerMode = 0;
+
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
 	LLUUID image_asset_id,
@@ -515,6 +517,15 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 	return LLFloater::handleKeyHere(key, mask);
 }
 
+void LLFloaterTexturePicker::onOpen(const LLSD& key)
+{
+    if (sLastPickerMode != 0
+        && mModeSelector->selectByValue(sLastPickerMode))
+    {
+        changeMode();
+    }
+}
+
 void LLFloaterTexturePicker::onClose(bool app_quitting)
 {
 	if (mOwner && mOnFloaterCloseCallback)
@@ -522,6 +533,7 @@ void LLFloaterTexturePicker::onClose(bool app_quitting)
 		mOnFloaterCloseCallback();
 	}
 	stopUsingPipette();
+    sLastPickerMode = mModeSelector->getValue().asInteger();
 }
 
 // virtual
@@ -1032,85 +1044,8 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 // static
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
-	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-    int index = self->mModeSelector->getValue().asInteger();
-
-	self->mDefaultBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->mBlankBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->mNoneBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-
-	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
-	  no idea under which conditions the above is even shown, needs testing. */
-
-	self->getChild<LLButton>("l_add_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-	self->getChild<LLButton>("l_rem_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-	self->getChild<LLButton>("l_upl_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-
-	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == PICKER_BAKE ? TRUE : FALSE);
-	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
-
-    bool pipette_visible = (index == PICKER_INVENTORY)
-        && (self->mInventoryPickType != LLTextureCtrl::PICK_MATERIAL);
-	self->mPipetteBtn->setVisible(pipette_visible);
-
-	if (index == PICKER_BAKE)
-	{
-		self->stopUsingPipette();
-
-		S8 val = -1;
-
-		LLUUID imageID = self->mImageAssetID;
-		if (imageID == IMG_USE_BAKED_HEAD)
-		{
-			val = 0;
-		}
-		else if (imageID == IMG_USE_BAKED_UPPER)
-		{
-			val = 1;
-		}
-		else if (imageID == IMG_USE_BAKED_LOWER)
-		{
-			val = 2;
-		}
-		else if (imageID == IMG_USE_BAKED_EYES)
-		{
-			val = 3;
-		}
-		else if (imageID == IMG_USE_BAKED_SKIRT)
-		{
-			val = 4;
-		}
-		else if (imageID == IMG_USE_BAKED_HAIR)
-		{
-			val = 5;
-		}
-		else if (imageID == IMG_USE_BAKED_LEFTARM)
-		{
-			val = 6;
-		}
-		else if (imageID == IMG_USE_BAKED_LEFTLEG)
-		{
-			val = 7;
-		}
-		else if (imageID == IMG_USE_BAKED_AUX1)
-		{
-			val = 8;
-		}
-		else if (imageID == IMG_USE_BAKED_AUX2)
-		{
-			val = 9;
-		}
-		else if (imageID == IMG_USE_BAKED_AUX3)
-		{
-			val = 10;
-		}
-
-
-		self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setSelectedByValue(val, TRUE);
-	}
+    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+    self->changeMode();
 }
 
 // static
@@ -1384,6 +1319,84 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	}
 
 	mInventoryPanel->setFilterSubString(search_string);
+}
+
+void LLFloaterTexturePicker::changeMode()
+{
+    int index = mModeSelector->getValue().asInteger();
+
+    mDefaultBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mBlankBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mNoneBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mFilterEdit->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mInventoryPanel->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+
+    getChild<LLButton>("l_add_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+    getChild<LLButton>("l_rem_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+    getChild<LLButton>("l_upl_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+    getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+
+    getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == PICKER_BAKE ? TRUE : FALSE);
+    getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
+
+    bool pipette_visible = (index == PICKER_INVENTORY)
+        && (mInventoryPickType != LLTextureCtrl::PICK_MATERIAL);
+    mPipetteBtn->setVisible(pipette_visible);
+
+    if (index == PICKER_BAKE)
+    {
+        stopUsingPipette();
+
+        S8 val = -1;
+
+        LLUUID imageID = mImageAssetID;
+        if (imageID == IMG_USE_BAKED_HEAD)
+        {
+            val = 0;
+        }
+        else if (imageID == IMG_USE_BAKED_UPPER)
+        {
+            val = 1;
+        }
+        else if (imageID == IMG_USE_BAKED_LOWER)
+        {
+            val = 2;
+        }
+        else if (imageID == IMG_USE_BAKED_EYES)
+        {
+            val = 3;
+        }
+        else if (imageID == IMG_USE_BAKED_SKIRT)
+        {
+            val = 4;
+        }
+        else if (imageID == IMG_USE_BAKED_HAIR)
+        {
+            val = 5;
+        }
+        else if (imageID == IMG_USE_BAKED_LEFTARM)
+        {
+            val = 6;
+        }
+        else if (imageID == IMG_USE_BAKED_LEFTLEG)
+        {
+            val = 7;
+        }
+        else if (imageID == IMG_USE_BAKED_AUX1)
+        {
+            val = 8;
+        }
+        else if (imageID == IMG_USE_BAKED_AUX2)
+        {
+            val = 9;
+        }
+        else if (imageID == IMG_USE_BAKED_AUX3)
+        {
+            val = 10;
+        }
+
+        getChild<LLComboBox>("l_bake_use_texture_combo_box")->setSelectedByValue(val, TRUE);
+    }
 }
 
 void LLFloaterTexturePicker::refreshLocalList()
