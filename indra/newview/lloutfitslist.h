@@ -116,8 +116,20 @@ protected:
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
     virtual void onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id) = 0;
 
+    static void onIdle(void* userdata);
+    void onIdleRefreshList();
+
+    struct
+    {
+        LLUUID						CategoryUUID;
+        uuid_vec_t					Added;
+        uuid_vec_t					Removed;
+        uuid_vec_t::const_iterator	AddedIterator;
+        uuid_vec_t::const_iterator	RemovedIterator;
+    } mRefreshListState;
+
     bool                            mIsInitialized;
-    LLInventoryCategoriesObserver* 	mCategoriesObserver;    
+    LLInventoryCategoriesObserver* 	mCategoriesObserver;
     LLUUID							mSelectedOutfitUUID;
     // id of currently highlited outfit
     LLUUID							mHighlightedOutfitUUID;
