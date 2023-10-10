@@ -683,6 +683,43 @@ void LLWebRTCImpl::OnConnectionChange(webrtc::PeerConnectionInterface::PeerConne
     }
 }
 
+static std::string iceCandidateToTrickleString(const webrtc::IceCandidateInterface *candidate)
+{
+    std::ostringstream candidate_stream;
+
+    candidate_stream <<
+        candidate->candidate().foundation() << " " <<
+        std::to_string(candidate->candidate().component()) << " " <<
+        candidate->candidate().protocol() << " " <<
+        std::to_string(candidate->candidate().priority()) << " " <<
+        candidate->candidate().address().ipaddr().ToString() << " " <<
+        candidate->candidate().address().PortAsString() << " typ ";
+    if (candidate->candidate().type() == cricket::LOCAL_PORT_TYPE)
+    {
+        candidate_stream << "host";
+    }
+    else if (candidate->candidate().type() == cricket::STUN_PORT_TYPE)
+    {
+        candidate_stream << "srflx " <<
+            "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
+            "rport " << candidate->candidate().related_address().PortAsString();
+    }
+    else if (candidate->candidate().type() == cricket::RELAY_PORT_TYPE)
+    {
+        candidate_stream << "relay " <<
+            "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
+            "rport " << candidate->candidate().related_address().PortAsString();
+    }
+    else if (candidate->candidate().type() == cricket::PRFLX_PORT_TYPE)
+    {
+        candidate_stream << "prflx " <<
+            "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
+            "rport " << candidate->candidate().related_address().PortAsString();
+    }
+    
+    return candidate_stream.str();
+}
+
 void LLWebRTCImpl::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
 {
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << candidate->sdp_mline_index();
@@ -697,7 +734,7 @@ void LLWebRTCImpl::OnIceCandidate(const webrtc::IceCandidateInterface *candidate
         for (auto &observer : mSignalingObserverList)
         {
             LLWebRTCIceCandidate ice_candidate;
-            ice_candidate.candidate   = candidate->candidate().ToString();
+            ice_candidate.candidate   = iceCandidateToTrickleString(candidate);
             ice_candidate.mline_index = candidate->sdp_mline_index();
             ice_candidate.sdp_mid     = candidate->sdp_mid();
             observer->OnIceCandidate(ice_candidate);
@@ -781,7 +818,7 @@ void LLWebRTCImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
         for (auto &candidate : mCachedIceCandidates)
         {
             LLWebRTCIceCandidate ice_candidate;
-            ice_candidate.candidate   = candidate->candidate().ToString();
+            ice_candidate.candidate   = iceCandidateToTrickleString(candidate.get());
             ice_candidate.mline_index = candidate->sdp_mline_index();
             ice_candidate.sdp_mid     = candidate->sdp_mid();
             observer->OnIceCandidate(ice_candidate);
