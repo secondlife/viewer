@@ -29,6 +29,7 @@
 #include "llkeyboard.h"
 
 #include "llwindowcallbacks.h"
+#include "llgamecontrol.h"
 
 //
 // Globals
@@ -162,6 +163,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
+    LLGameControl::clearAllButtons();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
@@ -192,6 +194,7 @@ void LLKeyboard::resetKeys()
 	{
 		mKeyRepeated[i] = FALSE;
 	}
+    LLGameControl::clearAllButtons();
 }
 
 
@@ -254,6 +257,11 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 	mKeyDown[translated_key] = TRUE;
 	mCurTranslatedKey = (KEY)translated_key;
 	handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
+    if (!handled)
+    {
+        LLGameControl::onButton(translated_key, true);
+    }
+    LL_INFOS("adebug") << "DOWN key=" << (S32)(translated_key) << " mask=0x" << std::hex << translated_mask << std::dec << " handled=" << handled << LL_ENDL; // adebug
 	return handled;
 }
 
@@ -272,9 +280,14 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		// sequence W<return> in chat to move agents forward. JC
 		mKeyUp[translated_key] = TRUE;
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
+        if (!handled)
+        {
+            LLGameControl::onButton(translated_key, false);
+        }
 	}
 	
-	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
+	//LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
+    LL_INFOS("adebug") << "UP key=" << (S32)(translated_key) << " mask=0x" << std::hex << translated_mask << std::dec << " handled=" << handled << LL_ENDL; // adebug
 
 	return handled;
 }
