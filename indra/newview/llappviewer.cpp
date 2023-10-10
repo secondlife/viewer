@@ -62,7 +62,7 @@
 #include "llfocusmgr.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
-#include "llgamecontrollermanager.h"
+#include "llgamecontrol.h"
 #include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
@@ -1112,7 +1112,7 @@ bool LLAppViewer::init()
     {
         LLViewerJoystick::getInstance()->init(false);
     }
-    LLGameControllerManager::init();
+    LLGameControl::init();
 
     try
     {
@@ -1355,6 +1355,48 @@ bool LLAppViewer::frame()
     return ret;
 }
 
+
+// static
+bool packGameControlInput(LLMessageSystem* msg)
+{
+    if (msg && LLGameControl::hasInput())
+    {
+        msg->newMessageFast(_PREHASH_GameControlInput);
+        msg->nextBlock("AgentData");
+        msg->addUUID("AgentID", gAgentID);
+        msg->addUUID("SessionID", gAgentSessionID);
+
+        const LLGameControl::State& state = LLGameControl::getState();
+
+        size_t num_axes_packed = 0;
+        size_t num_indices = state.mAxes.size();
+        for (U8 i = 0; i < num_indices; ++i)
+        {
+            if (state.mAxes[i] != state.mPrevAxes[i])
+            {
+                // only pack an axis if it differes from previously packed value
+                msg->nextBlockFast(_PREHASH_AxisData);
+                msg->addU8Fast(_PREHASH_Index, i);
+                msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
+                ++num_axes_packed;
+            }
+        }
+
+        const std::vector<U8>& buttons = state.mPressedButtons;
+        if (!buttons.empty())
+        {
+            msg->nextBlockFast(_PREHASH_ButtonData);
+            msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
+        }
+        // TODO: remove this LL_DEBUGS, and num_axes_packed later
+        LL_DEBUGS("game_control_input") << "num_axes=" << num_axes_packed << " num_buttons=" << buttons.size() << LL_ENDL;
+        LLGameControl::clearInput();
+        return true;
+    }
+    return false;
+}
+
+
 bool LLAppViewer::doFrame()
 {
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
@@ -1466,9 +1508,9 @@ bool LLAppViewer::doFrame()
                 gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
 
-                LLGameControllerManager::processEvents();
+                LLGameControl::processEvents();
                 // to help minimize lag we send GameInput packets ASAP
-                if (LLGameControllerManager::packGameControlInput(gMessageSystem))
+                if (packGameControlInput(gMessageSystem))
                 {
 		            gAgent.sendMessage();
                 }
@@ -1909,7 +1951,7 @@ bool LLAppViewer::cleanup()
         // Turn off Space Navigator and similar devices
         LLViewerJoystick::getInstance()->terminate();
     }
-    LLGameControllerManager::terminate();
+    LLGameControl::terminate();
 
     LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 

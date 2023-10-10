@@ -29,6 +29,7 @@
 #include "llkeyboard.h"
 
 #include "llwindowcallbacks.h"
+#include "llgamecontrol.h"
 
 //
 // Globals
@@ -162,6 +163,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
+    LLGameControl::clearAllButtons();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
@@ -188,10 +190,11 @@ void LLKeyboard::resetKeys()
         mKeyDown[i] = false;
     }
 
-    for (i = 0; i < KEY_COUNT; i++)
-    {
+	for (i = 0; i < KEY_COUNT; i++)
+	{
         mKeyRepeated[i] = false;
-    }
+	}
+    LLGameControl::clearAllButtons();
 }
 
 
