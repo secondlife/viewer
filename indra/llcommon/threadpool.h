@@ -31,7 +31,7 @@ namespace LL
          * Pass ThreadPool a string name. This can be used to look up the
          * relevant WorkQueue.
          */
-        ThreadPool(const std::string& name, size_t threads=1, size_t capacity=1024, bool auto_shutdown = true);
+        ThreadPool(const std::string& name, size_t threads=1, size_t capacity=1024);
         virtual ~ThreadPool();
 
         /**
@@ -66,7 +66,6 @@ namespace LL
         std::string mName;
         size_t mThreadCount;
         std::vector<std::pair<std::string, std::thread>> mThreads;
-        bool mAutomaticShutdown;
     };
 
 } // namespace LL
