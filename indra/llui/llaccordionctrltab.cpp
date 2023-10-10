@@ -69,13 +69,13 @@ public:
 	virtual BOOL postBuild();
 
 	std::string getTitle();
-	void	setTitle(const std::string& title, const std::string& hl);
+	void setTitle(const std::string& title, const std::string& hl);
 
-	void	setTitleFontStyle(std::string style);
+	void setTitleFontStyle(std::string style);
 
-	void	setTitleColor(LLUIColor);
+	void setTitleColor(LLUIColor);
 
-	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
+	void setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
@@ -85,8 +85,8 @@ public:
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
-private:
 
+private:
 	LLTextBox* mHeaderTextbox;
 
 	// Overlay images (arrows)
@@ -102,7 +102,7 @@ private:
 	LLPointer<LLUIImage> mImageHeaderFocused;
 
 	// style saved when applying it in setTitleFontStyle
-	LLStyle::Params			mStyleParams;
+	LLStyle::Params mStyleParams;
 
 	LLUIColor mHeaderBGColor;
 
@@ -157,19 +157,17 @@ BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::postBuild()
 
 std::string LLAccordionCtrlTab::LLAccordionCtrlTabHeader::getTitle()
 {
-	if(mHeaderTextbox)
+	if (mHeaderTextbox)
 	{
 		return mHeaderTextbox->getText();
 	}
-	else
-	{
-		return LLStringUtil::null;
-	}
+
+	return LLStringUtil::null;
 }
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& title, const std::string& hl)
 {
-	if(mHeaderTextbox)
+	if (mHeaderTextbox)
 	{
 		LLTextUtil::textboxSetHighlightedVal(
 			mHeaderTextbox,
@@ -192,7 +190,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleColor(LLUIColor color)
 {
-	if(mHeaderTextbox)
+	if (mHeaderTextbox)
 	{
 		mHeaderTextbox->setColor(color);
 	}
@@ -204,11 +202,11 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 	S32 height = getRect().getHeight();
 
 	F32 alpha = getCurrentTransparency();
-	gl_rect_2d(0,0,width - 1 ,height - 1,mHeaderBGColor.get() % alpha,true);
+	gl_rect_2d(0, 0, width - 1, height - 1, mHeaderBGColor.get() % alpha, TRUE);
 
 	LLAccordionCtrlTab* parent = dynamic_cast<LLAccordionCtrlTab*>(getParent());
-	bool collapsible = (parent && parent->getCollapsible());
-	bool expanded = (parent && parent->getDisplayChildren());
+	bool collapsible = parent && parent->getCollapsible();
+	bool expanded = parent && parent->getDisplayChildren();
 
 	// Handle overlay images, if needed
 	// Only show green "focus" background image if the accordion is open,
@@ -218,23 +216,22 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 		/*&& !(collapsible && !expanded)*/ // WHY??
 		)
 	{
-		mImageHeaderFocused->draw(0,0,width,height);
+		mImageHeaderFocused->draw(0, 0, width, height);
 	}
 	else
 	{
-		mImageHeader->draw(0,0,width,height);
+		mImageHeader->draw(0, 0, width, height);
 	}
 
-	if(mNeedsHighlight)
+	if (mNeedsHighlight)
 	{
-		mImageHeaderOver->draw(0,0,width,height);
+		mImageHeaderOver->draw(0, 0, width, height);
 	}
-	
 
-	if(collapsible)
+	if (collapsible)
 	{
 		LLPointer<LLUIImage> overlay_image;
-		if(expanded)
+		if (expanded)
 		{
 			overlay_image = mImageExpanded;
 		}
@@ -242,8 +239,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 		{
 			overlay_image = mImageCollapsed;
 		}
-		overlay_image->draw(HEADER_IMAGE_LEFT_OFFSET,
-							(height - overlay_image->getHeight()) / 2);
+		overlay_image->draw(HEADER_IMAGE_LEFT_OFFSET, (height - overlay_image->getHeight()) / 2);
 	}
 	
 	LLUICtrl::draw();
@@ -253,7 +249,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::reshape(S32 width, S32 height
 {
 	S32 header_height = mHeaderTextbox->getTextPixelHeight();
 
-	LLRect textboxRect(HEADER_TEXT_LEFT_OFFSET,(height+header_height)/2 ,width,(height-header_height)/2);
+	LLRect textboxRect(HEADER_TEXT_LEFT_OFFSET, (height + header_height) / 2, width, (height - header_height) / 2);
 	mHeaderTextbox->reshape(textboxRect.getWidth(), textboxRect.getHeight());
 	mHeaderTextbox->setRect(textboxRect);
 
@@ -272,20 +268,24 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::onMouseEnter(S32 x, S32 y, MA
 	LLUICtrl::onMouseEnter(x, y, mask);
 	mNeedsHighlight = true;
 }
+
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	LLUICtrl::onMouseLeave(x, y, mask);
 	mNeedsHighlight = false;
 	mAutoOpenTimer.stop();
 }
+
 BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	if ( ( key == KEY_LEFT || key == KEY_RIGHT) && mask == MASK_NONE)
+	if ((key == KEY_LEFT || key == KEY_RIGHT) && mask == MASK_NONE)
 	{
 		return getParent()->handleKey(key, mask, called_from_parent);
 	}
+
 	return LLUICtrl::handleKey(key, mask, called_from_parent);
 }
+
 BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleDragAndDrop(S32 x, S32 y, MASK mask,
 																	 BOOL drop,
 																	 EDragAndDropType cargo_type,
@@ -295,7 +295,7 @@ BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleDragAndDrop(S32 x, S32 
 {
 	LLAccordionCtrlTab* parent = dynamic_cast<LLAccordionCtrlTab*>(getParent());
 
-	if ( parent && !parent->getDisplayChildren() && parent->getCollapsible() && parent->canOpenClose() )
+	if (parent && !parent->getDisplayChildren() && parent->getCollapsible() && parent->canOpenClose())
 	{
 		if (mAutoOpenTimer.getStarted())
 		{
@@ -307,12 +307,15 @@ BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::handleDragAndDrop(S32 x, S32 
 			}
 		}
 		else
+		{
 			mAutoOpenTimer.start();
+		}
 	}
 
 	return LLUICtrl::handleDragAndDrop(x, y, mask, drop, cargo_type,
 									   cargo_data, accept, tooltip_msg);
 }
+
 LLAccordionCtrlTab::Params::Params()
 	: title("title")
 	,display_children("expanded", true)
@@ -384,41 +387,39 @@ LLAccordionCtrlTab::~LLAccordionCtrlTab()
 {
 }
 
-
 void LLAccordionCtrlTab::setDisplayChildren(bool display)
 {
 	mDisplayChildren = display;
 	LLRect rect = getRect();
 
-	rect.mBottom = rect.mTop - (getDisplayChildren() ? 
-		mExpandedHeight : HEADER_HEIGHT);
+	rect.mBottom = rect.mTop - (getDisplayChildren() ? mExpandedHeight : HEADER_HEIGHT);
 	setRect(rect);
 
-	if(mContainerPanel)
+	if (mContainerPanel)
+	{
 		mContainerPanel->setVisible(getDisplayChildren());
+	}
 
-	if(mDisplayChildren)
+	if (mDisplayChildren)
 	{
 		adjustContainerPanel();
 	}
 	else
 	{
-		if(mScrollbar)
-			mScrollbar->setVisible(false);
+		if (mScrollbar)
+			mScrollbar->setVisible(FALSE);
 	}
-
 }
 
 void LLAccordionCtrlTab::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
 	LLRect headerRect;
 
-	headerRect.setLeftTopAndSize(
-		0,height,width,HEADER_HEIGHT);
+	headerRect.setLeftTopAndSize(0, height, width, HEADER_HEIGHT);
 	mHeader->setRect(headerRect);
 	mHeader->reshape(headerRect.getWidth(), headerRect.getHeight());
 
-	if(!mDisplayChildren)
+	if (!mDisplayChildren)
 		return;
 
 	LLRect childRect;
@@ -426,7 +427,7 @@ void LLAccordionCtrlTab::reshape(S32 width, S32 height, BOOL called_from_parent 
 	childRect.setLeftTopAndSize(
 		getPaddingLeft(),
 		height - getHeaderHeight() - getPaddingTop(),
-		width - getPaddingLeft() - getPaddingRight(), 
+		width - getPaddingLeft() - getPaddingRight(),
 		height - getHeaderHeight() - getPaddingTop() - getPaddingBottom() );
 
 	adjustContainerPanel(childRect);
@@ -434,7 +435,7 @@ void LLAccordionCtrlTab::reshape(S32 width, S32 height, BOOL called_from_parent 
 
 void LLAccordionCtrlTab::changeOpenClose(bool is_open)
 {
-	if(is_open)
+	if (is_open)
 		mExpandedHeight = getRect().getHeight();
 
 	setDisplayChildren(!is_open);
@@ -483,14 +484,14 @@ void LLAccordionCtrlTab::onUpdateScrollToChild(const LLUICtrl *cntrl)
 
 BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if(mCollapsible && mHeaderVisible && mCanOpenClose)
+	if (mCollapsible && mHeaderVisible && mCanOpenClose)
 	{
-		if(y >= (getRect().getHeight() - HEADER_HEIGHT) )
+		if (y >= (getRect().getHeight() - HEADER_HEIGHT))
 		{
 			mHeader->setFocus(true);
 			changeOpenClose(getDisplayChildren());
 
-			//reset stored state
+			// Reset stored state
 			mWasStateStored = false;
 			return TRUE;
 		}
@@ -510,7 +511,7 @@ boost::signals2::connection LLAccordionCtrlTab::setDropDownStateChangedCallback(
 
 bool LLAccordionCtrlTab::addChild(LLView* child, S32 tab_group)
 {
-	if(DD_HEADER_NAME != child->getName())
+	if (DD_HEADER_NAME != child->getName())
 	{
 		reshape(child->getRect().getWidth() , child->getRect().getHeight() + HEADER_HEIGHT );
 		mExpandedHeight = getRect().getHeight();
@@ -518,12 +519,12 @@ bool LLAccordionCtrlTab::addChild(LLView* child, S32 tab_group)
 
 	bool res = LLUICtrl::addChild(child, tab_group);
 
-	if(DD_HEADER_NAME != child->getName())
+	if (DD_HEADER_NAME != child->getName())
 	{
-		if(!mCollapsible)
+		if (!mCollapsible)
 			setDisplayChildren(true);
 		else
-			setDisplayChildren(getDisplayChildren());	
+			setDisplayChildren(getDisplayChildren());
 	}
 
 	if (!mContainerPanel)
@@ -534,7 +535,7 @@ bool LLAccordionCtrlTab::addChild(LLView* child, S32 tab_group)
 
 void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 {
-	addChild(panel,0);
+	addChild(panel, 0);
 }
 
 std::string LLAccordionCtrlTab::getTitle() const
@@ -543,10 +544,8 @@ std::string LLAccordionCtrlTab::getTitle() const
 	{
 		return mHeader->getTitle();
 	}
-	else
-	{
-		return LLStringUtil::null;
-	}
+
+	return LLStringUtil::null;
 }
 
 void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& hl)
@@ -579,6 +578,7 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusReceivedCallback(const f
 	{
 		return mHeader->setFocusReceivedCallback(cb);
 	}
+
 	return boost::signals2::connection();
 }
 
@@ -588,6 +588,7 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus
 	{
 		return mHeader->setFocusLostCallback(cb);
 	}
+
 	return boost::signals2::connection();
 }
 
@@ -601,59 +602,65 @@ void LLAccordionCtrlTab::setSelected(bool is_selected)
 
 LLView*	LLAccordionCtrlTab::findContainerView()
 {
-	for(child_list_const_iter_t it = getChildList()->begin(); 
-		getChildList()->end() != it; ++it)
+	child_list_const_iter_t it = getChildList()->begin(), it_end = getChildList()->end();
+	while (it != it_end)
 	{
-		LLView* child = *it;
-		if(DD_HEADER_NAME == child->getName())
-			continue;
-		if(!child->getVisible())
-			continue;
-		return child;
+		LLView* child = *(it++);
+		if (DD_HEADER_NAME != child->getName() && child->getVisible())
+			return child;
 	}
+
 	return NULL;
 }
 
 void LLAccordionCtrlTab::selectOnFocusReceived()
 {
 	if (getParent()) // A parent may not be set if tabs are added dynamically.
+	{
 		getParent()->notifyParent(LLSD().with("action", "select_current"));
+	}
 }
 
 void LLAccordionCtrlTab::deselectOnFocusLost()
 {
-	if(getParent()) // A parent may not be set if tabs are added dynamically.
+	if (getParent()) // A parent may not be set if tabs are added dynamically.
 	{
 		getParent()->notifyParent(LLSD().with("action", "deselect_current"));
 	}
-
 }
 
 S32 LLAccordionCtrlTab::getHeaderHeight()
 {
-	return mHeaderVisible?HEADER_HEIGHT:0; 
+	return mHeaderVisible ? HEADER_HEIGHT : 0;
 }
 
-void LLAccordionCtrlTab::setHeaderVisible(bool value) 
+void LLAccordionCtrlTab::setHeaderVisible(bool value)
 {
-	if(mHeaderVisible == value)
+	if (mHeaderVisible == value)
 		return;
+
 	mHeaderVisible = value;
-	if(mHeader)
-		mHeader->setVisible(value);
+
+	if (mHeader)
+	{
+		mHeader->setVisible(value ? TRUE : FALSE);
+	}
+
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
 };
 
 //virtual
 BOOL LLAccordionCtrlTab::postBuild()
 {
-	if(mHeader)
+	if (mHeader)
+	{
 		mHeader->setVisible(mHeaderVisible);
-	
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+	}
+
+	static LLUICachedControl<S32> scrollbar_size("UIScrollbarSize", 0);
 
 	LLRect scroll_rect;
-	scroll_rect.setOriginAndSize( 
+	scroll_rect.setOriginAndSize(
 		getRect().getWidth() - scrollbar_size,
 		1,
 		scrollbar_size,
@@ -661,7 +668,7 @@ BOOL LLAccordionCtrlTab::postBuild()
 
 	mContainerPanel = findContainerView();
 
-	if(!mFitPanel)
+	if (!mFitPanel)
 	{
 		LLScrollbar::Params sbparams;
 		sbparams.name("scrollable vertical");
@@ -674,9 +681,8 @@ BOOL LLAccordionCtrlTab::postBuild()
 		sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
 		sbparams.change_callback(boost::bind(&LLAccordionCtrlTab::onScrollPosChangeCallback, this, _1, _2));
 
-
-		mScrollbar = LLUICtrlFactory::create<LLScrollbar> (sbparams);
-		LLView::addChild( mScrollbar );
+		mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
+		LLView::addChild(mScrollbar);
 		mScrollbar->setFollowsRight();
 		mScrollbar->setFollowsTop();
 		mScrollbar->setFollowsBottom();
@@ -684,44 +690,48 @@ BOOL LLAccordionCtrlTab::postBuild()
 		mScrollbar->setVisible(false);
 	}
 
-	if(mContainerPanel)
+	if (mContainerPanel)
+	{
 		mContainerPanel->setVisible(mDisplayChildren);
+	}
 
 	return LLUICtrl::postBuild();
 }
-bool	LLAccordionCtrlTab::notifyChildren	(const LLSD& info)
+
+bool LLAccordionCtrlTab::notifyChildren	(const LLSD& info)
 {
-	if(info.has("action"))
+	if (info.has("action"))
 	{
 		std::string str_action = info["action"];
-		if(str_action == "store_state")
+		if (str_action == "store_state")
 		{
 			storeOpenCloseState();
 			return true;
 		}
-		if(str_action == "restore_state")
+
+		if (str_action == "restore_state")
 		{
 			restoreOpenCloseState();
 			return true;
 		}
 	}	
+
 	return LLUICtrl::notifyChildren(info);
 }
 
 S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 {
-	if(info.has("action"))
+	if (info.has("action"))
 	{
 		std::string str_action = info["action"];
-		if(str_action == "size_changes")
+		if (str_action == "size_changes")
 		{
-			//
 			S32 height = info["height"];
-			height = llmax(height,10) + HEADER_HEIGHT + getPaddingTop() + getPaddingBottom();
+			height = llmax(height, 10) + HEADER_HEIGHT + getPaddingTop() + getPaddingBottom();
 			
 			mExpandedHeight = height;
 			
-			if(isExpanded() && !mSkipChangesOnNotifyParent)
+			if (isExpanded() && !mSkipChangesOnNotifyParent)
 			{
 				LLRect panel_rect = getRect();
 				panel_rect.setLeftTopAndSize( panel_rect.mLeft, panel_rect.mTop, panel_rect.getWidth(), height);
@@ -729,12 +739,13 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 				setRect(panel_rect);
 			}
 			
-			//LLAccordionCtrl should rearrange accordion tab if one of accordion change its size
+			// LLAccordionCtrl should rearrange accordion tab if one of accordions changed its size
 			if (getParent()) // A parent may not be set if tabs are added dynamically.
 				getParent()->notifyParent(info);
 			return 1;
 		}
-		else if(str_action == "select_prev") 
+
+		if (str_action == "select_prev") 
 		{
 			showAndFocusHeader();
 			return 1;
@@ -772,78 +783,85 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 
 S32 LLAccordionCtrlTab::notify(const LLSD& info)
 {
-	if(info.has("action"))
+	if (info.has("action"))
 	{
 		std::string str_action = info["action"];
-		if(str_action == "select_first")
+		if (str_action == "select_first")
 		{
 			showAndFocusHeader();
 			return 1;
 		}
-		else if( str_action == "select_last" )
+
+		if (str_action == "select_last")
 		{
-			if(getDisplayChildren() == false)
+			if (!getDisplayChildren())
 			{
 				showAndFocusHeader();
 			}
 			else
 			{
 				LLView* view = getAccordionView();
-				if(view)
-					view->notify(LLSD().with("action","select_last"));
+				if (view)
+				{
+					view->notify(LLSD().with("action", "select_last"));
+				}
 			}
 		}
 	}
+
 	return 0;
 }
 
 BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	if( !mHeader->hasFocus() )
+	if (!mHeader->hasFocus())
 		return LLUICtrl::handleKey(key, mask, called_from_parent);
 
-	if ( (key == KEY_RETURN )&& mask == MASK_NONE)
+	if ((key == KEY_RETURN) && mask == MASK_NONE)
 	{
 		changeOpenClose(getDisplayChildren());
 		return TRUE;
 	}
 
-	if ( (key == KEY_ADD || key == KEY_RIGHT)&& mask == MASK_NONE)
+	if ((key == KEY_ADD || key == KEY_RIGHT) && mask == MASK_NONE)
 	{
-		if(getDisplayChildren() == false)
-		{
-			changeOpenClose(getDisplayChildren());
-			return TRUE;
-		}
-	}
-	if ( (key == KEY_SUBTRACT || key == KEY_LEFT)&& mask == MASK_NONE)
-	{
-		if(getDisplayChildren() == true)
+		if (!getDisplayChildren())
 		{
 			changeOpenClose(getDisplayChildren());
 			return TRUE;
 		}
 	}
 
-	if ( key == KEY_DOWN && mask == MASK_NONE)
+	if ((key == KEY_SUBTRACT || key == KEY_LEFT) && mask == MASK_NONE)
 	{
-		//if collapsed go to the next accordion
-		if(getDisplayChildren() == false)
-			//we processing notifyParent so let call parent directly
-			getParent()->notifyParent(LLSD().with("action","select_next"));
+		if (getDisplayChildren())
+		{
+			changeOpenClose(getDisplayChildren());
+			return TRUE;
+		}
+	}
+
+	if (key == KEY_DOWN && mask == MASK_NONE)
+	{
+		// if collapsed go to the next accordion
+		if (!getDisplayChildren())
+		{
+			// we're processing notifyParent so let call parent directly
+			getParent()->notifyParent(LLSD().with("action", "select_next"));
+		}
 		else
 		{
-			getAccordionView()->notify(LLSD().with("action","select_first"));
+			getAccordionView()->notify(LLSD().with("action", "select_first"));
 		}
 		return TRUE;
 	}
 
-	if ( key == KEY_UP && mask == MASK_NONE)
+	if (key == KEY_UP && mask == MASK_NONE)
 	{
-		//go to the previous accordion
+		// go to the previous accordion
 
-		//we processing notifyParent so let call parent directly
-		getParent()->notifyParent(LLSD().with("action","select_prev"));
+		// we're processing notifyParent so let call parent directly
+		getParent()->notifyParent(LLSD().with("action", "select_prev"));
 		return TRUE;
 	}
 
@@ -869,28 +887,29 @@ void LLAccordionCtrlTab::showAndFocusHeader()
 	// accordion tab (assuming that the parent is an LLAccordionCtrl) the calls chain
 	// is shortened and messages from inside the collapsed tabs are avoided.
 	// See STORM-536.
-	getParent()->notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
+	getParent()->notifyParent(LLSD().with("scrollToShowRect", screen_rc.getValue()));
 }
-void    LLAccordionCtrlTab::storeOpenCloseState()
+
+void LLAccordionCtrlTab::storeOpenCloseState()
 {
-	if(mWasStateStored)
+	if (mWasStateStored)
 		return;
 	mStoredOpenCloseState = getDisplayChildren();
 	mWasStateStored = true;
 }
 
-void   LLAccordionCtrlTab::restoreOpenCloseState()
+void LLAccordionCtrlTab::restoreOpenCloseState()
 {
-	if(!mWasStateStored)
+	if (!mWasStateStored)
 		return;
-	if(getDisplayChildren() != mStoredOpenCloseState)
+	if (getDisplayChildren() != mStoredOpenCloseState)
 	{
 		changeOpenClose(getDisplayChildren());
 	}
 	mWasStateStored = false;
 }
 
-void LLAccordionCtrlTab::adjustContainerPanel	()
+void LLAccordionCtrlTab::adjustContainerPanel()
 {
 	S32 width = getRect().getWidth();
 	S32 height = getRect().getHeight();
@@ -907,83 +926,83 @@ void LLAccordionCtrlTab::adjustContainerPanel	()
 
 void LLAccordionCtrlTab::adjustContainerPanel(const LLRect& child_rect)
 {
-	if(!mContainerPanel)
+	if (!mContainerPanel)
 		return; 
 
-	if(!mFitPanel)
+	if (!mFitPanel)
 	{
 		show_hide_scrollbar(child_rect);
 		updateLayout(child_rect);
 	}
 	else
 	{
-		mContainerPanel->reshape(child_rect.getWidth(),child_rect.getHeight());
+		mContainerPanel->reshape(child_rect.getWidth(), child_rect.getHeight());
 		mContainerPanel->setRect(child_rect);
 	}
 }
 
 S32 LLAccordionCtrlTab::getChildViewHeight()
 {
-	if(!mContainerPanel)
+	if (!mContainerPanel)
 		return 0;
 	return mContainerPanel->getRect().getHeight();
 }
 
 void LLAccordionCtrlTab::show_hide_scrollbar(const LLRect& child_rect)
 {
-	if(getChildViewHeight() > child_rect.getHeight() )
+	if (getChildViewHeight() > child_rect.getHeight())
 		showScrollbar(child_rect);
 	else
 		hideScrollbar(child_rect);
 }
+
 void LLAccordionCtrlTab::showScrollbar(const LLRect& child_rect)
 {
-	if(!mContainerPanel || !mScrollbar)
+	if (!mContainerPanel || !mScrollbar)
 		return;
 	bool was_visible = mScrollbar->getVisible();
 	mScrollbar->setVisible(true);
 	
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
-	{
-		ctrlSetLeftTopAndSize(mScrollbar,child_rect.getWidth()-scrollbar_size, 
-			child_rect.getHeight()-PARENT_BORDER_MARGIN, 
-			scrollbar_size, 
-			child_rect.getHeight()-2*PARENT_BORDER_MARGIN);
-	}
+	ctrlSetLeftTopAndSize(mScrollbar,
+		child_rect.getWidth() - scrollbar_size,
+		child_rect.getHeight() - PARENT_BORDER_MARGIN,
+		scrollbar_size, 
+		child_rect.getHeight() - PARENT_BORDER_MARGIN * 2);
 
 	LLRect orig_rect = mContainerPanel->getRect();
 
 	mScrollbar->setPageSize(child_rect.getHeight());
-	mScrollbar->setDocParams(orig_rect.getHeight(),mScrollbar->getDocPos());
+	mScrollbar->setDocParams(orig_rect.getHeight(), mScrollbar->getDocPos());
 	
-	if(was_visible)
+	if (was_visible)
 	{
 		S32 scroll_pos = llmin(mScrollbar->getDocPos(), orig_rect.getHeight() - child_rect.getHeight() - 1);
 		mScrollbar->setDocPos(scroll_pos);
 	}
-	else//shrink child panel
+	else // Shrink child panel
 	{
 		updateLayout(child_rect);
 	}
-	
 }
 
-void	LLAccordionCtrlTab::hideScrollbar( const LLRect& child_rect )
+void LLAccordionCtrlTab::hideScrollbar(const LLRect& child_rect)
 {
-	if(!mContainerPanel || !mScrollbar)
+	if (!mContainerPanel || !mScrollbar)
 		return;
 
-	if(mScrollbar->getVisible() == false)
+	if (mScrollbar->getVisible() == FALSE)
 		return;
-	mScrollbar->setVisible(false);
+
+	mScrollbar->setVisible(FALSE);
 	mScrollbar->setDocPos(0);
 
 	//shrink child panel
 	updateLayout(child_rect);
 }
 
-void	LLAccordionCtrlTab::onScrollPosChangeCallback(S32, LLScrollbar*)
+void LLAccordionCtrlTab::onScrollPosChangeCallback(S32, LLScrollbar*)
 {
 	LLRect child_rect;
 
@@ -999,21 +1018,20 @@ void	LLAccordionCtrlTab::onScrollPosChangeCallback(S32, LLScrollbar*)
 	updateLayout(child_rect);
 }
 
-void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
+void LLAccordionCtrlTab::drawChild(const LLRect& root_rect, LLView* child)
 {
 	if (child && child->getVisible() && child->getRect().isValid())
 	{
 		LLRect screen_rect;
-		localRectToScreen(child->getRect(),&screen_rect);
-		
-		if ( root_rect.overlaps(screen_rect)  && sDirtyRect.overlaps(screen_rect))
+		localRectToScreen(child->getRect(), &screen_rect);
+
+		if (root_rect.overlaps(screen_rect) && sDirtyRect.overlaps(screen_rect))
 		{
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			{
 				LLUI::translate((F32)child->getRect().mLeft, (F32)child->getRect().mBottom);
 				child->draw();
-
 			}
 			LLUI::popMatrix();
 		}
@@ -1022,64 +1040,67 @@ void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
 
 void LLAccordionCtrlTab::draw()
 {
-	if(mFitPanel)
+	if (mFitPanel)
+	{
 		LLUICtrl::draw();
+	}
 	else
 	{
-		LLRect root_rect = getRootView()->getRect();
-		drawChild(root_rect,mHeader);
-		drawChild(root_rect,mScrollbar );
-		{
-			LLRect child_rect;
+		LLRect root_rect(getRootView()->getRect());
+		drawChild(root_rect, mHeader);
+		drawChild(root_rect, mScrollbar);
 
-			S32 width = getRect().getWidth();
-			S32 height = getRect().getHeight();
+		LLRect child_rect;
 
-			child_rect.setLeftTopAndSize(
-				getPaddingLeft(),
-				height - getHeaderHeight() - getPaddingTop(),
-				width - getPaddingLeft() - getPaddingRight(), 
-				height - getHeaderHeight() - getPaddingTop() - getPaddingBottom() );
+		S32 width = getRect().getWidth();
+		S32 height = getRect().getHeight();
 
-			LLLocalClipRect clip(child_rect);
-			drawChild(root_rect,mContainerPanel);
-		}
+		child_rect.setLeftTopAndSize(
+			getPaddingLeft(),
+			height - getHeaderHeight() - getPaddingTop(),
+			width - getPaddingLeft() - getPaddingRight(),
+			height - getHeaderHeight() - getPaddingTop() - getPaddingBottom());
+
+		LLLocalClipRect clip(child_rect);
+		drawChild(root_rect,mContainerPanel);
 	}
 }
 
-void	LLAccordionCtrlTab::updateLayout	( const LLRect& child_rect )
+void LLAccordionCtrlTab::updateLayout(const LLRect& child_rect)
 {
 	LLView*	child = getAccordionView();
-	if(!mContainerPanel)
+	if (!mContainerPanel)
 		return;
 
 	S32 panel_top = child_rect.getHeight();
 	S32 panel_width = child_rect.getWidth();
 
-	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
-	if(mScrollbar && mScrollbar->getVisible() != false)
+	static LLUICachedControl<S32> scrollbar_size("UIScrollbarSize", 0);
+	if (mScrollbar && mScrollbar->getVisible())
 	{
-		panel_top+=mScrollbar->getDocPos();
-		panel_width-=scrollbar_size;
+		panel_top += mScrollbar->getDocPos();
+		panel_width -= scrollbar_size;
 	}
 
-	//set sizes for first panels and dragbars
+	// Set sizes for first panels and dragbars
 	LLRect panel_rect = child->getRect();
-	ctrlSetLeftTopAndSize(mContainerPanel,child_rect.mLeft,panel_top,panel_width,panel_rect.getHeight());
+	ctrlSetLeftTopAndSize(mContainerPanel, child_rect.mLeft, panel_top, panel_width, panel_rect.getHeight());
 }
+
 void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top, S32 width, S32 height)
 {
-	if(!panel)
+	if (!panel)
 		return;
 	LLRect panel_rect = panel->getRect();
-	panel_rect.setLeftTopAndSize( left, top, width, height);
+	panel_rect.setLeftTopAndSize(left, top, width, height);
 	panel->reshape( width, height, 1);
 	panel->setRect(panel_rect);
 }
+
 BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	//header may be not the first child but we need to process it first
-	if(y >= (getRect().getHeight() - HEADER_HEIGHT - HEADER_HEIGHT/2) )
+	if (y >= (getRect().getHeight() - HEADER_HEIGHT - HEADER_HEIGHT / 2))
 	{
 		//inside tab header
 		//fix for EXT-6619
@@ -1088,16 +1109,18 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
-BOOL LLAccordionCtrlTab::handleScrollWheel		( S32 x, S32 y, S32 clicks )
+
+BOOL LLAccordionCtrlTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	if( LLUICtrl::handleScrollWheel(x,y,clicks))
+	if (LLUICtrl::handleScrollWheel(x, y, clicks))
 	{
 		return TRUE;
 	}
-	if( mScrollbar && mScrollbar->getVisible() && mScrollbar->handleScrollWheel( 0, 0, clicks ) )
+
+	if (mScrollbar && mScrollbar->getVisible() && mScrollbar->handleScrollWheel(0, 0, clicks))
 	{
 		return TRUE;
 	}
+
 	return FALSE;
 }
-
