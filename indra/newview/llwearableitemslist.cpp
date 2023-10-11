@@ -797,7 +797,7 @@ void LLWearableItemsList::updateChangedItems(const uuid_vec_t& changed_items_uui
 		if (!inv_item)
 			continue;
 
-		LLUUID linked_uuid = inv_item->getLinkedUUID();
+        const LLUUID& linked_uuid = inv_item->getLinkedUUID();
         if (std::find(uuids_begin, uuids_end, linked_uuid) != uuids_end)
         {
             item->setNeedsRefresh(true);
