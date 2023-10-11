@@ -784,6 +784,7 @@ void LLWearableItemsList::updateChangedItems(const uuid_vec_t& changed_items_uui
 	if (changed_items_uuids.empty())
 		return;
 
+	uuid_vec_t::const_iterator uuids_begin = changed_items_uuids.begin(), uuids_end = changed_items_uuids.end();
 	pairs_const_iterator_t pairs_iter = getItemPairs().begin(), pairs_end = getItemPairs().end();
 	while (pairs_iter != pairs_end)
 	{
@@ -797,16 +798,10 @@ void LLWearableItemsList::updateChangedItems(const uuid_vec_t& changed_items_uui
 			continue;
 
 		LLUUID linked_uuid = inv_item->getLinkedUUID();
-
-		uuid_vec_t::const_iterator uuids_iter = changed_items_uuids.begin(), uuids_end = changed_items_uuids.end();
-		while (uuids_iter != uuids_end)
-		{
-			if (linked_uuid == *(uuids_iter++))
-			{
-				item->setNeedsRefresh(true);
-				break;
-			}
-		}
+        if (std::find(uuids_begin, uuids_end, linked_uuid) != uuids_end)
+        {
+            item->setNeedsRefresh(true);
+        }
 	}
 }
 
