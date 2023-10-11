@@ -113,31 +113,3 @@ vec3 inv_toneMapACES_Hill(vec3 color)
     return color;
 }
 
-// adjust legacy colors to back out tonemapping and exposure 
-//   NOTE: obsolete now that setting probe ambiance to zero removes tonemapping and exposure, but keeping for a minute
-//   while that change goes through testing - davep 6/1/2023
-#define LEGACY_ADJUST 0
-
-vec3 legacy_adjust(vec3 c)
-{
-#if LEGACY_ADJUST
-    vec3 desat = rgb2hsv(c.rgb);
-    desat.g *= 1.0-(1.0-desat.b)*0.5;
-    desat.b += (1.0-desat.b)*0.1f;
-    desat.rgb = hsv2rgb(desat);
-    return desat;
-#else
-    return c;
-#endif
-}
-
-vec3 legacy_adjust_fullbright(vec3 c)
-{
-#if LEGACY_ADJUST
-    float exp_scale = clamp(texture(exposureMap, vec2(0.5, 0.5)).r, 0.01, 10.0);
-    return c / exp_scale * 1.34; //magic 1.34 arrived at by binary search for a value that reproduces midpoint grey consistenty
-#else
-    return c;
-#endif
-}
-

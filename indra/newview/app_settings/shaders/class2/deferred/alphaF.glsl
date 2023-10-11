@@ -71,7 +71,6 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
 
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
-vec3 legacy_adjust(vec3 c);
 
 vec2 encode_normal (vec3 n);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
@@ -234,7 +233,6 @@ void main()
     }
 
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_srgb.rgb = legacy_adjust(diffuse_srgb.rgb);
     diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
 #endif // USE_VERTEX_COLOR
 
@@ -291,9 +289,7 @@ void main()
     LIGHT_LOOP(7)
 
     // sum local light contrib in linear colorspace
-#if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
-#endif // !defined(LOCAL_LIGHT_KILL)
 
 #endif // #else // FOR_IMPOSTOR
 
