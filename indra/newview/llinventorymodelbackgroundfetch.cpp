@@ -357,6 +357,7 @@ void LLInventoryModelBackgroundFetch::scheduleFolderFetch(const LLUUID& cat_id, 
     if (mFetchFolderQueue.empty() || mFetchFolderQueue.front().mUUID != cat_id)
     {
         mBackgroundFetchActive = true;
+        mFolderFetchActive = true;
 
         // Specific folder requests go to front of queue.
         mFetchFolderQueue.push_front(FetchQueueInfo(cat_id, forced ? FT_FORCED : FT_DEFAULT));
@@ -373,6 +374,61 @@ void LLInventoryModelBackgroundFetch::scheduleItemFetch(const LLUUID& item_id, b
         mFetchItemQueue.push_front(FetchQueueInfo(item_id, forced ? FT_FORCED : FT_DEFAULT, false));
         gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
     }
+}
+
+void LLInventoryModelBackgroundFetch::fetchFolderAndLinks(const LLUUID& cat_id, nullary_func_t callback)
+{
+    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+    if (cat)
+    {
+        // Mark folder (update timer) so that background fetch won't request it
+        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+    }
+    incrFetchFolderCount(1);
+    mExpectedFolderIds.push_back(cat_id);
+
+    // Assume that we have no relevant cache. Fetch folder, and items folder's links point to.
+    AISAPI::FetchCategoryLinks(cat_id,
+                               [callback, cat_id](const LLUUID& id)
+                               {
+                                   callback();
+                                   if (id.isNull())
+                                   {
+                                       LL_WARNS() << "Failed to fetch category links " << cat_id << LL_ENDL;
+                                   }
+                                   LLInventoryModelBackgroundFetch::getInstance()->onAISFolderCalback(cat_id, id, FT_DEFAULT);
+                               });
+
+    // start idle loop to track completion
+    mBackgroundFetchActive = true;
+    mFolderFetchActive = true;
+    gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
+}
+
+void LLInventoryModelBackgroundFetch::fetchCOF(nullary_func_t callback)
+{
+    LLUUID cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+    if (cat)
+    {
+        // Mark cof (update timer) so that background fetch won't request it
+        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+    }
+    incrFetchFolderCount(1);
+    mExpectedFolderIds.push_back(cat_id);
+    // For reliability assume that we have no relevant cache, so
+    // fetch cof along with items cof's links point to.
+    AISAPI::FetchCOF([callback](const LLUUID& id)
+                     {
+                         callback();
+                         LLUUID cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+                         LLInventoryModelBackgroundFetch::getInstance()->onAISFolderCalback(cat_id, id, FT_DEFAULT);
+                     });
+
+    // start idle loop to track completion
+    mBackgroundFetchActive = true;
+    mFolderFetchActive = true;
+    gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
 }
 
 void LLInventoryModelBackgroundFetch::findLostItems()
