@@ -3230,36 +3230,6 @@ function="World.EnvPreset"
                  parameter="TextureDisable" />
             </menu_item_check>
             <menu_item_check
-              label="Disable Ambient"
-             name="Disable Ambient">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="AmbientDisable" />
-            <menu_item_check.on_click
-             function="ToggleShaderControl"
-             parameter="AmbientDisable" />
-          </menu_item_check>
-          <menu_item_check
-             label="Disable Sunlight"
-             name="Disable Sunlight">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="SunlightDisable" />
-            <menu_item_check.on_click
-             function="ToggleShaderControl"
-             parameter="SunlightDisable" />
-          </menu_item_check>
-          <menu_item_check
-             label="Disable Local Lights"
-             name="Disable Local Lights">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="LocalLightDisable" />
-            <menu_item_check.on_click
-             function="ToggleShaderControl"
-             parameter="LocalLightDisable" />
-          </menu_item_check>
-            <menu_item_check
               label="Full Res Textures"
              name="Rull Res Textures">
                 <menu_item_check.on_check
