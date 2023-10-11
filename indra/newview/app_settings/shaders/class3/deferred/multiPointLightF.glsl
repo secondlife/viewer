@@ -114,7 +114,7 @@ void main()
 
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-                vec3 intensity = dist_atten * lightColor * 3.9;
+                vec3 intensity = dist_atten * lightColor * 3.25;
 
                 final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
             }
