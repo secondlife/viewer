@@ -1630,18 +1630,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3e11adce7b858ffcc67a1b4d7ed48750ec3a93e8</string>
+              <string>8044501c337373f4eed50dd007da295aacedb356</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llca/releases/download/v202310110653.0-a1f103f/llca-202310110655.0-common-a1f103f.tar.zst</string>
+              <string>https://github.com/secondlife/llca/releases/download/v202310110655.0-a1f103f/llca-202310110702.0-common-a1f103f.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202310110655.0</string>
+        <string>202310110702.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
