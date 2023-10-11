@@ -225,7 +225,8 @@ LLTabContainer::Params::Params()
 	tabs_flashing_color("tabs_flashing_color"),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
-	font_halign("halign")
+	font_halign("halign"),
+    use_tab_offset("use_tab_offset", false)
 {}
 
 LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
@@ -264,7 +265,8 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
 	mEnableTabsFlashing(p.enable_tabs_flashing),
 	mTabsFlashingColor(p.tabs_flashing_color),
-	mUseTabEllipses(p.use_ellipses)
+	mUseTabEllipses(p.use_ellipses),
+    mUseTabOffset(p.use_tab_offset)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
 
@@ -1023,11 +1025,10 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
-		tab_panel_rect = LLRect(LLPANEL_BORDER_WIDTH * 3,
-								tab_panel_top,
-								getRect().getWidth() - LLPANEL_BORDER_WIDTH * 2,
-								tab_panel_bottom );
-	}
+        S32 left_offset = mUseTabOffset ? LLPANEL_BORDER_WIDTH * 3 : LLPANEL_BORDER_WIDTH;
+        S32 right_offset = mUseTabOffset ? LLPANEL_BORDER_WIDTH * 2 : LLPANEL_BORDER_WIDTH;
+        tab_panel_rect = LLRect(left_offset, tab_panel_top, getRect().getWidth() - right_offset, tab_panel_bottom);
+    }
 	child->setFollowsAll();
 	child->translate( tab_panel_rect.mLeft - child->getRect().mLeft, tab_panel_rect.mBottom - child->getRect().mBottom);
 	child->reshape( tab_panel_rect.getWidth(), tab_panel_rect.getHeight(), TRUE );
