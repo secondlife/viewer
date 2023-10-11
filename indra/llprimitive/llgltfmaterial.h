@@ -35,10 +35,13 @@
 #include "hbxxh.h"
 
 #include <string>
+#include <map>
 
 namespace tinygltf
 {
     class Model;
+    struct TextureInfo;
+    class Value;
 }
 
 class LLTextureEntry;
@@ -52,6 +55,9 @@ public:
 
     static const char* const ASSET_VERSION;
     static const char* const ASSET_TYPE;
+    // Max allowed size of a GLTF material asset or override, when serialized
+    // as a minified JSON string
+    static constexpr size_t MAX_ASSET_LENGTH = 2048;
     static const std::array<std::string, 2> ACCEPTED_ASSET_VERSIONS;
     static bool isAcceptedVersion(const std::string& version) { return std::find(ACCEPTED_ASSET_VERSIONS.cbegin(), ACCEPTED_ASSET_VERSIONS.cend(), version) != ACCEPTED_ASSET_VERSIONS.cend(); }
 
@@ -64,6 +70,7 @@ public:
         void getPacked(F32 (&packed)[8]) const;
 
         bool operator==(const TextureTransform& other) const;
+        bool operator!=(const TextureTransform& other) const { return !(*this == other); }
     };
 
     enum AlphaMode
@@ -96,8 +103,13 @@ public:
         GLTF_TEXTURE_INFO_COUNT
     };
 
-    std::array<LLUUID, GLTF_TEXTURE_INFO_COUNT> mTextureId;
+    static const char* const GLTF_FILE_EXTENSION_TRANSFORM;
+    static const char* const GLTF_FILE_EXTENSION_TRANSFORM_SCALE;
+    static const char* const GLTF_FILE_EXTENSION_TRANSFORM_OFFSET;
+    static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
+    static const LLUUID GLTF_OVERRIDE_NULL_UUID;
 
+    std::array<LLUUID, GLTF_TEXTURE_INFO_COUNT> mTextureId;
     std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
 
     // NOTE: initialize values to defaults according to the GLTF spec
@@ -137,7 +149,7 @@ public:
     void setAlphaMode(S32 mode, bool for_override = false);
     void setDoubleSided(bool double_sided, bool for_override = false);
 
-    //NOTE: texture offsets only exist in overrides, so "for_override" is not needed
+    // *NOTE: texture offsets only exist in overrides, so "for_override" is not needed
 
     void setTextureOffset(TextureInfo texture_info, const LLVector2& offset);
     void setTextureScale(TextureInfo texture_info, const LLVector2& scale);
@@ -155,7 +167,6 @@ public:
     static LLVector2 getDefaultTextureScale();
     static F32 getDefaultTextureRotation();
 
-
     static void hackOverrideUUID(LLUUID& id);
     static void applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id);
 
@@ -164,7 +175,7 @@ public:
     void setAlphaMode(const std::string& mode, bool for_override = false);
 
     const char* getAlphaMode() const;
-    
+
     // set the contents of this LLGLTFMaterial from the given json
     // returns true if successful
     // if unsuccessful, the contents of this LLGLTFMaterial should be left unchanged and false is returned
@@ -175,7 +186,6 @@ public:
 
     // get the contents of this LLGLTFMaterial as a json string
     std::string asJSON(bool prettyprint = false) const;
-
 
     // initialize from given tinygltf::Model
     // model - the model to reference
@@ -202,21 +212,29 @@ public:
     // For material overrides only. Clears most properties to
     // default/fallthrough, but preserves the transforms.
     bool setBaseMaterial();
+    void setBaseMaterial(const LLGLTFMaterial& old_override_mat);
     // True if setBaseMaterial() was just called
-    bool isClearedForBaseMaterial();
+    bool isClearedForBaseMaterial() const;
 
     // For local materials, they have to keep track of where
     // they are assigned to for full updates
     virtual void addTextureEntry(LLTextureEntry* te) {};
     virtual void removeTextureEntry(LLTextureEntry* te) {};
 
-private:
+protected:
+    static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
+    static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
+
+    template<typename T>
+    static void allocateTextureImage(tinygltf::Model& model, T& texture_info, const std::string& uri);
+
     template<typename T>
     void setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id);
+    template<typename T>
+    static void setFromTexture(const tinygltf::Model& model, const T& texture_info, LLUUID& texture_id, TextureTransform& transform);
 
     template<typename T>
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write = false) const;
-
-    void setBaseMaterial(const LLGLTFMaterial& old_override_mat);
+    template<typename T>
+    static void writeToTexture(tinygltf::Model& model, T& texture_info, const LLUUID& texture_id, const TextureTransform& transform, bool force_write = false);
 };
-
