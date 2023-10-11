@@ -1405,8 +1405,6 @@ bool LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
 
 void LLFlatListViewEx::filterItems(bool re_sort, bool notify_parent)
 {
-	typedef std::vector <LLPanel*> item_panel_list_t;
-
 	std::string cur_filter = mFilterSubString;
 	LLStringUtil::toUpper(cur_filter);
 
