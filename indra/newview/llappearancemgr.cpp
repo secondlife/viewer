@@ -2779,23 +2779,13 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
         if (AISAPI::isAvailable() && category->getPreferredType() == LLFolderType::FT_OUTFIT)
         {
             // for reliability just fetch it whole, linked items included
-            LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)category;
             LLUUID cat_id = category->getUUID();
-            cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
-            AISAPI::FetchCategoryLinks(cat_id,
-                                       [cat_id, copy, append](const LLUUID& id)
-                                       {
-                                           LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-                                           if (cat)
-                                           {
-                                               cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
-                                           }
-                                           if (id.isNull())
-                                           {
-                                               LL_WARNS() << "failed to fetch category, attempting to wear as is " << cat_id << LL_ENDL;
-                                           }
-                                           LLAppearanceMgr::instance().wearCategoryFinal(cat_id, copy, append);
-                                       });
+            LLInventoryModelBackgroundFetch::getInstance()->fetchFolderAndLinks(
+                                cat_id,
+                                [cat_id, copy, append]
+                                {
+                                    LLAppearanceMgr::instance().wearCategoryFinal(cat_id, copy, append);
+                                });
         }
         else
         {
@@ -4595,30 +4585,20 @@ protected:
 
 void callAfterCOFFetch(nullary_func_t cb)
 {
-    LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
-    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-
     if (AISAPI::isAvailable())
     {
-        // Mark cof (update timer) so that background fetch won't request it
-        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
         // For reliability assume that we have no relevant cache, so
         // fetch cof along with items cof's links point to.
-        AISAPI::FetchCOF([cb](const LLUUID& id)
-                         {
-                             cb();
-                             LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
-                             LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-                             if (cat)
-                             {
-                                 cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
-                             }
-                         });
+        LLInventoryModelBackgroundFetch::getInstance()->fetchCOF(cb);
     }
     else
     {
         LL_INFOS() << "AIS API v3 not available, using callAfterCategoryFetch" << LL_ENDL;
-        // startup should have marked folder as fetching, remove that
+        LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+
+        // Special case, startup should have marked cof as FETCH_RECURSIVE
+        // to prevent dupplicate request, remove that
         cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
         callAfterCategoryFetch(cat_id, cb);
     }
@@ -4640,30 +4620,16 @@ void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb)
 
 void callAfterCategoryLinksFetch(const LLUUID &cat_id, nullary_func_t cb)
 {
-    LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (AISAPI::isAvailable())
     {
-        // Mark folder (update timer) so that background fetch won't request it
-        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
         // Assume that we have no relevant cache. Fetch folder, and items folder's links point to.
-        AISAPI::FetchCategoryLinks(cat_id,
-            [cb, cat_id](const LLUUID &id)
-            {
-                cb();
-                LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-                if (cat)
-                {
-                    cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
-                }
-            });
-        }
-        else
-        {
-            LL_WARNS() << "AIS API v3 not available, can't use AISAPI::FetchCOF" << LL_ENDL;
-            // startup should have marked folder as fetching, remove that
-            cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
-            callAfterCategoryFetch(cat_id, cb);
-        }
+        LLInventoryModelBackgroundFetch::getInstance()->fetchFolderAndLinks(cat_id, cb);
+    }
+    else
+    {
+        LL_WARNS() << "AIS API v3 not available, can't use AISAPI::FetchCOF" << LL_ENDL;
+        callAfterCategoryFetch(cat_id, cb);
+    }
     
 }
 
