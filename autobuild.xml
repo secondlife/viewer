@@ -1468,11 +1468,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a45d167f60ed26dc1f8467b93ec64676cc7fe34</string>
+              <string>e50ea94bbaa4ff41bf53b84b7192df1a694c5337</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llca/releases/download/v202305121625.0-efdf149/llca-202305160024.0-common-efdf149.tar.zst</string>
+              <string>https://github.com/secondlife/llca/releases/download/v202310121525.0-d22bd98/llca-202310121530.0-common-d22bd98.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -1486,7 +1486,7 @@
         <string>Copyright (c) 2016, Linden Research, Inc.; data provided by the Mozilla NSS Project.
       </string>
         <key>version</key>
-        <string>202305160024.0</string>
+        <string>202310121530.0</string>
         <key>name</key>
         <string>llca</string>
       </map>
