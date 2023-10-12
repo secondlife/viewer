@@ -1971,9 +1971,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7530fab3979312da75a903d87b73e3a9</string>
+              <string>e0fbc4874acc4167a6e2b6489fbb8258d98fd665</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-openal/rev/314223/arch/Linux/installer/openal-1.12.854-1.1.0.314223-linux64-314223.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-18e315c/openal-1.23.1-linux64-18e315c.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1983,26 +1985,42 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e0fdd9394a8cd8c6360b922f6f237e57</string>
+              <string>6ae3b5310eb1988741bc55416681ca9d64f76f85</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-openal/rev/314223/arch/CYGWIN/installer/openal-1.12.854-1.1.0.314223-windows64-314223.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-18e315c/openal-1.23.1-windows64-18e315c.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4edaef5f03a1122eae8467c4a04d9caccaaaf847</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-18e315c/openal-1.23.1-darwin64-18e315c.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
         </map>
         <key>license</key>
-        <string>lgpl</string>
+        <string>LGPL2</string>
         <key>license_file</key>
-        <string>LICENSES/openal.txt</string>
+        <string>LICENSES/openal-soft.txt</string>
         <key>copyright</key>
-        <string>Creative Labs</string>
+        <string>Copyright (C) 1999-2007 by authors.</string>
         <key>version</key>
-        <string>1.12.854-1.1.0.314223</string>
+        <string>1.23.1</string>
         <key>name</key>
         <string>openal</string>
         <key>description</key>
-        <string>OpenAL is a cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications.</string>
+        <string>OpenAL Soft is a software implementation of the OpenAL 3D audio API.</string>
       </map>
       <key>openjpeg</key>
       <map>
