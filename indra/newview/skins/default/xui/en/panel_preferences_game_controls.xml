@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel
+ border="true"
+ follows="all"
+ height="408"
+ label="Game Controls"
+ layout="topleft"
+ left="102"
+ name="gamecontrols"
+ top="1"
+ width="517">
+  <check_box
+   control_name="EnableGameControlInput"
+   follows="top|left"
+   height="15"
+   label="Send GameControl Input to server"
+   layout="topleft"
+   left="10"
+   name="enable_game_control_input"
+   top="6"
+   width="232"/>
+  <check_box
+   control_name="EnableGameControlKeyboardInput"
+   follows="top|left"
+   height="15"
+   label="Include otherwise 'unhandled' Keyboard events in GameControl Input"
+   layout="topleft"
+   left="10"
+   name="game_control_keyboard_input"
+   top="27"
+   width="232"/>
+</panel>
