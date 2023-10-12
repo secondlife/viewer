@@ -257,11 +257,10 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 	mKeyDown[translated_key] = TRUE;
 	mCurTranslatedKey = (KEY)translated_key;
 	handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
-    if (!handled)
+    if (!handled && LLGameControl::getIncludeKeyboardButtons())
     {
         LLGameControl::onButton(translated_key, true);
     }
-    LL_INFOS("adebug") << "DOWN key=" << (S32)(translated_key) << " mask=0x" << std::hex << translated_mask << std::dec << " handled=" << handled << LL_ENDL; // adebug
 	return handled;
 }
 
@@ -286,8 +285,7 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
         }
 	}
 	
-	//LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
-    LL_INFOS("adebug") << "UP key=" << (S32)(translated_key) << " mask=0x" << std::hex << translated_mask << std::dec << " handled=" << handled << LL_ENDL; // adebug
+	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
 
 	return handled;
 }
