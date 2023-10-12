@@ -399,6 +399,16 @@
            function="Self.EnableRemoveAllAttachments" />
         </menu_item_call>
       </menu>
+      <menu_item_call
+       label="Remove selected attachments"
+       layout="topleft"
+       name="Remove Selected Attachments"
+       shortcut="alt|shift|R">
+        <menu_item_call.on_click
+         function="Attachment.Detach" />
+        <menu_item_call.on_enable
+         function="Attachment.EnableDetach" />
+      </menu_item_call>
       <menu_item_separator/>
       <menu_item_call
         label="Complete avatars..."
