@@ -262,7 +262,7 @@ jobs:
           echo "$SIGNING_CERT_WINDOWS" | base64 --decode > .cert/authenticode-cert.pfx
 
       - name: Sign and package Windows viewer
-        uses: secondlife/viewer-build-util/sign-pkg-windows@main
+        uses: secondlife/viewer-build-util/sign-pkg-windows@azure
         with:
           certificate: .cert/authenticode-cert.pfx
 
