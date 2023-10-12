@@ -2578,6 +2578,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableGameControlInput</key>
+    <map>
+      <key>Comment</key>
+      <string>Transmit game controller input to server</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EnableGameControlKeyboardInput</key>
+    <map>
+      <key>Comment</key>
+      <string>Send 'unhandled' keystrokes as GameInput to server</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>EnableGestureSounds</key>
     <map>
       <key>Comment</key>

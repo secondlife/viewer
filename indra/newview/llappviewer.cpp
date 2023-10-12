@@ -1108,11 +1108,11 @@ bool LLAppViewer::init()
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
     gSimFrames = (F32)gFrameCount;
 
-    if (gSavedSettings.getBOOL("JoystickEnabled"))
-    {
-        LLViewerJoystick::getInstance()->init(false);
-    }
-    LLGameControl::init();
+	if (gSavedSettings.getBOOL("JoystickEnabled"))
+	{
+		LLViewerJoystick::getInstance()->init(false);
+	}
+	LLGameControl::init();
 
     try
     {
@@ -1359,41 +1359,47 @@ bool LLAppViewer::frame()
 // static
 bool packGameControlInput(LLMessageSystem* msg)
 {
-    if (msg && LLGameControl::hasInput())
+    if (!LLGameControl::hasInput())
     {
-        msg->newMessageFast(_PREHASH_GameControlInput);
-        msg->nextBlock("AgentData");
-        msg->addUUID("AgentID", gAgentID);
-        msg->addUUID("SessionID", gAgentSessionID);
-
-        const LLGameControl::State& state = LLGameControl::getState();
-
-        size_t num_axes_packed = 0;
-        size_t num_indices = state.mAxes.size();
-        for (U8 i = 0; i < num_indices; ++i)
-        {
-            if (state.mAxes[i] != state.mPrevAxes[i])
-            {
-                // only pack an axis if it differes from previously packed value
-                msg->nextBlockFast(_PREHASH_AxisData);
-                msg->addU8Fast(_PREHASH_Index, i);
-                msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
-                ++num_axes_packed;
-            }
-        }
-
-        const std::vector<U8>& buttons = state.mPressedButtons;
-        if (!buttons.empty())
-        {
-            msg->nextBlockFast(_PREHASH_ButtonData);
-            msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
-        }
-        // TODO: remove this LL_DEBUGS, and num_axes_packed later
-        LL_DEBUGS("game_control_input") << "num_axes=" << num_axes_packed << " num_buttons=" << buttons.size() << LL_ENDL;
-        LLGameControl::clearInput();
-        return true;
+        return false;
     }
-    return false;
+    if (!gSavedSettings.getBOOL("EnableGameControlInput"))
+    {
+        LLGameControl::clearInput();
+        return false;
+    }
+
+    msg->newMessageFast(_PREHASH_GameControlInput);
+    msg->nextBlock("AgentData");
+    msg->addUUID("AgentID", gAgentID);
+    msg->addUUID("SessionID", gAgentSessionID);
+
+    const LLGameControl::State& state = LLGameControl::getState();
+
+    size_t num_axes_packed = 0;
+    size_t num_indices = state.mAxes.size();
+    for (U8 i = 0; i < num_indices; ++i)
+    {
+        if (state.mAxes[i] != state.mPrevAxes[i])
+        {
+            // only pack an axis if it differes from previously packed value
+            msg->nextBlockFast(_PREHASH_AxisData);
+            msg->addU8Fast(_PREHASH_Index, i);
+            msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
+            ++num_axes_packed;
+        }
+    }
+
+    const std::vector<U8>& buttons = state.mPressedButtons;
+    if (!buttons.empty())
+    {
+        msg->nextBlockFast(_PREHASH_ButtonData);
+        msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
+    }
+
+    // TODO: implement the resend logic instead of clearing input here
+    LLGameControl::clearInput();
+    return true;
 }
 
 
@@ -1508,8 +1514,10 @@ bool LLAppViewer::doFrame()
                 gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
 
+                LLGameControl::setIncludeKeyboardButtons(gSavedSettings.getBOOL("EnableGameControlKeyboardInput"));
                 LLGameControl::processEvents();
-                // to help minimize lag we send GameInput packets ASAP
+                // to help minimize lag we send GameInput packets immediately
+                // after getting the latest GameController input
                 if (packGameControlInput(gMessageSystem))
                 {
 		            gAgent.sendMessage();

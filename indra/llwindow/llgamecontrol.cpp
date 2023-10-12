@@ -38,6 +38,8 @@ std::vector<SDL_GameControllerAxis> g_axisEnums;
 std::vector<SDL_GameControllerButton> g_buttonEnums;
 std::vector<SDL_GameController*> g_controllers;
 bool g_hasInput = false;
+bool g_includeKeyboardButtons = false;
+
 
 
 // util for dumping SDL_GameController info
@@ -277,8 +279,6 @@ void LLGameControl::init()
             SDL_CONTROLLER_BUTTON_TOUCHPAD
         };
 
-        //SDL_SetHint("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1");
-        //SDL_SetHint("SDL_EVENT_LOGGING", "3");
         SDL_LogSetOutputFunction(&sdl_logger, nullptr);
     }
 }
@@ -293,6 +293,7 @@ void LLGameControl::terminate()
 // static
 void LLGameControl::processEvents()
 {
+    // TODO: ignore events when SL window lacks focus
     SDL_Event event;
     while (g_manager && SDL_PollEvent(&event))
     {
@@ -318,54 +319,22 @@ void LLGameControl::processEvents()
     }
 }
 
-/*
-// static
-bool LLGameControl::packGameControlInput(LLMessageSystem* msg)
-{
-    if (g_hasInput && msg)
-    {
-        msg->newMessageFast(_PREHASH_GameControlInput);
-        msg->nextBlock("AgentData");
-        msg->addUUID("AgentID", gAgentID);
-        msg->addUUID("SessionID", gAgentSessionID);
-
-        size_t num_axes_packed = 0;
-        size_t num_indices = g_gameControlState.mAxes.size();
-        for (U8 i = 0; i < num_indices; ++i)
-        {
-            if (g_gameControlState.mAxes[i] != g_gameControlState.mPrevAxes[i])
-            {
-                // only pack an axis if it differes from previously packed value
-                msg->nextBlockFast(_PREHASH_AxisData);
-                msg->addU8Fast(_PREHASH_Index, i);
-                msg->addS16Fast(_PREHASH_Value, g_gameControlState.mAxes[i]);
-                g_gameControlState.mPrevAxes[i] = g_gameControlState.mAxes[i];
-                ++num_axes_packed;
-            }
-        }
-
-        const std::vector<U8>& buttons = g_gameControlState.mPressedButtons;
-        if (!buttons.empty())
-        {
-            msg->nextBlockFast(_PREHASH_ButtonData);
-            msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
-        }
-        // TODO: remove this LL_DEBUGS, and num_axes_packed later
-        LL_DEBUGS("game_control_input") << "num_axes=" << num_axes_packed << " num_buttons=" << buttons.size() << LL_ENDL;
-        g_hasInput = false;
-        return true;
-
-        // TODO: resend last GameControlInput a few times on a timer
-        // to help reduce the likelihood of a lost "final send"
-    }
-    return false;
-}
-*/
-
 // static
 const LLGameControl::State& LLGameControl::getState()
 {
     return g_gameControlState;
+}
+
+// static
+void LLGameControl::setIncludeKeyboardButtons(bool include)
+{
+    g_includeKeyboardButtons = include;
+}
+
+// static
+bool LLGameControl::getIncludeKeyboardButtons()
+{
+    return g_includeKeyboardButtons;
 }
 
 //static

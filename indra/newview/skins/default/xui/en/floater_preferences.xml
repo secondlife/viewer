@@ -170,6 +170,13 @@
          layout="topleft"
          help_topic="preferences_controls_tab"
          name="controls" />
+        <panel
+         class="panel_preference_game_controls"
+         filename="panel_preferences_game_controls.xml"
+         label="Game Controls"
+         layout="topleft"
+         help_topic="preferences_game_controls_tab"
+         name="gamecontrols" />
     </tab_container>
 
 </floater>

@@ -64,6 +64,8 @@ public:
 	static void terminate();
     static void processEvents();
     static const State& getState();
+    static void setIncludeKeyboardButtons(bool include);
+    static bool getIncludeKeyboardButtons();
     static bool hasInput();
     static void clearInput();
 };
