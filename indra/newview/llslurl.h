@@ -52,13 +52,14 @@ public:
 	static const char* SLURL_REGION_PATH;	
 	
 	// if you modify this enumeration, update typeName as well
-	enum SLURL_TYPE { 
-		INVALID, 
+	enum SLURL_TYPE {
+		INVALID,
 		LOCATION,
 		HOME_LOCATION,
 		LAST_LOCATION,
 		APP,
 		HELP,
+		EMPTY,
 		NUM_SLURL_TYPES // must be last
 	};
 		
