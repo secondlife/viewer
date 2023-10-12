@@ -71,6 +71,7 @@ Account: [ACCTTYPE]
       <thumbnail
        name="2nd_life_pic"
        image_name="Generic_Person_Large"
+       show_loading="false"
        layout="topleft"
        follows="all"
        interactable="true"
