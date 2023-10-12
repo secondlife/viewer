@@ -705,7 +705,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 			
 			value["item_type"] = LANDMARK;
 			value["AssetUUID"] =  landmark_items[i]->getAssetUUID(); 
-			add(landmark_items[i]->getName(), value);
+			addLocationHistoryEntry(landmark_items[i]->getName(), value);
 			
 		}
 	//Let's add teleport history items
@@ -730,7 +730,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 				std::string region_name = result->mTitle.substr(0, result->mTitle.find(','));
 				//TODO*: add Surl to teleportitem or parse region name from title
 				value["tooltip"] = LLSLURL(region_name, result->mGlobalPos).getSLURLString();
-				add(result->getTitle(), value); 
+				addLocationHistoryEntry(result->getTitle(), value);
 			}
 			result = std::find_if(result + 1, th_items.end(), boost::bind(
 									&LLLocationInputCtrl::findTeleportItemsByTitle, this,
@@ -983,6 +983,17 @@ void LLLocationInputCtrl::positionMaturityButton()
 	mMaturityButton->setVisible(rect.mRight < mTextEntry->getRect().getWidth() - right_pad);
 }
 
+void LLLocationInputCtrl::addLocationHistoryEntry(const std::string& title, const LLSD& value)
+{
+    // SL-20286 : Duplication of autocomplete results occurs when entering some search queries in the navigation bar
+    // Exclude visual duplicates (items with the same titles) in the dropdown list
+    LLScrollListItem* item = mList->getItemByLabel(title);
+    if (!item)
+    {
+        add(title, value);
+    }
+}
+
 void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 {
 	LLLocationHistory::location_list_t filtered_items;
@@ -1007,7 +1018,7 @@ void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 		//location history can contain only typed locations
 		value["item_type"] = TYPED_REGION_SLURL;
 		value["global_pos"] = it->mGlobalPos.getValue();
-		add(it->getLocation(), value);
+		addLocationHistoryEntry(it->getLocation(), value);
 	}
 }
 
