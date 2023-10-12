@@ -31,27 +31,20 @@
 #include "../llrand.h"
 #include "stringize.h"
 
-template <typename NUMBER, typename HIGHCOMP>
-void ensure_in_range_using(const std::string_view& name,
-                           NUMBER value, NUMBER low, NUMBER high,
-                           const std::string_view& compdesc, HIGHCOMP&& highcomp)
+// In llrand.h, every function is documented to return less than the high end
+// -- specifically, because you can pass a negative extent, they're documented
+// never to return a value equal to the extent.
+// So that we don't need two different versions of ensure_in_range(), when
+// testing extent < 0, negate the return value and the extent before passing
+// into ensure_in_range().
+template <typename NUMBER>
+void ensure_in_range(const std::string_view& name,
+                     NUMBER value, NUMBER low, NUMBER high)
 {
     auto failmsg{ stringize(name, " >= ", low, " (", value, ')') };
     tut::ensure(failmsg, (value >= low));
-    failmsg = stringize(name, ' ', compdesc, ' ', high, " (", value, ')');
-    tut::ensure(failmsg, std::forward<HIGHCOMP>(highcomp)(value, high));
-}
-
-template <typename NUMBER>
-void ensure_in_exc_range(const std::string_view& name, NUMBER value, NUMBER low, NUMBER high)
-{
-    ensure_in_range_using(name, value, low, high, "<", std::less());
-}
-
-template <typename NUMBER>
-void ensure_in_inc_range(const std::string_view& name, NUMBER value, NUMBER low, NUMBER high)
-{
-    ensure_in_range_using(name, value, low, high, "<=", std::less_equal());
+    failmsg = stringize(name, " < ", high, " (", value, ')');
+    tut::ensure(failmsg, (value < high));
 }
 
 namespace tut
@@ -69,7 +62,7 @@ namespace tut
 	{
 		for(S32 ii = 0; ii < 100000; ++ii)
 		{
-			ensure_in_exc_range("frand", ll_frand(), 0.0f, 1.0f);
+			ensure_in_range("frand", ll_frand(), 0.0f, 1.0f);
 		}
 	}
 
@@ -78,7 +71,7 @@ namespace tut
 	{
 		for(S32 ii = 0; ii < 100000; ++ii)
 		{
-			ensure_in_exc_range("drand", ll_drand(), 0.0, 1.0);
+			ensure_in_range("drand", ll_drand(), 0.0, 1.0);
 		}
 	}
 
@@ -87,7 +80,7 @@ namespace tut
 	{
 		for(S32 ii = 0; ii < 100000; ++ii)
 		{
-			ensure_in_inc_range("frand(2.0f)", ll_frand(2.0f) - 1.0f, -1.0f, 1.0f);
+			ensure_in_range("frand(2.0f)", ll_frand(2.0f) - 1.0f, -1.0f, 1.0f);
 		}
 	}
 
@@ -98,7 +91,7 @@ namespace tut
 		{
 			// Negate the result so we don't have to allow a templated low-end
 			// comparison as well.
-			ensure_in_exc_range("-frand(-7.0)", -ll_frand(-7.0), 0.0f, 7.0f);
+			ensure_in_range("-frand(-7.0)", -ll_frand(-7.0), 0.0f, 7.0f);
 		}
 	}
 
@@ -107,7 +100,7 @@ namespace tut
 	{
 		for(S32 ii = 0; ii < 100000; ++ii)
 		{
-			ensure_in_exc_range("-drand(-2.0)", -ll_drand(-2.0), 0.0, 2.0);
+			ensure_in_range("-drand(-2.0)", -ll_drand(-2.0), 0.0, 2.0);
 		}
 	}
 
@@ -116,7 +109,7 @@ namespace tut
 	{
 		for(S32 ii = 0; ii < 100000; ++ii)
 		{
-			ensure_in_exc_range("rand(100)", ll_rand(100), 0, 100);
+			ensure_in_range("rand(100)", ll_rand(100), 0, 100);
 		}
 	}
 
@@ -125,7 +118,7 @@ namespace tut
 	{
 		for(S32 ii = 0; ii < 100000; ++ii)
 		{
-			ensure_in_exc_range("-rand(-127)", -ll_rand(-127), 0, 127);
+			ensure_in_range("-rand(-127)", -ll_rand(-127), 0, 127);
 		}
 	}
 }
