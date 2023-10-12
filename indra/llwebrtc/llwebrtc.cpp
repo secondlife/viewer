@@ -716,6 +716,10 @@ static std::string iceCandidateToTrickleString(const webrtc::IceCandidateInterfa
             "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
             "rport " << candidate->candidate().related_address().PortAsString();
     }
+    if (candidate->candidate().protocol() == "tcp") 
+    {
+        candidate_stream << " tcptype " << candidate->candidate().tcptype();
+    }
     
     return candidate_stream.str();
 }
