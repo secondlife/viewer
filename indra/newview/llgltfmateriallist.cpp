@@ -549,7 +549,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
     if (status != LL_ERR_NOERR)
     {
         LL_WARNS("GLTF") << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
-        asset_data->mMaterial->materialComplete();
+        asset_data->mMaterial->materialComplete(false);
         delete asset_data;
     }
     else
@@ -634,7 +634,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 LL_DEBUGS("GLTF") << "Failed to get material " << id << LL_ENDL;
             }
 
-            asset_data->mMaterial->materialComplete();
+            asset_data->mMaterial->materialComplete(true);
 
             delete asset_data;
         });

@@ -49,7 +49,7 @@ public:
     void bind(LLViewerTexture* media_tex = nullptr);
 
     bool isFetching() const { return mFetching; }
-    bool isLoaded() const { return !mFetching; }
+    bool isLoaded() const { return !mFetching && mFetchSuccess; }
 
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;
@@ -61,11 +61,12 @@ protected:
     // Lifetime management
     
     void materialBegin();
-    void materialComplete();
+    void materialComplete(bool success);
 
     F64 mExpectedFlusTime; // since epoch in seconds
-    bool mActive;
-    bool mFetching;
+    bool mActive = true;
+    bool mFetching = false;
+    bool mFetchSuccess = false;
     std::vector<std::function<void()>> materialCompleteCallbacks;
 };
 

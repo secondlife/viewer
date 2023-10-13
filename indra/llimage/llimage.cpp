@@ -31,6 +31,7 @@
 
 #include "llmath.h"
 #include "v4coloru.h"
+#include "v3color.h"
 
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -1026,6 +1027,34 @@ bool LLImageRaw::optimizeAwayAlpha()
     return false;
 }
 
+bool LLImageRaw::makeAlpha()
+{
+    if (getComponents() == 3)
+    {
+        U8* data = getData();
+        U32 pixels = getWidth() * getHeight();
+
+        // alpha channel doesn't exist, make a new copy of data with alpha channel
+        U8* new_data = (U8*) ll_aligned_malloc_16(getWidth() * getHeight() * 4);
+
+        for (U32 i = 0; i < pixels; ++i)
+        {
+            U32 di = i * 4;
+            U32 si = i * 3;
+            for (U32 j = 0; j < 3; ++j)
+            {
+                new_data[di+j] = data[si+j];
+            }
+        }
+
+        setDataAndSize(new_data, getWidth(), getHeight(), 3);
+
+        return true;
+    }
+
+    return false;
+}
+
 void LLImageRaw::expandToPowerOfTwo(S32 max_dim, bool scale_image)
 {
 	// Find new sizes
@@ -1266,6 +1295,30 @@ void LLImageRaw::fill( const LLColor4U& color )
 			data += 3;
 		}
 	}
+}
+
+void LLImageRaw::tint( const LLColor3& color )
+{
+	llassert( (3 == getComponents()) || (4 == getComponents()) );
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return;
+	}
+
+	S32 pixels = getWidth() * getHeight();
+    const S32 components = getComponents();
+    U8* data = getData();
+    for( S32 i = 0; i < pixels; i++ )
+    {
+        const float c0 = data[0] * color.mV[0];
+        const float c1 = data[1] * color.mV[1];
+        const float c2 = data[2] * color.mV[2];
+        data[0] = llclamp((U8)c0, 0, 255);
+        data[1] = llclamp((U8)c1, 0, 255);
+        data[2] = llclamp((U8)c2, 0, 255);
+        data += components;
+    }
 }
 
 LLPointer<LLImageRaw> LLImageRaw::duplicate()

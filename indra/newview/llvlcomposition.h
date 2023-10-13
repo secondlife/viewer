@@ -87,7 +87,7 @@ public:
 	BOOL generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
 	BOOL generateComposition();
 	// Generate texture from composition values.
-	BOOL generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);		
+	BOOL generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);		
 
 	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
 	// So we need to compress heights into this range.

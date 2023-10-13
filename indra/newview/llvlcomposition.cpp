@@ -129,26 +129,28 @@ LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 
 BOOL LLTerrainMaterials::texturesReady(BOOL boost)
 {
+    BOOL ready = TRUE;
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
         if (!textureReady(mDetailTextures[i], boost))
         {
-            return FALSE;
+            ready = FALSE;
         }
 	}
-    return TRUE;
+    return ready;
 }
 
 BOOL LLTerrainMaterials::materialsReady(BOOL boost)
 {
+    BOOL ready = TRUE;
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
         if (!materialReady(mDetailMaterials[i], mMaterialTexturesSet[i], boost))
         {
-            return FALSE;
+            ready = FALSE;
         }
     }
-    return TRUE;
+    return ready;
 }
 
 // Boost the texture loading priority
@@ -186,6 +188,10 @@ BOOL LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, BO
             tex->setMinDiscardLevel(ddiscard);
             tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
         }
+        return FALSE;
+    }
+    if (tex->getComponents() == 0)
+    {
         return FALSE;
     }
     return TRUE;
@@ -381,16 +387,13 @@ BOOL LLVLComposition::generateComposition()
     return LLTerrainMaterials::generateMaterials();
 }
 
-// *TODO: Re-evaluate usefulness of this function in the PBR case. There is currently a hack here to treat the material base color like a legacy terrain texture, but I'm not sure if that's useful.
-BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
+BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {
 	LL_PROFILE_ZONE_SCOPED
 	llassert(mSurfacep);
 	llassert(x >= 0.f);
 	llassert(y >= 0.f);
-
-	LLTimer gen_timer;
 
 	///////////////////////////
 	//
@@ -403,6 +406,17 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	S32 st_data_size[ASSET_COUNT]; // for debugging
 
     const bool use_textures = getMaterialType() != LLTerrainMaterials::Type::PBR;
+    // *TODO: Remove this as it is reduandant computation (first and foremost
+    // because getMaterialType() does something similar, but also... shouldn't
+    // the textures/materials already be loaded by now?)
+    if (use_textures)
+    {
+        if (!texturesReady()) { return FALSE; }
+    }
+    else
+    {
+        if (!materialsReady()) { return FALSE; }
+    }
 
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
@@ -410,16 +424,37 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 		{
 			// Read back a raw image for this discard level, if it exists
             LLViewerFetchedTexture* tex;
+            LLViewerFetchedTexture* tex_emissive; // Can be null
+            bool has_base_color_factor;
+            bool has_emissive_factor;
+            LLColor3 base_color_factor;
+            LLColor3 emissive_factor;
             if (use_textures)
             {
                 tex = mDetailTextures[i];
+                tex_emissive = nullptr;
+                has_base_color_factor = false;
+                has_emissive_factor = false;
+                llassert(tex);
             }
             else
             {
                 tex = mDetailMaterials[i]->mBaseColorTexture;
+                tex_emissive = mDetailMaterials[i]->mEmissiveTexture;
+                base_color_factor = LLColor3(mDetailMaterials[i]->mBaseColor);
+                // *HACK: Treat alpha as black
+                base_color_factor *= (mDetailMaterials[i]->mBaseColor.mV[VW]);
+                emissive_factor = mDetailMaterials[i]->mEmissiveColor;
+                has_base_color_factor = (base_color_factor.mV[VX] != 1.f ||
+                                         base_color_factor.mV[VY] != 1.f ||
+                                         base_color_factor.mV[VZ] != 1.f);
+                has_emissive_factor = (emissive_factor.mV[VX] != 1.f ||
+                                       emissive_factor.mV[VY] != 1.f ||
+                                       emissive_factor.mV[VZ] != 1.f);
             }
-			// *TODO: Why are terrain textures (not terrain materials) not loading? (that is why there is a getComponents() check here)
-			if (!tex || tex->getComponents() == 0) { tex = LLViewerFetchedTexture::sWhiteImagep; }
+
+            if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }
+            // tex_emissive can be null, and then will be ignored
 
 			S32 min_dim = llmin(tex->getFullWidth(), tex->getFullHeight());
 			S32 ddiscard = 0;
@@ -430,8 +465,9 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 			}
 
 			BOOL delete_raw = (tex->reloadRawImage(ddiscard) != NULL) ;
-			if(tex->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
+			if(tex->getRawImageLevel() != ddiscard)
 			{
+                // Raw image is not ready, will enter here again later.
                 if (tex->getFetchPriority() <= 0.0f && !tex->hasSavedRawImage())
                 {
                     tex->setBoostLevel(LLGLTexture::BOOST_MAP);
@@ -442,21 +478,78 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				{
 					tex->destroyRawImage() ;
 				}
-				LL_DEBUGS("Terrain") << "cached raw data for terrain detail texture is not ready yet: " << tex->getID() << " Discard: " << ddiscard << LL_ENDL;
 				return FALSE;
 			}
+            if (tex_emissive)
+            {
+                if(tex_emissive->getRawImageLevel() != ddiscard)
+                {
+                    // Raw image is not ready, will enter here again later.
+                    if (tex_emissive->getFetchPriority() <= 0.0f && !tex_emissive->hasSavedRawImage())
+                    {
+                        tex_emissive->setBoostLevel(LLGLTexture::BOOST_MAP);
+                        tex_emissive->forceToRefetchTexture(ddiscard);
+                    }
+
+                    if(delete_raw)
+                    {
+                        tex_emissive->destroyRawImage() ;
+                    }
+                    return FALSE;
+                }
+            }
 
 			mRawImages[i] = tex->getRawImage() ;
 			if(delete_raw)
 			{
 				tex->destroyRawImage() ;
 			}
-			if (tex->getWidth(ddiscard) != BASE_SIZE ||
+
+            // *TODO: This isn't quite right for PBR:
+            // 1) It does not convert the color images from SRGB to linear
+            // before mixing (which will always require copying the image).
+            // 2) It mixes emissive and base color before mixing terrain
+            // materials, but it should be the other way around
+            // 3) The composite function used to put emissive into base color
+            // is not an alpha blend.
+            // Long-term, we should consider a method that is more
+            // maintainable. Shaders, perhaps? Bake shaders to textures?
+            LLPointer<LLImageRaw> raw_emissive;
+            if (tex_emissive)
+            {
+                raw_emissive = tex_emissive->getRawImage();
+                if (has_emissive_factor ||
+                    tex_emissive->getWidth(ddiscard) != BASE_SIZE ||
+                    tex_emissive->getHeight(ddiscard) != BASE_SIZE ||
+                    tex_emissive->getComponents() != 4)
+                {
+                    LLPointer<LLImageRaw> newraw_emissive = new LLImageRaw(BASE_SIZE, BASE_SIZE, 4);
+                    // Copy RGB, leave alpha alone (set to opaque by default)
+                    newraw_emissive->copy(mRawImages[i]);
+                    if (has_emissive_factor)
+                    {
+                        newraw_emissive->tint(emissive_factor);
+                    }
+                    raw_emissive = newraw_emissive; // deletes old
+                }
+            }
+			if (has_base_color_factor ||
+                raw_emissive ||
+                tex->getWidth(ddiscard) != BASE_SIZE ||
 				tex->getHeight(ddiscard) != BASE_SIZE ||
 				tex->getComponents() != 3)
 			{
 				LLPointer<LLImageRaw> newraw = new LLImageRaw(BASE_SIZE, BASE_SIZE, 3);
 				newraw->composite(mRawImages[i]);
+                if (has_base_color_factor)
+                {
+                    newraw->tint(base_color_factor);
+                }
+                // Apply emissive texture
+                if (raw_emissive)
+                {
+                    newraw->composite(raw_emissive);
+                }
 				mRawImages[i] = newraw; // deletes old
 			}
 		}
@@ -478,12 +571,12 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 
 	if (x_end > mWidth)
 	{
-		LL_WARNS("Terrain") << "x end > width" << LL_ENDL;
+        llassert(false);
 		x_end = mWidth;
 	}
 	if (y_end > mWidth)
 	{
-		LL_WARNS("Terrain") << "y end > width" << LL_ENDL;
+        llassert(false);
 		y_end = mWidth;
 	}
 
@@ -513,7 +606,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	
 	if (tex_comps != st_comps)
 	{
-		LL_WARNS("Terrain") << "Base texture comps != input texture comps" << LL_ENDL;
+        llassert(false);
 		return FALSE;
 	}
 

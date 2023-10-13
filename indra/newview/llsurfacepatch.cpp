@@ -741,7 +741,7 @@ void LLSurfacePatch::updateGL()
 	
 	updateCompositionStats();
 	F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
-	if (comp->generateTexture((F32)origin_region[VX], (F32)origin_region[VY],
+	if (comp->generateMinimapTileLand((F32)origin_region[VX], (F32)origin_region[VY],
 							  tex_patch_size, tex_patch_size))
 	{
 		mSTexUpdate = FALSE;
