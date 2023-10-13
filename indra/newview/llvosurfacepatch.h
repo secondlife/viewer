@@ -67,7 +67,8 @@ public:
                                 LLStrider<LLVector3> &normalsp,
                                 LLStrider<LLVector2> &texCoords0p,
                                 LLStrider<LLVector2> &texCoords1p,
-                                LLStrider<U16> &indicesp);
+                                LLStrider<U16> &indicesp,
+                                bool pbr);
 
 	/*virtual*/ void updateTextures();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
@@ -121,21 +122,24 @@ protected:
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,
-					   U32 &index_offset);
+					   U32 &index_offset,
+                       bool pbr);
 	void updateNorthGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,
-					   U32 &index_offset);
+					   U32 &index_offset,
+                       bool pbr);
 	void updateEastGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,
-					   U32 &index_offset);
+					   U32 &index_offset,
+                       bool pbr);
 };
 
 #endif // LL_VOSURFACEPATCH_H

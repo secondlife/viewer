@@ -119,12 +119,19 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
     mMaterialTexturesSet[asset] = false;
 }
 
-BOOL LLTerrainMaterials::useTextures()
+BOOL LLTerrainMaterials::getMaterialType()
+{
+    return mMaterialType;
+}
+
+void LLTerrainMaterials::updateMaterialType()
 {
 	LL_PROFILE_ZONE_SCOPED;
 
-    return texturesReady() || !materialsReady();
+    const BOOL use_textures = texturesReady() || !materialsReady();
+    mMaterialType = use_textures ? Type::TEXTURE : Type::PBR;
 }
+
 
 BOOL LLTerrainMaterials::texturesReady(BOOL boost)
 {
@@ -401,7 +408,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	U8* st_data[ASSET_COUNT];
 	S32 st_data_size[ASSET_COUNT]; // for debugging
 
-    const bool use_textures = useTextures();
+    const bool use_textures = getMaterialType() != LLTerrainMaterial::Type::PBR;
 
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
