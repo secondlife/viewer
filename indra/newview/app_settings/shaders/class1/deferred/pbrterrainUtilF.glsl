@@ -79,12 +79,29 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 // TODO: Wait a minute... this doesn't prevent artifacts :( (or does it?)
 #define TERRAIN_TRIPLANAR_OVERDRAW_THRESHOLD 0.0
 
-vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign)
+vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
 {
+    // Handle case where sign is 0
+    // TODO: Why didn't this fix the seams?
+#if 0
+    float sign = (2.0*sign_or_zero) + 1.0;
+    sign /= sign;
     // If the vertex normal is negative, flip the texture back
     // right-side up.
     vec2 uv = uv_unflipped * vec2(sign, 1);
     return texture(tex, uv);
+#else // TODO: Remove debug
+#if 0
+    // Name mangling test
+    float l_sign = (2.0*sign_or_zero) + 1.0;
+    l_sign /= l_sign;
+    vec2 l_uv = uv_unflipped * vec2(l_sign, 1);
+    return texture(tex, l_uv);
+#else
+    // Simplified uv test
+    return texture(tex, uv_unflipped);
+#endif
+#endif
 }
 
 #define SAMPLE_X 1 << 2
@@ -94,10 +111,11 @@ vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign)
 struct TerrainWeight
 {
     vec3 weight;
+    int type;
 #if TERRAIN_DEBUG
+    vec3 weight_signed;
     vec3 usage;
 #endif
-    int type;
 };
 
 TerrainWeight _t_weight(TerrainCoord terrain_coord)
@@ -109,12 +127,13 @@ TerrainWeight _t_weight(TerrainCoord terrain_coord)
     TerrainWeight tw;
     tw.weight = max(vec3(0), weight_signed);
     vec3 usage = max(vec3(0), sign(weight_signed + TERRAIN_TRIPLANAR_OVERDRAW_THRESHOLD));
-#if TERRAIN_DEBUG
-    tw.usage = usage;
-#endif
     tw.type = (int(usage.x) * SAMPLE_X) |
               (int(usage.y) * SAMPLE_Y) |
               (int(usage.z) * SAMPLE_Z);
+#if TERRAIN_DEBUG
+    tw.weight_signed = weight_signed;
+    tw.usage = usage;
+#endif
     return tw;
 }
 
@@ -129,32 +148,44 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
 {
     TerrainSample ts;
 
-#if 0
+#if 1
+#if 1
+#if 1
 #define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
 #define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
 #else // TODO: Remove debug
+// Still an error despite sampling the same texture three times from the same location
 #define do_sample_x() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
 #define do_sample_y() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
 #endif
-#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
+#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
+#else // TODO: Remove?
+    vec2 coord_z = terrain_coord[0].xy;
+    vec2 coord_z_2 = terrain_coord[0].xy;
+    vec2 coord_z_3 = terrain_coord[0].xy;
+#define do_sample_x() texture(tex, coord_z)
+#define do_sample_y() texture(tex, coord_z_2)
+#define do_sample_z() texture(tex, coord_z_3)
+#endif
+#if 0
     switch (tw.type)
     {
-        case SAMPLE_X | SAMPLE_Y | SAMPLE_Z:
+        case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
             ts.x = do_sample_x();
             ts.y = do_sample_y();
             ts.z = do_sample_z();
             break;
-        case SAMPLE_X | SAMPLE_Y:
+        case (SAMPLE_X | SAMPLE_Y):
             ts.x = do_sample_x();
             ts.y = do_sample_y();
             ts.z = ts.x;
             break;
-        case SAMPLE_X | SAMPLE_Z:
+        case (SAMPLE_X | SAMPLE_Z):
             ts.x = do_sample_x();
             ts.z = do_sample_z();
             ts.y = ts.x;
             break;
-        case SAMPLE_Y | SAMPLE_Z:
+        case (SAMPLE_Y | SAMPLE_Z):
             ts.y = do_sample_y();
             ts.z = do_sample_z();
             ts.x = ts.y;
@@ -175,11 +206,114 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
             ts.y = ts.z;
             break;
         default:
-            ts.x = vec4(0);
+            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
             ts.y = ts.x;
             ts.z = ts.x;
             break;
     }
+#else // TODO: Remove debug
+#if 0
+    // This case works - no ant trails despite using a switch...case statement
+    switch (tw.type)
+    {
+        case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
+            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
+            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
+            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
+            break;
+        case (SAMPLE_X | SAMPLE_Y):
+            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
+            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
+            ts.z = ts.x;
+            break;
+        case (SAMPLE_X | SAMPLE_Z):
+            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
+            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
+            ts.y = ts.x;
+            break;
+        case (SAMPLE_Y | SAMPLE_Z):
+            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
+            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
+            ts.x = ts.y;
+            break;
+        case SAMPLE_X:
+            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
+            ts.y = ts.x;
+            ts.z = ts.x;
+            break;
+        case SAMPLE_Y:
+            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
+            ts.x = ts.y;
+            ts.z = ts.y;
+            break;
+        case SAMPLE_Z:
+            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
+            ts.x = ts.z;
+            ts.y = ts.z;
+            break;
+        default:
+            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
+            ts.y = ts.x;
+            ts.z = ts.x;
+            break;
+    }
+#else
+// This shows the bug: case of sampling beforehand, assigning in switch..case
+    vec4 x = do_sample_x();
+    vec4 y = do_sample_y();
+    vec4 z = do_sample_z();
+    switch (tw.type)
+    {
+        case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
+            ts.x = x;
+            ts.y = y;
+            ts.z = z;
+            break;
+        case (SAMPLE_X | SAMPLE_Y):
+            ts.x = x;
+            ts.y = y;
+            ts.z = ts.x;
+            break;
+        case (SAMPLE_X | SAMPLE_Z):
+            ts.x = x;
+            ts.z = z;
+            ts.y = ts.x;
+            break;
+        case (SAMPLE_Y | SAMPLE_Z):
+            ts.y = y;
+            ts.z = z;
+            ts.x = ts.y;
+            break;
+        case SAMPLE_X:
+            ts.x = x;
+            ts.y = ts.x;
+            ts.z = ts.x;
+            break;
+        case SAMPLE_Y:
+            ts.y = y;
+            ts.x = ts.y;
+            ts.z = ts.y;
+            break;
+        case SAMPLE_Z:
+            ts.z = z;
+            ts.x = ts.z;
+            ts.y = ts.z;
+            break;
+        default:
+            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
+            ts.y = ts.x;
+            ts.z = ts.x;
+            break;
+    }
+#endif
+#endif
+#else // TODO: Remove debug
+// No error
+#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
+ts.z = do_sample_z();
+ts.x = ts.z;
+ts.y = ts.z;
+#endif
 
     return ts;
 }
@@ -218,23 +352,14 @@ TerrainSample _t_sample_c(sampler2D tex, TerrainCoord terrain_coord, TerrainWeig
     return ts;
 }
 
+// Triplanar sampling of things that are neither colors nor normals (i.e. orm)
 vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 {
     TerrainWeight tw = _t_weight(terrain_coord);
 
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
 
-#if 0
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
-#else // TODO: Remove debug
-    //return vec4(((tw.usage - normalize(tw.weight))) / 0.5, 1.0);
-#if 0
-    return vec4(tw.usage, 1.0);
-#else
-    //return vec4(tw.usage, 1.0);
-    return vec4((tw.usage + tw.weight) / 2.0, 1.0);
-#endif
-#endif
 }
 
 // Specialized triplanar normal texture sampling implementation, taking into
@@ -261,10 +386,16 @@ vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
 
     TerrainSample ts = _t_sample_c(tex, terrain_coord, tw);
 
-#if 0
+#if 1
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
 #else // TODO: Remove debug
-    return ts.x;
+    //return vec4(vec3(isnan(ts.x)), 1.0);
+    //return ts.x;
+#if 0
+    return vec4(1.0+sign(vary_vertex_normal)/2.0, 1.0);
+#else
+    return vec4(isnan(tw.weight_signed), 1.0);
+#endif
 #endif
 }
 
