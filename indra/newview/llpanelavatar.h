@@ -92,7 +92,7 @@ public:
     /**
      * Returns avatar ID.
      */
-    virtual const LLUUID& getAvatarId() { return mAvatarId; }
+    virtual const LLUUID& getAvatarId() const { return mAvatarId; }
 
     /**
      * Sends update data request to server.
@@ -132,6 +132,8 @@ protected:
     void setApplyProgress(bool started);
 
     const bool getSelfProfile() const { return mSelfProfile; }
+
+    bool saveAgentUserInfoCoro(std::string name, LLSD value) const;
 
 public:
     void setIsLoading() { mLoadingState = PROFILE_LOADING; }
