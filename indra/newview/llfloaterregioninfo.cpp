@@ -1541,8 +1541,8 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 			if(asset_ctrl)
 			{
 				LL_DEBUGS() << "Detail Texture " << i << ": "
-						 << compp->getDetailTextureID(i) << LL_ENDL;
-				LLUUID tmp_id(compp->getDetailTextureID(i));
+						 << compp->getDetailAssetID(i) << LL_ENDL;
+				LLUUID tmp_id(compp->getDetailAssetID(i));
 				asset_ctrl->setImageAssetID(tmp_id);
 			}
 		}
@@ -1552,7 +1552,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 			asset_ctrl = getChild<LLTextureCtrl>(buffer);
 			if(asset_ctrl)
 			{
-				LLUUID tmp_id(compp->getDetailTextureID(i));
+				LLUUID tmp_id(compp->getDetailAssetID(i));
 				asset_ctrl->setImageAssetID(tmp_id);
 			}
 		}

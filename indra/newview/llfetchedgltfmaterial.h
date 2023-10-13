@@ -49,6 +49,7 @@ public:
     void bind(LLViewerTexture* media_tex = nullptr);
 
     bool isFetching() const { return mFetching; }
+    bool isLoaded() const { return !mFetching; }
 
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;

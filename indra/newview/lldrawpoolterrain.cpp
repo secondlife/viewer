@@ -121,8 +121,36 @@ void LLDrawPoolTerrain::boostTerrainDetailTextures()
 	LLVLComposition *compp = regionp->getComposition();
 	for (S32 i = 0; i < 4; i++)
 	{
-		compp->mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-        compp->mDetailTextures[i]->addTextureStats(1024.f * 1024.f);
+        constexpr LLGLTexture::EBoostLevel level = LLGLTexture::BOOST_TERRAIN;
+        constexpr float stats = 1024.f * 1024.f;
+
+        LLPointer<LLViewerFetchedTexture>& tex = compp->mDetailTextures[i];
+        llassert(tex.notNull());
+		tex->setBoostLevel(level);
+        tex->addTextureStats(stats);
+
+        LLPointer<LLFetchedGLTFMaterial>& mat = compp->mDetailMaterials[i];
+        llassert(mat.notNull());
+        if (mat->mBaseColorTexture)
+        {
+            mat->mBaseColorTexture->setBoostLevel(level);
+            mat->mBaseColorTexture->addTextureStats(stats);
+        }
+        if (mat->mNormalTexture)
+        {
+            mat->mNormalTexture->setBoostLevel(level);
+            mat->mNormalTexture->addTextureStats(stats);
+        }
+        if (mat->mMetallicRoughnessTexture)
+        {
+            mat->mMetallicRoughnessTexture->setBoostLevel(level);
+            mat->mMetallicRoughnessTexture->addTextureStats(stats);
+        }
+        if (mat->mEmissiveTexture)
+        {
+            mat->mEmissiveTexture->setBoostLevel(level);
+            mat->mEmissiveTexture->addTextureStats(stats);
+        }
 	}
 }
 

@@ -28,9 +28,12 @@
 #define LL_LLVLCOMPOSITION_H
 
 #include "llviewerlayer.h"
-#include "llviewertexture.h"
+#include "llpointer.h"
 
 class LLSurface;
+
+class LLViewerFetchedTexture;
+class LLFetchedGLTFMaterial;
 
 class LLVLComposition : public LLViewerLayer
 {
@@ -46,6 +49,10 @@ public:
 	// Generate texture from composition values.
 	BOOL generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);		
 
+	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
+	// So we need to compress heights into this range.
+    static const S32 ASSET_COUNT = 4;
+
 	// Use these as indeces ito the get/setters below that use 'corner'
 	enum ECorner
 	{
@@ -55,12 +62,12 @@ public:
 		NORTHEAST = 3,
 		CORNER_COUNT = 4
 	};
-	LLUUID getDetailTextureID(S32 corner);
-	LLViewerFetchedTexture* getDetailTexture(S32 corner);
+
+	LLUUID getDetailAssetID(S32 asset);
 	F32 getStartHeight(S32 corner);
 	F32 getHeightRange(S32 corner);
 
-	void setDetailTextureID(S32 corner, const LLUUID& id);
+	void setDetailAssetID(S32 asset, const LLUUID& id);
 	void setStartHeight(S32 corner, F32 start_height);
 	void setHeightRange(S32 corner, F32 range);
 
@@ -73,8 +80,10 @@ protected:
 	LLSurface *mSurfacep;
 	BOOL mTexturesLoaded;
 
-	LLPointer<LLViewerFetchedTexture> mDetailTextures[CORNER_COUNT];
-	LLPointer<LLImageRaw> mRawImages[CORNER_COUNT];
+    // TODO: Set flag to indicate whether the textures or materials loaded first
+	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
+	LLPointer<LLImageRaw> mRawImages[ASSET_COUNT];
+	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];

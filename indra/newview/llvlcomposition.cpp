@@ -65,10 +65,10 @@ LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32
 	mSurfacep = surfacep;
 
 	// Load Terrain Textures - Original ones
-	setDetailTextureID(0, TERRAIN_DIRT_DETAIL);
-	setDetailTextureID(1, TERRAIN_GRASS_DETAIL);
-	setDetailTextureID(2, TERRAIN_MOUNTAIN_DETAIL);
-	setDetailTextureID(3, TERRAIN_ROCK_DETAIL);
+	setDetailAssetID(0, TERRAIN_DIRT_DETAIL);
+	setDetailAssetID(1, TERRAIN_GRASS_DETAIL);
+	setDetailAssetID(2, TERRAIN_MOUNTAIN_DETAIL);
+	setDetailAssetID(3, TERRAIN_ROCK_DETAIL);
 
 	// Initialize the texture matrix to defaults.
 	for (S32 i = 0; i < CORNER_COUNT; ++i)
@@ -93,7 +93,7 @@ void LLVLComposition::setSurface(LLSurface *surfacep)
 }
 
 
-void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
+void LLVLComposition::setDetailAssetID(S32 corner, const LLUUID& id)
 {
 	if(id.isNull())
 	{
@@ -104,6 +104,25 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 	mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
 	mDetailTextures[corner]->setNoDelete() ;
 	mRawImages[corner] = NULL;
+    // *TODO: Decide if we have textures or materials. Whichever loads first determines the terrain type.
+    // *TODO: As the material textures are loaded, prevent deletion
+    mDetailMaterials[corner] = LLGLTFMaterialList::getMaterial(id);
+}
+
+void LLVLComposition::setDetailMaterialID(S32 corner, const LLUUID& id)
+{
+	if(id.isNull())
+	{
+		mDetailMaterials[corner] = nullptr;
+	}
+    else
+    {
+        // This is terrain material, but we are not setting it as BOOST_TERRAIN
+        // since we will be manipulating it later as needed.
+        mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
+        mDetailTextures[corner]->setNoDelete() ;
+        mRawImages[corner] = NULL;
+    }
 }
 
 BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
@@ -148,10 +167,6 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 	const F32 z_offset = 0.f;
 	const F32 noise_magnitude = 2.f;		//  Degree to which noise modulates composition layer (versus
 											//  simple height)
-
-	// Heights map into textures as 0-1 = first, 1-2 = second, etc.
-	// So we need to compress heights into this range.
-	const S32 NUM_TEXTURES = 4;
 
 	const F32 xyScaleInv = (1.f / xyScale);
 	const F32 zScaleInv = (1.f / zScale);
@@ -199,7 +214,7 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 			twiddle += turbulence2(vec, 2)*slope_squared;	//  High frequency component
 			twiddle *= noise_magnitude;
 
-			F32 scaled_noisy_height = (height + twiddle - start_height) * F32(NUM_TEXTURES) / height_range;
+			F32 scaled_noisy_height = (height + twiddle - start_height) * F32(ASSET_COUNT) / height_range;
 
 			scaled_noisy_height = llmax(0.f, scaled_noisy_height);
 			scaled_noisy_height = llmin(3.f, scaled_noisy_height);
@@ -211,6 +226,37 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 
 static const U32 BASE_SIZE = 128;
 
+// Boost the texture loading priority
+// Return true when ready to use (i.e. texture is sufficiently loaded)
+bool boost_texture_until_ready(LLPointer<LLViewerFetchedTexture>& tex)
+{
+    if (tex->getDiscardLevel() < 0)
+    {
+        tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
+        tex->addTextureStats(BASE_SIZE*BASE_SIZE);
+        return false;
+    }
+    if ((tex->getDiscardLevel() != 0 &&
+         (tex->getWidth() < BASE_SIZE ||
+          tex->getHeight() < BASE_SIZE)))
+    {
+        S32 width = tex->getFullWidth();
+        S32 height = tex->getFullHeight();
+        S32 min_dim = llmin(width, height);
+        S32 ddiscard = 0;
+        while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
+        {
+            ddiscard++;
+            min_dim /= 2;
+        }
+        tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
+        tex->setMinDiscardLevel(ddiscard);
+        tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
+        return false;
+    }
+    return true;
+}
+
 BOOL LLVLComposition::generateComposition()
 {
 
@@ -220,35 +266,44 @@ BOOL LLVLComposition::generateComposition()
 		return FALSE;
 	}
 
-	for (S32 i = 0; i < 4; i++)
+    bool textures_ready = true;
+	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
-		if (mDetailTextures[i]->getDiscardLevel() < 0)
-		{
-			mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
-			mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE);
-			return FALSE;
-		}
-		if ((mDetailTextures[i]->getDiscardLevel() != 0 &&
-			 (mDetailTextures[i]->getWidth() < BASE_SIZE ||
-			  mDetailTextures[i]->getHeight() < BASE_SIZE)))
-		{
-			S32 width = mDetailTextures[i]->getFullWidth();
-			S32 height = mDetailTextures[i]->getFullHeight();
-			S32 min_dim = llmin(width, height);
-			S32 ddiscard = 0;
-			while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
-			{
-				ddiscard++;
-				min_dim /= 2;
-			}
-			mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
-			mDetailTextures[i]->setMinDiscardLevel(ddiscard);
-			mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
-			return FALSE;
-		}
+        if (!boost_texture_until_ready(mDetailTextures[i]))
+        {
+            textures_ready = false;
+            break;
+        }
 	}
+
+    if (textures_ready)
+    {
+        return TRUE;
+    }
 	
-	return TRUE;
+    bool materials_ready = true;
+	for (S32 i = 0; i < ASSET_COUNT; i++)
+	{
+        const LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        if (!mat.isLoaded() ||
+            (mat->mBaseColorTexture && !boost_texture_until_ready(mat->mBaseColorTexture)) ||
+            (mat->mNormalTexture && !boost_texture_until_ready(mat->mNormalTexture)) ||
+            (mat->mMetallicRoughnessTexture && !boost_texture_until_ready(mat->mMetallicRoughnessTexture)) ||
+            (mat->mEmissiveTexture && !boost_texture_until_ready(mat->mEmissiveTexture)))
+        {
+            materials_ready = false;
+            break;
+        }
+    }
+
+    if (materials_ready)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
@@ -469,14 +524,10 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	return TRUE;
 }
 
-LLUUID LLVLComposition::getDetailTextureID(S32 corner)
+LLUUID LLVLComposition::getDetailAssetID(S32 corner)
 {
+    llassert(mDetailTextures[corner] && mDetailMaterials[corner] && mDetailTextures[corner]->getID() == mDetailMaterials[corner].getID());
 	return mDetailTextures[corner]->getID();
-}
-
-LLViewerFetchedTexture* LLVLComposition::getDetailTexture(S32 corner)
-{
-	return mDetailTextures[corner];
 }
 
 F32 LLVLComposition::getStartHeight(S32 corner)
