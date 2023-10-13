@@ -1114,6 +1114,54 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	hit_obj->sendTEUpdate();
 }
 
+void LLToolDragAndDrop::dropMaterial(LLViewerObject* hit_obj,
+                                     S32 hit_face,
+                                     LLInventoryItem* item,
+                                     LLToolDragAndDrop::ESource source,
+                                     const LLUUID& src_id,
+                                     bool all_faces)
+{
+    LLSelectNode* nodep = nullptr;
+    if (hit_obj->isSelected())
+    {
+        // update object's saved materials
+        nodep = LLSelectMgr::getInstance()->getSelection()->findNode(hit_obj);
+    }
+
+    // If user dropped a material onto face it implies
+    // applying texture now without cancel, save to selection
+    if (all_faces)
+    {
+        dropMaterialAllFaces(hit_obj, item, source, src_id);
+
+        if (nodep)
+        {
+            uuid_vec_t material_ids;
+            gltf_materials_vec_t override_materials;
+            S32 num_faces = hit_obj->getNumTEs();
+            for (S32 face = 0; face < num_faces; face++)
+            {
+                material_ids.push_back(hit_obj->getRenderMaterialID(face));
+                override_materials.push_back(nullptr);
+            }
+            nodep->saveGLTFMaterials(material_ids, override_materials);
+        }
+    }
+    else
+    {
+        dropMaterialOneFace(hit_obj, hit_face, item, source, src_id);
+
+        // If user dropped a material onto face it implies
+        // applying texture now without cancel, save to selection
+        if (nodep
+            && gFloaterTools->getVisible()
+            && nodep->mSavedGLTFMaterialIds.size() > hit_face)
+        {
+            nodep->mSavedGLTFMaterialIds[hit_face] = hit_obj->getRenderMaterialID(hit_face);
+            nodep->mSavedGLTFOverrideMaterials[hit_face] = nullptr;
+        }
+    }
+}
 
 void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
     S32 hit_face,
@@ -1219,6 +1267,71 @@ void LLToolDragAndDrop::dropTextureOneFaceAvatar(LLVOAvatar* avatar, S32 hit_fac
 	avatar->userSetOptionalTE( hit_face, image);
 }
 */
+void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
+                                    S32 hit_face,
+                                    LLInventoryItem* item,
+                                    ESource source,
+                                    const LLUUID& src_id,
+                                    bool all_faces,
+                                    S32 tex_channel)
+{
+    LLSelectNode* nodep = nullptr;
+    if (hit_obj->isSelected())
+    {
+        // update object's saved textures
+        nodep = LLSelectMgr::getInstance()->getSelection()->findNode(hit_obj);
+    }
+
+    if (all_faces)
+    {
+        dropTextureAllFaces(hit_obj, item, source, src_id);
+
+        // If user dropped a texture onto face it implies
+        // applying texture now without cancel, save to selection
+        if (nodep)
+        {
+            uuid_vec_t texture_ids;
+            S32 num_faces = hit_obj->getNumTEs();
+            for (S32 face = 0; face < num_faces; face++)
+            {
+                LLViewerTexture* tex = hit_obj->getTEImage(face);
+                if (tex != nullptr)
+                {
+                    texture_ids.push_back(tex->getID());
+                }
+                else
+                {
+                    texture_ids.push_back(LLUUID::null);
+                }
+            }
+            nodep->saveTextures(texture_ids);
+        }
+    }
+    else
+    {
+        dropTextureOneFace(hit_obj, hit_face, item, source, src_id);
+
+        // If user dropped a texture onto face it implies
+        // applying texture now without cancel, save to selection
+        LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+        if (nodep
+            && gFloaterTools->getVisible()
+            && panel_face
+            && panel_face->getTextureDropChannel() == 0 /*texture*/
+            && nodep->mSavedTextures.size() > hit_face)
+        {
+            LLViewerTexture* tex = hit_obj->getTEImage(hit_face);
+            if (tex != nullptr)
+            {
+                nodep->mSavedTextures[hit_face] = tex->getID();
+            }
+            else
+            {
+                nodep->mSavedTextures[hit_face] = LLUUID::null;
+            }
+        }
+    }
+}
 
 void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 										   S32 hit_face,
@@ -2128,104 +2241,48 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	{
 		if (cargo_type == DAD_TEXTURE)
 		{
-            LLSelectNode *nodep = nullptr;
-            if (obj->isSelected())
+            bool all_faces = mask & MASK_SHIFT;
+            if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
             {
-                // update object's saved textures
-                nodep = LLSelectMgr::getInstance()->getSelection()->findNode(obj);
-            }
-
-			if((mask & MASK_SHIFT))
-			{
-				dropTextureAllFaces(obj, item, mSource, mSourceID);
-
-                // If user dropped a texture onto face it implies
-                // applying texture now without cancel, save to selection
-                if (nodep)
-                {
-                    uuid_vec_t texture_ids;
-                    S32 num_faces = obj->getNumTEs();
-                    for (S32 face = 0; face < num_faces; face++)
-                    {
-                        LLViewerTexture *tex = obj->getTEImage(face);
-                        if (tex != nullptr)
-                        {
-                            texture_ids.push_back(tex->getID());
-                        }
-                        else
-                        {
-                            texture_ids.push_back(LLUUID::null);
-                        }
-                    }
-                    nodep->saveTextures(texture_ids);
-                }
-			}
-			else
-			{
-				dropTextureOneFace(obj, face, item, mSource, mSourceID);
-
-                // If user dropped a texture onto face it implies
-                // applying texture now without cancel, save to selection
-                LLPanelFace* panel_face = gFloaterTools->getPanelFace();
-                if (nodep
-                    && gFloaterTools->getVisible()
-                    && panel_face
-                    && panel_face->getTextureDropChannel() == 0 /*texture*/
-                    && nodep->mSavedGLTFMaterialIds.size() > face)
-                {
-                    LLViewerTexture *tex = obj->getTEImage(face);
-                    if (tex != nullptr)
-                    {
-                        nodep->mSavedTextures[face] = tex->getID();
-                    }
-                    else
-                    {
-                        nodep->mSavedTextures[face] = LLUUID::null;
-                    }
-                }
-			}
-		}
-        else if (cargo_type == DAD_MATERIAL)
-        {
-            LLSelectNode *nodep = nullptr;
-            if (obj->isSelected())
-            {
-                // update object's saved materials
-                nodep = LLSelectMgr::getInstance()->getSelection()->findNode(obj);
-            }
-
-            // If user dropped a material onto face it implies
-            // applying texture now without cancel, save to selection
-            if ((mask & MASK_SHIFT))
-            {
-                dropMaterialAllFaces(obj, item, mSource, mSourceID);
-
-                if (nodep)
-                {
-                    uuid_vec_t material_ids;
-                    gltf_materials_vec_t override_materials;
-                    S32 num_faces = obj->getNumTEs();
-                    for (S32 face = 0; face < num_faces; face++)
-                    {
-                        material_ids.push_back(obj->getRenderMaterialID(face));
-                        override_materials.push_back(nullptr);
-                    }
-                    nodep->saveGLTFMaterials(material_ids, override_materials);
-                }
+                dropTexture(obj, face, item, mSource, mSourceID, all_faces);
             }
             else
             {
-                dropMaterialOneFace(obj, face, item, mSource, mSourceID);
-
-                // If user dropped a material onto face it implies
-                // applying texture now without cancel, save to selection
-                if (nodep
-                    && gFloaterTools->getVisible()
-                    && nodep->mSavedGLTFMaterialIds.size() > face)
-                {
-                    nodep->mSavedGLTFMaterialIds[face] = obj->getRenderMaterialID(face);
-                    nodep->mSavedGLTFOverrideMaterials[face] = nullptr;
-                }
+                ESource source = mSource;
+                LLUUID source_id = mSourceID;
+                LLNotificationsUtil::add("ApplyInventoryToObject", LLSD(), LLSD(), [obj, face, item, source, source_id, all_faces](const LLSD& notification, const LLSD& response)
+                                         {
+                                             S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+                                             // if Cancel pressed
+                                             if (option == 1)
+                                             {
+                                                 return;
+                                             }
+                                             dropTexture(obj, face, item, source, source_id, all_faces);
+                                         });
+            }
+		}
+        else if (cargo_type == DAD_MATERIAL)
+        {
+            bool all_faces = mask & MASK_SHIFT;
+            if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+            {
+                dropMaterial(obj, face, item, mSource, mSourceID, all_faces);
+            }
+            else
+            {
+                ESource source = mSource;
+                LLUUID source_id = mSourceID;
+                LLNotificationsUtil::add("ApplyInventoryToObject", LLSD(), LLSD(), [obj, face, item, source, source_id, all_faces](const LLSD& notification, const LLSD& response)
+                                         {
+                                             S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+                                             // if Cancel pressed
+                                             if (option == 1)
+                                             {
+                                                 return;
+                                             }
+                                             dropMaterial(obj, face, item, source, source_id, all_faces);
+                                         });
             }
         }
 		else if (cargo_type == DAD_MESH)
