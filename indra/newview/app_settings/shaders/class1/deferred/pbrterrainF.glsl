@@ -89,10 +89,10 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
     vec3[4] samples;
-    samples[0] = texture2D(tex0, texcoord).xyz;
-    samples[1] = texture2D(tex1, texcoord).xyz;
-    samples[2] = texture2D(tex2, texcoord).xyz;
-    samples[3] = texture2D(tex3, texcoord).xyz;
+    samples[0] = texture(tex0, texcoord).xyz;
+    samples[1] = texture(tex1, texcoord).xyz;
+    samples[2] = texture(tex2, texcoord).xyz;
+    samples[3] = texture(tex3, texcoord).xyz;
     samples[0] = srgb_to_linear(samples[0]);
     samples[1] = srgb_to_linear(samples[1]);
     samples[2] = srgb_to_linear(samples[2]);
@@ -107,10 +107,10 @@ vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, vec2 te
 vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, vec4[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
     vec4[4] samples;
-    samples[0] = texture2D(tex0, texcoord);
-    samples[1] = texture2D(tex1, texcoord);
-    samples[2] = texture2D(tex2, texcoord);
-    samples[3] = texture2D(tex3, texcoord);
+    samples[0] = texture(tex0, texcoord);
+    samples[1] = texture(tex1, texcoord);
+    samples[2] = texture(tex2, texcoord);
+    samples[3] = texture(tex3, texcoord);
     samples[0].xyz = srgb_to_linear(samples[0].xyz);
     samples[1].xyz = srgb_to_linear(samples[1].xyz);
     samples[2].xyz = srgb_to_linear(samples[2].xyz);
@@ -125,10 +125,10 @@ vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, vec2 te
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
     vec3[4] samples;
-    samples[0] = texture2D(tex0, texcoord).xyz;
-    samples[1] = texture2D(tex1, texcoord).xyz;
-    samples[2] = texture2D(tex2, texcoord).xyz;
-    samples[3] = texture2D(tex3, texcoord).xyz;
+    samples[0] = texture(tex0, texcoord).xyz;
+    samples[1] = texture(tex1, texcoord).xyz;
+    samples[2] = texture(tex2, texcoord).xyz;
+    samples[3] = texture(tex3, texcoord).xyz;
     samples[0] *= factors[0];
     samples[1] *= factors[1];
     samples[2] *= factors[2];
@@ -139,10 +139,10 @@ vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, vec2 t
 vec3 sample_and_mix_vector3_no_scale(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
     vec3[4] samples;
-    samples[0] = texture2D(tex0, texcoord).xyz;
-    samples[1] = texture2D(tex1, texcoord).xyz;
-    samples[2] = texture2D(tex2, texcoord).xyz;
-    samples[3] = texture2D(tex3, texcoord).xyz;
+    samples[0] = texture(tex0, texcoord).xyz;
+    samples[1] = texture(tex1, texcoord).xyz;
+    samples[2] = texture(tex2, texcoord).xyz;
+    samples[3] = texture(tex3, texcoord).xyz;
     return terrain_mix(samples, alpha1, alpha2, alphaFinal);
 }
 
@@ -151,9 +151,9 @@ void main()
     // Adjust the texture repeats for a more sensible default.
     float texture_density_factor = 2.0;
     vec2 terrain_texcoord = texture_density_factor * vary_texcoord0.xy;
-    float alpha1 = texture2D(alpha_ramp, vary_texcoord0.zw).a;
-    float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
-    float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
+    float alpha1 = texture(alpha_ramp, vary_texcoord0.zw).a;
+    float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
+    float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;
 
     vec4 col = sample_and_mix_color4(alpha1, alpha2, alphaFinal, terrain_texcoord, baseColorFactors, detail_0_base_color, detail_1_base_color, detail_2_base_color, detail_3_base_color);
     float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
