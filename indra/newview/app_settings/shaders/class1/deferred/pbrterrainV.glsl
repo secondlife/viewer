@@ -84,7 +84,7 @@ void main()
     // (-x)z
     vary_coords[1].xy = texture_transform(position.xz * vec2(-1, 1), texture_base_color_transform, texture_matrix0);
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
-    vary_texcoord0.xy = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
+    vary_texcoord0.xy = texture_transform(position.xy, texture_base_color_transform, texture_matrix0);
 #endif
     
     vec4 tc = vec4(texcoord1,0,1);
