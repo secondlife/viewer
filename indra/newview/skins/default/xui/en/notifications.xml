@@ -5962,6 +5962,22 @@ You have updated the location of this pick but the other details will retain the
 
   <notification
    icon="alertmodal.tga"
+   name="ApplyInventoryToObject"
+   type="alertmodal">
+You are applying &apos;no copy&apos; inventory item.
+This item will be moved to object's inventory, not copied.
+
+Move the inventory item?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Warn me before I apply &apos;no-copy&apos; items to an object"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="MoveInventoryFromObject"
    type="alertmodal">
 You have selected &apos;no copy&apos; inventory items.
