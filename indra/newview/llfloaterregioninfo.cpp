@@ -606,6 +606,26 @@ LLPanelRegionEnvironment* LLFloaterRegionInfo::getPanelEnvironment()
 	return panel;
 }
 
+enum class TerrainMaterialType
+{
+    TEXTURE,
+    PBR_MATERIAL,
+    COUNT
+};
+
+TerrainMaterialType material_type_from_index(S32 index)
+{
+    if (index == 0)
+    {
+        return TerrainMaterialType::TEXTURE;
+    }
+    if (index == 1)
+    {
+        return TerrainMaterialType::PBR_MATERIAL;
+    }
+    return TerrainMaterialType::COUNT;
+}
+
 // static
 LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 {
@@ -1321,6 +1341,17 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
+    // *TODO: Don't early-exit in PBR material terrain editing mode, and
+    // instead do some reasonable checks that the PBR material is compatible
+    // with the terrain rendering pipeline. Err on the side of permissive.
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (material_type_ctrl)
+    {
+        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
+        if (is_material_selected) { return TRUE; }
+    }
+
     static const S32 MAX_TERRAIN_TEXTURE_SIZE = 1024;
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
@@ -1427,26 +1458,6 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	return LLPanelRegionInfo::postBuild();
 }
 
-enum class TerrainMaterialType
-{
-    TEXTURE,
-    PBR_MATERIAL,
-    COUNT
-};
-
-TerrainMaterialType material_type_from_index(S32 index)
-{
-    if (index == 0)
-    {
-        return TerrainMaterialType::TEXTURE;
-    }
-    if (index == 1)
-    {
-        return TerrainMaterialType::PBR_MATERIAL;
-    }
-    return TerrainMaterialType::COUNT;
-}
-
 // virtual
 void LLPanelRegionTerrainInfo::refresh()
 {
@@ -1518,18 +1529,31 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 		getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
 
 		LLVLComposition* compp = region->getComposition();
-		LLTextureCtrl* texture_ctrl;
+
+        // Are these 4 texture IDs or 4 material IDs? Who knows! Let's set the IDs on both pickers for now.
+        // *TODO: Determine the asset type of IDs, to determine which editing mode to display.
+		LLTextureCtrl* asset_ctrl;
 		std::string buffer;
 		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 		{
 			buffer = llformat("texture_detail_%d", i);
-			texture_ctrl = getChild<LLTextureCtrl>(buffer);
-			if(texture_ctrl)
+			asset_ctrl = getChild<LLTextureCtrl>(buffer);
+			if(asset_ctrl)
 			{
 				LL_DEBUGS() << "Detail Texture " << i << ": "
 						 << compp->getDetailTextureID(i) << LL_ENDL;
 				LLUUID tmp_id(compp->getDetailTextureID(i));
-				texture_ctrl->setImageAssetID(tmp_id);
+				asset_ctrl->setImageAssetID(tmp_id);
+			}
+		}
+		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+		{
+			buffer = llformat("material_detail_%d", i);
+			asset_ctrl = getChild<LLTextureCtrl>(buffer);
+			if(asset_ctrl)
+			{
+				LLUUID tmp_id(compp->getDetailTextureID(i));
+				asset_ctrl->setImageAssetID(tmp_id);
 			}
 		}
 
@@ -1596,17 +1620,36 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 		}
 	}
 
-	LLTextureCtrl* texture_ctrl;
+	LLTextureCtrl* asset_ctrl;
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
 
+    // Use material IDs instead of texture IDs if all material IDs are set
+    S32 materials_used = 0;
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
-		buffer = llformat("texture_detail_%d", i);
-		texture_ctrl = getChild<LLTextureCtrl>(buffer);
-		if(texture_ctrl)
+		buffer = llformat("material_detail_%d", i);
+		asset_ctrl = getChild<LLTextureCtrl>(buffer);
+		if(asset_ctrl && asset_ctrl->getImageAssetID().notNull())
 		{
-			LLUUID tmp_id(texture_ctrl->getImageAssetID());
+            ++materials_used;
+        }
+    }
+	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+	{
+        if (materials_used == TERRAIN_TEXTURE_COUNT)
+        {
+            buffer = llformat("material_detail_%d", i);
+            asset_ctrl = getChild<LLTextureCtrl>(buffer);
+        }
+        else
+        {
+            buffer = llformat("texture_detail_%d", i);
+            asset_ctrl = getChild<LLTextureCtrl>(buffer);
+        }
+		if(asset_ctrl)
+		{
+			LLUUID tmp_id(asset_ctrl->getImageAssetID());
 			tmp_id.toString(id_str);
 			buffer = llformat("%d %s", i, id_str.c_str());
 			strings.push_back(buffer);
