@@ -511,26 +511,8 @@ vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
     return col;
 }
 
-PBRMix terrain_sample_pbr(
-    TerrainCoord terrain_coord
-    , sampler2D tex_col
-    , sampler2D tex_orm
-    , sampler2D tex_vNt
-#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-    , sampler2D tex_emissive
-#endif
-    )
-{
-    return sample_pbr(
-        terrain_coord
-        , tex_col
-        , tex_orm
-        , tex_vNt
-#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , tex_emissive
-#endif
-        );
-}
+#define terrain_sample_pbr sample_pbr
+
 #endif
 
 // The goal of _tmix_sample and related functions is to only sample textures when necessary, ignoring if the weights are low.
