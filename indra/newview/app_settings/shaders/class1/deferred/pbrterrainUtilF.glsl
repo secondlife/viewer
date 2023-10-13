@@ -111,7 +111,7 @@ vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
 {
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
     vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
-    float threshold = 0.01;
+    float threshold = 0.1;
     weight = max(vec3(0), sign(weight - threshold));
     int sample_type = (int(weight.x) << 2) |
                       (int(weight.y) << 1) |
