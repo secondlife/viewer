@@ -82,7 +82,7 @@ vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, Terrain
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec3 sample_and_mix_normal(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 
-#if 1 // TODO: Remove
+#if 0 // TODO: Remove
 #define TERRAIN_DEBUG 1 // TODO: Remove debug
 struct TerrainMix
 {
@@ -147,6 +147,7 @@ void main()
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
    
+#if TERRAIN_DEBUG // TODO: Remove
 #if 0 // TODO: Remove (terrain weights visualization)
     TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
 #if 1
@@ -187,10 +188,12 @@ void main()
     //col.rgb = vec3(0.0, 1.0, 0.0);
     //col.rgb = spec.rgb;
     //col.rgb = (vNt + 1.0) / 2.0;
-    col.rgb = (tnorm + 1.0) / 2.0;
-    spec.rgb = vec3(1.0, 1.0, 0.0);
+    //col.rgb = (tnorm + 1.0) / 2.0;
+    //spec.rgb = vec3(1.0, 1.0, 0.0);
+    col.rgb = spec.rgb;
     tnorm = vary_normal;
     emissive = vec3(0);
+#endif
 #endif
     frag_data[0] = max(vec4(col.xyz, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(spec.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.

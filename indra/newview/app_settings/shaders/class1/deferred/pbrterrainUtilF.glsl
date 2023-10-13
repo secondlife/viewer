@@ -57,7 +57,9 @@ vec3 srgb_to_linear(vec3 c);
 #define MIX_Z 1 << 1
 #define MIX_W 1 << 0
 
-#define TERRAIN_DEBUG 1 // TODO: Remove debug
+#if 0 // TODO: Remove debug
+#define TERRAIN_DEBUG 1
+#endif
 struct TerrainMix
 {
     vec4 weight;
@@ -104,18 +106,6 @@ float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal)
            tm.weight.z * samples.z +
            tm.weight.w * samples.w;
 }
-
-#if 0 // TODO: Decide if still needed, and if so, use _t_mix internally for weights
-vec3 terrain_mix(vec3[4] samples, float alpha1, float alpha2, float alphaFinal)
-{
-    return mix( mix(samples[3], samples[2], alpha2), mix(samples[1], samples[0], alpha1), alphaFinal );
-}
-
-vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
-{
-    return mix( mix(samples[3], samples[2], alpha2), mix(samples[1], samples[0], alpha1), alphaFinal );
-}
-#endif
 
 vec4 terrain_mix(TerrainMix tm, TerrainMixSample tms)
 {
