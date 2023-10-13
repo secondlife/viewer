@@ -1624,15 +1624,24 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
 
-    // Use material IDs instead of texture IDs if all material IDs are set
+    // Use material IDs instead of texture IDs if all material IDs are set, AND the mode is set to PBR materials.
     S32 materials_used = 0;
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-	{
-		buffer = llformat("material_detail_%d", i);
-		asset_ctrl = getChild<LLTextureCtrl>(buffer);
-		if(asset_ctrl && asset_ctrl->getImageAssetID().notNull())
-		{
-            ++materials_used;
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (material_type_ctrl)
+    {
+        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
+        if (is_material_selected)
+        {
+            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+            {
+                buffer = llformat("material_detail_%d", i);
+                asset_ctrl = getChild<LLTextureCtrl>(buffer);
+                if(asset_ctrl && asset_ctrl->getImageAssetID().notNull())
+                {
+                    ++materials_used;
+                }
+            }
         }
     }
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
