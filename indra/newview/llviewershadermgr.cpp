@@ -1513,7 +1513,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
         detail = llclamp(detail, TERRAIN_PBR_DETAIL_MIN, TERRAIN_PBR_DETAIL_MAX);
         const S32 mapping = clamp_terrain_mapping(gSavedSettings.getS32("RenderTerrainPBRPlanarSampleCount"));
-        gDeferredPBRTerrainProgram.mName = llformat("Deferred PBR Terrain Shader %d", detail);
+        gDeferredPBRTerrainProgram.mName = llformat("Deferred PBR Terrain Shader %d %s",
+                detail,
+                (mapping == 1 ? "flat" : "triplanar"));
         gDeferredPBRTerrainProgram.mFeatures.encodesNormal = true;
         gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
         gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
