@@ -28,6 +28,10 @@
 out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
+#if HAS_NOISE
+uniform sampler2D glowNoiseMap;
+uniform vec2 screen_res;
+#endif
 uniform float minLuminance;
 uniform float maxExtractAlpha;
 uniform vec3 lumWeights;
@@ -44,7 +48,16 @@ void main()
 	float lum = smoothstep(minLuminance, minLuminance+1.0, dot(col.rgb, lumWeights ) );
 	float warmth = smoothstep(minLuminance, minLuminance+1.0, max(col.r * warmthWeights.r, max(col.g * warmthWeights.g, col.b * warmthWeights.b)) ); 
 	
-	frag_color.rgb = col.rgb; 
+#if HAS_NOISE
+    float TRUE_NOISE_RES = 128; // See mTrueNoiseMap
+    // *NOTE: Usually this is vary_fragcoord not vary_texcoord0, but glow extraction is in screen space
+    vec3 glow_noise = texture(glowNoiseMap, vary_texcoord0.xy * (screen_res / TRUE_NOISE_RES)).xyz;
+    // Dithering. Reduces banding effects in the reduced precision glow buffer.
+    float NOISE_DEPTH = 64.0;
+    col.rgb += glow_noise / NOISE_DEPTH;
+    col.rgb = max(col.rgb, vec3(0));
+#endif
+	frag_color.rgb = col.rgb;
 	frag_color.a = max(col.a, mix(lum, warmth, warmthAmount) * maxExtractAlpha);
 	
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit Wearable Context Menu">
-	<menu_item_call label="交換" name="wear_replace"/>
-	<menu_item_call label="装着" name="wear_wear"/>
+	<menu_item_call label="着替える" name="wear_replace"/>
+	<menu_item_call label="着る" name="wear_wear"/>
 	<menu_item_call label="追加" name="wear_add"/>
-	<menu_item_call label="触る" name="touch" />
-	<menu_item_call label="取り外す" name="take_off_or_detach"/>
+	<menu_item_call label="触る" name="touch"/>
+	<menu_item_call label="脱ぐ" name="take_off_or_detach"/>
 	<menu_item_call label="取り外す" name="detach"/>
 	<context_menu label="装着：" name="wearable_attach_to"/>
-	<context_menu label="HUD に装着" name="wearable_attach_to_hud"/>
+	<context_menu label="ＨＵＤに装着" name="wearable_attach_to_hud"/>
 	<menu_item_call label="取り外す" name="take_off"/>
 	<menu_item_call label="編集" name="edit"/>
 	<menu_item_call label="アイテムのプロフィール" name="object_profile"/>

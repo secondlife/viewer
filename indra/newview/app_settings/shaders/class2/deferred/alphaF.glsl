@@ -71,7 +71,6 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
 
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
-vec3 legacy_adjust(vec3 c);
 
 vec2 encode_normal (vec3 n);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
@@ -85,7 +84,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 float getAmbientClamp();
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent);
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
@@ -234,7 +233,6 @@ void main()
     }
 
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_srgb.rgb = legacy_adjust(diffuse_srgb.rgb);
     diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
 #endif // USE_VERTEX_COLOR
 
@@ -251,7 +249,7 @@ void main()
     vec3 irradiance;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0, true);
+    sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0, true, amblit_linear);
     
 
     float da = dot(norm.xyz, light_dir.xyz);
@@ -266,7 +264,7 @@ void main()
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit_linear;
 
-    color.rgb = max(amblit, irradiance);
+    color.rgb = irradiance;
 
     color.rgb += sun_contrib;
 
@@ -291,9 +289,7 @@ void main()
     LIGHT_LOOP(7)
 
     // sum local light contrib in linear colorspace
-#if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
-#endif // !defined(LOCAL_LIGHT_KILL)
 
 #endif // #else // FOR_IMPOSTOR
 

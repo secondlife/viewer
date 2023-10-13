@@ -205,6 +205,7 @@ public:
 												bool pick_transparent,
 												bool pick_rigged,
                                                 bool pick_unselectable,
+                                                bool pick_reflection_probe,
 												S32* face_hit,                          // return the face hit
 												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -238,12 +239,6 @@ public:
     void        releaseSunShadowTargets();
     void        releaseSunShadowTarget(U32 index);
 
-// 	void		setLocalLighting(const bool local_lighting);
-// 	bool		isLocalLightingEnabled() const;
-	S32			setLightingDetail(S32 level);
-	S32			getLightingDetail() const { return mLightingDetail; }
-	S32			getMaxLightingDetail() const;
-		
 	bool		shadersLoaded();
 	bool		canUseWindLightShaders() const;
 	bool		canUseAntiAliasing() const;
@@ -284,7 +279,8 @@ public:
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
-
+    void renderGLTFObjects(U32 type, bool texture = true, bool rigged = false);
+    
     void renderAlphaObjects(bool rigged = false);
 	void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
     void renderFullbrightMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
@@ -346,7 +342,6 @@ public:
 	void setupHWLights();
 	void setupAvatarLights(bool for_edit = false);
 	void enableLights(U32 mask);
-	void enableLightsStatic();
 	void enableLightsDynamic();
 	void enableLightsAvatar();
 	void enableLightsPreview();
@@ -943,7 +938,6 @@ protected:
 	
 	U32						mLightMask;
 	U32						mLightMovingMask;
-	S32						mLightingDetail;
 		
 	static bool				sRenderPhysicalBeacons;
 	static bool				sRenderMOAPBeacons;
@@ -973,7 +967,6 @@ public:
     static S32 RenderShadowSplits;
 	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
-	static bool RenderLocalLights;
 	static bool RenderDelayCreation;
 	static bool RenderAnimateRes;
 	static bool FreezeTime;
@@ -1001,6 +994,7 @@ public:
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
+	static bool RenderGlowNoise;
 	static bool RenderDepthOfField;
 	static bool RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;

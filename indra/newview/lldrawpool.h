@@ -356,10 +356,29 @@ public:
 
     void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushUntexturedRiggedBatches(U32 type);
+
+    // push full GLTF batches
+    // assumes draw infos of given type have valid GLTF materials
     void pushGLTFBatches(U32 type);
-    void pushGLTFBatch(LLDrawInfo& params);
+
+    // like pushGLTFBatches, but will not bind textures or set up texture transforms
+    void pushUntexturedGLTFBatches(U32 type);
+
+    // helper function for dispatching to textured or untextured pass based on bool
+    void pushGLTFBatches(U32 type, bool textured);
+
+
+    // rigged variants of above
     void pushRiggedGLTFBatches(U32 type);
+    void pushRiggedGLTFBatches(U32 type, bool textured);
+    void pushUntexturedRiggedGLTFBatches(U32 type);
+
+    // push a single GLTF draw call
+    void pushGLTFBatch(LLDrawInfo& params);
     void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    void pushUntexturedGLTFBatch(LLDrawInfo& params);
+    void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+
 	void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
 	void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);

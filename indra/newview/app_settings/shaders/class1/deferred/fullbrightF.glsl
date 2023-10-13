@@ -40,8 +40,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
 vec3 srgb_to_linear(vec3 cs);
-vec3 legacy_adjust_fullbright(vec3 c);
-vec3 legacy_adjust(vec3 c);
 vec3 linear_to_srgb(vec3 cl);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -98,9 +96,7 @@ void main()
 #endif
 
 #ifndef IS_HUD
-    color.rgb = legacy_adjust(color.rgb);
     color.rgb = srgb_to_linear(color.rgb);
-    color.rgb = legacy_adjust_fullbright(color.rgb);
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
 #endif
 

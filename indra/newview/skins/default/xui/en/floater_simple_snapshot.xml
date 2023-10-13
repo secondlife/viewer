@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ positioning="cascading"
+ legacy_header_height="18"
+ can_minimize="false"
+ can_resize="false"
+ can_close="true"
+ height="305"
+ layout="topleft"
+ name="simple_snapshot"
+ single_instance="false"
+ help_topic="snapshot"
+ save_rect="true"
+ save_visibility="false"
+ title="ITEM SNAPSHOT"
+ width="351">
+  <ui_ctrl
+   layout="topleft"
+   name="thumbnail_placeholder"
+   top="18"
+   left="22"
+   width="335"
+   height="200"
+   follows="top|left"/>
+  <button
+   follows="left|bottom"
+   height="22"
+   layout="topleft"
+   left="29"
+   label="Take photo"
+   name="new_snapshot_btn"
+   bottom="-15"
+   width="90" />
+  <button
+   follows="left|bottom"
+   height="22"
+   layout="topleft"
+   left_pad="10"
+   label="Save"
+   name="save_btn"
+   width="90" />
+  <button
+   follows="left|bottom"
+   height="22"
+   layout="topleft"
+   left_pad="10"
+   label="Cancel"
+   name="cancel_btn"
+   width="90" />
+</floater>

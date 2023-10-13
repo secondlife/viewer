@@ -5232,11 +5232,6 @@ U32 LLVOAvatar::renderRigid()
 	{
 		return 0;
 	}
-	
-	if (!mIsBuilt)
-	{
-		return 0;
-	}
 
 	if (isTextureVisible(TEX_EYES_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 	{
@@ -9469,7 +9464,14 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
 	// assumes that cof version is only updated with server-bake
 	// appearance messages.
-    LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
+    if (isSelf())
+    {
+        LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS("Avatar") << "Processing appearance message for " << getID() << ", version " << thisAppearanceVersion << LL_ENDL;
+    }
 
     // Note:
     // locally the COF is maintained via LLInventoryModel::accountForUpdate

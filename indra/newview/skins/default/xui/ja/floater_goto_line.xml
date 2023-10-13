@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script goto" title="行に移動">
-	<button label="OK" label_selected="OK" name="goto_btn"/>
+	<button label="ＯＫ" label_selected="ＯＫ" name="goto_btn"/>
 	<text name="txt">
 		行に移動
 	</text>

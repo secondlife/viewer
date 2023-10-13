@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<floater name="Load Pref Preset" title="優先プリセットをロード">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="load_pref_preset" title="プリセット設定を読み込み">
 	<string name="title_graphic">
-		グラフィックプリセットをロード
+		グラフィックのプリセットを読み込む
 	</string>
 	<string name="title_camera">
-		カメラプリセットをロード
+		カメラのプリセットを読み込む
 	</string>
 	<text name="Preset">
 		プリセットを選択
 	</text>
-	<button label="OK" name="ok"/>
-	<button label="取り消し" name="cancel"/>
+	<button label="ＯＫ" name="ok"/>
+	<button label="キャンセル" name="cancel"/>
 </floater>

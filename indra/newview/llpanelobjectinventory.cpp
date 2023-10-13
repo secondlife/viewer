@@ -117,6 +117,7 @@ public:
 	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
 	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
+    virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null;}
 	virtual time_t getCreationDate() const;
 	virtual void setCreationDate(time_t creation_date_utc);
 
@@ -125,6 +126,7 @@ public:
 	virtual BOOL canOpenItem() const { return FALSE; }
 	virtual void closeItem() {}
 	virtual void selectItem() {}
+    virtual void navigateToFolder(bool new_window = false, bool change_mode = false) {}
 	virtual BOOL isItemRenameable() const;
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemMovable() const;
@@ -1427,7 +1429,8 @@ void LLPanelObjectInventory::reset()
 		LLEditMenuHandler::gEditMenuHandler = mFolders;
 	}
 
-	LLRect scroller_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+	int offset = hasBorder() ? getBorder()->getBorderWidth() << 1 : 0;
+	LLRect scroller_rect(0, getRect().getHeight() - offset, getRect().getWidth() - offset, 0);
 	LLScrollContainer::Params scroll_p;
 	scroll_p.name("task inventory scroller");
 	scroll_p.rect(scroller_rect);
@@ -1455,21 +1458,6 @@ void LLPanelObjectInventory::inventoryChanged(LLViewerObject* object,
 	if(mTaskUUID == object->mID)
 	{
 		mInventoryNeedsUpdate = TRUE;
-	}
-
-	// refresh any properties floaters that are hanging around.
-	if(inventory)
-	{
-		for (LLInventoryObject::object_list_t::const_iterator iter = inventory->begin();
-			 iter != inventory->end(); )
-		{
-			LLInventoryObject* item = *iter++;
-			LLFloaterProperties* floater = LLFloaterReg::findTypedInstance<LLFloaterProperties>("properties", item->getUUID());
-			if(floater)
-			{
-				floater->refresh();
-			}
-		}
 	}
 }
 

@@ -130,7 +130,6 @@ S32 LLPipeline::RenderShadowDetail;
 S32 LLPipeline::RenderShadowSplits;
 bool LLPipeline::RenderDeferredSSAO;
 F32 LLPipeline::RenderShadowResolutionScale;
-bool LLPipeline::RenderLocalLights;
 bool LLPipeline::RenderDelayCreation;
 bool LLPipeline::RenderAnimateRes;
 bool LLPipeline::FreezeTime;
@@ -157,6 +156,7 @@ S32 LLPipeline::RenderGlowResolutionPow;
 S32 LLPipeline::RenderGlowIterations;
 F32 LLPipeline::RenderGlowWidth;
 F32 LLPipeline::RenderGlowStrength;
+bool LLPipeline::RenderGlowNoise;
 bool LLPipeline::RenderDepthOfField;
 bool LLPipeline::RenderDepthOfFieldInEditMode;
 F32 LLPipeline::CameraFocusTransitionTime;
@@ -348,8 +348,7 @@ LLPipeline::LLPipeline() :
 	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mLightMask(0),
-	mLightMovingMask(0),
-	mLightingDetail(0)
+	mLightMovingMask(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -470,8 +469,6 @@ void LLPipeline::init()
         mScreenTriangleVB->unmapBuffer();
     }
 
-    setLightingDetail(-1);
-	
 	//
 	// Update all settings to trigger a cached settings refresh
 	//
@@ -490,7 +487,6 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderShadowSplits");
 	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
 	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
-	connectRefreshCachedSettingsSafe("RenderLocalLights");
 	connectRefreshCachedSettingsSafe("RenderDelayCreation");
 	connectRefreshCachedSettingsSafe("RenderAnimateRes");
 	connectRefreshCachedSettingsSafe("FreezeTime");
@@ -517,6 +513,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderGlowIterations");
 	connectRefreshCachedSettingsSafe("RenderGlowWidth");
 	connectRefreshCachedSettingsSafe("RenderGlowStrength");
+	connectRefreshCachedSettingsSafe("RenderGlowNoise");
 	connectRefreshCachedSettingsSafe("RenderDepthOfField");
 	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
 	connectRefreshCachedSettingsSafe("CameraFocusTransitionTime");
@@ -840,7 +837,9 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         mSceneMap.allocate(resX, resY, GL_RGB, true);
     }
 
-    mPostMap.allocate(resX, resY, GL_RGBA);
+	const bool post_hdr = gSavedSettings.getBOOL("RenderPostProcessingHDR");
+    const U32 post_color_fmt = post_hdr ? GL_RGBA16F : GL_RGBA;
+    mPostMap.allocate(resX, resY, post_color_fmt);
 
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
@@ -978,7 +977,6 @@ void LLPipeline::refreshCachedSettings()
     RenderShadowSplits = gSavedSettings.getS32("RenderShadowSplits");
 	RenderDeferredSSAO = gSavedSettings.getBOOL("RenderDeferredSSAO");
 	RenderShadowResolutionScale = gSavedSettings.getF32("RenderShadowResolutionScale");
-	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
 	RenderDelayCreation = gSavedSettings.getBOOL("RenderDelayCreation");
 	RenderAnimateRes = gSavedSettings.getBOOL("RenderAnimateRes");
 	FreezeTime = gSavedSettings.getBOOL("FreezeTime");
@@ -1005,6 +1003,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderGlowIterations = gSavedSettings.getS32("RenderGlowIterations");
 	RenderGlowWidth = gSavedSettings.getF32("RenderGlowWidth");
 	RenderGlowStrength = gSavedSettings.getF32("RenderGlowStrength");
+	RenderGlowNoise = gSavedSettings.getBOOL("RenderGlowNoise");
 	RenderDepthOfField = gSavedSettings.getBOOL("RenderDepthOfField");
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	CameraFocusTransitionTime = gSavedSettings.getF32("CameraFocusTransitionTime");
@@ -1163,9 +1162,11 @@ void LLPipeline::createGLBuffers()
 
     // allocate screen space glow buffers
     const U32 glow_res = llmax(1, llmin(512, 1 << gSavedSettings.getS32("RenderGlowResolutionPow")));
+	const bool glow_hdr = gSavedSettings.getBOOL("RenderGlowHDR");
+    const U32 glow_color_fmt = glow_hdr ? GL_RGBA16F : GL_RGBA;
     for (U32 i = 0; i < 3; i++)
     {
-        mGlow[i].allocate(512, glow_res, GL_RGBA);
+        mGlow[i].allocate(512, glow_res, glow_color_fmt);
     }
 
     allocateScreenBuffer(resX, resY);
@@ -1347,39 +1348,6 @@ void LLPipeline::assertInitializedDoError()
 void LLPipeline::enableShadows(const bool enable_shadows)
 {
 	//should probably do something here to wrangle shadows....	
-}
-
-S32 LLPipeline::getMaxLightingDetail() const
-{
-	/*if (mShaderLevel[SHADER_OBJECT] >= LLDrawPoolSimple::SHADER_LEVEL_LOCAL_LIGHTS)
-	{
-		return 3;
-	}
-	else*/
-	{
-		return 1;
-	}
-}
-
-S32 LLPipeline::setLightingDetail(S32 level)
-{
-	refreshCachedSettings();
-
-	if (level < 0)
-	{
-		if (RenderLocalLights)
-		{
-			level = 1;
-		}
-		else
-		{
-			level = 0;
-		}
-	}
-	level = llclamp(level, 0, getMaxLightingDetail());
-	mLightingDetail = level;
-	
-	return mLightingDetail;
 }
 
 class LLOctreeDirtyTexture : public OctreeTraveler
@@ -2459,8 +2427,11 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		for (LLCullResult::sg_iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
 		{
 			LLSpatialGroup* group = *iter;
-			group->doOcclusion(&camera);
-			group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
+            if (!group->isDead())
+            {
+                group->doOcclusion(&camera);
+                group->clearOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
+            }
 		}
 	
 		//apply occlusion culling to object cache tree
@@ -2905,6 +2876,10 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
+        if (group->isDead())
+        {
+            continue;
+        }
 		group->checkOcclusion();
 		if (sUseOcclusion > 1 && group->isOcclusionState(LLSpatialGroup::OCCLUDED))
 		{
@@ -2964,6 +2939,10 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
+        if (group->isDead())
+        {
+            continue;
+        }
 		group->checkOcclusion();
 		if (sUseOcclusion > 1 && group->isOcclusionState(LLSpatialGroup::OCCLUDED))
 		{
@@ -3123,7 +3102,12 @@ void forAllDrawables(LLCullResult::sg_iterator begin,
 {
 	for (LLCullResult::sg_iterator i = begin; i != end; ++i)
 	{
-		for (LLSpatialGroup::element_iter j = (*i)->getDataBegin(); j != (*i)->getDataEnd(); ++j)
+        LLSpatialGroup* group = *i;
+        if (group->isDead())
+        {
+            continue;
+        }
+		for (LLSpatialGroup::element_iter j = group->getDataBegin(); j != group->getDataEnd(); ++j)
 		{
 			if((*j)->hasDrawable())
 			{
@@ -3332,6 +3316,10 @@ void LLPipeline::postSort(LLCamera &camera)
         for (LLCullResult::sg_iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
         {
             LLSpatialGroup *group = *i;
+            if (group->isDead())
+            {
+                continue;
+            }
             if (!sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
             {
                 group->rebuildGeom();
@@ -3350,6 +3338,12 @@ void LLPipeline::postSort(LLCamera &camera)
     for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
     {
         LLSpatialGroup *group = *i;
+
+        if (group->isDead())
+        {
+            continue;
+        }
+
         if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
             (RenderAutoHideSurfaceAreaLimit > 0.f &&
              group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
@@ -5218,7 +5212,9 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		return;
 	}
 
-	if (mLightingDetail >= 1)
+    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+
+	if (local_light_count >= 1)
 	{
 		// mNearbyLight (and all light_set_t's) are sorted such that
 		// begin() == the closest light and rbegin() == the farthest light
@@ -5485,7 +5481,9 @@ void LLPipeline::setupHWLights()
 
 	mLightMovingMask = 0;
 	
-	if (mLightingDetail >= 1)
+    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+
+	if (local_light_count >= 1)
 	{
 		for (light_set_t::iterator iter = mNearbyLights.begin();
 			 iter != mNearbyLights.end(); ++iter)
@@ -5628,10 +5626,6 @@ void LLPipeline::enableLights(U32 mask)
 {
 	assertInitialized();
 
-	if (mLightingDetail == 0)
-	{
-		mask &= 0xf003; // sun and backlight only (and fullbright bit)
-	}
 	if (mLightMask != mask)
 	{
 		stop_glerror();
@@ -5659,28 +5653,13 @@ void LLPipeline::enableLights(U32 mask)
 	}
 }
 
-void LLPipeline::enableLightsStatic()
-{
-	assertInitialized();
-	U32 mask = 0x01; // Sun
-	if (mLightingDetail >= 2)
-	{
-		mask |= mLightMovingMask; // Hardware moving lights
-	}
-	else
-	{
-		mask |= 0xff & (~2); // Hardware local lights
-	}
-	enableLights(mask);
-}
-
 void LLPipeline::enableLightsDynamic()
 {
 	assertInitialized();
 	U32 mask = 0xff & (~2); // Local lights
 	enableLights(mask);
 	
-	if (isAgentAvatarValid() && getLightingDetail() <= 0)
+	if (isAgentAvatarValid())
 	{
 		if (gAgentAvatarp->mSpecialRenderMode == 0) // normal
 		{
@@ -6216,7 +6195,7 @@ LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start,
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_PARTICLE);
 		if (part && hasRenderType(part->mDrawableType))
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, local_end, TRUE, FALSE, TRUE, face_hit, &position, NULL, NULL, NULL);
+			LLDrawable* hit = part->lineSegmentIntersect(start, local_end, TRUE, FALSE, TRUE, FALSE, face_hit, &position, NULL, NULL, NULL);
 			if (hit)
 			{
 				drawable = hit;
@@ -6245,6 +6224,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 														bool pick_transparent,
 														bool pick_rigged,
                                                         bool pick_unselectable,
+                                                        bool pick_reflection_probe,
 														S32* face_hit,
 														LLVector4a* intersection,         // return the intersection point
 														LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -6278,7 +6258,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 				LLSpatialPartition* part = region->getSpatialPartition(j);
 				if (part && hasRenderType(part->mDrawableType))
 				{
-					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, face_hit, &position, tex_coord, normal, tangent);
+					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, face_hit, &position, tex_coord, normal, tangent);
 					if (hit)
 					{
 						drawable = hit;
@@ -6335,7 +6315,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 			LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_AVATAR);
 			if (part && hasRenderType(part->mDrawableType))
 			{
-				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, face_hit, &position, tex_coord, normal, tangent);
+				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, face_hit, &position, tex_coord, normal, tangent);
 				if (hit)
 				{
 					LLVector4a delta;
@@ -6423,7 +6403,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, c
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_HUD);
 		if (part)
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, FALSE, TRUE, face_hit, intersection, tex_coord, normal, tangent);
+			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, FALSE, TRUE, FALSE, face_hit, intersection, tex_coord, normal, tangent);
 			if (hit)
 			{
 				drawable = hit;
@@ -6485,6 +6465,25 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
 
     gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
+}
+
+void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
+{
+    assertInitialized();
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
+
+    if (rigged)
+    {
+        mSimplePool->pushRiggedGLTFBatches(type + 1, texture);
+    }
+    else
+    {
+        mSimplePool->pushGLTFBatches(type, texture);
+    }
+
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19
@@ -6882,6 +6881,19 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 			warmthWeights.mV[2]);
 		gGlowExtractProgram.uniform1f(LLShaderMgr::GLOW_WARMTH_AMOUNT, warmthAmount);
 
+        if (RenderGlowNoise)
+        {
+            S32 channel = gGlowExtractProgram.enableTexture(LLShaderMgr::GLOW_NOISE_MAP);
+            if (channel > -1)
+            {
+                gGL.getTexUnit(channel)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
+                gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+            }
+            gGlowExtractProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
+                                          mGlow[2].getWidth(),
+                                          mGlow[2].getHeight());
+        }
+
 		{
 			LLGLEnable blend_on(GL_BLEND);
 
@@ -7126,7 +7138,7 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 					LLVector4a result;
 					result.clear();
 
-					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, NULL, &result);
+					gViewerWindow->cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, TRUE, NULL, &result);
 
 					focus_point.set(result.getF32ptr());
 				}
@@ -7664,7 +7676,17 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 		shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, 1, FALSE, norm_mat.m);
 	}
 
-    shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
+    // auto adjust legacy sun color if needed
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<F32> auto_adjust_sun_color_scale(gSavedSettings, "RenderSkyAutoAdjustSunColorScale", 1.f);
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    LLColor3 sun_diffuse(mSunDiffuse.mV);
+    if (should_auto_adjust && psky->canAutoAdjust())
+    {
+        sun_diffuse *= auto_adjust_sun_color_scale;
+    }
+
+    shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sun_diffuse.mV);
     shader.uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
 
     shader.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mReflectionMapManager.mMaxProbeLOD);
@@ -7885,9 +7907,9 @@ void LLPipeline::renderDeferredLighting()
             unbindDeferredShader(LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram);
         }
 
-        bool render_local = RenderLocalLights; // && !gCubeSnapshot;
+        static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
 
-        if (render_local)
+        if (local_light_count > 0)
         {
             gGL.setSceneBlendType(LLRender::BT_ADD);
             std::list<LLVector4>        fullscreen_lights;
@@ -7922,8 +7944,15 @@ void LLPipeline::renderDeferredLighting()
                 // mNearbyLights already includes distance calculation and excludes muted avatars.
                 // It is calculated from mLights
                 // mNearbyLights also provides fade value to gracefully fade-out out of range lights
+                S32 count = 0;
                 for (light_set_t::iterator iter = mNearbyLights.begin(); iter != mNearbyLights.end(); ++iter)
                 {
+                    count++;
+                    if (count > local_light_count)
+                    { //stop collecting lights once we hit the limit
+                        break;
+                    }
+
                     LLDrawable * drawablep = iter->drawable;
                     LLVOVolume * volume = drawablep->getVOVolume();
                     if (!volume)
@@ -7970,24 +7999,20 @@ void LLPipeline::renderDeferredLighting()
                         camera->getOrigin().mV[1] > c[1] + s + 0.2f || camera->getOrigin().mV[1] < c[1] - s - 0.2f ||
                         camera->getOrigin().mV[2] > c[2] + s + 0.2f || camera->getOrigin().mV[2] < c[2] - s - 0.2f)
                     {  // draw box if camera is outside box
-                        if (render_local)
+                        if (volume->isLightSpotlight())
                         {
-                            if (volume->isLightSpotlight())
-                            {
-                                drawablep->getVOVolume()->updateSpotLightPriority();
-                                spot_lights.push_back(drawablep);
-                                continue;
-                            }
-
-                            gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
-                            gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
-                            gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                            gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
-                            gGL.syncMatrices();
-
-                            mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
-                            stop_glerror();
+                            drawablep->getVOVolume()->updateSpotLightPriority();
+                            spot_lights.push_back(drawablep);
+                            continue;
                         }
+
+                        gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
+                        gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
+                        gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+                        gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
+                        gGL.syncMatrices();
+
+                        mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
                     }
                     else
                     {
@@ -8581,8 +8606,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LLRenderPass::PASS_NORMMAP,
         LLRenderPass::PASS_NORMMAP_EMISSIVE,
         LLRenderPass::PASS_NORMSPEC,
-        LLRenderPass::PASS_NORMSPEC_EMISSIVE,
-        LLRenderPass::PASS_GLTF_PBR
+        LLRenderPass::PASS_NORMSPEC_EMISSIVE
     };
 
     LLGLEnable cull(GL_CULL_FACE);
@@ -8644,6 +8668,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         {
             renderObjects(type, false, false, rigged);
         }
+
+        renderGLTFObjects(LLRenderPass::PASS_GLTF_PBR, false, rigged);
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }

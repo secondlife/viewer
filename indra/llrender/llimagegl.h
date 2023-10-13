@@ -65,7 +65,7 @@ public:
 
 	// Size calculation
 	static S32 dataFormatBits(S32 dataformat);
-	static S32 dataFormatBytes(S32 dataformat, S32 width, S32 height);
+	static S64 dataFormatBytes(S32 dataformat, S32 width, S32 height);
 	static S32 dataFormatComponents(S32 dataformat);
 
 	BOOL updateBindStats() const ;
@@ -145,8 +145,8 @@ public:
 	S32	 getWidth(S32 discard_level = -1) const;
 	S32	 getHeight(S32 discard_level = -1) const;
 	U8	 getComponents() const { return mComponents; }
-	S32  getBytes(S32 discard_level = -1) const;
-	S32  getMipBytes(S32 discard_level = -1) const;
+	S64  getBytes(S32 discard_level = -1) const;
+	S64  getMipBytes(S32 discard_level = -1) const;
 	BOOL getBoundRecently() const;
 	BOOL isJustBound() const;
 	BOOL getHasExplicitFormat() const { return mHasExplicitFormat; }
@@ -208,7 +208,7 @@ public:
 
 public:
 	// Various GL/Rendering options
-	S32Bytes mTextureMemory;
+	S64Bytes mTextureMemory;
 	mutable F32  mLastBindTime;	// last time this was bound, by discard level
 	
 private:

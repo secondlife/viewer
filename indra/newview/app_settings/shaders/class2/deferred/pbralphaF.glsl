@@ -92,7 +92,7 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, 
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent);
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
 
 void waterClip(vec3 pos);
 
@@ -112,16 +112,14 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 colorEmissive,
                   float ao,
                   vec3 additive,
-                  vec3 atten,
-                  out vec3 specContrib);
+                  vec3 atten);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
                     float perceptualRoughness, 
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l, //surface point to light
-                    out vec3 specContrib); 
+                    vec3 l); //surface point to light
 
 vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor, 
                     float perceptualRoughness, 
@@ -132,7 +130,7 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lp, // light position
                     vec3 ld, // light direction (for spotlights)
                     vec3 lightColor,
-                    float lightSize, float falloff, float is_pointlight, inout float glare, float ambiance)
+                    float lightSize, float falloff, float is_pointlight, float ambiance)
 {
     vec3 color = vec3(0,0,0);
 
@@ -154,10 +152,7 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
 
-        vec3 speccol;
-        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, speccol);
-        speccol *= intensity;
-        glare += max(max(speccol.r, speccol.g), speccol.b);
+        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
     }
 
     return color;
@@ -166,7 +161,6 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 void main()
 {
     vec3 color = vec3(0,0,0);
-    float glare = 0.0;
 
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
     vec3  pos         = vary_position;
@@ -224,20 +218,15 @@ void main()
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true);
-    // Take maximium of legacy ambient vs irradiance sample as irradiance
-    // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
-    irradiance       = max(amblit,irradiance);
-
+    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
+    
     vec3 diffuseColor;
     vec3 specularColor;
     calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
 
-    vec3 spec;
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, spec);
-    glare += max(max(spec.r, spec.g), spec.b);
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
 
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
     
@@ -249,7 +238,7 @@ void main()
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w);
+#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -264,9 +253,6 @@ void main()
     
     float a = basecolor.a*vertex_color.a;
     
-    glare = min(glare, 1.0);
-    a = max(a, glare);
-
     frag_color = max(vec4(color.rgb,a), vec4(0));
 }
 

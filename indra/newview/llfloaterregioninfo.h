@@ -102,7 +102,6 @@ public:
 	
 	void onRegionChanged();
 	void requestRegionInfo();
-	void requestMeshRezInfo();
 	void enableTopButtons();
 	void disableTopButtons();
 

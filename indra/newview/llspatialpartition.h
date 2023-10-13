@@ -294,6 +294,7 @@ public:
 	BOOL addObject(LLDrawable *drawablep);
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
+	void expandExtents(const LLVector4a* addingExtents, const LLXformMatrix& currentTransform);
 	void shift(const LLVector4a &offset);
 
     // TODO: this no longer appears to be called, figure out if it's important and if not remove it
@@ -315,6 +316,7 @@ public:
         BOOL pick_transparent,
         BOOL pick_rigged,
         BOOL pick_unselectable,
+        BOOL pick_reflection_probe,
         S32* face_hit,                          // return the face hit
         LLVector4a* intersection = NULL,         // return the intersection point
         LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -389,6 +391,7 @@ public:
 									 BOOL pick_transparent, 
 									 BOOL pick_rigged,
                                      BOOL pick_unselectable,
+                                     BOOL pick_reflection_probe,
 									 S32* face_hit,                          // return the face hit
 									 LLVector4a* intersection = NULL,         // return the intersection point
 									 LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -719,8 +722,10 @@ public:
 
 class LLControlAVBridge : public LLVolumeBridge
 {
+	using super = LLVolumeBridge;
 public:
 	LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regionp);
+	virtual void updateSpatialExtents();
 };
 
 class LLHUDBridge : public LLVolumeBridge

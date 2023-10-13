@@ -332,17 +332,6 @@ void LLMaterial::setAlphaMaskCutoff(U8 cutoff)
     mAlphaMaskCutoff = cutoff;
 }
 
-LLUUID LLMaterial::getMaterialID() const
-{
-    // TODO - not null
-    return LLUUID::null;
-}
-
-void LLMaterial::setMaterialID(const LLUUID &material_id)
-{
-    // TODO - set
-}
-
 LLSD LLMaterial::asLLSD() const
 {
     LLSD material_data;
@@ -438,18 +427,18 @@ bool LLMaterial::operator != (const LLMaterial& rhs) const
 }
 
 
-U32 LLMaterial::getShaderMask(U32 alpha_mode)
+U32 LLMaterial::getShaderMask(U32 alpha_mode, BOOL is_alpha)
 { //NEVER incorporate this value into the message system -- this function will vary depending on viewer implementation
-    U32 ret = 0;
 
-    //two least significant bits are "diffuse alpha mode"
-    if (alpha_mode != DIFFUSE_ALPHA_MODE_DEFAULT)
+	//two least significant bits are "diffuse alpha mode"
+	U32 ret = alpha_mode;
+    if (ret == DIFFUSE_ALPHA_MODE_DEFAULT)
     {
-        ret = alpha_mode;
-    }
-    else
-    {
-        ret = getDiffuseAlphaMode();
+		ret = getDiffuseAlphaMode();
+		if (ret == DIFFUSE_ALPHA_MODE_BLEND && !is_alpha)
+		{
+			ret = DIFFUSE_ALPHA_MODE_NONE;
+		}
     }
 
     llassert(ret < SHADER_COUNT);

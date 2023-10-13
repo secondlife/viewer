@@ -85,40 +85,24 @@ bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
 
     // message should be interpreted thusly:
     ///  sides is a list of face indices
-    //   gltf_json is a list of corresponding json
+    //   gltf_llsd is a list of corresponding GLTF override LLSD
     //   any side not represented in "sides" has no override
-    if (data.has("sides") && data.has("gltf_json"))
+    if (data.has("sides") && data.has("gltf_llsd"))
     {
         LLSD const& sides = data.get("sides");
-        LLSD const& gltf_json = data.get("gltf_json");
+        LLSD const& gltf_llsd = data.get("gltf_llsd");
 
-        if (sides.isArray() && gltf_json.isArray() &&
+        if (sides.isArray() && gltf_llsd.isArray() &&
             sides.size() != 0 &&
-            sides.size() == gltf_json.size())
+            sides.size() == gltf_llsd.size())
         {
             for (int i = 0; i < sides.size(); ++i)
             {
                 S32 side_idx = sides[i].asInteger();
-                std::string gltf_json_str = gltf_json[i].asString();
-                mSides[side_idx] = gltf_json_str;
+                mSides[side_idx] = gltf_llsd[i];
                 LLGLTFMaterial* override_mat = new LLGLTFMaterial();
-                std::string error, warn;
-                if (override_mat->fromJSON(gltf_json_str, warn, error))
-                {
-                    mGLTFMaterial[side_idx] = override_mat;
-                }
-                else
-                {
-                    LL_WARNS() << "Invalid GLTF string: \n" << gltf_json_str << LL_ENDL;
-                    if (!error.empty())
-                    {
-                        LL_WARNS() << "Error: " << error << LL_ENDL;
-                    }
-                    if (!warn.empty())
-                    {
-                        LL_WARNS() << "Warning: " << warn << LL_ENDL;
-                    }
-                }
+                override_mat->applyOverrideLLSD(gltf_llsd[i]);
+                mGLTFMaterial[side_idx] = override_mat;
             }
         }
         else
@@ -157,7 +141,7 @@ LLSD LLGLTFOverrideCacheEntry::toLLSD() const
         // check that mSides and mGLTFMaterial have exactly the same keys present
         llassert(mGLTFMaterial.count(side.first) == 1);
         data["sides"].append(LLSD::Integer(side.first));
-        data["gltf_json"].append(side.second);
+        data["gltf_llsd"].append(side.second);
     }
 
     return data;
@@ -1199,6 +1183,8 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 
 	readCacheHeader();	
 
+	LL_INFOS() << "Viewer Object Cache Versions - expected: " << cache_version << " found: " << mMetaInfo.mVersion <<  LL_ENDL;
+
 	if( mMetaInfo.mVersion != cache_version
 		|| mMetaInfo.mAddressSize != expected_address) 
 	{
@@ -1209,7 +1195,8 @@ void LLVOCache::initCache(ELLPath location, U32 size, U32 cache_version)
 			clearCacheInMemory();
 		}
 		else //delete the current cache if the format does not match.
-		{			
+		{
+			LL_INFOS() << "Viewer Object Cache Versions unmatched.  clearing cache." <<  LL_ENDL;
 			removeCache();
 		}
 	}	

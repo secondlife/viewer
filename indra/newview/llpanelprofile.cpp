@@ -71,6 +71,7 @@
 #include "llpanelblockedlist.h"
 #include "llpanelprofileclassifieds.h"
 #include "llpanelprofilepicks.h"
+#include "llthumbnailctrl.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h" //is_agent_mappable
@@ -159,6 +160,7 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     avatar_data->fl_about_text = result["fl_about_text"].asString();
     avatar_data->born_on = result["member_since"].asDate();
     avatar_data->profile_url = getProfileURL(agent_id.asString());
+    avatar_data->customer_type = result["customer_type"].asString();
 
     avatar_data->flags = 0;
 
@@ -365,7 +367,7 @@ LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::stri
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    LL_WARNS("AvatarProperties") << result << LL_ENDL;
+    LL_DEBUGS("AvatarProperties") << result << LL_ENDL;
 
     if (!status)
     {
@@ -460,8 +462,10 @@ public:
 	// requires trusted browser to trigger
 	LLProfileHandler() : LLCommandHandler("profile", UNTRUSTED_THROTTLE) { }
 
-	bool handle(const LLSD& params, const LLSD& query_map,
-		LLMediaCtrl* web)
+	bool handle(const LLSD& params,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		if (params.size() < 1) return false;
 		std::string agent_name = params[0];
@@ -508,8 +512,10 @@ public:
         return false;
     }
 
-	bool handle(const LLSD& params, const LLSD& query_map,
-		LLMediaCtrl* web)
+	bool handle(const LLSD& params,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		if (params.size() < 2) return false;
 		LLUUID avatar_id;
@@ -908,7 +914,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
-    mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
+    mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
@@ -1051,6 +1057,8 @@ void LLPanelProfileSecondLife::resetData()
     mCantEditObjectsIcon->setEnabled(false);
 
     childSetVisible("partner_layout", FALSE);
+    childSetVisible("badge_layout", FALSE);
+    childSetVisible("partner_spacer_layout", TRUE);
 }
 
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
@@ -1258,6 +1266,59 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
 
     std::string caption_text = getString("CaptionTextAcctInfo", args);
     getChild<LLUICtrl>("account_info")->setValue(caption_text);
+
+    const S32 LINDEN_EMPLOYEE_INDEX = 3;
+    LLDate sl_release;
+    sl_release.fromYMDHMS(2003, 6, 23, 0, 0, 0);
+    std::string customer_lower = avatar_data->customer_type;
+    LLStringUtil::toLower(customer_lower);
+    if (avatar_data->caption_index == LINDEN_EMPLOYEE_INDEX)
+    {
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Linden");
+        getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeLinden"));
+        childSetVisible("badge_layout", TRUE);
+        childSetVisible("partner_spacer_layout", FALSE);
+    }
+    else if (avatar_data->born_on < sl_release)
+    {
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Beta");
+        getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeBeta"));
+        childSetVisible("badge_layout", TRUE);
+        childSetVisible("partner_spacer_layout", FALSE);
+    }
+    else if (customer_lower == "beta_lifetime")
+    {
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Beta_Lifetime");
+        getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeBetaLifetime"));
+        childSetVisible("badge_layout", TRUE);
+        childSetVisible("partner_spacer_layout", FALSE);
+    }
+    else if (customer_lower == "lifetime")
+    {
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Lifetime");
+        getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeLifetime"));
+        childSetVisible("badge_layout", TRUE);
+        childSetVisible("partner_spacer_layout", FALSE);
+    }
+    else if (customer_lower == "secondlifetime_premium")
+    {
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Premium_Lifetime");
+        getChild<LLUICtrl>("badge_text")->setValue(getString("BadgePremiumLifetime"));
+        childSetVisible("badge_layout", TRUE);
+        childSetVisible("partner_spacer_layout", FALSE);
+    }
+    else if (customer_lower == "secondlifetime_premium_plus")
+    {
+        getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Pplus_Lifetime");
+        getChild<LLUICtrl>("badge_text")->setValue(getString("BadgePremiumPlusLifetime"));
+        childSetVisible("badge_layout", TRUE);
+        childSetVisible("partner_spacer_layout", FALSE);
+    }
+    else
+    {
+        childSetVisible("badge_layout", FALSE);
+        childSetVisible("partner_spacer_layout", TRUE);
+    }
 }
 
 void LLPanelProfileSecondLife::fillRightsData()
@@ -1412,7 +1473,7 @@ void LLPanelProfileSecondLife::updateOnlineStatus()
     }
     else
     {
-        childSetVisible("frind_layout", false);
+        childSetVisible("friend_layout", false);
         childSetVisible("online_layout", false);
         childSetVisible("offline_layout", false);
     }
@@ -1420,7 +1481,7 @@ void LLPanelProfileSecondLife::updateOnlineStatus()
 
 void LLPanelProfileSecondLife::processOnlineStatus(bool is_friend, bool show_online, bool online)
 {
-    childSetVisible("frind_layout", is_friend);
+    childSetVisible("friend_layout", is_friend);
     childSetVisible("online_layout", online && show_online);
     childSetVisible("offline_layout", !online && show_online);
 }
@@ -1435,7 +1496,6 @@ void LLPanelProfileSecondLife::setLoaded()
         mDescriptionEdit->setEnabled(TRUE);
     }
 }
-
 
 
 class LLProfileImagePicker : public LLFilePickerThread
@@ -1484,15 +1544,20 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
     const S32 MAX_DIM = 256;
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
     {
-        //todo: image not supported notification
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", failed to open image" << LL_ENDL;
+        LLSD notif_args;
+        notif_args["REASON"] = LLImage::getLastError().c_str();
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
 
     std::string cap_url = gAgent.getRegionCapability(PROFILE_IMAGE_UPLOAD_CAP);
     if (cap_url.empty())
     {
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", no cap found" << LL_ENDL;
+        LLSD args;
+        args["CAPABILITY"] = PROFILE_IMAGE_UPLOAD_CAP;
+        LLNotificationsUtil::add("RegionCapabilityRequestError", args);
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", no cap found" << LL_ENDL;
         return;
     }
 
@@ -1894,30 +1959,16 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
 
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    LLUUID image_asset_id;
-                    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterTexturePickerHandle.get();
-                    if (floaterp)
-                    {
-                        if (id.notNull())
-                        {
-                            image_asset_id = id;
-                        }
-                        else
-                        {
-                            image_asset_id = floaterp->getAssetID();
-                        }
-                    }
-
-                    onCommitProfileImage(image_asset_id);
+                    onCommitProfileImage(asset_id);
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
             texture_floaterp->setBakeTextureEnabled(FALSE);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 
@@ -2132,7 +2183,7 @@ LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
 BOOL LLPanelProfileFirstLife::postBuild()
 {
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
-    mPicture = getChild<LLIconCtrl>("real_world_pic");
+    mPicture = getChild<LLThumbnailCtrl>("real_world_pic");
 
     mUploadPhoto = getChild<LLButton>("fl_upload_image");
     mChangePhoto = getChild<LLButton>("fl_change_image");
@@ -2234,29 +2285,15 @@ void LLPanelProfileFirstLife::onChangePhoto()
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
 
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    LLUUID image_asset_id;
-                    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterTexturePickerHandle.get();
-                    if (floaterp)
-                    {
-                        if (id.notNull())
-                        {
-                            image_asset_id = id;
-                        }
-                        else
-                        {
-                            image_asset_id = floaterp->getAssetID();
-                        }
-                    }
-
-                    onCommitPhoto(image_asset_id);
+                    onCommitPhoto(asset_id);
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 

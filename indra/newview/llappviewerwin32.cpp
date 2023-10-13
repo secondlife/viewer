@@ -428,8 +428,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
-	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-
 	// Set a debug info flag to indicate if multiple instances are running.
 	bool found_other_instance = !create_app_mutex();
 	gDebugInfo["FoundOtherInstanceAtStartup"] = LLSD::Boolean(found_other_instance);

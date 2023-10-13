@@ -36,6 +36,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
+#include "llinspecttexture.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
@@ -246,6 +247,21 @@ public:
 	}
 	virtual BOOL				handleToolTip(S32 x, S32 y, MASK mask )
 	{ 
+		if (mItem->getThumbnailUUID().notNull())
+		{
+            LLSD params;
+            params["inv_type"] = mItem->getInventoryType();
+            params["thumbnail_id"] = mItem->getThumbnailUUID();
+            params["asset_id"] = mItem->getAssetUUID();
+            
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+					.message(mToolTip)
+					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+					.create_params(params));
+
+			return TRUE;
+		}
+
 		if (!mToolTip.empty())
 		{
 			LLToolTipMgr::instance().show(mToolTip);
@@ -1200,7 +1216,11 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLPointer<LLInventoryItem> item_p
 
 void LLViewerTextEditor::openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc )
 {
-	if(item && !item->getCreatorUUID().isNull())
+	if (item && !item->getDescription().empty())
+	{
+		LLAvatarActions::showProfile(LLUUID(item->getDescription()));
+	}
+	else if (item && !item->getCreatorUUID().isNull())
 	{
 		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}

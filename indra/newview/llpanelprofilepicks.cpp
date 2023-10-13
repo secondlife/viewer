@@ -87,8 +87,10 @@ public:
         return true;
     }
 
-    bool handle(const LLSD& params, const LLSD& query_map,
-        LLMediaCtrl* web)
+    bool handle(const LLSD& params,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
     {
         if (LLStartUp::getStartupState() < STATE_STARTED)
         {
@@ -529,6 +531,7 @@ void LLPanelProfilePick::setAvatarId(const LLUUID& avatar_id)
             pick_name = parcel->getName();
             pick_desc = parcel->getDesc();
             snapshot_id = parcel->getSnapshotID();
+            mPickDescription->setParseHTML(false);
         }
 
         LLViewerRegion* region = gAgent.getRegion();

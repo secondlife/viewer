@@ -108,6 +108,8 @@ LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
 	mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&cb_do_nothing));
 	mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&cb_do_nothing));
 	mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&cb_do_nothing));
+
+    mMinFloaterHeight = EXPANDED_MIN_HEIGHT;
 }
 
 //static
@@ -901,8 +903,10 @@ public:
 	LLChatCommandHandler() : LLCommandHandler("chat", UNTRUSTED_BLOCK) { }
 
     // Your code here
-	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLMediaCtrl* web)
+	bool handle(const LLSD& tokens,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		bool retval = false;
 		// Need at least 2 tokens to have a valid message.

@@ -63,7 +63,6 @@
 #include "llcontrolavatar.h"
 #include "lldrawable.h"
 #include "llface.h"
-#include "llfloaterproperties.h"
 #include "llfloatertools.h"
 #include "llfollowcam.h"
 #include "llhudtext.h"
@@ -3486,9 +3485,6 @@ void LLViewerObject::doInventoryCallback()
 
 void LLViewerObject::removeInventory(const LLUUID& item_id)
 {
-	// close any associated floater properties
-	LLFloaterReg::hideInstance("properties", item_id);
-
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_RemoveTaskInventory);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -3608,6 +3604,17 @@ LLInventoryObject* LLViewerObject::getInventoryObject(const LLUUID& item_id)
 		}		
 	}
 	return rv;
+}
+
+LLInventoryItem* LLViewerObject::getInventoryItem(const LLUUID& item_id)
+{
+	LLInventoryObject* iobj = getInventoryObject(item_id);
+	if (!iobj || iobj->getType() == LLAssetType::AT_CATEGORY)
+	{
+		return NULL;
+	}
+	LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(iobj);
+	return item;
 }
 
 void LLViewerObject::getInventoryContents(LLInventoryObject::object_list_t& objects)
@@ -6232,8 +6239,7 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
       }
 	  default:
 	  {
-          llassert(false); // invalid parameter type
-		  LL_INFOS() << "Unknown param type." << LL_ENDL;
+		  LL_INFOS_ONCE() << "Unknown param type: " << param_type << LL_ENDL;
 		  break;
 	  }
 	};

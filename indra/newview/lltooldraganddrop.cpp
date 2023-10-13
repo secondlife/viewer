@@ -40,6 +40,7 @@
 #include "llfloatertools.h"
 #include "llgesturemgr.h"
 #include "llgiveinventory.h"
+#include "llgltfmateriallist.h"
 #include "llhudmanager.h"
 #include "llhudeffecttrail.h"
 #include "llimview.h"
@@ -766,7 +767,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	if (!handled)
 	{
 		// Disallow drag and drop to 3D from the marketplace
-        const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
 		if (marketplacelistings_id.notNull())
 		{
 			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
@@ -929,6 +930,8 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 													 LLToolDragAndDrop::ESource source,
 													 const LLUUID& src_id)
 {
+	if (!item) return FALSE;
+
 	// Always succeed if....
 	// material is from the library 
 	// or already in the contents of the object
@@ -947,7 +950,14 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 	{
 		hit_obj->requestInventory();
 		LLSD args;
-		args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
+        if (LLAssetType::AT_MATERIAL == item->getType())
+        {
+            args["ERROR_MESSAGE"] = "Unable to add material.\nPlease wait a few seconds and try again.";
+        }
+        else
+        {
+            args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
+        }
 		LLNotificationsUtil::add("ErrorMessage", args);
 		return FALSE;
 	}
@@ -956,11 +966,9 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		// if the asset is already in the object's inventory 
 		// then it can always be added to a side.
 		// This saves some work if the task's inventory is already loaded
-		// and ensures that the texture item is only added once.
+		// and ensures that the asset item is only added once.
 		return TRUE;
 	}
-
-	if (!item) return FALSE;
 	
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 	if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
@@ -994,7 +1002,7 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 				return FALSE;
 			}
 		}
-		// Add the texture item to the target object's inventory.
+		// Add the asset item to the target object's inventory.
         if (LLAssetType::AT_TEXTURE == new_item->getType()
             || LLAssetType::AT_MATERIAL == new_item->getType())
         {
@@ -1004,20 +1012,24 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
- 		// TODO: Check to see if adding the item was successful; if not, then
-		// we should return false here.
+		// Force the object to update and refetch its inventory so it has this asset.
+		hit_obj->dirtyInventory();
+		hit_obj->requestInventory();
+		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here. This will requre a separate listener
+		// since without listener, we have no way to receive update
 	}
 	else if (!item->getPermissions().allowOperationBy(PERM_TRANSFER,
 													 gAgent.getID()))
 	{
-		// Check that we can add the texture as inventory to the object
+		// Check that we can add the asset as inventory to the object
 		if (willObjectAcceptInventory(hit_obj,item) < ACCEPT_YES_COPY_SINGLE )
 		{
 			return FALSE;
 		}
 		// *FIX: may want to make sure agent can paint hit_obj.
 
-		// Add the texture item to the target object's inventory.
+		// Add the asset item to the target object's inventory.
 		if (LLAssetType::AT_TEXTURE == new_item->getType()
             || LLAssetType::AT_MATERIAL == new_item->getType())
 		{
@@ -1027,7 +1039,27 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
-		// Force the object to update and refetch its inventory so it has this texture.
+		// Force the object to update and refetch its inventory so it has this asset.
+		hit_obj->dirtyInventory();
+		hit_obj->requestInventory();
+		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here. This will requre a separate listener
+		// since without listener, we have no way to receive update
+	}
+	else if (LLAssetType::AT_MATERIAL == new_item->getType() &&
+             !item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+	{
+		// Check that we can add the material as inventory to the object
+		if (willObjectAcceptInventory(hit_obj,item) < ACCEPT_YES_COPY_SINGLE )
+		{
+			return FALSE;
+		}
+		// *FIX: may want to make sure agent can paint hit_obj.
+
+		// Add the material item to the target object's inventory.
+        hit_obj->updateMaterialInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+
+		// Force the object to update and refetch its inventory so it has this material.
 		hit_obj->dirtyInventory();
 		hit_obj->requestInventory();
 		// TODO: Check to see if adding the item was successful; if not, then
@@ -1095,11 +1127,20 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
         LL_WARNS() << "LLToolDragAndDrop::dropTextureOneFace no material item." << LL_ENDL;
         return;
     }
+
+    // SL-20013 must save asset_id before handleDropMaterialProtections since our item instance
+    // may be deleted if it is moved into task inventory
     LLUUID asset_id = item->getAssetUUID();
     BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
     if (!success)
     {
         return;
+    }
+
+    if (asset_id.isNull())
+    {
+        // use blank material
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
     }
 
     hit_obj->setRenderMaterialID(hit_face, asset_id);
@@ -1121,11 +1162,21 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
         LL_WARNS() << "LLToolDragAndDrop::dropTextureAllFaces no material item." << LL_ENDL;
         return;
     }
+
+    // SL-20013 must save asset_id before handleDropMaterialProtections since our item instance
+    // may be deleted if it is moved into task inventory
     LLUUID asset_id = item->getAssetUUID();
     BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
+
     if (!success)
     {
         return;
+    }
+
+    if (asset_id.isNull())
+    {
+        // use blank material
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
     }
 
     hit_obj->setRenderMaterialIDs(asset_id);
@@ -1597,6 +1648,8 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
 	if(attached && !unrestricted)
 	{
+        // Attachments are in world and in inventory simultaneously,
+        // at the moment server doesn't support such a situation.
 		return ACCEPT_NO_LOCKED;
 	}
 	else if(modify && transfer && volume && !worn)
@@ -1809,8 +1862,8 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 		return ACCEPT_NO;
 	}
 
-	const LLUUID &outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-	if(gInventory.isObjectDescendentOf(item->getUUID(), outbox_id))
+	const LLUUID &outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX);
+	if(outbox_id.notNull() && gInventory.isObjectDescendentOf(item->getUUID(), outbox_id))
 	{
 		// Legacy
 		return ACCEPT_NO;
@@ -2353,8 +2406,8 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 			return ACCEPT_NO;
 		}
 
-		const LLUUID &outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-		if(gInventory.isObjectDescendentOf(category->getUUID(), outbox_id))
+		const LLUUID &outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX);
+		if(outbox_id.notNull() && gInventory.isObjectDescendentOf(category->getUUID(), outbox_id))
 		{
 			// Legacy
 			return ACCEPT_NO;

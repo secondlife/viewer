@@ -1597,7 +1597,8 @@ bool LLViewerInput::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 
 BOOL LLViewerInput::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
 {
-    BOOL handled = gViewerWindow->handleAnyMouseClick(window_impl, pos, mask, clicktype, down);
+    bool is_toolmgr_action = false;
+    BOOL handled = gViewerWindow->handleAnyMouseClick(window_impl, pos, mask, clicktype, down, is_toolmgr_action);
 
     if (clicktype != CLICK_NONE)
     {
@@ -1616,9 +1617,9 @@ BOOL LLViewerInput::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask,
 
         // If the first LMB click is handled by the menu, skip the following double click
         static bool skip_double_click = false;
-        if (clicktype == CLICK_LEFT && down )
+        if (clicktype == CLICK_LEFT && down)
         {
-            skip_double_click = handled;
+            skip_double_click = is_toolmgr_action ? false : handled;
         }
 
         if (double_click_sp && down)

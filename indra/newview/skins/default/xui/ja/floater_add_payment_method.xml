@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_add_payment_method">
+	<floater.string name="continue_url">
+		https://secondlife.com/my/lindex/buy.php?associate_for_viewer=1&amp;lang=ja-JP
+	</floater.string>
+	<panel label="wrapper_panel" name="wrapper_panel">
+		<text name="title_txt">
+			支払い方法を登録してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
+		</text>
+		<button label="始めましょう" name="continue_btn"/>
+		<button label="また後で"/>
+		<icon name="image_left"/>
+		<icon name="image_center"/>
+		<icon name="image_right"/>
+		<text name="image_left_desc">
+			お気に入りのアバターを作成しましょう。ストアやSecond Lifeマーケットプレイスにある何百万ものアイテムからお選びください。あなただけのスタイルがここにあります。
+		</text>
+		<text name="image_center_desc">
+			お気に入りのパフォーマーやホストに寄付をしましょう。あなたのサポートは、彼らが素晴らしい体験を生み出すのに役立ちます。
+		</text>
+		<text name="image_right_desc">
+			あなたの夢の家を作りましょう。何百万ものアイテムを購入できるので、あなただけの住まいを作ることができます。
+		</text>
+	</panel>
+</floater>

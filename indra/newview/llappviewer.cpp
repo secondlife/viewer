@@ -36,6 +36,7 @@
 #include "llenvironment.h"
 #include "llerrorcontrol.h"
 #include "lleventtimer.h"
+#include "llfile.h"
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
@@ -214,7 +215,7 @@
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
-#include "llfloatersimpleoutfitsnapshot.h"
+#include "llfloatersimplesnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
 #include "llatmosphere.h"
@@ -1519,8 +1520,13 @@ bool LLAppViewer::doFrame()
                     pingMainloopTimeout("Main:Snapshot");
                     gPipeline.mReflectionMapManager.update();
                     LLFloaterSnapshot::update(); // take snapshots
-                    LLFloaterSimpleOutfitSnapshot::update();
+                    LLFloaterSimpleSnapshot::update();
                     gGLActive = FALSE;
+                }
+
+                if (LLViewerStatsRecorder::instanceExists())
+                {
+                    LLViewerStatsRecorder::instance().idle();
                 }
             }
 		}
@@ -2974,9 +2980,33 @@ void LLAppViewer::initStrings()
 	std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
 	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
 	{
+		if (strings_path_full.empty())
+		{
+			LL_WARNS() << "The file '" << strings_file << "' is not found" << LL_ENDL;
+		}
+		else
+		{
+			llstat st;
+			int rc = LLFile::stat(strings_path_full, &st);
+			if (rc != 0)
+			{
+				LL_WARNS() << "The file '" << strings_path_full << "' failed to get status. Error code: " << rc << LL_ENDL;
+			}
+			else if (S_ISDIR(st.st_mode))
+			{
+				LL_WARNS() << "The filename '" << strings_path_full << "' is a directory name" << LL_ENDL;
+			}
+			else
+			{
+				LL_WARNS() << "The filename '" << strings_path_full << "' doesn't seem to be a regular file name" << LL_ENDL;
+			}
+		}
+
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
-		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+		LL_ERRS() << "Viewer failed to find localization and UI files."
+			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
+			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 	}
 	LLTransUtil::parseStrings(strings_file, default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
@@ -3575,8 +3605,6 @@ void LLAppViewer::writeSystemInfo()
 	// "CrashNotHandled" is set here, while things are running well,
 	// in case of a freeze. If there is a freeze, the crash logger will be launched
 	// and can read this value from the debug_info.log.
-	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
-	// then the value of "CrashNotHandled" will be set to true.
 	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(true);
 #else // LL_BUGSPLAT
 	// "CrashNotHandled" is obsolete; it used (not very successsfully)
@@ -3667,163 +3695,6 @@ void getFileList()
 	gDebugInfo["Dynamic"]["DumpDirContents"] = filenames.str();
 }
 #endif
-
-void LLAppViewer::handleViewerCrash()
-{
-	LL_INFOS("CRASHREPORT") << "Handle viewer crash entry." << LL_ENDL;
-
-	LL_INFOS("CRASHREPORT") << "Last render pool type: " << LLPipeline::sCurRenderPoolType << LL_ENDL ;
-
-	LLMemory::logMemoryInfo(true) ;
-
-	//print out recorded call stacks if there are any.
-	LLError::LLCallStacks::print();
-
-	LLAppViewer* pApp = LLAppViewer::instance();
-	if (pApp->beingDebugged())
-	{
-		// This will drop us into the debugger.
-		abort();
-	}
-
-	if (LLApp::isCrashloggerDisabled())
-	{
-		abort();
-	}
-
-	// Returns whether a dialog was shown.
-	// Only do the logic in here once
-	if (pApp->mReportedCrash)
-	{
-		return;
-	}
-	pApp->mReportedCrash = TRUE;
-
-	// Insert crash host url (url to post crash log to) if configured.
-	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
-	if(crashHostUrl != "")
-	{
-		gDebugInfo["Dynamic"]["CrashHostUrl"] = crashHostUrl;
-	}
-
-	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if ( parcel && parcel->getMusicURL()[0])
-	{
-		gDebugInfo["Dynamic"]["ParcelMusicURL"] = parcel->getMusicURL();
-	}
-	if ( parcel && parcel->getMediaURL()[0])
-	{
-		gDebugInfo["Dynamic"]["ParcelMediaURL"] = parcel->getMediaURL();
-	}
-
-	gDebugInfo["Dynamic"]["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
-	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = LLSD::Integer(LLMemory::getCurrentRSS() / 1024);
-
-	if(gLogoutInProgress)
-	{
-		gDebugInfo["Dynamic"]["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
-	}
-	else
-	{
-		gDebugInfo["Dynamic"]["LastExecEvent"] = gLLErrorActivated ? LAST_EXEC_LLERROR_CRASH : LAST_EXEC_OTHER_CRASH;
-	}
-
-	if(gAgent.getRegion())
-	{
-		gDebugInfo["Dynamic"]["CurrentSimHost"] = gAgent.getRegion()->getSimHostName();
-		gDebugInfo["Dynamic"]["CurrentRegion"] = gAgent.getRegion()->getName();
-
-		const LLVector3& loc = gAgent.getPositionAgent();
-		gDebugInfo["Dynamic"]["CurrentLocationX"] = loc.mV[0];
-		gDebugInfo["Dynamic"]["CurrentLocationY"] = loc.mV[1];
-		gDebugInfo["Dynamic"]["CurrentLocationZ"] = loc.mV[2];
-	}
-
-	if(LLAppViewer::instance()->mMainloopTimeout)
-	{
-		gDebugInfo["Dynamic"]["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
-	}
-
-	// The crash is being handled here so set this value to false.
-	// Otherwise the crash logger will think this crash was a freeze.
-	gDebugInfo["Dynamic"]["CrashNotHandled"] = LLSD::Boolean(false);
-
-	//Write out the crash status file
-	//Use marker file style setup, as that's the simplest, especially since
-	//we're already in a crash situation
-	if (gDirUtilp)
-	{
-		std::string crash_marker_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-																			gLLErrorActivated
-																			? LLERROR_MARKER_FILE_NAME
-																			: ERROR_MARKER_FILE_NAME);
-		LLAPRFile crash_marker_file ;
-		crash_marker_file.open(crash_marker_file_name, LL_APR_WB);
-		if (crash_marker_file.getFileHandle())
-		{
-			LL_INFOS("MarkerFile") << "Created crash marker file " << crash_marker_file_name << LL_ENDL;
-			recordMarkerVersion(crash_marker_file);
-		}
-		else
-		{
-			LL_WARNS("MarkerFile") << "Cannot create error marker file " << crash_marker_file_name << LL_ENDL;
-		}
-	}
-	else
-	{
-		LL_WARNS("MarkerFile") << "No gDirUtilp with which to create error marker file name" << LL_ENDL;
-	}
-
-#ifdef LL_WINDOWS
-	Sleep(200);
-#endif
-
-	char *minidump_file = pApp->getMiniDumpFilename();
-    LL_DEBUGS("CRASHREPORT") << "minidump file name " << minidump_file << LL_ENDL;
-	if(minidump_file && minidump_file[0] != 0)
-	{
-		gDebugInfo["Dynamic"]["MinidumpPath"] = minidump_file;
-	}
-	else
-	{
-#ifdef LL_WINDOWS
-		getFileList();
-#else
-        LL_WARNS("CRASHREPORT") << "no minidump file?" << LL_ENDL;
-#endif
-	}
-    gDebugInfo["Dynamic"]["CrashType"]="crash";
-
-	if (gMessageSystem && gDirUtilp)
-	{
-		std::string filename;
-		filename = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "stats.log");
-        LL_DEBUGS("CRASHREPORT") << "recording stats " << filename << LL_ENDL;
-		llofstream file(filename.c_str(), std::ios_base::binary);
-		if(file.good())
-		{
-			gMessageSystem->summarizeLogs(file);
-			file.close();
-		}
-        else
-        {
-            LL_WARNS("CRASHREPORT") << "problem recording stats" << LL_ENDL;
-        }
-	}
-
-	if (gMessageSystem)
-	{
-		gMessageSystem->getCircuitInfo(gDebugInfo["CircuitInfo"]);
-		gMessageSystem->stopLogging();
-	}
-
-	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo["Dynamic"]);
-
-	gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
-
-	// Close the debug file
-	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.
-}
 
 // static
 void LLAppViewer::recordMarkerVersion(LLAPRFile& marker_file)
@@ -4298,7 +4169,7 @@ U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
 	// format changes. JC
-	const U32 INDRA_OBJECT_CACHE_VERSION = 16;
+	const U32 INDRA_OBJECT_CACHE_VERSION = 17;
 
 	return INDRA_OBJECT_CACHE_VERSION;
 }

@@ -696,6 +696,18 @@ void teardown_texture_matrix(LLDrawInfo& params)
     }
 }
 
+void LLRenderPass::pushGLTFBatches(U32 type, bool textured)
+{
+    if (textured)
+    {
+        pushGLTFBatches(type);
+    }
+    else
+    {
+        pushRiggedGLTFBatches(type);
+    }
+}
+
 void LLRenderPass::pushGLTFBatches(U32 type)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -708,6 +720,21 @@ void LLRenderPass::pushGLTFBatches(U32 type)
         LLCullResult::increment_iterator(i, end);
 
         pushGLTFBatch(params);
+    }
+}
+
+void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
+        LLDrawInfo& params = **i;
+        LLCullResult::increment_iterator(i, end);
+
+        pushUntexturedGLTFBatch(params);
     }
 }
 
@@ -729,6 +756,30 @@ void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
     teardown_texture_matrix(params);
 }
 
+void LLRenderPass::pushUntexturedGLTFBatch(LLDrawInfo& params)
+{
+    auto& mat = params.mGLTFMaterial;
+
+    LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+
+    applyModelMatrix(params);
+
+    params.mVertexBuffer->setBuffer();
+    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+}
+
+void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)
+{
+    if (textured)
+    {
+        pushRiggedGLTFBatches(type);
+    }
+    else
+    {
+        pushUntexturedRiggedGLTFBatches(type);
+    }
+}
+
 void LLRenderPass::pushRiggedGLTFBatches(U32 type)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -747,6 +798,25 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type)
     }
 }
 
+void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
+        LLDrawInfo& params = **i;
+        LLCullResult::increment_iterator(i, end);
+
+        pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId);
+    }
+}
+
+
 void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId)
 {
     if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
@@ -757,5 +827,17 @@ void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvat
     }
 
     pushGLTFBatch(params);
+}
+
+void LLRenderPass::pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId)
+{
+    if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
+    {
+        uploadMatrixPalette(params);
+        lastAvatar = params.mAvatar;
+        lastMeshId = params.mSkinInfo->mHash;
+    }
+
+    pushUntexturedGLTFBatch(params);
 }
 

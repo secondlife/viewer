@@ -171,7 +171,7 @@ SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "Simulator time scale", 
 							SIM_MAIN_AGENTS("simmainagents", "Number of avatars in current region", LL_SIM_STAT_NUMAGENTMAIN),
 							SIM_CHILD_AGENTS("simchildagents", "Number of avatars in neighboring regions", LL_SIM_STAT_NUMAGENTCHILD),
 							SIM_OBJECTS("simobjects", "", LL_SIM_STAT_NUMTASKS),
-							SIM_ACTIVE_OBJECTS("simactiveobjects", "Number of scripted and/or mocing objects", LL_SIM_STAT_NUMTASKSACTIVE),
+							SIM_ACTIVE_OBJECTS("simactiveobjects", "Number of scripted and/or moving objects", LL_SIM_STAT_NUMTASKSACTIVE),
 							SIM_ACTIVE_SCRIPTS("simactivescripts", "Number of scripted objects", LL_SIM_STAT_NUMSCRIPTSACTIVE),
 							SIM_IN_PACKETS_PER_SEC("siminpps", "", LL_SIM_STAT_INPPS),
 							SIM_OUT_PACKETS_PER_SEC("simoutpps", "", LL_SIM_STAT_OUTPPS),
@@ -192,7 +192,6 @@ LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							NUM_OBJECTS("numobjectsstat"),
 							NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
 							ENABLE_VBO("enablevbo", "Vertex Buffers Enabled"),
-							LIGHTING_DETAIL("lightingdetail", "Lighting Detail"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
@@ -402,7 +401,6 @@ void update_statistics()
 	record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN));
 
 	sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
-	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
 	sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
 	sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
 

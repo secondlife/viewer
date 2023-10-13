@@ -572,7 +572,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
 		up.setCross3(right, at);
 		up.normalize3fast();
 
-		if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK)
+		if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK && !part.mVelocity.isExactlyZero())
 		{
 			LLVector4a normvel;
 			normvel.load3(part.mVelocity.mV);

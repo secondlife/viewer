@@ -103,6 +103,8 @@ public:
         SUNLIGHT_COLOR,                     //  "sunlight_color"
         AMBIENT,                            //  "ambient_color"
         SKY_HDR_SCALE,                      //  "sky_hdr_scale"
+        SKY_SUNLIGHT_SCALE,                 //  "sky_sunlight_scale"
+        SKY_AMBIENT_SCALE,                  //  "sky_ambient_scale"
         BLUE_HORIZON,                       //  "blue_horizon"
         BLUE_DENSITY,                       //  "blue_density"
         HAZE_HORIZON,                       //  "haze_horizon"
@@ -131,6 +133,7 @@ public:
         GLOW_WARMTH_AMOUNT,                 //  "warmthAmount"
         GLOW_STRENGTH,                      //  "glowStrength"
         GLOW_DELTA,                         //  "glowDelta"
+        GLOW_NOISE_MAP,                     //  "glowNoiseMap"
 
         MINIMUM_ALPHA,                      //  "minimum_alpha"
         EMISSIVE_BRIGHTNESS,                //  "emissive_brightness"

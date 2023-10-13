@@ -97,7 +97,7 @@ class LLLoginLocationAutoHandler : public LLCommandHandler
 public:
 	// don't allow from external browsers
 	LLLoginLocationAutoHandler() : LLCommandHandler("location_login", UNTRUSTED_BLOCK) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
 	{	
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
@@ -1110,11 +1110,6 @@ void LLPanelLogin::onRememberPasswordCheck(void*)
 
         std::string grid(LLGridManager::getInstance()->getGridId());
         std::string user_id(cred->userID());
-        if (!remember_password)
-        {
-            gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
-            gSecAPIHandler->syncProtectedMap();
-        }
     }
 }
 

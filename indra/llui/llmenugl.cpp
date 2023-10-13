@@ -487,9 +487,6 @@ void LLMenuItemGL::draw( void )
 	// let disabled items be highlighted, just don't draw them as such
 	if( getEnabled() && getHighlight() && !mBriefItem)
 	{
-		int debug_count = 0;
-		if (dynamic_cast<LLMenuItemCallGL*>(this))
-			debug_count++;
 		gGL.color4fv( mHighlightBackground.get().mV );
 
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
@@ -576,13 +573,13 @@ void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
 //
 // This class represents a separator.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LLMenuItemSeparatorGL::Params::Params()
-{
-}
-
 LLMenuItemSeparatorGL::LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p) :
 	LLMenuItemGL( p )
 {
+    if (p.on_visible.isProvided())
+    {
+        mVisibleSignal.connect(initEnableCallback(p.on_visible));
+    }
 }
 
 //virtual
@@ -597,6 +594,15 @@ void LLMenuItemSeparatorGL::draw( void )
 	const S32 y = getRect().getHeight() / 2;
 	const S32 PAD = 6;
 	gl_line_2d( PAD, y, getRect().getWidth() - PAD, y );
+}
+
+void LLMenuItemSeparatorGL::buildDrawLabel( void )
+{
+    if (mVisibleSignal.num_slots() > 0)
+    {
+        bool visible = mVisibleSignal(this, LLSD());
+        setVisible(visible);
+    }
 }
 
 BOOL LLMenuItemSeparatorGL::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1880,6 +1886,13 @@ bool LLMenuGL::addContextChild(LLView* view, S32 tab_group)
 	}
 
 	return false;
+}
+
+
+void LLMenuGL::deleteAllChildren()
+{
+    mItems.clear();
+    LLUICtrl::deleteAllChildren();
 }
 
 void LLMenuGL::removeChild( LLView* ctrl)

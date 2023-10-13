@@ -24,24 +24,28 @@
  * $/LicenseInfo$
  */
 
+
 #include "linden_common.h"
 
 #include "llgltfmaterial.h"
 
+#include "llsdserialize.h"
+
 // NOTE -- this should be the one and only place tiny_gltf.h is included
 #include "tinygltf/tiny_gltf.h"
+#include "llgltfmaterial_templates.h"
 
 const char* const LLGLTFMaterial::ASSET_VERSION = "1.1";
 const char* const LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
 const std::array<std::string, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
 
-const char* const GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
-const char* const GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
-const char* const GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
-const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
+const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
+const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
+const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
+const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
 
 // special UUID that indicates a null UUID in override data
-static const LLUUID GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
+const LLUUID LLGLTFMaterial::GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
 void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8]) const
 {
@@ -67,14 +71,14 @@ LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 
 LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 {
-    //have to do a manual operator= because of LLRefCount 
+    //have to do a manual operator= because of LLRefCount
     mTextureId = rhs.mTextureId;
 
     mTextureTransform = rhs.mTextureTransform;
 
     mBaseColor = rhs.mBaseColor;
     mEmissiveColor = rhs.mEmissiveColor;
-    
+
     mMetallicFactor = rhs.mMetallicFactor;
     mRoughnessFactor = rhs.mRoughnessFactor;
     mAlphaCutoff = rhs.mAlphaCutoff;
@@ -96,7 +100,7 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
 
         mBaseColor == rhs.mBaseColor &&
         mEmissiveColor == rhs.mEmissiveColor &&
-        
+
         mMetallicFactor == rhs.mMetallicFactor &&
         mRoughnessFactor == rhs.mRoughnessFactor &&
         mAlphaCutoff == rhs.mAlphaCutoff &&
@@ -121,6 +125,7 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
 
         return true;
     }
+
     return false;
 }
 
@@ -189,7 +194,8 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     }
 }
 
-LLVector2 vec2_from_json(const tinygltf::Value::Object& object, const char* key, const LLVector2& default_value)
+// static
+LLVector2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, const char* key, const LLVector2& default_value)
 {
     const auto it = object.find(key);
     if (it == object.end())
@@ -214,7 +220,8 @@ LLVector2 vec2_from_json(const tinygltf::Value::Object& object, const char* key,
     return value;
 }
 
-F32 float_from_json(const tinygltf::Value::Object& object, const char* key, const F32 default_value)
+// static
+F32 LLGLTFMaterial::floatFromJson(const tinygltf::Value::Object& object, const char* key, const F32 default_value)
 {
     const auto it = object.find(key);
     if (it == object.end())
@@ -227,52 +234,6 @@ F32 float_from_json(const tinygltf::Value::Object& object, const char* key, cons
         return default_value;
     }
     return (F32)real_json.GetNumberAsDouble();
-}
-
-template<typename T>
-std::string gltf_get_texture_image(const tinygltf::Model& model, const T& texture_info)
-{
-    const S32 texture_idx = texture_info.index;
-    if (texture_idx < 0 || texture_idx >= model.textures.size())
-    {
-        return "";
-    }
-    const tinygltf::Texture& texture = model.textures[texture_idx];
-
-    // Ignore texture.sampler for now
-
-    const S32 image_idx = texture.source;
-    if (image_idx < 0 || image_idx >= model.images.size())
-    {
-        return "";
-    }
-    const tinygltf::Image& image = model.images[image_idx];
-
-    return image.uri;
-}
-
-// *NOTE: Use template here as workaround for the different similar texture info classes
-template<typename T>
-void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id)
-{
-    LL_PROFILE_ZONE_SCOPED;
-    const std::string uri = gltf_get_texture_image(model, texture_info);
-    mTextureId[texture_info_id].set(uri);
-
-    const tinygltf::Value::Object& extensions_object = texture_info.extensions;
-    const auto transform_it = extensions_object.find(GLTF_FILE_EXTENSION_TRANSFORM);
-    if (transform_it != extensions_object.end())
-    {
-        const tinygltf::Value& transform_json = std::get<1>(*transform_it);
-        if (transform_json.IsObject())
-        {
-            const tinygltf::Value::Object& transform_object = transform_json.Get<tinygltf::Value::Object>();
-            TextureTransform& transform = mTextureTransform[texture_info_id];
-            transform.mOffset = vec2_from_json(transform_object, GLTF_FILE_EXTENSION_TRANSFORM_OFFSET, getDefaultTextureOffset());
-            transform.mScale = vec2_from_json(transform_object, GLTF_FILE_EXTENSION_TRANSFORM_SCALE, getDefaultTextureScale());
-            transform.mRotation = float_from_json(transform_object, GLTF_FILE_EXTENSION_TRANSFORM_ROTATION, getDefaultTextureRotation());
-        }
-    }
 }
 
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
@@ -301,7 +262,7 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
 
     material_out.alphaMode = getAlphaMode();
     material_out.alphaCutoff = mAlphaCutoff;
-    
+
     mBaseColor.write(material_out.pbrMetallicRoughness.baseColorFactor);
 
     if (mEmissiveColor != LLGLTFMaterial::getDefaultEmissiveColor())
@@ -319,7 +280,7 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     tinygltf::Value::Object extras;
     bool write_extras = false;
     if (mOverrideAlphaMode && mAlphaMode == getDefaultAlphaMode())
-    { 
+    {
         extras["override_alpha_mode"] = tinygltf::Value(mOverrideAlphaMode);
         write_extras = true;
     }
@@ -338,57 +299,6 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     model.asset.version = "2.0";
 }
 
-template<typename T>
-void gltf_allocate_texture_image(tinygltf::Model& model, T& texture_info, const std::string& uri)
-{
-    const S32 image_idx = model.images.size();
-    model.images.emplace_back();
-    model.images[image_idx].uri = uri;
-
-    // The texture, not to be confused with the texture info
-    const S32 texture_idx = model.textures.size();
-    model.textures.emplace_back();
-    tinygltf::Texture& texture = model.textures[texture_idx];
-    texture.source = image_idx;
-
-    texture_info.index = texture_idx;
-}
-
-template<typename T>
-void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write) const
-{
-    LL_PROFILE_ZONE_SCOPED;
-    const LLUUID& texture_id = mTextureId[texture_info_id];
-    const TextureTransform& transform = mTextureTransform[texture_info_id];
-    const bool is_blank_transform = transform == sDefault.mTextureTransform[0];
-    // Check if this material matches all the fallback values, and if so, then
-    // skip including it to reduce material size
-    if (!force_write && texture_id.isNull() && is_blank_transform)
-    {
-        return;
-    }
-
-    // tinygltf will discard this texture info if there is no valid texture,
-    // causing potential loss of information for overrides, so ensure one is
-    // defined. -Cosmic,2023-01-30
-    gltf_allocate_texture_image(model, texture_info, texture_id.asString());
-
-    if (!is_blank_transform)
-    {
-        tinygltf::Value::Object transform_map;
-        transform_map[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = tinygltf::Value(tinygltf::Value::Array({
-            tinygltf::Value(transform.mOffset.mV[VX]),
-            tinygltf::Value(transform.mOffset.mV[VY])
-        }));
-        transform_map[GLTF_FILE_EXTENSION_TRANSFORM_SCALE] = tinygltf::Value(tinygltf::Value::Array({
-            tinygltf::Value(transform.mScale.mV[VX]),
-            tinygltf::Value(transform.mScale.mV[VY])
-        }));
-        transform_map[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = tinygltf::Value(transform.mRotation);
-        texture_info.extensions[GLTF_FILE_EXTENSION_TRANSFORM] = tinygltf::Value(transform_map);
-    }
-}
-
 void LLGLTFMaterial::sanitizeAssetMaterial()
 {
     mTextureTransform = sDefault.mTextureTransform;
@@ -402,17 +312,17 @@ bool LLGLTFMaterial::setBaseMaterial()
     return *this != old_override;
 }
 
-bool LLGLTFMaterial::isClearedForBaseMaterial()
-{
-    LLGLTFMaterial cleared_override = sDefault;
-    cleared_override.setBaseMaterial(*this);
-    return *this == cleared_override;
-}
-
 // For material overrides only. Copies transforms from the old override.
 void LLGLTFMaterial::setBaseMaterial(const LLGLTFMaterial& old_override_mat)
 {
     mTextureTransform = old_override_mat.mTextureTransform;
+}
+
+bool LLGLTFMaterial::isClearedForBaseMaterial() const
+{
+    LLGLTFMaterial cleared_override = sDefault;
+    cleared_override.setBaseMaterial(*this);
+    return *this == cleared_override;
 }
 
 
@@ -515,7 +425,7 @@ void LLGLTFMaterial::setAlphaMode(const std::string& mode, bool for_override)
     {
         m = ALPHA_MODE_BLEND;
     }
-    
+
     setAlphaMode(m, for_override);
 }
 
@@ -689,6 +599,159 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
         {
             mTextureTransform[i].mRotation = override_mat.mTextureTransform[i].mRotation;
+        }
+    }
+}
+
+void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    llassert(data.isUndefined());
+
+    // make every effort to shave bytes here
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        LLUUID& texture_id = mTextureId[i];
+        const LLUUID& override_texture_id = override_mat.mTextureId[i];
+        if (override_texture_id.notNull() && override_texture_id != texture_id)
+        {
+            data["tex"][i] = LLSD::UUID(override_texture_id);
+        }
+    }
+
+    if (override_mat.mBaseColor != getDefaultBaseColor())
+    {
+        data["bc"] = override_mat.mBaseColor.getValue();
+    }
+
+    if (override_mat.mEmissiveColor != getDefaultEmissiveColor())
+    {
+        data["ec"] = override_mat.mEmissiveColor.getValue();
+    }
+
+    if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
+    {
+        data["mf"] = override_mat.mMetallicFactor;
+    }
+
+    if (override_mat.mRoughnessFactor != getDefaultRoughnessFactor())
+    {
+        data["rf"] = override_mat.mRoughnessFactor;
+    }
+
+    if (override_mat.mAlphaMode != getDefaultAlphaMode() || override_mat.mOverrideAlphaMode)
+    {
+        data["am"] = override_mat.mAlphaMode;
+    }
+
+    if (override_mat.mAlphaCutoff != getDefaultAlphaCutoff())
+    {
+        data["ac"] = override_mat.mAlphaCutoff;
+    }
+
+    if (override_mat.mDoubleSided != getDefaultDoubleSided() || override_mat.mOverrideDoubleSided)
+    {
+        data["ds"] = override_mat.mDoubleSided;
+    }
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
+        {
+            data["ti"][i]["o"] = override_mat.mTextureTransform[i].mOffset.getValue();
+        }
+
+        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
+        {
+            data["ti"][i]["s"] = override_mat.mTextureTransform[i].mScale.getValue();
+        }
+
+        if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
+        {
+            data["ti"][i]["r"] = override_mat.mTextureTransform[i].mRotation;
+        }
+    }
+}
+
+
+void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
+{
+    const LLSD& tex = data["tex"];
+
+    if (tex.isArray())
+    {
+        for (int i = 0; i < tex.size(); ++i)
+        {
+            mTextureId[i] = tex[i].asUUID();
+        }
+    }
+
+    const LLSD& bc = data["bc"];
+    if (bc.isDefined())
+    {
+        mBaseColor.setValue(bc);
+    }
+
+    const LLSD& ec = data["ec"];
+    if (ec.isDefined())
+    {
+        mEmissiveColor.setValue(ec);
+    }
+
+    const LLSD& mf = data["mf"];
+    if (mf.isReal())
+    {
+        mMetallicFactor = mf.asReal();
+    }
+
+    const LLSD& rf = data["rf"];
+    if (rf.isReal())
+    {
+        mRoughnessFactor = rf.asReal();
+    }
+
+    const LLSD& am = data["am"];
+    if (am.isInteger())
+    {
+        mAlphaMode = (AlphaMode) am.asInteger();
+    }
+
+    const LLSD& ac = data["ac"];
+    if (ac.isReal())
+    {
+        mAlphaCutoff = ac.asReal();
+    }
+
+    const LLSD& ds = data["ds"];
+    if (ds.isBoolean())
+    {
+        mDoubleSided = ds.asBoolean();
+        mOverrideDoubleSided = true;
+    }
+
+    const LLSD& ti = data["ti"];
+    if (ti.isArray())
+    {
+        for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+        {
+            const LLSD& o = ti[i]["o"];
+            if (o.isDefined())
+            {
+                mTextureTransform[i].mOffset.setValue(o);
+            }
+
+            const LLSD& s = ti[i]["s"];
+            if (s.isDefined())
+            {
+                mTextureTransform[i].mScale.setValue(s);
+            }
+
+            const LLSD& r = ti[i]["r"];
+            if (r.isReal())
+            {
+                mTextureTransform[i].mRotation = r.asReal();
+            }
         }
     }
 }

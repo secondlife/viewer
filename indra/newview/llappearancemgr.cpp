@@ -40,8 +40,11 @@
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
+#include "llmd5.h"
 #include "llnotificationsutil.h"
+#include "llmd5.h"
 #include "lloutfitobserver.h"
 #include "lloutfitslist.h"
 #include "llselectmgr.h"
@@ -145,7 +148,10 @@ public:
 	// requests will be throttled from a non-trusted browser
 	LLAppearanceHandler() : LLCommandHandler("appearance", UNTRUSTED_THROTTLE) {}
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& params,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		// support secondlife:///app/appearance/show, but for now we just
 		// make all secondlife:///app/appearance SLapps behave this way
@@ -583,6 +589,71 @@ LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOn
 			true,true,
 			boost::bind(edit_wearable_and_customize_avatar, mItemID));
 	}
+}
+
+class LLBrokenLinkObserver : public LLInventoryObserver
+{
+public:
+    LLUUID mUUID;
+    bool mEnforceItemRestrictions;
+    bool mEnforceOrdering;
+    nullary_func_t mPostUpdateFunc;
+
+    LLBrokenLinkObserver(const LLUUID& uuid,
+                          bool enforce_item_restrictions ,
+                          bool enforce_ordering ,
+                          nullary_func_t post_update_func) :
+        mUUID(uuid),
+        mEnforceItemRestrictions(enforce_item_restrictions),
+        mEnforceOrdering(enforce_ordering),
+        mPostUpdateFunc(post_update_func)
+    {
+    }
+    /* virtual */ void changed(U32 mask);
+    void postProcess();
+};
+
+void LLBrokenLinkObserver::changed(U32 mask)
+{
+    if (mask & LLInventoryObserver::REBUILD)
+    {
+        // This observer should be executed after LLInventoryPanel::itemChanged(),
+        // but if it isn't, consider calling updateAppearanceFromCOF with a delay
+        const uuid_set_t& changed_item_ids = gInventory.getChangedIDs();
+        for (uuid_set_t::const_iterator it = changed_item_ids.begin(); it != changed_item_ids.end(); ++it)
+        {
+            const LLUUID& id = *it;
+            if (id == mUUID)
+            {
+                // Might not be processed yet and it is not a
+                // good idea to update appearane here, postpone.
+                doOnIdleOneTime([this]()
+                                {
+                                    postProcess();
+                                });
+
+                gInventory.removeObserver(this);
+                return;
+            }
+        }
+    }
+}
+
+void LLBrokenLinkObserver::postProcess()
+{
+    LLViewerInventoryItem* item = gInventory.getItem(mUUID);
+    llassert(item && !item->getIsBrokenLink()); // the whole point was to get a correct link
+    if (item && item->getIsBrokenLink())
+    {
+        LL_INFOS_ONCE("Avatar") << "Outfit link broken despite being regenerated" << LL_ENDL;
+        LL_DEBUGS("Avatar", "Inventory") << "Outfit link " << mUUID << " \"" << item->getName() << "\" is broken despite being regenerated" << LL_ENDL;
+    }
+
+    LLAppearanceMgr::instance().updateAppearanceFromCOF(
+        mEnforceItemRestrictions ,
+        mEnforceOrdering ,
+        mPostUpdateFunc);
+    delete this;
 }
 
 
@@ -1701,12 +1772,18 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
 	{
 		parent_id = gInventory.getRootFolderID();
 	}
-	LLUUID subfolder_id = gInventory.createNewCategory( parent_id,
-														LLFolderType::FT_NONE,
-														src_cat->getName());
-	shallowCopyCategoryContents(src_id, subfolder_id, cb);
+	gInventory.createNewCategory(
+        parent_id,
+        LLFolderType::FT_NONE,
+        src_cat->getName(),
+        [src_id, cb](const LLUUID &new_id)
+    {
+        LLAppearanceMgr::getInstance()->shallowCopyCategoryContents(src_id, new_id, cb);
 
-	gInventory.notifyObservers();
+        gInventory.notifyObservers();
+    },
+        src_cat->getThumbnailUUID()
+    );
 }
 
 void LLAppearanceMgr::slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_id,
@@ -2409,6 +2486,39 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 
 	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 
+    if (gInventory.hasPosiblyBrockenLinks())
+    {
+        // Inventory has either broken links or links that
+        // haven't loaded yet.
+        // Check if LLAppearanceMgr needs to wait.
+        LLUUID current_outfit_id = getCOF();
+        LLInventoryModel::item_array_t cof_items;
+        LLInventoryModel::cat_array_t cof_cats;
+        LLFindBrokenLinks is_brocken_link;
+        gInventory.collectDescendentsIf(current_outfit_id,
+            cof_cats,
+            cof_items,
+            LLInventoryModel::EXCLUDE_TRASH,
+            is_brocken_link);
+
+        if (cof_items.size() > 0)
+        {
+            // Some links haven't loaded yet, but fetch isn't complete so
+            // links are likely fine and we will have to wait for them to
+            // load
+            if (LLInventoryModelBackgroundFetch::getInstance()->folderFetchActive())
+            {
+
+                LLBrokenLinkObserver* observer = new LLBrokenLinkObserver(cof_items.front()->getUUID(),
+                                                                            enforce_item_restrictions,
+                                                                            enforce_ordering,
+                                                                            post_update_func);
+                gInventory.addObserver(observer);
+                return;
+            }
+        }
+    }
+
 	if (enforce_item_restrictions)
 	{
 		// The point here is just to call
@@ -2725,22 +2835,29 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 		{
 			pid = gInventory.getRootFolderID();
 		}
-		
-		LLUUID new_cat_id = gInventory.createNewCategory(
+
+		gInventory.createNewCategory(
 			pid,
 			LLFolderType::FT_NONE,
-			name);
+            name,
+            [cat_id, append](const LLUUID& new_cat_id)
+        {
+            LLInventoryModel::cat_array_t* cats;
+            LLInventoryModel::item_array_t* items;
+            gInventory.getDirectDescendentsOf(cat_id, cats, items);
+            // Create a CopyMgr that will copy items, manage its own destruction
+            new LLCallAfterInventoryCopyMgr(
+                *items, new_cat_id, std::string("wear_inventory_category_callback"),
+                boost::bind(&LLAppearanceMgr::wearInventoryCategoryOnAvatar,
+                    LLAppearanceMgr::getInstance(),
+                    gInventory.getCategory(new_cat_id),
+                    append));
 
-		// Create a CopyMgr that will copy items, manage its own destruction
-		new LLCallAfterInventoryCopyMgr(
-			*items, new_cat_id, std::string("wear_inventory_category_callback"),
-			boost::bind(&LLAppearanceMgr::wearInventoryCategoryOnAvatar,
-						LLAppearanceMgr::getInstance(),
-						gInventory.getCategory(new_cat_id),
-						append));
-
-		// BAP fixes a lag in display of created dir.
-		gInventory.notifyObservers();
+            // BAP fixes a lag in display of created dir.
+            gInventory.notifyObservers();
+        },
+            cat->getThumbnailUUID()
+        );
 	}
 	else
 	{
@@ -3198,7 +3315,7 @@ void LLAppearanceMgr::copyLibraryGestures()
 
 	// Copy gestures
 	LLUUID lib_gesture_cat_id =
-		gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_GESTURE,false);
+		gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_GESTURE);
 	if (lib_gesture_cat_id.isNull())
 	{
 		LL_WARNS() << "Unable to copy gestures, source category not found" << LL_ENDL;
@@ -3709,7 +3826,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
 
         if (cofVersion == LLViewerInventoryCategory::VERSION_UNKNOWN)
         {
-            LL_WARNS("AVatar") << "COF version is unknown... not requesting until COF version is known." << LL_ENDL;
+            LL_INFOS("AVatar") << "COF version is unknown... not requesting until COF version is known." << LL_ENDL;
             return;
         }
         else
@@ -3981,26 +4098,15 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-    if (AISAPI::isAvailable())
-	{
-		// cap-based category creation was buggy until recently. use
-		// existence of AIS as an indicator the fix is present. Does
-		// not actually use AIS to create the category.
-		inventory_func_type func = boost::bind(&LLAppearanceMgr::onOutfitFolderCreated,this,_1,show_panel);
-		gInventory.createNewCategory(
-			parent_id,
-			LLFolderType::FT_OUTFIT,
-			new_folder_name,
-			func);
-	}
-	else
-	{		
-		LLUUID folder_id = gInventory.createNewCategory(
-			parent_id,
-			LLFolderType::FT_OUTFIT,
-			new_folder_name);
-		onOutfitFolderCreated(folder_id, show_panel);
-	}
+
+    gInventory.createNewCategory(
+        parent_id,
+        LLFolderType::FT_OUTFIT,
+        new_folder_name,
+        [show_panel](const LLUUID &new_cat_id)
+        {
+            LLAppearanceMgr::getInstance()->onOutfitFolderCreated(new_cat_id, show_panel);
+        });
 }
 
 void LLAppearanceMgr::wearBaseOutfit()
@@ -4333,6 +4439,73 @@ public:
 	~CallAfterCategoryFetchStage1()
 	{
 	}
+    /*virtual*/ void startFetch()
+    {
+        bool ais3 = AISAPI::isAvailable();
+        for (uuid_vec_t::const_iterator it = mIDs.begin(); it != mIDs.end(); ++it)
+        {
+            LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
+            if (!cat) continue;
+            if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                // CHECK IT: isCategoryComplete() checks both version and descendant count but
+                // fetch() only works for Unknown version and doesn't care about descentants,
+                // as result fetch won't start and folder will potentially get stuck as
+                // incomplete in observer.
+                // Likely either both should use only version or both should check descendants.
+                cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
+                mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
+            }
+            else if (!isCategoryComplete(cat))
+            {
+                LL_DEBUGS("Inventory") << "Categoty " << *it << " incomplete despite having version" << LL_ENDL;
+                LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch(*it, true);
+                mIncomplete.push_back(*it);
+            }
+            else if (ais3)
+            {
+                LLInventoryModel::cat_array_t* cats;
+                LLInventoryModel::item_array_t* items;
+                gInventory.getDirectDescendentsOf(cat->getUUID(), cats, items);
+
+                if (items)
+                {
+                    S32 complete_count = 0;
+                    S32 incomplete_count = 0;
+                    for (LLInventoryModel::item_array_t::const_iterator it = items->begin(); it < items->end(); ++it)
+                    {
+                        if (!(*it)->isFinished())
+                        {
+                            incomplete_count++;
+                        }
+                        else
+                        {
+                            complete_count++;
+                        }
+                    }
+                    // AIS can fetch couple items, but if there
+                    // is more than a dozen it will be very slow
+                    // it's faster to get whole folder in such case
+                    if (incomplete_count > LLInventoryFetchItemsObserver::MAX_INDIVIDUAL_ITEM_REQUESTS
+                        || (incomplete_count > 1 && complete_count == 0))
+                    {
+                        LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch(*it, true);
+                        mIncomplete.push_back(*it);
+                    }
+                    else
+                    {
+                        // let stage2 handle incomplete ones
+                        mComplete.push_back(*it);
+                    }
+                }
+                // else should have been handled by isCategoryComplete
+            }
+            else
+            {
+                mComplete.push_back(*it);
+            }
+        }
+    }
 	virtual void done()
 	{
         if (mComplete.size() <= 0)
@@ -4349,13 +4522,11 @@ public:
 		// What we do here is get the complete information on the
 		// items in the requested category, and set up an observer
 		// that will wait for that to happen.
-		LLInventoryModel::cat_array_t cat_array;
-		LLInventoryModel::item_array_t item_array;
-		gInventory.collectDescendents(mComplete.front(),
-									  cat_array,
-									  item_array,
-									  LLInventoryModel::EXCLUDE_TRASH);
-		S32 count = item_array.size();
+        LLInventoryModel::cat_array_t* cats;
+        LLInventoryModel::item_array_t* items;
+        gInventory.getDirectDescendentsOf(mComplete.front(), cats, items);
+
+		S32 count = items->size();
 		if(!count)
 		{
 			LL_WARNS() << "Nothing fetched in category " << mComplete.front()
@@ -4367,11 +4538,13 @@ public:
 			return;
 		}
 
-		LL_INFOS() << "stage1 got " << item_array.size() << " items, passing to stage2 " << LL_ENDL;
+        LLViewerInventoryCategory* cat = gInventory.getCategory(mComplete.front());
+        S32 version = cat ? cat->getVersion() : -2;
+		LL_INFOS() << "stage1, category " << mComplete.front() << " got " << count << " items, version " << version << " passing to stage2 " << LL_ENDL;
 		uuid_vec_t ids;
 		for(S32 i = 0; i < count; ++i)
 		{
-			ids.push_back(item_array.at(i)->getUUID());
+			ids.push_back(items->at(i)->getUUID());
 		}
 		
 		gInventory.removeObserver(this);
@@ -4396,18 +4569,78 @@ protected:
 	nullary_func_t mCallable;
 };
 
+void callAfterCOFFetch(nullary_func_t cb)
+{
+    LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+
+    if (AISAPI::isAvailable())
+    {
+        // Mark cof (update timer) so that background fetch won't request it
+        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+        // For reliability assume that we have no relevant cache, so
+        // fetch cof along with items cof's links point to.
+        AISAPI::FetchCOF([cb](const LLUUID& id)
+                         {
+                             cb();
+                             LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+                             LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+                             if (cat)
+                             {
+                                 cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+                             }
+                         });
+    }
+    else
+    {
+        LL_INFOS() << "AIS API v3 not available, using callAfterCategoryFetch" << LL_ENDL;
+        // startup should have marked folder as fetching, remove that
+        cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+        callAfterCategoryFetch(cat_id, cb);
+    }
+}
+
 void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb)
 {
-	CallAfterCategoryFetchStage1 *stage1 = new CallAfterCategoryFetchStage1(cat_id, cb);
-	stage1->startFetch();
-	if (stage1->isFinished())
-	{
-		stage1->done();
-	}
-	else
-	{
-		gInventory.addObserver(stage1);
-	}
+    CallAfterCategoryFetchStage1* stage1 = new CallAfterCategoryFetchStage1(cat_id, cb);
+    stage1->startFetch();
+    if (stage1->isFinished())
+    {
+        stage1->done();
+    }
+    else
+    {
+        gInventory.addObserver(stage1);
+    }
+}
+
+void callAfterCategoryLinksFetch(const LLUUID &cat_id, nullary_func_t cb)
+{
+    LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+    if (AISAPI::isAvailable())
+    {
+        // Mark folder (update timer) so that background fetch won't request it
+        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+        // Assume that we have no relevant cache. Fetch folder, and items folder's links point to.
+        AISAPI::FetchCategoryLinks(cat_id,
+            [cb, cat_id](const LLUUID &id)
+            {
+                cb();
+                LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+                if (cat)
+                {
+                    cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+                }
+            });
+        }
+        else
+        {
+            LL_WARNS() << "AIS API v3 not available, can't use AISAPI::FetchCOF" << LL_ENDL;
+            // startup should have marked folder as fetching, remove that
+            cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+            callAfterCategoryFetch(cat_id, cb);
+        }
+    
 }
 
 void add_wearable_type_counts(const uuid_vec_t& ids,
@@ -4470,8 +4703,10 @@ public:
 	// not allowed from outside the app
 	LLWearFolderHandler() : LLCommandHandler("wear_folder", UNTRUSTED_BLOCK) { }
 
-	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLMediaCtrl* web)
+	bool handle(const LLSD& tokens,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
 	{
 		LLSD::UUID folder_uuid;
 

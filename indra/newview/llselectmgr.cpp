@@ -57,7 +57,6 @@
 #include "llviewerwindow.h"
 #include "lldrawable.h"
 #include "llfloaterinspect.h"
-#include "llfloaterproperties.h"
 #include "llfloaterreporter.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
@@ -1773,14 +1772,20 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 	}
 }
 
-void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
+bool LLObjectSelection::applyRestrictedPbrMaterialToTEs(LLViewerInventoryItem* item)
 {
     if (!item)
     {
-        return;
+        return false;
     }
 
     LLUUID asset_id = item->getAssetUUID();
+    if (asset_id.isNull())
+    {
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    }
+
+    bool material_copied_all_faces = true;
 
     for (iterator iter = begin(); iter != end(); ++iter)
     {
@@ -1797,12 +1802,17 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
         {
             if (node->isTESelected(te))
             {
-                //(no-copy) materials must be moved to the object's inventory only once
+                //(no-copy), (no-modify), and (no-transfer) materials must be moved to the object's inventory only once
                 // without making any copies
                 if (!material_copied && asset_id.notNull())
                 {
-                    LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
-                    material_copied = true;
+                    material_copied = (bool)LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+                }
+                if (!material_copied)
+                {
+                    // Applying the material is not possible for this object given the current inventory
+					material_copied_all_faces = false;
+                    break;
                 }
 
                 // apply texture for the selected faces
@@ -1814,6 +1824,8 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
     }
 
     LLGLTFMaterialList::flushUpdates();
+
+    return material_copied_all_faces;
 }
 
 
@@ -1821,7 +1833,7 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
 // selectionSetImage()
 //-----------------------------------------------------------------------------
 // *TODO: re-arch texture applying out of lltooldraganddrop
-void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
+bool LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 {
 	// First for (no copy) textures and multiple object selection
 	LLViewerInventoryItem* item = gInventory.getItem(imageid);
@@ -1829,9 +1841,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		&& !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
 		&& (mSelectedObjects->getNumNodes() > 1) )
 	{
-		LL_WARNS() << "Attempted to apply no-copy texture to multiple objects"
-				<< LL_ENDL;
-		return;
+         LL_DEBUGS() << "Attempted to apply no-copy texture " << imageid
+             << " to multiple objects" << LL_ENDL;
+
+        LLNotificationsUtil::add("FailedToApplyTextureNoCopyToMultiple");
+        return false;
 	}
 
 	struct f : public LLSelectedTEFunctor
@@ -1841,10 +1855,24 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mImageID(id) {}
 		bool apply(LLViewerObject* objectp, S32 te)
 		{
-		    if(objectp && !objectp->permModify())
+		    if(!objectp || !objectp->permModify())
 		    {
 		        return false;
 		    }
+
+            // Might be better to run willObjectAcceptInventory
+            if (mItem && objectp->isAttachment())
+            {
+                const LLPermissions& perm = mItem->getPermissions();
+                BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+                if (!unrestricted)
+                {
+                    // Attachments are in world and in inventory simultaneously,
+                    // at the moment server doesn't support such a situation.
+                    return false;
+                }
+            }
+
 		    if (mItem)
 			{
                 LLToolDragAndDrop::dropTextureOneFace(objectp,
@@ -1896,12 +1924,14 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		}
 	} sendfunc(item);
 	getSelection()->applyToObjects(&sendfunc);
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // selectionSetGLTFMaterial()
 //-----------------------------------------------------------------------------
-void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
+bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
 {
     // First for (no copy) textures and multiple object selection
     LLViewerInventoryItem* item = gInventory.getItem(mat_id);
@@ -1909,21 +1939,36 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
         && (mSelectedObjects->getNumNodes() > 1))
     {
-        LL_WARNS() << "Attempted to apply no-copy material to multiple objects"
-            << LL_ENDL;
-        return;
+        LL_DEBUGS() << "Attempted to apply no-copy material " << mat_id
+            << "to multiple objects" << LL_ENDL;
+
+        LLNotificationsUtil::add("FailedToApplyGLTFNoCopyToMultiple");
+        return false;
     }
 
     struct f : public LLSelectedTEFunctor
     {
         LLViewerInventoryItem* mItem;
         LLUUID mMatId;
+        bool material_copied_any_face = false;
+        bool material_copied_all_faces = true;
         f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mMatId(id) {}
         bool apply(LLViewerObject* objectp, S32 te)
         {
-            if (objectp && !objectp->permModify())
+            if (!objectp || !objectp->permModify())
             {
                 return false;
+            }
+            if (mItem && objectp->isAttachment())
+            {
+                const LLPermissions& perm = mItem->getPermissions();
+                BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+                if (!unrestricted)
+                {
+                    // Attachments are in world and in inventory simultaneously,
+                    // at the moment server doesn't support such a situation.
+                    return false;
+                }
             }
             LLUUID asset_id = mMatId;
             if (mItem)
@@ -1935,6 +1980,10 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                     return false;
                 }
                 asset_id = mItem->getAssetUUID();
+                if (asset_id.isNull())
+                {
+                    asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+                }
             }
 
             // Blank out most override data on the object and send to server
@@ -1944,14 +1993,19 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         }
     };
 
-    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    bool success = true;
+    if (item &&
+            (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()) ||
+             !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()) ||
+             !item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID())
+            ))
     {
-        getSelection()->applyNoCopyPbrMaterialToTEs(item);
+        success = success && getSelection()->applyRestrictedPbrMaterialToTEs(item);
     }
     else
     {
         f setfunc(item, mat_id);
-        getSelection()->applyToTEs(&setfunc);
+        success = success && getSelection()->applyToTEs(&setfunc);
     }
 
     struct g : public LLSelectedObjectFunctor
@@ -1980,9 +2034,11 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
             return true;
         }
     } sendfunc(item);
-    getSelection()->applyToObjects(&sendfunc);
+    success = success && getSelection()->applyToObjects(&sendfunc);
 
     LLGLTFMaterialList::flushUpdates();
+
+    return success;
 }
 
 //-----------------------------------------------------------------------------
@@ -2232,7 +2288,19 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
     if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
     {
         LLViewerObject *object = mSelectedObjects->getFirstRootObject();
-        if (!object) return;
+        if (!object)
+        {
+            return;
+        }
+        const LLPermissions& perm = item->getPermissions();
+        BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+        BOOL attached = object->isAttachment();
+        if (attached && !unrestricted)
+        {
+            // Attachments are in world and in inventory simultaneously,
+            // at the moment server doesn't support such a situation.
+            return;
+        }
         LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
     }
     getSelection()->applyToTEs(&setfunc);
@@ -2292,7 +2360,19 @@ void LLSelectMgr::selectionSetShiny(U8 shiny, const LLUUID &image_id)
     if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
     {
         LLViewerObject *object = mSelectedObjects->getFirstRootObject();
-        if (!object) return;
+        if (!object)
+        {
+            return;
+        }
+        const LLPermissions& perm = item->getPermissions();
+        BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+        BOOL attached = object->isAttachment();
+        if (attached && !unrestricted)
+        {
+            // Attachments are in world and in inventory simultaneously,
+            // at the moment server doesn't support such a situation.
+            return;
+        }
         LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
     }
     getSelection()->applyToTEs(&setfunc);
@@ -5440,8 +5520,8 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 	LLViewerRegion*	last_region;
 	LLViewerRegion*	current_region;
 
-	S32 objects_sent = 0;
-	S32 packets_sent = 0;
+//	S32 objects_sent = 0;
+//	S32 packets_sent = 0;
 	S32 objects_in_this_packet = 0;
 
 	bool link_operation = message_name == "ObjectLink";
@@ -5573,7 +5653,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 			(*pack_body)(node, user_data);
             // do any related logging
             (*log_func)(node, user_data);
-			++objects_sent;
+//			++objects_sent;
 			++objects_in_this_packet;
 
 			// and on to the next object
@@ -5591,7 +5671,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 		{
 			// otherwise send current message and start new one
 			gMessageSystem->sendReliable( last_region->getHost());
-			packets_sent++;
+//			packets_sent++;
 			objects_in_this_packet = 0;
 
 			gMessageSystem->newMessage(message_name.c_str());
@@ -5608,7 +5688,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 				{
 					// add root instance into new message
 					(*pack_body)(linkset_root, user_data);
-					++objects_sent;
+//					++objects_sent;
 					++objects_in_this_packet;
 				}
 			}
@@ -5622,7 +5702,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 	if (gMessageSystem->getCurrentSendTotal() > 0)
 	{
 		gMessageSystem->sendReliable( current_region->getHost());
-		packets_sent++;
+//		packets_sent++;
 	}
 	else
 	{
@@ -7056,8 +7136,6 @@ void dialog_refresh_all()
 	{
 		gMenuAttachmentOther->arrange();
 	}
-
-	LLFloaterProperties::dirtyAll();
 
 	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 	if(inspect_instance)

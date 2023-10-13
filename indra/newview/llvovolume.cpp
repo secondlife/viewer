@@ -619,8 +619,18 @@ void LLVOVolume::animateTextures()
 					continue;
 				}
 		
-                LLGLTFMaterial *gltf_mat = te->getGLTFRenderMaterial();
-                const bool is_pbr = gltf_mat != nullptr;
+				if (!(result & LLViewerTextureAnim::ROTATE))
+				{
+					te->getRotation(&rot);
+				}
+				if (!(result & LLViewerTextureAnim::TRANSLATE))
+				{
+					te->getOffset(&off_s,&off_t);
+				}			
+				if (!(result & LLViewerTextureAnim::SCALE))
+				{
+					te->getScale(&scale_s, &scale_t);
+				}
 
 				if (!facep->mTextureMatrix)
 				{
@@ -629,80 +639,22 @@ void LLVOVolume::animateTextures()
 
 				LLMatrix4& tex_mat = *facep->mTextureMatrix;
 				tex_mat.setIdentity();
+				LLVector3 trans ;
 
-                if (!is_pbr)
-                {
-                    if (!(result & LLViewerTextureAnim::ROTATE))
-                    {
-                        te->getRotation(&rot);
-                    }
-                    if (!(result & LLViewerTextureAnim::TRANSLATE))
-                    {
-                        te->getOffset(&off_s,&off_t);
-                    }
-                    if (!(result & LLViewerTextureAnim::SCALE))
-                    {
-                        te->getScale(&scale_s, &scale_t);
-                    }
+					trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
+					tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
 
-                    LLVector3 trans ;
+				LLVector3 scale(scale_s, scale_t, 1.f);			
+				LLQuaternion quat;
+				quat.setQuat(rot, 0, 0, -1.f);
+		
+				tex_mat.rotate(quat);				
 
-                        trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
-                        tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-
-                    LLVector3 scale(scale_s, scale_t, 1.f);			
-                    LLQuaternion quat;
-                    quat.setQuat(rot, 0, 0, -1.f);
-            
-                    tex_mat.rotate(quat);				
-
-                    LLMatrix4 mat;
-                    mat.initAll(scale, LLQuaternion(), LLVector3());
-                    tex_mat *= mat;
-            
-                    tex_mat.translate(trans);
-                }
-                else
-                {
-                    if (!(result & LLViewerTextureAnim::ROTATE))
-                    {
-                        rot = 0.0f;
-                    }
-                    if (!(result & LLViewerTextureAnim::TRANSLATE))
-                    {
-                        off_s = 0.0f;
-                        off_t = 0.0f;
-                    }
-                    if (!(result & LLViewerTextureAnim::SCALE))
-                    {
-                        scale_s = 1.0f;
-                        scale_t = 1.0f;
-                    }
-
-                    // For PBR materials, use Blinn-Phong rotation as hint for
-                    // translation direction. In a Blinn-Phong material, the
-                    // translation direction would be a byproduct the texture
-                    // transform.
-                    F32 rot_frame;
-                    te->getRotation(&rot_frame);
-
-                    tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-
-                    LLQuaternion quat;
-                    quat.setQuat(rot, 0, 0, -1.f);
-                    tex_mat.rotate(quat);				
-
-                    LLMatrix4 mat;
-                    LLVector3 scale(scale_s, scale_t, 1.f);			
-                    mat.initAll(scale, LLQuaternion(), LLVector3());
-                    tex_mat *= mat;
-            
-                    LLVector3 off(off_s, off_t, 0.f);
-                    off.rotVec(rot_frame, 0, 0, 1.f);
-                    tex_mat.translate(off);
-
-                    tex_mat.translate(LLVector3(0.5f, 0.5f, 0.f));
-                }
+				LLMatrix4 mat;
+				mat.initAll(scale, LLQuaternion(), LLVector3());
+				tex_mat *= mat;
+		
+				tex_mat.translate(trans);
 			}
 		}
 		else
@@ -4617,7 +4569,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
     if (!pick_unselectable)
     {
-        if (!LLSelectMgr::instance().canSelectObject(this))
+        if (!LLSelectMgr::instance().canSelectObject(this, TRUE))
         {
             return FALSE;
         }
@@ -5102,6 +5054,30 @@ LLControlAVBridge::LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regi
 	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
+void LLControlAVBridge::updateSpatialExtents()
+{
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
+
+	LLSpatialGroup* root = (LLSpatialGroup*)mOctree->getListener(0);
+
+	bool rootWasDirty = root->isDirty();
+
+	super::updateSpatialExtents(); // root becomes non-dirty here
+
+	// SL-18251 "On-screen animesh characters using pelvis offset animations
+	// disappear when root goes off-screen"
+	//
+	// Expand extents to include Control Avatar placed outside of the bounds
+    LLControlAvatar* controlAvatar = getVObj() ? getVObj()->getControlAvatar() : NULL;
+    if (controlAvatar
+        && controlAvatar->mDrawable
+        && controlAvatar->mDrawable->getEntry()
+        && (rootWasDirty || controlAvatar->mPlaying))
+	{
+		root->expandExtents(controlAvatar->mDrawable->getSpatialExtents(), *mDrawable->getXform());
+	}
+}
+
 bool can_batch_texture(LLFace* facep)
 {
 	if (facep->getTextureEntry()->getBumpmap())
@@ -5322,13 +5298,14 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	if (mat)
 	{
+		BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) || (facep->getTextureEntry()->getColor().mV[3] < 0.999f) ? TRUE : FALSE;
 		if (type == LLRenderPass::PASS_ALPHA)
 		{
-			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND);
+			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND, is_alpha);
 		}
 		else
 		{
-			shader_mask = mat->getShaderMask();
+			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT, is_alpha);
 		}
 	}
 
@@ -5831,15 +5808,29 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else
 						{
-                            if (te->getColor().mV[3] > 0.f || te->getGlow() > 0.f)
-                            { //only treat as alpha in the pipeline if < 100% transparent
-                                drawablep->setState(LLDrawable::HAS_ALPHA);
-                                add_face(sAlphaFaces, alpha_count, facep);
-                            }
-                            else if (LLDrawPoolAlpha::sShowDebugAlpha)
+                            F32 alpha;
+                            if (is_pbr)
                             {
-                                add_face(sAlphaFaces, alpha_count, facep);
+                                alpha = gltf_mat ? gltf_mat->mBaseColor.mV[3] : 1.0;
                             }
+                            else
+                            {
+                                alpha = te->getColor().mV[3];
+                            }
+                            if (alpha > 0.f || te->getGlow() > 0.f)
+							{ //only treat as alpha in the pipeline if < 100% transparent
+								drawablep->setState(LLDrawable::HAS_ALPHA);
+								add_face(sAlphaFaces, alpha_count, facep);
+							}
+							else if (LLDrawPoolAlpha::sShowDebugAlpha ||
+								(gPipeline.sRenderHighlight && !drawablep->getParent() &&
+								//only root objects are highlighted with red color in this case
+								drawablep->getVObj() && drawablep->getVObj()->flagScripted() &&
+								(LLPipeline::getRenderScriptedBeacons() ||
+								(LLPipeline::getRenderScriptedTouchBeacons() && drawablep->getVObj()->flagHandleTouch()))))
+							{ //draw the transparent face for debugging purposes using a custom texture
+								add_face(sAlphaFaces, alpha_count, facep);
+							}
 						}
 					}
 					else
@@ -6052,12 +6043,18 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 							LLVertexBuffer* buff = face->getVertexBuffer();
 							if (buff)
 							{
-								if (!face->getGeometryVolume(*volume, face->getTEOffset(), 
-									vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex()))
-								{ //something's gone wrong with the vertex buffer accounting, rebuild this group 
-									group->dirtyGeom();
-									gPipeline.markRebuild(group);
-								}
+                                if (!face->getGeometryVolume(*volume, // volume
+                                    face->getTEOffset(),              // face_index
+                                    vobj->getRelativeXform(),         // mat_vert_in
+                                    vobj->getRelativeXformInvTrans(), // mat_norm_in
+                                    face->getGeomIndex(),             // index_offset
+                                    false,                            // force_rebuild
+                                    true))                            // no_debug_assert
+                                {   // Something's gone wrong with the vertex buffer accounting,
+                                    // rebuild this group with no debug assert because MESH_DIRTY
+                                    group->dirtyGeom();
+                                    gPipeline.markRebuild(group);
+                                }
 
                                 buff->unmapBuffer();
 							}
@@ -6190,7 +6187,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	LLSpatialGroup::buffer_map_t buffer_map;
 
 	LLViewerTexture* last_tex = NULL;
-	S32 buffer_index = 0;
 
 	S32 texture_index_channels = 1;
 	
@@ -6202,8 +6198,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	if (distance_sort)
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
-        buffer_index = -1;
-    }
+	}
 
 	texture_index_channels = LLGLSLShader::sIndexedTextureChannels;
 
@@ -6223,14 +6218,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			tex = NULL;
 		}
 
-		if (last_tex == tex)
-		{
-			buffer_index++;
-		}
-		else
+		if (last_tex != tex)
 		{
 			last_tex = tex;
-			buffer_index = 0;
 		}
 
 		bool bake_sunlight = LLPipeline::sBakeSunlight && facep->getDrawable()->isStatic(); 
@@ -6484,12 +6474,15 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                 }
             }
 
-            F32 te_alpha = te->getColor().mV[3]; 
+            F32 blinn_phong_alpha = te->getColor().mV[3];
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
-			bool opaque = te_alpha >= 0.999f;
-            bool transparent = te_alpha < 0.999f;
+			bool blinn_phong_opaque = blinn_phong_alpha >= 0.999f;
+            bool blinn_phong_transparent = blinn_phong_alpha < 0.999f;
 
-            is_alpha = (is_alpha || transparent) ? TRUE : FALSE;
+            if (!gltf_mat)
+            {
+                is_alpha = (is_alpha || blinn_phong_transparent) ? TRUE : FALSE;
+            }
 
 			if (gltf_mat || (mat && !hud_group))
 			{
@@ -6519,7 +6512,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
-						if (opaque)
+						if (blinn_phong_opaque)
 						{
 							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 						}
@@ -6540,7 +6533,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						}
 						else
 						{
-                            if (opaque)
+                            if (blinn_phong_opaque)
 						    {
 							    registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
                             }
@@ -6551,7 +6544,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						}
 					}
 				}
-				else if (transparent)
+				else if (blinn_phong_transparent)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
@@ -6593,7 +6586,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                     { // HACK - this should never happen, but sometimes we get a material that thinks it has alpha blending when it ought not
                         alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
                     }
-					U32 mask = mat->getShaderMask(alpha_mode);
+                    U32 mask = mat->getShaderMask(alpha_mode, is_alpha);
 
                     U32 vb_mask = facep->getVertexBuffer()->getTypeMask();
 

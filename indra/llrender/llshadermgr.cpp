@@ -1275,6 +1275,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("sunlight_color");
 	mReservedUniforms.push_back("ambient_color");
     mReservedUniforms.push_back("sky_hdr_scale");
+    mReservedUniforms.push_back("sky_sunlight_scale");
+    mReservedUniforms.push_back("sky_ambient_scale");
 	mReservedUniforms.push_back("blue_horizon");
     mReservedUniforms.push_back("blue_density");
     mReservedUniforms.push_back("haze_horizon");
@@ -1308,8 +1310,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("warmthAmount");
 	mReservedUniforms.push_back("glowStrength");
 	mReservedUniforms.push_back("glowDelta");
+	mReservedUniforms.push_back("glowNoiseMap");
 
-	llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_DELTA+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_NOISE_MAP+1);
 
 
 	mReservedUniforms.push_back("minimum_alpha");

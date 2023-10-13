@@ -39,7 +39,6 @@
 #include "llpermissionsflags.h"
 #include "llviewerinventory.h"
 #include "llstring.h"
-#include "llmd5.h"
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "httpoptions.h"
@@ -227,9 +226,13 @@ private:
 	//--------------------------------------------------------------------
 public:
 	static BOOL getIsFirstTimeInViewer2();
+    static bool  isSysFoldersReady() { return (sPendingSystemFolders == 0); }
+
 private:
 	static BOOL sFirstTimeInViewer2;
 	const static S32 sCurrentInvCacheVersion; // expected inventory cache version
+
+    static S32 sPendingSystemFolders;
 
 /**                    Initialization/Setup
  **                                                                            **
@@ -256,9 +259,11 @@ public:
 	void getDirectDescendentsOf(const LLUUID& cat_id,
 								cat_array_t*& categories,
 								item_array_t*& items) const;
+    void getDirectDescendentsOf(const LLUUID& cat_id, cat_array_t& categories, item_array_t& items, LLInventoryCollectFunctor& f) const;
 
+	typedef LLUUID digest_t; // To clarify the actual usage of this "UUID"
 	// Compute a hash of direct descendant names (for detecting child name changes)
-	LLMD5 hashDirectDescendentNames(const LLUUID& cat_id) const;
+	digest_t hashDirectDescendentNames(const LLUUID& cat_id) const;
 	
 	// Starting with the object specified, add its descendants to the
 	// array provided, but do not add the inventory object specified
@@ -302,24 +307,25 @@ public:
 	// Find
 	//--------------------------------------------------------------------
 public:
+
+    // Checks if category exists ("My Inventory" only), if it does not, creates it
+    void ensureCategoryForTypeExists(LLFolderType::EType preferred_type);
+
 	const LLUUID findCategoryUUIDForTypeInRoot(
 		LLFolderType::EType preferred_type,
-		bool create_folder,
-		const LLUUID& root_id);
+		const LLUUID& root_id) const;
 
 	// Returns the uuid of the category that specifies 'type' as what it 
 	// defaults to containing. The category is not necessarily only for that type. 
 	//    NOTE: If create_folder is true, this will create a new inventory category 
 	//    on the fly if one does not exist. *NOTE: if find_in_library is true it 
 	//    will search in the user's library folder instead of "My Inventory"
-	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, 
-										 bool create_folder = true);
+	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 	//    will search in the user's library folder instead of "My Inventory"
-	const LLUUID findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, 
-												bool create_folder = true);
+	const LLUUID findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 	// Returns user specified category for uploads, returns default id if there are no
 	// user specified one or it does not exist, creates default category if it is missing.
-	const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type);
+	const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
@@ -405,13 +411,15 @@ public:
 							  const LLUUID& new_parent_id,
 							  BOOL restamp);
 
+    // Marks links from a "possibly" broken list for a rebuild
+    // clears the list
+    void rebuildBrockenLinks();
+    bool hasPosiblyBrockenLinks() const { return mPossiblyBrockenLinks.size() > 0; }
+
 	//--------------------------------------------------------------------
 	// Delete
 	//--------------------------------------------------------------------
 public:
-
-	// Update model after an AISv3 update received for any operation.
-	void onAISUpdateReceived(const std::string& context, const LLSD& update);
 		
 	// Update model after an item is confirmed as removed from
 	// server. Works for categories or items.
@@ -475,10 +483,11 @@ public:
 public:
 	// Returns the UUID of the new category. If you want to use the default 
 	// name based on type, pass in a NULL to the 'name' parameter.
-	LLUUID createNewCategory(const LLUUID& parent_id,
+	void createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
 							 const std::string& name,
-							 inventory_func_type callback = NULL);
+							 inventory_func_type callback = NULL,
+							 const LLUUID& thumbnail_id = LLUUID::null);
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods
@@ -575,6 +584,10 @@ private:
     U32 mModifyMaskBacklog;
     changed_items_t mChangedItemIDsBacklog;
     changed_items_t mAddedItemIDsBacklog;
+    typedef std::map<LLUUID , changed_items_t> broken_links_t;
+    broken_links_t mPossiblyBrockenLinks; // there can be multiple links per item
+    changed_items_t mLinksRebuildList;
+    boost::signals2::connection mBulkFecthCallbackSlot;
 	
 	
 	//--------------------------------------------------------------------
@@ -661,7 +674,6 @@ public:
 	static void processUpdateCreateInventoryItem(LLMessageSystem* msg, void**);
 	static void removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg, const char* msg_label);
 	static void processRemoveInventoryItem(LLMessageSystem* msg, void**);
-	static void processUpdateInventoryFolder(LLMessageSystem* msg, void**);
 	static void removeInventoryFolder(LLUUID agent_id, LLMessageSystem* msg);
 	static void processRemoveInventoryFolder(LLMessageSystem* msg, void**);
 	static void processRemoveInventoryObjects(LLMessageSystem* msg, void**);

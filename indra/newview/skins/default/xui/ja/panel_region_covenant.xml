@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="約款" name="Covenant">
-	<text font="SansSerifLarge" name="estate_section_lbl" width="200">
+	<text font="SansSerifLarge" name="estate_section_lbl">
 		不動産
 	</text>
 	<text name="estate_name_lbl">
@@ -10,7 +10,7 @@
 		メインランド
 	</text>
 	<text name="estate_owner_lbl">
-		オーナー：
+		所有者：
 	</text>
 	<text name="estate_owner_text">
 		（無）
@@ -26,55 +26,55 @@
 		この不動産には約款がありません。
 	</text_editor>
 	<button label="リセット" name="reset_covenant"/>
-	<text name="covenant_help_text" left="100">
+	<text name="covenant_help_text">
 		約款の変更は不動産全区画に適用となります。
 	</text>
-	<text name="covenant_instructions" width="390">
+	<text name="covenant_instructions">
 		この不動産約款を変更する際は、ノートカードをドラッグ＆ドロップしてください。
 	</text>
-	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl" width="200">
-		地域
+	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl">
+		リージョン
 	</text>
 	<text name="region_name_lbl">
 		名前：
 	</text>
 	<text name="region_name_text">
-		Erica
+		エリカ
 	</text>
 	<text name="region_landtype_lbl">
 		種類：
 	</text>
 	<text name="region_landtype_text">
-		メインランド/ホームステッド
+		メインランド／入植地
 	</text>
 	<text name="region_maturity_lbl">
 		区分：
 	</text>
 	<text name="region_maturity_text">
-		Adult
+		アダルト
 	</text>
 	<text name="resellable_lbl">
 		再販：
 	</text>
 	<text name="resellable_clause">
-		この地域（リージョン）にある土地は再販できません。
+		このリージョン（地域）にある土地は再販できません。
 	</text>
 	<text name="changeable_lbl">
 		再分割：
 	</text>
 	<text name="changeable_clause">
-		この地域（リージョン）にある土地は統合または分割ができません。
+		このリージョン（地域）にある土地は統合または分割ができません。
 	</text>
 	<string name="can_resell">
-		この地域で購入した土地は、再販できます。
+		このリージョン（地域）で購入した土地は、再販できます。
 	</string>
 	<string name="can_not_resell">
-		この地域の購入地は再販できないことがあります。
+		このリージョン（地域）の購入地は再販できないことがあります。
 	</string>
 	<string name="can_change">
-		この地域の購入地は統合または再分割できます。
+		このリージョン（地域）の購入地は統合または再分割できます。
 	</string>
 	<string name="can_not_change">
-		この地域の購入地は統合／再分割できないことがあります。
+		このリージョン（地域）の購入地は統合／再分割できないことがあります。
 	</string>
 </panel>

@@ -10,19 +10,19 @@
 	<spinner label="地形の上昇限度" name="terrain_raise_spin"/>
 	<spinner label="地形の下降限度" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-    地形テクスチャ（1024x1024 の 24 bit .tga ファイル）
-  </text>
+		地形テクスチャ（1024✕1024 の 24 bit .tga ファイル）
+	</text>
 	<text name="height_text_lbl">
-		1（低）
+		１（低）
 	</text>
 	<text name="height_text_lbl2">
-		2
+		２
 	</text>
 	<text name="height_text_lbl3">
-		3
+		３
 	</text>
 	<text name="height_text_lbl4">
-		4（高）
+		４（高）
 	</text>
 	<text name="height_text_lbl5">
 		地形の隆起範囲
@@ -31,7 +31,7 @@
 		数値は上のテクスチャのブレンド範囲を示します。
 	</text>
 	<text name="height_text_lbl11">
-		計測単位はメートルで、「低」の値は、1番のテクスチャの高さの「最大値」です。「高」の値は、4番のテクスチャの高さの「最低値」です。
+		計測単位はメートルで、「低」の値は、１番のテクスチャの高さの「最大値」です。「高」の値は、４番のテクスチャの高さの「最低値」です。
 	</text>
 	<text name="height_text_lbl6">
 		北西
@@ -53,8 +53,8 @@
 	<spinner label="低" name="height_start_spin_2"/>
 	<spinner label="高" name="height_range_spin_0"/>
 	<spinner label="高" name="height_range_spin_2"/>
-	<button label="RAW 地形ダウンロード..." name="download_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です"/>
-	<button label="RAW 地形アップロード..." name="upload_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です"/>
+	<button label="RAW 地形ダウンロード…" name="download_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です"/>
+	<button label="RAW 地形アップロード…" name="upload_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です"/>
 	<button label="地形の構築" name="bake_terrain_btn" tool_tip="現在の地形を上昇・下降範囲の中間点として設定します"/>
 	<button label="適用" name="apply_btn"/>
 </panel>

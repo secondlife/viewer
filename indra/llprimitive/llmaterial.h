@@ -115,8 +115,6 @@ public:
     void        setDiffuseAlphaMode(U8 alpha_mode);
     U8          getAlphaMaskCutoff() const;
     void        setAlphaMaskCutoff(U8 cutoff);
-    LLUUID      getMaterialID() const;
-    void        setMaterialID(LLUUID const & material_id);
 
     bool        isNull() const;
     static const LLMaterial null;
@@ -124,7 +122,7 @@ public:
     bool        operator == (const LLMaterial& rhs) const;
     bool        operator != (const LLMaterial& rhs) const;
 
-    U32         getShaderMask(U32 alpha_mode = DIFFUSE_ALPHA_MODE_DEFAULT);
+    U32         getShaderMask(U32 alpha_mode, BOOL is_alpha);
     LLUUID      getHash() const;
 
 protected:

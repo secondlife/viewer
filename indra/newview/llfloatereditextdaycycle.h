@@ -188,6 +188,8 @@ private:
     bool                        isRemovingFrameAllowed();
     bool                        isAddingFrameAllowed();
 
+    void                        showHDRNotification(const LLSettingsDay::ptr_t &pday);
+
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;
     U32                         mCurrentTrack;

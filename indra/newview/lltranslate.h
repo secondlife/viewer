@@ -59,11 +59,12 @@ class LLTranslate: public LLSingleton<LLTranslate>
 public :
 
 	typedef enum e_service {
-		SERVICE_BING,
+		SERVICE_AZURE,
 		SERVICE_GOOGLE,
+		SERVICE_DEEPL,
 	} EService;
 
-    typedef boost::function<void(EService, bool)> KeyVerificationResult_fn;
+    typedef boost::function<void(EService, bool, S32)> KeyVerificationResult_fn;
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
 
@@ -78,12 +79,12 @@ public :
     static void translateMessage(const std::string &from_lang, const std::string &to_lang, const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure);
 
     /**
-	 * Verify given API key of a translation service.
-	 *
-	 * @param receiver  Object to pass verification result to.
-	 * @param key       Key to verify.
-	 */
-    static void verifyKey(EService service, const std::string &key, KeyVerificationResult_fn fnc);
+     * Verify given API key of a translation service.
+     *
+     * @param receiver  Object to pass verification result to.
+     * @param key       Key to verify.
+     */
+    static void verifyKey(EService service, const LLSD &key, KeyVerificationResult_fn fnc);
 
 	/**
 	 * @return translation target language

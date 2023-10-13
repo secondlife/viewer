@@ -25,16 +25,6 @@
  
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_ANY_LIGHT_TYPE         0 // Output green light cone
-#define DEBUG_LEG_LIGHT_TYPE         0 // Show Legacy objects in green
-#define DEBUG_PBR_LIGHT_TYPE         0 // Show PBR objects in green
-#define DEBUG_PBR_SPOT               0
-#define DEBUG_PBR_SPOT_DIFFUSE       0
-#define DEBUG_PBR_SPOT_SPECULAR      0
-
-#define DEBUG_SPOT_NL                  0 // monochome area effected by light
-#define DEBUG_SPOT_ZERO                0 // Output zero for spotlight
-
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
@@ -64,11 +54,16 @@ uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
 
+// Light params
+#if defined(MULTI_SPOTLIGHT)
+uniform vec3 center;
+#else
+in vec3 trans_center;
+#endif
 uniform float size;
 uniform vec3 color;
 uniform float falloff;
 
-in vec3 trans_center;
 in vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
@@ -80,11 +75,8 @@ bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_d
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv);
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
-vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
-vec2 getScreenXY(vec4 clip_point);
-vec2 getScreenCoord(vec4 clip_point);
-vec3 srgb_to_linear(vec3 c);
-vec3 legacy_adjust(vec3 c);
+vec2 getScreenCoord(vec4 clip);
+vec3 srgb_to_linear(vec3 cs);
 vec4 texture2DLodSpecular(vec2 tc, float lod);
 
 vec4 getPosition(vec2 pos_screen);
@@ -100,9 +92,6 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
 void main()
 {
-#if defined(LOCAL_LIGHT_KILL)
-    discard;
-#else
     vec3 final_color = vec3(0,0,0);
     vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
@@ -110,24 +99,31 @@ void main()
     vec3 lv;
     vec4 proj_tc;
     float dist, l_dist;
-    if (clipProjectedLightVars(trans_center, pos, dist, l_dist, lv, proj_tc))
+    vec3 c;
+#if defined(MULTI_SPOTLIGHT)
+    c = center;
+#else
+    c = trans_center;
+#endif
+
+    if (clipProjectedLightVars(c, pos, dist, l_dist, lv, proj_tc))
     {
         discard;
     }
 
     float shadow = 1.0;
-
+    
     if (proj_shadow_idx >= 0)
     {
         vec4 shd = texture(lightMap, tc);
-        shadow = (proj_shadow_idx == 0) ? shd.b : shd.a;
+        shadow = (proj_shadow_idx==0)?shd.b:shd.a;
         shadow += shadow_fade;
-        shadow = clamp(shadow, 0.0, 1.0);
+        shadow = clamp(shadow, 0.0, 1.0);        
     }
 
     float envIntensity;
     vec3 n;
-    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
+    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity);
 
     float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
     if (dist_atten <= 0.0)
@@ -135,7 +131,7 @@ void main()
         discard;
     }
 
-    lv = proj_origin-pos.xyz; // NOTE: Re-using lv
+    lv = proj_origin-pos.xyz;
     vec3  h, l, v = -normalize(pos);
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
@@ -146,10 +142,11 @@ void main()
     vec3 slit    = vec3(0, 0, 0);
 
     vec3 amb_rgb = vec3(0);
+
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
-        vec3 orm = spec.rgb; 
+        vec3 colorEmissive = texture(emissiveRect, tc).rgb; 
+        vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
@@ -167,33 +164,34 @@ void main()
             float lit = 0.0;
             float amb_da = 0.0;
 
+            lv = normalize(lv);
+
             if (nl > 0.0)
             {
                 amb_da += (nl*0.5 + 0.5) * proj_ambiance;
                 
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
-                vec3 intensity = dist_atten * dlit * 3.9 * shadow; // Legacy attenuation
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));
+                vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
+                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
             }
 
-            amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
-            final_color += diffuse.rgb * amb_rgb;
+            amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
+            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv);
         }
     }
     else
     {
-        diffuse = legacy_adjust(diffuse);
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
-        
+
         if (proj_tc.z > 0.0 &&
             proj_tc.x < 1.0 &&
             proj_tc.y < 1.0 &&
             proj_tc.x > 0.0 &&
             proj_tc.y > 0.0)
         {
-            float amb_da = proj_ambiance;
+            float amb_da = 0;
             float lit = 0.0;
 
             if (nl > 0.0)
@@ -204,24 +202,23 @@ void main()
 
                 final_color = dlit*lit*diffuse*shadow;
 
+                // unshadowed for consistency between forward and deferred?
                 amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
-
-            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
-            final_color += diffuse.rgb*amb_rgb;
-  #if DEBUG_LEG_LIGHT_TYPE
-            final_color = vec3(0,0.5,0);
-  #endif
+        
+            amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
+            final_color += diffuse.rgb * amb_rgb * max(dot(-normalize(lv), n), 0.0);
         }
-
+    
         if (spec.a > 0.0)
         {
             dlit *= min(nl*6.0, 1.0) * dist_atten;
-            float fres = pow(1 - dot(h, v), 5)*0.4+0.5;
+
+            float fres = pow(1 - vh, 5)*0.4+0.5;
 
             float gtdenom = 2 * nh;
             float gt = max(0, min(gtdenom * nv / vh, gtdenom * nl / vh));
-
+                                
             if (nh > 0.0)
             {
                 float scol = fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
@@ -229,26 +226,26 @@ void main()
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 final_color += speccol;
             }
-        }
+        }   
 
         if (envIntensity > 0.0)
         {
             vec3 ref = reflect(normalize(pos), n);
-
+        
             //project from point pos in direction ref to plane proj_p, proj_n
             vec3 pdelta = proj_p-pos;
             float ds = dot(ref, proj_n);
-
+        
             if (ds < 0.0)
             {
                 vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
-
+            
                 vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
 
                 if (stc.z > 0.0)
                 {
                     stc /= stc.w;
-
+                                
                     if (stc.x < 1.0 &&
                         stc.y < 1.0 &&
                         stc.x > 0.0 &&
@@ -261,24 +258,10 @@ void main()
         }
     }
 
-#if DEBUG_PBR_SPOT_DIFFUSE
-    final_color = vec3(nl * dist_atten);
-#endif
-#if DEBUG_SPOT_NL
-    final_color = vec3(nl);
-#endif
-#if DEBUG_SPOT_ZERO
-    final_color = vec3(0,0,0);
-#endif
-#if DEBUG_ANY_LIGHT_TYPE
-    final_color = vec3(0,0.3333,0);
-#endif
-
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));
 
-    //output linear colors as gamma correction happens down stream
+    //output linear
     frag_color.rgb = final_color;
     frag_color.a = 0.0;
-#endif // LOCAL_LIGHT_KILL
 }

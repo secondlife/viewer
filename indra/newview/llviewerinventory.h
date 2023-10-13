@@ -72,6 +72,7 @@ public:
 	virtual const LLUUID& getCreatorUUID() const;
 	virtual const std::string& getDescription() const;
 	virtual const LLSaleInfo& getSaleInfo() const;
+    virtual const LLUUID& getThumbnailUUID() const;
 	virtual LLInventoryType::EType getInventoryType() const;
 	virtual bool isWearableType() const;
 	virtual LLWearableType::EType getWearableType() const;
@@ -134,8 +135,8 @@ public:
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 
 	// new methods
-	BOOL isFinished() const { return mIsComplete; }
-	void setComplete(BOOL complete) { mIsComplete = complete; }
+	bool isFinished() const { return mIsComplete; }
+	void setComplete(bool complete) { mIsComplete = complete; }
 	//void updateAssetOnServer() const;
 
 	virtual void setTransactionID(const LLTransactionID& transaction_id);
@@ -163,7 +164,7 @@ public:
 	BOOL regenerateLink();
 
 public:
-	BOOL mIsComplete;
+	bool mIsComplete;
 	LLTransactionID mTransactionID;
 };
 
@@ -208,8 +209,17 @@ public:
 	S32 getVersion() const;
 	void setVersion(S32 version);
 
-	// Returns true if a fetch was issued.
+	// Returns true if a fetch was issued (not nessesary in progress).
 	bool fetch();
+
+    typedef enum {
+        FETCH_NONE = 0,
+        FETCH_NORMAL,
+        FETCH_RECURSIVE,
+    } EFetchType;
+    EFetchType getFetching();
+    // marks as fetch being in progress or as done
+    void setFetching(EFetchType);
 
 	// used to help make caching more robust - for example, if
 	// someone is getting 4 packets but logs out after 3. the viewer
@@ -239,12 +249,14 @@ protected:
 	LLUUID mOwnerID;
 	S32 mVersion;
 	S32 mDescendentCount;
+    EFetchType mFetching;
 	LLFrameTimer mDescendentsRequested;
 };
 
 class LLInventoryCallback : public LLRefCount
 {
 public:
+    virtual ~LLInventoryCallback() {}
 	virtual void fire(const LLUUID& inv_item) = 0;
 };
 
@@ -283,17 +295,29 @@ class LLBoostFuncInventoryCallback: public LLInventoryCallback
 {
 public:
 
-	LLBoostFuncInventoryCallback(inventory_func_type fire_func = no_op_inventory_func,
+	LLBoostFuncInventoryCallback(inventory_func_type fire_func,
 								 nullary_func_type destroy_func = no_op):
-		mFireFunc(fire_func),
 		mDestroyFunc(destroy_func)
 	{
+        mFireFuncs.push_back(fire_func);
 	}
+
+    LLBoostFuncInventoryCallback()
+    {
+    }
+
+    void addOnFireFunc(inventory_func_type fire_func)
+    {
+        mFireFuncs.push_back(fire_func);
+    }
 
 	// virtual
 	void fire(const LLUUID& item_id)
     {
-		mFireFunc(item_id);
+        for (inventory_func_type &func: mFireFuncs)
+        {
+            func(item_id);
+        }
 	}
 
 	// virtual
@@ -304,7 +328,7 @@ public:
 	
 
 private:
-	inventory_func_type mFireFunc;
+	std::list<inventory_func_type> mFireFuncs;
 	nullary_func_type mDestroyFunc;
 };
 
@@ -439,11 +463,17 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
 								  const LLInventoryItem *src,
 								  U32 callback_id = 0);
 
+void move_or_copy_inventory_from_object(const LLUUID& destination_id,
+                                        const LLUUID& object_id,
+                                        const LLUUID& item_id,
+                                        LLPointer<LLInventoryCallback> cb);
 
 void menu_create_inventory_item(LLInventoryPanel* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);
+
+void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid = LLUUID::null, std::function<void(const LLUUID&)> folder_created_cb = NULL);
 
 void slam_inventory_folder(const LLUUID& folder_id,
 						   const LLSD& contents,

@@ -816,7 +816,7 @@ const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("651510b8-5f4d-8991-1592-e7eeab2a5a06");
-const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
+const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("cef49723-0292-af49-9b14-9598a616b8a3");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
 
@@ -2954,11 +2954,19 @@ void LLEnvironment::DayTransition::animate()
                 setWater(mNextInstance->getWater());
     });
 
+
+    // pause probe updates and reset reflection maps on sky change
+    gPipeline.mReflectionMapManager.pause();
+    gPipeline.mReflectionMapManager.reset();
+
     mSky = mStartSky->buildClone();
     mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
     mBlenderSky->setOnFinished(
         [this](LLSettingsBlender::ptr_t blender) {
         mBlenderSky.reset();
+
+        // resume reflection probe updates
+        gPipeline.mReflectionMapManager.resume();
 
         if (!mBlenderSky && !mBlenderWater)
             LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
@@ -3550,12 +3558,19 @@ namespace
             LLSettingsSky::ptr_t target_sky(start_sky->buildClone());
             mInjectedSky->setSource(target_sky);
 
+            // clear reflection probes and pause updates during sky change
+            gPipeline.mReflectionMapManager.pause();
+            gPipeline.mReflectionMapManager.reset();
+
             mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(target_sky, start_sky, psky, transition);
             mBlenderSky->setOnFinished(
                 [this, psky](LLSettingsBlender::ptr_t blender) 
                 {
                     mBlenderSky.reset();
                     mInjectedSky->setSource(psky);
+
+                    // resume updating reflection probes when done animating sky
+                    gPipeline.mReflectionMapManager.resume();
                     setSky(mInjectedSky);
                     if (!mBlenderWater && (countExperiencesActive() == 0))
                     {

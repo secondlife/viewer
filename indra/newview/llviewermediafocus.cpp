@@ -63,6 +63,7 @@ LLViewerMediaFocus::~LLViewerMediaFocus()
 {
 	// The destructor for LLSingletons happens at atexit() time, which is too late to do much.
 	// Clean up in cleanupClass() instead.
+    gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
 void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)

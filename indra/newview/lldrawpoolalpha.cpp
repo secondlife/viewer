@@ -204,6 +204,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(pbr_shader, false, true, water_sign);
 
+    // explicitly unbind here so render loop doesn't make assumptions about the last shader
+    // already being setup for rendering
+    LLGLSLShader::unbind();
+
     if (!LLPipeline::sRenderingHUDs)
     {
         // first pass, render rigged objects only and render to depth buffer
@@ -214,7 +218,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     forwardRender();
 
     // final pass, render to depth for depth of field effects
-    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs)
+    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
     { 
         //update depth buffer sampler
         simple_shader = fullbright_shader = &gDeferredFullbrightAlphaMaskProgram;
@@ -281,6 +285,7 @@ void LLDrawPoolAlpha::renderDebugAlpha()
         gHighlightProgram.bind();
         gGL.diffuseColor4f(1, 0, 0, 1);
         gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::getSmokeImage());
+
 
         renderAlphaHighlight();
 
@@ -509,6 +514,7 @@ void LLDrawPoolAlpha::renderPbrEmissives(std::vector<LLDrawInfo*>& emissives)
     for (LLDrawInfo* draw : emissives)
     {
         llassert(draw->mGLTFMaterial);
+        LLGLDisable cull_face(draw->mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
         draw->mGLTFMaterial->bind(draw->mTexture);
         draw->mVertexBuffer->setBuffer();
         draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
@@ -564,6 +570,7 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
             lastMeshId = draw->mSkinInfo->mHash;
         }
 
+        LLGLDisable cull_face(draw->mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
         draw->mGLTFMaterial->bind(draw->mTexture);
         draw->mVertexBuffer->setBuffer();
         draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
