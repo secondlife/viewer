@@ -35,7 +35,7 @@ out vec4 frag_data[4];
 
 uniform sampler2D alpha_ramp;
 
-// *TODO: Configurable quality level which disables PBR features on machines
+// *TODO: More configurable quality level which disables PBR features on machines
 // with limited texture availability
 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#additional-textures
 uniform sampler2D detail_0_base_color;
@@ -57,7 +57,6 @@ uniform sampler2D detail_2_emissive;
 uniform sampler2D detail_3_emissive;
 #endif
 
-// *TODO: More efficient packing?
 uniform vec4[4] baseColorFactors; // See also vertex_color in pbropaqueV.glsl
 uniform vec4 metallicFactors;
 uniform vec4 roughnessFactors;
@@ -66,7 +65,9 @@ uniform vec3[4] emissiveColors;
 #endif
 uniform vec4 minimum_alphas; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 in vec4[2] vary_coords;
+#endif
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
@@ -79,7 +80,7 @@ float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal);
 vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec4[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
-vec3 sample_and_mix_vector3_no_scale(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
+vec3 sample_and_mix_normal(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 
 void main()
 {
@@ -101,7 +102,6 @@ void main()
         discard;
     }
 
-    vec3 normal_texture = sample_and_mix_vector3_no_scale(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
 
     vec3[4] orm_factors;
     orm_factors[0] = vec3(1.0, roughnessFactors.x, metallicFactors.x);
@@ -124,7 +124,7 @@ void main()
     float base_color_factor_alpha = terrain_mix(vec4(baseColorFactors[0].z, baseColorFactors[1].z, baseColorFactors[2].z, baseColorFactors[3].z), alpha1, alpha2, alphaFinal);
 
     // from mikktspace.com
-    vec3 vNt = normal_texture.xyz*2.0-1.0;
+    vec3 vNt = sample_and_mix_normal(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;

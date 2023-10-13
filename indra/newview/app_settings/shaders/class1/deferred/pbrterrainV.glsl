@@ -34,7 +34,9 @@ in vec4 diffuse_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
 
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 out vec4[2] vary_coords;
+#endif
 out vec3 vary_vertex_normal; // Used by pbrterrainUtilF.glsl
 out vec3 vary_normal;
 out vec3 vary_tangent;
@@ -42,22 +44,13 @@ flat out float vary_sign;
 out vec4 vary_texcoord0;
 out vec4 vary_texcoord1;
 
-uniform vec4 object_plane_s;
-uniform vec4 object_plane_t;
+// *HACK: tangent_space_transform should use texture_normal_transform, or maybe
+// we shouldn't use tangent_space_transform at all. See the call to
+// tangent_space_transform below.
+uniform vec4[2] texture_base_color_transform;
 
-vec4 texgen_object_pbr(vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
-{
-    vec4 tcoord;
-    
-    tcoord.x = dot(tc, tp0);
-    tcoord.y = dot(tc, tp1);
-    tcoord.z = tcoord.z;
-    tcoord.w = tcoord.w;
-    
-    tcoord = mat * tcoord;
-    
-    return tcoord;
-}
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 void main()
 {
@@ -65,23 +58,36 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 
 	vec3 n = normal_matrix * normal;
-    // *TODO: Looks like terrain normals are per-vertex when they should be per-triangle instead, causing incorrect values on triangles touching steep edges of terrain
     vary_vertex_normal = normal;
 	vec3 t = normal_matrix * tangent.xyz;
 
     vary_tangent = normalize(t);
+    // *TODO: Decide if we want this. It may be better to just calculate the
+    // tangents on-the-fly in the fragment shader, due to the subtleties of the
+    // effect of triplanar mapping on UVs.
+    // *HACK: Should be using texture_normal_transform here. The KHR texture
+    // transform spec requires handling texture transforms separately for each
+    // individual texture.
+    vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_base_color_transform, texture_matrix0));
     vary_sign = tangent.w;
     vary_normal = normalize(n);
 
     // Transform and pass tex coords
-    // *NOTE: KHR texture transform is ignored for now
-    vary_texcoord0.xy = texgen_object_pbr(vec4(texcoord0, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    // *HACK: texture_base_color_transform is used for all of these here, but
+    // the KHR texture transform spec requires handling texture transforms
+    // separately for each individual texture.
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+    // xy
+    vary_coords[0].xy = texture_transform(position.xy, texture_base_color_transform, texture_matrix0);
+    // yz
+    vary_coords[0].zw = texture_transform(position.yz, texture_base_color_transform, texture_matrix0);
+    // (-x)z
+    vary_coords[1].xy = texture_transform(position.xz * vec2(-1, 1), texture_base_color_transform, texture_matrix0);
+#elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
+    vary_texcoord0.xy = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
+#endif
     
-    vec4 tc = vec4(texcoord1,0,1); // TODO: This is redundant. Better to just use position and ignore texcoord? (We still need to decide how to handle alpha ramp, though...)
-    vary_coords[0].xy = texgen_object_pbr(vec4(position.xy, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
-    vary_coords[0].zw = texgen_object_pbr(vec4(position.yz, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
-    vary_coords[1].xy = texgen_object_pbr(vec4(position.zx, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
-    
+    vec4 tc = vec4(texcoord1,0,1);
     vary_texcoord0.zw = tc.xy;
     vary_texcoord1.xy = tc.xy-vec2(2.0, 0.0);
     vary_texcoord1.zw = tc.xy-vec2(1.0, 0.0);

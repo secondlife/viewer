@@ -65,14 +65,56 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 }
 
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
-// Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, zx, unused)
-#define TerrainCoord vec4[2]
 // Triplanar mapping
+
+// Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, (-x)z, unused)
+#define TerrainCoord vec4[2]
+
+vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign)
+{
+    // If the vertex normal is negative, flip the texture back
+    // right-side up.
+    vec2 uv = uv_unflipped * vec2(sign, 1);
+    return texture(tex, uv);
+}
+
+vec3 _t_texture_n(sampler2D tex, vec2 uv_unflipped, float sign)
+{
+    // Unpack normal from pixel to vector
+    vec3 n = _t_texture(tex, uv_unflipped, sign).xyz*2.0-1.0;
+    // If the sign is negative, rotate normal by 180 degrees
+    n.xy = (min(0, sign) * n.xy) + (min(0, -sign) * -n.xy);
+    return n;
+}
+
 vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 {
-    vec4 x = texture(tex, terrain_coord[0].zw);
-    vec4 y = texture(tex, terrain_coord[1].xy);
-    vec4 z = texture(tex, terrain_coord[0].xy);
+    // Multiplying the UVs by the sign of the normal flips the texture upright.
+    vec4 x = _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x));
+    vec4 y = _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y));
+    vec4 z = _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
+    float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
+    vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
+    return ((x * weight.x) + (y * weight.y) + (z * weight.z)) / (weight.x + weight.y + weight.z);
+}
+
+// Specialized triplanar normal texture sampling implementation, taking into
+// account how the rotation of the texture affects the lighting and trying to
+// negate that.
+// *TODO: Decide if we want this. It may be better to just calculate the
+// tangents on-the-fly here rather than messing with the normals, due to the
+// subtleties of the effects of triplanar mapping on UVs. These sampled normals
+// are only valid on the faces of a cube, and the pregenerated tangents are
+// only valid for uv = xy.
+// *NOTE: Bottom face has not been tested
+vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
+{
+    vec3 x = _t_texture_n(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x));
+    x.xy = vec2(-x.y, x.x);
+    vec3 y = _t_texture_n(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y));
+    y.xy = -y.xy;
+    vec3 z = _t_texture_n(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
+
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
     vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
     return ((x * weight.x) + (y * weight.y) + (z * weight.z)) / (weight.x + weight.y + weight.z);
@@ -82,6 +124,11 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 {
     return texture(tex, terrain_coord);
+}
+
+vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
+{
+    return texture(tex, terrain_coord).xyz;
 }
 #endif
 
@@ -135,12 +182,13 @@ vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, Terrai
     return terrain_mix(samples, alpha1, alpha2, alphaFinal);
 }
 
-vec3 sample_and_mix_vector3_no_scale(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
+// Returns the unpacked normal texture in range [-1, 1]
+vec3 sample_and_mix_normal(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
     vec3[4] samples;
-    samples[0] = terrain_texture(tex0, texcoord).xyz;
-    samples[1] = terrain_texture(tex1, texcoord).xyz;
-    samples[2] = terrain_texture(tex2, texcoord).xyz;
-    samples[3] = terrain_texture(tex3, texcoord).xyz;
+    samples[0] = terrain_texture_normal(tex0, texcoord).xyz;
+    samples[1] = terrain_texture_normal(tex1, texcoord).xyz;
+    samples[2] = terrain_texture_normal(tex2, texcoord).xyz;
+    samples[3] = terrain_texture_normal(tex3, texcoord).xyz;
     return terrain_mix(samples, alpha1, alpha2, alphaFinal);
 }

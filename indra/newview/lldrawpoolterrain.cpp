@@ -383,16 +383,6 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         materials = &gLocalTerrainMaterials.mDetailMaterials;
     }
 
-    // *TODO: Figure out why this offset is *sometimes* producing seams at the region edge, and repeat jumps when crossing regions, when RenderTerrainPBRScale is not a factor of the region scale.
-	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
-
-	LLVector4 tp0, tp1;
-	
-	tp0.setVec(sPBRDetailScale, 0.0f, 0.0f, offset_x);
-	tp1.setVec(0.0f, sPBRDetailScale, 0.0f, offset_y);
-
     constexpr U32 terrain_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
     S32 detail_basecolor[terrain_material_count];
     S32 detail_normal[terrain_material_count];
@@ -463,8 +453,22 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 	llassert(shader);
 		
-	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
-	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
+
+    // *TODO: Figure out why this offset is *sometimes* producing seams at the
+    // region edge, and repeat jumps when crossing regions, when
+    // RenderTerrainPBRScale is not a factor of the region scale.
+	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
+	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
+	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
+
+    LLGLTFMaterial::TextureTransform base_color_transform;
+    base_color_transform.mScale = LLVector2(sPBRDetailScale, sPBRDetailScale);
+    base_color_transform.mOffset = LLVector2(offset_x, offset_y);
+    F32 base_color_packed[8];
+    base_color_transform.getPacked(base_color_packed);
+    // *HACK: Use the same texture repeats for all PBR terrain textures for now
+    // (not compliant with KHR texture transform spec)
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
