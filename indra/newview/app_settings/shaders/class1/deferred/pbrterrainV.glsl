@@ -31,7 +31,6 @@ in vec3 position;
 in vec3 normal;
 in vec4 tangent;
 in vec4 diffuse_color;
-in vec2 texcoord0;
 in vec2 texcoord1;
 
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
