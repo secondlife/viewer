@@ -76,29 +76,47 @@
      left="8"
      top="30"
      width="460" />
+    <combo_box
+     layout="topleft"
+     left="10"
+     top="105"
+     follows="left|top"
+     name="terrain_material_type"
+     width="170">
+        <combo_box.item
+         label="Terrain Textures"
+         name="Textures"
+         value="Textures" />
+        <combo_box.item
+         label="Terrain PBR Materials"
+         name="PBRMaterials"
+         value="PBRMaterials" />
+    </combo_box>
     <text
      type="string"
      length="1"
+     halign="left"
+     valign="center"
      follows="left|top"
      height="20"
      layout="topleft"
-     left="10"
+     top_delta="0"
+     left_delta="180"
      name="detail_texture_text"
-     top="110"
-     width="300">
-        Terrain Textures (maximum size: 1024x1024)
+     width="200">
+        Maximum size: 1024x1024
     </text>
     <texture_picker
      follows="left|top"
      height="100"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="texture_detail_0"
      default_image_id="0bc58228-74a0-7e83-89bc-5c23464bcec5"
-     top_delta="20"
+     top_delta="30"
      width="100" />
     <texture_picker
-     follows="left|top"
+     follows="top"
      height="100"
      layout="topleft"
      left_pad="10"
@@ -122,6 +140,50 @@
      left_pad="10"
      name="texture_detail_3"
      default_image_id="53a2f406-4895-1d13-d541-d2e3b86bc19c"
+     top_delta="0"
+     width="100" />
+    <texture_picker
+     visible="false"
+     follows="left|top"
+     height="100"
+     layout="topleft"
+     left="10"
+     name="material_detail_0"
+     pick_type="material"
+     allow_no_texture="true"
+     top_delta="0"
+     width="100" />
+    <texture_picker
+     visible="false"
+     follows="left|top"
+     height="100"
+     layout="topleft"
+     left_pad="10"
+     name="material_detail_1"
+     pick_type="material"
+     allow_no_texture="true"
+     top_delta="0"
+     width="100" />
+    <texture_picker
+     visible="false"
+     follows="left|top"
+     height="100"
+     layout="topleft"
+     left_pad="10"
+     name="material_detail_2"
+     pick_type="material"
+     allow_no_texture="true"
+     top_delta="0"
+     width="100" />
+    <texture_picker
+     visible="false"
+     follows="left|top"
+     height="100"
+     layout="topleft"
+     left_pad="10"
+     name="material_detail_3"
+     pick_type="material"
+     allow_no_texture="true"
      top_delta="0"
      width="100" />
     <text

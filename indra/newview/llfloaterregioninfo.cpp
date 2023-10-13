@@ -1394,10 +1394,18 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	initCtrl("terrain_raise_spin");
 	initCtrl("terrain_lower_spin");
 
+    getChild<LLUICtrl>("terrain_material_type")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onSelectMaterialType, this));
+
 	std::string buffer;
+
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
 		buffer = llformat("texture_detail_%d", i);
+		initCtrl(buffer);
+	}
+	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+	{
+		buffer = llformat("material_detail_%d", i);
 		initCtrl(buffer);
 	}
 
@@ -1417,6 +1425,81 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	mConfirmedTextureHeights = false;
 
 	return LLPanelRegionInfo::postBuild();
+}
+
+enum class TerrainMaterialType
+{
+    TEXTURE,
+    PBR_MATERIAL,
+    COUNT
+};
+
+TerrainMaterialType material_type_from_index(S32 index)
+{
+    if (index == 0)
+    {
+        return TerrainMaterialType::TEXTURE;
+    }
+    if (index == 1)
+    {
+        return TerrainMaterialType::PBR_MATERIAL;
+    }
+    return TerrainMaterialType::COUNT;
+}
+
+// virtual
+void LLPanelRegionTerrainInfo::refresh()
+{
+    std::string buffer;
+
+    bool has_material_assets = false;
+	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+    {
+        buffer = llformat("material_detail_%d", i);
+        LLTextureCtrl* material_ctrl = getChild<LLTextureCtrl>(buffer);
+        if (material_ctrl && material_ctrl->getImageAssetID().notNull())
+        {
+            has_material_assets = true;
+            break;
+        }
+    }
+
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (material_type_ctrl)
+    {
+        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
+        material_type_ctrl->setEnabled(!(is_material_selected && has_material_assets));
+    }
+}
+
+void LLPanelRegionTerrainInfo::onSelectMaterialType()
+{
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (!material_type_ctrl) { return; }
+    const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+    const bool show_texture_controls = material_type == TerrainMaterialType::TEXTURE;
+    const bool show_material_controls = material_type == TerrainMaterialType::PBR_MATERIAL;
+    std::string buffer;
+    LLTextureCtrl* texture_ctrl;
+    for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+    {
+        buffer = llformat("texture_detail_%d", i);
+        texture_ctrl = getChild<LLTextureCtrl>(buffer);
+        if (texture_ctrl)
+        {
+            texture_ctrl->setVisible(show_texture_controls);
+        }
+    }
+    for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+    {
+        buffer = llformat("material_detail_%d", i);
+        texture_ctrl = getChild<LLTextureCtrl>(buffer);
+        if (texture_ctrl)
+        {
+            texture_ctrl->setVisible(show_material_controls);
+        }
+    }
 }
 
 // virtual

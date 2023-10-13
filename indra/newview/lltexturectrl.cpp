@@ -176,7 +176,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mSetImageAssetIDCallback(NULL),
 	mOnUpdateImageStatsCallback(NULL),
 	mBakeTextureEnabled(FALSE),
-    mInventoryPickType(LLTextureCtrl::PICK_TEXTURE)
+    mInventoryPickType(EPickInventoryType::TEXTURE)
 {
 	mCanApplyImmediately = can_apply_immediately;
 	buildFromFile("floater_texture_ctrl.xml");
@@ -356,11 +356,11 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
     bool is_material = cargo_type == DAD_MATERIAL;
 
     bool allow_dnd = false;
-    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    if (mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         allow_dnd = is_material;
     }
-    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    else if (mInventoryPickType == EPickInventoryType::TEXTURE)
     {
         allow_dnd = is_texture || is_mesh;
     }
@@ -570,7 +570,7 @@ void LLFloaterTexturePicker::draw()
         mGLTFMaterial = NULL;
         if (mImageAssetID.notNull())
         {
-            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            if (mInventoryPickType == EPickInventoryType::MATERIAL)
             {
                 mGLTFMaterial = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mImageAssetID);
                 llassert(mGLTFMaterial == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(gGLTFMaterialList.getMaterial(mImageAssetID)) != nullptr);
@@ -901,7 +901,7 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == 2 ? TRUE : FALSE);
 
     bool pipette_visible = (index == 0)
-        && (self->mInventoryPickType != LLTextureCtrl::PICK_MATERIAL);
+        && (self->mInventoryPickType != EPickInventoryType::MATERIAL);
 	self->getChild<LLButton>("Pipette")->setVisible(pipette_visible);
 
 	if (index == 2)
@@ -966,15 +966,15 @@ void LLFloaterTexturePicker::onBtnAdd(void* userdata)
 {
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)userdata;
 
-    if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+    if (self->mInventoryPickType == EPickInventoryType::TEXTURE_MATERIAL)
     {
         LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL_TEXTURE, true);
     }
-    else if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    else if (self->mInventoryPickType == EPickInventoryType::TEXTURE)
     {
         LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_IMAGE, true);
     }
-    else if (self->mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    else if (self->mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL, true);
     }
@@ -1229,16 +1229,16 @@ void LLFloaterTexturePicker::refreshLocalList()
 {
     mLocalScrollCtrl->clearRows();
 
-    if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+    if (mInventoryPickType == EPickInventoryType::TEXTURE_MATERIAL)
     {
         LLLocalBitmapMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
         LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
     }
-    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    else if (mInventoryPickType == EPickInventoryType::TEXTURE)
     {
         LLLocalBitmapMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
     }
-    else if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    else if (mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
     }
@@ -1248,18 +1248,18 @@ void LLFloaterTexturePicker::refreshInventoryFilter()
 {
     U32 filter_types = 0x0;
 
-    if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+    if (mInventoryPickType == EPickInventoryType::TEXTURE_MATERIAL)
     {
         filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
         filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
         filter_types |= 0x1 << LLInventoryType::IT_MATERIAL;
     }
-    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    else if (mInventoryPickType == EPickInventoryType::TEXTURE)
     {
         filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
         filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
     }
-    else if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    else if (mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         filter_types |= 0x1 << LLInventoryType::IT_MATERIAL;
     }
@@ -1294,13 +1294,13 @@ void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
 	onModeSelect(0, this);
 }
 
-void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryType type)
+void LLFloaterTexturePicker::setInventoryPickType(EPickInventoryType type)
 {
     mInventoryPickType = type;
     refreshLocalList();
     refreshInventoryFilter();
 
-    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    if (mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         getChild<LLButton>("Pipette")->setVisible(false);
     }
@@ -1316,7 +1316,7 @@ void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryT
 
         setTitle(pick + mLabel);
     }
-    else if(mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    else if(mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         setTitle(getString("pick_material"));
     }
@@ -1352,16 +1352,16 @@ void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& fi
         LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)handle.get();
         self->mLocalScrollCtrl->clearRows();
 
-        if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+        if (self->mInventoryPickType == EPickInventoryType::TEXTURE_MATERIAL)
         {
             LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
             LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
         }
-        else if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+        else if (self->mInventoryPickType == EPickInventoryType::TEXTURE)
         {
             LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
         }
-        else if (self->mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        else if (self->mInventoryPickType == EPickInventoryType::MATERIAL)
         {
             LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
         }
@@ -1374,7 +1374,7 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 	if (inventory_item_id.notNull())
 	{
 		LLToolPipette::getInstance()->setResult(TRUE, "");
-        if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        if (mInventoryPickType == EPickInventoryType::MATERIAL)
         {
             // tes have no data about material ids
             // Plus gltf materials are layered with overrides,
@@ -1425,7 +1425,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mShowLoadingPlaceholder( TRUE ),
 	mOpenTexPreview(false),
     mBakeTextureEnabled(true),
-    mInventoryPickType(PICK_TEXTURE),
+    mInventoryPickType(p.pick_type),
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
@@ -1680,7 +1680,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 		if (!mOpenTexPreview)
 		{
 			showPicker(FALSE);
-            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            if (mInventoryPickType == EPickInventoryType::MATERIAL)
             {
                 //grab materials first...
                 LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL));
@@ -1860,11 +1860,11 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
     bool is_material = cargo_type == DAD_MATERIAL;
 
     bool allow_dnd = false;
-    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    if (mInventoryPickType == EPickInventoryType::MATERIAL)
     {
         allow_dnd = is_material;
     }
-    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    else if (mInventoryPickType == EPickInventoryType::TEXTURE)
     {
         allow_dnd = is_texture || is_mesh;
     }
@@ -2095,6 +2095,16 @@ void LLTextureCtrl::setValue( const LLSD& value )
 LLSD LLTextureCtrl::getValue() const
 {
 	return LLSD(getImageAssetID());
+}
+
+namespace LLInitParam
+{
+	void TypeValues<EPickInventoryType>::declareValues()
+	{
+		declare("texture_material", EPickInventoryType::TEXTURE_MATERIAL);	
+		declare("texture", EPickInventoryType::TEXTURE);
+        declare("material", EPickInventoryType::MATERIAL);	
+	}
 }
 
 

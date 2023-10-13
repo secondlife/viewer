@@ -64,9 +64,24 @@ bool get_is_predefined_texture(LLUUID asset_id);
 LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = false);
 bool get_can_copy_texture(LLUUID image_id);
 
+enum class EPickInventoryType
+{
+    TEXTURE_MATERIAL = 0,
+    TEXTURE = 1,
+    MATERIAL = 2,
+};
+
+namespace LLInitParam
+{
+    template<>
+	struct TypeValues<EPickInventoryType> : public TypeValuesHelper<EPickInventoryType>
+	{
+		static void declareValues();
+	};
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
-
 
 class LLTextureCtrl
 : public LLUICtrl
@@ -79,19 +94,13 @@ public:
 		TEXTURE_CANCEL
 	} ETexturePickOp;
 
-    typedef enum e_pick_inventory_type
-    {
-        PICK_TEXTURE_MATERIAL = 0,
-        PICK_TEXTURE = 1,
-        PICK_MATERIAL = 2,
-    } EPickInventoryType;
-
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<LLUUID>		image_id;
 		Optional<LLUUID>		default_image_id;
 		Optional<std::string>	default_image_name;
+        Optional<EPickInventoryType> pick_type;
 		Optional<bool>			allow_no_texture;
 		Optional<bool>			can_apply_immediately;
 		Optional<bool>			no_commit_on_selection; // alternative mode: commit occurs and the widget gets dirty
@@ -109,6 +118,7 @@ public:
 		:	image_id("image"),
 			default_image_id("default_image_id"),
 			default_image_name("default_image_name"),
+            pick_type("pick_type", EPickInventoryType::TEXTURE),
 			allow_no_texture("allow_no_texture", false),
 			can_apply_immediately("can_apply_immediately"),
 			no_commit_on_selection("no_commit_on_selection", false),
@@ -260,7 +270,7 @@ private:
 	S32						 	mLabelWidth;
 	bool						mOpenTexPreview;
 	bool						mBakeTextureEnabled;
-    LLTextureCtrl::EPickInventoryType mInventoryPickType;
+    EPickInventoryType mInventoryPickType;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +360,7 @@ public:
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
 
-    void setInventoryPickType(LLTextureCtrl::EPickInventoryType type);
+    void setInventoryPickType(EPickInventoryType type);
 
     static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
 
@@ -396,7 +406,7 @@ private:
 	bool mCanApply;
 	bool mCanPreview;
 	bool mPreviewSettingChanged;
-    LLTextureCtrl::EPickInventoryType mInventoryPickType;
+    EPickInventoryType mInventoryPickType;
 
 
 	texture_selected_callback mTextureSelectedCallback;

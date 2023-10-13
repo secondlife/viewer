@@ -258,6 +258,9 @@ public:
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 	
+    void refresh() override;
+    void onSelectMaterialType();
+
 	virtual BOOL sendUpdate();
 
 	static void onClickDownloadRaw(void*);
