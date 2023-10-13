@@ -64,8 +64,6 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
     return mix( mix(samples[3], samples[2], alpha2), mix(samples[1], samples[0], alpha1), alphaFinal );
 }
 
-#define TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT 3 // TODO: Move definition to config
-
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 // Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, zx, unused)
 #define TerrainCoord vec4[2]

@@ -717,6 +717,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainScale", handleTerrainScaleChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRScale", handlePBRTerrainScaleChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRDetail", handleSetShaderChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRPlanarSampleCount", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "OctreeStaticObjectSizeFactor", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "OctreeDistanceFactor", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "OctreeMaxNodeCapacity", handleRepartition);

@@ -25,9 +25,6 @@
 
 #define TERRAIN_PBR_DETAIL_EMISSIVE 0
 
-#define TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT 3 // TODO: Move definition to config
-
-// TODO: Should be able to define this in another file and have it included in this one...
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 #define TerrainCoord vec4[2]
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1

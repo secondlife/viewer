@@ -10733,6 +10733,17 @@
       <key>Value</key>
       <real>4.0</real>
     </map>
+    <key>RenderTerrainPBRPlanarSampleCount</key>
+    <map>
+      <key>Comment</key>
+      <string>How many UV planes to sample PBR terrain textures from. 1 is "flat", 3 is triplanar mapping (aka box mapping)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>3</real>
+    </map>
     <key>RenderTrackerBeacon</key>
     <map>
       <key>Comment</key>

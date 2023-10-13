@@ -69,6 +69,14 @@ bool				LLViewerShaderMgr::sSkipReload = false;
 
 LLVector4			gShinyOrigin;
 
+S32 clamp_terrain_mapping(S32 mapping)
+{
+    // 1 = "flat", 2 not implemented, 3 = triplanar mapping
+    mapping = llclamp(mapping, 1, 3);
+    if (mapping == 2) { mapping = 1; }
+    return mapping;
+}
+
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
 LLGLSLShader    gSkinnedOcclusionProgram;
@@ -682,6 +690,9 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 		attribs["REF_SAMPLE_COUNT"] = "32";
 	}
 
+    const S32 mapping = clamp_terrain_mapping(gSavedSettings.getS32("RenderTerrainPBRPlanarSampleCount"));
+    attribs["TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT"] = llformat("%d", mapping);
+
 	LLGLSLShader::sGlobalDefines = attribs;
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
@@ -720,7 +731,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
-	index_channels.push_back(-1);    shaders.push_back(make_pair("deferred/pbrterrainUtilF.glsl", 1));
+	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/pbrterrainUtilF.glsl",                 1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
@@ -1497,6 +1508,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
         S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
         detail = llclamp(detail, TERRAIN_PBR_DETAIL_MIN, TERRAIN_PBR_DETAIL_MAX);
+        const S32 mapping = clamp_terrain_mapping(gSavedSettings.getS32("RenderTerrainPBRPlanarSampleCount"));
         gDeferredPBRTerrainProgram.mName = llformat("Deferred PBR Terrain Shader %d", detail);
         gDeferredPBRTerrainProgram.mFeatures.encodesNormal = true;
         gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
@@ -1514,6 +1526,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainF.glsl", GL_FRAGMENT_SHADER));
         gDeferredPBRTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredPBRTerrainProgram.addPermutation("TERRAIN_PBR_DETAIL", llformat("%d", detail));
+        gDeferredPBRTerrainProgram.addPermutation("TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT", llformat("%d", mapping));
         success = gDeferredPBRTerrainProgram.createShader(NULL, NULL);
         llassert(success);
 	}
