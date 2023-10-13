@@ -459,9 +459,10 @@ bool LLSLURL::operator ==(const LLSLURL& rhs)
         case HOME_LOCATION:
         case LAST_LOCATION:
             return true;
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 bool LLSLURL::operator !=(const LLSLURL& rhs)
