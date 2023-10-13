@@ -59,6 +59,7 @@ const S32 PBR_DETAIL_EMISSIVE = 0;
 S32 LLDrawPoolTerrain::sDetailMode = 1;
 S32 LLDrawPoolTerrain::sPBRDetailMode = 0;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
+F32 LLDrawPoolTerrain::sPBRDetailScale = DETAIL_SCALE;
 static LLGLSLShader* sShader = NULL;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
 
@@ -69,6 +70,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 {
 	// Hack!
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
+	sPBRDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainPBRScale");
     // TODO: This is unused. Remove?
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 	sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
@@ -385,16 +387,15 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         materials = &gLocalTerrainMaterials.mDetailMaterials;
     }
 
-    // *TODO: I'm seeing terrain still jump when switching regions. Might have something to do with the extra repeat factor in the shader. Or is it a numerical precision issue?...
-    // *TODO: If we want to change the tiling, we should change this offset modulo to prevent seams
+    // *TODO: Figure out why this offset is *sometimes* producing seams at the region edge, and repeat jumps when crossing regions, when RenderTerrainPBRScale is not a factor of the region scale.
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
+	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
 
 	LLVector4 tp0, tp1;
 	
-	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+	tp0.setVec(sPBRDetailScale, 0.0f, 0.0f, offset_x);
+	tp1.setVec(0.0f, sPBRDetailScale, 0.0f, offset_y);
 
     constexpr U32 terrain_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
     S32 detail_basecolor[terrain_material_count];

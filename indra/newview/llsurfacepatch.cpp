@@ -209,15 +209,7 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 	}
 	llassert_always(vertex && normal && tex0 && tex1);
 	
-	// TODO: I think this operation is being applied too early because it also affects the geometry - we only want to affect the UVs
-    // TODO: Figure out what correct scaling is needed to prevent seams at region borders - getPatchesPerEdge seems to not be the solution, nor is getGridsPerEdge on its own
 	U32 surface_stride = mSurfacep->getGridsPerEdge();
-	U32 texture_stride = mSurfacep->getGridsPerEdge() - 1;
-    if (!pbr)
-    {
-        // TODO: Re-enable legacy repeats
-        //texture_stride = mSurfacep->getGridsPerEdge();
-    }
 	U32 point_offset = x + y*surface_stride;
 
 	*normal = getNormal(x, y);
@@ -229,8 +221,9 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 	*vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
 
 	LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
-	// TODO: Revert for non-PBR only here, and/or add note that non-PBR doesn't actually use it.
-	LLVector3 tex_pos = rel_pos * (1.f/(texture_stride * mSurfacep->getMetersPerGrid()));
+	// *NOTE: Only PBR terrain uses the UVs right now. Texture terrain just ignores it.
+    // *NOTE: In the future, UVs and horizontal position will no longer have a 1:1 relationship for PBR terrain
+	LLVector3 tex_pos = rel_pos;
 	tex0->mV[0]  = tex_pos.mV[0];
 	tex0->mV[1]  = tex_pos.mV[1];
 	tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);

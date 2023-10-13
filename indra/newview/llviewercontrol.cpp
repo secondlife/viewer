@@ -134,6 +134,16 @@ static bool handleTerrainScaleChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handlePBRTerrainScaleChanged(const LLSD& newvalue)
+{
+    F64 scale = newvalue.asReal();
+    if (scale != 0.0)
+    {
+        LLDrawPoolTerrain::sPBRDetailScale = F32(1.0 / scale);
+    }
+	return true;
+}
+
 static bool handleDebugAvatarJointsChanged(const LLSD& newvalue)
 {
     std::string new_string = newvalue.asString();
@@ -712,6 +722,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderFarClip", handleRenderFarClipChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainDetail", handleTerrainDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainScale", handleTerrainScaleChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRScale", handlePBRTerrainScaleChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRDetail", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "OctreeStaticObjectSizeFactor", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "OctreeDistanceFactor", handleRepartition);

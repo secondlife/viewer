@@ -68,7 +68,8 @@ public:
 
 	static S32 sDetailMode;
 	static S32 sPBRDetailMode;
-	static F32 sDetailScale; // meters per texture
+	static F32 sDetailScale; // textures per meter
+	static F32 sPBRDetailScale; // textures per meter
 
 protected:
     void boostTerrainDetailTextures();

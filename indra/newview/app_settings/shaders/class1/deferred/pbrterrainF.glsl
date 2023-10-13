@@ -70,7 +70,6 @@ vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
-in vec4 debug_pos; // TODO: Remove
 // *TODO: This mixing function feels like it can be optimized. The terrain code's use of texcoord1 is dubious. It feels like the same thing can be accomplished with less memory bandwidth by calculating the offsets on-the-fly
 float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal)
 {
@@ -150,7 +149,6 @@ vec3 sample_and_mix_vector3_no_scale(float alpha1, float alpha2, float alphaFina
 void main()
 {
     vec2 terrain_texcoord = vary_texcoord0.xy;
-    terrain_texcoord -= vec2(21.0);// TODO: Remove
     float alpha1 = texture(alpha_ramp, vary_texcoord0.zw).a;
     float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;
@@ -161,25 +159,6 @@ void main()
     {
         discard;
     }
-
-    // TODO: Remove all of this
-    float debug_pos_x = debug_pos.x;
-    //float debug_pos_x = terrain_texcoord.y;
-    float debug_metric = debug_pos_x;
-    debug_metric = debug_metric - floor(debug_metric);
-    debug_metric *= debug_metric;
-    float debug_metric2 = debug_pos_x / 4.0;
-    debug_metric2 = debug_metric2 - floor(debug_metric2);
-    debug_metric2 *= debug_metric2;
-    debug_metric2 *= debug_metric2;
-    debug_metric2 *= 16.0;
-    float debug_metric3 = debug_pos_x / 16.0;
-    debug_metric3 = debug_metric3 - floor(debug_metric3);
-    debug_metric3 *= debug_metric3;
-    debug_metric3 *= debug_metric3;
-    debug_metric3 *= debug_metric3;
-    debug_metric3 *= 16.0;
-    //col.xyz = vec3(debug_metric3, debug_metric2, debug_metric);// TODO: Remove
 
     vec3 normal_texture = sample_and_mix_vector3_no_scale(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
 
