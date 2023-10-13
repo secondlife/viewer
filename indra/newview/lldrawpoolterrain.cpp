@@ -256,10 +256,31 @@ void LLDrawPoolTerrain::renderFullShader()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+
+	LLViewerTexture *detail_texture0p;
+	LLViewerTexture *detail_texture1p;
+	LLViewerTexture *detail_texture2p;
+	LLViewerTexture *detail_texture3p;
+    BOOL use_textures = compp->texturesReady() || !compp->materialsReady();
+    if (use_textures)
+    {
+        detail_texture0p = compp->mDetailTextures[0];
+        detail_texture1p = compp->mDetailTextures[1];
+        detail_texture2p = compp->mDetailTextures[2];
+        detail_texture3p = compp->mDetailTextures[3];
+    }
+    else // use materials
+    {
+        detail_texture0p = compp->mDetailMaterials[0]->mBaseColorTexture;
+        detail_texture1p = compp->mDetailMaterials[1]->mBaseColorTexture;
+        detail_texture2p = compp->mDetailMaterials[2]->mBaseColorTexture;
+        detail_texture3p = compp->mDetailMaterials[3]->mBaseColorTexture;
+        LLViewerTexture* blank = LLViewerFetchedTexture::sWhiteImagep;
+        if (!detail_texture0p) { detail_texture0p = blank; }
+        if (!detail_texture1p) { detail_texture1p = blank; }
+        if (!detail_texture2p) { detail_texture2p = blank; }
+        if (!detail_texture3p) { detail_texture3p = blank; }
+    }
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;

@@ -30,6 +30,8 @@
 #include "llviewerlayer.h"
 #include "llpointer.h"
 
+#include "llimage.h"
+
 class LLSurface;
 
 class LLViewerFetchedTexture;
@@ -75,21 +77,26 @@ public:
 	friend class LLDrawPoolTerrain;
 	void setParamsReady()		{ mParamsReady = TRUE; }
 	BOOL getParamsReady() const	{ return mParamsReady; }
-protected:
-	BOOL mParamsReady;
-	LLSurface *mSurfacep;
-	BOOL mTexturesLoaded;
+    BOOL texturesReady(BOOL boost = FALSE);
+    BOOL materialsReady(BOOL boost = FALSE);
 
-    // TODO: Set flag to indicate whether the textures or materials loaded first
+protected:
+    static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
+    static BOOL materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost = FALSE);
+
+	BOOL mParamsReady = FALSE;
+	LLSurface *mSurfacep;
+
 	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
 	LLPointer<LLImageRaw> mRawImages[ASSET_COUNT];
 	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
+    bool mMaterialTexturesSet[ASSET_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];
 
-	F32 mTexScaleX;
-	F32 mTexScaleY;
+	F32 mTexScaleX = 16.f;
+	F32 mTexScaleY = 16.f;
 };
 
 #endif //LL_LLVLCOMPOSITION_H

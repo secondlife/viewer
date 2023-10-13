@@ -34,6 +34,8 @@
 #include "lltextureview.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
+#include "llfetchedgltfmaterial.h"
+#include "llgltfmateriallist.h"
 #include "llviewerregion.h"
 #include "noise.h"
 #include "llregionhandle.h" // for from_region_handle
@@ -59,8 +61,7 @@ F32 bilinear(const F32 v00, const F32 v01, const F32 v10, const F32 v11, const F
 
 
 LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale) :
-	LLViewerLayer(width, scale),
-	mParamsReady(FALSE)
+	LLViewerLayer(width, scale)
 {
 	mSurfacep = surfacep;
 
@@ -76,9 +77,11 @@ LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32
 		mStartHeight[i] = gSavedSettings.getF32("TerrainColorStartHeight");
 		mHeightRange[i] = gSavedSettings.getF32("TerrainColorHeightRange");
 	}
-	mTexScaleX = 16.f;
-	mTexScaleY = 16.f;
-	mTexturesLoaded = FALSE;
+
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        mMaterialTexturesSet[i] = false;
+    }
 }
 
 
@@ -92,8 +95,19 @@ void LLVLComposition::setSurface(LLSurface *surfacep)
 	mSurfacep = surfacep;
 }
 
+LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
+{
+    if (id.isNull())
+    {
+        return nullptr;
+    }
 
-void LLVLComposition::setDetailAssetID(S32 corner, const LLUUID& id)
+    LLPointer<LLViewerFetchedTexture> tex = LLViewerTextureManager::getFetchedTexture(id);
+    tex->setNoDelete();
+    return tex;
+}
+
+void LLVLComposition::setDetailAssetID(S32 asset, const LLUUID& id)
 {
 	if(id.isNull())
 	{
@@ -101,28 +115,11 @@ void LLVLComposition::setDetailAssetID(S32 corner, const LLUUID& id)
 	}
 	// This is terrain texture, but we are not setting it as BOOST_TERRAIN
 	// since we will be manipulating it later as needed.
-	mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
-	mDetailTextures[corner]->setNoDelete() ;
-	mRawImages[corner] = NULL;
-    // *TODO: Decide if we have textures or materials. Whichever loads first determines the terrain type.
-    // *TODO: As the material textures are loaded, prevent deletion
-    mDetailMaterials[corner] = LLGLTFMaterialList::getMaterial(id);
-}
-
-void LLVLComposition::setDetailMaterialID(S32 corner, const LLUUID& id)
-{
-	if(id.isNull())
-	{
-		mDetailMaterials[corner] = nullptr;
-	}
-    else
-    {
-        // This is terrain material, but we are not setting it as BOOST_TERRAIN
-        // since we will be manipulating it later as needed.
-        mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
-        mDetailTextures[corner]->setNoDelete() ;
-        mRawImages[corner] = NULL;
-    }
+	mDetailTextures[asset] = fetch_terrain_texture(id);
+	mRawImages[asset] = NULL;
+    LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[asset];
+    mat = gGLTFMaterialList.getMaterial(id);
+    mMaterialTexturesSet[asset] = false;
 }
 
 BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
@@ -228,82 +225,130 @@ static const U32 BASE_SIZE = 128;
 
 // Boost the texture loading priority
 // Return true when ready to use (i.e. texture is sufficiently loaded)
-bool boost_texture_until_ready(LLPointer<LLViewerFetchedTexture>& tex)
+// static
+BOOL LLVLComposition::textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost)
 {
     if (tex->getDiscardLevel() < 0)
     {
-        tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
-        tex->addTextureStats(BASE_SIZE*BASE_SIZE);
-        return false;
+        if (boost)
+        {
+            tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
+            tex->addTextureStats(BASE_SIZE*BASE_SIZE);
+        }
+        return FALSE;
     }
     if ((tex->getDiscardLevel() != 0 &&
          (tex->getWidth() < BASE_SIZE ||
           tex->getHeight() < BASE_SIZE)))
     {
-        S32 width = tex->getFullWidth();
-        S32 height = tex->getFullHeight();
-        S32 min_dim = llmin(width, height);
-        S32 ddiscard = 0;
-        while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
+        if (boost)
         {
-            ddiscard++;
-            min_dim /= 2;
+            S32 width = tex->getFullWidth();
+            S32 height = tex->getFullHeight();
+            S32 min_dim = llmin(width, height);
+            S32 ddiscard = 0;
+            while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
+            {
+                ddiscard++;
+                min_dim /= 2;
+            }
+            tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
+            tex->setMinDiscardLevel(ddiscard);
+            tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
         }
-        tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
-        tex->setMinDiscardLevel(ddiscard);
-        tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
-        return false;
+        return FALSE;
     }
-    return true;
+    return TRUE;
+}
+
+// Boost the loading priority of every known texture in the material
+// Return true when ready to use (i.e. material and all textures within are sufficiently loaded)
+// static
+BOOL LLVLComposition::materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost)
+{
+    if (!mat->isLoaded())
+    {
+        return FALSE;
+    }
+
+    // Material is loaded, but textures may not be
+    if (!textures_set)
+    {
+        // *NOTE: These can sometimes be set to to nullptr due to
+        // updateTEMaterialTextures. For the sake of robustness, we emulate
+        // that fetching behavior by setting textures of null IDs to nullptr.
+        mat->mBaseColorTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
+        mat->mNormalTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
+        mat->mMetallicRoughnessTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
+        mat->mEmissiveTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+        textures_set = true;
+
+        return FALSE;
+    }
+
+    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull() && !textureReady(mat->mBaseColorTexture, boost))
+    {
+        return FALSE;
+    }
+    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull() && !textureReady(mat->mNormalTexture, boost))
+    {
+        return FALSE;
+    }
+    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull() && !textureReady(mat->mMetallicRoughnessTexture, boost))
+    {
+        return FALSE;
+    }
+    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull() && !textureReady(mat->mEmissiveTexture, boost))
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL LLVLComposition::texturesReady(BOOL boost)
+{
+	for (S32 i = 0; i < ASSET_COUNT; i++)
+	{
+        if (!textureReady(mDetailTextures[i], boost))
+        {
+            return FALSE;
+        }
+	}
+    return TRUE;
+}
+
+BOOL LLVLComposition::materialsReady(BOOL boost)
+{
+	for (S32 i = 0; i < ASSET_COUNT; i++)
+	{
+        if (!materialReady(mDetailMaterials[i], mMaterialTexturesSet[i], boost))
+        {
+            return FALSE;
+        }
+    }
+    return TRUE;
 }
 
 BOOL LLVLComposition::generateComposition()
 {
-
 	if (!mParamsReady)
 	{
 		// All the parameters haven't been set yet (we haven't gotten the message from the sim)
 		return FALSE;
 	}
 
-    bool textures_ready = true;
-	for (S32 i = 0; i < ASSET_COUNT; i++)
-	{
-        if (!boost_texture_until_ready(mDetailTextures[i]))
-        {
-            textures_ready = false;
-            break;
-        }
-	}
-
-    if (textures_ready)
+    if (texturesReady(TRUE))
     {
         return TRUE;
     }
-	
-    bool materials_ready = true;
-	for (S32 i = 0; i < ASSET_COUNT; i++)
-	{
-        const LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
-        if (!mat.isLoaded() ||
-            (mat->mBaseColorTexture && !boost_texture_until_ready(mat->mBaseColorTexture)) ||
-            (mat->mNormalTexture && !boost_texture_until_ready(mat->mNormalTexture)) ||
-            (mat->mMetallicRoughnessTexture && !boost_texture_until_ready(mat->mMetallicRoughnessTexture)) ||
-            (mat->mEmissiveTexture && !boost_texture_until_ready(mat->mEmissiveTexture)))
-        {
-            materials_ready = false;
-            break;
-        }
-    }
 
-    if (materials_ready)
+    if (materialsReady(TRUE))
     {
         return TRUE;
     }
-    else
-    {
-        return FALSE;
-    }
+
+    return FALSE;
 }
 
 BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
@@ -323,15 +368,28 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	//
 
 	// These have already been validated by generateComposition.
-	U8* st_data[4];
-	S32 st_data_size[4]; // for debugging
+	U8* st_data[ASSET_COUNT];
+	S32 st_data_size[ASSET_COUNT]; // for debugging
 
-	for (S32 i = 0; i < 4; i++)
+    const bool use_textures = texturesReady();
+
+	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
 		if (mRawImages[i].isNull())
 		{
 			// Read back a raw image for this discard level, if it exists
-			S32 min_dim = llmin(mDetailTextures[i]->getFullWidth(), mDetailTextures[i]->getFullHeight());
+            LLViewerFetchedTexture* tex;
+            if (use_textures)
+            {
+                tex = mDetailTextures[i];
+            }
+            else
+            {
+                tex = mDetailMaterials[i]->mBaseColorTexture;
+                if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }
+            }
+
+			S32 min_dim = llmin(tex->getFullWidth(), tex->getFullHeight());
 			S32 ddiscard = 0;
 			while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
 			{
@@ -339,31 +397,31 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				min_dim /= 2;
 			}
 
-			BOOL delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != NULL) ;
-			if(mDetailTextures[i]->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
+			BOOL delete_raw = (tex->reloadRawImage(ddiscard) != NULL) ;
+			if(tex->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
 			{
-                if (mDetailTextures[i]->getFetchPriority() <= 0.0f && !mDetailTextures[i]->hasSavedRawImage())
+                if (tex->getFetchPriority() <= 0.0f && !tex->hasSavedRawImage())
                 {
-                    mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_MAP);
-                    mDetailTextures[i]->forceToRefetchTexture(ddiscard);
+                    tex->setBoostLevel(LLGLTexture::BOOST_MAP);
+                    tex->forceToRefetchTexture(ddiscard);
                 }
 
 				if(delete_raw)
 				{
-					mDetailTextures[i]->destroyRawImage() ;
+					tex->destroyRawImage() ;
 				}
-				LL_DEBUGS("Terrain") << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << " Discard: " << ddiscard << LL_ENDL;
+				LL_DEBUGS("Terrain") << "cached raw data for terrain detail texture is not ready yet: " << tex->getID() << " Discard: " << ddiscard << LL_ENDL;
 				return FALSE;
 			}
 
-			mRawImages[i] = mDetailTextures[i]->getRawImage() ;
+			mRawImages[i] = tex->getRawImage() ;
 			if(delete_raw)
 			{
-				mDetailTextures[i]->destroyRawImage() ;
+				tex->destroyRawImage() ;
 			}
-			if (mDetailTextures[i]->getWidth(ddiscard) != BASE_SIZE ||
-				mDetailTextures[i]->getHeight(ddiscard) != BASE_SIZE ||
-				mDetailTextures[i]->getComponents() != 3)
+			if (tex->getWidth(ddiscard) != BASE_SIZE ||
+				tex->getHeight(ddiscard) != BASE_SIZE ||
+				tex->getComponents() != 3)
 			{
 				LLPointer<LLImageRaw> newraw = new LLImageRaw(BASE_SIZE, BASE_SIZE, 3);
 				newraw->composite(mRawImages[i]);
@@ -514,7 +572,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	}
 	texturep->setSubImage(raw, tex_x_begin, tex_y_begin, tex_x_end - tex_x_begin, tex_y_end - tex_y_begin);
 
-	for (S32 i = 0; i < 4; i++)
+	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
 		// Un-boost detatil textures (will get re-boosted if rendering in high detail)
 		mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_NONE);
@@ -526,7 +584,10 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 
 LLUUID LLVLComposition::getDetailAssetID(S32 corner)
 {
-    llassert(mDetailTextures[corner] && mDetailMaterials[corner] && mDetailTextures[corner]->getID() == mDetailMaterials[corner].getID());
+    llassert(mDetailTextures[corner] && mDetailMaterials[corner]);
+    // *HACK: Assume both the the material and texture were fetched in the same
+    // way using the same UUID. However, we may not know at this point which
+    // one will load.
 	return mDetailTextures[corner]->getID();
 }
 
