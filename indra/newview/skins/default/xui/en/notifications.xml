@@ -6978,12 +6978,15 @@ Please try again.
   </notification>
 
   <notification
-   icon="notifytip.tga"
+   icon="alertmodal.tga"
    name="UnableToLoadMaterial"
-   type="notifytip">
-    Unable to load material.
-    Please try again.
+   type="alertmodal">
+Unable to load material.
+Please try again.
     <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification

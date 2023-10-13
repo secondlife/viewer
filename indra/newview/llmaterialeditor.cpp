@@ -1571,7 +1571,11 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
         }
         else
         {
-            LLNotificationsUtil::add("InvalidMaterialName");
+            LLNotificationsUtil::add("InvalidMaterialName", LLSD(), LLSD(), [this](const LLSD& notification, const LLSD& response) 
+                {
+                    LLNotificationsUtil::add("SaveMaterialAs", LLSD().with("DESC", mMaterialName), LLSD(),
+                        boost::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
+                });
         }
     }
 }
