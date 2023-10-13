@@ -129,8 +129,13 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
 {
     TerrainSample ts;
 
-#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x));
-#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y));
+#if 0
+#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
+#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
+#else // TODO: Remove debug
+#define do_sample_x() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
+#define do_sample_y() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
+#endif
 #define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
     switch (tw.type)
     {
@@ -219,15 +224,15 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
 
-#if 1
+#if 0
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
 #else // TODO: Remove debug
     //return vec4(((tw.usage - normalize(tw.weight))) / 0.5, 1.0);
-#if 1
+#if 0
     return vec4(tw.usage, 1.0);
 #else
     //return vec4(tw.usage, 1.0);
-    return vec4((tw.usage + weight) / 2.0, 1.0);
+    return vec4((tw.usage + tw.weight) / 2.0, 1.0);
 #endif
 #endif
 }
@@ -256,7 +261,11 @@ vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
 
     TerrainSample ts = _t_sample_c(tex, terrain_coord, tw);
 
+#if 0
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
+#else // TODO: Remove debug
+    return ts.x;
+#endif
 }
 
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
