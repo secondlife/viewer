@@ -39,7 +39,7 @@ const F32 DEFAULT_NEAR_PLANE 		= 0.25f;
 const F32 DEFAULT_FAR_PLANE 		= 64.f;	// far reaches across two horizontal, not diagonal, regions
 
 const F32 MAX_ASPECT_RATIO 	= 50.0f;
-const F32 MAX_NEAR_PLANE 	= 10.f;
+const F32 MAX_NEAR_PLANE 	= 1023.9f; // Clamp the near plane just before the skybox ends
 const F32 MAX_FAR_PLANE 	= 100000.0f; //1000000.0f; // Max allowed. Not good Z precision though.
 const F32 MAX_FAR_CLIP		= 512.0f;
 
