@@ -69,12 +69,7 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 
 // Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, (-x)z, unused)
 #define TerrainCoord vec4[2]
-// TODO: Decide if we want this threshold
-#if 0
 #define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
-#else // TODO: Remove debug
-#define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
-#endif
 
 vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
 {
@@ -90,15 +85,10 @@ vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
 #define SAMPLE_X 1 << 2
 #define SAMPLE_Y 1 << 1
 #define SAMPLE_Z 1 << 0
-#define TERRAIN_DEBUG 1 // TODO: Remove debug
 struct TerrainWeight
 {
     vec3 weight;
     int type;
-#if TERRAIN_DEBUG
-    vec3 weight_signed;
-    ivec3 usage;
-#endif
 };
 
 TerrainWeight _t_weight(TerrainCoord terrain_coord)
@@ -131,155 +121,41 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
 {
     TerrainSample ts;
 
-#if 0
-// This demonstrates the case when the bug occurs: Sampling in switch..case
-#if 0
-#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
-#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
-#else // TODO: Remove debug
-// Bug still occurs despite sampling the same texture three times from the same location
-#define do_sample_x() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
-#define do_sample_y() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
-#endif
-#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
-#if 0
-    switch (tw.type)
-#else // TODO: Remove debug
-// Bug still occurs when the type is masked
-    switch (tw.type & (SAMPLE_X | SAMPLE_Y | SAMPLE_Z))
-#endif
+    // The switch..case is broken up into three parts deliberately.  A single
+    // switch..case caused unexplained, "ant trail" seams in terrain. (as seen
+    // on Nvidia/Windows 10).  The extra two branches are not free, but it's
+    // still a performance win compared to sampling along all three axes for
+    // every terrain fragment.
+    #define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
+    #define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
+    #define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
+    switch (tw.type & SAMPLE_X)
     {
-        case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
-            ts.x = do_sample_x();
-            ts.y = do_sample_y();
-            ts.z = do_sample_z();
-            break;
-        case (SAMPLE_X | SAMPLE_Y):
-            ts.x = do_sample_x();
-            ts.y = do_sample_y();
-            ts.z = ts.x;
-            break;
-        case (SAMPLE_X | SAMPLE_Z):
-            ts.x = do_sample_x();
-            ts.z = do_sample_z();
-            ts.y = ts.x;
-            break;
-        case (SAMPLE_Y | SAMPLE_Z):
-            ts.y = do_sample_y();
-            ts.z = do_sample_z();
-            ts.x = ts.y;
-            break;
         case SAMPLE_X:
             ts.x = do_sample_x();
-            ts.y = ts.x;
-            ts.z = ts.x;
-            break;
+        break;
+        default:
+            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
+        break;
+    }
+    switch (tw.type & SAMPLE_Y)
+    {
         case SAMPLE_Y:
             ts.y = do_sample_y();
-            ts.x = ts.y;
-            ts.z = ts.y;
-            break;
+        break;
+        default:
+            ts.y = vec4(1.0, 0.0, 1.0, 1.0);
+        break;
+    }
+    switch (tw.type & SAMPLE_Z)
+    {
         case SAMPLE_Z:
             ts.z = do_sample_z();
-            ts.x = ts.z;
-            ts.y = ts.z;
-            break;
+        break;
         default:
-            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
-            ts.y = ts.x;
-            ts.z = ts.x;
-            break;
+            ts.z = vec4(1.0, 0.0, 1.0, 1.0);
+        break;
     }
-#else
-#if 0 // TODO: Remove debug
-// This demonstrates the case when the bug does not occur: Sampling beforehand and assigning in switch..case
-// This otherwise uses the same logic as in the case that reproduces the bug.
-#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
-#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
-#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
-    vec4 x = do_sample_x();
-    vec4 y = do_sample_y();
-    vec4 z = do_sample_z();
-    switch (tw.type)
-    {
-        case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
-            ts.x = x;
-            ts.y = y;
-            ts.z = z;
-            break;
-        case (SAMPLE_X | SAMPLE_Y):
-            ts.x = x;
-            ts.y = y;
-            ts.z = ts.x;
-            break;
-        case (SAMPLE_X | SAMPLE_Z):
-            ts.x = x;
-            ts.z = z;
-            ts.y = ts.x;
-            break;
-        case (SAMPLE_Y | SAMPLE_Z):
-            ts.y = y;
-            ts.z = z;
-            ts.x = ts.y;
-            break;
-        case SAMPLE_X:
-            ts.x = x;
-            ts.y = ts.x;
-            ts.z = ts.x;
-            break;
-        case SAMPLE_Y:
-            ts.y = y;
-            ts.x = ts.y;
-            ts.z = ts.y;
-            break;
-        case SAMPLE_Z:
-            ts.z = z;
-            ts.x = ts.z;
-            ts.y = ts.z;
-            break;
-        default:
-            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
-            ts.y = ts.x;
-            ts.z = ts.x;
-            break;
-    }
-#else // TODO: Keep?
-// Test case where the switch..case is broken up into three parts
-// This fixes unexplained, "ant trail" seams in terrain. (as seen on Nvidia/Windows 10)
-// The extra two branches are not free, but it's still a performance win
-// compared to sampling along all three axes for every terrain fragment.
-#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
-#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
-#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
-switch (tw.type & SAMPLE_X)
-{
-    case SAMPLE_X:
-        ts.x = do_sample_x();
-    break;
-    default:
-        ts.x = vec4(1.0, 0.0, 1.0, 1.0);
-    break;
-}
-switch (tw.type & SAMPLE_Y)
-{
-    case SAMPLE_Y:
-        ts.y = do_sample_y();
-    break;
-    default:
-        ts.y = vec4(1.0, 0.0, 1.0, 1.0);
-    break;
-}
-switch (tw.type & SAMPLE_Z)
-{
-    case SAMPLE_Z:
-        ts.z = do_sample_z();
-    break;
-    default:
-        ts.z = vec4(1.0, 0.0, 1.0, 1.0);
-    break;
-}
-#endif
-#endif
 
     return ts;
 }
@@ -357,17 +233,7 @@ vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
 
     TerrainSample ts = _t_sample_c(tex, terrain_coord, tw);
 
-#if 1
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
-#else // TODO: Remove debug
-    //return vec4(vec3(isnan(ts.x)), 1.0);
-    //return ts.x;
-#if 0
-    return vec4(1.0+sign(vary_vertex_normal)/2.0, 1.0);
-#else
-    return vec4(isnan(tw.weight_signed), 1.0);
-#endif
-#endif
 }
 
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
