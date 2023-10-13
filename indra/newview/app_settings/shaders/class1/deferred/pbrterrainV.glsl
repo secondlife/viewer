@@ -43,24 +43,27 @@ out vec4 vary_texcoord1;
 uniform vec4 object_plane_s;
 uniform vec4 object_plane_t;
 
-vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
+vec4 texgen_object_pbr(vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
 {
     vec4 tcoord;
     
-    tcoord.x = dot(vpos, tp0);
-    tcoord.y = dot(vpos, tp1);
-    tcoord.z = tc.z;
-    tcoord.w = tc.w;
+    tcoord.x = dot(tc, tp0);
+    tcoord.y = dot(tc, tp1);
+    tcoord.z = tcoord.z;
+    tcoord.w = tcoord.w;
     
     tcoord = mat * tcoord; 
     
-    return tcoord; 
+    return tcoord;
 }
+
+out vec4 debug_pos; // TODO: Remove
 
 void main()
 {
     //transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+	debug_pos = vec4(texcoord0, 0.0, 1.0); 
 
 	vec3 n = normal_matrix * normal;
 	vec3 t = normal_matrix * tangent.xyz;
@@ -71,7 +74,12 @@ void main()
     
     // Transform and pass tex coords
     // *NOTE: KHR texture transform is ignored for now
-    vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    vary_texcoord0.xy = texgen_object_pbr(vec4(texcoord0, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    // Adjust the texture repeats for a more sensible default.
+    // *TODO: Remove this extra factor when KHR texture transform is added
+    float texture_density_factor = 3.0;
+    //texture_density_factor /= 256.0; // TODO: Remove
+    vary_texcoord0.xy *= texture_density_factor;
     
     vec4 tc = vec4(texcoord1,0,1);
     

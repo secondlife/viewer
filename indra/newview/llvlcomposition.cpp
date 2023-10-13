@@ -119,7 +119,7 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
     mMaterialTexturesSet[asset] = false;
 }
 
-BOOL LLTerrainMaterials::getMaterialType()
+LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 {
     return mMaterialType;
 }
@@ -131,7 +131,6 @@ void LLTerrainMaterials::updateMaterialType()
     const BOOL use_textures = texturesReady() || !materialsReady();
     mMaterialType = use_textures ? Type::TEXTURE : Type::PBR;
 }
-
 
 BOOL LLTerrainMaterials::texturesReady(BOOL boost)
 {
@@ -408,7 +407,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	U8* st_data[ASSET_COUNT];
 	S32 st_data_size[ASSET_COUNT]; // for debugging
 
-    const bool use_textures = getMaterialType() != LLTerrainMaterial::Type::PBR;
+    const bool use_textures = getMaterialType() != LLTerrainMaterials::Type::PBR;
 
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
@@ -423,8 +422,9 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
             else
             {
                 tex = mDetailMaterials[i]->mBaseColorTexture;
-                if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }
             }
+			// TODO: Why are terrain textures (not terrain materials) not loading? (that is why there is a getComponents() check here)
+			if (!tex || tex->getComponents() == 0) { tex = LLViewerFetchedTexture::sWhiteImagep; }
 
 			S32 min_dim = llmin(tex->getFullWidth(), tex->getFullHeight());
 			S32 ddiscard = 0;

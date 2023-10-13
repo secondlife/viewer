@@ -106,7 +106,7 @@ public:
 	const LLVector3 &getNormal(const U32 x, const U32 y) const;
 
 	void eval(const U32 x, const U32 y, const U32 stride,
-				LLVector3 *vertex, LLVector3 *normal, LLVector2 *tex0, LLVector2 *tex1);
+				LLVector3 *vertex, LLVector3 *normal, LLVector2 *tex0, LLVector2 *tex1, bool pbr);
 	
 	
 

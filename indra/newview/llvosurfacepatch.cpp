@@ -1046,10 +1046,10 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 
     const LLFace* region_facep = *mFaceList.begin();
     const LLViewerObject* region_patchp = region_facep->getViewerObject();
-    LLVLComposition* composition = region_patchp->mRegionp->getComposition();
+    LLVLComposition* composition = region_patchp->getRegion()->getComposition();
     // TODO: This is not good; it will result in wrong texture repeats in cases where the assets have not loaded. Need to rebuild terrain on asset load event if it changes the composition type. Probably best to have a flag to bookkeep that, to know if the composition type has actually changed. Make sure the draw pool is boosting the textures so they load in a timely fashion.
     composition->updateMaterialType();
-    const bool pbr = composition->getMaterialType() == LLTerrainMaterial::Type::PBR;
+    const bool pbr = composition->getMaterialType() == LLTerrainMaterials::Type::PBR;
 
 	LLVertexBuffer* buffer = group->mVertexBuffer;
 
@@ -1087,7 +1087,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
             facep->setVertexBuffer(buffer);
 
             LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
-            patchp->getTerrainGeometry(vertices, normals, texcoords, texcoords2, indices);
+            patchp->getTerrainGeometry(vertices, normals, texcoords, texcoords2, indices, pbr);
 
             indices_index += facep->getIndicesCount();
             index_offset += facep->getGeomCount();
