@@ -141,10 +141,10 @@ void main()
     //col.xyz = spec; // TODO: Remove
     //col.xyz = vec3(1); // TODO: Remove
     //float weight = 1.0; spec.rgb = (weight * spec.rgb) + ((1 - weight) * vec3(1.0, 1.0, 1.0)); // TODO: Remove
-    tnorm = vary_normal; // TODO: Remove
-    spec.r = 1.0; // TODO: Remove
-    spec.gb = vec2(1.0, 0.0); // TODO: Remove
-    emissive.rgb = vec3(0); // TODO: Remove
+    //tnorm = vary_normal; // TODO: Remove
+    //spec.r = 1.0; // TODO: Remove
+    //spec.gb = vec2(1.0, 0.0); // TODO: Remove
+    //emissive.rgb = vec3(0); // TODO: Remove
 #endif
     frag_data[0] = max(vec4(col.xyz, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(spec.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.

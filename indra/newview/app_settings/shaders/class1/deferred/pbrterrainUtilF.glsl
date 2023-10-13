@@ -87,19 +87,9 @@ vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign)
     return texture(tex, uv);
 }
 
-vec4 _t_texture_c(sampler2D tex, vec2 uv_unflipped, float sign)
-{
-    vec4 c = _t_texture(tex, uv_unflipped, sign);
-    c.xyz = srgb_to_linear(c.xyz);
-    return c;
-}
-
 #define SAMPLE_X 1 << 2
 #define SAMPLE_Y 1 << 1
 #define SAMPLE_Z 1 << 0
-#define terrain_coord_x terrain_coord[0].zw
-#define terrain_coord_y terrain_coord[1].xy
-#define terrain_coord_z terrain_coord[0].xy
 #define TERRAIN_DEBUG 1 // TODO: Remove debug
 struct TerrainWeight
 {
@@ -137,57 +127,55 @@ struct TerrainSample
 
 TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight tw)
 {
-    vec4 x;
-    vec4 y;
-    vec4 z;
+    TerrainSample ts;
+
+#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x));
+#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y));
+#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
     switch (tw.type)
     {
         case SAMPLE_X | SAMPLE_Y | SAMPLE_Z:
-            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
-            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
-            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            ts.x = do_sample_x();
+            ts.y = do_sample_y();
+            ts.z = do_sample_z();
             break;
         case SAMPLE_X | SAMPLE_Y:
-            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
-            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
-            z = x;
+            ts.x = do_sample_x();
+            ts.y = do_sample_y();
+            ts.z = ts.x;
             break;
         case SAMPLE_X | SAMPLE_Z:
-            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
-            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
-            y = x;
+            ts.x = do_sample_x();
+            ts.z = do_sample_z();
+            ts.y = ts.x;
             break;
         case SAMPLE_Y | SAMPLE_Z:
-            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
-            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
-            x = y;
+            ts.y = do_sample_y();
+            ts.z = do_sample_z();
+            ts.x = ts.y;
             break;
         case SAMPLE_X:
-            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
-            y = x;
-            z = x;
+            ts.x = do_sample_x();
+            ts.y = ts.x;
+            ts.z = ts.x;
             break;
         case SAMPLE_Y:
-            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
-            x = y;
-            z = y;
+            ts.y = do_sample_y();
+            ts.x = ts.y;
+            ts.z = ts.y;
             break;
         case SAMPLE_Z:
-            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
-            x = z;
-            y = z;
+            ts.z = do_sample_z();
+            ts.x = ts.z;
+            ts.y = ts.z;
             break;
         default:
-            x = vec4(0);
-            y = x;
-            z = x;
+            ts.x = vec4(0);
+            ts.y = ts.x;
+            ts.z = ts.x;
             break;
     }
 
-    TerrainSample ts;
-    ts.x = x;
-    ts.y = y;
-    ts.z = z;
     return ts;
 }
 
@@ -202,9 +190,9 @@ TerrainSampleNormal _t_sample_n(sampler2D tex, TerrainCoord terrain_coord, Terra
 {
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
     TerrainSampleNormal tsn;
-    tsn.x = ts.x.xyz;
-    tsn.y = ts.y.xyz;
-    tsn.z = ts.z.xyz;
+    tsn.x = ts.x.xyz*2.0-1.0;
+    tsn.y = ts.y.xyz*2.0-1.0;
+    tsn.z = ts.z.xyz*2.0-1.0;
     vec3 ns = sign(vary_vertex_normal);
     // If the sign is negative, rotate normal by 180 degrees
     tsn.x.xy = (min(0, ns.x) * tsn.x.xy) + (min(0, -ns.x) * -tsn.x.xy);
@@ -261,6 +249,7 @@ vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
 }
 
+// Triplanar sampling of colors. Colors are converted to linear space before blending.
 vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
 {
     TerrainWeight tw = _t_weight(terrain_coord);
