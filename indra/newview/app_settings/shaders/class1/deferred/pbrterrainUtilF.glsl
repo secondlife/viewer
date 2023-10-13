@@ -44,18 +44,99 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define TERRAIN_PBR_DETAIL_EMISSIVE 0
 
 in vec3 vary_vertex_normal;
 
 vec3 srgb_to_linear(vec3 c);
 
-// A relatively agressive threshold ensures that only one or two materials are used in most places
+// A relatively agressive threshold for terrain material mixing sampling
+// cutoff. This ensures that only one or two materials are used in most places,
+// making PBR terrain blending more performant. Should be greater than 0 to work.
 #define TERRAIN_RAMP_MIX_THRESHOLD 0.1
+// A small threshold for triplanar mapping sampling cutoff. This and
+// TERRAIN_TRIPLANAR_BLEND_FACTOR together ensures that only one or two samples
+// per texture are used in most places, making triplanar mapping more
+// performant. Should be greater than 0 to work.
+// There's also an artistic design choice in the use of these factors, and the
+// use of triplanar generally. Don't take these triplanar constants for granted.
+#define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
 
-#define MIX_X 1 << 3
-#define MIX_Y 1 << 2
-#define MIX_Z 1 << 1
-#define MIX_W 1 << 0
+#define SAMPLE_X 1 << 0
+#define SAMPLE_Y 1 << 1
+#define SAMPLE_Z 1 << 2
+#define MIX_X    1 << 3
+#define MIX_Y    1 << 4
+#define MIX_Z    1 << 5
+#define MIX_W    1 << 6
+
+struct PBRMix
+{
+    vec4 col;       // RGB color with alpha, linear space
+    vec3 orm;       // Occlusion, roughness, metallic
+    vec3 vNt;       // Unpacked normal texture sample, vector
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    vec3 emissive;  // RGB emissive color, linear space
+#endif
+};
+
+PBRMix init_pbr_mix()
+{
+    PBRMix mix;
+    mix.col = vec4(0);
+    mix.orm = vec3(0);
+    mix.vNt = vec3(0);
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    mix.emissive = vec3(0);
+#endif
+    return mix;
+}
+
+// Usage example, for two weights:
+// vec2 weights = ... // Weights must add up to 1
+// PBRMix mix = init_pbr_mix();
+// PBRMix mix1 = ...
+// mix = mix_pbr(mix, mix1, weights.x);
+// PBRMix mix2 = ...
+// mix = mix_pbr(mix, mix2, weights.y);
+PBRMix mix_pbr(PBRMix mix1, PBRMix mix2, float mix2_weight)
+{
+    PBRMix mix;
+    mix.col      = mix1.col      + (mix2.col      * mix2_weight);
+    mix.orm      = mix1.orm      + (mix2.orm      * mix2_weight);
+    mix.vNt      = mix1.vNt      + (mix2.vNt      * mix2_weight);
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    mix.emissive = mix1.emissive + (mix2.emissive * mix2_weight);
+#endif
+    return mix;
+}
+
+PBRMix sample_pbr(
+    vec2 uv
+    , sampler2D tex_col
+    , sampler2D tex_orm
+    , sampler2D tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , sampler2D tex_emissive
+#endif
+    )
+{
+    PBRMix mix;
+    mix.col = texture(tex_col, uv);
+    mix.col.rgb = srgb_to_linear(mix.col.rgb);
+    mix.orm = texture(tex_orm, uv).xyz;
+    mix.vNt = texture(tex_vNt, uv).xyz*2.0-1.0;
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    mix.emissive = srgb_to_linear(texture(tex_emissive, uv).xyz);
+#endif
+    return mix;
+}
+
+struct TerrainTriplanar
+{
+    vec3 weight;
+    int type;
+};
 
 #if 0 // TODO: Remove debug
 #define TERRAIN_DEBUG 1
@@ -97,6 +178,24 @@ TerrainMix _t_mix(float alpha1, float alpha2, float alphaFinal)
     return tm;
 }
 
+TerrainTriplanar _t_triplanar()
+{
+    float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
+    float threshold = TERRAIN_TRIPLANAR_MIX_THRESHOLD;
+    vec3 weight_signed = pow(abs(vary_vertex_normal), vec3(sharpness));
+    weight_signed /= (weight_signed.x + weight_signed.y + weight_signed.z);
+    weight_signed -= vec3(threshold);
+    TerrainTriplanar tw;
+    // *NOTE: Make sure the threshold doesn't affect the materials
+    tw.weight = max(vec3(0), weight_signed);
+    tw.weight /= (tw.weight.x + tw.weight.y + tw.weight.z);
+    ivec3 usage = ivec3(round(max(vec3(0), sign(weight_signed))));
+    tw.type = ((usage.x) * SAMPLE_X) |
+              ((usage.y) * SAMPLE_Y) |
+              ((usage.z) * SAMPLE_Z);
+    return tw;
+}
+
 float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal)
 {
     TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
@@ -130,7 +229,6 @@ vec3 terrain_mix(TerrainMix tm, TerrainMixSample3 tms3)
 
 // Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, (-x)z, unused)
 #define TerrainCoord vec4[2]
-#define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
 
 vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
 {
@@ -143,31 +241,50 @@ vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
     return texture(tex, uv);
 }
 
-#define SAMPLE_X 1 << 2
-#define SAMPLE_Y 1 << 1
-#define SAMPLE_Z 1 << 0
-struct TerrainWeight
+vec2 _t_uv(vec2 uv_unflipped, float sign_or_zero)
 {
-    vec3 weight;
-    int type;
-};
+    // Handle case where sign is 0
+    float sign = (2.0*sign_or_zero) + 1.0;
+    sign /= abs(sign);
+    // If the vertex normal is negative, flip the texture back
+    // right-side up.
+    vec2 uv = uv_unflipped * vec2(sign, 1);
+    return uv;
+}
 
-TerrainWeight _t_weight(TerrainCoord terrain_coord)
+vec3 _t_normal_post_1(vec3 vNt0, float sign_or_zero)
 {
-    float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
-    float threshold = TERRAIN_TRIPLANAR_MIX_THRESHOLD;
-    vec3 weight_signed = pow(abs(vary_vertex_normal), vec3(sharpness));
-    weight_signed /= (weight_signed.x + weight_signed.y + weight_signed.z);
-    weight_signed -= vec3(threshold);
-    TerrainWeight tw;
-    // *NOTE: Make sure the threshold doesn't affect the materials
-    tw.weight = max(vec3(0), weight_signed);
-    tw.weight /= (tw.weight.x + tw.weight.y + tw.weight.z);
-    ivec3 usage = ivec3(round(max(vec3(0), sign(weight_signed))));
-    tw.type = ((usage.x) * SAMPLE_X) |
-              ((usage.y) * SAMPLE_Y) |
-              ((usage.z) * SAMPLE_Z);
-    return tw;
+    // Assume normal is unpacked
+    vec3 vNt1 = vNt0;
+    // Get sign
+    float sign = sign_or_zero;
+    // Handle case where sign is 0
+    sign = (2.0*sign) + 1.0;
+    sign /= abs(sign);
+    // If the sign is negative, rotate normal by 180 degrees
+    vNt1.xy = (min(0, sign) * vNt1.xy) + (min(0, -sign) * -vNt1.xy);
+    return vNt1;
+}
+
+// Triplanar-specific normal texture fixes
+vec3 _t_normal_post_x(vec3 vNt0)
+{
+    vec3 vNt_x = _t_normal_post_1(vNt0, sign(vary_vertex_normal.x));
+    // *HACK: Transform normals according to orientation of the UVs
+    vNt_x.xy = vec2(-vNt_x.y, vNt_x.x);
+    return vNt_x;
+}
+vec3 _t_normal_post_y(vec3 vNt0)
+{
+    vec3 vNt_y = _t_normal_post_1(vNt0, sign(vary_vertex_normal.y));
+    // *HACK: Transform normals according to orientation of the UVs
+    vNt_y.xy = -vNt_y.xy;
+    return vNt_y;
+}
+vec3 _t_normal_post_z(vec3 vNt0)
+{
+    vec3 vNt_z = _t_normal_post_1(vNt0, sign(vary_vertex_normal.z));
+    return vNt_z;
 }
 
 struct TerrainSample
@@ -177,7 +294,7 @@ struct TerrainSample
     vec4 z;
 };
 
-TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight tw)
+TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainTriplanar tw)
 {
     TerrainSample ts;
 
@@ -227,7 +344,7 @@ struct TerrainSampleNormal
     vec3 z;
 };
 
-TerrainSampleNormal _t_sample_n(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight tw)
+TerrainSampleNormal _t_sample_n(sampler2D tex, TerrainCoord terrain_coord, TerrainTriplanar tw)
 {
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
     TerrainSampleNormal tsn;
@@ -250,7 +367,7 @@ TerrainSampleNormal _t_sample_n(sampler2D tex, TerrainCoord terrain_coord, Terra
     return tsn;
 }
 
-TerrainSample _t_sample_c(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight tw)
+TerrainSample _t_sample_c(sampler2D tex, TerrainCoord terrain_coord, TerrainTriplanar tw)
 {
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
     ts.x.xyz = srgb_to_linear(ts.x.xyz);
@@ -262,7 +379,7 @@ TerrainSample _t_sample_c(sampler2D tex, TerrainCoord terrain_coord, TerrainWeig
 // Triplanar sampling of things that are neither colors nor normals (i.e. orm)
 vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 {
-    TerrainWeight tw = _t_weight(terrain_coord);
+    TerrainTriplanar tw = _t_triplanar();
 
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
 
@@ -279,7 +396,7 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 // *NOTE: Bottom face has not been tested
 vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
 {
-    TerrainWeight tw = _t_weight(terrain_coord);
+    TerrainTriplanar tw = _t_triplanar();
 
     TerrainSampleNormal ts = _t_sample_n(tex, terrain_coord, tw);
 
@@ -289,11 +406,90 @@ vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
 // Triplanar sampling of colors. Colors are converted to linear space before blending.
 vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
 {
-    TerrainWeight tw = _t_weight(terrain_coord);
+    TerrainTriplanar tw = _t_triplanar();
 
     TerrainSample ts = _t_sample_c(tex, terrain_coord, tw);
 
     return ((ts.x * tw.weight.x) + (ts.y * tw.weight.y) + (ts.z * tw.weight.z)) / (tw.weight.x + tw.weight.y + tw.weight.z);
+}
+
+PBRMix terrain_sample_pbr(
+    TerrainCoord terrain_coord
+    , TerrainTriplanar tw
+    , sampler2D tex_col
+    , sampler2D tex_orm
+    , sampler2D tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , sampler2D tex_emissive
+#endif
+    )
+{
+    PBRMix mix = init_pbr_mix();
+
+    #define get_uv_x() _t_uv(terrain_coord[0].zw, sign(vary_vertex_normal.x))
+    #define get_uv_y() _t_uv(terrain_coord[1].xy, sign(vary_vertex_normal.y))
+    #define get_uv_z() _t_uv(terrain_coord[0].xy, sign(vary_vertex_normal.z))
+    switch (tw.type & SAMPLE_X)
+    {
+    case SAMPLE_X:
+        PBRMix mix_x = sample_pbr(
+            get_uv_x()
+            , tex_col
+            , tex_orm
+            , tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , tex_emissive
+#endif
+            );
+        // Triplanar-specific normal texture fix
+        mix_x.vNt = _t_normal_post_x(mix_x.vNt);
+        mix = mix_pbr(mix, mix_x, tw.weight.x);
+        break;
+    default:
+        break;
+    }
+
+    switch (tw.type & SAMPLE_Y)
+    {
+    case SAMPLE_Y:
+        PBRMix mix_y = sample_pbr(
+            get_uv_y()
+            , tex_col
+            , tex_orm
+            , tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , tex_emissive
+#endif
+            );
+        // Triplanar-specific normal texture fix
+        mix_y.vNt = _t_normal_post_y(mix_y.vNt);
+        mix = mix_pbr(mix, mix_y, tw.weight.y);
+        break;
+    default:
+        break;
+    }
+
+    switch (tw.type & SAMPLE_Z)
+    {
+    case SAMPLE_Z:
+        PBRMix mix_z = sample_pbr(
+            get_uv_z()
+            , tex_col
+            , tex_orm
+            , tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , tex_emissive
+#endif
+            );
+        // Triplanar-specific normal texture fix
+        mix_z.vNt = _t_normal_post_z(mix_z.vNt);
+        mix = mix_pbr(mix, mix_z, tw.weight.z);
+        break;
+    default:
+        break;
+    }
+    
+    return mix;
 }
 
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
@@ -313,6 +509,28 @@ vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
     vec4 col = texture(tex, terrain_coord);
     col.xyz = srgb_to_linear(col.xyz);
     return col;
+}
+
+// TODO: Implement this for the more complex triplanar case
+PBRMix terrain_sample_pbr(
+    TerrainCoord terrain_coord
+    , sampler2D tex_col
+    , sampler2D tex_orm
+    , sampler2D tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , sampler2D tex_emissive
+#endif
+    )
+{
+    return sample_pbr(
+        terrain_coord
+        , tex_col
+        , tex_orm
+        , tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , tex_emissive
+#endif
+        );
 }
 #endif
 
