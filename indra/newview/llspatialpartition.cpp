@@ -261,11 +261,11 @@ void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXfor
 		LLVector3(mExtents[1].getF32ptr())
 	};
 
-	LLQuaternion backwardRotation = ~currentTransform.getRotation();
+	LLQuaternion backwardRotation = ~currentTransform.getWorldRotation();
 	for (LLVector3& corner : corners)
 	{
 		// Make coordinates relative to the current position
-		corner -= currentTransform.getPosition();
+		corner -= currentTransform.getWorldPosition();
 		// Rotate coordinates backward to the current rotation
 		corner.rotVec(backwardRotation);
 		// Expand root extents on the current corner
