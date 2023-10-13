@@ -73,7 +73,7 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
     vec4 x = texture(tex, terrain_coord[0].zw);
     vec4 y = texture(tex, terrain_coord[1].xy);
     vec4 z = texture(tex, terrain_coord[0].xy);
-    float sharpness = 8.0;
+    float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
     vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
     return ((x * weight.x) + (y * weight.y) + (z * weight.z)) / (weight.x + weight.y + weight.z);
 }

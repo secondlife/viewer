@@ -10744,6 +10744,17 @@
       <key>Value</key>
       <real>3</real>
     </map>
+    <key>RenderTerrainPBRTriplanarBlendFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Higher values create sharper transitions, but are more likely to produce artifacts.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>8.0</real>
+    </map>
     <key>RenderTrackerBeacon</key>
     <map>
       <key>Comment</key>
