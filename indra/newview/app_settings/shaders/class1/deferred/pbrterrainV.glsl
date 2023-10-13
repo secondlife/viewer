@@ -29,14 +29,19 @@ uniform mat4 modelview_projection_matrix;
 
 in vec3 position;
 in vec3 normal;
+in vec4 tangent;
 in vec4 diffuse_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
 
 out vec3 pos;
 out vec3 vary_normal;
+out vec3 vary_tangent; // TODO: Decide if we want to keep this
+flat out float vary_sign; // TODO: Decide if we want to keep this
 out vec4 vary_texcoord0;
 out vec4 vary_texcoord1;
+
+out vec4 debug_tangent; // TODO: Remove
 
 uniform vec4 object_plane_s;
 uniform vec4 object_plane_t;
@@ -65,6 +70,8 @@ void main()
     pos = t_pos.xyz;
 
     vary_normal = normalize(normal_matrix * normal);
+    vary_tangent = normalize(normal_matrix * tangent.xyz); // TODO: Decide if we want to keep this
+    vary_sign = tangent.w; // TODO: Decide if we want to keep this
     
     // Transform and pass tex coords
     vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;

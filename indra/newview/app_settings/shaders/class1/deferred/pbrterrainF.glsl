@@ -33,6 +33,8 @@ uniform sampler2D alpha_ramp;
 
 in vec3 pos;
 in vec3 vary_normal;
+in vec3 vary_tangent; // TODO: Decide if we want to keep this
+flat in float vary_sign; // TODO: Decide if we want to keep this
 in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
 
@@ -53,6 +55,7 @@ void main()
     outColor.a = 0.0; // yes, downstream atmospherics 
     
     frag_data[0] = outColor;
+    frag_data[0] = vec4((0.5 * (1.0 + vary_sign)) * vary_tangent.xyz, 1.0); // TODO: Remove
     frag_data[1] = vec4(0.0,0.0,0.0,-1.0);
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, GBUFFER_FLAG_HAS_ATMOS);
