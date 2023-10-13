@@ -1001,6 +1001,8 @@ void gen_terrain_tangents(U16                    strider_vertex_count,
                           LLStrider<LLVector2>  &texCoords0p,
                           LLStrider<U16>        &indicesp)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     LLVector4a            *vertices = new LLVector4a[strider_vertex_count];
     LLVector4a            *normals  = new LLVector4a[strider_vertex_count];
     LLVector4a            *tangents = new LLVector4a[strider_vertex_count];
