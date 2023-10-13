@@ -69,6 +69,7 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 
 // Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, (-x)z, unused)
 #define TerrainCoord vec4[2]
+#define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
 
 vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign)
 {
@@ -89,12 +90,63 @@ vec3 _t_texture_n(sampler2D tex, vec2 uv_unflipped, float sign)
 
 vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 {
-    // Multiplying the UVs by the sign of the normal flips the texture upright.
-    vec4 x = _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x));
-    vec4 y = _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y));
-    vec4 z = _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
-    vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
+    vec3 weight = normalize(pow(abs(vary_vertex_normal), vec3(sharpness)));
+    float threshold = TERRAIN_TRIPLANAR_MIX_THRESHOLD;
+    weight = max(vec3(0), sign(weight - threshold));
+
+    #define SAMPLE_X 1 << 2
+    #define SAMPLE_Y 1 << 1
+    #define SAMPLE_Z 1 << 0
+    int sample_type = (int(weight.x) * SAMPLE_X) |
+                      (int(weight.y) * SAMPLE_Y) |
+                      (int(weight.z) * SAMPLE_Z);
+    #define terrain_coord_x terrain_coord[0].zw
+    #define terrain_coord_y terrain_coord[1].xy
+    #define terrain_coord_z terrain_coord[0].xy
+    vec4 x;
+    vec4 y;
+    vec4 z;
+    switch (sample_type)
+    {
+        case SAMPLE_X | SAMPLE_Y | SAMPLE_Z:
+            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+        case SAMPLE_X | SAMPLE_Y:
+            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = vec4(0);
+            break;
+        case SAMPLE_X | SAMPLE_Z:
+            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = vec4(0);
+            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+        case SAMPLE_Y | SAMPLE_Z:
+            x = vec4(0);
+            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+        case SAMPLE_X:
+            x = _t_texture(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = vec4(0);
+            z = vec4(0);
+            break;
+        case SAMPLE_Y:
+            x = vec4(0);
+            y = _t_texture(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = vec4(0);
+            break;
+        case SAMPLE_Z:
+        default:
+            x = vec4(0);
+            y = vec4(0);
+            z = _t_texture(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+    }
+
     return ((x * weight.x) + (y * weight.y) + (z * weight.z)) / (weight.x + weight.y + weight.z);
 }
 
@@ -110,16 +162,16 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
 {
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
-    vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
-    float threshold = 0.1;
+    vec3 weight = normalize(pow(abs(vary_vertex_normal), vec3(sharpness)));
+    float threshold = TERRAIN_TRIPLANAR_MIX_THRESHOLD;
     weight = max(vec3(0), sign(weight - threshold));
-    int sample_type = (int(weight.x) << 2) |
-                      (int(weight.y) << 1) |
-                      (int(weight.z) << 0);
 
     #define SAMPLE_X 1 << 2
     #define SAMPLE_Y 1 << 1
     #define SAMPLE_Z 1 << 0
+    int sample_type = (int(weight.x) * SAMPLE_X) |
+                      (int(weight.y) * SAMPLE_Y) |
+                      (int(weight.z) * SAMPLE_Z);
     #define terrain_coord_x terrain_coord[0].zw
     #define terrain_coord_y terrain_coord[1].xy
     #define terrain_coord_z terrain_coord[0].xy
