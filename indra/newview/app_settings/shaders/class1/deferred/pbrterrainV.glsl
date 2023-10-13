@@ -34,14 +34,11 @@ in vec4 diffuse_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
 
-out vec3 pos;
 out vec3 vary_normal;
-out vec3 vary_tangent; // TODO: Decide if we want to keep this
-flat out float vary_sign; // TODO: Decide if we want to keep this
+out vec3 vary_tangent;
+flat out float vary_sign;
 out vec4 vary_texcoord0;
 out vec4 vary_texcoord1;
-
-out vec4 debug_tangent; // TODO: Remove
 
 uniform vec4 object_plane_s;
 uniform vec4 object_plane_t;
@@ -63,17 +60,17 @@ vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
 void main()
 {
     //transform vertex
-    vec4 pre_pos = vec4(position.xyz, 1.0);
-    vec4 t_pos = modelview_projection_matrix * pre_pos;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 
-    gl_Position = t_pos;
-    pos = t_pos.xyz;
+	vec3 n = normal_matrix * normal;
+	vec3 t = normal_matrix * tangent.xyz;
 
-    vary_normal = normalize(normal_matrix * normal);
-    vary_tangent = normalize(normal_matrix * tangent.xyz); // TODO: Decide if we want to keep this
-    vary_sign = tangent.w; // TODO: Decide if we want to keep this
+    vary_tangent = normalize(t);
+    vary_sign = tangent.w;
+    vary_normal = normalize(n);
     
     // Transform and pass tex coords
+    // *NOTE: KHR texture transform is ignored for now
     vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
     
     vec4 t = vec4(texcoord1,0,1);

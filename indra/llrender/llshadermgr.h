@@ -248,7 +248,25 @@ public:
         TERRAIN_DETAIL1,                    //  "detail_1"
         TERRAIN_DETAIL2,                    //  "detail_2"
         TERRAIN_DETAIL3,                    //  "detail_3"
+
         TERRAIN_ALPHARAMP,                  //  "alpha_ramp"
+
+        TERRAIN_DETAIL0_BASE_COLOR,                //  "detail_0_base_color" (GLTF)
+        TERRAIN_DETAIL1_BASE_COLOR,                //  "detail_1_base_color" (GLTF)
+        TERRAIN_DETAIL2_BASE_COLOR,                //  "detail_2_base_color" (GLTF)
+        TERRAIN_DETAIL3_BASE_COLOR,                //  "detail_3_base_color" (GLTF)
+        TERRAIN_DETAIL0_NORMAL,                    //  "detail_0_normal" (GLTF)
+        TERRAIN_DETAIL1_NORMAL,                    //  "detail_1_normal" (GLTF)
+        TERRAIN_DETAIL2_NORMAL,                    //  "detail_2_normal" (GLTF)
+        TERRAIN_DETAIL3_NORMAL,                    //  "detail_3_normal" (GLTF)
+        TERRAIN_DETAIL0_METALLIC_ROUGHNESS,        //  "detail_0_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL1_METALLIC_ROUGHNESS,        //  "detail_1_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL2_METALLIC_ROUGHNESS,        //  "detail_2_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL3_METALLIC_ROUGHNESS,        //  "detail_3_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL0_EMISSIVE,                  //  "detail_0_emissive" (GLTF)
+        TERRAIN_DETAIL1_EMISSIVE,                  //  "detail_1_emissive" (GLTF)
+        TERRAIN_DETAIL2_EMISSIVE,                  //  "detail_2_emissive" (GLTF)
+        TERRAIN_DETAIL3_EMISSIVE,                  //  "detail_3_emissive" (GLTF)
 
         SHINY_ORIGIN,                       //  "origin"
         DISPLAY_GAMMA,                      //  "display_gamma"

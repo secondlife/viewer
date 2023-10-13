@@ -1427,7 +1427,25 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_1");
 	mReservedUniforms.push_back("detail_2");
 	mReservedUniforms.push_back("detail_3");
+
 	mReservedUniforms.push_back("alpha_ramp");
+
+	mReservedUniforms.push_back("detail_0_base_color");
+	mReservedUniforms.push_back("detail_1_base_color");
+	mReservedUniforms.push_back("detail_2_base_color");
+	mReservedUniforms.push_back("detail_3_base_color");
+	mReservedUniforms.push_back("detail_0_normal");
+	mReservedUniforms.push_back("detail_1_normal");
+	mReservedUniforms.push_back("detail_2_normal");
+	mReservedUniforms.push_back("detail_3_normal");
+	mReservedUniforms.push_back("detail_0_metallic_roughness");
+	mReservedUniforms.push_back("detail_1_metallic_roughness");
+	mReservedUniforms.push_back("detail_2_metallic_roughness");
+	mReservedUniforms.push_back("detail_3_metallic_roughness");
+	mReservedUniforms.push_back("detail_0_emissive");
+	mReservedUniforms.push_back("detail_1_emissive");
+	mReservedUniforms.push_back("detail_2_emissive");
+	mReservedUniforms.push_back("detail_3_emissive");
 
 	mReservedUniforms.push_back("origin");
 	mReservedUniforms.push_back("display_gamma");
