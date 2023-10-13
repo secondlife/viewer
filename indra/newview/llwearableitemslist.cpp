@@ -925,17 +925,17 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
 	registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));
 	registrar.add("Wearable.TakeOffDetach", 
-				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids));
+				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
 
 	// Register handlers for clothing.
 	registrar.add("Clothing.TakeOff", 
-				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids));
+				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
 
 	// Register handlers for body parts.
 
 	// Register handlers for attachments.
 	registrar.add("Attachment.Detach", 
-				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids));
+				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
 	registrar.add("Attachment.Touch", boost::bind(handle_attachment_touch, selected_id));
 	registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
 	registrar.add("Object.Attach", boost::bind(LLViewerAttachMenu::attachObjects, ids, _2));

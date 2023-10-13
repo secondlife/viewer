@@ -1685,7 +1685,7 @@ BOOL LLInventoryGallery::canCut() const
                 return FALSE;
             }
         }
-        else if (!get_is_item_removable(&gInventory, id))
+        else if (!get_is_item_removable(&gInventory, id, true))
         {
             return FALSE;
         }
@@ -1880,7 +1880,7 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
             }
             else
             {
-                if (get_is_item_removable(&gInventory, id))
+                if (get_is_item_removable(&gInventory, id, true))
                 {
                     gInventory.removeItem(id);
                 }
@@ -1925,7 +1925,7 @@ bool LLInventoryGallery::canDeleteSelection()
                 return false;
             }
         }
-        else if (!get_is_item_removable(&gInventory, id))
+        else if (!get_is_item_removable(&gInventory, id, true))
         {
             return false;
         }
