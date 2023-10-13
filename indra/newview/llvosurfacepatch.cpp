@@ -43,6 +43,9 @@
 #include "pipeline.h"
 #include "llspatialpartition.h"
 
+#include "mikktspace/mikktspace.h"
+// mikktspace implementation already included in llvovolume object file
+
 F32 LLVOSurfacePatch::sLODFactor = 1.f;
 
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
@@ -241,39 +244,53 @@ BOOL LLVOSurfacePatch::updateLOD()
 	return TRUE;
 }
 
-void LLVOSurfacePatch::getGeometry(LLStrider<LLVector3> &verticesp,
-								LLStrider<LLVector3> &normalsp,
-								LLStrider<LLVector2> &texCoords0p,
-								LLStrider<LLVector2> &texCoords1p,
-								LLStrider<U16> &indicesp)
+void LLVOSurfacePatch::getTerrainGeometry(LLStrider<LLVector3> &verticesp,
+                                              LLStrider<LLVector3> &normalsp,
+                                              LLStrider<LLVector4a> &tangentsp,
+                                              LLStrider<LLVector2> &texCoords0p,
+                                              LLStrider<LLVector2> &texCoords1p,
+                                              LLStrider<U16> &indicesp)
 {
 	LLFace* facep = mDrawable->getFace(0);
-	if (facep)
-	{
-		U32 index_offset = facep->getGeomIndex();
+    if (!facep)
+    {
+        return;
+    }
 
-		updateMainGeometry(facep, 
-						verticesp,
-						normalsp,
-						texCoords0p,
-						texCoords1p,
-						indicesp,
-						index_offset);
-		updateNorthGeometry(facep, 
-							verticesp,
-							normalsp,
-							texCoords0p,
-							texCoords1p,
-							indicesp,
-							index_offset);
-		updateEastGeometry(facep, 
-							verticesp,
-							normalsp,
-							texCoords0p,
-							texCoords1p,
-							indicesp,
-							index_offset);
-	}
+    U32 index_offset = facep->getGeomIndex();
+
+    updateMainGeometry(facep, 
+                    verticesp,
+                    normalsp,
+                    texCoords0p,
+                    texCoords1p,
+                    indicesp,
+                    index_offset);
+    updateNorthGeometry(facep, 
+                        verticesp,
+                        normalsp,
+                        texCoords0p,
+                        texCoords1p,
+                        indicesp,
+                        index_offset);
+    updateEastGeometry(facep, 
+                        verticesp,
+                        normalsp,
+                        texCoords0p,
+                        texCoords1p,
+                        indicesp,
+                        index_offset);
+
+    const bool has_tangents = tangentsp.get() != nullptr;
+    if (has_tangents)
+    {
+        // Last but not least, calculate tangents for the updated terrain vertices
+        genTerrainTangents(facep,
+                            verticesp,
+                            normalsp,
+                            tangentsp,
+                            texCoords0p);
+    }
 }
 
 void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
@@ -759,6 +776,88 @@ void LLVOSurfacePatch::updateEastGeometry(LLFace *facep,
 	index_offset += num_vertices;
 }
 
+struct MikktData
+{
+    MikktData(S32                    vert_offet,
+              S32                    vert_size,
+              LLStrider<LLVector3>  &verticesp,
+              LLStrider<LLVector3>  &normalsp,
+              LLStrider<LLVector4a> &tangentsp,
+              LLStrider<LLVector2>  &texCoords0p) :
+        vert_offset(vert_offset),
+        vert_size(vert_size),
+        verticesp(verticesp),
+        normalsp(normalsp),
+        texCoords0p(texCoords0p)
+    {
+    }
+    S32                   vert_offset;
+    U32                   vert_size;
+    LLStrider<LLVector3>  verticesp;
+    LLStrider<LLVector3>  normalsp;
+    LLStrider<LLVector4a> tangentsp;
+    LLStrider<LLVector2>  texCoords0p;
+};
+
+
+void LLVOSurfacePatch::genTerrainTangents(LLFace *facep,
+                                              LLStrider<LLVector3> &verticesp,
+                                              LLStrider<LLVector3> &normalsp,
+                                              LLStrider<LLVector4a> &tangentsp,
+                                              LLStrider<LLVector2> &texCoords0p)
+{
+    SMikkTSpaceInterface ms;
+
+    ms.m_getNumFaces = [](const SMikkTSpaceContext *pContext)
+    {
+        MikktData *data = (MikktData *) pContext->m_pUserData;
+        return S32(data->vert_size / 3);
+    };
+
+    ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext *pContext, const int iFace) { return 3; };
+
+    ms.m_getPosition = [](const SMikkTSpaceContext *pContext, float fvPosOut[], const int iFace, const int iVert)
+    {
+        MikktData *data = (MikktData *) pContext->m_pUserData;
+        fvPosOut[0]     = data->verticesp[data->vert_offset + iVert].mV[0];
+        fvPosOut[1]     = data->verticesp[data->vert_offset + iVert].mV[1];
+        fvPosOut[2]     = data->verticesp[data->vert_offset + iVert].mV[2];
+    };
+
+    ms.m_getNormal = [](const SMikkTSpaceContext *pContext, float fvNormOut[], const int iFace, const int iVert)
+    {
+        MikktData *data = (MikktData *) pContext->m_pUserData;
+        fvNormOut[0]    = data->normalsp[data->vert_offset + iVert].mV[0];
+        fvNormOut[1]    = data->normalsp[data->vert_offset + iVert].mV[1];
+        fvNormOut[2]    = data->normalsp[data->vert_offset + iVert].mV[2];
+    };
+
+    ms.m_getTexCoord = [](const SMikkTSpaceContext *pContext, float fvTexcOut[], const int iFace, const int iVert)
+    {
+        MikktData *data = (MikktData *) pContext->m_pUserData;
+        fvTexcOut[0]    = data->texCoords0p[data->vert_offset + iVert].mV[0];
+        fvTexcOut[1]    = data->texCoords0p[data->vert_offset + iVert].mV[1];
+    };
+
+    ms.m_setTSpaceBasic =
+        [](const SMikkTSpaceContext *pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
+    {
+        MikktData *data                                = (MikktData *) pContext->m_pUserData;
+        data->tangentsp[data->vert_offset + iVert] = LLVector4a(fvTangent[0], fvTangent[1], fvTangent[2], fSign);
+    };
+
+    ms.m_setTSpace = nullptr;
+
+    MikktData data(facep->getGeomIndex(),
+                   facep->getGeomCount(),
+                   verticesp,
+                   normalsp,
+                   tangentsp,
+                   texCoords0p);
+    SMikkTSpaceContext ctx = { &ms, &data };
+    genTangSpaceDefault(&ctx);
+}
+
 void LLVOSurfacePatch::setPatch(LLSurfacePatch *patchp)
 {
 	mPatchp = patchp;
@@ -998,12 +1097,16 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 	//get vertex buffer striders
 	LLStrider<LLVector3> vertices;
 	LLStrider<LLVector3> normals;
-	LLStrider<LLVector2> texcoords2;
+	LLStrider<LLVector4a> tangents;
 	LLStrider<LLVector2> texcoords;
+	LLStrider<LLVector2> texcoords2;
 	LLStrider<U16> indices;
+
+    const bool has_tangents = buffer->hasDataType(LLVertexBuffer::TYPE_TANGENT);
 
 	llassert_always(buffer->getVertexStrider(vertices));
 	llassert_always(buffer->getNormalStrider(normals));
+	llassert_always(has_tangents ? buffer->getTangentStrider(tangents) : true);
 	llassert_always(buffer->getTexCoord0Strider(texcoords));
 	llassert_always(buffer->getTexCoord1Strider(texcoords2));
 	llassert_always(buffer->getIndexStrider(indices));
@@ -1020,7 +1123,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 		facep->setVertexBuffer(buffer);
 
 		LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
-		patchp->getGeometry(vertices, normals, texcoords, texcoords2, indices);
+		patchp->getTerrainGeometry(vertices, normals, tangents, texcoords, texcoords2, indices);
 
 		indices_index += facep->getIndicesCount();
 		index_offset += facep->getGeomCount();
