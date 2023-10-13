@@ -682,17 +682,17 @@ BOOL get_can_item_be_worn(const LLUUID& id)
 	return FALSE;
 }
 
-BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
+bool get_is_item_removable(const LLInventoryModel* model, const LLUUID& id, bool check_worn)
 {
 	if (!model)
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Can't delete an item that's in the library.
 	if (!model->isObjectDescendentOf(id, gInventory.getRootFolderID()))
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Disable delete from COF folder; have users explicitly choose "detach/take off",
@@ -701,20 +701,20 @@ BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 	{
 		if (get_is_item_worn(id))
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
 	const LLInventoryObject *obj = model->getItem(id);
 	if (obj && obj->getIsLinkType())
 	{
-		return TRUE;
+		return true;
 	}
-	if (get_is_item_worn(id))
+	if (check_worn && get_is_item_worn(id))
 	{
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 bool get_is_item_editable(const LLUUID& inv_item_id)
@@ -2759,7 +2759,7 @@ bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventory
 {
 	if (item)
 	{
-		return !get_is_item_removable(&gInventory, item->getUUID());
+		return !get_is_item_removable(&gInventory, item->getUUID(), true);
 	}
 	if (cat)
 	{
@@ -3024,6 +3024,8 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
 		bool marketplacelistings_item = false;
+        bool worn_item = false;
+        bool needs_replacement = false;
 		LLAllDescendentsPassedFilter f;
 		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
 		{
@@ -3037,9 +3039,32 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 				marketplacelistings_item = true;
 				break;
 			}
+            if (get_is_item_worn(viewModel->getUUID()))
+            {
+                worn_item = true;
+                LLWearableType::EType type = viewModel->getWearableType();
+                if (type == LLWearableType::WT_SHAPE
+                    || type == LLWearableType::WT_SKIN
+                    || type == LLWearableType::WT_HAIR
+                    || type == LLWearableType::WT_EYES)
+                {
+                    needs_replacement = true;
+                    break;
+                }
+            }
 		}
 		// Fall through to the generic confirmation if the user choose to ignore the specialized one
-		if ( (!f.allDescendentsPassedFilter()) && !marketplacelistings_item && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
+        if (needs_replacement)
+        {
+            LLNotificationsUtil::add("CantDeleteRequiredClothing");
+        }
+        else if (worn_item)
+        {
+            LLSD payload;
+            payload["has_worn"] = true;
+            LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+        }
+		else if ( (!f.allDescendentsPassedFilter()) && !marketplacelistings_item && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
 		{
 			LLNotificationsUtil::add("DeleteFilteredItems", LLSD(), LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
 		}
@@ -3356,17 +3381,55 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
         }
     }
 }
-
 void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0 && !root.isDead() && !root.get()->isDead())
 	{
+        bool has_worn = notification["payload"]["has_worn"].asBoolean();
 		LLFolderView* folder_root = root.get();
 		//Need to remove item from DND before item is removed from root folder view
 		//because once removed from root folder view the item is no longer a selected item
 		removeItemFromDND(folder_root);
-		folder_root->removeSelectedItems();
+
+        // removeSelectedItems will change selection, collect worn items beforehand
+        uuid_vec_t worn;
+        if (has_worn)
+        {
+            //Get selected items
+            LLFolderView::selected_items_t selectedItems = folder_root->getSelectedItems();
+
+            //If user is in DND and deletes item, make sure the notification is not displayed by removing the notification
+            //from DND history and .xml file. Once this is done, upon exit of DND mode the item deleted will not show a notification.
+            for (LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+            {
+                LLObjectBridge* view_model = dynamic_cast<LLObjectBridge*>((*it)->getViewModelItem());
+
+                if (view_model && get_is_item_worn(view_model->getUUID()))
+                {
+                    worn.push_back(view_model->getUUID());
+                }
+            }
+        }
+
+        // removeSelectedItems will check if items are worn before deletion,
+        // don't 'unwear' yet to prevent a race condition from unwearing
+        // and removing simultaneously
+        folder_root->removeSelectedItems();
+
+        // unwear then delete the rest
+        if (!worn.empty())
+        {
+            // should fire once after every item gets detached
+            LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
+                                                              [worn]()
+                                                              {
+                                                                  for (const LLUUID& id : worn)
+                                                                  {
+                                                                      remove_inventory_item(id, NULL);
+                                                                  }
+                                                              });
+        }
 
 		// Update the marketplace listings that have been affected by the operation
 		updateMarketplaceFolders();

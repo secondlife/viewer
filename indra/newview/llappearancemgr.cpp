@@ -3176,6 +3176,7 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInve
 			{
 				// Immediate delete
 				remove_inventory_item(item->getUUID(), cb, true);
+				remove_inventory_item(item->getUUID(), cb, true);
 				gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			}
 			else
@@ -4117,7 +4118,7 @@ void LLAppearanceMgr::wearBaseOutfit()
 	updateCOF(base_outfit_id);
 }
 
-void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
+void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove, nullary_func_t post_update_func)
 {
 	LL_DEBUGS("UIUsage") << "removeItemsFromAvatar" << LL_ENDL;
 	LLUIUsage::instance().logCommand("Avatar.RemoveItem");
@@ -4127,7 +4128,7 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 		LL_WARNS() << "called with empty list, nothing to do" << LL_ENDL;
 		return;
 	}
-	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
+	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy(true, true, post_update_func);
 	for (uuid_vec_t::const_iterator it = ids_to_remove.begin(); it != ids_to_remove.end(); ++it)
 	{
 		const LLUUID& id_to_remove = *it;
@@ -4146,11 +4147,11 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 	}
 }
 
-void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
+void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove, nullary_func_t post_update_func)
 {
 	uuid_vec_t ids_to_remove;
 	ids_to_remove.push_back(id_to_remove);
-	removeItemsFromAvatar(ids_to_remove);
+	removeItemsFromAvatar(ids_to_remove, post_update_func);
 }
 
 

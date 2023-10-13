@@ -765,7 +765,7 @@ void LLFolderView::removeSelectedItems()
 			}
 			else
 			{
-				LL_INFOS() << "Cannot delete " << item->getName() << LL_ENDL;
+				LL_DEBUGS() << "Cannot delete " << item->getName() << LL_ENDL;
 				return;
 			}
 		}

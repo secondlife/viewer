@@ -309,9 +309,9 @@ void LLInvFVBridge::setCreationDate(time_t creation_date_utc)
 
 
 // Can be destroyed (or moved to trash)
-BOOL LLInvFVBridge::isItemRemovable() const
+BOOL LLInvFVBridge::isItemRemovable(bool check_worn) const
 {
-	return get_is_item_removable(getInventoryModel(), mUUID);
+	return get_is_item_removable(getInventoryModel(), mUUID, check_worn);
 }
 
 // Can be moved to another folder
@@ -1063,7 +1063,7 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 
 	items.push_back(std::string("Delete"));
 
-	if (!isItemRemovable() || isPanelActive("Favorite Items"))
+	if (!isItemRemovable(false) || isPanelActive("Favorite Items"))
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
@@ -2405,20 +2405,21 @@ void LLFolderBridge::update()
 class LLIsItemRemovable : public LLFolderViewFunctor
 {
 public:
-	LLIsItemRemovable() : mPassed(TRUE) {}
+	LLIsItemRemovable(bool check_worn = true) : mPassed(TRUE), mCheckWorn(check_worn) {}
 	virtual void doFolder(LLFolderViewFolder* folder)
 	{
-		mPassed &= folder->getViewModelItem()->isItemRemovable();
+		mPassed &= folder->getViewModelItem()->isItemRemovable(mCheckWorn);
 	}
 	virtual void doItem(LLFolderViewItem* item)
 	{
-		mPassed &= item->getViewModelItem()->isItemRemovable();
+		mPassed &= item->getViewModelItem()->isItemRemovable(mCheckWorn);
 	}
 	BOOL mPassed;
+    bool mCheckWorn;
 };
 
 // Can be destroyed (or moved to trash)
-BOOL LLFolderBridge::isItemRemovable() const
+BOOL LLFolderBridge::isItemRemovable(bool check_worn) const
 {
 	if (!get_is_category_removable(getInventoryModel(), mUUID))
 	{

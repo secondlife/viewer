@@ -577,7 +577,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 {
                     items.push_back(std::string("Delete"));
                 }
-                if(!get_is_item_removable(&gInventory, selected_id))
+                if(!get_is_item_removable(&gInventory, selected_id, true))
                 {
                     disabled_items.push_back(std::string("Delete"));
                     disabled_items.push_back(std::string("Cut"));

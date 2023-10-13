@@ -110,9 +110,9 @@ protected:
 		registrar.add("Wearing.EditOutfit", boost::bind(&edit_outfit));
 		registrar.add("Wearing.ShowOriginal", boost::bind(show_item_original, mUUIDs.front()));
 		registrar.add("Wearing.TakeOff",
-					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
+					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
 		registrar.add("Wearing.Detach", 
-					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
+					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
 		LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
 
 		updateMenuItemsVisibility(menu);

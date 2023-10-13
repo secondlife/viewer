@@ -195,8 +195,8 @@ public:
 	bool updateBaseOutfit();
 
 	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
-	void removeItemsFromAvatar(const uuid_vec_t& item_ids);
-	void removeItemFromAvatar(const LLUUID& item_id);
+	void removeItemsFromAvatar(const uuid_vec_t& item_ids, nullary_func_t post_update_func = no_op);
+	void removeItemFromAvatar(const LLUUID& item_id, nullary_func_t post_update_func = no_op);
 
 
 	void onOutfitFolderCreated(const LLUUID& folder_id, bool show_panel);
