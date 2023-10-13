@@ -128,7 +128,7 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 
 vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
 {
-    return texture(tex, terrain_coord).xyz;
+    return texture(tex, terrain_coord).xyz*2.0-1.0;
 }
 #endif
 
