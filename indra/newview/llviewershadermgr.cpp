@@ -695,6 +695,8 @@ std::string LLViewerShaderMgr::loadBasicShaders()
         attribs["TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT"] = llformat("%d", mapping);
         const F32 triplanar_factor = gSavedSettings.getF32("RenderTerrainPBRTriplanarBlendFactor");
         attribs["TERRAIN_TRIPLANAR_BLEND_FACTOR"] = llformat("%.2f", triplanar_factor);
+        S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
+        attribs["TERRAIN_PBR_DETAIL"] = llformat("%d", detail);
     }
 
 	LLGLSLShader::sGlobalDefines = attribs;

@@ -258,9 +258,15 @@ void main()
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
    
+
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+#define emissive mix.emissive
+#else
+#define emissive vec3(0)
+#endif
     frag_data[0] = max(vec4(mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(mix.orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
     frag_data[2] = max(vec4(encode_normal(tnorm), base_color_factor_alpha, GBUFFER_FLAG_HAS_PBR), vec4(0)); // normal, environment intensity, flags
-    frag_data[3] = max(vec4(mix.emissive,0), vec4(0));                                                // PBR sRGB Emissive
+    frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 
