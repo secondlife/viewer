@@ -1338,7 +1338,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 
 		//LL_INFOS() << "texture detail " << i << " is " << width << "x" << height << "x" << components << LL_ENDL;
 
-		if (components != 3)
+		if (components != 3 && components != 4)
 		{
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;

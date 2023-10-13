@@ -1110,7 +1110,7 @@ void LLImageRaw::composite( LLImageRaw* src )
 		return;
 	}
 
-	llassert(3 == src->getComponents());
+	llassert((3 == src->getComponents()) || (4 == src->getComponents()));
 	llassert(3 == dst->getComponents());
 
 	if( 3 == dst->getComponents() )
