@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+#define TERRAIN_PBR_DETAIL_EMISSIVE 0
+
 out vec4 frag_data[4];
 
 uniform sampler2D alpha_ramp;
@@ -42,16 +44,20 @@ uniform sampler2D detail_0_metallic_roughness;
 uniform sampler2D detail_1_metallic_roughness;
 uniform sampler2D detail_2_metallic_roughness;
 uniform sampler2D detail_3_metallic_roughness;
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
 uniform sampler2D detail_0_emissive;
 uniform sampler2D detail_1_emissive;
 uniform sampler2D detail_2_emissive;
 uniform sampler2D detail_3_emissive;
+#endif
 
 // *TODO: More efficient packing?
 uniform vec4[4] baseColorFactors; // See also vertex_color in pbropaqueV.glsl
 uniform vec4 metallicFactors;
 uniform vec4 roughnessFactors;
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
 uniform vec3[4] emissiveColors;
+#endif
 uniform vec4 minimum_alphas; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
 in vec3 vary_normal;
@@ -170,7 +176,11 @@ void main()
     //   metal     0.0
     vec3 spec = sample_and_mix_vector3(alpha1, alpha2, alphaFinal, terrain_texcoord, orm_factors, detail_0_metallic_roughness, detail_1_metallic_roughness, detail_2_metallic_roughness, detail_3_metallic_roughness);
 
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
     vec3 emissive = sample_and_mix_color3(alpha1, alpha2, alphaFinal, terrain_texcoord, emissiveColors, detail_0_emissive, detail_1_emissive, detail_2_emissive, detail_3_emissive);
+#else
+    vec3 emissive = vec3(0);
+#endif
 
     float base_color_factor_alpha = terrain_mix(vec4(baseColorFactors[0].z, baseColorFactors[1].z, baseColorFactors[2].z, baseColorFactors[3].z), alpha1, alpha2, alphaFinal);
 

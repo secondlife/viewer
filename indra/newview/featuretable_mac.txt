@@ -45,6 +45,7 @@ RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   -1
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVBOEnable				1	1

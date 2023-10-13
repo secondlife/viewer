@@ -43,8 +43,6 @@ public:
 	};
 
 	virtual U32 getVertexDataMask();
-	static S32 getDetailMode();
-
 	LLDrawPoolTerrain(LLViewerTexture *texturep);
 	virtual ~LLDrawPoolTerrain();
 
@@ -69,6 +67,7 @@ public:
 	LLPointer<LLViewerTexture> mAlphaNoiseImagep;
 
 	static S32 sDetailMode;
+	static S32 sPBRDetailMode;
 	static F32 sDetailScale; // meters per texture
 
 protected:

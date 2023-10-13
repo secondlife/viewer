@@ -1494,23 +1494,26 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredPBRTerrainProgram.mName = "Deferred PBR Terrain Shader";
-		gDeferredPBRTerrainProgram.mFeatures.encodesNormal = true;
-		gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
-		gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
-		gDeferredPBRTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		gDeferredPBRTerrainProgram.mFeatures.hasWaterFog = true;
-		gDeferredPBRTerrainProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
-		gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
-		gDeferredPBRTerrainProgram.mFeatures.hasTransport = true;
+        S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
+        detail = llclamp(detail, TERRAIN_PBR_DETAIL_MIN, TERRAIN_PBR_DETAIL_MAX);
+        gDeferredPBRTerrainProgram.mName = llformat("Deferred PBR Terrain Shader %d", detail);
+        gDeferredPBRTerrainProgram.mFeatures.encodesNormal = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
+        gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
+        gDeferredPBRTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+        gDeferredPBRTerrainProgram.mFeatures.hasWaterFog = true;
+        gDeferredPBRTerrainProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasTransport = true;
 
-		gDeferredPBRTerrainProgram.mShaderFiles.clear();
-		gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainV.glsl", GL_VERTEX_SHADER));
-		gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredPBRTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredPBRTerrainProgram.mShaderFiles.clear();
+        gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainV.glsl", GL_VERTEX_SHADER));
+        gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredPBRTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredPBRTerrainProgram.addPermutation("TERRAIN_PBR_DETAIL", llformat("%d", detail));
         success = gDeferredPBRTerrainProgram.createShader(NULL, NULL);
-		llassert(success);
+        llassert(success);
 	}
 	
 	if (success)

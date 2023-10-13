@@ -54,7 +54,10 @@
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
 
+const S32 PBR_DETAIL_EMISSIVE = 0;
+
 S32 LLDrawPoolTerrain::sDetailMode = 1;
+S32 LLDrawPoolTerrain::sPBRDetailMode = 0;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
 static LLGLSLShader* sShader = NULL;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
@@ -66,7 +69,9 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 {
 	// Hack!
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
+    // TODO: This is unused. Remove?
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
+	sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
 	mAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD);
 
 	//gGL.getTexUnit(0)->bind(mAlphaRampImagep.get());
@@ -106,12 +111,7 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 void LLDrawPoolTerrain::prerender()
 {
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
-}
-
-//static
-S32 LLDrawPoolTerrain::getDetailMode()
-{
-	return sDetailMode;
+    sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
 }
 
 void LLDrawPoolTerrain::boostTerrainDetailTextures()
@@ -371,7 +371,7 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 	gGL.getTexUnit(detail0)->activate();
 }
 
-// TODO: Investigate use of bindFast for PBR terrain textures
+// *TODO: Investigate use of bindFast for PBR terrain textures
 void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 {
 	// Hack! Get the region that this draw pool is rendering from!
@@ -445,17 +445,20 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         gGL.getTexUnit(detail_metalrough[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
         gGL.getTexUnit(detail_metalrough[i])->activate();
 
-        detail_emissive[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
-        if (detail_emissive_texturep)
+        if (sPBRDetailMode >= PBR_DETAIL_EMISSIVE)
         {
-            gGL.getTexUnit(detail_emissive[i])->bind(detail_emissive_texturep);
+            detail_emissive[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
+            if (detail_emissive_texturep)
+            {
+                gGL.getTexUnit(detail_emissive[i])->bind(detail_emissive_texturep);
+            }
+            else
+            {
+                gGL.getTexUnit(detail_emissive[i])->bind(LLViewerFetchedTexture::sWhiteImagep);
+            }
+            gGL.getTexUnit(detail_emissive[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+            gGL.getTexUnit(detail_emissive[i])->activate();
         }
-        else
-        {
-            gGL.getTexUnit(detail_emissive[i])->bind(LLViewerFetchedTexture::sWhiteImagep);
-        }
-        gGL.getTexUnit(detail_emissive[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-        gGL.getTexUnit(detail_emissive[i])->activate();
     }
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
@@ -506,7 +509,10 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
     shader->uniform4fv(LLShaderMgr::TERRAIN_BASE_COLOR_FACTORS, terrain_material_count, (F32*)base_color_factors);
     shader->uniform4f(LLShaderMgr::TERRAIN_METALLIC_FACTORS, metallic_factors[0], metallic_factors[1], metallic_factors[2], metallic_factors[3]);
     shader->uniform4f(LLShaderMgr::TERRAIN_ROUGHNESS_FACTORS, roughness_factors[0], roughness_factors[1], roughness_factors[2], roughness_factors[3]);
-    shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, terrain_material_count, (F32*)emissive_colors);
+    if (sPBRDetailMode >= PBR_DETAIL_EMISSIVE)
+    {
+        shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, terrain_material_count, (F32*)emissive_colors);
+    }
     shader->uniform4f(LLShaderMgr::TERRAIN_MINIMUM_ALPHAS, minimum_alphas[0], minimum_alphas[1], minimum_alphas[2], minimum_alphas[3]);
 
 	// GL_BLEND disabled by default
@@ -525,7 +531,10 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR + i);
         sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_NORMAL + i);
         sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_METALLIC_ROUGHNESS + i);
-        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
+        if (sPBRDetailMode >= PBR_DETAIL_EMISSIVE)
+        {
+            sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
+        }
 
         gGL.getTexUnit(detail_basecolor[i])->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(detail_basecolor[i])->disable();
@@ -539,9 +548,12 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         gGL.getTexUnit(detail_metalrough[i])->disable();
         gGL.getTexUnit(detail_metalrough[i])->activate();
 
-        gGL.getTexUnit(detail_emissive[i])->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(detail_emissive[i])->disable();
-        gGL.getTexUnit(detail_emissive[i])->activate();
+        if (sPBRDetailMode >= PBR_DETAIL_EMISSIVE)
+        {
+            gGL.getTexUnit(detail_emissive[i])->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(detail_emissive[i])->disable();
+            gGL.getTexUnit(detail_emissive[i])->activate();
+        }
     }
 }
 
