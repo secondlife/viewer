@@ -375,16 +375,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-
-	LLViewerTexture *detail_texture0p = compp->mDetailMaterials[0]->mBaseColorTexture;
-	LLViewerTexture *detail_texture1p = compp->mDetailMaterials[1]->mBaseColorTexture;
-	LLViewerTexture *detail_texture2p = compp->mDetailMaterials[2]->mBaseColorTexture;
-	LLViewerTexture *detail_texture3p = compp->mDetailMaterials[3]->mBaseColorTexture;
-    LLViewerTexture* blank = LLViewerFetchedTexture::sWhiteImagep;
-    if (!detail_texture0p) { detail_texture0p = blank; }
-    if (!detail_texture1p) { detail_texture1p = blank; }
-    if (!detail_texture2p) { detail_texture2p = blank; }
-    if (!detail_texture3p) { detail_texture3p = blank; }
+	LLPointer<LLFetchedGLTFMaterial>(& materials)[LLVLComposition::ASSET_COUNT] = compp->mDetailMaterials;
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
@@ -395,13 +386,39 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	//
-	// detail texture 0
-	//
-	S32 detail0 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
-	gGL.getTexUnit(detail0)->bind(detail_texture0p);
-    gGL.getTexUnit(detail0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail0)->activate();
+    constexpr U32 terrain_material_count = LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
+    S32 detail_basecolor[terrain_material_count];
+    S32 detail_normal[terrain_material_count];
+    S32 detail_metalrough[terrain_material_count];
+    S32 detail_emissive[terrain_material_count];
+
+    for (U32 i = 0; i < terrain_material_count; ++i)
+    {
+        LLViewerTexture *detail_basecolor_texturep = materials[i]->mBaseColorTexture;
+        LLViewerTexture *detail_normal_texturep = materials[i]->mNormalTexture;
+        LLViewerTexture *detail_metalrough_texturep = materials[i]->mMetallicRoughnessTexture;
+        LLViewerTexture *detail_emissive_texturep = materials[i]->mEmissiveTexture;
+
+        detail_basecolor[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR + i);
+        gGL.getTexUnit(detail_basecolor[i])->bind(detail_basecolor_texturep);
+        gGL.getTexUnit(detail_basecolor[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+        gGL.getTexUnit(detail_basecolor[i])->activate();
+
+        detail_normal[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_NORMAL + i);
+        gGL.getTexUnit(detail_normal[i])->bind(detail_normal_texturep);
+        gGL.getTexUnit(detail_normal[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+        gGL.getTexUnit(detail_normal[i])->activate();
+
+        detail_metalrough[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_METALLIC_ROUGHNESS + i);
+        gGL.getTexUnit(detail_metalrough[i])->bind(detail_metalrough_texturep);
+        gGL.getTexUnit(detail_metalrough[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+        gGL.getTexUnit(detail_metalrough[i])->activate();
+
+        detail_emissive[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
+        gGL.getTexUnit(detail_emissive[i])->bind(detail_emissive_texturep);
+        gGL.getTexUnit(detail_emissive[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+        gGL.getTexUnit(detail_emissive[i])->activate();
+    }
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 	llassert(shader);
@@ -412,67 +429,80 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
 	//
-	// detail texture 1
-	//
-	S32 detail1 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1); 
-	gGL.getTexUnit(detail1)->bind(detail_texture1p);
-	gGL.getTexUnit(detail1)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail1)->activate();
-	
-	// detail texture 2
-	//
-	S32 detail2 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
-	gGL.getTexUnit(detail2)->bind(detail_texture2p);
-    gGL.getTexUnit(detail2)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail2)->activate();
-	
-
-	// detail texture 3
-	//
-	S32 detail3 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
-	gGL.getTexUnit(detail3)->bind(detail_texture3p);
-	gGL.getTexUnit(detail3)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail3)->activate();
-
-	//
 	// Alpha Ramp 
 	//
 	S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
 	gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
     gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
+    //
+    // GLTF uniforms
+    //
+
+    LLColor4 base_color_factors[terrain_material_count];
+    F32 metallic_factors[terrain_material_count];
+    F32 roughness_factors[terrain_material_count];
+    LLColor3 emissive_colors[terrain_material_count];
+    F32 minimum_alphas[terrain_material_count];
+    for (U32 i = 0; i < terrain_material_count; ++i)
+    {
+        const LLFetchedGLTFMaterial* material = materials[i].get();
+
+        base_color_factors[i] = material->mBaseColor;
+        metallic_factors[i] = material->mMetallicFactor;
+        roughness_factors[i] = material->mRoughnessFactor;
+        emissive_colors[i] = material->mEmissiveColor;
+        // glTF 2.0 Specification 3.9.4. Alpha Coverage
+        // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+        // Use 0 here due to GLTF terrain blending (LLGLTFMaterial::bind uses
+        // -1 for easier debugging)
+        F32 min_alpha = 0.f;
+        if (material->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+        {
+            min_alpha = material->mAlphaCutoff;
+        }
+
+    }
+    shader->uniform4fv(LLShaderMgr::TERRAIN_BASE_COLOR_FACTORS, terrain_material_count, (F32*)base_color_factors);
+    shader->uniform4f(LLShaderMgr::TERRAIN_METALLIC_FACTORS, metallic_factors[0], metallic_factors[1], metallic_factors[2], metallic_factors[3]);
+    shader->uniform4f(LLShaderMgr::TERRAIN_ROUGHNESS_FACTORS, roughness_factors[0], roughness_factors[1], roughness_factors[2], roughness_factors[3]);
+    shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, terrain_material_count, (F32*)emissive_colors);
+    shader->uniform4f(LLShaderMgr::TERRAIN_MINIMUM_ALPHAS, minimum_alphas[0], minimum_alphas[1], minimum_alphas[2], minimum_alphas[3]);
+
 	// GL_BLEND disabled by default
 	drawLoop();
 
 	// Disable multitexture
+
 	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
 
 	gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(alpha_ramp)->disable();
 	gGL.getTexUnit(alpha_ramp)->activate();
-	
-	gGL.getTexUnit(detail3)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail3)->disable();
-	gGL.getTexUnit(detail3)->activate();
 
-	gGL.getTexUnit(detail2)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail2)->disable();
-	gGL.getTexUnit(detail2)->activate();
+    for (U32 i = 0; i < terrain_material_count; ++i)
+    {
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR + i);
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_NORMAL + i);
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_METALLIC_ROUGHNESS + i);
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
 
-	gGL.getTexUnit(detail1)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail1)->disable();
-	gGL.getTexUnit(detail1)->activate();
-	
-	//----------------------------------------------------------------------------
-	// Restore Texture Unit 0 defaults
-	
-	gGL.getTexUnit(detail0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail0)->activate();
+        gGL.getTexUnit(detail_basecolor[i])->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(detail_basecolor[i])->disable();
+        gGL.getTexUnit(detail_basecolor[i])->activate();
+
+        gGL.getTexUnit(detail_normal[i])->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(detail_normal[i])->disable();
+        gGL.getTexUnit(detail_normal[i])->activate();
+
+        gGL.getTexUnit(detail_metalrough[i])->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(detail_metalrough[i])->disable();
+        gGL.getTexUnit(detail_metalrough[i])->activate();
+
+        gGL.getTexUnit(detail_emissive[i])->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(detail_emissive[i])->disable();
+        gGL.getTexUnit(detail_emissive[i])->activate();
+    }
 }
 
 void LLDrawPoolTerrain::hilightParcelOwners()

@@ -73,9 +73,9 @@ void main()
     // *NOTE: KHR texture transform is ignored for now
     vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
     
-    vec4 t = vec4(texcoord1,0,1);
+    vec4 tc = vec4(texcoord1,0,1);
     
-    vary_texcoord0.zw = t.xy;
-    vary_texcoord1.xy = t.xy-vec2(2.0, 0.0);
-    vary_texcoord1.zw = t.xy-vec2(1.0, 0.0);
+    vary_texcoord0.zw = tc.xy;
+    vary_texcoord1.xy = tc.xy-vec2(2.0, 0.0);
+    vary_texcoord1.zw = tc.xy-vec2(1.0, 0.0);
 }
