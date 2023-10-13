@@ -325,9 +325,35 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
     avatar_data.born_on = result["member_since"].asDate();
     avatar_data.hide_age = result["hide_age"].asBoolean();
     avatar_data.profile_url = getProfileURL(agent_id.asString());
+    avatar_data.customer_type = result["customer_type"].asString();
 
     avatar_data.flags = 0;
+    if (result["online"].asBoolean())
+    {
+        avatar_data.flags |= AVATAR_ONLINE;
+    }
+    if (result["allow_publish"].asBoolean())
+    {
+        avatar_data.flags |= AVATAR_ALLOW_PUBLISH;
+    }
+    if (result["identified"].asBoolean())
+    {
+        avatar_data.flags |= AVATAR_IDENTIFIED;
+    }
+    if (result["transacted"].asBoolean())
+    {
+        avatar_data.flags |= AVATAR_TRANSACTED;
+    }
+
     avatar_data.caption_index = 0;
+    if (result.has("charter_member")) // won't be present if "caption" is set
+    {
+        avatar_data.caption_index = result["charter_member"].asInteger();
+    }
+    else if (result.has("caption"))
+    {
+        avatar_data.caption_text = result["caption"].asString();
+    }
 
     LLAvatarPropertiesProcessor* self = getInstance();
     // Request processed, no longer pending
