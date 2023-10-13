@@ -56,7 +56,6 @@ int DebugDetailMap = 0;
 
 const S32 PBR_DETAIL_EMISSIVE = 0;
 
-S32 LLDrawPoolTerrain::sDetailMode = 1;
 S32 LLDrawPoolTerrain::sPBRDetailMode = 0;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
 F32 LLDrawPoolTerrain::sPBRDetailScale = DETAIL_SCALE;
@@ -71,8 +70,6 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	// Hack!
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
 	sPBRDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainPBRScale");
-    // TODO: This is unused. Remove?
-	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 	sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
 	mAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD);
 
@@ -112,7 +109,6 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 
 void LLDrawPoolTerrain::prerender()
 {
-	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
     sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
 }
 

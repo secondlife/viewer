@@ -61,7 +61,6 @@ public:
 	LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
     Type getMaterialType();
-	void updateMaterialType();
     BOOL texturesReady(BOOL boost = FALSE);
     BOOL materialsReady(BOOL boost = FALSE);
 
@@ -71,7 +70,6 @@ protected:
 	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
 	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
     bool mMaterialTexturesSet[ASSET_COUNT];
-	Type mMaterialType = Type::TEXTURE;
 };
 
 // Local materials to override all regions

@@ -118,12 +118,6 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
     return false;
 }
 
-static bool handleTerrainDetailChanged(const LLSD& newvalue)
-{
-	LLDrawPoolTerrain::sDetailMode = newvalue.asInteger();
-	return true;
-}
-
 static bool handleTerrainScaleChanged(const LLSD& newvalue)
 {
     F64 scale = newvalue.asReal();
@@ -720,7 +714,6 @@ void settings_setup_listeners()
 {
     setting_setup_signal_listener(gSavedSettings, "FirstPersonAvatarVisible", handleRenderAvatarMouselookChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFarClip", handleRenderFarClipChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderTerrainDetail", handleTerrainDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainScale", handleTerrainScaleChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRScale", handlePBRTerrainScaleChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainPBRDetail", handleSetShaderChanged);

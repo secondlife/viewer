@@ -121,15 +121,10 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
 
 LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 {
-    return mMaterialType;
-}
-
-void LLTerrainMaterials::updateMaterialType()
-{
 	LL_PROFILE_ZONE_SCOPED;
 
     const BOOL use_textures = texturesReady() || !materialsReady();
-    mMaterialType = use_textures ? Type::TEXTURE : Type::PBR;
+    return use_textures ? Type::TEXTURE : Type::PBR;
 }
 
 BOOL LLTerrainMaterials::texturesReady(BOOL boost)
@@ -386,7 +381,7 @@ BOOL LLVLComposition::generateComposition()
     return LLTerrainMaterials::generateMaterials();
 }
 
-// TODO: Re-evaluate usefulness of this function in the PBR case. There is currently a hack here to treat the material base color like a legacy terrain texture, but I'm not sure if that's useful.
+// *TODO: Re-evaluate usefulness of this function in the PBR case. There is currently a hack here to treat the material base color like a legacy terrain texture, but I'm not sure if that's useful.
 BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {
@@ -423,7 +418,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
             {
                 tex = mDetailMaterials[i]->mBaseColorTexture;
             }
-			// TODO: Why are terrain textures (not terrain materials) not loading? (that is why there is a getComponents() check here)
+			// *TODO: Why are terrain textures (not terrain materials) not loading? (that is why there is a getComponents() check here)
 			if (!tex || tex->getComponents() == 0) { tex = LLViewerFetchedTexture::sWhiteImagep; }
 
 			S32 min_dim = llmin(tex->getFullWidth(), tex->getFullHeight());

@@ -66,7 +66,6 @@ public:
 	LLPointer<LLViewerTexture> m2DAlphaRampImagep;
 	LLPointer<LLViewerTexture> mAlphaNoiseImagep;
 
-	static S32 sDetailMode;
 	static S32 sPBRDetailMode;
 	static F32 sDetailScale; // textures per meter
 	static F32 sPBRDetailScale; // textures per meter
