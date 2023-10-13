@@ -143,7 +143,7 @@ protected:
     /**
      * Fills user name, display name, age.
      */
-    void fillAgeData(const LLDate &born_on);
+    void fillAgeData(const LLAvatarData* avatar_data);
 
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
     static void onImageLoaded(BOOL success,
@@ -179,6 +179,7 @@ private:
     void setDescriptionText(const std::string &text);
     void onSetDescriptionDirty();
     void onShowInSearchCallback();
+    void onHideSLAgeCallback();
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
     void onShowAgentPermissionsDialog();
@@ -193,6 +194,7 @@ private:
 
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
+    LLComboBox*			mHideSLAgeCombo;
     LLThumbnailCtrl*	mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
@@ -214,6 +216,7 @@ private:
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
     bool				mAllowPublish;
+    bool				mHideSLAge;
     std::string			mDescriptionText;
     LLUUID				mImageId;
 

@@ -86,6 +86,7 @@ struct LLAvatarData
 	U8			caption_index;
 	std::string	caption_text;
     std::string	customer_type;
+    bool		hide_sl_age;
 	U32			flags;
 };
 

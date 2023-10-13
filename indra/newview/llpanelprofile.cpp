@@ -191,6 +191,8 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         avatar_data->caption_text = result["caption"].asString();
     }
 
+    avatar_data->hide_sl_age = result["hide_sl_age"].asBoolean();
+
     panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
     LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
     if (panel_sl)
@@ -272,38 +274,6 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     {
         panel_notes->processProperties(&avatar_notes);
     }
-}
-
-//TODO: changes take two minutes to propagate!
-// Add some storage that holds updated data for two minutes
-// for new instances to reuse the data
-// Profile data is only relevant to won avatar, but notes
-// are for everybody
-void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("put_avatar_properties_coro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    httpOpts->setFollowRedirects(true);
-
-    std::string finalUrl = cap_url + "/" + agent_id.asString();
-
-    LLSD result = httpAdapter->putAndSuspend(httpRequest, finalUrl, data, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        LL_WARNS("AvatarProperties") << "Failed to put agent information " << data << " for id " << agent_id << LL_ENDL;
-        return;
-    }
-
-    LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
 }
 
 LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::string path_to_image, LLHandle<LLPanel> *handle)
@@ -889,6 +859,7 @@ LLPanelProfileSecondLife::LLPanelProfileSecondLife()
     , mHasUnsavedDescriptionChanges(false)
     , mWaitingForImageUpload(false)
     , mAllowPublish(false)
+    , mHideSLAge(false)
 {
 }
 
@@ -914,6 +885,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
+    mHideSLAgeCombo         = getChild<LLComboBox>("hide_sl_age");
     mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
@@ -928,6 +900,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mCantEditObjectsIcon    = getChild<LLIconCtrl>("cant_edit_objects");
 
     mShowInSearchCombo->setCommitCallback([this](LLUICtrl*, void*) { onShowInSearchCallback(); }, nullptr);
+    mHideSLAgeCombo->setCommitCallback([this](LLUICtrl*, void*) { onHideSLAgeCallback(); }, nullptr);
     mGroupList->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { LLPanelProfileSecondLife::openGroupProfile(); });
     mGroupList->setReturnCallback([this](LLUICtrl*, const LLSD&) { LLPanelProfileSecondLife::openGroupProfile(); });
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
@@ -1202,7 +1175,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     // and to make sure icons in text will be up to date
     LLAvatarIconIDCache::getInstance()->add(avatar_data->avatar_id, avatar_data->image_id);
 
-    fillAgeData(avatar_data->born_on);
+    fillAgeData(avatar_data);
 
     setDescriptionText(avatar_data->about_text);
 
@@ -1237,7 +1210,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     if (getSelfProfile())
     {
         mAllowPublish = avatar_data->flags & AVATAR_ALLOW_PUBLISH;
-        mShowInSearchCombo->setValue((BOOL)mAllowPublish);
+        mShowInSearchCombo->setValue(mAllowPublish ? TRUE : FALSE);
     }
 }
 
@@ -1362,21 +1335,44 @@ void LLPanelProfileSecondLife::fillRightsData()
     }
 }
 
-void LLPanelProfileSecondLife::fillAgeData(const LLDate &born_on)
+void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
 {
     // Date from server comes already converted to stl timezone,
     // so display it as an UTC + 0
-    std::string name_and_date = getString("date_format");
+    std::string name_and_date = getString(avatar_data->hide_sl_age ? "date_format_short" : "date_format_full");
     LLSD args_name;
-    args_name["datetime"] = (S32)born_on.secondsSinceEpoch();
+    args_name["datetime"] = (S32)avatar_data->born_on.secondsSinceEpoch();
     LLStringUtil::format(name_and_date, args_name);
     getChild<LLUICtrl>("sl_birth_date")->setValue(name_and_date);
 
-    std::string register_date = getString("age_format");
-    LLSD args_age;
-    args_age["[AGE]"] = LLDateUtil::ageFromDate(born_on, LLDate::now());
-    LLStringUtil::format(register_date, args_age);
-    getChild<LLUICtrl>("user_age")->setValue(register_date);
+    LLUICtrl* userAgeCtrl = getChild<LLUICtrl>("user_age");
+    if (avatar_data->hide_sl_age)
+    {
+        userAgeCtrl->setVisible(FALSE);
+    }
+    else
+    {
+        std::string register_date = getString("age_format");
+        LLSD args_age;
+        args_age["[AGE]"] = LLDateUtil::ageFromDate(avatar_data->born_on, LLDate::now());
+        LLStringUtil::format(register_date, args_age);
+        userAgeCtrl->setValue(register_date);
+    }
+
+    if (getSelfProfile())
+    {
+        F64 birth = avatar_data->born_on.secondsSinceEpoch();
+        F64 now = LLDate::now().secondsSinceEpoch();
+        if (now - birth > 365 * 24 * 60 * 60)
+        {
+            mHideSLAge = avatar_data->hide_sl_age;
+            mHideSLAgeCombo->setValue(mHideSLAge ? TRUE : FALSE);
+        }
+        else
+        {
+            mHideSLAgeCombo->setVisible(FALSE);
+        }
+    }
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
@@ -1493,6 +1489,10 @@ void LLPanelProfileSecondLife::setLoaded()
     if (getSelfProfile())
     {
         mShowInSearchCombo->setEnabled(TRUE);
+        if (mHideSLAgeCombo->getVisible())
+        {
+            mHideSLAgeCombo->setEnabled(TRUE);
+        }
         mDescriptionEdit->setEnabled(TRUE);
     }
 }
@@ -1820,39 +1820,28 @@ void LLPanelProfileSecondLife::onSetDescriptionDirty()
 
 void LLPanelProfileSecondLife::onShowInSearchCallback()
 {
-    S32 value = mShowInSearchCombo->getValue().asInteger();
-    if (mAllowPublish == (bool)value)
-    {
+    bool value = mShowInSearchCombo->getValue().asInteger();
+    if (value == mAllowPublish)
         return;
-    }
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        mAllowPublish = value;
-        LLSD data;
-        data["allow_publish"] = mAllowPublish;
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), data));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+
+    mAllowPublish = value;
+    saveAgentUserInfoCoro("allow_publish", value);
+}
+
+void LLPanelProfileSecondLife::onHideSLAgeCallback()
+{
+    bool value = mHideSLAgeCombo->getValue().asInteger();
+    if (value == mHideSLAge)
+        return;
+
+    mHideSLAge = value;
+    saveAgentUserInfoCoro("hide_sl_age", value);
 }
 
 void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 {
     mDescriptionText = mDescriptionEdit->getValue().asString();
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("sl_about_text", mDescriptionText)));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+    saveAgentUserInfoCoro("sl_about_text", mDescriptionText);
 
     mSaveDescriptionChanges->setEnabled(FALSE);
     mDiscardDescriptionChanges->setEnabled(FALSE);
@@ -1987,45 +1976,33 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
 void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
 {
     if (mImageId == id)
-    {
         return;
-    }
 
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
+    if (!saveAgentUserInfoCoro("sl_image_id", id))
+        return;
+
+    mImageId = id;
+    if (mImageId == LLUUID::null)
     {
-        LLSD params;
-        params["sl_image_id"] = id;
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
-
-        mImageId = id;
-        if (mImageId == LLUUID::null)
-        {
-            mSecondLifePic->setValue("Generic_Person_Large");
-        }
-        else
-        {
-            mSecondLifePic->setValue(mImageId);
-        }
-
-        LLFloater *floater = mFloaterProfileTextureHandle.get();
-        if (floater)
-        {
-            LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-            if (mImageId == LLUUID::null)
-            {
-                texture_view->resetAsset();
-            }
-            else
-            {
-                texture_view->loadAsset(mImageId);
-            }
-        }
+        mSecondLifePic->setValue("Generic_Person_Large");
     }
     else
     {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
+        mSecondLifePic->setValue(mImageId);
+    }
+
+    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    if (floater)
+    {
+        LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        if (mImageId == LLUUID::null)
+        {
+            texture_view->resetAsset();
+        }
+        else
+        {
+            texture_view->loadAsset(mImageId);
+        }
     }
 }
 
@@ -2324,34 +2301,22 @@ void LLPanelProfileFirstLife::onRemovePhoto()
 void LLPanelProfileFirstLife::onCommitPhoto(const LLUUID& id)
 {
     if (mImageId == id)
-    {
         return;
-    }
 
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
+    if (!saveAgentUserInfoCoro("fl_image_id", id))
+        return;
+
+    mImageId = id;
+    if (mImageId.notNull())
     {
-        LLSD params;
-        params["fl_image_id"] = id;
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
-
-        mImageId = id;
-        if (mImageId.notNull())
-        {
-            mPicture->setValue(mImageId);
-        }
-        else
-        {
-            mPicture->setValue("Generic_Person_Large");
-        }
-
-        mRemovePhoto->setEnabled(mImageId.notNull());
+        mPicture->setValue(mImageId);
     }
     else
     {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
+        mPicture->setValue("Generic_Person_Large");
     }
+
+    mRemovePhoto->setEnabled(mImageId.notNull());
 }
 
 void LLPanelProfileFirstLife::setDescriptionText(const std::string &text)
@@ -2374,16 +2339,7 @@ void LLPanelProfileFirstLife::onSetDescriptionDirty()
 void LLPanelProfileFirstLife::onSaveDescriptionChanges()
 {
     mCurrentDescription = mDescriptionEdit->getValue().asString();
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("fl_about_text", mCurrentDescription)));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+    saveAgentUserInfoCoro("fl_about_text", mCurrentDescription);
 
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
@@ -2517,16 +2473,7 @@ void LLPanelProfileNotes::onSetNotesDirty()
 void LLPanelProfileNotes::onSaveNotesChanges()
 {
     mCurrentNotes = mNotesEditor->getValue().asString();
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", mCurrentNotes)));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+    saveAgentUserInfoCoro("notes", mCurrentNotes);
 
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
