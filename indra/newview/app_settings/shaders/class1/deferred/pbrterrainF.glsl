@@ -31,6 +31,11 @@
 #define TerrainCoord vec2
 #endif
 
+#define MIX_X    1 << 3
+#define MIX_Y    1 << 4
+#define MIX_Z    1 << 5
+#define MIX_W    1 << 6
+
 #if 0 // TODO: Remove debug
 #define TERRAIN_DEBUG 1
 #endif
@@ -123,6 +128,7 @@ in vec4 vary_texcoord1;
 vec2 encode_normal(vec3 n);
 
 float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal);
+// TODO: Clean these up
 vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec4[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
@@ -156,66 +162,94 @@ void main()
 
     PBRMix mix = init_pbr_mix();
     PBRMix mix2;
-    mix2 = terrain_sample_and_multiply_pbr(
-        terrain_texcoord
-        , detail_0_base_color
-        , detail_0_metallic_roughness
-        , detail_0_normal
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , detail_0_emissive
-    #endif
-        , baseColorFactors[0]
-        , orm_factors[0]
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , emissiveColors[0]
-    #endif
-    );
-    mix = mix_pbr(mix, mix2, tm.weight[0]);
-    mix2 = terrain_sample_and_multiply_pbr(
-        terrain_texcoord
-        , detail_1_base_color
-        , detail_1_metallic_roughness
-        , detail_1_normal
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , detail_1_emissive
-    #endif
-        , baseColorFactors[1]
-        , orm_factors[1]
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , emissiveColors[1]
-    #endif
-    );
-    mix = mix_pbr(mix, mix2, tm.weight[1]);
-    mix2 = terrain_sample_and_multiply_pbr(
-        terrain_texcoord
-        , detail_2_base_color
-        , detail_2_metallic_roughness
-        , detail_2_normal
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , detail_2_emissive
-    #endif
-        , baseColorFactors[2]
-        , orm_factors[2]
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , emissiveColors[2]
-    #endif
-    );
-    mix = mix_pbr(mix, mix2, tm.weight[2]);
-    mix2 = terrain_sample_and_multiply_pbr(
-        terrain_texcoord
-        , detail_3_base_color
-        , detail_3_metallic_roughness
-        , detail_3_normal
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , detail_3_emissive
-    #endif
-        , baseColorFactors[3]
-        , orm_factors[3]
-    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-        , emissiveColors[3]
-    #endif
-    );
-    mix = mix_pbr(mix, mix2, tm.weight[3]);
+    switch (tm.type & MIX_X)
+    {
+    case MIX_X:
+        mix2 = terrain_sample_and_multiply_pbr(
+            terrain_texcoord
+            , detail_0_base_color
+            , detail_0_metallic_roughness
+            , detail_0_normal
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , detail_0_emissive
+        #endif
+            , baseColorFactors[0]
+            , orm_factors[0]
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , emissiveColors[0]
+        #endif
+        );
+        mix = mix_pbr(mix, mix2, tm.weight.x);
+        break;
+    default:
+        break;
+    }
+    switch (tm.type & MIX_Y)
+    {
+    case MIX_Y:
+        mix2 = terrain_sample_and_multiply_pbr(
+            terrain_texcoord
+            , detail_1_base_color
+            , detail_1_metallic_roughness
+            , detail_1_normal
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , detail_1_emissive
+        #endif
+            , baseColorFactors[1]
+            , orm_factors[1]
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , emissiveColors[1]
+        #endif
+        );
+        mix = mix_pbr(mix, mix2, tm.weight.y);
+        break;
+    default:
+        break;
+    }
+    switch (tm.type & MIX_Z)
+    {
+    case MIX_Z:
+        mix2 = terrain_sample_and_multiply_pbr(
+            terrain_texcoord
+            , detail_2_base_color
+            , detail_2_metallic_roughness
+            , detail_2_normal
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , detail_2_emissive
+        #endif
+            , baseColorFactors[2]
+            , orm_factors[2]
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , emissiveColors[2]
+        #endif
+        );
+        mix = mix_pbr(mix, mix2, tm.weight.z);
+        break;
+    default:
+        break;
+    }
+    switch (tm.type & MIX_W)
+    {
+    case MIX_W:
+        mix2 = terrain_sample_and_multiply_pbr(
+            terrain_texcoord
+            , detail_3_base_color
+            , detail_3_metallic_roughness
+            , detail_3_normal
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , detail_3_emissive
+        #endif
+            , baseColorFactors[3]
+            , orm_factors[3]
+        #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+            , emissiveColors[3]
+        #endif
+        );
+        mix = mix_pbr(mix, mix2, tm.weight.w);
+        break;
+    default:
+        break;
+    }
 
     float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
     if (mix.col.a < minimum_alpha)
