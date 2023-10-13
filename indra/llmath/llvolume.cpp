@@ -6465,9 +6465,6 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	return TRUE;
 }
 
-void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
-        const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
-
 void LLVolumeFace::createTangents()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -6485,7 +6482,7 @@ void LLVolumeFace::createTangents()
             (*ptr++).clear();
         }
 
-        CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, mTangents);
+        LLCalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, mTangents);
 
         //normalize normals
         for (U32 i = 0; i < mNumVertices; i++)
@@ -7195,7 +7192,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 }
 
 //adapted from Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh". Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
-void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
+void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME

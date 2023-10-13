@@ -65,7 +65,6 @@ public:
 	/*virtual*/ void		updateFaceSize(S32 idx);
     void getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                 LLStrider<LLVector3> &normalsp,
-                                LLStrider<LLVector4a> &tangentsp,
                                 LLStrider<LLVector2> &texCoords0p,
                                 LLStrider<LLVector2> &texCoords1p,
                                 LLStrider<U16> &indicesp);
@@ -137,11 +136,6 @@ protected:
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,
 					   U32 &index_offset);
-    void genTerrainTangents(LLFace *facep,
-                       LLStrider<LLVector3> &verticesp,
-                       LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector4a> &tangentsp,
-                       LLStrider<LLVector2> &texCoords0p);
 };
 
 #endif // LL_VOSURFACEPATCH_H
