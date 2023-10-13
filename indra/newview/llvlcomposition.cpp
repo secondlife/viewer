@@ -115,7 +115,7 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
 	// since we will be manipulating it later as needed.
 	mDetailTextures[asset] = fetch_terrain_texture(id);
     LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[asset];
-    mat = gGLTFMaterialList.getMaterial(id);
+    mat = id.isNull() ? nullptr : gGLTFMaterialList.getMaterial(id);
     mMaterialTexturesSet[asset] = false;
 }
 
