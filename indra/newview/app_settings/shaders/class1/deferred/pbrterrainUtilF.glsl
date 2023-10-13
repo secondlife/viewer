@@ -109,14 +109,67 @@ vec4 terrain_texture(sampler2D tex, TerrainCoord terrain_coord)
 // *NOTE: Bottom face has not been tested
 vec3 terrain_texture_normal(sampler2D tex, TerrainCoord terrain_coord)
 {
-    vec3 x = _t_texture_n(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x));
-    x.xy = vec2(-x.y, x.x);
-    vec3 y = _t_texture_n(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y));
-    y.xy = -y.xy;
-    vec3 z = _t_texture_n(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
-
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
     vec3 weight = pow(abs(vary_vertex_normal), vec3(sharpness));
+    float threshold = 0.01;
+    vec3 significant = max(vec3(0), sign(weight - threshold));
+    int sample_type = (int(significant.x) << 2) |
+                      (int(significant.y) << 1) |
+                      (int(significant.z) << 0);
+
+    #define SAMPLE_X 1 << 2
+    #define SAMPLE_Y 1 << 1
+    #define SAMPLE_Z 1 << 0
+    #define terrain_coord_x terrain_coord[0].zw
+    #define terrain_coord_y terrain_coord[1].xy
+    #define terrain_coord_z terrain_coord[0].xy
+    vec3 x;
+    vec3 y;
+    vec3 z;
+    switch (sample_type)
+    {
+        case SAMPLE_X | SAMPLE_Y | SAMPLE_Z:
+            x = _t_texture_n(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = _t_texture_n(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = _t_texture_n(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+        case SAMPLE_X | SAMPLE_Y:
+            x = _t_texture_n(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = _t_texture_n(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = vec3(0);
+            break;
+        case SAMPLE_X | SAMPLE_Z:
+            x = _t_texture_n(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = vec3(0);
+            z = _t_texture_n(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+        case SAMPLE_Y | SAMPLE_Z:
+            x = vec3(0);
+            y = _t_texture_n(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = _t_texture_n(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+        case SAMPLE_X:
+            x = _t_texture_n(tex, terrain_coord_x, sign(vary_vertex_normal.x));
+            y = vec3(0);
+            z = vec3(0);
+            break;
+        case SAMPLE_Y:
+            x = vec3(0);
+            y = _t_texture_n(tex, terrain_coord_y, sign(vary_vertex_normal.y));
+            z = vec3(0);
+            break;
+        case SAMPLE_Z:
+        default:
+            x = vec3(0);
+            y = vec3(0);
+            z = _t_texture_n(tex, terrain_coord_z, sign(vary_vertex_normal.z));
+            break;
+    }
+
+    // *HACK: Transform normals according to orientation of the UVs
+    x.xy = vec2(-x.y, x.x);
+    y.xy = -y.xy;
+
     return ((x * weight.x) + (y * weight.y) + (z * weight.z)) / (weight.x + weight.y + weight.z);
 }
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
