@@ -82,7 +82,8 @@ TerrainMix _t_mix(float alpha1, float alpha2, float alphaFinal)
     tm.weight -= TERRAIN_RAMP_MIX_THRESHOLD;
     ivec4 usage = max(ivec4(0), ivec4(ceil(tm.weight)));
     // Prevent negative weights and keep weights balanced
-    tm.weight = normalize(tm.weight*vec4(usage));
+    tm.weight = tm.weight*vec4(usage);
+    tm.weight /= (tm.weight.x + tm.weight.y + tm.weight.z + tm.weight.w);
 
     tm.type = (usage.x * MIX_X) |
               (usage.y * MIX_Y) |
@@ -97,7 +98,7 @@ TerrainMix _t_mix(float alpha1, float alpha2, float alphaFinal)
 float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal)
 {
     TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
-    // Assume weights are normalized
+    // Assume weights add to 1
     return tm.weight.x * samples.x +
            tm.weight.y * samples.y +
            tm.weight.z * samples.z +
@@ -118,7 +119,7 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 
 vec4 terrain_mix(TerrainMix tm, TerrainMixSample tms)
 {
-    // Assume weights are normalized
+    // Assume weights add to 1
     return tm.weight.x * tms[0] +
            tm.weight.y * tms[1] +
            tm.weight.z * tms[2] +
@@ -127,7 +128,7 @@ vec4 terrain_mix(TerrainMix tm, TerrainMixSample tms)
 
 vec3 terrain_mix(TerrainMix tm, TerrainMixSample3 tms3)
 {
-    // Assume weights are normalized
+    // Assume weights add to 1
     return tm.weight.x * tms3[0] +
            tm.weight.y * tms3[1] +
            tm.weight.z * tms3[2] +
@@ -165,11 +166,13 @@ TerrainWeight _t_weight(TerrainCoord terrain_coord)
 {
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
     float threshold = TERRAIN_TRIPLANAR_MIX_THRESHOLD;
-    vec3 weight_signed = normalize(pow(abs(vary_vertex_normal), vec3(sharpness)));
+    vec3 weight_signed = pow(abs(vary_vertex_normal), vec3(sharpness));
+    weight_signed /= (weight_signed.x + weight_signed.y + weight_signed.z);
     weight_signed -= vec3(threshold);
     TerrainWeight tw;
     // *NOTE: Make sure the threshold doesn't affect the materials
-    tw.weight = normalize(max(vec3(0), weight_signed));
+    tw.weight = max(vec3(0), weight_signed);
+    tw.weight /= (tw.weight.x + tw.weight.y + tw.weight.z);
     ivec3 usage = ivec3(round(max(vec3(0), sign(weight_signed))));
     tw.type = ((usage.x) * SAMPLE_X) |
               ((usage.y) * SAMPLE_Y) |
