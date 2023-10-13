@@ -34,6 +34,8 @@ in vec4 diffuse_color;
 in vec2 texcoord0;
 in vec2 texcoord1;
 
+out vec4[2] vary_coords;
+out vec3 vary_vertex_normal; // Used by pbrterrainUtilF.glsl
 out vec3 vary_normal;
 out vec3 vary_tangent;
 flat out float vary_sign;
@@ -63,6 +65,8 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 
 	vec3 n = normal_matrix * normal;
+    // *TODO: Looks like terrain normals are per-vertex when they should be per-triangle instead, causing incorrect values on triangles touching steep edges of terrain
+    vary_vertex_normal = normal;
 	vec3 t = normal_matrix * tangent.xyz;
 
     vary_tangent = normalize(t);
@@ -73,7 +77,10 @@ void main()
     // *NOTE: KHR texture transform is ignored for now
     vary_texcoord0.xy = texgen_object_pbr(vec4(texcoord0, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
     
-    vec4 tc = vec4(texcoord1,0,1);
+    vec4 tc = vec4(texcoord1,0,1); // TODO: This is redundant. Better to just use position and ignore texcoord? (We still need to decide how to handle alpha ramp, though...)
+    vary_coords[0].xy = texgen_object_pbr(vec4(position.xy, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    vary_coords[0].zw = texgen_object_pbr(vec4(position.yz, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    vary_coords[1].xy = texgen_object_pbr(vec4(position.zx, 0, 1), texture_matrix0, object_plane_s, object_plane_t).xy;
     
     vary_texcoord0.zw = tc.xy;
     vary_texcoord1.xy = tc.xy-vec2(2.0, 0.0);

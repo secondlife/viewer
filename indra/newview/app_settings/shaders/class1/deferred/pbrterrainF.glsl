@@ -25,6 +25,15 @@
 
 #define TERRAIN_PBR_DETAIL_EMISSIVE 0
 
+#define TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT 3 // TODO: Move definition to config
+
+// TODO: Should be able to define this in another file and have it included in this one...
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+#define TerrainCoord vec4[2]
+#elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
+#define TerrainCoord vec2
+#endif
+
 out vec4 frag_data[4];
 
 uniform sampler2D alpha_ramp;
@@ -60,6 +69,7 @@ uniform vec3[4] emissiveColors;
 #endif
 uniform vec4 minimum_alphas; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
+in vec4[2] vary_coords;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
@@ -67,88 +77,22 @@ in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
 
 vec2 encode_normal(vec3 n);
-vec3 linear_to_srgb(vec3 c);
-vec3 srgb_to_linear(vec3 c);
 
-// *TODO: This mixing function feels like it can be optimized. The terrain code's use of texcoord1 is dubious. It feels like the same thing can be accomplished with less memory bandwidth by calculating the offsets on-the-fly
-float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal)
-{
-    return mix( mix(samples.w, samples.z, alpha2), mix(samples.y, samples.x, alpha1), alphaFinal );
-}
-
-vec3 terrain_mix(vec3[4] samples, float alpha1, float alpha2, float alphaFinal)
-{
-    return mix( mix(samples[3], samples[2], alpha2), mix(samples[1], samples[0], alpha1), alphaFinal );
-}
-
-vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
-{
-    return mix( mix(samples[3], samples[2], alpha2), mix(samples[1], samples[0], alpha1), alphaFinal );
-}
-
-vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
-{
-    vec3[4] samples;
-    samples[0] = texture(tex0, texcoord).xyz;
-    samples[1] = texture(tex1, texcoord).xyz;
-    samples[2] = texture(tex2, texcoord).xyz;
-    samples[3] = texture(tex3, texcoord).xyz;
-    samples[0] = srgb_to_linear(samples[0]);
-    samples[1] = srgb_to_linear(samples[1]);
-    samples[2] = srgb_to_linear(samples[2]);
-    samples[3] = srgb_to_linear(samples[3]);
-    samples[0] *= factors[0];
-    samples[1] *= factors[1];
-    samples[2] *= factors[2];
-    samples[3] *= factors[3];
-    return terrain_mix(samples, alpha1, alpha2, alphaFinal);
-}
-
-vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, vec4[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
-{
-    vec4[4] samples;
-    samples[0] = texture(tex0, texcoord);
-    samples[1] = texture(tex1, texcoord);
-    samples[2] = texture(tex2, texcoord);
-    samples[3] = texture(tex3, texcoord);
-    samples[0].xyz = srgb_to_linear(samples[0].xyz);
-    samples[1].xyz = srgb_to_linear(samples[1].xyz);
-    samples[2].xyz = srgb_to_linear(samples[2].xyz);
-    samples[3].xyz = srgb_to_linear(samples[3].xyz);
-    samples[0] *= factors[0];
-    samples[1] *= factors[1];
-    samples[2] *= factors[2];
-    samples[3] *= factors[3];
-    return terrain_mix(samples, alpha1, alpha2, alphaFinal);
-}
-
-vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
-{
-    vec3[4] samples;
-    samples[0] = texture(tex0, texcoord).xyz;
-    samples[1] = texture(tex1, texcoord).xyz;
-    samples[2] = texture(tex2, texcoord).xyz;
-    samples[3] = texture(tex3, texcoord).xyz;
-    samples[0] *= factors[0];
-    samples[1] *= factors[1];
-    samples[2] *= factors[2];
-    samples[3] *= factors[3];
-    return terrain_mix(samples, alpha1, alpha2, alphaFinal);
-}
-
-vec3 sample_and_mix_vector3_no_scale(float alpha1, float alpha2, float alphaFinal, vec2 texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
-{
-    vec3[4] samples;
-    samples[0] = texture(tex0, texcoord).xyz;
-    samples[1] = texture(tex1, texcoord).xyz;
-    samples[2] = texture(tex2, texcoord).xyz;
-    samples[3] = texture(tex3, texcoord).xyz;
-    return terrain_mix(samples, alpha1, alpha2, alphaFinal);
-}
+float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal);
+vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
+vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec4[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
+vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
+vec3 sample_and_mix_vector3_no_scale(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 
 void main()
 {
-    vec2 terrain_texcoord = vary_texcoord0.xy;
+
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+    TerrainCoord terrain_texcoord = vary_coords;
+#elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
+    TerrainCoord terrain_texcoord = vary_texcoord0.xy;
+#endif
+
     float alpha1 = texture(alpha_ramp, vary_texcoord0.zw).a;
     float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;

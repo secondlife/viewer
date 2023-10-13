@@ -291,6 +291,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 	
+    if (features->isPBRTerrain)
+    {
+        if (!shader->attachFragmentObject("deferred/pbrterrainUtilF.glsl"))
+        {
+            return FALSE;
+        }
+    }
+	
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->hasWaterFog)
 	{

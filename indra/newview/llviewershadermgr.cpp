@@ -720,6 +720,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
+	index_channels.push_back(-1);    shaders.push_back(make_pair("deferred/pbrterrainUtilF.glsl", 1));
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
@@ -1506,6 +1507,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
         gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
         gDeferredPBRTerrainProgram.mFeatures.hasTransport = true;
+        gDeferredPBRTerrainProgram.mFeatures.isPBRTerrain = true;
 
         gDeferredPBRTerrainProgram.mShaderFiles.clear();
         gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainV.glsl", GL_VERTEX_SHADER));
