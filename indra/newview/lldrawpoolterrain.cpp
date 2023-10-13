@@ -249,10 +249,11 @@ void LLDrawPoolTerrain::drawLoop()
 
 void LLDrawPoolTerrain::renderFullShader()
 {
+    const BOOL use_local_materials = gLocalTerrainMaterials.materialsReady(TRUE);
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-    const BOOL use_textures = compp->useTextures();
+    const BOOL use_textures = !use_local_materials && compp->useTextures();
     
     if (use_textures)
     {
@@ -266,7 +267,7 @@ void LLDrawPoolTerrain::renderFullShader()
         // Use materials
         sShader = &gDeferredPBRTerrainProgram;
         sShader->bind();
-        renderFullShaderPBR();
+        renderFullShaderPBR(use_local_materials);
     }
 }
 
@@ -371,12 +372,18 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 }
 
 // TODO: Investigate use of bindFast for PBR terrain textures
-void LLDrawPoolTerrain::renderFullShaderPBR()
+void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 {
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-	LLPointer<LLFetchedGLTFMaterial>(& materials)[LLVLComposition::ASSET_COUNT] = compp->mDetailMaterials;
+	LLPointer<LLFetchedGLTFMaterial> (*materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
+
+    if (local_materials)
+    {
+        // Override region terrain with the global local override terrain
+        materials = &gLocalTerrainMaterials.mDetailMaterials;
+    }
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
@@ -395,28 +402,58 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
 
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
-        LLViewerTexture *detail_basecolor_texturep = materials[i]->mBaseColorTexture;
-        LLViewerTexture *detail_normal_texturep = materials[i]->mNormalTexture;
-        LLViewerTexture *detail_metalrough_texturep = materials[i]->mMetallicRoughnessTexture;
-        LLViewerTexture *detail_emissive_texturep = materials[i]->mEmissiveTexture;
+		const LLFetchedGLTFMaterial* material = (*materials)[i].get();
+
+        LLViewerTexture *detail_basecolor_texturep = material->mBaseColorTexture;
+        LLViewerTexture *detail_normal_texturep = material->mNormalTexture;
+        LLViewerTexture *detail_metalrough_texturep = material->mMetallicRoughnessTexture;
+        LLViewerTexture *detail_emissive_texturep = material->mEmissiveTexture;
 
         detail_basecolor[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR + i);
-        gGL.getTexUnit(detail_basecolor[i])->bind(detail_basecolor_texturep);
+        if (detail_basecolor_texturep)
+        {
+            gGL.getTexUnit(detail_basecolor[i])->bind(detail_basecolor_texturep);
+        }
+        else
+        {
+            gGL.getTexUnit(detail_basecolor[i])->bind(LLViewerFetchedTexture::sWhiteImagep);
+        }
         gGL.getTexUnit(detail_basecolor[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
         gGL.getTexUnit(detail_basecolor[i])->activate();
 
         detail_normal[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_NORMAL + i);
-        gGL.getTexUnit(detail_normal[i])->bind(detail_normal_texturep);
+        if (detail_normal_texturep)
+        {
+            gGL.getTexUnit(detail_normal[i])->bind(detail_normal_texturep);
+        }
+        else
+        {
+            gGL.getTexUnit(detail_normal[i])->bind(LLViewerFetchedTexture::sFlatNormalImagep);
+        }
         gGL.getTexUnit(detail_normal[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
         gGL.getTexUnit(detail_normal[i])->activate();
 
         detail_metalrough[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_METALLIC_ROUGHNESS + i);
-        gGL.getTexUnit(detail_metalrough[i])->bind(detail_metalrough_texturep);
+        if (detail_metalrough_texturep)
+        {
+            gGL.getTexUnit(detail_metalrough[i])->bind(detail_metalrough_texturep);
+        }
+        else
+        {
+            gGL.getTexUnit(detail_metalrough[i])->bind(LLViewerFetchedTexture::sWhiteImagep);
+        }
         gGL.getTexUnit(detail_metalrough[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
         gGL.getTexUnit(detail_metalrough[i])->activate();
 
         detail_emissive[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_EMISSIVE + i);
-        gGL.getTexUnit(detail_emissive[i])->bind(detail_emissive_texturep);
+        if (detail_emissive_texturep)
+        {
+            gGL.getTexUnit(detail_emissive[i])->bind(detail_emissive_texturep);
+        }
+        else
+        {
+            gGL.getTexUnit(detail_emissive[i])->bind(LLViewerFetchedTexture::sWhiteImagep);
+        }
         gGL.getTexUnit(detail_emissive[i])->setTextureAddressMode(LLTexUnit::TAM_WRAP);
         gGL.getTexUnit(detail_emissive[i])->activate();
     }
@@ -447,7 +484,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
     F32 minimum_alphas[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
-        const LLFetchedGLTFMaterial* material = materials[i].get();
+        const LLFetchedGLTFMaterial* material = (*materials)[i].get();
 
         base_color_factors[i] = material->mBaseColor;
         metallic_factors[i] = material->mMetallicFactor;

@@ -37,7 +37,38 @@ class LLSurface;
 class LLViewerFetchedTexture;
 class LLFetchedGLTFMaterial;
 
-class LLVLComposition : public LLViewerLayer
+class LLTerrainMaterials
+{
+public:
+	friend class LLDrawPoolTerrain;
+
+    LLTerrainMaterials();
+    virtual ~LLTerrainMaterials();
+
+	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
+	// So we need to compress heights into this range.
+    static const S32 ASSET_COUNT = 4;
+
+    BOOL generateMaterials();
+
+	LLUUID getDetailAssetID(S32 asset);
+	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
+    BOOL useTextures();
+    BOOL texturesReady(BOOL boost = FALSE);
+    BOOL materialsReady(BOOL boost = FALSE);
+
+protected:
+    static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
+    static BOOL materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost = FALSE);
+	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
+	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
+    bool mMaterialTexturesSet[ASSET_COUNT];
+};
+
+// Local materials to override all regions
+extern LLTerrainMaterials gLocalTerrainMaterials;
+
+class LLVLComposition : public LLTerrainMaterials, public LLViewerLayer
 {
 public:
 	LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale);
@@ -65,11 +96,10 @@ public:
 		CORNER_COUNT = 4
 	};
 
-	LLUUID getDetailAssetID(S32 asset);
+	void setDetailAssetID(S32 asset, const LLUUID& id) override;
 	F32 getStartHeight(S32 corner);
 	F32 getHeightRange(S32 corner);
 
-	void setDetailAssetID(S32 asset, const LLUUID& id);
 	void setStartHeight(S32 corner, F32 start_height);
 	void setHeightRange(S32 corner, F32 range);
 
@@ -77,9 +107,6 @@ public:
 	friend class LLDrawPoolTerrain;
 	void setParamsReady()		{ mParamsReady = TRUE; }
 	BOOL getParamsReady() const	{ return mParamsReady; }
-    BOOL useTextures();
-    BOOL texturesReady(BOOL boost = FALSE);
-    BOOL materialsReady(BOOL boost = FALSE);
 
 protected:
     static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
@@ -88,10 +115,7 @@ protected:
 	BOOL mParamsReady = FALSE;
 	LLSurface *mSurfacep;
 
-	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
-	LLPointer<LLImageRaw> mRawImages[ASSET_COUNT];
-	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
-    bool mMaterialTexturesSet[ASSET_COUNT];
+	LLPointer<LLImageRaw> mRawImages[LLTerrainMaterials::ASSET_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];

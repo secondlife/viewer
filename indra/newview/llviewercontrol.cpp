@@ -54,6 +54,7 @@
 #include "llvotree.h"
 #include "llvovolume.h"
 #include "llworld.h"
+#include "llvlcomposition.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
 #include "llviewerobjectlist.h"
@@ -656,6 +657,16 @@ void handleFPSTuningStrategyChanged(const LLSD& newValue)
     const auto newval = gSavedSettings.getU32("TuningFPSStrategy");
     LLPerfStats::tunables.userFPSTuningStrategy = newval;
 }
+
+void handleLocalTerrainChanged(const LLSD& newValue)
+{
+    for (U32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        const auto setting = gSavedSettings.getString(std::string("LocalTerrainAsset") + std::to_string(i + 1));
+        const LLUUID materialID(setting);
+        gLocalTerrainMaterials.setDetailAssetID(i, materialID);
+    }
+}
 ////////////////////////////////////////////////////////////////////////////
 
 LLPointer<LLControlVariable> setting_get_control(LLControlGroup& group, const std::string& setting)
@@ -834,6 +845,10 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorFarAwayDistance", handleUserImpostorDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "TuningFPSStrategy", handleFPSTuningStrategyChanged);
+    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset1", handleLocalTerrainChanged);
+    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset2", handleLocalTerrainChanged);
+    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset3", handleLocalTerrainChanged);
+    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset4", handleLocalTerrainChanged);
 
     setting_setup_signal_listener(gSavedPerAccountSettings, "AvatarHoverOffsetZ", handleAvatarHoverOffsetChanged);
 }
