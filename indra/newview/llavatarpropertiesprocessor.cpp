@@ -211,42 +211,6 @@ void LLAvatarPropertiesProcessor::sendAvatarClassifiedsRequest(const LLUUID& ava
 	sendGenericRequest(avatar_id, APT_CLASSIFIEDS, "avatarclassifiedsrequest");
 }
 
-void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props)
-{
-	if (!gAgent.isInitialized() || (gAgent.getID() == LLUUID::null))
-	{
-		LL_WARNS() << "Sending avatarinfo update DENIED - invalid agent" << LL_ENDL;
-		return;
-	}
-
-	LL_WARNS() << "Sending avatarinfo update. This trims profile descriptions!!!" << LL_ENDL;
-
-	// This value is required by sendAvatarPropertiesUpdate method.
-	//A profile should never be mature. (From the original code)
-	BOOL mature = FALSE;
-
-	LLMessageSystem *msg = gMessageSystem;
-
-	msg->newMessageFast	(_PREHASH_AvatarPropertiesUpdate);
-	msg->nextBlockFast	(_PREHASH_AgentData);
-	msg->addUUIDFast		(_PREHASH_AgentID,		gAgent.getID() );
-	msg->addUUIDFast		(_PREHASH_SessionID,	gAgent.getSessionID() );
-	msg->nextBlockFast	(_PREHASH_PropertiesData);
-
-	msg->addUUIDFast		(_PREHASH_ImageID,		avatar_props->image_id);
-	msg->addUUIDFast		(_PREHASH_FLImageID,	avatar_props->fl_image_id);
-	msg->addStringFast	(_PREHASH_AboutText,	avatar_props->about_text);
-	msg->addStringFast	(_PREHASH_FLAboutText,	avatar_props->fl_about_text);
-
-	msg->addBOOL(_PREHASH_AllowPublish, avatar_props->allow_publish);
-	msg->addBOOL(_PREHASH_MaturePublish, mature);
-	msg->addString(_PREHASH_ProfileURL, avatar_props->profile_url);
-
-	gAgent.sendReliableMessage();
-}
-
-
-
 //static
 std::string LLAvatarPropertiesProcessor::accountType(const LLAvatarData* avatar_data)
 {

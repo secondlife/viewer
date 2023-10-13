@@ -87,7 +87,6 @@ struct LLAvatarData
 	std::string	caption_text;
     std::string	customer_type;
 	U32			flags;
-	BOOL		allow_publish;
 };
 
 struct LLAvatarPicks
@@ -221,8 +220,6 @@ public:
 	void sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id);
 
 	void sendClassifiedInfoRequest(const LLUUID& classified_id);
-
-	void sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props);
 
 	void sendPickInfoUpdate(const LLPickData* new_pick);
 
