@@ -69,39 +69,22 @@ vec4 terrain_mix(vec4[4] samples, float alpha1, float alpha2, float alphaFinal)
 
 // Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, (-x)z, unused)
 #define TerrainCoord vec4[2]
-#if 0 // TODO: Revert
+// TODO: Decide if we want this threshold
+#if 0
 #define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
-#else
+#else // TODO: Remove debug
 #define TERRAIN_TRIPLANAR_MIX_THRESHOLD 0.01
 #endif
-
-// Positive value prevents artifacts when weights are close to zero
-// TODO: Wait a minute... this doesn't prevent artifacts :( (or does it?)
-#define TERRAIN_TRIPLANAR_OVERDRAW_THRESHOLD 0.0
 
 vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
 {
     // Handle case where sign is 0
-    // TODO: Why didn't this fix the seams?
-#if 0
     float sign = (2.0*sign_or_zero) + 1.0;
     sign /= sign;
     // If the vertex normal is negative, flip the texture back
     // right-side up.
     vec2 uv = uv_unflipped * vec2(sign, 1);
     return texture(tex, uv);
-#else // TODO: Remove debug
-#if 0
-    // Name mangling test
-    float l_sign = (2.0*sign_or_zero) + 1.0;
-    l_sign /= l_sign;
-    vec2 l_uv = uv_unflipped * vec2(l_sign, 1);
-    return texture(tex, l_uv);
-#else
-    // Simplified uv test
-    return texture(tex, uv_unflipped);
-#endif
-#endif
 }
 
 #define SAMPLE_X 1 << 2
@@ -126,7 +109,7 @@ TerrainWeight _t_weight(TerrainCoord terrain_coord)
     weight_signed -= vec3(threshold);
     TerrainWeight tw;
     tw.weight = max(vec3(0), weight_signed);
-    vec3 usage = max(vec3(0), sign(weight_signed + TERRAIN_TRIPLANAR_OVERDRAW_THRESHOLD));
+    vec3 usage = max(vec3(0), sign(weight_signed));
     tw.type = (int(usage.x) * SAMPLE_X) |
               (int(usage.y) * SAMPLE_Y) |
               (int(usage.z) * SAMPLE_Z);
@@ -149,25 +132,16 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
     TerrainSample ts;
 
 #if 1
-#if 1
-#if 1
+// This demonstrates the case when the bug occurs: Sampling in switch..case
+#if 0
 #define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
 #define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
 #else // TODO: Remove debug
-// Still an error despite sampling the same texture three times from the same location
+// Bug still occurs despite sampling the same texture three times from the same location
 #define do_sample_x() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
 #define do_sample_y() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
 #endif
 #define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
-#else // TODO: Remove?
-    vec2 coord_z = terrain_coord[0].xy;
-    vec2 coord_z_2 = terrain_coord[0].xy;
-    vec2 coord_z_3 = terrain_coord[0].xy;
-#define do_sample_x() texture(tex, coord_z)
-#define do_sample_y() texture(tex, coord_z_2)
-#define do_sample_z() texture(tex, coord_z_3)
-#endif
-#if 0
     switch (tw.type)
     {
         case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
@@ -212,53 +186,11 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
             break;
     }
 #else // TODO: Remove debug
-#if 0
-    // This case works - no ant trails despite using a switch...case statement
-    switch (tw.type)
-    {
-        case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
-            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
-            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
-            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
-            break;
-        case (SAMPLE_X | SAMPLE_Y):
-            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
-            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
-            ts.z = ts.x;
-            break;
-        case (SAMPLE_X | SAMPLE_Z):
-            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
-            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
-            ts.y = ts.x;
-            break;
-        case (SAMPLE_Y | SAMPLE_Z):
-            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
-            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
-            ts.x = ts.y;
-            break;
-        case SAMPLE_X:
-            ts.x = vec4(1.0, 0.0, 0.0, 1.0);
-            ts.y = ts.x;
-            ts.z = ts.x;
-            break;
-        case SAMPLE_Y:
-            ts.y = vec4(0.0, 1.0, 0.0, 1.0);
-            ts.x = ts.y;
-            ts.z = ts.y;
-            break;
-        case SAMPLE_Z:
-            ts.z = vec4(0.0, 0.0, 1.0, 1.0);
-            ts.x = ts.z;
-            ts.y = ts.z;
-            break;
-        default:
-            ts.x = vec4(1.0, 0.0, 1.0, 1.0);
-            ts.y = ts.x;
-            ts.z = ts.x;
-            break;
-    }
-#else
-// This shows the bug: case of sampling beforehand, assigning in switch..case
+// This demonstrates the case when the bug does not occur: Sampling beforehand and assigning in switch..case
+// This otherwise uses the same logic as in the case that reproduces the bug.
+#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
+#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
+#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
     vec4 x = do_sample_x();
     vec4 y = do_sample_y();
     vec4 z = do_sample_z();
@@ -305,14 +237,6 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
             ts.z = ts.x;
             break;
     }
-#endif
-#endif
-#else // TODO: Remove debug
-// No error
-#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z));
-ts.z = do_sample_z();
-ts.x = ts.z;
-ts.y = ts.z;
 #endif
 
     return ts;
