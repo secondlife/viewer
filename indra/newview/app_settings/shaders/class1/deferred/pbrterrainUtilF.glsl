@@ -97,7 +97,7 @@ struct TerrainWeight
     int type;
 #if TERRAIN_DEBUG
     vec3 weight_signed;
-    vec3 usage;
+    ivec3 usage;
 #endif
 };
 
@@ -109,10 +109,10 @@ TerrainWeight _t_weight(TerrainCoord terrain_coord)
     weight_signed -= vec3(threshold);
     TerrainWeight tw;
     tw.weight = max(vec3(0), weight_signed);
-    vec3 usage = max(vec3(0), sign(weight_signed));
-    tw.type = (int(usage.x) * SAMPLE_X) |
-              (int(usage.y) * SAMPLE_Y) |
-              (int(usage.z) * SAMPLE_Z);
+    ivec3 usage = ivec3(round(max(vec3(0), sign(weight_signed))));
+    tw.type = ((usage.x) * SAMPLE_X) |
+              ((usage.y) * SAMPLE_Y) |
+              ((usage.z) * SAMPLE_Z);
 #if TERRAIN_DEBUG
     tw.weight_signed = weight_signed;
     tw.usage = usage;
