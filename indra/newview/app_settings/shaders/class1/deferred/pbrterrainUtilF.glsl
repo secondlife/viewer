@@ -131,7 +131,7 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
 {
     TerrainSample ts;
 
-#if 1
+#if 0
 // This demonstrates the case when the bug occurs: Sampling in switch..case
 #if 0
 #define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
@@ -142,7 +142,12 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
 #define do_sample_y() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
 #endif
 #define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
+#if 0
     switch (tw.type)
+#else // TODO: Remove debug
+// Bug still occurs when the type is masked
+    switch (tw.type & (SAMPLE_X | SAMPLE_Y | SAMPLE_Z))
+#endif
     {
         case (SAMPLE_X | SAMPLE_Y | SAMPLE_Z):
             ts.x = do_sample_x();
@@ -186,6 +191,7 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
             break;
     }
 #else // TODO: Remove debug
+#if 0
 // This demonstrates the case when the bug does not occur: Sampling beforehand and assigning in switch..case
 // This otherwise uses the same logic as in the case that reproduces the bug.
 #define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
@@ -237,6 +243,42 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
             ts.z = ts.x;
             break;
     }
+#else // TODO: Keep?
+// Test case where the switch..case is broken up into three parts
+// This fixes unexplained, "ant trail" seams in terrain. (as seen on Nvidia/Windows 10)
+// The extra two branches are not free, but it's still a performance win
+// compared to sampling along all three axes for every terrain fragment.
+#define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
+#define do_sample_y() _t_texture(tex, terrain_coord[1].xy, sign(vary_vertex_normal.y))
+#define do_sample_z() _t_texture(tex, terrain_coord[0].xy, sign(vary_vertex_normal.z))
+switch (tw.type & SAMPLE_X)
+{
+    case SAMPLE_X:
+        ts.x = do_sample_x();
+    break;
+    default:
+        ts.x = vec4(1.0, 0.0, 1.0, 1.0);
+    break;
+}
+switch (tw.type & SAMPLE_Y)
+{
+    case SAMPLE_Y:
+        ts.y = do_sample_y();
+    break;
+    default:
+        ts.y = vec4(1.0, 0.0, 1.0, 1.0);
+    break;
+}
+switch (tw.type & SAMPLE_Z)
+{
+    case SAMPLE_Z:
+        ts.z = do_sample_z();
+    break;
+    default:
+        ts.z = vec4(1.0, 0.0, 1.0, 1.0);
+    break;
+}
+#endif
 #endif
 
     return ts;

@@ -135,7 +135,7 @@ void main()
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
    
-#if 1 // TODO: Remove debug
+#if 0 // TODO: Remove debug
     //col.xyz = (tnorm + 1.0) / 2.0;// TODO: Remove
     //col.xyz = (vary_normal + 1.0) / 2.0;// TODO: Remove
     //col.xyz = spec; // TODO: Remove
