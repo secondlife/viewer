@@ -133,7 +133,7 @@ public:
 		:	image_id("image"),
 			default_image_id("default_image_id"),
 			default_image_name("default_image_name"),
-            pick_type("pick_type", PICK_TEXTURE),
+            pick_type("pick_type", LLTexPickInventoryType::TEXTURE),
 			allow_no_texture("allow_no_texture", false),
 			can_apply_immediately("can_apply_immediately"),
 			no_commit_on_selection("no_commit_on_selection", false),
