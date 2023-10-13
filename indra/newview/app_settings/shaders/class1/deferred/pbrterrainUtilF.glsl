@@ -80,7 +80,7 @@ vec4 _t_texture(sampler2D tex, vec2 uv_unflipped, float sign_or_zero)
 {
     // Handle case where sign is 0
     float sign = (2.0*sign_or_zero) + 1.0;
-    sign /= sign;
+    sign /= abs(sign);
     // If the vertex normal is negative, flip the texture back
     // right-side up.
     vec2 uv = uv_unflipped * vec2(sign, 1);
@@ -190,8 +190,8 @@ TerrainSample _t_sample(sampler2D tex, TerrainCoord terrain_coord, TerrainWeight
             ts.z = ts.x;
             break;
     }
-#else // TODO: Remove debug
-#if 0
+#else
+#if 0 // TODO: Remove debug
 // This demonstrates the case when the bug does not occur: Sampling beforehand and assigning in switch..case
 // This otherwise uses the same logic as in the case that reproduces the bug.
 #define do_sample_x() _t_texture(tex, terrain_coord[0].zw, sign(vary_vertex_normal.x))
@@ -295,10 +295,15 @@ TerrainSampleNormal _t_sample_n(sampler2D tex, TerrainCoord terrain_coord, Terra
 {
     TerrainSample ts = _t_sample(tex, terrain_coord, tw);
     TerrainSampleNormal tsn;
+    // Unpack normals
     tsn.x = ts.x.xyz*2.0-1.0;
     tsn.y = ts.y.xyz*2.0-1.0;
     tsn.z = ts.z.xyz*2.0-1.0;
+    // Get sign
     vec3 ns = sign(vary_vertex_normal);
+    // Handle case where sign is 0
+    ns = (2.0*ns) + 1.0;
+    ns /= abs(ns);
     // If the sign is negative, rotate normal by 180 degrees
     tsn.x.xy = (min(0, ns.x) * tsn.x.xy) + (min(0, -ns.x) * -tsn.x.xy);
     tsn.y.xy = (min(0, ns.y) * tsn.y.xy) + (min(0, -ns.y) * -tsn.y.xy);
