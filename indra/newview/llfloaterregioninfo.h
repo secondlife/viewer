@@ -76,7 +76,7 @@ public:
 
 
 	void onOpen(const LLSD& key) override;
-	/*virtual*/ void onClose(bool app_quitting);
+	void onClose(bool app_quitting) override;
 	BOOL postBuild() override;
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
@@ -249,7 +249,7 @@ public:
 	
 	BOOL postBuild() override;
 	
-	bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
+    bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
 	BOOL validateTextureSizes();
@@ -308,10 +308,10 @@ public:
 	static void updateEstateOwnerName(const std::string& name);
 
 	bool refreshFromRegion(LLViewerRegion* region) override;
-	virtual bool estateUpdate(LLMessageSystem* msg);
+	bool estateUpdate(LLMessageSystem* msg) override;
 	
 	BOOL postBuild() override;
-	virtual void updateChild(LLUICtrl* child_ctrl);
+	void updateChild(LLUICtrl* child_ctrl) override;
 	void refresh() override;
 
 	void refreshFromEstate();
@@ -343,15 +343,15 @@ public:
 	~LLPanelEstateCovenant() {}
 	
 	BOOL postBuild() override;
-	virtual void updateChild(LLUICtrl* child_ctrl);
+	void updateChild(LLUICtrl* child_ctrl) override;
 	bool refreshFromRegion(LLViewerRegion* region) override;
-	virtual bool estateUpdate(LLMessageSystem* msg);
+	bool estateUpdate(LLMessageSystem* msg) override;
 
 	// LLView overrides
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
-						   std::string& tooltip_msg);
+						   std::string& tooltip_msg) override;
 	static bool confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response);
 	static void resetCovenantID(void* userdata);
 	static bool confirmResetCovenantCallback(const LLSD& notification, const LLSD& response);
@@ -441,7 +441,7 @@ public:
 	LLPanelEstateAccess();
 
 	BOOL postBuild() override;
-	virtual void updateChild(LLUICtrl* child_ctrl);
+	void updateChild(LLUICtrl* child_ctrl) override;
 
 	void updateControls(LLViewerRegion* region);
 	void updateLists();
