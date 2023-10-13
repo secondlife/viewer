@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+/*[EXTRA_CODE_HERE]*/
+
 /**
  * Triplanar mapping implementation adapted from Inigo Quilez' example shader,
  * MIT license.

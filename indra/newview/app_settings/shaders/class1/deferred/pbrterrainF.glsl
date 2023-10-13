@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+/*[EXTRA_CODE_HERE]*/
+
 #define TERRAIN_PBR_DETAIL_EMISSIVE 0
 
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
