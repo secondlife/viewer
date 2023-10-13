@@ -82,6 +82,19 @@ vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, Terrain
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec3 sample_and_mix_normal(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 
+#if 1 // TODO: Remove
+#define TERRAIN_DEBUG 1 // TODO: Remove debug
+struct TerrainMix
+{
+    vec4 weight;
+    int type;
+#if TERRAIN_DEBUG
+    ivec4 usage;
+#endif
+};
+TerrainMix _t_mix(float alpha1, float alpha2, float alphaFinal);
+#endif
+
 void main()
 {
 
@@ -125,16 +138,60 @@ void main()
 
     // from mikktspace.com
     vec3 vNt = sample_and_mix_normal(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
-    float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
     
-    vec3 vB = sign * cross(vN, vT);
+    vec3 vB = vary_sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
    
+#if 0 // TODO: Remove (terrain weights visualization)
+    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
+#if 1
+    // Show full usage and weights
+    float uw = 0.3;
+#if 1
+#if 0
+    vec4 mix_usage = vec4(tm.usage);
+#else
+    vec4 mix_usage = vec4(tm.weight);
+#endif
+#else
+    // Version with easier-to-see boundaries of weights vs usage
+    vec4 mix_usage = mix(vec4(tm.usage),
+        mix(max(vec4(0.0), sign(tm.weight - 0.01)),
+            max(vec4(0.0), sign(tm.weight - 0.005)),
+            0.5),
+        uw);
+#endif
+    col.xyz = mix_usage.xyz;
+    col.x = max(col.x, mix_usage.w);
+    //col.y = 0.0;
+    //col.z = 0.0;
+#else
+    // Show places where weight > usage + tolerance
+    float tolerance = 0.005;
+    vec4 weight_gt_usage = sign(
+        max(
+            vec4(0.0),
+            (tm.weight - (vec4(tm.usage) + vec4(tolerance)))
+        )
+    );
+    col.xyz = weight_gt_usage.xyz;
+    col.x = max(col.x, weight_gt_usage.w);
+#endif
+#endif
+#if 0 // TODO: Remove (material channel discriminator)
+    //col.rgb = vec3(0.0, 1.0, 0.0);
+    //col.rgb = spec.rgb;
+    //col.rgb = (vNt + 1.0) / 2.0;
+    col.rgb = (tnorm + 1.0) / 2.0;
+    spec.rgb = vec3(1.0, 1.0, 0.0);
+    tnorm = vary_normal;
+    emissive = vec3(0);
+#endif
     frag_data[0] = max(vec4(col.xyz, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(spec.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
     frag_data[2] = max(vec4(encode_normal(tnorm), base_color_factor_alpha, GBUFFER_FLAG_HAS_PBR), vec4(0)); // normal, environment intensity, flags
