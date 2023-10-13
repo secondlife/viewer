@@ -77,6 +77,7 @@ public:
 	friend class LLDrawPoolTerrain;
 	void setParamsReady()		{ mParamsReady = TRUE; }
 	BOOL getParamsReady() const	{ return mParamsReady; }
+    BOOL useTextures();
     BOOL texturesReady(BOOL boost = FALSE);
     BOOL materialsReady(BOOL boost = FALSE);
 

@@ -228,6 +228,8 @@ static const U32 BASE_SIZE = 128;
 // static
 BOOL LLVLComposition::textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost)
 {
+    llassert(tex.notNull());
+
     if (tex->getDiscardLevel() < 0)
     {
         if (boost)
@@ -306,6 +308,13 @@ BOOL LLVLComposition::materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool&
     return TRUE;
 }
 
+BOOL LLVLComposition::useTextures()
+{
+	LL_PROFILE_ZONE_SCOPED;
+
+    return texturesReady() || !materialsReady();
+}
+
 BOOL LLVLComposition::texturesReady(BOOL boost)
 {
 	for (S32 i = 0; i < ASSET_COUNT; i++)
@@ -371,7 +380,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	U8* st_data[ASSET_COUNT];
 	S32 st_data_size[ASSET_COUNT]; // for debugging
 
-    const bool use_textures = texturesReady();
+    const bool use_textures = useTextures();
 
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{

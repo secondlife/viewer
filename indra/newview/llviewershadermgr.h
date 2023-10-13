@@ -211,7 +211,6 @@ extern LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 extern LLGLSLShader			gDeferredNonIndexedDiffuseProgram;
 extern LLGLSLShader			gDeferredBumpProgram;
 extern LLGLSLShader			gDeferredTerrainProgram;
-extern LLGLSLShader			gDeferredTerrainWaterProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
 extern LLGLSLShader			gDeferredTreeShadowProgram;
 extern LLGLSLShader			gDeferredLightProgram;
@@ -279,4 +278,5 @@ extern LLGLSLShader         gDeferredPBROpaqueProgram;
 extern LLGLSLShader         gDeferredPBRAlphaProgram;
 extern LLGLSLShader         gDeferredPBRAlphaWaterProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
+extern LLGLSLShader         gDeferredPBRTerrainProgram;
 #endif

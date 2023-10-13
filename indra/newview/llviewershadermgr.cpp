@@ -138,7 +138,6 @@ LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 LLGLSLShader			gDeferredSkinnedBumpProgram;
 LLGLSLShader			gDeferredBumpProgram;
 LLGLSLShader			gDeferredTerrainProgram;
-LLGLSLShader            gDeferredTerrainWaterProgram;
 LLGLSLShader			gDeferredTreeProgram;
 LLGLSLShader			gDeferredTreeShadowProgram;
 LLGLSLShader            gDeferredSkinnedTreeShadowProgram;
@@ -226,6 +225,7 @@ LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaWaterProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaWaterProgram;
+LLGLSLShader			gDeferredPBRTerrainProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -291,7 +291,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredEmissiveProgram);
     mShaderList.push_back(&gDeferredSkinnedEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
-    mShaderList.push_back(&gDeferredTerrainWaterProgram);
 	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
@@ -939,7 +938,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedBumpProgram.unload();
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
-		gDeferredTerrainWaterProgram.unload();
 		gDeferredLightProgram.unload();
 		for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; ++i)
 		{
@@ -1026,6 +1024,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBRAlphaProgram.unload();
         gDeferredPBRAlphaWaterProgram.unload();
         gDeferredSkinnedPBRAlphaWaterProgram.unload();
+		gDeferredPBRTerrainProgram.unload();
 
 		return TRUE;
 	}
@@ -1492,6 +1491,27 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         success = shader->createShader(NULL, NULL);
         llassert(success);
     }
+
+	if (success)
+	{
+		gDeferredPBRTerrainProgram.mName = "Deferred PBR Terrain Shader";
+		gDeferredPBRTerrainProgram.mFeatures.encodesNormal = true;
+		gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
+		gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
+		gDeferredPBRTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+		gDeferredPBRTerrainProgram.mFeatures.hasWaterFog = true;
+		gDeferredPBRTerrainProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
+		gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
+		gDeferredPBRTerrainProgram.mFeatures.hasTransport = true;
+
+		gDeferredPBRTerrainProgram.mShaderFiles.clear();
+		gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainV.glsl", GL_VERTEX_SHADER));
+		gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredPBRTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gDeferredPBRTerrainProgram.createShader(NULL, NULL);
+		llassert(success);
+	}
 	
 	if (success)
 	{
@@ -2430,8 +2450,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mName = "Deferred Terrain Shader";
 		gDeferredTerrainProgram.mFeatures.encodesNormal = true;
 		gDeferredTerrainProgram.mFeatures.hasSrgb = true;
-		gDeferredTerrainProgram.mFeatures.calculatesLighting = false;
-		gDeferredTerrainProgram.mFeatures.hasLighting = false;
 		gDeferredTerrainProgram.mFeatures.isAlphaLighting = true;
 		gDeferredTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
 		gDeferredTerrainProgram.mFeatures.hasWaterFog = true;
@@ -2445,31 +2463,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredTerrainProgram.createShader(NULL, NULL);
 		llassert(success);
-	}
-
-	if (success)
-	{
-		gDeferredTerrainWaterProgram.mName = "Deferred Terrain Underwater Shader";
-		gDeferredTerrainWaterProgram.mFeatures.encodesNormal = true;
-		gDeferredTerrainWaterProgram.mFeatures.hasSrgb = true;
-		gDeferredTerrainWaterProgram.mFeatures.calculatesLighting = false;
-		gDeferredTerrainWaterProgram.mFeatures.hasLighting = false;
-		gDeferredTerrainWaterProgram.mFeatures.isAlphaLighting = true;
-		gDeferredTerrainWaterProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		gDeferredTerrainWaterProgram.mFeatures.hasWaterFog = true;
-		gDeferredTerrainWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredTerrainWaterProgram.mFeatures.hasAtmospherics = true;
-		gDeferredTerrainWaterProgram.mFeatures.hasGamma = true;
-		
-		gDeferredTerrainWaterProgram.mShaderFiles.clear();
-		gDeferredTerrainWaterProgram.mShaderFiles.push_back(make_pair("deferred/terrainV.glsl", GL_VERTEX_SHADER));
-		gDeferredTerrainWaterProgram.mShaderFiles.push_back(make_pair("deferred/terrainF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredTerrainWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		gDeferredTerrainWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredTerrainWaterProgram.clearPermutations();
-		gDeferredTerrainWaterProgram.addPermutation("WATER_FOG", "1");
-		success = gDeferredTerrainWaterProgram.createShader(NULL, NULL);
-        llassert(success);
 	}
 
 	if (success)

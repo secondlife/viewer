@@ -79,6 +79,8 @@ protected:
 	void renderFull2TU();
 	void renderFull4TU();
 	void renderFullShader();
+	void renderFullShaderTextures();
+	void renderFullShaderPBR();
 	void drawLoop();
 
 private:

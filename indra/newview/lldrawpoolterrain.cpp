@@ -158,10 +158,6 @@ void LLDrawPoolTerrain::beginDeferredPass(S32 pass)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
 	LLFacePool::beginRenderPass(pass);
-
-	sShader = &gDeferredTerrainProgram;
-
-	sShader->bind();
 }
 
 void LLDrawPoolTerrain::endDeferredPass(S32 pass)
@@ -256,31 +252,139 @@ void LLDrawPoolTerrain::renderFullShader()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-
-	LLViewerTexture *detail_texture0p;
-	LLViewerTexture *detail_texture1p;
-	LLViewerTexture *detail_texture2p;
-	LLViewerTexture *detail_texture3p;
-    BOOL use_textures = compp->texturesReady() || !compp->materialsReady();
+    const BOOL use_textures = compp->useTextures();
+    
     if (use_textures)
     {
-        detail_texture0p = compp->mDetailTextures[0];
-        detail_texture1p = compp->mDetailTextures[1];
-        detail_texture2p = compp->mDetailTextures[2];
-        detail_texture3p = compp->mDetailTextures[3];
+        // Use textures
+        sShader = &gDeferredTerrainProgram;
+        sShader->bind();
+        renderFullShaderTextures();
     }
-    else // use materials
+    else
     {
-        detail_texture0p = compp->mDetailMaterials[0]->mBaseColorTexture;
-        detail_texture1p = compp->mDetailMaterials[1]->mBaseColorTexture;
-        detail_texture2p = compp->mDetailMaterials[2]->mBaseColorTexture;
-        detail_texture3p = compp->mDetailMaterials[3]->mBaseColorTexture;
-        LLViewerTexture* blank = LLViewerFetchedTexture::sWhiteImagep;
-        if (!detail_texture0p) { detail_texture0p = blank; }
-        if (!detail_texture1p) { detail_texture1p = blank; }
-        if (!detail_texture2p) { detail_texture2p = blank; }
-        if (!detail_texture3p) { detail_texture3p = blank; }
+        // Use materials
+        sShader = &gDeferredPBRTerrainProgram;
+        sShader->bind();
+        renderFullShaderPBR();
     }
+}
+
+void LLDrawPoolTerrain::renderFullShaderTextures()
+{
+	// Hack! Get the region that this draw pool is rendering from!
+	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+	LLVLComposition *compp = regionp->getComposition();
+
+	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+
+	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
+	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
+	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+
+	LLVector4 tp0, tp1;
+	
+	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
+	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+
+	//
+	// detail texture 0
+	//
+	S32 detail0 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
+	gGL.getTexUnit(detail0)->bind(detail_texture0p);
+    gGL.getTexUnit(detail0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+	gGL.getTexUnit(detail0)->activate();
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(shader);
+		
+	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
+	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
+
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+
+	//
+	// detail texture 1
+	//
+	S32 detail1 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1); 
+	gGL.getTexUnit(detail1)->bind(detail_texture1p);
+	gGL.getTexUnit(detail1)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+	gGL.getTexUnit(detail1)->activate();
+	
+	// detail texture 2
+	//
+	S32 detail2 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
+	gGL.getTexUnit(detail2)->bind(detail_texture2p);
+    gGL.getTexUnit(detail2)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+	gGL.getTexUnit(detail2)->activate();
+	
+
+	// detail texture 3
+	//
+	S32 detail3 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
+	gGL.getTexUnit(detail3)->bind(detail_texture3p);
+	gGL.getTexUnit(detail3)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+	gGL.getTexUnit(detail3)->activate();
+
+	//
+	// Alpha Ramp 
+	//
+	S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+	gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
+    gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+
+	// GL_BLEND disabled by default
+	drawLoop();
+
+	// Disable multitexture
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
+	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
+
+	gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(alpha_ramp)->disable();
+	gGL.getTexUnit(alpha_ramp)->activate();
+	
+	gGL.getTexUnit(detail3)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(detail3)->disable();
+	gGL.getTexUnit(detail3)->activate();
+
+	gGL.getTexUnit(detail2)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(detail2)->disable();
+	gGL.getTexUnit(detail2)->activate();
+
+	gGL.getTexUnit(detail1)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(detail1)->disable();
+	gGL.getTexUnit(detail1)->activate();
+	
+	//----------------------------------------------------------------------------
+	// Restore Texture Unit 0 defaults
+	
+	gGL.getTexUnit(detail0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(detail0)->enable(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(detail0)->activate();
+}
+
+void LLDrawPoolTerrain::renderFullShaderPBR()
+{
+	// Hack! Get the region that this draw pool is rendering from!
+	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+	LLVLComposition *compp = regionp->getComposition();
+
+	LLViewerTexture *detail_texture0p = compp->mDetailMaterials[0]->mBaseColorTexture;
+	LLViewerTexture *detail_texture1p = compp->mDetailMaterials[1]->mBaseColorTexture;
+	LLViewerTexture *detail_texture2p = compp->mDetailMaterials[2]->mBaseColorTexture;
+	LLViewerTexture *detail_texture3p = compp->mDetailMaterials[3]->mBaseColorTexture;
+    LLViewerTexture* blank = LLViewerFetchedTexture::sWhiteImagep;
+    if (!detail_texture0p) { detail_texture0p = blank; }
+    if (!detail_texture1p) { detail_texture1p = blank; }
+    if (!detail_texture2p) { detail_texture2p = blank; }
+    if (!detail_texture3p) { detail_texture3p = blank; }
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
