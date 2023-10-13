@@ -360,6 +360,7 @@ BOOL LLVLComposition::generateComposition()
     return FALSE;
 }
 
+// TODO: Re-evaluate usefulness of this function in the PBR case. There is currently a hack here to treat the material base color like a legacy terrain texture, but I'm not sure if that's useful.
 BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {

@@ -1531,7 +1531,6 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 		LLVLComposition* compp = region->getComposition();
 
         // Are these 4 texture IDs or 4 material IDs? Who knows! Let's set the IDs on both pickers for now.
-        // *TODO: Determine the asset type of IDs, to determine which editing mode to display.
 		LLTextureCtrl* asset_ctrl;
 		std::string buffer;
 		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)

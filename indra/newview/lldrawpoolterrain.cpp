@@ -370,6 +370,7 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 	gGL.getTexUnit(detail0)->activate();
 }
 
+// TODO: Investigate use of bindFast for PBR terrain textures
 void LLDrawPoolTerrain::renderFullShaderPBR()
 {
 	// Hack! Get the region that this draw pool is rendering from!
@@ -386,7 +387,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-    constexpr U32 terrain_material_count = LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
+    constexpr U32 terrain_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
     S32 detail_basecolor[terrain_material_count];
     S32 detail_normal[terrain_material_count];
     S32 detail_metalrough[terrain_material_count];
@@ -456,12 +457,14 @@ void LLDrawPoolTerrain::renderFullShaderPBR()
         // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
         // Use 0 here due to GLTF terrain blending (LLGLTFMaterial::bind uses
         // -1 for easier debugging)
-        F32 min_alpha = 0.f;
+        F32 min_alpha = -0.0f;
         if (material->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
         {
-            min_alpha = material->mAlphaCutoff;
+            // dividing the alpha cutoff by transparency here allows the shader to compare against
+            // the alpha value of the texture without needing the transparency value
+            min_alpha = material->mAlphaCutoff/material->mBaseColor.mV[3];
         }
-
+        minimum_alphas[i] = min_alpha;
     }
     shader->uniform4fv(LLShaderMgr::TERRAIN_BASE_COLOR_FACTORS, terrain_material_count, (F32*)base_color_factors);
     shader->uniform4f(LLShaderMgr::TERRAIN_METALLIC_FACTORS, metallic_factors[0], metallic_factors[1], metallic_factors[2], metallic_factors[3]);

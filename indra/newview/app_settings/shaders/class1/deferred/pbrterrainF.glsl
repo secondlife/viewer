@@ -97,10 +97,11 @@ vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, vec2 te
     samples[1] = texture2D(tex1, texcoord);
     samples[2] = texture2D(tex2, texcoord);
     samples[3] = texture2D(tex3, texcoord);
-    samples[0].xyz = srgb_to_linear(samples[0].xyz);
-    samples[1].xyz = srgb_to_linear(samples[1].xyz);
-    samples[2].xyz = srgb_to_linear(samples[2].xyz);
-    samples[3].xyz = srgb_to_linear(samples[3].xyz);
+    // TODO: Why is this needed for pbropaqueF but not here? (and is there different behavior with base color vs emissive color, that also needs to be corrected?)
+    //samples[0].xyz = srgb_to_linear(samples[0].xyz);
+    //samples[1].xyz = srgb_to_linear(samples[1].xyz);
+    //samples[2].xyz = srgb_to_linear(samples[2].xyz);
+    //samples[3].xyz = srgb_to_linear(samples[3].xyz);
     return terrain_mix(samples, alpha1, alpha2, alphaFinal);
 }
 
@@ -116,20 +117,23 @@ vec4 sample_and_mix_vector(float alpha1, float alpha2, float alphaFinal, vec2 te
 
 void main()
 {
+    // Adjust the texture repeats for a more sensible default.
+    float texture_density_factor = 2.0;
+    vec2 terrain_texcoord = texture_density_factor * vary_texcoord0.xy;
     float alpha1 = texture2D(alpha_ramp, vary_texcoord0.zw).a;
     float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
 
-    vec4 base_color = sample_and_mix_color4(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_base_color, detail_1_base_color, detail_2_base_color, detail_3_base_color);
+    vec4 base_color = sample_and_mix_color4(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_base_color, detail_1_base_color, detail_2_base_color, detail_3_base_color);
     float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
     if (base_color.a < minimum_alpha)
     {
         discard;
     }
 
-    vec4 normal_texture = sample_and_mix_vector(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
-    vec4 metallic_roughness = sample_and_mix_vector(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_metallic_roughness, detail_1_metallic_roughness, detail_2_metallic_roughness, detail_3_metallic_roughness);
-    vec3 emissive_texture = sample_and_mix_color3(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_emissive, detail_1_emissive, detail_2_emissive, detail_3_emissive);
+    vec4 normal_texture = sample_and_mix_vector(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
+    vec4 metallic_roughness = sample_and_mix_vector(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_metallic_roughness, detail_1_metallic_roughness, detail_2_metallic_roughness, detail_3_metallic_roughness);
+    vec3 emissive_texture = sample_and_mix_color3(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_emissive, detail_1_emissive, detail_2_emissive, detail_3_emissive);
 
     vec4 baseColorFactor = terrain_mix(baseColorFactors, alpha1, alpha2, alphaFinal);
     float metallicFactor = terrain_mix(metallicFactors, alpha1, alpha2, alphaFinal);
