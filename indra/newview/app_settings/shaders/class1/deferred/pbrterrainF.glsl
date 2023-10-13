@@ -31,6 +31,52 @@
 #define TerrainCoord vec2
 #endif
 
+#if 0 // TODO: Remove debug
+#define TERRAIN_DEBUG 1
+#endif
+
+// TODO: Decide if this struct needs to be declared
+struct TerrainMix
+{
+    vec4 weight;
+    int type;
+#if TERRAIN_DEBUG
+    ivec4 usage;
+#endif
+};
+
+TerrainMix get_terrain_mix_weights(float alpha1, float alpha2, float alphaFinal);
+
+// TODO: Decide if this struct needs to be declared
+struct PBRMix
+{
+    vec4 col;       // RGB color with alpha, linear space
+    vec3 orm;       // Occlusion, roughness, metallic
+    vec3 vNt;       // Unpacked normal texture sample, vector
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    vec3 emissive;  // RGB emissive color, linear space
+#endif
+};
+
+PBRMix init_pbr_mix();
+
+PBRMix terrain_sample_and_multiply_pbr(
+    TerrainCoord terrain_coord
+    , sampler2D tex_col
+    , sampler2D tex_orm
+    , sampler2D tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , sampler2D tex_emissive
+#endif
+    , vec4 factor_col
+    , vec3 factor_orm
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , vec3 factor_emissive
+#endif
+    );
+
+PBRMix mix_pbr(PBRMix mix1, PBRMix mix2, float mix2_weight);
+
 out vec4 frag_data[4];
 
 uniform sampler2D alpha_ramp;
@@ -82,19 +128,6 @@ vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, Terrain
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 vec3 sample_and_mix_normal(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3);
 
-#if 0 // TODO: Remove
-#define TERRAIN_DEBUG 1 // TODO: Remove debug
-struct TerrainMix
-{
-    vec4 weight;
-    int type;
-#if TERRAIN_DEBUG
-    ivec4 usage;
-#endif
-};
-TerrainMix _t_mix(float alpha1, float alpha2, float alphaFinal);
-#endif
-
 void main()
 {
 
@@ -108,36 +141,91 @@ void main()
     float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;
 
-    vec4 col = sample_and_mix_color4(alpha1, alpha2, alphaFinal, terrain_texcoord, baseColorFactors, detail_0_base_color, detail_1_base_color, detail_2_base_color, detail_3_base_color);
-    float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
-    if (col.a < minimum_alpha)
-    {
-        discard;
-    }
+    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
 
-
-    vec3[4] orm_factors;
-    orm_factors[0] = vec3(1.0, roughnessFactors.x, metallicFactors.x);
-    orm_factors[1] = vec3(1.0, roughnessFactors.y, metallicFactors.y);
-    orm_factors[2] = vec3(1.0, roughnessFactors.z, metallicFactors.z);
-    orm_factors[3] = vec3(1.0, roughnessFactors.w, metallicFactors.w);
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerTexture::sDefaultPBRORMImagep
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 spec = sample_and_mix_vector3(alpha1, alpha2, alphaFinal, terrain_texcoord, orm_factors, detail_0_metallic_roughness, detail_1_metallic_roughness, detail_2_metallic_roughness, detail_3_metallic_roughness);
+    vec3[4] orm_factors;
+    orm_factors[0] = vec3(1.0, roughnessFactors.x, metallicFactors.x);
+    orm_factors[1] = vec3(1.0, roughnessFactors.y, metallicFactors.y);
+    orm_factors[2] = vec3(1.0, roughnessFactors.z, metallicFactors.z);
+    orm_factors[3] = vec3(1.0, roughnessFactors.w, metallicFactors.w);
 
-#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-    vec3 emissive = sample_and_mix_color3(alpha1, alpha2, alphaFinal, terrain_texcoord, emissiveColors, detail_0_emissive, detail_1_emissive, detail_2_emissive, detail_3_emissive);
-#else
-    vec3 emissive = vec3(0);
-#endif
+    PBRMix mix = init_pbr_mix();
+    PBRMix mix2;
+    mix2 = terrain_sample_and_multiply_pbr(
+        terrain_texcoord
+        , detail_0_base_color
+        , detail_0_metallic_roughness
+        , detail_0_normal
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , detail_0_emissive
+    #endif
+        , baseColorFactors[0]
+        , orm_factors[0]
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , emissiveColors[0]
+    #endif
+    );
+    mix = mix_pbr(mix, mix2, tm.weight[0]);
+    mix2 = terrain_sample_and_multiply_pbr(
+        terrain_texcoord
+        , detail_1_base_color
+        , detail_1_metallic_roughness
+        , detail_1_normal
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , detail_1_emissive
+    #endif
+        , baseColorFactors[1]
+        , orm_factors[1]
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , emissiveColors[1]
+    #endif
+    );
+    mix = mix_pbr(mix, mix2, tm.weight[1]);
+    mix2 = terrain_sample_and_multiply_pbr(
+        terrain_texcoord
+        , detail_2_base_color
+        , detail_2_metallic_roughness
+        , detail_2_normal
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , detail_2_emissive
+    #endif
+        , baseColorFactors[2]
+        , orm_factors[2]
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , emissiveColors[2]
+    #endif
+    );
+    mix = mix_pbr(mix, mix2, tm.weight[2]);
+    mix2 = terrain_sample_and_multiply_pbr(
+        terrain_texcoord
+        , detail_3_base_color
+        , detail_3_metallic_roughness
+        , detail_3_normal
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , detail_3_emissive
+    #endif
+        , baseColorFactors[3]
+        , orm_factors[3]
+    #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , emissiveColors[3]
+    #endif
+    );
+    mix = mix_pbr(mix, mix2, tm.weight[3]);
 
+    float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
+    if (mix.col.a < minimum_alpha)
+    {
+        discard;
+    }
     float base_color_factor_alpha = terrain_mix(vec4(baseColorFactors[0].z, baseColorFactors[1].z, baseColorFactors[2].z, baseColorFactors[3].z), alpha1, alpha2, alphaFinal);
 
     // from mikktspace.com
-    vec3 vNt = sample_and_mix_normal(alpha1, alpha2, alphaFinal, terrain_texcoord, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
+    vec3 vNt = mix.vNt;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
     
@@ -145,59 +233,10 @@ void main()
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
-
    
-#if TERRAIN_DEBUG // TODO: Remove
-#if 0 // TODO: Remove (terrain weights visualization)
-    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
-#if 1
-    // Show full usage and weights
-    float uw = 0.3;
-#if 1
-#if 0
-    vec4 mix_usage = vec4(tm.usage);
-#else
-    vec4 mix_usage = vec4(tm.weight);
-#endif
-#else
-    // Version with easier-to-see boundaries of weights vs usage
-    vec4 mix_usage = mix(vec4(tm.usage),
-        mix(max(vec4(0.0), sign(tm.weight - 0.01)),
-            max(vec4(0.0), sign(tm.weight - 0.005)),
-            0.5),
-        uw);
-#endif
-    col.xyz = mix_usage.xyz;
-    col.x = max(col.x, mix_usage.w);
-    //col.y = 0.0;
-    //col.z = 0.0;
-#else
-    // Show places where weight > usage + tolerance
-    float tolerance = 0.005;
-    vec4 weight_gt_usage = sign(
-        max(
-            vec4(0.0),
-            (tm.weight - (vec4(tm.usage) + vec4(tolerance)))
-        )
-    );
-    col.xyz = weight_gt_usage.xyz;
-    col.x = max(col.x, weight_gt_usage.w);
-#endif
-#endif
-#if 0 // TODO: Remove (material channel discriminator)
-    //col.rgb = vec3(0.0, 1.0, 0.0);
-    //col.rgb = spec.rgb;
-    //col.rgb = (vNt + 1.0) / 2.0;
-    //col.rgb = (tnorm + 1.0) / 2.0;
-    //spec.rgb = vec3(1.0, 1.0, 0.0);
-    col.rgb = spec.rgb;
-    tnorm = vary_normal;
-    emissive = vec3(0);
-#endif
-#endif
-    frag_data[0] = max(vec4(col.xyz, 0.0), vec4(0));                                                   // Diffuse
-    frag_data[1] = max(vec4(spec.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
+    frag_data[0] = max(vec4(mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
+    frag_data[1] = max(vec4(mix.orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
     frag_data[2] = max(vec4(encode_normal(tnorm), base_color_factor_alpha, GBUFFER_FLAG_HAS_PBR), vec4(0)); // normal, environment intensity, flags
-    frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
+    frag_data[3] = max(vec4(mix.emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 

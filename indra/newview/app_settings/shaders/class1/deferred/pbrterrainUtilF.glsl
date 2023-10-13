@@ -153,7 +153,7 @@ struct TerrainMix
 #define TerrainMixSample vec4[4]
 #define TerrainMixSample3 vec3[4]
 
-TerrainMix _t_mix(float alpha1, float alpha2, float alphaFinal)
+TerrainMix get_terrain_mix_weights(float alpha1, float alpha2, float alphaFinal)
 {
     TerrainMix tm;
     vec4 sample_x = vec4(1,0,0,0);
@@ -198,7 +198,7 @@ TerrainTriplanar _t_triplanar()
 
 float terrain_mix(vec4 samples, float alpha1, float alpha2, float alphaFinal)
 {
-    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
+    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
     // Assume weights add to 1
     return tm.weight.x * samples.x +
            tm.weight.y * samples.y +
@@ -511,7 +511,6 @@ vec4 terrain_texture_color(sampler2D tex, TerrainCoord terrain_coord)
     return col;
 }
 
-// TODO: Implement this for the more complex triplanar case
 PBRMix terrain_sample_pbr(
     TerrainCoord terrain_coord
     , sampler2D tex_col
@@ -671,7 +670,7 @@ TerrainMixSample3 _tmix_sample_normal(TerrainMix tm, TerrainCoord texcoord, samp
 
 vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
-    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
+    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
     TerrainMixSample tms = _tmix_sample_color(tm, texcoord, tex0, tex1, tex2, tex3);
     vec3[4] tms3;
     tms3[0] = tms[0].xyz;
@@ -687,7 +686,7 @@ vec3 sample_and_mix_color3(float alpha1, float alpha2, float alphaFinal, Terrain
 
 vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec4[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
-    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
+    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
     TerrainMixSample tms = _tmix_sample_color(tm, texcoord, tex0, tex1, tex2, tex3);
     tms[0] *= factors[0];
     tms[1] *= factors[1];
@@ -698,7 +697,7 @@ vec4 sample_and_mix_color4(float alpha1, float alpha2, float alphaFinal, Terrain
 
 vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, vec3[4] factors, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
-    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
+    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
     TerrainMixSample tms = _tmix_sample(tm, texcoord, tex0, tex1, tex2, tex3);
     vec3[4] tms3;
     tms3[0] = tms[0].xyz;
@@ -715,7 +714,64 @@ vec3 sample_and_mix_vector3(float alpha1, float alpha2, float alphaFinal, Terrai
 // Returns the unpacked normal texture in range [-1, 1]
 vec3 sample_and_mix_normal(float alpha1, float alpha2, float alphaFinal, TerrainCoord texcoord, sampler2D tex0, sampler2D tex1, sampler2D tex2, sampler2D tex3)
 {
-    TerrainMix tm = _t_mix(alpha1, alpha2, alphaFinal);
+    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
     TerrainMixSample3 tms3 = _tmix_sample_normal(tm, texcoord, tex0, tex1, tex2, tex3);
     return terrain_mix(tm, tms3);
+}
+
+PBRMix multiply_factors_pbr(
+    PBRMix mix_in
+    , vec4 factor_col
+    , vec3 factor_orm
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , vec3 factor_emissive
+#endif
+    )
+{
+    PBRMix mix = mix_in;
+    mix.col *= factor_col;
+    mix.orm *= factor_orm;
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    mix.emissive *= factor_emissive;
+#endif
+    return mix;
+}
+
+PBRMix terrain_sample_and_multiply_pbr(
+    TerrainCoord terrain_coord
+    , sampler2D tex_col
+    , sampler2D tex_orm
+    , sampler2D tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , sampler2D tex_emissive
+#endif
+    , vec4 factor_col
+    , vec3 factor_orm
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+    , vec3 factor_emissive
+#endif
+    )
+{
+    PBRMix mix = terrain_sample_pbr(
+        terrain_coord
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+        , _t_triplanar()
+#endif
+        , tex_col
+        , tex_orm
+        , tex_vNt
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , tex_emissive
+#endif
+        );
+
+    mix = multiply_factors_pbr(mix
+        , factor_col
+        , factor_orm
+#if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
+        , factor_emissive
+#endif
+    );
+
+    return mix;
 }
