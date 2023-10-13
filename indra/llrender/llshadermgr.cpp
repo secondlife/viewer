@@ -1447,6 +1447,12 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_2_emissive");
 	mReservedUniforms.push_back("detail_3_emissive");
 
+    mReservedUniforms.push_back("baseColorFactors");
+    mReservedUniforms.push_back("metallicFactors");
+    mReservedUniforms.push_back("roughnessFactors");
+    mReservedUniforms.push_back("emissiveColors");
+    mReservedUniforms.push_back("minimum_alphas");
+
 	mReservedUniforms.push_back("origin");
 	mReservedUniforms.push_back("display_gamma");
 

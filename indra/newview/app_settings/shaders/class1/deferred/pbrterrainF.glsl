@@ -48,8 +48,8 @@ uniform sampler2D detail_1_emissive;
 uniform sampler2D detail_2_emissive;
 uniform sampler2D detail_3_emissive;
 
-// TODO: Needs new uniforms
 // *TODO: More efficient packing?
+uniform vec4[4] baseColorFactors; // See also vertex_color in pbropaqueV.glsl
 uniform vec4 metallicFactors;
 uniform vec4 roughnessFactors;
 uniform vec3[4] emissiveColors;
@@ -101,9 +101,6 @@ vec4 sample_and_mix_vector(float alpha1, float alpha2, float alphaFinal, vec2 te
     return terrain_mix(samples, alpha1, alpha2, alphaFinal);
 }
 
-// TODO: Implement
-// TODO: Don't forget calls to srgb_to_linear during texture sampling
-// TODO: Wherever base color alpha is not 1.0, blend with black
 void main()
 {
     float alpha1 = texture2D(alpha_ramp, vary_texcoord0.zw).a;
@@ -111,23 +108,22 @@ void main()
     float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
 
     vec4 base_color = sample_and_mix_color(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_basecolor, detail_1_basecolor, detail_2_basecolor, detail_3_basecolor);
+    float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
+    if (base_color.a < minimum_alpha)
+    {
+        discard;
+    }
+
     vec4 normal_texture = sample_and_mix_vector(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_normal, detail_1_normal, detail_2_normal, detail_3_normal);
     vec4 metallic_roughness = sample_and_mix_vector(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_metallic_roughness, detail_1_metallic_roughness, detail_2_metallic_roughness, detail_3_metallic_roughness);
     vec4 emissive_texture = sample_and_mix_color(alpha1, alpha2, alphaFinal, vary_texcoord0.xy, detail_0_emissive, detail_1_emissive, detail_2_emissive, detail_3_emissive);
 
+    vec4 baseColorFactor = terrain_mix(baseColorFactors, alpha1, alpha2, alphaFinal);
     float metallicFactor = terrain_mix(metallicFactors, alpha1, alpha2, alphaFinal);
     float roughnessFactor = terrain_mix(roughnessFactors, alpha1, alpha2, alphaFinal);
     vec3 emissiveColor = terrain_mix(emissiveColors, alpha1, alpha2, alphaFinal);
-    float minimum_alpha = terrain_mix(minimum_alphas, alpha1, alpha2, alphaFinal);
 
-    // TODO: OOh, we need blending for every GLTF uniform too
-    // TODO: Unfork
-    if (base_color.a < minimum_alpha)
-    {
-        base_color.rgb *= vec3(0.0);
-    }
-
-    vec3 col = base_color.rgb;
+    vec3 col = baseColorFactor.rgb * srgb_to_linear(basecolor.rgb);
 
     // from mikktspace.com
     vec3 vNt = normal_texture.xyz*2.0-1.0;
@@ -155,10 +151,8 @@ void main()
 
    
     frag_data[0] = max(vec4(col, 0.0), vec4(0));                                                   // Diffuse
-    // TODO: What is packed into vertex_color.a?
-    frag_data[1] = max(vec4(spec.rgb,vertex_color.a), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    // TODO: What is environment intensity and do we want it?
-    frag_data[2] = max(vec4(encode_normal(tnorm), 0.0, GBUFFER_FLAG_HAS_PBR | GBUFFER_FLAG_HAS_ATMOS), vec4(0)); // normal, environment intensity, flags
+    frag_data[1] = max(vec4(spec.rgb,baseColorFactor.a), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
+    frag_data[2] = max(vec4(encode_normal(tnorm), baseColorFactor.a, GBUFFER_FLAG_HAS_PBR | GBUFFER_FLAG_HAS_ATMOS), vec4(0)); // normal, environment intensity, flags
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 

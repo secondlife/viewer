@@ -268,6 +268,12 @@ public:
         TERRAIN_DETAIL2_EMISSIVE,                  //  "detail_2_emissive" (GLTF)
         TERRAIN_DETAIL3_EMISSIVE,                  //  "detail_3_emissive" (GLTF)
 
+        TERRAIN_BASE_COLOR_FACTORS,                //  "baseColorFactors" (GLTF)
+        TERRAIN_METALLIC_FACTORS,                  //  "metallicFactors" (GLTF)
+        TERRAIN_ROUGHNESS_FACTORS,                 //  "roughnessFactors" (GLTF)
+        TERRAIN_EMISSIVE_COLORS,                   //  "emissiveColors" (GLTF)
+        TERRAIN_MINIMUM_ALPHAS,                    //  "minimum_alphas" (GLTF)
+
         SHINY_ORIGIN,                       //  "origin"
         DISPLAY_GAMMA,                      //  "display_gamma"
 
