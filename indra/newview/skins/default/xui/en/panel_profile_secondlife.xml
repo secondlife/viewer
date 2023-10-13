@@ -323,52 +323,12 @@ Account: [ACCTTYPE]
        visible="true"/>
     </layout_panel>
     <layout_panel
-     name="settings_panel"
-     follows="all"
-     layout="topleft"
-     height="50"
-     auto_resize="false"
-     user_resize="false">
-      <!-- only for self -->
-      <text
-       name="search_label"
-       value="Show my profile in search:"
-       top="1"
-       left="6"
-       right="-1"
-       height="16"
-       follows="left|top|right"
-       layout="topleft"/>
-      <combo_box
-       name="show_in_search"
-       tool_tip="Let people see you in search results"
-       left="1"
-       top="18"
-       height="23"
-       width="140"
-       follows="left|top"
-       layout="topleft"
-       visible="true"
-       enabled="false">
-        <combo_box.item
-           name="Hide"
-           label="Hide"
-           value="0" />
-        <combo_box.item
-           name="Show"
-           label="Show"
-           value="1" />
-      </combo_box>
-    </layout_panel>
-    
-    <layout_panel
      name="menu_panel"
      follows="all"
      layout="topleft"
      height="55"
      auto_resize="false"
-     user_resize="false"
-        >
+     user_resize="false">
       <menu_button
        layout="topleft"
        follows="left|top"
@@ -383,7 +343,36 @@ Account: [ACCTTYPE]
        image_pressed="DropDown_Press"
        image_pressed_selected="DropDown_Press"
        image_disabled="DropDown_Disabled"
-       name="agent_actions_menu" />
+       name="agent_actions_menu"/>
+    </layout_panel>
+    <layout_panel
+     name="settings_panel"
+     follows="all"
+     layout="topleft"
+     height="50"
+     auto_resize="false"
+     user_resize="false">
+      <!-- only for self -->
+      <combo_box
+       name="show_in_search"
+       tool_tip="Let people see you in search results"
+       left="1"
+       top="18"
+       height="23"
+       width="140"
+       follows="left|top"
+       layout="topleft"
+       visible="true"
+       enabled="false">
+        <combo_box.item
+           name="Show"
+           label="Show me in search"
+           value="1" />
+        <combo_box.item
+           name="Hide"
+           label="Don't show me in search"
+           value="0" />
+      </combo_box>
     </layout_panel>
   </layout_stack>
 
