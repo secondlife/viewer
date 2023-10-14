@@ -1864,6 +1864,8 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {
+        bool has_worn = notification["payload"]["has_worn"].asBoolean();
+        uuid_vec_t worn;
         for (const LLUUID& id : selected_ids)
         {
             LLInventoryObject* obj = gInventory.getObject(id);
@@ -1884,22 +1886,72 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
                 {
                     gInventory.removeItem(id);
                 }
+                else if (has_worn && get_is_item_worn(id))
+                {
+                    worn.push_back(id);
+                }
             }
+        }
+
+        if (!worn.empty())
+        {
+            // should fire once after every item gets detached
+            LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
+                                                              [worn]()
+                                                              {
+                                                                  for (const LLUUID& id : worn)
+                                                                  {
+                                                                      remove_inventory_item(id, NULL);
+                                                                  }
+                                                              });
         }
     }
 }
 
 void LLInventoryGallery::deleteSelection()
 {
-    if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+    bool has_worn = false;
+    bool needs_replacement = false;
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        LLNotifications::instance().setIgnored("DeleteItems", false);
-        LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        if (get_is_item_worn(id))
+        {
+            has_worn = true;
+            const LLViewerInventoryItem* item = gInventory.getItem(id);
+            LLWearableType::EType type = item->getWearableType();            
+            if (type == LLWearableType::WT_SHAPE
+                || type == LLWearableType::WT_SKIN
+                || type == LLWearableType::WT_HAIR
+                || type == LLWearableType::WT_EYES)
+            {
+                needs_replacement = true;
+                break;
+            }
+        }
     }
 
-    LLSD args;
-    args["QUESTION"] = LLTrans::getString("DeleteItem");
-    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    if (needs_replacement)
+    {
+        LLNotificationsUtil::add("CantDeleteRequiredClothing");
+    }
+    else if (has_worn)
+    {
+        LLSD payload;
+        payload["has_worn"] = true;
+        LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
+    else
+    {
+        if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+        {
+            LLNotifications::instance().setIgnored("DeleteItems", false);
+            LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        }
+
+        LLSD args;
+        args["QUESTION"] = LLTrans::getString("DeleteItem");
+        LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
 }
 
 bool LLInventoryGallery::canDeleteSelection()
