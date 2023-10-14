@@ -542,6 +542,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 }
                 items.push_back(std::string("Cut"));
                 items.push_back(std::string("Delete"));
+                // TODO: check descendants!!!
                 if(!get_is_category_removable(&gInventory, selected_id))
                 {
                     disabled_items.push_back(std::string("Delete"));
@@ -577,9 +578,13 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 {
                     items.push_back(std::string("Delete"));
                 }
-                if(!get_is_item_removable(&gInventory, selected_id, true))
+                if (!get_is_item_removable(&gInventory, selected_id, false))
                 {
                     disabled_items.push_back(std::string("Delete"));
+                    disabled_items.push_back(std::string("Cut"));
+                }
+                else if(!get_is_item_removable(&gInventory, selected_id, true))
+                {
                     disabled_items.push_back(std::string("Cut"));
                 }
 

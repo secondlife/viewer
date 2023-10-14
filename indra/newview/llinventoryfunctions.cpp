@@ -3024,7 +3024,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
 		bool marketplacelistings_item = false;
-        bool worn_item = false;
+        bool has_worn = false;
         bool needs_replacement = false;
 		LLAllDescendentsPassedFilter f;
 		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
@@ -3041,7 +3041,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 			}
             if (get_is_item_worn(viewModel->getUUID()))
             {
-                worn_item = true;
+                has_worn = true;
                 LLWearableType::EType type = viewModel->getWearableType();
                 if (type == LLWearableType::WT_SHAPE
                     || type == LLWearableType::WT_SKIN
@@ -3058,7 +3058,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         {
             LLNotificationsUtil::add("CantDeleteRequiredClothing");
         }
-        else if (worn_item)
+        else if (has_worn)
         {
             LLSD payload;
             payload["has_worn"] = true;
@@ -3411,6 +3411,7 @@ void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, con
                 }
             }
         }
+        // TODO: collect worn items from content and folders that neede to be deleted after that
 
         // removeSelectedItems will check if items are worn before deletion,
         // don't 'unwear' yet to prevent a race condition from unwearing
