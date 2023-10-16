@@ -425,7 +425,6 @@ bool is_category_removable(const LLUUID &folder_id, bool check_worn)
     return true;
 }
 
-
 void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* menu)
 {
     LLUUID selected_id = mUUIDs.front();
@@ -581,9 +580,13 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 items.push_back(std::string("Cut"));
                 items.push_back(std::string("Delete"));
 
-                if(!is_category_removable(selected_id, true))
+                if(!is_category_removable(selected_id, false))
                 {
                     disabled_items.push_back(std::string("Delete"));
+                    disabled_items.push_back(std::string("Cut"));
+                }
+                else if (!is_category_removable(selected_id, true))
+                {
                     disabled_items.push_back(std::string("Cut"));
                 }
 

@@ -1866,29 +1866,49 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
     {
         bool has_worn = notification["payload"]["has_worn"].asBoolean();
         uuid_vec_t worn;
-        for (const LLUUID& id : selected_ids)
+        uuid_vec_t deletion_list;
+        for (const LLUUID& obj_id : selected_ids)
         {
-            LLInventoryObject* obj = gInventory.getObject(id);
-            if (!obj)
+            LLViewerInventoryCategory* cat = gInventory.getCategory(obj_id);
+            if (cat)
             {
-                return;
-            }
-            if (obj->getType() == LLAssetType::AT_CATEGORY)
-            {
-                if (get_is_category_removable(&gInventory, id))
+                bool cat_has_worn = false;
+                if (has_worn)
                 {
-                    gInventory.removeCategory(id);
+                    LLInventoryModel::cat_array_t categories;
+                    LLInventoryModel::item_array_t items;
+
+                    gInventory.collectDescendents(obj_id, categories, items, FALSE);
+
+                    for (LLInventoryModel::item_array_t::value_type& item : items)
+                    {
+                        if (get_is_item_worn(item))
+                        {
+                            worn.push_back(item->getUUID());
+                            cat_has_worn = true;
+                        }
+                    }
+                }
+                if (cat_has_worn)
+                {
+                    deletion_list.push_back(obj_id);
+                }
+                else
+                {
+                    gInventory.removeCategory(obj_id);
                 }
             }
-            else
+            LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+            if (item)
             {
-                if (get_is_item_removable(&gInventory, id, true))
+                if (has_worn && get_is_item_worn(item))
                 {
-                    gInventory.removeItem(id);
+                    worn.push_back(item->getUUID());
+                    deletion_list.push_back(item->getUUID());
                 }
-                else if (has_worn && get_is_item_worn(id))
+                else
                 {
-                    worn.push_back(id);
+                    gInventory.removeItem(obj_id);
                 }
             }
         }
@@ -1897,9 +1917,9 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
         {
             // should fire once after every item gets detached
             LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
-                                                              [worn]()
+                                                              [deletion_list]()
                                                               {
-                                                                  for (const LLUUID& id : worn)
+                                                                  for (const LLUUID& id : deletion_list)
                                                                   {
                                                                       remove_inventory_item(id, NULL);
                                                                   }
@@ -1914,10 +1934,40 @@ void LLInventoryGallery::deleteSelection()
     bool needs_replacement = false;
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (get_is_item_worn(id))
+        LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+        if (cat)
+        {
+            LLInventoryModel::cat_array_t categories;
+            LLInventoryModel::item_array_t items;
+
+            gInventory.collectDescendents(id, categories, items, FALSE);
+
+            for (LLInventoryModel::item_array_t::value_type& item : items)
+            {
+                if (get_is_item_worn(item))
+                {
+                    has_worn = true;
+                    LLWearableType::EType type = item->getWearableType();
+                    if (type == LLWearableType::WT_SHAPE
+                        || type == LLWearableType::WT_SKIN
+                        || type == LLWearableType::WT_HAIR
+                        || type == LLWearableType::WT_EYES)
+                    {
+                        needs_replacement = true;
+                        break;
+                    }
+                }
+            }
+            if (needs_replacement)
+            {
+                break;
+            }
+        }
+
+        LLViewerInventoryItem* item = gInventory.getItem(id);
+        if (item && get_is_item_worn(item))
         {
             has_worn = true;
-            const LLViewerInventoryItem* item = gInventory.getItem(id);
             LLWearableType::EType type = item->getWearableType();            
             if (type == LLWearableType::WT_SHAPE
                 || type == LLWearableType::WT_SKIN
