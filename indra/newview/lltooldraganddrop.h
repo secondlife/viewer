@@ -243,7 +243,15 @@ public:
 						   BOOL active,
 						   ESource source,
 						   const LLUUID& src_id);
-	static void dropTextureOneFace(LLViewerObject* hit_obj, S32 hit_face,
+    static void dropTexture(LLViewerObject* hit_obj,
+                            S32 hit_face,
+                            LLInventoryItem* item,
+                            ESource source,
+                            const LLUUID& src_id,
+                            bool all_faces,
+                            S32 tex_channel = -1);
+	static void dropTextureOneFace(LLViewerObject* hit_obj,
+                                   S32 hit_face,
 								   LLInventoryItem* item,
 								   ESource source,
 								   const LLUUID& src_id,
@@ -252,7 +260,14 @@ public:
 									LLInventoryItem* item,
 									ESource source,
 									const LLUUID& src_id);
-    static void dropMaterialOneFace(LLViewerObject* hit_obj, S32 hit_face,
+    static void dropMaterial(LLViewerObject* hit_obj,
+                             S32 hit_face,
+                             LLInventoryItem* item,
+                             ESource source,
+                             const LLUUID& src_id,
+                             bool all_faces);
+    static void dropMaterialOneFace(LLViewerObject* hit_obj,
+                                    S32 hit_face,
                                     LLInventoryItem* item,
                                     ESource source,
                                     const LLUUID& src_id);
