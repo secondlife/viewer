@@ -5013,17 +5013,6 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
-    <key>InventoryInboxToggleState</key>
-    <map>
-        <key>Comment</key>
-        <string>Stores the open/closed state of inventory Received items panel</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
 	<key>InventoryLinking</key>
 	<map>
 		<key>Comment</key>
@@ -9057,16 +9046,16 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderLocalLights</key>
+  <key>RenderLocalLightCount</key>
   <map>
     <key>Comment</key>
-    <string>Whether or not to render local lights.</string>
+    <string>Number of local lights to render.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>Boolean</string>
+    <string>S32</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>256</integer>
   </map>
   <key>RenderShadowSplitExponent</key>
   <map>
@@ -12999,39 +12988,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>AmbientDisable</key>
-  <map>
-    <key>Comment</key>
-    <string>If TRUE, ambient light has no effect</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>SunlightDisable</key>
-  <map>
-    <key>Comment</key>
-    <string>If TRUE, sunlight has no effect</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>LocalLightDisable</key>
-  <map>
-    <key>Comment</key>
-    <string>If TRUE, local lights have no effect</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
     <key>TextureDiscardLevel</key>
     <map>
       <key>Comment</key>
@@ -15691,6 +15647,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BatchSizeAIS3</key>
+    <map>
+        <key>Comment</key>
+        <string>Amount of folder ais packs into category subset request</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>20</integer>
+    </map>
     <key>PoolSizeAIS</key>
         <map>
         <key>Comment</key>
@@ -15698,7 +15665,7 @@
         <key>Type</key>
             <string>U32</string>
         <key>Value</key>
-            <integer>1</integer>
+            <integer>20</integer>
         </map>
     <key>PoolSizeUpload</key>
         <map>
@@ -17482,6 +17449,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>FindOriginalOpenWindow</key>
+  <map>
+    <key>Comment</key>
+    <string>Sets the action for 'Find original' and 'Show in Inventory' (0 - shows item in main Inventory, 1 - opens a new single-folder window)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>StatsReportMaxDuration</key>
   <map>
     <key>Comment</key>
@@ -17515,5 +17493,27 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+<key>MultiModeDoubleClickFolder</key>
+<map>
+  <key>Comment</key>
+  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window, 2 – stays in current floater but switches to SFV)</string>
+  <key>Persist</key>
+  <integer>1</integer>
+  <key>Type</key>
+  <string>U32</string>
+  <key>Value</key>
+  <integer>0</integer>
+</map>
+<key>SingleModeDoubleClickOpenWindow</key>
+<map>
+  <key>Comment</key>
+  <string>Sets the action for Double-click on folder in single-folder view (0 - stays in current window, 1 - opens a new window)</string>
+  <key>Persist</key>
+  <integer>1</integer>
+  <key>Type</key>
+  <string>Boolean</string>
+  <key>Value</key>
+  <integer>0</integer>
+</map>
 </map>
 </llsd>

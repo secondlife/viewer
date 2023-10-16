@@ -52,7 +52,6 @@ vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensi
 vec2 getScreenXY(vec4 clip);
 vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
-vec3 legacy_adjust(vec3 c);
 
 // Util
 vec3 hue_to_rgb(float hue);
@@ -67,9 +66,6 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
 void main()
 {
-#if defined(LOCAL_LIGHT_KILL)
-    discard;  // Bail immediately
-#else
     vec3 final_color = vec3(0, 0, 0);
     vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
@@ -118,7 +114,7 @@ void main()
 
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-                vec3 intensity = dist_atten * lightColor * 3.9;
+                vec3 intensity = dist_atten * lightColor * 3.25;
 
                 final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
             }
@@ -126,7 +122,6 @@ void main()
     }
     else
     {
-        diffuse.rgb = legacy_adjust(diffuse.rgb);
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 
@@ -174,7 +169,6 @@ void main()
 
     frag_color.rgb = max(final_color, vec3(0));
     frag_color.a   = 0.0;
-#endif // LOCAL_LIGHT_KILL
 
 #ifdef IS_AMD_CARD
     // If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage

@@ -40,8 +40,6 @@ in vec3 vary_position;
 uniform samplerCube environmentMap;
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
-vec3 legacy_adjust_fullbright(vec3 c);
-vec3 legacy_adjust(vec3 c);
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec3 linear_to_srgb(vec3 c);
@@ -82,10 +80,8 @@ void main()
     vec4 spec = vec4(0,0,0,0);
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, vec2(0), pos.xyz, norm.xyz, spec.a, env_intensity, false, amblit);
 
-    color.rgb = legacy_adjust(color.rgb);
     color.rgb = srgb_to_linear(color.rgb);
-    color.rgb = legacy_adjust_fullbright(color.rgb);
-    
+
     applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
 #endif

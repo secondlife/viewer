@@ -85,6 +85,8 @@ const F32 LIGHT_MAX_CUTOFF = 180.f;
 const F32 REFLECTION_PROBE_MIN_AMBIANCE = 0.f;
 const F32 REFLECTION_PROBE_MAX_AMBIANCE = 100.f;
 const F32 REFLECTION_PROBE_DEFAULT_AMBIANCE = 0.f;
+// *NOTE: Clip distances are clamped in LLCamera::setNear. The max clip
+// distance is currently limited by the skybox
 const F32 REFLECTION_PROBE_MIN_CLIP_DISTANCE = 0.f;
 const F32 REFLECTION_PROBE_MAX_CLIP_DISTANCE = 1024.f;
 const F32 REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE = 0.f;

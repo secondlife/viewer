@@ -240,12 +240,6 @@ public:
     void        releaseSunShadowTargets();
     void        releaseSunShadowTarget(U32 index);
 
-// 	void		setLocalLighting(const bool local_lighting);
-// 	bool		isLocalLightingEnabled() const;
-	S32			setLightingDetail(S32 level);
-	S32			getLightingDetail() const { return mLightingDetail; }
-	S32			getMaxLightingDetail() const;
-		
 	bool		shadersLoaded();
 	bool		canUseWindLightShaders() const;
 	bool		canUseAntiAliasing() const;
@@ -349,7 +343,6 @@ public:
 	void setupHWLights();
 	void setupAvatarLights(bool for_edit = false);
 	void enableLights(U32 mask);
-	void enableLightsStatic();
 	void enableLightsDynamic();
 	void enableLightsAvatar();
 	void enableLightsPreview();
@@ -947,7 +940,6 @@ protected:
 	
 	U32						mLightMask;
 	U32						mLightMovingMask;
-	S32						mLightingDetail;
 		
 	static bool				sRenderPhysicalBeacons;
 	static bool				sRenderMOAPBeacons;
@@ -977,7 +969,6 @@ public:
     static S32 RenderShadowSplits;
 	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
-	static bool RenderLocalLights;
 	static bool RenderDelayCreation;
 	static bool RenderAnimateRes;
 	static bool FreezeTime;

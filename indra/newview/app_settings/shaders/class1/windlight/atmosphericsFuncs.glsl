@@ -45,7 +45,6 @@ uniform float sky_ambient_scale;
 float getAmbientClamp() { return 1.0f; }
 
 vec3 srgb_to_linear(vec3 col);
-vec3 legacy_adjust(vec3 col);
 
 // return colors in sRGB space
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,

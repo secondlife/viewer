@@ -382,8 +382,7 @@ vec3 pbrIbl(vec3 diffuseColor,
             vec3 irradiance, // irradiance map sample
             float ao,       // ambient occlusion factor
             float nv,       // normal dot view vector
-            float perceptualRough,
-            out vec3 specContrib)
+            float perceptualRough)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
 	vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRough);
@@ -393,21 +392,7 @@ vec3 pbrIbl(vec3 diffuseColor,
 	vec3 diffuse = diffuseLight * diffuseColor;
 	vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 
-    specContrib = specular * ao;
-
 	return (diffuse + specular) * ao;
-}
-
-vec3 pbrIbl(vec3 diffuseColor,
-            vec3 specularColor,
-            vec3 radiance, // radiance map sample
-            vec3 irradiance, // irradiance map sample
-            float ao,       // ambient occlusion factor
-            float nv,       // normal dot view vector
-            float perceptualRough)
-{
-    vec3 specContrib;
-    return pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, nv, perceptualRough, specContrib);
 }
 
 
@@ -475,8 +460,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l, //surface point to light
-                    out vec3 specContrib) //specular contribution (exposed to alpha shaders to calculate "glare")
+                    vec3 l) //surface point to light
 {
     // make sure specular highlights from punctual lights don't fall off of polished surfaces
     perceptualRoughness = max(perceptualRoughness, 8.0/255.0);
@@ -524,26 +508,11 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
 	// Calculation of analytical lighting contribution
 	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
-	specContrib = F * G * D / (4.0 * NdotL * NdotV);
+	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
 	vec3 color = NdotL * (diffuseContrib + specContrib);
 
-    specContrib *= NdotL;
-    specContrib = max(specContrib, vec3(0));
-
     return clamp(color, vec3(0), vec3(10));
-}
-
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
-                    float metallic,
-                    vec3 n, // normal
-                    vec3 v, // surface point to camera
-                    vec3 l) //surface point to light
-{
-    vec3 specContrib;
-
-    return pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n, v, l, specContrib);
 }
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor)
@@ -554,28 +523,19 @@ void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor
     specularColor = mix(f0, baseColor, metallic);
 }
 
-vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten, out vec3 specContrib)
+vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten)
 {
     vec3 color = vec3(0);
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
     
-    vec3 ibl_spec;
-    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, ibl_spec);
+    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
     
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), specContrib) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
-    specContrib *= sunlit * 2.75 * scol;
-    specContrib += ibl_spec;
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir)) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
 
     color += colorEmissive;
 
     return color;
-}
-
-vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten)
-{
-    vec3 specContrib;
-    return pbrBaseLight(diffuseColor, specularColor, metallic, v, norm, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten, specContrib);
 }
 
 uniform vec4 waterPlane;

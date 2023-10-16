@@ -407,7 +407,7 @@
      value="0.43 0.06 0.06 1" />
     <color
      name="HTMLLinkColor"
-     reference="EmphasisColor" />
+     value="0.3 0.82 1 1" />
     <color
      name="HealthTextColor"
      reference="White" />

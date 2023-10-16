@@ -414,12 +414,6 @@ static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleRenderLocalLightsChanged(const LLSD& newvalue)
-{
-	gPipeline.setLightingDetail(-1);
-	return true;
-}
-
 static bool handleReflectionProbeDetailChanged(const LLSD& newvalue)
 {
     if (gPipeline.isInit())
@@ -722,7 +716,6 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderFogRatio", handleFogRatioChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderMaxPartCount", handleMaxPartCountChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDynamicLOD", handleRenderDynamicLODChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderLocalLights", handleRenderLocalLightsChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderVSyncEnable", handleVSyncChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDeferredNoise", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDebugPipeline", handleRenderDebugPipelineChanged);

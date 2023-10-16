@@ -86,7 +86,6 @@ float getDepth(vec2 pos_screen);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
-vec3 legacy_adjust(vec3 c);
 
 uniform vec4 waterPlane;
 
@@ -234,8 +233,6 @@ void main()
     else
     {
         // legacy shaders are still writng sRGB to gbuffer
-        baseColor.rgb = legacy_adjust(baseColor.rgb);
-        
         baseColor.rgb = srgb_to_linear(baseColor.rgb);
         
         spec.rgb = srgb_to_linear(spec.rgb);

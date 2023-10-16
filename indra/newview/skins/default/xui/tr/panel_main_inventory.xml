@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		[ITEM_COUNT] Öğe ve [CATEGORY_COUNT] Klasör Alındı [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">ENVANTER</panel.string>
 	<text name="ItemcountText">
 		Ögeler:
 	</text>

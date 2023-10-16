@@ -68,7 +68,7 @@ Account: [ACCTTYPE]
      auto_resize="false"
      user_resize="false">
 
-      <icon
+      <thumbnail
        name="2nd_life_pic"
        image_name="Generic_Person_Large"
        layout="topleft"

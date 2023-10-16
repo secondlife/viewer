@@ -48,8 +48,6 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
-vec3 legacy_adjust(vec3 c);
-vec3 legacy_adjust_fullbright(vec3 c);
 
 uniform vec4 clipPlane;
 uniform float clipSign;
@@ -329,7 +327,6 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     //forward rendering, output lit linear color
-    diffcol.rgb = legacy_adjust(diffcol.rgb);
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
     spec.rgb = srgb_to_linear(spec.rgb);
     spec.a = glossiness; // pack glossiness into spec alpha for lighting functions
@@ -395,7 +392,7 @@ void main()
         applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
     }
 
-    color = mix(color.rgb, legacy_adjust_fullbright(diffcol.rgb), emissive);
+    color = mix(color.rgb, diffcol.rgb, emissive);
 
     if (env > 0.0)
     {  // add environmentmap
