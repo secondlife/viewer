@@ -70,6 +70,12 @@ public:
 
     void registerHeroDrawable(LLVOVolume* drawablep);
     void unregisterHeroDrawable(LLVOVolume* drawablep);
+
+    bool isViableMirror(LLFace* face) const;
+
+    bool isMirrorPass() const { return mRenderingMirror; }
+
+    LLPlane currentMirrorClip() const { return mCurrentClipPlane; }
     
 private:
     friend class LLPipeline;
@@ -93,6 +99,8 @@ private:
 
     // vertex buffer for pushing verts to filter shaders
     LLPointer<LLVertexBuffer> mVertexBuffer;
+
+    LLPlane mCurrentClipPlane;
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip);
@@ -124,8 +132,11 @@ private:
 
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
+
+    bool mRenderingMirror = false;
     
     std::set<LLVOVolume*>               mHeroVOList;
     LLVOVolume*                         mNearestHero;
+    LLFace*                             mCurrentFace;
 };
 

@@ -191,7 +191,7 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR) || GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_MIRROR))
     {
         vec3 orm = texture(specularRect, tc).rgb;
         float perceptualRoughness = orm.g;
@@ -214,7 +214,9 @@ void main()
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
         
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-        color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - gloss) * 11).xyz * specularColor;
+
+        if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_MIRROR))
+            color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - gloss) * 11).xyz * specularColor;
         
         if (do_atmospherics)
         {

@@ -141,13 +141,13 @@ void LLHeroProbeManager::update()
             U8        mode     = mNearestHero->mirrorPlacementMode();
             mode    = llmin(mNearestHero->mDrawable->getNumFaces() - 1, mode);
 
-            LLFace   *face     = mNearestHero->mDrawable->getFace(mode);
-            LLVector3 hero_pos = face->getPositionAgent();
+            mCurrentFace       = mNearestHero->mDrawable->getFace(mode);
+            LLVector3 hero_pos = mCurrentFace->getPositionAgent();
 
 
             // Calculate the average normal.
-            LLVector4a *posp = face->getViewerObject()->getVolume()->getVolumeFace(face->getTEOffset()).mPositions;
-            U16        *indp = face->getViewerObject()->getVolume()->getVolumeFace(face->getTEOffset()).mIndices;
+            LLVector4a *posp = mCurrentFace->getViewerObject()->getVolume()->getVolumeFace(mCurrentFace->getTEOffset()).mPositions;
+            U16        *indp = mCurrentFace->getViewerObject()->getVolume()->getVolumeFace(mCurrentFace->getTEOffset()).mIndices;
             // get first three vertices (first triangle)
             LLVector4a v0 = posp[indp[0]];
             LLVector4a   v1 = posp[indp[1]];
@@ -158,14 +158,27 @@ void LLHeroProbeManager::update()
             LLVector3 face_normal = LLVector3(v1[0], v1[1], v1[2]) % LLVector3(v2[0], v2[1], v2[2]);
 
             face_normal.normalize();
-            face_normal *= face->getXform()->getWorldRotation();
+            face_normal *= mCurrentFace->getXform()->getWorldRotation();
 
             LLVector3 offset = camera_pos - hero_pos;
             LLVector3 project = face_normal * (offset * face_normal);
             LLVector3 reject  = offset - project;
             LLVector3 point   = (reject - project) + hero_pos;
 
-            near_clip = abs(dist_vec(hero_pos, point)) - gSavedSettings.getF32("RenderHeroProbeNearClipOffset");
+            glh::matrix4f mat     = copy_matrix(gGLModelView);
+            glh::vec4f    tc(face_normal.mV);
+            mat.mult_matrix_vec(tc);
+
+            LLVector3 mirror_normal;
+            mirror_normal.set(tc.v);
+
+            LLVector3 hero_pos_render;
+            tc = glh::vec4f(hero_pos.mV);
+
+            mat.mult_matrix_vec(tc);
+            hero_pos_render.set(tc.v);
+
+            mCurrentClipPlane.setVec(hero_pos_render, mirror_normal);
 
             probe_pos.load3(point.mV);
         }
@@ -189,7 +202,7 @@ void LLHeroProbeManager::update()
         bool radiance_pass = gPipeline.mReflectionMapManager.isRadiancePass();
         
         gPipeline.mReflectionMapManager.mRadiancePass = true;
-        
+        mRenderingMirror = true;
         for (U32 j = 0; j < mProbes.size(); j++)
         {
             for (U32 i = 0; i < 6; ++i)
@@ -197,6 +210,7 @@ void LLHeroProbeManager::update()
                 updateProbeFace(mProbes[j], i, near_clip);
             }
         }
+        mRenderingMirror = false;
         
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
     }
@@ -562,4 +576,9 @@ void LLHeroProbeManager::unregisterHeroDrawable(LLVOVolume* drawablep)
     {
         mHeroVOList.erase(drawablep);
     }
+}
+
+bool LLHeroProbeManager::isViableMirror(LLFace* face) const
+{
+    return face == mCurrentFace;
 }
