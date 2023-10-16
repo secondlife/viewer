@@ -39,6 +39,8 @@
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
 
+static U32 sUpdateCount = 0;
+
 // get the next highest power of two of v (or v if v is already a power of two)
 //defined in llvertexbuffer.cpp
 extern U32 nhpo2(U32 v);
@@ -91,7 +93,7 @@ static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
         return false;
     }
     else if (b->mCubeIndex == -1)
-    { // certainly higher priority than b
+    { // b is not a candidate for updating, a is higher priority by default
         return true;
     }
     else if (!a->mComplete && !b->mComplete)
@@ -103,7 +105,13 @@ static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
         return update_score(a) > update_score(b);
     }
 
-    // one of these probes is not complete, if b is complete, a is higher priority
+    // a or b is not complete,
+    if (sUpdateCount % 3 == 0)
+    { // every third update, allow complete probes to cut in line in front of non-complete probes to avoid spammy probe generators from deadlocking scheduler (SL-20258))
+        return !b->mComplete;
+    }
+
+    // prioritize incomplete probe
     return b->mComplete;
 }
 
@@ -351,6 +359,7 @@ void LLReflectionMapManager::update()
         
         probe->autoAdjustOrigin();
 
+        sUpdateCount++;
         mUpdatingProbe = probe;
         doProbeUpdate();
     }
@@ -537,8 +546,14 @@ void LLReflectionMapManager::doProbeUpdate()
 
     updateProbeFace(mUpdatingProbe, mUpdatingFace);
     
+    bool debug_updates = gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PROBE_UPDATES) && mUpdatingProbe->mViewerObject;
+
     if (++mUpdatingFace == 6)
     {
+        if (debug_updates)
+        {
+            mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", (F32)gFrameTimeSeconds), LLColor4(1, 1, 1, 1));
+        }
         updateNeighbors(mUpdatingProbe);
         mUpdatingFace = 0;
         if (isRadiancePass())
@@ -551,6 +566,10 @@ void LLReflectionMapManager::doProbeUpdate()
         {
             mRadiancePass = true;
         }
+    }
+    else if (debug_updates)
+    {
+        mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", (F32)gFrameTimeSeconds), LLColor4(1, 1, 0, 1));
     }
 }
 

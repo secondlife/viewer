@@ -2975,6 +2975,16 @@ function="World.EnvPreset"
            parameter="reflection probes" />
         </menu_item_check>
         <menu_item_check
+         label="Probe Updates"
+         name="Probe Updates">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="probe updates" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="probe updates" />
+        </menu_item_check>
+        <menu_item_check
          label="Particles"
          name="Particles">
           <menu_item_check.on_check
