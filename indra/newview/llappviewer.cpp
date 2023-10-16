@@ -1420,7 +1420,6 @@ bool packGameControlInput(LLMessageSystem* msg)
         msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
     }
 
-    // TODO: implement the resend logic instead of clearing input here
     LLGameControl::clearInput();
     return true;
 }
