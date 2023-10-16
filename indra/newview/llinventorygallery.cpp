@@ -1866,7 +1866,8 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
     {
         bool has_worn = notification["payload"]["has_worn"].asBoolean();
         uuid_vec_t worn;
-        uuid_vec_t deletion_list;
+        uuid_vec_t item_deletion_list;
+        uuid_vec_t cat_deletion_list;
         for (const LLUUID& obj_id : selected_ids)
         {
             LLViewerInventoryCategory* cat = gInventory.getCategory(obj_id);
@@ -1891,7 +1892,7 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
                 }
                 if (cat_has_worn)
                 {
-                    deletion_list.push_back(obj_id);
+                    cat_deletion_list.push_back(obj_id);
                 }
                 else
                 {
@@ -1904,7 +1905,7 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
                 if (has_worn && get_is_item_worn(item))
                 {
                     worn.push_back(item->getUUID());
-                    deletion_list.push_back(item->getUUID());
+                    item_deletion_list.push_back(item->getUUID());
                 }
                 else
                 {
@@ -1917,11 +1918,15 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
         {
             // should fire once after every item gets detached
             LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
-                                                              [deletion_list]()
+                                                              [item_deletion_list, cat_deletion_list]()
                                                               {
-                                                                  for (const LLUUID& id : deletion_list)
+                                                                  for (const LLUUID& id : item_deletion_list)
                                                                   {
                                                                       remove_inventory_item(id, NULL);
+                                                                  }
+                                                                  for (const LLUUID& id : cat_deletion_list)
+                                                                  {
+                                                                      remove_inventory_category(id, NULL);
                                                                   }
                                                               });
         }
