@@ -190,10 +190,10 @@ void LLKeyboard::resetKeys()
         mKeyDown[i] = false;
     }
 
-	for (i = 0; i < KEY_COUNT; i++)
-	{
+    for (i = 0; i < KEY_COUNT; i++)
+    {
         mKeyRepeated[i] = false;
-	}
+    }
     LLGameControl::clearAllButtons();
 }
 
