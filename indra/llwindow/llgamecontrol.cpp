@@ -33,28 +33,31 @@
 #include "SDL2/SDL_joystick.h"
 
 
-// globals
-LLGameControl::State g_gameControlState;
-LLGameControl* g_manager = nullptr;
-std::vector<SDL_GameController*> g_controllers;
+// local globals
+namespace
+{
+    LLGameControl::State g_gameControlState;
+    LLGameControl* g_manager = nullptr;
+    std::vector<SDL_GameController*> g_controllers;
 
-// The GameControlInput message is sent via UDP which is lossy.
-// Since we send the only the list of pressed buttons the receiving
-// side can compute the difference between subsequent states to
-// find button-down/button-up events.
-//
-// To reduce the likelihood of buttons being stuck "pressed" forever
-// on the receiving side (for lost final packet) we resend the last
-// data state. However, to keep th ambient resend bandwidth low we
-// expand the resend period at a geometric rate.
-//
-constexpr U64 MSEC_PER_NSEC = 1e6;
-constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
-constexpr U64 RESEND_EXPANSION_RATE = 10;
-U64 g_lastSend = 0;
-U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
+    // The GameControlInput message is sent via UDP which is lossy.
+    // Since we send the only the list of pressed buttons the receiving
+    // side can compute the difference between subsequent states to
+    // find button-down/button-up events.
+    //
+    // To reduce the likelihood of buttons being stuck "pressed" forever
+    // on the receiving side (for lost final packet) we resend the last
+    // data state. However, to keep th ambient resend bandwidth low we
+    // expand the resend period at a geometric rate.
+    //
+    constexpr U64 MSEC_PER_NSEC = 1e6;
+    constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
+    constexpr U64 RESEND_EXPANSION_RATE = 10;
+    U64 g_lastSend = 0;
+    U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
-bool g_includeKeyboardButtons = false;
+    bool g_includeKeyboardButtons = false;
+}
 
 U64 get_now_nsec()
 {
@@ -264,10 +267,20 @@ void LLGameControl::terminate()
 }
 
 // static
-void LLGameControl::processEvents()
+void LLGameControl::processEvents(bool app_has_focus)
 {
-    // TODO: ignore events when SL window lacks focus
     SDL_Event event;
+    if (!app_has_focus)
+    {
+        // when SL window lacks focus: pump SDL events but ignore them
+        while (g_manager && SDL_PollEvent(&event))
+        {
+            // ignore
+        }
+        clearAllButtons();
+        return;
+    }
+
     while (g_manager && SDL_PollEvent(&event))
     {
         switch (event.type)

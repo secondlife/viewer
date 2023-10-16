@@ -1515,7 +1515,7 @@ bool LLAppViewer::doFrame()
                 gViewerInput.scanMouse();
 
                 LLGameControl::setIncludeKeyboardButtons(gSavedSettings.getBOOL("EnableGameControlKeyboardInput"));
-                LLGameControl::processEvents();
+                LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
                 // to help minimize lag we send GameInput packets immediately
                 // after getting the latest GameController input
                 if (packGameControlInput(gMessageSystem))
