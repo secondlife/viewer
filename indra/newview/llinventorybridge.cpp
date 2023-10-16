@@ -4504,7 +4504,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
         return;
     }
 
-	if (!isItemRemovable())
+	if (!isItemRemovable(false))
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
