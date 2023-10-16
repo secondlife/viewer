@@ -62,7 +62,7 @@ public:
     static bool isInitialized();
 	static void init();
 	static void terminate();
-    static void processEvents();
+    static void processEvents(bool app_has_focus = true);
     static const State& getState();
     static void setIncludeKeyboardButtons(bool include);
     static bool getIncludeKeyboardButtons();

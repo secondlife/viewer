@@ -70,7 +70,7 @@ void LLGameControl::terminate()
 }
 
 // static
-void LLGameControl::processEvents()
+void LLGameControl::processEvents(bool app_has_focus)
 {
 }
 
