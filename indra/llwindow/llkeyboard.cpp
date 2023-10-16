@@ -279,7 +279,7 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		// sequence W<return> in chat to move agents forward. JC
 		mKeyUp[translated_key] = TRUE;
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
-        if (!handled)
+        if (!handled && LLGameControl::getIncludeKeyboardButtons())
         {
             LLGameControl::onButton(translated_key, false);
         }
