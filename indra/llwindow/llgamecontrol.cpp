@@ -26,6 +26,8 @@
 
 #include "llgamecontrol.h"
 
+#include <chrono>
+
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_gamecontroller.h"
 #include "SDL2/SDL_joystick.h"
@@ -34,12 +36,31 @@
 // globals
 LLGameControl::State g_gameControlState;
 LLGameControl* g_manager = nullptr;
-std::vector<SDL_GameControllerAxis> g_axisEnums;
-std::vector<SDL_GameControllerButton> g_buttonEnums;
 std::vector<SDL_GameController*> g_controllers;
-bool g_hasInput = false;
+
+// The GameControlInput message is sent via UDP which is lossy.
+// Since we send the only the list of pressed buttons the receiving
+// side can compute the difference between subsequent states to
+// find button-down/button-up events.
+//
+// To reduce the likelihood of buttons being stuck "pressed" forever
+// on the receiving side (for lost final packet) we resend the last
+// data state. However, to keep th ambient resend bandwidth low we
+// expand the resend period at a geometric rate.
+//
+constexpr U64 MSEC_PER_NSEC = 1e6;
+constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
+constexpr U64 RESEND_EXPANSION_RATE = 10;
+U64 g_lastSend = 0;
+U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
+
 bool g_includeKeyboardButtons = false;
 
+U64 get_now_nsec()
+{
+    std::chrono::time_point<std::chrono::steady_clock> t0;
+    return (std::chrono::steady_clock::now() - t0).count();
+}
 
 
 // util for dumping SDL_GameController info
@@ -152,22 +173,9 @@ void onControllerAxis(const SDL_Event& event)
         LL_DEBUGS("SDL2") << " axis i=" << (S32)(event.caxis.axis)
             << " state:" << g_gameControlState.mAxes[axis] << "-->" << value << LL_ENDL;
         g_gameControlState.mAxes[axis] = value;
-        g_hasInput = true;
+        g_nextResendPeriod = 0;
     }
 }
-
-/* SDL keyboard events don't work without an SDL window
-   and we aren't using SDL for window management
-void onKeyboard(const SDL_Event& event)
-{
-    SDL_Keycode sym = event.key.keysym.sym;
-    U32 mod = event.key.keysym.mod;
-    U8 state = event.key.state;
-    LL_DEBUGS("SDL2") << "sym=" << (S32)(sym)
-        << " mod=0x" << std::hex << mod << std::dec
-        << " state=" << (S32)(state) << LL_ENDL;
-}
-*/
 
 LLGameControl::~LLGameControl()
 {
@@ -214,7 +222,7 @@ void LLGameControl::onButton(U8 button, bool pressed)
 
     LL_DEBUGS("SDL2") << " button i=" << (S32)(button)
         << " state:" << (!pressed) << "-->" << pressed << LL_ENDL;
-    g_hasInput = true;
+    g_nextResendPeriod = 0;
 }
 
 void LLGameControl::clearAllButtons()
@@ -222,7 +230,7 @@ void LLGameControl::clearAllButtons()
     if (g_gameControlState.mPressedButtons.size() > 0)
     {
         g_gameControlState.mPressedButtons.clear();
-        g_hasInput = true;
+        g_nextResendPeriod = 0;
     }
 }
 
@@ -243,42 +251,7 @@ void LLGameControl::init()
     if (!g_manager)
     {
         g_manager = LLGameControl::getInstance();
-        //SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
         SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
-
-        g_axisEnums = {
-            SDL_CONTROLLER_AXIS_LEFTX,
-            SDL_CONTROLLER_AXIS_LEFTY,
-            SDL_CONTROLLER_AXIS_RIGHTX,
-            SDL_CONTROLLER_AXIS_RIGHTY,
-            SDL_CONTROLLER_AXIS_TRIGGERLEFT,
-            SDL_CONTROLLER_AXIS_TRIGGERRIGHT
-        };
-
-        g_buttonEnums = {
-            SDL_CONTROLLER_BUTTON_A,
-            SDL_CONTROLLER_BUTTON_B,
-            SDL_CONTROLLER_BUTTON_X,
-            SDL_CONTROLLER_BUTTON_Y,
-            SDL_CONTROLLER_BUTTON_BACK,
-            SDL_CONTROLLER_BUTTON_GUIDE,
-            SDL_CONTROLLER_BUTTON_START,
-            SDL_CONTROLLER_BUTTON_LEFTSTICK,
-            SDL_CONTROLLER_BUTTON_RIGHTSTICK,
-            SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
-            SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
-            SDL_CONTROLLER_BUTTON_DPAD_UP,
-            SDL_CONTROLLER_BUTTON_DPAD_DOWN,
-            SDL_CONTROLLER_BUTTON_DPAD_LEFT,
-            SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
-            SDL_CONTROLLER_BUTTON_MISC1,
-            SDL_CONTROLLER_BUTTON_PADDLE1,
-            SDL_CONTROLLER_BUTTON_PADDLE2,
-            SDL_CONTROLLER_BUTTON_PADDLE3,
-            SDL_CONTROLLER_BUTTON_PADDLE4,
-            SDL_CONTROLLER_BUTTON_TOUCHPAD
-        };
-
         SDL_LogSetOutputFunction(&sdl_logger, nullptr);
     }
 }
@@ -340,14 +313,25 @@ bool LLGameControl::getIncludeKeyboardButtons()
 //static
 bool LLGameControl::hasInput()
 {
-    // TODO: modify this to trigger resends to reduce problems caused by packet loss of final state
-    return g_hasInput;
+    return g_lastSend + g_nextResendPeriod < get_now_nsec();
 }
 
 //static
 void LLGameControl::clearInput()
 {
-    g_gameControlState.mPrevAxes = g_gameControlState.mAxes;
-    g_hasInput = false;
+    // we expect this method to be called right after data is sent
+    g_lastSend = get_now_nsec();
+    if (g_nextResendPeriod == 0)
+    {
+        g_nextResendPeriod = FIRST_RESEND_PERIOD;
+    }
+    else
+    {
+        // Reset mPrevAxes only on second resend or higher
+        // because when the joysticks are being used we expect a steady stream
+        // of recorrection data rather than sparse changes.
+        g_gameControlState.mPrevAxes = g_gameControlState.mAxes;
+        g_nextResendPeriod *= RESEND_EXPANSION_RATE;
+    }
 }
 
