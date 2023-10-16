@@ -2430,7 +2430,7 @@ BOOL LLFolderBridge::isItemRemovable(bool check_worn) const
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ?   panel->getItemByID(mUUID) : NULL);
 	if (folderp)
 	{
-		LLIsItemRemovable folder_test;
+		LLIsItemRemovable folder_test(check_worn);
 		folderp->applyFunctorToChildren(folder_test);
 		if (!folder_test.mPassed)
 		{
@@ -6611,6 +6611,26 @@ LLInventoryObject* LLObjectBridge::getObject() const
 		object = (LLInventoryObject*)model->getObject(mUUID);
 	}
 	return object;
+}
+
+LLViewerInventoryItem* LLObjectBridge::getItem() const
+{
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+       return model->getItem(mUUID);
+    }
+    return NULL;
+}
+
+LLViewerInventoryCategory* LLObjectBridge::getCategory() const
+{
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+        return model->getCategory(mUUID);
+    }
+    return NULL;
 }
 
 // virtual
