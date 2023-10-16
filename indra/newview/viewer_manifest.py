@@ -837,7 +837,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode
         # script)
-        self.path(os.path.join(self.args['configuration'], self.app_name() + ".app"), dst="")
+        self.path(os.path.join(self.args['configuration'], self.channel() + ".app"), dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -1182,10 +1182,12 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
             print(f'Creating {tarpath} from {self.get_dst_prefix()}')
             with tarfile.open(tarpath, mode="w:bz2") as tarball:
-                # store in the tarball as just 'Second Life Mumble.app'
+                # Store in the tarball as just 'Second Life Mumble.app'
                 # instead of 'Users/someone/.../newview/Release/Second...'
+                # It's at this point that we rename 'Second Life Release.app'
+                # to 'Second Life Viewer.app'.
                 tarball.add(self.get_dst_prefix(),
-                            arcname=os.path.basename(self.get_dst_prefix()))
+                            arcname=self.app_name() + ".app")
             self.set_github_output_path('viewer_app', tarpath)
 
 
