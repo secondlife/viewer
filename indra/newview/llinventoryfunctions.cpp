@@ -579,9 +579,8 @@ BOOL get_is_parent_to_worn_item(const LLUUID& id)
 	return FALSE;
 }
 
-BOOL get_is_item_worn(const LLUUID& id)
+BOOL get_is_item_worn(const LLUUID& id, const LLViewerInventoryItem* item)
 {
-	const LLViewerInventoryItem* item = gInventory.getItem(id);
 	if (!item)
 		return FALSE;
 
@@ -617,6 +616,21 @@ BOOL get_is_item_worn(const LLUUID& id)
 			break;
 	}
 	return FALSE;
+}
+
+BOOL get_is_item_worn(const LLUUID& id)
+{
+    const LLViewerInventoryItem* item = gInventory.getItem(id);
+    return get_is_item_worn(item);
+}
+
+BOOL get_is_item_worn(const LLViewerInventoryItem* item)
+{
+    if (!item)
+    {
+        return FALSE;
+    }
+    return get_is_item_worn(item->getUUID(), item);
 }
 
 BOOL get_can_item_be_worn(const LLUUID& id)
@@ -3034,15 +3048,47 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 				folder->applyFunctorRecursively(f);
 			}
 			LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*it)->getViewModelItem());
-			if (viewModel && gInventory.isObjectDescendentOf(viewModel->getUUID(), marketplacelistings_id))
+            LLUUID obj_id = viewModel->getUUID();
+			if (viewModel && gInventory.isObjectDescendentOf(obj_id, marketplacelistings_id))
 			{
 				marketplacelistings_item = true;
 				break;
 			}
-            if (get_is_item_worn(viewModel->getUUID()))
+
+            LLViewerInventoryCategory* cat = gInventory.getCategory(obj_id);
+            if (cat)
+            {
+                LLInventoryModel::cat_array_t categories;
+                LLInventoryModel::item_array_t items;
+
+                gInventory.collectDescendents(obj_id, categories, items, FALSE);
+
+                for (LLInventoryModel::item_array_t::value_type& item : items)
+                {
+                    if (get_is_item_worn(item))
+                    {
+                        has_worn = true;
+                        LLWearableType::EType type = item->getWearableType();
+                        if (type == LLWearableType::WT_SHAPE
+                            || type == LLWearableType::WT_SKIN
+                            || type == LLWearableType::WT_HAIR
+                            || type == LLWearableType::WT_EYES)
+                        {
+                            needs_replacement = true;
+                            break;
+                        }
+                    }
+                }
+                if (needs_replacement)
+                {
+                    break;
+                }
+            }
+            LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+            if (item && get_is_item_worn(item))
             {
                 has_worn = true;
-                LLWearableType::EType type = viewModel->getWearableType();
+                LLWearableType::EType type = item->getWearableType();
                 if (type == LLWearableType::WT_SHAPE
                     || type == LLWearableType::WT_SKIN
                     || type == LLWearableType::WT_HAIR
@@ -3381,6 +3427,7 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
         }
     }
 }
+
 void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -3394,6 +3441,7 @@ void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, con
 
         // removeSelectedItems will change selection, collect worn items beforehand
         uuid_vec_t worn;
+        uuid_vec_t deletion_list;
         if (has_worn)
         {
             //Get selected items
@@ -3403,18 +3451,42 @@ void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, con
             //from DND history and .xml file. Once this is done, upon exit of DND mode the item deleted will not show a notification.
             for (LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
             {
-                LLObjectBridge* view_model = dynamic_cast<LLObjectBridge*>((*it)->getViewModelItem());
+                LLFolderViewModelItemInventory* viewModel = dynamic_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem());
 
-                if (view_model && get_is_item_worn(view_model->getUUID()))
+                LLUUID obj_id = viewModel->getUUID();
+                LLViewerInventoryCategory* cat = gInventory.getCategory(obj_id);
+                bool cat_has_worn = false;
+                if (cat)
                 {
-                    worn.push_back(view_model->getUUID());
+                    LLInventoryModel::cat_array_t categories;
+                    LLInventoryModel::item_array_t items;
+
+                    gInventory.collectDescendents(obj_id, categories, items, FALSE);
+
+                    for (LLInventoryModel::item_array_t::value_type& item : items)
+                    {
+                        if (get_is_item_worn(item))
+                        {
+                            worn.push_back(item->getUUID());
+                            cat_has_worn = true;
+                        }
+                    }
+                    if (cat_has_worn)
+                    {
+                        deletion_list.push_back(obj_id);
+                    }
+                }
+                LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+                if (item && get_is_item_worn(item))
+                {
+                    worn.push_back(obj_id);
+                    deletion_list.push_back(obj_id);
                 }
             }
         }
-        // TODO: collect worn items from content and folders that neede to be deleted after that
 
         // removeSelectedItems will check if items are worn before deletion,
-        // don't 'unwear' yet to prevent a race condition from unwearing
+        // don't 'unwear' yet to prevent race conditions from unwearing
         // and removing simultaneously
         folder_root->removeSelectedItems();
 
@@ -3423,9 +3495,9 @@ void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, con
         {
             // should fire once after every item gets detached
             LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
-                                                              [worn]()
+                                                              [deletion_list]()
                                                               {
-                                                                  for (const LLUUID& id : worn)
+                                                                  for (const LLUUID& id : deletion_list)
                                                                   {
                                                                       remove_inventory_item(id, NULL);
                                                                   }

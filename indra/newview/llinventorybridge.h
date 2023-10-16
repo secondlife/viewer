@@ -524,6 +524,8 @@ public:
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL renameItem(const std::string& new_name);
 	LLInventoryObject* getObject() const;
+    LLViewerInventoryItem* getItem() const;
+    LLViewerInventoryCategory* getCategory() const;
 protected:
 	static LLUUID sContextMenuItemID;  // Only valid while the context menu is open.
 	U32 mAttachPt;
