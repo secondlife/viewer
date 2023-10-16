@@ -837,30 +837,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode
         # script)
-        appname = self.channel() + ".app"
-        self.path(os.path.join(self.args['configuration'], appname), dst="")
-        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
-        # When running as a GitHub Action job, RUNNER_TEMP is the recommended
-        # temp directory. If we're not running on GitHub, don't create this
-        # temp directory or this tarball: we don't clean them up, trusting
-        # that the runner is itself transient. On a dev machine, that would
-        # result in temp-directory clutter.
-        if RUNNER_TEMP:
-            # Per GitHub's actions/upload-artifact documentation
-            # https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
-            # we must package the app bundle with tar before posting as an
-            # artifact. Posting individual files follows symlinks, which
-            # causes problems, especially with frameworks: a framework's top
-            # level must contain symlinks into its Versions/Current, which
-            # must itself be a symlink to some specific Versions subdir.
-            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
-            print(f'Creating {tarpath} from {self.get_dst_prefix()}')
-            with tarfile.open(tarpath, mode="w:bz2") as tarball:
-                # store in the tarball as just 'Second Life Mumble.app'
-                # instead of 'Users/someone/.../newview/Release/Second...'
-                tarball.add(self.get_dst_prefix(),
-                            arcname=os.path.basename(self.get_dst_prefix()))
-            self.set_github_output_path('viewer_app', tarpath)
+        self.path(os.path.join(self.args['configuration'], self.app_name() + ".app"), dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -1187,6 +1164,29 @@ class Darwin_x86_64_Manifest(ViewerManifest):
         self.set_github_output('imagename', imagename)
         finalname = imagename + ".dmg"
         self.package_file = finalname
+
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
+        # When running as a GitHub Action job, RUNNER_TEMP is the recommended
+        # temp directory. If we're not running on GitHub, don't create this
+        # temp directory or this tarball: we don't clean them up, trusting
+        # that the runner is itself transient. On a dev machine, that would
+        # result in temp-directory clutter.
+        if RUNNER_TEMP:
+            # Per GitHub's actions/upload-artifact documentation
+            # https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
+            # we must package the app bundle with tar before posting as an
+            # artifact. Posting individual files follows symlinks, which
+            # causes problems, especially with frameworks: a framework's top
+            # level must contain symlinks into its Versions/Current, which
+            # must itself be a symlink to some specific Versions subdir.
+            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
+            print(f'Creating {tarpath} from {self.get_dst_prefix()}')
+            with tarfile.open(tarpath, mode="w:bz2") as tarball:
+                # store in the tarball as just 'Second Life Mumble.app'
+                # instead of 'Users/someone/.../newview/Release/Second...'
+                tarball.add(self.get_dst_prefix(),
+                            arcname=os.path.basename(self.get_dst_prefix()))
+            self.set_github_output_path('viewer_app', tarpath)
 
 
 class LinuxManifest(ViewerManifest):
