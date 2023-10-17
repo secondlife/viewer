@@ -298,7 +298,10 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         || !result.has("id")
         || agent_id != result["id"].asUUID())
     {
-        LL_WARNS("AvatarProperties") << "Failed to get agent information for id " << agent_id << LL_ENDL;
+        LL_WARNS("AvatarProperties") << "Failed to get agent information for id " << agent_id
+            << (!status ? " (no HTTP status)" : !result.has("id") ? " (no result.id)" :
+                std::string(" (result.id=") + result["id"].asUUID().asString() + ")")
+            << LL_ENDL;
         LLAvatarPropertiesProcessor* self = getInstance();
         self->removePendingRequest(agent_id, APT_PROPERTIES);
         self->removePendingRequest(agent_id, APT_PICKS);
@@ -320,6 +323,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
     avatar_data.about_text = result["sl_about_text"].asString();
     avatar_data.fl_about_text = result["fl_about_text"].asString();
     avatar_data.born_on = result["member_since"].asDate();
+    avatar_data.hide_age = result["hide_age"].asBoolean();
     avatar_data.profile_url = getProfileURL(agent_id.asString());
 
     avatar_data.flags = 0;

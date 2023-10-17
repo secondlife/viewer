@@ -191,7 +191,7 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         avatar_data->caption_text = result["caption"].asString();
     }
 
-    avatar_data->hide_sl_age = result["hide_sl_age"].asBoolean();
+    avatar_data->hide_age = result["hide_age"].asBoolean();
 
     panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
     LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
@@ -859,7 +859,7 @@ LLPanelProfileSecondLife::LLPanelProfileSecondLife()
     , mHasUnsavedDescriptionChanges(false)
     , mWaitingForImageUpload(false)
     , mAllowPublish(false)
-    , mHideSLAge(false)
+    , mHideAge(false)
 {
 }
 
@@ -885,7 +885,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
-    mHideSLAgeCombo         = getChild<LLComboBox>("hide_sl_age");
+    mHideAgeCombo         = getChild<LLComboBox>("hide_age");
     mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
@@ -900,7 +900,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mCantEditObjectsIcon    = getChild<LLIconCtrl>("cant_edit_objects");
 
     mShowInSearchCombo->setCommitCallback([this](LLUICtrl*, void*) { onShowInSearchCallback(); }, nullptr);
-    mHideSLAgeCombo->setCommitCallback([this](LLUICtrl*, void*) { onHideSLAgeCallback(); }, nullptr);
+    mHideAgeCombo->setCommitCallback([this](LLUICtrl*, void*) { onHideAgeCallback(); }, nullptr);
     mGroupList->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { LLPanelProfileSecondLife::openGroupProfile(); });
     mGroupList->setReturnCallback([this](LLUICtrl*, const LLSD&) { LLPanelProfileSecondLife::openGroupProfile(); });
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
@@ -1339,14 +1339,14 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
 {
     // Date from server comes already converted to stl timezone,
     // so display it as an UTC + 0
-    std::string name_and_date = getString(avatar_data->hide_sl_age ? "date_format_short" : "date_format_full");
+    std::string name_and_date = getString(avatar_data->hide_age ? "date_format_short" : "date_format_full");
     LLSD args_name;
     args_name["datetime"] = (S32)avatar_data->born_on.secondsSinceEpoch();
     LLStringUtil::format(name_and_date, args_name);
     getChild<LLUICtrl>("sl_birth_date")->setValue(name_and_date);
 
     LLUICtrl* userAgeCtrl = getChild<LLUICtrl>("user_age");
-    if (avatar_data->hide_sl_age)
+    if (avatar_data->hide_age)
     {
         userAgeCtrl->setVisible(FALSE);
     }
@@ -1365,12 +1365,12 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
         F64 now = LLDate::now().secondsSinceEpoch();
         if (now - birth > 365 * 24 * 60 * 60)
         {
-            mHideSLAge = avatar_data->hide_sl_age;
-            mHideSLAgeCombo->setValue(mHideSLAge ? TRUE : FALSE);
+            mHideAge = avatar_data->hide_age;
+            mHideAgeCombo->setValue(mHideAge ? TRUE : FALSE);
         }
         else
         {
-            mHideSLAgeCombo->setVisible(FALSE);
+            mHideAgeCombo->setVisible(FALSE);
         }
     }
 }
@@ -1489,9 +1489,9 @@ void LLPanelProfileSecondLife::setLoaded()
     if (getSelfProfile())
     {
         mShowInSearchCombo->setEnabled(TRUE);
-        if (mHideSLAgeCombo->getVisible())
+        if (mHideAgeCombo->getVisible())
         {
-            mHideSLAgeCombo->setEnabled(TRUE);
+            mHideAgeCombo->setEnabled(TRUE);
         }
         mDescriptionEdit->setEnabled(TRUE);
     }
@@ -1828,14 +1828,14 @@ void LLPanelProfileSecondLife::onShowInSearchCallback()
     saveAgentUserInfoCoro("allow_publish", value);
 }
 
-void LLPanelProfileSecondLife::onHideSLAgeCallback()
+void LLPanelProfileSecondLife::onHideAgeCallback()
 {
-    bool value = mHideSLAgeCombo->getValue().asInteger();
-    if (value == mHideSLAge)
+    bool value = mHideAgeCombo->getValue().asInteger();
+    if (value == mHideAge)
         return;
 
-    mHideSLAge = value;
-    saveAgentUserInfoCoro("hide_sl_age", value);
+    mHideAge = value;
+    saveAgentUserInfoCoro("hide_age", value);
 }
 
 void LLPanelProfileSecondLife::onSaveDescriptionChanges()

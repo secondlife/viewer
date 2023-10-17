@@ -179,7 +179,7 @@ private:
     void setDescriptionText(const std::string &text);
     void onSetDescriptionDirty();
     void onShowInSearchCallback();
-    void onHideSLAgeCallback();
+    void onHideAgeCallback();
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
     void onShowAgentPermissionsDialog();
@@ -194,7 +194,7 @@ private:
 
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
-    LLComboBox*			mHideSLAgeCombo;
+    LLComboBox*			mHideAgeCombo;
     LLThumbnailCtrl*	mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
@@ -216,7 +216,7 @@ private:
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
     bool				mAllowPublish;
-    bool				mHideSLAge;
+    bool				mHideAge;
     std::string			mDescriptionText;
     LLUUID				mImageId;
 
