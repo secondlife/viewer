@@ -9,6 +9,16 @@
     <map>
       <key>SDL2</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1997-2022 Sam Lantinga (slouken@libsdl.org)</string>
+        <key>description</key>
+        <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/SDL2.txt</string>
+        <key>name</key>
+        <string>SDL2</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
