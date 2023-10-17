@@ -43,95 +43,158 @@
     name="origin_inworld">
     (Inworld)
   </panel.string>
-  <icon
-    follows="top|right"
-    height="18"
-    image_name="Lock"
-    layout="topleft"
-    right="-15"
-    mouse_opaque="true"
-    name="IconLocked"
-    top="8"
-    width="18" />
-  <button
-    follows="top|left"
-    height="24"
-    image_hover_unselected="BackButton_Over"
-    image_pressed="BackButton_Press"
-    image_unselected="BackButton_Off"
-    layout="topleft"
-    left="12"
-    name="back_btn"
-    tab_stop="false"
-    top="2"
-    width="30"
-    use_draw_context_alpha="false" />
-  <text
-    follows="top|left|right"
-    font="SansSerifHugeBold"
-    height="26"
-    layout="topleft"
-    left_pad="3"
-    name="title"
-    text_color="LtGray"
-    top="2"
-    use_ellipses="true"
-    value="Item Profile"
-    width="275" />
-  <text
-    follows="top|left|right"
-    height="13"
-    layout="topleft"
-    left="45"
-    name="origin"
-    text_color="LtGray_50"
-    use_ellipses="true"
-    value="(Inventory)"
-    width="275" />
-  <scroll_container
-    color="DkGray2"
-    follows="all"
-    layout="topleft"
-    left="9"
-    name="item_profile_scroll"
-    opaque="true"
-    height="493"
-    width="313"
-    top="45">
-    <panel
-      follows="left|top|right"
-      height="390"
-      help_topic=""
-      label=""
+
+<layout_stack
+  animate="false"
+  name="main_stack"
+  layout="topleft"
+  follows="all"
+  orientation="vertical"
+  left="0"
+  top="0"
+  right="-1"
+  bottom="-1">
+    <layout_panel
+      auto_resize="false"
+      name="layout_item_name"
       layout="topleft"
-      left="0"
-      name="item_profile"
-      top="0"
-      width="295">
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
+      follows="all"
+      height="25">
+      <icon
+        follows="top|left"
+        height="16"
+        image_name="Inv_Object"
         layout="topleft"
         left="5"
-        name="LabelItemNameTitle"
-        top="10"
-        width="78">
-        Name:
-      </text>
+        mouse_opaque="true"
+        name="item_type_icon"
+        top="3"
+        width="16" />
       <line_editor
         border_style="line"
         border_thickness="1"
         follows="left|top|right"
-        height="20"
         layout="topleft"
-        left_delta="78"
+        left_pad="5"
+        top="1"
+        right="-5"
+        height="20"
         max_length_bytes="63"
         name="LabelItemName"
-        top_delta="0"
-        width="210"
         tool_tip="The name is limited to 63 characters. Longer prim names are cut short. Names can only consist of printable characters found in the ASCII-7 (non-extended) character set, with the exception of the vertical bar/pipe &apos;|&apos;." />
+    </layout_panel>
+    
+    <layout_panel
+      auto_resize="false"
+      name="layout_item_details"
+      layout="topleft"
+      follows="all"
+      height="133">
+      
+      <thumbnail
+        name="item_thumbnail"
+        fallback_image="Thumbnail_Fallback"
+        follows="top|left"
+        layout="topleft"
+        left="5"
+        top="2"
+        height="128"
+        width="128"
+        />
+        
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        left_pad="5"
+        name="LabelOwnerTitle"
+        top="0"
+        width="78">
+        Owner:
+      </text>
+      <text
+        type="string"
+        font="SansSerifSmall"
+        follows="left|right|top"
+        layout="topleft"
+        height="15"
+        width="187"
+        left_delta="0"
+        top_pad="0"
+        name="LabelOwnerName"
+        use_ellipses="true"
+        translate="false">
+TestString PleaseIgnore
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        left_delta="0"
+        name="LabelCreatorTitle"
+        top_pad="7"
+        width="78">
+        Creator:
+      </text>
+      <text
+        type="string"
+        font="SansSerifSmall"
+        follows="left|right|top"
+        layout="topleft"
+        left_delta="0"
+        top_pad="0"
+        width="187"
+        height="15"
+        name="LabelCreatorName"
+        use_ellipses="true"
+        translate="false">
+TestString PleaseIgnore
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        left_delta="0"
+        name="LabelAcquiredTitle"
+        top_pad="7"
+        width="78">
+        Acquired:
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top|right"
+        height="18"
+        layout="topleft"
+        left_delta="0"
+        name="LabelAcquiredDate"
+        top_pad="0"
+        width="187">
+        00/00/00
+      </text>
+      <button
+        follows="left|top"
+        height="21"
+        label="Image..."
+        layout="topleft"
+        left_delta="0"
+        name="change_thumbnail_btn"
+        top_pad="0"
+        width="120" />
+    </layout_panel>
+    
+    <layout_panel
+      auto_resize="false"
+      name="layout_item_description"
+      layout="topleft"
+      follows="all"
+      height="84">
       <text
         type="string"
         length="1"
@@ -140,289 +203,214 @@
         layout="topleft"
         left="5"
         name="LabelItemDescTitle"
-        top_pad="10"
+        top="0"
         width="78">
         Description:
       </text>
-      <line_editor
+      <text_editor
+        text_type="ascii_printable_no_pipe"
+        commit_on_focus_lost="true"
         border_style="line"
         border_thickness="1"
-        follows="left|top|right"
-        height="23"
+        word_wrap="true"
+        use_ellipses="false"
+        follows="all"
         layout="topleft"
-        left_delta="78"
-        max_length_bytes="127"
+        left="5"
+        top_pad="5"
+        right="-5"
+        height="46"
+        max_length="127"
         name="LabelItemDesc"
-        top_delta="-5"
-        width="210"
         tool_tip="When people have &apos;Hover Tips on All Objects&apos; selected in the viewer's settings, they'll see the object description pop-up for any object under their mouse pointer. The prim description is limited to 127 bytes any string longer then that will be truncated." />
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="23"
-        layout="topleft"
-        left="5"
-        name="LabelCreatorTitle"
-        top_pad="10"
-        width="78">
-        Creator:
-      </text>
-      <avatar_icon
-        follows="top|left"
-        height="20"
-        default_icon_name="Generic_Person"
-        layout="topleft"
-        left_pad="0"
-        top_delta="-6"
-        mouse_opaque="true"
-        width="20" />
-      <text
-        type="string"
-        follows="left|right|top"
-        font="SansSerifSmall"
-        height="15"
-        layout="topleft"
-        left_pad="5"
-        name="LabelCreatorName"
-        top_delta="6"
-        use_ellipses="true"
-        width="165">
-      </text>
-      <button
-        follows="top|right"
-        height="16"
-        image_selected="Inspector_I"
-        image_unselected="Inspector_I"
-        layout="topleft"
-        right="-5"
-        name="BtnCreator"
-        top_delta="-6"
-        width="16" />
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="23"
-        layout="topleft"
-        left="5"
-        name="LabelOwnerTitle"
-        top_pad="10"
-        width="78">
-        Owner:
-      </text>
-      <avatar_icon
-        follows="top|left"
-        height="20"
-        default_icon_name="Generic_Person"
-        layout="topleft"
-        left_pad="0"
-        top_delta="-6"
-        mouse_opaque="true"
-        width="20" />
-      <text
-        type="string"
-        follows="left|right|top"
-        font="SansSerifSmall"
-        height="15"
-        layout="topleft"
-        left_pad="5"
-        name="LabelOwnerName"
-        top_delta="6"
-        use_ellipses="true"
-        width="165">
-      </text>
-      <button
-        follows="top|right"
-        height="16"
-        image_selected="Inspector_I"
-        image_unselected="Inspector_I"
-        layout="topleft"
-        right="-5"
-        name="BtnOwner"
-        top_delta="-3"
-        width="16" />
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="23"
-        layout="topleft"
-        left="5"
-        name="LabelAcquiredTitle"
-        top_pad="10"
-        width="78">
-        Acquired:
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top|right"
-        height="23"
-        layout="topleft"
-        left_delta="78"
-        name="LabelAcquiredDate"
-        top_delta="0"
-        width="210">
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
-        layout="topleft"
-        left="5"
-        name="LabelItemExperienceTitle"
-        top_pad="0"
-        width="78"
-        visible="true">
-        Experience:
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top|right"
-        height="10"
-        layout="topleft"
-        left_delta="78"
-        name="LabelItemExperience"
-        top_delta="0"
-        width="210"
-        visible="true"
-        />
-      <panel
-        border="false"
-        follows="left|top|right"
-        layout="topleft"
-        mouse_opaque="false"
-        name="perms_inv"
-        left="0"
-        top_pad="25"
-        height="155"
-        width="313">
+
         <text
           type="string"
           length="1"
-          left="10"
-          top_pad="13"
-          text_color="EmphasisColor"
-          height="15"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left="5"
+          name="LabelItemExperienceTitle"
+          top_pad="7"
+          width="78"
+          visible="true">
+          Experience:
+        </text>
+        <text
+          type="string"
+          length="1"
           follows="left|top|right"
+          height="10"
           layout="topleft"
-          name="perm_modify"
-          width="200">
-          You can:
-        </text>
-        <check_box
-          height="18"
-          label="Modify"
-          layout="topleft"
-          left="20"
-          name="CheckOwnerModify"
-          top_pad="0"
-          width="90" />
-        <check_box
-          height="18"
-          label="Copy"
-          layout="topleft"
-          left_pad="0"
-          name="CheckOwnerCopy"
-          width="90" />
-        <check_box
-          height="18"
-          label="Transfer"
-          layout="topleft"
-          left_pad="0"
-          name="CheckOwnerTransfer"
-          width="106" />
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="16"
-          layout="topleft"
-          left="10"
-          name="AnyoneLabel"
-          top_pad="8"
-          width="100">
-          Anyone:
-        </text>
-        <check_box
-          height="18"
-          label="Copy"
-          layout="topleft"
-          left_pad="0"
-          name="CheckEveryoneCopy"
-          tool_tip="Anyone can take a copy of the object . Object and all of its contents must be copy and transfer permissive."
-          top_delta="-2"
-          width="150" />
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="16"
-          layout="topleft"
-          left="10"
-          name="GroupLabel"
-          top_pad="8"
-          width="100">
-          Group:
-        </text>
-        <check_box
-          height="18"
-          label="Share"
-          layout="topleft"
-          left_pad="0"
-          top_delta="-2"
-          name="CheckShareWithGroup"
-          tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
-          width="150" />
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="16"
-          layout="topleft"
-          left="10"
-          name="NextOwnerLabel"
-          top_pad="8"
-          width="200"
-          word_wrap="true">
-          Next owner:
-        </text>
-        <check_box
-          height="18"
-          label="Modify"
-          layout="topleft"
-          left="20"
-          top_pad="0"
-          name="CheckNextOwnerModify"
-          tool_tip="Next owner can edit properties like item name or scale of this object."
-          width="90" />
-        <check_box
-          height="18"
-          label="Copy"
-          layout="topleft"
-          left_pad="0"
-          name="CheckNextOwnerCopy"
-          tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
-          width="90" />
-        <check_box
-          height="18"
-          label="Transfer"
-          layout="topleft"
-          left_pad="0"
-          name="CheckNextOwnerTransfer"
-          tool_tip="Next owner can give away or resell this object."
-          width="106" />
-      </panel>
+          left_delta="78"
+          name="LabelItemExperience"
+          top_delta="0"
+          width="210"
+          visible="true"
+          />
+    </layout_panel>
+    
+    <layout_panel
+      auto_resize="false"
+      name="layout_item_permissions_sale"
+      layout="topleft"
+      follows="all"
+      height="235">
+      
+      <view_border
+        bevel_style="none"
+        height="0"
+        layout="topleft"
+        left="5"
+        right="-5"
+        name="cost_text_border"
+        top="1"/>
+        
+      <text
+        type="string"
+        length="1"
+        left="10"
+        top_pad="7"
+        height="15"
+        follows="left|top"
+        layout="topleft"
+        name="perm_modify"
+        width="200">
+        Permissions
+      </text>
+
+      <text
+        type="string"
+        length="1"
+        left="10"
+        top_pad="5"
+        height="15"
+        follows="left|top"
+        layout="topleft"
+        name="perm_modify"
+        width="200">
+        You can:
+      </text>
+      <check_box
+        height="18"
+        label="Modify"
+        layout="topleft"
+        left="20"
+        name="CheckOwnerModify"
+        top_pad="0"
+        width="90" />
+      <check_box
+        height="18"
+        label="Copy"
+        layout="topleft"
+        left_pad="0"
+        name="CheckOwnerCopy"
+        width="90" />
+      <check_box
+        height="18"
+        label="Transfer"
+        layout="topleft"
+        left_pad="0"
+        name="CheckOwnerTransfer"
+        width="106" />
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        left="10"
+        name="AnyoneLabel"
+        top_pad="8"
+        width="100">
+        Anyone:
+      </text>
+      <check_box
+        height="18"
+        label="Copy"
+        layout="topleft"
+        left_pad="0"
+        name="CheckEveryoneCopy"
+        tool_tip="Anyone can take a copy of the object . Object and all of its contents must be copy and transfer permissive."
+        top_delta="-2"
+        width="150" />
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        left="10"
+        name="GroupLabel"
+        top_pad="8"
+        width="100">
+        Group:
+      </text>
+      <check_box
+        height="18"
+        label="Share"
+        layout="topleft"
+        left_pad="0"
+        top_delta="-2"
+        name="CheckShareWithGroup"
+        tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
+        width="150" />
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        left="10"
+        name="NextOwnerLabel"
+        top_pad="8"
+        width="200"
+        word_wrap="true">
+        Next owner:
+      </text>
+      <check_box
+        height="18"
+        label="Modify"
+        layout="topleft"
+        left="20"
+        top_pad="0"
+        name="CheckNextOwnerModify"
+        tool_tip="Next owner can edit properties like item name or scale of this object."
+        width="90" />
+      <check_box
+        height="18"
+        label="Copy"
+        layout="topleft"
+        left_pad="0"
+        name="CheckNextOwnerCopy"
+        tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
+        width="90" />
+      <check_box
+        height="18"
+        label="Transfer"
+        layout="topleft"
+        left_pad="0"
+        name="CheckNextOwnerTransfer"
+        tool_tip="Next owner can give away or resell this object."
+        width="106" />
+        
+    <view_border
+        bevel_style="none"
+        height="0"
+        layout="topleft"
+        left="5"
+        right="-5"
+        name="cost_text_border"
+        top_pad="9"/>
+        
       <check_box
         height="18"
         label="For Sale"
         layout="topleft"
         left="20"
         name="CheckPurchase"
-        top_pad="20"
+        top_pad="15"
         width="100"
         tool_tip="Lets people buy this object, its content or it copy inworld for specified price." />
       <combo_box
@@ -450,6 +438,7 @@
         follows="left|top"
         decimal_digits="0"
         increment="1"
+        control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
         label_width="75"
@@ -460,88 +449,80 @@
         max_val="999999999"
         top_pad="10"
         tool_tip="Object cost." />
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
-        layout="topleft"
-        left="10"
-        name="BaseMaskDebug"
-        text_color="White"
-        top_pad="30"
-        width="130">
-        B:
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
-        layout="topleft"
-        left_delta="60"
-        name="OwnerMaskDebug"
-        text_color="White"
-        top_delta="0"
-        width="270">
-        O:
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
-        layout="topleft"
-        left_delta="60"
-        name="GroupMaskDebug"
-        text_color="White"
-        top_delta="0"
-        width="210">
-        G:
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="10"
-        layout="topleft"
-        left_delta="60"
-        name="EveryoneMaskDebug"
-        text_color="White"
-        top_delta="0"
-        width="150">
-        E:
-      </text>
-      <text
-       type="string"
-       length="1"
-       follows="left|top"
-       height="10"
-       layout="topleft"
-       left_delta="60"
-       name="NextMaskDebug"
-       text_color="White"
-       top_delta="0"
-       width="90">
-        N:
-      </text>
-    </panel>   
-  </scroll_container>
-  <panel
-    height="30"
-    layout="topleft"
-    name="button_panel"
-    left="5"
-    top_pad="0"
-    width="313"
-    follows="top|right|left">
-    <button
-      follows="top|right"
-      height="23"
-      label="Cancel"
-      layout="topleft"
-      name="cancel_btn"
-      right="-1"
-      width="100" />
-  </panel>
+      
+    </layout_panel>
+
+    <layout_panel
+     auto_resize="false"
+     name="layout_debug_permissions"
+     layout="topleft"
+     follows="all"
+     height="30">
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left="10"
+          name="BaseMaskDebug"
+          text_color="White"
+          top="2"
+          width="130">
+          B:
+        </text>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_delta="60"
+          name="OwnerMaskDebug"
+          text_color="White"
+          top_delta="0"
+          width="270">
+          O:
+        </text>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_delta="60"
+          name="GroupMaskDebug"
+          text_color="White"
+          top_delta="0"
+          width="210">
+          G:
+        </text>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_delta="60"
+          name="EveryoneMaskDebug"
+          text_color="White"
+          top_delta="0"
+          width="150">
+          E:
+        </text>
+        <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="10"
+         layout="topleft"
+         left_delta="60"
+         name="NextMaskDebug"
+         text_color="White"
+         top_delta="0"
+         width="90">
+          N:
+        </text>
+    </layout_panel>
+  </layout_stack>
 </panel>

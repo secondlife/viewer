@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="false"
+ height="366"
+ layout="topleft"
+ name="change_item_thumbnail"
+ help_topic="change_item_thumbnail"
+ title="CHANGE ITEM IMAGE"
+ width="319">
+
+  <floater.string
+    name="title_item_thumbnail">
+    CHANGE ITEM IMAGE
+  </floater.string>
+  <floater.string
+    name="title_folder_thumbnail">
+    CHANGE FOLDER IMAGE
+  </floater.string>
+  <floater.string
+    name="tooltip_upload_local">
+    Upload from computer
+  </floater.string>
+  <floater.string
+    name="tooltip_upload_snapshot">
+    Use snapshot tool
+  </floater.string>
+  <floater.string
+    name="tooltip_use_texture">
+    Choose texture
+  </floater.string>
+  <floater.string
+    name="tooltip_copy_to_clipboard">
+    Copy to clipboard
+  </floater.string>
+  <floater.string
+    name="tooltip_paste_from_clipboard">
+    Paste from clipboard
+  </floater.string>
+  <floater.string
+    name="tooltip_remove_image">
+    Remove image
+  </floater.string>
+  
+  <icon
+    follows="top|left"
+    height="16"
+    image_name="Inv_Object"
+    layout="topleft"
+    left="10"
+    mouse_opaque="true"
+    name="item_type_icon"
+    top="4"
+    width="16" />
+  <text
+    name="item_name"
+    font="SansSerif"
+    use_ellipses="true"
+    follows="left|top|right"
+    layout="topleft"
+    height="19"
+    top_delta="1"
+    left_pad="3"
+    width="286"/>
+
+  <thumbnail
+    name="item_thumbnail"
+    fallback_image="Thumbnail_Fallback"
+    follows="top|left"
+    layout="topleft"
+    left="32"
+    top_pad="9"
+    height="256"
+    width="256"
+        />
+
+  <button
+    follows="right|bottom"
+    layout="topleft"
+    image_hover_unselected="Toolbar_Middle_Over"
+    image_overlay="Icon_File_Upload"
+    image_selected="Toolbar_Middle_Selected"
+    image_unselected="Toolbar_Middle_Off"
+    name="upload_local"
+    left="38"
+    top_pad="9"
+    height="32"
+    width="32" />
+  <button
+    follows="right|bottom"
+    layout="topleft"
+    image_hover_unselected="Toolbar_Middle_Over"
+    image_overlay="Icon_Snapshot"
+    image_selected="Toolbar_Middle_Selected"
+    image_unselected="Toolbar_Middle_Off"
+    name="upload_snapshot"
+    left_pad="10"
+    top_delta="0"
+    height="32"
+    width="32" />
+  <button
+    follows="right|bottom"
+    layout="topleft"
+    image_hover_unselected="Toolbar_Middle_Over"
+    image_overlay="Icon_Use_Texture"
+    image_selected="Toolbar_Middle_Selected"
+    image_unselected="Toolbar_Middle_Off"
+    name="use_texture"
+    left_pad="10"
+    top_delta="0"
+    height="32"
+    width="32" />
+  <button
+    follows="right|bottom"
+    layout="topleft"
+    image_hover_unselected="Toolbar_Middle_Over"
+    image_overlay="Icon_Copy"
+    image_selected="Toolbar_Middle_Selected"
+    image_unselected="Toolbar_Middle_Off"
+    name="copy_to_clipboard"
+    left_pad="10"
+    top_delta="0"
+    height="32"
+    width="32" />
+  <button
+    follows="right|bottom"
+    layout="topleft"
+    image_hover_unselected="Toolbar_Middle_Over"
+    image_overlay="Icon_Paste"
+    image_selected="Toolbar_Middle_Selected"
+    image_unselected="Toolbar_Middle_Off"
+    name="paste_from_clipboard"
+    left_pad="10"
+    top_delta="0"
+    height="32"
+    width="32" />
+  <button
+    follows="right|bottom"
+    layout="topleft"
+    image_hover_unselected="Toolbar_Middle_Over"
+    image_overlay="Icon_Delete"
+    image_selected="Toolbar_Middle_Selected"
+    image_unselected="Toolbar_Middle_Off"
+    name="remove_image"
+    left_pad="10"
+    top_delta="0"
+    height="32"
+    width="32" />
+
+  <text
+    type="string"
+    halign="center"
+    length="1"
+    follows="left|top"
+    height="17"
+    layout="topleft"
+    left="5"
+    right="-5"
+    name="tooltip_text"
+    top_pad="12"
+    width="78">
+    tooltip
+  </text>
+  
+</floater>

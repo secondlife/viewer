@@ -389,6 +389,17 @@ public:
             // Read all remaining bytes and log.
             LL_INFOS("LLLeap") << mDesc << ": " << rest << LL_ENDL;
         }
+        /*--------------------------- diagnostic ---------------------------*/
+        else if (data["eof"].asBoolean())
+        {
+            LL_DEBUGS("LLLeap") << mDesc << " ended, no partial line" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("LLLeap") << mDesc << " (still running, " << childerr.size()
+                                << " bytes pending)" << LL_ENDL;
+        }
+        /*------------------------- end diagnostic -------------------------*/
         return false;
     }
 

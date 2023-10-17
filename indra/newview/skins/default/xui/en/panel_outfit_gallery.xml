@@ -40,50 +40,10 @@
    layout="topleft"
    left="4"
    top="0"
+   tab_stop="true"
    name="gallery_scroll_panel"
    opaque="false"
    top_pad="0">
-   <!--outfit_gallery_item
-    layout="topleft"
-    left="10"
-    name="preview_outfit1"
-    height="175"
-    width="150"
-    follows="left|top"/-->
-     <!--layout_stack follows="left|right" height="180" width="498" layout="topleft" left="0" animate="false" top="0" name="top_gallery_stack" orientation="horizontal">
-      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top_gallery_panel">
-        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/>
-      </layout_panel>
-      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
-        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
-      </layout_panel>
-      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
-        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
-      </layout_panel>
-    </layout_stack>
-    <layout_stack follows="left|right" height="180" width="498" layout="topleft" left="0" animate="false" top="190" name="top_gallery_stack" orientation="horizontal">
-      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top_gallery_panel">
-        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/>
-      </layout_panel>
-      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
-        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
-      </layout_panel>
-      <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
-        <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
-      </layout_panel>
-    </layout_stack>
-     <layout_stack follows="left|right" height="180" width="498" layout="topleft" left="0" animate="false" top="380" name="top_gallery_stack" orientation="horizontal">
-       <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top_gallery_panel">
-         <outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/>
-       </layout_panel>
-       <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
-         <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
-       </layout_panel>
-       <layout_panel follows="left|top" height="175" width="166" layout="topleft" left="0" top="0" auto_resize="false" visible="true" name="top panel">
-         <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
-       </layout_panel>
-     </layout_stack-->
-    <!--</panel>-->  
   </scroll_container> 
   <panel
      background_visible="true"

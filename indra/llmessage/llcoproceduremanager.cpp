@@ -364,7 +364,26 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
 {
     LLUUID id(LLUUID::generateNewID());
 
-    LL_INFOS("CoProcMgr") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName << "\" at " << mPending << LL_ENDL;
+    if (mPoolName == "AIS")
+    {
+        // Fetch is going to be spammy.
+        LL_DEBUGS("CoProcMgr", "Inventory") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName
+                                   << "\" at "
+                              << mPending << LL_ENDL;
+
+        if (mPending >= (LLCoprocedureManager::DEFAULT_QUEUE_SIZE - 1))
+        {
+            // If it's all used up (not supposed to happen,
+            // fetched should cap it), we are going to crash
+            LL_WARNS("CoProcMgr", "Inventory") << "About to run out of queue space for Coprocedure(" << name
+                                               << ") enqueuing with id=" << id.asString() << " Already pending:" << mPending << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_INFOS("CoProcMgr") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName << "\" at "
+                              << mPending << LL_ENDL;
+    }
     auto pushed = mPendingCoprocs->try_push(boost::make_shared<QueuedCoproc>(name, id, proc));
     if (pushed == boost::fibers::channel_op_status::success)
     {

@@ -47,9 +47,11 @@ class LLInventoryModelBackgroundFetch : public LLSingleton<LLInventoryModelBackg
 	~LLInventoryModelBackgroundFetch();
 public:
 
-	// Start and stop background breadth-first fetching of inventory contents.
+    // Start background breadth-first fetching of inventory contents.
 	// This gets triggered when performing a filter-search.
-	void start(const LLUUID& cat_id = LLUUID::null, BOOL recursive = TRUE);
+	void start(const LLUUID& cat_id = LLUUID::null, bool recursive = true);
+    void scheduleFolderFetch(const LLUUID& cat_id, bool forced = false);
+    void scheduleItemFetch(const LLUUID& item_id, bool forced = false);
 
 	BOOL folderFetchActive() const;
 	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
@@ -62,16 +64,47 @@ public:
 	bool inventoryFetchCompleted() const;
 	bool inventoryFetchInProgress() const;
 
-    void findLostItems();	
-	void incrFetchCount(S32 fetching);
+    void findLostItems();
+    void incrFetchCount(S32 fetching);
+    void incrFetchFolderCount(S32 fetching);
 
 	bool isBulkFetchProcessingComplete() const;
+    bool isFolderFetchProcessingComplete() const;
 	void setAllFoldersFetched();
 
-	void addRequestAtFront(const LLUUID & id, BOOL recursive, bool is_category);
-	void addRequestAtBack(const LLUUID & id, BOOL recursive, bool is_category);
+    typedef boost::function<void()> folders_fetched_callback_t;
+    boost::signals2::connection setFetchCompletionCallback(folders_fetched_callback_t cb);
+
+	void addRequestAtFront(const LLUUID & id, bool recursive, bool is_category);
+	void addRequestAtBack(const LLUUID & id, bool recursive, bool is_category);
 
 protected:
+
+    typedef enum {
+        FT_DEFAULT = 0,
+        FT_FORCED, // request non-recursively even if already loaded
+        FT_CONTENT_RECURSIVE, // request content recursively
+        FT_FOLDER_AND_CONTENT, // request folder, then content recursively
+        FT_RECURSIVE, // request everything recursively
+    } EFetchType;
+    struct FetchQueueInfo
+    {
+        FetchQueueInfo(const LLUUID& id, EFetchType recursive, bool is_category = true)
+            : mUUID(id),
+            mIsCategory(is_category),
+            mFetchType(recursive)
+        {}
+
+        LLUUID mUUID;
+        bool mIsCategory;
+        EFetchType mFetchType;
+    };
+    typedef std::deque<FetchQueueInfo> fetch_queue_t;
+
+    void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t &content_ids, const LLUUID& response_id, EFetchType fetch_type);
+    void onAISFolderCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType fetch_type);
+    void bulkFetchViaAis();
+    void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
 	void bulkFetch();
 
 	void backgroundFetch();
@@ -80,31 +113,23 @@ protected:
 	bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
 
 private:
- 	BOOL mRecursiveInventoryFetchStarted;
-	BOOL mRecursiveLibraryFetchStarted;
-	BOOL mAllFoldersFetched;
+ 	bool mRecursiveInventoryFetchStarted;
+	bool mRecursiveLibraryFetchStarted;
+	bool mAllRecursiveFoldersFetched;
+    typedef boost::signals2::signal<void()> folders_fetched_signal_t;
+    folders_fetched_signal_t mFoldersFetchedSignal;
 
-	BOOL mBackgroundFetchActive;
+    bool mBackgroundFetchActive;
 	bool mFolderFetchActive;
 	S32 mFetchCount;
+    S32 mLastFetchCount; // for debug
+    S32 mFetchFolderCount;
 
 	LLFrameTimer mFetchTimer;
 	F32 mMinTimeBetweenFetches;
-
-	struct FetchQueueInfo
-	{
-		FetchQueueInfo(const LLUUID& id, BOOL recursive, bool is_category = true)
-			: mUUID(id),
-			  mIsCategory(is_category),
-			  mRecursive(recursive)
-		{}
-		
-		LLUUID mUUID;
-		bool mIsCategory;
-		BOOL mRecursive;
-	};
-	typedef std::deque<FetchQueueInfo> fetch_queue_t;
-	fetch_queue_t mFetchQueue;
+	fetch_queue_t mFetchFolderQueue;
+    fetch_queue_t mFetchItemQueue;
+    std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H

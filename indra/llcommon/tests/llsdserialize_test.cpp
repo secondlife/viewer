@@ -45,11 +45,6 @@ typedef U32 uint32_t;
 #endif
 
 #include "boost/range.hpp"
-#include "boost/foreach.hpp"
-#include "boost/bind.hpp"
-#include "boost/phoenix/bind/bind_function.hpp"
-#include "boost/phoenix/core/argument.hpp"
-using namespace boost::phoenix;
 
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -57,9 +52,11 @@ using namespace boost::phoenix;
 #include "llformat.h"
 #include "llmemorystream.h"
 
+#include "../test/hexdump.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
+#include "StringVec.h"
 #include <functional>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
@@ -1796,16 +1793,12 @@ namespace tut
     // helper for TestPythonCompatible
     static std::string import_llsd("import os.path\n"
                                    "import sys\n"
-                                   "try:\n"
-                                   // new freestanding llsd package
-                                   "    import llsd\n"
-                                   "except ImportError:\n"
-                                   // older llbase.llsd module
-                                   "    from llbase import llsd\n");
+                                   "import llsd\n");
 
     // helper for TestPythonCompatible
-    template <typename CONTENT>
-    void python(const std::string& desc, const CONTENT& script, int expect=0)
+    template <typename CONTENT, typename... ARGS>
+    void python_expect(const std::string& desc, const CONTENT& script, int expect=0,
+                       ARGS&&... args)
     {
         auto PYTHON(LLStringUtil::getenv("PYTHON"));
         ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
@@ -1816,7 +1809,8 @@ namespace tut
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
         std::string qscript(q + scriptfile.getName() + q);
-        int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(), NULL);
+        int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
+                         std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
         {
             char buffer[256];
@@ -1832,6 +1826,10 @@ namespace tut
         LLProcess::Params params;
         params.executable = PYTHON;
         params.args.add(scriptfile.getName());
+        for (const std::string& arg : StringVec{ std::forward<ARGS>(args)... })
+        {
+            params.args.add(arg);
+        }
         LLProcessPtr py(LLProcess::create(params));
         ensure(STRINGIZE("Couldn't launch " << desc << " script"), bool(py));
         // Implementing timeout would mean messing with alarm() and
@@ -1866,6 +1864,14 @@ namespace tut
 #endif
     }
 
+    // helper for TestPythonCompatible
+    template <typename CONTENT, typename... ARGS>
+    void python(const std::string& desc, const CONTENT& script, ARGS&&... args)
+    {
+        // plain python() expects rc 0
+        python_expect(desc, script, 0, std::forward<ARGS>(args)...);
+    }
+
     struct TestPythonCompatible
     {
         TestPythonCompatible() {}
@@ -1880,10 +1886,10 @@ namespace tut
     void TestPythonCompatibleObject::test<1>()
     {
         set_test_name("verify python()");
-        python("hello",
-               "import sys\n"
-               "sys.exit(17)\n",
-               17);                 // expect nonzero rc
+        python_expect("hello",
+                      "import sys\n"
+                      "sys.exit(17)\n",
+                      17);                 // expect nonzero rc
     }
 
     template<> template<>
@@ -1899,7 +1905,7 @@ namespace tut
     static void writeLLSDArray(const FormatterFunction& serialize,
                                std::ostream& out, const LLSD& array)
     {
-        for (const LLSD& item : llsd::inArray(array))
+        for (const LLSD& item: llsd::inArray(array))
         {
             // It's important to delimit the entries in this file somehow
             // because, although Python's llsd.parse() can accept a file
@@ -1914,7 +1920,14 @@ namespace tut
             auto buffstr{ buffer.str() };
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
+            LL_DEBUGS() << "Wrote length: "
+                        << hexdump(reinterpret_cast<const char*>(&bufflen),
+                                   sizeof(bufflen))
+                        << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
+            LL_DEBUGS() << "Wrote data:   "
+                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL_ENDL;
         }
     }
 
@@ -1943,10 +1956,10 @@ namespace tut
             "    else:\n"
             "        raise AssertionError('Too many data items')\n";
 
-        // Create an llsdXXXXXX file containing 'data' serialized to
-        // notation.
+        // Create an llsdXXXXXX file containing 'data' serialized per
+        // FormatterFunction.
         NamedTempFile file("llsd",
-                           // NamedTempFile's boost::function constructor
+                           // NamedTempFile's function constructor
                            // takes a callable. To this callable it passes the
                            // std::ostream with which it's writing the
                            // NamedTempFile.
@@ -1954,34 +1967,50 @@ namespace tut
                            (std::ostream& out)
                            { writeLLSDArray(serialize, out, cdata); });
 
-        python("read C++ " + desc,
-               placeholders::arg1 <<
-               import_llsd <<
-               "from functools import partial\n"
-               "import io\n"
-               "import struct\n"
-               "lenformat = struct.Struct('i')\n"
-               "def parse_each(inf):\n"
-               "    for rawlen in iter(partial(inf.read, lenformat.size), b''):\n"
-               "        len = lenformat.unpack(rawlen)[0]\n"
-               // Since llsd.parse() has no max_bytes argument, instead of
-               // passing the input stream directly to parse(), read the item
-               // into a distinct bytes object and parse that.
-               "        data = inf.read(len)\n"
-               "        try:\n"
-               "            frombytes = llsd.parse(data)\n"
-               "        except llsd.LLSDParseError as err:\n"
-               "            print(f'*** {err}')\n"
-               "            print(f'Bad content:\\n{data!r}')\n"
-               "            raise\n"
-               // Also try parsing from a distinct stream.
-               "        stream = io.BytesIO(data)\n"
-               "        fromstream = llsd.parse(stream)\n"
-               "        assert frombytes == fromstream\n"
-               "        yield frombytes\n"
-               << pydata <<
-               // Don't forget raw-string syntax for Windows pathnames.
-               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
+        // 'debug' starts empty because it's intended as an output file
+        NamedTempFile debug("debug", "");
+
+        try
+        {
+            python("read C++ " + desc,
+                   [&](std::ostream& out){ out <<
+                   import_llsd <<
+                   "from functools import partial\n"
+                   "import io\n"
+                   "import struct\n"
+                   "lenformat = struct.Struct('i')\n"
+                   "def parse_each(inf):\n"
+                   "    for rawlen in iter(partial(inf.read, lenformat.size), b''):\n"
+                   "        print('Read length:', ''.join(('%02x' % b) for b in rawlen),\n"
+                   "              file=debug)\n"
+                   "        len = lenformat.unpack(rawlen)[0]\n"
+                   // Since llsd.parse() has no max_bytes argument, instead of
+                   // passing the input stream directly to parse(), read the item
+                   // into a distinct bytes object and parse that.
+                   "        data = inf.read(len)\n"
+                   "        print('Read data:  ', repr(data), file=debug)\n"
+                   "        try:\n"
+                   "            frombytes = llsd.parse(data)\n"
+                   "        except llsd.LLSDParseError as err:\n"
+                   "            print(f'*** {err}')\n"
+                   "            print(f'Bad content:\\n{data!r}')\n"
+                   "            raise\n"
+                   // Also try parsing from a distinct stream.
+                   "        stream = io.BytesIO(data)\n"
+                   "        fromstream = llsd.parse(stream)\n"
+                   "        assert frombytes == fromstream\n"
+                   "        yield frombytes\n"
+                   << pydata <<
+                   // Don't forget raw-string syntax for Windows pathnames.
+                   "debug = open(r'" << debug.getName() << "', 'w')\n"
+                   "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n";});
+        }
+        catch (const failure&)
+        {
+            LL_DEBUGS() << "Script debug output:" << LL_ENDL;
+            debug.peep_log();
+            throw;
+        }
     }
 
     template<> template<>
@@ -2068,7 +2097,7 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("Python " + pyformatter,
-               placeholders::arg1 <<
+               [&](std::ostream& out){ out <<
                import_llsd <<
                "import struct\n"
                "lenformat = struct.Struct('i')\n"
@@ -2086,7 +2115,7 @@ namespace tut
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
-               "        f.write(serialized)\n");
+               "        f.write(serialized)\n";});
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;

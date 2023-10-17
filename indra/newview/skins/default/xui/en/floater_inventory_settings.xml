@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_close="true"
+ can_minimize="true"
+ can_resize="false"
+ save_rect="true"
+ height="370"
+ width="370"
+ name="inventory_settings"
+ title="INVENTORY SETTINGS">
+ <icon
+  follows="top|left"
+  height="18"
+  image_name="Multi_Folder_Mode"
+  layout="topleft"
+  left="18"
+  mouse_opaque="true"
+  name="multi_folder_icon"
+  top="25"
+  width="18" />
+ <text
+   type="string"
+   length="1"
+   follows="left|top|right"
+   height="13"
+   layout="topleft"
+   left_pad="12"
+   top_delta="2"
+   name="multi_folder_txt"
+   font="SansSerifMedium"
+   text_color="White"
+   width="300">
+   Double-click on folder in multi-folder view:
+ </text>
+ <radio_group
+  control_name="MultiModeDoubleClickFolder"
+  follows="left|top"
+  top_pad="8"
+  layout="topleft"
+  font="SansSerifMedium"
+  left="60"
+  width="300"
+  height="70"
+  name="multi_double_click_setting">
+     <radio_item
+      height="20"
+      label="Expands &amp; collapses folder"
+      label_text.text_color="White"
+      follows="left|top"
+      layout="topleft"
+      name="0"
+      width="200"/>
+     <radio_item
+      height="20"
+      follows="left|top"
+      label="Opens a new window"
+      label_text.text_color="White"
+      layout="topleft"
+      left_delta="0"
+      name="1"
+      top_pad ="5"
+      width="200" />
+     <radio_item
+      height="20"
+      follows="left|top"
+      label="Switches view"
+      label_text.text_color="White"
+      layout="topleft"
+      left_delta="0"
+      name="2"
+      top_pad ="5"
+      width="200" />
+ </radio_group>
+ <icon
+  follows="top|left"
+  height="18"
+  image_name="Single_Folder_Mode"
+  layout="topleft"
+  left="18"
+  mouse_opaque="true"
+  name="single_folder_icon"
+  top_pad="30"
+  width="18" />
+ <text
+   type="string"
+   length="1"
+   follows="left|top|right"
+   height="13"
+   layout="topleft"
+   left_pad="12"
+   top_delta="2"
+   name="single_folder_txt"
+   font="SansSerifMedium"
+   text_color="White"
+   width="300">
+   Double-click on folder in single-folder view:
+ </text>
+ <radio_group
+  control_name="SingleModeDoubleClickOpenWindow"
+  follows="left|top"
+  top_pad="8"
+  layout="topleft"
+  font="SansSerifMedium"
+  left="60"
+  width="300"
+  height="45"
+  name="single_double_click_setting">
+     <radio_item
+      height="20"
+      label="Stays in current window"
+      label_text.text_color="White"
+      follows="left|top"
+      layout="topleft"
+      name="false"
+      width="200"/>
+     <radio_item
+      height="20"
+      follows="left|top"
+      label="Opens a new window"
+      label_text.text_color="White"
+      layout="topleft"
+      left_delta="0"
+      name="true"
+      top_pad ="5"
+      width="200" />
+ </radio_group>
+ <text
+   type="string"
+   length="1"
+   follows="left|top|right"
+   height="13"
+   layout="topleft"
+   left="48"
+   name="find_original_txt"
+   font="SansSerifMedium"
+   text_color="White"
+   top_pad="30"
+   width="300">
+   Clicking on "Show in inventory" or "Find original"
+ </text>
+ <radio_group
+  control_name="FindOriginalOpenWindow"
+  follows="left|top"
+  top_pad="8"
+  layout="topleft"
+  font="SansSerifMedium"
+  left="60"
+  width="300"
+  height="45"
+  name="find_original_settings">
+     <radio_item
+      height="20"
+      label="Shows item in main inventory window"
+      label_text.text_color="White"
+      follows="left|top"
+      layout="topleft"
+      name="false"
+      width="200"/>
+     <radio_item
+      height="20"
+      follows="left|top"
+      label="Opens a new single-folder window"
+      label_text.text_color="White"
+      layout="topleft"
+      left_delta="0"
+      name="true"
+      top_pad ="5"
+      width="200" />
+ </radio_group>
+ <button
+  height="20"
+  label="OK"
+  layout="topleft"
+  left="140"
+  bottom="-20"
+  name="ok_btn"
+  label_color="White"
+  width="90" />
+</floater>
