@@ -3285,7 +3285,7 @@ S32 LLMaterialEditor::saveTextures()
         work_count++;
 
         // For ease of inventory management, we prepend the material name.
-        std::string name = mMaterialName + ": " + mNormalName;
+        std::string name = mMaterialName + ": " + mMetallicRoughnessName;
 
         saveTexture(mMetallicRoughnessJ2C, name, mMetallicTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
@@ -3328,7 +3328,7 @@ S32 LLMaterialEditor::saveTextures()
         work_count++;
 
         // For ease of inventory management, we prepend the material name.
-        std::string name = mMaterialName + ": " + mNormalName;
+        std::string name = mMaterialName + ": " + mEmissiveName;
 
         saveTexture(mEmissiveJ2C, name, mEmissiveTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
