@@ -765,7 +765,7 @@ void hide_context_entries(LLMenuGL& menu,
 
 		// descend into split menus:
 		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
-		if ((name == "More") && branchp)
+        if (((name == "More") || (name == "create_new")) && branchp)
 		{
 			hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
 		}
@@ -820,7 +820,7 @@ void hide_context_entries(LLMenuGL& menu,
 			// so that some other UI element from multi-select doesn't later set this invisible.
 			menu_item->pushVisible(TRUE);
 
-			bool enabled = (menu_item->getEnabled() == TRUE);
+			bool enabled = true;
 			for (itor2 = disabled_entries.begin(); enabled && (itor2 != disabled_entries.end()); ++itor2)
 			{
 				enabled &= (*itor2 != name);
@@ -4282,6 +4282,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 
 		disabled_items.push_back(std::string("New Folder"));
 		disabled_items.push_back(std::string("upload_def"));
+        disabled_items.push_back(std::string("create_new"));
 	}
 	if (favorites == mUUID)
 	{
@@ -4304,6 +4305,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     {
         disabled_items.push_back(std::string("New Folder"));
 		disabled_items.push_back(std::string("upload_def"));
+        disabled_items.push_back(std::string("create_new"));
     }
     if (marketplace_listings_id == mUUID)
     {
@@ -4367,6 +4369,18 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                 if (!isMarketplaceListingsFolder())
                 {
                     items.push_back(std::string("upload_def"));
+                    items.push_back(std::string("create_new"));
+                    items.push_back(std::string("New Script"));
+                    items.push_back(std::string("New Note"));
+                    items.push_back(std::string("New Gesture"));
+                    items.push_back(std::string("New Material"));
+                    items.push_back(std::string("New Clothes"));
+                    items.push_back(std::string("New Body Parts"));
+                    items.push_back(std::string("New Settings"));
+                    if (!LLEnvironment::instance().isInventoryEnabled())
+                    {
+                        disabled_items.push_back("New Settings");
+                    }
                 }
                 if (menu_items_added)
                 {
