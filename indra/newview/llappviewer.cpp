@@ -3209,8 +3209,10 @@ LLSD LLAppViewer::getViewerInfo() const
 	// LLFloaterAbout.
 	LLSD info;
 	auto& versionInfo(LLVersionInfo::instance());
+	// With GitHub builds, the build number is too big to fit in a 32-bit int,
+	// and LLSD doesn't deal with integers wider than int. Use string.
 	info["VIEWER_VERSION"] = llsd::array(versionInfo.getMajor(), versionInfo.getMinor(),
-										 versionInfo.getPatch(), versionInfo.getBuild());
+										 versionInfo.getPatch(), stringize(versionInfo.getBuild()));
 	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
 	info["CHANNEL"] = versionInfo.getChannel();
 	info["ADDRESS_SIZE"] = ADDRESS_SIZE;
