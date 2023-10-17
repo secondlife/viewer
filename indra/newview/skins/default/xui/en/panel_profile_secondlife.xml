@@ -352,7 +352,7 @@ Account: [ACCTTYPE]
      name="settings_panel"
      follows="all"
      layout="topleft"
-     height="80"
+     height="70"
      auto_resize="false"
      user_resize="false">
       <!-- only for self -->
@@ -360,8 +360,8 @@ Account: [ACCTTYPE]
        name="show_in_search"
        tool_tip="Let people see you in search results"
        left="1"
-       top="18"
-       height="23"
+       top="5"
+       height="25"
        width="176"
        follows="left|top"
        layout="topleft"
@@ -376,11 +376,11 @@ Account: [ACCTTYPE]
            value="0" />
       </combo_box>
       <combo_box
-       name="hide_sl_age"
+       name="hide_age"
        tool_tip="Let people see your SL age"
        left="1"
-       top="48"
-       height="23"
+       top="40"
+       height="25"
        width="176"
        follows="left|top"
        layout="topleft"
