@@ -14,10 +14,6 @@ jobs:
         runner: [windows-large]
         configuration: [ReleaseOS]
         addrsize: [64]
-        include:
-          - runner: windows-large
-            configuration: ReleaseOS
-            addrsize: 32
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
