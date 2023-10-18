@@ -366,7 +366,16 @@ void LLGroupActions::processLeaveGroupDataResponse(const LLUUID group_id)
 	args["GROUP"] = gdatap->mName;
 	LLSD payload;
 	payload["group_id"] = group_id;
-	LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+    if (gdatap->mMembershipFee > 0) 
+    {
+        args["COST"] = gdatap->mMembershipFee;
+        LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+    }
+    else 
+    {
+        LLNotificationsUtil::add("GroupLeaveConfirmMemberNoFee", args, payload, onLeaveGroup);
+    }
+
 }
 
 // static
