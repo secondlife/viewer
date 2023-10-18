@@ -600,6 +600,7 @@ std::string mbcsstring_makeASCII(const std::string& wstr)
 	}
 	return out_str;
 }
+
 std::string utf8str_removeCRLF(const std::string& utf8str)
 {
 	if (0 == utf8str.length())
@@ -619,6 +620,43 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 		}
 	}
 	return out;
+}
+
+// Search for any emoji symbol, return true if found
+bool wstring_has_emoji(const LLWString& wstr)
+{
+    for (const llwchar& wch : wstr)
+    {
+        if (LLStringOps::isEmoji(wch))
+            return true;
+    }
+
+    return false;
+}
+
+// Cut emoji symbols if exist
+bool wstring_remove_emojis(LLWString& wstr)
+{
+    bool found = false;
+    for (size_t i = 0; i < wstr.size(); ++i)
+    {
+        if (LLStringOps::isEmoji(wstr[i]))
+        {
+            wstr.erase(i--, 1);
+            found = true;
+        }
+    }
+    return found;
+}
+
+// Cut emoji symbols if exist
+bool utf8str_remove_emojis(std::string& utf8str)
+{
+    LLWString wstr = utf8str_to_wstring(utf8str);
+    if (!wstring_remove_emojis(wstr))
+        return false;
+    utf8str = wstring_to_utf8str(wstr);
+    return true;
 }
 
 #if LL_WINDOWS
@@ -832,6 +870,66 @@ std::vector<std::string> LLStringOps::sMonthShortList;
 std::string LLStringOps::sDayFormat;
 std::string LLStringOps::sAM;
 std::string LLStringOps::sPM;
+
+// static
+bool LLStringOps::isEmoji(llwchar wch)
+{
+    // Most of the following symbols are not actually emoticons, but rather small pictures
+
+    // 0x1F000 .. 0x1F02F - mahjong tiles
+    // https://symbl.cc/en/unicode/table/#mahjong-tiles
+
+    // 0x1F030 .. 0x1F09F - domino tiles
+    // https://symbl.cc/en/unicode/table/#domino-tiles
+
+    // 0x1F0A0 .. 0x1F0FF - playing cards
+    // https://symbl.cc/en/unicode/table/#playing-cards
+
+    // 0x1F100 .. 0x1F1FF - enclosed alphanumeric supplement
+    // https://symbl.cc/en/unicode/table/#enclosed-alphanumeric-supplement
+
+    // 0x1F200 .. 0x1F2FF - enclosed ideographic supplement
+    // https://symbl.cc/en/unicode/table/#enclosed-ideographic-supplement
+
+    // 0x1F300 .. 0x1F5FF - miscellaneous symbols and pictographs
+    // https://symbl.cc/en/unicode/table/#miscellaneous-symbols-and-pictographs
+
+    // 0x1F600 .. 0x1F64F - emoticons
+    // https://symbl.cc/en/unicode/table/#emoticons
+
+    // 0x1F650 .. 0x1F67F - ornamental dingbats
+    // https://symbl.cc/en/unicode/table/#ornamental-dingbats
+
+    // 0x1F680 .. 0x1F6FF - transport and map symbols
+    // https://symbl.cc/en/unicode/table/#transport-and-map-symbols
+
+    // 0x1F700 .. 0x1F77F - alchemical symbols
+    // https://symbl.cc/en/unicode/table/#alchemical-symbols
+
+    // 0x1F780 .. 0x1F7FF - geometric shapes extended
+    // https://symbl.cc/en/unicode/table/#geometric-shapes-extended
+
+    // 0x1F800 .. 0x1F8FF - supplemental arrows c
+    // https://symbl.cc/en/unicode/table/#supplemental-arrows-c
+
+    // 0x1F900 .. 0x1F9FF - supplemental symbols and pictographs
+    // https://symbl.cc/en/unicode/table/#supplemental-symbols-and-pictographs
+
+    // 0x1FA00 .. 0x1FA6F - chess symbols
+    // https://symbl.cc/en/unicode/table/#chess-symbols
+
+    // 0x1FA70 .. 0x1FAFF - symbols and pictographs extended a
+    // https://symbl.cc/en/unicode/table/#symbols-and-pictographs-extended-a
+
+    // 0x1FB00 .. 0x1FBFF - symbols for legacy computing
+    // https://symbl.cc/en/unicode/table/#symbols-for-legacy-computing
+
+    // 0x1FC00 .. 0x1FFFF - undefined block 44
+    // These symbols aren't defined yet
+    // https://symbl.cc/en/unicode/table/#undefined-block-44
+
+    return wch >= 0x1F000 && wch < 0x1FC00;
+}
 
 
 S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
