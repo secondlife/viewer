@@ -381,6 +381,7 @@ Chaser Zaks
     BUG-225599
     BUG-227485
     SL-16874
+	SL-20442
 Cherry Cheevers
 ChickyBabes Zuzu
 Chorazin Allen
@@ -902,8 +903,6 @@ Korvel Noh
 Kunnis Basiat
 	VWR-82
 	VWR-102
-Kyler Eastridge
-	SL-20442
 Lance Corrimal
 	STORM-1910
 	VWR-25269
