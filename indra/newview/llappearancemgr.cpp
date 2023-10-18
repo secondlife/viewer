@@ -3176,7 +3176,6 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInve
 			{
 				// Immediate delete
 				remove_inventory_item(item->getUUID(), cb, true);
-				remove_inventory_item(item->getUUID(), cb, true);
 				gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			}
 			else
