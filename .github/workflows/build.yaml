@@ -254,7 +254,7 @@ jobs:
     runs-on: windows
     steps:
       - name: Sign and package Windows viewer
-        uses: secondlife/viewer-build-util/sign-pkg-windows@azure
+        uses: secondlife/viewer-build-util/sign-pkg-windows@main
         with:
           vault_uri: "${{ secrets.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ secrets.AZURE_CERT_NAME }}"
