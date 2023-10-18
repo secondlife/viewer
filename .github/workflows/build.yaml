@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl]
+        runner: [windows-large] #, macos-12-xl] temprary HACK: disable Mac build
         configuration: [Release, ReleaseOS]
         python-version: ["3.11"]
         include:
@@ -263,6 +263,7 @@ jobs:
           tenant_id: "${{ secrets.AZURE_TENANT_ID }}"
 
   sign-and-package-mac:
+    if: false # temporary HACK: disable Mac build
     needs: build
     runs-on: macos-latest
     steps:
@@ -311,6 +312,7 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   post-mac-symbols:
+    if: false # temporary HACK: disable Mac build
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -324,7 +326,7 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: [sign-and-package-windows, sign-and-package-mac]
+    needs: [sign-and-package-windows] #, sign-and-package-mac] temporary HACK: disable Mac build
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
@@ -343,7 +345,7 @@ jobs:
           # thousands of individual files as separate URLs.
           exclude: |-
             Windows-app
-            macOS-app
+            #macOS-app # temporary HACK: disable Mac build
           # Use just "Windows" or "macOS" prefix because these are the only
           # artifacts in which we expect files from both platforms with
           # colliding names (e.g. autobuild-package.xml). release-artifacts
@@ -352,7 +354,7 @@ jobs:
           # short and sweet.
           prefix: |-
             Windows-metadata=Windows
-            macOS-metadata=macOS
+            #macOS-metadata=macOS # temporary HACK: disable Mac build
 
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
