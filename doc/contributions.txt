@@ -902,6 +902,8 @@ Korvel Noh
 Kunnis Basiat
 	VWR-82
 	VWR-102
+Kyler Eastridge
+	SL-20442
 Lance Corrimal
 	STORM-1910
 	VWR-25269
