@@ -184,7 +184,9 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 
     // teach user about HDR settings
-    if (mSettings && ((LLSettingsSky*)mSettings.get())->canAutoAdjust())
+    if (mSettings
+        && mSettings->getSettingsType() == "sky"
+        && ((LLSettingsSky*)mSettings.get())->canAutoAdjust())
     {
         LLNotificationsUtil::add("AutoAdjustHDRSky");
     }
