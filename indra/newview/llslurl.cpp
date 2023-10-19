@@ -112,12 +112,11 @@ LLSLURL::LLSLURL(const std::string& slurl)
         // and the slurl type (APP or LOCATION)
         if (slurl_uri.scheme() == LLSLURL::SLURL_SECONDLIFE_SCHEME)
         {
-            if (path_array.size() == 0)
+            if (path_array.size() == 0
+                && slurl_uri.authority().empty()
+                && slurl_uri.escapedQuery().empty())
             {
-                if (slurl_uri.authority().empty() && slurl_uri.escapedQuery().empty())
-                {
-                    mType = EMPTY;
-                }
+                mType = EMPTY;
                 // um, we need a path...
                 return;
             }
