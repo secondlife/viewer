@@ -115,7 +115,6 @@ class LuaListener: public LLInstanceTracker<LuaListener, int>
 public:
     LuaListener(lua_State* L):
         super(getUniqueKey()),
-        mState(L),
         mListener(
             new LLLeapListener(
                 [L](LLEventPump& pump, const std::string& listener)
@@ -194,7 +193,6 @@ private:
         return result;
     }
 
-    lua_State* mState;
 #ifndef LL_TEST
     LLEventStream mReplyPump{ LLUUID::generateNewID().asString() };
 #else
@@ -1114,7 +1112,7 @@ public:
         case LUA_TUSERDATA:
         {
             const size_t maxlen = 20;
-            auto binlen{ lua_rawlen(self.L, self.index) };
+            size_t binlen{ lua_rawlen(self.L, self.index) };
             LLSD::Binary binary(std::min(maxlen, binlen));
             std::memcpy(binary.data(), lua_touserdata(self.L, self.index), binary.size());
             out << LL::hexdump(binary);
