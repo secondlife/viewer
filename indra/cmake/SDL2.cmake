@@ -1,6 +1,7 @@
 # -*- cmake -*-
 cmake_minimum_required( VERSION 3.13 FATAL_ERROR )
 
+include(Linking)
 include( Prebuilt )
 include_guard()
 
