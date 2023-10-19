@@ -294,7 +294,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 //virtual
 void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 {
-	if (APT_PROPERTIES == type)
+	if (APT_PROPERTIES_LEGACY == type)
 	{
 		LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
 		if (avatar_data)

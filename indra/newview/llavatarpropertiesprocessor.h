@@ -50,7 +50,8 @@ class LLMessageSystem;
 
 enum EAvatarProcessorType
 {
-	APT_PROPERTIES,
+	APT_PROPERTIES_LEGACY, // APT_PROPERTIES via udp request
+	APT_PROPERTIES,        // APT_PROPERTIES via http request
 	APT_NOTES,
 	APT_GROUPS,
 	APT_PICKS,
@@ -210,7 +211,7 @@ public:
 
 	// Request various types of avatar data.  Duplicate requests will be
 	// suppressed while waiting for a response from the network.
-	void sendAvatarPropertiesRequest(const LLUUID& avatar_id);
+	void sendAvatarPropertiesRequest(const LLUUID& avatar_id, bool use_cap = false);
 	void sendAvatarPicksRequest(const LLUUID& avatar_id);
 	void sendAvatarNotesRequest(const LLUUID& avatar_id);
 	void sendAvatarGroupsRequest(const LLUUID& avatar_id);
@@ -247,7 +248,7 @@ public:
 
 	static bool hasPaymentInfoOnFile(const LLAvatarData* avatar_data);
 
-    static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id);
+    static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id, EAvatarProcessorType type);
 
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
@@ -267,10 +268,10 @@ public:
 
 protected:
 
-	void sendRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
+    void sendRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
     void sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
     void sendAvatarPropertiesRequestMessage(const LLUUID& avatar_id);
-    void initAgentProfileCapRequest(const LLUUID& avatar_id, const std::string& cap_url);
+    void initAgentProfileCapRequest(const LLUUID& avatar_id, const std::string& cap_url, EAvatarProcessorType type);
 
 	void notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type);
 
