@@ -544,23 +544,12 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
 
-        # copy SDL2 libs
-        if(self.args['buildtype'].lower() == 'debug'):
-            with self.prefix(src=debpkgdir):
-                self.path("SDL2d.dll")
-        else:
-            with self.prefix(src=relpkgdir):
-                self.path("SDL2.dll")
-
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['buildtype'])):
             # Get fmodstudio dll if needed
             if self.args['fmodstudio'] == 'ON':
-                if(self.args['buildtype'].lower() == 'debug'):
-                    self.path("fmodL.dll")
-                else:
-                    self.path("fmod.dll")
+                self.path("fmod.dll")
 
             if self.args['openal'] == 'ON':
                 # Get openal dll
@@ -596,6 +585,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
 
             # Hunspell
             self.path("libhunspell.dll")
+
+            # SDL2
+            self.path("SDL2.dll")
 
             # BugSplat
             if self.args.get('bugsplat'):
