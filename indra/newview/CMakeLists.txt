@@ -1703,7 +1703,7 @@ if (WINDOWS)
     # And of course it's straightforward to read a text file in Python.
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      # The following commented dependencies are determined variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
@@ -1741,9 +1741,14 @@ if (WINDOWS)
     if (TARGET ll::fmodstudio)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/fmod.dll
-           ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
           )
     endif ()
+
+    if (TARGET ll::SDL2)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+          ${SHARED_LIB_STAGING_DIR}/SDL2.dll
+          )
+    endif()
 
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES

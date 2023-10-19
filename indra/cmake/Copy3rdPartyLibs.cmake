@@ -86,9 +86,12 @@ if(WINDOWS)
     endif (USE_BUGSPLAT)
 
     if (TARGET ll::fmodstudio)
-        set(debug_files ${debug_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
     endif ()
+
+    if (TARGET ll::SDL2)
+        set(release_files ${release_files} SDL2.dll)
+    endif()
 
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
@@ -177,7 +180,6 @@ elseif(DARWIN)
        )
 
     if (TARGET ll::fmodstudio)
-      set(debug_files ${debug_files} libfmodL.dylib)
       set(release_files ${release_files} libfmod.dylib)
     endif ()
 
@@ -229,7 +231,6 @@ elseif(LINUX)
      endif()
 
     if (TARGET ll::fmodstudio)
-      set(debug_files ${debug_files} "libfmodL.so")
       set(release_files ${release_files} "libfmod.so")
     endif ()
 
