@@ -687,6 +687,12 @@ void handleUserTargetDrawDistanceChanged(const LLSD& newValue)
     LLPerfStats::tunables.userTargetDrawDistance = newval;
 }
 
+void handleUserMinDrawDistanceChanged(const LLSD &newValue)
+{
+    const auto newval = gSavedSettings.getF32("AutoTuneRenderFarClipMin");
+    LLPerfStats::tunables.userMinDrawDistance = newval;
+}
+
 void handleUserTargetReflectionsChanged(const LLSD& newValue)
 {
     const auto newval = gSavedSettings.getS32("UserTargetReflections");
@@ -897,6 +903,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "PerfStatsCaptureEnabled", handlePerformanceStatsEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "UserTargetReflections", handleUserTargetReflectionsChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneRenderFarClipTarget", handleUserTargetDrawDistanceChanged);
+    setting_setup_signal_listener(gSavedSettings, "AutoTuneRenderFarClipMin", handleUserMinDrawDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorFarAwayDistance", handleUserImpostorDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "TuningFPSStrategy", handleFPSTuningStrategyChanged);
