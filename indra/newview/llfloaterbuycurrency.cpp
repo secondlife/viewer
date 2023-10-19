@@ -354,7 +354,7 @@ LLFetchAvatarPaymentInfo::~LLFetchAvatarPaymentInfo()
 
 void LLFetchAvatarPaymentInfo::processProperties(void* data, EAvatarProcessorType type)
 {
-	if (data && type == APT_PROPERTIES)
+	if (data && type == APT_PROPERTIES_LEGACY)
 	{
 		LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
 		LLFloaterBuyCurrency::handleBuyCurrency(LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(avatar_data), mHasTarget, mName, mPrice);

@@ -330,7 +330,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
 {
-	if ( APT_PROPERTIES == type )
+	if ( APT_PROPERTIES_LEGACY == type )
 	{
 		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
 		if (pAvatarData && (gAgent.getID() == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
@@ -636,7 +636,6 @@ void LLFloaterPreference::cancel()
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
-
 	// this variable and if that follows it are used to properly handle do not disturb mode response message
 	static bool initialized = FALSE;
 	// if user is logged in and we haven't initialized do not disturb mode response yet, do it

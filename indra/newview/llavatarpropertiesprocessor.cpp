@@ -114,32 +114,32 @@ void LLAvatarPropertiesProcessor::sendRequest(const LLUUID& avatar_id, EAvatarPr
 		return;
 	}
 
-    std::string cap;
-
-    switch (type)
+    // Try to send HTTP request if cap_url is available
+    if (type == APT_PROPERTIES || type == APT_PICKS || type == APT_GROUPS || type == APT_NOTES)
     {
-    case APT_PROPERTIES:
-        // indicate we're going to make a request
+        std::string cap_url(gAgent.getRegionCapability("AgentProfile"));
+        if (!cap_url.empty())
+        {
+            initAgentProfileCapRequest(avatar_id, cap_url, type);
+            return;
+        }
+
+        // Don't sent UDP request for APT_PROPERTIES
+        if (type == APT_PROPERTIES)
+        {
+            LL_WARNS() << "No cap_url for APT_PROPERTIES, request is not sent" << LL_ENDL;
+            return;
+        }
+    }
+
+    // Send UDP request
+    if (type == APT_PROPERTIES_LEGACY)
+    {
         sendAvatarPropertiesRequestMessage(avatar_id);
-        // can use getRegionCapability("AgentProfile"), but it is heavy
-        // initAgentProfileCapRequest(avatar_id, cap);
-        break;
-    case APT_PICKS:
-    case APT_GROUPS:
-    case APT_NOTES:
-        if (cap.empty())
-        {
-            // indicate we're going to make a request
-            sendGenericRequest(avatar_id, type, method);
-        }
-        else
-        {
-            initAgentProfileCapRequest(avatar_id, cap);
-        }
-        break;
-    default:
+    }
+    else
+    {
         sendGenericRequest(avatar_id, type, method);
-        break;
     }
 }
 
@@ -155,7 +155,7 @@ void LLAvatarPropertiesProcessor::sendGenericRequest(const LLUUID& avatar_id, EA
 
 void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequestMessage(const LLUUID& avatar_id)
 {
-    addPendingRequest(avatar_id, APT_PROPERTIES);
+    addPendingRequest(avatar_id, APT_PROPERTIES_LEGACY);
 
     LLMessageSystem *msg = gMessageSystem;
 
@@ -167,19 +167,16 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequestMessage(const LLUUI
     gAgent.sendReliableMessage();
 }
 
-void LLAvatarPropertiesProcessor::initAgentProfileCapRequest(const LLUUID& avatar_id, const std::string& cap_url)
+void LLAvatarPropertiesProcessor::initAgentProfileCapRequest(const LLUUID& avatar_id, const std::string& cap_url, EAvatarProcessorType type)
 {
-    addPendingRequest(avatar_id, APT_PROPERTIES);
-    addPendingRequest(avatar_id, APT_PICKS);
-    addPendingRequest(avatar_id, APT_GROUPS);
-    addPendingRequest(avatar_id, APT_NOTES);
+    addPendingRequest(avatar_id, type);
     LLCoros::instance().launch("requestAgentUserInfoCoro",
-        boost::bind(requestAvatarPropertiesCoro, cap_url, avatar_id));
+        [cap_url, avatar_id, type]() { requestAvatarPropertiesCoro(cap_url, avatar_id, type); });
 }
 
-void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avatar_id)
+void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avatar_id, bool use_cap)
 {
-    sendRequest(avatar_id, APT_PROPERTIES, "AvatarPropertiesRequest");
+    sendRequest(avatar_id, use_cap ? APT_PROPERTIES : APT_PROPERTIES_LEGACY, "AvatarPropertiesRequest");
 }
 
 void LLAvatarPropertiesProcessor::sendAvatarPicksRequest(const LLUUID& avatar_id)
@@ -274,7 +271,7 @@ bool LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(const LLAvatarData* avata
 }
 
 // static
-void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id)
+void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id, EAvatarProcessorType type)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -289,6 +286,9 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, finalUrl, httpOpts, httpHeaders);
 
+    // Response is being processed, no longer pending is required
+    getInstance()->removePendingRequest(agent_id, type);
+
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
@@ -300,114 +300,108 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
             << (!status ? " (no HTTP status)" : !result.has("id") ? " (no result.id)" :
                 std::string(" (result.id=") + result["id"].asUUID().asString() + ")")
             << LL_ENDL;
-        LLAvatarPropertiesProcessor* self = getInstance();
-        self->removePendingRequest(agent_id, APT_PROPERTIES);
-        self->removePendingRequest(agent_id, APT_PICKS);
-        self->removePendingRequest(agent_id, APT_GROUPS);
-        self->removePendingRequest(agent_id, APT_NOTES);
         return;
     }
 
-    // Avatar Data
-
-    LLAvatarData avatar_data;
-    std::string birth_date;
-
-    avatar_data.agent_id = agent_id;
-    avatar_data.avatar_id = agent_id;
-    avatar_data.image_id = result["sl_image_id"].asUUID();
-    avatar_data.fl_image_id = result["fl_image_id"].asUUID();
-    avatar_data.partner_id = result["partner_id"].asUUID();
-    avatar_data.about_text = result["sl_about_text"].asString();
-    avatar_data.fl_about_text = result["fl_about_text"].asString();
-    avatar_data.born_on = result["member_since"].asDate();
-    avatar_data.hide_age = result["hide_age"].asBoolean();
-    avatar_data.profile_url = getProfileURL(agent_id.asString());
-    avatar_data.customer_type = result["customer_type"].asString();
-
-    avatar_data.flags = 0;
-    if (result["online"].asBoolean())
+    if (type == APT_PROPERTIES)
     {
-        avatar_data.flags |= AVATAR_ONLINE;
+        LLAvatarData avatar_data;
+
+        std::string birth_date;
+
+        avatar_data.agent_id = agent_id;
+        avatar_data.avatar_id = agent_id;
+        avatar_data.image_id = result["sl_image_id"].asUUID();
+        avatar_data.fl_image_id = result["fl_image_id"].asUUID();
+        avatar_data.partner_id = result["partner_id"].asUUID();
+        avatar_data.about_text = result["sl_about_text"].asString();
+        avatar_data.fl_about_text = result["fl_about_text"].asString();
+        avatar_data.born_on = result["member_since"].asDate();
+        // TODO: SL-20163 Remove the "has" check when SRV-684 is done
+        // and the field "hide_age" is included to the http response
+        avatar_data.hide_age = !result.has("hide_age") || result["hide_age"].asBoolean();
+        avatar_data.profile_url = getProfileURL(agent_id.asString());
+        avatar_data.customer_type = result["customer_type"].asString();
+
+        avatar_data.flags = 0;
+        if (result["online"].asBoolean())
+        {
+            avatar_data.flags |= AVATAR_ONLINE;
+        }
+        if (result["allow_publish"].asBoolean())
+        {
+            avatar_data.flags |= AVATAR_ALLOW_PUBLISH;
+        }
+        if (result["identified"].asBoolean())
+        {
+            avatar_data.flags |= AVATAR_IDENTIFIED;
+        }
+        if (result["transacted"].asBoolean())
+        {
+            avatar_data.flags |= AVATAR_TRANSACTED;
+        }
+
+        avatar_data.caption_index = 0;
+        if (result.has("charter_member")) // won't be present if "caption" is set
+        {
+            avatar_data.caption_index = result["charter_member"].asInteger();
+        }
+        else if (result.has("caption"))
+        {
+            avatar_data.caption_text = result["caption"].asString();
+        }
+
+        getInstance()->notifyObservers(agent_id, &avatar_data, type);
     }
-    if (result["allow_publish"].asBoolean())
+    else if (type == APT_PICKS)
     {
-        avatar_data.flags |= AVATAR_ALLOW_PUBLISH;
+        LLAvatarPicks avatar_picks;
+
+        avatar_picks.agent_id = agent_id; // Not in use?
+        avatar_picks.target_id = agent_id;
+
+        LLSD picks_array = result["picks"];
+        for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
+        {
+            const LLSD& pick_data = *it;
+            avatar_picks.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
+        }
+
+        getInstance()->notifyObservers(agent_id, &avatar_picks, type);
     }
-    if (result["identified"].asBoolean())
+    else if (type == APT_GROUPS)
     {
-        avatar_data.flags |= AVATAR_IDENTIFIED;
+        LLAvatarGroups avatar_groups;
+
+        avatar_groups.agent_id = agent_id; // Not in use?
+        avatar_groups.avatar_id = agent_id; // target_id
+
+        LLSD groups_array = result["groups"];
+        for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
+        {
+            const LLSD& group_info = *it;
+            LLAvatarGroups::LLGroupData group_data;
+            group_data.group_powers = 0; // Not in use?
+            group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
+            group_data.group_id = group_info["id"].asUUID();
+            group_data.group_name = group_info["name"].asString();
+            group_data.group_insignia_id = group_info["image_id"].asUUID();
+
+            avatar_groups.group_list.push_back(group_data);
+        }
+
+        getInstance()->notifyObservers(agent_id, &avatar_groups, type);
     }
-    if (result["transacted"].asBoolean())
+    else if (type == APT_NOTES)
     {
-        avatar_data.flags |= AVATAR_TRANSACTED;
+        LLAvatarNotes avatar_notes;
+
+        avatar_notes.agent_id = agent_id;
+        avatar_notes.target_id = agent_id;
+        avatar_notes.notes = result["notes"].asString();
+
+        getInstance()->notifyObservers(agent_id, &avatar_notes, type);
     }
-
-    avatar_data.caption_index = 0;
-    if (result.has("charter_member")) // won't be present if "caption" is set
-    {
-        avatar_data.caption_index = result["charter_member"].asInteger();
-    }
-    else if (result.has("caption"))
-    {
-        avatar_data.caption_text = result["caption"].asString();
-    }
-
-    LLAvatarPropertiesProcessor* self = getInstance();
-    // Request processed, no longer pending
-    self->removePendingRequest(agent_id, APT_PROPERTIES);
-    self->notifyObservers(agent_id, &avatar_data, APT_PROPERTIES);
-
-    // Picks
-
-    LLSD picks_array = result["picks"];
-    LLAvatarPicks avatar_picks;
-    avatar_picks.agent_id = agent_id; // Not in use?
-    avatar_picks.target_id = agent_id;
-
-    for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
-    {
-        const LLSD& pick_data = *it;
-        avatar_picks.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
-    }
-
-    // Request processed, no longer pending
-    self->removePendingRequest(agent_id, APT_PICKS);
-    self->notifyObservers(agent_id, &avatar_picks, APT_PICKS);
-
-    // Groups
-
-    LLSD groups_array = result["groups"];
-    LLAvatarGroups avatar_groups;
-    avatar_groups.agent_id = agent_id; // Not in use?
-    avatar_groups.avatar_id = agent_id; // target_id
-
-    for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
-    {
-        const LLSD& group_info = *it;
-        LLAvatarGroups::LLGroupData group_data;
-        group_data.group_powers = 0; // Not in use?
-        group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
-        group_data.group_id = group_info["id"].asUUID();
-        group_data.group_name = group_info["name"].asString();
-        group_data.group_insignia_id = group_info["image_id"].asUUID();
-
-        avatar_groups.group_list.push_back(group_data);
-    }
-
-    self->removePendingRequest(agent_id, APT_GROUPS);
-    self->notifyObservers(agent_id, &avatar_groups, APT_GROUPS);
-
-    // Notes
-    LLAvatarNotes avatar_notes;
-
-    avatar_notes.agent_id = agent_id;
-    avatar_notes.target_id = agent_id;
-    avatar_notes.notes = result["notes"].asString();
-
-    // Request processed, no longer pending
-    self->removePendingRequest(agent_id, APT_NOTES);
-    self->notifyObservers(agent_id, &avatar_notes, APT_NOTES);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* msg, void**)
@@ -443,8 +437,8 @@ void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* 
 	}
 	LLAvatarPropertiesProcessor* self = getInstance();
 	// Request processed, no longer pending
-	self->removePendingRequest(avatar_data.avatar_id, APT_PROPERTIES);
-	self->notifyObservers(avatar_data.avatar_id, &avatar_data, APT_PROPERTIES);
+	self->removePendingRequest(avatar_data.avatar_id, APT_PROPERTIES_LEGACY);
+	self->notifyObservers(avatar_data.avatar_id, &avatar_data, APT_PROPERTIES_LEGACY);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* msg, void**)
