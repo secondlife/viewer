@@ -275,8 +275,8 @@ public:
     //@}
 
 	void processIceUpdates();
-    void onIceUpdateComplete(const LLSD& result);
-    void onIceUpdateError(int retries, std::string url, LLSD body, const LLSD& result);
+    void onIceUpdateComplete(bool ice_completed, const LLSD& result);
+    void onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD& result);
 
 
 	//////////////////////////////
@@ -786,6 +786,7 @@ private:
 	LLVoiceDeviceList mRenderDevices;
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;
+    bool                                        mTrickling;
 
 	uint32_t mAudioLevel;
 

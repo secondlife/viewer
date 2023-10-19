@@ -616,6 +616,10 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                 }
                 else
                 {
+                    LLMutexLock lock(&mVoiceStateMutex);
+
+                    mTrickling = false;
+                    mIceCompleted = false;
                     setVoiceControlStateUnless(VOICE_STATE_START_SESSION, VOICE_STATE_SESSION_RETRY);
                 }
                 break;
@@ -673,7 +677,7 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                 {
                     // We failed to connect, give it a bit time before retrying.
                     retry++;
-                    F32 full_delay    = llmin(5.f * (F32) retry, 60.f);
+                    F32 full_delay    = llmin(2.f * (F32) retry, 10.f);
                     F32 current_delay = 0.f;
                     LL_INFOS("Voice") << "Voice failed to establish session after " << retry << " tries. Will attempt to reconnect in "
                                       << full_delay << " seconds" << LL_ENDL;
@@ -686,11 +690,12 @@ void LLWebRTCVoiceClient::voiceControlStateMachine()
                         llcoro::suspendUntilTimeout(1.f);
                     }
                 }
-                setVoiceControlStateUnless(VOICE_STATE_WAIT_FOR_EXIT);
+                setVoiceControlStateUnless(VOICE_STATE_DISCONNECT);
                 break;
 
             case VOICE_STATE_SESSION_ESTABLISHED:
             {
+                retry = 0;
                 if (mTuningMode)
                 {
                     performMicTuning();
@@ -2388,11 +2393,20 @@ void LLWebRTCVoiceClient::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserve
 {
     LL_INFOS("Voice") << "Ice Gathering voice account. " << state << LL_ENDL;
 
-	if (state == llwebrtc::LLWebRTCSignalingObserver::IceGatheringState::ICE_GATHERING_COMPLETE) 
-	{
-        LLMutexLock lock(&mVoiceStateMutex);
-        mIceCompleted = true;
-	}
+	switch (state)
+    {
+        case llwebrtc::LLWebRTCSignalingObserver::IceGatheringState::ICE_GATHERING_COMPLETE:
+        {
+            LLMutexLock lock(&mVoiceStateMutex);
+            mIceCompleted = true;
+            break;
+        }
+        case llwebrtc::LLWebRTCSignalingObserver::IceGatheringState::ICE_GATHERING_NEW:
+        {
+            LLMutexLock lock(&mVoiceStateMutex);
+            mIceCompleted = false;
+        }
+    }
 }
 
 void LLWebRTCVoiceClient::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate)
@@ -2425,53 +2439,55 @@ void LLWebRTCVoiceClient::processIceUpdates()
     LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t                  httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 
+	bool iceCompleted = false;
     LLSD body;
     {
         LLMutexLock lock(&mVoiceStateMutex);
 
-        if (mIceCandidates.size())
+		if (!mTrickling)
         {
-            LLSD candidates    = LLSD::emptyArray();
-            body["candidates"] = LLSD::emptyArray();
-            for (auto &ice_candidate : mIceCandidates)
+            if (mIceCandidates.size())
+            {
+                LLSD candidates    = LLSD::emptyArray();
+                body["candidates"] = LLSD::emptyArray();
+                for (auto &ice_candidate : mIceCandidates)
+                {
+                    LLSD body_candidate;
+                    body_candidate["sdpMid"]        = ice_candidate.sdp_mid;
+                    body_candidate["sdpMLineIndex"] = ice_candidate.mline_index;
+                    body_candidate["candidate"]     = ice_candidate.candidate;
+                    candidates.append(body_candidate);
+                }
+                body["candidates"] = candidates;
+                mIceCandidates.clear();
+            }
+            else if (mIceCompleted)
             {
                 LLSD body_candidate;
-                body_candidate["sdpMid"]        = ice_candidate.sdp_mid;
-                body_candidate["sdpMLineIndex"] = ice_candidate.mline_index;
-                body_candidate["candidate"]     = ice_candidate.candidate;
-                candidates.append(body_candidate);
+                body_candidate["completed"] = true;
+                body["candidate"]           = body_candidate;
+                iceCompleted                = mIceCompleted;
+                mIceCompleted               = false;
             }
-            body["candidates"] = candidates;
-            mIceCandidates.clear();
+            else
+            {
+                return;
+            }
+            LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(
+                url,
+                LLCore::HttpRequest::DEFAULT_POLICY_ID,
+                body,
+                boost::bind(&LLWebRTCVoiceClient::onIceUpdateComplete, this, iceCompleted, _1),
+                boost::bind(&LLWebRTCVoiceClient::onIceUpdateError, this, 3, url, body, iceCompleted, _1));
+            mTrickling = true;
         }
-        else if (mIceCompleted)
-        {
-            LLSD body_candidate;
-            body_candidate["completed"] = true;
-            body["candidate"]           = body_candidate;
-            mIceCompleted               = false;
-        }
-        else
-        {
-            return;
-        }
-    }
-    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url,
-                                  LLCore::HttpRequest::DEFAULT_POLICY_ID,
-                                  body,
-                                  boost::bind(&LLWebRTCVoiceClient::onIceUpdateComplete, this, _1),
-                                  boost::bind(&LLWebRTCVoiceClient::onIceUpdateError, this, 3, url, body, _1));
-}
-
-void LLWebRTCVoiceClient::onIceUpdateComplete(const LLSD& result)
-{
-    if (sShuttingDown)
-    {
-        return;
     }
 }
 
-void LLWebRTCVoiceClient::onIceUpdateError(int retries, std::string url, LLSD body, const LLSD& result)
+void LLWebRTCVoiceClient::onIceUpdateComplete(bool ice_completed, const LLSD& result)
+{ mTrickling = false; }
+
+void LLWebRTCVoiceClient::onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD& result)
 {
     if (sShuttingDown)
     {
@@ -2482,16 +2498,18 @@ void LLWebRTCVoiceClient::onIceUpdateError(int retries, std::string url, LLSD bo
 
 	if (retries >= 0)
     {
-        LL_WARNS("Voice") << "Unable to complete ice trickling voice account, retrying." << LL_ENDL;
+        LL_WARNS("Voice") << "Unable to complete ice trickling voice account, retrying.  " << result << LL_ENDL;
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url,
                                       LLCore::HttpRequest::DEFAULT_POLICY_ID,
                                       body,
-                                      boost::bind(&LLWebRTCVoiceClient::onIceUpdateComplete, this, _1),
-									  boost::bind(&LLWebRTCVoiceClient::onIceUpdateError, this, retries - 1, url, body, _1));
+                                      boost::bind(&LLWebRTCVoiceClient::onIceUpdateComplete, this, ice_completed, _1),
+									  boost::bind(&LLWebRTCVoiceClient::onIceUpdateError, this, retries - 1, url, body, ice_completed, _1));
     }
     else 
 	{
-        LL_WARNS("Voice") << "Unable to complete ice trickling voice account, retrying." << LL_ENDL;
+        LL_WARNS("Voice") << "Unable to complete ice trickling voice account, restarting connection.  " << result << LL_ENDL;
+        setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
+        mTrickling = false; 
 	}
 }
 
