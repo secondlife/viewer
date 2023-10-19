@@ -91,6 +91,10 @@ if(WINDOWS)
         set(release_files ${release_files} fmod.dll)
     endif ()
 
+    if (TARGET ll::SDL2)
+        set(release_files ${release_files} SDL2.dll)
+    endif()
+
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
     endif ()
