@@ -428,24 +428,25 @@ void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* 
 	msg->getString(		_PREHASH_PropertiesData,	_PREHASH_ProfileURL,	avatar_data.profile_url);
 	msg->getU32Fast(	_PREHASH_PropertiesData,	_PREHASH_Flags,			avatar_data.flags);
 
-
 	LLDateUtil::dateFromPDTString(avatar_data.born_on, birth_date);
+	// Since field 'hide_age' is not supported by msg system we'd better hide the age here
+	avatar_data.hide_age = TRUE;
 	avatar_data.caption_index = 0;
 
 	S32 charter_member_size = 0;
 	charter_member_size = msg->getSize(_PREHASH_PropertiesData, _PREHASH_CharterMember);
-	if(1 == charter_member_size)
+	if (1 == charter_member_size)
 	{
 		msg->getBinaryData(_PREHASH_PropertiesData, _PREHASH_CharterMember, &avatar_data.caption_index, 1);
 	}
-	else if(1 < charter_member_size)
+	else if (1 < charter_member_size)
 	{
 		msg->getString(_PREHASH_PropertiesData, _PREHASH_CharterMember, avatar_data.caption_text);
 	}
 	LLAvatarPropertiesProcessor* self = getInstance();
 	// Request processed, no longer pending
 	self->removePendingRequest(avatar_data.avatar_id, APT_PROPERTIES);
-	self->notifyObservers(avatar_data.avatar_id,&avatar_data,APT_PROPERTIES);
+	self->notifyObservers(avatar_data.avatar_id, &avatar_data, APT_PROPERTIES);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* msg, void**)
@@ -621,7 +622,7 @@ void LLAvatarPropertiesProcessor::processAvatarGroupsReply(LLMessageSystem* msg,
 	self->notifyObservers(avatar_groups.avatar_id,&avatar_groups,APT_GROUPS);
 }
 
-void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type)
+void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id, void* data, EAvatarProcessorType type)
 {
 	// Copy the map (because observers may delete themselves when updated?)
 	LLAvatarPropertiesProcessor::observer_multimap_t observers = mObservers;
@@ -635,7 +636,7 @@ void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id,void* data, E
 		const LLUUID &agent_id = oi->first;
 		if (agent_id == id || agent_id.isNull())
 		{
-			oi->second->processProperties(data,type);
+			oi->second->processProperties(data, type);
 		}
 	}
 }
