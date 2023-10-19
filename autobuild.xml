@@ -1822,10 +1822,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>6dc51cd8cad422ab1dcd67cc59af119d</string>
+              <string>929bd9c0764172d360f0b144faad7f8bed3bcb10</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/118146/1013526/lualibs-5.4.581683-windows64-581683.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/131229139</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1834,12 +1838,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>3dda716106d7ce2706e5e5cd8a37d2caa62be602</string>
+              <string>d89356cb157e18d6cee1548ec16a539db5bf9dd5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-lua/releases/download/v5.4.6-9648e15/lua-5.4.6-darwin64-9648e15.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/131229135</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1848,12 +1854,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>efe2d4767b8c738c51dfb5e0d0117c470aa7afe0</string>
+              <string>2c2d0dd90bc310b9815e7e0f23f1aa9a82166841</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-lua/releases/download/v5.4.6-9648e15/lua-5.4.6-linux64-9648e15.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/131229138</string>
             </map>
             <key>name</key>
             <string>linux64</string>
