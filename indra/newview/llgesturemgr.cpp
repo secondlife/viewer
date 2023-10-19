@@ -934,7 +934,6 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 		if (gesture->mWaitingKeyRelease)
 		{
 			// We're waiting for a certain amount of time to pass
-			LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
 			if (gesture->mKeyReleased)
 			{
 				// wait is done, continue execution
