@@ -497,7 +497,7 @@ bool LLWebRTCImpl::initializeConnection()
 
 void LLWebRTCImpl::shutdownConnection()
 {
-    mSignalingThread->PostTask(
+    mSignalingThread->BlockingCall(
         [this]()
         {
             if (mPeerConnection)
@@ -507,24 +507,21 @@ void LLWebRTCImpl::shutdownConnection()
             }
             mPeerConnectionFactory = nullptr;
         });
-    mWorkerThread->PostTask(
+    mWorkerThread->BlockingCall(
         [this]()
         {
-            if (mTuningDeviceModule)
-            {
-                mTuningDeviceModule->StopRecording();
-                mTuningDeviceModule->Terminate();
-            }
             if (mPeerDeviceModule)
             {
                 mPeerDeviceModule->StopRecording();
                 mPeerDeviceModule->Terminate();
             }
-            mTuningDeviceModule = nullptr;
             mPeerDeviceModule   = nullptr;
-            mTaskQueueFactory   = nullptr;
+            if (mPeerAudioDeviceObserver)
+            {
+                mPeerAudioDeviceObserver = nullptr;
+            }
         });
-    mNetworkThread->PostTask(
+    mNetworkThread->BlockingCall(
         [this]()
         {
             if (mDataChannel)
@@ -694,6 +691,7 @@ static std::string iceCandidateToTrickleString(const webrtc::IceCandidateInterfa
         std::to_string(candidate->candidate().priority()) << " " <<
         candidate->candidate().address().ipaddr().ToString() << " " <<
         candidate->candidate().address().PortAsString() << " typ ";
+
     if (candidate->candidate().type() == cricket::LOCAL_PORT_TYPE)
     {
         candidate_stream << "host";
@@ -715,6 +713,9 @@ static std::string iceCandidateToTrickleString(const webrtc::IceCandidateInterfa
         candidate_stream << "prflx " <<
             "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
             "rport " << candidate->candidate().related_address().PortAsString();
+    }
+    else {
+        RTC_LOG(LS_ERROR) << __FUNCTION__ << " Unknown candidate type " << candidate->candidate().type();
     }
     if (candidate->candidate().protocol() == "tcp") 
     {
@@ -827,8 +828,10 @@ void LLWebRTCImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError error)
             ice_candidate.sdp_mid     = candidate->sdp_mid();
             observer->OnIceCandidate(ice_candidate);
         }
-        mCachedIceCandidates.clear();
     }
+    mCachedIceCandidates.clear();
+    OnIceGatheringChange(mPeerConnection->ice_gathering_state());
+
 }
 
 //
