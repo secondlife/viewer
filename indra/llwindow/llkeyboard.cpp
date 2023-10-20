@@ -163,7 +163,8 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
-    LLGameControl::clearAllButtons();
+    // TODO: clear any mapped game controller buttons
+    //LLGameControl::clearAllButtons();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
