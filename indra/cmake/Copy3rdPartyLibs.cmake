@@ -60,6 +60,7 @@ if(WINDOWS)
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
+        SDL2.dll
         )
 
     # OpenSSL
@@ -90,10 +91,6 @@ if(WINDOWS)
         set(release_files ${release_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
     endif ()
-
-    if (TARGET ll::SDL2)
-        set(release_files ${release_files} SDL2.dll)
-    endif()
 
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
@@ -179,6 +176,7 @@ elseif(DARWIN)
         liburiparser.dylib
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib
+        libSDL2.dylib
        )
 
     if (TARGET ll::fmodstudio)
@@ -199,6 +197,7 @@ elseif(LINUX)
         libortp.so
         libvivoxoal.so.1
         libvivoxsdk.so
+        libSDL2.so
         )
     set(slvoice_files SLVoice)
 
