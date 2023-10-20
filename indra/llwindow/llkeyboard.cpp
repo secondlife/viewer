@@ -163,7 +163,8 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
-    LLGameControl::clearAllButtons();
+    // TODO: clear any mapped game controller buttons
+    //LLGameControl::clearAllButtons();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
@@ -194,6 +195,7 @@ void LLKeyboard::resetKeys()
 	{
 		mKeyRepeated[i] = FALSE;
 	}
+    // TODO: clear any mapped game controller buttons
     LLGameControl::clearAllButtons();
 }
 
@@ -257,10 +259,11 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 	mKeyDown[translated_key] = TRUE;
 	mCurTranslatedKey = (KEY)translated_key;
 	handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
-    if (!handled && LLGameControl::getIncludeKeyboardButtons())
-    {
-        LLGameControl::onButton(translated_key, true);
-    }
+    // TODO: capture unhandled keys and translate any mapped buttons to game controller
+    //if (!handled && LLGameControl::getIncludeKeyboardButtons())
+    //{
+    //    LLGameControl::onButton(translated_key, true);
+    //}
 	return handled;
 }
 
@@ -279,10 +282,11 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		// sequence W<return> in chat to move agents forward. JC
 		mKeyUp[translated_key] = TRUE;
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
-        if (!handled && LLGameControl::getIncludeKeyboardButtons())
-        {
-            LLGameControl::onButton(translated_key, false);
-        }
+        // TODO: capture unhandled keys and translate any mapped buttons to game controller
+        //if (!handled && LLGameControl::getIncludeKeyboardButtons())
+        //{
+        //    LLGameControl::onButton(translated_key, false);
+        //}
 	}
 	
 	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
