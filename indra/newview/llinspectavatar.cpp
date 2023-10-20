@@ -124,7 +124,7 @@ public:
 		processor->addObserver(mAvatarID, this);
 		// send a request (duplicates will be suppressed inside the avatar
 		// properties processor)
-		processor->sendAvatarPropertiesRequest(mAvatarID, true);
+		processor->sendAvatarPropertiesRequest(mAvatarID);
 	}
 	
 	~LLFetchAvatarData()

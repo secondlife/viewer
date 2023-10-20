@@ -116,11 +116,6 @@ protected:
 	void processProfileProperties(const LLAvatarData* avatar_data);
 
 	/**
-	 * Processes group related data received from server.
-	 */
-	void processGroupProperties(const LLAvatarGroups* avatar_groups);
-
-	/**
 	 * Fills common for Avatar profile and My Profile fields.
 	 */
 	void fillCommonData(const LLAvatarData* avatar_data);
@@ -335,7 +330,7 @@ public:
 
 	BOOL postBuild() override;
 
-    void processProperties(LLAvatarNotes* avatar_notes);
+    void processProperties(const LLAvatarData* avatar_data);
 
 	void resetData() override;
 
