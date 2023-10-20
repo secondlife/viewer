@@ -475,14 +475,17 @@ void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 	{
 		mInfoBtn->setVisible(true);
         mProfileBtn->setVisible(true);
-        mNoticesBtn->setVisible(true);
-        if (mForAgent && mVisibilityHideBtn)
+        if (mForAgent)
         {
             LLGroupData agent_gdatap;
             if (gAgent.getGroupData(mGroupID, agent_gdatap))
             {
-                mVisibilityHideBtn->setVisible(agent_gdatap.mListInProfile);
-                mVisibilityShowBtn->setVisible(!agent_gdatap.mListInProfile);
+                if (mVisibilityHideBtn)
+                {
+                    mVisibilityHideBtn->setVisible(agent_gdatap.mListInProfile);
+                    mVisibilityShowBtn->setVisible(!agent_gdatap.mListInProfile);
+                }
+                mNoticesBtn->setVisible(true);
             }
         }
 	}

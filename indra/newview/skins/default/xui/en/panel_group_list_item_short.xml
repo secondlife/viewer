@@ -64,7 +64,8 @@
      follows="right"
      image_pressed="Group_Notices"
      image_unselected="Group_Notices"
-     tab_stop="false"/>
+     tab_stop="false"
+     visible="false"/>
     <button
      name="visibility_hide_btn"
      tool_tip="Hide group on my profile"
