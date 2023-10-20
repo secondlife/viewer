@@ -115,7 +115,7 @@ void LLAvatarPropertiesProcessor::sendRequest(const LLUUID& avatar_id, EAvatarPr
 	}
 
     // Try to send HTTP request if cap_url is available
-    if (type == APT_PROPERTIES || type == APT_PICKS || type == APT_GROUPS || type == APT_NOTES)
+    if (type == APT_PROPERTIES || type == APT_PICKS)
     {
         if (std::string cap_url(gAgent.getRegionCapability("AgentProfile")); !cap_url.empty())
         {
@@ -172,24 +172,19 @@ void LLAvatarPropertiesProcessor::initAgentProfileCapRequest(const LLUUID& avata
         [cap_url, avatar_id, type]() { requestAvatarPropertiesCoro(cap_url, avatar_id, type); });
 }
 
-void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avatar_id, bool use_cap)
+void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avatar_id)
 {
-    sendRequest(avatar_id, use_cap ? APT_PROPERTIES : APT_PROPERTIES_LEGACY, "AvatarPropertiesRequest");
+    sendRequest(avatar_id, APT_PROPERTIES, "AvatarPropertiesRequest");
+}
+
+void LLAvatarPropertiesProcessor::sendAvatarLegacyPropertiesRequest(const LLUUID& avatar_id)
+{
+    sendRequest(avatar_id, APT_PROPERTIES_LEGACY, "AvatarPropertiesRequest");
 }
 
 void LLAvatarPropertiesProcessor::sendAvatarPicksRequest(const LLUUID& avatar_id)
 {
     sendGenericRequest(avatar_id, APT_PICKS, "avatarpicksrequest");
-}
-
-void LLAvatarPropertiesProcessor::sendAvatarNotesRequest(const LLUUID& avatar_id)
-{
-	sendGenericRequest(avatar_id, APT_NOTES, "avatarnotesrequest");
-}
-
-void LLAvatarPropertiesProcessor::sendAvatarGroupsRequest(const LLUUID& avatar_id)
-{
-	sendGenericRequest(avatar_id, APT_GROUPS, "avatargroupsrequest");
 }
 
 void LLAvatarPropertiesProcessor::sendAvatarTexturesRequest(const LLUUID& avatar_id)
@@ -324,6 +319,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         avatar_data.hide_age = !result.has("hide_age") || result["hide_age"].asBoolean();
         avatar_data.profile_url = getProfileURL(avatar_id.asString());
         avatar_data.customer_type = result["customer_type"].asString();
+        avatar_data.notes = result["notes"].asString();
 
         avatar_data.flags = 0;
         if (result["online"].asBoolean())
@@ -353,6 +349,20 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
             avatar_data.caption_text = result["caption"].asString();
         }
 
+        LLSD groups_array = result["groups"];
+        for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
+        {
+            const LLSD& group_info = *it;
+            LLAvatarData::LLGroupData group_data;
+            group_data.group_powers = 0; // Not in use?
+            group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
+            group_data.group_id = group_info["id"].asUUID();
+            group_data.group_name = group_info["name"].asString();
+            group_data.group_insignia_id = group_info["image_id"].asUUID();
+
+            avatar_data.group_list.push_back(group_data);
+        }
+
         getInstance()->notifyObservers(avatar_id, &avatar_data, type);
     }
     else if (type == APT_PICKS)
@@ -370,39 +380,6 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         }
 
         getInstance()->notifyObservers(avatar_id, &avatar_picks, type);
-    }
-    else if (type == APT_GROUPS)
-    {
-        LLAvatarGroups avatar_groups;
-
-        avatar_groups.agent_id = gAgentID; // Not in use?
-        avatar_groups.avatar_id = avatar_id; // target_id
-
-        LLSD groups_array = result["groups"];
-        for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
-        {
-            const LLSD& group_info = *it;
-            LLAvatarGroups::LLGroupData group_data;
-            group_data.group_powers = 0; // Not in use?
-            group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
-            group_data.group_id = group_info["id"].asUUID();
-            group_data.group_name = group_info["name"].asString();
-            group_data.group_insignia_id = group_info["image_id"].asUUID();
-
-            avatar_groups.group_list.push_back(group_data);
-        }
-
-        getInstance()->notifyObservers(avatar_id, &avatar_groups, type);
-    }
-    else if (type == APT_NOTES)
-    {
-        LLAvatarNotes avatar_notes;
-
-        avatar_notes.agent_id = gAgentID;
-        avatar_notes.target_id = avatar_id;
-        avatar_notes.notes = result["notes"].asString();
-
-        getInstance()->notifyObservers(avatar_id, &avatar_notes, type);
     }
 }
 
@@ -441,33 +418,6 @@ void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* 
 	// Request processed, no longer pending
 	self->removePendingRequest(avatar_data.avatar_id, APT_PROPERTIES_LEGACY);
 	self->notifyObservers(avatar_data.avatar_id, &avatar_data, APT_PROPERTIES_LEGACY);
-}
-
-void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* msg, void**)
-{
-/*
-	AvatarInterestsReply is automatically sent by the server in response to the 
-	AvatarPropertiesRequest sent when the panel is opened (in addition to the AvatarPropertiesReply message). 
-	If the interests panel is no longer part of the design (?) we should just register the message 
-	to a handler function that does nothing. 
-	That will suppress the warnings and be compatible with old server versions.
-	WARNING: LLTemplateMessageReader::decodeData: Message from 216.82.37.237:13000 with no handler function received: AvatarInterestsReply
-*/
-
-    LLInterestsData interests_data;
-    
-    msg->getUUIDFast(   _PREHASH_AgentData,         _PREHASH_AgentID,       interests_data.agent_id );
-    msg->getUUIDFast(   _PREHASH_AgentData,         _PREHASH_AvatarID,      interests_data.avatar_id );
-    msg->getU32Fast(    _PREHASH_PropertiesData,	_PREHASH_WantToMask,    interests_data.want_to_mask );
-    msg->getStringFast( _PREHASH_PropertiesData,    _PREHASH_WantToText,    interests_data.want_to_text );
-    msg->getU32Fast(    _PREHASH_PropertiesData,	_PREHASH_SkillsMask,    interests_data.skills_mask );
-    msg->getStringFast( _PREHASH_PropertiesData,    _PREHASH_SkillsText,    interests_data.skills_text );
-    msg->getString(     _PREHASH_PropertiesData,    _PREHASH_LanguagesText, interests_data.languages_text );
-    
-    LLAvatarPropertiesProcessor* self = getInstance();
-    // Request processed, no longer pending
-    self->removePendingRequest(interests_data.avatar_id, APT_INTERESTS_INFO);
-    self->notifyObservers(interests_data.avatar_id, &interests_data, APT_INTERESTS_INFO);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarClassifiedsReply(LLMessageSystem* msg, void**)
@@ -523,21 +473,6 @@ void LLAvatarPropertiesProcessor::processClassifiedInfoReply(LLMessageSystem* ms
 	self->notifyObservers(c_info.creator_id, &c_info, APT_CLASSIFIED_INFO);
 }
 
-
-void LLAvatarPropertiesProcessor::processAvatarNotesReply(LLMessageSystem* msg, void**)
-{
-	LLAvatarNotes avatar_notes;
-
-	msg->getUUID(_PREHASH_AgentData, _PREHASH_AgentID, avatar_notes.agent_id);
-	msg->getUUID(_PREHASH_Data, _PREHASH_TargetID, avatar_notes.target_id);
-	msg->getString(_PREHASH_Data, _PREHASH_Notes, avatar_notes.notes);
-
-	LLAvatarPropertiesProcessor* self = getInstance();
-	// Request processed, no longer pending
-	self->removePendingRequest(avatar_notes.target_id, APT_NOTES);
-	self->notifyObservers(avatar_notes.target_id,&avatar_notes,APT_NOTES);
-}
-
 void LLAvatarPropertiesProcessor::processAvatarPicksReply(LLMessageSystem* msg, void**)
 {
 	LLAvatarPicks avatar_picks;
@@ -591,31 +526,6 @@ void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, voi
 	self->notifyObservers(pick_data.creator_id, &pick_data, APT_PICK_INFO);
 }
 
-void LLAvatarPropertiesProcessor::processAvatarGroupsReply(LLMessageSystem* msg, void**)
-{
-	LLAvatarGroups avatar_groups;
-	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, avatar_groups.agent_id );
-	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AvatarID, avatar_groups.avatar_id );
-
-	S32 group_count = msg->getNumberOfBlocksFast(_PREHASH_GroupData);
-	for(S32 i = 0; i < group_count; ++i)
-	{
-		LLAvatarGroups::LLGroupData group_data;
-
-		msg->getU64(    _PREHASH_GroupData, _PREHASH_GroupPowers,	group_data.group_powers, i );
-		msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupTitle,	group_data.group_title, i );
-		msg->getUUIDFast(  _PREHASH_GroupData, _PREHASH_GroupID,	group_data.group_id, i);
-		msg->getStringFast(_PREHASH_GroupData, _PREHASH_GroupName,	group_data.group_name, i );
-		msg->getUUIDFast(  _PREHASH_GroupData, _PREHASH_GroupInsigniaID, group_data.group_insignia_id, i );
-
-		avatar_groups.group_list.emplace_back(group_data);
-	}
-
-	LLAvatarPropertiesProcessor* self = getInstance();
-	self->removePendingRequest(avatar_groups.avatar_id, APT_GROUPS);
-	self->notifyObservers(avatar_groups.avatar_id,&avatar_groups,APT_GROUPS);
-}
-
 void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id, void* data, EAvatarProcessorType type)
 {
 	// Copy the map (because observers may delete themselves when updated?)
@@ -652,27 +562,6 @@ void LLAvatarPropertiesProcessor::sendFriendRights(const LLUUID& avatar_id, S32 
 	}
 }
 
-void LLAvatarPropertiesProcessor::sendNotes(const LLUUID& avatar_id, const std::string notes)
-{
-	if(!avatar_id.isNull())
-	{
-		LLMessageSystem* msg = gMessageSystem;
-
-		// setup message header
-		msg->newMessageFast(_PREHASH_AvatarNotesUpdate);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUID(_PREHASH_AgentID, gAgentID);
-		msg->addUUID(_PREHASH_SessionID, gAgentSessionID);
-
-		msg->nextBlockFast(_PREHASH_Data);
-		msg->addUUID(_PREHASH_TargetID, avatar_id);
-		msg->addString(_PREHASH_Notes, notes);
-
-		gAgent.sendReliableMessage();
-	}
-}
-
-
 void LLAvatarPropertiesProcessor::sendPickDelete( const LLUUID& pick_id )
 {
 	LLMessageSystem* msg = gMessageSystem; 
@@ -702,27 +591,6 @@ void LLAvatarPropertiesProcessor::sendClassifiedDelete(const LLUUID& classified_
 	msg->addUUID(_PREHASH_ClassifiedID, classified_id);
 
 	gAgent.sendReliableMessage();
-}
-
-void LLAvatarPropertiesProcessor::sendInterestsInfoUpdate(const LLInterestsData* interests_data)
-{
-    if(!interests_data)
-        return;
-
-    LLMessageSystem* msg = gMessageSystem;
-
-    msg->newMessage(_PREHASH_AvatarInterestsUpdate);
-    msg->nextBlockFast( _PREHASH_AgentData);
-    msg->addUUIDFast(	_PREHASH_AgentID,       gAgentID );
-    msg->addUUIDFast(   _PREHASH_SessionID,     gAgentSessionID );
-    msg->nextBlockFast( _PREHASH_PropertiesData);
-    msg->addU32Fast(	_PREHASH_WantToMask,    interests_data->want_to_mask);
-    msg->addStringFast(	_PREHASH_WantToText,    interests_data->want_to_text);
-    msg->addU32Fast(	_PREHASH_SkillsMask,    interests_data->skills_mask);
-    msg->addStringFast(	_PREHASH_SkillsText,    interests_data->skills_text);
-    msg->addString(     _PREHASH_LanguagesText, interests_data->languages_text);
-    
-    gAgent.sendReliableMessage();
 }
 
 void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)

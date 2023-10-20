@@ -159,6 +159,7 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     avatar_data->born_on = result["member_since"].asDate();
     avatar_data->profile_url = getProfileURL(agent_id.asString());
     avatar_data->customer_type = result["customer_type"].asString();
+    avatar_data->notes = result["notes"].asString();
 
     avatar_data->flags = 0;
 
@@ -195,6 +196,21 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         result["hide_age"].asBoolean() :  // Server option value provided by resident
         !panel_profile->getSelfProfile(); // Fallback temporary value (to be removed)
 
+    // Groups
+    LLSD groups_array = result["groups"];
+    for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
+    {
+        const LLSD& group_info = *it;
+        LLAvatarData::LLGroupData group_data;
+        group_data.group_powers = 0; // Not in use?
+        group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
+        group_data.group_id = group_info["id"].asUUID();
+        group_data.group_name = group_info["name"].asString();
+        group_data.group_insignia_id = group_info["image_id"].asUUID();
+
+        avatar_data->group_list.push_back(group_data);
+    }
+
     panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
     LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
     if (panel_sl)
@@ -216,6 +232,13 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         panel_first->processProperties(avatar_data);
     }
 
+    panel = floater_profile->findChild<LLPanel>(PANEL_NOTES, TRUE);
+    LLPanelProfileNotes* panel_notes = dynamic_cast<LLPanelProfileNotes*>(panel);
+    if (panel_notes)
+    {
+        panel_notes->processProperties(avatar_data);
+    }
+
     // Picks
     LLSD picks_array = result["picks"];
     LLAvatarPicks avatar_picks;
@@ -235,44 +258,6 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         // Refresh pick limit before processing
         LLAgentPicksInfo::getInstance()->onServerRespond(&avatar_picks);
         panel_picks->processProperties(&avatar_picks);
-    }
-
-    // Groups
-    LLSD groups_array = result["groups"];
-    LLAvatarGroups avatar_groups;
-    avatar_groups.agent_id = agent_id; // Not in use?
-    avatar_groups.avatar_id = agent_id; // target_id
-
-    for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
-    {
-        const LLSD& group_info = *it;
-        LLAvatarGroups::LLGroupData group_data;
-        group_data.group_powers = 0; // Not in use?
-        group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
-        group_data.group_id = group_info["id"].asUUID();
-        group_data.group_name = group_info["name"].asString();
-        group_data.group_insignia_id = group_info["image_id"].asUUID();
-
-        avatar_groups.group_list.push_back(group_data);
-    }
-
-    if (panel_sl)
-    {
-        panel_sl->processGroupProperties(&avatar_groups);
-    }
-
-    // Notes
-    LLAvatarNotes avatar_notes;
-
-    avatar_notes.agent_id = agent_id;
-    avatar_notes.target_id = agent_id;
-    avatar_notes.notes = result["notes"].asString();
-
-    panel = floater_profile->findChild<LLPanel>(PANEL_NOTES, TRUE);
-    LLPanelProfileNotes *panel_notes = dynamic_cast<LLPanelProfileNotes*>(panel);
-    if (panel_notes)
-    {
-        panel_notes->processProperties(&avatar_notes);
     }
 }
 
@@ -1052,21 +1037,18 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
 
     fillAccountStatus(avatar_data);
 
-    setLoaded();
-}
-
-void LLPanelProfileSecondLife::processGroupProperties(const LLAvatarGroups* avatar_groups)
-{
-    LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
-    const LLAvatarGroups::group_list_t::const_iterator it_end = avatar_groups->group_list.end();
+    LLAvatarData::group_list_t::const_iterator it = avatar_data->group_list.begin();
+    const LLAvatarData::group_list_t::const_iterator it_end = avatar_data->group_list.end();
 
     for (; it_end != it; ++it)
     {
-        LLAvatarGroups::LLGroupData group_data = *it;
+        LLAvatarData::LLGroupData group_data = *it;
         mGroups[group_data.group_name] = group_data.group_id;
     }
 
     mGroupList->setGroups(mGroups);
+
+    setLoaded();
 }
 
 void LLPanelProfileSecondLife::openGroupProfile()
@@ -2483,9 +2465,9 @@ void LLPanelProfileNotes::onDiscardNotesChanges()
     setNotesText(mCurrentNotes);
 }
 
-void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
+void LLPanelProfileNotes::processProperties(const LLAvatarData* avatar_data)
 {
-    setNotesText(avatar_notes->notes);
+    setNotesText(avatar_data->notes);
     mNotesEditor->setEnabled(TRUE);
     setLoaded();
 }

@@ -332,7 +332,7 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
 {
 	if ( APT_PROPERTIES_LEGACY == type )
 	{
-		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
+		const LLAvatarLegacyData* pAvatarData = static_cast<const LLAvatarLegacyData*>( pData );
 		if (pAvatarData && (gAgent.getID() == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
 		{
             mAllowPublish = (bool)(pAvatarData->flags & AVATAR_ALLOW_PUBLISH);
@@ -662,7 +662,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		(gAgent.isMature() || gAgent.isGodlike());
 	
 	LLComboBox* maturity_combo = getChild<LLComboBox>("maturity_desired_combobox");
-	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest( gAgent.getID() );
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarLegacyPropertiesRequest( gAgent.getID() );
 	if (can_choose_maturity)
 	{		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it

@@ -2657,15 +2657,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("AvatarPropertiesReply",
 						&LLAvatarPropertiesProcessor::processAvatarPropertiesReply);
-	msg->setHandlerFunc("AvatarInterestsReply",
-						&LLAvatarPropertiesProcessor::processAvatarInterestsReply);
-	msg->setHandlerFunc("AvatarGroupsReply",
-						&LLAvatarPropertiesProcessor::processAvatarGroupsReply);
-	// ratings deprecated
-	//msg->setHandlerFuncFast(_PREHASH_AvatarStatisticsReply,
-	//					LLPanelAvatar::processAvatarStatisticsReply);
-	msg->setHandlerFunc("AvatarNotesReply",
-						&LLAvatarPropertiesProcessor::processAvatarNotesReply);
 	msg->setHandlerFunc("AvatarPicksReply",
 						&LLAvatarPropertiesProcessor::processAvatarPicksReply);
  	msg->setHandlerFunc("AvatarClassifiedReply",

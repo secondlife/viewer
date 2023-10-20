@@ -50,45 +50,68 @@ class LLMessageSystem;
 
 enum EAvatarProcessorType
 {
-	APT_PROPERTIES_LEGACY, // APT_PROPERTIES via udp request
+	APT_PROPERTIES_LEGACY, // APT_PROPERTIES via udp request (Truncates data!!!)
 	APT_PROPERTIES,        // APT_PROPERTIES via http request
-	APT_NOTES,
-	APT_GROUPS,
 	APT_PICKS,
 	APT_PICK_INFO,
 	APT_TEXTURES,
-    APT_INTERESTS_INFO,
 	APT_CLASSIFIEDS,
 	APT_CLASSIFIED_INFO
 };
 
-struct LLInterestsData
+// legacy data is supposed to match AvatarPropertiesReply,
+// but it is obsolete, fields like about_text will truncate
+// data, if you need them, use AgenProfile cap.
+// Todo: remove it once once icon ids get moved elsewhere,
+// since AgentProfile is too large for bulk icon requests
+struct LLAvatarLegacyData
 {
-    LLUUID      agent_id;
-    LLUUID      avatar_id; //target id
-    U32         want_to_mask;
-    std::string want_to_text;
-    U32         skills_mask;
-    std::string skills_text;
-    std::string languages_text;
+    LLUUID 		agent_id;
+    LLUUID		avatar_id; //target id
+    LLUUID		image_id;
+    LLUUID		fl_image_id;
+    LLUUID		partner_id;
+    std::string	about_text;
+    std::string	fl_about_text;
+    LLDate		born_on;
+    std::string	profile_url;
+    U8			caption_index;
+    std::string	caption_text;
+    std::string	customer_type;
+    U32			flags;
 };
 
 struct LLAvatarData
 {
-	LLUUID 		agent_id;
-	LLUUID		avatar_id; //target id
-	LLUUID		image_id;
-	LLUUID		fl_image_id;
-	LLUUID		partner_id;
-	std::string	about_text;
-	std::string	fl_about_text;
-	LLDate		born_on;
-	std::string	profile_url;
-	U8			caption_index;
-	std::string	caption_text;
-	std::string	customer_type;
-	U32			flags;
-	bool		hide_age;
+    LLUUID 		agent_id;
+    LLUUID		avatar_id; //target id
+    LLUUID		image_id;
+    LLUUID		fl_image_id;
+    LLUUID		partner_id;
+    std::string	about_text;
+    std::string	fl_about_text;
+    LLDate		born_on;
+    std::string	profile_url;
+    U8			caption_index;
+    std::string	caption_text;
+    std::string	customer_type;
+    U32			flags;
+    bool		hide_age;
+    std::string	notes;
+
+    struct LLGroupData;
+    typedef std::list<LLGroupData> group_list_t;
+    group_list_t group_list;
+};
+
+struct LLAvatarData::LLGroupData
+{
+    U64 group_powers;
+    BOOL accept_notices;
+    std::string group_title;
+    LLUUID group_id;
+    std::string group_name;
+    LLUUID group_insignia_id;
 };
 
 struct LLAvatarPicks
@@ -122,36 +145,6 @@ struct LLPickData
 
 	//used only in write (update) requests
 	LLUUID session_id;
-
-};
-
-struct LLAvatarNotes
-{
-	LLUUID agent_id;
-	LLUUID target_id; //target id
-	std::string notes;
-};
-
-struct LLAvatarGroups
-{
-	LLUUID agent_id;
-	LLUUID avatar_id; //target id
-	BOOL list_in_profile;
-
-	struct LLGroupData;
-	typedef std::list<LLGroupData> group_list_t;
-
-	group_list_t group_list;
-
-	struct LLGroupData
-	{
-		U64 group_powers;
-		BOOL accept_notices;
-		std::string group_title;
-		LLUUID group_id;
-		std::string group_name;
-		LLUUID group_insignia_id;
-	};
 };
 
 struct LLAvatarClassifieds
@@ -211,10 +204,9 @@ public:
 
 	// Request various types of avatar data.  Duplicate requests will be
 	// suppressed while waiting for a response from the network.
-	void sendAvatarPropertiesRequest(const LLUUID& avatar_id, bool use_cap = false);
+	void sendAvatarPropertiesRequest(const LLUUID& avatar_id);
+    void sendAvatarLegacyPropertiesRequest(const LLUUID& avatar_id);
 	void sendAvatarPicksRequest(const LLUUID& avatar_id);
-	void sendAvatarNotesRequest(const LLUUID& avatar_id);
-	void sendAvatarGroupsRequest(const LLUUID& avatar_id);
 	void sendAvatarTexturesRequest(const LLUUID& avatar_id);
 	void sendAvatarClassifiedsRequest(const LLUUID& avatar_id);
 
@@ -229,13 +221,9 @@ public:
 
 	void sendFriendRights(const LLUUID& avatar_id, S32 rights);
 
-	void sendNotes(const LLUUID& avatar_id, const std::string notes);
-
 	void sendPickDelete(const LLUUID& pick_id);
 
 	void sendClassifiedDelete(const LLUUID& classified_id);
-
-    void sendInterestsInfoUpdate(const LLInterestsData* interests_data);
 
 	// Returns translated, human readable string for account type, such
 	// as "Resident" or "Linden Employee".  Used for profiles, inspectors.
@@ -252,15 +240,9 @@ public:
 
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
-	static void processAvatarInterestsReply(LLMessageSystem* msg, void**);
-
 	static void processAvatarClassifiedsReply(LLMessageSystem* msg, void**);
 
 	static void processClassifiedInfoReply(LLMessageSystem* msg, void**);
-
-	static void processAvatarGroupsReply(LLMessageSystem* msg, void**);
-
-	static void processAvatarNotesReply(LLMessageSystem* msg, void**);
 
 	static void processAvatarPicksReply(LLMessageSystem* msg, void**);
 
