@@ -57,6 +57,7 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         nghttp2.dll
+        SDL2.dll
         )
 
     # OpenSSL
@@ -187,6 +188,13 @@ elseif(DARWIN)
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
+<<<<<<< HEAD
+=======
+        liburiparser.dylib
+        liburiparser.1.dylib
+        liburiparser.1.0.27.dylib
+        libSDL2.dylib
+>>>>>>> 4cfc4209be (stage 3rd party lib SDL2 by default, all platforms)
        )
 
     if (TARGET ll::openal)
@@ -206,6 +214,7 @@ elseif(LINUX)
         libortp.so
         libvivoxoal.so.1
         libvivoxsdk.so
+        libSDL2.so
         )
     set(slvoice_files SLVoice)
 
