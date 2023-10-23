@@ -436,18 +436,6 @@
              top_pad="7"
              width="180" />
             <text
-            type="string"
-            length="1"
-            follows="left|top"
-            height="16"
-            layout="topleft"
-            left="10"
-            name="Claimed:"
-            top="247"
-            width="100">
-               Place Page:
-            </text>
-            <text
              type="string"
              length="1"
              follows="left|top"
