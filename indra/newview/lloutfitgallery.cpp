@@ -1161,16 +1161,6 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     return createFromFile("menu_gallery_outfit_tab.xml");
 }
 
-void LLOutfitGalleryContextMenu::onThumbnail(const LLUUID& outfit_cat_id)
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && outfit_cat_id.notNull())
-    {
-        LLSD data(outfit_cat_id);
-        LLFloaterReg::showInstance("change_item_thumbnail", data);
-    }
-}
-
 void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
 {
     LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(data.asString());
@@ -1205,7 +1195,6 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sepatator3", TRUE);
     mMenu->setItemVisible("sort_folders_by_name", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }

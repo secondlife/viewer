@@ -1028,6 +1028,7 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
     registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
+    registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
 
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitContextMenu::onVisible, this, _2));
@@ -1092,6 +1093,15 @@ void LLOutfitContextMenu::renameOutfit(const LLUUID& outfit_cat_id)
     LLAppearanceMgr::instance().renameOutfit(outfit_cat_id);
 }
 
+void LLOutfitContextMenu::onThumbnail(const LLUUID &outfit_cat_id)
+{
+    if (outfit_cat_id.notNull())
+    {
+        LLSD data(outfit_cat_id);
+        LLFloaterReg::showInstance("change_item_thumbnail", data);
+    }
+}
+
 LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     :   mOutfitList(olist),
         mMenu(NULL)
@@ -1135,7 +1145,6 @@ void LLOutfitListGearMenuBase::onUpdateItemsVisibility()
     if (!mMenu) return;
 
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("sepatator1", have_selection);
     mMenu->setItemVisible("sepatator2", have_selection);
     mMenu->arrangeAndClear(); // update menu height
 }
@@ -1234,15 +1243,6 @@ bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
         return false;
     }
 
-    // *TODO This condition leads to menu item behavior inconsistent with
-    // "Wear" button behavior and should be modified or removed.
-    bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
-
-    if ("wear" == param)
-    {
-        return !is_worn;
-    }
-
     return true;
 }
 
@@ -1270,8 +1270,7 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     if (!mMenu) return;
     mMenu->setItemVisible("expand", TRUE);
     mMenu->setItemVisible("collapse", TRUE);
-    mMenu->setItemVisible("thumbnail", FALSE); // Never visible?
-    mMenu->setItemVisible("sepatator3", FALSE);
+    mMenu->setItemVisible("thumbnail", getSelectedOutfitID().notNull());
     mMenu->setItemVisible("sort_folders_by_name", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }

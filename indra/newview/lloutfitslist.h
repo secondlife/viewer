@@ -147,6 +147,8 @@ protected:
 
     static void renameOutfit(const LLUUID& outfit_cat_id);
 
+    void onThumbnail(const LLUUID &outfit_cat_id);
+
 private:
     LLOutfitListBase*	mOutfitList;
 };
