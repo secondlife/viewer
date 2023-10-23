@@ -1258,19 +1258,27 @@ void LLReflectionMapManager::initReflectionMaps()
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
 
-        mTexture = new LLCubeMapArray();
+        if (mTexture.isNull() ||
+            mTexture->getWidth() != mProbeResolution ||
+            mReflectionProbeCount + 2 != mTexture->getCount())
+        {
+            mTexture = new LLCubeMapArray();
 
-        // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-        mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
+            // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
+            mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
 
-        mIrradianceMaps = new LLCubeMapArray();
-        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+            mIrradianceMaps = new LLCubeMapArray();
+            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+        }
 
         // reset probe state
         mUpdatingFace = 0;
         mUpdatingProbe = nullptr;
         mRadiancePass = false;
         mRealtimeRadiancePass = false;
+
+        // if default probe already exists, remember whether or not it's complete (SL-20498)
+        bool default_complete = mDefaultProbe.isNull() ? false : mDefaultProbe->mComplete;
 
         for (auto& probe : mProbes)
         {
@@ -1299,6 +1307,8 @@ void LLReflectionMapManager::initReflectionMaps()
         mDefaultProbe->mDistance = 64.f;
         mDefaultProbe->mRadius = 4096.f;
         mDefaultProbe->mProbeIndex = 0;
+        mDefaultProbe->mComplete = default_complete;
+
         touch_default_probe(mDefaultProbe);
 
     }
