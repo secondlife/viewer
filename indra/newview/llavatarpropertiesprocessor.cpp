@@ -115,20 +115,19 @@ void LLAvatarPropertiesProcessor::sendRequest(const LLUUID& avatar_id, EAvatarPr
 	}
 
     // Try to send HTTP request if cap_url is available
-    if (type == APT_PROPERTIES || type == APT_PICKS)
+    if (type == APT_PROPERTIES)
     {
-        if (std::string cap_url(gAgent.getRegionCapability("AgentProfile")); !cap_url.empty())
+        std::string cap_url = gAgent.getRegionCapability("AgentProfile");
+        if (!cap_url.empty())
         {
             initAgentProfileCapRequest(avatar_id, cap_url, type);
-            return;
         }
-
-        // Don't sent UDP request for APT_PROPERTIES
-        if (type == APT_PROPERTIES)
+        else
         {
-            LL_WARNS() << "No cap_url for APT_PROPERTIES, request is not sent" << LL_ENDL;
-            return;
+            // Don't sent UDP request for APT_PROPERTIES
+            LL_WARNS() << "No cap_url for APT_PROPERTIES, request for " << avatar_id << " is not sent" << LL_ENDL;
         }
+        return;
     }
 
     // Send UDP request
@@ -180,11 +179,6 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avat
 void LLAvatarPropertiesProcessor::sendAvatarLegacyPropertiesRequest(const LLUUID& avatar_id)
 {
     sendRequest(avatar_id, APT_PROPERTIES_LEGACY, "AvatarPropertiesRequest");
-}
-
-void LLAvatarPropertiesProcessor::sendAvatarPicksRequest(const LLUUID& avatar_id)
-{
-    sendGenericRequest(avatar_id, APT_PICKS, "avatarpicksrequest");
 }
 
 void LLAvatarPropertiesProcessor::sendAvatarTexturesRequest(const LLUUID& avatar_id)
@@ -300,90 +294,80 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         return;
     }
 
-    if (type == APT_PROPERTIES)
+    LLAvatarData avatar_data;
+
+    std::string birth_date;
+
+    avatar_data.agent_id = gAgentID;
+    avatar_data.avatar_id = avatar_id;
+    avatar_data.image_id = result["sl_image_id"].asUUID();
+    avatar_data.fl_image_id = result["fl_image_id"].asUUID();
+    avatar_data.partner_id = result["partner_id"].asUUID();
+    avatar_data.about_text = result["sl_about_text"].asString();
+    avatar_data.fl_about_text = result["fl_about_text"].asString();
+    avatar_data.born_on = result["member_since"].asDate();
+    // TODO: SL-20163 Remove the "has" check when SRV-684 is done
+    // and the field "hide_age" is included to the http response
+    avatar_data.hide_age = !result.has("hide_age") || result["hide_age"].asBoolean();
+    avatar_data.profile_url = getProfileURL(avatar_id.asString());
+    avatar_data.customer_type = result["customer_type"].asString();
+    avatar_data.notes = result["notes"].asString();
+
+    avatar_data.flags = 0;
+    if (result["online"].asBoolean())
     {
-        LLAvatarData avatar_data;
-
-        std::string birth_date;
-
-        avatar_data.agent_id = gAgentID;
-        avatar_data.avatar_id = avatar_id;
-        avatar_data.image_id = result["sl_image_id"].asUUID();
-        avatar_data.fl_image_id = result["fl_image_id"].asUUID();
-        avatar_data.partner_id = result["partner_id"].asUUID();
-        avatar_data.about_text = result["sl_about_text"].asString();
-        avatar_data.fl_about_text = result["fl_about_text"].asString();
-        avatar_data.born_on = result["member_since"].asDate();
-        // TODO: SL-20163 Remove the "has" check when SRV-684 is done
-        // and the field "hide_age" is included to the http response
-        avatar_data.hide_age = !result.has("hide_age") || result["hide_age"].asBoolean();
-        avatar_data.profile_url = getProfileURL(avatar_id.asString());
-        avatar_data.customer_type = result["customer_type"].asString();
-        avatar_data.notes = result["notes"].asString();
-
-        avatar_data.flags = 0;
-        if (result["online"].asBoolean())
-        {
-            avatar_data.flags |= AVATAR_ONLINE;
-        }
-        if (result["allow_publish"].asBoolean())
-        {
-            avatar_data.flags |= AVATAR_ALLOW_PUBLISH;
-        }
-        if (result["identified"].asBoolean())
-        {
-            avatar_data.flags |= AVATAR_IDENTIFIED;
-        }
-        if (result["transacted"].asBoolean())
-        {
-            avatar_data.flags |= AVATAR_TRANSACTED;
-        }
-
-        avatar_data.caption_index = 0;
-        if (result.has("charter_member")) // won't be present if "caption" is set
-        {
-            avatar_data.caption_index = result["charter_member"].asInteger();
-        }
-        else if (result.has("caption"))
-        {
-            avatar_data.caption_text = result["caption"].asString();
-        }
-
-        LLSD groups_array = result["groups"];
-        for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
-        {
-            const LLSD& group_info = *it;
-            LLAvatarData::LLGroupData group_data;
-            group_data.group_powers = 0; // Not in use?
-            group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
-            group_data.group_id = group_info["id"].asUUID();
-            group_data.group_name = group_info["name"].asString();
-            group_data.group_insignia_id = group_info["image_id"].asUUID();
-
-            avatar_data.group_list.push_back(group_data);
-        }
-
-        getInstance()->notifyObservers(avatar_id, &avatar_data, type);
+        avatar_data.flags |= AVATAR_ONLINE;
     }
-    else if (type == APT_PICKS)
+    if (result["allow_publish"].asBoolean())
     {
-        LLAvatarPicks avatar_picks;
-
-        avatar_picks.agent_id = gAgentID; // Not in use?
-        avatar_picks.target_id = avatar_id;
-
-        LLSD picks_array = result["picks"];
-        for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
-        {
-            const LLSD& pick_data = *it;
-            avatar_picks.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
-        }
-
-        getInstance()->notifyObservers(avatar_id, &avatar_picks, type);
+        avatar_data.flags |= AVATAR_ALLOW_PUBLISH;
     }
+    if (result["identified"].asBoolean())
+    {
+        avatar_data.flags |= AVATAR_IDENTIFIED;
+    }
+    if (result["transacted"].asBoolean())
+    {
+        avatar_data.flags |= AVATAR_TRANSACTED;
+    }
+
+    avatar_data.caption_index = 0;
+    if (result.has("charter_member")) // won't be present if "caption" is set
+    {
+        avatar_data.caption_index = result["charter_member"].asInteger();
+    }
+    else if (result.has("caption"))
+    {
+        avatar_data.caption_text = result["caption"].asString();
+    }
+
+    // Groups
+    LLSD groups_array = result["groups"];
+    for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
+    {
+        const LLSD& group_info = *it;
+        LLAvatarData::LLGroupData group_data;
+        group_data.group_powers = 0; // Not in use?
+        group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
+        group_data.group_id = group_info["id"].asUUID();
+        group_data.group_name = group_info["name"].asString();
+        group_data.group_insignia_id = group_info["image_id"].asUUID();
+
+        avatar_data.group_list.push_back(group_data);
+    }
+
+    // Picks
+    LLSD picks_array = result["picks"];
+    for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
+    {
+        const LLSD& pick_data = *it;
+        avatar_data.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
+    }
+
+    getInstance()->notifyObservers(avatar_id, &avatar_data, type);
 }
 
-void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* msg, void**)
+void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**)
 {
 	LLAvatarData avatar_data;
 	std::string birth_date;
@@ -471,29 +455,6 @@ void LLAvatarPropertiesProcessor::processClassifiedInfoReply(LLMessageSystem* ms
 	// Request processed, no longer pending
 	self->removePendingRequest(c_info.creator_id, APT_CLASSIFIED_INFO);
 	self->notifyObservers(c_info.creator_id, &c_info, APT_CLASSIFIED_INFO);
-}
-
-void LLAvatarPropertiesProcessor::processAvatarPicksReply(LLMessageSystem* msg, void**)
-{
-	LLAvatarPicks avatar_picks;
-	msg->getUUID(_PREHASH_AgentData, _PREHASH_AgentID, avatar_picks.agent_id);
-	msg->getUUID(_PREHASH_AgentData, _PREHASH_TargetID, avatar_picks.target_id);
-
-	S32 block_count = msg->getNumberOfBlocks(_PREHASH_Data);
-	for (int block = 0; block < block_count; ++block)
-	{
-		LLUUID pick_id;
-		std::string pick_name;
-
-		msg->getUUID(_PREHASH_Data, _PREHASH_PickID, pick_id, block);
-		msg->getString(_PREHASH_Data, _PREHASH_PickName, pick_name, block);
-
-		avatar_picks.picks_list.emplace_back(pick_id, pick_name);
-	}
-	LLAvatarPropertiesProcessor* self = getInstance();
-	// Request processed, no longer pending
-	self->removePendingRequest(avatar_picks.target_id, APT_PICKS);
-	self->notifyObservers(avatar_picks.target_id,&avatar_picks,APT_PICKS);
 }
 
 void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, void**)

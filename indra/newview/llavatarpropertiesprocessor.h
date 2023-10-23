@@ -52,7 +52,6 @@ enum EAvatarProcessorType
 {
 	APT_PROPERTIES_LEGACY, // APT_PROPERTIES via udp request (Truncates data!!!)
 	APT_PROPERTIES,        // APT_PROPERTIES via http request
-	APT_PICKS,
 	APT_PICK_INFO,
 	APT_TEXTURES,
 	APT_CLASSIFIEDS,
@@ -102,6 +101,10 @@ struct LLAvatarData
     struct LLGroupData;
     typedef std::list<LLGroupData> group_list_t;
     group_list_t group_list;
+
+    typedef std::pair<LLUUID, std::string> pick_data_t;
+    typedef std::list< pick_data_t> picks_list_t;
+    picks_list_t picks_list;
 };
 
 struct LLAvatarData::LLGroupData
@@ -112,16 +115,6 @@ struct LLAvatarData::LLGroupData
     LLUUID group_id;
     std::string group_name;
     LLUUID group_insignia_id;
-};
-
-struct LLAvatarPicks
-{
-	LLUUID agent_id;
-	LLUUID target_id; //target id
-
-	typedef std::pair<LLUUID,std::string> pick_data_t;
-	typedef std::list< pick_data_t> picks_list_t;
-	picks_list_t picks_list;
 };
 
 struct LLPickData
@@ -206,7 +199,6 @@ public:
 	// suppressed while waiting for a response from the network.
 	void sendAvatarPropertiesRequest(const LLUUID& avatar_id);
     void sendAvatarLegacyPropertiesRequest(const LLUUID& avatar_id);
-	void sendAvatarPicksRequest(const LLUUID& avatar_id);
 	void sendAvatarTexturesRequest(const LLUUID& avatar_id);
 	void sendAvatarClassifiedsRequest(const LLUUID& avatar_id);
 
@@ -238,13 +230,12 @@ public:
 
     static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID avatar_id, EAvatarProcessorType type);
 
-	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
+    // Processing of UDP variant of properties, truncates certain fields!
+    static void processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**);
 
 	static void processAvatarClassifiedsReply(LLMessageSystem* msg, void**);
 
 	static void processClassifiedInfoReply(LLMessageSystem* msg, void**);
-
-	static void processAvatarPicksReply(LLMessageSystem* msg, void**);
 
 	static void processPickInfoReply(LLMessageSystem* msg, void**);
 

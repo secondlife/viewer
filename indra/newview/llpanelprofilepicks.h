@@ -58,7 +58,7 @@ public:
     void selectPick(const LLUUID& pick_id);
 
     void processProperties(void* data, EAvatarProcessorType type) override;
-    void processProperties(const LLAvatarPicks* avatar_picks);
+    void processProperties(const LLAvatarData* avatar_picks);
 
     void resetData() override;
 
