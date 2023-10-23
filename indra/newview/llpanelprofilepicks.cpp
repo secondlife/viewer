@@ -289,17 +289,17 @@ void LLPanelProfilePicks::callbackDeletePick(const LLSD& notification, const LLS
 
 void LLPanelProfilePicks::processProperties(void* data, EAvatarProcessorType type)
 {
-    if (APT_PICKS == type)
+    if (APT_PROPERTIES == type)
     {
-        LLAvatarPicks* avatar_picks = static_cast<LLAvatarPicks*>(data);
-        if (avatar_picks && getAvatarId() == avatar_picks->target_id)
+        LLAvatarData* avatar_picks = static_cast<LLAvatarData*>(data);
+        if (avatar_picks && getAvatarId() == avatar_picks->avatar_id)
         {
             processProperties(avatar_picks);
         }
     }
 }
 
-void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
+void LLPanelProfilePicks::processProperties(const LLAvatarData* avatar_picks)
 {
     LLUUID selected_id = mPickToSelectOnLoad;
     bool has_selection = false;
@@ -317,7 +317,7 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
 
     mTabContainer->deleteAllTabs();
 
-    LLAvatarPicks::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
+    LLAvatarData::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
     for (; avatar_picks->picks_list.end() != it; ++it)
     {
         LLUUID pick_id = it->first;
@@ -421,7 +421,7 @@ void LLPanelProfilePicks::updateData()
     {
         setIsLoading();
 
-        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(avatar_id);
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_id);
     }
     if (!getIsLoaded())
     {

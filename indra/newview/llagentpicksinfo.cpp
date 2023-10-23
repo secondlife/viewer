@@ -49,10 +49,10 @@ public:
 
 	void sendAgentPicksRequest()
 	{
-		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(gAgent.getID());
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgent.getID());
 	}
 
-	typedef boost::function<void(LLAvatarPicks*)> server_respond_callback_t;
+	typedef boost::function<void(LLAvatarData*)> server_respond_callback_t;
 
 	void setServerRespondCallback(const server_respond_callback_t& cb)
 	{
@@ -61,10 +61,10 @@ public:
 
 	virtual void processProperties(void* data, EAvatarProcessorType type)
 	{
-		if(APT_PICKS == type)
+		if(APT_PROPERTIES == type)
 		{
-			LLAvatarPicks* picks = static_cast<LLAvatarPicks*>(data);
-			if(picks && gAgent.getID() == picks->target_id)
+            LLAvatarData* picks = static_cast<LLAvatarData*>(data);
+			if(picks && gAgent.getID() == picks->avatar_id)
 			{
 				if(mServerRespondCallback)
 				{
@@ -115,7 +115,7 @@ bool LLAgentPicksInfo::isPickLimitReached()
 	return getNumberOfPicks() >= getMaxNumberOfPicks();
 }
 
-void LLAgentPicksInfo::onServerRespond(LLAvatarPicks* picks)
+void LLAgentPicksInfo::onServerRespond(LLAvatarData* picks)
 {
 	if(!picks)
 	{

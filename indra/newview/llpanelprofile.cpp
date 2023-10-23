@@ -211,6 +211,15 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         avatar_data->group_list.push_back(group_data);
     }
 
+    // Picks
+    LLSD picks_array = result["picks"];
+
+    for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
+    {
+        const LLSD& pick_data = *it;
+        avatar_data->picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
+    }
+
     panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
     LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
     if (panel_sl)
@@ -239,25 +248,13 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         panel_notes->processProperties(avatar_data);
     }
 
-    // Picks
-    LLSD picks_array = result["picks"];
-    LLAvatarPicks avatar_picks;
-    avatar_picks.agent_id = agent_id; // Not in use?
-    avatar_picks.target_id = agent_id;
-
-    for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
-    {
-        const LLSD& pick_data = *it;
-        avatar_picks.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
-    }
-
     panel = floater_profile->findChild<LLPanel>(PANEL_PICKS, TRUE);
     LLPanelProfilePicks *panel_picks = dynamic_cast<LLPanelProfilePicks*>(panel);
     if (panel_picks)
     {
         // Refresh pick limit before processing
-        LLAgentPicksInfo::getInstance()->onServerRespond(&avatar_picks);
-        panel_picks->processProperties(&avatar_picks);
+        LLAgentPicksInfo::getInstance()->onServerRespond(avatar_data);
+        panel_picks->processProperties(avatar_data);
     }
 }
 
