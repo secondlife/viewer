@@ -36,6 +36,7 @@
 #include "llvirtualtrackball.h"
 #include "llenvironment.h"
 #include "llviewercontrol.h"
+#include "pipeline.h"
 
 //=========================================================================
 namespace
@@ -133,6 +134,9 @@ void LLFloaterEnvironmentAdjust::onOpen(const LLSD& key)
     captureCurrentEnvironment();
 
     mEventConnection = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version){ onEnvironmentUpdated(env, version); });
+
+    // HACK -- resume reflection map manager because "setEnvironmentChanged" may pause it (SL-20456)
+    gPipeline.mReflectionMapManager.resume();
 
     LLFloater::onOpen(key);
     refresh();
