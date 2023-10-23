@@ -1446,7 +1446,7 @@ void LLViewerJoystick::saveDeviceIdToSettings()
     // someone editing the xml will corrupt it
     // so convert to string first
     std::string device_string = getDeviceUUIDString();
-    gSavedSettings.setLLSD("JoystickDeviceUUID", LLSD(device_string);
+    gSavedSettings.setLLSD("JoystickDeviceUUID", LLSD(device_string));
 #else
     LLSD device_id = getDeviceUUID();
     gSavedSettings.setLLSD("JoystickDeviceUUID", device_id);
