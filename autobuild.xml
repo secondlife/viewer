@@ -440,11 +440,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e4d568c166049ce61b39d69887b56d2382781a1a</string>
+              <string>6bb33eb9818f8b166e3bad22ba84fec0f9b397fa</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v118.0.5993.54/dullahan-1.14.0.202310131309_118.4.1_g3dd6078_chromium-118.0.5993.54-darwin64-6b02a60.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0/dullahan-1.14.0.202310042042_117.2.2_ge80c977_chromium-117.0.5938.132-darwin64-bb8417d.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -454,11 +454,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a00eae7f5dc430ae48389ab723ced39739b0a144</string>
+              <string>7100f36b969d3c09bcaf50df988b4035c77e3158</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v118.0.5993.54/dullahan-1.14.0.202310131404_118.4.1_g3dd6078_chromium-118.0.5993.54-windows64-6b02a60.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0/dullahan-1.14.0.202310042145_117.2.2_ge80c977_chromium-117.0.5938.132-windows64-bb8417d.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -471,7 +471,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.14.0.202310131404_118.4.1_g3dd6078_chromium-118.0.5993.54</string>
+        <string>1.14.0.202310042145_117.2.2_ge80c977_chromium-117.0.5938.132</string>
         <key>name</key>
         <string>dullahan</string>
         <key>description</key>
