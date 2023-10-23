@@ -248,7 +248,7 @@ public:
 
 	static bool hasPaymentInfoOnFile(const LLAvatarData* avatar_data);
 
-    static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id, EAvatarProcessorType type);
+    static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID avatar_id, EAvatarProcessorType type);
 
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
