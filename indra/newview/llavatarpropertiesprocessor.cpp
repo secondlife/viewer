@@ -553,7 +553,7 @@ void LLAvatarPropertiesProcessor::processAvatarPicksReply(LLMessageSystem* msg, 
 		msg->getUUID(_PREHASH_Data, _PREHASH_PickID, pick_id, block);
 		msg->getString(_PREHASH_Data, _PREHASH_PickName, pick_name, block);
 
-		avatar_picks.picks_list.emplace_back(std::make_pair(pick_id,pick_name));
+		avatar_picks.picks_list.emplace_back(pick_id, pick_name);
 	}
 	LLAvatarPropertiesProcessor* self = getInstance();
 	// Request processed, no longer pending
