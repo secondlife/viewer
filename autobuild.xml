@@ -440,11 +440,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e4d568c166049ce61b39d69887b56d2382781a1a</string>
+              <string>26302518fa132a8a9da7eddee53ee583ab7581b3</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v118.0.5993.54/dullahan-1.14.0.202310131309_118.4.1_g3dd6078_chromium-118.0.5993.54-darwin64-6b02a60.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.13.0.202305180006_113.1.5_ge452d82_chromium-113.0.5672.93-1758b1b/dullahan-1.13.0.202305180020_113.1.5_ge452d82_chromium-113.0.5672.93-darwin64-1758b1b.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -454,11 +454,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a00eae7f5dc430ae48389ab723ced39739b0a144</string>
+              <string>f29e543a6f85aa5b5093d2f4db0b192e28da601a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v118.0.5993.54/dullahan-1.14.0.202310131404_118.4.1_g3dd6078_chromium-118.0.5993.54-windows64-6b02a60.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.13.0.202305180006_113.1.5_ge452d82_chromium-113.0.5672.93-1758b1b/dullahan-1.13.0.202305180125_113.1.5_ge452d82_chromium-113.0.5672.93-windows64-1758b1b.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -471,7 +471,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.14.0.202310131404_118.4.1_g3dd6078_chromium-118.0.5993.54</string>
+        <string>1.13.0.202305180125_113.1.5_ge452d82_chromium-113.0.5672.93</string>
         <key>name</key>
         <string>dullahan</string>
         <key>description</key>
