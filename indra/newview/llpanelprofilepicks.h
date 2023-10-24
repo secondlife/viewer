@@ -77,8 +77,6 @@ public:
     bool hasUnsavedChanges() override;
     void commitUnsavedChanges() override;
 
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
-
 private:
     void onClickNewBtn();
     void onClickDelete();

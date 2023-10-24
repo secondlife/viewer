@@ -294,6 +294,10 @@ void LLPanelProfilePicks::processProperties(void* data, EAvatarProcessorType typ
         LLAvatarData* avatar_picks = static_cast<LLAvatarData*>(data);
         if (avatar_picks && getAvatarId() == avatar_picks->avatar_id)
         {
+            if (getSelfProfile())
+            {
+                LLAgentPicksInfo::getInstance()->onServerRespond(avatar_picks);
+            }
             processProperties(avatar_picks);
         }
     }
