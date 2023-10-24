@@ -41,7 +41,7 @@
          function="Gear.OnVisible"
          parameter="take_off" />
     </menu_item_call>
-    <menu_item_separator name="sepatator2" />
+    <menu_item_separator name="wear_separator" />
     <menu_item_call
      label="Image..."
      layout="topleft"
@@ -61,6 +61,15 @@
         <on_visible
          function="Gear.OnVisible"
          parameter="rename" />
+    </menu_item_call>
+    <menu_item_call
+     label="Save to this outfit"
+     layout="topleft"
+     name="save">
+        <on_click
+         function="Gear.Save" />
+        <on_visible
+         function="Gear.OnVisible"/>
     </menu_item_call>
     <menu_item_separator>
         <on_visible

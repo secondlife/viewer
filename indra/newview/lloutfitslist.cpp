@@ -1029,6 +1029,7 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Save", boost::bind(&LLOutfitContextMenu::onSave, this, selected_id));
 
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitContextMenu::onVisible, this, _2));
@@ -1102,6 +1103,22 @@ void LLOutfitContextMenu::onThumbnail(const LLUUID &outfit_cat_id)
     }
 }
 
+void LLOutfitContextMenu::onSave(const LLUUID &outfit_cat_id)
+{
+    if (outfit_cat_id.notNull())
+    {
+        LLNotificationsUtil::add("ConfirmOverwriteOutfit", LLSD(), LLSD(),
+            [outfit_cat_id](const LLSD &notif, const LLSD &resp)
+        {
+            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+            if (opt == 0)
+            {
+                LLAppearanceMgr::getInstance()->onOutfitFolderCreated(outfit_cat_id, true);
+            }
+        });
+    }
+}
+
 LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     :   mOutfitList(olist),
         mMenu(NULL)
@@ -1120,6 +1137,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, mOutfitList));
 
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
+    registrar.add("Gear.Save", boost::bind(&LLOutfitListGearMenuBase::onSave, this));
 
     registrar.add("Gear.Thumbnail", boost::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
     registrar.add("Gear.SortByName", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
@@ -1145,7 +1163,7 @@ void LLOutfitListGearMenuBase::onUpdateItemsVisibility()
     if (!mMenu) return;
 
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("sepatator2", have_selection);
+    mMenu->setItemVisible("wear_separator", have_selection);
     mMenu->arrangeAndClear(); // update menu height
 }
 
@@ -1188,6 +1206,20 @@ void LLOutfitListGearMenuBase::onAdd()
     {
         LLAppearanceMgr::getInstance()->addCategoryToCurrentOutfit(selected_id);
     }
+}
+
+void LLOutfitListGearMenuBase::onSave()
+{
+    const LLUUID &selected_id = getSelectedOutfitID();
+    LLNotificationsUtil::add("ConfirmOverwriteOutfit", LLSD(), LLSD(),
+        [selected_id](const LLSD &notif, const LLSD &resp)
+    {
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
+        {
+            LLAppearanceMgr::getInstance()->onOutfitFolderCreated(selected_id, true);
+        }
+    });
 }
 
 void LLOutfitListGearMenuBase::onTakeOff()
