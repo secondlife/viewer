@@ -194,3 +194,13 @@ void LLPanelProfilePropertiesProcessorTab::setAvatarId(const LLUUID & avatar_id)
         LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
     }
 }
+
+void LLPanelProfilePropertiesProcessorTab::updateData()
+{
+    LLUUID avatar_id = getAvatarId();
+    if (!getStarted() && avatar_id.notNull())
+    {
+        setIsLoading();
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(getAvatarId());
+    }
+}
