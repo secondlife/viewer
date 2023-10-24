@@ -2406,6 +2406,8 @@ void LLWebRTCVoiceClient::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserve
             LLMutexLock lock(&mVoiceStateMutex);
             mIceCompleted = false;
         }
+        default:
+            break;
     }
 }
 
