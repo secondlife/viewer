@@ -1827,7 +1827,7 @@ bool LLViewerFetchedTexture::updateFetch()
 	if (mIsMissingAsset)
 	{
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - missing asset");
-		llassert_always(!mHasFetcher);
+		llassert(!mHasFetcher);
 		return false; // skip
 	}
 	if (!mLoadedCallbackList.empty() && mRawImage.notNull())
@@ -2099,8 +2099,8 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 	}
 	
-	llassert_always(mRawImage.notNull() || !mIsRawImageValid);
-	llassert_always(mRawImage.notNull() || !mNeedsCreateTexture);
+	llassert(mRawImage.notNull() || !mIsRawImageValid);
+	llassert(mRawImage.notNull() || !mNeedsCreateTexture);
 	
 	return mIsFetching ? true : false;
 }
@@ -2527,8 +2527,8 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 
 		destroyRawImage();
 		reloadRawImage(mLoadedCallbackDesiredDiscardLevel);
-		llassert_always(mRawImage.notNull());
-		llassert_always(!mNeedsAux || mAuxRawImage.notNull());
+		llassert(mRawImage.notNull());
+		llassert(!mNeedsAux || mAuxRawImage.notNull());
 	}
 
 	//
@@ -2552,7 +2552,6 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 				// we're going to call them.
 
 				mLastCallBackActiveTime = sCurrentTime;
-				//llassert_always(mRawImage.notNull());
 				if(mNeedsAux && mAuxRawImage.isNull())
 				{
 					LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
@@ -2641,9 +2640,9 @@ void LLViewerFetchedTexture::forceImmediateUpdate()
 
 LLImageRaw* LLViewerFetchedTexture::reloadRawImage(S8 discard_level)
 {
-	llassert_always(mGLTexturep.notNull());
-	llassert_always(discard_level >= 0);
-	llassert_always(mComponents > 0);
+	llassert(mGLTexturep.notNull());
+	llassert(discard_level >= 0);
+	llassert(mComponents > 0);
 
 	if (mRawImage.notNull())
 	{
