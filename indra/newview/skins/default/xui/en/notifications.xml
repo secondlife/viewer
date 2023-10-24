@@ -12098,5 +12098,21 @@ Would you like to save them first?
        notext="No"
        yestext="Yes"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmOverwriteOutfit"
+   type="alertmodal">
+      <unique/>
+This will replace the items in the
+selected outfit with the items you
+are wearing now.
+      <tag>confirm</tag>
+      <usetemplate
+       ignoretext="Confirm before overwriting outfit"
+       name="okcancelignore"
+       notext="Cancel"
+       yestext="Save"/>
+  </notification>
     
 </notifications>
