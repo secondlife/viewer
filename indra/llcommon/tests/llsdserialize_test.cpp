@@ -44,13 +44,6 @@ typedef U32 uint32_t;
 #include "llstring.h"
 #endif
 
-#include "boost/range.hpp"
-#include "boost/foreach.hpp"
-#include "boost/bind.hpp"
-#include "boost/phoenix/bind/bind_function.hpp"
-#include "boost/phoenix/core/argument.hpp"
-using namespace boost::phoenix;
-
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -1946,7 +1939,7 @@ namespace tut
         // Create an llsdXXXXXX file containing 'data' serialized to
         // notation.
         NamedTempFile file("llsd",
-                           // NamedTempFile's boost::function constructor
+                           // NamedTempFile's std::function constructor
                            // takes a callable. To this callable it passes the
                            // std::ostream with which it's writing the
                            // NamedTempFile.
@@ -1955,7 +1948,8 @@ namespace tut
                            { writeLLSDArray(serialize, out, cdata); });
 
         python("read C++ " + desc,
-               placeholders::arg1 <<
+               [pydata, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "from functools import partial\n"
                "import io\n"
@@ -1981,7 +1975,7 @@ namespace tut
                "        yield frombytes\n"
                << pydata <<
                // Don't forget raw-string syntax for Windows pathnames.
-               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
+               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n"; });
     }
 
     template<> template<>
@@ -2068,7 +2062,8 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("Python " + pyformatter,
-               placeholders::arg1 <<
+               [pyformatter, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "import struct\n"
                "lenformat = struct.Struct('i')\n"
@@ -2086,7 +2081,7 @@ namespace tut
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
-               "        f.write(serialized)\n");
+               "        f.write(serialized)\n";});
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
