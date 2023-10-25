@@ -280,7 +280,7 @@ void main()
 
     f = clamp(f, 0, 1);
 
-    color = mix(color, fb.rgb, f);
+    color = ((1.0 - f) * color) + fb.rgb;
 
     color = atmosFragLightingLinear(color, additive, atten);
 
