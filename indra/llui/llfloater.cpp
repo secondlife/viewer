@@ -1772,6 +1772,8 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		{
 			if (self->mSaveRect)
 			{
+                LLRect screen_rect = self->calcScreenRect();
+                self->mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 				self->storeRectControl();
 			}
 			self->setMinimized(FALSE); // to reenable minimize button if it was minimized
