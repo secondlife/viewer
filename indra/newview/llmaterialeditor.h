@@ -219,6 +219,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void setCanSave(bool value);
     void setEnableEditing(bool can_modify);
 
+    void replaceTexture(const LLUUID& old_id, const LLUUID& new_id); // Local texture support
     void onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
     void onCancelCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
     void onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
@@ -306,5 +307,6 @@ private:
     static bool mOverrideInProgress;
     static bool mSelectionNeedsUpdate;
     boost::signals2::connection mSelectionUpdateSlot;
+    std::list <boost::signals2::connection> mTextureChangesUpdates;
 };
 
