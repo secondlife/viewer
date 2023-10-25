@@ -182,7 +182,7 @@ void LLKeyboardWin32::resetMaskKeys()
 //}
 
 
-MASK LLKeyboardWin32::updateModifiers()
+MASK LLKeyboardWin32::updateModifiers(U32 mask)
 {
 	//RN: this seems redundant, as we should have already received the appropriate
 	// messages for the modifier keys
@@ -191,43 +191,8 @@ MASK LLKeyboardWin32::updateModifiers()
 	// (keydown encoded in high order bit of short)
 	mKeyLevel[KEY_CAPSLOCK] = (GetKeyState(VK_CAPITAL) & 0x0001) != 0; // Low order bit carries the toggle state.
 	// Get mask for keyboard events
-	MASK mask = currentMask(FALSE);
-	return mask;
-}
-
-
-// mask is ignored, except for extended flag -- we poll the modifier keys for the other flags
-BOOL LLKeyboardWin32::handleKeyDown(const U16 key, MASK mask)
-{
-	KEY		translated_key;
-	U32		translated_mask;
-	BOOL	handled = FALSE;
-
-	translated_mask = updateModifiers();
-
-	if (translateExtendedKey(key, mask, &translated_key))
-	{
-		handled = handleTranslatedKeyDown(translated_key, translated_mask);
-	}
-
-	return handled;
-}
-
-// mask is ignored, except for extended flag -- we poll the modifier keys for the other flags
-BOOL LLKeyboardWin32::handleKeyUp(const U16 key, MASK mask)
-{
-	KEY		translated_key;
-	U32		translated_mask;
-	BOOL	handled = FALSE;
-
-	translated_mask = updateModifiers();
-
-	if (translateExtendedKey(key, mask, &translated_key))
-	{
-		handled = handleTranslatedKeyUp(translated_key, translated_mask);
-	}
-
-	return handled;
+	MASK out_mask = currentMask(FALSE);
+	return out_mask;
 }
 
 
@@ -272,53 +237,4 @@ void LLKeyboardWin32::scanKeyboard()
 	}
 }
 
-BOOL LLKeyboardWin32::translateExtendedKey(const U16 os_key, const MASK mask, KEY *translated_key)
-{
-	return translateKey(os_key, translated_key);
-}
-
-U16  LLKeyboardWin32::inverseTranslateExtendedKey(const KEY translated_key)
-{
-	// if numlock is on, then we need to translate KEY_PAD_FOO to the corresponding number pad number
-	if(GetKeyState(VK_NUMLOCK) & 1)
-	{
-		std::map<KEY, U16>::iterator iter = mInvTranslateNumpadMap.find(translated_key);
-		if (iter != mInvTranslateNumpadMap.end())
-		{
-			return iter->second;
-		}
-	}
-
-	// if numlock is off or we're not converting numbers to arrows, we map our keypad arrows
-	// to regular arrows since Windows doesn't distinguish between them
-	KEY converted_key = translated_key;
-	switch (converted_key) 
-	{
-		case KEY_PAD_LEFT:
-			converted_key = KEY_LEFT; break;
-		case KEY_PAD_RIGHT: 
-			converted_key = KEY_RIGHT; break;
-		case KEY_PAD_UP: 
-			converted_key = KEY_UP; break;
-		case KEY_PAD_DOWN:
-			converted_key = KEY_DOWN; break;
-		case KEY_PAD_HOME:
-			converted_key = KEY_HOME; break;
-		case KEY_PAD_END:
-			converted_key = KEY_END; break;
-		case KEY_PAD_PGUP:
-			converted_key = KEY_PAGE_UP; break;
-		case KEY_PAD_PGDN:
-			converted_key = KEY_PAGE_DOWN; break;
-		case KEY_PAD_INS:
-			converted_key = KEY_INSERT; break;
-		case KEY_PAD_DEL:
-			converted_key = KEY_DELETE; break;
-		case KEY_PAD_RETURN:
-			converted_key = KEY_RETURN; break;
-	}
-	// convert our virtual keys to OS keys
-	return inverseTranslateKey(converted_key);
-}
-
-#endif
+#endif // LL_WINDOWS

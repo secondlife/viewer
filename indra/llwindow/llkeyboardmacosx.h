@@ -42,20 +42,16 @@ class LLKeyboardMacOSX : public LLKeyboard
 {
 public:
 	LLKeyboardMacOSX();
-	/*virtual*/ ~LLKeyboardMacOSX() {};
-	
-	/*virtual*/ BOOL	handleKeyUp(const U16 key, MASK mask);
-	/*virtual*/ BOOL	handleKeyDown(const U16 key, MASK mask);
-	/*virtual*/ void	resetMaskKeys();
-	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
-	/*virtual*/ void	scanKeyboard();
-	/*virtual*/ void	handleModifier(MASK mask);
-	
+	~LLKeyboardMacOSX() {};
+
+	void	resetMaskKeys() override;
+	MASK	currentMask(BOOL for_mouse_event) override;
+	void	scanKeyboard() override;
+	void	handleModifier(MASK mask) override;
+
 protected:
-	MASK	updateModifiers(const U32 mask);
+	MASK	updateModifiers(U32 mask) override;
 	void	setModifierKeyLevel( KEY key, BOOL new_state );
-	BOOL	translateNumpadKey( const U16 os_key, KEY *translated_key );
-	U16		inverseTranslateNumpadKey(const KEY translated_key);
 private:
 	std::map<U16, KEY> mTranslateNumpadMap;  // special map for translating OS keys to numpad keys
 	std::map<KEY, U16> mInvTranslateNumpadMap; // inverse of the above
