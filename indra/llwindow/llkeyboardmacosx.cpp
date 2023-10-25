@@ -203,7 +203,7 @@ void LLKeyboardMacOSX::handleModifier(MASK mask)
 	updateModifiers(mask);
 }
 
-MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
+MASK LLKeyboardMacOSX::updateModifiers(U32 mask)
 {
 	// translate the mask
 	MASK out_mask = 0;
@@ -224,39 +224,6 @@ MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
 	}
 
 	return out_mask;
-}
-
-BOOL LLKeyboardMacOSX::handleKeyDown(const U16 key, const U32 mask)
-{
-	KEY		translated_key = 0;
-	U32		translated_mask = 0;
-	BOOL	handled = FALSE;
-
-	translated_mask = updateModifiers(mask);
-
-	if(translateNumpadKey(key, &translated_key))
-	{
-		handled = handleTranslatedKeyDown(translated_key, translated_mask);
-	}
-	
-	return handled;
-}
-
-
-BOOL LLKeyboardMacOSX::handleKeyUp(const U16 key, const U32 mask)
-{
-	KEY		translated_key = 0;
-	U32		translated_mask = 0;
-	BOOL	handled = FALSE;
-
-	translated_mask = updateModifiers(mask);
-
-	if(translateNumpadKey(key, &translated_key))
-	{
-		handled = handleTranslatedKeyUp(translated_key, translated_mask);
-	}
-
-	return handled;
 }
 
 MASK LLKeyboardMacOSX::currentMask(BOOL for_mouse_event)
@@ -302,16 +269,6 @@ void LLKeyboardMacOSX::scanKeyboard()
 			mKeyLevelFrameCount[key]++;
 		}
 	}
-}
-
-BOOL LLKeyboardMacOSX::translateNumpadKey( const U16 os_key, KEY *translated_key )
-{
-	return translateKey(os_key, translated_key);
-}
-
-U16	LLKeyboardMacOSX::inverseTranslateNumpadKey(const KEY translated_key)
-{
-	return inverseTranslateKey(translated_key);
 }
 
 #endif // LL_DARWIN
