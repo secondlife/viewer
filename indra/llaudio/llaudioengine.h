@@ -30,6 +30,7 @@
 
 #include <list>
 #include <map>
+#include <array>
 
 #include "v3math.h"
 #include "v3dmath.h"
