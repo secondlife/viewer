@@ -42,6 +42,7 @@
 #include "bufferarray.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "stringize.h"
 
 // Have to include these last to avoid queue redefinition!
 
@@ -384,14 +385,14 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
 
 	httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-        LLVersionInfo::instance().getChannel().c_str(),
-        LLVersionInfo::instance().getMajor(),
-        LLVersionInfo::instance().getMinor(),
-        LLVersionInfo::instance().getPatch(),
-        LLVersionInfo::instance().getBuild());
+	std::string user_agent = stringize(
+		LLVersionInfo::instance().getChannel(), ' ',
+		LLVersionInfo::instance().getMajor(), '.',
+		LLVersionInfo::instance().getMinor(), '.',
+		LLVersionInfo::instance().getPatch(), " (",
+		LLVersionInfo::instance().getBuild(), ')');
 
-    httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+	httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 
 	///* Setting the DNS cache timeout to -1 disables it completely.
 	//This might help with bug #503 */
