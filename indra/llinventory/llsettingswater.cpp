@@ -32,6 +32,7 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 #include "indra_constants.h"
+#include <boost/bind.hpp>
 
 const std::string LLSettingsWater::SETTING_BLUR_MULTIPLIER("blur_multiplier");
 const std::string LLSettingsWater::SETTING_FOG_COLOR("water_fog_color");
