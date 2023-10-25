@@ -20,6 +20,9 @@
 // other Linden headers
 #include "llsd.h"
 #include "llsdutil.h"
+#include <array>
+#include <string>
+#include <vector>
 
 // for ensure_equals
 std::ostream& operator<<(std::ostream& out, const std::vector<std::string>& stringvec)
