@@ -16,6 +16,8 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 
+cleanup="true"
+
 retry_cmd()
 {
     max_attempts="$1"; shift
@@ -110,6 +112,34 @@ installer_CYGWIN()
   fi
 }
 
+[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+# The following is based on the Warning for GitHub multiline output strings:
+# https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
+EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+
+# Build up these arrays as we go
+metadata=()
+symbolfile=()
+physicstpv=()
+# and dump them to GITHUB_OUTPUT when done
+cleanup="$cleanup ; \
+arrayoutput metadata ; \
+arrayoutput symbolfile ; \
+arrayoutput physicstpv"
+trap "$cleanup" EXIT
+
+arrayoutput()
+{
+    local outputname="$1"
+    # append "[*]" to the array name so array indirection works
+    local array="$1[*]"
+    local IFS='
+'
+    echo "$outputname<<$EOF
+${!array}
+$EOF" >> "$GITHUB_OUTPUT"
+}
+
 pre_build()
 {
   local variant="$1"
@@ -121,7 +151,7 @@ pre_build()
     RELEASE_CRASH_REPORTING=ON
     HAVOK=ON
     SIGNING=()
-    if [ "$arch" == "Darwin" -a "$variant" == "Release" ]
+    if [[ "$arch" == "Darwin" && "$variant" == "Release" ]]
     then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                   "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
     fi
@@ -145,15 +175,27 @@ pre_build()
         VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
     fi
 
-    # don't spew credentials into build log
-    bugsplat_sh="$build_secrets_checkout/bugsplat/bugsplat.sh"
-    set +x
-    if [ -r "$bugsplat_sh" ]
-    then # show that we're doing this, just not the contents
-         echo source "$bugsplat_sh"
-         source "$bugsplat_sh"
+    # expect these variables to be set in the environment from GitHub secrets
+    if [[ -n "$BUGSPLAT_DB" ]]
+    then
+        # don't spew credentials into build log
+        set +x
+        if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
+        then
+            # older mechanism involving build-secrets repo -
+            # if build_secrets_checkout isn't set, report its name
+            bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
+            if [ -r "$bugsplat_sh" ]
+            then # show that we're doing this, just not the contents
+                echo source "$bugsplat_sh"
+                source "$bugsplat_sh"
+            else
+                fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
+            fi
+        fi
+        set -x
+        export BUGSPLAT_USER BUGSPLAT_PASS
     fi
-    set -x
 
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
@@ -181,13 +223,17 @@ package_llphysicsextensions_tpv()
   # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
   if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
   then 
-      test -r  "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml" || fatal "No llphysicsextensions_tpv autobuild configuration found"
-      tpvconfig=$(native_path "$build_dir/packages/llphysicsextensions/autobuild-tpv.xml")
-      "$autobuild" build --quiet --config-file "$tpvconfig" -c Tpv || fatal "failed to build llphysicsextensions_tpv"
+      tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
+      test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
+      # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
+      unset AUTOBUILD_CONFIGURATION
+      "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
+          || fatal "failed to build llphysicsextensions_tpv"
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
-      trap "rm $PKGTMP* 2>/dev/null" 0
+      cleanup="$cleanup ; rm $PKGTMP* 2>/dev/null"
+      trap "$cleanup" EXIT
       "$autobuild" package --quiet --config-file "$tpvconfig" --results-file "$(native_path $PKGTMP)" || fatal "failed to package llphysicsextensions_tpv"
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
@@ -313,12 +359,20 @@ begin_section "coding policy check"
 # this far. Running coding policy checks on one platform *should* suffice...
 if [[ "$arch" == "Darwin" ]]
 then
-    # install the git-hooks dependencies
-    pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
-        fatal "pip install git-hooks failed"
-    # validate the branch we're about to build
-    python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
-        fatal "coding policy check failed"
+    git_hooks_reqs="$git_hooks_checkout/requirements.txt"
+    if [[ -r "$(shell_path "$git_hooks_reqs")" ]]
+    then
+        # install the git-hooks dependencies
+        pip install -r "$(native_path "$git_hooks_reqs")" || \
+            fatal "pip install git-hooks failed"
+    fi
+    git_hooks_script="$git_hooks_checkout/coding_policy_git.py"
+    if [[ -r "$(shell_path "$git_hooks_script")" ]]
+    then
+        # validate the branch we're about to build
+        python_cmd "$(native_path "$git_hooks_script")" --all_files || \
+            fatal "coding policy check failed"
+    fi
 fi
 end_section "coding policy check"
 
@@ -353,6 +407,7 @@ do
                   begin_section "Autobuild metadata"
                   python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml \
                       || fatal "Upload of autobuild metadata failed"
+                  metadata+=("$build_dir/autobuild-package.xml")
                   if [ "$arch" != "Linux" ]
                   then
                       record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
@@ -366,8 +421,11 @@ do
               if [ -r "$build_dir/newview/viewer_version.txt" ]
               then
                   begin_section "Viewer Version"
-                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$(<"$build_dir/newview/viewer_version.txt")" --mimetype inline-text \
+                  viewer_version="$(<"$build_dir/newview/viewer_version.txt")"
+                  python_cmd "$helpers/codeticket.py" addoutput "Viewer Version" "$viewer_version" --mimetype inline-text \
                       || fatal "Upload of viewer version failed"
+                  metadata+=("$build_dir/newview/viewer_version.txt")
+                  echo "viewer_version=$viewer_version" >> "$GITHUB_OUTPUT"
                   end_section "Viewer Version"
               fi
               ;;
@@ -376,12 +434,14 @@ do
               then
                   record_event "Doxygen warnings generated; see doxygen_warnings.log"
                   python_cmd "$helpers/codeticket.py" addoutput "Doxygen Log" "$build_dir/doxygen_warnings.log" --mimetype text/plain ## TBD
+                  metadata+=("$build_dir/doxygen_warnings.log")
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
                   tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
                   python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
                       || fatal "Upload of doxygen tarball failed"
+                  metadata+=("$build_dir/viewer-doxygen.tar.bz2")
               fi
               ;;
             *)
@@ -486,64 +546,29 @@ then
   if $build_viewer
   then
     begin_section "Uploads"
-    # Upload installer
-    package=$(installer_$arch)
-    if [ x"$package" = x ] || test -d "$package"
+    # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
+    if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-      fatal "No installer found from `pwd`"
-      succeeded=$build_coverity
-    else
-      # Upload base package.
-      retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
-          || fatal "Upload of installer failed"
-      wait_for_codeticket
-
-      # Upload additional packages.
-      for package_id in $additional_packages
-      do
-        package=$(installer_$arch "$package_id")
-        if [ x"$package" != x ]
+        # BugSplat wants to see xcarchive.zip
+        # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
+        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+        if [[ ! -f "$symbol_file" ]]
         then
-          retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
-              || fatal "Upload of installer $package_id failed"
-          wait_for_codeticket
-        else
-          record_failure "Failed to find additional package for '$package_id'."
+            # symbol tarball we prep for (e.g.) Breakpad
+            symbol_file="$VIEWER_SYMBOL_FILE"
         fi
-      done
+        # Upload crash reporter file
+        symbolfile+=("$symbol_file")
+    fi
 
-      if [ "$last_built_variant" = "Release" ]
-      then
-          # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
-          if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
-          then
-              # Upload crash reporter file
-              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
-                  || fatal "Upload of symbolfile failed"
-              wait_for_codeticket
-          fi
-
-          # Upload the llphysicsextensions_tpv package, if one was produced
-          # *TODO: Make this an upload-extension
-          if [ -r "$build_dir/llphysicsextensions_package" ]
-          then
-              llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
-                  || fatal "Upload of physics extensions package failed"
-          fi
-      fi
-
-      # Run upload extensions
-      # Ex: bugsplat
-      if [ -d ${build_dir}/packages/upload-extensions ]; then
-          for extension in ${build_dir}/packages/upload-extensions/*.sh; do
-              begin_section "Upload Extension $extension"
-              . $extension
-              [ $? -eq 0 ] || fatal "Upload of extension $extension failed"
-              wait_for_codeticket
-              end_section "Upload Extension $extension"
-          done
-      fi
+    # Upload the llphysicsextensions_tpv package, if one was produced
+    # Only upload this package when building the private repo so the
+    # artifact is private.
+    if [[ "x$GITHUB_REPOSITORY" == "xsecondlife/viewer-private" && \
+          -r "$build_dir/llphysicsextensions_package" ]]
+    then
+        llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
+        physicstpv+=("$llphysicsextensions_package")
     fi
     end_section "Uploads"
   else

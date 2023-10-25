@@ -26,6 +26,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
 
 # Portable compilation flags.
 add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
+# Because older versions of Boost.Bind dumped placeholders _1, _2 et al. into
+# the global namespace, Boost now requires either BOOST_BIND_NO_PLACEHOLDERS
+# to avoid that or BOOST_BIND_GLOBAL_PLACEHOLDERS to state that we require it
+# -- which we do. Without one or the other, we get a ton of Boost warnings.
+add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
@@ -55,15 +60,6 @@ if (WINDOWS)
   # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
   string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-  # Without PreferredToolArchitecture=x64, as of 2020-06-26 the 32-bit
-  # compiler on our TeamCity build hosts has started running out of virtual
-  # memory for the precompiled header file.
-  # CP changed to only append the flag for 32bit builds - on 64bit builds,
-  # locally at least, the build output is spammed with 1000s of 'D9002'
-  # warnings about this switch being ignored.
-  if(ADDRESS_SIZE EQUAL 32 AND DEFINED ENV{"TEAMCITY_PROJECT_NAME"})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
-  endif()
   # zlib has assembly-language object files incompatible with SAFESEH
   add_link_options(/LARGEADDRESSAWARE
           /SAFESEH:NO

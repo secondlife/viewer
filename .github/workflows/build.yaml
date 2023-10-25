@@ -4,54 +4,93 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: [main, contribute]
+    branches: [main, "actions*"]
     tags: ["*"]
 
 jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large]
-        configuration: [ReleaseOS]
-        addrsize: [64]
+        runner: [windows-large, macos-12-xl]
+        configuration: [Release, ReleaseOS]
+        python-version: ["3.11"]
         include:
-          - runner: windows-large
+          - runner: macos-12-xl
+            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+        exclude:
+          - runner: macos-12-xl
             configuration: ReleaseOS
-            addrsize: 32
     runs-on: ${{ matrix.runner }}
+    outputs:
+      viewer_channel: ${{ steps.build.outputs.viewer_channel }}
+      viewer_version: ${{ steps.build.outputs.viewer_version }}
+      imagename: ${{ steps.build.outputs.imagename }}
     env:
+      AUTOBUILD_ADDRSIZE: 64
+      AUTOBUILD_BUILD_ID: ${{ github.run_id }}
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
-      AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      # authorizes fetching private constituent packages
+      AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
-      AUTOBUILD_VSVER: "170" # vs2k22
-      LOGFAIL: debug # Show details when tests fail
+      AUTOBUILD_VSVER: "170"
+      DEVELOPER_DIR: ${{ matrix.developer_dir }}
+      # Ensure that Linden viewer builds engage Bugsplat.
+      BUGSPLAT_DB: ${{ matrix.configuration != 'ReleaseOS' && 'SecondLife_Viewer_2018' || '' }}
+      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
+      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
+      build_coverity: false
+      build_log_dir: ${{ github.workspace }}/.logs
+      build_viewer: true
+      BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
+      # extracted and committed to viewer repo
+      BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/buildscripts_support_functions
       GIT_REF: ${{ github.head_ref || github.ref }}
+      LL_SKIP_REQUIRE_SYSROOT: 1
+      # Setting this variable directs Linden's TUT test driver code to capture
+      # test-program log output at the specified level, but to display it only if
+      # the individual test fails.
+      LOGFAIL: DEBUG
+      master_message_template_checkout: ${{ github.workspace }}/.master-message-template
+      # Only set variants to the one configuration: don't let build.sh loop
+      # over variants, let GitHub distribute variants over multiple hosts.
+      variants: ${{ matrix.configuration }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Checkout build variables
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: secondlife/build-variables
           ref: viewer
           path: .build-variables
 
+      - name: Checkout master-message-template
+        uses: actions/checkout@v4
+        with:
+          repository: secondlife/master-message-template
+          path: .master-message-template
+
       - name: Install autobuild and python dependencies
-        run: pip3 install autobuild llbase
+        run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
         uses: actions/cache@v3
         id: cache-installables
         with:
           path: .autobuild-installables
-          key: ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-
-            ${{ runner.os }}-${{ matrix.addrsize }}-
+            ${{ runner.os }}-64-${{ matrix.configuration }}-
+            ${{ runner.os }}-64-
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
@@ -63,31 +102,266 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
+          # set up things the viewer's build.sh script expects
+          set -x
+          mkdir -p "$build_log_dir"
+          mkdir -p "$BUILDSCRIPTS_SHARED/packages/lib/python"
+          source "$BUILDSCRIPTS_SUPPORT_FUNCTIONS"
+          if [[ "$OSTYPE" =~ cygwin|msys ]]
+          then
+            native_path() { cygpath --windows "$1"; }
+            shell_path()  { cygpath --unix "$1"; }
+          else
+            native_path() { echo "$1"; }
+            shell_path()  { echo "$1"; }
+          fi
+          finalize()
+          {
+            case "$1" in
+              true|0)
+                record_success "Build Succeeded"
+                ;;
+              *)
+                record_failure "Build Failed with $1"
+                ;;
+            esac
+          }
+          initialize_build()
+          {
+            echo "initialize_build"
+          }
+          initialize_version()
+          {
+            export revision="$AUTOBUILD_BUILD_ID"
+          }
+          python_cmd()
+          {
+              if [[ "x${1:0:1}" == "x-" ]]    # -m, -c, etc.
+              then # if $1 is a switch, don't try to twiddle paths
+                   "$(shell_path "$PYTHON_COMMAND")" "$@"
+              elif [[ "$(basename "$1")" == "codeticket.py" ]]
+              then # ignore any attempt to contact codeticket
+                   echo "## $@"
+              else # running a script at an explicit path: fix path for Python
+                   local script="$1"
+                   shift
+                   "$(shell_path "$PYTHON_COMMAND")" "$(native_path "$script")" "$@"
+              fi
+          }
+          repo_branch()
+          {
+            git -C "$1" branch | grep '^* ' | cut -c 3-
+          }
+          record_dependencies_graph()
+          {
+            echo "TODO: generate and post dependency graph"
+          }
+          # Since we're not uploading to codeticket, DO NOT sleep for minutes.
+          sleep()
+          {
+            echo "Not sleeping for $1 seconds"
+          }
+          export -f native_path shell_path finalize initialize_build initialize_version
+          export -f python_cmd repo_branch record_dependencies_graph sleep
+          ## Useful for diagnosing Windows LLProcess/LLLeap test failures
+          ##export APR_LOG="${RUNNER_TEMP}/apr.log"
+          export arch=$(uname | cut -b-6)
+          # Surprise! GH Windows runner's MINGW6 is a $arch value we've never
+          # seen before, so numerous tests don't know about it.
+          [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
+          export AUTOBUILD="$(which autobuild)"
+          # Build with a tag like "Second_Life_Project_Shiny#abcdef0" to get a
+          # viewer channel "Second Life Project Shiny" (ignoring "#hash",
+          # needed to disambiguate tags).
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
+          then viewer_channel="${GITHUB_REF_NAME%#*}"
+               export viewer_channel="${viewer_channel//_/ }"
+          else export viewer_channel="Second Life Test"
+          fi
+          echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
+
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            export PYTHON="$(cygpath -m "$(which python)")"
+            export PYTHON="$(native_path "$(which python)")"
             echo "Python location: $PYTHON"
+            export PYTHON_COMMAND="$PYTHON"
+          else
+            export PYTHON_COMMAND="python3"
           fi
-          
-          autobuild configure -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
-          autobuild  build --no-configure
+          export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
-          # Find artifacts
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
-            installer_name="$(basename $installer_path)"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            installer_path=$(find ./build-*/newview/ | grep '\.dmg')
-            installer_name="$(basename $installer_path)"
+          ./build.sh
+
+          # Each artifact is downloaded as a distinct .zip file. Multiple jobs
+          # (per the matrix above) writing the same filepath to the same
+          # artifact name will *overwrite* that file. Moreover, they can
+          # interfere with each other, causing the upload to fail.
+          # https://github.com/actions/upload-artifact#uploading-to-the-same-artifact
+          # Given the size of our installers, and the fact that we typically
+          # only want to download just one instead of a single zip containing
+          # several, generate a distinct artifact name for each installer.
+          # If the matrix above can run multiple builds on the same
+          # platform, we must disambiguate on more than the platform name.
+          # e.g. if we were still running Windows 32-bit builds, we'd need to
+          # qualify the artifact with bit width.
+          if [[ "$AUTOBUILD_CONFIGURATION" == "ReleaseOS" ]]
+          then cfg_suffix='OS'
+          else cfg_suffix=''
           fi
+          echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
-          echo "installer_path=$installer_path" >> $GITHUB_OUTPUT
-          echo "installer_name=$installer_name" >> $GITHUB_OUTPUT
-      
-      - name: Upload installer
+      - name: Upload executable
+        if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.build.outputs.installer_name }}
-          path: ${{ steps.build.outputs.installer_path }}
+          name: "${{ steps.build.outputs.artifact }}-app"
+          path: |
+            ${{ steps.build.outputs.viewer_app }}
+
+      # The other upload of nontrivial size is the symbol file. Use a distinct
+      # artifact for that too.
+      - name: Upload symbol file
+        if: matrix.configuration != 'ReleaseOS'
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ steps.build.outputs.artifact }}-symbols"
+          path: |
+            ${{ steps.build.outputs.symbolfile }}
+
+      - name: Upload metadata
+        if: matrix.configuration != 'ReleaseOS'
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ steps.build.outputs.artifact }}-metadata"
+          # emitted by build.sh, possibly multiple lines
+          path: |
+            ${{ steps.build.outputs.metadata }}
+
+      - name: Upload physics package
+        uses: actions/upload-artifact@v3
+        # should only be set for viewer-private
+        if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.physicstpv
+        with:
+          name: "${{ steps.build.outputs.artifact }}-physics"
+          # emitted by build.sh, zero or one lines
+          path: |
+            ${{ steps.build.outputs.physicstpv }}
+
+  sign-and-package-windows:
+    needs: build
+    runs-on: windows
+    steps:
+      - name: Sign and package Windows viewer
+        uses: secondlife/viewer-build-util/sign-pkg-windows@main
+        with:
+          vault_uri: "${{ secrets.AZURE_KEY_VAULT_URI }}"
+          cert_name: "${{ secrets.AZURE_CERT_NAME }}"
+          client_id: "${{ secrets.AZURE_CLIENT_ID }}"
+          client_secret: "${{ secrets.AZURE_CLIENT_SECRET }}"
+          tenant_id: "${{ secrets.AZURE_TENANT_ID }}"
+
+  sign-and-package-mac:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: Unpack Mac notarization credentials
+        id: note-creds
+        shell: bash
+        run: |
+          # In NOTARIZE_CREDS_MACOS we expect to find:
+          # USERNAME="..."
+          # PASSWORD="..."
+          # TEAM_ID="..."
+          eval "${{ secrets.NOTARIZE_CREDS_MACOS }}"
+          echo "::add-mask::$USERNAME"
+          echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$TEAM_ID"
+          echo "note_user=$USERNAME" >> "$GITHUB_OUTPUT"
+          echo "note_pass=$PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "note_team=$TEAM_ID" >> "$GITHUB_OUTPUT"
+          # If we didn't manage to retrieve all of these credentials, better
+          # find out sooner than later.
+          [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
+
+      - name: Sign and package Mac viewer
+        uses: secondlife/viewer-build-util/sign-pkg-mac@main
+        with:
+          channel: ${{ needs.build.outputs.viewer_channel }}
+          imagename: ${{ needs.build.outputs.imagename }}
+          cert_base64: ${{ secrets.SIGNING_CERT_MACOS }}
+          cert_name: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
+          cert_pass: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
+          note_user: ${{ steps.note-creds.outputs.note_user }}
+          note_pass: ${{ steps.note-creds.outputs.note_pass }}
+          note_team: ${{ steps.note-creds.outputs.note_team }}
+
+  post-windows-symbols:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post Windows symbols
+        uses: secondlife/viewer-build-util/post-bugsplat-windows@main
+        with:
+          username: ${{ secrets.BUGSPLAT_USER }}
+          password: ${{ secrets.BUGSPLAT_PASS }}
+          database: "SecondLife_Viewer_2018"
+          channel: ${{ needs.build.outputs.viewer_channel }}
+          version: ${{ needs.build.outputs.viewer_version }}
+
+  post-mac-symbols:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post Mac symbols
+        uses: secondlife/viewer-build-util/post-bugsplat-mac@main
+        with:
+          username: ${{ secrets.BUGSPLAT_USER }}
+          password: ${{ secrets.BUGSPLAT_PASS }}
+          database: "SecondLife_Viewer_2018"
+          channel: ${{ needs.build.outputs.viewer_channel }}
+          version: ${{ needs.build.outputs.viewer_version }}
+
+  release:
+    needs: [sign-and-package-windows, sign-and-package-mac]
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Reshuffle artifact files
+        uses: secondlife/viewer-build-util/release-artifacts@main
+        with:
+          input-path: artifacts
+          output-path: assets
+          # The *-app artifacts are for use only by the signing and
+          # packaging steps. Once we've generated signed installers, we no
+          # longer need them, and we CERTAINLY don't want to publish
+          # thousands of individual files as separate URLs.
+          exclude: |-
+            Windows-app
+            macOS-app
+          # Use just "Windows" or "macOS" prefix because these are the only
+          # artifacts in which we expect files from both platforms with
+          # colliding names (e.g. autobuild-package.xml). release-artifacts
+          # normally resolves collisions by prepending the artifact name, so
+          # when we anticipate collisions, it's good to keep the prefix
+          # short and sweet.
+          prefix: |-
+            Windows-metadata=Windows
+            macOS-metadata=macOS
+
+      # forked from softprops/action-gh-release
+      - uses: secondlife-3p/action-gh-release@v1
+        with:
+          # name the release page for the build number so we can find it
+          # easily (analogous to looking up a codeticket build page)
+          name: "v${{ github.run_id }}"
+          prerelease: true
+          generate_release_notes: true
+          # the only reason we generate a GH release is to post build products
+          fail_on_unmatched_files: true
+          files: "assets/*"
