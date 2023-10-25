@@ -65,6 +65,7 @@
 #include "lltrans.h"
 #include "llglheaders.h"
 #include "llpanelloginlistener.h"
+#include "stringize.h"
 
 #if LL_WINDOWS
 #pragma warning(disable: 4355)      // 'this' used in initializer list
@@ -300,10 +301,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	setDefaultBtn(def_btn);
 
 	std::string channel = LLVersionInfo::instance().getChannel();
-	std::string version = llformat("%s (%d)",
-								   LLVersionInfo::instance().getShortVersion().c_str(),
-								   LLVersionInfo::instance().getBuild());
-	
+	std::string version = stringize(LLVersionInfo::instance().getShortVersion(), " (",
+									LLVersionInfo::instance().getBuild(), ')');
+
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
@@ -894,9 +894,8 @@ void LLPanelLogin::loadLoginPage()
 	}
 
 	// Channel and Version
-	params["version"] = llformat("%s (%d)",
-								 LLVersionInfo::instance().getShortVersion().c_str(),
-								 LLVersionInfo::instance().getBuild());
+	params["version"] = stringize(LLVersionInfo::instance().getShortVersion(), " (",
+								  LLVersionInfo::instance().getBuild(), ')');
 	params["channel"] = LLVersionInfo::instance().getChannel();
 
 	// Grid
