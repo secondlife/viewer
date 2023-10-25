@@ -203,7 +203,7 @@ void LLKeyboardMacOSX::handleModifier(MASK mask)
     updateModifiers(mask);
 }
 
-MASK LLKeyboardMacOSX::updateModifiers(const U32 mask)
+MASK LLKeyboardMacOSX::updateModifiers(U32 mask)
 {
     // translate the mask
     MASK out_mask = 0;
