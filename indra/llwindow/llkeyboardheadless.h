@@ -33,16 +33,13 @@ class LLKeyboardHeadless : public LLKeyboard
 {
 public:
 	LLKeyboardHeadless();
-	/*virtual*/ ~LLKeyboardHeadless() {};
+	~LLKeyboardHeadless() {};
 
-	/*virtual*/ BOOL	handleKeyUp(const U16 key, MASK mask);
-	/*virtual*/ BOOL	handleKeyDown(const U16 key, MASK mask);
-	/*virtual*/ void	resetMaskKeys();
-	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
-	/*virtual*/ void	scanKeyboard();
-#ifdef LL_DARWIN
-	/*virtual*/ void	handleModifier(MASK mask);
-#endif
+	void	resetMaskKeys() override;
+	MASK	currentMask(BOOL for_mouse_event) override;
+	void	scanKeyboard() override;
+protected:
+    MASK    updateModifiers(U32 mask) override { return MASK_NONE; }
 };
 
 #endif

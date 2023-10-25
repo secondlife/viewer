@@ -35,22 +35,8 @@ void LLKeyboardHeadless::resetMaskKeys()
 { }
 
 
-BOOL LLKeyboardHeadless::handleKeyDown(const U16 key, const U32 mask)
-{ return FALSE; }
-
-
-BOOL LLKeyboardHeadless::handleKeyUp(const U16 key, const U32 mask)
-{ return FALSE; }
-
 MASK LLKeyboardHeadless::currentMask(BOOL for_mouse_event)
 { return MASK_NONE; }
-
-#ifdef LL_DARWIN
-void LLKeyboardHeadless::handleModifier(MASK mask)
-{
-	
-}
-#endif
 
 void LLKeyboardHeadless::scanKeyboard()
 {
