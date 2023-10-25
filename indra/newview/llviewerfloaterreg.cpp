@@ -244,6 +244,7 @@ public:
                 "group_picker",
                 "hud",
                 "incoming_call",
+                "inventory_thumbnails_helper",
                 "linkreplace",
                 "mem_leaking",
                 "marketplace_validation",
