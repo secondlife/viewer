@@ -44,11 +44,11 @@ class LLLocalBitmap
 		~LLLocalBitmap();
 
 	public: /* accessors */
-		std::string	getFilename();
-		std::string	getShortName();
-		LLUUID		getTrackingID();
-		LLUUID		getWorldID();
-		bool		getValid();
+		std::string	getFilename() const;
+		std::string	getShortName() const;
+		LLUUID		getTrackingID() const;
+		LLUUID		getWorldID() const;
+		bool		getValid() const;
 
 	public: /* self update public section */
 		enum EUpdateType
@@ -59,9 +59,14 @@ class LLLocalBitmap
 
 		bool updateSelf(EUpdateType = UT_REGUPDATE);
 
+        typedef boost::signals2::signal<void(const LLUUID& old_id,
+                                             const LLUUID& new_id)> LLLocalTextureChangedSignal;
+        typedef LLLocalTextureChangedSignal::slot_type LLLocalTextureCallback;
+        boost::signals2::connection setChangedCallback(const LLLocalTextureCallback& cb);
+
 	private: /* self update private section */
 		bool decodeBitmap(LLPointer<LLImageRaw> raw);
-		void replaceIDs(LLUUID old_id, LLUUID new_id);
+        void replaceIDs(const LLUUID &old_id, LLUUID new_id);
 		std::vector<LLViewerObject*> prepUpdateObjects(LLUUID old_id, U32 channel);
 		void updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel);
 		void updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel);
@@ -93,6 +98,7 @@ class LLLocalBitmap
 		EExtension  mExtension;
 		ELinkStatus mLinkStatus;
 		S32         mUpdateRetries;
+        LLLocalTextureChangedSignal	mChangedSignal;
 
 };
 
@@ -120,10 +126,11 @@ public:
 	void         delUnit(LLUUID tracking_id);
 	bool 		checkTextureDimensions(std::string filename);
 
-	LLUUID       getWorldID(LLUUID tracking_id);
-    bool         isLocal(LLUUID world_id);
-	std::string  getFilename(LLUUID tracking_id);
-    
+	LLUUID       getWorldID(const LLUUID &tracking_id) const;
+    bool         isLocal(const LLUUID& world_id) const;
+	std::string  getFilename(const LLUUID &tracking_id) const;
+    boost::signals2::connection setOnChangedCallback(const LLUUID tracking_id, const LLLocalBitmap::LLLocalTextureCallback& cb);
+
 	void         feedScrollList(LLScrollListCtrl* ctrl);
 	void         doUpdates();
 	void         setNeedsRebake();
@@ -134,6 +141,7 @@ private:
 	LLLocalBitmapTimer           mTimer;
 	bool                         mNeedsRebake;
 	typedef std::list<LLLocalBitmap*>::iterator local_list_iter;
+    typedef std::list<LLLocalBitmap*>::const_iterator local_list_citer;
 };
 
 #endif

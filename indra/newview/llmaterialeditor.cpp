@@ -532,6 +532,11 @@ void LLMaterialEditor::onClose(bool app_quitting)
         mSelectionUpdateSlot.disconnect();
     }
 
+    for (boost::signals2::connection& cn : mTextureChangesUpdates)
+    {
+        cn.disconnect();
+    }
+
     LLPreview::onClose(app_quitting);
 }
 
@@ -861,6 +866,47 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
     mNormalTextureCtrl->setEnabled(can_modify);
 }
 
+void LLMaterialEditor::replaceTexture(const LLUUID& old_id, const LLUUID& new_id)
+{
+    // todo: might be a good idea to set mBaseColorTextureUploadId here
+    // and when texturectrl picks a local texture
+    if (getBaseColorId() == old_id)
+    {
+        mBaseColorTextureCtrl->setValue(new_id);
+    }
+    if (mBaseColorTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mBaseColorTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+
+    if (getMetallicRoughnessId() == old_id)
+    {
+        mMetallicTextureCtrl->setValue(new_id);
+    }
+    if (mMetallicTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mMetallicTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+
+    if (getEmissiveId() == old_id)
+    {
+        mEmissiveTextureCtrl->setValue(new_id);
+    }
+    if (mEmissiveTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mEmissiveTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+
+    if (getNormalId() == old_id)
+    {
+        mNormalTextureCtrl->setValue(new_id);
+    }
+    if (mNormalTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mNormalTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+}
+
 void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag)
 {
     if (!mIsOverride)
@@ -911,6 +957,20 @@ void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dir
             // the texture that is not in use
             childSetValue(upload_fee_ctrl_name, getString("no_upload_fee_string"));
         }
+
+        LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+        if (tex_ctrl->isImageLocal())
+        {
+            // Theoretically LLSD should be smart enough to not need this, but for extra safety
+            LLSD key = llsd_clone(getKey());
+            // Subscribe material editor to local texture updates
+            mTextureChangesUpdates.push_back(
+                LLLocalBitmapMgr::getInstance()->setOnChangedCallback(tex_ctrl->getLocalTrackingID(),
+                                                                      [this](const LLUUID &old_id, const LLUUID& new_id)
+                                                                      {
+                                                                          replaceTexture(old_id, new_id);
+                                                                      }));
+        }
     }
 
     markChangesUnsaved(dirty_flag);
@@ -921,6 +981,17 @@ void LLMaterialEditor::onCancelCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
 {
     mRevertedChanges |= dirty_flag;
     applyToSelection();
+}
+
+void update_local_texture(LLUICtrl* ctrl, LLGLTFMaterial* mat)
+{
+    LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+    if (tex_ctrl->isImageLocal())
+    {
+        mat->setHasLocalTextures(true);
+        // Todo: subscrive material for an update
+        // tex_ctrl->getLocalTrackingID();
+    }
 }
 
 void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag)
@@ -958,21 +1029,25 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                     case MATERIAL_BASE_COLOR_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setBaseColorId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     case MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setOcclusionRoughnessMetallicId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     case MATERIAL_EMISIVE_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setEmissiveId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     case MATERIAL_NORMAL_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setNormalId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     // Colors

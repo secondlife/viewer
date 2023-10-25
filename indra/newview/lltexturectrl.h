@@ -200,7 +200,11 @@ public:
 	void			closeDependentFloater();
 
 	void			onFloaterClose();
-	void			onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& local_id, const LLUUID& inv_id);
+    void			onFloaterCommit(ETexturePickOp op,
+                                    LLPickerSource source,
+                                    const LLUUID& local_id,
+                                    const LLUUID& inv_id,
+                                    const LLUUID& tracking_id);
 
 	// This call is returned when a drag is detected. Your callback
 	// should return TRUE if the drag is acceptable.
@@ -230,6 +234,9 @@ public:
     void setInventoryPickType(EPickInventoryType type);
     EPickInventoryType getInventoryPickType() { return mInventoryPickType; };
 
+    bool isImageLocal() { return mLocalTrackingID.notNull(); }
+    LLUUID getLocalTrackingID() { return mLocalTrackingID; }
+
 private:
 	BOOL allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg);
 	BOOL doDrop(LLInventoryItem* item);
@@ -247,6 +254,7 @@ private:
 	LLUUID					 	mImageAssetID;
 	LLUUID					 	mDefaultImageAssetID;
 	LLUUID					 	mBlankImageAssetID;
+    LLUUID						mLocalTrackingID;
 	LLUIImagePtr				mFallbackImage;
 	std::string					mDefaultImageName;
 	LLHandle<LLFloater>			mFloaterHandle;
@@ -272,7 +280,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLFloaterTexturePicker
-typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id)> floater_commit_callback;
+typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id, const LLUUID& tracking_id)> floater_commit_callback;
 typedef boost::function<void()> floater_close_callback;
 typedef boost::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
 typedef boost::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;

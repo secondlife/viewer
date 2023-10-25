@@ -142,27 +142,27 @@ LLLocalBitmap::~LLLocalBitmap()
 }
 
 /* accessors */
-std::string LLLocalBitmap::getFilename()
+std::string LLLocalBitmap::getFilename() const
 {
 	return mFilename;
 }
 
-std::string LLLocalBitmap::getShortName()
+std::string LLLocalBitmap::getShortName() const
 {
 	return mShortName;
 }
 
-LLUUID LLLocalBitmap::getTrackingID()
+LLUUID LLLocalBitmap::getTrackingID() const
 {
 	return mTrackingID;
 }
 
-LLUUID LLLocalBitmap::getWorldID()
+LLUUID LLLocalBitmap::getWorldID() const
 {
 	return mWorldID;
 }
 
-bool LLLocalBitmap::getValid()
+bool LLLocalBitmap::getValid() const
 {
 	return mValid;
 }
@@ -273,6 +273,11 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 	return updated;
 }
 
+boost::signals2::connection LLLocalBitmap::setChangedCallback(const LLLocalTextureCallback& cb)
+{
+    return mChangedSignal.connect(cb);
+}
+
 bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 {
 	bool decode_successful = false;
@@ -340,7 +345,7 @@ bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 	return decode_successful;
 }
 
-void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
+void LLLocalBitmap::replaceIDs(const LLUUID& old_id, LLUUID new_id)
 {
 	// checking for misuse.
 	if (old_id == new_id)
@@ -349,6 +354,8 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 			    << "Texture UUID: " << old_id.asString() << LL_ENDL;
 		return;
 	}
+
+    mChangedSignal(old_id, new_id);
 
 	// processing updates per channel; makes the process scalable.
 	// the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
@@ -381,6 +388,9 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
+
+    // Go over any local material
+
 }
 
 // this function sorts the faces from a getFaceList[getNumFaces] into a list of objects
@@ -1020,11 +1030,11 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 	}
 }
 
-LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
+LLUUID LLLocalBitmapMgr::getWorldID(const LLUUID &tracking_id) const
 {
 	LLUUID world_id = LLUUID::null;
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+	for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -1036,9 +1046,9 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 	return world_id;
 }
 
-bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
+bool LLLocalBitmapMgr::isLocal(const LLUUID &world_id) const
 {
-    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
     {
         LLLocalBitmap* unit = *iter;
         if (unit->getWorldID() == world_id)
@@ -1049,11 +1059,11 @@ bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
     return false;
 }
 
-std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
+std::string LLLocalBitmapMgr::getFilename(const LLUUID &tracking_id) const
 {
 	std::string filename = "";
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+	for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -1063,6 +1073,20 @@ std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 	}
 
 	return filename;
+}
+
+boost::signals2::connection LLLocalBitmapMgr::setOnChangedCallback(const LLUUID tracking_id, const LLLocalBitmap::LLLocalTextureCallback &cb)
+{
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getTrackingID() == tracking_id)
+        {
+            unit->setChangedCallback(cb);
+        }
+    }
+
+    return boost::signals2::connection();
 }
 
 void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)

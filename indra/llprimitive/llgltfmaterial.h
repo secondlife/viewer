@@ -222,6 +222,10 @@ public:
     virtual void addTextureEntry(LLTextureEntry* te) {};
     virtual void removeTextureEntry(LLTextureEntry* te) {};
 
+    // For local textures so that editor will know to track changes
+    void setHasLocalTextures(bool val) { mHasLocalTextures = val; }
+    bool hasLocalTextures() { return mHasLocalTextures; }
+
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
@@ -238,4 +242,6 @@ protected:
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write = false) const;
     template<typename T>
     static void writeToTexture(tinygltf::Model& model, T& texture_info, const LLUUID& texture_id, const TextureTransform& transform, bool force_write = false);
+
+    bool mHasLocalTextures;
 };

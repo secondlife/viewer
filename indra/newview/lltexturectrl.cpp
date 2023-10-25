@@ -846,6 +846,7 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
     }
     LLUUID asset_id = mImageAssetID;
     LLUUID inventory_id;
+    LLUUID tracking_id;
     LLPickerSource mode = (LLPickerSource)mModeSelector->getValue().asInteger();
 
     switch (mode)
@@ -886,16 +887,16 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
                 if (!mLocalScrollCtrl->getAllSelected().empty())
                 {
                     LLSD data = mLocalScrollCtrl->getFirstSelected()->getValue();
-                    LLUUID temp_id = data["id"];
+                    tracking_id = data["id"];
                     S32 asset_type = data["type"].asInteger();
 
                     if (LLAssetType::AT_MATERIAL == asset_type)
                     {
-                        asset_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(temp_id);
+                        asset_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(tracking_id);
                     }
                     else
                     {
-                        asset_id = LLLocalBitmapMgr::getInstance()->getWorldID(temp_id);
+                        asset_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
                     }
                 }
                 else
@@ -912,13 +913,13 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
             break;
     }
 
-    mOnFloaterCommitCallback(op, mode, asset_id, inventory_id);
+    mOnFloaterCommitCallback(op, mode, asset_id, inventory_id, tracking_id);
 }
 void LLFloaterTexturePicker::commitCancel()
 {
 	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback && mCanApply)
 	{
-		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, mOriginalImageAssetID, LLUUID::null);
+		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, mOriginalImageAssetID, LLUUID::null, LLUUID::null);
 	}
 }
 
@@ -972,7 +973,7 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 	self->setImageID( self->mOriginalImageAssetID );
 	if (self->mOnFloaterCommitCallback)
 	{
-		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, self->mOriginalImageAssetID, LLUUID::null);
+		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, self->mOriginalImageAssetID, LLUUID::null, LLUUID::null);
 	}
 	self->mViewModel->resetDirty();
 	self->closeFloater();
@@ -1177,7 +1178,7 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 		{
 			if (self->mOnFloaterCommitCallback)
 			{
-				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, PICKER_LOCAL, inworld_id, LLUUID::null);
+				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, PICKER_LOCAL, inworld_id, LLUUID::null, tracking_id);
 			}
 		}
 	}
@@ -1804,7 +1805,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		}
 		if (texture_floaterp)
 		{
-			texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4));
+			texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4, _5));
 		}
 		if (texture_floaterp)
 		{
@@ -1928,7 +1929,7 @@ void LLTextureCtrl::onFloaterClose()
 	mFloaterHandle.markDead();
 }
 
-void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inv_id)
+void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inv_id, const LLUUID& tracking_id)
 {
     LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
@@ -1951,16 +1952,23 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, co
                 case PICKER_INVENTORY:
                     mImageItemID = inv_id;
                     mImageAssetID = asset_id;
+                    mLocalTrackingID.setNull();
                     break;
                 case PICKER_BAKE:
+                    mImageItemID = LLUUID::null;
+                    mImageAssetID = asset_id;
+                    mLocalTrackingID.setNull();
+                    break;
                 case PICKER_LOCAL:
                     mImageItemID = LLUUID::null;
                     mImageAssetID = asset_id;
+                    mLocalTrackingID = tracking_id;
                     break;
                 case PICKER_UNKNOWN:
                 default:
                     mImageItemID = floaterp->findItemID(asset_id, FALSE);
                     mImageAssetID = asset_id;
+                    mLocalTrackingID.setNull();
                     break;
             }
 
@@ -2018,6 +2026,7 @@ void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 	{
 		mImageItemID.setNull();
 		mImageAssetID = asset_id;
+        mLocalTrackingID.setNull();
 		LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 		if( floaterp && getEnabled() )
 		{
