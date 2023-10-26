@@ -369,7 +369,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
 
 void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**)
 {
-	LLAvatarData avatar_data;
+    LLAvatarLegacyData avatar_data;
 	std::string birth_date;
 
 	msg->getUUIDFast(	_PREHASH_AgentData,			_PREHASH_AgentID, 		avatar_data.agent_id);
@@ -385,7 +385,6 @@ void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSy
 
 	LLDateUtil::dateFromPDTString(avatar_data.born_on, birth_date);
 	// Since field 'hide_age' is not supported by msg system we'd better hide the age here
-	avatar_data.hide_age = true;
 	avatar_data.caption_index = 0;
 
 	S32 charter_member_size = 0;
