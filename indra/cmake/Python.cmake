@@ -40,18 +40,15 @@ elseif (WINDOWS)
     ${regpaths}
     ${pymaybe}
     )
-  find_package(Python3 COMPONENTS Interpreter)
 else()
   find_program(python python3)
-
-  if (python)
-    set(PYTHONINTERP_FOUND ON)
-  endif (python)
 endif (DEFINED ENV{PYTHON})
 
-if (NOT python)
+if (python)
+  set(PYTHONINTERP_FOUND ON)
+else()
   message(FATAL_ERROR "No Python interpreter found")
-endif (NOT python)
+endif (python)
 
 set(PYTHON_EXECUTABLE "${python}" CACHE FILEPATH "Python interpreter for builds")
 mark_as_advanced(PYTHON_EXECUTABLE)
