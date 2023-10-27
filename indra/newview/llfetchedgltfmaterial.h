@@ -50,6 +50,9 @@ public:
 
     bool isFetching() const { return mFetching; }
 
+    virtual bool replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id) override;
+    virtual void updateTextureTracking() override;
+
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;
     LLPointer<LLViewerFetchedTexture> mNormalTexture;

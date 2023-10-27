@@ -363,6 +363,15 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     }
 }
 
+LLMaterialEditor::~LLMaterialEditor()
+{
+    for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
+    {
+        cn.second.mConnection.disconnect();
+    }
+    mTextureChangesUpdates.clear();
+}
+
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
 {
     LLPreview::setObjectID(object_id);
@@ -530,11 +539,6 @@ void LLMaterialEditor::onClose(bool app_quitting)
     if (mSelectionUpdateSlot.connected())
     {
         mSelectionUpdateSlot.disconnect();
-    }
-
-    for (boost::signals2::connection& cn : mTextureChangesUpdates)
-    {
-        cn.disconnect();
     }
 
     LLPreview::onClose(app_quitting);
@@ -866,7 +870,27 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
     mNormalTextureCtrl->setEnabled(can_modify);
 }
 
-void LLMaterialEditor::replaceTexture(const LLUUID& old_id, const LLUUID& new_id)
+void LLMaterialEditor::subscribeToLocalTexture(S32 dirty_flag, const LLUUID& tracking_id)
+{
+    LocalTextureConnection info;
+    info.mTrackingId = tracking_id;
+    info.mConnection = LLLocalBitmapMgr::getInstance()->setOnChangedCallback(tracking_id,
+                                                                             [this, dirty_flag](const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
+                                                                             {
+                                                                                 if (new_id.isNull())
+                                                                                 {
+                                                                                     mTextureChangesUpdates[dirty_flag].mConnection.disconnect();
+                                                                                     mTextureChangesUpdates.erase(dirty_flag);
+                                                                                 }
+                                                                                 else
+                                                                                 {
+                                                                                     replaceLocalTexture(old_id, new_id);
+                                                                                 }
+                                                                             });
+    mTextureChangesUpdates[dirty_flag] = info;
+}
+
+void LLMaterialEditor::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
 {
     // todo: might be a good idea to set mBaseColorTextureUploadId here
     // and when texturectrl picks a local texture
@@ -958,18 +982,17 @@ void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dir
             childSetValue(upload_fee_ctrl_name, getString("no_upload_fee_string"));
         }
 
+        // unsubcribe potential old callabck
+        mat_connection_map_t::iterator found = mTextureChangesUpdates.find(dirty_flag);
+        if (found != mTextureChangesUpdates.end())
+        {
+            found->second.mConnection.disconnect();
+        }
+
         LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
         if (tex_ctrl->isImageLocal())
         {
-            // Theoretically LLSD should be smart enough to not need this, but for extra safety
-            LLSD key = llsd_clone(getKey());
-            // Subscribe material editor to local texture updates
-            mTextureChangesUpdates.push_back(
-                LLLocalBitmapMgr::getInstance()->setOnChangedCallback(tex_ctrl->getLocalTrackingID(),
-                                                                      [this](const LLUUID &old_id, const LLUUID& new_id)
-                                                                      {
-                                                                          replaceTexture(old_id, new_id);
-                                                                      }));
+            subscribeToLocalTexture(dirty_flag, tex_ctrl->getLocalTrackingID());
         }
     }
 
@@ -988,9 +1011,8 @@ void update_local_texture(LLUICtrl* ctrl, LLGLTFMaterial* mat)
     LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
     if (tex_ctrl->isImageLocal())
     {
-        mat->setHasLocalTextures(true);
-        // Todo: subscrive material for an update
-        // tex_ctrl->getLocalTrackingID();
+        // subscrive material to updates of local textures
+        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tex_ctrl->getLocalTrackingID(), mat);
     }
 }
 
@@ -1465,6 +1487,20 @@ void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, L
         {
             me->refreshFromInventory(itemId);
         }
+
+        if (me && !me->mTextureChangesUpdates.empty())
+        {
+            const LLInventoryItem* item = me->getItem();
+            if (item)
+            {
+                // local materials were assigned, force load material and init tracking
+                LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(item->getAssetUUID());
+                for (mat_connection_map_t::value_type val : me->mTextureChangesUpdates)
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
+                }
+            }
+        }
     }
 }
 
@@ -1479,6 +1515,16 @@ void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID
         me->setAssetId(newAssetId);
         me->refreshFromInventory();
         me->setEnabled(true);
+
+        if (me && !me->mTextureChangesUpdates.empty())
+        {
+            // local materials were assigned, force load material and init tracking
+            LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(newAssetId);
+            for (mat_connection_map_t::value_type val : me->mTextureChangesUpdates)
+            {
+                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
+            }
+        }
     }
 }
 
@@ -1512,6 +1558,17 @@ void LLMaterialEditor::finishSaveAs(
             {
                 me->loadAsset();
                 me->setEnabled(true);
+
+                // Local texure support
+                if (!me->mTextureChangesUpdates.empty())
+                {
+                    // local materials were assigned, force load material and init tracking
+                    LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(item->getAssetUUID());
+                    for (mat_connection_map_t::value_type val : me->mTextureChangesUpdates)
+                    {
+                        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
+                    }
+                }
             }
         }
         else if(has_unsaved_changes)
@@ -2975,6 +3032,34 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setDoubleSided(mat->mDoubleSided);
     setAlphaMode(mat->getAlphaMode());
     setAlphaCutoff(mat->mAlphaCutoff);
+
+
+    for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
+    {
+        cn.second.mConnection.disconnect();
+    }
+    mTextureChangesUpdates.clear();
+
+    for (const LLUUID& tracking_id : mat->mLocalTextureTrackingIds)
+    {
+        LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
+        {
+            subscribeToLocalTexture(MATERIAL_BASE_COLOR_TEX_DIRTY, tracking_id);
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
+        {
+            subscribeToLocalTexture(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY, tracking_id);
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
+        {
+            subscribeToLocalTexture(MATERIAL_EMISIVE_TEX_DIRTY, tracking_id);
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
+        {
+            subscribeToLocalTexture(MATERIAL_NORMAL_TEX_DIRTY, tracking_id);
+        }
+    }
 }
 
 bool LLMaterialEditor::setFromSelection()

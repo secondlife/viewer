@@ -89,6 +89,11 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mOverrideDoubleSided = rhs.mOverrideDoubleSided;
     mOverrideAlphaMode = rhs.mOverrideAlphaMode;
 
+    mLocalTextureIds = rhs.mLocalTextureIds;
+    mLocalTextureTrackingIds = rhs.mLocalTextureTrackingIds;
+
+    updateTextureTracking();
+
     return *this;
 }
 
@@ -765,3 +770,44 @@ LLUUID LLGLTFMaterial::getHash() const
     return hash;
 }
 
+void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
+{
+    mLocalTextureTrackingIds.insert(tracking_id);
+    mLocalTextureIds.insert(tex_id);
+}
+
+void LLGLTFMaterial::removeLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
+{
+    mLocalTextureTrackingIds.erase(tracking_id);
+    mLocalTextureIds.erase(tex_id);
+}
+
+bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
+{
+    bool res = false;
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (mTextureId[i] == old_id)
+        {
+            mTextureId[i] = new_id;
+            res = true;
+        }
+    }
+
+    mLocalTextureIds.erase(old_id);
+    if (res)
+    {
+        mLocalTextureIds.insert(new_id);
+    }
+
+    return res;
+}
+
+void LLGLTFMaterial::updateTextureTracking()
+{
+    if (mLocalTextureTrackingIds.size() > 0)
+    {
+        LL_WARNS() << "copied a material with local textures, but tracking not implemented" << LL_ENDL;
+    }
+}

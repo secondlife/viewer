@@ -144,6 +144,55 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
 }
 
+LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
+{
+    LLViewerFetchedTexture* img = nullptr;
+    if (id.notNull())
+    {
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(64.f * 64.f, TRUE);
+    }
+    return img;
+};
+
+bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
+{
+    bool res = false;
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] = new_id;
+        mBaseColorTexture = fetch_texture(new_id);
+        res = true;
+    }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] = new_id;
+        mNormalTexture = fetch_texture(new_id);
+        res = true;
+    }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = new_id;
+        mMetallicRoughnessTexture = fetch_texture(new_id);
+        res = true;
+    }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = new_id;
+        mEmissiveTexture = fetch_texture(new_id);
+        res = true;
+    }
+    return res;
+}
+
+void LLFetchedGLTFMaterial::updateTextureTracking()
+{
+    for (const LLUUID& id : mLocalTextureTrackingIds)
+    {
+        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(id, this);
+    }
+}
+
 void LLFetchedGLTFMaterial::materialBegin()
 {
     llassert(!mFetching);
