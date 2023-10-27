@@ -223,8 +223,14 @@ public:
     virtual void removeTextureEntry(LLTextureEntry* te) {};
 
     // For local textures so that editor will know to track changes
-    void setHasLocalTextures(bool val) { mHasLocalTextures = val; }
-    bool hasLocalTextures() { return mHasLocalTextures; }
+    void addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID &tex_id);
+    void removeLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id);
+    bool hasLocalTextures() { return !mLocalTextureIds.empty(); }
+    virtual bool replaceLocalTexture(const LLUUID &old_id, const LLUUID& new_id);
+    virtual void updateTextureTracking();
+
+    uuid_set_t mLocalTextureIds;
+    uuid_set_t mLocalTextureTrackingIds;
 
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
@@ -242,6 +248,4 @@ protected:
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write = false) const;
     template<typename T>
     static void writeToTexture(tinygltf::Model& model, T& texture_info, const LLUUID& texture_id, const TextureTransform& transform, bool force_write = false);
-
-    bool mHasLocalTextures;
 };

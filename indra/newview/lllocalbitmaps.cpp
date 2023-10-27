@@ -46,6 +46,7 @@
 #include <ctime>
 
 /* misc headers */
+#include "llgltfmaterial.h"
 #include "llscrolllistctrl.h"
 #include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
@@ -130,6 +131,14 @@ LLLocalBitmap::~LLLocalBitmap()
 		replaceIDs(mWorldID, IMG_DEFAULT);
 		LLLocalBitmapMgr::getInstance()->doRebake();
 	}
+
+    for (LLPointer<LLGLTFMaterial> &mat : mGLTFMaterialWithLocalTextures)
+    {
+        mat->removeLocalTextureTracking(getTrackingID(), getWorldID());
+    }
+
+    mChangedSignal(getTrackingID(), getWorldID(), LLUUID());
+    mChangedSignal.disconnect_all_slots();
 
 	// delete self from gimagelist
 	LLViewerFetchedTexture* image = gTextureList.findImage(mWorldID, TEX_LIST_STANDARD);
@@ -278,6 +287,17 @@ boost::signals2::connection LLLocalBitmap::setChangedCallback(const LLLocalTextu
     return mChangedSignal.connect(cb);
 }
 
+void LLLocalBitmap::addGLTFMaterial(LLGLTFMaterial* mat)
+{
+    if (mat
+        // dupplicate prevention
+        && mat->mLocalTextureTrackingIds.find(getTrackingID()) == mat->mLocalTextureTrackingIds.end())
+    {
+        mat->addLocalTextureTracking(getTrackingID(), getWorldID());
+        mGLTFMaterialWithLocalTextures.push_back(mat);
+    }
+}
+
 bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 {
 	bool decode_successful = false;
@@ -355,7 +375,7 @@ void LLLocalBitmap::replaceIDs(const LLUUID& old_id, LLUUID new_id)
 		return;
 	}
 
-    mChangedSignal(old_id, new_id);
+    mChangedSignal(getTrackingID(), old_id, new_id);
 
 	// processing updates per channel; makes the process scalable.
 	// the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
@@ -389,8 +409,7 @@ void LLLocalBitmap::replaceIDs(const LLUUID& old_id, LLUUID new_id)
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
 
-    // Go over any local material
-
+    updateGLTFMaterials(old_id, new_id);
 }
 
 // this function sorts the faces from a getFaceList[getNumFaces] into a list of objects
@@ -586,6 +605,24 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 			}
 		}
 	}
+}
+
+void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
+{
+    // Might be a better idea to hold this in LLGLTFMaterialList
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != mGLTFMaterialWithLocalTextures.end();)
+    {
+        if ((*it)->replaceLocalTexture(old_id, new_id))
+        {
+            ++it;
+        }
+        else
+        {
+            // matching id not found, no longer in use
+            (*it)->removeLocalTextureTracking(getTrackingID(), new_id);
+            it = mGLTFMaterialWithLocalTextures.erase(it);
+        }
+    }
 }
 
 LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
@@ -1087,6 +1124,18 @@ boost::signals2::connection LLLocalBitmapMgr::setOnChangedCallback(const LLUUID 
     }
 
     return boost::signals2::connection();
+}
+
+void LLLocalBitmapMgr::associateGLTFMaterial(const LLUUID tracking_id, LLGLTFMaterial* mat)
+{
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getTrackingID() == tracking_id)
+        {
+            unit->addGLTFMaterial(mat);
+        }
+    }
 }
 
 void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)

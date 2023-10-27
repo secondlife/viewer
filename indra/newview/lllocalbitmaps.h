@@ -36,6 +36,7 @@
 class LLScrollListCtrl;
 class LLImageRaw;
 class LLViewerObject;
+class LLGLTFMaterial;
 
 class LLLocalBitmap
 {
@@ -59,10 +60,12 @@ class LLLocalBitmap
 
 		bool updateSelf(EUpdateType = UT_REGUPDATE);
 
-        typedef boost::signals2::signal<void(const LLUUID& old_id,
+        typedef boost::signals2::signal<void(const LLUUID& tracking_id,
+                                             const LLUUID& old_id,
                                              const LLUUID& new_id)> LLLocalTextureChangedSignal;
         typedef LLLocalTextureChangedSignal::slot_type LLLocalTextureCallback;
         boost::signals2::connection setChangedCallback(const LLLocalTextureCallback& cb);
+        void addGLTFMaterial(LLGLTFMaterial* mat);
 
 	private: /* self update private section */
 		bool decodeBitmap(LLPointer<LLImageRaw> raw);
@@ -71,6 +74,7 @@ class LLLocalBitmap
 		void updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel);
 		void updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel);
 		void updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type);
+        void updateGLTFMaterials(LLUUID old_id, LLUUID new_id);
 		LLAvatarAppearanceDefines::ETextureIndex getTexIndex(LLWearableType::EType type, LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind);
 
 	private: /* private enums */
@@ -99,6 +103,11 @@ class LLLocalBitmap
 		ELinkStatus mLinkStatus;
 		S32         mUpdateRetries;
         LLLocalTextureChangedSignal	mChangedSignal;
+
+        // Store a list of accosiated materials
+        // Might be a better idea to hold this in LLGLTFMaterialList
+        typedef std::vector<LLPointer<LLGLTFMaterial> > mat_list_t;
+        mat_list_t mGLTFMaterialWithLocalTextures;
 
 };
 
@@ -130,6 +139,7 @@ public:
     bool         isLocal(const LLUUID& world_id) const;
 	std::string  getFilename(const LLUUID &tracking_id) const;
     boost::signals2::connection setOnChangedCallback(const LLUUID tracking_id, const LLLocalBitmap::LLLocalTextureCallback& cb);
+    void associateGLTFMaterial(const LLUUID tracking_id, LLGLTFMaterial* mat);
 
 	void         feedScrollList(LLScrollListCtrl* ctrl);
 	void         doUpdates();
