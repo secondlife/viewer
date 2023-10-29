@@ -34,7 +34,9 @@
 #include "llsd.h"
 #include <boost/functional/hash.hpp>
 #include <cassert>
+#include <memory>                   // std::shared_ptr
 #include <type_traits>
+#include <vector>
 
 // U32
 LL_COMMON_API LLSD ll_sd_from_U32(const U32);
@@ -302,6 +304,11 @@ LLSD map(Ts&&... vs)
 /*****************************************************************************
 *   LLSDParam
 *****************************************************************************/
+struct LLSDParamBase
+{
+    virtual ~LLSDParamBase() {}
+};
+
 /**
  * LLSDParam is a customization point for passing LLSD values to function
  * parameters of more or less arbitrary type. LLSD provides a small set of
@@ -319,7 +326,7 @@ LLSD map(Ts&&... vs)
  * @endcode
  */
 template <typename T>
-class LLSDParam
+class LLSDParam: public LLSDParamBase
 {
 public:
     /**
@@ -327,13 +334,13 @@ public:
      * value for later retrieval
      */
     LLSDParam(const LLSD& value):
-        _value(value)
+        value_(value)
     {}
 
-    operator T() const { return _value; }
+    operator T() const { return value_; }
 
 private:
-    T _value;
+    T value_;
 };
 
 /**
@@ -343,10 +350,30 @@ private:
  * specialization.
  */
 template <>
-class LLSDParam<LLSD>
+class LLSDParam<LLSD>: public LLSDParamBase
 {
 private:
     LLSD value_;
+    // LLSDParam<LLSD>::operator T() works by instantiating an LLSDParam<T> on
+    // demand. Returning that engages LLSDParam<T>::operator T(), producing
+    // the desired result. But LLSDParam<const char*> owns a std::string whose
+    // c_str() is returned by its operator const char*(). If we return a temp
+    // LLSDParam<const char*>, the compiler can destroy it right away, as soon
+    // as we've called operator const char*(). That's a problem! That
+    // invalidates the const char* we've just passed to the subject function.
+    // This LLSDParam<LLSD> is presumably guaranteed to survive until the
+    // subject function has returned, so we must ensure that any constructed
+    // LLSDParam<T> lives just as long as this LLSDParam<LLSD> does. Putting
+    // each LLSDParam<T> on the heap and capturing a smart pointer in a vector
+    // works. We would have liked to use std::unique_ptr, but vector entries
+    // must be copyable.
+    // (Alternatively we could assume that every instance of LLSDParam<LLSD>
+    // will be asked for at most ONE conversion. We could store a scalar
+    // std::unique_ptr and, when constructing an new LLSDParam<T>, assert that
+    // the unique_ptr is empty. But some future change in usage patterns, and
+    // consequent failure of that assertion, would be very mysterious. Instead
+    // of explaining how to fix it, just fix it now.)
+    mutable std::vector<std::shared_ptr<LLSDParamBase>> converters_;
 
 public:
     LLSDParam(const LLSD& value): value_(value) {}
@@ -358,7 +385,15 @@ public:
     /// otherwise, instantiate a more specific LLSDParam<T> to convert; that
     /// preserves the existing customization mechanism
     template <typename T>
-    operator T() const { return LLSDParam<std::decay_t<T>>(value_); }
+    operator T() const
+    {
+        // capture 'ptr' with the specific subclass type because converters_
+        // only stores LLSDParamBase pointers
+        auto ptr{ std::make_shared<LLSDParam<std::decay_t<T>>>(value_) };
+        // keep the new converter alive until we ourselves are destroyed
+        converters_.push_back(ptr);
+        return *ptr;
+    }
 };
 
 /**
@@ -375,17 +410,17 @@ public:
  */
 #define LLSDParam_for(T, AS)                    \
 template <>                                     \
-class LLSDParam<T>                              \
+class LLSDParam<T>: public LLSDParamBase        \
 {                                               \
 public:                                         \
     LLSDParam(const LLSD& value):               \
-        _value((T)value.AS())                   \
+        value_((T)value.AS())                   \
     {}                                          \
                                                 \
-    operator T() const { return _value; }       \
+    operator T() const { return value_; }       \
                                                 \
 private:                                        \
-    T _value;                                   \
+    T value_;                                   \
 }
 
 LLSDParam_for(float,        asReal);
@@ -401,31 +436,31 @@ LLSDParam_for(LLSD::Binary, asBinary);
  * safely pass an LLSDParam<const char*>(yourLLSD).
  */
 template <>
-class LLSDParam<const char*>
+class LLSDParam<const char*>: public LLSDParamBase
 {
 private:
     // The difference here is that we store a std::string rather than a const
     // char*. It's important that the LLSDParam object own the std::string.
-    std::string _value;
+    std::string value_;
     // We don't bother storing the incoming LLSD object, but we do have to
-    // distinguish whether _value is an empty string because the LLSD object
+    // distinguish whether value_ is an empty string because the LLSD object
     // contains an empty string or because it's isUndefined().
-    bool _undefined;
+    bool undefined_;
 
 public:
     LLSDParam(const LLSD& value):
-        _value(value),
-        _undefined(value.isUndefined())
+        value_(value),
+        undefined_(value.isUndefined())
     {}
 
-    // The const char* we retrieve is for storage owned by our _value member.
+    // The const char* we retrieve is for storage owned by our value_ member.
     // That's how we guarantee that the const char* is valid for the lifetime
     // of this LLSDParam object. Constructing your LLSDParam in the argument
     // list should ensure that the LLSDParam object will persist for the
     // duration of the function call.
     operator const char*() const
     {
-        if (_undefined)
+        if (undefined_)
         {
             // By default, an isUndefined() LLSD object's asString() method
             // will produce an empty string. But for a function accepting
@@ -435,7 +470,7 @@ public:
             // case, though, no LLSD value could pass NULL.
             return NULL;
         }
-        return _value.c_str();
+        return value_.c_str();
     }
 };
 
@@ -592,7 +627,7 @@ namespace LL
 *   apply(function, LLSD array)
 *****************************************************************************/
 // validate incoming LLSD blob, and return an LLSD array suitable to pass to
-// apply_impl()
+// the function of interest
 LLSD apply_llsd_fix(size_t arity, const LLSD& args);
 
 // Derived from https://stackoverflow.com/a/20441189
