@@ -1658,71 +1658,47 @@
         <key>name</key>
         <string>llphysicsextensions_tpv</string>
       </map>
-      <key>lua</key>
+      <key>lualibs</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 1994–2023 Lua.org, PUC-Rio.</string>
+        <string>Lua by Lua.org, PUC-Rio.</string>
         <key>description</key>
-        <string>Lua is a powerful, efficient, lightweight, embeddable scripting language developed by a team at PUC-Rio, the Pontifical Catholic University of Rio de Janeiro in Brazil.</string>
+        <string>LUA libs API</string>
         <key>license</key>
-        <string>MIT</string>
+        <string>lua</string>
         <key>license_file</key>
         <string>LICENSES/lua.txt</string>
         <key>name</key>
-        <string>lua</string>
+        <string>lualibs</string>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
+          <key>windows</key>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>d89356cb157e18d6cee1548ec16a539db5bf9dd5</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>55bd833166d03f1467e2c7f24fa9143e</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/131229135</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87775/805841/openssl-1.1.1l.563846-windows-563846.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>2c2d0dd90bc310b9815e7e0f23f1aa9a82166841</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/131229138</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
+            <string>windows</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>929bd9c0764172d360f0b144faad7f8bed3bcb10</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>6dc51cd8cad422ab1dcd67cc59af119d</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/131229139</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/118146/1013526/lualibs-5.4.581683-windows64-581683.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>5.4.6</string>
+        <string>5.4.581683</string>
       </map>
       <key>mesa</key>
       <map>
