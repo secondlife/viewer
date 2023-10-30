@@ -365,11 +365,6 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
 
 LLMaterialEditor::~LLMaterialEditor()
 {
-    for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
-    {
-        cn.second.mConnection.disconnect();
-    }
-    mTextureChangesUpdates.clear();
 }
 
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
@@ -540,6 +535,11 @@ void LLMaterialEditor::onClose(bool app_quitting)
     {
         mSelectionUpdateSlot.disconnect();
     }
+    for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
+    {
+        cn.second.mConnection.disconnect();
+    }
+    mTextureChangesUpdates.clear();
 
     LLPreview::onClose(app_quitting);
 }
@@ -872,22 +872,24 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
 
 void LLMaterialEditor::subscribeToLocalTexture(S32 dirty_flag, const LLUUID& tracking_id)
 {
-    LocalTextureConnection info;
-    info.mTrackingId = tracking_id;
-    info.mConnection = LLLocalBitmapMgr::getInstance()->setOnChangedCallback(tracking_id,
-                                                                             [this, dirty_flag](const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
-                                                                             {
-                                                                                 if (new_id.isNull())
-                                                                                 {
-                                                                                     mTextureChangesUpdates[dirty_flag].mConnection.disconnect();
-                                                                                     mTextureChangesUpdates.erase(dirty_flag);
-                                                                                 }
-                                                                                 else
-                                                                                 {
-                                                                                     replaceLocalTexture(old_id, new_id);
-                                                                                 }
-                                                                             });
-    mTextureChangesUpdates[dirty_flag] = info;
+    if (mTextureChangesUpdates[dirty_flag].mTrackingId != tracking_id)
+    {
+        mTextureChangesUpdates[dirty_flag].mConnection.disconnect();
+        mTextureChangesUpdates[dirty_flag].mTrackingId = tracking_id;
+        mTextureChangesUpdates[dirty_flag].mConnection = LLLocalBitmapMgr::getInstance()->setOnChangedCallback(tracking_id,
+                                                                                                               [this, dirty_flag](const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
+                                                                                                               {
+                                                                                                                   if (new_id.isNull())
+                                                                                                                   {
+                                                                                                                       mTextureChangesUpdates[dirty_flag].mConnection.disconnect();
+                                                                                                                       //mTextureChangesUpdates.erase(dirty_flag);
+                                                                                                                   }
+                                                                                                                   else
+                                                                                                                   {
+                                                                                                                       replaceLocalTexture(old_id, new_id);
+                                                                                                                   }
+                                                                                                               });
+    }
 }
 
 void LLMaterialEditor::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
@@ -981,18 +983,20 @@ void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dir
             // the texture that is not in use
             childSetValue(upload_fee_ctrl_name, getString("no_upload_fee_string"));
         }
+    }
 
+    LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+    if (tex_ctrl->isImageLocal())
+    {
+        subscribeToLocalTexture(dirty_flag, tex_ctrl->getLocalTrackingID());
+    }
+    else
+    {
         // unsubcribe potential old callabck
         mat_connection_map_t::iterator found = mTextureChangesUpdates.find(dirty_flag);
         if (found != mTextureChangesUpdates.end())
         {
             found->second.mConnection.disconnect();
-        }
-
-        LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
-        if (tex_ctrl->isImageLocal())
-        {
-            subscribeToLocalTexture(dirty_flag, tex_ctrl->getLocalTrackingID());
         }
     }
 

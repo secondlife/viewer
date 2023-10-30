@@ -614,6 +614,30 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
     {
         if ((*it)->replaceLocalTexture(old_id, new_id))
         {
+            for (LLTextureEntry* entry : (*it)->mTextureEntires)
+            {
+                // Normally a change in applied material id is supposed to
+                // drop overrides thus reset material, but local materials
+                // currently reuse their existing asset id, and purpose is
+                // to preview how material will work in-world, overrides
+                // included, so do an override to render update instead.
+                LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
+                if (override_mat)
+                {
+                    // do not create a new material, reuse existing pointer
+                    LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
+                    if (render_mat)
+                    {
+                        llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
+                        LLFetchedGLTFMaterial *fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
+                        if (fetched_mat)
+                        {
+                            *render_mat = *fetched_mat;
+                        }
+                        render_mat->applyOverride(*override_mat);
+                    }
+                }
+            }
             ++it;
         }
         else
@@ -1119,7 +1143,7 @@ boost::signals2::connection LLLocalBitmapMgr::setOnChangedCallback(const LLUUID 
         LLLocalBitmap* unit = *iter;
         if (unit->getTrackingID() == tracking_id)
         {
-            unit->setChangedCallback(cb);
+            return unit->setChangedCallback(cb);
         }
     }
 
