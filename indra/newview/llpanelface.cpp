@@ -113,9 +113,9 @@ const S32 BUMPY_TEXTURE = 18;		// use supplied normal map
 const S32 SHINY_TEXTURE = 4;		// use supplied specular map
 const S32 PBRTYPE_RENDER_MATERIAL_ID = 0;  // Render Material ID
 const S32 PBRTYPE_BASE_COLOR = 1;   // PBR Base Color
-const S32 PBRTYPE_NORMAL = 2;       // PBR Normal
-const S32 PBRTYPE_METALLIC_ROUGHNESS = 3; // PBR Metallic
-const S32 PBRTYPE_EMISSIVE = 4;     // PBR Emissive
+const S32 PBRTYPE_METALLIC_ROUGHNESS = 2; // PBR Metallic
+const S32 PBRTYPE_EMISSIVE = 3;     // PBR Emissive
+const S32 PBRTYPE_NORMAL = 4;       // PBR Normal
 
 LLGLTFMaterial::TextureInfo texture_info_from_pbrtype(S32 pbr_type)
 {

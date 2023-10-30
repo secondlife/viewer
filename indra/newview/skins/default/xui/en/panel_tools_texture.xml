@@ -217,25 +217,25 @@
                 height="16" 
                 value="1"/>
                 <radio_item
-                label="Normal"
-                layout="topleft"
-                top_pad="1" 
-                height="16" 
-                name="Normal"
-                value="2"/>
-                <radio_item
                 label="Metallic/roughness"
                 name="Metallic/roughness"
                 height="16"
                 layout="topleft"
                 top_pad="1"
-                value="3"/>
+                value="2"/>
                 <radio_item
                 label="Emissive"
                 name="Emissive"
                 layout="topleft"
                 top_pad="1" 
                 height="16" 
+                value="3"/>
+                <radio_item
+                label="Normal"
+                layout="topleft"
+                top_pad="1" 
+                height="16" 
+                name="Normal"
                 value="4"/>
             </radio_group>
             <menu_button
