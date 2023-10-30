@@ -770,6 +770,15 @@ LLUUID LLGLTFMaterial::getHash() const
     return hash;
 }
 
+void LLGLTFMaterial::addTextureEntry(LLTextureEntry* te)
+{
+    mTextureEntires.insert(te);
+}
+void LLGLTFMaterial::removeTextureEntry(LLTextureEntry* te)
+{
+    mTextureEntires.erase(te);
+}
+
 void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mLocalTextureTrackingIds.insert(tracking_id);
