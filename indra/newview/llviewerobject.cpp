@@ -7221,14 +7221,17 @@ void LLViewerObject::rebuildMaterial()
     gPipeline.markTextured(mDrawable);
 }
 
-void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool update_server)
+void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool update_server, bool local_origin)
 {
     // implementation is delicate
 
     // if update is bound for server, should always null out GLTFRenderMaterial and clear GLTFMaterialOverride even if ids haven't changed
     //  (the case where ids haven't changed indicates the user has reapplied the original material, in which case overrides should be dropped)
     // otherwise, should only null out the render material where ids or overrides have changed
-    //  (the case where ids have changed but overrides are still present is from unsynchronized updates from the simulator)
+    //  (the case where ids have changed but overrides are still present is from unsynchronized updates from the simulator, or synchronized
+    //  updates with solely transform overrides)
+
+    llassert(!update_server || local_origin);
 
     S32 start_idx = 0;
     S32 end_idx = getNumTEs();
@@ -7260,7 +7263,12 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     {
         LLTextureEntry* tep = getTE(te);
         
-        bool material_changed = !param_block || id != param_block->getMaterial(te);
+        // If local_origin=false (i.e. it's from the server), we know the
+        // material has updated or been created, because extra params are
+        // checked for equality on unpacking. In that case, checking the
+        // material ID for inequality won't work, because the material ID has
+        // already been set.
+        bool material_changed = !local_origin || !param_block || id != param_block->getMaterial(te);
 
         if (update_server)
         { 
@@ -7281,6 +7289,34 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         if (new_material != tep->getGLTFMaterial())
         {
             tep->setGLTFMaterial(new_material, !update_server);
+        }
+
+        if (material_changed && new_material)
+        {
+            // Sometimes, the material may change out from underneath the overrides.
+            // This is usually due to the server sending a new material ID, but
+            // the overrides have not changed due to being only texture
+            // transforms. Re-apply the overrides to the render material here,
+            // if present.
+            const LLGLTFMaterial* override_material = tep->getGLTFMaterialOverride();
+            if (override_material)
+            {
+                new_material->onMaterialComplete([obj_id = getID(), te]()
+                    {
+                        LLViewerObject* obj = gObjectList.findObject(obj_id);
+                        if (!obj) { return; }
+                        LLTextureEntry* tep = obj->getTE(te);
+                        if (!tep) { return; }
+                        const LLGLTFMaterial* new_material = tep->getGLTFMaterial();
+                        if (!new_material) { return; }
+                        const LLGLTFMaterial* override_material = tep->getGLTFMaterialOverride();
+                        if (!override_material) { return; }
+                        LLGLTFMaterial* render_material = new LLFetchedGLTFMaterial();
+                        *render_material = *new_material;
+                        render_material->applyOverride(*override_material);
+                        tep->setGLTFRenderMaterial(render_material);
+                    });
+            }
         }
     }
 
@@ -7341,7 +7377,9 @@ void LLViewerObject::setRenderMaterialIDs(const LLRenderMaterialParams* material
         for (S32 te = 0; te < getNumTEs(); ++te)
         {
             const LLUUID& id = material_params ? material_params->getMaterial(te) : LLUUID::null;
-            setRenderMaterialID(te, id, false);
+            // We know material_params has updated or been created, because
+            // extra params are checked for equality on unpacking.
+            setRenderMaterialID(te, id, false, false);
         }
     }
 }
