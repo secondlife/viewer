@@ -83,11 +83,11 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     if (baseColorTex != nullptr)
     {
-        gGL.getTexUnit(0)->bindFast(baseColorTex);
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, baseColorTex);
     }
     else
     {
-        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep);
     }
 
     F32 base_color_packed[8];
