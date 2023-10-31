@@ -3498,22 +3498,29 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	++mExpectedInventorySerialNum;
 }
 
-bool LLViewerObject::isAssetInInventory(LLViewerInventoryItem* item)
+bool LLViewerObject::isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type)
 {
-	bool result = false;
+    bool result = false;
 
-	if (item)
-	{
-		std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
-		std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
+    if (item)
+    {
+        // For now mPendingInventoryItemsIDs only stores textures and materials
+        // but if it gets to store more types, it will need to verify type as well
+        // since null can be a shared default id and it is fine to need a null
+        // script and a null material simultaneously.
+        std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
+        std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
 
-		bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
-		bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
+        bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
 
-		result = is_fetched || is_fetching;
-	}
+        // null is the default asset for materials and default for scripts
+        // so need to check type as well
+        bool is_fetched = getInventoryItemByAsset(item->getAssetUUID(), type) != NULL;
 
-	return result;
+        result = is_fetched || is_fetching;
+    }
+
+    return result;
 }
 
 void LLViewerObject::updateMaterialInventory(LLViewerInventoryItem* item, U8 key, bool is_new)
@@ -3529,7 +3536,7 @@ void LLViewerObject::updateMaterialInventory(LLViewerInventoryItem* item, U8 key
         return;
     }
 
-    if (isAssetInInventory(item))
+    if (isAssetInInventory(item, item->getType()))
     {
         // already there
         return;
@@ -3670,6 +3677,44 @@ LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& ass
 		}		
 	}
 	return rv;
+}
+
+LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& asset_id, LLAssetType::EType type)
+{
+    if (mInventoryDirty)
+        LL_WARNS() << "Peforming inventory lookup for object " << mID << " that has dirty inventory!" << LL_ENDL;
+
+    LLViewerInventoryItem* rv = NULL;
+    if (type == LLAssetType::AT_CATEGORY)
+    {
+        // Whatever called this shouldn't be trying to get a folder by asset
+        // categories don't have assets
+        llassert(0);
+        return rv;
+    }
+
+    if (mInventory)
+    {
+        LLViewerInventoryItem* item = NULL;
+
+        LLInventoryObject::object_list_t::iterator it = mInventory->begin();
+        LLInventoryObject::object_list_t::iterator end = mInventory->end();
+        for (; it != end; ++it)
+        {
+            LLInventoryObject* obj = *it;
+            if (obj->getType() == type)
+            {
+                // *FIX: gank-ass down cast!
+                item = (LLViewerInventoryItem*)obj;
+                if (item->getAssetUUID() == asset_id)
+                {
+                    rv = item;
+                    break;
+                }
+            }
+        }
+    }
+    return rv;
 }
 
 void LLViewerObject::updateViewerInventoryAsset(
