@@ -37,6 +37,7 @@
 #include "llappearancemgr.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llinspecttexture.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llmenubutton.h"
@@ -62,7 +63,7 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
     return (LLStringUtil::compareDict(name1, name2) < 0);
 }
 
-struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
+struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLOutfitAccordionCtrlTab::Params>
 {
 	Mandatory<LLWearableItemsList::Params> wearable_list;
 
@@ -144,7 +145,8 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     std::string name = cat->getName();
 
     outfit_accordion_tab_params tab_params(get_accordion_tab_params());
-    LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
+    tab_params.cat_id = cat_id;
+    LLOutfitAccordionCtrlTab *tab = LLUICtrlFactory::create<LLOutfitAccordionCtrlTab>(tab_params);
     if (!tab) return;
     LLWearableItemsList* wearable_list = LLUICtrlFactory::create<LLWearableItemsList>(tab_params.wearable_list);
     wearable_list->setShape(tab->getLocalRect());
@@ -1307,4 +1309,24 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
+BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
+{
+    if (y >= getLocalRect().getHeight() - getHeaderHeight()) 
+    {
+        LLSD params;
+        params["inv_type"] = LLInventoryType::IT_CATEGORY;
+        params["thumbnail_id"] = gInventory.getCategory(mFolderID)->getThumbnailUUID();
+        params["item_id"] = mFolderID;
+
+        LLToolTipMgr::instance().show(LLToolTip::Params()
+                                    .message(getToolTip())
+                                    .sticky_rect(calcScreenRect())
+                                    .delay_time(LLView::getTooltipTimeout())
+                                    .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+                                    .create_params(params));
+        return TRUE;
+    }
+
+    return LLAccordionCtrlTab::handleToolTip(x, y, mask);
+}
 // EOF
