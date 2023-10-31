@@ -360,6 +360,11 @@ jobs:
           # name the release page for the build number so we can find it
           # easily (analogous to looking up a codeticket build page)
           name: "v${{ github.run_id }}"
+          # SL-20546: want the channel and version to be visible on the
+          # release page
+          body: |
+            ${{ needs.build.outputs.viewer_channel }}
+            ${{ needs.build.outputs.viewer_version }}
           prerelease: true
           generate_release_notes: true
           # the only reason we generate a GH release is to post build products
