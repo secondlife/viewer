@@ -2471,11 +2471,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a11c32c702f6df94dcdd69aabdafe40d7f25a7ae</string>
+              <string>e04567dc13483288d7226ed22404984d783d35e1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0.f48e635/viewer_manager-3.0-f48e635-darwin64-f48e635.tar.zst</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-074736e/viewer_manager-3.0-074736e-darwin64-074736e.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2485,11 +2485,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>10aa6f8a4161b32ba2de7ab37ccd693e7ee5b11d</string>
+              <string>42e86beb8b3bd2f4300a80c7c69e0cfda421ccbb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0.f48e635/viewer_manager-3.0-f48e635-linux64-f48e635.tar.zst</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-074736e/viewer_manager-3.0-074736e-linux64-074736e.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2499,11 +2499,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>15b7238af86d9b3a29ae4a7158ea5c1838f4252e</string>
+              <string>bb4d86b3a8e9fb6b688e555050302e0ed41dd41e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0.f48e635/viewer_manager-3.0-f48e635-windows64-f48e635.tar.zst</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-074736e/viewer_manager-3.0-074736e-windows64-074736e.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2516,7 +2516,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
         <key>version</key>
-        <string>3.0-f48e635</string>
+        <string>3.0-074736e</string>
         <key>name</key>
         <string>viewer-manager</string>
         <key>description</key>
