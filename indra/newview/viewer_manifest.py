@@ -932,6 +932,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
                     self.path("libhunspell-*.dylib")
+                    self.path("libSDL2-*.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
