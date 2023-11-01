@@ -1468,11 +1468,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e50ea94bbaa4ff41bf53b84b7192df1a694c5337</string>
+              <string>d3c1f7f947a2d8e89a98af816be2492afb42dfbc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llca/releases/download/v202310121525.0-d22bd98/llca-202310121530.0-common-d22bd98.tar.zst</string>
+              <string>https://github.com/secondlife/llca/releases/download/v202311020117.0-0f5d9c3/llca-202311012318.0-common-0f5d9c3.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
