@@ -5482,6 +5482,14 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
         }
     }
 
+    if (retval == TEM_CHANGE_TEXTURE)
+    {
+        for (LLGLTFMaterial::local_tex_map_t::value_type val : override_mat->mTrackingIdToLocalTexture)
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.first, override_mat);
+        }
+    }
+
     return retval;
 }
 

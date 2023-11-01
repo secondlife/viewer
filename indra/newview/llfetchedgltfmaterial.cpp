@@ -155,7 +155,14 @@ LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
     return img;
 };
 
-bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
+void LLFetchedGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
+{
+    LLGLTFMaterial::applyOverride(override_mat);
+
+    updateTextureTracking();
+}
+
+bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
 {
     bool res = false;
     if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] == old_id)
@@ -182,14 +189,24 @@ bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& old_id, const LLUU
         mEmissiveTexture = fetch_texture(new_id);
         res = true;
     }
+
+    if (res)
+    {
+        mTrackingIdToLocalTexture[tracking_id] = new_id;
+    }
+    else
+    {
+        mTrackingIdToLocalTexture.erase(tracking_id);
+    }
+
     return res;
 }
 
 void LLFetchedGLTFMaterial::updateTextureTracking()
 {
-    for (const LLUUID& id : mLocalTextureTrackingIds)
+    for (local_tex_map_t::value_type val : mTrackingIdToLocalTexture)
     {
-        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(id, this);
+        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.first, this);
     }
 }
 

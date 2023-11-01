@@ -134,7 +134,7 @@ LLLocalBitmap::~LLLocalBitmap()
 
     for (LLPointer<LLGLTFMaterial> &mat : mGLTFMaterialWithLocalTextures)
     {
-        mat->removeLocalTextureTracking(getTrackingID(), getWorldID());
+        mat->removeLocalTextureTracking(getTrackingID());
     }
 
     mChangedSignal(getTrackingID(), getWorldID(), LLUUID());
@@ -289,12 +289,17 @@ boost::signals2::connection LLLocalBitmap::setChangedCallback(const LLLocalTextu
 
 void LLLocalBitmap::addGLTFMaterial(LLGLTFMaterial* mat)
 {
-    if (mat
-        // dupplicate prevention
-        && mat->mLocalTextureTrackingIds.find(getTrackingID()) == mat->mLocalTextureTrackingIds.end())
+    if (!mat)
     {
-        mat->addLocalTextureTracking(getTrackingID(), getWorldID());
-        mGLTFMaterialWithLocalTextures.push_back(mat);
+        return;
+    }
+    for (mat_list_t::value_type ptr : mGLTFMaterialWithLocalTextures)
+    {
+        if (ptr.get() != mat)
+        {
+            mat->addLocalTextureTracking(getTrackingID(), getWorldID());
+            mGLTFMaterialWithLocalTextures.push_back(mat);
+        }
     }
 }
 
@@ -612,7 +617,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
     // Might be a better idea to hold this in LLGLTFMaterialList
     for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != mGLTFMaterialWithLocalTextures.end();)
     {
-        if ((*it)->replaceLocalTexture(old_id, new_id))
+        if ((*it)->replaceLocalTexture(mTrackingID, old_id, new_id))
         {
             for (LLTextureEntry* entry : (*it)->mTextureEntires)
             {
@@ -642,8 +647,8 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
         }
         else
         {
-            // matching id not found, no longer in use
-            (*it)->removeLocalTextureTracking(getTrackingID(), new_id);
+            // Matching id not found, no longer in use
+            // material would clean itself, remove from the list
             it = mGLTFMaterialWithLocalTextures.erase(it);
         }
     }

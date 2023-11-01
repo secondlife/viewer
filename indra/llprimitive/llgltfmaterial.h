@@ -196,7 +196,7 @@ public:
     // write to given tinygltf::Model
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
-    void applyOverride(const LLGLTFMaterial& override_mat);
+    virtual void applyOverride(const LLGLTFMaterial& override_mat);
     
     // apply the given LLSD override data
     void applyOverrideLLSD(const LLSD& data);
@@ -224,13 +224,13 @@ public:
 
     // For local textures so that editor will know to track changes
     void addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID &tex_id);
-    void removeLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id);
-    bool hasLocalTextures() { return !mLocalTextureIds.empty(); }
-    virtual bool replaceLocalTexture(const LLUUID &old_id, const LLUUID& new_id);
+    void removeLocalTextureTracking(const LLUUID& tracking_id);
+    bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
+    virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
 
-    uuid_set_t mLocalTextureIds;
-    uuid_set_t mLocalTextureTrackingIds;
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t mTrackingIdToLocalTexture;
     std::set<LLTextureEntry*> mTextureEntires;
 
 protected:

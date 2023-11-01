@@ -50,7 +50,8 @@ public:
 
     bool isFetching() const { return mFetching; }
 
-    virtual bool replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id) override;
+    void applyOverride(const LLGLTFMaterial& override_mat) override;
+    virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id) override;
     virtual void updateTextureTracking() override;
 
     // Textures used for fetching/rendering
