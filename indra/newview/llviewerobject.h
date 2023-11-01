@@ -190,7 +190,7 @@ public:
     // te - TextureEntry index to set, or -1 for all TEs
     // id - asset id of material asset
     // update_server - if true, will send updates to server and clear most overrides
-    void setRenderMaterialID(S32 te, const LLUUID& id, bool update_server = true);
+    void setRenderMaterialID(S32 te, const LLUUID& id, bool update_server = true, bool local_origin = true);
     void setRenderMaterialIDs(const LLUUID& id);
 
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
