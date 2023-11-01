@@ -1376,7 +1376,6 @@ bool packGameControlInput(LLMessageSystem* msg)
 
     const LLGameControl::State& state = LLGameControl::getState();
 
-    size_t num_axes_packed = 0;
     size_t num_indices = state.mAxes.size();
     for (U8 i = 0; i < num_indices; ++i)
     {
@@ -1386,7 +1385,6 @@ bool packGameControlInput(LLMessageSystem* msg)
             msg->nextBlockFast(_PREHASH_AxisData);
             msg->addU8Fast(_PREHASH_Index, i);
             msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
-            ++num_axes_packed;
         }
     }
 
