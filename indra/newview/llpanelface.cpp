@@ -1880,15 +1880,55 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
+// One-off listener that updates the build floater UI when the agent inventory adds or removes an item
+class PBRPickerAgentListener : public LLInventoryObserver
+{
+protected:
+    bool mChangePending = true;
+public:
+	PBRPickerAgentListener() : LLInventoryObserver()
+    {
+        gInventory.addObserver(this);
+    }
+
+    const bool isListening()
+    {
+        return mChangePending;
+    }
+
+	void changed(U32 mask) override
+    {
+        if (!(mask & (ADD | REMOVE)))
+        {
+            return;
+        }
+
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
+        gInventory.removeObserver(this);
+        mChangePending = false;
+    }
+
+    ~PBRPickerAgentListener() override
+    {
+        gInventory.removeObserver(this);
+        mChangePending = false;
+
+        LLInventoryObserver::~LLInventoryObserver();
+    }
+};
+
 // One-off listener that updates the build floater UI when the prim inventory updates
-class PBRPickerItemListener : public LLVOInventoryListener
+class PBRPickerObjectListener : public LLVOInventoryListener
 {
 protected:
     LLViewerObject* mObjectp;
     bool mChangePending = true;
 public:
 
-    PBRPickerItemListener(LLViewerObject* object)
+    PBRPickerObjectListener(LLViewerObject* object)
     : mObjectp(object)
     {
         registerVOInventoryListener(mObjectp, nullptr);
@@ -1912,7 +1952,7 @@ public:
         mChangePending = false;
     }
 
-    ~PBRPickerItemListener()
+    ~PBRPickerObjectListener()
     {
         removeVOInventoryListener();
         mChangePending = false;
@@ -1931,9 +1971,9 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
+    LLUUID pbr_id;
     if (pbr_ctrl)
     {
-        LLUUID pbr_id;
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
@@ -1956,14 +1996,25 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     if (objectp->isInventoryPending())
     {
         // Reuse the same listener when possible
-        if (!mInventoryListener || !mInventoryListener->isListeningFor(objectp))
+        if (!mVOInventoryListener || !mVOInventoryListener->isListeningFor(objectp))
         {
-            mInventoryListener = std::make_unique<PBRPickerItemListener>(objectp);
+            mVOInventoryListener = std::make_unique<PBRPickerObjectListener>(objectp);
         }
     }
     else
     {
-        mInventoryListener = nullptr;
+        mVOInventoryListener = nullptr;
+    }
+    if (!identical_pbr || pbr_id.isNull() || pbr_id == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID)
+    {
+        mAgentInventoryListener = nullptr;
+    }
+    else
+    {
+        if (!mAgentInventoryListener || !mAgentInventoryListener->isListening())
+        {
+            mAgentInventoryListener = std::make_unique<PBRPickerAgentListener>();
+        }
     }
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
