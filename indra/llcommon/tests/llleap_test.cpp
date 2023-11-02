@@ -18,6 +18,7 @@
 #include <functional>
 // external library headers
 // other Linden headers
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
@@ -26,7 +27,6 @@
 #include "llprocess.h"
 #include "llstring.h"
 #include "stringize.h"
-#include "StringVec.h"
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
