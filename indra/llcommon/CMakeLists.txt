@@ -13,7 +13,6 @@ include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(URIPARSER)
 include(Tracy)
-include(lualibs)
 
 
 set(llcommon_SOURCE_FILES

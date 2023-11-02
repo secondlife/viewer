@@ -1805,20 +1805,6 @@ if (WINDOWS)
 
     if (PACKAGE)
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-          ${CMAKE_CURRENT_SOURCE_DIR}/..
-          ${CMAKE_CURRENT_BINARY_DIR}
-          ${CMAKE_CFG_INTDIR}
-        DEPENDS
-          lleventhost
-          ${EVENT_HOST_SCRIPTS}
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-        )
-
-      add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
@@ -1847,9 +1833,6 @@ if (WINDOWS)
       add_custom_target(llpackage ALL DEPENDS
               ${CMAKE_CFG_INTDIR}/touched.bat
         )
-        # temporarily disable packaging of event_host until hg subrepos get
-        # sorted out on the parabuild cluster...
-        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
     endif (PACKAGE)
 elseif (DARWIN)
@@ -1917,6 +1900,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
+        ll::lualibs
         )
 
 if( TARGET ll::intel_memops )
@@ -2287,7 +2271,7 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llluamanager
     "llluamanager.cpp"
-    "${test_libs}"
+    "${test_libs};ll::lualibs"
     )
 
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
