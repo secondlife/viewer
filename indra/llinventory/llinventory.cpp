@@ -1054,6 +1054,8 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 	}
 #else  // if 0 - new implementation follows
 
+    mThumbnailUUID.setNull();
+
     // iterate as map to avoid making unnecessary temp copies of everything
     LLSD::map_const_iterator i, end;
     end = sd.endMap();
@@ -1067,6 +1069,31 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
         if (i->first == INV_PARENT_ID_LABEL)
         {
             mParentUUID = i->second;
+        }
+
+        if (i->first == INV_THUMBNAIL_LABEL)
+        {
+            const LLSD &thumbnail_map = i->second;
+            const std::string w = INV_ASSET_ID_LABEL;
+            if (thumbnail_map.has(w))
+            {
+                mThumbnailUUID = thumbnail_map[w];
+            }
+            /* Example:
+                <key> asset_id </key>
+                <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
+                <key> perms </key>
+                <integer> 8 </integer>
+                <key>service</key>
+                <integer> 3 </integer>
+                <key>version</key>
+                <integer> 1 </key>
+            */
+        }
+
+        if (i->first == INV_THUMBNAIL_ID_LABEL)
+        {
+            mThumbnailUUID = i->second.asUUID();
         }
 
         if (i->first == INV_PERMISSIONS_LABEL)
