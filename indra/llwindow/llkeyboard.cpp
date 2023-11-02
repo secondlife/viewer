@@ -163,8 +163,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
-    // TODO: clear any mapped game controller buttons
-    //LLGameControl::clearAllButtons();
+    LLGameControl::clearAllKeys();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
@@ -195,8 +194,7 @@ void LLKeyboard::resetKeys()
 	{
 		mKeyRepeated[i] = FALSE;
 	}
-    // TODO: clear any mapped game controller buttons
-    LLGameControl::clearAllButtons();
+    LLGameControl::clearAllKeys();
 }
 
 
@@ -255,26 +253,21 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 		repeated = TRUE;
 		mKeyRepeated[translated_key] = TRUE;
 	}
-	
+
 	mKeyDown[translated_key] = TRUE;
 	mCurTranslatedKey = (KEY)translated_key;
 	handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
-    // TODO: capture unhandled keys and translate any mapped buttons to game controller
-    //if (!handled && LLGameControl::getIncludeKeyboardButtons())
-    //{
-    //    LLGameControl::onButton(translated_key, true);
-    //}
 	return handled;
 }
 
 
 BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
-{	
+{
 	BOOL handled = FALSE;
 	if( mKeyLevel[translated_key] )
 	{
 		mKeyLevel[translated_key] = FALSE;
-		
+
 		// Only generate key up events if the key is thought to
 		// be down.  This allows you to call resetKeys() in the
 		// middle of a frame and ignore subsequent KEY_UP
@@ -282,13 +275,8 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		// sequence W<return> in chat to move agents forward. JC
 		mKeyUp[translated_key] = TRUE;
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
-        // TODO: capture unhandled keys and translate any mapped buttons to game controller
-        //if (!handled && LLGameControl::getIncludeKeyboardButtons())
-        //{
-        //    LLGameControl::onButton(translated_key, false);
-        //}
 	}
-	
+
 	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
 
 	return handled;
@@ -304,6 +292,10 @@ BOOL LLKeyboard::handleKeyDown(const U16 key, const U32 mask)
 	{
 		handled = handleTranslatedKeyDown(translated_key, translated_mask);
 	}
+    if (!handled)
+    {
+        LLGameControl::onKeyDown(translated_key, translated_mask);
+    }
 
 	return handled;
 }
@@ -319,6 +311,10 @@ BOOL LLKeyboard::handleKeyUp(const U16 key, const U32 mask)
 	{
 		handled = handleTranslatedKeyUp(translated_key, translated_mask);
 	}
+    if (!handled)
+    {
+        LLGameControl::onKeyUp(translated_key, translated_mask);
+    }
 
 	return handled;
 }
