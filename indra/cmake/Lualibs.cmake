@@ -15,7 +15,7 @@ target_include_directories( ll::lualibs SYSTEM INTERFACE
 )
 
 if (WINDOWS)
-  target_link_libraries(ll::lualibs INTERFACE lua54.dll)
+  target_link_libraries(ll::lualibs INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/lua54.lib)
 elseif (DARWIN)
   target_link_libraries(ll::lualibs INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/liblua.a)
 elseif (LINUX)
