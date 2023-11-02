@@ -1669,11 +1669,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>c753877ff4f88ed6748c62e0a003e2d858143868</string>
+              <string>50cf091adb3e145b1b9f783415e897dc0a6dc570</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133586821</string>
+              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133676222</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1685,11 +1685,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>0556f8960b715bdeceeccf9c0cdb0ccc675e9922</string>
+              <string>5f4607c388bd9ed91bc85719696dbc1f4777e7d4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133586822</string>
+              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133676226</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1701,11 +1701,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>c26a33eab236d0a2cb37faff5aa3e06e8cab8ad9</string>
+              <string>efde67ff252f9dbe0c4b806389da4318a619f9ac</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133586823</string>
+              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133676232</string>
             </map>
             <key>name</key>
             <string>windows64</string>
