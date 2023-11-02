@@ -93,8 +93,6 @@ namespace
 
     bool g_includeKeyboardButtons = false;
 
-    // Note: SDL_JoystcikID is an S32
-    constexpr SDL_JoystickID KEYBOARD_ID = -1;
     constexpr U8 MAX_AXIS = 5;
     constexpr U8 MAX_BUTTON = 31;
 }
@@ -113,13 +111,16 @@ LLGameControl::State::State() : mButtons(0)
 bool LLGameControl::State::onButton(U8 button, bool pressed)
 {
     U32 old_buttons = mButtons;
-    if (pressed)
+    if (button <= MAX_BUTTON)
     {
-        mButtons |= (0x01 << button);
-    }
-    else
-    {
-        mButtons &= ~(0x01 << button);
+        if (pressed)
+        {
+            mButtons |= (0x01 << button);
+        }
+        else
+        {
+            mButtons &= ~(0x01 << button);
+        }
     }
     bool changed = (old_buttons != mButtons);
     return changed;
