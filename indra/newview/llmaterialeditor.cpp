@@ -38,6 +38,7 @@
 #include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llinventoryfunctions.h"
 #include "lllocalgltfmaterials.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
@@ -2022,8 +2023,49 @@ void LLMaterialEditor::loadLive()
     }
 }
 
+namespace
+{
+    // Which inventory to consult for item permissions
+    enum class ItemSource
+    {
+        // Consult the permissions of the item in the object's inventory. If
+        // the item is not present, then usage of the asset is allowed.
+        OBJECT,
+        // Consult the permissions of the item in the agent's inventory. If
+        // the item is not present, then usage of the asset is not allowed.
+        AGENT
+    };
+
+    class LLAssetIDMatchesWithPerms : public LLInventoryCollectFunctor
+    {
+    public:
+        LLAssetIDMatchesWithPerms(const LLUUID& asset_id, const std::vector<PermissionBit>& ops) : mAssetID(asset_id), mOps(ops) {}
+        virtual ~LLAssetIDMatchesWithPerms() {}
+        bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+        {
+            if (!item || item->getAssetUUID() != mAssetID)
+            {
+                return false;
+            }
+            LLPermissions item_permissions = item->getPermissions();
+            for (PermissionBit op : mOps)
+            {
+                if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    protected:
+        LLUUID mAssetID;
+        std::vector<PermissionBit> mOps;
+    };
+};
+
 // *NOTE: permissions_out includes user preferences for new item creation (LLFloaterPerms)
-bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, LLPermissions& permissions_out, LLViewerInventoryItem*& item_out)
+bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, const ItemSource item_source, LLPermissions& permissions_out, LLViewerInventoryItem*& item_out)
 {
     if (!LLMaterialEditor::capabilitiesAvailable())
     {
@@ -2056,19 +2098,45 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
         }
     }
 
-    item_out = selected_object->getInventoryItemByAsset(func.mMaterialId);
-
-    LLPermissions item_permissions;
-    if (item_out)
+    // Look for the item to base permissions off of
+    item_out = nullptr;
+    if (func.mMaterialId != LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID)
     {
-        item_permissions.set(item_out->getPermissions());
-        for (PermissionBit op : ops)
+        LLAssetIDMatchesWithPerms item_has_perms(func.mMaterialId, ops);
+        if (item_source == ItemSource::OBJECT)
         {
-            if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
+            item_out = selected_object->getInventoryItemByAsset(func.mMaterialId);
+            if (item_out && !item_has_perms(nullptr, item_out))
             {
                 return false;
             }
         }
+        else
+        {
+            llassert(item_source == ItemSource::AGENT);
+
+            LLViewerInventoryCategory::cat_array_t cats;
+            LLViewerInventoryItem::item_array_t items;
+            gInventory.collectDescendentsIf(LLUUID::null,
+                                    cats,
+                                    items,
+                                    // *NOTE: PBRPickerAgentListener will need
+                                    // to be changed if checking the trash is
+                                    // disabled
+                                    LLInventoryModel::INCLUDE_TRASH,
+                                    item_has_perms);
+            if (items.empty())
+            {
+                return false;
+            }
+            item_out = items[0];
+        }
+    }
+
+    LLPermissions item_permissions;
+    if (item_out)
+    {
+        item_permissions = item_out->getPermissions();
         // Update flags for new owner
         if (!item_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
         {
@@ -2139,7 +2207,7 @@ bool LLMaterialEditor::canModifyObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector({PERM_MODIFY}), ItemSource::OBJECT, permissions, item_out);
 }
 
 bool LLMaterialEditor::canSaveObjectsMaterial()
@@ -2147,7 +2215,7 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), ItemSource::AGENT, permissions, item_out);
 }
 
 bool LLMaterialEditor::canClipboardObjectsMaterial()
@@ -2173,7 +2241,7 @@ bool LLMaterialEditor::canClipboardObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), ItemSource::OBJECT, permissions, item_out);
 }
 
 void LLMaterialEditor::saveObjectsMaterialAs()
@@ -2181,7 +2249,7 @@ void LLMaterialEditor::saveObjectsMaterialAs()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item = nullptr;
-    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item);
+    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), ItemSource::AGENT, permissions, item);
     if (!allowed)
     {
         LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
