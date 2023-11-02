@@ -219,8 +219,8 @@ public:
 
     // For local materials, they have to keep track of where
     // they are assigned to for full updates
-    virtual void addTextureEntry(LLTextureEntry* te);
-    virtual void removeTextureEntry(LLTextureEntry* te);
+    virtual void addTextureEntry(LLTextureEntry* te) {};
+    virtual void removeTextureEntry(LLTextureEntry* te) {};
 
     // For local textures so that editor will know to track changes
     void addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID &tex_id);
@@ -229,9 +229,9 @@ public:
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
 
+    // These fields are local to viewer and are a part of local bitmap support
     typedef std::map<LLUUID, LLUUID> local_tex_map_t;
     local_tex_map_t mTrackingIdToLocalTexture;
-    std::set<LLTextureEntry*> mTextureEntires;
 
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);

@@ -343,6 +343,39 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
     return false;
 }
 
+class LLSelectedTEUpdateOverrides: public LLSelectedNodeFunctor
+{
+public:
+    LLSelectedTEUpdateOverrides(LLMaterialEditor* me) : mEditor(me) {}
+
+    virtual bool apply(LLSelectNode* nodep);
+
+    LLMaterialEditor* mEditor;
+};
+
+bool LLSelectedTEUpdateOverrides::apply(LLSelectNode* nodep)
+{
+    LLViewerObject* objectp = nodep->getObject();
+    if (!objectp)
+    {
+        return false;
+    }
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
+    for (S32 te_index = 0; te_index < num_tes; ++te_index)
+    {
+
+        LLTextureEntry* tep = objectp->getTE(te_index);
+        LLGLTFMaterial* override_mat = tep->getGLTFMaterialOverride();
+        if (mEditor->updateMaterialLocalSubscription(override_mat))
+        {
+            LLGLTFMaterial* render_mat = tep->getGLTFRenderMaterial();
+            mEditor->updateMaterialLocalSubscription(render_mat);
+        }
+    }
+
+    return true;
+}
+
 ///----------------------------------------------------------------------------
 /// Class LLMaterialEditor
 ///----------------------------------------------------------------------------
@@ -535,7 +568,7 @@ void LLMaterialEditor::onClose(bool app_quitting)
     {
         mSelectionUpdateSlot.disconnect();
     }
-    for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
+    for (mat_connection_map_t::value_type &cn : mTextureChangesUpdates)
     {
         cn.second.mConnection.disconnect();
     }
@@ -900,6 +933,45 @@ LLUUID LLMaterialEditor::getLocalTextureTrackingIdFromFlag(U32 flag)
         return found->second.mTrackingId;
     }
     return LLUUID();
+}
+
+bool LLMaterialEditor::updateMaterialLocalSubscription(LLGLTFMaterial* mat)
+{
+    if (!mat)
+    {
+        return false;
+    }
+
+    bool res = false;
+    for (mat_connection_map_t::value_type& cn : mTextureChangesUpdates)
+    {
+        LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(cn.second.mTrackingId);
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+    }
+    return res;
 }
 
 void LLMaterialEditor::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
@@ -1509,7 +1581,7 @@ void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, L
             {
                 // local materials were assigned, force load material and init tracking
                 LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(item->getAssetUUID());
-                for (mat_connection_map_t::value_type val : me->mTextureChangesUpdates)
+                for (mat_connection_map_t::value_type &val : me->mTextureChangesUpdates)
                 {
                     LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
                 }
@@ -1534,7 +1606,7 @@ void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID
         {
             // local materials were assigned, force load material and init tracking
             LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(newAssetId);
-            for (mat_connection_map_t::value_type val : me->mTextureChangesUpdates)
+            for (mat_connection_map_t::value_type &val : me->mTextureChangesUpdates)
             {
                 LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
             }
@@ -1578,7 +1650,7 @@ void LLMaterialEditor::finishSaveAs(
                 {
                     // local materials were assigned, force load material and init tracking
                     LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(item->getAssetUUID());
-                    for (mat_connection_map_t::value_type val : me->mTextureChangesUpdates)
+                    for (mat_connection_map_t::value_type &val : me->mTextureChangesUpdates)
                     {
                         LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
                     }
@@ -3087,22 +3159,9 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setAlphaMode(mat->getAlphaMode());
     setAlphaCutoff(mat->mAlphaCutoff);
 
-
-    for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
-    {
-        cn.second.mConnection.disconnect();
-    }
-    mTextureChangesUpdates.clear();
-
     if (mat->hasLocalTextures())
     {
-        for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
-        {
-            cn.second.mConnection.disconnect();
-        }
-        mTextureChangesUpdates.clear();
-
-        for (LLGLTFMaterial::local_tex_map_t::value_type val : mat->mTrackingIdToLocalTexture)
+        for (LLGLTFMaterial::local_tex_map_t::value_type &val : mat->mTrackingIdToLocalTexture)
         {
             LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(val.first);
             if (val.second != world_id)
@@ -3127,34 +3186,6 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
             }
         }
     }
-    else
-    {
-        for (mat_connection_map_t::value_type cn : mTextureChangesUpdates)
-        {
-            LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(cn.second.mTrackingId);
-            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
-            {
-                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
-                continue;
-            }
-            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
-            {
-                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
-                continue;
-            }
-            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
-            {
-                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
-                continue;
-            }
-            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
-            {
-                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
-                continue;
-            }
-            cn.second.mConnection.disconnect();
-        }
-    }
 }
 
 bool LLMaterialEditor::setFromSelection()
@@ -3173,6 +3204,8 @@ bool LLMaterialEditor::setFromSelection()
         const LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
         const bool allow_modify = !item || canModify(selected_object, item);
         setEnableEditing(allow_modify);
+
+        // todo: apply local texture data to all materials in selection
     }
     else
     {
@@ -3195,6 +3228,11 @@ bool LLMaterialEditor::setFromSelection()
         // Memorize selection data for filtering further updates
         mOverrideObjectId = func.mObjectId;
         mOverrideObjectTE = func.mObjectTE;
+
+        // Ovverdired might have been updated,
+        // refresh state of local textures in overrides
+        LLSelectedTEUpdateOverrides local_tex_func(this);
+        selected_objects->applyToNodes(&local_tex_func);
     }
 
     return func.mMaterial.notNull();

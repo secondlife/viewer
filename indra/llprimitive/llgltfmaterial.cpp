@@ -607,6 +607,8 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     }
 
     mTrackingIdToLocalTexture.insert(override_mat.mTrackingIdToLocalTexture.begin(), override_mat.mTrackingIdToLocalTexture.begin());
+
+    updateTextureTracking();
 }
 
 void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data)
@@ -771,15 +773,6 @@ LLUUID LLGLTFMaterial::getHash() const
     return hash;
 }
 
-void LLGLTFMaterial::addTextureEntry(LLTextureEntry* te)
-{
-    mTextureEntires.insert(te);
-}
-void LLGLTFMaterial::removeTextureEntry(LLTextureEntry* te)
-{
-    mTextureEntires.erase(te);
-}
-
 void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mTrackingIdToLocalTexture[tracking_id] = tex_id;
@@ -818,4 +811,5 @@ bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID
 void LLGLTFMaterial::updateTextureTracking()
 {
     // setTEGLTFMaterialOverride is responsible for tracking
+    // for material overrides editor will set it
 }

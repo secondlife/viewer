@@ -119,15 +119,6 @@ S32 LLLocalGLTFMaterial::getIndexInFile() const
     return mMaterialIndex;
 }
 
-void LLLocalGLTFMaterial::addTextureEntry(LLTextureEntry* te)
-{
-    mTextureEntires.insert(te);
-}
-void LLLocalGLTFMaterial::removeTextureEntry(LLTextureEntry* te)
-{
-    mTextureEntires.erase(te);
-}
-
 /* update functions */
 bool LLLocalGLTFMaterial::updateSelf()
 {

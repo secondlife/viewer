@@ -293,14 +293,28 @@ void LLLocalBitmap::addGLTFMaterial(LLGLTFMaterial* mat)
     {
         return;
     }
-    for (mat_list_t::value_type ptr : mGLTFMaterialWithLocalTextures)
+
+    mat_list_t::iterator end = mGLTFMaterialWithLocalTextures.end();
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
     {
-        if (ptr.get() != mat)
+        if (it->get() == mat)
         {
-            mat->addLocalTextureTracking(getTrackingID(), getWorldID());
-            mGLTFMaterialWithLocalTextures.push_back(mat);
+            return;
+        }
+
+        if ((*it)->getNumRefs() == 1)
+        {
+            it = mGLTFMaterialWithLocalTextures.erase(it);
+            end = mGLTFMaterialWithLocalTextures.end();
+        }
+        else
+        {
+            it++;
         }
     }
+
+    mat->addLocalTextureTracking(getTrackingID(), getWorldID());
+    mGLTFMaterialWithLocalTextures.push_back(mat);
 }
 
 bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
@@ -615,31 +629,41 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
 {
     // Might be a better idea to hold this in LLGLTFMaterialList
-    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != mGLTFMaterialWithLocalTextures.end();)
+    mat_list_t::iterator end = mGLTFMaterialWithLocalTextures.end();
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
     {
-        if ((*it)->replaceLocalTexture(mTrackingID, old_id, new_id))
+        if ((*it)->getNumRefs() == 1)
         {
-            for (LLTextureEntry* entry : (*it)->mTextureEntires)
+            // render and override materials are often recreated,
+            // clean up any remains
+            it = mGLTFMaterialWithLocalTextures.erase(it);
+            end = mGLTFMaterialWithLocalTextures.end();
+        }
+        else if ((*it)->replaceLocalTexture(mTrackingID, old_id, new_id))
+        {
+            LLFetchedGLTFMaterial* fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
+            if (fetched_mat)
             {
-                // Normally a change in applied material id is supposed to
-                // drop overrides thus reset material, but local materials
-                // currently reuse their existing asset id, and purpose is
-                // to preview how material will work in-world, overrides
-                // included, so do an override to render update instead.
-                LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
-                if (override_mat)
+                for (LLTextureEntry* entry : fetched_mat->mTextureEntires)
                 {
-                    // do not create a new material, reuse existing pointer
-                    LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
-                    if (render_mat)
+                    // Normally a change in applied material id is supposed to
+                    // drop overrides thus reset material, but local materials
+                    // currently reuse their existing asset id, and purpose is
+                    // to preview how material will work in-world, overrides
+                    // included, so do an override to render update instead.
+                    LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
+                    if (override_mat)
                     {
-                        llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
-                        LLFetchedGLTFMaterial *fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
-                        if (fetched_mat)
+                        // do not create a new material, reuse existing pointer
+                        LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
+                        if (render_mat)
                         {
-                            *render_mat = *fetched_mat;
+                            llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
+                            {
+                                *render_mat = *fetched_mat;
+                            }
+                            render_mat->applyOverride(*override_mat);
                         }
-                        render_mat->applyOverride(*override_mat);
                     }
                 }
             }
@@ -650,6 +674,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
             // Matching id not found, no longer in use
             // material would clean itself, remove from the list
             it = mGLTFMaterialWithLocalTextures.erase(it);
+            end = mGLTFMaterialWithLocalTextures.end();
         }
     }
 }
