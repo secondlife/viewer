@@ -1020,8 +1020,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 ):
                     self.path2basename(relpkgdir, libfile)
 
-                # TODO: copy SDL2 libs for MacOS
-
                 # Fmod studio dylibs (vary based on configuration)
                 if self.args['fmodstudio'] == 'ON':
                     if self.args['buildtype'].lower() == 'debug':
