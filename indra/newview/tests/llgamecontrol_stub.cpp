@@ -29,27 +29,27 @@
 #include "SDL2/SDL_events.h"
 
 
-void onJoyDeviceAdded(const SDL_Event& event)
+void LLGameControl::addKeyButtonMap(U16 key, U8 button)
 {
 }
 
-void onJoyDeviceRemoved(const SDL_Event& event)
+void LLGameControl::removeKeyButtonMap(U16 key)
 {
 }
 
-void onControllerDeviceAdded(const SDL_Event& event)
+void LLGameControl::addKeyAxisMap(U16 key, U8 axis, bool positive)
 {
 }
 
-void onControllerDeviceRemoved(const SDL_Event& event)
+void LLGameControl::removeKeyAxisMap(U16 key)
 {
 }
 
-LLGameControl::~LLGameControl()
+void LLGameControl::onKeyDown(U16 key, U32 mask)
 {
 }
 
-void LLGameControl::onButton(U8 button, bool pressed)
+void LLGameControl::onKeyUp(U16 key, U32 mask)
 {
 }
 
