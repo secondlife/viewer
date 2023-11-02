@@ -232,6 +232,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
     U32 getRevertedChangesFlags() { return mRevertedChanges; }
     LLUUID getLocalTextureTrackingIdFromFlag(U32 flag);
+    bool updateMaterialLocalSubscription(LLGLTFMaterial* mat);
 
     static bool capabilitiesAvailable();
 
