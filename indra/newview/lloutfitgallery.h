@@ -195,16 +195,13 @@ public:
     
     friend class LLOutfitGallery;
     LLOutfitGalleryContextMenu(LLOutfitListBase* outfit_list)
-    : LLOutfitContextMenu(outfit_list),
-    mOutfitList(outfit_list){}
+    : LLOutfitContextMenu(outfit_list){}
 
 protected:
     /* virtual */ LLContextMenu* createMenu();
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
     void onCreate(const LLSD& data);
-private:
-    LLOutfitListBase*	mOutfitList;
 };
 
 
