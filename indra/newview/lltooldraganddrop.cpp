@@ -961,7 +961,9 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 		LLNotificationsUtil::add("ErrorMessage", args);
 		return FALSE;
 	}
-	if (hit_obj->getInventoryItemByAsset(item->getAssetUUID()))
+    // Make sure to verify both id and type since 'null'
+    // is a shared default for some asset types.
+    if (hit_obj->getInventoryItemByAsset(item->getAssetUUID(), item->getType()))
 	{
 		// if the asset is already in the object's inventory 
 		// then it can always be added to a side.
