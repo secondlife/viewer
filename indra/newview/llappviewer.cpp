@@ -1359,13 +1359,13 @@ bool LLAppViewer::frame()
 // static
 bool packGameControlInput(LLMessageSystem* msg)
 {
-    if (!LLGameControl::hasInput())
+    if (! LLGameControl::computeFinalInputAndCheckForChanges())
     {
         return false;
     }
     if (!gSavedSettings.getBOOL("EnableGameControlInput"))
     {
-        LLGameControl::clearInput();
+        LLGameControl::clearAllInput();
         return false;
     }
 
@@ -1381,21 +1381,29 @@ bool packGameControlInput(LLMessageSystem* msg)
     {
         if (state.mAxes[i] != state.mPrevAxes[i])
         {
-            // only pack an axis if it differes from previously packed value
+            // only pack an axis if it differs from previously packed value
             msg->nextBlockFast(_PREHASH_AxisData);
             msg->addU8Fast(_PREHASH_Index, i);
             msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
         }
     }
 
-    const std::vector<U8>& buttons = state.mPressedButtons;
-    if (!buttons.empty())
+    U32 button_flags = state.mButtons;
+    if (button_flags > 0)
     {
+        std::vector<U8> buttons;
+        for (U8 i = 0; i < 32; i++)
+        {
+            if (button_flags & (0x1 << i))
+            {
+                buttons.push_back(i);
+            }
+        }
         msg->nextBlockFast(_PREHASH_ButtonData);
         msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
     }
 
-    LLGameControl::clearInput();
+    LLGameControl::updateResendPeriod();
     return true;
 }
 

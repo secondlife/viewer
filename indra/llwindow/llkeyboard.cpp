@@ -163,8 +163,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
-    // TODO: clear any mapped game controller buttons
-    //LLGameControl::clearAllButtons();
+    LLGameControl::clearAllKeys();
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
@@ -195,7 +194,6 @@ void LLKeyboard::resetKeys()
     {
         mKeyRepeated[i] = false;
     }
-    LLGameControl::clearAllButtons();
 }
 
 
@@ -293,6 +291,10 @@ BOOL LLKeyboard::handleKeyDown(const U16 key, const U32 mask)
 	{
 		handled = handleTranslatedKeyDown(translated_key, translated_mask);
 	}
+    if (!handled)
+    {
+        LLGameControl::onKeyDown(translated_key, translated_mask);
+    }
 
 	return handled;
 }
@@ -308,6 +310,10 @@ BOOL LLKeyboard::handleKeyUp(const U16 key, const U32 mask)
 	{
 		handled = handleTranslatedKeyUp(translated_key, translated_mask);
 	}
+    if (!handled)
+    {
+        LLGameControl::onKeyUp(translated_key, translated_mask);
+    }
 
 	return handled;
 }

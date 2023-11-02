@@ -46,27 +46,41 @@ public:
     class State
     {
     public:
-        State()
-        {
-            constexpr size_t NUM_AXES = 16;
-            mAxes.resize(NUM_AXES, 0);
-            mPrevAxes.resize(NUM_AXES, 0);
-        }
+        State();
+        bool onButton(U8 button, bool pressed);
         std::vector<S16> mAxes; // [ -32768, 32767 ]
-        std::vector<S16> mPrevAxes;
-        std::vector<U8> mPressedButtons;
+        std::vector<S16> mPrevAxes; // value in last outgoing packet
+        U32 mButtons;
     };
 
-    static void onButton(U8 button, bool pressed);
-    static void clearAllButtons();
     static bool isInitialized();
 	static void init();
 	static void terminate();
+
+    static void addKeyButtonMap(U16 key, U8 button);
+    static void removeKeyButtonMap(U16 key);
+    static void addKeyAxisMap(U16 key, U8 axis, bool positive);
+    static void removeKeyAxisMap(U16 key);
+
+    static void onKeyDown(U16 key, U32 mask);
+    static void onKeyUp(U16 key, U32 mask);
+
+    // returns 'true' if GameControlInput message needs to go out,
+    // which will be the case for new data or resend. Call this right
+    // before deciding to put a GameControlInput packet on the wire
+    // or not.
+    static bool computeFinalInputAndCheckForChanges();
+
+    static void clearAllInput();
+    static void clearAllKeys();
+
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
+
     static void setIncludeKeyboardButtons(bool include);
     static bool getIncludeKeyboardButtons();
-    static bool hasInput();
-    static void clearInput();
+
+    // call this after putting a GameControlInput packet on the wire
+    static void updateResendPeriod();
 };
 
