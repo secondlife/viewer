@@ -794,6 +794,10 @@ bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID
             mTextureId[i] = new_id;
             res = true;
         }
+        else if (mTextureId[i] == new_id)
+        {
+            res = true;
+        }
     }
 
     if (res)

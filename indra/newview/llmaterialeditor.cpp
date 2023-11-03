@@ -3231,6 +3231,10 @@ bool LLMaterialEditor::setFromSelection()
 
         // Ovverdired might have been updated,
         // refresh state of local textures in overrides
+        // 
+        // Todo: this probably shouldn't be here, but in localbitmap,
+        // subscried to all material overrides if we want copied
+        // objects to get properly updated as well
         LLSelectedTEUpdateOverrides local_tex_func(this);
         selected_objects->applyToNodes(&local_tex_func);
     }

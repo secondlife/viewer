@@ -641,33 +641,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
         }
         else if ((*it)->replaceLocalTexture(mTrackingID, old_id, new_id))
         {
-            LLFetchedGLTFMaterial* fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
-            if (fetched_mat)
-            {
-                for (LLTextureEntry* entry : fetched_mat->mTextureEntires)
-                {
-                    // Normally a change in applied material id is supposed to
-                    // drop overrides thus reset material, but local materials
-                    // currently reuse their existing asset id, and purpose is
-                    // to preview how material will work in-world, overrides
-                    // included, so do an override to render update instead.
-                    LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
-                    if (override_mat)
-                    {
-                        // do not create a new material, reuse existing pointer
-                        LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
-                        if (render_mat)
-                        {
-                            llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
-                            {
-                                *render_mat = *fetched_mat;
-                            }
-                            render_mat->applyOverride(*override_mat);
-                        }
-                    }
-                }
-            }
-            ++it;
+            it++;
         }
         else
         {
@@ -676,6 +650,40 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
             it = mGLTFMaterialWithLocalTextures.erase(it);
             end = mGLTFMaterialWithLocalTextures.end();
         }
+    }
+
+    // Render material consists of base and override materials, make sure replaceLocalTexture
+    // gets called for base and override before applyOverride
+    end = mGLTFMaterialWithLocalTextures.end();
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    {
+        LLFetchedGLTFMaterial* fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
+        if (fetched_mat)
+        {
+            for (LLTextureEntry* entry : fetched_mat->mTextureEntires)
+            {
+                // Normally a change in applied material id is supposed to
+                // drop overrides thus reset material, but local materials
+                // currently reuse their existing asset id, and purpose is
+                // to preview how material will work in-world, overrides
+                // included, so do an override to render update instead.
+                LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
+                if (override_mat)
+                {
+                    // do not create a new material, reuse existing pointer
+                    LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
+                    if (render_mat)
+                    {
+                        llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
+                        {
+                            *render_mat = *fetched_mat;
+                        }
+                        render_mat->applyOverride(*override_mat);
+                    }
+                }
+            }
+        }
+        ++it;
     }
 }
 
