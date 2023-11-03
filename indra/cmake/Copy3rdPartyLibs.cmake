@@ -188,13 +188,8 @@ elseif(DARWIN)
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-<<<<<<< HEAD
-=======
-        liburiparser.dylib
-        liburiparser.1.dylib
-        liburiparser.1.0.27.dylib
         libSDL2.dylib
->>>>>>> 4cfc4209be (stage 3rd party lib SDL2 by default, all platforms)
+        libSDL2-2.0.dylib
        )
 
     if (TARGET ll::openal)
