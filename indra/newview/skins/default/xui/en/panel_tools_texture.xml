@@ -152,7 +152,7 @@
              top_pad="5"
              width="90">
                 <combo_box.item
-                 label="Blinn-Phong"
+                 label="Textures"
                  name="Materials"
                  value="Materials" />
                 <combo_box.item

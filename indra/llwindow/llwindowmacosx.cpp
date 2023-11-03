@@ -1962,10 +1962,12 @@ public:
 void* LLWindowMacOSX::createSharedContext()
 {
     sharedContext* sc = new sharedContext();
-    CGLError err = CGLCreateContext(mPixelFormat, mContext, &(sc->mContext));
-    llassert(err == kCGLNoError);
-
-    CGLEnable(mContext, kCGLCEMPEngine);
+    CGLCreateContext(mPixelFormat, mContext, &(sc->mContext));
+    
+    if (sUseMultGL)
+    {
+        CGLEnable(mContext, kCGLCEMPEngine);
+    }
 
     return (void *)sc;
 }
