@@ -183,6 +183,14 @@ bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const
         res = true;
     }
 
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (mTextureId[i] == new_id)
+        {
+            res = true;
+        }
+    }
+
     if (res)
     {
         mTrackingIdToLocalTexture[tracking_id] = new_id;
