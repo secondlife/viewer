@@ -1968,13 +1968,24 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     // creation history when there's no material item present. In that case,
     // the agent who saved the material will be considered the creator.
     // -Cosmic,2023-08-07
-    if (item_out)
+    if (item_source == ItemSource::AGENT)
     {
+        llassert(item_out);
+
         permissions_out.set(item_permissions);
     }
     else
     {
-        permissions_out.set(object_permissions);
+        llassert(item_source == ItemSource::OBJECT);
+
+        if (item_out)
+        {
+            permissions_out.set(item_permissions);
+        }
+        else
+        {
+            permissions_out.set(object_permissions);
+        }
     }
     permissions_out.accumulate(floater_perm);
 
