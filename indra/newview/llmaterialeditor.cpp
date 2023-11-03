@@ -2123,63 +2123,9 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
     }
     else
     {
-        if (item_id.notNull() && object_id.notNull())
-        {
-            llassert(false); // *TODO: Remove this code path if unused
-            // Copy existing item from object inventory, and create new composite asset on top of it
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback, _1, _2, permissions, object_id, item_id));
-        }
-        else
-        {
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
-        }
+        llassert(object_id.isNull()); // Case for copying item from object inventory is no longer implemented
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
     }
-}
-
-// static
-void LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (0 != option)
-    {
-        return;
-    }
-
-    LLSD asset;
-    asset["version"] = LLGLTFMaterial::ASSET_VERSION;
-    asset["type"] = LLGLTFMaterial::ASSET_TYPE;
-    // This is the string serialized from LLGLTFMaterial::asJSON
-    asset["data"] = notification["payload"]["data"];
-
-    std::ostringstream str;
-    LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
-
-    LLViewerObject* object = gObjectList.findObject(object_id);
-    if (!object)
-    {
-        return;
-    }
-    const LLInventoryItem* item = object->getInventoryItem(item_id);
-    if (!item)
-    {
-        return;
-    }
-
-    std::string new_name = response["message"].asString();
-    LLInventoryObject::correctInventoryName(new_name);
-    if (new_name.empty())
-    {
-        return;
-    }
-
-    const LLUUID destination_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
-
-    LLPointer<LLInventoryCallback> cb = new LLObjectsMaterialItemCallback(permissions, str.str(), new_name);
-    // NOTE: This should be an item copy. Saving a material to an inventory should be disabled when the associated material is no-copy.
-    move_or_copy_inventory_from_object(destination_id,
-                                       object_id,
-                                       item_id,
-                                       cb);
 }
 
 // static
