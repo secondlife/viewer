@@ -3323,7 +3323,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 									LLInventoryModel::changed_items_t& cats_to_update,
 									bool &is_cache_obsolete)
 {
-    LL_PROFILE_ZONE_NAMED_COLOR("inventory load from file", 0xFF1111);
+    LL_PROFILE_ZONE_NAMED("inventory load from file");
 
 	if(filename.empty())
 	{
