@@ -1852,6 +1852,10 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     llassert(func.mIsOverride);
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
 
+    if (item_source == ItemSource::AGENT)
+    {
+        func.mObjectId = LLUUID::null;
+    }
     LLViewerObject* selected_object = func.mObject;
     if (!selected_object)
     {
@@ -1879,11 +1883,12 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
         LLAssetIDMatchesWithPerms item_has_perms(func.mMaterialId, ops);
         if (item_source == ItemSource::OBJECT)
         {
-            item_out = selected_object->getInventoryItemByAsset(func.mMaterialId);
-            if (item_out && !item_has_perms(nullptr, item_out))
+            LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
+            if (item && !item_has_perms(nullptr, item))
             {
                 return false;
             }
+            item_out = item;
         }
         else
         {
@@ -2118,8 +2123,9 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
     }
     else
     {
-        if (item_id.notNull())
+        if (item_id.notNull() && object_id.notNull())
         {
+            llassert(false); // *TODO: Remove this code path if unused
             // Copy existing item from object inventory, and create new composite asset on top of it
             LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback, _1, _2, permissions, object_id, item_id));
         }
