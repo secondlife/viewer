@@ -190,6 +190,7 @@ elseif(DARWIN)
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib
         libSDL2.dylib
+        libSDL2-2.0.dylib
        )
 
     if (TARGET ll::openal)
