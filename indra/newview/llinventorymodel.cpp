@@ -3342,7 +3342,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 
 	is_cache_obsolete = true; // Obsolete until proven current
 
-	U64 lines_count = 0U;
+	//U64 lines_count = 0U;
 	std::string line;
 	LLPointer<LLSDParser> parser = new LLSDNotationParser();
 	while (std::getline(file, line)) 
@@ -3408,12 +3408,13 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			}	
 		}
 
-		static constexpr U64 BATCH_SIZE = 512U;
-		if ((++lines_count % BATCH_SIZE) == 0)
-		{
-			// SL-19968 - make sure message system code gets a chance to run every so often
-			pump_idle_startup_network();
-		}
+//      TODO(brad) - figure out how to reenable this without breaking everything else
+//		static constexpr U64 BATCH_SIZE = 512U;
+//		if ((++lines_count % BATCH_SIZE) == 0)
+//		{
+//			// SL-19968 - make sure message system code gets a chance to run every so often
+//			pump_idle_startup_network();
+//		}
 	}
 
 	file.close();
