@@ -217,6 +217,8 @@ public:
 
 	void sendClassifiedDelete(const LLUUID& classified_id);
 
+	bool isHideAgeSupportedByServer() { return mIsHideAgeSupportedByServer; }
+
 	// Returns translated, human readable string for account type, such
 	// as "Resident" or "Linden Employee".  Used for profiles, inspectors.
 	static std::string accountType(const LLAvatarData* avatar_data);
@@ -274,6 +276,9 @@ protected:
 	// Map avatar_id+request_type -> U32 timestamp in seconds
 	typedef std::map< std::pair<LLUUID, EAvatarProcessorType>, U32> timestamp_map_t;
 	timestamp_map_t mRequestTimestamps;
+
+	// Is returned by isHideAgeSupportedByServer()
+	bool mIsHideAgeSupportedByServer { false };
 };
 
 #endif  // LL_LLAVATARPROPERTIESPROCESSOR_H
