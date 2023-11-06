@@ -264,6 +264,8 @@ bool LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(const LLAvatarData* avata
 // static
 void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_url, LLUUID avatar_id, EAvatarProcessorType type)
 {
+    LLAvatarPropertiesProcessor& inst = instance();
+
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAvatarPropertiesCoro", httpPolicy));
@@ -278,7 +280,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
     LLSD result = httpAdapter->getAndSuspend(httpRequest, finalUrl, httpOpts, httpHeaders);
 
     // Response is being processed, no longer pending is required
-    getInstance()->removePendingRequest(avatar_id, type);
+    inst.removePendingRequest(avatar_id, type);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -308,7 +310,8 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
     avatar_data.born_on = result["member_since"].asDate();
     // TODO: SL-20163 Remove the "has" check when SRV-684 is done
     // and the field "hide_age" is included to the http response
-    avatar_data.hide_age = !result.has("hide_age") || result["hide_age"].asBoolean();
+    inst.mIsHideAgeSupportedByServer = result.has("hide_age");
+    avatar_data.hide_age = inst.isHideAgeSupportedByServer() && result["hide_age"].asBoolean();
     avatar_data.profile_url = getProfileURL(avatar_id.asString());
     avatar_data.customer_type = result["customer_type"].asString();
     avatar_data.notes = result["notes"].asString();
@@ -364,7 +367,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         avatar_data.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
     }
 
-    getInstance()->notifyObservers(avatar_id, &avatar_data, type);
+    inst.notifyObservers(avatar_id, &avatar_data, type);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**)
@@ -384,7 +387,6 @@ void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSy
 	msg->getU32Fast(	_PREHASH_PropertiesData,	_PREHASH_Flags,			avatar_data.flags);
 
 	LLDateUtil::dateFromPDTString(avatar_data.born_on, birth_date);
-	// Since field 'hide_age' is not supported by msg system we'd better hide the age here
 	avatar_data.caption_index = 0;
 
 	S32 charter_member_size = 0;

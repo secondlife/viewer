@@ -710,7 +710,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
-    mHideAgeCombo         = getChild<LLComboBox>("hide_age");
+    mHideAgeCombo           = getChild<LLComboBox>("hide_age");
     mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
@@ -1173,20 +1173,22 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
         userAgeCtrl->setValue(register_date);
     }
 
+    BOOL showHideAgeCombo = FALSE;
     if (getSelfProfile())
     {
-        F64 birth = avatar_data->born_on.secondsSinceEpoch();
-        F64 now = LLDate::now().secondsSinceEpoch();
-        if (now - birth > 365 * 24 * 60 * 60)
+        if (LLAvatarPropertiesProcessor::getInstance()->isHideAgeSupportedByServer())
         {
-            mHideAge = avatar_data->hide_age;
-            mHideAgeCombo->setValue(mHideAge ? TRUE : FALSE);
-        }
-        else
-        {
-            mHideAgeCombo->setVisible(FALSE);
+            F64 birth = avatar_data->born_on.secondsSinceEpoch();
+            F64 now = LLDate::now().secondsSinceEpoch();
+            if (now - birth > 365 * 24 * 60 * 60)
+            {
+                mHideAge = avatar_data->hide_age;
+                mHideAgeCombo->setValue(mHideAge ? TRUE : FALSE);
+                showHideAgeCombo = TRUE;
+            }
         }
     }
+    mHideAgeCombo->setVisible(showHideAgeCombo);
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
