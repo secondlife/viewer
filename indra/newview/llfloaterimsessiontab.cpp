@@ -264,7 +264,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mEmojiRecentPanel = getChild<LLLayoutPanel>("emoji_recent_layout_panel");
 	mEmojiRecentPanel->setVisible(false);
 
-	mEmojiRecentEmptyText = getChildView("emoji_recent_empty_text");
+	mEmojiRecentEmptyText = getChild<LLTextBox>("emoji_recent_empty_text");
+	mEmojiRecentEmptyText->setToolTip(mEmojiRecentEmptyText->getText());
 	mEmojiRecentEmptyText->setVisible(false);
 
 	mEmojiRecentIconsCtrl = getChild<LLPanelEmojiComplete>("emoji_recent_icons_ctrl");

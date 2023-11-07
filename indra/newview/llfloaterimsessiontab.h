@@ -172,7 +172,7 @@ protected:
 	LLLayoutPanel* mToolbarPanel;
 	LLLayoutPanel* mInputButtonPanel;
 	LLLayoutPanel* mEmojiRecentPanel;
-	LLView* mEmojiRecentEmptyText;
+	LLTextBox* mEmojiRecentEmptyText;
 	LLPanelEmojiComplete* mEmojiRecentIconsCtrl;
 	LLParticipantList* getParticipantList();
 	conversations_widgets_map mConversationsWidgets;
