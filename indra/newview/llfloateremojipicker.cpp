@@ -399,6 +399,13 @@ void LLFloaterEmojiPicker::moveGroups()
     mBadge->setRect(rect);
 }
 
+void LLFloaterEmojiPicker::showPreview(bool show)
+{
+    mPreview->setEmoji(nullptr);
+    mDummy->setVisible(show ? FALSE : TRUE);
+    mPreview->setVisible(show ? TRUE : FALSE);
+}
+
 void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
 {
     mRecentGridWidth = mEmojiScroll->getRect().getWidth();
@@ -423,6 +430,9 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
 
     mRecentMaxIcons = maxIcons;
 
+    mFocusedIconRow = 0;
+    mFocusedIconCol = 0;
+    mFocusedIcon = nullptr;
     mHoveredIcon = nullptr;
     mEmojiGrid->clearPanels();
     mPreview->setEmoji(nullptr);
@@ -599,15 +609,17 @@ void LLFloaterEmojiPicker::onFilterChanged()
 
 void LLFloaterEmojiPicker::onGridMouseEnter()
 {
-    mDummy->setVisible(FALSE);
-    mPreview->setEmoji(nullptr);
-    mPreview->setVisible(TRUE);
+    LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+    if (focus == mEmojiGrid)
+    {
+        exitArrowMode();
+    }
+    showPreview(true);
 }
 
 void LLFloaterEmojiPicker::onGridMouseLeave()
 {
-    mPreview->setVisible(FALSE);
-    mDummy->setVisible(TRUE);
+    showPreview(false);
 }
 
 void LLFloaterEmojiPicker::onGroupButtonMouseEnter(LLUICtrl* ctrl)
@@ -630,6 +642,13 @@ void LLFloaterEmojiPicker::onEmojiMouseEnter(LLUICtrl* ctrl)
 {
     if (ctrl)
     {
+        LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+        if (focus == mEmojiGrid)
+        {
+            exitArrowMode();
+            showPreview(true);
+        }
+
         if (mHoveredIcon && mHoveredIcon != ctrl)
         {
             unselectGridIcon(mHoveredIcon);
@@ -679,6 +698,113 @@ void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
     }
 }
 
+bool LLFloaterEmojiPicker::enterArrowMode()
+{
+    S32 rowCount = mEmojiGrid->getPanelList().size();
+    if (rowCount)
+    {
+        mFocusedIconRow = -1;
+        mFocusedIconCol = 0;
+        if (moveFocusedIconDown())
+        {
+            showPreview(true);
+            mEmojiScroll->goToTop();
+            mEmojiGrid->setFocus(TRUE);
+            return true;
+        }
+    }
+    return false;
+}
+
+void LLFloaterEmojiPicker::exitArrowMode()
+{
+    if (mFocusedIcon)
+    {
+        unselectGridIcon(mFocusedIcon);
+        mFocusedIcon = nullptr;
+    }
+
+    showPreview(false);
+    mEmojiScroll->goToTop();
+    mFocusedIconRow = mFocusedIconCol = 0;
+    mFilter->setFocus(TRUE);
+}
+
+void LLFloaterEmojiPicker::selectFocusedIcon()
+{
+    if (mHoveredIcon)
+    {
+        unselectGridIcon(mHoveredIcon);
+    }
+
+    if (mFocusedIcon)
+    {
+        unselectGridIcon(mFocusedIcon);
+    }
+
+    // Both mFocusedIconRow and mFocusedIconCol should be already verified
+    LLEmojiGridRow* row = (LLEmojiGridRow*)mEmojiGrid->getPanelList()[mFocusedIconRow];
+    mFocusedIcon = row->mList->getPanelList()[mFocusedIconCol];
+    selectGridIcon(mFocusedIcon);
+}
+
+bool LLFloaterEmojiPicker::moveFocusedIconUp()
+{
+    for (S32 i = mFocusedIconRow - 1; i >= 0; --i)
+    {
+        LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
+        LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
+        if (row && row->mList->getPanelList().size() > mFocusedIconCol)
+        {
+            mEmojiScroll->scrollToShowRect(row->getBoundingRect());
+            mFocusedIconRow = i;
+            selectFocusedIcon();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LLFloaterEmojiPicker::moveFocusedIconDown()
+{
+    S32 rowCount = mEmojiGrid->getPanelList().size();
+    for (S32 i = mFocusedIconRow + 1; i < rowCount; ++i)
+    {
+        LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
+        LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
+        if (row && row->mList->getPanelList().size() > mFocusedIconCol)
+        {
+            mEmojiScroll->scrollToShowRect(row->getBoundingRect());
+            mFocusedIconRow = i;
+            selectFocusedIcon();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LLFloaterEmojiPicker::moveFocusedIconLeft()
+{
+    if (mFocusedIconCol <= 0)
+        return false;
+
+    mFocusedIconCol--;
+    selectFocusedIcon();
+    return true;
+}
+
+bool LLFloaterEmojiPicker::moveFocusedIconRight()
+{
+    LLEmojiGridRow* row = (LLEmojiGridRow*)mEmojiGrid->getPanelList()[mFocusedIconRow];
+    S32 colCount = row->mList->getPanelList().size();
+    if (mFocusedIconCol >= colCount - 1)
+        return false;
+
+    mFocusedIconCol++;
+    selectFocusedIcon();
+    return true;
+}
+
 void LLFloaterEmojiPicker::selectGridIcon(LLUICtrl* ctrl)
 {
     if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
@@ -695,6 +821,64 @@ void LLFloaterEmojiPicker::unselectGridIcon(LLUICtrl* ctrl)
         icon->setBackgroundVisible(FALSE);
         mPreview->setEmoji(nullptr);
     }
+}
+
+// virtual
+BOOL LLFloaterEmojiPicker::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+{
+    if (mask == MASK_NONE)
+    {
+        LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+        if (focus == mEmojiGrid)
+        {
+            if (key == KEY_RETURN)
+            {
+                if (mFocusedIcon)
+                {
+                    onEmojiMouseDown(mFocusedIcon);
+                    onEmojiMouseUp(mFocusedIcon);
+                    closeFloater();
+                    return TRUE;
+                }
+            }
+            else if (key == KEY_TAB)
+            {
+                exitArrowMode();
+                return TRUE;
+            }
+            else if (key == KEY_UP)
+            {
+                if (!moveFocusedIconUp())
+                    exitArrowMode();
+                return TRUE;
+            }
+            else if (key == KEY_DOWN)
+            {
+                if (moveFocusedIconDown())
+                    return TRUE;
+            }
+            else if (key == KEY_LEFT)
+            {
+                if (moveFocusedIconLeft())
+                    return TRUE;
+            }
+            else if (key == KEY_RIGHT)
+            {
+                if (moveFocusedIconRight())
+                    return TRUE;
+            }
+        }
+        else // if (focus != mEmojiGrid)
+        {
+            if (key == KEY_DOWN)
+            {
+                if (enterArrowMode())
+                    return TRUE;
+            }
+        }
+    }
+
+    return super::handleKey(key, mask, called_from_parent);
 }
 
 // virtual

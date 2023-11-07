@@ -25,6 +25,7 @@
       name="EmojiGridContainer"
       layout="topleft"
       follows="all"
+      ignore_arrow_keys="true"
       top="50"
       left="0"
       height="300"

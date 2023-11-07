@@ -3054,6 +3054,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 					case KEY_PAGE_UP:
 					case KEY_PAGE_DOWN:
 					case KEY_HOME:
+					case KEY_END:
 						// when chatbar is empty or ArrowKeysAlwaysMove set,
 						// pass arrow keys on to avatar...
 						return FALSE;
