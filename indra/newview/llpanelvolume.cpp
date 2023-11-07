@@ -746,6 +746,21 @@ void LLPanelVolume::sendIsLight()
 	LL_INFOS() << "update light sent" << LL_ENDL;
 }
 
+void notify_cant_select_reflection_probe()
+{
+    static bool show_notification = true;
+    if (show_notification)
+    {
+        // show only once per session if not ignored
+        show_notification = false;
+        if (!gSavedSettings.getBOOL("SelectReflectionProbes"))
+        {
+            LLNotificationsUtil::add("CantSelectReflectionProbe");
+        }
+        // else: user used the setting, don't show again this session
+    }
+}
+
 void LLPanelVolume::sendIsReflectionProbe()
 {
     LLViewerObject* objectp = mObject;
@@ -764,6 +779,7 @@ void LLPanelVolume::sendIsReflectionProbe()
     }
     else
     {
+        notify_cant_select_reflection_probe();
         volobjp->setIsReflectionProbe(value);
     }
 }
@@ -780,6 +796,7 @@ void LLPanelVolume::doSendIsReflectionProbe(const LLSD & notification, const LLS
         }
         LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
+        notify_cant_select_reflection_probe();
         volobjp->setIsReflectionProbe(true);
 
         { // has become a reflection probe, slam to a 10m sphere and pop up a message
