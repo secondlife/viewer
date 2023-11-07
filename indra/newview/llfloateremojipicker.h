@@ -63,6 +63,7 @@ public:
 private:
     void fillGroups();
     void moveGroups();
+    void showPreview(bool show);
     void fillEmojis(bool fromResize = false);
 
     void onGroupButtonClick(LLUICtrl* ctrl);
@@ -76,9 +77,18 @@ private:
     void onEmojiMouseDown(LLUICtrl* ctrl);
     void onEmojiMouseUp(LLUICtrl* ctrl);
 
+    bool enterArrowMode();
+    void exitArrowMode();
+    void selectFocusedIcon();
+    bool moveFocusedIconUp();
+    bool moveFocusedIconDown();
+    bool moveFocusedIconLeft();
+    bool moveFocusedIconRight();
+
     void selectGridIcon(LLUICtrl* ctrl);
     void unselectGridIcon(LLUICtrl* ctrl);
 
+    virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
     virtual BOOL handleKeyHere(KEY key, MASK mask) override;
 
     class LLPanel* mGroups { nullptr };
@@ -97,6 +107,9 @@ private:
     S32 mRecentBadgeWidth { 0 };
     S32 mRecentGridWidth { 0 };
     S32 mRecentMaxIcons { 0 };
+    S32 mFocusedIconRow { 0 };
+    S32 mFocusedIconCol { 0 };
+    LLUICtrl* mFocusedIcon { nullptr };
     LLUICtrl* mHoveredIcon { nullptr };
 };
 
