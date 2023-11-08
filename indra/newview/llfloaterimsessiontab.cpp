@@ -495,11 +495,11 @@ void LLFloaterIMSessionTab::initEmojiRecentPanel(bool moveFocus)
     std::list<llwchar>& recentlyUsed = LLFloaterEmojiPicker::getRecentlyUsed();
     if (recentlyUsed.empty())
     {
-        mEmojiRecentEmptyText->setVisible(true);
-        mEmojiRecentIconsCtrl->setVisible(false);
+        mEmojiRecentEmptyText->setVisible(TRUE);
+        mEmojiRecentIconsCtrl->setVisible(FALSE);
         if (moveFocus)
         {
-            mEmojiPickerToggleBtn->setFocus(true);
+            mEmojiPickerToggleBtn->setFocus(TRUE);
         }
     }
     else
@@ -510,11 +510,11 @@ void LLFloaterIMSessionTab::initEmojiRecentPanel(bool moveFocus)
             emojis += emoji;
         }
         mEmojiRecentIconsCtrl->setEmojis(emojis);
-        mEmojiRecentEmptyText->setVisible(false);
-        mEmojiRecentIconsCtrl->setVisible(true);
+        mEmojiRecentEmptyText->setVisible(FALSE);
+        mEmojiRecentIconsCtrl->setVisible(TRUE);
         if (moveFocus)
         {
-            mEmojiRecentIconsCtrl->setFocus(true);
+            mEmojiRecentIconsCtrl->setFocus(TRUE);
         }
     }
 }
