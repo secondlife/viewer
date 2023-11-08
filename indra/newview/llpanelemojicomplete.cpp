@@ -285,7 +285,14 @@ void LLPanelEmojiComplete::onCommit()
 void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
     LLUICtrl::reshape(width, height, called_from_parent);
-    updateConstraints();
+    if (mAutoSize)
+    {
+        updateConstraints();
+    }
+    else
+    {
+        onEmojisChanged();
+    }
 }
 
 void LLPanelEmojiComplete::setEmojis(const LLWString& emojis)
@@ -373,7 +380,9 @@ void LLPanelEmojiComplete::onEmojisChanged()
     }
     else
     {
-        mVisibleEmojis = mVertical ? getRect().getHeight() / mEmojiHeight : getRect().getWidth() / mEmojiWidth;
+        mVisibleEmojis = mVertical ?
+            mEmojiHeight ? getRect().getHeight() / mEmojiHeight : 0 :
+            mEmojiWidth ? getRect().getWidth() / mEmojiWidth : 0;
     }
 
     updateConstraints();
