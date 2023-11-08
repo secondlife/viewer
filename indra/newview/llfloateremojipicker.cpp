@@ -577,6 +577,8 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
 {
     if (LLButton* button = dynamic_cast<LLButton*>(ctrl))
     {
+        mFilter->setFocus(TRUE);
+
         if (button == mGroupButtons[sSelectedGroupIndex] || button->getToggleState())
             return;
 
@@ -594,8 +596,6 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
         rect.mLeft = button->getRect().mLeft;
         rect.mRight = button->getRect().mRight;
         mBadge->setRect(rect);
-
-        mFilter->setFocus(TRUE);
 
         fillEmojis();
     }
