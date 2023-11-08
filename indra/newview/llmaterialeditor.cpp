@@ -2104,7 +2104,8 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
 
     // Look for the item to base permissions off of
     item_out = nullptr;
-    if (func.mMaterialId != LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID)
+    const bool blank_material = func.mMaterialId == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    if (!blank_material)
     {
         LLAssetIDMatchesWithPerms item_has_perms(func.mMaterialId, ops);
         if (item_source == ItemSource::OBJECT)
@@ -2196,7 +2197,7 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     // -Cosmic,2023-08-07
     if (item_source == ItemSource::AGENT)
     {
-        llassert(item_out);
+        llassert(blank_material || item_out); // See comment at ItemSource::AGENT definition
 
         permissions_out.set(item_permissions);
     }
