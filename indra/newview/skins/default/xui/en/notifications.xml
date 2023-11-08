@@ -7018,7 +7018,7 @@ Please try again.
    name="CantSelectReflectionProbe"
    type="alertmodal">
     <unique/>
-    You have placed a reflection probe, but option for selecting reflection probes is disabled. To be able to select reflection probes enable Build &gt; Options &gt; Select Reflection Probes.
+    You have placed a reflection probe, but 'Select Reflection Probes' is disabled. To be able to select reflection probes, check Build &gt; Options &gt; Select Reflection Probes.
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Don't show again."
