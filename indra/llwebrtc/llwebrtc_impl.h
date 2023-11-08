@@ -1,6 +1,6 @@
 /**
  * @file llwebrtc_impl.h
- * @brief WebRTC Interface implementation.
+ * @brief WebRTC interface implementation header
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
