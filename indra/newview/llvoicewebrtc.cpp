@@ -307,7 +307,7 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mIsCoroutineActive(false),
     mWebRTCPump("WebRTCClientPump"),
     mWebRTCDeviceInterface(nullptr),
-    mWebRTCSignalingInterface(nullptr),
+    mWebRTCPeerConnection(nullptr),
     mWebRTCAudioInterface(nullptr)
 {
     sShuttingDown = false;
@@ -364,11 +364,8 @@ void LLWebRTCVoiceClient::init(LLPumpIO *pump)
 	mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
 
-	mWebRTCSignalingInterface = llwebrtc::getSignalingInterface();
-    mWebRTCSignalingInterface->setSignalingObserver(this);
-    
-    mWebRTCDataInterface = llwebrtc::getDataInterface();
-    mWebRTCDataInterface->setDataObserver(this);
+    mWebRTCPeerConnection = llwebrtc::newPeerConnection();
+    mWebRTCPeerConnection->setSignalingObserver(this);
 }
 
 void LLWebRTCVoiceClient::terminate()
@@ -500,7 +497,7 @@ void LLWebRTCVoiceClient::setLoginInfo(
 	const std::string& channel_sdp)
 {
 	mRemoteChannelSDP = channel_sdp;
-    mWebRTCSignalingInterface->AnswerAvailable(channel_sdp);
+    mWebRTCPeerConnection->AnswerAvailable(channel_sdp);
 
 	if(mAccountLoggedIn)
 	{
@@ -862,7 +859,7 @@ bool LLWebRTCVoiceClient::establishVoiceConnection()
     {
         return false;
     }
-    return mWebRTCSignalingInterface->initializeConnection();
+    return mWebRTCPeerConnection->initializeConnection();
 }
 
 bool LLWebRTCVoiceClient::breakVoiceConnection(bool corowait)
@@ -896,7 +893,7 @@ bool LLWebRTCVoiceClient::breakVoiceConnection(bool corowait)
     LLSD body;
     body["logout"] = TRUE;
     httpAdapter->postAndSuspend(httpRequest, url, body);
-    mWebRTCSignalingInterface->shutdownConnection();
+    mWebRTCPeerConnection->shutdownConnection();
     return true;
 }
 
@@ -1136,11 +1133,14 @@ bool LLWebRTCVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession
     addParticipantByID(gAgent.getID());
     // tell peers that this participant has joined.
 
-    Json::FastWriter writer;
-    Json::Value      root = getPositionAndVolumeUpdateJson(true);
-    root["j"]             = true;
-    std::string json_data = writer.write(root);
-    mWebRTCDataInterface->sendData(json_data, false);
+    if (mWebRTCDataInterface)
+    {
+        Json::FastWriter writer;
+        Json::Value      root = getPositionAndVolumeUpdateJson(true);
+        root["j"]             = true;
+        std::string json_data = writer.write(root);
+        mWebRTCDataInterface->sendData(json_data, false);
+    }
 
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
 
@@ -2235,7 +2235,7 @@ Json::Value LLWebRTCVoiceClient::getPositionAndVolumeUpdateJson(bool force)
 
     if (!mMuteMic)
     {
-        audio_level = (F32) mWebRTCAudioInterface->getAudioLevel();
+        audio_level = (F32) mWebRTCDeviceInterface->getPeerAudioLevel();
     }
     uint32_t uint_audio_level = mMuteMic ? 0 : (uint32_t) (audio_level * 128);
     if (force || (uint_audio_level != mAudioLevel))
@@ -2451,7 +2451,6 @@ void LLWebRTCVoiceClient::processIceUpdates()
             if (mIceCandidates.size())
             {
                 LLSD candidates    = LLSD::emptyArray();
-                body["candidates"] = LLSD::emptyArray();
                 for (auto &ice_candidate : mIceCandidates)
                 {
                     LLSD body_candidate;
@@ -2532,7 +2531,7 @@ void LLWebRTCVoiceClient::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface * 
         LLMutexLock lock(&mVoiceStateMutex);
         speaker_volume = mSpeakerVolume;
     }
-	audio_interface->setSpeakerVolume(mSpeakerVolume);
+	mWebRTCDeviceInterface->setSpeakerVolume(mSpeakerVolume);
     setVoiceControlStateUnless(VOICE_STATE_SESSION_ESTABLISHED, VOICE_STATE_SESSION_RETRY);
 }
 
@@ -2597,9 +2596,10 @@ void LLWebRTCVoiceClient::OnDataReceived(const std::string& data, bool binary)
     }
 }
 
-void LLWebRTCVoiceClient::OnDataChannelReady() 
+void LLWebRTCVoiceClient::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface)
 {
-
+    mWebRTCDataInterface = data_interface;
+    mWebRTCDataInterface->setDataObserver(this);
 }
 
 
@@ -4470,7 +4470,7 @@ void LLWebRTCVoiceClient::setVoiceVolume(F32 volume)
         }
         if (mWebRTCAudioInterface)
         {
-            mWebRTCAudioInterface->setSpeakerVolume(volume);
+            mWebRTCDeviceInterface->setSpeakerVolume(volume);
         }
 	}
 }

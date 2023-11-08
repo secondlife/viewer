@@ -271,7 +271,7 @@ public:
     /// LLWebRTCDataObserver
     //@{
     void OnDataReceived(const std::string& data, bool binary) override;
-    void OnDataChannelReady() override;
+    void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface) override;
     //@}
 
 	void processIceUpdates();
@@ -778,7 +778,7 @@ private:
 	buddyListMap mBuddyListMap;
 	
 	llwebrtc::LLWebRTCDeviceInterface *mWebRTCDeviceInterface;
-    llwebrtc::LLWebRTCSignalInterface *mWebRTCSignalingInterface;
+    llwebrtc::LLWebRTCPeerConnection  *mWebRTCPeerConnection;
     llwebrtc::LLWebRTCAudioInterface  *mWebRTCAudioInterface;
     llwebrtc::LLWebRTCDataInterface   *mWebRTCDataInterface;
 

@@ -1,6 +1,6 @@
 /**
- * @file llaccordionctrl.cpp
- * @brief Accordion panel  implementation
+ * @file llwebrtc.h
+ * @brief WebRTC interface
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -17,7 +17,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
+ * License along with this library; if not, write to the Free tSoftware
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
@@ -44,8 +44,6 @@
 
 namespace llwebrtc
 {
-LLSYMEXPORT void init();
-LLSYMEXPORT void terminate();
 
 struct LLWebRTCIceCandidate
 {
@@ -87,6 +85,10 @@ class LLWebRTCDeviceInterface
 
     virtual void setTuningMode(bool enable) = 0;
     virtual float getTuningAudioLevel() = 0;
+
+    virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
+    virtual void setMicrophoneVolume(float volume) = 0;  // volume between 0.0 and 1.0
+    virtual float getPeerAudioLevel() = 0;
 };
 
 class LLWebRTCAudioObserver
@@ -100,15 +102,12 @@ class LLWebRTCAudioInterface
     virtual void setAudioObserver(LLWebRTCAudioObserver *observer)  = 0;
     virtual void unsetAudioObserver(LLWebRTCAudioObserver *observer) = 0;
     virtual void setMute(bool mute) = 0;
-    virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
-    virtual float getAudioLevel() = 0;
 };
 
 class LLWebRTCDataObserver
 {
 public:
     virtual void OnDataReceived(const std::string& data, bool binary) = 0;
-    virtual void OnDataChannelReady()   = 0;
 };
 
 class LLWebRTCDataInterface
@@ -133,9 +132,10 @@ class LLWebRTCSignalingObserver
     virtual void OnOfferAvailable(const std::string& sdp) = 0;
     virtual void OnRenegotiationNeeded() = 0;
     virtual void OnAudioEstablished(LLWebRTCAudioInterface *audio_interface) = 0;
+    virtual void OnDataChannelReady(LLWebRTCDataInterface *data_interface) = 0;
 };
 
-class LLWebRTCSignalInterface
+class LLWebRTCPeerConnection
 {
   public:
     virtual void setSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
@@ -146,9 +146,11 @@ class LLWebRTCSignalInterface
     virtual void AnswerAvailable(const std::string &sdp) = 0;
 };
 
+LLSYMEXPORT void init();
+LLSYMEXPORT void terminate();
 LLSYMEXPORT LLWebRTCDeviceInterface* getDeviceInterface();
-LLSYMEXPORT LLWebRTCSignalInterface* getSignalingInterface();
-LLSYMEXPORT LLWebRTCDataInterface* getDataInterface();
+LLSYMEXPORT LLWebRTCPeerConnection* newPeerConnection();
+LLSYMEXPORT void freePeerConnection(LLWebRTCPeerConnection *connection);
 }
 
 #endif // LLWEBRTC_H
