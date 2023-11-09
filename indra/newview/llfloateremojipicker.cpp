@@ -279,7 +279,7 @@ void LLFloaterEmojiPicker::show(pick_callback_t pick_callback, close_callback_t 
 }
 
 LLFloaterEmojiPicker::LLFloaterEmojiPicker(const LLSD& key)
-: LLFloater(key)
+: super(key)
 {
     loadState();
 }
@@ -894,14 +894,14 @@ BOOL LLFloaterEmojiPicker::handleKeyHere(KEY key, MASK mask)
         }
     }
 
-    return LLFloater::handleKeyHere(key, mask);
+    return super::handleKeyHere(key, mask);
 }
 
 // virtual
 void LLFloaterEmojiPicker::closeFloater(bool app_quitting)
 {
     saveState();
-    LLFloater::closeFloater(app_quitting);
+    super::closeFloater(app_quitting);
     if (mFloaterCloseCallback)
     {
         mFloaterCloseCallback();
