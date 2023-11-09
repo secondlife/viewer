@@ -1435,7 +1435,7 @@ void LLInventoryGallery::onFocusReceived()
         LLInventoryGalleryItem* focus_item = NULL;
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            if (mItemMap[id] && !mItemMap[id]->isHidden())
             {
                 focus_item = mItemMap[id];
                 focus_item->setSelected(true);
