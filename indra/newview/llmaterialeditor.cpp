@@ -1496,16 +1496,22 @@ public:
             return;
         }
 
+        // Name may or may not have already been applied
+        const bool changed_name = item->getName() != mNewName;
         // create_inventory_item/copy_inventory_item don't allow presetting some permissions, fix it now
-        item->setPermissions(mPermissions);
-        item->updateServer(FALSE);
-        gInventory.updateItem(item);
-        gInventory.notifyObservers();
-
-        if (item->getName() != mNewName)
+        const bool changed_permissions = item->getPermissions() != mPermissions;
+        const bool changed = changed_name || changed_permissions;
+        LLSD updates;
+        if (changed)
         {
-            LLSD updates;
-            updates["name"] = mNewName;
+            if (changed_name)
+            {
+                updates["name"] = mNewName;
+            }
+            if (changed_permissions)
+            {
+                updates["permissions"] = ll_create_sd_from_permissions(mPermissions);
+            }
             update_inventory_item(inv_item_id, updates, NULL);
         }
 
@@ -1515,10 +1521,16 @@ public:
                 inv_item_id,
                 LLAssetType::AT_MATERIAL,
                 mAssetData,
-                [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
+                [changed, updates](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
                 {
                     // done callback
                     LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+
+                    // *HACK: Sometimes permissions do not stick in the UI. They are correct on the server-side, though.
+                    if (changed)
+                    {
+                        update_inventory_item(new_item_id, updates, NULL);
+                    }
                 },
                 nullptr // failure callback, floater already closed
             );
