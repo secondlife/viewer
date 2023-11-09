@@ -829,6 +829,24 @@ void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLPanel::reshape(width, height, called_from_parent);
 }
 
+// virtual
+void LLFloater::translate(S32 x, S32 y)
+{
+    LLView::translate(x, y);
+
+    if (!mTranslateWithDependents || mDependents.empty())
+        return;
+
+    for (const LLHandle<LLFloater>& handle : mDependents)
+    {
+        LLFloater* floater = handle.get();
+        if (floater && floater->getSnapTarget() == getHandle())
+        {
+            floater->LLView::translate(x, y);
+        }
+    }
+}
+
 void LLFloater::releaseFocus()
 {
 	LLUI::getInstance()->removePopup(this);
@@ -1117,9 +1135,9 @@ BOOL LLFloater::canSnapTo(const LLView* other_view)
 
 	if (other_view != getParent())
 	{
-		const LLFloater* other_floaterp = dynamic_cast<const LLFloater*>(other_view);		
-		if (other_floaterp 
-			&& other_floaterp->getSnapTarget() == getHandle() 
+		const LLFloater* other_floaterp = dynamic_cast<const LLFloater*>(other_view);
+		if (other_floaterp
+			&& other_floaterp->getSnapTarget() == getHandle()
 			&& mDependents.find(other_floaterp->getHandle()) != mDependents.end())
 		{
 			// this is a dependent that is already snapped to us, so don't snap back to it
@@ -1550,6 +1568,44 @@ void LLFloater::removeDependentFloater(LLFloater* floaterp)
 {
 	mDependents.erase(floaterp->getHandle());
 	floaterp->mDependeeHandle = LLHandle<LLFloater>();
+}
+
+void LLFloater::fitWithDependentsOnScreen(const LLRect& left, const LLRect& bottom, const LLRect& right, const LLRect& constraint, S32 min_overlap_pixels)
+{
+    LLRect total_rect = getRect();
+
+    for (const LLHandle<LLFloater>& handle : mDependents)
+    {
+        LLFloater* floater = handle.get();
+        if (floater && floater->getSnapTarget() == getHandle())
+        {
+            total_rect.unionWith(floater->getRect());
+        }
+    }
+
+	S32 delta_left = left.notEmpty() ? left.mRight - total_rect.mRight : 0;
+	S32 delta_bottom = bottom.notEmpty() ? bottom.mTop - total_rect.mTop : 0;
+	S32 delta_right = right.notEmpty() ? right.mLeft - total_rect.mLeft : 0;
+
+	// move floater with dependings fully onscreen
+    mTranslateWithDependents = true;
+    if (translateRectIntoRect(total_rect, constraint, min_overlap_pixels))
+    {
+        clearSnapTarget();
+    }
+    else if (delta_left > 0 && total_rect.mTop < left.mTop && total_rect.mBottom > left.mBottom)
+    {
+        translate(delta_left, 0);
+    }
+    else if (delta_bottom > 0 && total_rect.mLeft > bottom.mLeft && total_rect.mRight < bottom.mRight)
+    {
+        translate(0, delta_bottom);
+    }
+    else if (delta_right < 0 && total_rect.mTop < right.mTop    && total_rect.mBottom > right.mBottom)
+    {
+        translate(delta_right, 0);
+    }
+    mTranslateWithDependents = false;
 }
 
 BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index)
@@ -2862,10 +2918,17 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 		// floater is hosted elsewhere, so ignore
 		return;
 	}
+
+	if (floater->getDependee() &&
+		floater->getDependee() == floater->getSnapTarget().get())
+	{
+		// floater depends on other and snaps to it, so ignore
+		return;
+	}
+
 	LLRect::tCoordType screen_width = getSnapRect().getWidth();
 	LLRect::tCoordType screen_height = getSnapRect().getHeight();
 
-	
 	// only automatically resize non-minimized, resizable floaters
 	if( floater->isResizable() && !floater->isMinimized() )
 	{
@@ -2907,29 +2970,10 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 		}
 	}
 
-	const LLRect& floater_rect = floater->getRect();
+    const LLRect& constraint = snap_in_toolbars ? getSnapRect() : gFloaterView->getRect();
+    S32 min_overlap_pixels = allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX;
 
-	S32 delta_left = mToolbarLeftRect.notEmpty() ? mToolbarLeftRect.mRight - floater_rect.mRight : 0;
-	S32 delta_bottom = mToolbarBottomRect.notEmpty() ? mToolbarBottomRect.mTop - floater_rect.mTop : 0;
-	S32 delta_right = mToolbarRightRect.notEmpty() ? mToolbarRightRect.mLeft - floater_rect.mLeft : 0;
-
-	// move window fully onscreen
-	if (floater->translateIntoRect( snap_in_toolbars ? getSnapRect() : gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
-	{
-		floater->clearSnapTarget();
-	}
-	else if (delta_left > 0 && floater_rect.mTop < mToolbarLeftRect.mTop && floater_rect.mBottom > mToolbarLeftRect.mBottom)
-	{
-		floater->translate(delta_left, 0);
-	}
-	else if (delta_bottom > 0 && floater_rect.mLeft > mToolbarBottomRect.mLeft && floater_rect.mRight < mToolbarBottomRect.mRight)
-	{
-		floater->translate(0, delta_bottom);
-	}
-	else if (delta_right < 0 && floater_rect.mTop < mToolbarRightRect.mTop	&& floater_rect.mBottom > mToolbarRightRect.mBottom)
-	{
-		floater->translate(delta_right, 0);
-	}
+	floater->fitWithDependentsOnScreen(mToolbarLeftRect, mToolbarBottomRect, mToolbarRightRect, constraint, min_overlap_pixels);
 }
 
 void LLFloaterView::draw()

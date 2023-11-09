@@ -1753,23 +1753,26 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S3
 	const S32 KEEP_ONSCREEN_PIXELS_WIDTH = llmin(min_overlap_pixels, input.getWidth());
 	const S32 KEEP_ONSCREEN_PIXELS_HEIGHT = llmin(min_overlap_pixels, input.getHeight());
 
-	if( input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft )
+	if (KEEP_ONSCREEN_PIXELS_WIDTH <= constraint.getWidth() &&
+		KEEP_ONSCREEN_PIXELS_HEIGHT <= constraint.getHeight())
 	{
-		delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
-	}
-	else if( input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight )
-	{
-		delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
-	}
+		if (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft)
+		{
+			delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
+		}
+		else if (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight)
+		{
+			delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
+		}
 
-	if( input.mTop > constraint.mTop )
-	{
-		delta.mY = constraint.mTop - input.mTop;
-	}
-	else
-	if( input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom )
-	{
-		delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+		if (input.mTop > constraint.mTop)
+		{
+			delta.mY = constraint.mTop - input.mTop;
+		}
+		else if (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom)
+		{
+			delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+		}
 	}
 
 	return delta;
@@ -1780,13 +1783,19 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S3
 // (Why top and left?  That's where the drag bars are for floaters.)
 BOOL LLView::translateIntoRect(const LLRect& constraint, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(getRect(), constraint, min_overlap_pixels);
+    return translateRectIntoRect(getRect(), constraint, min_overlap_pixels);
+}
+
+BOOL LLView::translateRectIntoRect(const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels)
+{
+	LLCoordGL translation = getNeededTranslation(rect, constraint, min_overlap_pixels);
 
 	if (translation.mX != 0 || translation.mY != 0)
 	{
 		translate(translation.mX, translation.mY);
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
