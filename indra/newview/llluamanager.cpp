@@ -64,12 +64,9 @@ extern LLUIListener sUIListener;
 
 #include <boost/algorithm/string/replace.hpp>
 
-extern "C"
-{
 #include "lua/lua.h"
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
-}
 
 #include <algorithm>
 #include <cstdlib>                  // std::rand()
