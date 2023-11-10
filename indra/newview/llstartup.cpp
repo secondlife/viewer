@@ -1938,8 +1938,10 @@ bool idle_startup()
             display_startup();
             return FALSE;
         }
+
         LLInventoryModelBackgroundFetch::instance().start();
-        LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+        LLAppearanceMgr::instance().initCOFID();
+        LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
         LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
         if (cof
             && cof->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
@@ -2812,6 +2814,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
+    LLAppearanceMgr::getInstance()->initCOFID();
 	
 	ESex gender;
 	if (gender_name == "male")
@@ -2968,6 +2971,7 @@ void reset_login()
 	gAgent.cleanup();
     gSky.cleanup(); // mVOSkyp is an inworld object.
 	LLWorld::getInstance()->resetClass();
+    LLAppearanceMgr::getInstance()->cleanup();
 
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons

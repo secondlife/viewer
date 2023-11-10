@@ -621,7 +621,7 @@ BOOL get_is_item_worn(const LLUUID& id, const LLViewerInventoryItem* item)
 BOOL get_is_item_worn(const LLUUID& id)
 {
     const LLViewerInventoryItem* item = gInventory.getItem(id);
-    return get_is_item_worn(item);
+    return get_is_item_worn(id, item);
 }
 
 BOOL get_is_item_worn(const LLViewerInventoryItem* item)
@@ -711,20 +711,20 @@ bool get_is_item_removable(const LLInventoryModel* model, const LLUUID& id, bool
 
 	// Disable delete from COF folder; have users explicitly choose "detach/take off",
 	// unless the item is not worn but in the COF (i.e. is bugged).
-	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(id))
+    const LLViewerInventoryItem* obj = model->getItem(id);
+	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(obj))
 	{
-		if (get_is_item_worn(id))
+		if (get_is_item_worn(id, obj))
 		{
 			return false;
 		}
 	}
 
-	const LLInventoryObject *obj = model->getItem(id);
 	if (obj && obj->getIsLinkType())
 	{
 		return true;
 	}
-	if (check_worn && get_is_item_worn(id))
+	if (check_worn && get_is_item_worn(id, obj))
 	{
 		return false;
 	}
@@ -817,6 +817,72 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 	}
 
 	return TRUE;
+}
+
+bool get_is_category_and_children_removable(LLInventoryModel* model, const LLUUID& folder_id, bool check_worn)
+{
+    if (!get_is_category_removable(model, folder_id))
+    {
+        return false;
+    }
+
+    const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    if (mp_id.notNull() && gInventory.isObjectDescendentOf(folder_id, mp_id))
+    {
+        return false;
+    }
+
+    LLInventoryModel::cat_array_t cat_array;
+    LLInventoryModel::item_array_t item_array;
+    model->collectDescendents(
+        folder_id,
+        cat_array,
+        item_array,
+        LLInventoryModel::EXCLUDE_TRASH);
+
+    for (LLInventoryModel::item_array_t::value_type& item : item_array)
+    {
+        // Disable delete from COF folder; have users explicitly choose "detach/take off",
+        // unless the item is not worn but in the COF (i.e. is bugged).
+        if (LLAppearanceMgr::instance().getIsProtectedCOFItem(item))
+        {
+            if (get_is_item_worn(item))
+            {
+                return false;
+            }
+        }
+
+        if (item && item->getIsLinkType())
+        {
+            return true;
+        }
+        if (check_worn && get_is_item_worn(item))
+        {
+            return false;
+        }
+    }
+
+    const LLViewerInventoryItem* base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
+    LLViewerInventoryCategory* outfit_linked_category = base_outfit_link ? base_outfit_link->getLinkedCategory() : nullptr;
+    for (LLInventoryModel::cat_array_t::value_type& cat : cat_array)
+    {
+        const LLFolderType::EType folder_type = cat->getPreferredType();
+        if (LLFolderType::lookupIsProtectedType(folder_type))
+        {
+            return false;
+        }
+
+        // Can't delete the outfit that is currently being worn.
+        if (folder_type == LLFolderType::FT_OUTFIT)
+        {
+            if (cat == outfit_linked_category)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
