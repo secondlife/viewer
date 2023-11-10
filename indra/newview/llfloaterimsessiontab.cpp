@@ -454,14 +454,15 @@ void LLFloaterIMSessionTab::onInputEditorClicked()
 
 void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked(LLFloaterIMSessionTab* self)
 {
-    bool restore_focus = (gFocusMgr.getLastKeyboardFocus() == self->mInputEditor);
+    bool show = !self->mEmojiRecentPanel->getVisible();
+    bool restore_focus = !show || (gFocusMgr.getLastKeyboardFocus() == self->mInputEditor);
 
-	BOOL show = !self->mEmojiRecentPanel->getVisible();
-	if (show)
-	{
+    if (show)
+    {
         self->initEmojiRecentPanel(!restore_focus);
-	}
-	self->mEmojiRecentPanel->setVisible(show);
+    }
+
+    self->mEmojiRecentPanel->setVisible(show ? TRUE : FALSE);
 
     if (restore_focus)
     {
