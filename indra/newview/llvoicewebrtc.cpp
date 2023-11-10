@@ -131,12 +131,6 @@ static int scale_mic_volume(float volume)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-class LLWebRTCVoiceClientMuteListObserver : public LLMuteListObserver
-{
-	/* virtual */ void onChange()  { LLWebRTCVoiceClient::getInstance()->muteListChanged();}
-};
-
-
 void LLVoiceWebRTCStats::reset()
 {
     mStartTime = -1.0f;
@@ -227,10 +221,6 @@ LLSD LLVoiceWebRTCStats::read()
     return stats;
 }
 
-static LLWebRTCVoiceClientMuteListObserver mutelist_listener;
-static bool sMuteListListener_listening = false;
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 bool LLWebRTCVoiceClient::sShuttingDown = false;
@@ -285,14 +275,6 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 
     mLipSyncEnabled(false),
 
-    mVoiceFontsReceived(false),
-    mVoiceFontsNew(false),
-    mVoiceFontListDirty(false),
-
-    mCaptureBufferMode(false),
-    mCaptureBufferRecording(false),
-    mCaptureBufferRecorded(false),
-    mCaptureBufferPlaying(false),
     mShutdownComplete(true),
     mPlayRequestCount(0),
 
@@ -390,8 +372,6 @@ void LLWebRTCVoiceClient::cleanUp()
     LL_DEBUGS("Voice") << LL_ENDL;
     
 	deleteAllSessions();
-	deleteAllVoiceFonts();
-	deleteVoiceFontTemplates();
     LL_DEBUGS("Voice") << "exiting" << LL_ENDL;
 }
 
@@ -416,55 +396,6 @@ void LLWebRTCVoiceClient::updateSettings()
 	F32 mic_level = gSavedSettings.getF32("AudioLevelMic");
 	setMicGain(mic_level);
 	setLipSyncEnabled(gSavedSettings.getBOOL("LipSyncEnabled"));
-}
-
-/////////////////////////////
-// utility functions
-
-bool LLWebRTCVoiceClient::writeString(const std::string &str)
-{
-	bool result = false;
-    LL_DEBUGS("LowVoice") << "sending:\n" << str << LL_ENDL;
-
-	if(sConnected)
-	{
-		apr_status_t err;
-		apr_size_t size = (apr_size_t)str.size();
-		apr_size_t written = size;
-	
-		//MARK: Turn this on to log outgoing XML
-        // LL_DEBUGS("Voice") << "sending: " << str << LL_ENDL;
-
-		// check return code - sockets will fail (broken, etc.)
-		err = apr_socket_send(
-				mSocket->getSocket(),
-				(const char*)str.data(),
-				&written);
-		
-		if(err == 0 && written == size)
-		{
-			// Success.
-			result = true;
-		}
-		else if (err == 0 && written != size) {
-			// Did a short write,  log it for now
-			LL_WARNS("Voice") << ") short write on socket sending data to WebRTC daemon." << "Sent " << written << "bytes instead of " << size <<LL_ENDL;
-		}
-		else if(APR_STATUS_IS_EAGAIN(err))
-		{
-			char buf[MAX_STRING];
-			LL_WARNS("Voice") << "EAGAIN error " << err << " (" << apr_strerror(err, buf, MAX_STRING) << ") sending data to WebRTC daemon." << LL_ENDL;
-		}
-		else
-		{
-			// Assume any socket error means something bad.  For now, just close the socket.
-			char buf[MAX_STRING];
-			LL_WARNS("Voice") << "apr error " << err << " ("<< apr_strerror(err, buf, MAX_STRING) << ") sending data to WebRTC daemon." << LL_ENDL;
-			daemonDied();
-		}
-	}
-		
-	return result;
 }
 
 
@@ -814,6 +745,9 @@ void LLWebRTCVoiceClient::OnVoiceAccountProvisioned(const LLSD& result)
                        << (voicePassword.empty() ? "not set" : "set") << " channel sdp " << channelSDP << LL_ENDL;
 
     setLoginInfo(voiceUserName, voicePassword, channelSDP);
+
+    // switch to the default region channel.
+    switchChannel(gAgent.getRegion()->getRegionID().asString());
 }
 
 void LLWebRTCVoiceClient::OnVoiceAccountProvisionFailure(std::string url, int retries, LLSD body, const LLSD& result)
@@ -903,13 +837,6 @@ bool LLWebRTCVoiceClient::loginToWebRTC()
     mIsLoggedIn = true;
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
 
-    // Set up the mute list observer if it hasn't been set up already.
-    if ((!sMuteListListener_listening))
-    {
-        LLMuteList::getInstance()->addObserver(&mutelist_listener);
-        sMuteListListener_listening = true;
-    }
-
     // Set the initial state of mic mute, local speaker volume, etc.
     sendLocalAudioUpdates();
     mIsLoggingIn = false;
@@ -998,6 +925,8 @@ bool LLWebRTCVoiceClient::requestParcelVoiceInfo()
     std::string uri;
     std::string credentials;
 
+    LL_WARNS("Voice") << "Got voice credentials" << result << LL_ENDL;
+
     if (result.has("voice_credentials"))
     {
         LLSD voice_credentials = result["voice_credentials"];
@@ -1050,7 +979,7 @@ bool LLWebRTCVoiceClient::requestParcelVoiceInfo()
 
     // set the spatial channel.  If no voice credentials or uri are 
     // available, then we simply drop out of voice spatially.
-    return !setSpatialChannel(uri, credentials);
+    return !setSpatialChannel(uri, "");
 }
 
 bool LLWebRTCVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
@@ -1158,24 +1087,6 @@ bool LLWebRTCVoiceClient::terminateAudioSession(bool wait)
         {
             if (!mAudioSession->mHandle.empty())
             {
-
-#if RECORD_EVERYTHING
-                // HACK: for testing only
-                // Save looped recording
-                std::string savepath("/tmp/WebRTCrecording");
-                {
-                    time_t now = time(NULL);
-                    const size_t BUF_SIZE = 64;
-                    char time_str[BUF_SIZE];	/* Flawfinder: ignore */
-
-                    strftime(time_str, BUF_SIZE, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-                    savepath += time_str;
-                }
-                recordingLoopSave(savepath);
-#endif
-
-                sessionMediaDisconnectSendMessage(mAudioSession);
-
                 if (wait)
                 {
                     LLSD result;
@@ -1304,10 +1215,6 @@ bool LLWebRTCVoiceClient::waitForChannel()
             {
                 performMicTuning();
             }
-            else if (mCaptureBufferMode)
-            {
-                recordingAndPlaybackMode();
-            }
             else if (checkParcelChanged() || (mNextAudioSession == NULL))
             {
                 // the parcel is changed, or we have no pending audio sessions,
@@ -1399,7 +1306,6 @@ bool LLWebRTCVoiceClient::runSession(const sessionStatePtr_t &session)
     }
 
     notifyParticipantObservers();
-    notifyVoiceFontObservers();
 
     LLSD timeoutEvent(LLSDMap("timeout", LLSD::Boolean(true)));
 
@@ -1464,13 +1370,6 @@ bool LLWebRTCVoiceClient::runSession(const sessionStatePtr_t &session)
             enforceTether();
         }
         sendPositionAndVolumeUpdate();
-
-        // Do notifications for expiring Voice Fonts.
-        if (mVoiceFontExpiryTimer.hasExpired())
-        {
-            expireVoiceFonts();
-            mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
-        }
 
         // send any requests to adjust mic and speaker settings if they have changed
         sendLocalAudioUpdates();
@@ -1537,112 +1436,6 @@ bool LLWebRTCVoiceClient::runSession(const sessionStatePtr_t &session)
     return true;
 }
 
-void LLWebRTCVoiceClient::recordingAndPlaybackMode()
-{
-    LL_INFOS("Voice") << "In voice capture/playback mode." << LL_ENDL;
-
-    while (true)
-    {
-        LLSD command;
-        do
-        {
-            command = llcoro::suspendUntilEventOn(mWebRTCPump);
-            LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(command) << LL_ENDL;
-        } while (!command.has("recplay"));
-
-        if (command["recplay"].asString() == "quit")
-        {
-            mCaptureBufferMode = false;
-            break;
-        }
-        else if (command["recplay"].asString() == "record")
-        {
-            voiceRecordBuffer();
-        }
-        else if (command["recplay"].asString() == "playback")
-        {
-            voicePlaybackBuffer();
-        }
-    }
-
-    LL_INFOS("Voice") << "Leaving capture/playback mode." << LL_ENDL;
-    mCaptureBufferRecording = false;
-    mCaptureBufferRecorded = false;
-    mCaptureBufferPlaying = false;
-
-    return;
-}
-
-int LLWebRTCVoiceClient::voiceRecordBuffer()
-{
-    LLSD timeoutResult(LLSDMap("recplay", "stop")); 
-
-    LL_INFOS("Voice") << "Recording voice buffer" << LL_ENDL;
-
-    LLSD result;
-
-    captureBufferRecordStartSendMessage();
-    notifyVoiceFontObservers();
-
-    do
-    {
-        result = llcoro::suspendUntilEventOnWithTimeout(mWebRTCPump, CAPTURE_BUFFER_MAX_TIME, timeoutResult);
-        LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
-    } while (!result.has("recplay"));
-
-    mCaptureBufferRecorded = true;
-
-    captureBufferRecordStopSendMessage();
-    mCaptureBufferRecording = false;
-
-    // Update UI, should really use a separate callback.
-    notifyVoiceFontObservers();
-
-    return true;
-    /*TODO expand return to move directly into play*/
-}
-
-int LLWebRTCVoiceClient::voicePlaybackBuffer()
-{
-    LLSD timeoutResult(LLSDMap("recplay", "stop"));
-
-    LL_INFOS("Voice") << "Playing voice buffer" << LL_ENDL;
-
-    LLSD result;
-
-    do
-    {
-        captureBufferPlayStartSendMessage(mPreviewVoiceFont);
-
-        // Store the voice font being previewed, so that we know to restart if it changes.
-        mPreviewVoiceFontLast = mPreviewVoiceFont;
-
-        do
-        {
-            // Update UI, should really use a separate callback.
-            notifyVoiceFontObservers();
-
-            result = llcoro::suspendUntilEventOnWithTimeout(mWebRTCPump, CAPTURE_BUFFER_MAX_TIME, timeoutResult);
-            LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
-        } while (!result.has("recplay"));
-
-        if (result["recplay"] == "playback")
-            continue;   // restart playback... May be a font change.
-
-        break;
-    } while (true);
-
-    // Stop playing.
-    captureBufferPlayStopSendMessage();
-    mCaptureBufferPlaying = false;
-
-    // Update UI, should really use a separate callback.
-    notifyVoiceFontObservers();
-
-    return true;
-}
-
-
 bool LLWebRTCVoiceClient::performMicTuning()
 {
     LL_INFOS("Voice") << "Entering voice tuning mode." << LL_ENDL;
@@ -1663,191 +1456,11 @@ void LLWebRTCVoiceClient::closeSocket(void)
 	mAccountLoggedIn = false;
 }
 
-void LLWebRTCVoiceClient::loginSendMessage()
-{
-	std::ostringstream stream;
-
-	bool autoPostCrashDumps = gSavedSettings.getBOOL("WebRTCAutoPostCrashDumps");
-
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.Login.1\">"
-		<< "<ConnectorHandle>" << LLWebRTCSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
-		<< "<AccountName>" << mAccountName << "</AccountName>"
-        << "<AccountPassword>" << mAccountPassword << "</AccountPassword>"
-        << "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "<AudioSessionAnswerMode>VerifyAnswer</AudioSessionAnswerMode>"
-		<< "<EnableBuddiesAndPresence>false</EnableBuddiesAndPresence>"
-		<< "<EnablePresencePersistence>0</EnablePresencePersistence>"
-		<< "<BuddyManagementMode>Application</BuddyManagementMode>"
-		<< "<ParticipantPropertyFrequency>5</ParticipantPropertyFrequency>"
-		<< (autoPostCrashDumps?"<AutopostCrashDumps>true</AutopostCrashDumps>":"")
-	<< "</Request>\n\n\n";
-
-    LL_INFOS("Voice") << "Attempting voice login" << LL_ENDL;
-	writeString(stream.str());
-}
-
 void LLWebRTCVoiceClient::logout()
 {
 	// Ensure that we'll re-request provisioning before logging in again
 	mAccountPassword.clear();
-	
-	logoutSendMessage();
-}
-
-void LLWebRTCVoiceClient::logoutSendMessage()
-{
-	if(mAccountLoggedIn)
-	{
-        LL_INFOS("Voice") << "Attempting voice logout" << LL_ENDL;
-		std::ostringstream stream;
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.Logout.1\">"
-			<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		mAccountLoggedIn = false;
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::sessionGroupCreateSendMessage()
-{
-	if(mAccountLoggedIn)
-	{		
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "creating session group" << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.Create.1\">"
-			<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-			<< "<Type>Normal</Type>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::sessionCreateSendMessage(const sessionStatePtr_t &session, bool startAudio, bool startText)
-{
-	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
-	LL_DEBUGS("Voice") << "Requesting create: " << session->mSIPURI
-                       << " with voice font: " << session->mVoiceFontID << " (" << font_index << ")"
-                       << LL_ENDL;
-
-	session->mCreateInProgress = true;
-	if(startAudio)
-	{
-		session->mMediaConnectInProgress = true;
-	}
-
-	std::ostringstream stream;
-	stream
-	<< "<Request requestId=\"" << session->mSIPURI << "\" action=\"Session.Create.1\">"
-		<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "<URI>" << session->mSIPURI << "</URI>";
-
-	static const std::string allowed_chars =
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-				"0123456789"
-				"-._~";
-
-	if(!session->mHash.empty())
-	{
-		stream
-			<< "<Password>" << LLURI::escape(session->mHash, allowed_chars) << "</Password>"
-			<< "<PasswordHashAlgorithm>SHA1UserName</PasswordHashAlgorithm>";
-	}
-
-	stream
-		<< "<ConnectAudio>" << (startAudio?"true":"false") << "</ConnectAudio>"
-		<< "<ConnectText>" << (startText?"true":"false") << "</ConnectText>"
-		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
-		<< "<Name>" << mChannelName << "</Name>"
-	<< "</Request>\n\n\n";
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::sessionGroupAddSessionSendMessage(const sessionStatePtr_t &session, bool startAudio, bool startText)
-{
-	LL_DEBUGS("Voice") << "Requesting create: " << session->mSIPURI << LL_ENDL;
-
-	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
-	LL_DEBUGS("Voice") << "With voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
-
-	session->mCreateInProgress = true;
-	if(startAudio)
-	{
-		session->mMediaConnectInProgress = true;
-	}
-	
-	std::string password;
-	if(!session->mHash.empty())
-	{
-		static const std::string allowed_chars =
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-					"0123456789"
-					"-._~"
-					;
-		password = LLURI::escape(session->mHash, allowed_chars);
-	}
-
-	std::ostringstream stream;
-	stream
-	<< "<Request requestId=\"" << session->mSIPURI << "\" action=\"SessionGroup.AddSession.1\">"
-		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
-		<< "<URI>" << session->mSIPURI << "</URI>"
-		<< "<Name>" << mChannelName << "</Name>"
-		<< "<ConnectAudio>" << (startAudio?"true":"false") << "</ConnectAudio>"
-		<< "<ConnectText>" << (startText?"true":"false") << "</ConnectText>"
-		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
-		<< "<Password>" << password << "</Password>"
-		<< "<PasswordHashAlgorithm>SHA1UserName</PasswordHashAlgorithm>"
-	<< "</Request>\n\n\n"
-	;
-	
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::sessionMediaConnectSendMessage(const sessionStatePtr_t &session)
-{
-	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
-	LL_DEBUGS("Voice") << "Connecting audio to session handle: " << session->mHandle
-                       << " with voice font: " << session->mVoiceFontID << " (" << font_index << ")"
-                       << LL_ENDL;
-
-	session->mMediaConnectInProgress = true;
-	
-	std::ostringstream stream;
-
-	stream
-	<< "<Request requestId=\"" << session->mHandle << "\" action=\"Session.MediaConnect.1\">"
-		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
-		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
-		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
-		<< "<Media>Audio</Media>"
-	<< "</Request>\n\n\n";
-
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::sessionTextConnectSendMessage(const sessionStatePtr_t &session)
-{
-	LL_DEBUGS("Voice") << "connecting text to session handle: " << session->mHandle << LL_ENDL;
-	
-	std::ostringstream stream;
-
-	stream
-	<< "<Request requestId=\"" << session->mHandle << "\" action=\"Session.TextConnect.1\">"
-		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
-		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
-	<< "</Request>\n\n\n";
-
-	writeString(stream.str());
+    mAccountLoggedIn = false;
 }
 
 void LLWebRTCVoiceClient::sessionTerminate()
@@ -1868,27 +1481,7 @@ void LLWebRTCVoiceClient::leaveAudioSession()
 	{
 		LL_DEBUGS("Voice") << "leaving session: " << mAudioSession->mSIPURI << LL_ENDL;
 
-		if(!mAudioSession->mHandle.empty())
-		{
-
-#if RECORD_EVERYTHING
-			// HACK: for testing only
-			// Save looped recording
-			std::string savepath("/tmp/WebRTCrecording");
-			{
-				time_t now = time(NULL);
-				const size_t BUF_SIZE = 64;
-				char time_str[BUF_SIZE];	/* Flawfinder: ignore */
-						
-				strftime(time_str, BUF_SIZE, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-				savepath += time_str;
-			}
-			recordingLoopSave(savepath);
-#endif
-
-			sessionMediaDisconnectSendMessage(mAudioSession);
-		}
-		else
+		if(mAudioSession->mHandle.empty())
 		{
 			LL_WARNS("Voice") << "called with no session handle" << LL_ENDL;	
 		}
@@ -1898,55 +1491,6 @@ void LLWebRTCVoiceClient::leaveAudioSession()
 		LL_WARNS("Voice") << "called with no active session" << LL_ENDL;
 	}
     sessionTerminate();
-}
-
-void LLWebRTCVoiceClient::sessionTerminateSendMessage(const sessionStatePtr_t &session)
-{
-	std::ostringstream stream;
-
-	sessionGroupTerminateSendMessage(session);
-	return;
-	/*
-	LL_DEBUGS("Voice") << "Sending Session.Terminate with handle " << session->mHandle << LL_ENDL;	
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.Terminate.1\">"
-		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-	*/
-}
-
-void LLWebRTCVoiceClient::sessionGroupTerminateSendMessage(const sessionStatePtr_t &session)
-{
-	std::ostringstream stream;
-	
-	LL_DEBUGS("Voice") << "Sending SessionGroup.Terminate with handle " << session->mGroupHandle << LL_ENDL;	
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.Terminate.1\">"
-		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::sessionMediaDisconnectSendMessage(const sessionStatePtr_t &session)
-{
-	std::ostringstream stream;
-	sessionGroupTerminateSendMessage(session);
-	return;
-	/*
-	LL_DEBUGS("Voice") << "Sending Session.MediaDisconnect with handle " << session->mHandle << LL_ENDL;	
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.MediaDisconnect.1\">"
-		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
-		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
-		<< "<Media>Audio</Media>"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-	*/
-	
 }
 
 void LLWebRTCVoiceClient::clearCaptureDevices()
@@ -2044,58 +1588,6 @@ void LLWebRTCVoiceClient::tuningStop()
 bool LLWebRTCVoiceClient::inTuningMode()
 {
     return mIsInTuningMode;
-}
-
-void LLWebRTCVoiceClient::tuningRenderStartSendMessage(const std::string& name, bool loop)
-{		
-	mTuningAudioFile = name;
-	std::ostringstream stream;
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStart.1\">"
-    << "<SoundFilePath>" << mTuningAudioFile << "</SoundFilePath>"
-    << "<Loop>" << (loop?"1":"0") << "</Loop>"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::tuningRenderStopSendMessage()
-{
-	std::ostringstream stream;
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStop.1\">"
-    << "<SoundFilePath>" << mTuningAudioFile << "</SoundFilePath>"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::tuningCaptureStartSendMessage(int loop)
-{
-	LL_DEBUGS("Voice") << "sending CaptureAudioStart" << LL_ENDL;
-	
-	std::ostringstream stream;
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStart.1\">"
-	<< "<Duration>-1</Duration>"
-    << "<LoopToRenderDevice>" << loop << "</LoopToRenderDevice>"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::tuningCaptureStopSendMessage()
-{
-	LL_DEBUGS("Voice") << "sending CaptureAudioStop" << LL_ENDL;
-	
-	std::ostringstream stream;
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStop.1\">"
-	<< "</Request>\n\n\n";
-	
-	writeString(stream.str());
-
-	mTuningEnergy = 0.0f;
 }
 
 void LLWebRTCVoiceClient::tuningSetMicVolume(float volume)
@@ -2318,73 +1810,6 @@ void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate()
 
 void LLWebRTCVoiceClient::sendLocalAudioUpdates()
 {
-}
-
-/**
- * Because of the recurring voice cutout issues (SL-15072) we are going to try
- * to disable the automatic VAD (Voice Activity Detection) and set the associated
- * parameters directly. We will expose them via Debug Settings and that should
- * let us iterate on a collection of values that work for us. Hopefully! 
- *
- * From the WebRTC Docs:
- *
- * VadAuto: A flag indicating if the automatic VAD is enabled (1) or disabled (0)
- *
- * VadHangover: The time (in milliseconds) that it takes
- * for the VAD to switch back to silence from speech mode after the last speech
- * frame has been detected.
- *
- * VadNoiseFloor: A dimensionless value between 0 and 
- * 20000 (default 576) that controls the maximum level at which the noise floor
- * may be set at by the VAD's noise tracking. Too low of a value will make noise
- * tracking ineffective (A value of 0 disables noise tracking and the VAD then 
- * relies purely on the sensitivity property). Too high of a value will make 
- * long speech classifiable as noise.
- *
- * VadSensitivity: A dimensionless value between 0 and 
- * 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds
- * to decreasing the sensitivity of the VAD (i.e. '0' is most sensitive, 
- * while 100 is 'least sensitive')
- */
-void LLWebRTCVoiceClient::setupVADParams(unsigned int vad_auto,
-                                        unsigned int vad_hangover,
-                                        unsigned int vad_noise_floor,
-                                        unsigned int vad_sensitivity)
-{
-    std::ostringstream stream;
-
-    LL_INFOS("Voice") << "Setting the automatic VAD to "
-        << (vad_auto ? "True" : "False")
-		<< " and discrete values to"
-		<< " VadHangover = " << vad_hangover
-		<< ", VadSensitivity = " << vad_sensitivity
-		<< ", VadNoiseFloor = " << vad_noise_floor
-        << LL_ENDL;
-
-	// Create a request to set the VAD parameters:
-	stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetVadProperties.1\">"
-               << "<VadAuto>" << vad_auto << "</VadAuto>"
-               << "<VadHangover>" << vad_hangover << "</VadHangover>"
-               << "<VadSensitivity>" << vad_sensitivity << "</VadSensitivity>"
-               << "<VadNoiseFloor>" << vad_noise_floor << "</VadNoiseFloor>"
-           << "</Request>\n\n\n";
-
-    if (!stream.str().empty())
-    {
-        writeString(stream.str());
-    }
-}
-
-void LLWebRTCVoiceClient::onVADSettingsChange()
-{
-	// pick up the VAD variables (one of which was changed)
-	unsigned int vad_auto = gSavedSettings.getU32("WebRTCVadAuto");
-	unsigned int vad_hangover = gSavedSettings.getU32("WebRTCVadHangover");
-	unsigned int vad_noise_floor = gSavedSettings.getU32("WebRTCVadNoiseFloor");
-	unsigned int vad_sensitivity = gSavedSettings.getU32("WebRTCVadSensitivity");
-
-	// build a VAD params change request and send it to SLVoice
-	setupVADParams(vad_auto, vad_hangover, vad_noise_floor, vad_sensitivity);
 }
 
 /////////////////////////////
@@ -2612,323 +2037,6 @@ void LLWebRTCVoiceClient::OnRenegotiationNeeded()
     setVoiceControlStateUnless(VOICE_STATE_SESSION_RETRY);
 }
 
-/////////////////////////////
-// Response/Event handlers
-
-void LLWebRTCVoiceClient::connectorCreateResponse(int statusCode, std::string &statusString, std::string &connectorHandle, std::string &versionID)
-{	
-    LLSD result = LLSD::emptyMap();
-
-	if(statusCode == 0)
-	{
-		// Connector created, move forward.
-        if (connectorHandle == LLWebRTCSecurity::getInstance()->connectorHandle())
-        {
-            LL_INFOS("Voice") << "Voice connector succeeded, WebRTC SDK version is " << versionID << " connector handle " << connectorHandle << LL_ENDL;
-            mVoiceVersion.serverVersion = versionID;
-            mConnectorEstablished = true;
-            mTerminateDaemon = false;
-
-            result["connector"] = LLSD::Boolean(true);
-        }
-        else
-        {
-            // This shouldn't happen - we are somehow out of sync with SLVoice
-            // or possibly there are two things trying to run SLVoice at once
-            // or someone is trying to hack into it.
-            LL_WARNS("Voice") << "Connector returned wrong handle "
-                              << "(" << connectorHandle << ")"
-                              << " expected (" << LLWebRTCSecurity::getInstance()->connectorHandle() << ")"
-                              << LL_ENDL;
-            result["connector"] = LLSD::Boolean(false);
-            // Give up.
-            mTerminateDaemon = true;
-        }
-	}
-    else if (statusCode == 10028) // web request timeout prior to login
-    {
-        // this is usually fatal, but a long timeout might work
-        result["connector"] = LLSD::Boolean(false);
-        result["retry"] = LLSD::Real(CONNECT_ATTEMPT_TIMEOUT);
-        
-        LL_WARNS("Voice") << "Voice connection failed" << LL_ENDL;
-    }
-    else if (statusCode == 10006) // name resolution failure - a shorter retry may work
-    {
-        // some networks have slower DNS, but a short timeout might let it catch up
-        result["connector"] = LLSD::Boolean(false);
-        result["retry"] = LLSD::Real(CONNECT_DNS_TIMEOUT);
-        
-        LL_WARNS("Voice") << "Voice connection DNS lookup failed" << LL_ENDL;
-    }
-    else // unknown failure - give up
-    {
-        LL_WARNS("Voice") << "Voice connection failure ("<< statusCode << "): " << statusString << LL_ENDL;
-        mTerminateDaemon = true;
-        result["connector"] = LLSD::Boolean(false);
-    }
-
-    mWebRTCPump.post(result);
-}
-
-void LLWebRTCVoiceClient::loginResponse(int statusCode, std::string &statusString, std::string &accountHandle, int numberOfAliases)
-{ 
-    LLSD result = LLSD::emptyMap();
-
-    LL_DEBUGS("Voice") << "Account.Login response (" << statusCode << "): " << statusString << LL_ENDL;
-	
-	// Status code of 20200 means "bad password".  We may want to special-case that at some point.
-	
-	if ( statusCode == HTTP_UNAUTHORIZED )
-	{
-		// Login failure which is probably caused by the delay after a user's password being updated.
-		LL_INFOS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
-        result["login"] = LLSD::String("retry");
-	}
-	else if(statusCode != 0)
-	{
-		LL_WARNS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
-        result["login"] = LLSD::String("failed");
-	}
-	else
-	{
-		// Login succeeded, move forward.
-		mAccountLoggedIn = true;
-		mNumberOfAliases = numberOfAliases;
-        result["login"] = LLSD::String("response_ok");
-	}
-
-    mWebRTCPump.post(result);
-
-}
-
-void LLWebRTCVoiceClient::sessionCreateResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle)
-{	
-    sessionStatePtr_t session(findSessionBeingCreatedByURI(requestId));
-	
-	if(session)
-	{
-		session->mCreateInProgress = false;
-	}
-	
-	if(statusCode != 0)
-	{
-		LL_WARNS("Voice") << "Session.Create response failure (" << statusCode << "): " << statusString << LL_ENDL;
-		if(session)
-		{
-			session->mErrorStatusCode = statusCode;		
-			session->mErrorStatusString = statusString;
-			if(session == mAudioSession)
-			{
-                LLSD WebRTCevent(LLSDMap("handle", LLSD::String(sessionHandle))
-                        ("session", "failed")
-                        ("reason", LLSD::Integer(statusCode)));
-
-                mWebRTCPump.post(WebRTCevent);
-            }
-			else
-			{
-				reapSession(session);
-			}
-		}
-	}
-	else
-	{
-		LL_INFOS("Voice") << "Session.Create response received (success), session handle is " << sessionHandle << LL_ENDL;
-		if(session)
-		{
-			setSessionHandle(session, sessionHandle);
-		}
-        LLSD WebRTCevent(LLSDMap("handle", LLSD::String(sessionHandle))
-                ("session", "created"));
-
-        mWebRTCPump.post(WebRTCevent);
-	}
-}
-
-void LLWebRTCVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle)
-{	
-    sessionStatePtr_t session(findSessionBeingCreatedByURI(requestId));
-	
-	if(session)
-	{
-		session->mCreateInProgress = false;
-	}
-	
-	if(statusCode != 0)
-	{
-		LL_WARNS("Voice") << "SessionGroup.AddSession response failure (" << statusCode << "): " << statusString << LL_ENDL;
-		if(session)
-		{
-			session->mErrorStatusCode = statusCode;		
-			session->mErrorStatusString = statusString;
-			if(session == mAudioSession)
-			{
-                LLSD WebRTCevent(LLSDMap("handle", LLSD::String(sessionHandle))
-                    ("session", "failed"));
-
-                mWebRTCPump.post(WebRTCevent);
-			}
-			else
-			{
-				reapSession(session);
-			}
-		}
-	}
-	else
-	{
-		LL_DEBUGS("Voice") << "SessionGroup.AddSession response received (success), session handle is " << sessionHandle << LL_ENDL;
-		if(session)
-		{
-			setSessionHandle(session, sessionHandle);
-		}
-
-        LLSD WebRTCevent(LLSDMap("handle", LLSD::String(sessionHandle))
-            ("session", "added"));
-
-        mWebRTCPump.post(WebRTCevent);
-
-	}
-}
-
-void LLWebRTCVoiceClient::sessionConnectResponse(std::string &requestId, int statusCode, std::string &statusString)
-{
-    sessionStatePtr_t session(findSession(requestId));
-	// 1026 is session already has media,  somehow mediaconnect was called twice on the same session.
-	// set the session info to reflect that the user is already connected.
-	if (statusCode == 1026)
-	{
-		session->mVoiceActive = true;
-		session->mMediaConnectInProgress = false;
-		session->mMediaStreamState = streamStateConnected;
-		//session->mTextStreamState = streamStateConnected;
-		session->mErrorStatusCode = 0;
-	}
-	else if (statusCode != 0)
-	{
-		LL_WARNS("Voice") << "Session.Connect response failure (" << statusCode << "): " << statusString << LL_ENDL;
-		if (session)
-		{
-			session->mMediaConnectInProgress = false;
-			session->mErrorStatusCode = statusCode;
-			session->mErrorStatusString = statusString;
-		}
-	}
-	else
-	{
-		LL_DEBUGS("Voice") << "Session.Connect response received (success)" << LL_ENDL;
-	}
-}
-
-void LLWebRTCVoiceClient::logoutResponse(int statusCode, std::string &statusString)
-{	
-	if(statusCode != 0)
-	{
-		LL_WARNS("Voice") << "Account.Logout response failure: " << statusString << LL_ENDL;
-		// Should this ever fail?  do we care if it does?
-	}
-    LLSD WebRTCevent(LLSDMap("logout", LLSD::Boolean(true)));
-
-    mWebRTCPump.post(WebRTCevent);
-}
-
-void LLWebRTCVoiceClient::connectorShutdownResponse(int statusCode, std::string &statusString)
-{
-	if(statusCode != 0)
-	{
-		LL_WARNS("Voice") << "Connector.InitiateShutdown response failure: " << statusString << LL_ENDL;
-		// Should this ever fail?  do we care if it does?
-	}
-	
-	sConnected = false;
-	mShutdownComplete = true;
-	
-    LLSD WebRTCevent(LLSDMap("connector", LLSD::Boolean(false)));
-
-    mWebRTCPump.post(WebRTCevent);
-}
-
-void LLWebRTCVoiceClient::sessionAddedEvent(
-		std::string &uriString, 
-		std::string &alias, 
-		std::string &sessionHandle, 
-		std::string &sessionGroupHandle, 
-		bool isChannel, 
-		bool incoming,
-		std::string &nameString,
-		std::string &applicationString)
-{
-    sessionStatePtr_t session;
-
-	LL_INFOS("Voice") << "session " << uriString << ", alias " << alias << ", name " << nameString << " handle " << sessionHandle << LL_ENDL;
-	
-	session = addSession(uriString, sessionHandle);
-	if(session)
-	{
-		session->mGroupHandle = sessionGroupHandle;
-		session->mIsChannel = isChannel;
-		session->mIncoming = incoming;
-		session->mAlias = alias;
-			
-		// Generate a caller UUID -- don't need to do this for channels
-		if(!session->mIsChannel)
-		{
-			if(IDFromName(session->mSIPURI, session->mCallerID))
-			{
-				// Normal URI(base64-encoded UUID) 
-			}
-			else if(!session->mAlias.empty() && IDFromName(session->mAlias, session->mCallerID))
-			{
-				// Wrong URI, but an alias is available.  Stash the incoming URI as an alternate
-				session->mAlternateSIPURI = session->mSIPURI;
-				
-				// and generate a proper URI from the ID.
-				setSessionURI(session, session->mCallerID.asString());
-			}
-			else
-			{
-				LL_INFOS("Voice") << "Could not generate caller id from uri, using hash of uri " << session->mSIPURI << LL_ENDL;
-				session->mCallerID.generate(session->mSIPURI);
-				session->mSynthesizedCallerID = true;
-				
-				// Can't look up the name in this case -- we have to extract it from the URI.
-                std::string namePortion = nameString;
-				
-				// Some incoming names may be separated with an underscore instead of a space.  Fix this.
-				LLStringUtil::replaceChar(namePortion, '_', ' ');
-				
-				// Act like we just finished resolving the name (this stores it in all the right places)
-				avatarNameResolved(session->mCallerID, namePortion);
-			}
-		
-			LL_INFOS("Voice") << "caller ID: " << session->mCallerID << LL_ENDL;
-
-			if(!session->mSynthesizedCallerID)
-			{
-				// If we got here, we don't have a proper name.  Initiate a lookup.
-				lookupName(session->mCallerID);
-			}
-		}
-	}
-}
-
-void LLWebRTCVoiceClient::sessionGroupAddedEvent(std::string &sessionGroupHandle)
-{
-	LL_DEBUGS("Voice") << "handle " << sessionGroupHandle << LL_ENDL;
-	
-#if  USE_SESSION_GROUPS
-	if(mMainSessionGroupHandle.empty())
-	{
-		// This is the first (i.e. "main") session group.  Save its handle.
-		mMainSessionGroupHandle = sessionGroupHandle;
-	}
-	else
-	{
-		LL_DEBUGS("Voice") << "Already had a session group handle " << mMainSessionGroupHandle << LL_ENDL;
-	}
-#endif
-}
-
 void LLWebRTCVoiceClient::joinedAudioSession(const sessionStatePtr_t &session)
 {
 	LL_DEBUGS("Voice") << "Joined Audio Session" << LL_ENDL;
@@ -2975,53 +2083,12 @@ void LLWebRTCVoiceClient::joinedAudioSession(const sessionStatePtr_t &session)
 	}
 }
 
-void LLWebRTCVoiceClient::sessionRemovedEvent(
-	std::string &sessionHandle, 
-	std::string &sessionGroupHandle)
-{
-	LL_INFOS("Voice") << "handle " << sessionHandle << LL_ENDL;
-	
-    sessionStatePtr_t session(findSession(sessionHandle));
-	if(session)
-	{
-		leftAudioSession(session);
-
-		// This message invalidates the session's handle.  Set it to empty.
-        clearSessionHandle(session);
-		
-		// This also means that the session's session group is now empty.
-		// Terminate the session group so it doesn't leak.
-		sessionGroupTerminateSendMessage(session);
-		
-		// Reset the media state (we now have no info)
-		session->mMediaStreamState = streamStateUnknown;
-		//session->mTextStreamState = streamStateUnknown;
-		
-		// Conditionally delete the session
-		reapSession(session);
-	}
-	else
-	{
-		// Already reaped this session.
-		LL_DEBUGS("Voice") << "unknown session " << sessionHandle << " removed" << LL_ENDL;
-	}
-
-}
-
 void LLWebRTCVoiceClient::reapSession(const sessionStatePtr_t &session)
 {
 	if(session)
 	{
 		
-		if(session->mCreateInProgress)
-		{
-			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (create in progress)" << LL_ENDL;
-		}
-		else if(session->mMediaConnectInProgress)
-		{
-			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (connect in progress)" << LL_ENDL;
-		}
-		else if(session == mAudioSession)
+		if(session == mAudioSession)
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (it's the current session)" << LL_ENDL;
 		}
@@ -3077,454 +2144,7 @@ void LLWebRTCVoiceClient::leftAudioSession(const sessionStatePtr_t &session)
     }
 }
 
-void LLWebRTCVoiceClient::accountLoginStateChangeEvent(
-		std::string &accountHandle, 
-		int statusCode, 
-		std::string &statusString, 
-		int state)
-{
-    LLSD levent = LLSD::emptyMap();
 
-	/*
-		According to Mike S., status codes for this event are:
-		login_state_logged_out=0,
-        login_state_logged_in = 1,
-        login_state_logging_in = 2,
-        login_state_logging_out = 3,
-        login_state_resetting = 4,
-        login_state_error=100	
-	*/
-	
-	LL_DEBUGS("Voice") << "state change event: " << state << LL_ENDL;
-	switch(state)
-	{
-		case 1:
-            levent["login"] = LLSD::String("account_login");
-
-            mWebRTCPump.post(levent);
-            break;
-        case 2:
-            break;
-
-        case 3:
-            levent["login"] = LLSD::String("account_loggingOut");
-
-            mWebRTCPump.post(levent);
-            break;
-
-        case 4:
-            break;
-
-        case 100:
-            LL_WARNS("Voice") << "account state event error" << LL_ENDL;
-            break;
-
-        case 0:
-            levent["login"] = LLSD::String("account_logout");
-
-            mWebRTCPump.post(levent);
-            break;
-    		
-        default:
-			//Used to be a commented out warning
-			LL_WARNS("Voice") << "unknown account state event: " << state << LL_ENDL;
-	    	break;
-	}
-}
-
-void LLWebRTCVoiceClient::mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType)
-{
-    LLSD result;
-
-	if (mediaCompletionType == "AuxBufferAudioCapture")
-	{
-		mCaptureBufferRecording = false;
-        result["recplay"] = "end";
-	}
-	else if (mediaCompletionType == "AuxBufferAudioRender")
-	{
-		// Ignore all but the last stop event
-		if (--mPlayRequestCount <= 0)
-		{
-			mCaptureBufferPlaying = false;
-            result["recplay"] = "end";
-//          result["recplay"] = "done";
-        }
-	}
-	else
-	{
-		LL_WARNS("Voice") << "Unknown MediaCompletionType: " << mediaCompletionType << LL_ENDL;
-	}
-
-    if (!result.isUndefined())
-        mWebRTCPump.post(result);
-}
-
-void LLWebRTCVoiceClient::mediaStreamUpdatedEvent(
-	std::string &sessionHandle, 
-	std::string &sessionGroupHandle, 
-	int statusCode, 
-	std::string &statusString, 
-	int state, 
-	bool incoming)
-{
-    sessionStatePtr_t session(findSession(sessionHandle));
-	
-	LL_DEBUGS("Voice") << "session " << sessionHandle << ", status code " << statusCode << ", string \"" << statusString << "\"" << LL_ENDL;
-	
-	if(session)
-	{
-		// We know about this session
-		
-		// Save the state for later use
-		session->mMediaStreamState = state;
-		
-		switch(statusCode)
-		{
-			case 0:
-			case HTTP_OK:
-				// generic success
-				// Don't change the saved error code (it may have been set elsewhere)
-			break;
-			default:
-				// save the status code for later
-				session->mErrorStatusCode = statusCode;
-			break;
-		}
-
-		switch(state)
-		{
-		case streamStateDisconnecting:
-		case streamStateIdle:
-				// Standard "left audio session", WebRTC state 'disconnected'
-				session->mVoiceActive = false;
-				session->mMediaConnectInProgress = false;
-				leftAudioSession(session);
-			break;
-
-			case streamStateConnected:
-				session->mVoiceActive = true;
-				session->mMediaConnectInProgress = false;
-				joinedAudioSession(session);
-			case streamStateConnecting: // do nothing, but prevents a warning getting into the logs.  
-			break;
-			
-			case streamStateRinging:
-				if(incoming)
-				{
-					// Send the voice chat invite to the GUI layer
-					// TODO: Question: Should we correlate with the mute list here?
-					session->mIMSessionID = LLIMMgr::computeSessionID(IM_SESSION_P2P_INVITE, session->mCallerID);
-					session->mVoiceInvitePending = true;
-					if(session->mName.empty())
-					{
-						lookupName(session->mCallerID);
-					}
-					else
-					{
-						// Act like we just finished resolving the name
-						avatarNameResolved(session->mCallerID, session->mName);
-					}
-				}
-			break;
-			
-			default:
-				LL_WARNS("Voice") << "unknown state " << state << LL_ENDL;
-			break;
-			
-		}
-		
-	}
-	else
-	{
-		// session disconnectintg and disconnected events arriving after we have already left the session.
-		LL_DEBUGS("Voice") << "session " << sessionHandle << " not found"<< LL_ENDL;
-	}
-}
-
-void LLWebRTCVoiceClient::participantAddedEvent(
-		std::string &sessionHandle, 
-		std::string &sessionGroupHandle, 
-		std::string &uriString, 
-		std::string &alias, 
-		std::string &nameString, 
-		std::string &displayNameString, 
-		int participantType)
-{
-    sessionStatePtr_t session(findSession(sessionHandle));
-	if(session)
-	{
-        participantStatePtr_t participant(session->addParticipant(LLUUID(uriString)));
-		if(participant)
-		{
-			participant->mAccountName = nameString;
-
-			LL_DEBUGS("Voice") << "added participant \"" << participant->mAccountName 
-					<< "\" (" << participant->mAvatarID << ")"<< LL_ENDL;
-
-			if(participant->mAvatarIDValid)
-			{
-				// Initiate a lookup
-				lookupName(participant->mAvatarID);
-			}
-			else
-			{
-				// If we don't have a valid avatar UUID, we need to fill in the display name to make the active speakers floater work.
-				std::string namePortion = displayNameString;
-
-				if(namePortion.empty())
-				{
-					// Problems with both of the above, fall back to the account name
-					namePortion = nameString;
-				}
-				
-				// Set the display name (which is a hint to the active speakers window not to do its own lookup)
-				participant->mDisplayName = namePortion;
-				avatarNameResolved(participant->mAvatarID, namePortion);
-			}
-		}
-	}
-}
-
-void LLWebRTCVoiceClient::participantRemovedEvent(
-		std::string &sessionHandle, 
-		std::string &sessionGroupHandle, 
-		std::string &uriString, 
-		std::string &alias, 
-		std::string &nameString)
-{
-    sessionStatePtr_t session(findSession(sessionHandle));
-	if(session)
-	{
-        participantStatePtr_t participant(session->findParticipant(uriString));
-		if(participant)
-		{
-			session->removeParticipant(participant);
-		}
-		else
-		{
-			LL_DEBUGS("Voice") << "unknown participant " << uriString << LL_ENDL;
-		}
-	}
-	else
-	{
-		// a late arriving event on a session we have already left.
-		LL_DEBUGS("Voice") << "unknown session " << sessionHandle << LL_ENDL;
-	}
-}
-
-void LLWebRTCVoiceClient::messageEvent(
-		std::string &sessionHandle, 
-		std::string &uriString, 
-		std::string &alias, 
-		std::string &messageHeader, 
-		std::string &messageBody,
-		std::string &applicationString)
-{
-	LL_DEBUGS("Voice") << "Message event, session " << sessionHandle << " from " << uriString << LL_ENDL;
-//	LL_DEBUGS("Voice") << "    header " << messageHeader << ", body: \n" << messageBody << LL_ENDL;
-
-    LL_INFOS("Voice") << "WebRTC raw message:" << std::endl << messageBody << LL_ENDL;
-
-	if(messageHeader.find(HTTP_CONTENT_TEXT_HTML) != std::string::npos)
-	{
-		std::string message;
-
-		{
-			const std::string startMarker = "<body";
-			const std::string startMarker2 = ">";
-			const std::string endMarker = "</body>";
-			const std::string startSpan = "<span";
-			const std::string endSpan = "</span>";
-			std::string::size_type start;
-			std::string::size_type end;
-			
-			// Default to displaying the raw string, so the message gets through.
-			message = messageBody;
-
-			// Find the actual message text within the XML fragment
-			start = messageBody.find(startMarker);
-			start = messageBody.find(startMarker2, start);
-			end = messageBody.find(endMarker);
-
-			if(start != std::string::npos)
-			{
-				start += startMarker2.size();
-				
-				if(end != std::string::npos)
-					end -= start;
-					
-				message.assign(messageBody, start, end);
-			}
-			else 
-			{
-				// Didn't find a <body>, try looking for a <span> instead.
-				start = messageBody.find(startSpan);
-				start = messageBody.find(startMarker2, start);
-				end = messageBody.find(endSpan);
-				
-				if(start != std::string::npos)
-				{
-					start += startMarker2.size();
-					
-					if(end != std::string::npos)
-						end -= start;
-					
-					message.assign(messageBody, start, end);
-				}			
-			}
-		}	
-		
-//		LL_DEBUGS("Voice") << "    raw message = \n" << message << LL_ENDL;
-
-		// strip formatting tags
-		{
-			std::string::size_type start;
-			std::string::size_type end;
-			
-			while((start = message.find('<')) != std::string::npos)
-			{
-				if((end = message.find('>', start + 1)) != std::string::npos)
-				{
-					// Strip out the tag
-					message.erase(start, (end + 1) - start);
-				}
-				else
-				{
-					// Avoid an infinite loop
-					break;
-				}
-			}
-		}
-		
-		// Decode ampersand-escaped chars
-		{
-			std::string::size_type mark = 0;
-
-			// The text may contain text encoded with &lt;, &gt;, and &amp;
-			mark = 0;
-			while((mark = message.find("&lt;", mark)) != std::string::npos)
-			{
-				message.replace(mark, 4, "<");
-				mark += 1;
-			}
-			
-			mark = 0;
-			while((mark = message.find("&gt;", mark)) != std::string::npos)
-			{
-				message.replace(mark, 4, ">");
-				mark += 1;
-			}
-			
-			mark = 0;
-			while((mark = message.find("&amp;", mark)) != std::string::npos)
-			{
-				message.replace(mark, 5, "&");
-				mark += 1;
-			}
-		}
-		
-		// strip leading/trailing whitespace (since we always seem to get a couple newlines)
-		LLStringUtil::trim(message);
-		
-//		LL_DEBUGS("Voice") << "    stripped message = \n" << message << LL_ENDL;
-		
-        sessionStatePtr_t session(findSession(sessionHandle));
-		if(session)
-		{
-			bool is_do_not_disturb = gAgent.isDoNotDisturb();
-			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
-			bool is_linden = LLMuteList::isLinden(session->mName);
-			LLChat chat;
-
-			chat.mMuted = is_muted && !is_linden;
-			
-			if(!chat.mMuted)
-			{
-				chat.mFromID = session->mCallerID;
-				chat.mFromName = session->mName;
-				chat.mSourceType = CHAT_SOURCE_AGENT;
-
-				if(is_do_not_disturb && !is_linden)
-				{
-					// TODO: Question: Return do not disturb mode response here?  Or maybe when session is started instead?
-				}
-				
-				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;
-				LLIMMgr::getInstance()->addMessage(session->mIMSessionID,
-						session->mCallerID,
-						session->mName.c_str(),
-						message.c_str(),
-						false,
-						LLStringUtil::null,		// default arg
-						IM_NOTHING_SPECIAL,		// default arg
-						0,						// default arg
-						LLUUID::null,			// default arg
-						LLVector3::zero);		// default arg
-			}
-		}		
-	}
-}
-
-void LLWebRTCVoiceClient::sessionNotificationEvent(std::string &sessionHandle, std::string &uriString, std::string &notificationType)
-{
-    sessionStatePtr_t session(findSession(sessionHandle));
-	
-	if(session)
-	{
-		participantStatePtr_t participant(session->findParticipant(uriString));
-		if(participant)
-		{
-			if (!stricmp(notificationType.c_str(), "Typing"))
-			{
-				// Other end started typing
-				// TODO: The proper way to add a typing notification seems to be LLIMMgr::processIMTypingStart().
-				// It requires some info for the message, which we don't have here.
-			}
-			else if (!stricmp(notificationType.c_str(), "NotTyping"))
-			{
-				// Other end stopped typing
-				// TODO: The proper way to remove a typing notification seems to be LLIMMgr::processIMTypingStop().
-				// It requires some info for the message, which we don't have here.
-			}
-			else
-			{
-				LL_DEBUGS("Voice") << "Unknown notification type " << notificationType << "for participant " << uriString << " in session " << session->mSIPURI << LL_ENDL;
-			}
-		}
-		else
-		{
-			LL_DEBUGS("Voice") << "Unknown participant " << uriString << " in session " << session->mSIPURI << LL_ENDL;
-		}
-	}
-	else
-	{
-		LL_DEBUGS("Voice") << "Unknown session handle " << sessionHandle << LL_ENDL;
-	}
-}
-
-void LLWebRTCVoiceClient::voiceServiceConnectionStateChangedEvent(int statusCode, std::string &statusString, std::string &build_id)
-{
-	// We don't generally need to process this. However, one occurence is when we first connect, and so it is the
-	// earliest opportunity to learn what we're connected to.
-	if (statusCode)
-	{
-		LL_WARNS("Voice") << "VoiceServiceConnectionStateChangedEvent statusCode: " << statusCode <<
-			"statusString: " << statusString << LL_ENDL;
-		return;
-	}
-	if (build_id.empty())
-	{
-		return;
-	}
-	mVoiceVersion.mBuildVersion = build_id;
-}
-
-void LLWebRTCVoiceClient::auxAudioPropertiesEvent(F32 energy)
-{
-	LL_DEBUGS("VoiceEnergy") << "got energy " << energy << LL_ENDL;
-	mTuningEnergy = energy;
-}
 
 void LLWebRTCVoiceClient::muteListChanged()
 {
@@ -3894,7 +2514,6 @@ bool LLWebRTCVoiceClient::switchChannel(
 			LL_DEBUGS("Voice") << "switching to channel " << uri << LL_ENDL;
 
 			mNextAudioSession = addSession(uri);
-			mNextAudioSession->mHash = hash;
 			mNextAudioSession->mIsSpatial = spatial;
 			mNextAudioSession->mReconnect = !no_reconnect;
 			mNextAudioSession->mIsP2P = is_p2p;
@@ -3931,11 +2550,9 @@ void LLWebRTCVoiceClient::setNonSpatialChannel(
 }
 
 bool LLWebRTCVoiceClient::setSpatialChannel(
-	const std::string &uri,
-	const std::string &credentials)
+	const std::string &uri, const std::string &credentials)
 {
 	mSpatialSessionURI = uri;
-	mSpatialSessionCredentials = credentials;
 	mAreaVoiceDisabled = mSpatialSessionURI.empty();
 
 	LL_DEBUGS("Voice") << "got spatial channel uri: \"" << uri << "\"" << LL_ENDL;
@@ -3948,7 +2565,7 @@ bool LLWebRTCVoiceClient::setSpatialChannel(
 	}
 	else
 	{
-		return switchChannel(mSpatialSessionURI, true, false, false, mSpatialSessionCredentials);
+		return switchChannel(mSpatialSessionURI, true, false, false);
 	}
 }
 
@@ -4003,13 +2620,7 @@ BOOL LLWebRTCVoiceClient::isParticipantAvatar(const LLUUID &id)
 	BOOL result = TRUE; 
     sessionStatePtr_t session(findSession(id));
 	
-	if(session)
-	{
-		// this is a p2p session with the indicated caller, or the session with the specified UUID.
-		if(session->mSynthesizedCallerID)
-			result = FALSE;
-	}
-	else
+	if(!session)
 	{
 		// Didn't find a matching session -- check the current audio session for a matching participant
 		if(mAudioSession)
@@ -4058,11 +2669,6 @@ BOOL LLWebRTCVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 
 void LLWebRTCVoiceClient::declineInvite(std::string &sessionHandle)
 {
-    sessionStatePtr_t session(findSession(sessionHandle));
-	if(session)
-	{
-		sessionMediaDisconnectSendMessage(session);
-	}
 }
 
 void LLWebRTCVoiceClient::leaveNonSpatialChannel()
@@ -4643,108 +3249,6 @@ BOOL LLWebRTCVoiceClient::getAreaVoiceDisabled()
 	return mAreaVoiceDisabled;
 }
 
-void LLWebRTCVoiceClient::recordingLoopStart(int seconds, int deltaFramesPerControlFrame)
-{
-//	LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Start)" << LL_ENDL;
-	
-	if(!mMainSessionGroupHandle.empty())
-	{
-		std::ostringstream stream;
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.ControlRecording.1\">"
-		<< "<SessionGroupHandle>" << mMainSessionGroupHandle << "</SessionGroupHandle>"
-		<< "<RecordingControlType>Start</RecordingControlType>" 
-		<< "<DeltaFramesPerControlFrame>" << deltaFramesPerControlFrame << "</DeltaFramesPerControlFrame>"
-		<< "<Filename>" << "" << "</Filename>"
-		<< "<EnableAudioRecordingEvents>false</EnableAudioRecordingEvents>"
-		<< "<LoopModeDurationSeconds>" << seconds << "</LoopModeDurationSeconds>"
-		<< "</Request>\n\n\n";
-
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::recordingLoopSave(const std::string& filename)
-{
-//	LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Flush)" << LL_ENDL;
-
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
-	{
-		std::ostringstream stream;
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.ControlRecording.1\">"
-		<< "<SessionGroupHandle>" << mMainSessionGroupHandle << "</SessionGroupHandle>"
-		<< "<RecordingControlType>Flush</RecordingControlType>" 
-		<< "<Filename>" << filename << "</Filename>"
-		<< "</Request>\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::recordingStop()
-{
-//	LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Stop)" << LL_ENDL;
-
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
-	{
-		std::ostringstream stream;
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.ControlRecording.1\">"
-		<< "<SessionGroupHandle>" << mMainSessionGroupHandle << "</SessionGroupHandle>"
-		<< "<RecordingControlType>Stop</RecordingControlType>" 
-		<< "</Request>\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::filePlaybackStart(const std::string& filename)
-{
-//	LL_DEBUGS("Voice") << "sending SessionGroup.ControlPlayback (Start)" << LL_ENDL;
-
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
-	{
-		std::ostringstream stream;
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.ControlPlayback.1\">"
-		<< "<SessionGroupHandle>" << mMainSessionGroupHandle << "</SessionGroupHandle>"
-		<< "<RecordingControlType>Start</RecordingControlType>" 
-		<< "<Filename>" << filename << "</Filename>"
-		<< "</Request>\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::filePlaybackStop()
-{
-//	LL_DEBUGS("Voice") << "sending SessionGroup.ControlPlayback (Stop)" << LL_ENDL;
-
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
-	{
-		std::ostringstream stream;
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.ControlPlayback.1\">"
-		<< "<SessionGroupHandle>" << mMainSessionGroupHandle << "</SessionGroupHandle>"
-		<< "<RecordingControlType>Stop</RecordingControlType>" 
-		<< "</Request>\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::filePlaybackSetPaused(bool paused)
-{
-	// TODO: Implement once WebRTC gives me a sample
-}
-
-void LLWebRTCVoiceClient::filePlaybackSetMode(bool vox, float speed)
-{
-	// TODO: Implement once WebRTC gives me a sample
-}
-
 //------------------------------------------------------------------------
 std::set<LLWebRTCVoiceClient::sessionState::wptr_t> LLWebRTCVoiceClient::sessionState::mSession;
 
@@ -4752,11 +3256,6 @@ std::set<LLWebRTCVoiceClient::sessionState::wptr_t> LLWebRTCVoiceClient::session
 LLWebRTCVoiceClient::sessionState::sessionState() :
     mErrorStatusCode(0),
     mMediaStreamState(streamStateUnknown),
-    mCreateInProgress(false),
-    mMediaConnectInProgress(false),
-    mVoiceInvitePending(false),
-    mTextInvitePending(false),
-    mSynthesizedCallerID(false),
     mIsChannel(false),
     mIsSpatial(false),
     mIsP2P(false),
@@ -4796,13 +3295,13 @@ bool LLWebRTCVoiceClient::sessionState::isCallBackPossible()
 	// This may change to be explicitly specified by WebRTC in the future...
 	// Currently, only PSTN P2P calls cannot be returned.
 	// Conveniently, this is also the only case where we synthesize a caller UUID.
-	return !mSynthesizedCallerID;
+	return false;
 }
 
 bool LLWebRTCVoiceClient::sessionState::isTextIMPossible()
 {
 	// This may change to be explicitly specified by WebRTC in the future...
-	return !mSynthesizedCallerID;
+	return false;
 }
 
 
@@ -4813,20 +3312,6 @@ LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::matc
 
     // *TODO: My kingdom for a lambda!
     std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByHandle, _1, handle));
-
-    if (it != mSession.end())
-        result = (*it).lock();
-
-    return result;
-}
-
-/*static*/ 
-LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::matchCreatingSessionByURI(const std::string &uri)
-{
-    sessionStatePtr_t result;
-
-    // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByCreatingURI, _1, uri));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -4880,7 +3365,7 @@ bool LLWebRTCVoiceClient::sessionState::testByCreatingURI(const LLWebRTCVoiceCli
 {
     ptr_t aLock(a.lock());
 
-    return aLock ? (aLock->mCreateInProgress && (aLock->mSIPURI == uri)) : false;
+    return aLock ? (aLock->mSIPURI == uri) : false;
 }
 
 bool LLWebRTCVoiceClient::sessionState::testBySIPOrAlterateURI(const LLWebRTCVoiceClient::sessionState::wptr_t &a, std::string uri)
@@ -4925,13 +3410,6 @@ LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::findSession(const st
 	{
 		result = iter->second;
 	}
-	
-	return result;
-}
-
-LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::findSessionBeingCreatedByURI(const std::string &uri)
-{	
-    sessionStatePtr_t result = sessionState::matchCreatingSessionByURI(uri);
 	
 	return result;
 }
@@ -5305,27 +3783,6 @@ void LLWebRTCVoiceClient::predAvatarNameResolution(const LLWebRTCVoiceClient::se
     {
         // this session's "caller ID" just resolved.  Fill in the name.
         session->mName = name;
-        if (session->mTextInvitePending)
-        {
-            session->mTextInvitePending = false;
-
-            // We don't need to call LLIMMgr::getInstance()->addP2PSession() here.  The first incoming message will create the panel.				
-        }
-        if (session->mVoiceInvitePending)
-        {
-            session->mVoiceInvitePending = false;
-
-            LLIMMgr::getInstance()->inviteToSession(
-                session->mIMSessionID,
-                session->mName,
-                session->mCallerID,
-                session->mName,
-                IM_SESSION_P2P_INVITE,
-                LLIMMgr::INVITATION_TYPE_VOICE,
-                session->mHandle,
-                session->mSIPURI);
-        }
-
     }
 }
 
@@ -5334,775 +3791,6 @@ void LLWebRTCVoiceClient::avatarNameResolved(const LLUUID &id, const std::string
     sessionState::for_each(boost::bind(predAvatarNameResolution, _1, id, name));
 }
 
-bool LLWebRTCVoiceClient::setVoiceEffect(const LLUUID& id)
-{
-	if (!mAudioSession)
-	{
-		return false;
-	}
-
-	if (!id.isNull())
-	{
-		if (mVoiceFontMap.empty())
-		{
-			LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
-			return false;
-		}
-		else if (mVoiceFontMap.find(id) == mVoiceFontMap.end())
-		{
-			LL_DEBUGS("Voice") << "Invalid voice font " << id << LL_ENDL;
-			return false;
-		}
-	}
-
-	// *TODO: Check for expired fonts?
-	mAudioSession->mVoiceFontID = id;
-
-	// *TODO: Separate voice font defaults for spatial chat and IM?
-	gSavedPerAccountSettings.setString("VoiceEffectDefault", id.asString());
-
-	sessionSetVoiceFontSendMessage(mAudioSession);
-	notifyVoiceFontObservers();
-
-	return true;
-}
-
-const LLUUID LLWebRTCVoiceClient::getVoiceEffect()
-{
-	return mAudioSession ? mAudioSession->mVoiceFontID : LLUUID::null;
-}
-
-LLSD LLWebRTCVoiceClient::getVoiceEffectProperties(const LLUUID& id)
-{
-	LLSD sd;
-
-	voice_font_map_t::iterator iter = mVoiceFontMap.find(id);
-	if (iter != mVoiceFontMap.end())
-	{
-		sd["template_only"] = false;
-	}
-	else
-	{
-		// Voice effect is not in the voice font map, see if there is a template
-		iter = mVoiceFontTemplateMap.find(id);
-		if (iter == mVoiceFontTemplateMap.end())
-		{
-			LL_WARNS("Voice") << "Voice effect " << id << "not found." << LL_ENDL;
-			return sd;
-		}
-		sd["template_only"] = true;
-	}
-
-	voiceFontEntry *font = iter->second;
-	sd["name"] = font->mName;
-	sd["expiry_date"] = font->mExpirationDate;
-	sd["is_new"] = font->mIsNew;
-
-	return sd;
-}
-
-LLWebRTCVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
-	mID(id),
-	mFontIndex(0),
-	mFontType(VOICE_FONT_TYPE_NONE),
-	mFontStatus(VOICE_FONT_STATUS_NONE),
-	mIsNew(false)
-{
-	mExpiryTimer.stop();
-	mExpiryWarningTimer.stop();
-}
-
-LLWebRTCVoiceClient::voiceFontEntry::~voiceFontEntry()
-{
-}
-
-void LLWebRTCVoiceClient::refreshVoiceEffectLists(bool clear_lists)
-{
-	if (clear_lists)
-	{
-		mVoiceFontsReceived = false;
-		deleteAllVoiceFonts();
-		deleteVoiceFontTemplates();
-	}
-
-	accountGetSessionFontsSendMessage();
-	accountGetTemplateFontsSendMessage();
-}
-
-const voice_effect_list_t& LLWebRTCVoiceClient::getVoiceEffectList() const
-{
-	return mVoiceFontList;
-}
-
-const voice_effect_list_t& LLWebRTCVoiceClient::getVoiceEffectTemplateList() const
-{
-	return mVoiceFontTemplateList;
-}
-
-void LLWebRTCVoiceClient::addVoiceFont(const S32 font_index,
-								 const std::string &name,
-								 const std::string &description,
-								 const LLDate &expiration_date,
-								 bool has_expired,
-								 const S32 font_type,
-								 const S32 font_status,
-								 const bool template_font)
-{
-	// WebRTC SessionFontIDs are not guaranteed to remain the same between
-	// sessions or grids so use a UUID for the name.
-
-	// If received name is not a UUID, fudge one by hashing the name and type.
-	LLUUID font_id;
-	if (LLUUID::validate(name))
-	{
-		font_id = LLUUID(name);
-	}
-	else
-	{
-		font_id.generate(STRINGIZE(font_type << ":" << name));
-	}
-
-	voiceFontEntry *font = NULL;
-
-	voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
-	voice_effect_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
-
-	// Check whether we've seen this font before.
-	voice_font_map_t::iterator iter = font_map.find(font_id);
-	bool new_font = (iter == font_map.end());
-
-	// Override the has_expired flag if we have passed the expiration_date as a double check.
-	if (expiration_date.secondsSinceEpoch() < (LLDate::now().secondsSinceEpoch() + VOICE_FONT_EXPIRY_INTERVAL))
-	{
-		has_expired = true;
-	}
-
-	if (has_expired)
-	{
-		LL_DEBUGS("VoiceFont") << "Expired " << (template_font ? "Template " : "")
-		<< expiration_date.asString() << " " << font_id
-		<< " (" << font_index << ") " << name << LL_ENDL;
-
-		// Remove existing session fonts that have expired since we last saw them.
-		if (!new_font && !template_font)
-		{
-			deleteVoiceFont(font_id);
-		}
-		return;
-	}
-
-	if (new_font)
-	{
-		// If it is a new font create a new entry.
-		font = new voiceFontEntry(font_id);
-	}
-	else
-	{
-		// Not a new font, update the existing entry
-		font = iter->second;
-	}
-
-	if (font)
-	{
-		font->mFontIndex = font_index;
-		// Use the description for the human readable name if available, as the
-		// "name" may be a UUID.
-		font->mName = description.empty() ? name : description;
-		font->mFontType = font_type;
-		font->mFontStatus = font_status;
-
-		// If the font is new or the expiration date has changed the expiry timers need updating.
-		if (!template_font && (new_font || font->mExpirationDate != expiration_date))
-		{
-			font->mExpirationDate = expiration_date;
-
-			// Set the expiry timer to trigger a notification when the voice font can no longer be used.
-			font->mExpiryTimer.start();
-			font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch() - VOICE_FONT_EXPIRY_INTERVAL);
-
-			// Set the warning timer to some interval before actual expiry.
-			S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
-			if (warning_time != 0)
-			{
-				font->mExpiryWarningTimer.start();
-				F64 expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time);
-				font->mExpiryWarningTimer.setExpiryAt(expiry_time - VOICE_FONT_EXPIRY_INTERVAL);
-			}
-			else
-			{
-				// Disable the warning timer.
-				font->mExpiryWarningTimer.stop();
-			}
-
-			 // Only flag new session fonts after the first time we have fetched the list.
-			if (mVoiceFontsReceived)
-			{
-				font->mIsNew = true;
-				mVoiceFontsNew = true;
-			}
-		}
-
-		LL_DEBUGS("VoiceFont") << (template_font ? "Template " : "")
-			<< font->mExpirationDate.asString() << " " << font->mID
-			<< " (" << font->mFontIndex << ") " << name << LL_ENDL;
-
-		if (new_font)
-		{
-			font_map.insert(voice_font_map_t::value_type(font->mID, font));
-			font_list.insert(voice_effect_list_t::value_type(font->mName, font->mID));
-		}
-
-		mVoiceFontListDirty = true;
-
-		// Debugging stuff
-
-		if (font_type < VOICE_FONT_TYPE_NONE || font_type >= VOICE_FONT_TYPE_UNKNOWN)
-		{
-			LL_WARNS("VoiceFont") << "Unknown voice font type: " << font_type << LL_ENDL;
-		}
-		if (font_status < VOICE_FONT_STATUS_NONE || font_status >= VOICE_FONT_STATUS_UNKNOWN)
-		{
-			LL_WARNS("VoiceFont") << "Unknown voice font status: " << font_status << LL_ENDL;
-		}
-	}
-}
-
-void LLWebRTCVoiceClient::expireVoiceFonts()
-{
-	// *TODO: If we are selling voice fonts in packs, there are probably
-	// going to be a number of fonts with the same expiration time, so would
-	// be more efficient to just keep a list of expiration times rather
-	// than checking each font individually.
-
-	bool have_expired = false;
-	bool will_expire = false;
-	bool expired_in_use = false;
-
-	LLUUID current_effect = LLVoiceClient::instance().getVoiceEffectDefault();
-
-	voice_font_map_t::iterator iter;
-	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
-	{
-		voiceFontEntry* voice_font = iter->second;
-		LLFrameTimer& expiry_timer  = voice_font->mExpiryTimer;
-		LLFrameTimer& warning_timer = voice_font->mExpiryWarningTimer;
-
-		// Check for expired voice fonts
-		if (expiry_timer.getStarted() && expiry_timer.hasExpired())
-		{
-			// Check whether it is the active voice font
-			if (voice_font->mID == current_effect)
-			{
-				// Reset to no voice effect.
-				setVoiceEffect(LLUUID::null);
-				expired_in_use = true;
-			}
-
-			LL_DEBUGS("Voice") << "Voice Font " << voice_font->mName << " has expired." << LL_ENDL;
-			deleteVoiceFont(voice_font->mID);
-			have_expired = true;
-		}
-
-		// Check for voice fonts that will expire in less that the warning time
-		if (warning_timer.getStarted() && warning_timer.hasExpired())
-		{
-			LL_DEBUGS("VoiceFont") << "Voice Font " << voice_font->mName << " will expire soon." << LL_ENDL;
-			will_expire = true;
-			warning_timer.stop();
-		}
-	}
-
-	LLSD args;
-	args["URL"] = LLTrans::getString("voice_morphing_url");
-	args["PREMIUM_URL"] = LLTrans::getString("premium_voice_morphing_url");
-
-	// Give a notification if any voice fonts have expired.
-	if (have_expired)
-	{
-		if (expired_in_use)
-		{
-			LLNotificationsUtil::add("VoiceEffectsExpiredInUse", args);
-		}
-		else
-		{
-			LLNotificationsUtil::add("VoiceEffectsExpired", args);
-		}
-
-		// Refresh voice font lists in the UI.
-		notifyVoiceFontObservers();
-	}
-
-	// Give a warning notification if any voice fonts are due to expire.
-	if (will_expire)
-	{
-		S32Seconds seconds(gSavedSettings.getS32("VoiceEffectExpiryWarningTime"));
-		args["INTERVAL"] = llformat("%d", LLUnit<S32, LLUnits::Days>(seconds).value());
-
-		LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
-	}
-}
-
-void LLWebRTCVoiceClient::deleteVoiceFont(const LLUUID& id)
-{
-	// Remove the entry from the voice font list.
-	voice_effect_list_t::iterator list_iter = mVoiceFontList.begin();
-	while (list_iter != mVoiceFontList.end())
-	{
-		if (list_iter->second == id)
-		{
-			LL_DEBUGS("VoiceFont") << "Removing " << id << " from the voice font list." << LL_ENDL;
-            list_iter = mVoiceFontList.erase(list_iter);
-			mVoiceFontListDirty = true;
-		}
-		else
-		{
-			++list_iter;
-		}
-	}
-
-	// Find the entry in the voice font map and erase its data.
-	voice_font_map_t::iterator map_iter = mVoiceFontMap.find(id);
-	if (map_iter != mVoiceFontMap.end())
-	{
-		delete map_iter->second;
-	}
-
-	// Remove the entry from the voice font map.
-	mVoiceFontMap.erase(map_iter);
-}
-
-void LLWebRTCVoiceClient::deleteAllVoiceFonts()
-{
-	mVoiceFontList.clear();
-
-	voice_font_map_t::iterator iter;
-	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
-	{
-		delete iter->second;
-	}
-	mVoiceFontMap.clear();
-}
-
-void LLWebRTCVoiceClient::deleteVoiceFontTemplates()
-{
-	mVoiceFontTemplateList.clear();
-
-	voice_font_map_t::iterator iter;
-	for (iter = mVoiceFontTemplateMap.begin(); iter != mVoiceFontTemplateMap.end(); ++iter)
-	{
-		delete iter->second;
-	}
-	mVoiceFontTemplateMap.clear();
-}
-
-S32 LLWebRTCVoiceClient::getVoiceFontIndex(const LLUUID& id) const
-{
-	S32 result = 0;
-	if (!id.isNull())
-	{
-		voice_font_map_t::const_iterator it = mVoiceFontMap.find(id);
-		if (it != mVoiceFontMap.end())
-		{
-			result = it->second->mFontIndex;
-		}
-		else
-		{
-			LL_WARNS("VoiceFont") << "Selected voice font " << id << " is not available." << LL_ENDL;
-		}
-	}
-	return result;
-}
-
-S32 LLWebRTCVoiceClient::getVoiceFontTemplateIndex(const LLUUID& id) const
-{
-	S32 result = 0;
-	if (!id.isNull())
-	{
-		voice_font_map_t::const_iterator it = mVoiceFontTemplateMap.find(id);
-		if (it != mVoiceFontTemplateMap.end())
-		{
-			result = it->second->mFontIndex;
-		}
-		else
-		{
-			LL_WARNS("VoiceFont") << "Selected voice font template " << id << " is not available." << LL_ENDL;
-		}
-	}
-	return result;
-}
-
-void LLWebRTCVoiceClient::accountGetSessionFontsSendMessage()
-{
-	if(mAccountLoggedIn)
-	{
-		std::ostringstream stream;
-
-		LL_DEBUGS("VoiceFont") << "Requesting voice font list." << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetSessionFonts.1\">"
-		<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::accountGetTemplateFontsSendMessage()
-{
-	if(mAccountLoggedIn)
-	{
-		std::ostringstream stream;
-
-		LL_DEBUGS("VoiceFont") << "Requesting voice font template list." << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetTemplateFonts.1\">"
-		<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::sessionSetVoiceFontSendMessage(const sessionStatePtr_t &session)
-{
-	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
-	LL_DEBUGS("VoiceFont") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << "), session handle: " << session->mHandle << LL_ENDL;
-
-	std::ostringstream stream;
-
-	stream
-	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetVoiceFont.1\">"
-	<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
-	<< "<SessionFontID>" << font_index << "</SessionFontID>"
-	<< "</Request>\n\n\n";
-
-	writeString(stream.str());
-}
-
-void LLWebRTCVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::string &statusString)
-{
-    if (mIsWaitingForFonts)
-    {
-        // *TODO: We seem to get multiple events of this type.  Should figure a way to advance only after
-        // receiving the last one.
-        LLSD result(LLSDMap("voice_fonts", LLSD::Boolean(true)));
-
-        mWebRTCPump.post(result);
-    }
-	notifyVoiceFontObservers();
-	mVoiceFontsReceived = true;
-}
-
-void LLWebRTCVoiceClient::accountGetTemplateFontsResponse(int statusCode, const std::string &statusString)
-{
-	// Voice font list entries were updated via addVoiceFont() during parsing.
-	notifyVoiceFontObservers();
-}
-void LLWebRTCVoiceClient::addObserver(LLVoiceEffectObserver* observer)
-{
-	mVoiceFontObservers.insert(observer);
-}
-
-void LLWebRTCVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
-{
-	mVoiceFontObservers.erase(observer);
-}
-
-// method checks the item in VoiceMorphing menu for appropriate current voice font
-bool LLWebRTCVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name)
-{
-	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (NULL != effect_interfacep)
-	{
-		const LLUUID& currect_voice_effect_id = effect_interfacep->getVoiceEffect();
-
-		if (currect_voice_effect_id.isNull())
-		{
-			if (voice_effect_name == "NoVoiceMorphing")
-			{
-				return true;
-			}
-		}
-		else
-		{
-			const LLSD& voice_effect_props = effect_interfacep->getVoiceEffectProperties(currect_voice_effect_id);
-			if (voice_effect_props["name"].asString() == voice_effect_name)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-// method changes voice font for selected VoiceMorphing menu item
-void LLWebRTCVoiceClient::onClickVoiceEffect(const std::string& voice_effect_name)
-{
-	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (NULL != effect_interfacep)
-	{
-		if (voice_effect_name == "NoVoiceMorphing")
-		{
-			effect_interfacep->setVoiceEffect(LLUUID());
-			return;
-		}
-		const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
-		if (!effect_list.empty())
-		{
-			for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
-			{
-				if (voice_effect_name == it->first)
-				{
-					effect_interfacep->setVoiceEffect(it->second);
-					return;
-				}
-			}
-		}
-	}
-}
-
-// it updates VoiceMorphing menu items in accordance with purchased properties 
-void LLWebRTCVoiceClient::updateVoiceMorphingMenu()
-{
-	if (mVoiceFontListDirty)
-	{
-		LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-		if (effect_interfacep)
-		{
-			const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
-			if (!effect_list.empty())
-			{
-				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
-
-				if (NULL != voice_morphing_menup)
-				{
-					S32 items = voice_morphing_menup->getItemCount();
-					if (items > 0)
-					{
-						voice_morphing_menup->erase(1, items - 3, false);
-
-						S32 pos = 1;
-						for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
-						{
-							LLMenuItemCheckGL::Params p;
-							p.name = it->first;
-							p.label = it->first;
-							p.on_check.function(boost::bind(&LLWebRTCVoiceClient::onCheckVoiceEffect, this, it->first));
-							p.on_click.function(boost::bind(&LLWebRTCVoiceClient::onClickVoiceEffect, this, it->first));
-							LLMenuItemCheckGL * voice_effect_itemp = LLUICtrlFactory::create<LLMenuItemCheckGL>(p);
-							voice_morphing_menup->insert(pos++, voice_effect_itemp, false);
-						}
-
-						voice_morphing_menup->needsArrange();
-					}
-				}
-			}
-		}
-	}
-}
-void LLWebRTCVoiceClient::notifyVoiceFontObservers()
-{
-    LL_DEBUGS("VoiceFont") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
-
-    updateVoiceMorphingMenu();
-
-    for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
-            it != mVoiceFontObservers.end();)
-    {
-        LLVoiceEffectObserver* observer = *it;
-        observer->onVoiceEffectChanged(mVoiceFontListDirty);
-        // In case onVoiceEffectChanged() deleted an entry.
-        it = mVoiceFontObservers.upper_bound(observer);
-    }
-    mVoiceFontListDirty = false;
-
-	// If new Voice Fonts have been added notify the user.
-    if (mVoiceFontsNew)
-    {
-        if (mVoiceFontsReceived)
-        {
-            LLNotificationsUtil::add("VoiceEffectsNew");
-        }
-        mVoiceFontsNew = false;
-    }
-}
-
-void LLWebRTCVoiceClient::enablePreviewBuffer(bool enable)
-{
-    LLSD result;
-    mCaptureBufferMode = enable;
-
-    if (enable)
-        result["recplay"] = "start";
-    else
-        result["recplay"] = "quit";
-
-    mWebRTCPump.post(result);
-
-	if(mCaptureBufferMode && mIsInChannel)
-	{
-		LL_DEBUGS("Voice") << "no channel" << LL_ENDL;
-		sessionTerminate();
-	}
-}
-
-void LLWebRTCVoiceClient::recordPreviewBuffer()
-{
-	if (!mCaptureBufferMode)
-	{
-		LL_DEBUGS("Voice") << "Not in voice effect preview mode, cannot start recording." << LL_ENDL;
-		mCaptureBufferRecording = false;
-		return;
-	}
-
-	mCaptureBufferRecording = true;
-
-    LLSD result(LLSDMap("recplay", "record"));
-    mWebRTCPump.post(result);
-}
-
-void LLWebRTCVoiceClient::playPreviewBuffer(const LLUUID& effect_id)
-{
-	if (!mCaptureBufferMode)
-	{
-		LL_DEBUGS("Voice") << "Not in voice effect preview mode, no buffer to play." << LL_ENDL;
-		mCaptureBufferRecording = false;
-		return;
-	}
-
-	if (!mCaptureBufferRecorded)
-	{
-		// Can't play until we have something recorded!
-		mCaptureBufferPlaying = false;
-		return;
-	}
-
-	mPreviewVoiceFont = effect_id;
-	mCaptureBufferPlaying = true;
-
-    LLSD result(LLSDMap("recplay", "playback"));
-    mWebRTCPump.post(result);
-}
-
-void LLWebRTCVoiceClient::stopPreviewBuffer()
-{
-	mCaptureBufferRecording = false;
-	mCaptureBufferPlaying = false;
-
-    LLSD result(LLSDMap("recplay", "quit"));
-    mWebRTCPump.post(result);
-}
-
-bool LLWebRTCVoiceClient::isPreviewRecording()
-{
-	return (mCaptureBufferMode && mCaptureBufferRecording);
-}
-
-bool LLWebRTCVoiceClient::isPreviewPlaying()
-{
-	return (mCaptureBufferMode && mCaptureBufferPlaying);
-}
-
-void LLWebRTCVoiceClient::captureBufferRecordStartSendMessage()
-{	if(mAccountLoggedIn)
-	{
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "Starting audio capture to buffer." << LL_ENDL;
-
-		// Start capture
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.StartBufferCapture.1\">"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		// Unmute the mic
-		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
-			<< "<ConnectorHandle>" << LLWebRTCSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
-			<< "<Value>false</Value>"
-		<< "</Request>\n\n\n";
-
-		// Dirty the mute mic state so that it will get reset when we finishing previewing
-		mMuteMicDirty = true;
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::captureBufferRecordStopSendMessage()
-{
-	if(mAccountLoggedIn)
-	{
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "Stopping audio capture to buffer." << LL_ENDL;
-
-		// Mute the mic. Mic mute state was dirtied at recording start, so will be reset when finished previewing.
-		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
-			<< "<ConnectorHandle>" << LLWebRTCSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
-			<< "<Value>true</Value>"
-		<< "</Request>\n\n\n";
-
-		// Stop capture
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStop.1\">"
-			<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_font_id)
-{
-	if(mAccountLoggedIn)
-	{
-		// Track how may play requests are sent, so we know how many stop events to
-		// expect before play actually stops.
-		++mPlayRequestCount;
-
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "Starting audio buffer playback." << LL_ENDL;
-
-		S32 font_index = getVoiceFontTemplateIndex(voice_font_id);
-		LL_DEBUGS("Voice") << "With voice font: " << voice_font_id << " (" << font_index << ")" << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.PlayAudioBuffer.1\">"
-			<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-			<< "<TemplateFontID>" << font_index << "</TemplateFontID>"
-			<< "<FontDelta />"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
-
-void LLWebRTCVoiceClient::captureBufferPlayStopSendMessage()
-{
-	if(mAccountLoggedIn)
-	{
-		std::ostringstream stream;
-
-		LL_DEBUGS("Voice") << "Stopping audio buffer playback." << LL_ENDL;
-
-		stream
-		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStop.1\">"
-			<< "<AccountHandle>" << LLWebRTCSecurity::getInstance()->accountHandle() << "</AccountHandle>"
-		<< "</Request>"
-		<< "\n\n\n";
-
-		writeString(stream.str());
-	}
-}
 
 std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id) { return id.asString(); }
 

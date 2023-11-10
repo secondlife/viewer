@@ -373,8 +373,8 @@ float LLWebRTCImpl::getTuningAudioLevel() { return 20 * mTuningAudioDeviceObserv
 
 float LLWebRTCImpl::getPeerAudioLevel() { return 20 * mPeerAudioDeviceObserver->getMicrophoneEnergy(); }
 
-void LLWebRTCImpl::setSpeakerVolume(float volume) { mPeerDeviceModule->SetSpeakerVolume(volume * VOLUME_SCALE_WEBRTC);}
-void LLWebRTCImpl::setMicrophoneVolume(float volume) { mPeerDeviceModule->SetMicrophoneVolume(volume * VOLUME_SCALE_WEBRTC);}
+void LLWebRTCImpl::setSpeakerVolume(float volume) { mPeerDeviceModule->SetSpeakerVolume( (uint32_t)(volume * VOLUME_SCALE_WEBRTC));}
+void LLWebRTCImpl::setMicrophoneVolume(float volume) { mPeerDeviceModule->SetMicrophoneVolume((uint32_t)(volume * VOLUME_SCALE_WEBRTC));}
 
 //
 // Helpers

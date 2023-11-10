@@ -53,8 +53,6 @@ class LLWebRTCProtocolParser;
 #include <llwebrtc.h>
 
 class LLAvatarName;
-class LLWebRTCVoiceClientMuteListObserver;
-
 
 class LLWebRTCVoiceClient :	public LLSingleton<LLWebRTCVoiceClient>,
 							virtual public LLVoiceModuleInterface,
@@ -200,6 +198,40 @@ public:
 	F32 getUserVolume(const LLUUID& id) override;
 	void setUserVolume(const LLUUID& id, F32 volume) override; // set's volume for specified agent, from 0-1 (where .5 is nominal)
 	//@}
+
+	//////////////////////////
+    /// @name Effect Accessors
+    //@{
+    bool         setVoiceEffect(const LLUUID &id) override { return false; }
+    const LLUUID getVoiceEffect() override { return LLUUID(); }
+    LLSD         getVoiceEffectProperties(const LLUUID &id) override { return LLSD(); }
+
+    void                       refreshVoiceEffectLists(bool clear_lists) override {};
+    const voice_effect_list_t &getVoiceEffectList() const override { return mVoiceEffectList; }
+    const voice_effect_list_t &getVoiceEffectTemplateList() const override { return mVoiceEffectList; }
+
+	voice_effect_list_t mVoiceEffectList;
+    //@}
+
+    //////////////////////////////
+    /// @name Status notification
+    //@{
+    void addObserver(LLVoiceEffectObserver *observer) override {}
+    void removeObserver(LLVoiceEffectObserver *observer) override {}
+    //@}
+
+	//////////////////////////////
+    /// @name Preview buffer
+    //@{
+    void enablePreviewBuffer(bool enable) override {}
+    void recordPreviewBuffer() override {}
+    void playPreviewBuffer(const LLUUID &effect_id = LLUUID::null) override {}
+    void stopPreviewBuffer() override {}
+
+    bool isPreviewRecording() override { return false;  }
+    bool isPreviewPlaying() override { return false; }
+    //@}
+
 	
 	// authorize the user
 	void userAuthorized(const std::string& user_id,
@@ -218,28 +250,7 @@ public:
 	
 	//@}
 
-	/// @name LLVoiceEffectInterface virtual implementations
-	///  @see LLVoiceEffectInterface
-	//@{
 
-	//////////////////////////
-	/// @name Accessors
-	//@{
-	bool setVoiceEffect(const LLUUID& id) override;
-	const LLUUID getVoiceEffect() override;
-	LLSD getVoiceEffectProperties(const LLUUID& id) override;
-
-	void refreshVoiceEffectLists(bool clear_lists) override;
-	const voice_effect_list_t& getVoiceEffectList() const override;
-	const voice_effect_list_t& getVoiceEffectTemplateList() const override;
-	//@}
-
-	//////////////////////////////
-	/// @name Status notification
-	//@{
-	void addObserver(LLVoiceEffectObserver* observer) override;
-	void removeObserver(LLVoiceEffectObserver* observer) override;
-	//@}
 
 	//////////////////////////////
     /// @name Devices change notification
@@ -279,29 +290,11 @@ public:
     void onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD& result);
 
 
-	//////////////////////////////
-	/// @name Effect preview buffer
-	//@{
-	void enablePreviewBuffer(bool enable) override;
-	void recordPreviewBuffer() override;
-	void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null) override;
-	void stopPreviewBuffer() override;
-
-	bool isPreviewRecording() override;
-	bool isPreviewPlaying() override;
 	//@}
-
-	//@}
-
-	bool onCheckVoiceEffect(const std::string& voice_effect_name);
-	void onClickVoiceEffect(const std::string& voice_effect_name);
 
 protected:
 	//////////////////////
 	// WebRTC Specific definitions	
-	
-	friend class LLWebRTCVoiceClientMuteListObserver;
-	friend class LLWebRTCVoiceClientFriendsObserver;	
 
 	
 	enum streamState
@@ -366,7 +359,6 @@ protected:
         participantStatePtr_t findParticipantByID(const LLUUID& id);
 
         static ptr_t matchSessionByHandle(const std::string &handle);
-        static ptr_t matchCreatingSessionByURI(const std::string &uri);
         static ptr_t matchSessionByURI(const std::string &uri);
         static ptr_t matchSessionByParticipant(const LLUUID &participant_id);
 
@@ -381,7 +373,6 @@ protected:
 		std::string mAlias;
 		std::string mName;
 		std::string mAlternateSIPURI;
-		std::string mHash;			// Channel password
 		std::string mErrorStatusString;
 		std::queue<std::string> mTextMsgQueue;
 		
@@ -389,11 +380,6 @@ protected:
 		LLUUID		mCallerID;
 		int			mErrorStatusCode;
 		int			mMediaStreamState;
-		bool		mCreateInProgress;	// True if a Session.Create has been sent for this session and no response has been received yet.
-		bool		mMediaConnectInProgress;	// True if a Session.MediaConnect has been sent for this session and no response has been received yet.
-		bool		mVoiceInvitePending;	// True if a voice invite is pending for this session (usually waiting on a name lookup)
-		bool		mTextInvitePending;		// True if a text invite is pending for this session (usually waiting on a name lookup)
-		bool		mSynthesizedCallerID;	// True if the caller ID is a hash of the SIP URI -- this means we shouldn't do a name lookup.
 		bool		mIsChannel;	// True for both group and spatial channels (false for p2p, PSTN)
 		bool		mIsSpatial;	// True for spatial channels
 		bool		mIsP2P;
@@ -447,8 +433,6 @@ protected:
 	// Call this if we're just giving up on voice (can't provision an account, etc.).  It will clean up and go away.
 	void giveUp();	
 	
-	// write to the tvc
-	bool writeString(const std::string &str);
 	
 	void connectorCreate();
 	void connectorShutdown();	
@@ -459,21 +443,10 @@ protected:
 			   const std::string& account_name,
 			   const std::string& password,
 			   const std::string& channel_sdp);
-	void loginSendMessage();
-	void logout();
-	void logoutSendMessage();	
+	void logout();	
 	
 	
 	//@}
-	
-	//------------------------------------
-	// tuning
-	
-	void tuningRenderStartSendMessage(const std::string& name, bool loop);
-	void tuningRenderStopSendMessage();
-
-	void tuningCaptureStartSendMessage(int duration);
-	void tuningCaptureStopSendMessage();
 
 	//----------------------------------
 	// devices
@@ -489,35 +462,9 @@ protected:
 	void sendLocalAudioUpdates();
 
 	/////////////////////////////
-	// Response/Event handlers
-	void connectorCreateResponse(int statusCode, std::string &statusString, std::string &connectorHandle, std::string &versionID);
-	void loginResponse(int statusCode, std::string &statusString, std::string &accountHandle, int numberOfAliases);
-	void sessionCreateResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle);
-	void sessionGroupAddSessionResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle);
-	void sessionConnectResponse(std::string &requestId, int statusCode, std::string &statusString);
-	void logoutResponse(int statusCode, std::string &statusString);
-	void connectorShutdownResponse(int statusCode, std::string &statusString);
+	// Event handlers
 
-	void accountLoginStateChangeEvent(std::string &accountHandle, int statusCode, std::string &statusString, int state);
-	void mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType);
-	void mediaStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, int statusCode, std::string &statusString, int state, bool incoming);
-	void sessionAddedEvent(std::string &uriString, std::string &alias, std::string &sessionHandle, std::string &sessionGroupHandle, bool isChannel, bool incoming, std::string &nameString, std::string &applicationString);
-	void sessionGroupAddedEvent(std::string &sessionGroupHandle);
-	void sessionRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle);
-	void participantAddedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString, std::string &displayNameString, int participantType);
-	void participantRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString);
-	void voiceServiceConnectionStateChangedEvent(int statusCode, std::string &statusString, std::string &build_id);
-	void auxAudioPropertiesEvent(F32 energy);
-	void messageEvent(std::string &sessionHandle, std::string &uriString, std::string &alias, std::string &messageHeader, std::string &messageBody, std::string &applicationString);
-	void sessionNotificationEvent(std::string &sessionHandle, std::string &uriString, std::string &notificationType);
-	
 	void muteListChanged();
-		
-	/////////////////////////////
-	// VAD changes
-	// disable auto-VAD and configure VAD parameters explicitly
-	void setupVADParams(unsigned int vad_auto, unsigned int vad_hangover, unsigned int vad_noise_floor, unsigned int vad_sensitivity);
-	void onVADSettingsChange();
 
 	/////////////////////////////
 	// Sending updates of current state
@@ -539,19 +486,6 @@ protected:
 	/////////////////////////////
 	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
 										// Use this to determine whether to show a "no speech" icon in the menu bar.
-		
-	
-	/////////////////////////////
-	// Recording controls
-	void recordingLoopStart(int seconds = 3600, int deltaFramesPerControlFrame = 200);
-	void recordingLoopSave(const std::string& filename);
-	void recordingStop();
-	
-	// Playback controls
-	void filePlaybackStart(const std::string& filename);
-	void filePlaybackStop();
-	void filePlaybackSetPaused(bool paused);
-	void filePlaybackSetMode(bool vox = false, float speed = 1.0f);
 	
     participantStatePtr_t findParticipantByID(const LLUUID& id);
     participantStatePtr_t addParticipantByID(const LLUUID &id);	
@@ -568,7 +502,6 @@ protected:
 #endif
     void              sessionEstablished();
     sessionStatePtr_t findSession(const std::string &handle);
-    sessionStatePtr_t findSessionBeingCreatedByURI(const std::string &uri);
     sessionStatePtr_t findSession(const LLUUID &participant_id);
 	
     sessionStatePtr_t addSession(const std::string &uri, const std::string &handle = std::string());
@@ -610,24 +543,6 @@ protected:
 	};
 
 	typedef std::map<std::string, buddyListEntry*> buddyListMap;
-	
-	/////////////////////////////
-	// session control messages
-
-	void accountListBlockRulesSendMessage();
-	void accountListAutoAcceptRulesSendMessage();
-	
-	void sessionGroupCreateSendMessage();
-    void sessionCreateSendMessage(const sessionStatePtr_t &session, bool startAudio = true, bool startText = false);
-    void sessionGroupAddSessionSendMessage(const sessionStatePtr_t &session, bool startAudio = true, bool startText = false);
-    void sessionMediaConnectSendMessage(const sessionStatePtr_t &session);		// just joins the audio session
-    void sessionTextConnectSendMessage(const sessionStatePtr_t &session);		// just joins the text session
-    void sessionTerminateSendMessage(const sessionStatePtr_t &session);
-    void sessionGroupTerminateSendMessage(const sessionStatePtr_t &session);
-    void sessionMediaDisconnectSendMessage(const sessionStatePtr_t &session);
-	// void sessionTextDisconnectSendMessage(sessionState *session);
-
-	
 	
 	// Pokes the state machine to leave the audio session next time around.
 	void sessionTerminate();	
@@ -703,10 +618,6 @@ private:
 
     bool waitForChannel();
     bool runSession(const sessionStatePtr_t &session);
-
-    void recordingAndPlaybackMode();
-    int voiceRecordBuffer();
-    int voicePlaybackBuffer();
 
     bool performMicTuning();
     //---
@@ -811,14 +722,6 @@ private:
     Json::Value getPositionAndVolumeUpdateJson(bool force);
 	void sendPositionAndVolumeUpdate();
 
-	void sendFriendsListUpdates();
-
-#if 0
-	// start a text IM session with the specified user
-	// This will be asynchronous, the session may be established at a future time.
-    sessionStatePtr_t startUserIMSession(const LLUUID& uuid);
-#endif
-
 	void enforceTether(void);
 	
 	bool		mSpatialCoordsDirty;
@@ -876,87 +779,6 @@ private:
 	friend_observer_set_t mFriendObservers;
 	void notifyFriendObservers();
 
-	// Voice Fonts
-
-	void expireVoiceFonts();
-	void deleteVoiceFont(const LLUUID& id);
-	void deleteAllVoiceFonts();
-	void deleteVoiceFontTemplates();
-
-	S32 getVoiceFontIndex(const LLUUID& id) const;
-	S32 getVoiceFontTemplateIndex(const LLUUID& id) const;
-
-	void accountGetSessionFontsSendMessage();
-	void accountGetTemplateFontsSendMessage();
-    void sessionSetVoiceFontSendMessage(const sessionStatePtr_t &session);
-
-	void updateVoiceMorphingMenu();
-	void notifyVoiceFontObservers();
-
-	typedef enum e_voice_font_type
-	{
-		VOICE_FONT_TYPE_NONE = 0,
-		VOICE_FONT_TYPE_ROOT = 1,
-		VOICE_FONT_TYPE_USER = 2,
-		VOICE_FONT_TYPE_UNKNOWN
-	} EVoiceFontType;
-
-	typedef enum e_voice_font_status
-	{
-		VOICE_FONT_STATUS_NONE = 0,
-		VOICE_FONT_STATUS_FREE = 1,
-		VOICE_FONT_STATUS_NOT_FREE = 2,
-		VOICE_FONT_STATUS_UNKNOWN
-	} EVoiceFontStatus;
-
-	struct voiceFontEntry
-	{
-		voiceFontEntry(LLUUID& id);
-		~voiceFontEntry();
-
-		LLUUID		mID;
-		S32			mFontIndex;
-		std::string mName;
-		LLDate		mExpirationDate;
-		S32			mFontType;
-		S32			mFontStatus;
-		bool		mIsNew;
-
-		LLFrameTimer	mExpiryTimer;
-		LLFrameTimer	mExpiryWarningTimer;
-	};
-
-	bool mVoiceFontsReceived;
-	bool mVoiceFontsNew;
-	bool mVoiceFontListDirty;
-	voice_effect_list_t	mVoiceFontList;
-	voice_effect_list_t	mVoiceFontTemplateList;
-
-	typedef std::map<const LLUUID, voiceFontEntry*> voice_font_map_t;
-	voice_font_map_t	mVoiceFontMap;
-	voice_font_map_t	mVoiceFontTemplateMap;
-
-	typedef std::set<LLVoiceEffectObserver*> voice_font_observer_set_t;
-	voice_font_observer_set_t mVoiceFontObservers;
-
-	LLFrameTimer	mVoiceFontExpiryTimer;
-
-
-	// Audio capture buffer
-
-	void captureBufferRecordStartSendMessage();
-	void captureBufferRecordStopSendMessage();
-	void captureBufferPlayStartSendMessage(const LLUUID& voice_font_id = LLUUID::null);
-	void captureBufferPlayStopSendMessage();
-
-	bool mCaptureBufferMode;		// Disconnected from voice channels while using the capture buffer.
-	bool mCaptureBufferRecording;	// A voice sample is being captured.
-	bool mCaptureBufferRecorded;	// A voice sample is captured in the buffer ready to play.
-	bool mCaptureBufferPlaying;		// A voice sample is being played.
-
-	LLTimer mCaptureTimer;
-	LLUUID  mPreviewVoiceFont;
-	LLUUID  mPreviewVoiceFontLast;
 	S32     mPlayRequestCount;
     bool    mIsInTuningMode;
     bool    mIsInChannel;
