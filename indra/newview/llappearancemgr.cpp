@@ -1399,7 +1399,7 @@ const std::string LLAppearanceMgr::sExpectedTextureName = "OutfitPreview";
 
 const LLUUID LLAppearanceMgr::getCOF() const
 {
-	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	return mCOFID;
 }
 
 S32 LLAppearanceMgr::getCOFVersion() const
@@ -1413,6 +1413,11 @@ S32 LLAppearanceMgr::getCOFVersion() const
 	{
 		return LLViewerInventoryCategory::VERSION_UNKNOWN;
 	}
+}
+
+void LLAppearanceMgr::initCOFID()
+{
+    mCOFID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 }
 
 const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
@@ -3749,6 +3754,14 @@ LLSD LLAppearanceMgr::dumpCOF() const
 	return result;
 }
 
+void LLAppearanceMgr::cleanup()
+{
+    mIsInUpdateAppearanceFromCOF = false;
+    mOutstandingAppearanceBakeRequest = false;
+    mRerequestAppearanceBake = false;
+    mCOFID.setNull();
+}
+
 // static
 void LLAppearanceMgr::onIdle(void *)
 {
@@ -4387,20 +4400,45 @@ BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 	return FALSE;
 }
 
-BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
+bool LLAppearanceMgr::getIsInCOF(const LLInventoryObject* obj) const
 {
-	if (!getIsInCOF(obj_id)) return FALSE;
+    const LLUUID& cof = getCOF();
+    if (obj->getUUID() == cof)
+        return true;
+    if (obj && obj->getParentUUID() == cof)
+        return true;
+    return false;
+}
+
+bool LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
+{
+	if (!getIsInCOF(obj_id)) return false;
 
 	// If a non-link somehow ended up in COF, allow deletion.
 	const LLInventoryObject *obj = gInventory.getObject(obj_id);
 	if (obj && !obj->getIsLinkType())
 	{
-		return FALSE;
+		return false;
 	}
 
 	// For now, don't allow direct deletion from the COF.  Instead, force users
 	// to choose "Detach" or "Take Off".
-	return TRUE;
+	return true;
+}
+
+bool LLAppearanceMgr::getIsProtectedCOFItem(const LLInventoryObject* obj) const
+{
+    if (!getIsInCOF(obj)) return false;
+
+    // If a non-link somehow ended up in COF, allow deletion.
+    if (obj && !obj->getIsLinkType())
+    {
+        return false;
+    }
+
+    // For now, don't allow direct deletion from the COF.  Instead, force users
+    // to choose "Detach" or "Take Off".
+    return true;
 }
 
 class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver

@@ -59,6 +59,7 @@ bool get_is_item_editable(const LLUUID& inv_item_id);
 void handle_item_edit(const LLUUID& inv_item_id);
 
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
+bool get_is_category_and_children_removable(LLInventoryModel* model, const LLUUID& folder_id, bool check_worn);
 
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
 

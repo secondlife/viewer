@@ -2399,49 +2399,19 @@ void LLFolderBridge::update()
 	}
 }
 
-
-// Iterate through a folder's children to determine if
-// all the children are removable.
-class LLIsItemRemovable : public LLFolderViewFunctor
-{
-public:
-	LLIsItemRemovable(bool check_worn = true) : mPassed(TRUE), mCheckWorn(check_worn) {}
-	virtual void doFolder(LLFolderViewFolder* folder)
-	{
-		mPassed &= folder->getViewModelItem()->isItemRemovable(mCheckWorn);
-	}
-	virtual void doItem(LLFolderViewItem* item)
-	{
-		mPassed &= item->getViewModelItem()->isItemRemovable(mCheckWorn);
-	}
-	BOOL mPassed;
-    bool mCheckWorn;
-};
-
 // Can be destroyed (or moved to trash)
 BOOL LLFolderBridge::isItemRemovable(bool check_worn) const
 {
-	if (!get_is_category_removable(getInventoryModel(), mUUID))
+	if (!get_is_category_and_children_removable(getInventoryModel(), mUUID, check_worn))
 	{
 		return FALSE;
 	}
 
-	LLInventoryPanel* panel = mInventoryPanel.get();
-	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ?   panel->getItemByID(mUUID) : NULL);
-	if (folderp)
-	{
-		LLIsItemRemovable folder_test(check_worn);
-		folderp->applyFunctorToChildren(folder_test);
-		if (!folder_test.mPassed)
-		{
-			return FALSE;
-		}
-	}
-
-	if (isMarketplaceListingsFolder() && (!LLMarketplaceData::instance().isSLMDataFetched() || LLMarketplaceData::instance().getActivationState(mUUID)))
-	{
-		return FALSE;
-	}
+    if (isMarketplaceListingsFolder()
+        && (!LLMarketplaceData::instance().isSLMDataFetched() || LLMarketplaceData::instance().getActivationState(mUUID)))
+    {
+        return FALSE;
+    }
 
 	return TRUE;
 }

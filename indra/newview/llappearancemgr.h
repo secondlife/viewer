@@ -111,9 +111,11 @@ public:
 	// Find the Current Outfit folder.
 	const LLUUID getCOF() const;
 	S32 getCOFVersion() const;
+    void initCOFID();
 
 	// Debugging - get truncated LLSD summary of COF contents.
 	LLSD dumpCOF() const;
+    void cleanup();
 
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getBaseOutfitLink();
@@ -276,6 +278,7 @@ private:
 	attachments_changed_signal_t		mAttachmentsChangeSignal;
 	
 	LLUUID mCOFImageID;
+    LLUUID mCOFID;
 
 	std::unique_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 
@@ -290,8 +293,10 @@ private:
 public:
 	// Is this in the COF?
 	BOOL getIsInCOF(const LLUUID& obj_id) const;
-	// Is this in the COF and can the user delete it from the COF?
-	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
+    bool getIsInCOF(const LLInventoryObject* obj) const;
+    // Is this in the COF and can the user delete it from the COF?
+    bool getIsProtectedCOFItem(const LLUUID& obj_id) const;
+    bool getIsProtectedCOFItem(const LLInventoryObject* obj) const;
 
 	// Outfits will prioritize textures with such name to use for preview in gallery
 	static const std::string sExpectedTextureName;
