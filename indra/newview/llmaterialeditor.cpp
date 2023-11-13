@@ -1840,17 +1840,9 @@ static void pack_textures(
 
     if (normal_img)
     {
-        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img);
-
-        LLPointer<LLImageJ2C> test;
-        test = LLViewerTextureList::convertToUploadFile(normal_img, 1024, true);
-
-        S32 lossy_bytes = normal_j2c->getDataSize();
-        S32 lossless_bytes = test->getDataSize();
-
-        LL_DEBUGS("MaterialEditor") << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
-
-        normal_j2c = test;
+        // create a losslessly compressed version of the normal map
+        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img, 1024, false, true);
+        LL_DEBUGS("MaterialEditor") << "Normal: " << normal_j2c->getDataSize() << LL_ENDL;
     }
 
     if (mr_img)

@@ -723,6 +723,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     if (am.isInteger())
     {
         mAlphaMode = (AlphaMode) am.asInteger();
+        mOverrideAlphaMode = true;
     }
 
     const LLSD& ac = data["ac"];
