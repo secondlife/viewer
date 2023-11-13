@@ -463,11 +463,6 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
 								  const LLInventoryItem *src,
 								  U32 callback_id = 0);
 
-void move_or_copy_inventory_from_object(const LLUUID& destination_id,
-                                        const LLUUID& object_id,
-                                        const LLUUID& item_id,
-                                        LLPointer<LLInventoryCallback> cb);
-
 void menu_create_inventory_item(LLInventoryPanel* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
