@@ -4406,7 +4406,7 @@ Currently, the fee to join this &quot;group&quot; is L$ [COST].
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="Leave"/>
   </notification>
 
   <notification
@@ -4420,7 +4420,7 @@ There is currently no fee to join this group.
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="Leave"/>
   </notification>
 
 
