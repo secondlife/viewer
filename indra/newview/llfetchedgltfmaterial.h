@@ -50,11 +50,16 @@ public:
 
     bool isFetching() const { return mFetching; }
 
+    LLPointer<LLViewerFetchedTexture> getUITexture();
+
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;
     LLPointer<LLViewerFetchedTexture> mNormalTexture;
     LLPointer<LLViewerFetchedTexture> mMetallicRoughnessTexture;
     LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
+
+    // Texture used for previewing the material in the UI
+    LLPointer<LLViewerFetchedTexture> mPreviewTexture;
 
 protected:
     // Lifetime management
