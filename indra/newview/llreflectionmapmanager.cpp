@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llreflectionmapmanager.h"
+
+#include <bitset>
+
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
 #include "llviewerregion.h"
@@ -1380,6 +1383,35 @@ void LLReflectionMapManager::doOcclusion()
         if (probe != nullptr && probe != mDefaultProbe)
         {
             probe->doOcclusion(eye);
+        }
+    }
+}
+
+void LLReflectionMapManager::forceDefaultProbeAndUpdateUniforms(bool force)
+{
+    static std::bitset<LL_MAX_REFLECTION_PROBE_COUNT> mProbeWasOccluded;
+
+    if (force)
+    {
+        for (size_t i = 0; i < mProbes.size(); ++i)
+        {
+            auto& probe = mProbes[i];
+            mProbeWasOccluded[i] = probe->mOccluded;
+            if (probe != nullptr && probe != mDefaultProbe)
+            {
+                probe->mOccluded = true;
+            }
+        }
+
+        updateUniforms();
+    }
+    else
+    {
+        for (size_t i = 0; i < mProbes.size(); ++i)
+        {
+            auto& probe = mProbes[i];
+            llassert(probe->mOccluded == (probe != mDefaultProbe));
+            probe->mOccluded = mProbeWasOccluded[i];
         }
     }
 }

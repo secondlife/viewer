@@ -37,7 +37,11 @@ void main()
 {
 	vec4 diff = texture(diffuseRect, vary_fragcoord.xy);
 	
+#if 1
 	frag_color = diff;
+#else
+	frag_color = vec4(1,0,1,1);
+#endif
 
     gl_FragDepth = texture(depthMap, vary_fragcoord.xy).r;
 }

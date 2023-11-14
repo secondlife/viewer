@@ -1319,6 +1319,10 @@ bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, U32 index, 
 {
 	return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index, count);
 }
+bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector4a>& strider, U32 index, S32 count)
+{
+    return VertexBufferStrider<LLVector4a, TYPE_NORMAL>::get(*this, strider, index, count);
+}
 bool LLVertexBuffer::getTangentStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
 	return VertexBufferStrider<LLVector3,TYPE_TANGENT>::get(*this, strider, index, count);

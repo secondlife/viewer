@@ -694,6 +694,7 @@ public:
     RenderTargetPack mMainRT;
 
     // auxillary 512x512 render target pack
+    // used by reflection probes and dynamic texture bakes
     RenderTargetPack mAuxillaryRT;
 
     // currently used render target pack
@@ -754,7 +755,7 @@ public:
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 
-    LLRenderTarget				mBake;
+    static const U32 MAX_BAKE_WIDTH;
 
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
@@ -1012,6 +1013,7 @@ public:
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;
 	static F32 CameraFieldOfView;
+	static S32 RenderLocalLightCount;
 	static F32 RenderShadowNoise;
 	static F32 RenderShadowBlurSize;
 	static F32 RenderSSAOScale;
