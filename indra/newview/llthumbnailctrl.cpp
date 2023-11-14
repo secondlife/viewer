@@ -241,9 +241,8 @@ void LLThumbnailCtrl::initImage()
 
             mTexturep->forceToSaveRawImage(0);
 
-            S32 desired_draw_width = mTexturep->getWidth();
-            S32 desired_draw_height = mTexturep->getHeight();
-
+            S32 desired_draw_width = MAX_IMAGE_SIZE;
+            S32 desired_draw_height = MAX_IMAGE_SIZE;
             mTexturep->setKnownDrawSize(desired_draw_width, desired_draw_height);
         }
     }
