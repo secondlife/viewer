@@ -178,11 +178,9 @@ jobs:
           then viewer_channel="${GITHUB_REF_NAME%#*}"
                export viewer_channel="${viewer_channel//_/ }"
                # Since GITHUB_REF_NAME is a tag rather than a branch, we need
-               # to discover to what branch this tag corresponds. Get the tip
-               # commit (for the tag) and then ask for branches containing it.
-               # Assume GitHub cloned only this tag and its containing branch.
-               viewer_branch="$(git branch --contains "$(git log -n 1 --format=%h)" |
-                                grep -v '(HEAD')"
+               # to discover to what branch this tag corresponds.
+               viewer_branch="$(python3 .github/workflows/which_branch.py \
+                                --token "${{ github.token }}" ${{ github.workflow_sha }})"
           else export viewer_channel="Second Life Test"
                viewer_branch="${GITHUB_REF_NAME}"
           fi
