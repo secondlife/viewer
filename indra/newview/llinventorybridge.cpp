@@ -4337,6 +4337,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                         disabled_items.push_back("New Settings");
                     }
                 }
+                else 
+                {
+                    items.push_back(std::string("New Listing Folder"));
+                }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
 		}
