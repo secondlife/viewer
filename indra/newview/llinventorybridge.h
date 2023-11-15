@@ -162,6 +162,9 @@ protected:
 	virtual void addLinkReplaceMenuOption(menuentry_vec_t& items,
 										  menuentry_vec_t& disabled_items);
 
+    virtual bool canMenuDelete();
+    virtual bool canMenuCut();
+
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 
@@ -272,14 +275,10 @@ class LLFolderBridge : public LLInvFVBridge
 public:
 	LLFolderBridge(LLInventoryPanel* inventory, 
 				   LLFolderView* root,
-				   const LLUUID& uuid) 
-	:	LLInvFVBridge(inventory, root, uuid),
-		mCallingCards(FALSE),
-		mWearables(FALSE),
-		mIsLoading(false),
-		mShowDescendantsCount(false)
-	{}
-		
+				   const LLUUID& uuid);
+
+    ~LLFolderBridge();
+
 	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm = TRUE, LLPointer<LLInventoryCallback> cb = NULL);
 	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg, BOOL is_link = FALSE, BOOL user_confirm = TRUE, LLPointer<LLInventoryCallback> cb = NULL);
     void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
@@ -392,6 +391,31 @@ protected:
 	LLTimer							mTimeSinceRequestStart;
     std::string                     mMessage;
 	LLRootHandle<LLFolderBridge> mHandle;
+
+private:
+    // checking if folder is cutable or deletable is expensive,
+    // cache values and split check over frames
+    static void onCanDeleteIdle(void* user_data);
+    void initCanDeleteProcessing(LLInventoryModel* model, S32 version);
+    void completeDeleteProcessing();
+    bool canMenuDelete();
+    bool canMenuCut();
+
+    enum ECanDeleteState
+    {
+        CDS_INIT_FOLDER_CHECK,
+        CDS_PROCESSING_ITEMS,
+        CDS_PROCESSING_FOLDERS,
+        CDS_DONE,
+    };
+
+    ECanDeleteState mCanDeleteFolderState;
+    LLInventoryModel::cat_array_t mFoldersToCheck;
+    LLInventoryModel::item_array_t mItemsToCheck;
+    S32 mLastCheckedVersion;
+    S32 mInProgressVersion;
+    bool mCanDelete;
+    bool mCanCut;
 };
 
 class LLTextureBridge : public LLItemBridge
