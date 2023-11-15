@@ -905,155 +905,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 		mAssetUUID.setNull();
 	}
 
-#if 0  // old implementation.  makes a LOT of temporary copies and LLSD::safe(impl) calls
-	std::string w;
-
-	w = INV_ITEM_ID_LABEL;
-	if (sd.has(w))
-	{
-		mUUID = sd[w];
-	}
-	w = INV_PARENT_ID_LABEL;
-	if (sd.has(w))
-	{
-		mParentUUID = sd[w];
-	}
-    mThumbnailUUID.setNull();
-    w = INV_THUMBNAIL_LABEL;
-    if (sd.has(w))
-    {
-        const LLSD &thumbnail_map = sd[w];
-        w = INV_ASSET_ID_LABEL;
-        if (thumbnail_map.has(w))
-        {
-            mThumbnailUUID = thumbnail_map[w];
-        }
-        /* Example:
-            <key> asset_id </key>
-            <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
-            <key> perms </key>
-            <integer> 8 </integer>
-            <key>service</key>
-            <integer> 3 </integer>
-            <key>version</key>
-            <integer> 1 </key>
-        */
-    }
-    else
-    {
-        w = INV_THUMBNAIL_ID_LABEL;
-        if (sd.has(w))
-        {
-            mThumbnailUUID = sd[w].asUUID();
-        }
-    }
-	w = INV_PERMISSIONS_LABEL;
-	if (sd.has(w))
-	{
-		mPermissions = ll_permissions_from_sd(sd[w]);
-	}
-	w = INV_SALE_INFO_LABEL;
-	if (sd.has(w))
-	{
-		// Sale info used to contain next owner perm. It is now in
-		// the permissions. Thus, we read that out, and fix legacy
-		// objects. It's possible this op would fail, but it
-		// should pick up the vast majority of the tasks.
-		BOOL has_perm_mask = FALSE;
-		U32 perm_mask = 0;
-		if (!mSaleInfo.fromLLSD(sd[w], has_perm_mask, perm_mask))
-		{
-			goto fail;
-		}
-		if (has_perm_mask)
-		{
-			if(perm_mask == PERM_NONE)
-			{
-				perm_mask = mPermissions.getMaskOwner();
-			}
-			// fair use fix.
-			if(!(perm_mask & PERM_COPY))
-			{
-				perm_mask |= PERM_TRANSFER;
-			}
-			mPermissions.setMaskNext(perm_mask);
-		}
-	}
-	w = INV_SHADOW_ID_LABEL;
-	if (sd.has(w))
-	{
-		mAssetUUID = sd[w];
-		LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
-		cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
-	}
-	w = INV_ASSET_ID_LABEL;
-	if (sd.has(w))
-	{
-		mAssetUUID = sd[w];
-	}
-	w = INV_LINKED_ID_LABEL;
-	if (sd.has(w))
-	{
-		mAssetUUID = sd[w];
-	}
-	w = INV_ASSET_TYPE_LABEL;
-	if (sd.has(w))
-	{
-		if (sd[w].isString())
-		{
-			mType = LLAssetType::lookup(sd[w].asString().c_str());
-		}
-		else if (sd[w].isInteger())
-		{
-			S8 type = (U8)sd[w].asInteger();
-			mType = static_cast<LLAssetType::EType>(type);
-		}
-	}
-	w = INV_INVENTORY_TYPE_LABEL;
-	if (sd.has(w))
-	{
-		if (sd[w].isString())
-		{
-			mInventoryType = LLInventoryType::lookup(sd[w].asString().c_str());
-		}
-		else if (sd[w].isInteger())
-		{
-			S8 type = (U8)sd[w].asInteger();
-			mInventoryType = static_cast<LLInventoryType::EType>(type);
-		}
-	}
-	w = INV_FLAGS_LABEL;
-	if (sd.has(w))
-	{
-		if (sd[w].isBinary())
-		{
-			mFlags = ll_U32_from_sd(sd[w]);
-		}
-		else if(sd[w].isInteger())
-		{
-			mFlags = sd[w].asInteger();
-		}
-	}
-	w = INV_NAME_LABEL;
-	if (sd.has(w))
-	{
-		mName = sd[w].asString();
-		LLStringUtil::replaceNonstandardASCII(mName, ' ');
-		LLStringUtil::replaceChar(mName, '|', ' ');
-	}
-	w = INV_DESC_LABEL;
-	if (sd.has(w))
-	{
-		mDescription = sd[w].asString();
-		LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
-	}
-	w = INV_CREATION_DATE_LABEL;
-	if (sd.has(w))
-	{
-		mCreationDate = sd[w].asInteger();
-	}
-#else  // if 0 - new implementation follows
-
+    // TODO - figure out if this should be moved into the noclobber fields above
     mThumbnailUUID.setNull();
 
     // iterate as map to avoid making unnecessary temp copies of everything
@@ -1064,11 +916,13 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
         if (i->first == INV_ITEM_ID_LABEL)
         {
             mUUID = i->second;
+            continue;
         }
 
         if (i->first == INV_PARENT_ID_LABEL)
         {
             mParentUUID = i->second;
+            continue;
         }
 
         if (i->first == INV_THUMBNAIL_LABEL)
@@ -1089,16 +943,19 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 <key>version</key>
                 <integer> 1 </key>
             */
-        }
+          continue;
+      }
 
         if (i->first == INV_THUMBNAIL_ID_LABEL)
         {
             mThumbnailUUID = i->second.asUUID();
+            continue;
         }
 
         if (i->first == INV_PERMISSIONS_LABEL)
         {
             mPermissions = ll_permissions_from_sd(i->second);
+            continue;
         }
 
         if (i->first == INV_SALE_INFO_LABEL)
@@ -1111,7 +968,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             U32  perm_mask     = 0;
             if (!mSaleInfo.fromLLSD(i->second, has_perm_mask, perm_mask))
             {
-                goto fail;
+                return false;
             }
             if (has_perm_mask)
             {
@@ -1126,6 +983,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 }
                 mPermissions.setMaskNext(perm_mask);
             }
+            continue;
         }
 
         if (i->first == INV_SHADOW_ID_LABEL)
@@ -1133,16 +991,19 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             mAssetUUID = i->second;
             LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
             cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
+            continue;
         }
 
         if (i->first == INV_ASSET_ID_LABEL)
         {
             mAssetUUID = i->second;
+            continue;
         }
 
         if (i->first == INV_LINKED_ID_LABEL)
         {
             mAssetUUID = i->second;
+            continue;
         }
 
         if (i->first == INV_ASSET_TYPE_LABEL)
@@ -1157,6 +1018,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 S8 type = (U8) label.asInteger();
                 mType   = static_cast<LLAssetType::EType>(type);
             }
+            continue;
         }
 
         if (i->first == INV_INVENTORY_TYPE_LABEL)
@@ -1171,6 +1033,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 S8 type        = (U8) label.asInteger();
                 mInventoryType = static_cast<LLInventoryType::EType>(type);
             }
+            continue;
         }
 
         if (i->first == INV_FLAGS_LABEL)
@@ -1184,6 +1047,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             {
                 mFlags = label.asInteger();
             }
+            continue;
         }
 
         if (i->first == INV_NAME_LABEL)
@@ -1191,20 +1055,22 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             mName = i->second.asString();
             LLStringUtil::replaceNonstandardASCII(mName, ' ');
             LLStringUtil::replaceChar(mName, '|', ' ');
+            continue;
         }
 
         if (i->first == INV_DESC_LABEL)
         {
             mDescription = i->second.asString();
             LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
+            continue;
         }
 
         if (i->first == INV_CREATION_DATE_LABEL)
         {
             mCreationDate = i->second.asInteger();
+            continue;
         }
     }
-#endif // new version
 
 	// Need to convert 1.0 simstate files to a useful inventory type
 	// and potentially deal with bad inventory tyes eg, a landmark
@@ -1219,9 +1085,6 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 	mPermissions.initMasks(mInventoryType);
 
 	return true;
-fail:
-	return false;
-
 }
 
 ///----------------------------------------------------------------------------

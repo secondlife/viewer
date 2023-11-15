@@ -49,9 +49,6 @@ public: /* accessors */
     LLUUID		getWorldID() const;
     S32			getIndexInFile() const;
 
-    void addTextureEntry(LLTextureEntry* te) override;
-    void removeTextureEntry(LLTextureEntry* te) override;
-
 public:
     bool updateSelf();
 
@@ -81,7 +78,6 @@ private: /* members */
     ELinkStatus mLinkStatus;
     S32         mUpdateRetries;
     S32         mMaterialIndex; // Single file can have more than one
-    std::set<LLTextureEntry*> mTextureEntires;
 };
 
 class LLLocalGLTFMaterialTimer : public LLEventTimer

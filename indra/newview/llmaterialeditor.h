@@ -87,6 +87,7 @@ protected:
 class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 { public:
 	LLMaterialEditor(const LLSD& key);
+    ~LLMaterialEditor();
 
     bool setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures = false);
 
@@ -218,6 +219,8 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void setCanSave(bool value);
     void setEnableEditing(bool can_modify);
 
+    void subscribeToLocalTexture(S32 dirty_flag, const LLUUID& tracking_id);
+    void replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id); // Local texture support
     void onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
     void onCancelCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
     void onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
@@ -227,6 +230,8 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 
     U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
     U32 getRevertedChangesFlags() { return mRevertedChanges; }
+    LLUUID getLocalTextureTrackingIdFromFlag(U32 flag);
+    bool updateMaterialLocalSubscription(LLGLTFMaterial* mat);
 
     static bool capabilitiesAvailable();
 
@@ -305,5 +310,13 @@ private:
     static bool mOverrideInProgress;
     static bool mSelectionNeedsUpdate;
     boost::signals2::connection mSelectionUpdateSlot;
+
+    struct LocalTextureConnection
+    {
+        LLUUID mTrackingId;
+        boost::signals2::connection mConnection;
+    };
+    typedef std::map<S32, LocalTextureConnection> mat_connection_map_t;
+    mat_connection_map_t mTextureChangesUpdates;
 };
 

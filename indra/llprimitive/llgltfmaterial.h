@@ -196,7 +196,7 @@ public:
     // write to given tinygltf::Model
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
-    void applyOverride(const LLGLTFMaterial& override_mat);
+    virtual void applyOverride(const LLGLTFMaterial& override_mat);
     
     // apply the given LLSD override data
     void applyOverrideLLSD(const LLSD& data);
@@ -221,6 +221,17 @@ public:
     // they are assigned to for full updates
     virtual void addTextureEntry(LLTextureEntry* te) {};
     virtual void removeTextureEntry(LLTextureEntry* te) {};
+
+    // For local textures so that editor will know to track changes
+    void addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID &tex_id);
+    void removeLocalTextureTracking(const LLUUID& tracking_id);
+    bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
+    virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
+    virtual void updateTextureTracking();
+
+    // These fields are local to viewer and are a part of local bitmap support
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t mTrackingIdToLocalTexture;
 
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
