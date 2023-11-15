@@ -331,7 +331,7 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: [sign-and-package-windows, sign-and-package-mac]
+    needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
