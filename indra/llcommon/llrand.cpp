@@ -28,6 +28,7 @@
 
 #include "llrand.h"
 #include "lluuid.h"
+#include "mutex.h"
 
 /**
  * Through analysis, we have decided that we want to take values which
@@ -58,7 +59,16 @@
  * to restore uniform distribution.
  */
 
+static std::mutex gRandomGeneratorMutex;
 static LLRandLagFib2281 gRandomGenerator(LLUUID::getRandomSeed());
+
+inline F64 ll_internal_random_unclamped()
+{
+	// gRandomGenerator is a stateful static object, which is therefore not
+	// inherently thread-safe. Lock it before use.
+	std::unique_lock lk(gRandomGeneratorMutex);
+	return gRandomGenerator();
+}
 
 // no default implementation, only specific F64 and F32 specializations
 template <typename REAL>
@@ -71,7 +81,7 @@ inline F64 ll_internal_random<F64>()
 	// CPUs (or at least multi-threaded processes) seem to
 	// occasionally give an obviously incorrect random number -- like
 	// 5^15 or something. Sooooo, clamp it as described above.
-	F64 rv = gRandomGenerator();
+	F64 rv{ ll_internal_random_unclamped() };
 	if(!((rv >= 0.0) && (rv < 1.0))) return fmod(rv, 1.0);
 	return rv;
 }
@@ -79,7 +89,13 @@ inline F64 ll_internal_random<F64>()
 template <>
 inline F32 ll_internal_random<F32>()
 {
-    return F32(ll_internal_random<F64>());
+	// *HACK: clamp the result as described above.
+	// Per Monty, it's important to clamp using the correct fmodf() rather
+	// than expanding to F64 for fmod() and then truncating back to F32. Prior
+	// to this change, we were getting sporadic ll_frand() == 1.0 results.
+	F32 rv{ ll_internal_random_unclamped() };
+	if(!((rv >= 0.0) && (rv < 1.0))) return fmodf(rv, 1.0f);
+	return rv;
 }
 
 /*------------------------------ F64 aliases -------------------------------*/
