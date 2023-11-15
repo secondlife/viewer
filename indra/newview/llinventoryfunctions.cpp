@@ -844,21 +844,20 @@ bool get_is_category_and_children_removable(LLInventoryModel* model, const LLUUI
     {
         // Disable delete from COF folder; have users explicitly choose "detach/take off",
         // unless the item is not worn but in the COF (i.e. is bugged).
-        if (LLAppearanceMgr::instance().getIsProtectedCOFItem(item))
+        if (item)
         {
-            if (get_is_item_worn(item))
+            if (LLAppearanceMgr::instance().getIsProtectedCOFItem(item))
+            {
+                if (get_is_item_worn(item))
+                {
+                    return false;
+                }
+            }
+
+            if (check_worn && !item->getIsLinkType() && get_is_item_worn(item))
             {
                 return false;
             }
-        }
-
-        if (item && item->getIsLinkType())
-        {
-            return true;
-        }
-        if (check_worn && get_is_item_worn(item))
-        {
-            return false;
         }
     }
 
