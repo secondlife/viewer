@@ -93,7 +93,7 @@ inline F32 ll_internal_random<F32>()
 	// Per Monty, it's important to clamp using the correct fmodf() rather
 	// than expanding to F64 for fmod() and then truncating back to F32. Prior
 	// to this change, we were getting sporadic ll_frand() == 1.0 results.
-	F32 rv{ ll_internal_random_unclamped() };
+	F32 rv{ narrow(ll_internal_random_unclamped()) };
 	if(!((rv >= 0.0) && (rv < 1.0))) return fmodf(rv, 1.0f);
 	return rv;
 }
