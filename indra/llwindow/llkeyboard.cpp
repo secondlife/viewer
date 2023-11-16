@@ -29,7 +29,6 @@
 #include "llkeyboard.h"
 
 #include "llwindowcallbacks.h"
-#include "llgamecontrol.h"
 
 //
 // Globals
@@ -162,7 +161,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
-    LLGameControl::clearAllKeys();
+    mCurTranslatedKey = KEY_NONE;
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state

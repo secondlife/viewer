@@ -28,40 +28,198 @@
 
 #include <algorithm>
 #include <chrono>
-#include <map>
+#include <unordered_map>
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_gamecontroller.h"
 #include "SDL2/SDL_joystick.h"
 
+#include "indra_constants.h"
+#include "llgamecontroltranslator.h"
+
 constexpr size_t NUM_AXES = 6;
+
+std::string LLGameControl::InputChannel::getLocalName() const
+{
+    // HACK: we hard-code English channel names, but
+    // they should be loaded from localized XML config files.
+    std::string name = " ";
+    if (mType == LLGameControl::InputChannel::TYPE_AXIS)
+    {
+        if (mIndex < (U8)(NUM_AXES))
+        {
+            name = "AXIS_";
+            name.append(std::to_string((S32)(mIndex)));
+            if (mSign < 0)
+            {
+                name.append("-");
+            }
+            else if (mSign > 0)
+            {
+                name.append("+");
+            }
+        }
+    }
+    else if (mType == LLGameControl::InputChannel::TYPE_BUTTON)
+    {
+        constexpr U8 NUM_BUTTONS = 32;
+        if (mIndex < NUM_BUTTONS)
+        {
+            name = "BUTTON_";
+            name.append(std::to_string((S32)(mIndex)));
+        }
+    }
+    return name;
+}
+
+std::string LLGameControl::InputChannel::getRemoteName() const
+{
+    // HACK: we hard-code English channel names, but
+    // they should be loaded from localized XML config files.
+    std::string name = " ";
+    // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
+    if (mType == LLGameControl::InputChannel::TYPE_AXIS)
+    {
+        switch(mIndex)
+        {
+            case 0:
+                name = "GAME_CONTROL_AXIS_LEFTX";
+                break;
+            case 1:
+                name = "GAME_CONTROL_AXIS_LEFTY";
+                break;
+            case 2:
+                name = "GAME_CONTROL_AXIS_RIGHTX";
+                break;
+            case 3:
+                name = "GAME_CONTROL_AXIS_RIGHTY";
+                break;
+            case 4:
+                name = "GAME_CONTROL_AXIS_PADDLELEFT";
+                break;
+            case 5:
+                name = "GAME_CONTROL_AXIS_PADDLERIGHT";
+                break;
+            default:
+                break;
+        }
+    }
+    else if (mType == LLGameControl::InputChannel::TYPE_BUTTON)
+    {
+        switch(mIndex)
+        {
+            case 0:
+                name = "GAME_CONTROL_BUTTON_A";
+                break;
+            case 1:
+                name = "GAME_CONTROL_BUTTON_B";
+                break;
+            case 2:
+                name = "GAME_CONTROL_BUTTON_X";
+                break;
+            case 3:
+                name = "GAME_CONTROL_BUTTON_Y";
+                break;
+            case 4:
+                name = "GAME_CONTROL_BUTTON_BACK";
+                break;
+            case 5:
+                name = "GAME_CONTROL_BUTTON_GUIDE";
+                break;
+            case 6:
+                name = "GAME_CONTROL_BUTTON_START";
+                break;
+            case 7:
+                name = "GAME_CONTROL_BUTTON_LEFTSTICK";
+                break;
+            case 8:
+                name = "GAME_CONTROL_BUTTON_RIGHTSTICK";
+                break;
+            case 9:
+                name = "GAME_CONTROL_BUTTON_LEFTSHOULDER";
+                break;
+            case 10:
+                name = "GAME_CONTROL_BUTTON_RIGHTSHOULDER";
+                break;
+            case 11:
+                name = "GAME_CONTROL_BUTTON_DPAD_UP";
+                break;
+            case 12:
+                name = "GAME_CONTROL_BUTTON_DPAD_DOWN";
+                break;
+            case 13:
+                name = "GAME_CONTROL_BUTTON_DPAD_LEFT";
+                break;
+            case 14:
+                name = "GAME_CONTROL_BUTTON_DPAD_RIGHT";
+                break;
+            case 15:
+                name = "GAME_CONTROL_BUTTON_MISC1";
+                break;
+            case 16:
+                name = "GAME_CONTROL_BUTTON_PADDLE1";
+                break;
+            case 17:
+                name = "GAME_CONTROL_BUTTON_PADDLE2";
+                break;
+            case 18:
+                name = "GAME_CONTROL_BUTTON_PADDLE3";
+                break;
+            case 19:
+                name = "GAME_CONTROL_BUTTON_PADDLE4";
+                break;
+            case 20:
+                name = "GAME_CONTROL_BUTTON_TOUCHPAD";
+                break;
+            default:
+                break;
+        }
+    }
+    return name;
+}
+
 
 // internal class for managing list of controllers and per-controller state
 class LLGameControllerManager
 {
 public:
+    using ActionToChannelMap = std::map< std::string, LLGameControl::InputChannel >;
+    LLGameControllerManager();
+
     void addController(SDL_JoystickID id, SDL_GameController* controller);
     void removeController(SDL_JoystickID id);
 
     void onAxis(SDL_JoystickID id, U8 axis, S16 value);
     void onButton(SDL_JoystickID id, U8 button, bool pressed);
 
-    void onKeyButton(U8 button, bool pressed);
-    void onKeyAxis(U8 axis, U16 value);
-
-    void clearAllInput();
-    void clearAllKeys();
+    void clearAllState();
     size_t getControllerIndex(SDL_JoystickID id) const;
 
+    void accumulateInternalState();
     void computeFinalState(LLGameControl::State& state);
+
+    LLGameControl::InputChannel getChannelByName(const std::string& name) const;
+    LLGameControl::InputChannel getChannelByActionName(const std::string& action_name) const;
+
+    bool updateActionMap(const std::string& name,  LLGameControl::InputChannel channel);
+    U32 computeInternalActionFlags();
+    void getCameraInputs(std::vector<F32>& inputs_out);
+    void setExternalActionFlags(U32 action_flags);
 
     void clear();
 
 private:
     std::vector<SDL_JoystickID> mControllerIDs;
     std::vector<SDL_GameController*> mControllers;
-    std::vector<LLGameControl::State> mStates;
-    LLGameControl::State mKeyboardState;
+    std::vector<LLGameControl::State> mStates; // one state per device
+
+    LLGameControl::State mExternalState;
+    LLGameControlTranslator mActionTranslator;
+    ActionToChannelMap mCameraChannelMap;
+    std::vector<S32> mAxesAccumulator;
+    U32 mButtonAccumulator { 0 };
+    U32 mLastActionFlags { 0 };
+    U32 mLastCameraActionFlags { 0 };
 };
 
 // local globals
@@ -83,15 +241,16 @@ namespace
     constexpr U64 MSEC_PER_NSEC = 1e6;
     constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
     constexpr U64 RESEND_EXPANSION_RATE = 10;
-    LLGameControl::State g_gameControlState;
+    LLGameControl::State g_outerState; // from controller devices
+    LLGameControl::State g_innerState; // state from gAgent
+    LLGameControl::State g_finalState; // sum of inner and outer
     U64 g_lastSend = 0;
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
-    std::map<U16, U8> g_keyButtonMap;
-    std::map<U16, U8> g_keyAxisMapPositive;
-    std::map<U16, U8> g_keyAxisMapNegative;
-
-    bool g_includeKeyboardButtons = false;
+    bool g_sendToServer = false;
+    bool g_controlAgent = false;
+    bool g_translateAgentActions = false;
+    LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
     constexpr U8 MAX_AXIS = 5;
     constexpr U8 MAX_BUTTON = 31;
@@ -106,6 +265,16 @@ LLGameControl::State::State() : mButtons(0)
 {
     mAxes.resize(NUM_AXES, 0);
     mPrevAxes.resize(NUM_AXES, 0);
+}
+
+void LLGameControl::State::clear()
+{
+    std::fill(mAxes.begin(), mAxes.end(), 0);
+
+    // DO NOT clear mPrevAxes because those are managed by external logic.
+    //std::fill(mPrevAxes.begin(), mPrevAxes.end(), 0);
+
+    mButtons = 0;
 }
 
 bool LLGameControl::State::onButton(U8 button, bool pressed)
@@ -124,6 +293,71 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
     }
     bool changed = (old_buttons != mButtons);
     return changed;
+}
+
+LLGameControllerManager::LLGameControllerManager()
+{
+    mAxesAccumulator.resize(NUM_AXES, 0);
+
+    // Here we build an invarient map between the named agent actions
+    // and control bit sent to the server.  This map will be used,
+    // in combination with the action->InputChannel map below,
+    // to maintain an inverse map from control bit masks to GameControl data.
+    LLGameControlTranslator::ActionToMaskMap actions;
+    actions["push+"]  = AGENT_CONTROL_AT_POS   | AGENT_CONTROL_FAST_AT;
+    actions["push-"]  = AGENT_CONTROL_AT_NEG   | AGENT_CONTROL_FAST_AT;
+    actions["slide+"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
+    actions["slide-"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
+    actions["jump+"]  = AGENT_CONTROL_UP_POS   | AGENT_CONTROL_FAST_UP;
+    actions["jump-"]  = AGENT_CONTROL_UP_NEG   | AGENT_CONTROL_FAST_UP;
+    actions["turn+"]  = AGENT_CONTROL_YAW_POS;
+    actions["turn-"]  = AGENT_CONTROL_YAW_NEG;
+    actions["look+"]  = AGENT_CONTROL_PITCH_POS;
+    actions["look-"]  = AGENT_CONTROL_PITCH_NEG;
+    actions["stop"]   = AGENT_CONTROL_STOP;
+    // These are HACKs. We borrow some AGENT_CONTROL bits for "unrelated" features.
+    // Not a problem because these bits are only used internally.
+    actions["toggle_run"]    = AGENT_CONTROL_NUDGE_AT_POS; // HACK
+    actions["toggle_fly"]    = AGENT_CONTROL_FLY; // HACK
+    actions["toggle_sit"]    = AGENT_CONTROL_SIT_ON_GROUND; // HACK
+    actions["toggle_flycam"] = AGENT_CONTROL_NUDGE_AT_NEG; // HACK
+    mActionTranslator.setAvailableActions(actions);
+
+    // Here we build a list of pairs between named agent actions and
+    // GameControl channels. Note: we only supply the non-signed names
+    // (e.g. "push" instead of "push+" and "push-") because mActionTranator
+    // automatially expands action names as necessary.
+    using type = LLGameControl::InputChannel::Type;
+    std::vector< std::pair< std::string, LLGameControl::InputChannel> > agent_defaults =
+    {
+        { "push",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_LEFTY),       1 } },
+        { "slide", { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_LEFTX),       1 } },
+        { "jump",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_TRIGGERLEFT), 1 } },
+        { "turn",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_RIGHTX),      1 } },
+        { "look",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_RIGHTY),      1 } },
+        { "toggle_run",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSHOULDER) }  },
+        { "toggle_fly",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_UP) }       },
+        { "toggle_sit",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_DOWN) }     },
+        { "toggle_flycam", { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) } },
+        { "stop",          { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSTICK) }     }
+    };
+    mActionTranslator.setMappings(agent_defaults);
+
+    // Camera actions don't need bitwise translation, so we maintain the map in
+    // here directly rather than using an LLGameControlTranslator.
+    // Note: there must NOT be duplicate names between avatar and camera actions
+    mCameraChannelMap =
+    {
+        { "move",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY),        -1 } },
+        { "pan",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX),        -1 } },
+        { "rise",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT), -1 } },
+        { "pitch", { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY),       -1 } },
+        { "yaw",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX),       -1 } },
+        { "zoom",  { type::TYPE_NONE, 0                                          } },
+        // TODO?: allow flycam to roll
+        //{ "roll_ccw",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT) } },
+        //{ "roll_cw",       { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT) }  }
+    };
 }
 
 void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
@@ -198,6 +432,25 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
     size_t index = getControllerIndex(id);
     if (index < mControllers.size())
     {
+        // Note: the RAW analog joystics provide NEGATIVE X,Y values for LEFT,FORWARD
+        // whereas those directions are actually POSITIVE in SL's local right-handed
+        // reference frame.  Therefore we implicitly negate those axes here where
+        // they are extracted from SDL, before being used anywhere.
+        if (axis < SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+        {
+            // Note: S16 value is in range [-32768, 32767] which means
+            // the negative range has an extra possible value.  We need
+            // to add (or subtract) one during negation.
+            if (value < 0)
+            {
+                value = - (value + 1);
+            }
+            else if (value > 0)
+            {
+                value = (-value) - 1;
+            }
+        }
+
         LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
             << " value=" << (S32)(value) << LL_ENDL;
@@ -219,83 +472,145 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
     }
 }
 
-void LLGameControllerManager::onKeyButton(U8 button, bool pressed)
-{
-    if (mKeyboardState.onButton(button, pressed))
-    {
-        LL_DEBUGS("SDL2") << " keyboard button i=" << (S32)(button) << " pressed=" <<  pressed << LL_ENDL;
-    }
-}
-
-void LLGameControllerManager::onKeyAxis(U8 axis, U16 value)
-{
-    if (mKeyboardState.mAxes[axis] != value)
-    {
-        mKeyboardState.mAxes[axis] = value;
-        LL_DEBUGS("SDL2") << " keyboard axis i=" << (S32)(axis) << " value=" << (S32)(value) << LL_ENDL;
-    }
-}
-
-void LLGameControllerManager::clearAllInput()
+void LLGameControllerManager::clearAllState()
 {
     for (auto& state : mStates)
     {
-        state.mButtons = 0;
-        std::fill(state.mAxes.begin(), state.mAxes.end(), 0);
+        state.clear();
     }
-    mKeyboardState.mButtons = 0;
-    std::fill(mKeyboardState.mAxes.begin(), mKeyboardState.mAxes.end(), 0);
+    mExternalState.clear();
+    mLastActionFlags = 0;
+    mLastCameraActionFlags = 0;
 }
 
-void LLGameControllerManager::clearAllKeys()
+void LLGameControllerManager::accumulateInternalState()
 {
-    mKeyboardState.mButtons = 0;
-    std::fill(mKeyboardState.mAxes.begin(), mKeyboardState.mAxes.end(), 0);
-}
-
-void LLGameControllerManager::computeFinalState(LLGameControl::State& state)
-{
-    // clear the slate
-    std::vector<S32> axes_accumulator;
-    axes_accumulator.resize(NUM_AXES, 0);
-    U32 old_buttons = state.mButtons;
-    state.mButtons = 0;
+    // clear the old state
+    std::fill(mAxesAccumulator.begin(), mAxesAccumulator.end(), 0);
+    mButtonAccumulator = 0;
 
     // accumulate the controllers
-    for (const auto& s : mStates)
+    for (const auto& state : mStates)
     {
-        state.mButtons |= s.mButtons;
+        mButtonAccumulator |= state.mButtons;
         for (size_t i = 0; i < NUM_AXES; ++i)
         {
-            axes_accumulator[i] += (S32)(s.mAxes[i]);
+            // Note: we don't bother to clamp the axes yet
+            // because at this stage we haven't yet accumulated the "inner" state.
+            mAxesAccumulator[i] += (S32)(state.mAxes[i]);
         }
     }
+}
 
-    // accumulate the keyboard
-    state.mButtons |= mKeyboardState.mButtons;
-    for (size_t i = 0; i < NUM_AXES; ++i)
+void LLGameControllerManager::computeFinalState(LLGameControl::State& final_state)
+{
+    // We assume accumulateInternalState() has already been called and we will
+    // finish by accumulating "external" state (if enabled)
+    U32 old_buttons = final_state.mButtons;
+    final_state.mButtons = mButtonAccumulator;
+    if (g_translateAgentActions)
     {
-        axes_accumulator[i] += (S32)(mKeyboardState.mAxes[i]);
+        // accumulate from mExternalState
+        final_state.mButtons |= mExternalState.mButtons;
+        for (size_t i = 0; i < NUM_AXES; ++i)
+        {
+            mAxesAccumulator[i] += (S32)(mExternalState.mAxes[i]);
+        }
     }
-    if (old_buttons != state.mButtons)
+    if (old_buttons != final_state.mButtons)
     {
         g_nextResendPeriod = 0; // packet needs to go out ASAP
     }
 
-    // clamp the axes
+    // clamp the accumulated axes
     for (size_t i = 0; i < NUM_AXES; ++i)
     {
-        S32 new_axis = (S16)(std::min(std::max(axes_accumulator[i], -32768), 32767));
+        S32 new_axis = (S16)(std::min(std::max(mAxesAccumulator[i], -32768), 32767));
         // check for change
-        if (state.mAxes[i] != new_axis)
+        if (final_state.mAxes[i] != new_axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
-            // otherwise, we let prevAxis get updated in updateResendPeriod()
-            // which is explicitly called after a packet is sent.  This allows
-            // unchanged axes to be included in first resend but not later ones.
-            state.mPrevAxes[i] = state.mAxes[i];
-            state.mAxes[i] = new_axis;
+            // prior to storing new_axis.  The only other place where prevAxis
+            // is updated in updateResendPeriod() which is explicitly called after
+            // a packet is sent.  The result is: unchanged axes are included in
+            // first resend but not later ones.
+            final_state.mPrevAxes[i] = final_state.mAxes[i];
+            final_state.mAxes[i] = new_axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
+        }
+    }
+}
+
+LLGameControl::InputChannel LLGameControllerManager::getChannelByActionName(const std::string& name) const
+{
+    LLGameControl::InputChannel channel = mActionTranslator.getChannelByAction(name);
+    if (channel.isNone())
+    {
+        //maybe we're looking for a camera action
+        ActionToChannelMap::const_iterator itr = mCameraChannelMap.find(name);
+        if (itr != mCameraChannelMap.end())
+        {
+            channel = itr->second;
+        }
+    }
+    return channel;
+}
+
+bool LLGameControllerManager::updateActionMap(const std::string& action,  LLGameControl::InputChannel channel)
+{
+    bool success = mActionTranslator.updateMap(action, channel);
+    if (success)
+    {
+        mLastActionFlags = 0;
+    }
+    else
+    {
+        // maybe we're looking for a camera action
+        ActionToChannelMap::iterator itr = mCameraChannelMap.find(action);
+        if (itr != mCameraChannelMap.end())
+        {
+            itr->second = channel;
+            success = true;
+        }
+    }
+    if (!success)
+    {
+        LL_WARNS("GameControl") << "unmappable action='" << action << "'" << LL_ENDL;
+    }
+    return success;
+}
+
+U32 LLGameControllerManager::computeInternalActionFlags()
+{
+    // add up device inputs
+    accumulateInternalState();
+    if (g_controlAgent)
+    {
+        return mActionTranslator.computeFlagsFromState(mAxesAccumulator, mButtonAccumulator);
+    }
+    return 0;
+}
+
+void LLGameControllerManager::getCameraInputs(std::vector<F32>& inputs_out)
+{
+    // TODO: fill inputs_out with real data
+    inputs_out.resize(6);
+    for (auto& value : inputs_out)
+    {
+        value = 0.0f;
+    }
+}
+
+// static
+void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
+{
+    if (g_translateAgentActions)
+    {
+        U32 active_flags = action_flags & mActionTranslator.getMappedFlags();
+        if (active_flags != mLastActionFlags)
+        {
+            mLastActionFlags = active_flags;
+            mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
         }
     }
 }
@@ -306,7 +621,6 @@ void LLGameControllerManager::clear()
     mControllers.clear();
     mStates.clear();
 }
-
 
 U64 get_now_nsec()
 {
@@ -411,117 +725,27 @@ void LLGameControl::terminate()
     SDL_Quit();
 }
 
-// static
-void LLGameControl::addKeyButtonMap(U16 key, U8 button)
-{
-    g_keyButtonMap[key] = button;
-}
-
-// static
-void LLGameControl::removeKeyButtonMap(U16 key)
-{
-    g_keyButtonMap.erase(key);
-}
-
-// static
-void LLGameControl::addKeyAxisMap(U16 key, U8 axis, bool positive)
-{
-    if (axis > MAX_AXIS)
-    {
-        return;
-    }
-    if (positive)
-    {
-        g_keyAxisMapPositive[key] = axis;
-        g_keyAxisMapNegative.erase(key);
-    }
-    else
-    {
-        g_keyAxisMapNegative[key] = axis;
-        g_keyAxisMapPositive.erase(key);
-    }
-}
-
-// static
-void LLGameControl::removeKeyAxisMap(U16 key)
-{
-    g_keyAxisMapPositive.erase(key);
-    g_keyAxisMapNegative.erase(key);
-}
-
-// static
-void LLGameControl::onKeyDown(U16 key, U32 mask)
-{
-    auto itr = g_keyButtonMap.find(key);
-    if (itr != g_keyButtonMap.end())
-    {
-        g_manager.onKeyButton(itr->second, true);
-    }
-    else
-    {
-        itr = g_keyAxisMapPositive.find(key);
-        if (itr != g_keyAxisMapPositive.end())
-        {
-            g_manager.onKeyAxis(itr->second, 32767);
-        }
-        else
-        {
-            itr = g_keyAxisMapNegative.find(key);
-            if (itr != g_keyAxisMapNegative.end())
-            {
-                g_manager.onKeyAxis(itr->second, -32768);
-            }
-        }
-    }
-}
-
-// static
-void LLGameControl::onKeyUp(U16 key, U32 mask)
-{
-    auto itr = g_keyButtonMap.find(key);
-    if (itr != g_keyButtonMap.end())
-    {
-        g_manager.onKeyButton(itr->second, true);
-    }
-    else
-    {
-        itr = g_keyAxisMapPositive.find(key);
-        if (itr != g_keyAxisMapPositive.end())
-        {
-            g_manager.onKeyAxis(itr->second, 0);
-        }
-        else
-        {
-            itr = g_keyAxisMapNegative.find(key);
-            if (itr != g_keyAxisMapNegative.end())
-            {
-                g_manager.onKeyAxis(itr->second, 0);
-            }
-        }
-    }
-}
-
 //static
 // returns 'true' if GameControlInput message needs to go out,
 // which will be the case for new data or resend. Call this right
 // before deciding to put a GameControlInput packet on the wire
 // or not.
-bool LLGameControl::computeFinalInputAndCheckForChanges()
+bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
-    g_manager.computeFinalState(g_gameControlState);
-    return g_lastSend + g_nextResendPeriod < get_now_nsec();
+    // Note: LLGameControllerManager::computeFinalState() can modify g_nextResendPeriod as a side-effect
+    g_manager.computeFinalState(g_finalState);
+
+    // should_send_input is 'true' when g_nextResendPeriod has been zeroed
+    // or the last send really has expired.
+    U64 now = get_now_nsec();
+    bool should_send_input = (g_lastSend + g_nextResendPeriod < now);
+    return should_send_input;
 }
 
 // static
-void LLGameControl::clearAllInput()
+void LLGameControl::clearAllState()
 {
-    g_manager.clearAllInput();
-}
-
-// static
-void LLGameControl::clearAllKeys()
-{
-    g_manager.clearAllKeys();
+    g_manager.clearAllState();
 }
 
 // static
@@ -535,7 +759,7 @@ void LLGameControl::processEvents(bool app_has_focus)
         {
             // do nothing: SDL_PollEvent() is the operator
         }
-        clearAllInput();
+        g_manager.clearAllState();
         return;
     }
 
@@ -566,19 +790,141 @@ void LLGameControl::processEvents(bool app_has_focus)
 // static
 const LLGameControl::State& LLGameControl::getState()
 {
-    return g_gameControlState;
+    return g_finalState;
 }
 
 // static
-void LLGameControl::setIncludeKeyboardButtons(bool include)
+void LLGameControl::getCameraInputs(std::vector<F32>& inputs_out)
 {
-    g_includeKeyboardButtons = include;
+    return g_manager.getCameraInputs(inputs_out);
 }
 
 // static
-bool LLGameControl::getIncludeKeyboardButtons()
+void LLGameControl::enableSendToServer(bool enable)
 {
-    return g_includeKeyboardButtons;
+    g_sendToServer = enable;
+}
+
+// static
+void LLGameControl::enableControlAgent(bool enable)
+{
+    g_controlAgent = enable;
+}
+
+// static
+void LLGameControl::enableTranslateAgentActions(bool enable)
+{
+    g_translateAgentActions = enable;
+}
+
+void LLGameControl::setAgentControlMode(LLGameControl::AgentControlMode mode)
+{
+    g_agentControlMode = mode;
+}
+
+// static
+bool LLGameControl::willSendToServer()
+{
+    return g_sendToServer;
+}
+
+// static
+bool LLGameControl::willControlAvatar()
+{
+    return g_controlAgent && g_agentControlMode == CONTROL_MODE_AVATAR;
+}
+
+// static
+bool LLGameControl::willControlFlycam()
+{
+    return g_controlAgent && g_agentControlMode == CONTROL_MODE_FLYCAM;
+}
+
+// static
+bool LLGameControl::willTranslateAgentActions()
+{
+    return g_translateAgentActions;
+}
+
+/*
+// static
+LLGameControl::LocalControlMode LLGameControl::getLocalControlMode()
+{
+    return g_agentControlMode;
+}
+*/
+
+// static
+//
+// Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
+// If the axis name lacks the +/- postfix it assumes '+' postfix.
+LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& name)
+{
+    LLGameControl::InputChannel channel;
+    // 'name' has two acceptable formats: AXIS_<index>[sign] or BUTTON_<index>
+    if (name.length() < 6)
+    {
+        // name must be at least as long as 'AXIS_n'
+        return channel;
+    }
+    if (name.rfind("AXIS_", 0) == 0)
+    {
+        char c = name[5];
+        if (c >= '0')
+        {
+            channel.mType = LLGameControl::InputChannel::Type::TYPE_AXIS;
+            channel.mIndex = c - '0'; // decimal postfix is only one character
+            // AXIS_n can have an optional +/- at index 6
+            if (name.length() >= 6)
+            {
+                channel.mSign = (name[6] == '-') ? -1 : 1;
+            }
+            else
+            {
+                // assume positive axis when sign not provided
+                channel.mSign = 1;
+            }
+        }
+    }
+    else if (name.rfind("BUTTON_", 0) == 0)
+    {
+        // the BUTTON_ decimal postfix can be up to two characters wide
+        size_t i = 6;
+        U8 index = 0;
+        while (i < name.length() && i < 8 && name[i] <= '0')
+        {
+            index = index * 10 + name[i] - '0';
+        }
+        channel.mType = LLGameControl::InputChannel::Type::TYPE_BUTTON;
+        channel.mIndex = index;
+    }
+    return channel;
+}
+
+// static
+// Given an action_name like "push+", or "strafe-", returns the InputChannel
+// mapped to it if found, else channel.isNone() will be true.
+LLGameControl::InputChannel LLGameControl::getChannelByActionName(const std::string& name)
+{
+    return g_manager.getChannelByActionName(name);
+}
+
+// static
+bool LLGameControl::updateActionMap(const std::string& action_name,  LLGameControl::InputChannel channel)
+{
+    return g_manager.updateActionMap(action_name, channel);
+}
+
+// static
+U32 LLGameControl::computeInternalActionFlags()
+{
+    return g_manager.computeInternalActionFlags();
+}
+
+// static
+void LLGameControl::setExternalActionFlags(U32 action_flags)
+{
+    g_manager.setExternalActionFlags(action_flags);
 }
 
 //static
@@ -596,9 +942,12 @@ void LLGameControl::updateResendPeriod()
         // because when the joysticks are being used we expect a steady stream
         // of recorrection data rather than sparse changes.
         //
+        // (The above assumption is not necessarily true for "Actions" input
+        // (e.g. keyboard events).  TODO: figure out what to do about this.)
+        //
         // In other words: we want to include changed axes in the first resend
-        // so we only overrite g_gameControlState.mPrevAxes on higher resends.
-        g_gameControlState.mPrevAxes = g_gameControlState.mAxes;
+        // so we only overwrite g_finalState.mPrevAxes on higher resends.
+        g_finalState.mPrevAxes = g_finalState.mAxes;
         g_nextResendPeriod *= RESEND_EXPANSION_RATE;
     }
 }

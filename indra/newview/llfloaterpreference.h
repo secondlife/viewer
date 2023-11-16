@@ -36,6 +36,7 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
+#include "llgamecontroltranslator.h"
 #include "llsearcheditor.h"
 #include "llsetkeybinddialog.h"
 #include "llkeyconflict.h"
@@ -51,6 +52,7 @@ class LLScrollListCell;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
+class LLPanelPreferenceGameControl;
 
 namespace ll
 {
@@ -80,12 +82,12 @@ public:
 
     void apply();
     void cancel(const std::vector<std::string> settings_to_skip = {});
-    /*virtual*/ void draw();
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ void onClose(bool app_quitting);
-    /*virtual*/ void changed();
-    /*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
+    virtual void draw() override;
+    virtual bool postBuild() override;
+    virtual void onOpen(const LLSD& key) override;
+    virtual void onClose(bool app_quitting) override;
+    virtual void changed() override;
+    virtual void changed(const LLUUID& session_id, U32 mask) override {};
 
     // static data update, called from message handler
     static void updateUserInfo(const std::string& visibility);
@@ -99,8 +101,7 @@ public:
     // update Show Favorites checkbox
     static void updateShowFavoritesCheckbox(bool val);
 
-    void processProperties( void* pData, EAvatarProcessorType type );
-    void saveAvatarProperties( void );
+    void processProperties( void* pData, EAvatarProcessorType type ) override;
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
     void selectPrivacyPanel();
     void selectChatPanel();
@@ -251,7 +252,7 @@ class LLPanelPreference : public LLPanel
 {
 public:
     LLPanelPreference();
-    /*virtual*/ bool postBuild();
+    virtual bool postBuild() override;
 
     virtual ~LLPanelPreference();
 
@@ -297,13 +298,15 @@ private:
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
-    bool postBuild();
-    void draw();
-    void cancel(const std::vector<std::string> settings_to_skip = {});
-    void saveSettings();
+    bool postBuild() override;
+    void draw() override;
+    void cancel(const std::vector<std::string> settings_to_skip = {}) override;
+    void saveSettings() override;
     void resetDirtyChilds();
-    void setHardwareDefaults();
+    void setHardwareDefaults() override;
     void setPresetText();
+
+    static const std::string getPresetsPath();
 
 protected:
     bool hasDirtyChilds();
@@ -320,11 +323,11 @@ public:
     LLPanelPreferenceControls();
     virtual ~LLPanelPreferenceControls();
 
-    bool postBuild();
+    bool postBuild() override;
 
-    void apply();
-    void cancel(const std::vector<std::string> settings_to_skip = {});
-    void saveSettings();
+    void apply() override;
+    void cancel(const std::vector<std::string> settings_to_skip = {}) override;
+    void saveSettings() override;
     void resetDirtyChilds();
 
     void onListCommit();
@@ -340,9 +343,9 @@ public:
     void updateAndApply();
 
     // from interface
-    /*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
-    /*virtual*/ void onDefaultKeyBind(bool all_modes);
-    /*virtual*/ void onCancelKeyBind();
+    bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes) override;
+    void onDefaultKeyBind(bool all_modes) override;
+    void onCancelKeyBind() override;
 
 private:
     // reloads settings, discards current changes, updates table
@@ -365,6 +368,57 @@ private:
     std::string mEditingControl;
     S32 mEditingColumn;
     S32 mEditingMode;
+};
+
+class LLPanelPreferenceGameControl : public LLPanelPreference
+{
+public:
+
+    enum InputType
+    {
+        TYPE_AXIS,
+        TYPE_BUTTON,
+        TYPE_NONE
+    };
+
+    LLPanelPreferenceGameControl();
+    ~LLPanelPreferenceGameControl();
+
+    void apply() override;
+    void loadDefaults();
+    void loadSettings();
+    void saveSettings() override;
+    void updateEnabledState();
+
+    void onClickGameControlToServer(LLUICtrl* ctrl);
+    // "Agent" in this context means either Avatar or Flycam
+    void onClickGameControlToAgent(LLUICtrl* ctrl);
+    void onClickAgentToGameControl(LLUICtrl* ctrl);
+    void onActionSelect();
+    void onCommitInputChannel();
+
+    static bool isWaitingForInputChannel();
+    static void applyGameControlInput(const LLGameControl::InputChannel& channel);
+protected:
+    bool postBuild() override;
+
+    void populateActionTable();
+    void populateColumns();
+    void populateRows(const std::string& filename);
+
+private:
+    void clearSelectionState();
+    void addTableSeparator();
+    void updateTable();
+    LOG_CLASS(LLPanelPreferenceGameControl);
+
+    LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
+    LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
+    LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
+
+    LLScrollListCtrl* mActionTable;
+    LLComboBox* mChannelSelector;
+    LLGameControlTranslator mActionTranslator;
 };
 
 class LLAvatarComplexityControls
@@ -391,13 +445,13 @@ public:
     void cancel();
 
 protected:
-    bool postBuild();
-    void onOpen(const LLSD& key);
-    void onClose(bool app_quitting);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
     void saveSettings();
     void onBtnOk();
     void onBtnCancel();
-    void onClickCloseBtn(bool app_quitting = false);
+    void onClickCloseBtn(bool app_quitting = false) override;
 
     void onChangeSocksSettings();
 

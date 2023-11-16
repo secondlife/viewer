@@ -300,6 +300,7 @@ void LLKeyboardSDL::scanKeyboard()
             mCallbacks->handleScanKey(key, mKeyDown[key], mKeyUp[key], mKeyLevel[key]);
         }
     }
+    mCurScanKey = KEY_NONE;
 
     // Reset edges for next frame
     for (S32 key = 0; key < KEY_COUNT; key++)

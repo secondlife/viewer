@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <llsd>
-<map>
+  <map>
     <key>version</key>
     <string>1.3</string>
     <key>type</key>
@@ -1207,18 +1207,6 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ffbdd109356d66ddfefd8a5d57f63f1f</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/533/1144/libhunspell-1.3.2.500526-linux64-500526.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
@@ -1550,7 +1538,7 @@
             <key>name</key>
             <string>linux64</string>
           </map>
-          <key>windows64</key>
+          <key>windows</key>
           <map>
             <key>archive</key>
             <map>
@@ -1560,7 +1548,7 @@
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60043/564063/llphysicsextensions_stub-1.0.542456-windows-542456.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>windows64</string>
+            <string>windows</string>
           </map>
         </map>
         <key>license</key>
@@ -1612,7 +1600,7 @@
               <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/84731/788139/llphysicsextensions_tpv-1.0.561752-windows64-561752.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>windows64</string>
+            <string>windows</string>
           </map>
         </map>
         <key>license</key>
@@ -3292,7 +3280,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <key>name</key>
           <string>linux64</string>
         </map>
-        <key>windows64</key>
+        <key>windows</key>
         <map>
           <key>configurations</key>
           <map>
@@ -3449,7 +3437,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <key>build_directory</key>
           <string>build-vc${AUTOBUILD_VSVER|170}-$AUTOBUILD_ADDRSIZE</string>
           <key>name</key>
-          <string>windows64</string>
+          <string>windows</string>
         </map>
       </map>
       <key>license</key>
