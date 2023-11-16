@@ -33,6 +33,8 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"           // for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llflycam.h"
+#include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
 #include "v3dmath.h"
@@ -479,6 +481,7 @@ public:
     void            resetControlFlags();
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
+    bool            isUsingFlycam() const { return mUsingFlycam; }
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
@@ -487,9 +490,38 @@ public:
 private:
     S32             mControlsTakenCount[TOTAL_CONTROLS];
     S32             mControlsTakenPassedOnCount[TOTAL_CONTROLS];
+    // mControlFlags is a bitmask of behavior instructions for compact
+    // transmission to the server.  It does NOT represent "input", rather
+    // the consequences of it, which will sometimes depend on "state".
     U32             mControlFlags;                  // Replacement for the mFooKey's
     bool            mbFlagsDirty;
     bool            mbFlagsNeedReset;               // ! HACK ! For preventing incorrect flags sent when crossing region boundaries
+
+    //--------------------------------------------------------------------
+    // GameControls
+    //--------------------------------------------------------------------
+public:
+    // ActionFlags are similar to, but not the same as, ControlFlags!
+    // An 'ActionFlags' bitmask stores 'simplified input' from key/button
+    // presses that are mapped to avatar/camera movement actions
+    // whereas 'mControlFlags' are a more complicated set of behavior bits
+    // computed as a function of input and state.
+    //
+    void setExternalActionFlags(U32 flags);
+    void applyExternalActionFlags();
+    void applyExternalActionFlagsForFlycam();
+
+private:
+    void updateFlycam();
+
+    U64 mLastFlycamUpdate { 0 };
+    U32 mExternalActionFlags { 0 };
+    LLFlycam mFlycam;
+    bool mToggleFly { true };
+    bool mToggleSit { true };
+    bool mToggleRun { true };
+    bool mToggleFlycam { true };
+    bool mUsingFlycam { false };
 
     //--------------------------------------------------------------------
     // Animations

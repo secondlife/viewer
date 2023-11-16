@@ -2612,10 +2612,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableGameControlInput</key>
+    <key>GameControlToServer</key>
     <map>
       <key>Comment</key>
-      <string>Transmit game controller input to server</string>
+      <string>Transmit game controller data to server</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2623,10 +2623,21 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>EnableGameControlKeyboardInput</key>
+    <key>GameControlToAgent</key>
     <map>
       <key>Comment</key>
-      <string>Send 'unhandled' keystrokes as GameInput to server</string>
+      <string>GameControl data moves avatar/flycam</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AgentToGameControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar/flycam movement produces GameControl data</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

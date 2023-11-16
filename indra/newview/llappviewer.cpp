@@ -212,6 +212,7 @@
 #include "llvosurfacepatch.h"
 #include "llviewerfloaterreg.h"
 #include "llcommandlineparser.h"
+#include "llfloaterpreference.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
 #include "llfloatersimplesnapshot.h"
@@ -1114,11 +1115,15 @@ bool LLAppViewer::init()
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
     gSimFrames = (F32)gFrameCount;
 
-	if (gSavedSettings.getBOOL("JoystickEnabled"))
-	{
-		LLViewerJoystick::getInstance()->init(false);
-	}
-	LLGameControl::init();
+    if (gSavedSettings.getBOOL("JoystickEnabled"))
+    {
+        LLViewerJoystick::getInstance()->init(false);
+    }
+
+    LLGameControl::init();
+    LLGameControl::enableSendToServer(gSavedSettings.getBOOL("GameControlToServer"));
+    LLGameControl::enableControlAgent(gSavedSettings.getBOOL("GameControlToAgent"));
+    LLGameControl::enableTranslateAgentActions(gSavedSettings.getBOOL("AgentToGameControl"));
 
     try
     {
@@ -1362,26 +1367,75 @@ bool LLAppViewer::frame()
     return ret;
 }
 
+// util for detecting most active input channel
+LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State& state)
+{
+    LLGameControl::InputChannel input;
+    if (state.mButtons > 0)
+    {
+        // check buttons
+        input.mType = LLGameControl::InputChannel::TYPE_BUTTON;
+        for (U8 i = 0; i < 32; ++i)
+        {
+            if ((0x1 << i) & state.mButtons)
+            {
+                input.mIndex = i;
+                break;
+            }
+        }
+    }
+    else
+    {
+        // scan axes
+        S16 threshold = std::numeric_limits<S16>::max() / 2;
+        for (U8 i = 0; i < 6; ++i)
+        {
+            if (abs(state.mAxes[i]) > threshold)
+            {
+                input.mType = LLGameControl::InputChannel::TYPE_AXIS;
+                // input.mIndex ultimately translates to a LLGameControl::KeyboardAxis
+                // which distinguishes between negative and positive directions
+                // so we must translate to axis index "i" according to the sign
+                // of the axis value.
+                input.mIndex = i;
+                input.mSign = state.mAxes[i] > 0 ? 1 : -1;
+                break;
+            }
+        }
+    }
+    return input;
+}
 
 // static
 bool packGameControlInput(LLMessageSystem* msg)
 {
-    if (! LLGameControl::computeFinalInputAndCheckForChanges())
+    if (! LLGameControl::computeFinalStateAndCheckForChanges())
     {
+        // Note: LLGameControl manages some re-send logic
+        // so if we get here: nothing changed AND there is no need for a re-send
         return false;
     }
-    if (!gSavedSettings.getBOOL("EnableGameControlInput"))
+    if (!gSavedSettings.getBOOL("GameControlToServer"))
     {
-        LLGameControl::clearAllInput();
+        LLGameControl::clearAllState();
         return false;
+    }
+
+    const LLGameControl::State& state = LLGameControl::getState();
+
+    if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
+    {
+        LLGameControl::InputChannel channel = get_active_input_channel(state);
+        if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
+        {
+            LLPanelPreferenceGameControl::applyGameControlInput(channel);
+        }
     }
 
     msg->newMessageFast(_PREHASH_GameControlInput);
     msg->nextBlock("AgentData");
     msg->addUUID("AgentID", gAgentID);
     msg->addUUID("SessionID", gAgentSessionID);
-
-    const LLGameControl::State& state = LLGameControl::getState();
 
     size_t num_indices = state.mAxes.size();
     for (U8 i = 0; i < num_indices; ++i)
@@ -1525,16 +1579,7 @@ bool LLAppViewer::doFrame()
                 joystick->scanJoystick();
                 gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
-
-                LLGameControl::setIncludeKeyboardButtons(gSavedSettings.getBOOL("EnableGameControlKeyboardInput"));
-                LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
-                // to help minimize lag we send GameInput packets immediately
-                // after getting the latest GameController input
-                if (packGameControlInput(gMessageSystem))
-                {
-		            gAgent.sendMessage();
-                }
-			}
+            }
 
             // Update state based on messages, user input, object idle.
             {
@@ -4769,26 +4814,35 @@ void LLAppViewer::idle()
 
         static LLFrameTimer agent_update_timer;
 
+        // Note: we process game_control before sending AgentUpdate
+        // because it may translate to control flags that control avatar motion.
+        LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
+
+        // trade flags between gAgent and LLGameControl
+        U32 control_flags = gAgent.getControlFlags();
+        U32 action_flags = LLGameControl::computeInternalActionFlags();
+        LLGameControl::setExternalActionFlags(control_flags);
+        if (packGameControlInput(gMessageSystem))
+        {
+            // to help minimize lag we send GameInput packets ASAP
+           gAgent.sendMessage();
+        }
+        gAgent.setExternalActionFlags(action_flags);
+
         // When appropriate, update agent location to the simulator.
         F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
         F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
-        bool force_send =
-            // if there is something to send
-            (gAgent.controlFlagsDirty() && timed_out)
-            // if something changed
-            || (mLastAgentControlFlags != gAgent.getControlFlags())
-            // keep alive
-            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-        // timing out doesn't warranty that an update will be sent,
-        // just that it will be checked.
-        if (force_send || timed_out)
+        bool force_update = gAgent.controlFlagsDirty()
+                            || (mLastAgentControlFlags != gAgent.getControlFlags())
+                            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+        if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
         {
+            gAgent.applyExternalActionFlags();
             LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
             // Send avatar and camera info
             mLastAgentControlFlags = gAgent.getControlFlags();
-            mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
-            send_agent_update(force_send);
+            mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
+            send_agent_update(force_update);
             agent_update_timer.reset();
         }
     }
@@ -5040,6 +5094,10 @@ void LLAppViewer::idle()
     else if (LLViewerJoystick::getInstance()->getOverrideCamera())
     {
         LLViewerJoystick::getInstance()->moveFlycam();
+    }
+    else if (gAgent.isUsingFlycam())
+    {
+        // TODO: implement this
     }
     else
     {

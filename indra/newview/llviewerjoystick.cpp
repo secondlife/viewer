@@ -148,17 +148,11 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
 
         LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
-        bool init_device = false;
-        if (guid.isBinary())
+        bool init_device = LLViewerJoystick::is3DConnexionDevice(product_name);
+        if (init_device && guid.isBinary())
         {
             std::vector<U8> bin_bucket = guid.asBinary();
             init_device = memcmp(&bin_bucket[0], &device_instance_ptr->guidInstance, sizeof(GUID)) == 0;
-        }
-        else
-        {
-            // It might be better to init space navigator here, but if system doesn't has one,
-            // ndof will pick a random device, it is simpler to pick first device now to have an id
-            init_device = true;
         }
 
         if (init_device)
@@ -1513,14 +1507,23 @@ std::string LLViewerJoystick::getDescription()
     return res;
 }
 
+// static
+bool LLViewerJoystick::is3DConnexionDevice(const std::string& device_name)
+{
+    bool answer = device_name.find("Space") == 0
+        && ( (device_name.find("SpaceNavigator") == 0)
+            || (device_name.find("SpaceExplorer") == 0)
+            || (device_name.find("SpaceTraveler") == 0)
+            || (device_name.find("SpacePilot") == 0)
+            || (device_name.find("SpaceMouse") == 0));
+    return answer;
+}
+
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
 #if LIB_NDOF
     return (isJoystickInitialized()
-            && (strncmp(mNdofDev->product, "SpaceNavigator", 14) == 0
-                || strncmp(mNdofDev->product, "SpaceExplorer", 13) == 0
-                || strncmp(mNdofDev->product, "SpaceTraveler", 13) == 0
-                || strncmp(mNdofDev->product, "SpacePilot", 10) == 0));
+            && is3DConnexionDevice(mNdofDev->product));
 #else
     return false;
 #endif

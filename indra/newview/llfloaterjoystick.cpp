@@ -79,14 +79,17 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
     if (device_instance_ptr && pvRef)
     {
         std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
-        S32 size = sizeof(GUID);
-        LLSD::Binary data; //just an std::vector
-        data.resize(size);
-        memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
+        if (LLViewerJoystick::is3DConnexionDevice(product_name))
+        {
+            S32 size = sizeof(GUID);
+            LLSD::Binary data; //just an std::vector
+            data.resize(size);
+            memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
 
-        LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
-        LLSD value = data;
-        floater->addDevice(product_name, value);
+            LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
+            LLSD value = data;
+            floater->addDevice(product_name, value);
+        }
     }
     return DIENUM_CONTINUE;
 }
@@ -303,8 +306,11 @@ void LLFloaterJoystick::refreshListOfDevices()
 #if LL_WINDOWS && !LL_MESA_HEADLESS
         LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
 #endif
-        std::string desc = joystick->getDescription();
-        if (!desc.empty())
+        // This feature used to support various gamepad devices however
+        // going forward we will restrict it to 3DConnexion devices (SpaceMouse, etc)
+        // and will handle gamepads with the GameControl feature.
+        std::string desc = LLViewerJoystick::getInstance()->getDescription();
+        if (LLViewerJoystick::is3DConnexionDevice(desc))
         {
             LLSD value = LLSD::Integer(1); // value for selection
             addDevice(desc, value);

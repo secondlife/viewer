@@ -35,6 +35,7 @@
 #include "llagentcamera.h"
 #include "llfloaterimnearbychat.h"
 #include "llfocusmgr.h"
+#include "llgamecontrol.h"
 #include "llkeybind.h" // LLKeyData
 #include "llmorphview.h"
 #include "llmoveview.h"
@@ -157,9 +158,6 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 
 static void agent_push_forwardbackward( EKeystate s, S32 direction, LLAgent::EDoubleTapRunMode mode )
 {
-    agent_handle_doubletap_run(s, mode);
-    if (KEYSTATE_UP == s) return;
-
     F32 time = gKeyboard->getCurKeyElapsedTime();
     S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 
@@ -668,6 +666,7 @@ bool start_gesture( EKeystate s )
 
 bool run_forward(EKeystate s)
 {
+    // HACK: we use AGENT_CONTROL_NUDGE_AT_POS to signify "run forward"
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_FORWARD)
@@ -693,6 +692,7 @@ bool run_forward(EKeystate s)
 
 bool run_backward(EKeystate s)
 {
+    // HACK: we use AGENT_CONTROL_NUDGE_AT_NEG to signify "run backward"
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_BACKWARD)
@@ -718,6 +718,7 @@ bool run_backward(EKeystate s)
 
 bool run_left(EKeystate s)
 {
+    // HACK: we use AGENT_CONTROL_NUDGE_LEFT_POS to signify "run left"
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_SLIDELEFT)
@@ -768,6 +769,7 @@ bool run_right(EKeystate s)
 
 bool toggle_run(EKeystate s)
 {
+    // HACK: we use AGENT_CONTROL_FAST_AT to signify "run button"
     if (KEYSTATE_DOWN != s) return true;
     bool run = gAgent.getAlwaysRun();
     if (run)
@@ -786,6 +788,7 @@ bool toggle_run(EKeystate s)
 
 bool toggle_sit(EKeystate s)
 {
+    // HACK: we use AGENT_CONTROL_SIT_ON_GROUND to signify "sit button"
     if (KEYSTATE_DOWN != s) return true;
     if (gAgent.isSitting())
     {

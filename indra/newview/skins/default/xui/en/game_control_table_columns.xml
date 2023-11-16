@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <columns
+        relative_width="0.25"
+        label="Action"
+        name="action" />
+    <columns
+        relative_width="0.25"
+        label="GameControl"
+        name="index" />
+    <columns
+        relative_width="0.50"
+        label=" "
+        name="foo" />
+</contents>
