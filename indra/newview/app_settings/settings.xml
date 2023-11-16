@@ -2578,7 +2578,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableGameControlInput</key>
+    <key>EnableGameControl</key>
     <map>
       <key>Comment</key>
       <string>Transmit game controller input to server</string>
@@ -2589,10 +2589,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>EnableGameControlKeyboardInput</key>
+    <key>EnableGameControlKeyboard</key>
     <map>
       <key>Comment</key>
-      <string>Send 'unhandled' keystrokes as GameInput to server</string>
+      <string>Consider keyboard a game controller</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
