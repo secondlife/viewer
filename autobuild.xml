@@ -440,11 +440,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e4d568c166049ce61b39d69887b56d2382781a1a</string>
+              <string>3f40dffbbf26449d74918c73cac03be6856eb720</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v118.0.5993.54/dullahan-1.14.0.202310131309_118.4.1_g3dd6078_chromium-118.0.5993.54-darwin64-6b02a60.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0.202311162206_118.4.1_g3dd6078_chromium-118.0.5993.54-5d9d14d/dullahan-1.14.0.202311162220_118.4.1_g3dd6078_chromium-118.0.5993.54-darwin64-5d9d14d.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -454,11 +454,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a00eae7f5dc430ae48389ab723ced39739b0a144</string>
+              <string>e51c102dbc3ddf044ddbad7fe523d97820d2a0b4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v118.0.5993.54/dullahan-1.14.0.202310131404_118.4.1_g3dd6078_chromium-118.0.5993.54-windows64-6b02a60.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0.202311162206_118.4.1_g3dd6078_chromium-118.0.5993.54-5d9d14d/dullahan-1.14.0.202311162216_118.4.1_g3dd6078_chromium-118.0.5993.54-windows64-5d9d14d.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -471,7 +471,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.14.0.202310131404_118.4.1_g3dd6078_chromium-118.0.5993.54</string>
+        <string>1.14.0.202311162220_118.4.1_g3dd6078_chromium-118.0.5993.54</string>
         <key>name</key>
         <string>dullahan</string>
         <key>description</key>
@@ -2211,11 +2211,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
+              <string>2bc12b422a54220957e03aa6f057b379b767db4d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
+              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/135929826</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2239,14 +2239,30 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
+              <string>a2a1b1538ace9036460b726384035b2b4d6a5f72</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
+              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/135929829</string>
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>6bb9900dd143330fd2717c3b1b972d0402302297</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/135929827</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
         <key>license</key>
