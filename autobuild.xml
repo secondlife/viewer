@@ -320,11 +320,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d4d5f27008de1ff7e86ae852841c68849b02eaea</string>
+              <string>cd7ef39aba39c8676d8045186204d6c74576d724</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-darwin64-5a4a82d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-3e1867b/curl-7.54.1-3e1867b-darwin64-3e1867b.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -346,11 +346,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07423f41d1320ea405f493869f6460cf8c45def5</string>
+              <string>b677375f97385eb7ee48442310dafabfee339393</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-windows64-5a4a82d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-3e1867b/curl-7.54.1-3e1867b-windows64-3e1867b.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -363,7 +363,7 @@
         <key>copyright</key>
         <string>Copyright (c) 1996 - 2014, Daniel Stenberg, (daniel@haxx.se).</string>
         <key>version</key>
-        <string>7.54.1-5a4a82d</string>
+        <string>7.54.1-3e1867b</string>
         <key>name</key>
         <string>curl</string>
         <key>description</key>
