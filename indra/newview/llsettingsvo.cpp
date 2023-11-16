@@ -983,7 +983,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
     LLEnvironment& env = LLEnvironment::instance();
 
-    auto group = LLGLSLShader::SG_WATER;
+    auto group = LLGLSLShader::SG_ANY;
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[group];
     
 	{

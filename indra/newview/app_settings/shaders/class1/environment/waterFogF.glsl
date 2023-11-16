@@ -30,12 +30,12 @@ uniform vec4 waterFogColor;
 uniform float waterFogDensity;
 uniform float waterFogKS;
 
-vec3 getPositionEye();
-
 vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
-vec4 applyWaterFogView(vec3 pos, vec4 color)
+// get a water fog color that will apply the appropriate haze to a color given
+// a blend function of (ONE, SOURCE_ALPHA)
+vec4 getWaterFogViewNoClip(vec3 pos)
 {
     vec3 view = normalize(pos);
     //normalize view vector
@@ -67,38 +67,44 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     float L = min(t1/t2*t3, 1.0);
     
     float D = pow(0.98, l*kd);
-    
-    color.rgb = color.rgb * D + kc.rgb * L;
 
-    return color;
+    return vec4(srgb_to_linear(kc.rgb*L), D);
 }
 
-vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit)
+vec4 getWaterFogView(vec3 pos)
 {
-    color.rgb = linear_to_srgb(color.rgb);
-    color = applyWaterFogView(pos, color);
-    color.rgb = srgb_to_linear(color.rgb);
+    if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
+    {
+        return vec4(0,0,0,1);
+    }
+
+    return getWaterFogViewNoClip(pos);
+}
+
+vec4 applyWaterFogView(vec3 pos, vec4 color)
+{
+    vec4 fogged = getWaterFogView(pos);
+    
+    color.rgb = color.rgb * fogged.a + fogged.rgb;
+
     return color;
 }
 
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit)
+vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color)
+{
+    vec4 fogged = getWaterFogViewNoClip(pos);
+    color.rgb *= fogged.a;
+    color.rgb += fogged.rgb;
+    return color;
+}
+
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
 {
     if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
     {
         return color;
     }
 
-    return applyWaterFogViewLinearNoClip(pos, color, sunlit);
-}
-
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
-{
-    return applyWaterFogViewLinear(pos, color, vec3(1));
-}
-
-vec4 applyWaterFog(vec4 color)
-{
-    //normalize view vector
-    return applyWaterFogViewLinear(getPositionEye(), color);
+    return applyWaterFogViewLinearNoClip(pos, color);
 }
 

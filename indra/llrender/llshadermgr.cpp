@@ -81,14 +81,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->calculatesAtmospherics)
 	{
-		if (features->hasWaterFog)
-		{
-			if (!shader->attachVertexObject("windlight/atmosphericsVarsWaterV.glsl"))
-			{
-				return FALSE;
-			}
-		}
-        else if (!shader->attachVertexObject("windlight/atmosphericsVarsV.glsl"))
+		if (!shader->attachVertexObject("windlight/atmosphericsVarsV.glsl"))
 		{
 			return FALSE;
 		}
@@ -201,14 +194,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if(features->calculatesAtmospherics || features->hasGamma || features->isDeferred)
 	{
-		if (features->hasWaterFog)
-		{
-			if (!shader->attachFragmentObject("windlight/atmosphericsVarsWaterF.glsl"))
-			{
-				return FALSE;
-			}
-		}
-        else if (!shader->attachFragmentObject("windlight/atmosphericsVarsF.glsl"))
+		if (!shader->attachFragmentObject("windlight/atmosphericsVarsF.glsl"))
 		{
 			return FALSE;
 		}
@@ -292,7 +278,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	}
 	
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
-	if (features->hasWaterFog)
+	if (features->hasWaterFog || features->hasAtmospherics)
 	{
         if (!shader->attachFragmentObject("environment/waterFogF.glsl"))
 		{

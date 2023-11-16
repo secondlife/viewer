@@ -7875,7 +7875,7 @@ void LLPipeline::renderDeferredLighting()
 
         if (RenderDeferredAtmospheric)
         {  // apply sunlight contribution
-            LLGLSLShader &soften_shader = LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram;
+            LLGLSLShader &soften_shader = gDeferredSoftenProgram;
 
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - atmospherics");
             LL_PROFILE_GPU_ZONE("atmospherics");
@@ -7904,7 +7904,7 @@ void LLPipeline::renderDeferredLighting()
                 mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
             }
 
-            unbindDeferredShader(LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram);
+            unbindDeferredShader(gDeferredSoftenProgram);
         }
 
         static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
@@ -8056,7 +8056,7 @@ void LLPipeline::renderDeferredLighting()
 
                     LLVector4a center;
                     center.load3(drawablep->getPositionAgent().mV);
-                    const F32 *c = center.getF32ptr();
+                    const F32* c = center.getF32ptr();
                     F32        s = volume->getLightRadius() * 1.5f;
 
                     sVisibleLightCount++;
@@ -8105,8 +8105,8 @@ void LLPipeline::renderDeferredLighting()
                         U32 idx = count - 1;
                         bindDeferredShader(gDeferredMultiLightProgram[idx]);
                         gDeferredMultiLightProgram[idx].uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
-                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat *) light);
-                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat *) col);
+                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*)light);
+                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*)col);
                         gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
                         far_z = 0.f;
                         count = 0;
@@ -8124,11 +8124,11 @@ void LLPipeline::renderDeferredLighting()
 
                 for (LLDrawable::drawable_list_t::iterator iter = fullscreen_spot_lights.begin(); iter != fullscreen_spot_lights.end(); ++iter)
                 {
-                    LLDrawable *drawablep           = *iter;
-                    LLVOVolume *volume              = drawablep->getVOVolume();
-                    LLVector3   center              = drawablep->getPositionAgent();
-                    F32 *       c                   = center.mV;
-                    F32         light_size_final    = volume->getLightRadius() * 1.5f;
+                    LLDrawable* drawablep = *iter;
+                    LLVOVolume* volume = drawablep->getVOVolume();
+                    LLVector3   center = drawablep->getPositionAgent();
+                    F32* c = center.mV;
+                    F32         light_size_final = volume->getLightRadius() * 1.5f;
                     F32         light_falloff_final = volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF);
 
                     sVisibleLightCount++;
@@ -8154,12 +8154,56 @@ void LLPipeline::renderDeferredLighting()
         }
 
 
+        
+        if (RenderDeferredAtmospheric)
+        {
+            LLGLEnable blend(GL_BLEND);
+            gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA);
+            gGL.setColorMask(true, false);
+
+            for (U32 i = 0; i < 2; ++i)
+            {
+                // apply haze
+                LLGLSLShader &haze_shader = i == 0 ? gHazeProgram : gHazeWaterProgram;
+
+                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - haze");
+                LL_PROFILE_GPU_ZONE("haze");
+                bindDeferredShader(haze_shader);
+
+                static LLCachedControl<F32> ssao_scale(gSavedSettings, "RenderSSAOIrradianceScale", 0.5f);
+                static LLCachedControl<F32> ssao_max(gSavedSettings, "RenderSSAOIrradianceMax", 0.25f);
+                static LLStaticHashedString ssao_scale_str("ssao_irradiance_scale");
+                static LLStaticHashedString ssao_max_str("ssao_irradiance_max");
+
+                haze_shader.uniform1f(ssao_scale_str, ssao_scale);
+                haze_shader.uniform1f(ssao_max_str, ssao_max);
+
+                LLEnvironment &environment = LLEnvironment::instance();
+                haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+                haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
+
+                haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+                {
+                    LLGLDepthTest depth(GL_FALSE);
+
+                    // full screen blit
+                    mScreenTriangleVB->setBuffer();
+                    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+                }
+
+                unbindDeferredShader(haze_shader);
+            }
+
+            gGL.setSceneBlendType(LLRender::BT_ALPHA);
+        }
+
+
         gGL.setColorMask(true, true);
     }
 
     {  // render non-deferred geometry (alpha, fullbright, glow)
         LLGLDisable blend(GL_BLEND);
-        //LLGLDisable stencil(GL_STENCIL_TEST);
 
         pushRenderTypeMask();
         andRenderTypeMask(LLPipeline::RENDER_TYPE_ALPHA,
