@@ -123,7 +123,7 @@ LLKeyData& LLKeyData::operator=(const LLKeyData& rhs)
     return *this;
 }
 
-bool LLKeyData::operator==(const LLKeyData& rhs)
+bool LLKeyData::operator==(const LLKeyData& rhs) const
 {
     if (mMouse != rhs.mMouse) return false;
     if (mKey != rhs.mKey) return false;
@@ -132,7 +132,7 @@ bool LLKeyData::operator==(const LLKeyData& rhs)
     return true;
 }
 
-bool LLKeyData::operator!=(const LLKeyData& rhs)
+bool LLKeyData::operator!=(const LLKeyData& rhs) const
 {
     if (mMouse != rhs.mMouse) return true;
     if (mKey != rhs.mKey) return true;
@@ -179,7 +179,7 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
     }
 }
 
-bool LLKeyBind::operator==(const LLKeyBind& rhs)
+bool LLKeyBind::operator==(const LLKeyBind& rhs) const
 {
     auto size = mData.size();
     if (size != rhs.mData.size()) return false;
@@ -192,7 +192,7 @@ bool LLKeyBind::operator==(const LLKeyBind& rhs)
     return true;
 }
 
-bool LLKeyBind::operator!=(const LLKeyBind& rhs)
+bool LLKeyBind::operator!=(const LLKeyBind& rhs) const
 {
     auto size = mData.size();
     if (size != rhs.mData.size()) return true;
