@@ -462,6 +462,13 @@ void copy_inventory_category(LLInventoryModel* model,
 	gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
 }
 
+void copy_cb(const LLUUID& dest_folder, const LLUUID& root_id)
+{
+    // Decrement the count in root_id since that one item won't be copied over
+    LLMarketplaceData::instance().decrementValidationWaiting(root_id);
+    update_folder_cb(dest_folder);
+};
+
 void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& root_copy_id, bool move_no_copy_items)
 {
 	model->notifyObservers();
@@ -480,12 +487,21 @@ void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryMode
 		LLMarketplaceData::instance().setValidationWaiting(root_id, count_descendants_items(cat->getUUID()));
 	}
 
+    LLPointer<LLInventoryCallback> cb;
+    if (root_copy_id.isNull())
+    {
+        cb = new LLBoostFuncInventoryCallback(boost::bind(copy_cb, new_cat_uuid, root_id));
+    }
+    else
+    {
+        cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_uuid));
+    }
+
 	// Copy all the items
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
 	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
 	{
 		LLInventoryItem* item = *iter;
-		LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_uuid));
 
 		if (item->getIsLinkType())
 		{
@@ -500,8 +516,11 @@ void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryMode
 				LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *)item;
 				gInventory.changeItemParent(viewer_inv_item, new_cat_uuid, true);
 			}
-			// Decrement the count in root_id since that one item won't be copied over
-			LLMarketplaceData::instance().decrementValidationWaiting(root_id);
+            if (root_copy_id.isNull())
+            {
+                // Decrement the count in root_id since that one item won't be copied over
+                LLMarketplaceData::instance().decrementValidationWaiting(root_id);
+            }
 		}
 		else
 		{
