@@ -5430,9 +5430,18 @@ void LLAppViewer::forceErrorBadMemoryAccess()
 void LLAppViewer::forceErrorInfiniteLoop()
 {
    	LL_WARNS() << "Forcing a deliberate infinite loop" << LL_ENDL;
+    // Loop is intentionally complicated to fool basic loop detection
+    LLTimer timer_total;
+    LLTimer timer_expiry;
+    const S32 report_frequency = 10;
+    timer_expiry.setTimerExpirySec(report_frequency);
     while(true)
     {
-        ;
+        if (timer_expiry.hasExpired())
+        {
+            LL_INFOS() << "Infinite loop time : " << timer_total.getElapsedSeconds() << LL_ENDL;
+            timer_expiry.setTimerExpirySec(report_frequency);
+        }
     }
     return;
 }
