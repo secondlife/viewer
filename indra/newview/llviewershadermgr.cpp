@@ -664,12 +664,8 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightWaterNonIndexedF.glsl",               mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightWaterAlphaMaskNonIndexedF.glsl",              mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightF.glsl",                  mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightAlphaMaskF.glsl",                 mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightWaterF.glsl",             mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightWaterAlphaMaskF.glsl",    mShaderLevel[SHADER_LIGHTING] ) );
 	
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
@@ -707,7 +703,6 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mName = "Water Shader";
 		gWaterProgram.mFeatures.calculatesAtmospherics = true;
         gWaterProgram.mFeatures.hasAtmospherics = true;
-        gWaterProgram.mFeatures.hasWaterFog = true;
 		gWaterProgram.mFeatures.hasGamma = true;
 		gWaterProgram.mFeatures.hasSrgb = true;
         gWaterProgram.mFeatures.hasReflectionProbes = true;
@@ -738,7 +733,6 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterEdgeProgram.mName = "Water Edge Shader";
 		gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
         gWaterEdgeProgram.mFeatures.hasAtmospherics = true;
-        gWaterEdgeProgram.mFeatures.hasWaterFog = true;
 		gWaterEdgeProgram.mFeatures.hasGamma = true;
 		gWaterEdgeProgram.mFeatures.hasSrgb = true;
         gWaterEdgeProgram.mFeatures.hasReflectionProbes = true;
@@ -768,7 +762,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		//load under water vertex shader
 		gUnderWaterProgram.mName = "Underwater Shader";
 		gUnderWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gUnderWaterProgram.mFeatures.hasWaterFog = true;
+		gUnderWaterProgram.mFeatures.hasAtmospherics = true;
 		gUnderWaterProgram.mShaderFiles.clear();
 		gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
 		gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/underWaterF.glsl", GL_FRAGMENT_SHADER));
@@ -1457,7 +1451,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.hasGamma = true;
             shader->mFeatures.hasShadows = use_sun_shadow;
             shader->mFeatures.hasReflectionProbes = true;
-            shader->mFeatures.hasWaterFog = true;
             shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 
             shader->mShaderFiles.clear();
@@ -1580,7 +1573,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightProgram.mFeatures.hasAtmospherics = true;
 		gDeferredFullbrightProgram.mFeatures.hasSrgb = true;
-        gDeferredFullbrightProgram.mFeatures.hasWaterFog = true;
 		gDeferredFullbrightProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightProgram.mShaderFiles.clear();
 		gDeferredFullbrightProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
@@ -1616,7 +1608,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasAtmospherics = true;
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.hasSrgb = true;		
-        gDeferredFullbrightAlphaMaskProgram.mFeatures.hasWaterFog = true;
 		gDeferredFullbrightAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.clear();
 		gDeferredFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
@@ -1804,7 +1795,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gHazeWaterProgram.mName = "Water Haze Shader";
         gHazeWaterProgram.mShaderFiles.clear();
         gHazeWaterProgram.mShaderGroup           = LLGLSLShader::SG_WATER;
-        gHazeWaterProgram.mFeatures.hasWaterFog            = true;
         gHazeWaterProgram.mFeatures.hasSrgb                = true;
         gHazeWaterProgram.mFeatures.calculatesAtmospherics = true;
         gHazeWaterProgram.mFeatures.hasAtmospherics        = true;
@@ -1969,7 +1959,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mFeatures.hasLighting = false;
 		gDeferredTerrainProgram.mFeatures.isAlphaLighting = true;
 		gDeferredTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		gDeferredTerrainProgram.mFeatures.hasWaterFog = true;
 		gDeferredTerrainProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredTerrainProgram.mFeatures.hasAtmospherics = true;
 		gDeferredTerrainProgram.mFeatures.hasGamma = true;
@@ -2011,7 +2000,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredAvatarAlphaProgram.mFeatures.isDeferred = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasShadows = true;
         gDeferredAvatarAlphaProgram.mFeatures.hasReflectionProbes = true;
-        gDeferredAvatarAlphaProgram.mFeatures.hasWaterFog = true;
 
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
         gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));

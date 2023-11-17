@@ -278,7 +278,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	}
 	
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
-	if (features->hasWaterFog || features->hasAtmospherics)
+	if (features->hasAtmospherics)
 	{
         if (!shader->attachFragmentObject("environment/waterFogF.glsl"))
 		{
@@ -288,82 +288,40 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 	if (features->hasLighting)
 	{
-		if (features->hasWaterFog)
+		if (features->disableTextureIndex)
 		{
-			if (features->disableTextureIndex)
+			if (features->hasAlphaMask)
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightAlphaMaskNonIndexedF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterAlphaMaskNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
 			}
-			else 
+			else
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightNonIndexedF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterAlphaMaskF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
-		
-		else
+		else 
 		{
-			if (features->disableTextureIndex)
+			if (features->hasAlphaMask)
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightAlphaMaskF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightAlphaMaskNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
 			}
-			else 
+			else
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightAlphaMaskF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
+			shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 		}
 	}
 	

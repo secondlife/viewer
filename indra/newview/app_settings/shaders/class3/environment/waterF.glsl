@@ -224,7 +224,7 @@ void main()
     }
 
 #else
-    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0), sunlit_linear);
+    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
 #endif
 
     // fudge sample on other side of water to be a tad darker
