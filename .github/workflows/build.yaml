@@ -330,29 +330,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          path: artifacts
+          name: Windows-installer
 
-      - name: Reshuffle artifact files
-        uses: secondlife/viewer-build-util/release-artifacts@main
+      - uses: actions/download-artifact@v3
         with:
-          input-path: artifacts
-          output-path: assets
-          # The *-app artifacts are for use only by the signing and
-          # packaging steps. Once we've generated signed installers, we no
-          # longer need them, and we CERTAINLY don't want to publish
-          # thousands of individual files as separate URLs.
-          exclude: |-
-            Windows-app
-            macOS-app
-          # Use just "Windows" or "macOS" prefix because these are the only
-          # artifacts in which we expect files from both platforms with
-          # colliding names (e.g. autobuild-package.xml). release-artifacts
-          # normally resolves collisions by prepending the artifact name, so
-          # when we anticipate collisions, it's good to keep the prefix
-          # short and sweet.
-          prefix: |-
-            Windows-metadata=Windows
-            macOS-metadata=macOS
+          name: macOS-installer
 
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
@@ -364,4 +346,6 @@ jobs:
           generate_release_notes: true
           # the only reason we generate a GH release is to post build products
           fail_on_unmatched_files: true
-          files: "assets/*"
+          files: |
+            *.dmg 
+            *.exe
