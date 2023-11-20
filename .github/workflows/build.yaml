@@ -336,6 +336,24 @@ jobs:
         with:
           name: macOS-installer
 
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows-metadata
+
+      - name: Rename windows metadata 
+        run: |
+          mv autobuild-package.xml Windows-autobuild-package.xml
+          mv newview/viewer_version.txt Windows-viewer_version.txt
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: macOS-metadata
+
+      - name: Rename macOS metadata 
+        run: |
+          mv autobuild-package.xml macOS-autobuild-package.xml
+          mv newview/viewer_version.txt macOS-viewer_version.txt
+
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
         with:
@@ -349,3 +367,5 @@ jobs:
           files: |
             *.dmg 
             *.exe
+            *-autobuild-package.xml
+            *-viewer_version.txt
