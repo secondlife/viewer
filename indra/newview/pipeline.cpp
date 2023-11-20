@@ -211,6 +211,7 @@ extern S32 gBoxFrame;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDebugGL;
 extern BOOL gCubeSnapshot;
+extern BOOL gSnapshotNoPost;
 
 bool	gAvatarBacklight = false;
 
@@ -6791,7 +6792,7 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
 	{
 		LL_PROFILE_GPU_ZONE("gamma correct");
 
-        static LLCachedControl<bool> no_post(gSavedSettings, "RenderDisablePostProcessing", false);
+        static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
@@ -6801,7 +6802,8 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
         
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        LLGLSLShader& shader = no_post && gFloaterTools->isAvailable() ? gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        LLGLSLShader& shader = no_post ? gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
             psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? gLegacyPostGammaCorrectProgram :
             gDeferredPostGammaCorrectProgram;
         

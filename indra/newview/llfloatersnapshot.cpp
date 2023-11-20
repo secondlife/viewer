@@ -474,7 +474,7 @@ void LLFloaterSnapshotBase::ImplBase::onClickAutoSnap(LLUICtrl *ctrl, void* data
 void LLFloaterSnapshotBase::ImplBase::onClickNoPost(LLUICtrl *ctrl, void* data)
 {
     BOOL no_post = ((LLCheckBoxCtrl*)ctrl)->get();
-    gSavedSettings.setBOOL("RenderDisablePostProcessing", no_post);
+    gSavedSettings.setBOOL("RenderSnapshotNoPost", no_post);
 
     LLFloaterSnapshotBase* view = (LLFloaterSnapshotBase*)data;
     view->getPreviewView()->updateSnapshot(TRUE, TRUE);
@@ -1008,7 +1008,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
 
-    getChild<LLUICtrl>("no_post_check")->setValue(gSavedSettings.getBOOL("RenderDisablePostProcessing"));
+    getChild<LLUICtrl>("no_post_check")->setValue(gSavedSettings.getBOOL("RenderSnapshotNoPost"));
     childSetCommitCallback("no_post_check", ImplBase::onClickNoPost, this);
 
     getChild<LLButton>("retract_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
