@@ -882,11 +882,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>505379a49dfd189b70025b8406a1a6044b4b7989</string>
+              <string>ae2c2a215b1bc2e3f37a67e301926dc405902d1a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136763374</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136778143</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -910,11 +910,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>c4df2599a6ad63c9c883f5b7026ab07086d5c3a2</string>
+              <string>0393dd75c58f7046bed47e62a8884a78cb02a5c3</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136763378</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136778145</string>
             </map>
             <key>name</key>
             <string>windows64</string>
