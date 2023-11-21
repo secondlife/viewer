@@ -1064,15 +1064,11 @@ void LLViewerRegion::setCacheID(const LLUUID& id)
 	mImpl->mCacheID = id;
 }
 
-S32 LLViewerRegion::renderPropertyLines()
+void LLViewerRegion::renderPropertyLines()
 {
 	if (mParcelOverlay)
 	{
-		return mParcelOverlay->renderPropertyLines();
-	}
-	else
-	{
-		return 0;
+		mParcelOverlay->renderPropertyLines();
 	}
 }
 
