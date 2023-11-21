@@ -1120,11 +1120,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>bcc7e2c34896fc9cbc41828dee8a4ddf54f10453</string>
+              <string>ad72fa1d103df777906f0d98f3e882b9916aeada</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298968</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774118</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1136,11 +1136,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>9de772df2ed12e9c742df6c90670c7cbbb9c93a6</string>
+              <string>e46e4ac93a237b5c4a14183766f76ba5d58935a2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298969</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774125</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1152,14 +1152,30 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>92533ff0f8c1881ad85e75800f9072c413ccf7b7</string>
+              <string>bb37557f78c72b26580a521f8b8dabfa1b34e6e6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298970</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774126</string>
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>711b82f9f588d3a125af7dcd8c81f93d9c343a7d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774121</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
           </map>
         </map>
         <key>license</key>
