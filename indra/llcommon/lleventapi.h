@@ -35,6 +35,11 @@
 #include "llinstancetracker.h"
 #include <string>
 
+namespace LL
+{
+    class LazyEventAPIParams;
+}
+
 /**
  * LLEventAPI not only provides operation dispatch functionality, inherited
  * from LLDispatchListener -- it also gives us event API introspection.
@@ -63,19 +68,6 @@ public:
     std::string getName() const { return ibase::getKey(); }
     /// Get the documentation string
     std::string getDesc() const { return mDesc; }
-
-    /**
-     * Publish only selected add() methods from LLEventDispatcher.
-     * Every LLEventAPI add() @em must have a description string.
-     */
-    template <typename CALLABLE>
-    void add(const std::string& name,
-             const std::string& desc,
-             CALLABLE callable,
-             const LLSD& required=LLSD())
-    {
-        LLEventDispatcher::add(name, desc, callable, required);
-    }
 
     /**
      * Instantiate a Response object in any LLEventAPI subclass method that
@@ -150,15 +142,19 @@ public:
          * @endcode
          */
         LLSD& operator[](const LLSD::String& key) { return mResp[key]; }
-		
-		 /**
-		 * set the response to the given data
-		 */
-		void setResponse(LLSD const & response){ mResp = response; }
+
+         /**
+         * set the response to the given data
+         */
+        void setResponse(LLSD const & response){ mResp = response; }
 
         LLSD mResp, mReq;
         LLSD::String mKey;
     };
+
+protected:
+    // constructor used only by subclasses registered by LazyEventAPI
+    LLEventAPI(const LL::LazyEventAPIParams&);
 
 private:
     std::string mDesc;

@@ -205,6 +205,7 @@ public:
 LL_ALIGN_PREFIX(64)
 class LLSpatialGroup : public LLOcclusionCullingGroup
 {
+	using super = LLOcclusionCullingGroup;
 	friend class LLSpatialPartition;
 	friend class LLOctreeStateCheck;
 public:
@@ -321,6 +322,9 @@ public:
 	virtual void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* face);
 	virtual void handleDestruction(const TreeNode* node);
 	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
+
+	// LLViewerOctreeGroup
+	virtual void rebound();
 
 public:
 	LL_ALIGN_16(LLVector4a mViewAngle);

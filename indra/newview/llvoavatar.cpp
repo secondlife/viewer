@@ -5230,11 +5230,6 @@ U32 LLVOAvatar::renderRigid()
 	{
 		return 0;
 	}
-	
-	if (!mIsBuilt)
-	{
-		return 0;
-	}
 
 	bool should_alpha_mask = shouldAlphaMask();
 	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);

@@ -86,7 +86,8 @@ if(WINDOWS)
     endif (USE_BUGSPLAT)
 
     if (TARGET ll::fmodstudio)
-        set(debug_files ${debug_files} fmodL.dll)
+        # fmodL is included for logging, only one should be picked by manifest
+        set(release_files ${release_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
     endif ()
 

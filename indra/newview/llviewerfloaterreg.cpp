@@ -193,7 +193,11 @@ public:
         
         std::string fl_name = params[0].asString();
 
-        if (nav_type == NAV_TYPE_CLICKED)
+        // External browsers explicitly ask user about opening links
+        // so treat "external" same as "clicked" in this case,
+        // despite it being treated as untrusted.
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
         {
             const std::list<std::string> blacklist_clicked = {
                 "camera_presets",

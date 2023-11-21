@@ -278,6 +278,7 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     catch (std::bad_alloc&)
     {
         // Out of memory on stack allocation?
+        printActiveCoroutines();
         LL_ERRS("LLCoros") << "Bad memory allocation in LLCoros::launch(" << prefix << ")!" << LL_ENDL;
     }
 
