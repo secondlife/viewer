@@ -88,6 +88,7 @@ void LLWMIMethods::initCOMObjects()
     mHR = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(mHR))
     {
+        // if result S_FALSE, it's already initialized
         LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << std::hex << mHR << LL_ENDL;
         return;
     }
