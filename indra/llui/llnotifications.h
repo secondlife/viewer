@@ -835,7 +835,7 @@ public:
 	LLNotificationChannel(const Params& p = Params());
 	LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
 
-	virtual ~LLNotificationChannel() {}
+	virtual ~LLNotificationChannel();
 	typedef LLNotificationSet::iterator Iterator;
     
 	std::string getName() const { return mName; }
@@ -844,8 +844,6 @@ public:
 	{
 		return boost::iterator_range<parents_iter>(mParents);
 	}
-    
-	void connectToChannel(const std::string& channel_name);
     
     bool isEmpty() const;
     S32 size() const;
@@ -856,9 +854,13 @@ public:
 	
 	std::string summarize();
 
+protected:
+    void connectToChannel(const std::string& channel_name);
+
 private:
 	std::string mName;
 	std::vector<std::string> mParents;
+    std::vector<LLBoundListener> mListeners;
 };
 
 // An interface class to provide a clean linker seam to the LLNotifications class.
