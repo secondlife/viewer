@@ -944,7 +944,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 			{
 				LL_INFOS("GestureMgr") << "Waited too long for key release, continuing gesture."
 					<< LL_ENDL;
-				gesture->mWaitingAnimations = FALSE;
+				gesture->mWaitingKeyRelease = FALSE;
 				gesture->mCurrentStep++;
 			}
 			else
@@ -1072,14 +1072,13 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 		{
 			LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
 			if (gesture->mTriggeredByKey // Only wait here IF we were triggered by a key!
-				&& gesture->mKeyReleased == FALSE // We can only do this once! Prevent gestures infinitely running
+				&& gesture->mWaitingKeyRelease == FALSE // We can only do this once! Prevent gestures infinitely running
 				&& wait_step->mFlags & WAIT_FLAG_KEY_RELEASE)
 			{
 				// Lets wait for the key release first so we don't hold up re-presses
-				
 				gesture->mWaitingKeyRelease = TRUE;
-				// Use the wait timer as a deadlock breaker for key release
-				// waits.
+				gesture->mKeyReleased = FALSE;
+				// Use the wait timer as a deadlock breaker for key release waits.
 				gesture->mWaitTimer.reset();
 			}
 			else if (wait_step->mFlags & WAIT_FLAG_TIME)
@@ -1090,8 +1089,7 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 			else if (wait_step->mFlags & WAIT_FLAG_ALL_ANIM)
 			{
 				gesture->mWaitingAnimations = TRUE;
-				// Use the wait timer as a deadlock breaker for animation
-				// waits.
+				// Use the wait timer as a deadlock breaker for animation waits.
 				gesture->mWaitTimer.reset();
 			}
 			else
