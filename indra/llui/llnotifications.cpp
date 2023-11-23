@@ -1171,6 +1171,14 @@ LLNotificationChannel::LLNotificationChannel(const std::string& name,
 	connectToChannel(parent);
 }
 
+LLNotificationChannel::~LLNotificationChannel()
+{
+    for (LLBoundListener &listener : mListeners)
+    {
+        listener.disconnect();
+    }
+}
+
 bool LLNotificationChannel::isEmpty() const
 {
 	return mItems.empty();
@@ -1213,14 +1221,14 @@ void LLNotificationChannel::connectToChannel( const std::string& channel_name )
 {
 	if (channel_name.empty())
 	{
-		LLNotifications::instance().connectChanged(
-			boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
+        mListeners.push_back(LLNotifications::instance().connectChanged(
+			boost::bind(&LLNotificationChannelBase::updateItem, this, _1)));
 	}
 	else
 	{
 		mParents.push_back(channel_name);
 		LLNotificationChannelPtr p = LLNotifications::instance().getChannel(channel_name);
-		p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
+        mListeners.push_back(p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1)));
 	}
 }
 
