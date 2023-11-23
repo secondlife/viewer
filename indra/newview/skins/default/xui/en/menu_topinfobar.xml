@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu
  height="201"
  layout="topleft"
@@ -40,7 +40,7 @@
          parameter="landmark" />
     </menu_item_call>
     <menu_item_separator
-     name="Separator" />
+     name="Separator1" />
     <menu_item_call
      label="Copy"
      name="Copy">

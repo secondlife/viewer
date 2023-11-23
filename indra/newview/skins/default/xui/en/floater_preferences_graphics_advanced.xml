@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
   height="400"
   layout="topleft"
@@ -699,11 +699,11 @@
         value="-2"/>
       <combo_box.item
         label="None; transparent"
-        name="0"
+        name="02"
         value="-1"/>
       <combo_box.item
         label="Minimal"
-        name="0"
+        name="03"
         value="0"/>
       <combo_box.item
         label="Terrain and trees"
