@@ -25,12 +25,18 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-
 import os
 import sys
 import glob
 import io
 import xml.etree.ElementTree as ET
+
+def get_xml_declaration(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        first_line = file.readline().strip()
+        if first_line.startswith('<?xml'):
+            return first_line
+    return None
 
 def parse_xml_file(file_path):
     try:
@@ -58,21 +64,31 @@ def indent(elem, level=0, indent_text=False, indent_tab=False):
         if indent_text and elem.text and not elem.text.isspace():
             elem.text = "\n" + (level + 1) * indent_string + elem.text.strip() + "\n" + level * indent_string
 
-def save_xml(tree, file_path, indent_text=False, indent_tab=False, rm_space=False):
+def save_xml(tree, file_path, xml_decl, indent_text=False, indent_tab=False, rm_space=False, rewrite_decl=False):
     if tree is not None:
         root = tree.getroot()
         indent(root, indent_text=indent_text, indent_tab=indent_tab)
         xml_string = ET.tostring(root, encoding='unicode')
         if rm_space:
             xml_string = xml_string.replace(' />', '/>')
+
+        xml_decl = (
+            xml_decl if (xml_decl and not rewrite_decl) else (
+                '<?xml version="1.0" encoding="utf-8" standalone="yes"?>'
+                if rm_space else
+                '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>'
+            )
+        )
+
         try:
             with io.open(file_path, 'wb') as file:
-                file.write('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n'.encode('utf-8'))
+                file.write(xml_decl.encode('utf-8'))
+                file.write('\n'.encode('utf-8'))
                 file.write(xml_string.encode('utf-8'))
         except IOError as e:
             print(f"Error saving file {file_path}: {e}")
 
-def process_directory(directory_path, indent_text=False, indent_tab=False, rm_space=False):
+def process_directory(directory_path, indent_text=False, indent_tab=False, rm_space=False, rewrite_decl=False):
     if not os.path.isdir(directory_path):
         print(f"Directory not found: {directory_path}")
         return
@@ -83,28 +99,29 @@ def process_directory(directory_path, indent_text=False, indent_tab=False, rm_sp
         return
 
     for file_path in xml_files:
+        xml_decl = get_xml_declaration(file_path)
         tree = parse_xml_file(file_path)
         if tree is not None:
-            save_xml(tree, file_path, indent_text, indent_tab, rm_space)
-
+            save_xml(tree, file_path, xml_decl, indent_text, indent_tab, rm_space, rewrite_decl)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or '--help' in sys.argv:
-        print("XML Formatter Script")
-        print("This script formats XML files in a given directory with options for indentation and space removal.")
+        print("This script formats XML files in a given directory. Useful to fix XUI XMLs after processing by other tools.")
         print("\nUsage:")
-        print("  python script_name.py <path/to/directory> [options]")
+        print("  python fix_xml_indentations.py <path/to/directory> [options]")
         print("\nOptions:")
         print("  --indent-text    Indents text within XML tags.")
         print("  --indent-tab     Uses tabs instead of spaces for indentation.")
         print("  --rm-space       Removes spaces in self-closing tags.")
+        print("  --rewrite_decl   Replaces the XML declaration line.")
         print("\nCommon Usage:")
         print("  To format XML files with text indentation, tab indentation, and removal of spaces in self-closing tags:")
-        print("  python script_name.py /path/to/xmls --indent-text --indent-tab --rm-space")
+        print("  python fix_xml_indentations.py /path/to/xmls --indent-text --indent-tab --rm-space")
         sys.exit(1)
 
     directory_path = sys.argv[1]
     indent_text = '--indent-text' in sys.argv
     indent_tab = '--indent-tab' in sys.argv
     rm_space = '--rm-space' in sys.argv
-    process_directory(directory_path, indent_text, indent_tab, rm_space)
+    rewrite_decl = '--rewrite_decl' in sys.argv
+    process_directory(directory_path, indent_text, indent_tab, rm_space, rewrite_decl)
