@@ -738,16 +738,19 @@ class LLNotificationChannelBase :
 {
 	LOG_CLASS(LLNotificationChannelBase);
 public:
-	LLNotificationChannelBase(LLNotificationFilter filter) 
-	:	mFilter(filter), 
-		mItems() 
-	{}
+    LLNotificationChannelBase(LLNotificationFilter filter) 
+    : mFilter(filter)
+    , mItems() 
+    , mItemsMutex()
+    {}
+
     virtual ~LLNotificationChannelBase()
     {
         // explicit cleanup for easier issue detection
         mChanged.disconnect_all_slots();
         mPassedFilter.disconnect_all_slots();
         mFailedFilter.disconnect_all_slots();
+        LLMutexLock lock(&mItemsMutex);
         mItems.clear();
     }
 	// you can also connect to a Channel, so you can be notified of
@@ -786,6 +789,7 @@ protected:
 	LLStandardSignal mChanged;
 	LLStandardSignal mPassedFilter;
 	LLStandardSignal mFailedFilter;
+    LLMutex mItemsMutex;
 	
 	// these are action methods that subclasses can override to take action 
 	// on specific types of changes; the management of the mItems list is
@@ -844,14 +848,14 @@ public:
 	{
 		return boost::iterator_range<parents_iter>(mParents);
 	}
-    
+
     bool isEmpty() const;
     S32 size() const;
-    
-    Iterator begin();
-    Iterator end();
-	size_t size();
-	
+    size_t size();
+
+    typedef boost::function<void(LLNotificationPtr)> NotificationProcess;
+    void forEachNotification(NotificationProcess process);
+
 	std::string summarize();
 
 protected:
@@ -926,10 +930,6 @@ public:
 	void update(const LLNotificationPtr pNotif);
 
 	LLNotificationPtr find(LLUUID uuid);
-	
-	typedef boost::function<void (LLNotificationPtr)> NotificationProcess;
-	
-	void forEachNotification(NotificationProcess process);
 
 	// This is all stuff for managing the templates
 	// take your template out
