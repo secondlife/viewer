@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  bevel_style="none"
  follows="left|top"
@@ -156,7 +156,7 @@
    layout="topleft"
    left_pad="10"
    top_delta="1"
-   name="quality_lbl"
+   name="quality_lbl1"
    width="70">
     Best quality
   </text>
@@ -346,7 +346,7 @@
     bevel_style="in"
     height="0"
     layout="topleft"
-    name="border3"
+    name="border31"
     top_pad="7"
     left="20"
     width="540"/>
@@ -412,11 +412,11 @@
       value="-2"/>
     <combo_box.item
       label="None; transparent"
-      name="0"
+      name="02"
       value="-1"/>
     <combo_box.item
       label="Minimal"
-      name="0"
+      name="03"
       value="0"/>
     <combo_box.item
       label="Terrain and trees"
@@ -487,7 +487,7 @@
    layout="topleft"
    top_delta="3"
    left_pad="10"
-   name="photo_desc"
+   name="photo_desc1"
    width="180">
       (Enter value between 0.0 and 4.0)
   </text>

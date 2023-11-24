@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><notifications>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<notifications>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again
@@ -6458,7 +6459,7 @@ Your inventory is experiencing issues. Please, contact support.
 
   <notification
    icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
+   name="InventoryLimitReachedAIS1"
    type="notifytip">
 Your inventory is experiencing issues. Please, contact support.
   <tag>fail</tag>
