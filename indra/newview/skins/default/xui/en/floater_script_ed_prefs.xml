@@ -335,6 +335,7 @@
      layout="topleft"
      max_length="300"
      name="Script Preview"
+     default_font_size="true"
      text_color="ScriptText"
      default_color="ScriptText"
      bg_writeable_color="ScriptBackground"

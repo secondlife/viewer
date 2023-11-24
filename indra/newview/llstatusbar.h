@@ -99,12 +99,12 @@ private:
 	
 	void onClickBuyCurrency();
 	void onVolumeChanged(const LLSD& newvalue);
+    void onVoiceChanged(const LLSD& newvalue);
 
 	void onMouseEnterPresetsCamera();
 	void onMouseEnterPresets();
 	void onMouseEnterVolume();
 	void onMouseEnterNearbyMedia();
-	void onClickScreen(S32 x, S32 y);
 
 	static void onClickMediaToggle(void* data);
 	static void onClickBalance(void* data);

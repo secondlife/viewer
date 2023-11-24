@@ -33,8 +33,6 @@
 namespace LLTrace
 {
 
-MemStatHandle gTraceMemStat("LLTrace");
-
 StatBase::StatBase( const char* name, const char* description ) 
 :	mName(name),
 	mDescription(description ? description : "")

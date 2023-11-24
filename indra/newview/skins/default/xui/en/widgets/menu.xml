@@ -4,5 +4,6 @@
       bg_visible="true"
       drop_shadow="true"
       tear_off="false"
+      font="SansSerifSmall" 
       shortcut_pad="15">
 </menu>

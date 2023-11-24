@@ -36,6 +36,7 @@
 #include "llenvironment.h"
 #include "llerrorcontrol.h"
 #include "lleventtimer.h"
+#include "llfile.h"
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
@@ -2950,13 +2951,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (mSecondInstance)
 	{
-		// This is the second instance of SL. Turn off voice support,
+		// This is the second instance of SL. Mute voice,
 		// but make sure the setting is *not* persisted.
-		LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
-		if(disable_voice)
+		// Also see LLVivoxVoiceClient::voiceEnabled()
+		LLControlVariable* enable_voice = gSavedSettings.getControl("EnableVoiceChat");
+		if(enable_voice)
 		{
 			const BOOL DO_NOT_PERSIST = FALSE;
-			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
+			enable_voice->setValue(LLSD(FALSE), DO_NOT_PERSIST);
 		}
 	}
 
@@ -2986,9 +2988,33 @@ void LLAppViewer::initStrings()
 	std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
 	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
 	{
+		if (strings_path_full.empty())
+		{
+			LL_WARNS() << "The file '" << strings_file << "' is not found" << LL_ENDL;
+		}
+		else
+		{
+			llstat st;
+			int rc = LLFile::stat(strings_path_full, &st);
+			if (rc != 0)
+			{
+				LL_WARNS() << "The file '" << strings_path_full << "' failed to get status. Error code: " << rc << LL_ENDL;
+			}
+			else if (S_ISDIR(st.st_mode))
+			{
+				LL_WARNS() << "The filename '" << strings_path_full << "' is a directory name" << LL_ENDL;
+			}
+			else
+			{
+				LL_WARNS() << "The filename '" << strings_path_full << "' doesn't seem to be a regular file name" << LL_ENDL;
+			}
+		}
+
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
-		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+		LL_ERRS() << "Viewer failed to find localization and UI files."
+			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
+			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 	}
 	LLTransUtil::parseStrings(strings_file, default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
@@ -5404,9 +5430,18 @@ void LLAppViewer::forceErrorBadMemoryAccess()
 void LLAppViewer::forceErrorInfiniteLoop()
 {
    	LL_WARNS() << "Forcing a deliberate infinite loop" << LL_ENDL;
+    // Loop is intentionally complicated to fool basic loop detection
+    LLTimer timer_total;
+    LLTimer timer_expiry;
+    const S32 report_frequency = 10;
+    timer_expiry.setTimerExpirySec(report_frequency);
     while(true)
     {
-        ;
+        if (timer_expiry.hasExpired())
+        {
+            LL_INFOS() << "Infinite loop time : " << timer_total.getElapsedSeconds() << LL_ENDL;
+            timer_expiry.setTimerExpirySec(report_frequency);
+        }
     }
     return;
 }

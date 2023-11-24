@@ -847,6 +847,42 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 	assert_states_valid(this);
 }
 
+//virtual
+void LLSpatialGroup::rebound()
+{
+    if (!isDirty())
+        return;
+
+    super::rebound();
+
+    if (mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_CONTROL_AV)
+    {
+        llassert(mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_CONTROL_AV);
+
+        LLSpatialBridge* bridge = getSpatialPartition()->asBridge();
+        if (bridge &&
+            bridge->mDrawable &&
+            bridge->mDrawable->getVObj() &&
+            bridge->mDrawable->getVObj()->isRoot())
+        {
+            LLControlAvatar* controlAvatar = bridge->mDrawable->getVObj()->getControlAvatar();
+            if (controlAvatar &&
+                controlAvatar->mDrawable &&
+                controlAvatar->mControlAVBridge &&
+                controlAvatar->mControlAVBridge->mOctree)
+            {
+                LLSpatialGroup* root = (LLSpatialGroup*)controlAvatar->mControlAVBridge->mOctree->getListener(0);
+                if (this == root)
+                {
+                    const LLVector4a* addingExtents = controlAvatar->mDrawable->getSpatialExtents();
+                    const LLXformMatrix* currentTransform = bridge->mDrawable->getXform();
+                    expandExtents(addingExtents, *currentTransform);
+                }
+            }
+        }
+    }
+}
+
 void LLSpatialGroup::destroyGL(bool keep_occlusion) 
 {
 	setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::IMAGE_DIRTY);
@@ -1300,17 +1336,8 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
-
-	llassert(pos.isFinite());
-	llassert(size.isFinite());
-
-	llassert(!llisnan(pos.mV[0]));
-	llassert(!llisnan(pos.mV[1]));
-	llassert(!llisnan(pos.mV[2]));
-
-	llassert(!llisnan(size.mV[0]));
-	llassert(!llisnan(size.mV[1]));
-	llassert(!llisnan(size.mV[2]));
+    if (!pos.isFinite() || !size.isFinite())
+        return;
 
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
@@ -1625,6 +1652,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 //  - a linked rigged drawable face has the wrong draw order index
 bool check_rigged_group(LLDrawable* drawable)
 {
+#if 0
     if (drawable->isState(LLDrawable::RIGGED))
     {
         LLSpatialGroup* group = drawable->getSpatialGroup();
@@ -1672,7 +1700,7 @@ bool check_rigged_group(LLDrawable* drawable)
             }
         }
     }
-
+#endif
     return true;
 }
 

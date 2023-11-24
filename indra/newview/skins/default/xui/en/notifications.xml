@@ -9190,7 +9190,7 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    icon="alertmodal.tga"
    name="CannotUploadTexture"
    type="alertmodal">
-Unable to upload texture.
+Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
   </notification>
@@ -12099,5 +12099,5 @@ Would you like to save them first?
        notext="No"
        yestext="Yes"/>
   </notification>
-    
+
 </notifications>

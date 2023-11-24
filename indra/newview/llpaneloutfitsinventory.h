@@ -66,7 +66,6 @@ protected:
 
 private:
 	LLTabContainer*			mAppearanceTabs;
-	std::string 			mFilterSubString;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// tab panels                                                                   //
