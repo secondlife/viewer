@@ -273,7 +273,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mEmojiRecentIconsCtrl->setVisible(false);
 
 	mEmojiPickerToggleBtn = getChild<LLButton>("emoji_picker_toggle_btn");
-	mEmojiPickerToggleBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerToggleBtnClicked(); });
+	mEmojiPickerToggleBtn->setClickedCallback([](LLUICtrl*, const LLSD&) { onEmojiPickerToggleBtnClicked(); });
 
 	mGearBtn = getChild<LLButton>("gear_btn");
 	mAddBtn = getChild<LLButton>("add_btn");
