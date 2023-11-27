@@ -3821,10 +3821,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 					poolp->endDeferredPass(i);
 					LLVertexBuffer::unbind();
 
-					if (gDebugGL || gDebugPipeline)
-					{
-						LLGLState::checkStates();
-					}
+					LLGLState::checkStates();
 				}
 			}
 			else
