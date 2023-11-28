@@ -358,7 +358,6 @@ void LLInventoryFetchItemsObserver::startFetch()
                     {
                         // Start fetching whole folder since we need all items
                         LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
-
                     }
                     else
                     {
