@@ -2386,7 +2386,7 @@ BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
     return handled;
 }
 
-void LLInventoryGallery::startDrag() 
+void LLInventoryGallery::startDrag()
 {
     std::vector<EDragAndDropType> types;
     uuid_vec_t ids;

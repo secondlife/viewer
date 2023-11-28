@@ -209,8 +209,9 @@ public:
 	S32 getVersion() const;
 	void setVersion(S32 version);
 
-	// Returns true if a fetch was issued (not nessesary in progress).
-	bool fetch();
+    // Returns true if a fetch was issued (not nessesary in progress).
+    // no requests will happen during expiry_seconds even if fetch completed
+    bool fetch(S32 expiry_seconds = 10);
 
     typedef enum {
         FETCH_NONE = 0,

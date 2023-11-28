@@ -648,15 +648,14 @@ void LLViewerInventoryCategory::setVersion(S32 version)
 	mVersion = version;
 }
 
-bool LLViewerInventoryCategory::fetch()
+bool LLViewerInventoryCategory::fetch(S32 expiry_seconds)
 {
 	if((VERSION_UNKNOWN == getVersion())
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
 	{
 		LL_DEBUGS(LOG_INV) << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
-		const F32 FETCH_TIMER_EXPIRY = 10.0f;
 		mDescendentsRequested.reset();
-		mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
+		mDescendentsRequested.setTimerExpirySec(expiry_seconds);
 
 		std::string url;
 		if (gAgent.getRegion())
