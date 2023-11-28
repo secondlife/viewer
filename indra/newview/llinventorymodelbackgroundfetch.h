@@ -129,6 +129,7 @@ private:
 	F32 mMinTimeBetweenFetches;
 	fetch_queue_t mFetchFolderQueue;
     fetch_queue_t mFetchItemQueue;
+    uuid_set_t mForceFetchSet;
     std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
 };
 
