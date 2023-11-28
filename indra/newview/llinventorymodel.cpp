@@ -3895,19 +3895,22 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 
 	for (cat_array_t::iterator cit = folders.begin(); cit != folders.end(); ++cit)
 	{
-		gInventory.updateCategory(*cit);
-
-        // Temporary workaround: just fetch the item using AIS to get missing fields.
-        // If this works fine we might want to extract ids only from the message
-        // then use AIS as a primary fetcher
-        LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch((*cit)->getUUID(), true /*force, since it has changes*/);
+        gInventory.updateCategory(*cit);
+        if ((*cit)->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            // Temporary workaround: just fetch the item using AIS to get missing fields.
+            // If this works fine we might want to extract 'ids only' from the message
+            // then use AIS as a primary fetcher
+            LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch((*cit)->getUUID(), true /*force, since it has changes*/);
+        }
+        // else already called fetch() above
 	}
 	for (item_array_t::iterator iit = items.begin(); iit != items.end(); ++iit)
 	{
 		gInventory.updateItem(*iit);
 
         // Temporary workaround: just fetch the item using AIS to get missing fields.
-        // If this works fine we might want to extract ids only from the message
+        // If this works fine we might want to extract 'ids only' from the message
         // then use AIS as a primary fetcher
         LLInventoryModelBackgroundFetch::instance().scheduleItemFetch((*iit)->getUUID(), true);
 	}
