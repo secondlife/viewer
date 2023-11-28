@@ -2386,7 +2386,7 @@ BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
     return handled;
 }
 
-void LLInventoryGallery::startDrag()
+void LLInventoryGallery::startDrag() 
 {
     std::vector<EDragAndDropType> types;
     uuid_vec_t ids;
@@ -2407,22 +2407,25 @@ void LLInventoryGallery::startDrag()
         }
 
         const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);        
-        if (cat && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
-            && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
+        if (cat)
         {
-            if (cat->getOwnerID() == ALEXANDRIA_LINDEN_ID)
+            if (gInventory.isObjectDescendentOf(selected_id, gInventory.getLibraryRootFolderID()))
             {
                 src = LLToolDragAndDrop::SOURCE_LIBRARY;
+                EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
+                types.push_back(type);
+                ids.push_back(selected_id);
             }
-
-            EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
-            types.push_back(type);
-            ids.push_back(selected_id);
+            else if (gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
+                && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
+            {
+                EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
+                types.push_back(type);
+                ids.push_back(selected_id);
+            }
         }
     }
-    // We must have set this for some reason, but it's causing compile errors
-    (void)src;
-    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, LLToolDragAndDrop::SOURCE_AGENT);
+    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, src);
 }
 
 bool LLInventoryGallery::areViewsInitialized()
