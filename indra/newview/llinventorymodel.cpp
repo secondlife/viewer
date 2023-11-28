@@ -3546,6 +3546,9 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 
 		gInventoryCallbacks.fire(callback_id, item_id);
 
+        // Message system at the moment doesn't support Thumbnails and potential
+        // newer features so just rerequest whole item
+        //
         // todo: instead of unpacking message fully,
         // grab only an item_id, then fetch
         LLInventoryModelBackgroundFetch::instance().scheduleItemFetch(item_id, true);
