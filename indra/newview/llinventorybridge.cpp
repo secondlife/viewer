@@ -2284,8 +2284,11 @@ BOOL LLFolderBridge::isItemMovable() const
 
 void LLFolderBridge::selectItem()
 {
-	// Have no fear: the first thing start() does is to test if everything for that folder has been fetched...
-	LLInventoryModelBackgroundFetch::instance().start(getUUID(), true);
+    LLViewerInventoryCategory* cat = gInventory.getCategory(getUUID());
+    if (cat)
+    {
+        cat->fetch();
+    }
 }
 
 void LLFolderBridge::buildDisplayName() const
