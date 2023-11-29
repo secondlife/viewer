@@ -372,10 +372,10 @@ public:
     void pushUntexturedRiggedGLTFBatches(U32 type);
 
     // push a single GLTF draw call
-    void pushGLTFBatch(LLDrawInfo& params);
-    void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
-    void pushUntexturedGLTFBatch(LLDrawInfo& params);
-    void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    static void pushGLTFBatch(LLDrawInfo& params);
+    static void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    static void pushUntexturedGLTFBatch(LLDrawInfo& params);
+    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
 
 	void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);

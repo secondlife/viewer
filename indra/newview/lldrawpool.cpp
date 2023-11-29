@@ -746,6 +746,7 @@ void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
     }
 }
 
+// static
 void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
 {
     auto& mat = params.mGLTFMaterial;
@@ -764,6 +765,7 @@ void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
     teardown_texture_matrix(params);
 }
 
+// static
 void LLRenderPass::pushUntexturedGLTFBatch(LLDrawInfo& params)
 {
     auto& mat = params.mGLTFMaterial;
@@ -825,6 +827,7 @@ void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
 }
 
 
+// static
 void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId)
 {
     if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
@@ -837,6 +840,7 @@ void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvat
     pushGLTFBatch(params);
 }
 
+// static
 void LLRenderPass::pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId)
 {
     if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
