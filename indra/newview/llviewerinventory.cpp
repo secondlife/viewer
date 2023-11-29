@@ -663,7 +663,7 @@ bool LLViewerInventoryCategory::fetch(S32 expiry_seconds)
 		}
 		else
 		{
-			LL_WARNS(LOG_INV) << "agent region is null" << LL_ENDL;
+			LL_WARNS_ONCE(LOG_INV) << "agent region is null" << LL_ENDL;
 		}
 		if (!url.empty() || AISAPI::isAvailable())
 		{
