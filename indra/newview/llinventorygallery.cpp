@@ -58,6 +58,7 @@
 static LLPanelInjector<LLInventoryGallery> t_inventory_gallery("inventory_gallery");
 
 const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
+const S32 FAST_LOAD_THUMBNAIL_TRSHOLD = 50; // load folders below this value immediately
 
 // Helper dnd functions
 BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, BOOL drop, std::string& tooltip_msg, BOOL is_link);
@@ -106,6 +107,7 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mGalleryWidthFactor(p.gallery_width_factor),
       mIsInitialized(false),
       mRootDirty(false),
+      mLoadThumbnailsImmediately(true),
       mNeedsArrange(false),
       mSearchType(LLInventoryFilter::SEARCHTYPE_NAME),
       mSortOrder(LLInventoryFilter::SO_DATE)
@@ -540,6 +542,12 @@ void LLInventoryGallery::addToGallery(LLInventoryGalleryItem* item)
     int n_prev = n - 1;
     int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
 
+    // Avoid loading too many items.
+    // Intent is for small folders to display all content fast
+    // and for large folders to load content mostly as needed
+    // Todo: ideally needs to unload images outside visible area
+    mLoadThumbnailsImmediately = mItemsAddedCount < FAST_LOAD_THUMBNAIL_TRSHOLD;
+
     bool add_row = row_count != row_count_prev;
     int pos = 0;
     if (add_row)
@@ -572,6 +580,8 @@ void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item, boo
     int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
     mItemsAddedCount--;
     mIndexToItemMap.erase(mItemsAddedCount);
+
+    mLoadThumbnailsImmediately = mItemsAddedCount < FAST_LOAD_THUMBNAIL_TRSHOLD;
 
     bool remove_row = row_count != row_count_prev;
     removeFromLastRow(mItems[mItemsAddedCount]);
@@ -636,6 +646,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setUUID(item_id);
     gitem->setGallery(this);
     gitem->setType(type, inventory_type, flags, is_link);
+    gitem->setLoadImmediately(mLoadThumbnailsImmediately);
     gitem->setThumbnail(thumbnail_id);
     gitem->setWorn(is_worn);
     gitem->setCreatorName(get_searchable_creator_name(&gInventory, item_id));
@@ -997,6 +1008,7 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
 
     if (mItemMap[item_id])
     {
+        mItemMap[item_id]->setLoadImmediately(mLoadThumbnailsImmediately);
         mItemMap[item_id]->setThumbnail(thumbnail_id);
 
         bool passes_filter = checkAgainstFilters(mItemMap[item_id], mFilterSubString);
@@ -2557,6 +2569,7 @@ BOOL LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
+    mThumbnailCtrl = getChild<LLThumbnailCtrl>("preview_thumbnail");
 
     return TRUE;
 }
@@ -2632,12 +2645,17 @@ void LLInventoryGalleryItem::setThumbnail(LLUUID id)
     mDefaultImage = id.isNull();
     if(mDefaultImage)
     {
-        getChild<LLThumbnailCtrl>("preview_thumbnail")->clearTexture();
+        mThumbnailCtrl->clearTexture();
     }
     else
     {
-        getChild<LLThumbnailCtrl>("preview_thumbnail")->setValue(id);
+        mThumbnailCtrl->setValue(id);
     }
+}
+
+void LLInventoryGalleryItem::setLoadImmediately(bool val)
+{
+    mThumbnailCtrl->setInitImmediately(val);
 }
 
 void LLInventoryGalleryItem::draw()
@@ -2654,7 +2672,7 @@ void LLInventoryGalleryItem::draw()
 
         // Draw border
         LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
-        LLRect border = getChildView("preview_thumbnail")->getRect();
+        LLRect border = mThumbnailCtrl->getRect();
         border.mRight = border.mRight + 1;
         border.mTop = border.mTop + 1;
         gl_rect_2d(border, border_color.get(), FALSE);
@@ -2876,7 +2894,7 @@ void LLInventoryGalleryItem::updateNameText()
     mNameText->setFont(getTextFont());
     mNameText->setText(mItemName + mPermSuffix + mWornSuffix);
     mNameText->setToolTip(mItemName + mPermSuffix + mWornSuffix);
-    getChild<LLThumbnailCtrl>("preview_thumbnail")->setToolTip(mItemName + mPermSuffix + mWornSuffix);
+    mThumbnailCtrl->setToolTip(mItemName + mPermSuffix + mWornSuffix);
 }
 
 bool LLInventoryGalleryItem::isFadeItem()
