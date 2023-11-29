@@ -193,13 +193,16 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
     mLastFetchCount(0),
     mFetchFolderCount(0),
     mAllRecursiveFoldersFetched(false),
-	mRecursiveInventoryFetchStarted(false),
-	mRecursiveLibraryFetchStarted(false),
-	mMinTimeBetweenFetches(0.3f)
+    mRecursiveInventoryFetchStarted(false),
+    mRecursiveLibraryFetchStarted(false),
+    mRecursiveMarketplaceFetchStarted(false),
+    mMinTimeBetweenFetches(0.3f)
 {}
 
 LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
-{}
+{
+    gIdleCallbacks.deleteFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
+}
 
 bool LLInventoryModelBackgroundFetch::isBulkFetchProcessingComplete() const
 {
@@ -314,6 +317,23 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
 				gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
 			}
 		}
+        else if (cat && cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
+        {
+            if (mFetchFolderQueue.empty() || mFetchFolderQueue.back().mUUID != id)
+            {
+                if (recursive && AISAPI::isAvailable())
+                {
+                    // Request marketplace folder and content separately
+                    mFetchFolderQueue.push_front(FetchQueueInfo(id, FT_FOLDER_AND_CONTENT));
+                }
+                else
+                {
+                    mFetchFolderQueue.push_front(FetchQueueInfo(id, recursion_type));
+                }
+                gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
+                mRecursiveMarketplaceFetchStarted = true;
+            }
+        }
 		else
 		{
             if (AISAPI::isAvailable())
@@ -724,7 +744,26 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     
     if (isFolderFetchProcessingComplete() && mFolderFetchActive)
     {
-        setAllFoldersFetched();
+        if (!mRecursiveInventoryFetchStarted || mRecursiveMarketplaceFetchStarted)
+        {
+            setAllFoldersFetched();
+        }
+        else
+        {
+            // Intent is for marketplace request to happen after
+            // main inventory is done, unless requested by floater
+            mRecursiveMarketplaceFetchStarted = true;
+            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            if (marketplacelistings_id.notNull())
+            {
+                mFetchFolderQueue.push_front(FetchQueueInfo(marketplacelistings_id, FT_FOLDER_AND_CONTENT));
+            }
+            else
+            {
+                setAllFoldersFetched();
+            }
+        }
+        
     }
 
     if (isBulkFetchProcessingComplete())
@@ -784,22 +823,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
 
                         if (child_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
                         {
-                            // special case
-                            content_done = false;
-                            if (children.empty())
-                            {
-                                // fetch marketplace alone
-                                // Should it actually be fetched as FT_FOLDER_AND_CONTENT?
-                                children.push_back(child_cat->getUUID());
-                                mExpectedFolderIds.push_back(child_cat->getUUID());
-                                child_cat->setFetching(target_state);
-                                break;
-                            }
-                            else
-                            {
-                                // fetch marketplace alone next run
-                                continue;
-                            }
+                            // special case, marketplace will fetch that as needed
+                            continue;
                         }
 
                         children.push_back(child_cat->getUUID());
