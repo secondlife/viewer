@@ -79,6 +79,10 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
+extern BOOL gCubeSnapshot;
+
+// *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
+constexpr BOOL USE_MIPMAPS = FALSE;
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
@@ -262,6 +266,7 @@ viewer_media_t LLViewerMedia::newMediaImpl(
 
 viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const std::string& previous_url, bool update_from_self)
 {
+    llassert(!gCubeSnapshot);
 	// Try to find media with the same media ID
 	viewer_media_t media_impl = getMediaImplFromTextureID(media_entry->getMediaID());
 
@@ -623,6 +628,8 @@ void LLViewerMedia::onIdle(void *dummy_arg)
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE);
+
+    llassert(!gCubeSnapshot);
 
 	// Enable/disable the plugin read thread
 	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
@@ -1564,7 +1571,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 
 	// connect this media_impl to the media texture, creating it if it doesn't exist.0
 	// This is necessary because we need to be able to use getMaxVirtualSize() even if the media plugin is not loaded.
-	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId);
+    // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
+	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId, USE_MIPMAPS);
 	if(media_tex)
 	{
 		media_tex->setMediaImpl();
@@ -1658,13 +1666,14 @@ void LLViewerMediaImpl::destroyMediaSource()
 
 	cancelMimeTypeProbe();
 
-    mLock.lock();   // Delay tear-down while bg thread is updating
-	if(mMediaSource)
-	{
-		mMediaSource->setDeleteOK(true) ;
-		mMediaSource = NULL; // shared pointer
-	}
-    mLock.unlock();
+    {
+        LLMutexLock lock(&mLock); // Delay tear-down while bg thread is updating
+        if(mMediaSource)
+        {
+            mMediaSource->setDeleteOK(true) ;
+            mMediaSource = NULL; // shared pointer
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2874,7 +2883,7 @@ void LLViewerMediaImpl::update()
     if (preMediaTexUpdate(media_tex, data, data_width, data_height, x_pos, y_pos, width, height))
     {
         // Push update to worker thread
-        auto main_queue = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
+        auto main_queue = LLImageGLThread::sEnabledMedia ? mMainQueue.lock() : nullptr;
         if (main_queue)
         {
             mTextureUpdatePending = true;
@@ -2959,11 +2968,16 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
 void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* data, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool sync)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
-    mLock.lock();   // don't allow media source tear-down during update
+    LLMutexLock lock(&mLock); // don't allow media source tear-down during update
 
     // wrap "data" in an LLImageRaw but do NOT make a copy
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
-        
+
+    // *NOTE: Recreating the GL texture each media update may seem wasteful
+    // (note the texture creation in preMediaTexUpdate), however, it apparently
+    // prevents GL calls from blocking, due to poor bookkeeping of state of
+    // updated textures by the OpenGL implementation. (Windows 10/Nvidia)
+    // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
     LLGLuint tex_name = 0;
     media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);
@@ -2983,8 +2997,6 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // release the data pointer before freeing raw so LLImageRaw destructor doesn't
     // free memory at data pointer
     raw->releaseData();
-
-    mLock.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2996,16 +3008,17 @@ void LLViewerMediaImpl::updateImagesMediaStreams()
 LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
+    llassert(!gCubeSnapshot);
     if (!mMediaSource)
     {
         return nullptr; // not ready for updating
     }
 
-    llassert(!mTextureId.isNull());
-    LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId );
+    //llassert(!mTextureId.isNull());
+    // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
+    LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, USE_MIPMAPS );
  
     if ( mNeedsNewTexture
-        || media_tex->getUseMipMaps()
         || (media_tex->getWidth() != mMediaSource->getTextureWidth())
         || (media_tex->getHeight() != mMediaSource->getTextureHeight())
         || (mTextureUsedWidth != mMediaSource->getWidth())
@@ -3021,8 +3034,6 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
 
         // MEDIAOPT: check to see if size actually changed before doing work
         media_tex->destroyGLTexture();
-        // MEDIAOPT: apparently just calling setUseMipMaps(FALSE) doesn't work?
-        media_tex->reinit(FALSE);	// probably not needed
 
         // MEDIAOPT: seems insane that we actually have to make an imageraw then
         // immediately discard it
@@ -3552,6 +3563,8 @@ void LLViewerMediaImpl::calculateInterest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_CALCULATE_INTEREST);
 	LLViewerMediaTexture* texture = LLViewerTextureManager::findMediaTexture( mTextureId );
+
+    llassert(!gCubeSnapshot);
 
 	if(texture != NULL)
 	{

@@ -28,22 +28,20 @@ uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 void passTextureIndex();
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+in vec4 diffuse_color;
+in vec2 texcoord0;
 
 void calcAtmospherics(vec3 inPositionEye);
 
 vec3 atmosAmbient();
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 
-#ifdef WATER_FOG
-VARYING vec3 vary_position;
-#endif
+out vec3 vary_position;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
@@ -66,9 +64,7 @@ void main()
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
 
-#ifdef WATER_FOG
 	vary_position = pos.xyz;
-#endif
 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	

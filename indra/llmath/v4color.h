@@ -88,8 +88,18 @@ class LLColor4
 		const LLColor4&	set(const LLColor3 &vec);	// Sets LLColor4 to LLColor3 vec (no change in alpha)
 		const LLColor4&	set(const LLColor3 &vec, F32 a);	// Sets LLColor4 to LLColor3 vec, with alpha specified
 		const LLColor4&	set(const F32 *vec);			// Sets LLColor4 to vec
-		const LLColor4&	set(const LLColor4U& color4u); // Sets LLColor4 to color4u, rescaled.
+        const LLColor4&	set(const F64 *vec);			// Sets LLColor4 to (double)vec
+        const LLColor4&	set(const LLColor4U& color4u); // Sets LLColor4 to color4u, rescaled.
 
+        // set from a vector of unknown type and size
+        // may leave some data unmodified
+        template<typename T> 
+        const LLColor4& set(const std::vector<T>& v);
+
+        // write to a vector of unknown type and size
+        // maye leave some data unmodified
+        template<typename T>
+        void write(std::vector<T>& v) const;
 
 		const LLColor4&    setAlpha(F32 a);
 
@@ -332,6 +342,15 @@ inline const LLColor4&	LLColor4::set(const F32 *vec)
 	mV[VZ] = vec[VZ];
 	mV[VW] = vec[VW];
 	return (*this);
+}
+
+inline const LLColor4&	LLColor4::set(const F64 *vec)
+{
+    mV[VX] = static_cast<F32>(vec[VX]);
+    mV[VY] = static_cast<F32>(vec[VY]);
+    mV[VZ] = static_cast<F32>(vec[VZ]);
+    mV[VW] = static_cast<F32>(vec[VW]);
+    return (*this);
 }
 
 // deprecated
@@ -678,6 +697,26 @@ inline const LLColor4 linearColor4(const LLColor4 &a)
     linearColor.mV[3] = a.mV[3];
 
     return linearColor;
+}
+
+template<typename T>
+const LLColor4& LLColor4::set(const std::vector<T>& v)
+{
+    for (S32 i = 0; i < llmin((S32)v.size(), 4); ++i)
+    {
+        mV[i] = v[i];
+    }
+
+    return *this;
+}
+
+template<typename T>
+void LLColor4::write(std::vector<T>& v) const
+{
+    for (int i = 0; i < llmin((S32)v.size(), 4); ++i)
+    {
+        v[i] = mV[i];
+    }
 }
 
 #endif

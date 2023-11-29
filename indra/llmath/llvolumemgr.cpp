@@ -89,7 +89,7 @@ BOOL LLVolumeMgr::cleanup()
 // Note however that LLVolumeLODGroup that contains the volume
 //  also holds a LLPointer so the volume will only go away after
 //  anything holding the volume and the LODGroup are destroyed
-LLVolume* LLVolumeMgr::refVolume(const LLVolumeParams &volume_params, const S32 detail)
+LLVolume* LLVolumeMgr::refVolume(const LLVolumeParams &volume_params, const S32 lod)
 {
 	LLVolumeLODGroup* volgroupp;
 	if (mDataMutex)
@@ -109,7 +109,7 @@ LLVolume* LLVolumeMgr::refVolume(const LLVolumeParams &volume_params, const S32 
 	{
 		mDataMutex->unlock();
 	}
-	return volgroupp->refLOD(detail);
+	return volgroupp->refLOD(lod);
 }
 
 // virtual
@@ -287,18 +287,18 @@ bool LLVolumeLODGroup::cleanupRefs()
 	return res;
 }
 
-LLVolume* LLVolumeLODGroup::refLOD(const S32 detail)
+LLVolume* LLVolumeLODGroup::refLOD(const S32 lod)
 {
-	llassert(detail >=0 && detail < NUM_LODS);
-	mAccessCount[detail]++;
+	llassert(lod >=0 && lod < NUM_LODS);
+	mAccessCount[lod]++;
 	
 	mRefs++;
-	if (mVolumeLODs[detail].isNull())
+	if (mVolumeLODs[lod].isNull())
 	{
-		mVolumeLODs[detail] = new LLVolume(mVolumeParams, mDetailScales[detail]);
+		mVolumeLODs[lod] = new LLVolume(mVolumeParams, mDetailScales[lod]);
 	}
-	mLODRefs[detail]++;
-	return mVolumeLODs[detail];
+	mLODRefs[lod]++;
+	return mVolumeLODs[lod];
 }
 
 BOOL LLVolumeLODGroup::derefLOD(LLVolume *volumep)

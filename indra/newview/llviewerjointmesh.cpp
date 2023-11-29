@@ -1,4 +1,4 @@
-/** 
+ /** 
  * @file llviewerjointmesh.cpp
  * @brief Implementation of LLViewerJointMesh class
  *
@@ -39,7 +39,6 @@
 #include "lldrawpoolbump.h"
 #include "lldynamictexture.h"
 #include "llface.h"
-#include "llgldbg.h"
 #include "llglheaders.h"
 #include "llviewertexlayer.h"
 #include "llviewercamera.h"
@@ -62,10 +61,6 @@ extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
 extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
 #endif
-
-static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
-							   LLVertexBuffer::MAP_NORMAL |
-							   LLVertexBuffer::MAP_TEXCOORD0;
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -231,16 +226,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		return 0;
 	}
 
-    // render time capture
-    // This path does not appear to have attachments. Prove this then remove.
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
-    auto vobj = mFace->getViewerObject();
-    if( vobj && vobj->isAttachment() )
-    {
-        trackAttachments( vobj, mFace->isState(LLFace::RIGGED), &ratPtr );
-        LL_WARNS("trackAttachments") << "Attachment render time is captuted." << LL_ENDL;
-    }
-
 	U32 triangle_count = 0;
 
 	S32 diffuse_channel = LLDrawPoolAvatar::sDiffuseChannel;
@@ -298,8 +283,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
 	
-	U32 mask = sRenderMask;
-
 	U32 start = mMesh->mFaceVertexOffset;
 	U32 end = start + mMesh->mFaceVertexCount - 1;
 	U32 count = mMesh->mFaceIndexCount;
@@ -315,14 +298,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			{
 				uploadJointMatrices();
 			}
-			mask = mask | LLVertexBuffer::MAP_WEIGHT;
-			if (mFace->getPool()->getShaderLevel() > 1)
-			{
-				mask = mask | LLVertexBuffer::MAP_CLOTHWEIGHT;
-			}
 		}
 		
-		buff->setBuffer(mask);
+		buff->setBuffer();
 		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
 	else
@@ -330,7 +308,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.pushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
 		gGL.multMatrix((GLfloat*)jointToWorld.mMatrix);
-		buff->setBuffer(mask);
+		buff->setBuffer();
 		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 		gGL.popMatrix();
 	}
@@ -517,7 +495,7 @@ void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
 		}
 	}
 
-	buffer->flush();
+	buffer->unmapBuffer();
 }
 
 void LLViewerJointMesh::updateJointGeometry()

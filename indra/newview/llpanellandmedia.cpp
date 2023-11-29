@@ -86,7 +86,6 @@ BOOL LLPanelLandMedia::postBuild()
 	mMediaTextureCtrl->setAllowNoTexture ( TRUE );
 	mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	mMediaTextureCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
-	mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 
 	mMediaAutoScaleCheck = getChild<LLCheckBoxCtrl>("media_auto_scale");
 	childSetCommitCallback("media_auto_scale", onCommitAny, this);

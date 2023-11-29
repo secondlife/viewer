@@ -107,6 +107,8 @@ public:
 		PARAMS_RESERVED = 0x50, // Used on server-side
 		PARAMS_MESH     = 0x60,
         PARAMS_EXTENDED_MESH = 0x70,
+        PARAMS_RENDER_MATERIAL = 0x80,
+        PARAMS_REFLECTION_PROBE = 0x90,
 	};
 	
 public:
@@ -168,6 +170,50 @@ public:
 	F32 getRadius() const					{ return mRadius; }
 	F32 getFalloff() const					{ return mFalloff; }
 	F32 getCutoff() const					{ return mCutoff; }
+};
+
+extern const F32 REFLECTION_PROBE_MIN_AMBIANCE;
+extern const F32 REFLECTION_PROBE_MAX_AMBIANCE;
+extern const F32 REFLECTION_PROBE_DEFAULT_AMBIANCE;
+extern const F32 REFLECTION_PROBE_MIN_CLIP_DISTANCE;
+extern const F32 REFLECTION_PROBE_MAX_CLIP_DISTANCE;
+extern const F32 REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE;
+
+class LLReflectionProbeParams : public LLNetworkData
+{
+public:
+    enum EFlags : U8
+    {
+        FLAG_BOX_VOLUME     = 0x01, // use a box influence volume
+        FLAG_DYNAMIC        = 0x02, // render dynamic objects (avatars) into this Reflection Probe
+    };
+
+protected:
+    F32 mAmbiance = REFLECTION_PROBE_DEFAULT_AMBIANCE;
+    F32 mClipDistance = REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE;
+    U8 mFlags = 0;
+
+public:
+    LLReflectionProbeParams();
+    /*virtual*/ BOOL pack(LLDataPacker& dp) const;
+    /*virtual*/ BOOL unpack(LLDataPacker& dp);
+    /*virtual*/ bool operator==(const LLNetworkData& data) const;
+    /*virtual*/ void copy(const LLNetworkData& data);
+    // LLSD implementations here are provided by Eddy Stryker.
+    // NOTE: there are currently unused in protocols
+    LLSD asLLSD() const;
+    operator LLSD() const { return asLLSD(); }
+    bool fromLLSD(LLSD& sd);
+
+    void setAmbiance(F32 ambiance) { mAmbiance = llclamp(ambiance, REFLECTION_PROBE_MIN_AMBIANCE, REFLECTION_PROBE_MAX_AMBIANCE); }
+    void setClipDistance(F32 distance) { mClipDistance = llclamp(distance, REFLECTION_PROBE_MIN_CLIP_DISTANCE, REFLECTION_PROBE_MAX_CLIP_DISTANCE); }
+    void setIsBox(bool is_box);
+    void setIsDynamic(bool is_dynamic);
+
+    F32 getAmbiance() const { return mAmbiance; }
+    F32 getClipDistance() const { return mClipDistance; }
+    bool getIsBox() const { return (mFlags & FLAG_BOX_VOLUME) != 0; }
+    bool getIsDynamic() const { return (mFlags & FLAG_DYNAMIC) != 0; }
 };
 
 //-------------------------------------------------
@@ -320,6 +366,30 @@ public:
 	
 };
 
+class LLRenderMaterialParams : public LLNetworkData
+{
+private:
+    struct Entry
+    {
+        U8 te_idx;
+        LLUUID id;
+    };
+    std::vector< Entry > mEntries;
+
+public:
+    LLRenderMaterialParams();
+    BOOL pack(LLDataPacker& dp) const override;
+    BOOL unpack(LLDataPacker& dp) override;
+    bool operator==(const LLNetworkData& data) const override;
+    void copy(const LLNetworkData& data) override;
+    
+    void setMaterial(U8 te_idx, const LLUUID& id);
+    const LLUUID& getMaterial(U8 te_idx) const;
+
+    bool isEmpty() { return mEntries.empty(); }
+};
+
+
 // This code is not naming-standards compliant. Leaving it like this for
 // now to make the connection to code in
 // 	BOOL packTEMessage(LLDataPacker &dp) const;
@@ -415,12 +485,12 @@ public:
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
 	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
-	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
+    virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
 	virtual void setTESelected(const U8 te, bool sel);
 
 	LLMaterialPtr getTEMaterialParams(const U8 index);
-
+    
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
@@ -498,6 +568,8 @@ public:
 	static LLPCode legacyToPCode(const U8 legacy);
 	static U8 pCodeToLegacy(const LLPCode pcode);
 	static bool getTESTAxes(const U8 face, U32* s_axis, U32* t_axis);
+
+    BOOL hasRenderMaterialParams() const;
 	
 	inline static BOOL isPrimitive(const LLPCode pcode);
 	inline static BOOL isApp(const LLPCode pcode);

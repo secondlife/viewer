@@ -32,6 +32,9 @@ uniform float waterFogKS;
 
 vec3 getPositionEye();
 
+vec3 srgb_to_linear(vec3 col);
+vec3 linear_to_srgb(vec3 col);
+
 vec4 applyWaterFogView(vec3 pos, vec4 color)
 {
     vec3 view = normalize(pos);
@@ -66,14 +69,36 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     float D = pow(0.98, l*kd);
     
     color.rgb = color.rgb * D + kc.rgb * L;
-    color.a = kc.a + color.a;
 
     return color;
+}
+
+vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit)
+{
+    color.rgb = linear_to_srgb(color.rgb);
+    color = applyWaterFogView(pos, color);
+    color.rgb = srgb_to_linear(color.rgb);
+    return color;
+}
+
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit)
+{
+    if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
+    {
+        return color;
+    }
+
+    return applyWaterFogViewLinearNoClip(pos, color, sunlit);
+}
+
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
+{
+    return applyWaterFogViewLinear(pos, color, vec3(1));
 }
 
 vec4 applyWaterFog(vec4 color)
 {
     //normalize view vector
-    return applyWaterFogView(getPositionEye(), color);
+    return applyWaterFogViewLinear(getPositionEye(), color);
 }
 

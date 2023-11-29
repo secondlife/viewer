@@ -17,6 +17,7 @@ include(Tracy)
 
 set(llcommon_SOURCE_FILES
     apply.cpp
+    commoncontrol.cpp
     indra_constants.cpp
     lazyeventapi.cpp
     llallocator.cpp
@@ -120,6 +121,7 @@ set(llcommon_HEADER_FILES
     apply.h
     chrono.h
     classic_callback.h
+    commoncontrol.h
     ctype_workaround.h
     fix_macros.h
     function_types.h
@@ -178,6 +180,7 @@ set(llcommon_HEADER_FILES
     llinitdestroyclass.h
     llinitparam.h
     llinstancetracker.h
+    llinstancetrackersubclass.h
     llkeybind.h
     llkeythrottle.h
     llleap.h
@@ -251,6 +254,7 @@ set(llcommon_HEADER_FILES
     stdtypes.h
     stringize.h
     threadpool.h
+    threadpool_fwd.h
     threadsafeschedule.h
     timer.h
     tuple.h

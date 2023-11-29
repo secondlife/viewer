@@ -1,5 +1,5 @@
 /** 
- * @file class1\windlight\gammaF.glsl
+ * @file class2\wl\gammaF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,31 +22,34 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-uniform int no_atmo;
+
+ // DEPRECATED
+
+//soft clip effect has been moved to postDeferredGammaCorrect legacyGamma, this file is effectively dead
+// but these functions need to be removed from all existing shaders before removing this file
 
 vec3 scaleSoftClipFrag(vec3 light)
 {
-	// For compatibility with lower cards. Do nothing.
-	return light;
+    return light;
 }
 
-/// Soft clips the light with a gamma correction
+vec3 scaleSoftClipFragLinear(vec3 light)
+{ // identical to non-linear version and that's probably close enough
+    return light;
+}
+
 vec3 scaleSoftClip(vec3 light)
 {
-	// For compatibility with lower cards. Do nothing
-	return light;
+    return light;
 }
 
-vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 additive, vec3 atten)
+vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 add, vec3 atten)
 {
-	// For compatibility with lower cards. Do nothing
-	return light;
+    return light;
 }
 
 vec3 fullbrightScaleSoftClip(vec3 light)
 {
-	// For compatibility with lower cards. Do nothing
     return light;
 }
 

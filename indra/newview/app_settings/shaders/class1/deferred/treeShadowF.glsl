@@ -25,22 +25,18 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
+
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-VARYING vec4 post_pos;
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a;
+	float alpha = texture(diffuseMap, vary_texcoord0.xy).a;
 
 	if (alpha < minimum_alpha)
 	{
@@ -48,6 +44,4 @@ void main()
 	}
 
 	frag_color = vec4(1,1,1,1);
-	
-	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 }

@@ -155,6 +155,13 @@ std::string LLMaterialID::asString() const
 	return materialIDString;
 }
 
+LLUUID LLMaterialID::asUUID() const
+{
+    LLUUID ret;
+    memcpy(ret.mData, mID, MATERIAL_ID_SIZE);
+    return ret;
+}
+
 std::ostream& operator<<(std::ostream& s, const LLMaterialID &material_id)
 {
 	s << material_id.asString();

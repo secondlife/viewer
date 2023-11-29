@@ -1,5 +1,5 @@
 /** 
- * @file treeShadowF.glsl
+ * @file avatarAlphaMaskShadowF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,26 +23,18 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 uniform sampler2D diffuseMap;
 
-#if !DEPTH_CLAMP
-VARYING vec4 post_pos;
-#endif
-
-VARYING float target_pos_x;
-VARYING float pos_w;
-VARYING vec2 vary_texcoord0;
+in float target_pos_x;
+in float pos_w;
+in vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a;
+	float alpha = texture(diffuseMap, vary_texcoord0.xy).a;
 
 	if (alpha < 0.05) // treat as totally transparent
 	{
@@ -58,8 +50,4 @@ void main()
 	}
 
 	frag_color = vec4(1,1,1,1);
-	
-#if !DEPTH_CLAMP
-	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
-#endif
 }

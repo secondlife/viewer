@@ -47,15 +47,14 @@ public:
 	typedef enum
 	{
 		CAMERA_WORLD = 0,
-		CAMERA_SHADOW0,
-		CAMERA_SHADOW1,
-		CAMERA_SHADOW2,
-		CAMERA_SHADOW3,
-		CAMERA_SHADOW4,
-		CAMERA_SHADOW5,
+		CAMERA_SUN_SHADOW0,
+		CAMERA_SUN_SHADOW1,
+		CAMERA_SUN_SHADOW2,
+		CAMERA_SUN_SHADOW3,
+		CAMERA_SPOT_SHADOW0,
+		CAMERA_SPOT_SHADOW1,
 		CAMERA_WATER0,
 		CAMERA_WATER1,
-		CAMERA_GI_SOURCE,
 		NUM_CAMERAS
 	} eCameraID;
 
@@ -88,8 +87,8 @@ public:
 	LLVector3 roundToPixel(const LLVector3 &pos_agent);
 
 	// Sets the current matrix
-	/* virtual */ void setView(F32 vertical_fov_rads);
-
+	/* virtual */ void setView(F32 vertical_fov_rads); // NOTE: broadcasts to simulator
+    void setViewNoBroadcast(F32 vertical_fov_rads);  // set FOV without broadcasting to simulator (for temporary local cameras)
 	void setDefaultFOV(F32 fov) ;
 	F32 getDefaultFOV() { return mCameraFOVDefault; }
 

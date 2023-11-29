@@ -56,8 +56,6 @@ public:
 
 	void restartLifeTimer() { mLifeTimer.reset(); }
 
-	static S32 generatePickIDs(S32 start_id, S32 step_size);
-	static LLHUDIcon* handlePick(S32 pick_id);
 	static LLHUDIcon* lineSegmentIntersectAll(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection);
 
 	static void updateAll();
@@ -75,14 +73,11 @@ protected:
 	LLHUDIcon(const U8 type);
 	~LLHUDIcon();
 
-	void renderIcon(BOOL for_select); // common render code
-
 private:
 	LLPointer<LLViewerTexture> mImagep;
 	LLFrameTimer	mAnimTimer;
 	LLFrameTimer	mLifeTimer;
 	F32				mDistance;
-	S32				mPickID;
 	F32				mScale;
 	BOOL			mHidden;
 

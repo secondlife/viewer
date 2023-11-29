@@ -126,6 +126,13 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
       message("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
     endif()
 
+    if (DARWIN)
+      # test binaries always need to be signed for local development
+      set_target_properties(PROJECT_${project}_TEST_${name}
+          PROPERTIES
+              XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-")
+    endif ()
+
     #
     # Setup test targets
     #
@@ -219,6 +226,13 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
             PROPERTIES
             LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
             )
+  endif ()
+
+  if (DARWIN)
+    # test binaries always need to be signed for local development
+    set_target_properties(INTEGRATION_TEST_${testname}
+            PROPERTIES
+            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-")
   endif ()
 
   # Add link deps to the executable

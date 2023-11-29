@@ -46,14 +46,14 @@
      name="GridSubUnit"
      top_pad="0"
      width="200" />
-    <check_box
+    <!-- <check_box
      control_name="GridCrossSections"
      height="16"
      label="View cross-sections"
      layout="topleft"
      name="GridCrossSection"
      top_pad="5"
-     width="200" />
+     width="200" />-->
    <text
          type="string"
          length="1"

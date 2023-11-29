@@ -118,35 +118,10 @@ BOOL LLViewerDynamicTexture::render()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
-	gPipeline.allocatePhysicsBuffer();
-	if (!gNonInteractive)
-	{
-		llassert(mFullWidth <= static_cast<S32>(gPipeline.mPhysicsDisplay.getWidth()));
-		llassert(mFullHeight <= static_cast<S32>(gPipeline.mPhysicsDisplay.getHeight()));
-	}
+     //use the bottom left corner
+	mOrigin.set(0, 0);
 
-	if (gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsAMD)
-	{ //using offscreen render target, just use the bottom left corner
-		mOrigin.set(0, 0);
-	}
-	else
-	{ // force rendering to on-screen portion of frame buffer
-		LLCoordScreen window_pos;
-		gViewerWindow->getWindow()->getPosition( &window_pos );
-		mOrigin.set(0, gViewerWindow->getWindowHeightRaw() - mFullHeight);  // top left corner
-
-		if (window_pos.mX < 0)
-		{
-			mOrigin.mX = -window_pos.mX;
-		}
-		if (window_pos.mY < 0)
-		{
-			mOrigin.mY += window_pos.mY;
-			mOrigin.mY = llmax(mOrigin.mY, 0) ;
-		}
-	}
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	// Set up camera
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	mCamera.setOrigin(*camera);
@@ -195,7 +170,7 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 	camera->setOrigin(mCamera);
 	camera->setAxes(mCamera);
 	camera->setAspect(mCamera.getAspect());
-	camera->setView(mCamera.getView());
+	camera->setViewNoBroadcast(mCamera.getView());
 	camera->setNear(mCamera.getNear());
 }
 
@@ -220,7 +195,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
         gPipeline.mBake.clear();
 	}
 
-	LLGLSLShader::bindNoShader();
+	LLGLSLShader::unbind();
 	LLVertexBuffer::unbind();
 	
 	BOOL result = FALSE;

@@ -45,8 +45,7 @@ void LLLFSThread::initClass(bool local_is_threaded)
 //static
 S32 LLLFSThread::updateClass(U32 ms_elapsed)
 {
-	sLocal->update((F32)ms_elapsed);
-	return sLocal->getPending();
+	return sLocal->update((F32)ms_elapsed);
 }
 
 //static
@@ -58,6 +57,7 @@ void LLLFSThread::cleanupClass()
 	{
 		sLocal->update(0);
 	}
+    sLocal->shutdown();
 	delete sLocal;
 	sLocal = NULL;
 }
@@ -65,8 +65,7 @@ void LLLFSThread::cleanupClass()
 //----------------------------------------------------------------------------
 
 LLLFSThread::LLLFSThread(bool threaded) :
-	LLQueuedThread("LFS", threaded),
-	mPriorityCounter(PRIORITY_LOWBITS)
+	LLQueuedThread("LFS", threaded)
 {
 	if(!mLocalAPRFilePoolp)
 	{
@@ -84,14 +83,12 @@ LLLFSThread::~LLLFSThread()
 
 LLLFSThread::handle_t LLLFSThread::read(const std::string& filename,	/* Flawfinder: ignore */ 
 										U8* buffer, S32 offset, S32 numbytes,
-										Responder* responder, U32 priority)
+										Responder* responder)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	handle_t handle = generateHandle();
 
-	if (priority == 0) priority = PRIORITY_NORMAL | priorityCounter();
-	else if (priority < PRIORITY_LOW) priority |= PRIORITY_LOW; // All reads are at least PRIORITY_LOW
-
-	Request* req = new Request(this, handle, priority,
+	Request* req = new Request(this, handle,
 							   FILE_READ, filename,
 							   buffer, offset, numbytes,
 							   responder);
@@ -107,13 +104,12 @@ LLLFSThread::handle_t LLLFSThread::read(const std::string& filename,	/* Flawfind
 
 LLLFSThread::handle_t LLLFSThread::write(const std::string& filename,
 										 U8* buffer, S32 offset, S32 numbytes,
-										 Responder* responder, U32 priority)
+										 Responder* responder)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	handle_t handle = generateHandle();
 
-	if (priority == 0) priority = PRIORITY_LOW | priorityCounter();
-	
-	Request* req = new Request(this, handle, priority,
+	Request* req = new Request(this, handle,
 							   FILE_WRITE, filename,
 							   buffer, offset, numbytes,
 							   responder);
@@ -130,11 +126,11 @@ LLLFSThread::handle_t LLLFSThread::write(const std::string& filename,
 //============================================================================
 
 LLLFSThread::Request::Request(LLLFSThread* thread,
-							  handle_t handle, U32 priority,
+							  handle_t handle,
 							  operation_t op, const std::string& filename,
 							  U8* buffer, S32 offset, S32 numbytes,
 							  Responder* responder) :
-	QueuedRequest(handle, priority, FLAG_AUTO_COMPLETE),
+	QueuedRequest(handle, FLAG_AUTO_COMPLETE),
 	mThread(thread),
 	mOperation(op),
 	mFileName(filename),
@@ -157,6 +153,7 @@ LLLFSThread::Request::~Request()
 // virtual, called from own thread
 void LLLFSThread::Request::finishRequest(bool completed)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (mResponder.notNull())
 	{
 		mResponder->completed(completed ? mBytesRead : 0);
@@ -166,6 +163,7 @@ void LLLFSThread::Request::finishRequest(bool completed)
 
 void LLLFSThread::Request::deleteRequest()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (getStatus() == STATUS_QUEUED)
 	{
 		LL_ERRS() << "Attempt to delete a queued LLLFSThread::Request!" << LL_ENDL;
@@ -180,6 +178,7 @@ void LLLFSThread::Request::deleteRequest()
 
 bool LLLFSThread::Request::processRequest()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	bool complete = false;
 	if (mOperation ==  FILE_READ)
 	{

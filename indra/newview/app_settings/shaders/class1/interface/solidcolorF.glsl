@@ -23,21 +23,17 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D tex0;
 
 uniform vec4 color;
 
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(tex0, vary_texcoord0.xy).a * color.a;
+	float alpha = texture(tex0, vary_texcoord0.xy).a * color.a;
 
 	frag_color = vec4(color.rgb, alpha);
 }

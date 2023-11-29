@@ -124,7 +124,7 @@ void LLVOWLSky::resetVertexBuffers()
 	mStarsVerts = nullptr;
     mFsSkyVerts = nullptr;
 
-	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 }
 	
 void LLVOWLSky::cleanupGL()
@@ -139,7 +139,7 @@ void LLVOWLSky::cleanupGL()
 void LLVOWLSky::restoreGL()
 {
 	LLDrawPoolWLSky::restoreGL();
-	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 }
 
 BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
@@ -151,9 +151,9 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
     if (mFsSkyVerts.isNull())
     {
-        mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+        mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK);
 
-        if (!mFsSkyVerts->allocateBuffer(4, 6, TRUE))
+        if (!mFsSkyVerts->allocateBuffer(4, 6))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer on full screen sky update" << LL_ENDL;
 		}
@@ -184,7 +184,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 		*indices++ = 3;
 		*indices++ = 2;
 
-        mFsSkyVerts->flush();
+        mFsSkyVerts->unmapBuffer();
     }
 
 	{
@@ -216,7 +216,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
 		for (U32 i = 0; i < strips_segments ;++i)
 		{
-			LLVertexBuffer * segment = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+			LLVertexBuffer * segment = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK);
 			mStripsVerts[i] = segment;
 
 			U32 num_stacks_this_seg = stacks_per_seg;
@@ -237,7 +237,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 			const U32 num_indices_this_seg = 1+num_stacks_this_seg*(2+2*verts_per_stack);
 			llassert(num_indices_this_seg * sizeof(U16) <= max_buffer_bytes);
 
-			bool allocated = segment->allocateBuffer(num_verts_this_seg, num_indices_this_seg, TRUE);
+			bool allocated = segment->allocateBuffer(num_verts_this_seg, num_indices_this_seg);
 #if RELEASE_SHOW_WARNS
 			if( !allocated )
 			{
@@ -267,7 +267,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 			buildStripsBuffer(begin_stack, end_stack, vertices, texCoords, indices, dome_radius, verts_per_stack, total_stacks);
 
 			// and unlock the buffer
-			segment->flush();
+			segment->unmapBuffer();
 		}
 	
 #if RELEASE_SHOW_DEBUG
@@ -288,7 +288,7 @@ void LLVOWLSky::drawStars(void)
 	//  render the stars as a sphere centered at viewer camera 
 	if (mStarsVerts.notNull())
 	{
-		mStarsVerts->setBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK);
+		mStarsVerts->setBuffer();
 		mStarsVerts->drawArrays(LLRender::TRIANGLES, 0, getStarsNumVerts()*4);
 	}
 }
@@ -302,9 +302,9 @@ void LLVOWLSky::drawFsSky(void)
 
     LLGLDisable disable_blend(GL_BLEND);
 
-	mFsSkyVerts->setBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK);
+	mFsSkyVerts->setBuffer();
 	mFsSkyVerts->drawRange(LLRender::TRIANGLES, 0, mFsSkyVerts->getNumVerts() - 1, mFsSkyVerts->getNumIndices(), 0);
-	gPipeline.addTrianglesDrawn(mFsSkyVerts->getNumIndices(), LLRender::TRIANGLES);
+	gPipeline.addTrianglesDrawn(mFsSkyVerts->getNumIndices());
 	LLVertexBuffer::unbind();
 }
 
@@ -317,21 +317,19 @@ void LLVOWLSky::drawDome(void)
 
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
-	
 	std::vector< LLPointer<LLVertexBuffer> >::const_iterator strips_vbo_iter, end_strips;
 	end_strips = mStripsVerts.end();
 	for(strips_vbo_iter = mStripsVerts.begin(); strips_vbo_iter != end_strips; ++strips_vbo_iter)
 	{
 		LLVertexBuffer * strips_segment = strips_vbo_iter->get();
 
-		strips_segment->setBuffer(data_mask);
+		strips_segment->setBuffer();
 
 		strips_segment->drawRange(
 			LLRender::TRIANGLE_STRIP, 
 			0, strips_segment->getNumVerts()-1, strips_segment->getNumIndices(), 
 			0);
-		gPipeline.addTrianglesDrawn(strips_segment->getNumIndices(), LLRender::TRIANGLE_STRIP);
+		gPipeline.addTrianglesDrawn(strips_segment->getNumIndices());
 	}
 
 	LLVertexBuffer::unbind();
@@ -518,10 +516,10 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 	LLStrider<LLColor4U> colorsp;
 	LLStrider<LLVector2> texcoordsp;
 
-	if (mStarsVerts.isNull() || !mStarsVerts->isWriteable())
+	if (mStarsVerts.isNull())
 	{
-		mStarsVerts = new LLVertexBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK, GL_DYNAMIC_DRAW);
-		if (!mStarsVerts->allocateBuffer(getStarsNumVerts()*6, 0, TRUE))
+		mStarsVerts = new LLVertexBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK);
+		if (!mStarsVerts->allocateBuffer(getStarsNumVerts()*6, 0))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer for Sky to " << getStarsNumVerts() * 6 << " vertices" << LL_ENDL;
 		}
@@ -578,6 +576,6 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 		*(colorsp++)    = LLColor4U(mStarColors[vtx]);
 	}
 
-	mStarsVerts->flush();
+	mStarsVerts->unmapBuffer();
 	return TRUE;
 }

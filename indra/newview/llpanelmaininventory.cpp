@@ -134,6 +134,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
 
     mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
+    mEnableCallbackRegistrar.add("Inventory.MaterialsEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasMaterialsInventory(); });
 
 
 	mSavedFolderState = new LLSaveFolderState();
@@ -1195,6 +1196,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_clothing")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
 	getChild<LLUICtrl>("check_gesture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_GESTURE));
 	getChild<LLUICtrl>("check_landmark")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
+	getChild<LLUICtrl>("check_material")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_MATERIAL));
 	getChild<LLUICtrl>("check_notecard")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
 	getChild<LLUICtrl>("check_object")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_OBJECT));
 	getChild<LLUICtrl>("check_script")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LSL));
@@ -1248,6 +1250,12 @@ void LLFloaterInventoryFinder::draw()
 
 	{
 		filter &= ~(0x1 << LLInventoryType::IT_LANDMARK);
+		filtered_by_all_types = FALSE;
+	}
+
+	if (!getChild<LLUICtrl>("check_material")->getValue())
+	{
+		filter &= ~(0x1 << LLInventoryType::IT_MATERIAL);
 		filtered_by_all_types = FALSE;
 	}
 
@@ -1438,6 +1446,7 @@ void LLFloaterInventoryFinder::selectAllTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_clothing")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_gesture")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_landmark")->setValue(TRUE);
+	self->getChild<LLUICtrl>("check_material")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_notecard")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_object")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_script")->setValue(TRUE);
@@ -1458,6 +1467,7 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_clothing")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_gesture")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_landmark")->setValue(FALSE);
+	self->getChild<LLUICtrl>("check_material")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_notecard")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_object")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_script")->setValue(FALSE);
@@ -2281,6 +2291,14 @@ void LLPanelMainInventory::disableAddIfNeeded()
 bool LLPanelMainInventory::hasSettingsInventory()
 {
     return LLEnvironment::instance().isInventoryEnabled();
+}
+
+bool LLPanelMainInventory::hasMaterialsInventory()
+{
+    std::string agent_url = gAgent.getRegionCapability("UpdateMaterialAgentInventory");
+    std::string task_url = gAgent.getRegionCapability("UpdateMaterialTaskInventory");
+
+    return (!agent_url.empty() && !task_url.empty());
 }
 
 void LLPanelMainInventory::updateTitle()

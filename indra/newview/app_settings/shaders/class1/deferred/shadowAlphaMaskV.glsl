@@ -24,34 +24,46 @@
  */
 
 uniform mat4 texture_matrix0;
+#if defined(HAS_SKIN)
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+mat4 getObjectSkinnedTransform();
+#else
 uniform mat4 modelview_projection_matrix;
+#endif
+
 uniform float shadow_target_width;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec4 diffuse_color;
+in vec2 texcoord0;
 
-VARYING vec4 post_pos;
-VARYING float target_pos_x;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 post_pos;
+out float target_pos_x;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 void passTextureIndex();
 
 void main()
 {
 	//transform vertex
+#if defined(HAS_SKIN)
+	vec4 pre_pos = vec4(position.xyz, 1.0);
+	mat4 mat = getObjectSkinnedTransform();
+	mat = modelview_matrix * mat;
+	vec4 pos = mat * pre_pos;
+	pos = projection_matrix * pos;
+#else
 	vec4 pre_pos = vec4(position.xyz, 1.0);
 	vec4 pos = modelview_projection_matrix * pre_pos;
+#endif
+
 	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
 
 	post_pos = pos;
 
-#if !defined(DEPTH_CLAMP)
-	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
-#else
 	gl_Position = pos;
-#endif
 	
 	passTextureIndex();
 

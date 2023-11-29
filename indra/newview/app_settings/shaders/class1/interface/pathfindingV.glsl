@@ -25,11 +25,11 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec3 normal;
+in vec3 position;
+in vec4 diffuse_color;
+in vec3 normal;
 
-VARYING vec4 vertex_color;
+out vec4 vertex_color;
 
 uniform float tint;
 uniform float ambiance;

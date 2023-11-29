@@ -23,22 +23,18 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D texture0;
 uniform sampler2D texture1;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
+in vec2 vary_texcoord0;
+in vec2 vary_texcoord1;
 
 void main() 
 {
-	float tex0 = texture2D(texture0, vary_texcoord0.xy).a;
-	float tex1 = texture2D(texture1, vary_texcoord1.xy).a;
+	float tex0 = texture(texture0, vary_texcoord0.xy).a;
+	float tex1 = texture(texture1, vary_texcoord1.xy).a;
 
-	frag_color = vec4(tex0+(1.0-tex1)-0.5);
+	frag_color = max(vec4(tex0+(1.0-tex1)-0.5), vec4(0));
 }

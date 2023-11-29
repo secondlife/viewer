@@ -1743,6 +1743,10 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
     {
         gSavedPerAccountSettings.setString("AnimationUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
     }
+    else if (param == "pbr_material")
+    {
+        gSavedPerAccountSettings.setString("PBRUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
+    }
 }
 
 void LLInventoryPanel::openSingleViewInventory(LLUUID folder_id)
@@ -2429,14 +2433,49 @@ void LLInventorySingleFolderPanel::doShare()
 
 LLAssetFilteredInventoryPanel::LLAssetFilteredInventoryPanel(const Params& p)
     : LLInventoryPanel(p)
-    , mAssetType(LLAssetType::AT_NONE)
 {
 }
 
 
 void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
 {
-    mAssetType = LLAssetType::lookup(p.filter_asset_type.getValue());
+    // Init asset types
+    std::string types = p.filter_asset_types.getValue();
+
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    boost::char_separator<char> sep("|");
+    tokenizer tokens(types, sep);
+    tokenizer::iterator token_iter = tokens.begin();
+
+    memset(mAssetTypes, 0, LLAssetType::AT_COUNT * sizeof(bool));
+    while (token_iter != tokens.end())
+    {
+        const std::string& token_str = *token_iter;
+        LLAssetType::EType asset_type = LLAssetType::lookup(token_str);
+        if (asset_type > LLAssetType::AT_NONE && asset_type < LLAssetType::AT_COUNT)
+        {
+            mAssetTypes[asset_type] = true;
+        }
+        ++token_iter;
+    }
+
+    // Init drag types
+    memset(mDragTypes, 0, EDragAndDropType::DAD_COUNT * sizeof(bool));
+    for (S32 i = 0; i < LLAssetType::AT_COUNT; i++)
+    {
+        if (mAssetTypes[i])
+        {
+            EDragAndDropType drag_type = LLViewerAssetType::lookupDragAndDropType((LLAssetType::EType)i);
+            if (drag_type != DAD_NONE)
+            {
+                mDragTypes[drag_type] = true;
+            }
+        }
+    }
+    // Always show AT_CATEGORY, but it shouldn't get into mDragTypes
+    mAssetTypes[LLAssetType::AT_CATEGORY] = true;
+
+    // Init the panel
     LLInventoryPanel::initFromParams(p);
     U64 filter_cats = getFilter().getFilterCategoryTypes();
     filter_cats &= ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS);
@@ -2454,10 +2493,9 @@ BOOL LLAssetFilteredInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, B
 
     if (mAcceptsDragAndDrop)
     {
-        EDragAndDropType allow_type = LLViewerAssetType::lookupDragAndDropType(mAssetType);
         // Don't allow DAD_CATEGORY here since it can contain other items besides required assets
         // We should see everything we drop!
-        if (allow_type == cargo_type)
+        if (mDragTypes[cargo_type])
         {
             result = LLInventoryPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
         }
@@ -2473,8 +2511,14 @@ bool LLAssetFilteredInventoryPanel::typedViewsFilter(const LLUUID& id, LLInvento
     {
         return false;
     }
+    LLAssetType::EType asset_type = objectp->getType();
 
-    if (objectp->getType() != mAssetType && objectp->getType() != LLAssetType::AT_CATEGORY)
+    if (asset_type < 0 || asset_type >= LLAssetType::AT_COUNT)
+    {
+        return false;
+    }
+
+    if (!mAssetTypes[asset_type])
     {
         return false;
     }
@@ -2490,11 +2534,16 @@ void LLAssetFilteredInventoryPanel::itemChanged(const LLUUID& id, U32 mask, cons
         return;
     }
 
-    if (model_item
-        && model_item->getType() != mAssetType
-        && model_item->getType() != LLAssetType::AT_CATEGORY)
+    if (model_item)
     {
-        return;
+        LLAssetType::EType asset_type = model_item->getType();
+
+        if (asset_type < 0
+            || asset_type >= LLAssetType::AT_COUNT
+            || !mAssetTypes[asset_type])
+        {
+            return;
+        }
     }
 
     LLInventoryPanel::itemChanged(id, mask, model_item);
@@ -2530,6 +2579,7 @@ namespace LLInitParam
 		declare(LLFolderType::lookup(LLFolderType::FT_OUTBOX)           , LLFolderType::FT_OUTBOX);
 		declare(LLFolderType::lookup(LLFolderType::FT_BASIC_ROOT)       , LLFolderType::FT_BASIC_ROOT);
         declare(LLFolderType::lookup(LLFolderType::FT_SETTINGS)         , LLFolderType::FT_SETTINGS);
+        declare(LLFolderType::lookup(LLFolderType::FT_MATERIAL)         , LLFolderType::FT_MATERIAL);
 		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_LISTINGS)   , LLFolderType::FT_MARKETPLACE_LISTINGS);
 		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_STOCK), LLFolderType::FT_MARKETPLACE_STOCK);
 		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_VERSION), LLFolderType::FT_MARKETPLACE_VERSION);

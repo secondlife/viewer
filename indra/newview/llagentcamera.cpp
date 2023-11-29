@@ -1195,12 +1195,18 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_CAMERA("Camera");
 
+extern BOOL gCubeSnapshot;
+
 //-----------------------------------------------------------------------------
 // updateCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::updateCamera()
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_CAMERA);
+    if (gCubeSnapshot)
+    {
+        return;
+    }
 
 	// - changed camera_skyward to the new global "mCameraUpVector"
 	mCameraUpVector = LLVector3::z_axis;
@@ -2052,6 +2058,13 @@ LLVector3d LLAgentCamera::getFocusOffsetInitial()
 
 F32 LLAgentCamera::getCameraMaxZoomDistance()
 {
+    // SL-14706 / SL-14885 TPV have relaxed camera constraints allowing you to mousewheeel zoom WAY out.
+    static LLCachedControl<bool> s_disable_camera_constraints(gSavedSettings, "DisableCameraConstraints", false);
+    if (s_disable_camera_constraints)
+    {
+        return (F32)INT_MAX;
+    }
+
     // Ignore "DisableCameraConstraints", we don't want to be out of draw range when we focus onto objects or avatars
     return llmin(MAX_CAMERA_DISTANCE_FROM_OBJECT,
                  mDrawDistance - 1, // convenience, don't hit draw limit when focusing on something
