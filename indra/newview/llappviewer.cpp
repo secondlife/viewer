@@ -2943,13 +2943,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (mSecondInstance)
 	{
-		// This is the second instance of SL. Turn off voice support,
+		// This is the second instance of SL. Mute voice,
 		// but make sure the setting is *not* persisted.
-		LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
-		if(disable_voice)
+		// Also see LLVivoxVoiceClient::voiceEnabled()
+		LLControlVariable* enable_voice = gSavedSettings.getControl("EnableVoiceChat");
+		if(enable_voice)
 		{
 			const BOOL DO_NOT_PERSIST = FALSE;
-			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
+			enable_voice->setValue(LLSD(FALSE), DO_NOT_PERSIST);
 		}
 	}
 
@@ -5420,9 +5421,18 @@ void LLAppViewer::forceErrorBadMemoryAccess()
 void LLAppViewer::forceErrorInfiniteLoop()
 {
    	LL_WARNS() << "Forcing a deliberate infinite loop" << LL_ENDL;
+    // Loop is intentionally complicated to fool basic loop detection
+    LLTimer timer_total;
+    LLTimer timer_expiry;
+    const S32 report_frequency = 10;
+    timer_expiry.setTimerExpirySec(report_frequency);
     while(true)
     {
-        ;
+        if (timer_expiry.hasExpired())
+        {
+            LL_INFOS() << "Infinite loop time : " << timer_total.getElapsedSeconds() << LL_ENDL;
+            timer_expiry.setTimerExpirySec(report_frequency);
+        }
     }
     return;
 }

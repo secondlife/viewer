@@ -320,6 +320,7 @@ public:
 
 		if (item)
 		{
+            LLFavoritesBarCtrl::sWaitingForCallabck = 0.f;
 			LLFavoritesOrderStorage::instance().setSortIndex(item, mSortField);
 
 			item->setComplete(TRUE);
@@ -365,6 +366,9 @@ struct LLFavoritesSort
 	}
 };
 
+
+F64 LLFavoritesBarCtrl::sWaitingForCallabck = 0.f;
+
 LLFavoritesBarCtrl::Params::Params()
 : image_drag_indication("image_drag_indication"),
   more_button("more_button"),
@@ -381,7 +385,7 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mShowDragMarker(FALSE),
 	mLandingTab(NULL),
 	mLastTab(NULL),
-	mTabsHighlightEnabled(TRUE),
+    mItemsListDirty(false),
 	mUpdateDropDownItems(true),
 	mRestoreOverflowMenu(false),
 	mGetPrevItems(true),
@@ -618,6 +622,9 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	int sortField = 0;
 	LLPointer<LLItemCopiedCallback> cb;
 
+    const F64 CALLBACK_WAIT_TIME = 30.f;
+    sWaitingForCallabck = LLTimer::getTotalSeconds() + CALLBACK_WAIT_TIME;
+
 	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
 	for (LLInventoryModel::item_array_t::iterator i = mItems.begin(); i != mItems.end(); ++i)
 	{
@@ -691,16 +698,22 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 			LLFavoritesOrderStorage::instance().getSLURL((*i)->getAssetUUID());
 		}
 
-		updateButtons();
-		if (!mItemsChangedTimer.getStarted())
-		{
-			mItemsChangedTimer.start();
-		}
-		else
-		{
-			mItemsChangedTimer.reset();
-		}
-
+        if (sWaitingForCallabck < LLTimer::getTotalSeconds())
+        {
+            updateButtons();
+            if (!mItemsChangedTimer.getStarted())
+            {
+                mItemsChangedTimer.start();
+            }
+            else
+            {
+                mItemsChangedTimer.reset();
+            }
+        }
+        else
+        {
+            mItemsListDirty = true;
+        }
 	}
 }
 
@@ -754,6 +767,18 @@ void LLFavoritesBarCtrl::draw()
 		mItemsChangedTimer.start();
 	}
 
+    if (mItemsListDirty && sWaitingForCallabck < LLTimer::getTotalSeconds())
+    {
+        updateButtons();
+        if (!mItemsChangedTimer.getStarted())
+        {
+            mItemsChangedTimer.start();
+        }
+        else
+        {
+            mItemsChangedTimer.reset();
+        }
+    }
 }
 
 const LLButton::Params& LLFavoritesBarCtrl::getButtonParams()
@@ -782,6 +807,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
         return;
     }
 
+    mItemsListDirty = false;
 	mItems.clear();
 
 	if (!collectFavoriteItems(mItems))
