@@ -2246,29 +2246,27 @@ static void get_devices(std::list<HidDevice> &list_of_devices,
     {
         HidDevice device = populate_device( io_obj );
         
-        if (debugLoggingEnabled("Joystick"))
+        //  Should match ndof
+        if (device.mAxis >= 3
+            || (device.mUsagePage == kHIDPage_GenericDesktop
+                && (device.mUsage == kHIDUsage_GD_MultiAxisController
+                    || device.mUsage == kHIDUsage_GD_GamePad
+                    || device.mUsage == kHIDUsage_GD_Joystick))
+            || (device.mUsagePage == kHIDPage_Game
+                && device.mUsage == kHIDUsage_Game_3DGameController)
+            || strstr(device.mManufacturer, "3Dconnexion"))
         {
             list_of_devices.push_back(device);
-            LL_DEBUGS("Joystick") << "Device axises: " << (S32)device.mAxis
-                                  << "Device HIDUsepage: " << (S32)device.mUsagePage
-                                  << "Device HIDUsage: " << (S32)device.mUsage
-                                  << LL_ENDL;
         }
         else
         {
-            //  Should match ndof
-            if (device.mAxis >= 3
-                || (device.mUsagePage == kHIDPage_GenericDesktop
-                    && (device.mUsage == kHIDUsage_GD_MultiAxisController
-                        || device.mUsage == kHIDUsage_GD_GamePad
-                        || device.mUsage == kHIDUsage_GD_Joystick))
-                || (device.mUsagePage == kHIDPage_Game
-                    && device.mUsage == kHIDUsage_Game_3DGameController)
-                || strstr(device.mManufacturer, "3Dconnexion"))
-            {
-                list_of_devices.push_back(device);
-            }
-        }
+            LL_DEBUGS("Joystick");
+            list_of_devices.push_back(device);
+            LL_CONT << "Device axes: " << (S32)device.mAxis
+                    << " Device HIDUsepage: " << (S32)device.mUsagePage
+                    << " Device HIDUsage: " << (S32)device.mUsage;
+		    LL_ENDL;
+		}
         
         
         // release the device object, it is no longer needed

@@ -51,8 +51,6 @@
 
 
 static const U8  OVERLAY_IMG_COMPONENTS = 4;
-static const S32 FLOATS_PER_VERTEX = LENGTHOFVECTOR3;
-static const S32 BYTES_PER_COLOR = LENGTHOFCOLOR4U;
 static const F32 LINE_WIDTH = 0.0625f;
 
 LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters)
