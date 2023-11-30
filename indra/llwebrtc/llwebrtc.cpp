@@ -216,6 +216,7 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
     mWorkerThread->PostTask(
                             [this, id]()
                             {
+                                int16_t tuningRecordingDevice = 0;
                                 int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
                                 for (int16_t i = 0; i < captureDeviceCount; i++)
                                 {
@@ -225,18 +226,32 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
                                     if (id == guid || id == "Default")  // first one in list is default
                                     {
                                         RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
-                                        mRecordingDevice = i;
+                                        tuningRecordingDevice = i;
                                         break;
                                     }
                                 }
                                 mTuningDeviceModule->StopRecording();
-                                mTuningDeviceModule->SetRecordingDevice(mRecordingDevice);
+                                mTuningDeviceModule->SetRecordingDevice(tuningRecordingDevice);
                                 mTuningDeviceModule->InitMicrophone();
                                 mTuningDeviceModule->InitRecording();
                                 mTuningDeviceModule->StartRecording();
                                 bool was_peer_recording = false;
                                 if (mPeerDeviceModule)
                                 {
+                                    int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
+                                    for (int16_t i = 0; i < captureDeviceCount; i++)
+                                    {
+                                        char name[webrtc::kAdmMaxDeviceNameSize];
+                                        char guid[webrtc::kAdmMaxGuidSize];
+                                        mTuningDeviceModule->RecordingDeviceName(i, name, guid);
+                                        if (id == guid || id == "Default")  // first one in list is default
+                                        {
+                                            RTC_LOG(LS_INFO)
+                                                << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
+                                            mRecordingDevice = i;
+                                            break;
+                                        }
+                                    }
                                     was_peer_recording = mPeerDeviceModule->Recording();
                                     if (was_peer_recording)
                                     {
@@ -259,6 +274,7 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                             [this, id]()
                             {
                                 int16_t renderDeviceCount = mTuningDeviceModule->PlayoutDevices();
+                                int16_t tuningPlayoutDevice = 0;
                                 for (int16_t i = 0; i < renderDeviceCount; i++)
                                 {
                                     char name[webrtc::kAdmMaxDeviceNameSize];
@@ -267,7 +283,7 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                                     if (id == guid || id == "Default")
                                     {
                                         RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
-                                        mPlayoutDevice = i;
+                                        tuningPlayoutDevice = i;
                                         break;
                                     }
                                 }
@@ -277,30 +293,40 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                                 {
                                     mTuningDeviceModule->StopPlayout();
                                 }
-                                bool was_peer_mute = false;
                                 if (mPeerDeviceModule)
                                 {
-                                    mPeerDeviceModule->SpeakerMute(&was_peer_mute);
-                                    if (!was_peer_mute)
-                                    {
-                                        mPeerDeviceModule->SetSpeakerMute(true);
-                                    }
+                                    mPeerDeviceModule->SetSpeakerMute(true);
                                 }
                                 
-                                mTuningDeviceModule->SetPlayoutDevice(mPlayoutDevice);
+                                mTuningDeviceModule->SetPlayoutDevice(tuningPlayoutDevice);
                                 mTuningDeviceModule->InitSpeaker();
                                 mTuningDeviceModule->InitPlayout();
                                 if (was_tuning_playing)
                                 {
                                     mTuningDeviceModule->StartPlayout();
                                 }
+                                renderDeviceCount = mPeerDeviceModule->PlayoutDevices();
+
                                 if (mPeerDeviceModule)
                                 {
+                                    for (int16_t i = 0; i < renderDeviceCount; i++)
+                                    {
+                                        char name[webrtc::kAdmMaxDeviceNameSize];
+                                        char guid[webrtc::kAdmMaxGuidSize];
+                                        mPeerDeviceModule->PlayoutDeviceName(i, name, guid);
+                                        if (id == guid || id == "Default")
+                                        {
+                                            RTC_LOG(LS_INFO)
+                                                << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
+                                            mPlayoutDevice = i;
+                                            break;
+                                        }
+                                    }
                                     mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
                                     mPeerDeviceModule->InitSpeaker();
                                     mPeerDeviceModule->InitPlayout();
                                     mPeerDeviceModule->StartPlayout();
-                                    mPeerDeviceModule->SetSpeakerMute(was_peer_mute);
+                                    mPeerDeviceModule->SetSpeakerMute(false);
                                     
                                 }
                                 mTuningDeviceModule->SetSpeakerMute(false);
@@ -375,6 +401,8 @@ float LLWebRTCImpl::getPeerAudioLevel() { return 20 * mPeerAudioDeviceObserver->
 
 void LLWebRTCImpl::setSpeakerVolume(float volume) { mPeerDeviceModule->SetSpeakerVolume( (uint32_t)(volume * VOLUME_SCALE_WEBRTC));}
 void LLWebRTCImpl::setMicrophoneVolume(float volume) { mPeerDeviceModule->SetMicrophoneVolume((uint32_t)(volume * VOLUME_SCALE_WEBRTC));}
+
+void LLWebRTCImpl::setMute(bool mute) { mPeerDeviceModule->SetMicrophoneMute(mute); }
 
 //
 // Helpers
@@ -566,9 +594,12 @@ void LLWebRTCPeerConnectionImpl::AnswerAvailable(const std::string &sdp)
     mWebRTCImpl->PostSignalingTask(
                                [this, sdp]()
                                {
-                                   RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->peer_connection_state();
-                                   mPeerConnection->SetRemoteDescription(webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdp),
-                                                                         rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface>(this));
+                                   if (mPeerConnection)
+                                   {
+                                       RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->peer_connection_state();
+                                       mPeerConnection->SetRemoteDescription(webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdp),
+                                                                             rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface>(this));
+                                   }                   
                                });
 }
 
@@ -844,17 +875,6 @@ void LLWebRTCPeerConnectionImpl::OnSetLocalDescriptionComplete(webrtc::RTCError 
     
 }
 
-void LLWebRTCPeerConnectionImpl::setAudioObserver(LLWebRTCAudioObserver *observer) { mAudioObserverList.emplace_back(observer); }
-
-void LLWebRTCPeerConnectionImpl::unsetAudioObserver(LLWebRTCAudioObserver *observer)
-{
-    std::vector<LLWebRTCAudioObserver *>::iterator it = std::find(mAudioObserverList.begin(), mAudioObserverList.end(), observer);
-    if (it != mAudioObserverList.end())
-    {
-        mAudioObserverList.erase(it);
-    }
-}
-
 //
 // DataChannelObserver implementation
 //
@@ -897,9 +917,12 @@ void LLWebRTCPeerConnectionImpl::OnMessage(const webrtc::DataBuffer& buffer)
 
 void LLWebRTCPeerConnectionImpl::sendData(const std::string& data, bool binary)
 {
-    rtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
-    webrtc::DataBuffer buffer(cowBuffer, binary);
-    mDataChannel->Send(buffer);
+    if (mDataChannel)
+    {
+        rtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
+        webrtc::DataBuffer     buffer(cowBuffer, binary);
+        mDataChannel->Send(buffer);
+    }
 }
 
 void LLWebRTCPeerConnectionImpl::setDataObserver(LLWebRTCDataObserver* observer) { mDataObserverList.emplace_back(observer); }

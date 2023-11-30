@@ -88,19 +88,13 @@ class LLWebRTCDeviceInterface
 
     virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
     virtual void setMicrophoneVolume(float volume) = 0;  // volume between 0.0 and 1.0
+    virtual void setMute(bool mute) = 0;
     virtual float getPeerAudioLevel() = 0;
-};
-
-class LLWebRTCAudioObserver
-{
-  public:
 };
 
 class LLWebRTCAudioInterface
 {
   public:
-    virtual void setAudioObserver(LLWebRTCAudioObserver *observer)  = 0;
-    virtual void unsetAudioObserver(LLWebRTCAudioObserver *observer) = 0;
     virtual void setMute(bool mute) = 0;
 };
 
