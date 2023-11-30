@@ -365,6 +365,30 @@ S32 wchar_utf8_length(const llwchar wc)
 	}
 }
 
+std::string wchar_utf8_preview(const llwchar wc)
+{
+    std::ostringstream oss;
+    oss << std::hex << std::uppercase << (U32)wc;
+
+    U8 out_bytes[8];
+    U32 size = (U32)wchar_to_utf8chars(wc, (char*)out_bytes);
+
+    if (size > 1)
+    {
+        oss << " [";
+        for (U32 i = 0; i < size; ++i)
+        {
+            if (i)
+            {
+                oss << ", ";
+            }
+            oss << (int)out_bytes[i];
+        }
+        oss << "]";
+    }
+
+    return oss.str();
+}
 
 S32 wstring_utf8_length(const LLWString& wstr)
 {

@@ -682,6 +682,8 @@ LL_COMMON_API S32 wstring_utf8_length(const LLWString& wstr);
 // Length in bytes of this wide char in a UTF8 string
 LL_COMMON_API S32 wchar_utf8_length(const llwchar wc); 
 
+LL_COMMON_API std::string wchar_utf8_preview(const llwchar wc);
+
 LL_COMMON_API std::string utf8str_tolower(const std::string& utf8str);
 
 // Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.

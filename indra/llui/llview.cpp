@@ -1024,7 +1024,7 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 			handled = handleUnicodeCharHere(uni_char);
 			if (handled && LLView::sDebugKeys)
 			{
-				LL_INFOS() << "Unicode key handled by " << getName() << LL_ENDL;
+				LL_INFOS() << "Unicode key " << wchar_utf8_preview(uni_char) << " is handled by " << getName() << LL_ENDL;
 			}
 		}
 	}
