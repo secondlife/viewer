@@ -1159,7 +1159,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::fi
 LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::findParticipantByID(const std::string& channelID, const LLUUID& id)
 {
     participantStatePtr_t result;
-    auto& session = sessionState::matchSessionByChannelID(channelID);
+    auto session = sessionState::matchSessionByChannelID(channelID);
 	
 	if (session)
 	{
@@ -1172,7 +1172,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::findParticipantB
 LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::addParticipantByID(const std::string& channelID, const LLUUID &id)
 { 
 	participantStatePtr_t result;
-    auto& session = sessionState::matchSessionByChannelID(channelID);
+    auto session = sessionState::matchSessionByChannelID(channelID);
     if (session)
     {
         result = session->addParticipant(id);
@@ -1183,7 +1183,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::addParticipantBy
 void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, const LLUUID &id)
 {
     participantStatePtr_t result;
-    auto& session = sessionState::matchSessionByChannelID(channelID);
+    auto session = sessionState::matchSessionByChannelID(channelID);
     if (session)
     {
         participantStatePtr_t participant = session->findParticipantByID(id);
