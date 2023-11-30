@@ -718,6 +718,19 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
+	// SL-19801 Special workaround for system emoji picker
+	if ([aString length] == 2)
+	{
+		uint32_t b0 = [aString characterAtIndex:0];
+		uint32_t b1 = [aString characterAtIndex:1];
+		if (((b0 & 0xF000) == 0xD000) && ((b1 & 0xF000) == 0xD000))
+		{
+			uint32_t b = 0x10000 | ((b0 & 0x3F) << 10) | (b1 & 0x3FF);
+			callUnicodeCallback(b, 0);
+			return;
+		}
+	}
+
 	if (!mHasMarkedText)
 	{
 		for (NSInteger i = 0; i < [aString length]; i++)
