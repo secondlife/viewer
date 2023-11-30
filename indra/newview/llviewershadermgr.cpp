@@ -1804,7 +1804,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gHazeWaterProgram.mFeatures.hasReflectionProbes    = mShaderLevel[SHADER_DEFERRED] > 2;
 
         gHazeWaterProgram.clearPermutations();
-        gHazeWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
+        gHazeWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterHazeV.glsl", GL_VERTEX_SHADER));
         gHazeWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterHazeF.glsl", GL_FRAGMENT_SHADER));
 
         gHazeWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];

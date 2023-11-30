@@ -82,12 +82,12 @@ void main()
     vec3 additive;
     vec3 atten;
     calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten);
-#endif
 
-
-#ifndef IS_HUD
     color.rgb = srgb_to_linear(color.rgb);
+
+#ifdef IS_ALPHA
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
+#endif
 
     vec4 fogged = applyWaterFogViewLinear(pos, vec4(color.rgb, final_alpha));
     color.rgb = fogged.rgb;

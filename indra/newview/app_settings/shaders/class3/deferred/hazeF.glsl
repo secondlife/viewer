@@ -68,23 +68,21 @@ void main()
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
     vec3 sunlit_linear = srgb_to_linear(sunlit);
-    vec3 amblit_linear = amblit;
-
+    
+    // mask off atmospherics below water (when camera is under water)
     bool do_atmospherics = false;
-
-    // mask off atmospherics below water
-    if (dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0)
+        
+    if (dot(vec3(0), waterPlane.xyz) + waterPlane.w > 0.0 ||
+        dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0)
     {
         do_atmospherics = true;
     }
+    
 
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
-    {
-    }
-    else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
+    if (depth >= 1.0)
     {
         //should only be true of WL sky, just port over base color value
         discard;

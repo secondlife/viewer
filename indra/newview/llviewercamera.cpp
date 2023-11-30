@@ -112,12 +112,16 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
 
     mLastPointOfInterest = point_of_interest;
 
-    LLViewerRegion *regp         = gAgent.getRegion();
-    F32             water_height = (NULL != regp) ? regp->getWaterHeight() : 0.f;
+    LLViewerRegion* regp = LLWorld::instance().getRegionFromPosAgent(getOrigin());
+    if (!regp)
+    {
+        regp = gAgent.getRegion();
+    }
+
+    F32 water_height = (NULL != regp) ? regp->getWaterHeight() : 0.f;
 
     LLVector3 origin = center;
 
-    if (LLEnvironment::instance().getCurrentWater()->getFogMod() != 1.f)
     {
         if (origin.mV[2] > water_height)
         {
@@ -758,11 +762,19 @@ LLVector3 LLViewerCamera::roundToPixel(const LLVector3 &pos_agent)
 
 BOOL LLViewerCamera::cameraUnderWater() const
 {
-	if(!gAgent.getRegion())
+    LLViewerRegion* regionp = LLWorld::instance().getRegionFromPosAgent(getOrigin());
+
+    if (!regionp)
+    {
+        regionp = gAgent.getRegion();
+    }
+
+	if(!regionp)
 	{
 		return FALSE ;
 	}
-	return getOrigin().mV[VZ] < gAgent.getRegion()->getWaterHeight();
+
+	return getOrigin().mV[VZ] < regionp->getWaterHeight();
 }
 
 BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)

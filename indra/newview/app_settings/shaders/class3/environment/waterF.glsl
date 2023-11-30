@@ -32,7 +32,6 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
 vec3 scaleSoftClipFragLinear(vec3 l);
-vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 
@@ -280,8 +279,6 @@ void main()
     f = clamp(f, 0, 1);
 
     color = ((1.0 - f) * color) + fb.rgb;
-
-    color = atmosFragLightingLinear(color, additive, atten);
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     

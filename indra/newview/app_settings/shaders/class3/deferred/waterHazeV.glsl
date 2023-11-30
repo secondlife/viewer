@@ -1,5 +1,5 @@
 /**
- * @file class3/deferred/waterHazeF.glsl
+ * @file class3/deferred/waterHazeV.glsl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,27 +23,37 @@
  * $/LicenseInfo$
  */
 
-out vec4 frag_color;
+in vec3 position;
 
-// Inputs
-in vec4 vary_fragcoord;
+uniform vec2 screen_res;
 
-uniform sampler2D normalMap;
+out vec4 vary_fragcoord;
 
-vec4 getPositionWithDepth(vec2 pos_screen, float depth);
-float getDepth(vec2 pos_screen);
+// forwards
+void setAtmosAttenuation(vec3 c);
+void setAdditiveColor(vec3 c);
 
-vec4 getWaterFogView(vec3 pos);
+uniform vec4 waterPlane;
+
+uniform int above_water;
+
+uniform mat4 modelview_projection_matrix;
 
 void main()
 {
-    vec2  tc           = vary_fragcoord.xy/vary_fragcoord.w*0.5+0.5;
-    float depth        = getDepth(tc.xy);
-    vec4  pos          = getPositionWithDepth(tc, depth);
-    vec4  norm         = texture(normalMap, tc);
+	//transform vertex
+	vec4 pos = vec4(position.xyz, 1.0);
 
-    vec4 fogged = getWaterFogView(pos.xyz);
+    if (above_water > 0)
+    {
+        pos = modelview_projection_matrix*pos;
+    }
 
-    frag_color.rgb = max(fogged.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
-    frag_color.a = fogged.a;
+    gl_Position = pos; 
+
+    // appease OSX GLSL compiler/linker by touching all the varyings we said we would
+    setAtmosAttenuation(vec3(1));
+    setAdditiveColor(vec3(0));
+
+	vary_fragcoord = pos;
 }

@@ -3877,6 +3877,20 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 
 	LLGLEnable cull(GL_CULL_FACE);
 
+    bool done_atmospherics = LLPipeline::sRenderingHUDs; //skip atmospherics on huds
+    bool done_water_haze = done_atmospherics;
+
+    // do atmospheric haze just before post water alpha
+    U32 atmospherics_pass = LLDrawPool::POOL_ALPHA_POST_WATER;
+
+    if (LLPipeline::sUnderWaterRender)
+    { // if under water, do atmospherics just before the water pass
+        atmospherics_pass = LLDrawPool::POOL_WATER;
+    }
+
+    // do water haze just before pre water alpha
+    U32 water_haze_pass = LLDrawPool::POOL_ALPHA_PRE_WATER;
+
 	calcNearbyLights(camera);
 	setupHWLights();
 
@@ -3895,6 +3909,18 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 		LLDrawPool *poolp = *iter1;
 		
 		cur_type = poolp->getType();
+
+        if (cur_type >= atmospherics_pass && !done_atmospherics)
+        { // do atmospherics against depth buffer before rendering alpha
+            doAtmospherics();
+            done_atmospherics = true;
+        }
+
+        if (cur_type >= water_haze_pass && !done_water_haze)
+        { // do water haze against depth buffer before rendering alpha
+            doWaterHaze();
+            done_water_haze = true;
+        }
 
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
@@ -8153,52 +8179,6 @@ void LLPipeline::renderDeferredLighting()
             }
         }
 
-
-        
-        if (RenderDeferredAtmospheric)
-        {
-            LLGLEnable blend(GL_BLEND);
-            gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA);
-            gGL.setColorMask(true, false);
-
-            for (U32 i = 0; i < 2; ++i)
-            {
-                // apply haze
-                LLGLSLShader &haze_shader = i == 0 ? gHazeProgram : gHazeWaterProgram;
-
-                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - haze");
-                LL_PROFILE_GPU_ZONE("haze");
-                bindDeferredShader(haze_shader);
-
-                static LLCachedControl<F32> ssao_scale(gSavedSettings, "RenderSSAOIrradianceScale", 0.5f);
-                static LLCachedControl<F32> ssao_max(gSavedSettings, "RenderSSAOIrradianceMax", 0.25f);
-                static LLStaticHashedString ssao_scale_str("ssao_irradiance_scale");
-                static LLStaticHashedString ssao_max_str("ssao_irradiance_max");
-
-                haze_shader.uniform1f(ssao_scale_str, ssao_scale);
-                haze_shader.uniform1f(ssao_max_str, ssao_max);
-
-                LLEnvironment &environment = LLEnvironment::instance();
-                haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-                haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
-
-                haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
-
-                {
-                    LLGLDepthTest depth(GL_FALSE);
-
-                    // full screen blit
-                    mScreenTriangleVB->setBuffer();
-                    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-                }
-
-                unbindDeferredShader(haze_shader);
-            }
-
-            gGL.setSceneBlendType(LLRender::BT_ALPHA);
-        }
-
-
         gGL.setColorMask(true, true);
     }
 
@@ -8252,6 +8232,90 @@ void LLPipeline::renderDeferredLighting()
         }
     }
     gGL.setColorMask(true, true);
+}
+
+void LLPipeline::doAtmospherics()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+
+    if (RenderDeferredAtmospheric)
+    {
+        LLGLEnable blend(GL_BLEND);
+        gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA, LLRender::BF_ZERO, LLRender::BF_SOURCE_ALPHA);
+
+        gGL.setColorMask(true, true);
+
+        // apply haze
+        LLGLSLShader& haze_shader = gHazeProgram;
+
+        LL_PROFILE_GPU_ZONE("haze");
+        bindDeferredShader(haze_shader);
+
+        LLEnvironment& environment = LLEnvironment::instance();
+        haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
+
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+        LLGLDepthTest depth(GL_FALSE);
+
+        // full screen blit
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    
+        unbindDeferredShader(haze_shader);
+
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    }
+}
+
+void LLPipeline::doWaterHaze()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+
+    if (RenderDeferredAtmospheric)
+    {
+        LLGLEnable blend(GL_BLEND);
+        gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA, LLRender::BF_ZERO, LLRender::BF_SOURCE_ALPHA);
+
+        gGL.setColorMask(true, true);
+
+        // apply haze
+        LLGLSLShader& haze_shader = gHazeWaterProgram;
+
+        LL_PROFILE_GPU_ZONE("haze");
+        bindDeferredShader(haze_shader);
+
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+        static LLStaticHashedString above_water_str("above_water");
+        haze_shader.uniform1i(above_water_str, sUnderWaterRender ? -1 : 1);
+
+        if (LLPipeline::sUnderWaterRender)
+        {
+            LLGLDepthTest depth(GL_FALSE);
+
+            // full screen blit
+            mScreenTriangleVB->setBuffer();
+            mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+        }
+        else
+        {
+            //render water patches like LLDrawPoolWater does
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+            LLGLDisable   cull(GL_CULL_FACE);
+
+            gGLLastMatrix = NULL;
+            gGL.loadMatrix(gGLModelView);
+
+            mWaterPool->pushFaceGeometry();
+        }
+
+        unbindDeferredShader(haze_shader);
+
+
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    }
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
