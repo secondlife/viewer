@@ -40,16 +40,9 @@ class LLVOPartGroup : public LLAlphaObject
 {
 public:
 
-	//vertex buffer for holding all particles
-	static LLPointer<LLVertexBuffer> sVB;
-	static S32 sVBSlotFree[LL_MAX_PARTICLE_COUNT];
-	static S32 *sVBSlotCursor;
-
 	static void initClass();
 	static void restoreGL();
 	static void destroyGL();
-	static S32 findAvailableVBSlot();
-	static void freeVBSlot(S32 idx);
 
 	enum
 	{
@@ -74,6 +67,7 @@ public:
 										  S32 face,
 										  BOOL pick_transparent,
 										  BOOL pick_rigged,
+                                          BOOL pick_unselectable,
 										  S32* face_hit,
 										  LLVector4a* intersection,
 										  LLVector2* tex_coord,
@@ -98,7 +92,7 @@ public:
 
 	void updateFaceSize(S32 idx) { }
 	F32 getPartSize(S32 idx);
-	void getBlendFunc(S32 idx, U32& src, U32& dst);
+	void getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst);
 	LLUUID getPartOwner(S32 idx);
 	LLUUID getPartSource(S32 idx);
 

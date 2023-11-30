@@ -25,17 +25,16 @@
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
-uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec3 normal;
+in vec2 texcoord0;
 
 uniform vec4 color;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
@@ -54,14 +53,27 @@ float calcDirectionalLight(vec3 n, vec3 l)
 //====================================================================================================
 
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+#endif
+
 void main()
 {
-	//transform vertex
-	vec4 pos = (modelview_matrix * vec4(position.xyz, 1.0));
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    vec3 norm;
+#ifdef HAS_SKIN
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
+    vec4 pos = mat * vec4(position.xyz, 1.0);
+    gl_Position = projection_matrix * pos;
+    norm = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
+#else
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+    norm = normalize(normal_matrix * normal);
+#endif
+
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
-	vec3 norm = normalize(normal_matrix * normal);
 
 	vec4 col = vec4(0,0,0,1);
 

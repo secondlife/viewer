@@ -23,20 +23,17 @@
  * $/LicenseInfo$
  */
  
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
+out vec4 frag_data[4];
 
 uniform vec4 color;
 uniform sampler2D diffuseMap;
 
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 void main() 
 {
-	frag_data[0] = color*texture2D(diffuseMap, vary_texcoord0.xy);
+	frag_data[0] = color*texture(diffuseMap, vary_texcoord0.xy);
 	frag_data[1] = vec4(0.0);
-	frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
+	frag_data[2] = vec4(0.0, 1.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
+    frag_data[3] = vec4(0);
 }

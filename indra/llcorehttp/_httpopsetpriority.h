@@ -27,7 +27,7 @@
 #ifndef	_LLCORE_HTTP_SETPRIORITY_H_
 #define	_LLCORE_HTTP_SETPRIORITY_H_
 
-
+#if 0 // DEPRECATED
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "_httpoperation.h"
@@ -49,7 +49,7 @@ namespace LLCore
 class HttpOpSetPriority : public HttpOperation
 {
 public:
-	HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority);
+	HttpOpSetPriority(HttpHandle handle);
 
 	virtual ~HttpOpSetPriority();
 
@@ -63,10 +63,10 @@ public:
 protected:
 	// Request Data
 	HttpHandle					mHandle;
-	HttpRequest::priority_t		mPriority;
 }; // end class HttpOpSetPriority
 
 }  // end namespace LLCore
+#endif
 
 #endif	// _LLCORE_HTTP_SETPRIORITY_H_
 

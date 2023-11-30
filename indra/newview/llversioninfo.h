@@ -61,7 +61,7 @@ public:
 	S32 getPatch();
 
 	/// return the build number as an integer
-	S32 getBuild();
+	U64 getBuild();
 
 	/// return the full viewer version as a string like "2.0.0.200030"
 	std::string getVersion();

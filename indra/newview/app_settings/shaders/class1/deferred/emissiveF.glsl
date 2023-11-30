@@ -23,31 +23,17 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-vec3 fullbrightAtmosTransport(vec3 light);
-vec3 fullbrightScaleSoftClip(vec3 light);
-
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 void main() 
 {
-	float shadow = 1.0;
-
-	vec4 color = diffuseLookup(vary_texcoord0.xy)*vertex_color;
-	color.rgb = fullbrightAtmosTransport(color.rgb);
-
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
-
-	frag_color = color;
+    // NOTE: when this shader is used, only alpha is being written to
+	float a = diffuseLookup(vary_texcoord0.xy).a*vertex_color.a;
+	frag_color = vec4(0, 0, 0, a);
 }
 

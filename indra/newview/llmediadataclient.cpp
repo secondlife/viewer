@@ -354,7 +354,7 @@ void LLMediaDataClient::serviceQueue()
 		
 		// and make the post
         LLCore::HttpHandler::ptr_t handler = request->createHandler();
-        LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, mHttpPolicy, 0,
+        LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, mHttpPolicy,
             url, sd_payload, mHttpOpts, mHttpHeaders, handler);
 
         if (handle == LLCORE_HTTP_HANDLE_INVALID)

@@ -1603,19 +1603,18 @@ namespace LLError
     }
 }
 
-bool debugLoggingEnabled(const std::string& tag)
+void crashdriver(void (*callback)(int*))
 {
-    LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
-    if (!lock.isLocked())
-    {
-        return false;
-    }
+    // The LLERROR_CRASH macro used to have inline code of the form:
+    //int* make_me_crash = NULL;
+    //*make_me_crash = 0;
 
-    SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-    LLError::ELevel level = LLError::LEVEL_DEBUG;
-    bool res = checkLevelMap(s->mTagLevelMap, tag, level);
-    return res;
+    // But compilers are getting smart enough to recognize that, so we must
+    // assign to an address supplied by a separate source file. We could do
+    // the assignment here in crashdriver() -- but then BugSplat would group
+    // all LL_ERRS() crashes as the fault of this one function, instead of
+    // identifying the specific LL_ERRS() source line. So instead, do the
+    // assignment in a lambda in the caller's source. We just provide the
+    // nullptr target.
+    callback(nullptr);
 }
-
-
-

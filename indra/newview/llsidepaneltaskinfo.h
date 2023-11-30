@@ -162,6 +162,8 @@ private:
     LLUICtrl*   mDAE;
     LLUICtrl*   mDAN;
     LLUICtrl*   mDAF;
+
+    boost::signals2::connection mSelectionUpdateSlot;
 };
 
 

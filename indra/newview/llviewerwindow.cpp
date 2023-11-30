@@ -228,6 +228,7 @@ extern BOOL gDebugClicks;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDepthDirty;
 extern BOOL gResizeScreenTexture;
+extern BOOL gCubeSnapshot;
 
 LLViewerWindow	*gViewerWindow = NULL;
 
@@ -495,23 +496,11 @@ public:
 		
 		if (gSavedSettings.getBOOL("DebugShowTime"))
 		{
-			{
-			const U32 y_inc2 = 15;
-				LLFrameTimer& timer = gTextureTimer;
-				F32 time = timer.getElapsedTimeF32();
-				S32 hours = (S32)(time / (60*60));
-				S32 mins = (S32)((time - hours*(60*60)) / 60);
-				S32 secs = (S32)((time - hours*(60*60) - mins*60));
-				addText(xpos, ypos, llformat("Texture: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc2;
-			}
-			
-			{
 			F32 time = gFrameTimeSeconds;
 			S32 hours = (S32)(time / (60*60));
 			S32 mins = (S32)((time - hours*(60*60)) / 60);
 			S32 secs = (S32)((time - hours*(60*60) - mins*60));
 			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
-		}
 		}
 		
 		if (gSavedSettings.getBOOL("DebugShowMemory"))
@@ -611,29 +600,6 @@ public:
 		{
 			LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
 
-			if (gGLManager.mHasATIMemInfo)
-			{
-				S32 meminfo[4];
-				glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-
-				addText(xpos, ypos, llformat("%.2f MB Texture Memory Free", meminfo[0]/1024.f));
-				ypos += y_inc;
-
-				if (gGLManager.mHasVertexBufferObject)
-				{
-					glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, meminfo);
-					addText(xpos, ypos, llformat("%.2f MB VBO Memory Free", meminfo[0]/1024.f));
-					ypos += y_inc;
-				}
-			}
-			else if (gGLManager.mHasNVXMemInfo)
-			{
-				S32 free_memory;
-				glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
-				addText(xpos, ypos, llformat("%.2f MB Video Memory Free", free_memory/1024.f));
-				ypos += y_inc;
-			}
-
 			//show streaming cost/triangle count of known prims in current region OR selection
 			{
 				F32 cost = 0.f;
@@ -692,24 +658,6 @@ public:
 				ypos += y_inc;
 			
 			}
-
-			addText(xpos, ypos, llformat("%d MB Index Data (%d MB Pooled, %d KIndices)", LLVertexBuffer::sAllocatedIndexBytes/(1024*1024), LLVBOPool::sIndexBytesPooled/(1024*1024), LLVertexBuffer::sIndexCount/1024));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled, %d KVerts)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024), LLVertexBuffer::sVertexCount/1024));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Mapped Buffers", LLVertexBuffer::sMappedCount));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Vertex Buffer Binds", LLVertexBuffer::sBindCount));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Vertex Buffer Sets", LLVertexBuffer::sSetCount));
-			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Texture Binds", LLImageGL::sBindCount));
 			ypos += y_inc;
@@ -785,9 +733,7 @@ public:
 				ypos += y_inc;
 			}
 
-			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
-				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
-				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
+            gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
 		}
 		if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
 		{
@@ -1915,6 +1861,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	U32 fsaa_samples)
 	*/
 	// create window
+
+    U32 max_core_count = gSavedSettings.getU32("EmulateCoreCount");
+    U32 max_vram = gSavedSettings.getU32("RenderMaxVRAMBudget");
+    F32 max_gl_version = gSavedSettings.getF32("RenderMaxOpenGLVersion");
+    
 	mWindow = LLWindowManager::createWindow(this,
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
 		p.fullscreen, 
@@ -1922,7 +1873,10 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		gSavedSettings.getBOOL("RenderVSyncEnable"),
 		!gHeadlessClient,
 		p.ignore_pixel_depth,
-		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
+		0,
+        max_core_count,
+        max_vram,
+        max_gl_version); //don't use window level anti-aliasing
 
 	if (NULL == mWindow)
 	{
@@ -2001,12 +1955,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LL_DEBUGS("Window") << "Loading feature tables." << LL_ENDL;
 
 	// Initialize OpenGL Renderer
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
-		!gGLManager.mHasVertexBufferObject)
-	{
-		gSavedSettings.setBOOL("RenderVBOEnable", FALSE);
-	}
-	LLVertexBuffer::initClass(gSavedSettings.getBOOL("RenderVBOEnable"), gSavedSettings.getBOOL("RenderVBOMappingDisable"));
+	LLVertexBuffer::initClass(mWindow);
 	LL_INFOS("RenderInit") << "LLVertexBuffer initialization done." << LL_ENDL ;
 	gGL.init(true);
 
@@ -2019,11 +1968,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
 
-	if (!gGLManager.mHasDepthClamp)
-	{
-		LL_INFOS("RenderInit") << "Missing feature GL_ARB_depth_clamp. Void water might disappear in rare cases." << LL_ENDL;
-	}
-	
 	// If we crashed while initializng GL stuff last time, disable certain features
 	if (gSavedSettings.getBOOL("RenderInitError"))
 	{
@@ -2033,8 +1977,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	}
 		
 	// Init the image list.  Must happen after GL is initialized and before the images that
-	// LLViewerWindow needs are requested.
-    LLImageGL::initClass(mWindow, LLViewerTexture::MAX_GL_IMAGE_CATEGORY, false, gSavedSettings.getBOOL("RenderGLMultiThreaded"));
+	// LLViewerWindow needs are requested, as well as before LLViewerMedia starts updating images.
+    LLImageGL::initClass(mWindow, LLViewerTexture::MAX_GL_IMAGE_CATEGORY, false, gSavedSettings.getBOOL("RenderGLMultiThreadedTextures"), gSavedSettings.getBOOL("RenderGLMultiThreadedMedia"));
 	gTextureList.init();
 	LLViewerTextureManager::init() ;
 	gBumpImageList.init();
@@ -2684,10 +2628,10 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 
 void LLViewerWindow::drawDebugText()
 {
+    gUIProgram.bind();
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
-	gUIProgram.bind();
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
@@ -2744,6 +2688,7 @@ void LLViewerWindow::draw()
 	// No translation needed, this view is glued to 0,0
 
 	gUIProgram.bind();
+    gGL.color4f(1, 1, 1, 1);
 
 	gGL.pushMatrix();
 	LLUI::pushMatrix();
@@ -3400,7 +3345,7 @@ void LLViewerWindow::updateUI()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
 	{
 		gDebugRaycastFaceHit = -1;
-		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE,
+		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE, TRUE, FALSE,
 											  &gDebugRaycastFaceHit,
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
@@ -4275,17 +4220,18 @@ void LLViewerWindow::pickAsync( S32 x,
 								void (*callback)(const LLPickInfo& info),
 								BOOL pick_transparent,
 								BOOL pick_rigged,
-								BOOL pick_unselectable)
+								BOOL pick_unselectable,
+                                BOOL pick_reflection_probes)
 {
-	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
-	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
-	{
-		// build mode allows interaction with all transparent objects
-		// "Show Debug Alpha" means no object actually transparent
-		pick_transparent = TRUE;
-	}
+	// "Show Debug Alpha" means no object actually transparent
+    BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
+    if (LLDrawPoolAlpha::sShowDebugAlpha
+        || (in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")))
+    {
+        pick_transparent = TRUE;
+    }
 
-	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, TRUE, pick_unselectable, callback);
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, pick_reflection_probes, pick_unselectable, TRUE, callback);
 	schedulePick(pick_info);
 }
 
@@ -4341,10 +4287,10 @@ void LLViewerWindow::returnEmptyPicks()
 }
 
 // Performs the GL object/land pick.
-LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_particle)
+LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_particle, BOOL pick_unselectable, BOOL pick_reflection_probe)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
-	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
+	if ((in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")) || LLDrawPoolAlpha::sShowDebugAlpha)
 	{
 		// build mode allows interaction with all transparent objects
 		// "Show Debug Alpha" means no object actually transparent
@@ -4353,7 +4299,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transp
 	
 	// shortcut queueing in mPicks and just update mLastPick in place
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
-	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_rigged, pick_particle, TRUE, FALSE, NULL);
+	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_rigged, pick_particle, pick_reflection_probe, TRUE, FALSE, NULL);
 	mLastPick.fetchResults();
 
 	return mLastPick;
@@ -4390,6 +4336,8 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												S32 this_face,
 												BOOL pick_transparent,
 												BOOL pick_rigged,
+                                                BOOL pick_unselectable,
+                                                BOOL pick_reflection_probe,
 												S32* face_hit,
 												LLVector4a *intersection,
 												LLVector2 *uv,
@@ -4460,7 +4408,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	{
 		if (this_object->isHUDAttachment()) // is a HUD object?
 		{
-			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent, pick_rigged,
+			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent, pick_rigged, pick_unselectable,
 												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
@@ -4468,7 +4416,8 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 		}
 		else // is a world object
 		{
-			if (this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent, pick_rigged,
+            if ((pick_reflection_probe || !this_object->isReflectionProbe())
+                && this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent, pick_rigged, pick_unselectable,
 												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
@@ -4482,7 +4431,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 
 		if (!found) // if not found in HUD, look in world:
 		{
-			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent, pick_rigged,
+			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe,
 														  face_hit, intersection, uv, normal, tangent);
 			if (found && !pick_transparent)
 			{
@@ -4740,8 +4689,8 @@ void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 		else
 			pick_type = LLFilePicker::FFSAVE_ALL;
 
-		(new LLFilePickerReplyThread(boost::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
-										boost::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb)))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
+										boost::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb));
 	}
 	else
 	{
@@ -4955,7 +4904,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// PRE SNAPSHOT
 	gDisplaySwapBuffers = FALSE;
 	
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
 	setCursor(UI_CURSOR_WAIT);
 
 	// Hide all the UI widgets first and draw a frame
@@ -5007,10 +4956,10 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			(image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
 		{
 			U32 color_fmt = type == LLSnapshotModel::SNAPSHOT_TYPE_DEPTH ? GL_DEPTH_COMPONENT : GL_RGBA;
-			if (scratch_space.allocate(image_width, image_height, color_fmt, true, true))
+			if (scratch_space.allocate(image_width, image_height, color_fmt, true))
 			{
-				original_width = gPipeline.mDeferredScreen.getWidth();
-				original_height = gPipeline.mDeferredScreen.getHeight();
+				original_width = gPipeline.mRT->deferredScreen.getWidth();
+				original_height = gPipeline.mRT->deferredScreen.getHeight();
 
 				if (gPipeline.allocateScreenBuffer(image_width, image_height))
 				{
@@ -5088,8 +5037,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 	F32 depth_conversion_factor_1 = (LLViewerCamera::getInstance()->getFar() + LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
 	F32 depth_conversion_factor_2 = (LLViewerCamera::getInstance()->getFar() - LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
-
-	gObjectList.generatePickList(*LLViewerCamera::getInstance());
 
 	// Subimages are in fact partial rendering of the final view. This happens when the final view is bigger than the screen.
 	// In most common cases, scale_factor is 1 and there's no more than 1 iteration on x and y
@@ -5253,9 +5200,10 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
     gDisplaySwapBuffers = FALSE;
 
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
     setCursor(UI_CURSOR_WAIT);
 
     BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
@@ -5264,17 +5212,20 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
         LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     }
 
-    LLPipeline::sShowHUDAttachments = FALSE;
+    BOOL hide_hud = LLPipeline::sShowHUDAttachments;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = FALSE;
+	}
+
     LLRect window_rect = getWorldViewRectRaw();
 
-    S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mDeferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
-    S32 original_height = LLPipeline::sRenderDeferred ? gPipeline.mDeferredScreen.getHeight() : gViewerWindow->getWorldViewHeightRaw();
+    S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
+    S32 original_height = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getHeight() : gViewerWindow->getWorldViewHeightRaw();
 
     LLRenderTarget scratch_space;
     U32 color_fmt = GL_RGBA;
-    const bool use_depth_buffer = true;
-    const bool use_stencil_buffer = true;
-    if (scratch_space.allocate(image_width, image_height, color_fmt, use_depth_buffer, use_stencil_buffer))
+    if (scratch_space.allocate(image_width, image_height, color_fmt, true))
     {
         if (gPipeline.allocateScreenBuffer(image_width, image_height))
         {
@@ -5336,7 +5287,10 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
         }
     }
 
-    LLPipeline::sShowHUDAttachments = TRUE;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = TRUE;
+	}
 
     setCursor(UI_CURSOR_ARROW);
 
@@ -5346,6 +5300,157 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
     scratch_space.release();
     gPipeline.allocateScreenBuffer(original_width, original_height);
 
+    return true;
+}
+
+void display_cube_face();
+
+BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render)
+{
+    // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
+    LL_PROFILE_GPU_ZONE("cubeSnapshot");
+    llassert(LLPipeline::sRenderDeferred);
+    llassert(!gCubeSnapshot); //assert a snapshot isn't already in progress
+    
+    U32 res = gPipeline.mRT->deferredScreen.getWidth();
+
+    //llassert(res <= gPipeline.mRT->deferredScreen.getWidth());
+    //llassert(res <= gPipeline.mRT->deferredScreen.getHeight());
+
+    // save current view/camera settings so we can restore them afterwards
+    S32 old_occlusion = LLPipeline::sUseOcclusion;
+
+    // set new parameters specific to the 360 requirements
+    LLPipeline::sUseOcclusion = 0;
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    
+    LLViewerCamera saved_camera = LLViewerCamera::instance();
+    glh::matrix4f saved_proj = get_current_projection();
+    glh::matrix4f saved_mod = get_current_modelview();
+
+    // camera constants for the square, cube map capture image
+    camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
+    camera->setViewNoBroadcast(F_PI_BY_TWO);
+    camera->yaw(0.0);
+    camera->setOrigin(origin);
+    camera->setNear(near_clip);
+
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
+    
+    U32 dynamic_render_types[] = {
+        LLPipeline::RENDER_TYPE_AVATAR,
+        LLPipeline::RENDER_TYPE_CONTROL_AV,
+        LLPipeline::RENDER_TYPE_PARTICLES
+    };
+    constexpr U32 dynamic_render_type_count = sizeof(dynamic_render_types) / sizeof(U32);
+    bool prev_dynamic_render_type[dynamic_render_type_count];
+
+    
+    if (!dynamic_render)
+    {
+        for (int i = 0; i < dynamic_render_type_count; ++i)
+        {
+            prev_dynamic_render_type[i] = gPipeline.hasRenderType(dynamic_render_types[i]);
+            if (prev_dynamic_render_type[i])
+            {
+                gPipeline.toggleRenderType(dynamic_render_types[i]);
+            }
+        }
+    }
+
+    BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
+    if (prev_draw_ui != false)
+    {
+        LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+    }
+    
+    BOOL hide_hud = LLPipeline::sShowHUDAttachments;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = FALSE;
+	}
+    LLRect window_rect = getWorldViewRectRaw();
+
+    mWorldViewRectRaw.set(0, res, res, 0);
+
+    // these are the 6 directions we will point the camera, see LLCubeMapArray::sTargets
+    LLVector3 look_dirs[6] = {
+        LLVector3(1, 0, 0),
+        LLVector3(-1, 0, 0),
+        LLVector3(0, 1, 0),
+        LLVector3(0, -1, 0),
+        LLVector3(0, 0, 1),
+        LLVector3(0, 0, -1)
+    };
+
+    LLVector3 look_upvecs[6] = {
+        LLVector3(0, -1, 0),
+        LLVector3(0, -1, 0),
+        LLVector3(0, 0, 1),
+        LLVector3(0, 0, -1),
+        LLVector3(0, -1, 0),
+        LLVector3(0, -1, 0)
+    };
+
+    // for each of six sides of cubemap
+    //for (int i = 0; i < 6; ++i)
+    int i = face;
+    {
+        // set up camera to look in each direction
+        camera->lookDir(look_dirs[i], look_upvecs[i]);
+
+        // turning this flag off here prohibits the screen swap
+        // to present the new page to the viewer - this stops
+        // the black flash in between captures when the number
+        // of render passes is more than 1. We need to also
+        // set it here because code in LLViewerDisplay resets
+        // it to TRUE each time.
+        gDisplaySwapBuffers = FALSE;
+
+        // actually render the scene
+        gCubeSnapshot = TRUE;
+        display_cube_face();
+        gCubeSnapshot = FALSE;
+    }
+
+    gDisplaySwapBuffers = TRUE;
+
+    if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+    {
+        if (prev_draw_ui != false)
+        {
+            LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+        }
+    }
+
+    if (!dynamic_render)
+    {
+        for (int i = 0; i < dynamic_render_type_count; ++i)
+        {
+            if (prev_dynamic_render_type[i])
+            {
+                gPipeline.toggleRenderType(dynamic_render_types[i]);
+            }
+        }
+    }
+
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = TRUE;
+	}
+
+    gPipeline.resetDrawOrders();
+    mWorldViewRectRaw = window_rect;
+    
+    // restore original view/camera/avatar settings settings
+    *camera = saved_camera;
+    set_current_modelview(saved_mod);
+    set_current_projection(saved_proj);
+    setup3DViewport();
+    LLPipeline::sUseOcclusion = old_occlusion;
+
+    // ====================================================
     return true;
 }
 
@@ -5571,7 +5676,6 @@ void LLViewerWindow::stopGL(BOOL save_state)
 
 		// Pause texture decode threads (will get unpaused during main loop)
 		LLAppViewer::getTextureCache()->pause();
-		LLAppViewer::getImageDecodeThread()->pause();
 		LLAppViewer::getTextureFetch()->pause();
 				
 		gSky.destroyGL();
@@ -5618,8 +5722,6 @@ void LLViewerWindow::stopGL(BOOL save_state)
 			LLGLSLShader* shader = *(LLGLSLShader::sInstances.begin());
 			shader->unload();
 		}
-		
-		LL_INFOS() << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemory.value() << " bytes" << LL_ENDL;
 	}
 }
 
@@ -5645,7 +5747,6 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 				
 		gSky.restoreGL();
 		gPipeline.restoreGL();
-		LLDrawPoolWater::restoreGL();
 		LLManipTranslate::restoreGL();
 		
 		gBumpImageList.restoreGL();
@@ -5988,30 +6089,32 @@ LLPickInfo::LLPickInfo()
 {
 }
 
-LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos, 
-		       MASK keyboard_mask, 
-		       BOOL pick_transparent,
-			   BOOL pick_rigged,
-			   BOOL pick_particle,
-		       BOOL pick_uv_coords,
-			   BOOL pick_unselectable,
-		       void (*pick_callback)(const LLPickInfo& pick_info))
-	: mMousePt(mouse_pos),
-	  mKeyMask(keyboard_mask),
-	  mPickCallback(pick_callback),
-	  mPickType(PICK_INVALID),
-	  mWantSurfaceInfo(pick_uv_coords),
-	  mObjectFace(-1),
-	  mUVCoords(-1.f, -1.f),
-	  mSTCoords(-1.f, -1.f),
-	  mXYCoords(-1, -1),
-	  mNormal(),
-	  mTangent(),
-	  mBinormal(),
-	  mHUDIcon(NULL),
-	  mPickTransparent(pick_transparent),
-	  mPickRigged(pick_rigged),
-	  mPickParticle(pick_particle),
+LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
+    MASK keyboard_mask,
+    BOOL pick_transparent,
+    BOOL pick_rigged,
+    BOOL pick_particle,
+    BOOL pick_reflection_probe,
+    BOOL pick_uv_coords,
+    BOOL pick_unselectable,
+    void (*pick_callback)(const LLPickInfo& pick_info))
+    : mMousePt(mouse_pos),
+    mKeyMask(keyboard_mask),
+    mPickCallback(pick_callback),
+    mPickType(PICK_INVALID),
+    mWantSurfaceInfo(pick_uv_coords),
+    mObjectFace(-1),
+    mUVCoords(-1.f, -1.f),
+    mSTCoords(-1.f, -1.f),
+    mXYCoords(-1, -1),
+    mNormal(),
+    mTangent(),
+    mBinormal(),
+    mHUDIcon(NULL),
+    mPickTransparent(pick_transparent),
+    mPickRigged(pick_rigged),
+    mPickParticle(pick_particle),
+    mPickReflectionProbe(pick_reflection_probe),
 	  mPickUnselectable(pick_unselectable)
 {
 }
@@ -6042,7 +6145,7 @@ void LLPickInfo::fetchResults()
 	}
 
 	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(mMousePt.mX, mMousePt.mY, 512.f,
-									NULL, -1, mPickTransparent, mPickRigged, &face_hit,
+									NULL, -1, mPickTransparent, mPickRigged, mPickUnselectable, mPickReflectionProbe, &face_hit,
 									&intersection, &uv, &normal, &tangent, &start, &end);
 	
 	mPickPt = mMousePt;
@@ -6187,7 +6290,7 @@ void LLPickInfo::getSurfaceInfo()
 	if (objectp)
 	{
 		if (gViewerWindow->cursorIntersect(ll_round((F32)mMousePt.mX), ll_round((F32)mMousePt.mY), 1024.f,
-										   objectp, -1, mPickTransparent, mPickRigged,
+										   objectp, -1, mPickTransparent, mPickRigged, mPickUnselectable, mPickReflectionProbe,
 										   &mObjectFace,
 										   &intersection,
 										   &mSTCoords,

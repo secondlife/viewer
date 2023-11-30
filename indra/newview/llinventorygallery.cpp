@@ -2406,7 +2406,7 @@ void LLInventoryGallery::startDrag()
             ids.push_back(selected_id);
         }
 
-        const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
+        const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);        
         if (cat && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
             && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
         {
@@ -2420,7 +2420,9 @@ void LLInventoryGallery::startDrag()
             ids.push_back(selected_id);
         }
     }
-    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, src);
+    // We must have set this for some reason, but it's causing compile errors
+    (void)src;
+    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, LLToolDragAndDrop::SOURCE_AGENT);
 }
 
 bool LLInventoryGallery::areViewsInitialized()

@@ -469,11 +469,11 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & o
 		LLCore::HttpHandle handle;
 		if (offset || length)
 		{
-			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
+			handle = hr->requestGetByteRange(0, buffer, offset, length, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 		}
 		else
 		{
-            handle = hr->requestGet(0, 0, buffer, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
+            handle = hr->requestGet(0, buffer, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 		}
 		if (! handle)
 		{

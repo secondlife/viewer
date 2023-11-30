@@ -23,14 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
@@ -43,6 +39,6 @@ void default_lighting()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

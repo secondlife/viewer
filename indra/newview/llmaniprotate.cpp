@@ -118,7 +118,6 @@ void LLManipRotate::render()
 	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 	LLGLDepthTest gls_depth(GL_TRUE);
 	LLGLEnable gl_blend(GL_BLEND);
-	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
 	
 	// You can rotate if you can move
 	LLViewerObject* first_object = mObjectSelection->getFirstMoveableObject(TRUE);
@@ -277,7 +276,7 @@ void LLManipRotate::render()
 			LLGLEnable cull_face(GL_CULL_FACE);
 			LLGLEnable clip_plane0(GL_CLIP_PLANE0);
 			LLGLDepthTest gls_depth(GL_FALSE);
-			LLGLDisable gls_stencil(GL_STENCIL_TEST);
+			//LLGLDisable gls_stencil(GL_STENCIL_TEST);
 
 			// First pass: centers. Second pass: sides.
 			for( S32 i=0; i<2; i++ )
@@ -1715,6 +1714,7 @@ LLVector3 LLManipRotate::intersectRayWithSphere( const LLVector3& ray_pt, const 
 }
 
 // Utility function.  Should probably be moved to another class.
+// x,y - mouse position in scaled window coordinates (NOT GL viewport coordinates)
 //static
 void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_dir )
 {
@@ -1728,10 +1728,8 @@ void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_
 	}
 	else
 	{
-		*ray_pt = gAgentCamera.getCameraPositionAgent();
-		LLViewerCamera::getInstance()->projectScreenToPosAgent(x, y, ray_dir);
-		*ray_dir -= *ray_pt;
-		ray_dir->normVec();
+    	*ray_pt = gAgentCamera.getCameraPositionAgent();
+        *ray_dir = gViewerWindow->mouseDirectionGlobal(x, y);
 	}
 }
 

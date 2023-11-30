@@ -52,16 +52,23 @@ class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
 public:
+
+    // Get an estimate of how many bytes have been allocated in vram for textures.
+    // Does not include mipmaps.
+    // NOTE: multiplying this number by two gives a good estimate for total
+    // video memory usage based on testing in lagland against an NVIDIA GPU.
+    static U64 getTextureBytesAllocated();
+
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
 	static void generateTextures(S32 numTextures, U32 *textures);
 	static void deleteTextures(S32 numTextures, const U32 *textures);
 
 	// Size calculation
 	static S32 dataFormatBits(S32 dataformat);
-	static S32 dataFormatBytes(S32 dataformat, S32 width, S32 height);
+	static S64 dataFormatBytes(S32 dataformat, S32 width, S32 height);
 	static S32 dataFormatComponents(S32 dataformat);
 
-	BOOL updateBindStats(S32Bytes tex_mem) const ;
+	BOOL updateBindStats() const ;
 	F32 getTimePassedSinceLastBound();
 	void forceUpdateBindStats(void) const;
 
@@ -73,9 +80,6 @@ public:
 	static void restoreGL();
 	static void dirtyTexOptions();
 
-	// Sometimes called externally for textures not using LLImageGL (should go away...)	
-	static S32 updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category) ;
-	
 	static bool checkSize(S32 width, S32 height);
 
 	//for server side use only.
@@ -114,6 +118,9 @@ public:
 	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 	void setImage(const LLImageRaw* imageraw);
 	BOOL setImage(const U8* data_in, BOOL data_hasmips = FALSE, S32 usename = 0);
+    // *TODO: This function may not work if the textures is compressed (i.e.
+    // RenderCompressTextures is 0). Partial image updates do not work on
+    // compressed textures.
 	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
 	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
 	BOOL setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
@@ -138,8 +145,8 @@ public:
 	S32	 getWidth(S32 discard_level = -1) const;
 	S32	 getHeight(S32 discard_level = -1) const;
 	U8	 getComponents() const { return mComponents; }
-	S32  getBytes(S32 discard_level = -1) const;
-	S32  getMipBytes(S32 discard_level = -1) const;
+	S64  getBytes(S32 discard_level = -1) const;
+	S64  getMipBytes(S32 discard_level = -1) const;
 	BOOL getBoundRecently() const;
 	BOOL isJustBound() const;
 	BOOL getHasExplicitFormat() const { return mHasExplicitFormat; }
@@ -161,11 +168,11 @@ public:
 
 	BOOL getUseMipMaps() const { return mUseMipMaps; }
 	void setUseMipMaps(BOOL usemips) { mUseMipMaps = usemips; }	
-
+    void setHasMipMaps(BOOL hasmips) { mHasMipMaps = hasmips; }
 	void updatePickMask(S32 width, S32 height, const U8* data_in);
 	BOOL getMask(const LLVector2 &tc);
 
-	void checkTexSize(bool forced = false) const ;
+    void checkTexSize(bool forced = false) const ;
 	
 	// Sets the addressing mode used to sample the texture 
 	//  (such as wrapping, mirrored wrapping, and clamp)
@@ -201,12 +208,13 @@ public:
 
 public:
 	// Various GL/Rendering options
-	S32Bytes mTextureMemory;
+	S64Bytes mTextureMemory;
 	mutable F32  mLastBindTime;	// last time this was bound, by discard level
 	
 private:
 	U32 createPickMask(S32 pWidth, S32 pHeight);
 	void freePickMask();
+    bool isCompressed();
 
 	LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
 	LL::WorkQueue::weak_t mMainQueue;
@@ -215,7 +223,7 @@ private:
 	U16 mPickMaskHeight;
 	S8 mUseMipMaps;
 	BOOL mHasExplicitFormat; // If false (default), GL format is f(mComponents)
-	S8 mAutoGenMips;
+	bool mAutoGenMips = false;
 
 	BOOL mIsMask;
 	BOOL mNeedsAlphaAndPickMask;
@@ -265,9 +273,6 @@ public:
 	static F32 sLastFrameTime;
 
 	// Global memory statistics
-	static S32Bytes sGlobalTextureMemory;	// Tracks main memory texmem
-	static S32Bytes sBoundTextureMemory;	// Tracks bound texmem for last completed frame
-	static S32Bytes sCurBoundTextureMemory;		// Tracks bound texmem for current frame
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
@@ -282,7 +287,7 @@ public:
 #endif
 
 public:
-	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false, bool multi_threaded = false); 
+	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
 	static void cleanupClass() ;
 
 private:
@@ -324,33 +329,26 @@ public:
 class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool
 {
 public:
-    // follows gSavedSettings "RenderGLMultiThreaded"
-    static bool sEnabled;
+    // follows gSavedSettings "RenderGLMultiThreadedTextures"
+    static bool sEnabledTextures;
+    // follows gSavedSettings "RenderGLMultiThreadedMedia"
+    static bool sEnabledMedia;
     
-    // app should call this function periodically
-    static void updateClass();
-
-    // free video memory in megabytes
-    static std::atomic<S32> sFreeVRAMMegabytes;
-
     LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread
     template <typename CALLABLE>
     bool post(CALLABLE&& func)
     {
-        return getQueue().postIfOpen(std::forward<CALLABLE>(func));
+        return getQueue().post(std::forward<CALLABLE>(func));
     }
 
     void run() override;
-
-    static S32 getFreeVRAMMegabytes();
 
 private:
     LLWindow* mWindow;
     void* mContext = nullptr;
     LLAtomicBool mFinished;
 };
-
 
 #endif // LL_LLIMAGEGL_H

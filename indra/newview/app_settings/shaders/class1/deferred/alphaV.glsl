@@ -33,19 +33,19 @@ uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 #ifdef USE_INDEXED_TEX
 void passTextureIndex();
 #endif
 
-ATTRIBUTE vec3 normal;
+in vec3 normal;
 
 #ifdef USE_VERTEX_COLOR
-ATTRIBUTE vec4 diffuse_color;
+in vec4 diffuse_color;
 #endif
 
-ATTRIBUTE vec2 texcoord0;
+in vec2 texcoord0;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
@@ -55,15 +55,15 @@ mat4 getSkinnedTransform();
 #endif
 #endif
 
-VARYING vec3 vary_fragcoord;
-VARYING vec3 vary_position;
+out vec3 vary_fragcoord;
+out vec3 vary_position;
 
 #ifdef USE_VERTEX_COLOR
-VARYING vec4 vertex_color;
+out vec4 vertex_color;
 #endif
 
-VARYING vec2 vary_texcoord0;
-VARYING vec3 vary_norm;
+out vec2 vary_texcoord0;
+out vec3 vary_norm;
 
 uniform float near_clip;
 

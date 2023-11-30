@@ -147,6 +147,7 @@ LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
 	mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
 	mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
+    mInventoryItemsDict["New Material"] = LLTrans::getString("New Material");
 	mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 	mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
 	mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
@@ -1034,6 +1035,21 @@ void create_notecard_cb(const LLUUID& inv_item)
 	}
 }
 
+void create_gltf_material_cb(const LLUUID& inv_item)
+{
+    if (!inv_item.isNull())
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+        if (item)
+        {
+            set_default_permissions(item, "Materials");
+
+            gInventory.updateItem(item);
+            gInventory.notifyObservers();
+        }
+    }
+}
+
 LLInventoryCallbackManager gInventoryCallbacks;
 
 void create_inventory_item(
@@ -1642,6 +1658,67 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
     }
 }
 
+void move_or_copy_inventory_from_object(const LLUUID& destination_id,
+                                        const LLUUID& object_id,
+                                        const LLUUID& item_id,
+                                        LLPointer<LLInventoryCallback> cb)
+{
+    LLViewerObject* object = gObjectList.findObject(object_id);
+    if (!object)
+    {
+        return;
+    }
+    const LLInventoryItem* item = object->getInventoryItem(item_id);
+    if (!item)
+    {
+        return;
+    }
+
+    class LLItemAddedObserver : public LLInventoryObserver
+    {
+    public:
+        LLItemAddedObserver(const LLUUID& copied_asset_id, LLPointer<LLInventoryCallback> cb)
+        : LLInventoryObserver(),
+          mAssetId(copied_asset_id),
+          mCallback(cb)
+        {
+        }
+
+        void changed(U32 mask) override
+        {
+            if((mask & (LLInventoryObserver::ADD)) == 0)
+            {
+                return;
+            }
+            for (const LLUUID& changed_id : gInventory.getChangedIDs())
+            {
+                LLViewerInventoryItem* changed_item = gInventory.getItem(changed_id);
+                if (changed_item->getAssetUUID() == mAssetId)
+                {
+                    changeComplete(changed_item->getUUID());
+                    return;
+                }
+            }
+        }
+
+    private:
+        void changeComplete(const LLUUID& item_id)
+        {
+			mCallback->fire(item_id);
+            gInventory.removeObserver(this);
+            delete this;
+        }
+
+        LLUUID mAssetId;
+        LLPointer<LLInventoryCallback> mCallback;
+    };
+
+	const LLUUID& asset_id = item->getAssetUUID();
+    LLItemAddedObserver* observer = new LLItemAddedObserver(asset_id, cb);
+    gInventory.addObserver(observer);
+    object->moveInventory(destination_id, item_id);
+}
+
 void create_new_item(const std::string& name,
 				   const LLUUID& parent_id,
 				   LLAssetType::EType asset_type,
@@ -1678,6 +1755,12 @@ void create_new_item(const std::string& name,
 			break;
 		}
 
+        case LLInventoryType::IT_MATERIAL:
+        {
+            cb = new LLBoostFuncInventoryCallback(create_gltf_material_cb);
+            next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            break;
+        }
         default:
         {
             cb = new LLBoostFuncInventoryCallback();
@@ -1735,6 +1818,7 @@ void remove_folder_contents(const LLUUID& category, bool keep_outfit_links,
 const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not)
 const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably not)
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
+const std::string NEW_MATERIAL_NAME = "New Material"; // *TODO:Translate? (probably not)
 
 // ! REFACTOR ! Really need to refactor this so that it's not a bunch of if-then statements...
 void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
@@ -1818,6 +1902,16 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                       LLInventoryType::IT_GESTURE,
                       PERM_ALL,
                       created_cb);    // overridden in create_new_item
+    }
+    else if ("material" == type_name)
+    {
+        const LLUUID parent_id = dest_id.notNull() ? dest_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+        create_new_item(NEW_MATERIAL_NAME,
+            parent_id,
+            LLAssetType::AT_MATERIAL,
+            LLInventoryType::IT_MATERIAL,
+            PERM_ALL,
+            created_cb);	// overridden in create_new_item
     }
     else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
     {

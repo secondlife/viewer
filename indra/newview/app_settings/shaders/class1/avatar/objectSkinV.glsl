@@ -22,7 +22,7 @@
  * $/LicenseInfo$
  */
 
-ATTRIBUTE vec4 weight4;  
+in vec4 weight4;  
 
 uniform mat3x4 matrixPalette[MAX_JOINTS_PER_MESH_OBJECT];
 

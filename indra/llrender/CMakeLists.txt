@@ -12,13 +12,13 @@ include(LLWindow)
 set(llrender_SOURCE_FILES
     llatmosphere.cpp
     llcubemap.cpp
+    llcubemaparray.cpp
     llfontbitmapcache.cpp
     llfontfreetype.cpp
     llfontfreetypesvg.cpp
     llfontgl.cpp
     llfontregistry.cpp
     llgl.cpp
-    llgldbg.cpp
     llglslshader.cpp
     llgltexture.cpp
     llimagegl.cpp
@@ -41,13 +41,13 @@ set(llrender_HEADER_FILES
 
     llatmosphere.h
     llcubemap.h
+    llcubemaparray.h
     llfontgl.h
     llfontfreetype.h
     llfontfreetypesvg.h
     llfontbitmapcache.h
     llfontregistry.h
     llgl.h
-    llgldbg.h
     llglheaders.h
     llglslshader.h
     llglstates.h

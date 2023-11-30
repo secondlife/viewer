@@ -44,6 +44,8 @@
 #include "llmatrix4a.h"
 #include "glh/glh_linear.h"
 
+#include <array>
+
 class LLVertexBuffer;
 class LLCubeMap;
 class LLImageGL;
@@ -52,7 +54,10 @@ class LLTexture ;
 
 #define LL_MATRIX_STACK_DEPTH 32
 
-class LLTexUnit
+constexpr U32 LL_NUM_TEXTURE_LAYERS = 32;
+constexpr U32 LL_NUM_LIGHT_UNITS = 8;
+
+class LLTexUnit 
 {
 	friend class LLRender;
 public:
@@ -63,6 +68,7 @@ public:
 		TT_TEXTURE = 0,			// Standard 2D Texture
 		TT_RECT_TEXTURE,	    // Non power of 2 texture
 		TT_CUBE_MAP,		    // 6-sided cube map texture
+        TT_CUBE_MAP_ARRAY,	    // Array of cube maps
 		TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample
         TT_TEXTURE_3D,          // standard 3D Texture
 		TT_NONE, 		        // No texture type is currently enabled        
@@ -82,6 +88,13 @@ public:
 		TFO_TRILINEAR,			// Equal to: min=linear, mag=linear, mip=linear.
 		TFO_ANISOTROPIC			// Equal to: min=anisotropic, max=anisotropic, mip=linear.
 	} eTextureFilterOptions;
+
+	typedef enum
+	{
+		TMG_NONE = 0,			// Mipmaps are not automatically generated for this texture.
+		TMG_AUTO,				// Mipmaps are automatically generated for this texture.
+		TMG_MANUAL				// Mipmaps are manually generated for this texture.
+	} eTextureMipGeneration;
 
 	typedef enum 
 	{
@@ -134,7 +147,7 @@ public:
         TCS_SRGB
     } eTextureColorSpace;
 
-	LLTexUnit(S32 index);
+	LLTexUnit(S32 index = -1);
 
 	// Refreshes renderer state of the texture unit to the cached values
 	// Needed when the render context has changed and invalidated the current state
@@ -211,7 +224,9 @@ public:
     eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
 
 protected:
-	const S32			mIndex;
+    friend class LLRender;
+
+	S32		        	mIndex;
 	U32					mCurrTexture;
 	eTextureType		mCurrTexType;
     eTextureColorSpace  mTexColorSpace;
@@ -229,7 +244,7 @@ protected:
 class LLLightState
 {
 public:
-	LLLightState(S32 index);
+	LLLightState(S32 index = -1);
 
 	void enable();
 	void disable();
@@ -245,6 +260,8 @@ public:
 	void setSpotCutoff(const F32& cutoff);
 	void setSpotDirection(const LLVector3& direction);
     void setSunPrimary(bool v);
+    void setSize(F32 size);
+    void setFalloff(F32 falloff);
 
 protected:
 	friend class LLRender;
@@ -265,6 +282,8 @@ protected:
 
 	F32 mSpotExponent;
 	F32 mSpotCutoff;
+    F32 mSize = 0.f;
+    F32 mFalloff = 0.f;
 };
 
 class LLRender
@@ -272,7 +291,7 @@ class LLRender
 	friend class LLTexUnit;
 public:
 
-	enum eTexIndex
+	enum eTexIndex : U8
 	{
 		DIFFUSE_MAP           = 0,
         ALTERNATE_DIFFUSE_MAP = 1,
@@ -281,14 +300,15 @@ public:
 		NUM_TEXTURE_CHANNELS  = 3,
 	};
 
-	enum eVolumeTexIndex
+	enum eVolumeTexIndex : U8
 	{
 		LIGHT_TEX = 0,
 		SCULPT_TEX,
 		NUM_VOLUME_TEXTURE_CHANNELS,
 	};
 	
-	typedef enum {
+	enum eGeomModes : U8
+    {
 		TRIANGLES = 0,
 		TRIANGLE_STRIP,
 		TRIANGLE_FAN,
@@ -298,9 +318,9 @@ public:
 		QUADS,
 		LINE_LOOP,
 		NUM_MODES
-	} eGeomModes;
+	};
 
-	typedef enum 
+	enum eCompareFunc : U8
 	{
 		CF_NEVER = 0,
 		CF_ALWAYS,
@@ -311,9 +331,9 @@ public:
 		CF_GREATER_EQUAL,
 		CF_GREATER,
 		CF_DEFAULT
-	}  eCompareFunc;
+	};
 
-	typedef enum 
+	enum eBlendType : U8
 	{
 		BT_ALPHA = 0,
 		BT_ADD,
@@ -322,25 +342,26 @@ public:
 		BT_MULT_ALPHA,
 		BT_MULT_X2,
 		BT_REPLACE
-	} eBlendType;
+	};
 
-	typedef enum 
+    // WARNING:  this MUST match the LL_PART_BF enum in LLPartData, so set values explicitly in case someone 
+    // decides to add more or reorder them
+	enum eBlendFactor : U8
 	{
 		BF_ONE = 0,
-		BF_ZERO,
-		BF_DEST_COLOR,
-		BF_SOURCE_COLOR,
-		BF_ONE_MINUS_DEST_COLOR,
-		BF_ONE_MINUS_SOURCE_COLOR,
-		BF_DEST_ALPHA,
-		BF_SOURCE_ALPHA,
-		BF_ONE_MINUS_DEST_ALPHA,
-		BF_ONE_MINUS_SOURCE_ALPHA,
-
+		BF_ZERO = 1,
+		BF_DEST_COLOR = 2,
+		BF_SOURCE_COLOR = 3,
+		BF_ONE_MINUS_DEST_COLOR = 4,
+		BF_ONE_MINUS_SOURCE_COLOR = 5,
+		BF_DEST_ALPHA = 6,
+		BF_SOURCE_ALPHA = 7,
+		BF_ONE_MINUS_DEST_ALPHA = 8, 
+		BF_ONE_MINUS_SOURCE_ALPHA = 9,
 		BF_UNDEF
-	} eBlendFactor;
+	};
 
-	typedef enum
+	enum eMatrixMode : U8
 	{
 		MM_MODELVIEW = 0,
 		MM_PROJECTION,
@@ -350,7 +371,7 @@ public:
 		MM_TEXTURE3,
 		NUM_MATRIX_MODES,
 		MM_TEXTURE
-	} eMatrixMode;
+	};
 
 	LLRender();
 	~LLRender();
@@ -481,16 +502,14 @@ private:
 	LLStrider<LLVector3>		mVerticesp;
 	LLStrider<LLVector2>		mTexcoordsp;
 	LLStrider<LLColor4U>		mColorsp;
-	std::vector<LLTexUnit*>		mTexUnits;
-	LLTexUnit*			mDummyTexUnit;
-	std::vector<LLLightState*> mLightState;
+	std::array<LLTexUnit, LL_NUM_TEXTURE_LAYERS> mTexUnits;
+	LLTexUnit			mDummyTexUnit;
+	std::array<LLLightState, LL_NUM_LIGHT_UNITS> mLightState;
 
 	eBlendFactor mCurrBlendColorSFactor;
 	eBlendFactor mCurrBlendColorDFactor;
 	eBlendFactor mCurrBlendAlphaSFactor;
 	eBlendFactor mCurrBlendAlphaDFactor;
-
-	F32				mMaxAnisotropy;
 
 	std::vector<LLVector3> mUIOffset;
 	std::vector<LLVector3> mUIScale;
@@ -502,6 +521,8 @@ extern F32 gGLLastModelView[16];
 extern F32 gGLLastProjection[16];
 extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
+extern F32 gGLDeltaModelView[16];
+extern F32 gGLInverseDeltaModelView[16];
 
 extern thread_local LLRender gGL;
 
@@ -526,12 +547,7 @@ glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top,
 glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
 glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
-#if LL_RELEASE_FOR_DOWNLOAD
-    #define LL_SHADER_LOADING_WARNS(...) LL_WARNS_ONCE("ShaderLoading")
-    #define LL_SHADER_UNIFORM_ERRS(...)  LL_WARNS_ONCE("Shader")
-#else
-    #define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
-    #define LL_SHADER_UNIFORM_ERRS(...)  LL_ERRS("Shader")    
-#endif
+#define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
+#define LL_SHADER_UNIFORM_ERRS(...)  LL_ERRS("Shader")
 
 #endif
