@@ -1711,7 +1711,7 @@ bool LLAppViewer::cleanup()
     LLNotifications::instance().clear();
 
 	// workaround for DEV-35406 crash on shutdown
-	LLEventPumps::instance().reset();
+	LLEventPumps::instance().reset(true);
 
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())

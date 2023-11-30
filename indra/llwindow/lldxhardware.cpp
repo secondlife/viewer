@@ -71,7 +71,7 @@ HRESULT GetVideoMemoryViaWMI(WCHAR* strInputDeviceID, DWORD* pdwAdapterRam)
     BSTR pNamespace = nullptr;
 
     *pdwAdapterRam = 0;
-    hrCoInitialize = CoInitialize( 0 );
+    hrCoInitialize = CoInitializeEx(0, COINIT_MULTITHREADED);
 
     hr = CoCreateInstance( CLSID_WbemLocator,
                            nullptr,
@@ -234,7 +234,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 	std::string mDriverVersion;
 	HRESULT hrCoInitialize = S_OK;
 	HRESULT hres;
-	hrCoInitialize = CoInitialize(0);
+	hrCoInitialize = CoInitializeEx(0, COINIT_MULTITHREADED);
 	IWbemLocator *pLoc = NULL;
 
 	hres = CoCreateInstance(
@@ -687,7 +687,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 	BOOL ok = FALSE;
     HRESULT       hr;
 
-    CoInitialize(NULL);
+    CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
     IDxDiagProvider *dx_diag_providerp = NULL;
     IDxDiagContainer *dx_diag_rootp = NULL;
@@ -976,7 +976,7 @@ LLSD LLDXHardware::getDisplayInfo()
 	LLTimer hw_timer;
     HRESULT       hr;
 	LLSD ret;
-    CoInitialize(NULL);
+    CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
     IDxDiagProvider *dx_diag_providerp = NULL;
     IDxDiagContainer *dx_diag_rootp = NULL;

@@ -2810,7 +2810,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             is_movable = can_move_folder_to_marketplace(master_folder, dest_folder, inv_cat, tooltip_msg, bundle_size);
 		}
 
-		if (is_movable)
+		if (is_movable && !move_is_into_landmarks)
 		{
 			LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 			is_movable = active_panel != NULL;

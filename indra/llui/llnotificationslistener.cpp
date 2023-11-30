@@ -149,11 +149,11 @@ void LLNotificationsListener::listChannelNotifications(const LLSD& params) const
     if (channel)
     {
         LLSD notifications(LLSD::emptyArray());
-        for (LLNotificationChannel::Iterator ni(channel->begin()), nend(channel->end());
-             ni != nend; ++ni)
-        {
-            notifications.append(asLLSD(*ni));
-        }
+        std::function<void(LLNotificationPtr)> func = [notifications](LLNotificationPtr ni) mutable
+            {
+                notifications.append(asLLSD(ni));
+            };
+        channel->forEachNotification(func);
         response["notifications"] = notifications;
     }
     LLEventPumps::instance().obtain(params["reply"]).post(response);
