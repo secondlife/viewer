@@ -436,10 +436,10 @@ BOOL LLMaterialEditor::postBuild()
     if (!gAgent.isGodlike())
     {
         // Only allow fully permissive textures
-        mBaseColorTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mMetallicTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mEmissiveTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mNormalTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+        mBaseColorTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mMetallicTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mEmissiveTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mNormalTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
     }
 
     // Texture callback
