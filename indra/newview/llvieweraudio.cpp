@@ -48,6 +48,8 @@
 #include "llstreamingaudio.h"
 
 /////////////////////////////////////////////////////////
+const U32 FMODEX_DECODE_BUFFER_SIZE = 1000; // in milliseconds
+const U32 FMODEX_STREAM_BUFFER_SIZE = 7000; // in milliseconds
 
 LLViewerAudio::LLViewerAudio() :
 	mDone(true),
@@ -116,7 +118,7 @@ void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI
 
 			LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
 			if (stream && stream->supportsAdjustableBufferSizes())
-				stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"), gSavedSettings.getU32("FMODExDecodeBufferSize"));
+				stream->setBufferSizes(FMODEX_STREAM_BUFFER_SIZE, FMODEX_DECODE_BUFFER_SIZE);
 
 			gAudiop->startInternetStream(mNextStreamURI);
 		}
@@ -183,7 +185,7 @@ bool LLViewerAudio::onIdleUpdate()
                     LL_DEBUGS("AudioEngine") << "Audio fade in: " << mNextStreamURI << LL_ENDL;
 					LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
 					if(stream && stream->supportsAdjustableBufferSizes())
-						stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+						stream->setBufferSizes(FMODEX_STREAM_BUFFER_SIZE, FMODEX_DECODE_BUFFER_SIZE);
 
 					gAudiop->startInternetStream(mNextStreamURI);
 				}
@@ -418,12 +420,19 @@ void audio_update_volume(bool force_update)
 
 		gAudiop->setMasterGain ( master_volume );
 
-		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
+        const F32 AUDIO_LEVEL_DOPPLER = 1.f;
+		gAudiop->setDopplerFactor(AUDIO_LEVEL_DOPPLER);
 
-		if(!LLViewerCamera::getInstance()->cameraUnderWater())
-		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+        if(!LLViewerCamera::getInstance()->cameraUnderWater())
+        {
+            const F32 AUDIO_LEVEL_ROLLOFF = 1.f;
+            gAudiop->setRolloffFactor(AUDIO_LEVEL_ROLLOFF);
+        }
 		else
-			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelUnderwaterRolloff"));
+        {
+            const F32 AUDIO_LEVEL_UNDERWATER_ROLLOFF = 5.f;
+            gAudiop->setRolloffFactor(AUDIO_LEVEL_UNDERWATER_ROLLOFF);
+        }
 
 		gAudiop->setMuted(mute_audio || progress_view_visible);
 		
@@ -532,8 +541,8 @@ void audio_update_wind(bool force_update)
         // whereas steady-state avatar walk velocity is only 3.2 m/s.
         // Without this the world feels desolate on first login when you are
         // standing still.
-        static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
-        LLVector3 scaled_wind_vec = gWindVec * wind_level;
+        const F32 WIND_LEVEL = 0.5f;
+        LLVector3 scaled_wind_vec = gWindVec * WIND_LEVEL;
         
         // Mix in the avatar's motion, subtract because when you walk north,
         // the apparent wind moves south.

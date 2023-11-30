@@ -129,12 +129,6 @@ public:
                 const std::string& grid,
                 LLMediaCtrl* web)
 	{
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableWorldMap"))
-		{
-			LLNotificationsUtil::add("NoWorldMap", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
-
 		if (params.size() == 0)
 		{
 			// support the secondlife:///app/worldmap SLapp
@@ -170,12 +164,6 @@ public:
                 const std::string& grid,
                 LLMediaCtrl* web)
 	{
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableWorldMap"))
-		{
-			LLNotificationsUtil::add("NoWorldMap", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
-		
 		//Make sure we have some parameters
 		if (params.size() == 0)
 		{

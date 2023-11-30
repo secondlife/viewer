@@ -95,6 +95,7 @@ LLLineEditor::Params::Params()
 	commit_on_focus_lost("commit_on_focus_lost", true),
 	ignore_tab("ignore_tab", true),
 	is_password("is_password", false),
+	allow_emoji("allow_emoji"),
 	cursor_color("cursor_color"),
 	use_bg_color("use_bg_color", false),
 	bg_color("bg_color"),
@@ -141,6 +142,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mIgnoreArrowKeys( FALSE ),
 	mIgnoreTab( p.ignore_tab ),
 	mDrawAsterixes( p.is_password ),
+	mAllowEmoji( p.allow_emoji ),
 	mSpellCheck( p.spellcheck ),
 	mSpellCheckStart(-1),
 	mSpellCheckEnd(-1),
@@ -413,8 +415,13 @@ void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit
 	all_selected = all_selected || (len == 0 && hasFocus() && mSelectAllonFocusReceived);
 
 	std::string truncated_utf8 = new_text;
+	if (!mAllowEmoji)
+	{
+		// Cut emoji symbols if exist
+        utf8str_remove_emojis(truncated_utf8);
+	}
 	if (use_size_limit && truncated_utf8.size() > (U32)mMaxLengthBytes)
-	{	
+	{
 		truncated_utf8 = utf8str_truncate(new_text, mMaxLengthBytes);
 	}
 	mText.assign(truncated_utf8);
@@ -586,13 +593,21 @@ void LLLineEditor::replaceWithSuggestion(U32 index)
 	{
 		if ( (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
 		{
+			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
+			if (!mAllowEmoji)
+			{
+				// Cut emoji symbols if exist
+				wstring_remove_emojis(suggestion);
+			}
+			if (suggestion.empty())
+				return;
+
 			deselect();
 
 			// Delete the misspelled word
 			mText.erase(it->first, it->second - it->first);
 
 			// Insert the suggestion in its place
-			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			mText.insert(it->first, suggestion);
 			setCursor(it->first + (S32)suggestion.length());
 
@@ -955,9 +970,11 @@ void LLLineEditor::removeChar()
 	}
 }
 
-
 void LLLineEditor::addChar(const llwchar uni_char)
 {
+	if (!mAllowEmoji && LLStringOps::isEmoji(uni_char))
+		return;
+
 	llwchar new_c = uni_char;
 	if (hasSelection())
 	{
@@ -1257,6 +1274,11 @@ void LLLineEditor::pasteHelper(bool is_primary)
 
 		if (!paste.empty())
 		{
+			if (!mAllowEmoji)
+			{
+				wstring_remove_emojis(paste);
+			}
+
 			if (!prevalidateInput(paste))
 				return;
 

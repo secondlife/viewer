@@ -170,8 +170,9 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 
 void	LLScreenChannelBase::updateRect()
 {
+    const S32 CHANNEL_BOTTOM_PANEL_MARGIN = 35;
 	S32 channel_top = getChannelRect().mTop;
-	S32 channel_bottom = getChannelRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_bottom = getChannelRect().mBottom + CHANNEL_BOTTOM_PANEL_MARGIN;
 	S32 channel_left = getRect().mLeft;
 	S32 channel_right = getRect().mRight;
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));

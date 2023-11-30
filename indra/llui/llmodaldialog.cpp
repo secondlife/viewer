@@ -284,10 +284,9 @@ BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask )
 void LLModalDialog::draw()
 {
 	static LLUIColor shadow_color = LLUIColorTable::instance().getColor("ColorDropShadow");
-	static LLUICachedControl<S32> shadow_lines ("DropShadowFloater", 0);
 
 	gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,
-		shadow_color, shadow_lines);
+		shadow_color, DROP_SHADOW_FLOATER);
 
 	LLFloater::draw();
 	

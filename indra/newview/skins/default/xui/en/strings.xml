@@ -3936,7 +3936,8 @@ Abuse Report</string>
   <string name="dance8">dance8</string>
 
   <!-- birth date format shared by avatar inspector and profile panels -->
-  <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  <string name="AvatarBirthDateFormatFull">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  <string name="AvatarBirthDateFormatShort">[mthnum,datetime,slt]/[day,datetime,slt]</string>
 
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
@@ -4001,7 +4002,8 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="EmptyOutfitText">There are no items in this outfit</string>
 
  <!-- External editor status codes -->
- <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.</string>
+ <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
+See https://wiki.secondlife.com/wiki/LSL_Alternate_Editors</string>
  <string name="ExternalEditorNotFound">Cannot find the external editor you specified.
 Try enclosing path to the editor with double quotes.
 (e.g. "/path to my/editor" "%s")</string>

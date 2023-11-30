@@ -74,6 +74,32 @@ LLSidepanelTaskInfo* LLSidepanelTaskInfo::sActivePanel = NULL;
 
 static LLPanelInjector<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
+static std::string click_action_to_string_value(U8 click_action)
+{
+    switch (click_action)
+    {
+        case CLICK_ACTION_TOUCH:
+            return "Touch";
+        case CLICK_ACTION_SIT:
+            return "Sit";
+        case CLICK_ACTION_BUY:
+            return "Buy";
+        case CLICK_ACTION_PAY:
+            return "Pay";
+        case CLICK_ACTION_OPEN:
+            return "Open";
+        case CLICK_ACTION_ZOOM:
+            return "Zoom";
+        case CLICK_ACTION_DISABLED:
+            return "None";
+        case CLICK_ACTION_IGNORE:
+            return "Ignore";
+        default:
+            return "Touch";
+    }
+    return "Touch";
+}
+
 // Default constructor
 LLSidepanelTaskInfo::LLSidepanelTaskInfo()
     : mVisibleDebugPermissions(true) // space was allocated by default
@@ -891,11 +917,7 @@ void LLSidepanelTaskInfo::refresh()
 	U8 click_action = 0;
 	if (LLSelectMgr::getInstance()->selectionGetClickAction(&click_action))
 	{
-		LLComboBox*	ComboClickAction = getChild<LLComboBox>("clickaction");
-		if (ComboClickAction)
-		{
-			ComboClickAction->setCurrentByIndex((S32)click_action);
-		}
+        getChild<LLComboBox>("clickaction")->setValue(click_action_to_string_value(click_action));
 	}
 	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
@@ -1152,6 +1174,8 @@ static U8 string_value_to_click_action(std::string p_value)
 		return CLICK_ACTION_ZOOM;
 	if (p_value == "None")
 		return CLICK_ACTION_DISABLED;
+    if (p_value == "Ignore")
+        return CLICK_ACTION_IGNORE;
 	return CLICK_ACTION_TOUCH;
 }
 

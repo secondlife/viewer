@@ -102,210 +102,6 @@ static const std::string PROFILE_IMAGE_UPLOAD_CAP = "UploadAgentProfileImage";
 
 //////////////////////////////////////////////////////////////////////////
 
-void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("request_avatar_properties_coro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    httpOpts->setFollowRedirects(true);
-
-    std::string finalUrl = cap_url + "/" + agent_id.asString();
-
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, finalUrl, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Result: " << httpResults << LL_ENDL;
-
-    if (!status
-        || !result.has("id")
-        || agent_id != result["id"].asUUID())
-    {
-        LL_WARNS("AvatarProperties") << "Failed to get agent information for id " << agent_id << LL_ENDL;
-        return;
-    }
-
-    LLFloater* floater_profile = LLFloaterReg::findInstance("profile", LLSD().with("id", agent_id));
-    if (!floater_profile)
-    {
-        // floater is dead, so panels are dead as well
-        return;
-    }
-
-    LLPanel *panel = floater_profile->findChild<LLPanel>(PANEL_PROFILE_VIEW, TRUE);
-    LLPanelProfile *panel_profile = dynamic_cast<LLPanelProfile*>(panel);
-    if (!panel_profile)
-    {
-        LL_WARNS() << PANEL_PROFILE_VIEW << " not found" << LL_ENDL;
-        return;
-    }
-
-
-    // Avatar Data
-
-    LLAvatarData *avatar_data = &panel_profile->mAvatarData;
-    std::string birth_date;
-
-    avatar_data->agent_id = agent_id;
-    avatar_data->avatar_id = agent_id;
-    avatar_data->image_id = result["sl_image_id"].asUUID();
-    avatar_data->fl_image_id = result["fl_image_id"].asUUID();
-    avatar_data->partner_id = result["partner_id"].asUUID();
-    avatar_data->about_text = result["sl_about_text"].asString();
-    avatar_data->fl_about_text = result["fl_about_text"].asString();
-    avatar_data->born_on = result["member_since"].asDate();
-    avatar_data->profile_url = getProfileURL(agent_id.asString());
-    avatar_data->customer_type = result["customer_type"].asString();
-
-    avatar_data->flags = 0;
-
-    if (result["online"].asBoolean())
-    {
-        avatar_data->flags |= AVATAR_ONLINE;
-    }
-    if (result["allow_publish"].asBoolean())
-    {
-        avatar_data->flags |= AVATAR_ALLOW_PUBLISH;
-    }
-    if (result["identified"].asBoolean())
-    {
-        avatar_data->flags |= AVATAR_IDENTIFIED;
-    }
-    if (result["transacted"].asBoolean())
-    {
-        avatar_data->flags |= AVATAR_TRANSACTED;
-    }
-
-    avatar_data->caption_index = 0;
-    if (result.has("charter_member")) // won't be present if "caption" is set
-    {
-        avatar_data->caption_index = result["charter_member"].asInteger();
-    }
-    else if (result.has("caption"))
-    {
-        avatar_data->caption_text = result["caption"].asString();
-    }
-
-    panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
-    LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
-    if (panel_sl)
-    {
-        panel_sl->processProfileProperties(avatar_data);
-    }
-
-    panel = floater_profile->findChild<LLPanel>(PANEL_WEB, TRUE);
-    LLPanelProfileWeb *panel_web = dynamic_cast<LLPanelProfileWeb*>(panel);
-    if (panel_web)
-    {
-        panel_web->setLoaded();
-    }
-
-    panel = floater_profile->findChild<LLPanel>(PANEL_FIRSTLIFE, TRUE);
-    LLPanelProfileFirstLife *panel_first = dynamic_cast<LLPanelProfileFirstLife*>(panel);
-    if (panel_first)
-    {
-        panel_first->processProperties(avatar_data);
-    }
-
-    // Picks
-
-    LLSD picks_array = result["picks"];
-    LLAvatarPicks avatar_picks;
-    avatar_picks.agent_id = agent_id; // Not in use?
-    avatar_picks.target_id = agent_id;
-
-    for (LLSD::array_const_iterator it = picks_array.beginArray(); it != picks_array.endArray(); ++it)
-    {
-        const LLSD& pick_data = *it;
-        avatar_picks.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
-    }
-
-    panel = floater_profile->findChild<LLPanel>(PANEL_PICKS, TRUE);
-    LLPanelProfilePicks *panel_picks = dynamic_cast<LLPanelProfilePicks*>(panel);
-    if (panel_picks)
-    {
-        // Refresh pick limit before processing
-        LLAgentPicksInfo::getInstance()->onServerRespond(&avatar_picks);
-        panel_picks->processProperties(&avatar_picks);
-    }
-
-    // Groups
-
-    LLSD groups_array = result["groups"];
-    LLAvatarGroups avatar_groups;
-    avatar_groups.agent_id = agent_id; // Not in use?
-    avatar_groups.avatar_id = agent_id; // target_id
-
-    for (LLSD::array_const_iterator it = groups_array.beginArray(); it != groups_array.endArray(); ++it)
-    {
-        const LLSD& group_info = *it;
-        LLAvatarGroups::LLGroupData group_data;
-        group_data.group_powers = 0; // Not in use?
-        group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
-        group_data.group_id = group_info["id"].asUUID();
-        group_data.group_name = group_info["name"].asString();
-        group_data.group_insignia_id = group_info["image_id"].asUUID();
-
-        avatar_groups.group_list.push_back(group_data);
-    }
-
-    if (panel_sl)
-    {
-        panel_sl->processGroupProperties(&avatar_groups);
-    }
-
-    // Notes
-    LLAvatarNotes avatar_notes;
-
-    avatar_notes.agent_id = agent_id;
-    avatar_notes.target_id = agent_id;
-    avatar_notes.notes = result["notes"].asString();
-
-    panel = floater_profile->findChild<LLPanel>(PANEL_NOTES, TRUE);
-    LLPanelProfileNotes *panel_notes = dynamic_cast<LLPanelProfileNotes*>(panel);
-    if (panel_notes)
-    {
-        panel_notes->processProperties(&avatar_notes);
-    }
-}
-
-//TODO: changes take two minutes to propagate!
-// Add some storage that holds updated data for two minutes
-// for new instances to reuse the data
-// Profile data is only relevant to won avatar, but notes
-// are for everybody
-void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("put_avatar_properties_coro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    httpOpts->setFollowRedirects(true);
-
-    std::string finalUrl = cap_url + "/" + agent_id.asString();
-
-    LLSD result = httpAdapter->putAndSuspend(httpRequest, finalUrl, data, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        LL_WARNS("AvatarProperties") << "Failed to put agent information " << data << " for id " << agent_id << LL_ENDL;
-        return;
-    }
-
-    LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
-}
-
 LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::string path_to_image, LLHandle<LLPanel> *handle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -342,7 +138,6 @@ LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::stri
     }
 
     // Upload the image
-
     LLCore::HttpRequest::ptr_t uploaderhttpRequest(new LLCore::HttpRequest);
     LLCore::HttpHeaders::ptr_t uploaderhttpHeaders(new LLCore::HttpHeaders);
     LLCore::HttpOptions::ptr_t uploaderhttpOpts(new LLCore::HttpOptions);
@@ -884,11 +679,12 @@ void LLFloaterProfilePermissions::onCancel()
 // LLPanelProfileSecondLife
 
 LLPanelProfileSecondLife::LLPanelProfileSecondLife()
-    : LLPanelProfileTab()
+    : LLPanelProfilePropertiesProcessorTab()
     , mAvatarNameCacheConnection()
     , mHasUnsavedDescriptionChanges(false)
     , mWaitingForImageUpload(false)
     , mAllowPublish(false)
+    , mHideAge(false)
 {
 }
 
@@ -914,6 +710,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
+    mHideAgeCombo           = getChild<LLComboBox>("hide_age");
     mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
@@ -928,6 +725,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mCantEditObjectsIcon    = getChild<LLIconCtrl>("cant_edit_objects");
 
     mShowInSearchCombo->setCommitCallback([this](LLUICtrl*, void*) { onShowInSearchCallback(); }, nullptr);
+    mHideAgeCombo->setCommitCallback([this](LLUICtrl*, void*) { onHideAgeCallback(); }, nullptr);
     mGroupList->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { LLPanelProfileSecondLife::openGroupProfile(); });
     mGroupList->setReturnCallback([this](LLUICtrl*, const LLSD&) { LLPanelProfileSecondLife::openGroupProfile(); });
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
@@ -998,26 +796,6 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
 }
 
-void LLPanelProfileSecondLife::updateData()
-{
-    LLUUID avatar_id = getAvatarId();
-    if (!getStarted() && avatar_id.notNull())
-    {
-        setIsLoading();
-
-        std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-        if (!cap_url.empty())
-        {
-            LLCoros::instance().launch("requestAgentUserInfoCoro",
-                boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
-        }
-        else
-        {
-            LL_WARNS() << "Failed to update profile data, no cap found" << LL_ENDL;
-        }
-    }
-}
-
 void LLPanelProfileSecondLife::refreshName()
 {
     if (!mAvatarNameCacheConnection.connected())
@@ -1061,6 +839,18 @@ void LLPanelProfileSecondLife::resetData()
     childSetVisible("partner_spacer_layout", TRUE);
 }
 
+void LLPanelProfileSecondLife::processProperties(void* data, EAvatarProcessorType type)
+{
+    if (APT_PROPERTIES == type)
+    {
+        LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+        if (avatar_data && getAvatarId() == avatar_data->avatar_id)
+        {
+            processProfileProperties(avatar_data);
+        }
+    }
+}
+
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
 {
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
@@ -1080,22 +870,18 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
 
     fillAccountStatus(avatar_data);
 
-    setLoaded();
-}
-
-void LLPanelProfileSecondLife::processGroupProperties(const LLAvatarGroups* avatar_groups)
-{
-
-    LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
-    const LLAvatarGroups::group_list_t::const_iterator it_end = avatar_groups->group_list.end();
+    LLAvatarData::group_list_t::const_iterator it = avatar_data->group_list.begin();
+    const LLAvatarData::group_list_t::const_iterator it_end = avatar_data->group_list.end();
 
     for (; it_end != it; ++it)
     {
-        LLAvatarGroups::LLGroupData group_data = *it;
+        LLAvatarData::LLGroupData group_data = *it;
         mGroups[group_data.group_name] = group_data.group_id;
     }
 
     mGroupList->setGroups(mGroups);
+
+    setLoaded();
 }
 
 void LLPanelProfileSecondLife::openGroupProfile()
@@ -1202,7 +988,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     // and to make sure icons in text will be up to date
     LLAvatarIconIDCache::getInstance()->add(avatar_data->avatar_id, avatar_data->image_id);
 
-    fillAgeData(avatar_data->born_on);
+    fillAgeData(avatar_data);
 
     setDescriptionText(avatar_data->about_text);
 
@@ -1237,7 +1023,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     if (getSelfProfile())
     {
         mAllowPublish = avatar_data->flags & AVATAR_ALLOW_PUBLISH;
-        mShowInSearchCombo->setValue((BOOL)mAllowPublish);
+        mShowInSearchCombo->setValue(mAllowPublish ? TRUE : FALSE);
     }
 }
 
@@ -1362,21 +1148,47 @@ void LLPanelProfileSecondLife::fillRightsData()
     }
 }
 
-void LLPanelProfileSecondLife::fillAgeData(const LLDate &born_on)
+void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
 {
     // Date from server comes already converted to stl timezone,
     // so display it as an UTC + 0
-    std::string name_and_date = getString("date_format");
+    bool hide_age = avatar_data->hide_age && !getSelfProfile();
+    std::string name_and_date = getString(hide_age ? "date_format_short" : "date_format_full");
     LLSD args_name;
-    args_name["datetime"] = (S32)born_on.secondsSinceEpoch();
+    args_name["datetime"] = (S32)avatar_data->born_on.secondsSinceEpoch();
     LLStringUtil::format(name_and_date, args_name);
     getChild<LLUICtrl>("sl_birth_date")->setValue(name_and_date);
 
-    std::string register_date = getString("age_format");
-    LLSD args_age;
-    args_age["[AGE]"] = LLDateUtil::ageFromDate(born_on, LLDate::now());
-    LLStringUtil::format(register_date, args_age);
-    getChild<LLUICtrl>("user_age")->setValue(register_date);
+    LLUICtrl* userAgeCtrl = getChild<LLUICtrl>("user_age");
+    if (hide_age)
+    {
+        userAgeCtrl->setVisible(FALSE);
+    }
+    else
+    {
+        std::string register_date = getString("age_format");
+        LLSD args_age;
+        args_age["[AGE]"] = LLDateUtil::ageFromDate(avatar_data->born_on, LLDate::now());
+        LLStringUtil::format(register_date, args_age);
+        userAgeCtrl->setValue(register_date);
+    }
+
+    BOOL showHideAgeCombo = FALSE;
+    if (getSelfProfile())
+    {
+        if (LLAvatarPropertiesProcessor::getInstance()->isHideAgeSupportedByServer())
+        {
+            F64 birth = avatar_data->born_on.secondsSinceEpoch();
+            F64 now = LLDate::now().secondsSinceEpoch();
+            if (now - birth > 365 * 24 * 60 * 60)
+            {
+                mHideAge = avatar_data->hide_age;
+                mHideAgeCombo->setValue(mHideAge ? TRUE : FALSE);
+                showHideAgeCombo = TRUE;
+            }
+        }
+    }
+    mHideAgeCombo->setVisible(showHideAgeCombo);
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
@@ -1451,7 +1263,7 @@ void LLPanelProfileSecondLife::setAvatarId(const LLUUID& avatar_id)
             LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
         }
 
-        LLPanelProfileTab::setAvatarId(avatar_id);
+        LLPanelProfilePropertiesProcessorTab::setAvatarId(avatar_id);
 
         if (LLAvatarActions::isFriend(getAvatarId()))
         {
@@ -1493,6 +1305,10 @@ void LLPanelProfileSecondLife::setLoaded()
     if (getSelfProfile())
     {
         mShowInSearchCombo->setEnabled(TRUE);
+        if (mHideAgeCombo->getVisible())
+        {
+            mHideAgeCombo->setEnabled(TRUE);
+        }
         mDescriptionEdit->setEnabled(TRUE);
     }
 }
@@ -1820,39 +1636,28 @@ void LLPanelProfileSecondLife::onSetDescriptionDirty()
 
 void LLPanelProfileSecondLife::onShowInSearchCallback()
 {
-    S32 value = mShowInSearchCombo->getValue().asInteger();
-    if (mAllowPublish == (bool)value)
-    {
+    bool value = mShowInSearchCombo->getValue().asInteger();
+    if (value == mAllowPublish)
         return;
-    }
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        mAllowPublish = value;
-        LLSD data;
-        data["allow_publish"] = mAllowPublish;
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), data));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+
+    mAllowPublish = value;
+    saveAgentUserInfoCoro("allow_publish", value);
+}
+
+void LLPanelProfileSecondLife::onHideAgeCallback()
+{
+    bool value = mHideAgeCombo->getValue().asInteger();
+    if (value == mHideAge)
+        return;
+
+    mHideAge = value;
+    saveAgentUserInfoCoro("hide_age", value);
 }
 
 void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 {
     mDescriptionText = mDescriptionEdit->getValue().asString();
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("sl_about_text", mDescriptionText)));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+    saveAgentUserInfoCoro("sl_about_text", mDescriptionText);
 
     mSaveDescriptionChanges->setEnabled(FALSE);
     mDiscardDescriptionChanges->setEnabled(FALSE);
@@ -1986,45 +1791,33 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
 void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
 {
     if (mImageId == id)
-    {
         return;
-    }
 
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
+    if (!saveAgentUserInfoCoro("sl_image_id", id))
+        return;
+
+    mImageId = id;
+    if (mImageId == LLUUID::null)
     {
-        LLSD params;
-        params["sl_image_id"] = id;
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
-
-        mImageId = id;
-        if (mImageId == LLUUID::null)
-        {
-            mSecondLifePic->setValue("Generic_Person_Large");
-        }
-        else
-        {
-            mSecondLifePic->setValue(mImageId);
-        }
-
-        LLFloater *floater = mFloaterProfileTextureHandle.get();
-        if (floater)
-        {
-            LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-            if (mImageId == LLUUID::null)
-            {
-                texture_view->resetAsset();
-            }
-            else
-            {
-                texture_view->loadAsset(mImageId);
-            }
-        }
+        mSecondLifePic->setValue("Generic_Person_Large");
     }
     else
     {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
+        mSecondLifePic->setValue(mImageId);
+    }
+
+    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    if (floater)
+    {
+        LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        if (mImageId == LLUUID::null)
+        {
+            texture_view->resetAsset();
+        }
+        else
+        {
+            texture_view->loadAsset(mImageId);
+        }
     }
 }
 
@@ -2156,6 +1949,8 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
             LLStringUtil::format_map_t args;
             args["[TIME]"] = llformat("%.2f", mPerformanceTimer.getElapsedTimeF32());
             childSetValue("status_text", LLSD( getString("LoadTime", args)) );
+
+            setLoaded();
         }
         break;
 
@@ -2171,7 +1966,7 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 //////////////////////////////////////////////////////////////////////////
 
 LLPanelProfileFirstLife::LLPanelProfileFirstLife()
- : LLPanelProfileTab()
+ : LLPanelProfilePropertiesProcessorTab()
  , mHasUnsavedChanges(false)
 {
 }
@@ -2322,34 +2117,22 @@ void LLPanelProfileFirstLife::onRemovePhoto()
 void LLPanelProfileFirstLife::onCommitPhoto(const LLUUID& id)
 {
     if (mImageId == id)
-    {
         return;
-    }
 
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
+    if (!saveAgentUserInfoCoro("fl_image_id", id))
+        return;
+
+    mImageId = id;
+    if (mImageId.notNull())
     {
-        LLSD params;
-        params["fl_image_id"] = id;
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
-
-        mImageId = id;
-        if (mImageId.notNull())
-        {
-            mPicture->setValue(mImageId);
-        }
-        else
-        {
-            mPicture->setValue("Generic_Person_Large");
-        }
-
-        mRemovePhoto->setEnabled(mImageId.notNull());
+        mPicture->setValue(mImageId);
     }
     else
     {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
+        mPicture->setValue("Generic_Person_Large");
     }
+
+    mRemovePhoto->setEnabled(mImageId.notNull());
 }
 
 void LLPanelProfileFirstLife::setDescriptionText(const std::string &text)
@@ -2372,16 +2155,7 @@ void LLPanelProfileFirstLife::onSetDescriptionDirty()
 void LLPanelProfileFirstLife::onSaveDescriptionChanges()
 {
     mCurrentDescription = mDescriptionEdit->getValue().asString();
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("fl_about_text", mCurrentDescription)));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+    saveAgentUserInfoCoro("fl_about_text", mCurrentDescription);
 
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
@@ -2391,6 +2165,18 @@ void LLPanelProfileFirstLife::onSaveDescriptionChanges()
 void LLPanelProfileFirstLife::onDiscardDescriptionChanges()
 {
     setDescriptionText(mCurrentDescription);
+}
+
+void LLPanelProfileFirstLife::processProperties(void* data, EAvatarProcessorType type)
+{
+    if (APT_PROPERTIES == type)
+    {
+        LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+        if (avatar_data && getAvatarId() == avatar_data->avatar_id)
+        {
+            processProperties(avatar_data);
+        }
+    }
 }
 
 void LLPanelProfileFirstLife::processProperties(const LLAvatarData* avatar_data)
@@ -2441,7 +2227,7 @@ void LLPanelProfileFirstLife::setLoaded()
 //////////////////////////////////////////////////////////////////////////
 
 LLPanelProfileNotes::LLPanelProfileNotes()
-: LLPanelProfileTab()
+: LLPanelProfilePropertiesProcessorTab()
  , mHasUnsavedChanges(false)
 {
 
@@ -2449,22 +2235,6 @@ LLPanelProfileNotes::LLPanelProfileNotes()
 
 LLPanelProfileNotes::~LLPanelProfileNotes()
 {
-}
-
-void LLPanelProfileNotes::updateData()
-{
-    LLUUID avatar_id = getAvatarId();
-    if (!getStarted() && avatar_id.notNull())
-    {
-        setIsLoading();
-
-        std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-        if (!cap_url.empty())
-        {
-            LLCoros::instance().launch("requestAgentUserInfoCoro",
-                boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
-        }
-    }
 }
 
 void LLPanelProfileNotes::commitUnsavedChanges()
@@ -2515,16 +2285,7 @@ void LLPanelProfileNotes::onSetNotesDirty()
 void LLPanelProfileNotes::onSaveNotesChanges()
 {
     mCurrentNotes = mNotesEditor->getValue().asString();
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (!cap_url.empty())
-    {
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", mCurrentNotes)));
-    }
-    else
-    {
-        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
-    }
+    saveAgentUserInfoCoro("notes", mCurrentNotes);
 
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
@@ -2536,9 +2297,21 @@ void LLPanelProfileNotes::onDiscardNotesChanges()
     setNotesText(mCurrentNotes);
 }
 
-void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
+void LLPanelProfileNotes::processProperties(void* data, EAvatarProcessorType type)
 {
-    setNotesText(avatar_notes->notes);
+    if (APT_PROPERTIES == type)
+    {
+        LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+        if (avatar_data && getAvatarId() == avatar_data->avatar_id)
+        {
+            processProperties(avatar_data);
+        }
+    }
+}
+
+void LLPanelProfileNotes::processProperties(const LLAvatarData* avatar_data)
+{
+    setNotesText(avatar_data->notes);
     mNotesEditor->setEnabled(TRUE);
     setLoaded();
 }
@@ -2547,14 +2320,6 @@ void LLPanelProfileNotes::resetData()
 {
     resetLoading();
     setNotesText(std::string());
-}
-
-void LLPanelProfileNotes::setAvatarId(const LLUUID& avatar_id)
-{
-    if (avatar_id.notNull())
-    {
-        LLPanelProfileTab::setAvatarId(avatar_id);
-    }
 }
 
 
@@ -2633,12 +2398,7 @@ void LLPanelProfile::updateData()
         mPanelFirstlife->setIsLoading();
         mPanelNotes->setIsLoading();
 
-        std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-        if (!cap_url.empty())
-        {
-            LLCoros::instance().launch("requestAgentUserInfoCoro",
-                boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
-        }
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(getAvatarId());
     }
 }
 

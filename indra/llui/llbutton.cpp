@@ -58,10 +58,11 @@ static LLDefaultChildRegistry::Register<LLButton> r("button");
 template class LLButton* LLView::getChild<class LLButton>(
 	const std::string& name, BOOL recurse) const;
 
-// globals loaded from settings.xml
-S32	LLBUTTON_H_PAD	= 0;
-S32 BTN_HEIGHT_SMALL= 0;
-S32 BTN_HEIGHT		= 0;
+// globals
+S32	LLBUTTON_H_PAD	= 4;
+S32 BTN_HEIGHT_SMALL= 23;
+S32 BTN_HEIGHT		= 23;
+S32 BTN_DROP_SHADOW = 2;
 
 LLButton::Params::Params()
 :	label_selected("label_selected"),				// requires is_toggle true
@@ -91,8 +92,8 @@ LLButton::Params::Params()
 	image_overlay_disabled_color("image_overlay_disabled_color", LLColor4::white % 0.3f),
 	image_overlay_selected_color("image_overlay_selected_color", LLColor4::white),
 	flash_color("flash_color"),
-	pad_right("pad_right", LLUI::getInstance()->mSettingGroups["config"]->getS32("ButtonHPad")),
-	pad_left("pad_left", LLUI::getInstance()->mSettingGroups["config"]->getS32("ButtonHPad")),
+	pad_right("pad_right", LLBUTTON_H_PAD),
+	pad_left("pad_left", LLBUTTON_H_PAD),
 	pad_bottom("pad_bottom"),
 	click_callback("click_callback"),
 	mouse_down_callback("mouse_down_callback"),

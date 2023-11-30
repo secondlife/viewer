@@ -260,7 +260,8 @@ void LLFloaterIMNearbyChat::loadHistory()
 
 void LLFloaterIMNearbyChat::removeScreenChat()
 {
-	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
+        LLNotificationsUI::NEARBY_CHAT_CHANNEL_UUID);
 	if(chat_channel)
 	{
 		chat_channel->removeToastsFromChannel();

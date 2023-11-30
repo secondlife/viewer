@@ -123,6 +123,7 @@ private:
 	void setBold(bool bold);
 	void onInfoBtnClick();
 	void onProfileBtnClick();
+    void onNoticesBtnClick();
     void onVisibilityBtnClick(bool new_visibility);
 
 	LLTextBox*	mGroupNameBox;
@@ -130,6 +131,7 @@ private:
 	LLGroupIconCtrl* mGroupIcon;
     LLButton*	mInfoBtn;
     LLButton*	mProfileBtn;
+    LLButton*	mNoticesBtn;
     LLButton*	mVisibilityHideBtn;
     LLButton*	mVisibilityShowBtn;
 

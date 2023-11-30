@@ -72,7 +72,7 @@ LLViewerTextureList gTextureList;
 
 ETexListType get_element_type(S32 priority)
 {
-    return (priority == LLViewerFetchedTexture::BOOST_ICON) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
+    return (priority == LLViewerFetchedTexture::BOOST_ICON || priority == LLViewerFetchedTexture::BOOST_THUMBNAIL) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -492,7 +492,8 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 			{
 				imagep->dontDiscard();
 			}
-			if (boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+			if (boost_priority == LLViewerFetchedTexture::BOOST_ICON
+                || boost_priority == LLViewerFetchedTexture::BOOST_THUMBNAIL)
 			{
 				// Agent and group Icons are downloadable content, nothing manages
 				// icon deletion yet, so they should not persist
@@ -576,7 +577,6 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 												   LLHost request_from_host)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	static LLCachedControl<bool> fast_cache_fetching_enabled(gSavedSettings, "FastCacheFetchEnabled", true);
 
 	LLPointer<LLViewerFetchedTexture> imagep ;
 	switch(texture_type)
@@ -604,7 +604,8 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 		{
 			imagep->dontDiscard();
 		}
-		if (boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+		if (boost_priority == LLViewerFetchedTexture::BOOST_ICON
+            || boost_priority == LLViewerFetchedTexture::BOOST_THUMBNAIL)
 		{
 			// Agent and group Icons are downloadable content, nothing manages
 			// icon deletion yet, so they should not persist.
@@ -621,11 +622,9 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 		imagep->forceActive() ;
 	}
 
-	if(fast_cache_fetching_enabled)
-	{
-		mFastCacheList.insert(imagep);
-		imagep->setInFastCacheList(true);
-	}
+    mFastCacheList.insert(imagep);
+    imagep->setInFastCacheList(true);
+
 	return imagep ;
 }
 
@@ -1510,8 +1509,9 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	LLUIImagePtr new_imagep = new LLUIImage(name, imagep);
 	new_imagep->setScaleStyle(scale_style);
 
-	if (imagep->getBoostLevel() != LLGLTexture::BOOST_ICON &&
-		imagep->getBoostLevel() != LLGLTexture::BOOST_PREVIEW)
+	if (imagep->getBoostLevel() != LLGLTexture::BOOST_ICON
+        && imagep->getBoostLevel() != LLGLTexture::BOOST_THUMBNAIL
+		&& imagep->getBoostLevel() != LLGLTexture::BOOST_PREVIEW)
 	{
 		// Don't add downloadable content into this list
 		// all UI images are non-deletable and list does not support deletion

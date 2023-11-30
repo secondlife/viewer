@@ -45,8 +45,8 @@ LLInspect::~LLInspect()
 // virtual
 void LLInspect::draw()
 {
-	static LLCachedControl<F32> FADE_TIME(*LLUI::getInstance()->mSettingGroups["config"], "InspectorFadeTime", 1.f);
-	static LLCachedControl<F32> STAY_TIME(*LLUI::getInstance()->mSettingGroups["config"], "InspectorShowTime", 1.f);
+	const F32 FADE_TIME = 0.5f;
+	const F32 STAY_TIME = 3.f;
 	if (mOpenTimer.getStarted())
 	{
 		LLFloater::draw();
@@ -59,7 +59,7 @@ void LLInspect::draw()
 	}
 	else if (mCloseTimer.getStarted())
 	{
-		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_TIME(), 1.f, 0.f);
+		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 1.f, 0.f);
 		LLViewDrawContext context(alpha);
 		LLFloater::draw();
 		if (mCloseTimer.getElapsedTimeF32() > FADE_TIME)

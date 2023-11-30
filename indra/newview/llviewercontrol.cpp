@@ -345,15 +345,6 @@ static bool handleChatFontSizeChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleChatPersistTimeChanged(const LLSD& newvalue)
-{
-	if(gConsole)
-	{
-		gConsole->setLinePersistTime((F32) newvalue.asReal());
-	}
-	return true;
-}
-
 static bool handleConsoleMaxLinesChanged(const LLSD& newvalue)
 {
 	if(gConsole)
@@ -630,6 +621,18 @@ void handleUserTargetDrawDistanceChanged(const LLSD& newValue)
     LLPerfStats::tunables.userTargetDrawDistance = newval;
 }
 
+void handleUserMinDrawDistanceChanged(const LLSD &newValue)
+{
+    const auto newval = gSavedSettings.getF32("AutoTuneRenderFarClipMin");
+    LLPerfStats::tunables.userMinDrawDistance = newval;
+}
+
+void handleUserTargetReflectionsChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getS32("UserTargetReflections");
+    LLPerfStats::tunables.userTargetReflections = newval;
+}
+
 void handlePerformanceStatsEnabledChanged(const LLSD& newValue)
 {
     const auto newval = gSavedSettings.getBOOL("PerfStatsCaptureEnabled");
@@ -728,7 +731,6 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderDeferredSSAO", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderPerformanceTest", handleRenderPerfTestChanged);
     setting_setup_signal_listener(gSavedSettings, "ChatFontSize", handleChatFontSizeChanged);
-    setting_setup_signal_listener(gSavedSettings, "ChatPersistTime", handleChatPersistTimeChanged);
     setting_setup_signal_listener(gSavedSettings, "ConsoleMaxLines", handleConsoleMaxLinesChanged);
     setting_setup_signal_listener(gSavedSettings, "UploadBakedTexOld", handleUploadBakedTexOldChanged);
     setting_setup_signal_listener(gSavedSettings, "UseOcclusion", handleUseOcclusionChanged);
@@ -739,9 +741,6 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AudioLevelMusic", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "AudioLevelMedia", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "AudioLevelVoice", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "AudioLevelDoppler", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "AudioLevelRolloff", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "AudioLevelUnderwaterRolloff", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteAudio", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteMusic", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteMedia", handleAudioVolumeChanged);
@@ -827,6 +826,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarMaxART", handleRenderAvatarMaxARTChanged);
     setting_setup_signal_listener(gSavedSettings, "PerfStatsCaptureEnabled", handlePerformanceStatsEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneRenderFarClipTarget", handleUserTargetDrawDistanceChanged);
+    setting_setup_signal_listener(gSavedSettings, "AutoTuneRenderFarClipMin", handleUserMinDrawDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorFarAwayDistance", handleUserImpostorDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "TuningFPSStrategy", handleFPSTuningStrategyChanged);
@@ -853,8 +853,6 @@ DECL_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
 LLSD test_llsd = LLSD()["testing1"] = LLSD()["testing2"];
 DECL_LLCC(LLSD, test_llsd);
 
-static LLCachedControl<std::string> test_BrowserHomePage("BrowserHomePage", "hahahahahha", "Not the real comment");
-
 void test_cached_control()
 {
 #define do { TEST_LLCC(T, V) if((T)mySetting_##T != V) LL_ERRS() << "Fail "#T << LL_ENDL; } while(0)
@@ -871,8 +869,6 @@ void test_cached_control()
 	TEST_LLCC(LLColor3, LLColor3(1.0f, 0.f, 0.5f));
 	TEST_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
 //There's no LLSD comparsion for LLCC yet. TEST_LLCC(LLSD, test_llsd); 
-
-	if((std::string)test_BrowserHomePage != "http://www.secondlife.com") LL_ERRS() << "Fail BrowserHomePage" << LL_ENDL;
 }
 #endif // TEST_CACHED_CONTROL
 

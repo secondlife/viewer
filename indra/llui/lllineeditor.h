@@ -92,6 +92,7 @@ public:
 										ignore_tab,
 										bg_image_always_focused,
 										is_password,
+										allow_emoji,
 										use_bg_color;
 
 		// colors
@@ -238,6 +239,7 @@ public:
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
 	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
+	void			setAllowEmoji(BOOL b)			{ mAllowEmoji = b; }
 	void			setDrawAsterixes(BOOL b);
 
 	// get the cursor position of the beginning/end of the prev/next word in the text
@@ -396,6 +398,7 @@ protected:
 
 	BOOL 		mShowImageFocused;
 
+	bool		mAllowEmoji;
 	bool		mUseBgColor;
 
 	LLWString	mPreeditWString;

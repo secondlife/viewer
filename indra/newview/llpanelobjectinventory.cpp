@@ -130,7 +130,7 @@ public:
 	virtual BOOL isItemRenameable() const;
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemMovable() const;
-	virtual BOOL isItemRemovable() const;
+	virtual BOOL isItemRemovable(bool check_worn = true) const;
 	virtual BOOL removeItem();
 	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
 	virtual void move(LLFolderViewModelItem* parent_listener);	
@@ -336,7 +336,7 @@ BOOL LLTaskInvFVBridge::isItemMovable() const
 	return TRUE;
 }
 
-BOOL LLTaskInvFVBridge::isItemRemovable() const
+BOOL LLTaskInvFVBridge::isItemRemovable(bool check_worn) const
 {
 	const LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 	if(object
@@ -588,7 +588,7 @@ public:
 	virtual BOOL isItemRenameable() const;
 	// virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL renameItem(const std::string& new_name);
-	virtual BOOL isItemRemovable() const;
+	virtual BOOL isItemRemovable(bool check_worn = true) const;
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual bool hasChildren() const;
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
@@ -648,7 +648,7 @@ BOOL LLTaskCategoryBridge::renameItem(const std::string& new_name)
 	return FALSE;
 }
 
-BOOL LLTaskCategoryBridge::isItemRemovable() const
+BOOL LLTaskCategoryBridge::isItemRemovable(bool check_worn) const
 {
 	return FALSE;
 }

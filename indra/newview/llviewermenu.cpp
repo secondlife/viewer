@@ -7251,37 +7251,70 @@ class LLAttachmentDetach : public view_listener_t
 	{
 		// Called when the user clicked on an object attached to them
 		// and selected "Detach".
-		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+		LLViewerObject *object = selection->getPrimaryObject();
 		if (!object)
 		{
 			LL_WARNS() << "handle_detach() - no object to detach" << LL_ENDL;
 			return true;
 		}
 
-		LLViewerObject *parent = (LLViewerObject*)object->getParent();
-		while (parent)
-		{
-			if(parent->isAvatar())
-			{
-				break;
-			}
-			object = parent;
-			parent = (LLViewerObject*)parent->getParent();
-		}
+        struct f: public LLSelectedObjectFunctor
+        {
+            f() : mAvatarsInSelection(false) {}
+            virtual bool apply(LLViewerObject* objectp)
+            {
+                if (!objectp)
+                {
+                    return false;
+                }
 
-		if (!object)
-		{
-			LL_WARNS() << "handle_detach() - no object to detach" << LL_ENDL;
-			return true;
-		}
+                if (objectp->isAvatar())
+                {
+                    mAvatarsInSelection = true;
+                    return false;
+                }
 
-		if (object->isAvatar())
-		{
-			LL_WARNS() << "Trying to detach avatar from avatar." << LL_ENDL;
-			return true;
-		}
+                LLViewerObject* parent = (LLViewerObject*)objectp->getParent();
+                while (parent)
+                {
+                    if (parent->isAvatar())
+                    {
+                        break;
+                    }
+                    objectp = parent;
+                    parent = (LLViewerObject*)parent->getParent();
+                }
 
-		LLAppearanceMgr::instance().removeItemFromAvatar(object->getAttachmentItemID());
+                // std::set to avoid dupplicate 'roots' from linksets
+                mRemoveSet.insert(objectp->getAttachmentItemID());
+
+                return true;
+            }
+            bool mAvatarsInSelection;
+            uuid_set_t mRemoveSet;
+        } func;
+        // Probbly can run applyToRootObjects instead,
+        // but previous version of this code worked for any selected object
+        selection->applyToObjects(&func);
+
+        if (func.mAvatarsInSelection)
+        {
+            // Not possible under normal circumstances
+            // Either avatar selection is ON or has to do with animeshes
+            // Better stop this than mess something
+            LL_WARNS() << "Trying to detach avatar from avatar." << LL_ENDL;
+            return true;
+        }
+
+        if (func.mRemoveSet.empty())
+        {
+            LL_WARNS() << "handle_detach() - no valid attachments in selection to detach" << LL_ENDL;
+            return true;
+        }
+
+        uuid_vec_t detach_list(func.mRemoveSet.begin(), func.mRemoveSet.end());
+		LLAppearanceMgr::instance().removeItemsFromAvatar(detach_list);
 
 		return true;
 	}

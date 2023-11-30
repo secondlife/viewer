@@ -58,6 +58,7 @@
 static LLPanelInjector<LLInventoryGallery> t_inventory_gallery("inventory_gallery");
 
 const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
+const S32 FAST_LOAD_THUMBNAIL_TRSHOLD = 50; // load folders below this value immediately
 
 // Helper dnd functions
 BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, BOOL drop, std::string& tooltip_msg, BOOL is_link);
@@ -106,6 +107,7 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mGalleryWidthFactor(p.gallery_width_factor),
       mIsInitialized(false),
       mRootDirty(false),
+      mLoadThumbnailsImmediately(true),
       mNeedsArrange(false),
       mSearchType(LLInventoryFilter::SEARCHTYPE_NAME),
       mSortOrder(LLInventoryFilter::SO_DATE)
@@ -540,6 +542,12 @@ void LLInventoryGallery::addToGallery(LLInventoryGalleryItem* item)
     int n_prev = n - 1;
     int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
 
+    // Avoid loading too many items.
+    // Intent is for small folders to display all content fast
+    // and for large folders to load content mostly as needed
+    // Todo: ideally needs to unload images outside visible area
+    mLoadThumbnailsImmediately = mItemsAddedCount < FAST_LOAD_THUMBNAIL_TRSHOLD;
+
     bool add_row = row_count != row_count_prev;
     int pos = 0;
     if (add_row)
@@ -572,6 +580,8 @@ void LLInventoryGallery::removeFromGalleryLast(LLInventoryGalleryItem* item, boo
     int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
     mItemsAddedCount--;
     mIndexToItemMap.erase(mItemsAddedCount);
+
+    mLoadThumbnailsImmediately = mItemsAddedCount < FAST_LOAD_THUMBNAIL_TRSHOLD;
 
     bool remove_row = row_count != row_count_prev;
     removeFromLastRow(mItems[mItemsAddedCount]);
@@ -636,6 +646,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setUUID(item_id);
     gitem->setGallery(this);
     gitem->setType(type, inventory_type, flags, is_link);
+    gitem->setLoadImmediately(mLoadThumbnailsImmediately);
     gitem->setThumbnail(thumbnail_id);
     gitem->setWorn(is_worn);
     gitem->setCreatorName(get_searchable_creator_name(&gInventory, item_id));
@@ -997,6 +1008,7 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
 
     if (mItemMap[item_id])
     {
+        mItemMap[item_id]->setLoadImmediately(mLoadThumbnailsImmediately);
         mItemMap[item_id]->setThumbnail(thumbnail_id);
 
         bool passes_filter = checkAgainstFilters(mItemMap[item_id], mFilterSubString);
@@ -1423,7 +1435,7 @@ void LLInventoryGallery::onFocusReceived()
         LLInventoryGalleryItem* focus_item = NULL;
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            if (mItemMap[id] && !mItemMap[id]->isHidden())
             {
                 focus_item = mItemMap[id];
                 focus_item->setSelected(true);
@@ -1656,6 +1668,45 @@ void LLInventoryGallery::cut()
     mFilterSubString.clear();
 }
 
+
+
+bool is_category_removable(const LLUUID& folder_id, bool check_worn)
+{
+    if (!get_is_category_removable(&gInventory, folder_id))
+    {
+        return false;
+    }
+
+    // check children
+    LLInventoryModel::cat_array_t* cat_array;
+    LLInventoryModel::item_array_t* item_array;
+    gInventory.getDirectDescendentsOf(folder_id, cat_array, item_array);
+
+    for (LLInventoryModel::item_array_t::value_type& item : *item_array)
+    {
+        if (!get_is_item_removable(&gInventory, item->getUUID(), check_worn))
+        {
+            return false;
+        }
+    }
+
+    for (LLInventoryModel::cat_array_t::value_type& cat : *cat_array)
+    {
+        if (!is_category_removable(cat->getUUID(), check_worn))
+        {
+            return false;
+        }
+    }
+
+    const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    if (mp_id.notNull() && gInventory.isObjectDescendentOf(folder_id, mp_id))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 BOOL LLInventoryGallery::canCut() const
 {
     if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
@@ -1668,12 +1719,12 @@ BOOL LLInventoryGallery::canCut() const
         LLViewerInventoryCategory* cat = gInventory.getCategory(id);
         if (cat)
         {
-            if (!get_is_category_removable(&gInventory, id))
+            if (!get_is_category_and_children_removable(&gInventory, id, true))
             {
                 return FALSE;
             }
         }
-        else if (!get_is_item_removable(&gInventory, id))
+        else if (!get_is_item_removable(&gInventory, id, true))
         {
             return FALSE;
         }
@@ -1852,42 +1903,149 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {
-        for (const LLUUID& id : selected_ids)
+        bool has_worn = notification["payload"]["has_worn"].asBoolean();
+        uuid_vec_t worn;
+        uuid_vec_t item_deletion_list;
+        uuid_vec_t cat_deletion_list;
+        for (const LLUUID& obj_id : selected_ids)
         {
-            LLInventoryObject* obj = gInventory.getObject(id);
-            if (!obj)
+            LLViewerInventoryCategory* cat = gInventory.getCategory(obj_id);
+            if (cat)
             {
-                return;
-            }
-            if (obj->getType() == LLAssetType::AT_CATEGORY)
-            {
-                if (get_is_category_removable(&gInventory, id))
+                bool cat_has_worn = false;
+                if (has_worn)
                 {
-                    gInventory.removeCategory(id);
+                    LLInventoryModel::cat_array_t categories;
+                    LLInventoryModel::item_array_t items;
+
+                    gInventory.collectDescendents(obj_id, categories, items, FALSE);
+
+                    for (LLInventoryModel::item_array_t::value_type& item : items)
+                    {
+                        if (get_is_item_worn(item))
+                        {
+                            worn.push_back(item->getUUID());
+                            cat_has_worn = true;
+                        }
+                    }
+                }
+                if (cat_has_worn)
+                {
+                    cat_deletion_list.push_back(obj_id);
+                }
+                else
+                {
+                    gInventory.removeCategory(obj_id);
                 }
             }
-            else
+            LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+            if (item)
             {
-                if (get_is_item_removable(&gInventory, id))
+                if (has_worn && get_is_item_worn(item))
                 {
-                    gInventory.removeItem(id);
+                    worn.push_back(item->getUUID());
+                    item_deletion_list.push_back(item->getUUID());
+                }
+                else
+                {
+                    gInventory.removeItem(obj_id);
                 }
             }
+        }
+
+        if (!worn.empty())
+        {
+            // should fire once after every item gets detached
+            LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
+                                                              [item_deletion_list, cat_deletion_list]()
+                                                              {
+                                                                  for (const LLUUID& id : item_deletion_list)
+                                                                  {
+                                                                      remove_inventory_item(id, NULL);
+                                                                  }
+                                                                  for (const LLUUID& id : cat_deletion_list)
+                                                                  {
+                                                                      remove_inventory_category(id, NULL);
+                                                                  }
+                                                              });
         }
     }
 }
 
 void LLInventoryGallery::deleteSelection()
 {
-    if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+    bool has_worn = false;
+    bool needs_replacement = false;
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        LLNotifications::instance().setIgnored("DeleteItems", false);
-        LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+        if (cat)
+        {
+            LLInventoryModel::cat_array_t categories;
+            LLInventoryModel::item_array_t items;
+
+            gInventory.collectDescendents(id, categories, items, FALSE);
+
+            for (LLInventoryModel::item_array_t::value_type& item : items)
+            {
+                if (get_is_item_worn(item))
+                {
+                    has_worn = true;
+                    LLWearableType::EType type = item->getWearableType();
+                    if (type == LLWearableType::WT_SHAPE
+                        || type == LLWearableType::WT_SKIN
+                        || type == LLWearableType::WT_HAIR
+                        || type == LLWearableType::WT_EYES)
+                    {
+                        needs_replacement = true;
+                        break;
+                    }
+                }
+            }
+            if (needs_replacement)
+            {
+                break;
+            }
+        }
+
+        LLViewerInventoryItem* item = gInventory.getItem(id);
+        if (item && get_is_item_worn(item))
+        {
+            has_worn = true;
+            LLWearableType::EType type = item->getWearableType();            
+            if (type == LLWearableType::WT_SHAPE
+                || type == LLWearableType::WT_SKIN
+                || type == LLWearableType::WT_HAIR
+                || type == LLWearableType::WT_EYES)
+            {
+                needs_replacement = true;
+                break;
+            }
+        }
     }
 
-    LLSD args;
-    args["QUESTION"] = LLTrans::getString("DeleteItem");
-    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    if (needs_replacement)
+    {
+        LLNotificationsUtil::add("CantDeleteRequiredClothing");
+    }
+    else if (has_worn)
+    {
+        LLSD payload;
+        payload["has_worn"] = true;
+        LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
+    else
+    {
+        if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+        {
+            LLNotifications::instance().setIgnored("DeleteItems", false);
+            LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        }
+
+        LLSD args;
+        args["QUESTION"] = LLTrans::getString("DeleteItem");
+        LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
 }
 
 bool LLInventoryGallery::canDeleteSelection()
@@ -1913,7 +2071,7 @@ bool LLInventoryGallery::canDeleteSelection()
                 return false;
             }
         }
-        else if (!get_is_item_removable(&gInventory, id))
+        else if (!get_is_item_removable(&gInventory, id, true))
         {
             return false;
         }
@@ -2557,6 +2715,7 @@ BOOL LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
+    mThumbnailCtrl = getChild<LLThumbnailCtrl>("preview_thumbnail");
 
     return TRUE;
 }
@@ -2632,12 +2791,17 @@ void LLInventoryGalleryItem::setThumbnail(LLUUID id)
     mDefaultImage = id.isNull();
     if(mDefaultImage)
     {
-        getChild<LLThumbnailCtrl>("preview_thumbnail")->clearTexture();
+        mThumbnailCtrl->clearTexture();
     }
     else
     {
-        getChild<LLThumbnailCtrl>("preview_thumbnail")->setValue(id);
+        mThumbnailCtrl->setValue(id);
     }
+}
+
+void LLInventoryGalleryItem::setLoadImmediately(bool val)
+{
+    mThumbnailCtrl->setInitImmediately(val);
 }
 
 void LLInventoryGalleryItem::draw()
@@ -2654,7 +2818,7 @@ void LLInventoryGalleryItem::draw()
 
         // Draw border
         LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
-        LLRect border = getChildView("preview_thumbnail")->getRect();
+        LLRect border = mThumbnailCtrl->getRect();
         border.mRight = border.mRight + 1;
         border.mTop = border.mTop + 1;
         gl_rect_2d(border, border_color.get(), FALSE);
@@ -2876,7 +3040,7 @@ void LLInventoryGalleryItem::updateNameText()
     mNameText->setFont(getTextFont());
     mNameText->setText(mItemName + mPermSuffix + mWornSuffix);
     mNameText->setToolTip(mItemName + mPermSuffix + mWornSuffix);
-    getChild<LLThumbnailCtrl>("preview_thumbnail")->setToolTip(mItemName + mPermSuffix + mWornSuffix);
+    mThumbnailCtrl->setToolTip(mItemName + mPermSuffix + mWornSuffix);
 }
 
 bool LLInventoryGalleryItem::isFadeItem()

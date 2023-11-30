@@ -240,6 +240,7 @@ Ansariel Hiller
 	SL-18432
 	SL-19140
 	SL-4126
+	SL-20524
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -382,6 +383,7 @@ Chaser Zaks
     BUG-225599
     BUG-227485
     SL-16874
+	SL-20442
 Cherry Cheevers
 ChickyBabes Zuzu
 Chorazin Allen

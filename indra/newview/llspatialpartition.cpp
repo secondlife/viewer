@@ -830,6 +830,42 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 	assert_states_valid(this);
 }
 
+//virtual
+void LLSpatialGroup::rebound()
+{
+    if (!isDirty())
+        return;
+
+    super::rebound();
+
+    if (mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_CONTROL_AV)
+    {
+        llassert(mSpatialPartition->mPartitionType == LLViewerRegion::PARTITION_CONTROL_AV);
+
+        LLSpatialBridge* bridge = getSpatialPartition()->asBridge();
+        if (bridge &&
+            bridge->mDrawable &&
+            bridge->mDrawable->getVObj() &&
+            bridge->mDrawable->getVObj()->isRoot())
+        {
+            LLControlAvatar* controlAvatar = bridge->mDrawable->getVObj()->getControlAvatar();
+            if (controlAvatar &&
+                controlAvatar->mDrawable &&
+                controlAvatar->mControlAVBridge)
+            {
+                llassert(controlAvatar->mControlAVBridge->mOctree);
+
+                LLSpatialGroup* root = (LLSpatialGroup*)controlAvatar->mControlAVBridge->mOctree->getListener(0);
+                if (this == root)
+                {
+                    const LLVector4a* addingExtents = controlAvatar->mDrawable->getSpatialExtents();
+                    const LLXformMatrix* currentTransform = bridge->mDrawable->getXform();
+                    expandExtents(addingExtents, *currentTransform);
+                }
+            }
+        }
+    }
+}
 
 void LLSpatialGroup::destroyGLState(bool keep_occlusion) 
 {
@@ -1283,17 +1319,8 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
-
-	llassert(pos.isFinite());
-	llassert(size.isFinite());
-
-	llassert(!llisnan(pos.mV[0]));
-	llassert(!llisnan(pos.mV[1]));
-	llassert(!llisnan(pos.mV[2]));
-
-	llassert(!llisnan(size.mV[0]));
-	llassert(!llisnan(size.mV[1]));
-	llassert(!llisnan(size.mV[2]));
+    if (!pos.isFinite() || !size.isFinite())
+        return;
 
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
@@ -1568,6 +1595,8 @@ bool check_rigged_group(LLDrawable* drawable)
 
         if (root->isState(LLDrawable::RIGGED) && root->getSpatialGroup() != group)
         {
+            LL_WARNS() << "[root->isState(LLDrawable::RIGGED) and root->getSpatialGroup() != group] is true"
+                " (" << root->getSpatialGroup() << " != " << group << ")" << LL_ENDL;
             llassert(false);
             return false;
         }
@@ -1577,8 +1606,10 @@ bool check_rigged_group(LLDrawable* drawable)
         {
             for (auto& face : root->getFaces())
             {
-                if ((S32) face->getDrawOrderIndex() <= last_draw_index)
+                if ((S32)face->getDrawOrderIndex() <= last_draw_index)
                 {
+                    LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
+                        " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
                     llassert(false);
                     return false;
                 }
@@ -1592,17 +1623,21 @@ bool check_rigged_group(LLDrawable* drawable)
             {
                 for (auto& face : child->mDrawable->getFaces())
                 {
-                    if ((S32) face->getDrawOrderIndex() <= last_draw_index)
+                    if ((S32)face->getDrawOrderIndex() <= last_draw_index)
                     {
+                        LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
+                            " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
                         llassert(false);
                         return false;
                     }
                     last_draw_index = face->getDrawOrderIndex();
                 }
             }
-            
+
             if (child->mDrawable->getSpatialGroup() != group)
             {
+                LL_WARNS() << "[child->mDrawable->getSpatialGroup() != group] is true"
+                    " (" << child->mDrawable->getSpatialGroup() << " != " << group << ")" << LL_ENDL;
                 llassert(false);
                 return false;
             }
