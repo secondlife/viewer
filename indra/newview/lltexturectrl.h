@@ -196,6 +196,7 @@ public:
 	void			setDnDFilterPermMask(PermissionMask mask)
 						{ mDnDFilterPermMask = mask; }
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
+    void setFilterPermissionMasks(PermissionMask mask);
 
 	void			closeDependentFloater();
 
