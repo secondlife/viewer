@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="material editor" title="マテリアルの編集">
+	<scroll_container name="materials_scroll">
+		<panel name="panel_material"/>
+	</scroll_container>
+</floater>
