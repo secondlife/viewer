@@ -85,10 +85,6 @@ class LLWebRTCDeviceInterface
 
     virtual void setTuningMode(bool enable) = 0;
     virtual float getTuningAudioLevel() = 0;
-
-    virtual void setSpeakerVolume(float volume) = 0;  // volume between 0.0 and 1.0
-    virtual void setMicrophoneVolume(float volume) = 0;  // volume between 0.0 and 1.0
-    virtual void setMute(bool mute) = 0;
     virtual float getPeerAudioLevel() = 0;
 };
 
@@ -96,6 +92,8 @@ class LLWebRTCAudioInterface
 {
   public:
     virtual void setMute(bool mute) = 0;
+    virtual void setReceiveVolume(float volume) = 0;  // volume between 0.0 and 1.0
+    virtual void setSendVolume(float volume) = 0;  // volume between 0.0 and 1.0
 };
 
 class LLWebRTCDataObserver
