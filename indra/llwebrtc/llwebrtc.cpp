@@ -620,26 +620,29 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
 
 void LLWebRTCPeerConnectionImpl::setReceiveVolume(float volume)
 {
-    auto receivers = mPeerConnection->GetReceivers();
-    
-    for (auto &receiver : receivers)
-    {
-        for (auto& stream : receiver->streams())
+    mWebRTCImpl->PostSignalingTask(
+        [this, volume]()
         {
-            for (auto& track : stream->GetAudioTracks())
+            auto receivers = mPeerConnection->GetReceivers();
+
+            for (auto &receiver : receivers)
             {
-                track->GetSource()->SetVolume(volume);
+                for (auto &stream : receiver->streams())
+                {
+                    for (auto &track : stream->GetAudioTracks())
+                    {
+                        track->GetSource()->SetVolume(volume);
+                    }
+                }
             }
-        }
-    }
+        });
 }
 
 void LLWebRTCPeerConnectionImpl::setSendVolume(float volume)
 {
     if (mLocalStream)
     {
-        auto track = mLocalStream->FindAudioTrack("SLStream");
-        if (track)
+        for (auto &track : mLocalStream->GetAudioTracks())
         {
             track->GetSource()->SetVolume(volume);
         }
