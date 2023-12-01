@@ -64,6 +64,9 @@ bool LLSpatialGroup::sNoDelete = false;
 static F32 sLastMaxTexPriority = 1.f;
 static F32 sCurMaxTexPriority = 1.f;
 
+// enable expensive sanity checks around redundant drawable and group insertion to LLCullResult
+#define LL_DEBUG_CULL_RESULT 0
+
 //static counter for frame to switch LOD on
 
 void sg_assert(BOOL expr)
@@ -4015,6 +4018,10 @@ void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
 
 void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
 {
+#if LL_DEBUG_CULL_RESULT
+    // group must NOT be in the drawble groups list already
+    llassert(std::find(&mDrawableGroups[0], mDrawableGroupsEnd, group) == mDrawableGroupsEnd);
+#endif
 	if (mDrawableGroupsSize < mDrawableGroupsAllocated)
 	{
 		mDrawableGroups[mDrawableGroupsSize] = group;
@@ -4029,6 +4036,10 @@ void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
 
 void LLCullResult::pushDrawable(LLDrawable* drawable)
 {
+#if LL_DEBUG_CULL_RESULT
+    // drawable must NOT be in the visible list already
+    llassert(std::find(&mVisibleList[0], mVisibleListEnd, drawable) == mVisibleListEnd);
+#endif
 	if (mVisibleListSize < mVisibleListAllocated)
 	{
 		mVisibleList[mVisibleListSize] = drawable;

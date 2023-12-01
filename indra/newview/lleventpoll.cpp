@@ -152,6 +152,8 @@ namespace Details
 
         LL::WorkQueue::ptr_t main_queue = nullptr;
 
+        // HACK -- grab the mainloop workqueue to move execution of the handler
+        // to a place that's safe in the main thread
 #if 1
         main_queue = LL::WorkQueue::getInstance("mainloop");
 #endif

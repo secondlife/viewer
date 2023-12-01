@@ -2311,13 +2311,6 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
         gSky.mVOWLSkyp->mDrawable->setVisible(camera);
         sCull->pushDrawable(gSky.mVOWLSkyp->mDrawable);
     }
-
-    bool render_water = !sReflectionRender && (hasRenderType(LLPipeline::RENDER_TYPE_WATER) || hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER));
-
-    if (render_water)
-    {
-        LLWorld::getInstance()->precullWaterObjects(camera, sCull, render_water);
-    }
 }
 
 void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
