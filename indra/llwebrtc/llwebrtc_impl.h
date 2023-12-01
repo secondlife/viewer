@@ -116,10 +116,6 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
     float getPeerAudioLevel() override;
-
-    void setSpeakerVolume(float volume) override; // range 0.0-1.0
-    void setMicrophoneVolume(float volume) override; // range 0.0-1.0  
-    void setMute(bool mute) override;
     
     //
     // Helpers
@@ -224,12 +220,13 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
     void shutdownConnection() override;
     void AnswerAvailable(const std::string &sdp) override;
 
-
     //
     // LLWebRTCAudioInterface
     //
     void setMute(bool mute) override;
-    
+    void setReceiveVolume(float volume) override;  // volume between 0.0 and 1.0
+    void setSendVolume(float volume) override;  // volume between 0.0 and 1.0
+
     //
     // LLWebRTCDataInterface
     //
@@ -291,6 +288,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
     bool                                                       mAnswerReceived;
 
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>        mPeerConnection;
+    rtc::scoped_refptr<webrtc::MediaStreamInterface>           mLocalStream;
 
     std::vector<LLWebRTCDataObserver *>                        mDataObserverList;
     rtc::scoped_refptr<webrtc::DataChannelInterface>           mDataChannel;

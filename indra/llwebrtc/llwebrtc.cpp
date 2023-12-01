@@ -399,11 +399,6 @@ float LLWebRTCImpl::getTuningAudioLevel() { return 20 * mTuningAudioDeviceObserv
 
 float LLWebRTCImpl::getPeerAudioLevel() { return 20 * mPeerAudioDeviceObserver->getMicrophoneEnergy(); }
 
-void LLWebRTCImpl::setSpeakerVolume(float volume) { mPeerDeviceModule->SetSpeakerVolume( (uint32_t)(volume * VOLUME_SCALE_WEBRTC));}
-void LLWebRTCImpl::setMicrophoneVolume(float volume) { mPeerDeviceModule->SetMicrophoneVolume((uint32_t)(volume * VOLUME_SCALE_WEBRTC));}
-
-void LLWebRTCImpl::setMute(bool mute) { mPeerDeviceModule->SetMicrophoneMute(mute); }
-
 //
 // Helpers
 //
@@ -417,6 +412,7 @@ LLWebRTCPeerConnection * LLWebRTCImpl::newPeerConnection()
     peerConnection->enableTracks(!mMute);
     return peerConnection.get();
 }
+
 void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnection * peer_connection)
 {
     std::vector<rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>::iterator it =
@@ -506,12 +502,11 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
     audioOptions.echo_cancellation = false;  // incompatible with opus stereo
     audioOptions.noise_suppression = true;
     
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> stream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
-    
+    mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
     rtc::scoped_refptr<webrtc::AudioTrackInterface>  audio_track(
                                                                  mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
     audio_track->set_enabled(true);
-    stream->AddTrack(audio_track);
+    mLocalStream->AddTrack(audio_track);
     
     mPeerConnection->AddTrack(audio_track, {"SLStream"});
     
@@ -545,6 +540,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
         params.codecs.push_back(codecparam);
         receiver->SetParameters(params);
     }
+    
     webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
     mPeerConnection->CreateOffer(this, offerOptions);
     
@@ -606,13 +602,47 @@ void LLWebRTCPeerConnectionImpl::AnswerAvailable(const std::string &sdp)
 void LLWebRTCPeerConnectionImpl::setMute(bool mute)
 {
     mMute = mute;
-    auto senders = mPeerConnection->GetSenders();
-    
-    RTC_LOG(LS_INFO) << __FUNCTION__ << (mute ? "disabling" : "enabling") << " streams count " << senders.size();
-    
-    for (auto &sender : senders)
+    if (mPeerConnection)
     {
-        sender->track()->set_enabled(!mMute);
+        auto senders = mPeerConnection->GetSenders();
+        
+        RTC_LOG(LS_INFO) << __FUNCTION__ << (mute ? "disabling" : "enabling") << " streams count " << senders.size();
+        for (auto &sender : senders)
+        {
+            auto track = sender->track();
+            if(track)
+            {
+                track->set_enabled(!mMute);
+            }
+        }
+    }
+}
+
+void LLWebRTCPeerConnectionImpl::setReceiveVolume(float volume)
+{
+    auto receivers = mPeerConnection->GetReceivers();
+    
+    for (auto &receiver : receivers)
+    {
+        for (auto& stream : receiver->streams())
+        {
+            for (auto& track : stream->GetAudioTracks())
+            {
+                track->GetSource()->SetVolume(volume);
+            }
+        }
+    }
+}
+
+void LLWebRTCPeerConnectionImpl::setSendVolume(float volume)
+{
+    if (mLocalStream)
+    {
+        auto track = mLocalStream->FindAudioTrack("SLStream");
+        if (track)
+        {
+            track->GetSource()->SetVolume(volume);
+        }
     }
 }
 

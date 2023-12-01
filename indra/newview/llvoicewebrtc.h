@@ -336,6 +336,10 @@ public:
         void OnConnectionFailure(const std::string &channelID);
 
 		void sendData(const std::string &data);
+        
+        void setMuteMic(bool muted);
+        void setMicGain(F32 volume);
+        void setSpeakerVolume(F32 volume);
 		
         static void for_each(sessionFunc_t func);
 
@@ -350,6 +354,10 @@ public:
 		std::string mName;
 		std::string mErrorStatusString;
 		std::queue<std::string> mTextMsgQueue;
+        
+        bool        mMuted;
+        F32         mMicGain;
+        F32         mSpeakerVolume;
 		
 		LLUUID		mIMSessionID;
 		LLUUID		mCallerID;
@@ -404,6 +412,9 @@ public:
     static void predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const std::string& spatial_data, const std::string& volume_data);
     static void predUpdateOwnVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 audio_level);
     static void predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool mute);
+    static void predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
+    static void predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
+
 	//////////////////////////////
 	/// @name TVC/Server management and communication
 	//@{
@@ -746,6 +757,9 @@ class LLVoiceWebRTCConnection :
 	bool connectionStateMachine();
 
 	void sendData(const std::string &data);
+    void setMuteMic(bool muted);
+    void setMicGain(F32 volume);
+    void setSpeakerVolume(F32 volume);
 
 	void shutDown()
 	{ 
@@ -810,6 +824,10 @@ protected:
     S32    mParcelLocalID;
 
     bool   mShutDown;
+
+    bool        mMuted;
+    F32         mMicGain;
+    F32         mSpeakerVolume;
 
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;
