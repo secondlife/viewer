@@ -7,7 +7,8 @@
 	<menu_item_call label="（不明）" name="Suggestion 5"/>
 	<menu_item_call label="辞書に追加" name="Add to Dictionary"/>
 	<menu_item_call label="無視に追加" name="Add to Ignore"/>
-	<menu_item_call label="切り取り" name="Cut"/>
+	<menu_item_separator name="Spellcheck Separator"/>
+	<menu_item_call label="カット" name="Cut"/>
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="ペースト" name="Paste"/>
 	<menu_item_call label="削除" name="Delete"/>

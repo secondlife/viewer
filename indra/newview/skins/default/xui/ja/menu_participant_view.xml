@@ -11,6 +11,6 @@
 	<menu_item_call label="プライバシーの初期設定…" name="privacy_preferences"/>
 	<menu_item_check label="会話ログ…" name="Conversation"/>
 	<menu_item_separator/>
-	<menu_item_check label="近隣のチャットを翻訳" name="Translate_chat"/>
+	<menu_item_check label="チャットを翻訳" name="Translate_chat"/>
 	<menu_item_check label="翻訳の設定…" name="Translation_settings"/>
 </toggleable_menu>

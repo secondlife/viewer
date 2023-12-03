@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_search_visibility">
+	<menu_item_check label="アウトフィットフォルダを検索" name="search_outfits"/>
 	<menu_item_check label="ゴミ箱を検索" name="search_trash"/>
 	<menu_item_check label="ライブラリを検索" name="search_library"/>
 	<menu_item_separator/>
