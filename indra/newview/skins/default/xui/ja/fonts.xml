@@ -2,7 +2,10 @@
 <fonts>
 	<font name="default" comment="default font files (global fallbacks)">
 		<file>
-			NotoSansCJKjp-Medium.otf
+			NotoSansCJK-Regular.ttc
+		</file>
+		<file>
+			NotoColorEmoji.ttf
 		</file>
 		<file>
 			DejaVuSans.ttf
@@ -10,6 +13,9 @@
 		<os name="Windows">
 			<file load_collection="true">
 				YuGothM.ttc
+			</file>
+			<file>
+				Seguiemj.ttf
 			</file>
 			<file>
 				meiryo.TTC
@@ -42,6 +48,9 @@
 		<os name="Mac">
 			<file>
 				YuGothic-Medium.otf
+			</file>
+			<file>
+				Apple Color Emoji.ttf
 			</file>
 			<file>
 				ヒラギノ角ゴシック W3.ttc
@@ -80,7 +89,7 @@
 	</font>
 	<font name="SansSerifBold" comment="Name of bold sans-serif font">
 		<file>
-			NotoSansCJKjp-Bold.otf
+			NotoSansCJK-Bold.ttc
 		</file>
 		<file>
 			DejaVuSans-Bold.ttf
@@ -104,17 +113,29 @@
 	</font>
 	<font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
 		<file>
-			NotoSansCJKjp-Bold.otf
+			NotoSansCJK-Regular.ttc
+		</file>
+		<file>
+			NotoColorEmoji.ttf
 		</file>
 		<file>
 			DejaVuSans.ttf
 		</file>
 		<os name="Windows">
+			<file load_collection="true">
+				YuGothM.ttc
+			</file>
 			<file>
 				arial.ttf
 			</file>
 		</os>
 		<os name="Mac">
+			<file>
+				YuGothic-Medium.otf
+			</file>
+			<file>
+				Apple Color Emoji.ttf
+			</file>
 			<file>
 				Helvetica.dfont
 			</file>
@@ -122,8 +143,21 @@
 	</font>
 	<font name="SansSerif" comment="Name of bold sans-serif font" font_style="BOLD">
 		<file>
+			NotoSansCJK-Bold.ttc
+		</file>
+		<file>
 			DejaVuSans-Bold.ttf
 		</file>
+		<os name="Windows">
+			<file load_collection="true">
+				YuGothB.ttc
+			</file>
+		</os>
+		<os name="Mac">
+			<file>
+				YuGothic-Bold.otf
+			</file>
+		</os>
 	</font>
 	<font name="SansSerif" comment="Name of italic sans-serif font" font_style="ITALIC">
 		<file>
