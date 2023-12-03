@@ -52,16 +52,16 @@
 		<columns name="lst_action" tool_tip="対象に対して、カメラをカメラを時計回りに回します。" value="時計回り"/>
 	</rows>
 	<rows name="move_forward_sitting" value="move_forward_sitting">
-		<columns name="lst_action" value="座ってカメラを近づける"/>
+		<columns name="lst_action" value="座った状態でカメラを近づける"/>
 	</rows>
 	<rows name="move_backward_sitting" value="move_backward_sitting">
-		<columns name="lst_action" value="座ってカメラを遠ざける"/>
+		<columns name="lst_action" value="座った状態でカメラを遠ざける"/>
 	</rows>
 	<rows name="spin_over_sitting" value="spin_over_sitting">
-		<columns name="lst_action" value="座ってカメラの仰角を上げる"/>
+		<columns name="lst_action" value="座った状態でカメラの仰角を上げる"/>
 	</rows>
 	<rows name="spin_under_sitting" value="spin_under_sitting">
-		<columns name="lst_action" value="座ってカメラの仰角を下げる"/>
+		<columns name="lst_action" value="座った状態でカメラの仰角を下げる"/>
 	</rows>
 	<rows name="spin_around_ccw_sitting" value="spin_around_ccw_sitting">
 		<columns name="lst_action" tool_tip="座った状態で対象に対して、カメラを反時計回りに回します。" value="座って反時計回り"/>

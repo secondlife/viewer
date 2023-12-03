@@ -13,7 +13,7 @@
 		上部コライダー
 	</floater.string>
 	<floater.string name="top_colliders_text">
-		上位[COUNT]個の物体は多くの衝突可能性があります。
+		上位[COUNT]個のオブジェクトは衝突する可能性が高いです。
 	</floater.string>
 	<floater.string name="colliders_score_label">
 		数
@@ -37,11 +37,11 @@
 		<scroll_list.columns label="ロケーション" name="location"/>
 		<scroll_list.columns label="区画" name="parcel"/>
 		<scroll_list.columns label="日付" name="time"/>
-		<scroll_list.columns label="URL" name="URLs"/>
+		<scroll_list.columns label="ＵＲＬ" name="URLs"/>
 		<scroll_list.columns label="メモリ（㎅）" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
-		物体ＩＤ：
+		オブジェクトＩＤ：
 	</text>
 	<button label="標識を表示" name="show_beacon_btn"/>
 	<text name="obj_name_text">

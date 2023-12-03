@@ -28,7 +28,7 @@
 		区画に適用
 	</string>
 	<string name="commit_region">
-		リージョン（地域）に適用
+		リージョンに適用
 	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
@@ -36,7 +36,7 @@
 				デイサイクル名：
 			</text>
 			<line_editor name="day_cycle_name"/>
-			<button label="インポート" fname="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
+			<button label="インポート" name="btn_import" tool_tip="ディスクからレガシー設定をインポートする。"/>
 		</layout_panel>
 		<layout_panel name="content">
 			<layout_stack name="content_stack">
@@ -45,7 +45,7 @@
 						<button label="空４" name="sky4_track"/>
 						<button label="空３" name="sky3_track"/>
 						<button label="空２" name="sky2_track"/>
-						<button label="地面" name="sky1_track"/>
+						<button label="地表" name="sky1_track"/>
 						<button label="水面" name="water_track"/>
 					</panel>
 					<panel name="timeline">
@@ -59,8 +59,8 @@
 						<text name="current_time" value="[PRCNT]％ [DSC]"/>
 						<layout_stack name="track_options_ls">
 							<layout_panel name="track_options_lp">
-								<button label="トラックを以下から複製" name="copy_track"/>
-								<button label="トラックを以下から読み込み" name="load_track"/>
+								<button label="以下から複製" name="copy_track"/>
+								<button label="以下から読み込み" name="load_track"/>
 								<button label="トラックを消去" name="clear_track"/>
 							</layout_panel>
 							<layout_panel name="track_progress_lp">

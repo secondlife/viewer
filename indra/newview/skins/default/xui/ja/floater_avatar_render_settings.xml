@@ -7,6 +7,6 @@
 		<name_list.columns label="描画設定" name="setting"/>
 	</name_list>
 	<panel name="add_subpanel">
-		<menu_button label="何かを追加…" name="plus_btn" tool_tip="選択した人物に対するアクション"/>
+		<menu_button name="plus_btn" label="追加…" tool_tip="選択した人物に対する操作を指定します。"/>
 	</panel>
 </floater>

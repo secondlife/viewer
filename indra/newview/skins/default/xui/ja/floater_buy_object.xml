@@ -19,7 +19,7 @@
 		中身：
 	</text>
 	<text name="buy_text">
-		次の売り手から L$ [AMOUNT]で購入：
+		以下の販売者からL$ [AMOUNT]で購入：
 	</text>
 	<text name="buy_name_text">
 		[NAME]？

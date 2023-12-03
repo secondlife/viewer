@@ -14,7 +14,7 @@
 	<spinner label="ロール・マッピング" name="JoystickAxis3"/>
 	<spinner label="ズーム・マッピング" name="JoystickAxis6"/>
 	<check_box label="直接ズーム" name="ZoomDirect"/>
-	<check_box label="3Dカーソル" name="Cursor3D"/>
+	<check_box label="３Ｄカーソル" name="Cursor3D"/>
 	<check_box label="自動レベル" name="AutoLeveling"/>
 	<text name="Control Modes:">
 		制御モード：

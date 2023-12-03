@@ -8,7 +8,7 @@
 			支払い方法を登録してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
 		</text>
 		<button label="始めましょう" name="continue_btn"/>
-		<button label="また後で"/>
+		<button label="また後で" name="close_btn"/>
 		<icon name="image_left"/>
 		<icon name="image_center"/>
 		<icon name="image_right"/>

@@ -4,6 +4,6 @@
 		[DESC]：
 	</text>
 	<panel_inventory_object name="object_contents"/>
-	<button label="インベントリにコピーのみ" label_selected="インベントリにコピー" name="copy_to_inventory_button"/>
+	<button label="インベントリにコピー" label_selected="インベントリにコピー" name="copy_to_inventory_button"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_button"/>
 </floater>

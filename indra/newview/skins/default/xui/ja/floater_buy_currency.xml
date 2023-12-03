@@ -59,7 +59,7 @@
 				平均[LOCALAMOUNT]
 			</text>
 			<text name="getting_data">
-				見積もり中…
+				見積もりを出しています…
 			</text>
 			<text name="total_label">
 				購入後の残高
@@ -83,7 +83,7 @@
 		</layout_panel>
 		<layout_panel name="layout_panel_buttons">
 			<text name="contacting">
-				LindeXに接続中…
+				LindeXに接続しています…
 			</text>
 			<button label="今すぐL$を購入" name="buy_btn"/>
 			<button label="キャンセル" name="cancel_btn"/>

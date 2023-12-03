@@ -6,7 +6,7 @@
 	<combo_box name="start_location_combo">
 		<combo_box.item label="最後に訪れた場所" name="MyLastLocation" value="last"/>
 		<combo_box.item label="自分の家" name="MyHome" value="home"/>
-		<combo_box.item label="＜リージョン（地域）名を入力＞" name="Typeregionname" value=""/>
+		<combo_box.item label="＜リージョン名を入力＞" name="Typeregionname" value=""/>
 	</combo_box>
 	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
 		最小のコンボボックス：

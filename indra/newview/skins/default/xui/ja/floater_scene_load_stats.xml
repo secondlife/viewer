@@ -27,7 +27,7 @@
 					<stat_bar name="packetsinstat" label="受信パケット量" unit_label="／秒"/>
 					<stat_bar name="packetsoutstat" label="送信パケット量" unit_label="／秒"/>
 					<stat_bar name="objectdatareceived" label="オブジェクト" unit_label="kbps"/>
-					<stat_bar name="texturedatareceived" label="テスクチャ" unit_label="kbps"/>
+					<stat_bar name="texturedatareceived" label="テクスチャ" unit_label="kbps"/>
 					<stat_bar name="assetudpdatareceived" label="アセット" unit_label="kbps"/>
 					<stat_bar name="layersdatareceived" label="レイヤー" unit_label="kbps"/>
 					<stat_bar name="messagedatain" label="実効受信量" unit_label="kbps"/>

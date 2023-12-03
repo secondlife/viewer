@@ -35,24 +35,18 @@
 	<text name="HardwareText">
 		ハードウェア
 	</text>
-	<slider label="テクスチャメモリ（㎆）：" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てるメモリの量を指定します。デフォルトはビデオカードの搭載メモリの値です。この値を減らすとパフォーマンスが向上する可能性がありますが、テクスチャがぼやける可能性があります。"/>
-	<slider label="フォグの距離比率：" name="fog"/>
-	<slider label="ガンマ：" name="gamma"/>
-	<text name="(brightness, lower is brighter)">
-		（０がデフォルトです。低い値ほど明るくなります。）
-	</text>
-	<check_box label="異方的フィルタリング（有効にすると速度が低下します）" name="ani"/>
+	<check_box label="異方性フィルタリング（有効にすると遅くなります）" name="ani"/>
 	<check_box control_name="RenderCompressTextures" label="テクスチャ圧縮の有効化 (再起動後に反映)" name="texture compression" tool_tip="ビデオメモリ内のテクスチャを圧縮し、色の品質をある程度犠牲にして、より高解像度のテクスチャを読み込むようにします。"/>
-	<check_box control_name="HiDPIディスプレイのサポートを有効にする（再起動後に反映）" name="高解像度の描画のためにOpenGLを有効にします。"/>
+	<check_box label="HiDPIディスプレイのサポートを有効にする（再起動後に反映）" name="use HiDPI" tool_tip="ＯｐｅｎＧＬの高解像描画を有効化します。"/>
 	<text name="antialiasing label">
 		アンチエイリアス：
 	</text>
-	<combo_box label="アンチエイリアス" name="fsaa">
+	<combo_box label="アンチエイリアシング" name="fsaa">
 		<combo_box.item label="無効" name="FSAADisabled" value="0"/>
-		<combo_box.item label="2x" name="2x" value="2"/>
-		<combo_box.item label="4x" name="4x" value="4"/>
-		<combo_box.item label="8x" name="8x" value="8"/>
-		<combo_box.item label="16x" name="16x" value="16"/>
+		<combo_box.item label="低" name="2x" value="2"/>
+		<combo_box.item label="中" name="4x" value="4"/>
+		<combo_box.item label="高" name="8x" value="8"/>
+		<combo_box.item label="最大" name="16x" value="16"/>
 	</combo_box>
 	<text name="antialiasing restart">
 		（再起動後に反映）
@@ -107,7 +101,7 @@
 	</text>
 	<check_box label="高度な光源モデル" name="UseLightShaders"/>
 	<check_box label="アンビエントオクルージョン" name="UseSSAO"/>
-	<check_box label="被写界深度（DoF）" name="UseDoF"/>
+	<check_box label="被写界深度（ＤｏＦ）" name="UseDoF"/>
 	<text name="RenderShadowDetailText">
 		影：
 	</text>
@@ -116,6 +110,26 @@
 		<combo_box.item label="太陽／月" name="1"/>
 		<combo_box.item label="太陽／月＋プロジェクタ" name="2"/>
 	</combo_box>
+	<check_box label="スクリーンスペースの反射" name="ScreenSpaceReflections"/>
+	<text name="ReflectionDetailText">
+		反射の詳細：
+	</text>
+	<combo_box name="ReflectionDetail">
+		<combo_box.item label="静的のみ" name="0" value="0"/>
+		<combo_box.item label="静的＋動的" name="1" value="1"/>
+		<combo_box.item label="リアルタイム" name="2" value="2"/>
+	</combo_box>
+	<text name="ReflectionProbeText">
+		反射範囲：
+	</text>
+	<combo_box name="ReflectionLevel">
+		<combo_box.item label="なし" name="0" value="0"/>
+		<combo_box.item label="マニュアルのみ" name="1" value="1"/>
+		<combo_box.item label="マニュアル＋地形" name="2" value="2"/>
+		<combo_box.item label="全てのシーン" name="3" value="3"/>
+	</combo_box>
+	<slider label="露光：" name="RenderExposure"/>
+	<!-- End of Advanced Settings block -->
 	<view_border name="horiz_border"/>
 	<button label="推奨設定値にリセット" name="Defaults"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>

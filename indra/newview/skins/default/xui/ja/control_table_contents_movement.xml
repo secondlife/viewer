@@ -48,6 +48,9 @@
 	<rows name="toggle_run" value="toggle_run">
 		<columns name="lst_action" value="常時走行切り替え"/>
 	</rows>
+	<rows name="toggle_down" value="toggle_down">
+		<columns name="lst_action" value="しゃがみの切り替え"/>
+	</rows>
 	<rows name="toggle_fly" value="toggle_fly">
 		<columns name="lst_action" value="飛行／停止切り替え"/>
 	</rows>

@@ -2,13 +2,13 @@
 <floater name="land holdings floater" title="自分の土地">
 	<scroll_list name="parcel list">
 		<column label="区画" name="name"/>
-		<column label="リージョン（地域）" name="location"/>
+		<column label="リージョン" name="location"/>
 		<column label="種類" name="type"/>
 		<column label="面積" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
 	<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="この土地の中心にテレポートします。"/>
-	<button label="マップ" label_selected="マップ" name="Show on Map" tool_tip="この土地をワールドマップに表示します。"/>
+	<button label="マップ" label_selected="マップ" name="Show on Map" tool_tip="この土地をワールドマップ上に表示します。"/>
 	<text name="contrib_label">
 		所属グループへの貢献：
 	</text>
@@ -23,13 +23,13 @@
 		[AREA]㎡
 	</text>
 	<text name="current_label">
-		現在の保有地：
+		現在の保有面積：
 	</text>
 	<text name="current_text">
 		[AREA]㎡
 	</text>
 	<text name="available_label">
-		購入可能な土地：
+		購入可能な土地面積：
 	</text>
 	<text name="available_text">
 		[AREA]㎡

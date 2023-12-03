@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="region_restarting" title="リージョンの再起動">
 	<string name="RegionName">
-		現在あなたがいるリージョン「[NAME]」は、再起動しようとしています。
+		現在あなたがいるリージョン「[NAME]」は再起動しようとしています。
 
 このまま、この場所にいるとログアウトされます。
 	</string>
@@ -11,7 +11,7 @@
 	</string>
 	<panel name="layout_panel_1">
 		<text name="region_name">
-			現在あなたがいるリージョン「-最長リージョン名-」は、再起動しようとしています。
+			現在あなたがいるリージョン「‐最長リージョン名‐」は再起動しようとしています。
 
 このまま、この場所にいるとログアウトされます。
 		</text>

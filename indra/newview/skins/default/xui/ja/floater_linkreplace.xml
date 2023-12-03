@@ -10,10 +10,10 @@
 		置換元と置換先が同一です。
 	</string>
 	<string name="ItemsFound">
-		[NUM]件のリンクが見つかりました。
+		[NUM]箇所のリンクが見つかりました。
 	</string>
 	<string name="ItemsRemaining">
-		残りリンク数：[NUM]件
+		残りリンク数：[NUM]箇所
 	</string>
 	<string name="ReplaceFinished">
 		インベントリのリンクの置換えが完了しました。
@@ -22,11 +22,11 @@
 		置換元：
 	</text>
 	<inventory_link_replace_drop_target name="source_uuid_editor" tool_tip="置換えたいインベントリ内のアイテムを、ここへドラッグ・アンド・ドロップしてください。"/>
-	<text type="string" name="target_label">
+	<text name="target_label">
 		置換先：
 	</text>
 	<inventory_link_replace_drop_target name="target_uuid_editor" tool_tip="新しいインベントリ内のアイテムを、ここへドラッグ・アンド・ドロップしてください。"/>
-	<text type="string" name="status_text">
+	<text name="status_text">
 		準備中…
 	</text>
 	<button name="btn_refresh" label="リフレッシュ"/>

@@ -39,7 +39,7 @@
 		</panel>
 		<panel name="nearby_subpanel">
 			<text name="avatars_nearby_lbl">
-				近隣のアバター
+				近くのアバター
 			</text>
 			<text name="avatars_nearby_desc">
 				近くにいるアバターのうち、どのタイプのアバターを完全に表示するかを管理します。
@@ -65,9 +65,9 @@
 			<icon name="icon_arrow4"/>
 		</panel>
 	</panel>
-	<panel filename="panel_performance_nearby.xml" name="panel_performance_nearby"/>
-	<panel filename="panel_performance_complexity.xml" name="panel_performance_complexity"/>
-	<panel filename="panel_performance_preferences.xml" name="panel_performance_preferences"/>
-	<panel filename="panel_performance_huds.xml" name="panel_performance_huds"/>
-	<panel filename="panel_performance_autoadjustments.xml" name="panel_performance_autoadjustments"/>
+	<panel name="panel_performance_nearby"/>
+	<panel name="panel_performance_complexity"/>
+	<panel name="panel_performance_preferences"/>
+	<panel name="panel_performance_huds"/>
+	<panel name="panel_performance_autoadjustments"/>
 </floater>
