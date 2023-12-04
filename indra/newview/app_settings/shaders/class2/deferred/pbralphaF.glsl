@@ -82,9 +82,7 @@ vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec3 atmosFragLightingLinear(vec3 color, vec3 additive, vec3 atten);
-
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
@@ -241,10 +239,7 @@ void main()
 
     color.rgb += light.rgb;
 
-    color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
-    
-    vec4 temp = applyWaterFogViewLinear(pos, vec4(color, 0.0));
-    color = temp.rgb;
+    color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     float a = basecolor.a*vertex_color.a;
     
@@ -300,6 +295,7 @@ void main()
     
     float a = basecolor.a*vertex_color.a;
     color += colorEmissive;
+
     color = linear_to_srgb(color);
     frag_color = max(vec4(color.rgb,a), vec4(0));
 }
