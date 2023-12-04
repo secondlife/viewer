@@ -85,8 +85,6 @@ void main()
     color.rgb = srgb_to_linear(color.rgb);
 
     applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
-    color.rgb = atmosFragLighting(color.rgb, additive, atten);
-    color = applyWaterFogViewLinear(pos.xyz, color);
 #endif
 
 	color.a = 1.0;

@@ -33,6 +33,8 @@ uniform float waterFogKS;
 vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
+vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
+
 // get a water fog color that will apply the appropriate haze to a color given
 // a blend function of (ONE, SOURCE_ALPHA)
 vec4 getWaterFogViewNoClip(vec3 pos)
@@ -108,3 +110,35 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
     return applyWaterFogViewLinearNoClip(pos, color);
 }
 
+// for post deferred shaders, apply sky and water fog in a way that is consistent with
+// the deferred rendering haze post effects
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color)
+{
+    bool eye_above_water = dot(vec3(0), waterPlane.xyz) + waterPlane.w > 0.0;
+    bool obj_above_water = dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0;
+
+    if (eye_above_water)
+    {
+        if (!obj_above_water)
+        { 
+            color.rgb = applyWaterFogViewLinearNoClip(pos, color).rgb;
+        }
+        else
+        {
+            color.rgb = atmosFragLighting(color.rgb, additive, atten);
+        }
+    }
+    else
+    {
+        if (obj_above_water)
+        {
+            color.rgb = atmosFragLighting(color.rgb, additive, atten);
+        }
+        else
+        {
+            color.rgb = applyWaterFogViewLinearNoClip(pos, color).rgb;
+        }
+    }
+
+    return color;
+}
