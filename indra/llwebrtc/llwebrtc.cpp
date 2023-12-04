@@ -287,15 +287,10 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                                         break;
                                     }
                                 }
-                                mTuningDeviceModule->SetSpeakerMute(true);
                                 bool was_tuning_playing = mTuningDeviceModule->Playing();
                                 if (was_tuning_playing)
                                 {
                                     mTuningDeviceModule->StopPlayout();
-                                }
-                                if (mPeerDeviceModule)
-                                {
-                                    mPeerDeviceModule->SetSpeakerMute(true);
                                 }
                                 
                                 mTuningDeviceModule->SetPlayoutDevice(tuningPlayoutDevice);
@@ -326,10 +321,8 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                                     mPeerDeviceModule->InitSpeaker();
                                     mPeerDeviceModule->InitPlayout();
                                     mPeerDeviceModule->StartPlayout();
-                                    mPeerDeviceModule->SetSpeakerMute(false);
                                     
                                 }
-                                mTuningDeviceModule->SetSpeakerMute(false);
                             });
 }
 
@@ -369,29 +362,25 @@ void LLWebRTCImpl::setTuningMode(bool enable)
                                     {
                                         
                                         mTuningDeviceModule->StartRecording();
-                                        mTuningDeviceModule->SetMicrophoneMute(false);
-                                        
-                                        
-                                        mTuningDeviceModule->SetSpeakerMute(false);
                                         
                                         if (mPeerDeviceModule)
                                         {
                                             mPeerDeviceModule->StopRecording();
-                                            mPeerDeviceModule->SetSpeakerMute(true);
                                         }
                                     }
                                     else
                                     {
+                                        mTuningDeviceModule->StartRecording();
                                         if (mPeerDeviceModule)
                                         {
                                             mPeerDeviceModule->StartRecording();
-                                            mPeerDeviceModule->SetSpeakerMute(false);
                                         }
                                     }
                                 });
     for (auto& connection : mPeerConnections)
     {
-        connection->enableTracks(enable ? false : !mMute);
+        connection->enableSenderTracks(enable ? false : !mMute);
+        connection->enableReceiverTracks(!enable);
     }
 }
 
@@ -409,7 +398,7 @@ LLWebRTCPeerConnection * LLWebRTCImpl::newPeerConnection()
     peerConnection->init(this);
         
     mPeerConnections.emplace_back(peerConnection);
-    peerConnection->enableTracks(!mMute);
+    peerConnection->enableSenderTracks(!mMute);
     return peerConnection.get();
 }
 
@@ -570,7 +559,7 @@ void LLWebRTCPeerConnectionImpl::shutdownConnection()
                                  });
 }
 
-void LLWebRTCPeerConnectionImpl::enableTracks(bool enable)
+void LLWebRTCPeerConnectionImpl::enableSenderTracks(bool enable)
 {
     // set_enabled shouldn't be done on the worker thread
     if (mPeerConnection)
@@ -579,6 +568,19 @@ void LLWebRTCPeerConnectionImpl::enableTracks(bool enable)
         for (auto &sender : senders)
         {
             sender->track()->set_enabled(enable);
+        }
+    }
+}
+
+void LLWebRTCPeerConnectionImpl::enableReceiverTracks(bool enable)
+{
+    // set_enabled shouldn't be done on the worker thread
+    if (mPeerConnection)
+    {
+        auto receivers = mPeerConnection->GetReceivers();
+        for (auto &receiver : receivers)
+        {
+            receiver->track()->set_enabled(enable);
         }
     }
 }
