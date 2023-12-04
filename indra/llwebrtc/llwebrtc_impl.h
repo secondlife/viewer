@@ -273,7 +273,8 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
     void OnMessage(const webrtc::DataBuffer& buffer) override;
     
     // Helpers
-    void enableTracks(bool enable);
+    void enableSenderTracks(bool enable);
+    void enableReceiverTracks(bool enable);
 
   protected:
     
