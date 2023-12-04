@@ -5,5 +5,5 @@
 	</text>
 	<scroll_list name="preset_camera_list"/>
 	<view_border name="horiz_separator"/>
-	<button name="open_prefs_btn" label="カメラのフローターを表示" tool_tip="カメラのフローターを起動する"/>
+	<button name="open_prefs_btn" label="カメラのフローターを表示" tool_tip="カメラのフローターを起動します。"/>
 </panel>

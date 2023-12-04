@@ -6,7 +6,7 @@
 	<menu_item_call label="すべてのウィンドウを閉じる" name="close_windows"/>
 	<menu_item_check label="名前順で並べ替え" name="sort_by_name"/>
 	<menu_item_check label="新着順で並べ替え" name="sort_by_recent"/>
-	<menu_item_check label="フォルダを常に名前順に並べ替える" name="sort_folders_by_name"/>
+	<menu_item_check label="フォルダを常に名前順で並び替える" name="sort_folders_by_name"/>
 	<menu_item_check label="システムフォルダを上にして並び替え" name="sort_system_folders_to_top"/>
 	<menu_item_call label="フィルタを表示…" name="show_filters"/>
 	<menu_item_call label="フィルタをリセット" name="reset_filters"/>

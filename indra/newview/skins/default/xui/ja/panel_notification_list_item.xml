@@ -34,7 +34,7 @@
 									<text name="notification_title">
 										グループ名：通知件名 通知件名 通知件名 通知件名 通知件名
 									</text>
-									<icon name="attachment_icon" tool_tip="装着物"/>
+									<icon name="attachment_icon" tool_tip="添付アイテム"/>
 								</panel>
 								<panel name="sender_time_panel">
 									<text name="sender_or_fee_box">
@@ -60,7 +60,7 @@
 							<group_icon name="group_icon_exp" tool_tip="グループ"/>
 							<avatar_icon name="avatar_icon_exp" tool_tip="アバター"/>
 							<icon name="system_notification_icon_exp" tool_tip="アイコン"/>
-							<icon name="attachment_icon_exp" tool_tip="添付"/>
+							<icon name="attachment_icon_exp" tool_tip="添付アイテム"/>
 						</layout_panel>
 						<layout_panel name="layout_panel_middle_exp">
 							<panel name="main_info_panel_expanded">
@@ -85,7 +85,7 @@
 								</panel>
 								<panel name="attachment_panel">
 									<text name="attachment_text">
-										装着物がここに入る。あーだこーだ
+										添付アイテムがここに入る。あーだこーだ
 									</text>
 								</panel>
 								<panel name="button_panel">

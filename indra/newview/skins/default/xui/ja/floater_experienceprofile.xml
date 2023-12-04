@@ -23,7 +23,7 @@
 						</layout_panel>
 						<layout_panel name="maturity panel">
 							<text name="ContentRating">
-								レーティング区分：
+								レーティング：
 							</text>
 							<text name="ContentRatingText"/>
 						</layout_panel>
@@ -68,7 +68,7 @@
 					<text name="edit_experience_desc_label" value="説明："/>
 					<button label="グループ" name="Group_btn"/>
 					<text name="edit_ContentRating">
-						レーティング区分：
+						レーティング：
 					</text>
 					<icons_combo_box label="Moderate" name="edit_ContentRatingText" tool_tip="体験のレーティング区分を上げると、体験を許可したすべての住人の権限がリセットされます。">
 						<icons_combo_box.item label="Adult" name="Adult" value="42"/>

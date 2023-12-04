@@ -236,13 +236,13 @@
 			<text name="Primitives on parcel:">
 				区画で使用中のプリム数：
 			</text>
-			<text name="total_objects_text">
+			<text name="total_objects_text" width="64">
 				[COUNT]個
 			</text>
 			<text name="Owned by parcel owner:">
 				うち区画所有者のプリム数：
 			</text>
-			<text name="owner_objects_text">
+			<text name="owner_objects_text" width="64">
 				[COUNT]個
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOwner"/>
@@ -250,7 +250,7 @@
 			<text name="Set to group:">
 				グループに設定：
 			</text>
-			<text name="group_objects_text">
+			<text name="group_objects_text" width="64">
 				[COUNT]個
 			</text>
 			<button label="表示" label_selected="表示" name="ShowGroup"/>
@@ -258,7 +258,7 @@
 			<text name="Owned by others:">
 				他人の所有物：
 			</text>
-			<text name="other_objects_text">
+			<text name="other_objects_text" width="64">
 				[COUNT]個
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOther"/>
@@ -266,11 +266,11 @@
 			<text name="Selected / sat upon:">
 				選択済み／決定済み：
 			</text>
-			<text name="selected_objects_text">
+			<text name="selected_objects_text" width="64">
 				[COUNT]個
 			</text>
 			<text name="Autoreturn">
-				他者のオブジェクトの自動返却（分単位、０で自動返却なし）：
+				他者のオブジェクトの自動返却（分単位、0で自動返却なし）：
 			</text>
 			<line_editor name="clean other time"/>
 			<text name="Object Owners:">

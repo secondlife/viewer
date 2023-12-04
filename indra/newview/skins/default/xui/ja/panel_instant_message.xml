@@ -3,7 +3,7 @@
 	<string name="message_max_lines_count">
 		6
 	</string>
-	<panel label="IMのヘッダ" name="im_header">
+	<panel label="ＩＭのヘッダ" name="im_header">
 		<avatar_icon name="avatar_icon"/>
 		<group_icon name="group_icon"/>
 		<avatar_icon name="adhoc_icon"/>

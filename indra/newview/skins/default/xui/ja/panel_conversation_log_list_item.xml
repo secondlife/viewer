@@ -6,5 +6,5 @@
 	<icon name="unread_ims_icon" tool_tip="ログアウト時に表示されるメッセージ"/>
 	<text name="conversation_name"/>
 	<text name="date_time"/>
-	<button name="delete_btn" tool_tip="このエントリーを削除"/>
+	<button name="delete_btn" tool_tip="このエントリーを削除します。"/>
 </panel>

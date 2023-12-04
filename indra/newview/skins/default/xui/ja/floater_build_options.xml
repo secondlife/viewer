@@ -18,11 +18,6 @@
 	<text name="grid_mode_label" tool_tip="グリッドの不透明度">
 		モード
 	</text>
-	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します。">
-		<combo_box.item label="インワールドグリッド" name="World"/>
-		<combo_box.item label="ローカルグリッド" name="Local"/>
-		<combo_box.item label="リファレンスグリッド" name="Reference"/>
-	</combo_box>
 	<spinner label="単位（メートル）" name="GridResolution"/>
 	<spinner label="範囲（メートル）" name="GridDrawSize"/>
 	<spinner label="角度（度）" name="RotationStep" tool_tip="回転ツールによるすべての回転は、この単位の倍数に制限されます。［デフォルト：1.0］"/>

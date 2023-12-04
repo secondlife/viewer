@@ -8,7 +8,7 @@
 		<icon name="btn_lock1"/>
 	</panel>
 	<panel name="btn_edit_panel">
-		<button name="btn_edit" tool_tip="このシェイプを編集"/>
+		<button name="btn_edit" tool_tip="このシェイプを編集します。"/>
 	</panel>
 	<icon name="wearable_type_separator_icon"/>
 </panel>

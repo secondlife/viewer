@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="グラフィック" name="Display panel">
-	<text follows="top|left|right" height="16" layout="topleft" left="5" top="5" width="100">
+	<text>
 		使用中のプリセット：
 	</text>
 	<text name="preset_text">
@@ -51,9 +51,9 @@
 	</text>
 	<check_box label="フレンドは常に描画" name="AlwaysRenderFriends"/>
 	<button label="例外…" name="RenderExceptionsButton"/>
+	<slider label="ブライトネス（露光）:" name="RenderExposure"/>
 	<button label="設定をプリセットとして保存…" name="PrefSaveButton"/>
 	<button label="プリセットを読み込む…" name="PrefLoadButton"/>
-	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
 	<button label="拡張設定…" name="AdvancedSettings"/>

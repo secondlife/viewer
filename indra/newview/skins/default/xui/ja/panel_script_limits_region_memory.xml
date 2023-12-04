@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="リージョンメモリ" name="script_limits_region_memory_panel">
 	<text name="script_memory">
-		区画スクリプトメモリ
+		区画スクリプトの使用メモリ
 	</text>
 	<text name="parcels_listed"/>
 	<text name="memory_used"/>

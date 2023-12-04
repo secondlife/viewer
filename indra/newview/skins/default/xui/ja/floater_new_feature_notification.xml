@@ -22,5 +22,5 @@
 	<text name="description_txt">
 		機能の詳細
 	</text>
-	<button label="了解！"/>
+	<button name="close_btn" label="了解！"/>
 </floater>

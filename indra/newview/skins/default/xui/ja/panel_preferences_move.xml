@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="移動" name="move_panel">
 	<icon name="camera_icon"/>
-	<slider label="視界角" name="camera_fov"/>
+	<slider label="視界角（ＦｏＶ）" name="camera_fov"/>
 	<slider label="距離" name="camera_offset_scale"/>
 	<text name="heading2">
 		自動ポジション：

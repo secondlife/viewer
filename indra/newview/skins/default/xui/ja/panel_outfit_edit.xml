@@ -22,7 +22,7 @@
 	<button name="back_btn"/>
 	<text name="title" value="アウトフィットのパーツを編集"/>
 	<panel name="header_panel">
-		<icon name="outfit_icon" top="2"/>
+		<icon name="outfit_icon"/>
 		<panel name="outfit_name_and_status">
 			<text name="status" value="編集中…"/>
 			<text name="curr_outfit_name" value="[現在のアウトフィット]"/>
@@ -30,7 +30,7 @@
 		</panel>
 	</panel>
 	<layout_stack name="im_panels">
-		<layout_panel lname="outfit_wearables_panel">
+		<layout_panel name="outfit_wearables_panel">
 			<layout_stack name="filter_panels">
 				<layout_panel name="add_button_and_combobox">
 					<panel name="cof_wearables_list"/>
@@ -45,7 +45,7 @@
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<icon follows="left|top|right" height="10" image_name="Dragbar" left="0" top_pad="-9" width="313"/>
+			<icon/>
 			<inventory_panel name="folder_view"/>
 			<panel name="filtered_wearables_panel">
 				<wearable_items_list name="list_view"/>
@@ -56,14 +56,14 @@
 	<panel name="no_add_wearables_button_bar">
 		<menu_button name="gear_menu_btn"/>
 		<icon name="dummy_right_icon"/>
-		<button name="shop_btn_1" tool_tip="SLマーケットプレイスをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
+		<button name="shop_btn_1" tool_tip="ＳＬマーケットプレイスをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
 	</panel>
 	<panel name="add_wearables_button_bar">
 		<menu_button name="wearables_gear_menu_btn"/>
 		<button name="folder_view_btn"/>
 		<button name="list_view_btn"/>
 		<icon name="dummy_right_icon"/>
-		<button name="shop_btn_2" tool_tip="SLマーケットプレイスをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
+		<button name="shop_btn_2" tool_tip="ＳＬマーケットプレイスをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
 	</panel>
 	<panel name="save_revert_button_bar">
 		<layout_stack name="button_bar_ls">

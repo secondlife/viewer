@@ -8,7 +8,7 @@
 					<texture_picker name="logo"/>
 				</layout_panel>
 				<layout_panel name="title panel">
-					<text name="experience_title" value="カイルのスーパーヒーローRPG"/>
+					<text name="experience_title" value="カイルのスーパーヒーローＲＰＧ"/>
 				</layout_panel>
 				<layout_panel name="description panel">
 					<expandable_text name="experience_description"/>

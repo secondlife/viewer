@@ -15,7 +15,7 @@
 					お気に入りバー
 				</label>
 				<more_button name="&gt;&gt;" tool_tip="お気に入りをもっと表示">
-					詳細 ▼
+					詳細　▼
 				</more_button>
 			</favorites_bar>
 		</layout_panel>

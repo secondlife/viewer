@@ -50,15 +50,15 @@
 	</text>
 	<view_border name="border3"/>
 	<text name="environment_lbl">
-		環境
+		影
 	</text>
 	<text name="enhancements_desc">
-		この設定によりリアリズムは向上しますが、速度が低下する可能性があります。
+		影により視覚的な品質は大幅に向上しますが、速度低下する可能性があります。
 	</text>
-	<check_box label="大気（周辺）シェーダー" name="atmospheric_shaders"/>
-	<check_box label="高度な光源モデル" name="advanced_lighting_model"/>
+	<check_box label="大気（周辺）シェーダー" name="advanced_lighting_model"/>
+	<check_box label="高度な光源" name="advanced_lighting_model"/>
 	<text name="RenderShadowDetailText">
-		影：
+		影の詳細：
 	</text>
 	<combo_box name="ShadowDetail">
 		<combo_box.item label="なし" name="0" value="0"/>
@@ -70,7 +70,7 @@
 		水面
 	</text>
 	<text name="water_desc">
-		水面の効果を簡素化するかオフにすると、フレームレートが大幅に向上します。
+		水面の透明効果を減らしたり切ると、フレームレートが大幅に向上する可能性があります。
 	</text>
 	<check_box label="透明な水" name="TransparentWater"/>
 	<text name="ReflectionsText">

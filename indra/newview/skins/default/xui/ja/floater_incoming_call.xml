@@ -29,5 +29,5 @@
 	</text>
 	<button label="取る" label_selected="取る" name="Accept"/>
 	<button label="無視" label_selected="無視" name="Reject"/>
-	<button label="代わりにIMを開く" name="Start IM"/>
+	<button label="代わりにＩＭを開く" name="Start IM"/>
 </floater>

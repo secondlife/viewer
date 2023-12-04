@@ -14,16 +14,16 @@
 	<text name="owner_label">
 		所有者
 	</text>
-	<check_box label="ナビゲーションと相互作用力を有効にする" name="perms_owner_interact"/>
-	<check_box label="コントロールバーを表示する" name="perms_owner_control"/>
+	<check_box label="ナビゲーションと相互作用力を有効にする。" name="perms_owner_interact"/>
+	<check_box label="コントロールバーを表示する。" name="perms_owner_control"/>
 	<text name="group_label">
 		グループ：
 	</text>
-	<check_box label="ナビゲーションと相互作用力を有効にする" name="perms_group_interact"/>
-	<check_box label="コントロールバーを表示する" name="perms_group_control"/>
+	<check_box label="ナビゲーションと相互作用力を有効にする。" name="perms_group_interact"/>
+	<check_box label="コントロールバーを表示する。" name="perms_group_control"/>
 	<text name="anyone_label">
-		全員
+		全員：
 	</text>
-	<check_box label="ナビゲーションと相互作用力を有効にする" name="perms_anyone_interact"/>
-	<check_box label="コントロールバーを表示する" name="perms_anyone_control"/>
+	<check_box label="ナビゲーションと相互作用力を有効にする。" name="perms_anyone_interact"/>
+	<check_box label="コントロールバーを表示する。" name="perms_anyone_control"/>
 </panel>

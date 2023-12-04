@@ -3,11 +3,34 @@
 	<button label="体験" name="Expand Experience"/>
 	<check_box label="体験を使用" name="enable_xp"/>
 	<layout_stack name="xp_details">
-		<layout_panel>
+		<layout_panel name="xp_layout_panel">
+			<text name="lbl_script">
+				スクリプト：
+			</text>
+			<text name="lbl_associated">
+				関連付けられたもの：
+			</text>
+			<text name="lbl_contribute">
+				貢献できるもの：
+			</text>
+			<text name="lbl_associate">
+				関連付けるもの：
+			</text>
+		</layout_panel>
+		<layout_panel name="xp_choose_panel">
+			<text>
+				EasySitアニメーター1.2.4
+			</text>
+			<text >
+				カイルのスーパーヒーローＲＰＧ
+			</text>
+			<text>
+				はい
+			</text>
 			<combo_box label="体験を選択…" name="Experiences..."/>
 		</layout_panel>
 	</layout_stack>
 	<text name="No Experiences">
-		体験の貢献者ではありません。
+		あなたは、いかなる経験にも貢献していません。
 	</text>
 </panel>
