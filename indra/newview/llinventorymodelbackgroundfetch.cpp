@@ -582,6 +582,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
         return;
     }
 
+    LLViewerInventoryCategory::EFetchType new_state = LLViewerInventoryCategory::FETCH_NONE;
     bool request_descendants = false;
     if (response_id.isNull()) // Failure
     {
@@ -599,10 +600,12 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
 
             // set folder's version to prevent viewer from trying to request folder indefinetely
             LLViewerInventoryCategory* cat(gInventory.getCategory(request_id));
-            if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+            if (cat && cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
                 cat->setVersion(0);
             }
+            // back off for a bit in case something tries to force-request immediately
+            new_state = LLViewerInventoryCategory::FETCH_FAILED;
         }
     }
     else
@@ -655,7 +658,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
     LLViewerInventoryCategory * cat(gInventory.getCategory(request_id));
     if (cat)
     {
-        cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+        cat->setFetching(new_state);
     }
 }
 
