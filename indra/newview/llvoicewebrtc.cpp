@@ -357,6 +357,8 @@ void LLWebRTCVoiceClient::cleanUp()
 {
     LL_DEBUGS("Voice") << LL_ENDL;
     
+    mNextAudioSession.reset();
+    mAudioSession.reset();
 	sessionState::deleteAllSessions();
     LL_DEBUGS("Voice") << "exiting" << LL_ENDL;
 }
@@ -470,16 +472,19 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
     {
         while (!sShuttingDown)
         {
+            llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+            if (!mVoiceEnabled)
+            {
+                continue;
+            }
             // add session for region or parcel voice.
             LLViewerRegion *regionp = gAgent.getRegion();
             if (!regionp)
             {
-                llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
                 continue;
             }
             if (regionp->getRegionID().isNull())
             {
-                llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
                 continue;
             }
             if (!mAudioSession || mAudioSession->mIsSpatial)
@@ -503,7 +508,6 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             sessionState::for_each(boost::bind(predProcessSessionStates, _1));
             sendPositionAndVolumeUpdate(true);
             updateOwnVolume();
-            llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
         }
     }
     catch (const LLCoros::Stop&)
@@ -1801,6 +1805,7 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 			LLVoiceChannel::getCurrentVoiceChannel()->deactivate();
 			gAgent.setVoiceConnected(false);
 			status = LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED;
+            cleanUp();
 		}
 
 		notifyStatusObservers(status);
@@ -2261,6 +2266,7 @@ void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
 void LLWebRTCVoiceClient::sessionState::deleteAllSessions()
 {
     mSessions.clear();
+
 }
 
 void LLWebRTCVoiceClient::verifySessionState(void)
