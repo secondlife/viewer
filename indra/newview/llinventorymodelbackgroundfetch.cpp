@@ -317,7 +317,7 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
 				gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
 			}
 		}
-        else if (cat && cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
+        else if (recursive && cat && cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
         {
             if (mFetchFolderQueue.empty() || mFetchFolderQueue.back().mUUID != id)
             {
@@ -381,7 +381,7 @@ void LLInventoryModelBackgroundFetch::scheduleFolderFetch(const LLUUID& cat_id, 
         if (forced)
         {
             // check if already requested
-            if (mForceFetchSet.find(cat_id) != mForceFetchSet.end())
+            if (mForceFetchSet.find(cat_id) == mForceFetchSet.end())
             {
                 mForceFetchSet.insert(cat_id);
                 mFetchItemQueue.push_front(FetchQueueInfo(cat_id, FT_FORCED));
@@ -406,7 +406,7 @@ void LLInventoryModelBackgroundFetch::scheduleItemFetch(const LLUUID& item_id, b
         if (forced)
         {
             // check if already requested
-            if (mForceFetchSet.find(item_id)!= mForceFetchSet.end())
+            if (mForceFetchSet.find(item_id) == mForceFetchSet.end())
             {
                 mForceFetchSet.insert(item_id);
                 mFetchItemQueue.push_front(FetchQueueInfo(item_id, FT_FORCED, false));
