@@ -6178,7 +6178,7 @@ Are you sure you want to delete them?
     Delete the image for this item? There is no undo.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Don't show me this again"
+     ignoretext="Warn me that thumbnail will be permanently removed"
      name="okcancelignore"
      notext="Cancel"
      yestext="Delete"/>
@@ -7021,7 +7021,7 @@ Please try again.
     You have placed a reflection probe, but 'Select Reflection Probes' is disabled. To be able to select reflection probes, check Build &gt; Options &gt; Select Reflection Probes.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Don't show again."
+     ignoretext="Warn if Reflection Probes selection is disabled."
      name="okignore"
      yestext="OK"/>
   </notification>
