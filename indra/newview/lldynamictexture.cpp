@@ -181,6 +181,8 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 //-----------------------------------------------------------------------------
 BOOL LLViewerDynamicTexture::updateAllInstances()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
 	sNumRenders = 0;
 	if (gGLManager.mIsDisabled)
 	{
