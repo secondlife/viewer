@@ -261,7 +261,6 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 
     mEarLocation(0),
     mSpeakerVolumeDirty(true),
-    mSpeakerMuteDirty(true),
     mMicVolume(0),
     mMicVolumeDirty(true),
 
@@ -583,16 +582,7 @@ LLVoiceDeviceList& LLWebRTCVoiceClient::getCaptureDevices()
 
 void LLWebRTCVoiceClient::setCaptureDevice(const std::string& name)
 {
-    bool inTuningMode = mIsInTuningMode;
-    if (inTuningMode)
-    {
-        tuningStop();
-	}
     mWebRTCDeviceInterface->setCaptureDevice(name);
-    if (inTuningMode)
-    {
-        tuningStart();
-    }
 }
 void LLWebRTCVoiceClient::setDevicesListUpdated(bool state)
 {
@@ -1863,12 +1853,6 @@ void LLWebRTCVoiceClient::setVoiceVolume(F32 volume)
 	if (volume != mSpeakerVolume)
 	{
         {
-            int         min_volume = 0.0;
-            if ((volume == min_volume) || (mSpeakerVolume == min_volume))
-            {
-                mSpeakerMuteDirty = true;
-            }
-
             mSpeakerVolume      = volume;
             mSpeakerVolumeDirty = true;
         }

@@ -645,7 +645,6 @@ private:
 	S32			mEarLocation;  
 	
 	bool		mSpeakerVolumeDirty;
-	bool		mSpeakerMuteDirty;
 	float		mSpeakerVolume;
 
 	int			mMicVolume;
