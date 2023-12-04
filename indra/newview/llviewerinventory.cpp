@@ -687,7 +687,13 @@ LLViewerInventoryCategory::EFetchType LLViewerInventoryCategory::getFetching()
 
 void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchType fetching)
 {
-    if (fetching > mFetching) // allow a switch from normal to recursive
+    if (fetching == FETCH_FAILED)
+    {
+        const F32 FETCH_FAILURE_EXPIRY = 60.0f;
+        mDescendentsRequested.setTimerExpirySec(FETCH_FAILURE_EXPIRY);
+        mFetching = fetching;
+    }
+    else if (fetching > mFetching) // allow a switch from normal to recursive
     {
         if (mDescendentsRequested.hasExpired() || (mFetching == FETCH_NONE))
         {

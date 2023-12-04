@@ -217,6 +217,7 @@ public:
         FETCH_NONE = 0,
         FETCH_NORMAL,
         FETCH_RECURSIVE,
+        FETCH_FAILED, // back off
     } EFetchType;
     EFetchType getFetching();
     // marks as fetch being in progress or as done
