@@ -39,11 +39,6 @@ LLProfileDropTarget::LLProfileDropTarget(const LLProfileDropTarget::Params& p)
     mAgentID(p.agent_id)
 {}
 
-void LLProfileDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
-{
-    LL_INFOS() << "LLProfileDropTarget::doDrop()" << LL_ENDL;
-}
-
 BOOL LLProfileDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
                                      EDragAndDropType cargo_type,
                                      void* cargo_data,
