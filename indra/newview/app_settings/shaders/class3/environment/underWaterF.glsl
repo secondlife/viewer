@@ -55,7 +55,7 @@ in vec4 littleWave;
 in vec4 view;
 in vec3 vary_position;
 
-vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit);
+vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color);
 
 void main() 
 {
@@ -77,5 +77,7 @@ void main()
     vec4 fb = vec4(waterFogColorLinear, 0.0);
 #endif
     
-	frag_color = max(applyWaterFogViewLinearNoClip(vary_position, fb, vec3(1)), vec4(0));
+    fb = applyWaterFogViewLinearNoClip(vary_position, fb);
+
+    frag_color = max(fb, vec4(0));
 }

@@ -318,6 +318,16 @@ public:
     void unbindReflectionProbes(LLGLSLShader& shader);
 
 	void renderDeferredLighting();
+
+    // apply atmospheric haze based on contents of color and depth buffer
+    // should be called just before rendering water when camera is under water 
+    // and just before rendering alpha when camera is above water
+    void doAtmospherics();
+
+    // apply water haze based on contents of color and depth buffer
+    // should be called just before rendering pre-water alpha objects
+    void doWaterHaze();
+
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
 	void generateSunShadow(LLCamera& camera);

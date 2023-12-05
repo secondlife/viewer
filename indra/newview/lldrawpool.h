@@ -118,8 +118,8 @@ public:
 	virtual LLViewerTexture* getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
+    virtual void pushFaceGeometry() {}
 
-protected:
 	S32 mShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
@@ -428,6 +428,9 @@ public:
 	void printDebugInfo() const;
 	
 	BOOL isFacePool() { return TRUE; }
+
+    // call drawIndexed on every draw face
+    void pushFaceGeometry();
 
 	friend class LLFace;
 	friend class LLPipeline;

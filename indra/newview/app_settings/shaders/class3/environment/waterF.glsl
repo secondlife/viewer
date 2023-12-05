@@ -32,9 +32,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
 vec3 scaleSoftClipFragLinear(vec3 l);
-vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 
 // PBR interface
 vec2 BRDF(float NoV, float roughness);
@@ -223,9 +222,8 @@ void main()
         refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
 
-    fb = applyWaterFogViewLinear(refPos, fb, sunlit);
 #else
-    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0), sunlit_linear);
+    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
 #endif
 
     // fudge sample on other side of water to be a tad darker
@@ -281,8 +279,6 @@ void main()
     f = clamp(f, 0, 1);
 
     color = ((1.0 - f) * color) + fb.rgb;
-
-    color = atmosFragLightingLinear(color, additive, atten);
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     
