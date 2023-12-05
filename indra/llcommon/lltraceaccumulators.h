@@ -1,33 +1,32 @@
 
-/** 
+/**
  * @file lltraceaccumulators.h
  * @brief Storage for accumulating statistics
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2012, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
 #ifndef LL_LLTRACEACCUMULATORS_H
 #define LL_LLTRACEACCUMULATORS_H
-
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -66,7 +65,7 @@ namespace LLTrace
 			: mStorageSize(0),
 			mStorage(NULL)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			const AccumulatorBuffer& other = *getDefaultBuffer();
 			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
@@ -77,7 +76,7 @@ namespace LLTrace
 
 		~AccumulatorBuffer()
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			if (isCurrent())
 			{
 				LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
@@ -85,14 +84,14 @@ namespace LLTrace
 			delete[] mStorage;
 		}
 
-		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index) 
-		{ 
-			return mStorage[index]; 
+		LL_FORCE_INLINE ACCUMULATOR& operator[](size_t index)
+		{
+			return mStorage[index];
 		}
 
 		LL_FORCE_INLINE const ACCUMULATOR& operator[](size_t index) const
-		{ 
-			return mStorage[index]; 
+		{
+			return mStorage[index];
 		}
 
 
@@ -100,7 +99,7 @@ namespace LLTrace
 			: mStorageSize(0),
 			mStorage(NULL)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
 			{
@@ -110,7 +109,7 @@ namespace LLTrace
 
 		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, EBufferAppendType append_type)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -120,7 +119,7 @@ namespace LLTrace
 
 		void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -130,7 +129,7 @@ namespace LLTrace
 
 		void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -140,7 +139,7 @@ namespace LLTrace
 
 		void sync(F64SecondsImplicit time_stamp)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -160,13 +159,13 @@ namespace LLTrace
 
 		static void clearCurrent()
 		{
-            LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
+			LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
 		}
 
 		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
 		size_t reserveSlot()
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			size_t next_slot = sNextStorageSlot++;
 			if (next_slot >= mStorageSize)
 			{
@@ -180,7 +179,7 @@ namespace LLTrace
 
 		void resize(size_t new_size)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			if (new_size <= mStorageSize) return;
 
 			ACCUMULATOR* old_storage = mStorage;
@@ -214,14 +213,14 @@ namespace LLTrace
 			return mStorageSize;
 		}
 
-		static size_t getNumIndices() 
+		static size_t getNumIndices()
 		{
 			return sNextStorageSlot;
 		}
 
 		static self_t* getDefaultBuffer()
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			static bool sInitialized = false;
 			if (!sInitialized)
 			{
@@ -336,7 +335,7 @@ namespace LLTrace
 
 		void sample(F64 value)
 		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
 
 			// store effect of last value
@@ -399,7 +398,7 @@ namespace LLTrace
 		F64		mMean,
 				mSumOfSquares;
 
-		F64SecondsImplicit	
+		F64SecondsImplicit
 				mLastSampleTimeStamp,
 				mTotalSamplingTime;
 
@@ -409,7 +408,7 @@ namespace LLTrace
 		S32		mNumSamples;
 		// distinct from mNumSamples, since we might have inherited a last value from
 		// a previous sampling period
-		bool	mHasValue;		
+		bool	mHasValue;
 	};
 
 	class CountAccumulator
@@ -457,14 +456,14 @@ namespace LLTrace
 
 	class alignas(32) TimeBlockAccumulator
 	{
-    public:
+	public:
 		typedef F64Seconds value_t;
 		static F64Seconds getDefaultValue() { return F64Seconds(0); }
 
 		typedef TimeBlockAccumulator self_t;
 
 		// fake classes that allows us to view different facets of underlying statistic
-		struct CallCountFacet 
+		struct CallCountFacet
 		{
 			typedef S32 value_t;
 		};
@@ -515,76 +514,17 @@ namespace LLTrace
 		BlockTimerStatHandle* getParent() { return mParent; }
 
 		BlockTimerStatHandle*					mBlock;
-		BlockTimerStatHandle*					mParent;	
+		BlockTimerStatHandle*					mParent;
 		std::vector<BlockTimerStatHandle*>		mChildren;
 		bool						mCollapsed;
 		bool						mNeedsSorting;
 	};
-	
+
 	struct BlockTimerStackRecord
 	{
 		class BlockTimer*	mActiveTimer;
 		class BlockTimerStatHandle*	mTimeBlock;
 		U64					mChildTime;
-	};
-
-	struct MemAccumulator
-	{
-		typedef F64Bytes value_t;
-		static F64Bytes getDefaultValue() { return F64Bytes(0); }
-
-		typedef MemAccumulator self_t;
-
-		// fake classes that allows us to view different facets of underlying statistic
-		struct AllocationFacet 
-		{
-			typedef F64Bytes value_t;
-			static F64Bytes getDefaultValue() { return F64Bytes(0); }
-		};
-
-		struct DeallocationFacet 
-		{
-			typedef F64Bytes value_t;
-			static F64Bytes getDefaultValue() { return F64Bytes(0); }
-		};
-
-		void addSamples(const MemAccumulator& other, EBufferAppendType append_type)
-		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-			mAllocations.addSamples(other.mAllocations, append_type);
-			mDeallocations.addSamples(other.mDeallocations, append_type);
-
-			if (append_type == SEQUENTIAL)
-			{
-				mSize.addSamples(other.mSize, SEQUENTIAL);
-			}
-			else
-			{
-				F64 allocation_delta(other.mAllocations.getSum() - other.mDeallocations.getSum());
-				mSize.sample(mSize.hasValue() 
-					? mSize.getLastValue() + allocation_delta 
-					: allocation_delta);
-			}
-		}
-
-		void reset(const MemAccumulator* other)
-		{
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-			mSize.reset(other ? &other->mSize : NULL);
-			mAllocations.reset(other ? &other->mAllocations : NULL);
-			mDeallocations.reset(other ? &other->mDeallocations : NULL);
-		}
-
-		void sync(F64SecondsImplicit time_stamp) 
-		{
-			mSize.sync(time_stamp);
-		}
-
-		bool hasValue() const			 { return mSize.hasValue(); }
-
-		SampleAccumulator	mSize;
-		EventAccumulator	mAllocations;
-		CountAccumulator	mDeallocations;
 	};
 
 	struct AccumulatorBufferGroup : public LLRefCount
@@ -607,9 +547,7 @@ namespace LLTrace
 		AccumulatorBuffer<SampleAccumulator>	mSamples;
 		AccumulatorBuffer<EventAccumulator>		mEvents;
 		AccumulatorBuffer<TimeBlockAccumulator> mStackTimers;
-		AccumulatorBuffer<MemAccumulator> 	mMemStats;
 	};
 }
 
 #endif // LL_LLTRACEACCUMULATORS_H
-

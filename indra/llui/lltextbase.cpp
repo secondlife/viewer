@@ -1550,7 +1550,13 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	case LLFontGL::HCENTER:
 		return mHPad + llmax(0, (mVisibleTextRect.getWidth() - width - mHPad) / 2);
 	case LLFontGL::RIGHT:
-		return mVisibleTextRect.getWidth() - width;
+        {
+            // Font's rendering rounds string size, if value gets rounded
+            // down last symbol might not have enough space to render,
+            // compensate by adding an extra pixel as padding
+            const S32 right_padding = 1;
+            return llmax(mHPad, mVisibleTextRect.getWidth() - width - right_padding);
+        }
 	default:
 		return mHPad;
 	}
@@ -3431,7 +3437,7 @@ BOOL LLNormalTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 	if (mToken && !mToken->getToolTip().empty())
 	{
 		const LLWString& wmsg = mToken->getToolTip();
-		LLToolTipMgr::instance().show(wstring_to_utf8str(wmsg));
+        LLToolTipMgr::instance().show(wstring_to_utf8str(wmsg), (mToken->getType() == LLKeywordToken::TT_FUNCTION));
 		return TRUE;
 	}
 	// or do we have an explicitly set tooltip (e.g., for Urls)
