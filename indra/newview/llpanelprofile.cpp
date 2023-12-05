@@ -46,6 +46,7 @@
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
+#include "lltooldraganddrop.h"
 #include "llgrouplist.h"
 #include "llurlaction.h"
 
@@ -996,6 +997,51 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     }
 
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
+}
+
+
+BOOL LLPanelProfileSecondLife::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+                                          EDragAndDropType cargo_type,
+                                          void* cargo_data,
+                                          EAcceptance* accept,
+                                          std::string& tooltip_msg)
+{
+    // Try children first
+    if (LLPanelProfileTab::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg)
+        && *accept != ACCEPT_NO)
+    {
+        return TRUE;
+    }
+
+    // No point sharing with own profile
+    if (getSelfProfile())
+    {
+        return FALSE;
+    }
+
+    // Exclude fields that look like they are editable.
+    S32 child_x = 0;
+    S32 child_y = 0;
+    if (localPointToOtherView(x, y, &child_x, &child_y, mDescriptionEdit)
+        && mDescriptionEdit->pointInView(child_x, child_y))
+    {
+        return FALSE;
+    }
+
+    if (localPointToOtherView(x, y, &child_x, &child_y, mGroupList)
+        && mGroupList->pointInView(child_x, child_y))
+    {
+        return FALSE;
+    }
+
+    // Share
+    LLToolDragAndDrop::handleGiveDragAndDrop(getAvatarId(),
+                                             LLUUID::null,
+                                             drop,
+                                             cargo_type,
+                                             cargo_data,
+                                             accept);
+    return TRUE;
 }
 
 void LLPanelProfileSecondLife::updateData()

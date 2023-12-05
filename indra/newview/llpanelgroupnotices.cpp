@@ -89,8 +89,6 @@ public:
 	LLGroupDropTarget(const Params&);
 	~LLGroupDropTarget() {};
 
-	void doDrop(EDragAndDropType cargo_type, void* cargo_data);
-
 	//
 	// LLView functionality
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -113,11 +111,6 @@ LLGroupDropTarget::LLGroupDropTarget(const LLGroupDropTarget::Params& p)
 	mGroupNoticesPanel(p.panel),
 	mGroupID(p.group_id)
 {}
-
-void LLGroupDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
-{
-	LL_INFOS() << "LLGroupDropTarget::doDrop()" << LL_ENDL;
-}
 
 BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
