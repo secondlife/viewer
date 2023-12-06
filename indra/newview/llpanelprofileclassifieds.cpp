@@ -954,7 +954,7 @@ void LLPanelProfileClassified::onSaveClick()
     }
     if(isNew() || isNewWithErrors())
     {
-        if(gStatusBar->getBalance() < getPriceForListing())
+        if(gStatusBar->getBalance() < MINIMUM_PRICE_FOR_LISTING)
         {
             LLNotificationsUtil::add("ClassifiedInsufficientFunds");
             return;
@@ -1427,6 +1427,14 @@ void LLPanelProfileClassified::doSave()
 
 void LLPanelProfileClassified::onPublishFloaterPublishClicked()
 {
+    if (mPublishFloater->getPrice() < MINIMUM_PRICE_FOR_LISTING)
+    {
+        LLSD args;
+        args["MIN_PRICE"] = MINIMUM_PRICE_FOR_LISTING;
+        LLNotificationsUtil::add("MinClassifiedPrice", args);
+        return;
+    }
+
     setPriceForListing(mPublishFloater->getPrice());
 
     doSave();
