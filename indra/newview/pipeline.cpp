@@ -8303,7 +8303,10 @@ void LLPipeline::doWaterHaze()
             gGLLastMatrix = NULL;
             gGL.loadMatrix(gGLModelView);
 
-            mWaterPool->pushFaceGeometry();
+            if (mWaterPool)
+            {
+                mWaterPool->pushFaceGeometry();
+            }
         }
 
         unbindDeferredShader(haze_shader);
