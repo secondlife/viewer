@@ -789,7 +789,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
     if (LLPipeline::sRenderTransparentWater)
     { //water reflection texture
-        mWaterDis.allocate(resX, resY, GL_RGBA, true);
+        mWaterDis.allocate(resX, resY, GL_RGBA16F, true);
     }
 
 	if (RenderUIBuffer)
