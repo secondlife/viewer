@@ -3924,7 +3924,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<footer>[FOOTERTEXT]</footer>
 	</notification>
 	<notification name="ScriptDialog">
-		[NAME]の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」（チャンネル[CHANNEL]）
+		[NAME]の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
 			<button name="Client_Side_Mute" text="ブロック"/>
