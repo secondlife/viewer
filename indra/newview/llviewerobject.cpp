@@ -1159,6 +1159,20 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
     dumpStack("ObjectUpdateStack");
 
+    // The new OBJECTDATA_FIELD_SIZE_124, OBJECTDATA_FIELD_SIZE_140, OBJECTDATA_FIELD_SIZE_80
+    // and OBJECTDATA_FIELD_SIZE_64 lengths should be supported in the existing cases below.
+    // Each case should start at the beginning of the buffer and extract all known
+    // values, and ignore any unknown data at the end of the buffer.
+    // This allows new data in the future without breaking current viewers.
+    const S32 OBJECTDATA_FIELD_SIZE_140 = 140;  // Full precision avatar update for future extended data
+    const S32 OBJECTDATA_FIELD_SIZE_124 = 124;  // Full precision object update for future extended data
+    const S32 OBJECTDATA_FIELD_SIZE_76  =  76;  // Full precision avatar update
+    const S32 OBJECTDATA_FIELD_SIZE_60  =  60;  // Full precision object update
+    const S32 OBJECTDATA_FIELD_SIZE_80 =   80;  // Terse avatar update, 16 bit precision for future extended data
+    const S32 OBJECTDATA_FIELD_SIZE_64  =  64;  // Terse object update, 16 bit precision for future extended data
+    const S32 OBJECTDATA_FIELD_SIZE_48  =  48;  // Terse avatar update, 16 bit precision
+    const S32 OBJECTDATA_FIELD_SIZE_32  =  32;  // Terse object update, 16 bit precision
+
 	U32 retval = 0x0;
 	
 	// If region is removed from the list it is also deleted.
@@ -1206,7 +1220,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		U32 x, y;
 		from_region_handle(region_handle, &x, &y);
 
-		LL_ERRS() << "Object has invalid region " << x << ":" << y << "!" << LL_ENDL;
+		LL_WARNS("UpdateFail") << "Object has invalid region " << x << ":" << y << "!" << LL_ENDL;
 		return retval;
 	}
 
@@ -1233,8 +1247,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	const F32 size = LLWorld::getInstance()->getRegionWidthInMeters();	
 	const F32 MAX_HEIGHT = LLWorld::getInstance()->getRegionMaxHeight();
 	const F32 MIN_HEIGHT = LLWorld::getInstance()->getRegionMinHeight();
-	S32 length;
-	S32	count;
+    S32 length = 0;
+    S32 count = 0;
 	S32 this_update_precision = 32;		// in bits
 
 	// Temporaries, because we need to compare w/ previous to set dirty flags...
@@ -1295,6 +1309,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_Scale, new_scale, block_num );
 				length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
+                length = llmin(length, MAX_OBJECT_BINARY_DATA_SIZE);  // getBinaryDataFast() safely fills the buffer to max_size
 
 				mTotalCRC = crc;
                 // Might need to update mSourceMuted here to properly pick up new radius
@@ -1314,20 +1329,23 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				}
 				setClickAction(click_action);
 
-				count = 0;
-				LLVector4 collision_plane;
-				
+                count = 0;
+                LLVector4 collision_plane;
+
 				switch(length)
 				{
-				case (60 + 16):
+                case OBJECTDATA_FIELD_SIZE_140:
+                case OBJECTDATA_FIELD_SIZE_76:
 					// pull out collision normal for avatar
 					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
-					// fall through
-				case 60:
+                    [[fallthrough]];
+
+                case OBJECTDATA_FIELD_SIZE_124:
+                case OBJECTDATA_FIELD_SIZE_60:
 					this_update_precision = 32;
-					// this is a terse update
+					// this is a full precision update
 					// pos
 					htolememcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
@@ -1352,117 +1370,21 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						resetRot();
 					}
 					setAngularVelocity(new_angv);
+                    count += sizeof(LLVector3);
 #if LL_DARWIN
-					if (length == 76)
+                    if (length == OBJECTDATA_FIELD_SIZE_76 ||
+                        length == OBJECTDATA_FIELD_SIZE_140)
 					{
 						setAngularVelocity(LLVector3::zero);
 					}
 #endif
 					break;
-				case(32 + 16):
-					// pull out collision normal for avatar
-					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
-					((LLVOAvatar*)this)->setFootPlane(collision_plane);
-					count += sizeof(LLVector4);
-					// fall through
-				case 32:
-					this_update_precision = 16;
-					test_pos_parent.quantize16(-0.5f*size, 1.5f*size, MIN_HEIGHT, MAX_HEIGHT);
 
-					// This is a terse 16 update, so treat data as an array of U16's.
-#ifdef LL_BIG_ENDIAN
-					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
-					val = valswizzle;
-#else
-					val = (U16 *) &data[count];
-#endif
-					count += sizeof(U16)*3;
-					new_pos_parent.mV[VX] = U16_to_F32(val[VX], -0.5f*size, 1.5f*size);
-					new_pos_parent.mV[VY] = U16_to_F32(val[VY], -0.5f*size, 1.5f*size);
-					new_pos_parent.mV[VZ] = U16_to_F32(val[VZ], MIN_HEIGHT, MAX_HEIGHT);
-
-#ifdef LL_BIG_ENDIAN
-					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
-					val = valswizzle;
-#else
-					val = (U16 *) &data[count];
-#endif
-					count += sizeof(U16)*3;
-					setVelocity(LLVector3(U16_to_F32(val[VX], -size, size),
-													   U16_to_F32(val[VY], -size, size),
-													   U16_to_F32(val[VZ], -size, size)));
-
-#ifdef LL_BIG_ENDIAN
-					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
-					val = valswizzle;
-#else
-					val = (U16 *) &data[count];
-#endif
-					count += sizeof(U16)*3;
-					setAcceleration(LLVector3(U16_to_F32(val[VX], -size, size),
-														   U16_to_F32(val[VY], -size, size),
-														   U16_to_F32(val[VZ], -size, size)));
-
-#ifdef LL_BIG_ENDIAN
-					htolememcpy(valswizzle, &data[count], MVT_U16Quat, 4); 
-					val = valswizzle;
-#else
-					val = (U16 *) &data[count];
-#endif
-					count += sizeof(U16)*4;
-					new_rot.mQ[VX] = U16_to_F32(val[VX], -1.f, 1.f);
-					new_rot.mQ[VY] = U16_to_F32(val[VY], -1.f, 1.f);
-					new_rot.mQ[VZ] = U16_to_F32(val[VZ], -1.f, 1.f);
-					new_rot.mQ[VW] = U16_to_F32(val[VW], -1.f, 1.f);
-
-#ifdef LL_BIG_ENDIAN
-					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
-					val = valswizzle;
-#else
-					val = (U16 *) &data[count];
-#endif
-					new_angv.setVec(U16_to_F32(val[VX], -size, size),
-										U16_to_F32(val[VY], -size, size),
-										U16_to_F32(val[VZ], -size, size));
-					if (new_angv.isExactlyZero())
-					{
-						// reset rotation time
-						resetRot();
-					}
-					setAngularVelocity(new_angv);
-					break;
-
-				case 16:
-					this_update_precision = 8;
-					test_pos_parent.quantize8(-0.5f*size, 1.5f*size, MIN_HEIGHT, MAX_HEIGHT);
-					// this is a terse 8 update
-					new_pos_parent.mV[VX] = U8_to_F32(data[0], -0.5f*size, 1.5f*size);
-					new_pos_parent.mV[VY] = U8_to_F32(data[1], -0.5f*size, 1.5f*size);
-					new_pos_parent.mV[VZ] = U8_to_F32(data[2], MIN_HEIGHT, MAX_HEIGHT);
-
-					setVelocity(U8_to_F32(data[3], -size, size),
-								U8_to_F32(data[4], -size, size),
-								U8_to_F32(data[5], -size, size) );
-
-					setAcceleration(U8_to_F32(data[6], -size, size),
-									U8_to_F32(data[7], -size, size),
-									U8_to_F32(data[8], -size, size) );
-
-					new_rot.mQ[VX] = U8_to_F32(data[9], -1.f, 1.f);
-					new_rot.mQ[VY] = U8_to_F32(data[10], -1.f, 1.f);
-					new_rot.mQ[VZ] = U8_to_F32(data[11], -1.f, 1.f);
-					new_rot.mQ[VW] = U8_to_F32(data[12], -1.f, 1.f);
-
-					new_angv.setVec(U8_to_F32(data[13], -size, size),
-										U8_to_F32(data[14], -size, size),
-										U8_to_F32(data[15], -size, size) );
-					if (new_angv.isExactlyZero())
-					{
-						// reset rotation time
-						resetRot();
-					}
-					setAngularVelocity(new_angv);
-					break;
+                // length values 48, 32 and 16 were once in viewer code but
+                //   are never sent by the SL simulator
+                default:
+                    LL_WARNS("UpdateFail") << "Unexpected ObjectData buffer size " << length
+						<< " for " << getID() << " with OUT_FULL message" << LL_ENDL;
 				}
 
 				////////////////////////////////////////////////////
@@ -1496,20 +1418,50 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (mData)
 				{
 					delete [] mData;
-				}
+                    mData = NULL;
+                }
 
-				// Check for appended generic data
-				S32 data_size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_Data);
-				if (data_size <= 0)
-				{
-					mData = NULL;
-				}
-				else
-				{
-					// ...has generic data
-					mData = new U8[data_size];
-					mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, mData, data_size, block_num);
-				}
+                // Dec 2023 new generic data:
+                //    Trees work as before, this field contains genome data
+                //    Not a tree:
+                //        avatars send 1 byte with the number of attachments
+                //        root objects send 1 byte with the number of prims in the linkset
+                //    If the generic data size is zero, then number of attachments or prims is zero
+                //
+                // Viewers should not match the data size exactly, but if the field has data,
+                //    read the 1st byte as described above, and ignore the rest.
+
+                // Check for appended generic data
+                const S32 GENERIC_DATA_BUFFER_SIZE = 16;
+                S32 data_size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_Data);
+                if (data_size > 0)
+                {    // has generic data
+                    if (getPCode() == LL_PCODE_LEGACY_TREE || getPCode() == LL_PCODE_TREE_NEW)
+                    {
+                        mData = new U8[data_size];
+                        mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, mData, data_size, block_num);
+                        LL_DEBUGS("NewObjectData") << "Read " << data_size << " bytes tree genome data for " << getID() << ", pcode "
+                                             << getPCodeString() << ", value " << (S32) mData[0] << LL_ENDL;
+                    }
+                    else
+                    {   // Extract number of prims or attachments
+                        U8 generic_data[GENERIC_DATA_BUFFER_SIZE];
+                        mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data,
+                            &generic_data[0], llmin(data_size, GENERIC_DATA_BUFFER_SIZE), block_num);
+                        // This is sample code to extract the number of attachments or prims
+                        //    Future viewers should use it for their own purposes
+                        if (isAvatar())
+                        {
+                            LL_DEBUGS("NewObjectData") << "Avatar " << getID() << " has "
+                                << (S32) generic_data[0] << " attachments" << LL_ENDL;
+                        }
+                        else
+                        {
+                            LL_DEBUGS("NewObjectData") << "Root prim " << getID() << " has "
+                                << (S32) generic_data[0] << " prims in linkset" << LL_ENDL;
+                        }
+                    }
+                }
 
 				S32 text_size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_Text);
 				if (text_size > 1)
@@ -1605,60 +1557,24 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #endif
 				length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
-				count = 0;
+                length = llmin(length, MAX_OBJECT_BINARY_DATA_SIZE);	// getBinaryDataFast() safely fills the buffer to max_size
+                count  = 0;
 				LLVector4 collision_plane;
-				
+
 				switch(length)
 				{
-				case(60 + 16):
+                    case OBJECTDATA_FIELD_SIZE_80:
+                    case OBJECTDATA_FIELD_SIZE_48:
 					// pull out collision normal for avatar
 					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
-					// fall through
-				case 60:
-					// this is a terse 32 update
-					// pos
-					this_update_precision = 32;
-					htolememcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
-					count += sizeof(LLVector3);
-					// vel
-					htolememcpy((void*)getVelocity().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
-					count += sizeof(LLVector3);
-					// acc
-					htolememcpy((void*)getAcceleration().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
-					count += sizeof(LLVector3);
-					// theta
-					{
-						LLVector3 vec;
-						htolememcpy(vec.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
-						new_rot.unpackFromVector3(vec);
-					}
-					count += sizeof(LLVector3);
-					// omega
-					htolememcpy((void*)new_angv.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
-					if (new_angv.isExactlyZero())
-					{
-						// reset rotation time
-						resetRot();
-					}
-					setAngularVelocity(new_angv);
-#if LL_DARWIN
-					if (length == 76)
-					{
-						setAngularVelocity(LLVector3::zero);
-					}
-#endif
-					break;
-				case(32 + 16):
-					// pull out collision normal for avatar
-					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
-					((LLVOAvatar*)this)->setFootPlane(collision_plane);
-					count += sizeof(LLVector4);
-					// fall through
-				case 32:
-					// this is a terse 16 update
-					this_update_precision = 16;
+                    [[fallthrough]];
+
+                case OBJECTDATA_FIELD_SIZE_64:
+                case OBJECTDATA_FIELD_SIZE_32:
+					// this is a terse 16 bit quantized update
+                    this_update_precision = 16;
 					test_pos_parent.quantize16(-0.5f*size, 1.5f*size, MIN_HEIGHT, MAX_HEIGHT);
 
 #ifdef LL_BIG_ENDIAN
@@ -1718,33 +1634,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					setAngularVelocity(new_angv);
 					break;
 
-				case 16:
-					// this is a terse 8 update
-					this_update_precision = 8;
-					test_pos_parent.quantize8(-0.5f*size, 1.5f*size, MIN_HEIGHT, MAX_HEIGHT);
-					new_pos_parent.mV[VX] = U8_to_F32(data[0], -0.5f*size, 1.5f*size);
-					new_pos_parent.mV[VY] = U8_to_F32(data[1], -0.5f*size, 1.5f*size);
-					new_pos_parent.mV[VZ] = U8_to_F32(data[2], MIN_HEIGHT, MAX_HEIGHT);
-
-					setVelocity(U8_to_F32(data[3], -size, size),
-								U8_to_F32(data[4], -size, size),
-								U8_to_F32(data[5], -size, size) );
-
-					setAcceleration(U8_to_F32(data[6], -size, size),
-									U8_to_F32(data[7], -size, size),
-									U8_to_F32(data[8], -size, size) );
-
-					new_rot.mQ[VX] = U8_to_F32(data[9], -1.f, 1.f);
-					new_rot.mQ[VY] = U8_to_F32(data[10], -1.f, 1.f);
-					new_rot.mQ[VZ] = U8_to_F32(data[11], -1.f, 1.f);
-					new_rot.mQ[VW] = U8_to_F32(data[12], -1.f, 1.f);
-
-					new_angv.set(U8_to_F32(data[13], -size, size),
-										U8_to_F32(data[14], -size, size),
-										U8_to_F32(data[15], -size, size) );
-					setAngularVelocity(new_angv);
-					break;
-				}
+                // Previous viewers had code for length 76, 60 or 16 byte length
+                // with full precision or 8 bit quanitzation, but the
+                // SL servers will never send those data formats.  If you ever see this
+                // warning on a SL server, please file a bug report
+                default:
+                    LL_WARNS("UpdateFail") << "Unexpected ObjectData buffer size " << length << " for " << getID()
+                                           << " with OUT_FULL message" << LL_ENDL;
+                }
 
 				U8 state;
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_State, state, block_num );
@@ -1753,13 +1650,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			}
 
 		default:
+            LL_WARNS("UpdateFail") << "Unknown uncompressed update type " << update_type << " for " << getID() << LL_ENDL;
 			break;
-
 		}
 	}
 	else
 	{
-		// handle the compressed case
+		// handle the compressed case - have dp datapacker
 		LLUUID sound_uuid;
 		LLUUID	owner_id;
 		F32    gain = 0;
@@ -2013,6 +1910,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			break;
 
 		default:
+            LL_WARNS("UpdateFail") << "Unknown compressed update type " << update_type << " for " << getID() << LL_ENDL;
 			break;
 		}
 	}
@@ -2060,7 +1958,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (sent_parentp && sent_parentp->getParent() == this)
 				{
 					// Try to recover if we attempt to attach a parent to its child
-					LL_WARNS() << "Attempt to attach a parent to it's child: " << this->getID() << " to " << sent_parentp->getID() << LL_ENDL;
+                    LL_WARNS("UpdateFail") << "Attempt to attach a parent to it's child: " << this->getID() << " to "
+                                           << sent_parentp->getID() << LL_ENDL;
 					this->removeChild(sent_parentp);
 					sent_parentp->setDrawableParent(NULL);
 				}
@@ -2084,7 +1983,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					{
 						if (mDrawable->isDead() || !mDrawable->getVObj())
 						{
-							LL_WARNS() << "Drawable is dead or no VObj!" << LL_ENDL;
+                            LL_WARNS("UpdateFail") << "Drawable is dead or no VObj!" << LL_ENDL;
 							sent_parentp->addChild(this);
 						}
 						else
@@ -2094,9 +1993,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 								// Bad, we got a cycle somehow.
 								// Kill both the parent and the child, and
 								// set cache misses for both of them.
-								LL_WARNS() << "Attempting to recover from parenting cycle!" << LL_ENDL;
-								LL_WARNS() << "Killing " << sent_parentp->getID() << " and " << getID() << LL_ENDL;
-								LL_WARNS() << "Adding to cache miss list" << LL_ENDL;
+                                LL_WARNS("UpdateFail") << "Attempting to recover from parenting cycle!  "
+                                            << "Killing " << sent_parentp->getID() << " and " << getID()
+                                            << ", Adding to cache miss list" << LL_ENDL;
 								setParent(NULL);
 								sent_parentp->setParent(NULL);
 								getRegion()->addCacheMissFull(getLocalID());
@@ -2750,22 +2649,6 @@ void LLViewerObject::interpolateLinearMotion(const F64SecondsImplicit& frame_tim
 }
 
 
-
-BOOL LLViewerObject::setData(const U8 *datap, const U32 data_size)
-{
-	delete [] mData;
-
-	if (datap)
-	{
-		mData = new U8[data_size];
-		if (!mData)
-		{
-			return FALSE;
-		}
-		memcpy(mData, datap, data_size);		/* Flawfinder: ignore */
-	}
-	return TRUE;
-}
 
 // delete an item in the inventory, but don't tell the server. This is
 // used internally by remove, update, and savescript.
