@@ -823,6 +823,7 @@ protected:
     S32    mParcelLocalID;
 
     bool   mShutDown;
+    S32  mOutstandingRequests;
 
     bool        mMuted;
     F32         mMicGain;

@@ -411,6 +411,7 @@ void LLWebRTCVoiceClient::OnConnectionEstablished(const std::string &channelID)
     {
         mAudioSession = mNextAudioSession;
         mNextAudioSession.reset();
+        LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
     }
     sessionState::for_each(boost::bind(predOnConnectionEstablished, _1, channelID));
 }
@@ -419,7 +420,6 @@ void LLWebRTCVoiceClient::sessionState::OnConnectionEstablished(const std::strin
 {
     if (channelID == mPrimaryConnectionID)
     {
-        LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
     }
 }
 
@@ -506,6 +506,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             }
             updatePosition();
             sessionState::for_each(boost::bind(predProcessSessionStates, _1));
+            sessionState::reapEmptySessions();
             sendPositionAndVolumeUpdate(true);
             updateOwnVolume();
         }
@@ -1316,13 +1317,19 @@ bool LLWebRTCVoiceClient::switchChannel(
             // If we're already in a channel, or if we're joining one, terminate
             // so we can rejoin with the new session data.
             sessionTerminate();
-            mAudioSession->shutdownAllConnections();
+            notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+            deleteSession(mAudioSession);
         }
+        
         if (channelID.empty())
 		{
 			// Leave any channel we may be in
 			LL_DEBUGS("Voice") << "leaving channel" << LL_ENDL;
 
+            if (mNextAudioSession)
+            {
+                mAudioSession->shutdownAllConnections();
+            }
             sessionStatePtr_t oldSession = mNextAudioSession;
 			mNextAudioSession.reset();
 
@@ -1339,12 +1346,15 @@ bool LLWebRTCVoiceClient::switchChannel(
 		}
 		else
 		{
-			LL_DEBUGS("Voice") << "switching to channel " << channelID << LL_ENDL;
-
-			mNextAudioSession             = addSession(channelID, parcel_local_id);
-			mNextAudioSession->mIsSpatial = spatial;
-			mNextAudioSession->mReconnect = !no_reconnect;
-			mNextAudioSession->mIsP2P = is_p2p;
+            if (mNextAudioSession)
+            {
+                deleteSession(mNextAudioSession);
+            }
+            LL_DEBUGS("Voice") << "switching to channel " << channelID << LL_ENDL;
+            mNextAudioSession             = addSession(channelID, parcel_local_id);
+            mNextAudioSession->mIsSpatial = spatial;
+            mNextAudioSession->mReconnect = !no_reconnect;
+            mNextAudioSession->mIsP2P     = is_p2p;
 		}
 	}
 
@@ -2138,7 +2148,7 @@ void LLWebRTCVoiceClient::sessionState::reapEmptySessions()
     std::map<std::string, ptr_t>::iterator iter;
     for (iter = mSessions.begin(); iter != mSessions.end();)
     {
-        if (!iter->second->isEmpty())
+        if (iter->second->isEmpty())
         {
             iter = mSessions.erase(iter);
         }
@@ -2266,7 +2276,6 @@ void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
 void LLWebRTCVoiceClient::sessionState::deleteAllSessions()
 {
     mSessions.clear();
-
 }
 
 void LLWebRTCVoiceClient::verifySessionState(void)
@@ -2470,6 +2479,7 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, S32 par
     mRegionID(regionID),
     mParcelLocalID(parcelLocalID),
     mShutDown(false),
+    mOutstandingRequests(0),
     mMuted(true),
     mSpeakerVolume(0.0),
     mMicGain(0.0)
@@ -2526,6 +2536,7 @@ void LLVoiceWebRTCConnection::onIceUpdateComplete(bool ice_completed, const LLSD
         return;
     }
     mTrickling = false;
+    mOutstandingRequests--;
 }
 
 void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result)
@@ -2546,6 +2557,7 @@ void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLS
             body,
             boost::bind(&LLVoiceWebRTCConnection::onIceUpdateComplete, this, ice_completed, _1),
             boost::bind(&LLVoiceWebRTCConnection::onIceUpdateError, this, retries - 1, url, body, ice_completed, _1));
+        mOutstandingRequests++;
     }
     else
     {
@@ -2553,6 +2565,7 @@ void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLS
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
         mTrickling = false;
     }
+    mOutstandingRequests--;
 }
 
 void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
@@ -2721,6 +2734,7 @@ void LLVoiceWebRTCConnection::processIceUpdates()
                 body,
                 boost::bind(&LLVoiceWebRTCConnection::onIceUpdateComplete, this, iceCompleted, _1),
                 boost::bind(&LLVoiceWebRTCConnection::onIceUpdateError, this, 3, url, body, iceCompleted, _1));
+            mOutstandingRequests++;
             mTrickling = true;
         }
     }
@@ -2765,6 +2779,7 @@ bool LLVoiceWebRTCConnection::requestVoiceConnection()
         body,
         boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess, this, _1),
         boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure, this, url, 3, body, _1));
+    mOutstandingRequests++;
     return true;
 }
 
@@ -2780,6 +2795,12 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     {
         mRemoteChannelSDP = result["jsep"]["sdp"].asString();
     }
+    else
+    {
+        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        mOutstandingRequests--;
+        return;
+    }
     std::string voiceAccountServerUri;
     std::string voiceUserName = gAgent.getID().asString();
     std::string voicePassword = "";  // no password for now.
@@ -2789,6 +2810,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
                        << (voicePassword.empty() ? "not set" : "set") << " channel sdp " << mRemoteChannelSDP << LL_ENDL;
 
     mWebRTCPeerConnection->AnswerAvailable(mRemoteChannelSDP);
+    mOutstandingRequests--;
 }
 
 void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result)
@@ -2805,12 +2827,14 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, i
             body,
             boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess, this, _1),
             boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure, this, url, retries - 1, body, _1));
+        mOutstandingRequests++;
     }
     else
     {
         LL_WARNS("Voice") << "Unable to connect voice." << result << LL_ENDL;
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);       
     }
+    mOutstandingRequests--;
 }
 
 bool LLVoiceWebRTCConnection::connectionStateMachine()
@@ -2897,7 +2921,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 }
                 else
                 {
-                    return false;
+                    return mOutstandingRequests > 0;
                 }
             }
             break;
@@ -2962,6 +2986,7 @@ bool LLVoiceWebRTCConnection::breakVoiceConnection(bool corowait)
         body,
         boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess, this, _1),
         boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure, this, url, 3, body, _1));
+    mOutstandingRequests++;
     return true;
 }
 
@@ -2972,6 +2997,7 @@ void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess(const LLSD &res
         return;
     }
     setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
+    mOutstandingRequests--;
 }
 
 void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result)
@@ -2986,10 +3012,12 @@ void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure(std::string url
             url,
             LLCore::HttpRequest::DEFAULT_POLICY_ID,
             body,
-            boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess, this, _1),
-            boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure, this, url, retries - 1, body, _1));
+            boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess, this, _1),
+            boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure, this, url, retries - 1, body, _1));
+        mOutstandingRequests++;
     }
     setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
+    mOutstandingRequests--;
 }
 
 void LLVoiceWebRTCConnection::setMuteMic(bool muted)
