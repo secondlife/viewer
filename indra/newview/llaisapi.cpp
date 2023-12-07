@@ -277,7 +277,7 @@ void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, b
     {
         url += ",depth=0";
     }
-    LL_INFOS() << url << LL_ENDL;
+    LL_INFOS("Inventory") << url << LL_ENDL;
 
     std::string destination = destId.asString();
 
@@ -1229,7 +1229,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
-		LL_ERRS() << "unpack failed" << LL_ENDL;
+		LL_ERRS("Inventory") << "unpack failed" << LL_ENDL;
 	}
 }
 
@@ -1294,7 +1294,7 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
-		LL_ERRS() << "unpack failed" << LL_ENDL;
+		LL_ERRS("Inventory") << "unpack failed" << LL_ENDL;
 	}
 }
 
@@ -1317,8 +1317,14 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
         && version > LLViewerInventoryCategory::VERSION_UNKNOWN
         && version < curr_cat->getVersion())
     {
-        LL_WARNS() << "Got stale folder, known: " << curr_cat->getVersion()
+        LL_WARNS("Inventory") << "Got stale folder, known: " << curr_cat->getVersion()
             << ", received: " << version << LL_ENDL;
+        if( version < curr_cat->getVersion() )
+        {
+            // AIS version is considered canonical, so we need to refetch
+            curr_cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
+            curr_cat->fetch();
+        }
         return;
     }
 
@@ -1336,7 +1342,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
         }
         else
         {
-            LL_DEBUGS() << "No owner provided, folder might be assigned wrong owner" << LL_ENDL;
+            LL_DEBUGS("Inventory") << "No owner provided, folder might be assigned wrong owner" << LL_ENDL;
             new_cat = new LLViewerInventoryCategory(LLUUID::null);
         }
     }
@@ -1430,7 +1436,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
 	else
 	{
 		// *TODO: Wow, harsh.  Should we just complain and get out?
-		LL_ERRS() << "unpack failed" << LL_ENDL;
+		LL_ERRS("Inventory") << "unpack failed" << LL_ENDL;
 	}
 
 	// Check for more embedded content.
@@ -1738,7 +1744,7 @@ void AISUpdate::doUpdate()
 		LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << LL_ENDL;
 		if (cat->getVersion() != version)
 		{
-			LL_WARNS() << "Possible version mismatch for category " << cat->getName()
+			LL_WARNS("Inventory") << "Possible version mismatch for category " << cat->getName()
 					<< ", viewer version " << cat->getVersion()
 					<< " AIS version " << version << " !!!Adjusting local version!!!" <<  LL_ENDL;
 
@@ -1751,6 +1757,8 @@ void AISUpdate::doUpdate()
             // is performed.  This occasionally gets out of sync however.
             if (version != LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
+                // TODO: this should probably refetch from AIS to avoid integrity issues. 
+                // that said, maybe fix the cause of the mismatch first. :-)
                 cat->setVersion(version);
             }
             else
