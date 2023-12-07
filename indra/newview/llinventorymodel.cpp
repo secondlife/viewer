@@ -1740,12 +1740,10 @@ void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
 			<< " from " << make_inventory_info(item->getParentUUID())
 			<< " to " << make_inventory_info(new_parent_id) << LL_ENDL;
 
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-		update.push_back(new_folder);
-		accountForUpdate(update);
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(), -1);
+		accountForUpdate(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1, false);
+		accountForUpdate(new_folder);
 
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->setParent(new_parent_id);
@@ -1775,12 +1773,10 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 		<< " from " << make_inventory_info(cat->getParentUUID())
 		<< " to " << make_inventory_info(new_parent_id) << LL_ENDL;
 
-	LLInventoryModel::update_list_t update;
 	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
-	update.push_back(old_folder);
-	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-	update.push_back(new_folder);
-	accountForUpdate(update);
+	accountForUpdate(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1, false);
+	accountForUpdate(new_folder);
 
 	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
 	new_cat->setParent(new_parent_id);
@@ -2538,7 +2534,10 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 			{
 				descendents_actual += update.mDescendentDelta;
 				cat->setDescendentCount(descendents_actual);
-				cat->setVersion(++version);
+				if (update.mChangeVersion)
+				{
+					cat->setVersion(++version);
+				}
 				LL_DEBUGS(LOG_INV) << "accounted: '" << cat->getName() << "' "
 								   << version << " with " << descendents_actual
 								   << " descendents." << LL_ENDL;
@@ -2566,7 +2565,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 }
 
 void LLInventoryModel::accountForUpdate(
-	const LLInventoryModel::update_list_t& update)
+	const LLInventoryModel::update_list_t& update) const
 {
 	update_list_t::const_iterator it = update.begin();
 	update_list_t::const_iterator end = update.end();
@@ -2577,7 +2576,7 @@ void LLInventoryModel::accountForUpdate(
 }
 
 void LLInventoryModel::accountForUpdate(
-	const LLInventoryModel::update_map_t& update)
+	const LLInventoryModel::update_map_t& update) const
 {
 	LLCategoryUpdate up;
 	update_map_t::const_iterator it = update.begin();
