@@ -295,6 +295,54 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
             preview_texture->saveAs();
         }
     }
+    else if (("copy_to_marketplace_listings" == action)
+             || ("move_to_marketplace_listings" == action))
+    {
+        LLViewerInventoryItem* itemp = gInventory.getItem(mUUIDs.front());
+        bool copy_operation = "copy_to_marketplace_listings" == action;
+        bool can_copy = itemp ? itemp->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) : false;
+
+
+        if (can_copy)
+        {
+            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            if (itemp)
+            {
+                move_item_to_marketplacelistings(itemp, marketplacelistings_id, copy_operation);
+            }
+        }
+        else
+        {
+            uuid_vec_t lamdba_list = mUUIDs;
+            LLNotificationsUtil::add(
+                "ConfirmCopyToMarketplace",
+                LLSD(),
+                LLSD(),
+                [lamdba_list](const LLSD& notification, const LLSD& response)
+                {
+                    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+                    // option == 0  Move no copy item(s)
+                    // option == 1  Don't move no copy item(s) (leave them behind)
+                    bool copy_and_move = option == 0;
+                    const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+
+                    // main inventory only allows one item?
+                    LLViewerInventoryItem* itemp = gInventory.getItem(lamdba_list.front());
+                    if (itemp)
+                    {
+                        if (itemp->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+                        {
+                            move_item_to_marketplacelistings(itemp, marketplacelistings_id, true);
+                        }
+                        else if (copy_and_move)
+                        {
+                            move_item_to_marketplacelistings(itemp, marketplacelistings_id, false);
+                        }
+                    }
+                }
+            );
+        }
+    }
 }
 
 void LLInventoryGalleryContextMenu::rename(const LLUUID& item_id)
@@ -386,6 +434,44 @@ bool is_inbox_folder(LLUUID item_id)
     }
     
     return gInventory.isObjectDescendentOf(item_id, inbox_id);
+}
+
+bool can_list_on_marketplace(const LLUUID &id)
+{
+    const LLInventoryObject* obj = gInventory.getObject(id);
+    bool can_list = (obj != NULL);
+
+    if (can_list)
+    {
+        const LLUUID& object_id = obj->getLinkedUUID();
+        can_list = object_id.notNull();
+
+        if (can_list)
+        {
+            std::string error_msg;
+            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            if (marketplacelistings_id.notNull())
+            {
+                LLViewerInventoryCategory* master_folder = gInventory.getCategory(marketplacelistings_id);
+                LLInventoryCategory* cat = gInventory.getCategory(id);
+                if (cat)
+                {
+                    can_list = can_move_folder_to_marketplace(master_folder, master_folder, cat, error_msg);
+                }
+                else
+                {
+                    LLInventoryItem* item = gInventory.getItem(id);
+                    can_list = (item ? can_move_item_to_marketplace(master_folder, master_folder, item, error_msg) : false);
+                }
+            }
+            else
+            {
+                can_list = false;
+            }
+        }
+    }
+
+    return can_list;
 }
 
 void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* menu)
@@ -706,6 +792,47 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
             disabled_items.push_back(std::string("New Folder"));
             disabled_items.push_back(std::string("upload_def"));
+        }
+
+        // Marketplace
+        bool can_list = false;
+        const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+        if (marketplacelistings_id.notNull() && !is_inbox && !obj->getIsLinkType())
+        {
+            if (is_folder)
+            {
+                LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
+                if (cat
+                    && !LLFolderType::lookupIsProtectedType(cat->getPreferredType())
+                    && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID()))
+                {
+                    can_list = true;
+                }
+            }
+            else
+            {
+                LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+                if (item
+                    && item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID())
+                    && item->getPermissions().getOwner() != ALEXANDRIA_LINDEN_ID
+                    && LLAssetType::AT_CALLINGCARD != item->getType())
+                {
+                    can_list = true;
+                }
+            }
+        }
+
+        if (can_list)
+        {
+            items.push_back(std::string("Marketplace Separator"));
+            items.push_back(std::string("Marketplace Copy"));
+            items.push_back(std::string("Marketplace Move"));
+
+            if (!can_list_on_marketplace(selected_id))
+            {
+                disabled_items.push_back(std::string("Marketplace Copy"));
+                disabled_items.push_back(std::string("Marketplace Move"));
+            }
         }
     }
 
