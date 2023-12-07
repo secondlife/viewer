@@ -511,12 +511,14 @@ public:
 	// Represents the number of items added or removed from a category.
 	struct LLCategoryUpdate
 	{
-		LLCategoryUpdate() : mDescendentDelta(0) {}
-		LLCategoryUpdate(const LLUUID& category_id, S32 delta) :
+		LLCategoryUpdate() : mDescendentDelta(0), mChangeVersion(true) {}
+		LLCategoryUpdate(const LLUUID& category_id, S32 delta, bool change_version = true) :
 			mCategoryID(category_id),
-			mDescendentDelta(delta) {}
+			mDescendentDelta(delta),
+			mChangeVersion(change_version) {}
 		LLUUID mCategoryID;
 		S32 mDescendentDelta;
+		bool mChangeVersion;
 	};
 	typedef std::vector<LLCategoryUpdate> update_list_t;
 
@@ -534,8 +536,8 @@ public:
 	// Call when there are category updates.  Call them *before* the 
 	// actual update so the method can do descendent accounting correctly.
 	void accountForUpdate(const LLCategoryUpdate& update) const;
-	void accountForUpdate(const update_list_t& updates);
-	void accountForUpdate(const update_map_t& updates);
+	void accountForUpdate(const update_list_t& updates) const;
+	void accountForUpdate(const update_map_t& updates) const;
 
 	// Return (yes/no/maybe) child status of category children.
 	EHasChildren categoryHasChildren(const LLUUID& cat_id) const;
