@@ -123,13 +123,6 @@ namespace {
     const F32 CAPTURE_BUFFER_MAX_TIME = 10.f;
 }
 
-static int scale_mic_volume(float volume)
-{
-	// incoming volume has the range [0.0 ... 2.0], with 1.0 as the default.                                                
-	// Map it to WebRTC levels as follows: 0.0 -> 30, 1.0 -> 50, 2.0 -> 70                                                   
-	return 30 + (int)(volume * 20.0f);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
