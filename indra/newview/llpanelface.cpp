@@ -1094,7 +1094,21 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
                 prev_obj_id = objectp->getID();
             }
         }
-
+        else 
+        {
+            if (prev_obj_id != objectp->getID())
+            {
+                if (has_pbr_material && (mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL)) 
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_PBR);
+                }
+                else if (!has_pbr_material && (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR))
+                {
+                    mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+                }
+                prev_obj_id = objectp->getID();
+            }
+        }
         mComboMatMedia->setEnabled(editable);
 
         LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
