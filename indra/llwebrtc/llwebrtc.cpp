@@ -300,10 +300,10 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                                 {
                                     mTuningDeviceModule->StartPlayout();
                                 }
-                                renderDeviceCount = mPeerDeviceModule->PlayoutDevices();
 
                                 if (mPeerDeviceModule)
                                 {
+                                    renderDeviceCount = mPeerDeviceModule->PlayoutDevices();
                                     for (int16_t i = 0; i < renderDeviceCount; i++)
                                     {
                                         char name[webrtc::kAdmMaxDeviceNameSize];
@@ -317,6 +317,7 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
                                             break;
                                         }
                                     }
+                                    mPeerDeviceModule->StopPlayout();
                                     mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
                                     mPeerDeviceModule->InitSpeaker();
                                     mPeerDeviceModule->InitPlayout();
@@ -379,7 +380,14 @@ void LLWebRTCImpl::setTuningMode(bool enable)
                                 });
     for (auto& connection : mPeerConnections)
     {
-        connection->enableSenderTracks(enable ? false : !mMute);
+        if (enable)
+        {
+            connection->enableSenderTracks(false);
+        }
+        else
+        {
+            connection->resetMute();
+        }
         connection->enableReceiverTracks(!enable);
     }
 }
@@ -618,6 +626,11 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
             }
         }
     }
+}
+
+void LLWebRTCPeerConnectionImpl::resetMute()
+{ 
+    setMute(mMute); 
 }
 
 void LLWebRTCPeerConnectionImpl::setReceiveVolume(float volume)
