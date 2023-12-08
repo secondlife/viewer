@@ -280,7 +280,7 @@ public:
 		std::string mDisplayName;
 		LLFrameTimer mSpeakingTimeout;
 		F32	mLastSpokeTimestamp;
-		F32 mPower;
+		F32 mLevel;
 		F32 mVolume;
 		std::string mGroupID;
 		int mUserVolume;
@@ -559,9 +559,7 @@ private:
 	static void idle(void *user_data);
 			
 	bool mTuningMode;
-	float mTuningEnergy;
-	int mTuningMicVolume;
-	bool mTuningMicVolumeDirty;
+	F32 mTuningMicGain;
 	int mTuningSpeakerVolume;
 	bool mTuningSpeakerVolumeDirty;
 	bool mDevicesListUpdated;			// set to true when the device list has been updated
@@ -647,8 +645,7 @@ private:
 	bool		mSpeakerVolumeDirty;
 	float		mSpeakerVolume;
 
-	int			mMicVolume;
-	bool		mMicVolumeDirty;
+	F32			mMicGain;
 	
 	bool		mVoiceEnabled;
 	

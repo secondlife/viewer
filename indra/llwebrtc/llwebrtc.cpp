@@ -54,7 +54,7 @@ void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
     const short *samples = (const short *) audio_samples;
     for (size_t index = 0; index < num_samples * num_channels; index++)
     {
-        float sample = (static_cast<float>(samples[index]) / (float) 32768);
+        float sample = (static_cast<float>(samples[index]) / (float) 32767);
         energy += sample * sample;
     }
     
@@ -384,9 +384,9 @@ void LLWebRTCImpl::setTuningMode(bool enable)
     }
 }
 
-float LLWebRTCImpl::getTuningAudioLevel() { return 20 * mTuningAudioDeviceObserver->getMicrophoneEnergy(); }
+float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mTuningAudioDeviceObserver->getMicrophoneEnergy()); }
 
-float LLWebRTCImpl::getPeerAudioLevel() { return 20 * mPeerAudioDeviceObserver->getMicrophoneEnergy(); }
+float LLWebRTCImpl::getPeerAudioLevel() { return -20 * log10f(mPeerAudioDeviceObserver->getMicrophoneEnergy()); }
 
 //
 // Helpers
