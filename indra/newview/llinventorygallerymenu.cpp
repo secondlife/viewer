@@ -32,9 +32,11 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llclipboard.h"
+#include "llenvironment.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
+#include "llfriendcard.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -57,11 +59,33 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
     registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2));
     registrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
     registrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
+    registrar.add("Inventory.DoCreate", [this](LLUICtrl*, const LLSD& data)
+                          {
+                              if (mRootFolder)
+                              {
+                                  mGallery->doCreate(mGallery->getRootFolder(), data);
+                              }
+                              else
+                              {
+                                  mGallery->doCreate(mUUIDs.front(), data);
+                              }
+                          });
 
     std::set<LLUUID> uuids(mUUIDs.begin(), mUUIDs.end());
     registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
 
     enable_registrar.add("Inventory.CanSetUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
+    enable_registrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl*, const LLSD&)
+                         {
+                             return LLEnvironment::instance().isInventoryEnabled();
+                         });
+    enable_registrar.add("Inventory.MaterialsEnabled", [](LLUICtrl*, const LLSD&)
+                         {
+                             std::string agent_url = gAgent.getRegionCapability("UpdateMaterialAgentInventory");
+                             std::string task_url = gAgent.getRegionCapability("UpdateMaterialTaskInventory");
+
+                             return (!agent_url.empty() && !task_url.empty());
+                         });
     
     LLContextMenu* menu = createFromFile("menu_gallery_inventory.xml");
 
@@ -495,6 +519,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     bool is_in_trash = gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH));
     bool is_lost_and_found = (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
     bool is_outfits= (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS));
+    bool is_in_favorites = gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE));
     //bool is_favorites= (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE));
 
     bool is_system_folder = false;
@@ -589,11 +614,30 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     }
     else
     {
+        if (is_agent_inventory && !is_inbox && !is_cof && !is_in_favorites && !is_outfits)
+        {
+            LLViewerInventoryCategory* category = gInventory.getCategory(selected_id);
+            if (!category || !LLFriendCardsManager::instance().isCategoryInFriendFolder(category))
+            {
+                items.push_back(std::string("New Folder"));
+            }
+
+            items.push_back(std::string("create_new"));
+            items.push_back(std::string("New Script"));
+            items.push_back(std::string("New Note"));
+            items.push_back(std::string("New Gesture"));
+            items.push_back(std::string("New Material"));
+            items.push_back(std::string("New Clothes"));
+            items.push_back(std::string("New Body Parts"));
+            items.push_back(std::string("New Settings"));
+        }
+
         if(can_share_item(selected_id))
         {
             items.push_back(std::string("Share"));
         }
-        if (LLClipboard::instance().hasContents() && is_agent_inventory && !is_cof && !is_inbox_folder(selected_id))
+
+        if (LLClipboard::instance().hasContents() && is_agent_inventory && !is_cof && !is_inbox)
         {
             items.push_back(std::string("Paste"));
 
@@ -605,7 +649,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
         }
         if (is_folder && is_agent_inventory)
         {
-            if (!is_cof && (folder_type != LLFolderType::FT_OUTFIT) && !is_outfits && !is_inbox_folder(selected_id))
+            if (!is_cof && (folder_type != LLFolderType::FT_OUTFIT) && !is_outfits && !is_inbox)
             {
                 if (!gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD)) && !isRootFolder())
                 {
@@ -792,6 +836,17 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
             disabled_items.push_back(std::string("New Folder"));
             disabled_items.push_back(std::string("upload_def"));
+            disabled_items.push_back(std::string("create_new"));
+        }
+
+        if (is_agent_inventory && !mRootFolder)
+        {
+            items.push_back(std::string("New folder from selected"));
+            items.push_back(std::string("Subfolder Separator"));
+            if (!is_only_items_selected(mUUIDs) && !is_only_cats_selected(mUUIDs))
+            {
+                disabled_items.push_back(std::string("New folder from selected"));
+            }
         }
 
         // Marketplace
@@ -809,16 +864,12 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                     can_list = true;
                 }
             }
-            else
+            else if (selected_item
+                     && selected_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID())
+                     && selected_item->getPermissions().getOwner() != ALEXANDRIA_LINDEN_ID
+                     && LLAssetType::AT_CALLINGCARD != selected_item->getType())
             {
-                LLViewerInventoryItem* item = gInventory.getItem(selected_id);
-                if (item
-                    && item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID())
-                    && item->getPermissions().getOwner() != ALEXANDRIA_LINDEN_ID
-                    && LLAssetType::AT_CALLINGCARD != item->getType())
-                {
-                    can_list = true;
-                }
+                can_list = true;
             }
         }
 
