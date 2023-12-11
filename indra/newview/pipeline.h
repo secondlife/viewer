@@ -306,7 +306,7 @@ public:
     // if setup is true, wil lset texture compare mode function and filtering options
     void bindShadowMaps(LLGLSLShader& shader);
     void bindDeferredShaderFast(LLGLSLShader& shader);
-	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr, LLRenderTarget* depth_target = nullptr);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);

@@ -30,7 +30,6 @@ uniform sampler2D bumpMap;
 
 #ifdef TRANSPARENT_WATER
 uniform sampler2D screenTex;
-uniform sampler2D screenDepth;
 #endif
 
 uniform vec4 fogCol;

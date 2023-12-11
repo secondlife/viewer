@@ -76,7 +76,7 @@ uniform sampler2D bumpMap2;
 uniform float     blend_factor;
 #ifdef TRANSPARENT_WATER
 uniform sampler2D screenTex;
-uniform sampler2D screenDepth;
+uniform sampler2D depthMap;
 #endif
 
 uniform sampler2D refTex;
@@ -210,7 +210,7 @@ void main()
 
 #ifdef TRANSPARENT_WATER
     vec4 fb = texture(screenTex, distort2);
-    float depth = texture(screenDepth, distort2).r;
+    float depth = texture(depthMap, distort2).r;
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
 
     if (refPos.z > pos.z-0.05)
@@ -218,7 +218,7 @@ void main()
         //we sampled an above water sample, don't distort
         distort2 = distort;
         fb = texture(screenTex, distort2);
-        depth = texture(screenDepth, distort2).r;
+        depth = texture(depthMap, distort2).r;
         refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
 
