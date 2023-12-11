@@ -1423,13 +1423,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                 // Dec 2023 new generic data:
                 //    Trees work as before, this field contains genome data
-                //    Not a tree:
-                //        avatars send 1 byte with the number of attachments
-                //        root objects send 1 byte with the number of prims in the linkset
-                //    If the generic data size is zero, then number of attachments or prims is zero
+                //    Not a tree:  root objects send 1 byte with the number of
+                //      total prims in the linkset
+                //    If the generic data size is zero, then number of prims is 1
                 //
-                // Viewers should not match the data size exactly, but if the field has data,
-                //    read the 1st byte as described above, and ignore the rest.
+                // Viewers should not check for specific data sizes exactly, but if
+                // the field has data, process it from the start and ignore the remainder.
 
                 // Check for appended generic data
                 const S32 GENERIC_DATA_BUFFER_SIZE = 16;
@@ -1444,21 +1443,17 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                                              << getPCodeString() << ", value " << (S32) mData[0] << LL_ENDL;
                     }
                     else
-                    {   // Extract number of prims or attachments
+                    {   // Extract number of prims
                         U8 generic_data[GENERIC_DATA_BUFFER_SIZE];
                         mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data,
                             &generic_data[0], llmin(data_size, GENERIC_DATA_BUFFER_SIZE), block_num);
-                        // This is sample code to extract the number of attachments or prims
+                        // This is sample code to extract the number of prims
                         //    Future viewers should use it for their own purposes
-                        if (isAvatar())
+                        if (!isAvatar())
                         {
-                            LL_DEBUGS("NewObjectData") << "Avatar " << getID() << " has "
-                                << (S32) generic_data[0] << " attachments" << LL_ENDL;
-                        }
-                        else
-                        {
+                            S32 num_prims = (S32) generic_data[0];
                             LL_DEBUGS("NewObjectData") << "Root prim " << getID() << " has "
-                                << (S32) generic_data[0] << " prims in linkset" << LL_ENDL;
+                                << num_prims << " prims in linkset" << LL_ENDL;
                         }
                     }
                 }
@@ -1637,7 +1632,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 // Previous viewers had code for length 76, 60 or 16 byte length
                 // with full precision or 8 bit quanitzation, but the
                 // SL servers will never send those data formats.  If you ever see this
-                // warning on a SL server, please file a bug report
+                // warning in Second Life, please file a bug report
                 default:
                     LL_WARNS("UpdateFail") << "Unexpected ObjectData buffer size " << length << " for " << getID()
                                            << " with OUT_FULL message" << LL_ENDL;
