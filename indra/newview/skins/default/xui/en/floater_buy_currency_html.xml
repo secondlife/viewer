@@ -1,27 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- can_resize="false"
- can_close="true"
- width="422"
- height="202"
- layout="topleft"
- name="floater_buy_currency_html"
- help_topic="floater_buy_currency_html"
- save_rect="true"
- single_instance="true"
- title="BUY CURRENCY"
->
-  <floater.string
-    name="buy_currency_url" translate="false">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater can_resize="false" can_close="true" width="422" height="202" layout="topleft" name="floater_buy_currency_html" help_topic="floater_buy_currency_html" save_rect="true" single_instance="true" title="BUY CURRENCY">
+	<floater.string name="buy_currency_url" translate="false">
     https://quick-buy.secondlife.com/[LANGUAGE]/display/?sa=[SPECIFIC_AMOUNT]&amp;sum=[SUM]&amp;msg=[MSG]&amp;bal=[BAL]
   </floater.string>
-  <web_browser
-    trusted_content="true" 
-    follows="all"
-    layout="topleft"
-    left="1"
-    right="-1" 
-    top="1"
-    bottom="-1" 
-    name="browser"/>
+	<web_browser trusted_content="true" follows="all" layout="topleft" left="1" right="-1" top="1" bottom="-1" name="browser"/>
 </floater>

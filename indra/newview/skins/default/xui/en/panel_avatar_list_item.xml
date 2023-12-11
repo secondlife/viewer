@@ -1,161 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
- follows="top|right|left"
- height="24"
- layout="topleft"
- left="0"
- name="avatar_list_item"
- top="0"
- width="320">
-    <!-- 
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel follows="top|right|left" height="24" layout="topleft" left="0" name="avatar_list_item" top="0" width="320">
+	<!-- 
     Strings used to localize last interaction time.
     See last_interaction textbox below.
     -->
-    <string name="FormatSeconds">[COUNT]s</string>
-    <string name="FormatMinutes">[COUNT]m</string>
-    <string name="FormatHours">[COUNT]h</string>
-    <string name="FormatDays">[COUNT]d</string>
-    <string name="FormatWeeks">[COUNT]w</string>
-    <string name="FormatMonths">[COUNT]mon</string>
-    <string name="FormatYears">[COUNT]y</string>
- 
-    <!--
+	<string name="FormatSeconds">[COUNT]s</string>
+	<string name="FormatMinutes">[COUNT]m</string>
+	<string name="FormatHours">[COUNT]h</string>
+	<string name="FormatDays">[COUNT]d</string>
+	<string name="FormatWeeks">[COUNT]w</string>
+	<string name="FormatMonths">[COUNT]mon</string>
+	<string name="FormatYears">[COUNT]y</string>
+	<!--
     *NOTE: llavatarlistitem.cpp lays these controls out depending on which
            ones are visible. Trying to change their order here will break it
            ... which kinda sucks.
     -->
-    <icon
-     follows="top|right|left"
-     height="24"
-     image_name="ListItem_Over"
-     layout="topleft"
-     left="0"
-     name="hovered_icon"
-     top="0"
-     visible="false"
-     width="320" />
-    <icon
-     height="24"
-     follows="top|right|left"
-     image_name="ListItem_Select"
-     layout="topleft"
-     left="0"
-     name="selected_icon"
-     top="0"
-     visible="false"
-     width="320" />
-    <avatar_icon
-     follows="top|left"
-     height="20"
-     default_icon_name="Generic_Person"
-     layout="topleft"
-     left="5"
-     mouse_opaque="true"
-     top="2"
-     width="20" />
-    <text
-     follows="left|right"
-     font="SansSerifSmall"
-     height="15"
-     layout="topleft"
-     left_pad="5"
-     name="avatar_name"
-     parse_urls="false"
-     top="6"
-     use_ellipses="true"
-     value="(loading)"
-     width="180" />
-    <text
-     follows="right"
-     font="SansSerifSmall"
-     height="15"
-     layout="topleft"
-     left_pad="5"
-     right="-164"
-     name="last_interaction"
-     text_color="LtGray_50"
-     value="0s"
-     width="35" />
-    <icon
-     height="16"
-     follows="right"
-     image_name="Permission_Edit_Objects_Theirs"
-     layout="topleft"
-     left_pad="3"
-     right="-129"
-     name="permission_edit_theirs_icon"
-     tool_tip="You can edit this friend&apos;s objects"
-     top="4"
-     width="16" />
-    <icon
-     height="16"
-     follows="right"
-     image_name="Permission_Edit_Objects_Mine"
-     layout="topleft"
-     left_pad="3"
-     right="-110"
-     name="permission_edit_mine_icon"
-     tool_tip="This friend can edit, delete or take your objects"
-     top_delta="0"
-     width="16" />
-    <icon
-     height="16"
-     follows="right"
-     image_name="Permission_Visible_Map"
-     layout="topleft"
-     left_pad="3"
-     tool_tip="This friend can locate you on the map"
-     right="-91"
-     name="permission_map_icon"
-     top_delta="0"
-     width="16" />
-    <icon
-     height="16"
-     follows="right"
-     image_name="Permission_Visible_Online"
-     layout="topleft"
-     left_pad="3"
-     right="-72"
-     name="permission_online_icon"
-     tool_tip="This friend can see when you&apos;re online"
-     top_delta="0"
-     width="16" />
-    <button
-     follows="right"
-     height="16"
-     image_pressed="Info_Press"
-     image_unselected="Info_Over"
-     layout="topleft"
-     left_pad="3"
-     right="-53"
-     name="info_btn"
-     tool_tip="More info"
-     tab_stop="false"
-     top_delta="0"
-     width="16" />
-    <button
-     follows="right"
-     height="20"
-     image_overlay="Web_Profile_Off"
-     layout="topleft"
-     left_pad="5"
-     right="-28"
-     name="profile_btn"
-     tab_stop="false"
-     tool_tip="View profile"
-     top_delta="-2"
-     width="20" />
-    <output_monitor
-     auto_update="true"
-     follows="right"
-     draw_border="false"
-     height="16"
-     layout="topleft"
-     left_pad="5"
-     right="-3"
-     mouse_opaque="true"
-     name="speaking_indicator"
-     tool_tip="Voice volume"
-     visible="true"
-     width="20" />
+	<icon follows="top|right|left" height="24" image_name="ListItem_Over" layout="topleft" left="0" name="hovered_icon" top="0" visible="false" width="320"/>
+	<icon height="24" follows="top|right|left" image_name="ListItem_Select" layout="topleft" left="0" name="selected_icon" top="0" visible="false" width="320"/>
+	<avatar_icon follows="top|left" height="20" default_icon_name="Generic_Person" layout="topleft" left="5" mouse_opaque="true" top="2" width="20"/>
+	<text follows="left|right" font="SansSerifSmall" height="15" layout="topleft" left_pad="5" name="avatar_name" parse_urls="false" top="6" use_ellipses="true" value="(loading)" width="180"/>
+	<text follows="right" font="SansSerifSmall" height="15" layout="topleft" left_pad="5" right="-164" name="last_interaction" text_color="LtGray_50" value="0s" width="35"/>
+	<icon height="16" follows="right" image_name="Permission_Edit_Objects_Theirs" layout="topleft" left_pad="3" right="-129" name="permission_edit_theirs_icon" tool_tip="You can edit this friend's objects" top="4" width="16"/>
+	<icon height="16" follows="right" image_name="Permission_Edit_Objects_Mine" layout="topleft" left_pad="3" right="-110" name="permission_edit_mine_icon" tool_tip="This friend can edit, delete or take your objects" top_delta="0" width="16"/>
+	<icon height="16" follows="right" image_name="Permission_Visible_Map" layout="topleft" left_pad="3" tool_tip="This friend can locate you on the map" right="-91" name="permission_map_icon" top_delta="0" width="16"/>
+	<icon height="16" follows="right" image_name="Permission_Visible_Online" layout="topleft" left_pad="3" right="-72" name="permission_online_icon" tool_tip="This friend can see when you're online" top_delta="0" width="16"/>
+	<button follows="right" height="16" image_pressed="Info_Press" image_unselected="Info_Over" layout="topleft" left_pad="3" right="-53" name="info_btn" tool_tip="More info" tab_stop="false" top_delta="0" width="16"/>
+	<button follows="right" height="20" image_overlay="Web_Profile_Off" layout="topleft" left_pad="5" right="-28" name="profile_btn" tab_stop="false" tool_tip="View profile" top_delta="-2" width="20"/>
+	<output_monitor auto_update="true" follows="right" draw_border="false" height="16" layout="topleft" left_pad="5" right="-3" mouse_opaque="true" name="speaking_indicator" tool_tip="Voice volume" visible="true" width="20"/>
 </panel>

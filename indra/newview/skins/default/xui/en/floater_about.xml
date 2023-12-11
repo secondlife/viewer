@@ -1,98 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- positioning="centered"
- legacy_header_height="18"
- height="440"
- layout="topleft"
- name="floater_about"
- help_topic="floater_about"
- save_rect="true"
- title="ABOUT [CAPITALIZED_APP_NAME]"
- width="500">
-  
-  <tab_container
-    follows="all" 
-    top="25"
-    left="10"
-    height="405" 
-    width="480" 
-    name="about_tab"
-    tab_position="top">
-    <panel
-      border="true" 
-      label="Info"
-      help_topic="about_support_tab"
-      name="support_panel">
-      <text_editor
-        parse_urls="true" 
-       follows="top|left"
-       font="SansSerif"
-       height="343"
-       bg_readonly_color="Transparent"
-       left="5"
-       max_length="65536"
-       name="support_editor"
-       top="5"
-       width="465"
-       word_wrap="true" />
-      <button
-        follows="left|top" 
-        label="Copy to Clipboard"
-        name="copy_btn"
-        left="10"
-        top_pad="5"
-        height="25"
-        width="180" />
-    </panel>
-    <panel
-      border="true" 
-      label="Credits" 
-      help_topic="about_credits_tab"
-      name="credits_panel">
-      <text
-          follows="top|left|right"
-          height="20"
-          layout="topleft"
-          left="5"
-          name="linden_intro"
-          top="10"
-          width="465"
-          wrap="true">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater positioning="centered" legacy_header_height="18" height="440" layout="topleft" name="floater_about" help_topic="floater_about" save_rect="true" title="ABOUT [CAPITALIZED_APP_NAME]" width="500">
+	<tab_container follows="all" top="25" left="10" height="405" width="480" name="about_tab" tab_position="top">
+		<panel border="true" label="Info" help_topic="about_support_tab" name="support_panel">
+			<text_editor parse_urls="true" follows="top|left" font="SansSerif" height="343" bg_readonly_color="Transparent" left="5" max_length="65536" name="support_editor" top="5" width="465" word_wrap="true"/>
+			<button follows="left|top" label="Copy to Clipboard" name="copy_btn" left="10" top_pad="5" height="25" width="180"/>
+		</panel>
+		<panel border="true" label="Credits" help_topic="about_credits_tab" name="credits_panel">
+			<text follows="top|left|right" height="20" layout="topleft" left="5" name="linden_intro" top="10" width="465" wrap="true">
 Second Life is brought to you by the Lindens, 
 with open source contributions from:
       </text>
-      <text_editor
-       enabled="false" 
-       follows="top|left"
-       height="340"
-       bg_readonly_color="Transparent"
-       left="5"
-       text_color="LtGray"
-       max_length="65536"
-       name="contrib_names"
-       top_pad="10"
-       width="465"
-       word_wrap="true">
+			<text_editor enabled="false" follows="top|left" height="340" bg_readonly_color="Transparent" left="5" text_color="LtGray" max_length="65536" name="contrib_names" top_pad="10" width="465" word_wrap="true">
 Dummy Name replaced at run time
       </text_editor>
-    </panel>
-    <panel
-      border="true"
-      label="Licenses"
-      help_topic="about_licenses_tab"
-      name="licenses_panel">
-      <text_editor
-       enabled="false"
-       follows="left|top"
-       height="375"
-       bg_readonly_color="Transparent"
-       left="5"
-       text_color="LtGray"
-       max_length="65536"
-       name="licenses_editor"
-       top="5"
-       width="465"
-       word_wrap="true">
+		</panel>
+		<panel border="true" label="Licenses" help_topic="about_licenses_tab" name="licenses_panel">
+			<text_editor enabled="false" follows="left|top" height="375" bg_readonly_color="Transparent" left="5" text_color="LtGray" max_length="65536" name="licenses_editor" top="5" width="465" word_wrap="true">
         3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
         APR Copyright (C) 2011 The Apache Software Foundation
         Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
@@ -123,6 +46,6 @@ Dummy Name replaced at run time
 
         Voice chat Audio coding: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
       </text_editor>
-      </panel>
-    </tab_container>
+		</panel>
+	</tab_container>
 </floater>

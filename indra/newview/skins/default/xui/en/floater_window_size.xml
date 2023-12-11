@@ -1,92 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
-  can_minimize="false" 
-  can_resize="false"
-  height="105"
-  layout="topleft"
-  name="window_size"
-  title="WINDOW SIZE"
-  width="205">
-  <string name="resolution_format">[RES_X] x [RES_Y]</string>
-    <text
-     follows="top|left"
-     font="SansSerif"
-     height="16"
-     left="15"
-     top="10" 
-     name="windowsize_text"
-     width="280">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater can_minimize="false" can_resize="false" height="105" layout="topleft" name="window_size" title="WINDOW SIZE" width="205">
+	<string name="resolution_format">[RES_X] x [RES_Y]</string>
+	<text follows="top|left" font="SansSerif" height="16" left="15" top="10" name="windowsize_text" width="280">
      Set window size:
     </text>
-    <combo_box
-     allow_text_entry="true"
-     height="23"
-     follows="left|top"
-     left_delta="0"
-     max_chars="20"
-     name="window_size_combo"
-     tool_tip="width x height"
-     top_pad="5"
-     width="179">
-      <combo_box.item
-       label="1000 x 700 (default)"
-       name="item1"
-       value="1000 x 700" />
-      <combo_box.item
-       label="1024 x 768 (4:3 XGA)"
-       name="item2"
-       value="1024 x 768" />
-      <combo_box.item
-       label="1280 x 720 (16:9 HDTV)"
-       name="item3"
-       value="1280 x 720" />
-      <combo_box.item
-       label="1280 x 800 (5:8 WXGA)"
-       name="item4"
-       value="1280 x 800" />
-      <combo_box.item
-       label="1280 x 1024 (5:4 SXGA)"
-       name="item5"
-       value="1280 x 1024" />
-      <combo_box.item
-       label="1440 x 900 (8:5 WSXGA)"
-       name="item7"
-       value="1440 x 900" />
-      <combo_box.item
-       label="1600 x 900 (16:9 HD+)"
-       name="item8"
-       value="1600 x 900" />
-      <combo_box.item
-       label="1600 x 1200 (4:3 UXGA)"
-       name="item9"
-       value="1600 x 1200" />
-      <combo_box.item
-       label="1680 x 1050 (8:5 WSXGA+)"
-       name="item10"
-       value="1680 x 1050" />
-      <combo_box.item
-       label="1920 x 1080 (16:9 HDTV)"
-       name="item11"
-       value="1920 x 1080" />
-      <combo_box.item
-       label="1920 x 1200 (8:5 WUXGA)"
-       name="item12"
-       value="1920 x 1200" />
-    </combo_box>
-    <button
-     follows="right|bottom"
-     height="23"
-     label="Set"
-     left_delta="0"
-     name="set_btn"
-     top_pad="10"
-     width="85" />
-    <button
-     follows="right|bottom"
-     height="23"
-     label="Cancel"
-     left_pad="5"
-     name="cancel_btn"
-     top_delta="0"
-     width="85" />
+	<combo_box allow_text_entry="true" height="23" follows="left|top" left_delta="0" max_chars="20" name="window_size_combo" tool_tip="width x height" top_pad="5" width="179">
+		<combo_box.item label="1000 x 700 (default)" name="item1" value="1000 x 700"/>
+		<combo_box.item label="1024 x 768 (4:3 XGA)" name="item2" value="1024 x 768"/>
+		<combo_box.item label="1280 x 720 (16:9 HDTV)" name="item3" value="1280 x 720"/>
+		<combo_box.item label="1280 x 800 (5:8 WXGA)" name="item4" value="1280 x 800"/>
+		<combo_box.item label="1280 x 1024 (5:4 SXGA)" name="item5" value="1280 x 1024"/>
+		<combo_box.item label="1440 x 900 (8:5 WSXGA)" name="item7" value="1440 x 900"/>
+		<combo_box.item label="1600 x 900 (16:9 HD+)" name="item8" value="1600 x 900"/>
+		<combo_box.item label="1600 x 1200 (4:3 UXGA)" name="item9" value="1600 x 1200"/>
+		<combo_box.item label="1680 x 1050 (8:5 WSXGA+)" name="item10" value="1680 x 1050"/>
+		<combo_box.item label="1920 x 1080 (16:9 HDTV)" name="item11" value="1920 x 1080"/>
+		<combo_box.item label="1920 x 1200 (8:5 WUXGA)" name="item12" value="1920 x 1200"/>
+	</combo_box>
+	<button follows="right|bottom" height="23" label="Set" left_delta="0" name="set_btn" top_pad="10" width="85"/>
+	<button follows="right|bottom" height="23" label="Cancel" left_pad="5" name="cancel_btn" top_delta="0" width="85"/>
 </floater>

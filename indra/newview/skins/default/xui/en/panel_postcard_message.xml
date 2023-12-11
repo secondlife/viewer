@@ -1,89 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
- height="319"
- layout="topleft"
- name="panel_postcard_message"
- width="490">
-    <text
-     type="string"
-     length="1"
-     bottom="35"
-     follows="top|left"
-     font="SansSerif"
-     height="16"
-     layout="topleft"
-     left="5"
-     name="to_label"
-     top="10"
-     width="60">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel height="319" layout="topleft" name="panel_postcard_message" width="490">
+	<text type="string" length="1" bottom="35" follows="top|left" font="SansSerif" height="16" layout="topleft" left="5" name="to_label" top="10" width="60">
         To:
     </text>
-    <line_editor
-     control_name="LastPostcardRecipient"
-     follows="left|top|right"
-     height="20"
-     layout="topleft"
-     left_pad="10"
-     name="to_form"
-     right="-3"
-     top_delta="-4" />
-    <text
-     type="string"
-     length="1"
-     bottom_delta="23"
-     follows="top|left"
-     font="SansSerif"
-     height="16"
-     layout="topleft"
-     left="5"
-     name="name_label"
-     width="60">
+	<line_editor control_name="LastPostcardRecipient" follows="left|top|right" height="20" layout="topleft" left_pad="10" name="to_form" right="-3" top_delta="-4"/>
+	<text type="string" length="1" bottom_delta="23" follows="top|left" font="SansSerif" height="16" layout="topleft" left="5" name="name_label" width="60">
         From:
     </text>
-    <line_editor
-     follows="left|top|right"
-     height="20"
-     layout="topleft"
-     left_pad="10"
-     max_length_bytes="100"
-     name="name_form"
-     right="-3"
-     top_delta="-4" />
-    <text
-     type="string"
-     length="1"
-     bottom_delta="23"
-     follows="top|left"
-     font="SansSerif"
-     height="16"
-     layout="topleft"
-     left="5"
-     name="subject_label"
-     width="60">
+	<line_editor follows="left|top|right" height="20" layout="topleft" left_pad="10" max_length_bytes="100" name="name_form" right="-3" top_delta="-4"/>
+	<text type="string" length="1" bottom_delta="23" follows="top|left" font="SansSerif" height="16" layout="topleft" left="5" name="subject_label" width="60">
         Subject:
     </text>
-    <line_editor
-     follows="left|top|right"
-     height="20"
-     layout="topleft"
-     left_pad="10"
-     max_length_bytes="100"
-     name="subject_form"
-     right="-3"
-     top_delta="-4" />
-    <text_editor
-     type="string"
-     length="1"
-     follows="left|top|right"
-     height="48"
-     layout="topleft"
-     left="5"
-     max_length="700"
-     name="msg_form"
-     spellcheck="true"
-     right="-4"
-     top_pad="5"
-     word_wrap="true">
+	<line_editor follows="left|top|right" height="20" layout="topleft" left_pad="10" max_length_bytes="100" name="subject_form" right="-3" top_delta="-4"/>
+	<text_editor type="string" length="1" follows="left|top|right" height="48" layout="topleft" left="5" max_length="700" name="msg_form" spellcheck="true" right="-4" top_pad="5" word_wrap="true">
         Type your message here.
     </text_editor>
 </panel>

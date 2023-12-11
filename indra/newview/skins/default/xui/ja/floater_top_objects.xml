@@ -4,7 +4,7 @@
 		トップ・スクリプト
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT]個のスクリプトの実行に[TIME]分かかり、[MEMORY]KB使用しています。
+		[COUNT] 個のスクリプトの実行に[TIME]分かかり、[MEMORY]KB使用しています。
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		時間
@@ -28,7 +28,7 @@
 		メモリ(KB)
 	</floater.string>
 	<text name="title_text">
-		読み込み中…
+		読込中...
 	</text>
 	<scroll_list name="objects_list">
 		<scroll_list.columns label="数" name="score"/>
@@ -43,22 +43,27 @@
 	<text name="id_text">
 		物体ID:
 	</text>
-	<button label="標識を表示" name="show_beacon_btn"/>
+	<button label="ビーコンを表示" name="show_beacon_btn">
+	</button>
 	<text name="obj_name_text">
 		オブジェクト名:
 	</text>
-	<button label="フィルタ" name="filter_object_btn"/>
+	<button label="フィルタ" name="filter_object_btn">
+	</button>
 	<text name="owner_name_text">
 		所有者:
 	</text>
-	<button label="フィルタ" name="filter_owner_btn"/>
+	<button label="フィルタ" name="filter_owner_btn">
+	</button>
 	<text name="parcel_name_text">
 		区画:
 	</text>
-	<button label="フィルタ" name="filter_parcel_btn"/>
-	<button label="更新" name="refresh_btn"/>
-	<button label="選択内容を返却" name="return_selected_btn"/>
-	<button label="全て返却" name="return_all_btn"/>
-	<button label="選択内容を無効化" name="disable_selected_btn"/>
-	<button label="すべて無効化" name="disable_all_btn"/>
+	<button label="フィルタ" name="filter_parcel_btn">
+	</button>
+	<button label="選択内容を返却" name="return_selected_btn">
+	</button>
+	<button label="全て返却" name="return_all_btn">
+	</button>
+	<button label="選択した場所にテレポート" name="teleport_btn">
+	</button>
 </floater>

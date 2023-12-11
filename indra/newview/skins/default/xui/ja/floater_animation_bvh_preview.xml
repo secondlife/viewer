@@ -12,7 +12,7 @@
 [STATUS]
 	</floater.string>
 	<floater.string name="E_ST_OK">
-		Ok
+		OK
 	</floater.string>
 	<floater.string name="E_ST_EOF">
 		ファイルの終端が不完全です。
@@ -169,14 +169,15 @@
 		<item label="座る" name="Sitting"/>
 		<item label="飛ぶ" name="Flying"/>
 	</combo_box>
-	<spinner label="イーズ・イン(秒)" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間(秒)"/>
-	<spinner label="イーズ・アウト(秒)" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間(秒)"/>
-	<button name="play_btn" tool_tip="アニメーションを再生する。"/>
+	<spinner label="イーズイン(秒)" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間(秒)"/>
+	<spinner label="イーズアウト(秒)" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間(秒)"/>
+	<button name="play_btn" tool_tip="アニメーションを再生する"/>
 	<button name="pause_btn" tool_tip="アニメーションを一時停止する。"/>
 	<button name="stop_btn" tool_tip="アニメーションの再生を停止"/>
+	<slider initial_value="0" name="playback_slider"/>
 	<text name="bad_animation_text">
 		アニメーションファイルを読み取れません。Poser 4からエクスポートしたBVHファイルをお勧めします。
 	</text>
-	<button label="アップロード (L$ [AMOUNT])" name="ok_btn"/>
+	<button label="アップロード(L$[AMOUNT])" name="ok_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

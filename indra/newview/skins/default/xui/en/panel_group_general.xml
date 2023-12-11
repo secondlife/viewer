@@ -1,246 +1,53 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
- label="General"
- height="420"
- width="304"
- class="panel_group_general"
- name="general_tab">
-    <panel.string
-     name="help_text">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="General" height="420" width="304" class="panel_group_general" name="general_tab">
+	<panel.string name="help_text">
         The General tab contains general information about this group, a list of members, general Group Preferences and member options.
 
 Hover your mouse over the options for more help.
     </panel.string>
-    <panel.string
-     name="group_info_unchanged">
+	<panel.string name="group_info_unchanged">
         General group information has changed
     </panel.string>
-    <panel.string
-     name="incomplete_member_data_str">
+	<panel.string name="incomplete_member_data_str">
         Retrieving member data
     </panel.string>
-   <panel
-      name="group_info_top"
-      follows="top|left|right"
-      top="0"
-      left="0"
-      height="129"
-      width="304"
-      layout="topleft">
-    <texture_picker
-     default_image_name="Generic_Group_Large"
-     follows="left|top"
-     height="110"
-     label=""
-     layout="topleft"
-     left="5"
-     name="insignia"
-     no_commit_on_selection="true"
-     tool_tip="Click to choose a picture"
-     top="5"
-     width="100" />
-    <text
-      font="SansSerifSmall"
-      text_color="White_50"
-      width="190"
-      follows="top|left|right"
-      layout="topleft"
-      mouse_opaque="false"
-     type="string"
-     height="16"
-     length="1"
-     left_pad="8"
-     name="prepend_founded_by"
-     top_delta="0">
+	<panel name="group_info_top" follows="top|left|right" top="0" left="0" height="129" width="304" layout="topleft">
+		<texture_picker default_image_name="Generic_Group_Large" follows="left|top" height="110" label="" layout="topleft" left="5" name="insignia" no_commit_on_selection="true" tool_tip="Click to choose a picture" top="5" width="100"/>
+		<text font="SansSerifSmall" text_color="White_50" width="190" follows="top|left|right" layout="topleft" mouse_opaque="false" type="string" height="16" length="1" left_pad="8" name="prepend_founded_by" top_delta="0">
       Founder:
     </text>
-     <text
-      follows="left|top|right"
-     height="16"
-     layout="topleft"
-     left_delta="-2"
-     name="founder_name"
-     top_pad="2"
-     use_ellipses="true"
-     width="168" />
-    <text
-    font="SansSerifMedium"
-    text_color="white"
-     type="string"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left_delta="0"
-     name="join_cost_text"
-     top_pad="10"
-     visible="true"
-     width="190">
+		<text follows="left|top|right" height="16" layout="topleft" left_delta="-2" name="founder_name" top_pad="2" use_ellipses="true" width="168"/>
+		<text font="SansSerifMedium" text_color="white" type="string" follows="left|top" height="16" layout="topleft" left_delta="0" name="join_cost_text" top_pad="10" visible="true" width="190">
       No charge to join
     </text>
-    <button
-     follows="left|top"
-     left_delta="0"
-     top_pad="6"
-     height="23"
-     label="Join group"
-     name="btn_join"
-     visible="true"
-     width="120" />
-    </panel>
-    <text_editor
-     type="string"
-     follows="left|top|right"
-     left="3"
-     height="80"
-     layout="topleft"
-     max_length="511"
-     name="charter"
-     parse_urls="true"
-     top="105"
-     right="-4"
-    bg_readonly_color="DkGray2"
-    text_readonly_color="White"
-     word_wrap="true">
+		<button follows="left|top" left_delta="0" top_pad="6" height="23" label="Join group" name="btn_join" visible="true" width="120"/>
+	</panel>
+	<text_editor type="string" follows="left|top|right" left="3" height="80" layout="topleft" max_length="511" name="charter" parse_urls="true" top="105" right="-4" bg_readonly_color="DkGray2" text_readonly_color="White" word_wrap="true">
      Group Charter
-    </text_editor>   
-         <text
-         follows="left|top|right"
-         type="string"
-         height="12"
-         layout="left|top|right"
-         left="5"
-         text_color="EmphasisColor"
-         name="my_group_settngs_label"
-         top_pad="10"
-         width="300">
+    </text_editor>
+	<text follows="left|top|right" type="string" height="12" layout="left|top|right" left="5" text_color="EmphasisColor" name="my_group_settngs_label" top_pad="10" width="300">
            Me
         </text>
-         <text
-         follows="left|top|right"
-         type="string"
-         height="12"
-         layout="left|top|right"
-         left="10"
-         name="active_title_label"
-         top_pad="5"
-         width="300">
+	<text follows="left|top|right" type="string" height="12" layout="left|top|right" left="10" name="active_title_label" top_pad="5" width="300">
             My title:
         </text>
-        <combo_box
-         follows="left|top|right"
-         height="23"
-         layout="topleft"
-         left="10"
-         right="-5"
-         name="active_title"
-         tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."
-         top_pad="2" />
-        <check_box
-         height="16"
-         font="SansSerifSmall"
-         label="Receive group notices"
-         layout="topleft"
-         left="10"
-         name="receive_notices"
-         tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."
-         top_pad="5"
-         width="300" />
-        <check_box
-         height="16"
-         label="Show in my profile"
-         layout="topleft"
-         left="10"
-         name="list_groups_in_profile"
-         tool_tip="Sets whether you want to show this group in your profile"
-         top_pad="5"
-         width="295" />
-   <panel
-         background_visible="false"
-         bevel_style="none"
-         border="false"
-         bg_alpha_color="FloaterUnfocusBorderColor"
-         follows="left|top|right"
-         height="140"
-         width="313"
-         layout="topleft"
-         left="0"
-         name="preferences_container"
-         top_pad="5">
-        <text
-         follows="left|top|right"
-         type="string"
-         height="12"
-         layout="left|top|right"
-         left="5"
-         text_color="EmphasisColor"
-         name="group_settngs_label"
-         width="300">
+	<combo_box follows="left|top|right" height="23" layout="topleft" left="10" right="-5" name="active_title" tool_tip="Sets the title that appears in your avatar's name tag when this group is active." top_pad="2"/>
+	<check_box height="16" font="SansSerifSmall" label="Receive group notices" layout="topleft" left="10" name="receive_notices" tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you." top_pad="5" width="300"/>
+	<check_box height="16" label="Show in my profile" layout="topleft" left="10" name="list_groups_in_profile" tool_tip="Sets whether you want to show this group in your profile" top_pad="5" width="295"/>
+	<panel background_visible="false" bevel_style="none" border="false" bg_alpha_color="FloaterUnfocusBorderColor" follows="left|top|right" height="140" width="313" layout="topleft" left="0" name="preferences_container" top_pad="5">
+		<text follows="left|top|right" type="string" height="12" layout="left|top|right" left="5" text_color="EmphasisColor" name="group_settngs_label" width="300">
          Group
         </text>
-        <check_box
-         follows="right|top|left"
-         height="16"
-         label="Anyone can join"
-         layout="topleft"
-         left="10"
-         name="open_enrollement"
-         tool_tip="Sets whether this group allows new members to join without being invited."
-         width="90" />
-        <check_box
-         height="16"
-         label="Cost to join"
-         layout="topleft"
-         left_delta="0"
-         name="check_enrollment_fee"
-         tool_tip="Sets whether to require an enrollment fee to join the group"
-         top_pad="5"
-         width="300" />
-        <spinner
-         decimal_digits="0"
-         follows="left|top"
-         halign="left"
-         height="23"
-         increment="1"
-         label_width="15"
-         label="L$"
-         layout="topleft"
-         max_val="99999"
-         left="30"
-         name="spin_enrollment_fee"
-         tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
-         width="170" />
-        <combo_box
-         follows="left|top"
-         height="23"
-         layout="topleft"
-         left="10"
-         name="group_mature_check"
-         tool_tip="Maturity ratings designate the type of content and behavior allowed in a group"
-         top_pad="4"
-         width="190">
+		<check_box follows="right|top|left" height="16" label="Anyone can join" layout="topleft" left="10" name="open_enrollement" tool_tip="Sets whether this group allows new members to join without being invited." width="90"/>
+		<check_box height="16" label="Cost to join" layout="topleft" left_delta="0" name="check_enrollment_fee" tool_tip="Sets whether to require an enrollment fee to join the group" top_pad="5" width="300"/>
+		<spinner decimal_digits="0" follows="left|top" halign="left" height="23" increment="1" label_width="15" label="L$" layout="topleft" max_val="99999" left="30" name="spin_enrollment_fee" tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked." width="170"/>
+		<combo_box follows="left|top" height="23" layout="topleft" left="10" name="group_mature_check" tool_tip="Maturity ratings designate the type of content and behavior allowed in a group" top_pad="4" width="190">
 			<combo_item name="select_mature" value="Select">
 			- Select maturity rating -
 			</combo_item>
-            <combo_box.item
-             label="Moderate Content"
-             name="mature"
-             value="Mature" />
-            <combo_box.item
-             label="General Content"
-             name="pg"
-             value="Not Mature" />
-        </combo_box>
-        <check_box
-         follows="left|top"
-         height="16"
-         initial_value="true"
-         label="Show in search"
-         layout="topleft"
-         left="10"
-         name="show_in_group_list"
-         tool_tip="Let people see this group in search results"
-         top_pad="4"
-         width="300" />
-
-    </panel>
+			<combo_box.item label="Moderate Content" name="mature" value="Mature"/>
+			<combo_box.item label="General Content" name="pg" value="Not Mature"/>
+		</combo_box>
+		<check_box follows="left|top" height="16" initial_value="true" label="Show in search" layout="topleft" left="10" name="show_in_group_list" tool_tip="Let people see this group in search results" top_pad="4" width="300"/>
+	</panel>
 </panel>

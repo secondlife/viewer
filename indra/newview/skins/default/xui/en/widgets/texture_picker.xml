@@ -1,13 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<texture_picker border_color="DefaultHighlightLight"
-                name="texture picker"
-                mouse_opaque="true"
-                follows="left|top"
-                >
-  <multiselect_text font="SansSerifSmall"/>
-  <caption_text halign="center" 
-                font="SansSerifSmall"
-                v_pad="2"/>
-  <border bevel_style="in"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<texture_picker border_color="DefaultHighlightLight" name="texture picker" mouse_opaque="true" follows="left|top">
+	<multiselect_text font="SansSerifSmall"/>
+	<caption_text halign="center" font="SansSerifSmall" v_pad="2"/>
+	<border bevel_style="in"/>
 </texture_picker>
-

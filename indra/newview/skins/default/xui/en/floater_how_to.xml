@@ -1,16 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
-  legacy_header_height="18"
-  can_resize="false"
-  can_minimize="false"
-  height="525"
-  layout="topleft"
-  name="floater_how_to"
-  single_instance="true"
-  save_visibility="true"
-  save_rect="true"
-  title="WELCOME ISLAND GUIDEBOOK"
-  width="310"
-  rel_x="-0.469309"
-  rel_y="-0.011166"
-  filename="floater_web_content.xml"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater legacy_header_height="18" can_resize="false" can_minimize="false" height="525" layout="topleft" name="floater_how_to" single_instance="true" save_visibility="true" save_rect="true" title="WELCOME ISLAND GUIDEBOOK" width="310" rel_x="-0.469309" rel_y="-0.011166" filename="floater_web_content.xml"/>

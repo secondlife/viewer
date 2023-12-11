@@ -1,1576 +1,341 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- can_close="true"
- can_drag_on_left="false"
- can_minimize="true"
- can_resize="true"
- height="625"
- min_height="625"
- width="980"
- min_width="980"
- name="Model Preview"
- title="UPLOAD MODEL"
- help_topic="upload_model"
- legacy_header_height="25">
-
-  <string name="status_idle"></string>
-  <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
-  <string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
-  <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
-  <string name="status_reading_file">Loading...</string>
-  <string name="status_generating_meshes">Generating Meshes...</string>
-  <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
-  <string name="bad_element">Error: element is invalid</string>
-  <string name="high">High</string>
-  <string name="medium">Medium</string>
-  <string name="low">Low</string>
-  <string name="lowest">Lowest</string>
-  <string name="mesh_status_good">Ship it!</string>
-  <string name="mesh_status_na">N/A</string>
-  <string name="mesh_status_none">None</string>
-  <string name="mesh_status_submesh_mismatch">Levels of detail have a different number of textureable faces.</string>
-  <string name="mesh_status_mesh_mismatch">Levels of detail have a different number of mesh instances.</string>
-  <string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
-  <string name="mesh_status_missing_lod">Missing required level of detail.</string>
-  <string name="mesh_status_invalid_material_list">LOD materials are not a subset of reference model.</string>
-  <string name="phys_status_vertex_limit_exceeded">Some physical hulls exceed vertex limitations.</string>
-  <string name="phys_status_degenerate_triangles">The physics mesh is too dense or contains degenerate triangles. Use Analyze/Simplify to resolve.</string>
-  <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
-  <string name="decomposing">Analyzing...</string>
-  <string name="simplifying">Simplifying...</string>
-  <string name="tbd">TBD</string>
-  
-  <!-- Warnings and info from model loader-->
-  <string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>
-  <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
-  <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
-  <string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
-
-  <string name="IncompleteTC">Texture coordinates data is not complete.</string>
-  <string name="PositionNaN">Found NaN while loading position data from DAE-Model, invalid model.</string>
-  <string name="NormalsNaN">Found NaN while loading normals from DAE-Model, invalid model.</string>
-  <string name="NegativeScaleTrans">Negative scale detected, unsupported transform. domInstance_geometry: [LABEL]</string>
-  <string name="NegativeScaleNormTrans">Negative scale detected, unsupported post-normalization transform. domInstance_geometry: [LABEL]</string>
-  <string name="CantResolveGeometryUrl">Unable to resolve geometry URL.</string>
-  <string name="ParsingErrorBadElement">Bad element</string>
-  <string name="ParsingErrorCantParseScene">Scene could not be parsed</string>
-  <string name="ParsingErrorCorrupt">Error with dae - traditionally indicates a corrupt file.</string>
-  <string name="ParsingErrorNoController">Could not verify controller</string>
-  <string name="ParsingErrorNoDoc">Can't find internal doc</string>
-  <string name="ParsingErrorNoRoot">Document has no root</string>
-  <string name="ParsingErrorNoScene">Document has no visual_scene</string>
-  <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
-
-  <panel
-    follows="top|left"
-    height="595"
-    layout="topleft"
-    left="3"
-    name="left_panel"
-    top_pad="25"
-    width="635">
-    <panel
-      follows="all"
-      height="50"
-      layout="top|left"
-      left="3"
-      name="model_name_representation_panel"
-      width="525">
-        <text
-          follows="top|left"
-          layout="topleft"
-          height="15"
-          left="15"
-          name="name_label"
-          text_color="White"
-          top="0"
-          width="290">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="true" height="625" min_height="625" width="980" min_width="980" name="Model Preview" title="UPLOAD MODEL" help_topic="upload_model" legacy_header_height="25">
+	<string name="status_idle"/>
+	<string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
+	<string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
+	<string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
+	<string name="status_reading_file">Loading...</string>
+	<string name="status_generating_meshes">Generating Meshes...</string>
+	<string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
+	<string name="bad_element">Error: element is invalid</string>
+	<string name="high">High</string>
+	<string name="medium">Medium</string>
+	<string name="low">Low</string>
+	<string name="lowest">Lowest</string>
+	<string name="mesh_status_good">Ship it!</string>
+	<string name="mesh_status_na">N/A</string>
+	<string name="mesh_status_none">None</string>
+	<string name="mesh_status_submesh_mismatch">Levels of detail have a different number of textureable faces.</string>
+	<string name="mesh_status_mesh_mismatch">Levels of detail have a different number of mesh instances.</string>
+	<string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
+	<string name="mesh_status_missing_lod">Missing required level of detail.</string>
+	<string name="mesh_status_invalid_material_list">LOD materials are not a subset of reference model.</string>
+	<string name="phys_status_vertex_limit_exceeded">Some physical hulls exceed vertex limitations.</string>
+	<string name="phys_status_degenerate_triangles">The physics mesh is too dense or contains degenerate triangles. Use Analyze/Simplify to resolve.</string>
+	<string name="layer_all">All</string>
+	<!-- Text to display in physics layer combo box for "all layers" -->
+	<string name="decomposing">Analyzing...</string>
+	<string name="simplifying">Simplifying...</string>
+	<string name="tbd">TBD</string>
+	<!-- Warnings and info from model loader-->
+	<string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>
+	<string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
+	<string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
+	<string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
+	<string name="IncompleteTC">Texture coordinates data is not complete.</string>
+	<string name="PositionNaN">Found NaN while loading position data from DAE-Model, invalid model.</string>
+	<string name="NormalsNaN">Found NaN while loading normals from DAE-Model, invalid model.</string>
+	<string name="NegativeScaleTrans">Negative scale detected, unsupported transform. domInstance_geometry: [LABEL]</string>
+	<string name="NegativeScaleNormTrans">Negative scale detected, unsupported post-normalization transform. domInstance_geometry: [LABEL]</string>
+	<string name="CantResolveGeometryUrl">Unable to resolve geometry URL.</string>
+	<string name="ParsingErrorBadElement">Bad element</string>
+	<string name="ParsingErrorCantParseScene">Scene could not be parsed</string>
+	<string name="ParsingErrorCorrupt">Error with dae - traditionally indicates a corrupt file.</string>
+	<string name="ParsingErrorNoController">Could not verify controller</string>
+	<string name="ParsingErrorNoDoc">Can't find internal doc</string>
+	<string name="ParsingErrorNoRoot">Document has no root</string>
+	<string name="ParsingErrorNoScene">Document has no visual_scene</string>
+	<string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
+	<panel follows="top|left" height="595" layout="topleft" left="3" name="left_panel" top_pad="25" width="635">
+		<panel follows="all" height="50" layout="top|left" left="3" name="model_name_representation_panel" width="525">
+			<text follows="top|left" layout="topleft" height="15" left="15" name="name_label" text_color="White" top="0" width="290">
           Model name:
         </text>
-        <line_editor
-          follows="top|left"
-          layout="topleft"
-          height="19"
-          max_length_bytes="63"
-          name="description_form"
-          prevalidate_callback="ascii"
-          top_pad="5"
-          width="290" />
-    </panel>
-    <tab_container
-      follows="top|left"
-      top_pad="10"
-      left="0"
-      height="330"
-      width="635"
-      name="import_tab"
-      tab_position="top"
-      enable_tabs_flashing="true"
-      tabs_flashing_color="MenuItemFlashBgColor">
-      <last_tab
-        tab_top_image_flash="TabTop_Right_Flashing"/> <!-- for log tab -->
-      <!-- LOD PANEL -->
-        <panel
-         help_topic="upload_model_lod"
-         label="Level of Detail"
-         layout="topleft"
-         name="lod_panel"
-         title="Level of Detail">
-            <view_border
-             bevel_style="none"
-             follows="top|left"
-             height="306"
-             layout="topleft"
-             left="3"
-             name="lod_tab_border"
-             top_pad="0"
-             width="628" />
-          <text
-           follows="left|top"
-           height="18"
-           initial_value="Source"
-           layout="topleft"
-           left="85"
-           name="source"
-           text_color="ModelUploaderLabels"
-           top="15"
-           valign="center"
-           value="Source"
-           width="335"/>
-            <text
-             follows="left|top"
-             halign="right"
-             height="18"
-             initial_value="Triangles"
-             layout="topleft"
-             left_pad="0"
-             name="triangles"
-             text_color="ModelUploaderLabels"
-             top_delta="0"
-             valign="center"
-             value="Triangles"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="18"
-             initial_value="Vertices"
-             layout="topleft"
-             left_pad="0"
-             name="vertices"
-             text_color="ModelUploaderLabels"
-             valign="center"
-             value="Vertices"
-             width="65" />
-            <text
-             follows="left|top"
-             height="18"
-             initial_value="High"
-             layout="topleft"
-             left="10"
-             name="high_label"
-             text_color="ModelUploaderLabels"
-             top_pad="10"
-             valign="top"
-             value="High"
-             width="75" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left_pad="0"
-             name="lod_source_high"
-             top_delta="-3"
-             width="135">
-                <item
-                 name="Load from file"
-                 label="Load from file"
-                 value="Load from file" />
-                <item
-                 name="MeshOpt Auto"
-                 label="Generate Auto"
-                 value="MeshOpt Auto" />
-                <item
-                 name="MeshOptCombine"
-                 label="Generate Precise"
-                 value="MeshOptCombine" />
-                <item
-                 name="MeshOptSloppy"
-                 label="Generate Sloppy"
-                 value="MeshOptSloppy" />
-            </combo_box>
-            <line_editor
-             follows="left|top"
-             height="20"
-             initial_value=""
-             layout="topleft"
-             left_pad="5"
-             name="lod_file_high"
-             top_delta="0"
-             value=""
-             width="120" />
-            <button
-             follows="left|top"
-             height="20"
-             label="Browse..."
-             layout="topleft"
-             left_pad="5"
-             name="lod_browse_high"
-             top_delta="0"
-             width="70" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left="225"
-             name="lod_mode_high"
-             top_delta="0"
-             visible="false"
-             width="130">
-                <item
-                 name="Triangle Limit"
-                 label="Triangle Limit"
-                 value="Triangle Limit" />
-                <item
-                 name="Error Threshold"
-                 label="Error Threshold"
-                 value="Error Threshold" />
-            </combo_box>
-            <spinner
-             decimal_digits="0"
-             follows="top|left"
-             height="20"
-             increment="10"
-             layout="topleft"
-             left_pad="3"
-             name="lod_triangle_limit_high"
-             visible="false"
-             width="55" />
-            <spinner
-             follows="top|left"
-             height="20"
-             increment="0.01"
-             layout="topleft"
-             left_delta="0"
-             max_val="100"
-             name="lod_error_threshold_high"
-             top_delta="0"
-             visible="false"
-             width="55" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="high_triangles"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="high_vertices"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="center"
-             height="15"
-             initial_value=""
-             layout="topleft"
-             left_pad="0"
-             name="high_status"
-             valign="top"
-             value=""
-             width="65" />
-            <icon
-             height="16"
-             image_name="red_x.png"
-             layout="topleft"
-             left_delta="20"
-             mouse_opaque="true"
-             name="status_icon_high"
-             top_delta="-2"
-             width="16" />
-            <text
-             follows="left|top"
-             height="18"
-             initial_value="Medium"
-             layout="topleft"
-             left="10"
-             name="medium_label"
-             text_color="ModelUploaderLabels"
-             top_pad="15"
-             valign="top"
-             value="Medium"
-             width="75" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left_pad="0"
-             name="lod_source_medium"
-             top_delta="-3"
-             width="135">
-                <item
-                 name="Load from file"
-                 label="Load from file"
-                 value="Load from file" />
-                <item
-                 name="MeshOpt Auto"
-                 label="Generate Auto"
-                 value="MeshOpt Auto" />
-                <item
-                 name="MeshOptCombine"
-                 label="Generate Precise"
-                 value="MeshOptCombine" />
-                <item
-                 name="MeshOptSloppy"
-                 label="Generate Sloppy"
-                 value="MeshOptSloppy" />
-                <item
-                 name="Use LoD above"
-                 label="Use LoD above"
-                 value="Use LoD above" />
-            </combo_box>
-            <line_editor
-             follows="left|top"
-             height="20"
-             initial_value=""
-             layout="topleft"
-             left_pad="5"
-             name="lod_file_medium"
-             top_delta="0"
-             value=""
-             visible="false"
-             width="120" />
-            <button
-             follows="left|top"
-             height="20"
-             label="Browse..."
-             layout="topleft"
-             left_pad="5"
-             name="lod_browse_medium"
-             top_delta="0"
-             visible="false"
-             width="70" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left="225"
-             name="lod_mode_medium"
-             top_delta="0"
-             width="130">
-                <item
-                 name="Triangle Limit"
-                 label="Triangle Limit"
-                 value="Triangle Limit" />
-                <item
-                 name="Error Threshold"
-                 label="Error Threshold"
-                 value="Error Threshold" />
-            </combo_box>
-            <spinner
-             decimal_digits="0"
-             follows="top|left"
-             height="20"
-             increment="10"
-             layout="topleft"
-             left_pad="3"
-             name="lod_triangle_limit_medium"
-             width="55" />
-            <spinner
-             follows="top|left"
-             height="20"
-             increment="0.01"
-             layout="topleft"
-             left_delta="0"
-             max_val="100"
-             name="lod_error_threshold_medium"
-             top_delta="0"
-             visible="false"
-             width="55" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="medium_triangles"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="medium_vertices"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="center"
-             height="15"
-             initial_value=""
-             layout="topleft"
-             left_pad="0"
-             name="medium_status"
-             valign="top"
-             value=""
-             width="65" />
-            <icon
-             height="16"
-             image_name="red_x.png"
-             layout="topleft"
-             left_delta="20"
-             mouse_opaque="true"
-             name="status_icon_medium"
-             top_delta="-2"
-             width="16" />
-            <text
-             follows="left|top"
-             height="18"
-             initial_value="Low"
-             layout="topleft"
-             left="10"
-             name="low_label"
-             text_color="ModelUploaderLabels"
-             top_pad="15"
-             valign="top"
-             value="Low"
-             width="75" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left_pad="0"
-             name="lod_source_low"
-             top_delta="-3"
-             width="135">
-                <item
-                 name="Load from file"
-                 label="Load from file"
-                 value="Load from file" />
-                <item
-                 name="MeshOpt Auto"
-                 label="Generate Auto"
-                 value="MeshOpt Auto" />
-                <item
-                 name="MeshOptCombine"
-                 label="Generate Precise"
-                 value="MeshOptCombine" />
-                <item
-                 name="MeshOptSloppy"
-                 label="Generate Sloppy"
-                 value="MeshOptSloppy" />
-                <item
-                 name="Use LoD above"
-                 label="Use LoD above"
-                 value="Use LoD above" />
-            </combo_box>
-            <line_editor
-             follows="left|top"
-             height="20"
-             initial_value=""
-             layout="topleft"
-             left_pad="5"
-             name="lod_file_low"
-             top_delta="0"
-             value=""
-             visible="false"
-             width="120" />
-            <button
-             follows="left|top"
-             height="20"
-             label="Browse..."
-             layout="topleft"
-             left_pad="5"
-             name="lod_browse_low"
-             top_delta="0"
-             visible="false"
-             width="70" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left="225"
-             name="lod_mode_low"
-             top_delta="0"
-             width="130">
-                <item
-                 name="Triangle Limit"
-                 label="Triangle Limit"
-                 value="Triangle Limit" />
-                <item
-                 name="Error Threshold"
-                 label="Error Threshold"
-                 value="Error Threshold" />
-            </combo_box>
-            <spinner
-             decimal_digits="0"
-             follows="top|left"
-             height="20"
-             increment="10"
-             layout="topleft"
-             left_pad="3"
-             name="lod_triangle_limit_low"
-             width="55" />
-            <spinner
-             follows="top|left"
-             height="20"
-             increment="0.01"
-             layout="topleft"
-             left_delta="0"
-             max_val="100"
-             name="lod_error_threshold_low"
-             top_delta="0"
-             visible="false"
-             width="55" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="low_triangles"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="low_vertices"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="center"
-             height="15"
-             initial_value=""
-             layout="topleft"
-             left_pad="0"
-             name="low_status"
-             valign="top"
-             value=""
-             width="65" />
-            <icon
-             height="16"
-             image_name="red_x.png"
-             layout="topleft"
-             left_delta="20"
-             mouse_opaque="true"
-             name="status_icon_low"
-             top_delta="-2"
-             width="16" />
-            <text
-             follows="left|top"
-             height="18"
-             initial_value="Lowest"
-             layout="topleft"
-             left="10"
-             name="lowest_label"
-             text_color="ModelUploaderLabels"
-             top_pad="15"
-             valign="top"
-             value="Lowest"
-             width="75" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left_pad="0"
-             name="lod_source_lowest"
-             top_delta="-3"
-             width="135">
-                <item
-                 name="Load from file"
-                 label="Load from file"
-                 value="Load from file" />
-                <item
-                 name="MeshOpt Auto"
-                 label="Generate Auto"
-                 value="MeshOpt Auto" />
-                <item
-                 name="MeshOptCombine"
-                 label="Generate Precise"
-                 value="MeshOptCombine" />
-                <item
-                 name="MeshOptSloppy"
-                 label="Generate Sloppy"
-                 value="MeshOptSloppy" />
-                <item
-                 name="Use LoD above"
-                 label="Use LoD above"
-                 value="Use LoD above" />
-            </combo_box>
-            <line_editor
-             follows="left|top"
-             height="20"
-             initial_value=""
-             layout="topleft"
-             left_pad="5"
-             name="lod_file_lowest"
-             top_delta="0"
-             value=""
-             visible="false"
-             width="120" />
-            <button
-             follows="left|top"
-             height="20"
-             label="Browse..."
-             layout="topleft"
-             left_pad="5"
-             name="lod_browse_lowest"
-             top_delta="0"
-             visible="false"
-             width="70" />
-            <combo_box
-             follows="top|left"
-             height="20"
-             layout="topleft"
-             left="225"
-             name="lod_mode_lowest"
-             top_delta="0"
-             width="130">
-                <item
-                 name="Triangle Limit"
-                 label="Triangle Limit"
-                 value="Triangle Limit" />
-                <item
-                 name="Error Threshold"
-                 label="Error Threshold"
-                 value="Error Threshold" />
-            </combo_box>
-            <spinner
-             decimal_digits="0"
-             follows="top|left"
-             height="20"
-             increment="10"
-             layout="topleft"
-             left_pad="3"
-             name="lod_triangle_limit_lowest"
-             width="55" />
-            <spinner
-             follows="top|left"
-             height="20"
-             increment="0.01"
-             layout="topleft"
-             left_delta="0"
-             max_val="100"
-             name="lod_error_threshold_lowest"
-             top_delta="0"
-             visible="false"
-             width="55" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="lowest_triangles"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="right"
-             height="15"
-             initial_value="0"
-             layout="topleft"
-             left_pad="0"
-             name="lowest_vertices"
-             valign="top"
-             value="0"
-             width="65" />
-            <text
-             follows="left|top"
-             halign="center"
-             height="15"
-             initial_value=""
-             layout="topleft"
-             left_pad="0"
-             name="lowest_status"
-             valign="top"
-             value=""
-             width="65" />
-            <icon
-             height="16"
-             image_name="red_x.png"
-             layout="topleft"
-             left_delta="20"
-             mouse_opaque="true"
-             name="status_icon_lowest"
-             top_delta="0"
-             width="16" />
-            <icon
-             height="16"
-             layout="topleft"
-             left="10"
-             name="lod_status_message_icon"
-             top_pad="20"
-             width="16" />
-            <text
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left_pad="5"
-             name="lod_status_message_text"
-             top_delta="0"
-             width="584"
-             word_wrap="true"
-             wrap="true" />
-            <view_border
-             bevel_style="none"
-             follows="top|left"
-             height="0"
-             layout="topleft"
-             left="10"
-             name="lod_tab_border"
-             top_pad="20"
-             width="614" />
-            <check_box
-             follows="top|left"
-             height="15"
-             label="Generate Normals"
-             layout="topleft"
-             left="10"
-             name="gen_normals"
-             top_pad="20" />
-            <text
-             enabled="false"
-             follows="top|left"
-             height="15"
-             initial_value="Crease Angle:"
-             layout="topleft"
-             left="200"
-             name="crease_label"
-             top_delta="0"
-             value="Crease Angle:"
-             width="100" />
-            <spinner
-             enabled="false"
-             follows="top|left"
-             height="20"
-             initial_value="75"
-             layout="topleft"
-             left_pad="5"
-             max_val="180"
-             name="crease_angle"
-             value="75"
-             width="60" />
-        </panel>
-      <!-- PHYSYCS PANEL -->
-        <panel
-          help_topic="upload_model_physics"
-          label="Physics"
-          name="physics_panel">
-            
-            <!-- ==== STEP 1: Level of Detail ==== -->
-            <view_border
-              bevel_style="none"
-              follows="top|left"
-              height="306"
-              layout="topleft"
-              left="3"
-              name="physics_tab_border"
-              top_pad="0"
-              width="628"/>
-                <panel
-                  bg_alpha_color="0 0 0 0"
-                  bg_opaque_color="0 0 0 0.3"
-                  follows="top|left"
-                  height="21"
-                  left="18"
-                  name="physics geometry"
-                  top="15"
-                  visible="true"
-                  width="589">
-                    <text
-                      follows="top|left"
-                      font="SansSerif"
-                      height="20"
-                      layout="topleft"
-                      left="0"
-                      name="first_step_name"
-                      text_color="White"
-                      top_pad="0"
-                      width="210"
-                      valign="center">
+			<line_editor follows="top|left" layout="topleft" height="19" max_length_bytes="63" name="description_form" prevalidate_callback="ascii" top_pad="5" width="290"/>
+		</panel>
+		<tab_container follows="top|left" top_pad="10" left="0" height="330" width="635" name="import_tab" tab_position="top" enable_tabs_flashing="true" tabs_flashing_color="MenuItemFlashBgColor">
+			<last_tab tab_top_image_flash="TabTop_Right_Flashing"/>
+			<!-- for log tab -->
+			<!-- LOD PANEL -->
+			<panel help_topic="upload_model_lod" label="Level of Detail" layout="topleft" name="lod_panel" title="Level of Detail">
+				<view_border bevel_style="none" follows="top|left" height="306" layout="topleft" left="3" name="lod_tab_border" top_pad="0" width="628"/>
+				<text follows="left|top" height="18" initial_value="Source" layout="topleft" left="85" name="source" text_color="ModelUploaderLabels" top="15" valign="center" value="Source" width="335"/>
+				<text follows="left|top" halign="right" height="18" initial_value="Triangles" layout="topleft" left_pad="0" name="triangles" text_color="ModelUploaderLabels" top_delta="0" valign="center" value="Triangles" width="65"/>
+				<text follows="left|top" halign="right" height="18" initial_value="Vertices" layout="topleft" left_pad="0" name="vertices" text_color="ModelUploaderLabels" valign="center" value="Vertices" width="65"/>
+				<text follows="left|top" height="18" initial_value="High" layout="topleft" left="10" name="high_label" text_color="ModelUploaderLabels" top_pad="10" valign="top" value="High" width="75"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left_pad="0" name="lod_source_high" top_delta="-3" width="135">
+					<item name="Load from file" label="Load from file" value="Load from file"/>
+					<item name="MeshOpt Auto" label="Generate Auto" value="MeshOpt Auto"/>
+					<item name="MeshOptCombine" label="Generate Precise" value="MeshOptCombine"/>
+					<item name="MeshOptSloppy" label="Generate Sloppy" value="MeshOptSloppy"/>
+				</combo_box>
+				<line_editor follows="left|top" height="20" initial_value="" layout="topleft" left_pad="5" name="lod_file_high" top_delta="0" value="" width="120"/>
+				<button follows="left|top" height="20" label="Browse..." layout="topleft" left_pad="5" name="lod_browse_high" top_delta="0" width="70"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left="225" name="lod_mode_high" top_delta="0" visible="false" width="130">
+					<item name="Triangle Limit" label="Triangle Limit" value="Triangle Limit"/>
+					<item name="Error Threshold" label="Error Threshold" value="Error Threshold"/>
+				</combo_box>
+				<spinner decimal_digits="0" follows="top|left" height="20" increment="10" layout="topleft" left_pad="3" name="lod_triangle_limit_high" visible="false" width="55"/>
+				<spinner follows="top|left" height="20" increment="0.01" layout="topleft" left_delta="0" max_val="100" name="lod_error_threshold_high" top_delta="0" visible="false" width="55"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="high_triangles" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="high_vertices" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="center" height="15" initial_value="" layout="topleft" left_pad="0" name="high_status" valign="top" value="" width="65"/>
+				<icon height="16" image_name="red_x.png" layout="topleft" left_delta="20" mouse_opaque="true" name="status_icon_high" top_delta="-2" width="16"/>
+				<text follows="left|top" height="18" initial_value="Medium" layout="topleft" left="10" name="medium_label" text_color="ModelUploaderLabels" top_pad="15" valign="top" value="Medium" width="75"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left_pad="0" name="lod_source_medium" top_delta="-3" width="135">
+					<item name="Load from file" label="Load from file" value="Load from file"/>
+					<item name="MeshOpt Auto" label="Generate Auto" value="MeshOpt Auto"/>
+					<item name="MeshOptCombine" label="Generate Precise" value="MeshOptCombine"/>
+					<item name="MeshOptSloppy" label="Generate Sloppy" value="MeshOptSloppy"/>
+					<item name="Use LoD above" label="Use LoD above" value="Use LoD above"/>
+				</combo_box>
+				<line_editor follows="left|top" height="20" initial_value="" layout="topleft" left_pad="5" name="lod_file_medium" top_delta="0" value="" visible="false" width="120"/>
+				<button follows="left|top" height="20" label="Browse..." layout="topleft" left_pad="5" name="lod_browse_medium" top_delta="0" visible="false" width="70"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left="225" name="lod_mode_medium" top_delta="0" width="130">
+					<item name="Triangle Limit" label="Triangle Limit" value="Triangle Limit"/>
+					<item name="Error Threshold" label="Error Threshold" value="Error Threshold"/>
+				</combo_box>
+				<spinner decimal_digits="0" follows="top|left" height="20" increment="10" layout="topleft" left_pad="3" name="lod_triangle_limit_medium" width="55"/>
+				<spinner follows="top|left" height="20" increment="0.01" layout="topleft" left_delta="0" max_val="100" name="lod_error_threshold_medium" top_delta="0" visible="false" width="55"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="medium_triangles" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="medium_vertices" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="center" height="15" initial_value="" layout="topleft" left_pad="0" name="medium_status" valign="top" value="" width="65"/>
+				<icon height="16" image_name="red_x.png" layout="topleft" left_delta="20" mouse_opaque="true" name="status_icon_medium" top_delta="-2" width="16"/>
+				<text follows="left|top" height="18" initial_value="Low" layout="topleft" left="10" name="low_label" text_color="ModelUploaderLabels" top_pad="15" valign="top" value="Low" width="75"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left_pad="0" name="lod_source_low" top_delta="-3" width="135">
+					<item name="Load from file" label="Load from file" value="Load from file"/>
+					<item name="MeshOpt Auto" label="Generate Auto" value="MeshOpt Auto"/>
+					<item name="MeshOptCombine" label="Generate Precise" value="MeshOptCombine"/>
+					<item name="MeshOptSloppy" label="Generate Sloppy" value="MeshOptSloppy"/>
+					<item name="Use LoD above" label="Use LoD above" value="Use LoD above"/>
+				</combo_box>
+				<line_editor follows="left|top" height="20" initial_value="" layout="topleft" left_pad="5" name="lod_file_low" top_delta="0" value="" visible="false" width="120"/>
+				<button follows="left|top" height="20" label="Browse..." layout="topleft" left_pad="5" name="lod_browse_low" top_delta="0" visible="false" width="70"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left="225" name="lod_mode_low" top_delta="0" width="130">
+					<item name="Triangle Limit" label="Triangle Limit" value="Triangle Limit"/>
+					<item name="Error Threshold" label="Error Threshold" value="Error Threshold"/>
+				</combo_box>
+				<spinner decimal_digits="0" follows="top|left" height="20" increment="10" layout="topleft" left_pad="3" name="lod_triangle_limit_low" width="55"/>
+				<spinner follows="top|left" height="20" increment="0.01" layout="topleft" left_delta="0" max_val="100" name="lod_error_threshold_low" top_delta="0" visible="false" width="55"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="low_triangles" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="low_vertices" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="center" height="15" initial_value="" layout="topleft" left_pad="0" name="low_status" valign="top" value="" width="65"/>
+				<icon height="16" image_name="red_x.png" layout="topleft" left_delta="20" mouse_opaque="true" name="status_icon_low" top_delta="-2" width="16"/>
+				<text follows="left|top" height="18" initial_value="Lowest" layout="topleft" left="10" name="lowest_label" text_color="ModelUploaderLabels" top_pad="15" valign="top" value="Lowest" width="75"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left_pad="0" name="lod_source_lowest" top_delta="-3" width="135">
+					<item name="Load from file" label="Load from file" value="Load from file"/>
+					<item name="MeshOpt Auto" label="Generate Auto" value="MeshOpt Auto"/>
+					<item name="MeshOptCombine" label="Generate Precise" value="MeshOptCombine"/>
+					<item name="MeshOptSloppy" label="Generate Sloppy" value="MeshOptSloppy"/>
+					<item name="Use LoD above" label="Use LoD above" value="Use LoD above"/>
+				</combo_box>
+				<line_editor follows="left|top" height="20" initial_value="" layout="topleft" left_pad="5" name="lod_file_lowest" top_delta="0" value="" visible="false" width="120"/>
+				<button follows="left|top" height="20" label="Browse..." layout="topleft" left_pad="5" name="lod_browse_lowest" top_delta="0" visible="false" width="70"/>
+				<combo_box follows="top|left" height="20" layout="topleft" left="225" name="lod_mode_lowest" top_delta="0" width="130">
+					<item name="Triangle Limit" label="Triangle Limit" value="Triangle Limit"/>
+					<item name="Error Threshold" label="Error Threshold" value="Error Threshold"/>
+				</combo_box>
+				<spinner decimal_digits="0" follows="top|left" height="20" increment="10" layout="topleft" left_pad="3" name="lod_triangle_limit_lowest" width="55"/>
+				<spinner follows="top|left" height="20" increment="0.01" layout="topleft" left_delta="0" max_val="100" name="lod_error_threshold_lowest" top_delta="0" visible="false" width="55"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="lowest_triangles" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="right" height="15" initial_value="0" layout="topleft" left_pad="0" name="lowest_vertices" valign="top" value="0" width="65"/>
+				<text follows="left|top" halign="center" height="15" initial_value="" layout="topleft" left_pad="0" name="lowest_status" valign="top" value="" width="65"/>
+				<icon height="16" image_name="red_x.png" layout="topleft" left_delta="20" mouse_opaque="true" name="status_icon_lowest" top_delta="0" width="16"/>
+				<icon height="16" layout="topleft" left="10" name="lod_status_message_icon" top_pad="20" width="16"/>
+				<text follows="left|top" height="16" layout="topleft" left_pad="5" name="lod_status_message_text" top_delta="0" width="584" word_wrap="true" wrap="true"/>
+				<view_border bevel_style="none" follows="top|left" height="0" layout="topleft" left="10" name="lod_tab_border2" top_pad="20" width="614"/>
+				<check_box follows="top|left" height="15" label="Generate Normals" layout="topleft" left="10" name="gen_normals" top_pad="20"/>
+				<text enabled="false" follows="top|left" height="15" initial_value="Crease Angle:" layout="topleft" left="200" name="crease_label" top_delta="0" value="Crease Angle:" width="100"/>
+				<spinner enabled="false" follows="top|left" height="20" initial_value="75" layout="topleft" left_pad="5" max_val="180" name="crease_angle" value="75" width="60"/>
+			</panel>
+			<!-- PHYSYCS PANEL -->
+			<panel help_topic="upload_model_physics" label="Physics" name="physics_panel">
+				<!-- ==== STEP 1: Level of Detail ==== -->
+				<view_border bevel_style="none" follows="top|left" height="306" layout="topleft" left="3" name="physics_tab_border" top_pad="0" width="628"/>
+				<panel bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" follows="top|left" height="21" left="18" name="physics geometry" top="15" visible="true" width="589">
+					<text follows="top|left" font="SansSerif" height="20" layout="topleft" left="0" name="first_step_name" text_color="White" top_pad="0" width="210" valign="center">
                       Step 1: Pick a physics model :
                     </text>
-                    <combo_box
-                      follows="left|top"
-                      height="18"
-                      left_pad="10"
-                      name="physics_lod_combo"
-                      width="130"
-                      tool_tip="LOD to use for physics shape">
-                        <combo_item name="choose_one">     Choose one...   </combo_item>
-                        <combo_item name="physics_high">   High   </combo_item>
-                        <combo_item name="physics_medium"> Medium </combo_item>
-                        <combo_item name="physics_low">    Low    </combo_item>
-                        <combo_item name="physics_lowest"> Lowest </combo_item>
-                        <combo_item name="physics_bounding_box"> Bounding Box </combo_item>
-                        <combo_item name="load_from_file"> From file   </combo_item>
-                    </combo_box>
-                    <line_editor
-                      follows="left|top"
-                      left_pad="10"
-                      value=""
-                      name="physics_file"
-                      height="20"
-                      width="154"/>
-                    <button
-                      follows="left|top"
-                      height="20"
-                      left_pad="4"
-                      name="physics_browse"
-                      label="Browse..."
-                      width="70"/>
-                    <!-- <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
+					<combo_box follows="left|top" height="18" left_pad="10" name="physics_lod_combo" width="130" tool_tip="LOD to use for physics shape">
+						<combo_item name="choose_one">     Choose one...   </combo_item>
+						<combo_item name="physics_high">   High   </combo_item>
+						<combo_item name="physics_medium"> Medium </combo_item>
+						<combo_item name="physics_low">    Low    </combo_item>
+						<combo_item name="physics_lowest"> Lowest </combo_item>
+						<combo_item name="physics_bounding_box"> Bounding Box </combo_item>
+						<combo_item name="load_from_file"> From file   </combo_item>
+					</combo_box>
+					<line_editor follows="left|top" left_pad="10" value="" name="physics_file" height="20" width="154"/>
+					<button follows="left|top" height="20" left_pad="4" name="physics_browse" label="Browse..." width="70"/>
+					<!-- <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
                     <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/> -->
-                </panel>
-            
-            <!-- ==== STEP 2: Analyze ==== -->
-            <view_border
-              bevel_style="none"
-              follows="top|left"
-              height="0"
-              layout="topleft"
-              left="18"
-              name="physics_tab_border"
-              top_pad="10"
-              width="589"/>
-                <panel
-                  bg_alpha_color="0 0 0 0"
-                  bg_opaque_color="0 0 0 0.3"
-                  height="65"
-                  follows="top|left"
-                  left="18"
-                  name="physics analysis"
-                  top_pad="10"
-                  visible="true"
-                  width="589">
-                    <text
-                      follows="left|top"
-                      font="SansSerif"
-                      height="20"
-                      layout="topleft"
-                      left="0"
-                      name="method_label"
-                      text_color="White"
-                      top_pad="0">
+				</panel>
+				<!-- ==== STEP 2: Analyze ==== -->
+				<view_border bevel_style="none" follows="top|left" height="0" layout="topleft" left="18" name="physics_tab_border2" top_pad="10" width="589"/>
+				<panel bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" height="65" follows="top|left" left="18" name="physics analysis" top_pad="10" visible="true" width="589">
+					<text follows="left|top" font="SansSerif" height="20" layout="topleft" left="0" name="method_label" text_color="White" top_pad="0">
                       Step 2: Convert to hulls (optional)
                     </text>
-                    <text
-                      follows="top|left"
-                      height="15"
-                      layout="topleft"
-                      name="analysis_method_label"
-                      top_pad="10"
-                      width="100">
+					<text follows="top|left" height="15" layout="topleft" name="analysis_method_label" top_pad="10" width="100">
                       Method:
                     </text>
-                    <text
-                      follows="top|left"
-                      height="15"
-                      name="quality_label"
-                      layout="topleft"
-                      left_pad="15"
-                      width="100">
+					<text follows="top|left" height="15" name="quality_label" layout="topleft" left_pad="15" width="100">
                       Quality:
                     </text>
-                    <text
-                      follows="top|left"
-                      height="15"
-                      name="smooth_method_label"
-                      layout="topleft"
-                      left_pad="15"
-                      width="100">
+					<text follows="top|left" height="15" name="smooth_method_label" layout="topleft" left_pad="15" width="100">
                       Smooth:
                     </text>
-                    <combo_box
-                      follows="top|left"
-                      layout="topleft"
-                      left="0"
-                      name="Method"
-                      top_pad="0"
-                      height="20"
-                      width="100"/>
-                    <combo_box
-                      follows="top|left"
-                      layout="topleft"
-                      left_pad="15"
-                      name="Decompose Quality"
-                      height="20"
-                      width="100"/>
-                    <combo_box
-                      height="20"
-                      follows="top|left"
-                      layout="topleft"
-                      left_pad="15"
-                      name="Cosine%"
-                      width="100"/>
-                    <check_box
-                      follows="top|left"
-                      label="Close Holes"
-                      layout="topleft"
-                      left_pad="10"
-                      name="Close Holes (Slow)"
-                      height="15"/>
-                    <button
-                      bottom="1"
-                      follows="top|right"
-                      height="20"
-                      label="Analyze"
-                      layout="bottomleft"
-                      name="Decompose"
-                      right="-1"
-                      width="90"/>
-                    <button
-                      follows="top|left"
-                      height="20"
-                      label="Cancel"
-                      layout="topleft"
-                      left_delta="0"
-                      name="decompose_cancel"
-                      visible="false"
-                      width="90"/>
-                </panel>
-            
-            <!-- ==== STEP 3: Simplify ==== -->
-            <view_border
-              bevel_style="none"
-              follows="top|left"
-              height="0"
-              layout="topleft"
-              left="18"
-              name="physics_tab_border"
-              top_pad="10"
-              width="589"/>
-                <panel
-                  bg_alpha_color="0 0 0 0"
-                  bg_opaque_color="0 0 0 0.3"
-                  follows="top|left"
-                  height="66"
-                  left="18"
-                  name="physics simplification"
-                  top_pad="10"
-                  width="589">
-                    <text
-                      text_color="White"
-                      follows="left|top"
-                      height="20"
-                      left="0"
-                      name="second_step_label"
-                      top_pad="0"
-                      font="SansSerif">
+					<combo_box follows="top|left" layout="topleft" left="0" name="Method" top_pad="0" height="20" width="100"/>
+					<combo_box follows="top|left" layout="topleft" left_pad="15" name="Decompose Quality" height="20" width="100"/>
+					<combo_box height="20" follows="top|left" layout="topleft" left_pad="15" name="Cosine%" width="100"/>
+					<check_box follows="top|left" label="Close Holes" layout="topleft" left_pad="10" name="Close Holes (Slow)" height="15"/>
+					<button bottom="1" follows="top|right" height="20" label="Analyze" layout="bottomleft" name="Decompose" right="-1" width="90"/>
+					<button follows="top|left" height="20" label="Cancel" layout="topleft" left_delta="0" name="decompose_cancel" visible="false" width="90"/>
+				</panel>
+				<!-- ==== STEP 3: Simplify ==== -->
+				<view_border bevel_style="none" follows="top|left" height="0" layout="topleft" left="18" name="physics_tab_border3" top_pad="10" width="589"/>
+				<panel bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" follows="top|left" height="66" left="18" name="physics simplification" top_pad="10" width="589">
+					<text text_color="White" follows="left|top" height="20" left="0" name="second_step_label" top_pad="0" font="SansSerif">
                       Step 3: Simplify
                     </text>
-                    <text
-                      name="simp_method_header"
-                      top_pad="10"
-                      height="15"
-                      width="100"
-                      follows="top|left">
+					<text name="simp_method_header" top_pad="10" height="15" width="100" follows="top|left">
                       Method:
                     </text>
-                    <text
-                      follows="top|left"
-                      left_pad="40"
-                      name="pass_method_header"
-                      height="15"
-                      width="41">
+					<text follows="top|left" left_pad="40" name="pass_method_header" height="15" width="41">
                       Passes:
                     </text>
-                    <text
-                      follows="top|left"
-                      left_pad="40"
-                      name="Detail Scale label"
-                      height="15"
-                      width="80">
+					<text follows="top|left" left_pad="40" name="Detail Scale label" height="15" width="80">
                       Detail scale:
                     </text>
-                    <text
-                      follows="top|left"
-                      left_delta="0"
-                      name="Retain%_label"
-                      height="15"
-                      width="80"
-                      visible="false">
+					<text follows="top|left" left_delta="0" name="Retain%_label" height="15" width="80" visible="false">
                       Retain:
                     </text>
-                    <combo_box
-                      follows="top|left"
-                      height="20"
-                      left="0"
-                      name="Simplify Method"
-                      top_pad="0"
-                      width="100"/>
-                    <combo_box
-                      height="20"
-                      follows="top|left"
-                      left_pad="40"
-                      name="Combine Quality"
-                      width="41"
-                      value="1">
-                    </combo_box>
-                    <spinner
-                      follows="top|left"
-                      name="Detail Scale"
-                      height="20"
-                      left_pad="40"
-                      width="60"/>
-                    <spinner
-                      name="Retain%"
-                      decimal_digits="0"
-                      width="60"
-                      follows="top|left"
-                      height="20"
-                      left_delta="0"
-                      visible="false"/>
-                    <button
-                      follows="top|left"
-                      height="20"
-                      label="Simplify"
-                      left_pad="40"
-                      name="Simplify"
-                      width="90"/>
-                    <button
-                      follows="top|left"
-                      height="20"
-                      label="Cancel"
-                      layout="topleft"
-                      left_delta="0"
-                      name="simplify_cancel"
-                      width="90"/>
-                </panel>
-            
-            <!-- ==== Results ==== -->
-            <view_border
-              bevel_style="none"
-              follows="top|left"
-              height="0"
-              layout="topleft"
-              left="18"
-              name="physics_tab_border"
-              top_pad="10"
-              width="589"/>
-                <panel
-                  bg_alpha_color="0 0 0 0"
-                  bg_opaque_color="0 0 0 0.3"
-                  follows="left|top"
-                  height="19"
-                  layout="topleft"
-                  left="18"
-                  name="physics info"
-                  top_pad="12"
-                  width="319">
-                    <text
-                      follows="top|left"
-                      height="15"
-                      layout="topleft"
-                      left="0"
-                      text_color="White"
-                      top_pad="3"
-                      name="results_text"
-                      width="50">
+					<combo_box follows="top|left" height="20" left="0" name="Simplify Method" top_pad="0" width="100"/>
+					<combo_box height="20" follows="top|left" left_pad="40" name="Combine Quality" width="41" value="1">
+					</combo_box>
+					<spinner follows="top|left" name="Detail Scale" height="20" left_pad="40" width="60"/>
+					<spinner name="Retain%" decimal_digits="0" width="60" follows="top|left" height="20" left_delta="0" visible="false"/>
+					<button follows="top|left" height="20" label="Simplify" left_pad="40" name="Simplify" width="90"/>
+					<button follows="top|left" height="20" label="Cancel" layout="topleft" left_delta="0" name="simplify_cancel" width="90"/>
+				</panel>
+				<!-- ==== Results ==== -->
+				<view_border bevel_style="none" follows="top|left" height="0" layout="topleft" left="18" name="physics_tab_border4" top_pad="10" width="589"/>
+				<panel bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" follows="left|top" height="19" layout="topleft" left="18" name="physics info" top_pad="12" width="319">
+					<text follows="top|left" height="15" layout="topleft" left="0" text_color="White" top_pad="3" name="results_text" width="50">
                       Results:
                     </text>
-                    <text
-                      follows="top|left"
-                      height="15"
-                      layout="topleft"
-                      left_pad="0"
-                      text_color="White"
-                      top_delta="0"
-                      name="physics_triangles"
-                      width="90">
+					<text follows="top|left" height="15" layout="topleft" left_pad="0" text_color="White" top_delta="0" name="physics_triangles" width="90">
                       Triangles: [TRIANGLES],
                     </text>
-                    <text
-                      follows="top|left"
-                      height="15"
-                      layout="topleft"
-                      left_pad="0"
-                      name="physics_points"
-                      top_delta="0"
-                      text_color="White"
-                      width="85">
+					<text follows="top|left" height="15" layout="topleft" left_pad="0" name="physics_points" top_delta="0" text_color="White" width="85">
                       Vertices: [POINTS],
                     </text>
-                    <text
-                      follows="top|left"
-                      height="15"
-                      layout="topleft"
-                      left_pad="0"
-                      name="physics_hulls"
-                      top_delta="0"
-                      text_color="White">
+					<text follows="top|left" height="15" layout="topleft" left_pad="0" name="physics_hulls" top_delta="0" text_color="White">
                       Hulls: [HULLS]
                     </text>
-                </panel>
-                <panel
-                 bg_alpha_color="0 0 0 0"
-                 bg_opaque_color="0 0 0 0.3"
-                 follows="left|top"
-                 height="19"
-                 layout="topleft"
-                 top_pad="5"
-                 name="physics message"
-                 width="589">
-                     <icon
-                      follows="left|top"
-                      height="16"
-                      left="0"
-                      layout="topleft"
-                      name="physics_status_message_icon"
-                      top_pad="0"
-                      width="16" />
-                     <text
-                      follows="left|top"
-                      height="15"
-                      layout="topleft"
-                      left_pad="2"
-                      name="physics_status_message_text"
-                      width="573"
-                      top_delta="3"/>
-                </panel>
-        </panel>
-      <!-- MODIFIERS PANEL -->
-     <panel
-       label="Upload options"
-       name="modifiers_panel"
-       help_topic="upload_model_modifiers">
-         <view_border
-          bevel_style="none"  
-          follows="top|left"
-          height="306"
-          layout="topleft"
-          left="3"
-          name="border"
-          top_pad="0"
-          width="628"/>
-           <text
-             follows="top|left"
-             height="16"
-             left="20"
-             name="scale_label"
-             text_color="White"
-             top="15"
-             width="140">
+				</panel>
+				<panel bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" follows="left|top" height="19" layout="topleft" top_pad="5" name="physics message" width="589">
+					<icon follows="left|top" height="16" left="0" layout="topleft" name="physics_status_message_icon" top_pad="0" width="16"/>
+					<text follows="left|top" height="15" layout="topleft" left_pad="2" name="physics_status_message_text" width="573" top_delta="3"/>
+				</panel>
+			</panel>
+			<!-- MODIFIERS PANEL -->
+			<panel label="Upload options" name="modifiers_panel" help_topic="upload_model_modifiers">
+				<view_border bevel_style="none" follows="top|left" height="306" layout="topleft" left="3" name="border" top_pad="0" width="628"/>
+				<text follows="top|left" height="16" left="20" name="scale_label" text_color="White" top="15" width="140">
              Scale (1=no scaling):
            </text>
-           <spinner
-             height="20"
-             follows="top|left"
-             left_pad="10"
-             max_val="64.0"
-             min_val="0.01"
-             name="import_scale"
-             top_delta="-4"
-             value="1.0"
-             width="80"/>
-           <text
-             follows="top|left"
-             height="15"
-             left_pad="20"
-             name="dimensions_label"
-             text_color="White"
-             width="90">
+				<spinner height="20" follows="top|left" left_pad="10" max_val="64.0" min_val="0.01" name="import_scale" top_delta="-4" value="1.0" width="80"/>
+				<text follows="top|left" height="15" left_pad="20" name="dimensions_label" text_color="White" width="90">
              Dimensions:
            </text>
-           <text
-             follows="top|left"
-             height="15"
-             left_pad="0"
-             name="import_dimensions"
-             text_color="White"
-             width="140">
+				<text follows="top|left" height="15" left_pad="0" name="import_dimensions" text_color="White" width="140">
              [X] X [Y] X [Z]
            </text>
-           <check_box
-             height="15"
-             follows="top|left"
-             name="upload_textures"
-             label="Include textures"
-             label_text.text_color="White"
-             left="20"
-             top_pad="20"/>
-     </panel>
-      <panel
-       label="Overrides"
-       layout="topleft"
-       name="rigging_panel"
-       title="Rigging">
-        <view_border
-         bevel_style="none"
-         follows="top|left"
-         height="306"
-         layout="topleft"
-         left="3"
-         name="avatar_tab_border"
-         top_pad="0"
-         width="628" />
-        <check_box
-          follows="top|left"
-          height="15"
-          label="Include skin weight"
-          label_text.text_color="White"
-          name="upload_skin"
-          top="8"
-          left="20"/>
-        <check_box
-          follows="top|left"
-          height="15"
-          label="Include joint positions"
-          label_text.text_color="White"
-          name="upload_joints"
-          left_delta="0"
-          top_pad="7"/>
-        <check_box
-          follows="top|left"
-          height="15"
-          label="Lock scale if joint position defined"
-          label_text.text_color="White"
-          name="lock_scale_if_joint_position"
-          top_pad="7"/>
-        <text
-          follows="top|left"
-          height="15"
-          layout="topleft"
-          left="220"
-          name="pelvis_offset_label"
-          text_color="White"
-          top="8"
-          width="200">
+				<check_box height="15" follows="top|left" name="upload_textures" label="Include textures" label_text.text_color="White" left="20" top_pad="20"/>
+			</panel>
+			<panel label="Overrides" layout="topleft" name="rigging_panel" title="Rigging">
+				<view_border bevel_style="none" follows="top|left" height="306" layout="topleft" left="3" name="avatar_tab_border" top_pad="0" width="628"/>
+				<check_box follows="top|left" height="15" label="Include skin weight" label_text.text_color="White" name="upload_skin" top="8" left="20"/>
+				<check_box follows="top|left" height="15" label="Include joint positions" label_text.text_color="White" name="upload_joints" left_delta="0" top_pad="7"/>
+				<check_box follows="top|left" height="15" label="Lock scale if joint position defined" label_text.text_color="White" name="lock_scale_if_joint_position" top_pad="7"/>
+				<text follows="top|left" height="15" layout="topleft" left="220" name="pelvis_offset_label" text_color="White" top="8" width="200">
           Z offset (raise or lower avatar):
         </text>
-        <spinner
-          follows="top|left"
-          height="20"
-          min_val="-3.00"
-          max_val="3.0"
-          name="pelvis_offset"
-          top_pad="10"
-          value="0.0"
-          width="80"/>
-        <text
-          follows="top|left"
-          height="17"
-          left="425"
-          name="skin_too_many_joints"
-          text_color="Orange"
-          top="7"
-          width="195"
-          word_wrap="true">
+				<spinner follows="top|left" height="20" min_val="-3.00" max_val="3.0" name="pelvis_offset" top_pad="10" value="0.0" width="80"/>
+				<text follows="top|left" height="17" left="425" name="skin_too_many_joints" text_color="Orange" top="7" width="195" word_wrap="true">
           Too many skinned joints
         </text>
-        <text
-          follows="top|left"
-          height="32"
-          left="425"
-          name="skin_unknown_joint"
-          text_color="Orange"
-          top="8"
-          width="195"
-          word_wrap="true">
+				<text follows="top|left" height="32" left="425" name="skin_unknown_joint" text_color="Orange" top="8" width="195" word_wrap="true">
           Model has an unknown joint(s)
         </text>
-        <text
-          layout="topleft"
-          follows="top|left"
-          height="15"
-          left="20"
-          name="joints_descr"
-          top="73"
-          width="150">
+				<text layout="topleft" follows="top|left" height="15" left="20" name="joints_descr" top="73" width="150">
           Joints:
         </text>
-        <scroll_list
-         layout="topleft"
-         follows="top|left"
-         name="joints_list"
-         column_padding="0"
-         draw_heading="false"
-         draw_stripes="false"
-         commit_on_selection_change="true"
-         heading_height="23"
-         height="199"
-         left_delta="0"
-         top_pad="0"
-         width="200"/>
-        <text
-          layout="topleft"
-          follows="top|left"
-          height="15"
-          left_delta="0"
-          name="conflicts_description"
-          top_pad="2"
-          width="200">
+				<scroll_list layout="topleft" follows="top|left" name="joints_list" column_padding="0" draw_heading="false" draw_stripes="false" commit_on_selection_change="true" heading_height="23" height="199" left_delta="0" top_pad="0" width="200"/>
+				<text layout="topleft" follows="top|left" height="15" left_delta="0" name="conflicts_description" top_pad="2" width="200">
           [CONFLICTS] conflicts in [JOINTS_COUNT] joints
         </text>
-        <text
-          layout="topleft"
-          follows="top|left"
-          height="15"
-          left_pad="5"
-          name="pos_overrides_descr"
-          top="73"
-          width="300">
+				<text layout="topleft" follows="top|left" height="15" left_pad="5" name="pos_overrides_descr" top="73" width="300">
           Position overrides for joint '[JOINT]':
         </text>
-        <scroll_list
-         layout="topleft"
-         follows="top|left"
-         name="pos_overrides_list"
-         column_padding="0"
-         draw_heading="true"
-         draw_stripes="false"
-         heading_height="23"
-         height="100"
-         left_delta="0"
-         top_pad="0"
-         width="385">
-          <scroll_list.columns
-           label="Model"
-           name="model_name"
-           relative_width="0.49" />
-          <scroll_list.columns
-           label="X"
-           name="axis_x"
-           relative_width="0.17" />
-          <scroll_list.columns
-           label="Y"
-           name="axis_y"
-           relative_width="0.17" />
-          <scroll_list.columns
-           label="Z"
-           name="axis_z"
-           relative_width="0.17" />
-        </scroll_list>
-      </panel>
-      <panel
-       label="Log"
-       layout="topleft"
-       name="logs_panel"
-       title="Log">
-        <view_border
-         bevel_style="none"
-         follows="top|left"
-         height="289"
-         layout="topleft"
-         left="3"
-         name="log_tab_border"
-         top_pad="0"
-         width="628" />
-        <text_editor
-         type="string"
-         length="1"
-         embedded_items="false"
-         follows="top|left"
-         font="SansSerif"
-         ignore_tab="false"
-         layout="topleft"
-         height="289"
-         left="4"
-         top="0"
-         right="-1"
-         max_length="65536"
-         name="log_text"
-         parse_urls="true"
-         spellcheck="false"
-         read_only="true"
-         word_wrap="true">
-        </text_editor>
-        <check_box
-         control_name="ImporterDebug"
-         follows="top|left"
-         top_pad="9"
-         left="6"
-         width="70"
-         label="Enable detailed logging (can be very slow)"
-         name="verbose_logging"/>
-      </panel>
-    </tab_container>
-    <panel
-     follows="top|left|bottom"
-     layout="topleft"
-     height="195"
-     left="4"
-     border="true"
-     name="weights_and_warning_panel"
-     top_pad="3"
-     width="629">
-       <button
-         follows="top|left"
-         label="Calculate weights &amp; fee"
-         label_color="White"
-         layout="topleft"
-         left="3"
-         name="calculate_btn"
-         top="3"
-         height="20"
-         width="165"
-         tool_tip="Calculate weights &amp;fee"/>
-       <button
-         follows="top|left"
-         label="Cancel"
-         label_color="White"
-         layout="topleft"
-         left_pad="6"
-         name="cancel_btn"
-         top="3"
-         height="20"
-         width="80"/>
-       <button
-         follows="top|left"
-         label="Upload"
-         layout="topleft"
-         label_color="White"
-         left="35"
-         name="ok_btn"
-         top="3"
-         height="20"
-         visible="false"
-         width="80"
-         tool_tip="Upload to simulator"/>
-       <button
-         follows="top|right"
-         label="Clear settings &amp; reset form"
-         label_color="White"
-         layout="topleft"
-         name="reset_btn"
-         right="-5"
-         top="3"
-         height="20"
-         width="265"/>
-       <!-- ========== WEIGHTS ==========-->
-       <text
-         follows="top|left"
-         height="15"
-         layout="topleft"
-         left="5"
-         name="upload_fee"
-         top_pad="10"
-         width="130"
-         word_wrap="true">
+				<scroll_list layout="topleft" follows="top|left" name="pos_overrides_list" column_padding="0" draw_heading="true" draw_stripes="false" heading_height="23" height="100" left_delta="0" top_pad="0" width="385">
+					<scroll_list.columns label="Model" name="model_name" relative_width="0.49"/>
+					<scroll_list.columns label="X" name="axis_x" relative_width="0.17"/>
+					<scroll_list.columns label="Y" name="axis_y" relative_width="0.17"/>
+					<scroll_list.columns label="Z" name="axis_z" relative_width="0.17"/>
+				</scroll_list>
+			</panel>
+			<panel label="Log" layout="topleft" name="logs_panel" title="Log">
+				<view_border bevel_style="none" follows="top|left" height="289" layout="topleft" left="3" name="log_tab_border" top_pad="0" width="628"/>
+				<text_editor type="string" length="1" embedded_items="false" follows="top|left" font="SansSerif" ignore_tab="false" layout="topleft" height="289" left="4" top="0" right="-1" max_length="65536" name="log_text" parse_urls="true" spellcheck="false" read_only="true" word_wrap="true">
+				</text_editor>
+				<check_box control_name="ImporterDebug" follows="top|left" top_pad="9" left="6" width="70" label="Enable detailed logging (can be very slow)" name="verbose_logging"/>
+			</panel>
+		</tab_container>
+		<panel follows="top|left|bottom" layout="topleft" height="195" left="4" border="true" name="weights_and_warning_panel" top_pad="3" width="629">
+			<button follows="top|left" label="Calculate weights &amp; fee" label_color="White" layout="topleft" left="3" name="calculate_btn" top="3" height="20" width="165" tool_tip="Calculate weights &amp;fee"/>
+			<button follows="top|left" label="Cancel" label_color="White" layout="topleft" left_pad="6" name="cancel_btn" top="3" height="20" width="80"/>
+			<button follows="top|left" label="Upload" layout="topleft" label_color="White" left="35" name="ok_btn" top="3" height="20" visible="false" width="80" tool_tip="Upload to simulator"/>
+			<button follows="top|right" label="Clear settings &amp; reset form" label_color="White" layout="topleft" name="reset_btn" right="-5" top="3" height="20" width="265"/>
+			<!-- ========== WEIGHTS ==========-->
+			<text follows="top|left" height="15" layout="topleft" left="5" name="upload_fee" top_pad="10" width="130" word_wrap="true">
          Upload fee: L$ [FEE]
        </text>
-       <text
-         height="15"
-         layout="topleft"
-         left_pad="0"
-         name="prim_weight"
-         top_delta="0"
-         width="130"
-         word_wrap="true">
+			<text height="15" layout="topleft" left_pad="0" name="prim_weight" top_delta="0" width="130" word_wrap="true">
          Land impact: [EQ]
        </text>
-       <text
-         height="15"
-         layout="topleft"
-         left_pad="0"
-         name="download_weight"
-         top_delta="0"
-         width="130"
-         word_wrap="true">
+			<text height="15" layout="topleft" left_pad="0" name="download_weight" top_delta="0" width="130" word_wrap="true">
          Download: [ST]
        </text>
-       <text
-         height="15"
-         top_delta="0"
-         layout="topleft"
-         left_pad="0"
-         name="physics_weight"
-         width="130"
-         word_wrap="true">
+			<text height="15" top_delta="0" layout="topleft" left_pad="0" name="physics_weight" width="130" word_wrap="true">
          Physics: [PH]
        </text>
-       <text
-         height="15"
-         top_delta="0"
-         layout="topleft"
-         left_pad="0"
-         name="server_weight"
-         width="130"
-         word_wrap="true">
+			<text height="15" top_delta="0" layout="topleft" left_pad="0" name="server_weight" width="130" word_wrap="true">
          Server: [SIM]
        </text>
-       <!-- =========== Cost breakdown ======== -->
-      <panel
-        border="true"
-        top_pad="5"
-        layout="topleft"
-        left="6"
-        name="price_breakdown_panel"
-        width="120"
-        height="100">
-        <text
-          layout="topleft"
-          left="3">
+			<!-- =========== Cost breakdown ======== -->
+			<panel border="true" top_pad="5" layout="topleft" left="6" name="price_breakdown_panel" width="120" height="100">
+				<text layout="topleft" left="3">
           Price Breakdown
         </text>
-        <view_border
-          bevel_style="none"
-          follows="top|left"
-          height="0"
-          layout="topleft"
-          left="3"
-          name="price_breakdown_border"
-          top_pad="5"
-          width="110"/>
-        <text
-          height="80"
-          top_pad="5"
-          layout="topleft"
-          left="3"
-          name="price_breakdown_labels"
-          width="70"
-          word_wrap="false">
+				<view_border bevel_style="none" follows="top|left" height="0" layout="topleft" left="3" name="price_breakdown_border" top_pad="5" width="110"/>
+				<text height="80" top_pad="5" layout="topleft" left="3" name="price_breakdown_labels" width="70" word_wrap="false">
 Download:
 Physics:
 Instances:
 Textures:
 Model:
         </text>
-        <text
-          height="80"
-          top_delta="0"
-          layout="topleft"
-          halign="right"
-          left_pad="0"
-          name="price_breakdown"
-          width="40"
-          word_wrap="false">
+				<text height="80" top_delta="0" layout="topleft" halign="right" left_pad="0" name="price_breakdown" width="40" word_wrap="false">
 [STREAMING]
 [PHYSICS]
 [INSTANCES]
 [TEXTURES]
 [MODEL]
         </text>
-      </panel>
-       <!-- 
+			</panel>
+			<!-- 
        Streaming breakdown numbers are available but not fully understood
        uncommenting the following sections will display the numbers for debugging purposes
        <text
@@ -1601,208 +366,63 @@ Lowest:
 [STR_LOW]
 [STR_LOWEST]
       </text>-->
-      <panel
-        border="true"
-        layout="topleft"
-        left_pad="265"
-        name="physics_costs_panel"
-        width="120"
-        height="100">
-        <text
-          layout="topleft"
-          left="3">
+			<panel border="true" layout="topleft" left_pad="265" name="physics_costs_panel" width="120" height="100">
+				<text layout="topleft" left="3">
           Physics Costs
         </text>
-        <view_border
-          bevel_style="none"
-          follows="top|left"
-          height="0"
-          layout="topleft"
-          left="3"
-          name="price_breakdown_border"
-          top_pad="5"
-          width="110"/>
-        <text
-         height="80"
-         top_pad="5"
-         layout="topleft"
-         left="5"
-         name="physics_breakdown_labels"
-         width="65">
+				<view_border bevel_style="none" follows="top|left" height="0" layout="topleft" left="3" name="price_breakdown_border" top_pad="5" width="110"/>
+				<text height="80" top_pad="5" layout="topleft" left="5" name="physics_breakdown_labels" width="65">
 Base Hull:
 Mesh:
 Analysed:
         </text>
-        <text
-         height="80"
-         top_delta="0"
-         layout="topleft"
-         left_pad="0"
-         name="physics_breakdown"
-         width="40"
-         halign="right"
-         word_wrap="false"
-         visible="true">
+				<text height="80" top_delta="0" layout="topleft" left_pad="0" name="physics_breakdown" width="40" halign="right" word_wrap="false" visible="true">
 [PCH]
 [PM]
 [PHU]
-        </text>-->
+        </text>--&gt;
       </panel>
-      <!-- ========== NOTE MESSAGE ========== -->
-      <text
-         font="SansSerif"
-         layout="topleft"
-         left="6"
-         name="warning_title"
-         top_pad="5"
-         text_color="DrYellow"
-         visible="true"
-         width="40">
+			<!-- ========== NOTE MESSAGE ========== -->
+			<text font="SansSerif" layout="topleft" left="6" name="warning_title" top_pad="5" text_color="DrYellow" visible="true" width="40">
          NOTE:
        </text>
-       <text
-         text_color="White"
-         height="20"
-         layout="topleft"
-         left_pad="1"
-         name="warning_message"
-         parse_urls="true"
-         top_delta="1"
-         wrap="true"
-         width="462"
-         visible="true">
+			<text text_color="White" height="20" layout="topleft" left_pad="1" name="warning_message" parse_urls="true" top_delta="1" wrap="true" width="462" visible="true">
          You don't have rights to upload mesh models. [[VURL] Find out how] to get certified.
-       </text> 
-       <text
-         text_color="Yellow"
-         layout="topleft"
-         top_pad="-2"
-         left="6"
-         name="status">
+       </text>
+			<text text_color="Yellow" layout="topleft" top_pad="-2" left="6" name="status">
 [STATUS]
        </text>
-    </panel>
-  </panel>
-  
-  <text
-   follows="left|top"
-   layout="topleft"
-   left="640"
-   name="lod_label"
-   text_color="White"
-   top="29"
-   height="15"
-   width="290">
+		</panel>
+	</panel>
+	<text follows="left|top" layout="topleft" left="640" name="lod_label" text_color="White" top="29" height="15" width="290">
     Preview:
   </text>
-  <panel
-   follows="all"
-   layout="topleft"
-   border="true"
-   bevel_style="none"
-   name="preview_panel"
-   top_pad="4"
-   width="325"
-   height="408"/>
-  <panel
-    follows="right|bottom"
-    can_resize="false"
-    height="140"
-    layout="topleft"
-    name="right_panel"
-    top_pad="5"
-    width="340">
-    <combo_box
-      top_pad="3"
-      follows="left|top"
-      height="18"
-      layout="topleft"
-      name="preview_lod_combo"
-      width="150"
-      tool_tip="LOD to view in preview render">
-      <combo_item name="high">   High   </combo_item>
-      <combo_item name="medium"> Medium </combo_item>
-      <combo_item name="low">    Low    </combo_item>
-      <combo_item name="lowest"> Lowest </combo_item>
-    </combo_box>
-    <text
-      follows="top|left"
-      layout="topleft"
-      text_color="White"
-      top="5"
-      left_pad="20"
-      name="label_display"
-      width="50">
+	<panel follows="all" layout="topleft" border="true" bevel_style="none" name="preview_panel" top_pad="4" width="325" height="408"/>
+	<panel follows="right|bottom" can_resize="false" height="140" layout="topleft" name="right_panel" top_pad="5" width="340">
+		<combo_box top_pad="3" follows="left|top" height="18" layout="topleft" name="preview_lod_combo" width="150" tool_tip="LOD to view in preview render">
+			<combo_item name="high">   High   </combo_item>
+			<combo_item name="medium"> Medium </combo_item>
+			<combo_item name="low">    Low    </combo_item>
+			<combo_item name="lowest"> Lowest </combo_item>
+		</combo_box>
+		<text follows="top|left" layout="topleft" text_color="White" top="5" left_pad="20" name="label_display" width="50">
       Display...
     </text>
-    <check_box
-      follows="top|left"
-      label="Edges"
-      label_text.text_color="White"
-      layout="topleft"
-      left_delta="0"
-      name="show_edges"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Physics"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_physics"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Textures"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_textures"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Skin weights"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_skin_weight"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Joint position overrides"
-      label_text.text_color="White"
-      word_wrap="down"
-      width="130"
-      layout="topleft"
-      name="show_joint_overrides"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Joints"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_joint_positions"
-      top_pad="17">
-    </check_box>
-    <text
-      follows="top|left"
-      layout="topleft"
-      left="2"
-      name="physics_explode_label"
-      top="85"
-      width="150">
+		<check_box follows="top|left" label="Edges" label_text.text_color="White" layout="topleft" left_delta="0" name="show_edges" top_pad="8">
+		</check_box>
+		<check_box follows="top|left" label="Physics" label_text.text_color="White" layout="topleft" name="show_physics" top_pad="8">
+		</check_box>
+		<check_box follows="top|left" label="Textures" label_text.text_color="White" layout="topleft" name="show_textures" top_pad="8">
+		</check_box>
+		<check_box follows="top|left" label="Skin weights" label_text.text_color="White" layout="topleft" name="show_skin_weight" top_pad="8">
+		</check_box>
+		<check_box follows="top|left" label="Joint position overrides" label_text.text_color="White" word_wrap="down" width="130" layout="topleft" name="show_joint_overrides" top_pad="8">
+		</check_box>
+		<check_box follows="top|left" label="Joints" label_text.text_color="White" layout="topleft" name="show_joint_positions" top_pad="17">
+		</check_box>
+		<text follows="top|left" layout="topleft" left="2" name="physics_explode_label" top="85" width="150">
       Preview Spread:
     </text>
-    <slider
-      name="physics_explode"
-      follows="top|left"
-      top="100"
-      left="0"
-      min_val="0.0"
-      max_val="3.0"
-      height="20"
-      width="150"/>
-  </panel>
+		<slider name="physics_explode" follows="top|left" top="100" left="0" min_val="0.0" max_val="3.0" height="20" width="150"/>
+	</panel>
 </floater>

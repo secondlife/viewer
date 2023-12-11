@@ -1,27 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<check_box font="SansSerifSmall"
-           follows="left|top">
-  <check_box.label_text name="checkbox label"
-                        left="20"
-                        bottom="3" 
-                        width="0"
-                        height="0"
-                        text_color="LabelTextColor"
-                        text_readonly_color="LabelDisabledColor"/>
-  <check_box.check_button name="CheckboxCtrl Button"
-                          left="2"
-                          bottom="1"
-                          width="13"
-                          height="13" 
-                          commit_on_return="false"
-                          label=""
-                          is_toggle="true"
-                          font="SansSerif"
-                          scale_image="false"
-                          image_unselected="Checkbox_Off"
-                          image_selected="Checkbox_On"
-                          image_disabled="Checkbox_Off_Disabled"
-                          image_disabled_selected="Checkbox_On_Disabled"
-                          image_pressed="Checkbox_Press"
-                          image_pressed_selected="Checkbox_On_Press" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<check_box font="SansSerifSmall" follows="left|top">
+	<check_box.label_text name="checkbox label" left="20" bottom="3" width="0" height="0" text_color="LabelTextColor" text_readonly_color="LabelDisabledColor"/>
+	<check_box.check_button name="CheckboxCtrl Button" left="2" bottom="1" width="13" height="13" commit_on_return="false" label="" is_toggle="true" font="SansSerif" scale_image="false" image_unselected="Checkbox_Off" image_selected="Checkbox_On" image_disabled="Checkbox_Off_Disabled" image_disabled_selected="Checkbox_On_Disabled" image_pressed="Checkbox_Press" image_pressed_selected="Checkbox_On_Press"/>
 </check_box>

@@ -2,17 +2,23 @@
 <floater name="floater_web_content" title="">
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
-			<button name="back" tool_tip="前へ"/>
-			<button name="forward" tool_tip="次へ"/>
-			<button name="stop" tool_tip="ナビゲーションを停止"/>
-			<button name="reload" tool_tip="ページをリロード"/>
-			<combo_box name="address" tool_tip="ここに URL を入力"/>
+			<button tool_tip="前へ" name="back">
+			</button>
+			<button tool_tip="次へ" name="forward">
+			</button>
+			<button tool_tip="ナビゲーションを停止" name="stop">
+			</button>
+			<button tool_tip="ページを再読込" name="reload">
+			</button>
+			<combo_box name="address" tool_tip="ここにURLを入力">
+			</combo_box>
 			<icon name="media_secure_lock_flag" tool_tip="安全な閲覧"/>
-			<button name="popexternal" tool_tip="この URL をブラウザで開く"/>
+			<button tool_tip="このURLをブラウザで開く" name="popexternal">
+			</button>
 		</layout_panel>
 		<layout_panel name="debug_controls">
-			<button name="web_test_home_page" tool_tip="Web テストのホームページ"/>
-			<button name="VLC Plugin Test" tool_tip="MPEG4 ビデオテスト"/>
+			<button tool_tip="Webテストのホームページ" name="web_test_home_page">
+			</button>
 		</layout_panel>
 	</layout_stack>
 </floater>

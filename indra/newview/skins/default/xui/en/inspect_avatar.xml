@@ -1,22 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!--
   Not can_close / no title to avoid window chrome
   Single instance - only have one at a time, recycle it each spawn
---> 
-<floater
- legacy_header_height="25"
- bevel_style="in"
- bg_opaque_image="Inspector_Background"
- can_close="false"
- can_minimize="false"
- height="160"
- layout="topleft"
- name="inspect_avatar"
- single_instance="true"
- sound_flags="0"
- visible="true"
- width="245">
-  <!-- Allowed fields include:
+-->
+<floater legacy_header_height="25" bevel_style="in" bg_opaque_image="Inspector_Background" can_close="false" can_minimize="false" height="160" layout="topleft" name="inspect_avatar" single_instance="true" sound_flags="0" visible="true" width="245">
+	<!-- Allowed fields include:
 	[BORN_ON] ("12/3/2008")
 	[SL_PROFILE] (Second Life profile),
     [RW_PROFILE] (real world profile),
@@ -24,123 +12,20 @@
 	[PAYMENTINFO] ("Payment Info on File"),
 	[AGE] ("1 year 2 months")
    -->
-  <string
-   name="Subtitle">
+	<string name="Subtitle">
 [AGE]
   </string>
-  <string
-     name="Details">
+	<string name="Details">
 [SL_PROFILE]
     </string>
-  <text
-     follows="top|left"
-     font="SansSerif"
-     height="20"
-     left="8"
-     name="user_name_small"
-     parse_urls="false"
-     top="7"
-     text_color="White"
-     translate="false"
-     use_ellipses="true"
-     word_wrap="true"
-    visible="false" 
-     value="TestString PleaseIgnore"
-     width="185" />
-   <text
-    follows="top|left"
-    font="SansSerifBigLarge"
-    height="21"
-    left="8"
-    name="user_name"
-    parse_urls="false"
-    top="10"
-    text_color="White"
-    translate="false"
-    use_ellipses="true"
-    value="TestString PleaseIgnore"
-    width="190" />
-   <text
-     follows="top|left"
-     height="16"
-     left="8"
-     name="user_slid"
-     font="SansSerifSmallBold"
-     parse_urls="false"
-     text_color="EmphasisColor"
-     translate="false"
-     value="teststring.pleaseignore"
-     width="185"
-     use_ellipses="true" />
-    <text
-     follows="top|left"
-     height="16"
-     left="8"
-     name="user_subtitle"
-     font="SansSerifSmall"
-     text_color="White"
-     top_pad="0" 
-     value="11 Months, 3 days old"
-     width="175"
-     use_ellipses="true" />
-     <text
-     follows="left|top|right"
-     trusted_content="false"
-     always_show_icons="true"
-     height="35"
-     left="8"
-     name="user_details"
-     right="-10"
-     word_wrap="true"
-     top_pad="4"
-     use_ellipses="true"
-     width="220">This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
+	<text follows="top|left" font="SansSerif" height="20" left="8" name="user_name_small" parse_urls="false" top="7" text_color="White" translate="false" use_ellipses="true" word_wrap="true" visible="false" value="TestString PleaseIgnore" width="185"/>
+	<text follows="top|left" font="SansSerifBigLarge" height="21" left="8" name="user_name" parse_urls="false" top="10" text_color="White" translate="false" use_ellipses="true" value="TestString PleaseIgnore" width="190"/>
+	<text follows="top|left" height="16" left="8" name="user_slid" font="SansSerifSmallBold" parse_urls="false" text_color="EmphasisColor" translate="false" value="teststring.pleaseignore" width="185" use_ellipses="true"/>
+	<text follows="top|left" height="16" left="8" name="user_subtitle" font="SansSerifSmall" text_color="White" top_pad="0" value="11 Months, 3 days old" width="175" use_ellipses="true"/>
+	<text follows="left|top|right" trusted_content="false" always_show_icons="true" height="35" left="8" name="user_details" right="-10" word_wrap="true" top_pad="4" use_ellipses="true" width="220">This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
     </text>
-    <slider
-     follows="top|left"
-     height="23"
-     increment="0.01"
-     left="10"
-     max_val="0.95"
-     min_val="0.05"
-     name="volume_slider"
-     show_text="false"
-     tool_tip="Voice volume"
-     top_pad="5"
-     value="0.5"
-     width="200" />
-    <button
-     follows="top|left"
-     height="16"
-     image_disabled="Audio_Off"
-     image_disabled_selected="AudioMute_Off"
-     image_hover_selected="AudioMute_Over"
-     image_selected="AudioMute_Off"
-     image_unselected="Audio_Off"
-     is_toggle="true"
-     left_pad="5"
-     top_delta="4"
-     name="mute_btn"
-     width="16" />
-    <text
-     follows="top|left"
-     height="16"
-     left="8"
-     name="avatar_profile_link"
-     font="SansSerifSmall"
-     text_color="White"
-     top_pad="5"
-     translate="false"
-     value="[[LINK] View full profile]"
-     width="175" />
-    <avatar_icon
-     follows="top|left"
-     height="38"
-     right="-10"
-     bevel_style="in"
-     border_style="line"
-     mouse_opaque="true"
-     name="avatar_icon"
-     top="10"
-     width="38" />
+	<slider follows="top|left" height="23" increment="0.01" left="10" max_val="0.95" min_val="0.05" name="volume_slider" show_text="false" tool_tip="Voice volume" top_pad="5" value="0.5" width="200"/>
+	<button follows="top|left" height="16" image_disabled="Audio_Off" image_disabled_selected="AudioMute_Off" image_hover_selected="AudioMute_Over" image_selected="AudioMute_Off" image_unselected="Audio_Off" is_toggle="true" left_pad="5" top_delta="4" name="mute_btn" width="16"/>
+	<text follows="top|left" height="16" left="8" name="avatar_profile_link" font="SansSerifSmall" text_color="White" top_pad="5" translate="false" value="[[LINK] View full profile]" width="175"/>
+	<avatar_icon follows="top|left" height="38" right="-10" bevel_style="in" border_style="line" mouse_opaque="true" name="avatar_icon" top="10" width="38"/>
 </floater>

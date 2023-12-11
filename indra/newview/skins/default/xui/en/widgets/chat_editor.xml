@@ -1,4 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<chat_editor
-  name="chat_editor"
-  show_context_menu="true"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<chat_editor name="chat_editor" show_context_menu="true"/>

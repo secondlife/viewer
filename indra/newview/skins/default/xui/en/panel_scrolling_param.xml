@@ -1,124 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
- height="157"
- layout="topleft"
- left="0"
- name="LLScrollingPanelParam"
- top="152"
- width="290">
-    <text
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="12"
-     name="min param text"
-     text_color="White"
-     font_shadow="hard"
-     top="120"
-     width="120" />
-    <text
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="155"
-     name="max param text"
-     text_color="White" 
-     font_shadow="hard"
-     top_delta="0"
-     width="120" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="12"
-     name="Loading..."
-     top="11"
-     width="128">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel height="157" layout="topleft" left="0" name="LLScrollingPanelParam" top="152" width="290">
+	<text follows="left|top" height="16" layout="topleft" left="12" name="min param text" text_color="White" font_shadow="hard" top="120" width="120"/>
+	<text follows="left|top" height="16" layout="topleft" left="155" name="max param text" text_color="White" font_shadow="hard" top_delta="0" width="120"/>
+	<text type="string" length="1" follows="left|top" height="16" layout="topleft" left="12" name="Loading..." top="11" width="128">
         Loading...
     </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="155"
-     name="Loading...2"
-     top_delta="0"
-     width="128">
+	<text type="string" length="1" follows="left|top" height="16" layout="topleft" left="155" name="Loading...2" top_delta="0" width="128">
         Loading...
     </text>
-    <view_border 
-     layout="topleft"
-     follows="left|top"
-     left="7"
-     top="5"
-     width="132"
-     height="132"
-     thickness="2"
-     shadow_light_color="0.3 0.3 0.3 1"
-     highlight_light_color="0.3 0.3 0.3 1"
-     highlight_dark_color="0.3 0.3 0.3 1"
-     shadow_dark_color="0.3 0.3 0.3 1"
-     bevel_style="in"
-     name="left_border"
-    />
-    <view_border 
-     layout="topleft"
-     follows="left|top"
-     left_pad="10"
-     top_delta="0"
-     width="132"
-     height="132"
-     thickness="2"
-     shadow_light_color="0.3 0.3 0.3 1"
-     highlight_light_color="0.3 0.3 0.3 1"
-     highlight_dark_color="0.3 0.3 0.3 1"
-     shadow_dark_color="0.3 0.3 0.3 1"
-     bevel_style="in"
-     name="right_border"
-    />
-    <button
-     enabled="false"
-     height="132"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled_Selected"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
-     layout="topleft"
-     left="7"
-     name="less"
-     tab_stop="false"
-     top="5"
-     width="132" />
-    <button
-     enabled="false"
-     height="132"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled_Selected"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
-     layout="topleft"
-     left_pad="10"
-     name="more"
-     tab_stop="false"
-     top_delta="0"
-     width="132" />
-    <slider
-     can_edit_text="true"
-     decimal_digits="0"
-     enabled="false"
-     height="16"
-     increment="1"
-     initial_value="0"
-     label="[DESC]"
-     layout="bottom|left"
-     left="6"
-     max_val="100"
-     name="param slider"
-     bottom="1"
-     width="274" 
-     slider_label.font.style="BOLD" />
+	<view_border layout="topleft" follows="left|top" left="7" top="5" width="132" height="132" thickness="2" shadow_light_color="0.3 0.3 0.3 1" highlight_light_color="0.3 0.3 0.3 1" highlight_dark_color="0.3 0.3 0.3 1" shadow_dark_color="0.3 0.3 0.3 1" bevel_style="in" name="left_border"/>
+	<view_border layout="topleft" follows="left|top" left_pad="10" top_delta="0" width="132" height="132" thickness="2" shadow_light_color="0.3 0.3 0.3 1" highlight_light_color="0.3 0.3 0.3 1" highlight_dark_color="0.3 0.3 0.3 1" shadow_dark_color="0.3 0.3 0.3 1" bevel_style="in" name="right_border"/>
+	<button enabled="false" height="132" image_disabled="PushButton_Disabled" image_disabled_selected="PushButton_Disabled_Selected" image_selected="PushButton_Selected" image_unselected="PushButton_Off" layout="topleft" left="7" name="less" tab_stop="false" top="5" width="132"/>
+	<button enabled="false" height="132" image_disabled="PushButton_Disabled" image_disabled_selected="PushButton_Disabled_Selected" image_selected="PushButton_Selected" image_unselected="PushButton_Off" layout="topleft" left_pad="10" name="more" tab_stop="false" top_delta="0" width="132"/>
+	<slider can_edit_text="true" decimal_digits="0" enabled="false" height="16" increment="1" initial_value="0" label="[DESC]" layout="bottom|left" left="6" max_val="100" name="param slider" bottom="1" width="274" slider_label.font.style="BOLD"/>
 </panel>

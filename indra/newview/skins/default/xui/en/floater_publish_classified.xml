@@ -1,62 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- legacy_header_height="18"
- can_minimize="false"
- height="200"
- layout="topleft"
- name="publish_classified"
- title="Publishing Classified"
- help_topic="profile_edit_classified"
- width="320">
-    <text
-     top="20"
-     follows="top|left"
-     font="SansSerif"
-     height="60"
-     layout="topleft"
-     left="15"
-     word_wrap="true"
-     name="explanation_text">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater legacy_header_height="18" can_minimize="false" height="200" layout="topleft" name="publish_classified" title="Publishing Classified" help_topic="profile_edit_classified" width="320">
+	<text top="20" follows="top|left" font="SansSerif" height="60" layout="topleft" left="15" word_wrap="true" name="explanation_text">
      
 Your classified ad will run for one week from the date it is published.
         
 Remember, Classified fees are non-refundable.
 
     </text>
-    <spinner
-     decimal_digits="0"
-     follows="left|top"
-     font="SansSerif"
-     halign="left"
-     height="23"
-     increment="1"
-     label_width="50"
-     label="Price: L$ "
-     v_pad="10"
-     layout="topleft"
-     left="15"
-     value="50"
-     min_val="50"
-     max_val="999999"
-     name="price_for_listing"
-     top_pad="10"
-     tool_tip="Price for listing."
-     width="150" />
-    <button
-     follows="top|left"
-     height="22"
-     label="Publish"
-     layout="topleft"
-     left="105"
-     name="publish_btn"
-     top="160"
-     width="100" />
-    <button
-     follows="top|left"
-     height="22"
-     label="Cancel"
-     layout="topleft"
-     left_pad="5"
-     name="cancel_btn"
-     width="100" />
+	<spinner decimal_digits="0" follows="left|top" font="SansSerif" halign="left" height="23" increment="1" label_width="50" label="Price: L$ " v_pad="10" layout="topleft" left="15" value="50" min_val="50" max_val="999999" name="price_for_listing" top_pad="10" tool_tip="Price for listing." width="150"/>
+	<button follows="top|left" height="22" label="Publish" layout="topleft" left="105" name="publish_btn" top="160" width="100"/>
+	<button follows="top|left" height="22" label="Cancel" layout="topleft" left_pad="5" name="cancel_btn" width="100"/>
 </floater>

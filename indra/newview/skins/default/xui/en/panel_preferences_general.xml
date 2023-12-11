@@ -1,408 +1,77 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
- border="true"
- follows="left|top|right|bottom"
- height="408"
- label="General"
- layout="topleft"
- left="102"
- name="general_panel"
- top="1"
- width="517">
-   <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="15"
-     layout="topleft"
-     left="30"
-     name="language_textbox"
-     top="10"
-     width="400">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel border="true" follows="left|top|right|bottom" height="408" label="General" layout="topleft" left="102" name="general_panel" top="1" width="517">
+	<text type="string" length="1" follows="left|top" height="15" layout="topleft" left="30" name="language_textbox" top="10" width="400">
         Language:
     </text>
-    <combo_box
-     control_name="Language"
-     follows="left|top"
-     height="23"
-     layout="topleft"
-     left="50"
-     max_chars="135"
-     name="language_combobox"
-     width="200">
-        <combo_box.item
-         enabled="true"
-         label="English"
-         name="English"
-         value="en" />
-        <combo_box.item
-         enabled="true"
-         label="Dansk (Danish) - Beta"
-         name="Danish"
-         value="da" />
-        <combo_box.item
-         enabled="true"
-         label="Deutsch (German) - Beta"
-         name="Deutsch(German)"
-         value="de" />
-        <combo_box.item
-         enabled="true"
-         label="Español (Spanish) - Beta"
-         name="Spanish"
-         value="es" />
-        <combo_box.item
-         enabled="true"
-         label="Français (French) - Beta"
-         name="French"
-         value="fr" />
-        <combo_box.item
-         enabled="true"
-         label="Italiano (Italian) - Beta"
-         name="Italian"
-         value="it" />
-        <combo_box.item
-         enabled="true"
-         label="Polski (Polish) - Beta"
-         name="Polish"
-         value="pl" />
-        <combo_box.item
-         enabled="true"
-         label="Português (Portuguese) - Beta"
-         name="Portugese"
-         value="pt" />
-        <combo_box.item
-         enabled="true"
-         label="Русский (Russian) - Beta"
-         name="Russian"
-         value="ru" />
-        <combo_box.item
-         enabled="true"
-         label="Türkçe (Turkish) - Beta"
-         name="Turkish"
-         value="tr" />
-        <combo_box.item
-         enabled="true"
-         label="日本語 (Japanese) - Beta"
-         name="(Japanese)"
-         value="ja" />
-        <combo_box.item
-         enabled="true"
-         label="正體中文 (Traditional Chinese) - Beta"
-         name="Traditional Chinese"
-         value="zh" />
-    </combo_box>
-    <text
- font="SansSerifSmall"
-     type="string"
-     text_color="White_50"
-     length="1"
-     follows="left|top"
-     height="18"
-     layout="topleft"
-     left_pad="10"
-     name="language_textbox2"
-     width="200">
+	<combo_box control_name="Language" follows="left|top" height="23" layout="topleft" left="50" max_chars="135" name="language_combobox" width="200">
+		<combo_box.item enabled="true" label="English" name="English" value="en"/>
+		<combo_box.item enabled="true" label="Dansk (Danish) - Beta" name="Danish" value="da"/>
+		<combo_box.item enabled="true" label="Deutsch (German) - Beta" name="Deutsch(German)" value="de"/>
+		<combo_box.item enabled="true" label="Español (Spanish) - Beta" name="Spanish" value="es"/>
+		<combo_box.item enabled="true" label="Français (French) - Beta" name="French" value="fr"/>
+		<combo_box.item enabled="true" label="Italiano (Italian) - Beta" name="Italian" value="it"/>
+		<combo_box.item enabled="true" label="Polski (Polish) - Beta" name="Polish" value="pl"/>
+		<combo_box.item enabled="true" label="Português (Portuguese) - Beta" name="Portugese" value="pt"/>
+		<combo_box.item enabled="true" label="Русский (Russian) - Beta" name="Russian" value="ru"/>
+		<combo_box.item enabled="true" label="Türkçe (Turkish) - Beta" name="Turkish" value="tr"/>
+		<combo_box.item enabled="true" label="日本語 (Japanese) - Beta" name="(Japanese)" value="ja"/>
+		<combo_box.item enabled="true" label="正體中文 (Traditional Chinese) - Beta" name="Traditional Chinese" value="zh"/>
+	</combo_box>
+	<text font="SansSerifSmall" type="string" text_color="White_50" length="1" follows="left|top" height="18" layout="topleft" left_pad="10" name="language_textbox2" width="200">
         (Requires restart)
     </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="15"
-     layout="topleft"
-     left="30"
-     top_pad="8"
-     name="maturity_desired_prompt"
-     width="200">
+	<text type="string" length="1" follows="left|top" height="15" layout="topleft" left="30" top_pad="8" name="maturity_desired_prompt" width="200">
         I want to access content rated:
     </text>
-	<text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="15"
-     layout="topleft"
-     left_pad="5"
-     name="maturity_desired_textbox"
-     width="200">
-    </text>
-    <combo_box
-     control_name="PreferredMaturity"
-     follows="left|top"
-     height="23"
-     layout="topleft"
-     left="50"
-     name="maturity_desired_combobox"
-     width="200">
-        <combo_box.item
-         label="General, Moderate, Adult"
-         name="Desired_Adult"
-         value="42" />
-        <combo_box.item
-         label="General and Moderate"
-         name="Desired_Mature"
-         value="21" />
-        <combo_box.item
-         label="General"
-         name="Desired_PG"
-         value="13" />
-        <combo_box.commit_callback
-		 function="Pref.MaturitySettings"/>
-    </combo_box>
-    <icon
-     follows="left|top"
-     height="16"
-     image_name="Parcel_PG_Dark"
-     layout="topleft"
-     left_pad="5"
-     name="rating_icon_general"
-     top_delta="3"
-     width="18"/>
-    <icon
-     follows="left|top"
-     height="16"
-     image_name="Parcel_M_Dark"
-     layout="topleft"
-     left_pad="2"
-     name="rating_icon_moderate"
-     width="18"/>
-    <icon
-     follows="left|top"
-     height="16"
-     image_name="Parcel_R_Dark"
-     layout="topleft"
-     left_pad="2"
-     name="rating_icon_adult"
-     width="18"/>
-     <check_box
-       control_name="ShowFavoritesOnLogin"
-       enabled="false" 
-       height="16"
-       layout="topleft"
-       label="Show favorite locations on login screen"
-       left="30"
-       name="favorites_on_login_check"
-       top_pad="10"
-       width="350" />
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="15"
-   layout="topleft"
-   left="52"
-   name="favorites_check_extra_text"
-   top_pad="0"
-   width="400">
+	<text type="string" length="1" follows="left|top" height="15" layout="topleft" left_pad="5" name="maturity_desired_textbox" width="200">
+	</text>
+	<combo_box control_name="PreferredMaturity" follows="left|top" height="23" layout="topleft" left="50" name="maturity_desired_combobox" width="200">
+		<combo_box.item label="General, Moderate, Adult" name="Desired_Adult" value="42"/>
+		<combo_box.item label="General and Moderate" name="Desired_Mature" value="21"/>
+		<combo_box.item label="General" name="Desired_PG" value="13"/>
+		<combo_box.commit_callback function="Pref.MaturitySettings"/>
+	</combo_box>
+	<icon follows="left|top" height="16" image_name="Parcel_PG_Dark" layout="topleft" left_pad="5" name="rating_icon_general" top_delta="3" width="18"/>
+	<icon follows="left|top" height="16" image_name="Parcel_M_Dark" layout="topleft" left_pad="2" name="rating_icon_moderate" width="18"/>
+	<icon follows="left|top" height="16" image_name="Parcel_R_Dark" layout="topleft" left_pad="2" name="rating_icon_adult" width="18"/>
+	<check_box control_name="ShowFavoritesOnLogin" enabled="false" height="16" layout="topleft" label="Show favorite locations on login screen" left="30" name="favorites_on_login_check" top_pad="10" width="350"/>
+	<text type="string" length="1" follows="left|top" height="15" layout="topleft" left="52" name="favorites_check_extra_text" top_pad="0" width="400">
     (Others using this computer will also see them)
   </text>
-  <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="15"
-    layout="topleft"
-    left="30"
-    name="name_tags_textbox"
-    top_pad="10"
-    width="400">
+	<text type="string" length="1" follows="left|top" height="15" layout="topleft" left="30" name="name_tags_textbox" top_pad="10" width="400">
        Name tags:
    </text>
-   <radio_group
-     control_name="AvatarNameTagMode"
-     height="20"
-     layout="topleft"
-     left="35"
-     top_pad="0" 
-     name="Name_Tag_Preference">
-        <radio_item
-         label="Off"
-         name="radio"
-         top_delta="20" 
-         layout="topleft"
-         height="16" 
-         left="0" 
-         value="0"
-         width="75" />
-        <radio_item
-         label="On"
-         left_pad="0"
-         layout="topleft"
-         top_delta="0" 
-         height="16" 
-         name="radio2"
-         value="1"
-         width="75" />
-        <radio_item
-         label="Show briefly"
-         left_pad="0"
-         name="radio3"
-         height="16"
-         layout="topleft"
-         top_delta="0"
-         value="2"
-         width="160" />
-    </radio_group>
-    <check_box
-	 enabled_control="AvatarNameTagMode"
-     control_name="RenderNameShowSelf"
-     height="16"
-     label="My name"
-     layout="topleft"
-     left="35"
-     name="show_my_name_checkbox1"
-	 top_pad="2"
-     width="100" />
-   <check_box
-     control_name="NameTagShowUsernames"
-	 enabled_control="AvatarNameTagMode"
-     height="16"
-     label="Usernames"
-     layout="topleft"
-     left_pad="50"
-     name="show_slids"
-     tool_tip="Show username, like bobsmith123"
-     top_delta="0" />
-    <check_box
-     control_name="NameTagShowGroupTitles"
-	 enabled_control="AvatarNameTagMode"
-     height="16"
-     label="Group titles"
-     layout="topleft"
-     left="35"
-     width="100" 
-     name="show_all_title_checkbox1"
-	 tool_tip="Show group titles, like Officer or Member"
-     top_pad="3" />
-    <check_box
-     control_name="NameTagShowFriends"
-	 enabled_control="AvatarNameTagMode"
-     height="16"
-     label="Highlight friends"
-     layout="topleft"
-     left_pad="50"
-     name="show_friends"
-     tool_tip="Highlight the name tags of your friends"/>     
-    <check_box
-	 control_name="UseDisplayNames"
-	 follows="top|left"
-	 height="16"
-	 label="View Display Names"
-	 layout="topleft"
-	 left="35"
-	 name="display_names_check"
-	 width="237"
-	 tool_tip="Check to use display names in chat, IM, name tags, etc."
-	 top_pad="3"/>
-	 
-	<text
-	 type="string"
-	 length="1"
-	 follows="left|top"
-	 height="15"
-	 layout="topleft"
-	 left="30"
-	 name="inworld_typing_rg_label"
-	 top_pad="1"
-	 width="400">
+	<radio_group control_name="AvatarNameTagMode" height="20" layout="topleft" left="35" top_pad="0" name="Name_Tag_Preference">
+		<radio_item label="Off" name="radio" top_delta="20" layout="topleft" height="16" left="0" value="0" width="75"/>
+		<radio_item label="On" left_pad="0" layout="topleft" top_delta="0" height="16" name="radio2" value="1" width="75"/>
+		<radio_item label="Show briefly" left_pad="0" name="radio3" height="16" layout="topleft" top_delta="0" value="2" width="160"/>
+	</radio_group>
+	<check_box enabled_control="AvatarNameTagMode" control_name="RenderNameShowSelf" height="16" label="My name" layout="topleft" left="35" name="show_my_name_checkbox1" top_pad="2" width="100"/>
+	<check_box control_name="NameTagShowUsernames" enabled_control="AvatarNameTagMode" height="16" label="Usernames" layout="topleft" left_pad="50" name="show_slids" tool_tip="Show username, like bobsmith123" top_delta="0"/>
+	<check_box control_name="NameTagShowGroupTitles" enabled_control="AvatarNameTagMode" height="16" label="Group titles" layout="topleft" left="35" width="100" name="show_all_title_checkbox1" tool_tip="Show group titles, like Officer or Member" top_pad="3"/>
+	<check_box control_name="NameTagShowFriends" enabled_control="AvatarNameTagMode" height="16" label="Highlight friends" layout="topleft" left_pad="50" name="show_friends" tool_tip="Highlight the name tags of your friends"/>
+	<check_box control_name="UseDisplayNames" follows="top|left" height="16" label="View Display Names" layout="topleft" left="35" name="display_names_check" width="237" tool_tip="Check to use display names in chat, IM, name tags, etc." top_pad="3"/>
+	<text type="string" length="1" follows="left|top" height="15" layout="topleft" left="30" name="inworld_typing_rg_label" top_pad="1" width="400">
        Pressing letter keys:
    </text>
-   <radio_group
-     control_name="LetterKeysFocusChatBar" 
-     height="34"
-     layout="topleft"
-     left="35"
-     top_pad="0" 
-     name="inworld_typing_preference">
-        <radio_item
-         label="Starts local chat"
-         name="radio_start_chat"
-         top="0" 
-         layout="topleft"
-         height="16" 
-         left="0" 
-         value="1"
-         width="150" />
-        <radio_item
-         label="Affects movement (i.e. WASD)"
-         left="0"
-         layout="topleft"
-         top="18" 
-         height="16" 
-         name="radio_move"
-         value="0"
-         width="75" />
-    </radio_group>
-    
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="13"
-     layout="topleft"
-     left="30"
-     name="title_afk_text"
-     top_pad="5" 
-     width="190">
+	<radio_group control_name="LetterKeysFocusChatBar" height="34" layout="topleft" left="35" top_pad="0" name="inworld_typing_preference">
+		<radio_item label="Starts local chat" name="radio_start_chat" top="0" layout="topleft" height="16" left="0" value="1" width="150"/>
+		<radio_item label="Affects movement (i.e. WASD)" left="0" layout="topleft" top="18" height="16" name="radio_move" value="0" width="75"/>
+	</radio_group>
+	<text type="string" length="1" follows="left|top" height="13" layout="topleft" left="30" name="title_afk_text" top_pad="5" width="190">
     	Away timeout:
     </text>
-  <combo_box
-     height="23"
-     layout="topleft"
-     control_name="AFKTimeout"
-     left="30"
-     label="Away timeout:"
-     top_pad="2"
-     name="afk"
-     width="130">
-    <combo_box.item
-     label="2 minutes"
-     name="item0"
-     value="120" />
-    <combo_box.item
-     label="5 minutes"
-     name="item1"
-     value="300" />
-    <combo_box.item
-     label="10 minutes"
-     name="item2"
-     value="600" />
-    <combo_box.item
-     label="30 minutes"
-     name="item3"
-     value="1800" />
-    <combo_box.item
-     label="never"
-     name="item4"
-     value="0" />
-  </combo_box>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="13"
-     layout="topleft"
-     left="30"
-     mouse_opaque="false"
-     name="text_box3"
-     top_pad="3"
-     width="240">
+	<combo_box height="23" layout="topleft" control_name="AFKTimeout" left="30" label="Away timeout:" top_pad="2" name="afk" width="130">
+		<combo_box.item label="2 minutes" name="item0" value="120"/>
+		<combo_box.item label="5 minutes" name="item1" value="300"/>
+		<combo_box.item label="10 minutes" name="item2" value="600"/>
+		<combo_box.item label="30 minutes" name="item3" value="1800"/>
+		<combo_box.item label="never" name="item4" value="0"/>
+	</combo_box>
+	<text type="string" length="1" follows="left|top" height="13" layout="topleft" left="30" mouse_opaque="false" name="text_box3" top_pad="3" width="240">
        Do Not Disturb response:
     </text>
-    <text_editor
-     control_name="DoNotDisturbModeResponse"
-      text_readonly_color="LabelDisabledColor"
-      bg_writeable_color="LtGray"
-      use_ellipses="false"
-     commit_on_focus_lost = "true"
-     follows="left|top"
-     height="29"
-     layout="topleft"
-     left="30"
-     name="do_not_disturb_response"
-     width="470"
-     word_wrap="true">
+	<text_editor control_name="DoNotDisturbModeResponse" text_readonly_color="LabelDisabledColor" bg_writeable_color="LtGray" use_ellipses="false" commit_on_focus_lost="true" follows="left|top" height="29" layout="topleft" left="30" name="do_not_disturb_response" width="470" word_wrap="true">
        log_in_to_change
     </text_editor>
-
 </panel>

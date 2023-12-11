@@ -1,141 +1,52 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toggleable_menu
- bottom="806"
- layout="topleft"
- left="0"
- mouse_opaque="false"
- name="menu_gear_default"
- visible="false">
-    <menu_item_call
-     label="New Inventory Window"
-     layout="topleft"
-     shortcut="control|shift|I"
-     name="new_window">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="new_window" />
-    </menu_item_call>
-    <menu_item_call
-     label="Collapse All Folders"
-     layout="topleft"
-     name="close_folders">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="close_folders" />
-        <on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="multi_folder_view" />
-    </menu_item_call>
-    <menu_item_call
-     label="Close All Windows"
-     layout="topleft"
-     name="close_windows">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="close_inv_windows" />
-    </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
-    <menu_item_call
-     label="Show Filters..."
-     layout="topleft"
-     name="show_filters">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="show_filters" />
-    </menu_item_call>
-    <menu_item_call
-     label="Reset Filters"
-     layout="topleft"
-     name="reset_filters">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="reset_filters" />
-    </menu_item_call>
-    <menu_item_call 
-         label="Save Texture As"
-         layout="topleft"
-         name="Save Texture As">
-            <on_click
-             function="Inventory.GearDefault.Custom.Action"
-             parameter="save_texture" />
-            <on_enable
-			 function="Inventory.GearDefault.Enable"
-			 parameter="save_texture" />
-        </menu_item_call>
-    <menu_item_call
-     label="Share"
-     layout="topleft"
-     name="Share"
-     visible="true">
-     <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="share" />
-     <on_enable
-         function="Inventory.GearDefault.Enable"
-         parameter="share" />
-    </menu_item_call>
-    <menu_item_call 
-         label="Find Original"
-         layout="topleft"
-         name="Find Original">
-            <on_click
-             function="Inventory.GearDefault.Custom.Action"
-             parameter="find_original" />
-            <on_enable
-			 function="Inventory.GearDefault.Enable"
-			 parameter="find_original" />
-        </menu_item_call>
-    <menu_item_call 
-         label="Find All Links"
-         layout="topleft"
-         name="Find All Links">
-            <on_click
-             function="Inventory.GearDefault.Custom.Action"
-             parameter="find_links" />
-            <on_enable
-			 function="Inventory.GearDefault.Enable"
-			 parameter="find_links" />
-        </menu_item_call>
-    <menu_item_call 
-         label="Replace Links"
-         layout="topleft"
-         name="Replace Links">
-            <on_click
-             function="Inventory.GearDefault.Custom.Action"
-             parameter="replace_links" />
-        </menu_item_call>
-    <menu_item_separator>
-        <menu_item_separator.on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="multi_folder_view" />
-    </menu_item_separator>
-    <menu_item_call
-     label="Empty Lost and Found"
-     layout="topleft"
-     name="empty_lostnfound">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="empty_lostnfound" />
-        <on_enable
-         function="Inventory.GearDefault.Enable"
-         parameter="empty_lostnfound" />
-        <on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="multi_folder_view" />
-    </menu_item_call>
-    <menu_item_call
-     label="Empty Trash"
-     layout="topleft"
-     name="empty_trash">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="empty_trash" />
-        <on_enable
-         function="Inventory.GearDefault.Enable"
-         parameter="empty_trash" />
-        <on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="multi_folder_view" />
-    </menu_item_call>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu bottom="806" layout="topleft" left="0" mouse_opaque="false" name="menu_gear_default" visible="false">
+	<menu_item_call label="New Inventory Window" layout="topleft" shortcut="control|shift|I" name="new_window">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="new_window"/>
+	</menu_item_call>
+	<menu_item_call label="Collapse All Folders" layout="topleft" name="close_folders">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="close_folders"/>
+		<on_visible function="Inventory.GearDefault.Visible" parameter="multi_folder_view"/>
+	</menu_item_call>
+	<menu_item_call label="Close All Windows" layout="topleft" name="close_windows">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="close_inv_windows"/>
+	</menu_item_call>
+	<menu_item_separator layout="topleft"/>
+	<menu_item_call label="Show Filters..." layout="topleft" name="show_filters">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="show_filters"/>
+	</menu_item_call>
+	<menu_item_call label="Reset Filters" layout="topleft" name="reset_filters">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="reset_filters"/>
+	</menu_item_call>
+	<menu_item_call label="Save Texture As" layout="topleft" name="Save Texture As">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="save_texture"/>
+		<on_enable function="Inventory.GearDefault.Enable" parameter="save_texture"/>
+	</menu_item_call>
+	<menu_item_call label="Share" layout="topleft" name="Share" visible="true">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="share"/>
+		<on_enable function="Inventory.GearDefault.Enable" parameter="share"/>
+	</menu_item_call>
+	<menu_item_call label="Find Original" layout="topleft" name="Find Original">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="find_original"/>
+		<on_enable function="Inventory.GearDefault.Enable" parameter="find_original"/>
+	</menu_item_call>
+	<menu_item_call label="Find All Links" layout="topleft" name="Find All Links">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="find_links"/>
+		<on_enable function="Inventory.GearDefault.Enable" parameter="find_links"/>
+	</menu_item_call>
+	<menu_item_call label="Replace Links" layout="topleft" name="Replace Links">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="replace_links"/>
+	</menu_item_call>
+	<menu_item_separator>
+		<menu_item_separator.on_visible function="Inventory.GearDefault.Visible" parameter="multi_folder_view"/>
+	</menu_item_separator>
+	<menu_item_call label="Empty Lost and Found" layout="topleft" name="empty_lostnfound">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="empty_lostnfound"/>
+		<on_enable function="Inventory.GearDefault.Enable" parameter="empty_lostnfound"/>
+		<on_visible function="Inventory.GearDefault.Visible" parameter="multi_folder_view"/>
+	</menu_item_call>
+	<menu_item_call label="Empty Trash" layout="topleft" name="empty_trash">
+		<on_click function="Inventory.GearDefault.Custom.Action" parameter="empty_trash"/>
+		<on_enable function="Inventory.GearDefault.Enable" parameter="empty_trash"/>
+		<on_visible function="Inventory.GearDefault.Visible" parameter="multi_folder_view"/>
+	</menu_item_call>
 </toggleable_menu>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Give Money" title="お支払い">
+<floater name="Give Money">
 	<string name="payee_group">
 		グループに支払う
 	</string>
@@ -16,10 +16,10 @@
 		説明(任意項目):
 	</text>
 	<panel label="検索" name="PatternsPanel">
-		<button label="L$ 1支払う" label_selected="L$ 1支払う" name="fastpay 1"/>
-		<button label="L$ 5支払う" label_selected="L$ 5支払う" name="fastpay 5"/>
-		<button label="L$ 10支払う" label_selected="L$ 10支払う" name="fastpay 10"/>
-		<button label="L$ 20支払う" label_selected="L$ 20支払う" name="fastpay 20"/>
+		<button label="L$1支払う" label_selected="L$1支払う" name="fastpay 1"/>
+		<button label="L$5支払う" label_selected="L$5支払う" name="fastpay 5"/>
+		<button label="L$10支払う" label_selected="L$10支払う" name="fastpay 10"/>
+		<button label="L$20支払う" label_selected="L$20支払う" name="fastpay 20"/>
 	</panel>
 	<panel label="検索" name="InputPanel">
 		<text name="amount text">

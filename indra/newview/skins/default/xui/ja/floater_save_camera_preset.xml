@@ -10,8 +10,6 @@
 		<radio_item label="新しいプリセットとして保存" name="new_preset"/>
 		<radio_item label="プリセットを置換" name="replace_preset"/>
 	</radio_group>
-	<line_editor name="preset_txt_editor"/>
 	<button label="保存" name="save"/>
 	<button label="キャンセル" name="cancel"/>
-	<combo_box name="preset_combo"/>
 </floater>

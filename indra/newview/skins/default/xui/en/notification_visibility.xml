@@ -1,6 +1,5 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <notification_visibility>
-  <hide tag="custom_skin"/>
-	<show/> 
+	<hide tag="custom_skin"/>
+	<show/>
 </notification_visibility>
-

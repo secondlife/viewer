@@ -1,22 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- legacy_header_height="18"
- height="555"
- help_topic="regioninfo"
- layout="topleft"
- name="regioninfo"
- save_rect="true"
- title="REGION/ESTATE"
- width="637">
-    <tab_container
-     bottom="555"
-     follows="left|right|top|bottom"
-     layout="topleft"
-     left="0"
-     name="region_panels"
-     tab_padding_right="3"
-     tab_position="left"
-     halign="left"
-     tab_width="110"
-     top="20"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater legacy_header_height="18" height="555" help_topic="regioninfo" layout="topleft" name="regioninfo" save_rect="true" title="REGION/ESTATE" width="637">
+	<tab_container bottom="555" follows="left|right|top|bottom" layout="topleft" left="0" name="region_panels" tab_padding_right="3" tab_position="left" halign="left" tab_width="110" top="20"/>
 </floater>

@@ -1,426 +1,71 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
-background_visible="true"
- default_tab_group="1"
- follows="all"
- height="570"
- label="Places"
- layout="topleft"
- min_height="350"
- name="places panel"
- top="0"
- left="0"
- width="333">
-  <string
-   name="landmarks_tab_title"
-   value="LANDMARKS" />
-  <string
-   name="teleport_history_tab_title"
-   value="VISITED" />
-  <string
-   name="favorites_tab_title"
-   value="FAVORITES" />
-  <string
-   name="tooltip_trash_items"
-   value="Remove selected landmark or folder" />
-  <string
-   name="tooltip_trash_history"
-   value="Delete list of visited places" />
-  <layout_stack
-    animate="false"
-    border_size="0"
-    follows="all"
-    height="564"
-    layout="topleft"
-    orientation="vertical"
-    top="1"
-    left="0"
-    name="places_layout_panel"
-    width="333">
-    <layout_panel
-      auto_resize="true"
-      height="538"
-      layout="topleft"
-      name="main_panel"
-      width="333">
-    <layout_stack
-      animate="false"
-      border_size="0"
-      follows="left|top|right"
-      height="27"
-      layout="topleft"
-      orientation="horizontal"
-      top="0"
-      left="0"
-      name="top_menu_panel"
-      width="320">
-      <layout_panel
-        auto_resize="true"
-        layout="topleft"
-        name="filter_panel"
-        width="193">
-        <filter_editor
-          text_pad_left="10"
-          follows="left|top|right"
-          font="SansSerifSmall"
-          height="23"
-          layout="topleft"
-          left="10"
-          label="Filter My Places"
-          max_length_chars="300"
-          name="Filter"
-          tab_group="1"
-          top="3"
-          width="181" />
-      </layout_panel>
-      <layout_panel
-        auto_resize="false"
-        height="25"
-        layout="topleft"
-        name="options_gear_btn_panel"
-        width="32">
-        <menu_button
-          follows="bottom|left"
-          tool_tip="Show options"
-          height="25"
-          image_hover_unselected="Toolbar_Middle_Over"
-          image_overlay="OptionsMenu_Off"
-          image_selected="Toolbar_Middle_Selected"
-          image_unselected="Toolbar_Middle_Off"
-          menu_position="bottomleft"
-          layout="topleft"
-          left="0"
-          name="options_gear_btn"
-          top="0"
-          width="31" />
-      </layout_panel>
-      <layout_panel
-        auto_resize="false"
-        height="25"
-        layout="topleft"
-        name="options_sort_btn_panel"
-        width="32">
-        <menu_button
-          follows="bottom|left"
-          tool_tip="Show sorting options"
-          height="25"
-          image_hover_unselected="Toolbar_Middle_Over"
-          image_overlay="Conv_toolbar_sort"
-          image_selected="Toolbar_Middle_Selected"
-          image_unselected="Toolbar_Middle_Off"
-          menu_position="bottomleft"
-          layout="topleft"
-          left="0"
-          name="sorting_menu_btn"
-          top="0"
-          width="31" />
-      </layout_panel>
-      <layout_panel
-        auto_resize="false"
-        height="25"
-        layout="topleft"
-        name="add_btn_panel"
-        width="32">
-        <menu_button
-          follows="bottom|left"
-          height="25"
-          image_hover_unselected="Toolbar_Middle_Over"
-          image_overlay="AddItem_Off"
-          image_selected="Toolbar_Middle_Selected"
-          image_unselected="Toolbar_Middle_Off"
-          menu_position="bottomleft"
-          layout="topleft"
-          left="0"
-          name="add_menu_btn"
-          tool_tip="Add new landmark or folder"
-          top="0"
-          width="31" />
-      </layout_panel>
-      <layout_panel
-        auto_resize="false"
-        height="25"
-        layout="topleft"
-        name="trash_btn_panel"
-        width="31">
-        <dnd_button
-          follows="bottom|left"
-          height="25"
-          image_hover_unselected="Toolbar_Right_Over"
-          image_overlay="TrashItem_Off"
-          image_selected="Toolbar_Right_Selected"
-          image_unselected="Toolbar_Right_Off"
-          left="0"
-          layout="topleft"
-          name="trash_btn"
-          top="0"
-          width="31"/>
-      </layout_panel>
-    </layout_stack>
-    <tab_container
-     follows="all"
-     layout="topleft"
-     halign="center"
-     height="504"
-     left="6"
-     name="Places Tabs"
-     tab_min_width="80"
-     tab_max_width="157"
-     tab_height="30"
-     tab_group="2"
-     tab_position="top"
-     top_pad="7"
-     width="318"
-     visible="true"/>
-    <panel
-     class="panel_place_profile"
-     filename="panel_place_profile.xml"
-     follows="all"
-     layout="topleft"
-     height="533"
-     left="0"
-     top="4"
-     help_topic="place_profile"
-     name="panel_place_profile"
-     visible="false"
-     width="318" />
-    <panel
-     class="panel_landmark_info"
-     filename="panel_landmark_info.xml"
-     follows="all"
-     layout="topleft"
-     height="533"
-     left="0"
-     top="4"
-     help_topic="landmark"
-     name="panel_landmark_info"
-     visible="false"
-     width="318" />
-    </layout_panel>
-
-    <!--*********************** Button wrappers ***********************-->
-    <layout_panel
-     auto_resize="false"
-     layout="topleft"
-     height="25"
-     name="button_layout_panel">
-    <panel
-     follows="bottom|left|right"
-     height="23"
-     layout="topleft"
-     left="4"
-     top="2"
-     name="button_panel"
-     width="318">
-    
-       <layout_stack
-     	follows="bottom|left|right"
-		height="23"
-		layout="topleft"
-		mouse_opaque="false"
-		name="bottom_bar_ls0"
-		animate="false"
-		left="4"
-		orientation="horizontal"
-		top="0"
-		width="315">	
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left="0"			
-			mouse_opaque="false"
-			name="lp1"
-		    auto_resize="true"
-			width="193">
-			
-		<!--*********************** Teleport, Map buttons ***********************-->
-     	
-		       <layout_stack
-		     	follows="bottom|left|right"
-				height="23"
-				layout="topleft"
-				mouse_opaque="false"
-				name="bottom_bar_ls1"
-				left="0"
-				orientation="horizontal"
-				top="0"
-				width="193">	
-					<layout_panel
-					follows="bottom|left|right"
-					height="23"
-					layout="bottomleft"
-					left="0"			
-					mouse_opaque="false"
-					name="teleport_btn_lp"
-				    auto_resize="true"
-					width="109">
-						<button
-				         follows="bottom|left|right"
-				         height="23"
-				         label="Teleport"
-				         layout="topleft"
-				         left="1"
-				         name="teleport_btn"
-				         tool_tip="Teleport to the selected area"
-				         top="0"
-				         width="108" />		
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel background_visible="true" default_tab_group="1" follows="all" height="570" label="Places" layout="topleft" min_height="350" name="places panel" top="0" left="0" width="333">
+	<string name="landmarks_tab_title" value="LANDMARKS"/>
+	<string name="teleport_history_tab_title" value="VISITED"/>
+	<string name="favorites_tab_title" value="FAVORITES"/>
+	<string name="tooltip_trash_items" value="Remove selected landmark or folder"/>
+	<string name="tooltip_trash_history" value="Delete list of visited places"/>
+	<layout_stack animate="false" border_size="0" follows="all" height="564" layout="topleft" orientation="vertical" top="1" left="0" name="places_layout_panel" width="333">
+		<layout_panel auto_resize="true" height="538" layout="topleft" name="main_panel" width="333">
+			<layout_stack animate="false" border_size="0" follows="left|top|right" height="27" layout="topleft" orientation="horizontal" top="0" left="0" name="top_menu_panel" width="320">
+				<layout_panel auto_resize="true" layout="topleft" name="filter_panel" width="193">
+					<filter_editor text_pad_left="10" follows="left|top|right" font="SansSerifSmall" height="23" layout="topleft" left="10" label="Filter My Places" max_length_chars="300" name="Filter" tab_group="1" top="3" width="181"/>
+				</layout_panel>
+				<layout_panel auto_resize="false" height="25" layout="topleft" name="options_gear_btn_panel" width="32">
+					<menu_button follows="bottom|left" tool_tip="Show options" height="25" image_hover_unselected="Toolbar_Middle_Over" image_overlay="OptionsMenu_Off" image_selected="Toolbar_Middle_Selected" image_unselected="Toolbar_Middle_Off" menu_position="bottomleft" layout="topleft" left="0" name="options_gear_btn" top="0" width="31"/>
+				</layout_panel>
+				<layout_panel auto_resize="false" height="25" layout="topleft" name="options_sort_btn_panel" width="32">
+					<menu_button follows="bottom|left" tool_tip="Show sorting options" height="25" image_hover_unselected="Toolbar_Middle_Over" image_overlay="Conv_toolbar_sort" image_selected="Toolbar_Middle_Selected" image_unselected="Toolbar_Middle_Off" menu_position="bottomleft" layout="topleft" left="0" name="sorting_menu_btn" top="0" width="31"/>
+				</layout_panel>
+				<layout_panel auto_resize="false" height="25" layout="topleft" name="add_btn_panel" width="32">
+					<menu_button follows="bottom|left" height="25" image_hover_unselected="Toolbar_Middle_Over" image_overlay="AddItem_Off" image_selected="Toolbar_Middle_Selected" image_unselected="Toolbar_Middle_Off" menu_position="bottomleft" layout="topleft" left="0" name="add_menu_btn" tool_tip="Add new landmark or folder" top="0" width="31"/>
+				</layout_panel>
+				<layout_panel auto_resize="false" height="25" layout="topleft" name="trash_btn_panel" width="31">
+					<dnd_button follows="bottom|left" height="25" image_hover_unselected="Toolbar_Right_Over" image_overlay="TrashItem_Off" image_selected="Toolbar_Right_Selected" image_unselected="Toolbar_Right_Off" left="0" layout="topleft" name="trash_btn" top="0" width="31"/>
+				</layout_panel>
+			</layout_stack>
+			<tab_container follows="all" layout="topleft" halign="center" height="504" left="6" name="Places Tabs" tab_min_width="80" tab_max_width="157" tab_height="30" tab_group="2" tab_position="top" top_pad="7" width="318" visible="true"/>
+			<panel class="panel_place_profile" filename="panel_place_profile.xml" follows="all" layout="topleft" height="533" left="0" top="4" help_topic="place_profile" name="panel_place_profile" visible="false" width="318"/>
+			<panel class="panel_landmark_info" filename="panel_landmark_info.xml" follows="all" layout="topleft" height="533" left="0" top="4" help_topic="landmark" name="panel_landmark_info" visible="false" width="318"/>
+		</layout_panel>
+		<!--*********************** Button wrappers ***********************-->
+		<layout_panel auto_resize="false" layout="topleft" height="25" name="button_layout_panel">
+			<panel follows="bottom|left|right" height="23" layout="topleft" left="4" top="2" name="button_panel" width="318">
+				<layout_stack follows="bottom|left|right" height="23" layout="topleft" mouse_opaque="false" name="bottom_bar_ls0" animate="false" left="4" orientation="horizontal" top="0" width="315">
+					<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left="0" mouse_opaque="false" name="lp1" auto_resize="true" width="193">
+						<!--*********************** Teleport, Map buttons ***********************-->
+						<layout_stack follows="bottom|left|right" height="23" layout="topleft" mouse_opaque="false" name="bottom_bar_ls1" left="0" orientation="horizontal" top="0" width="193">
+							<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left="0" mouse_opaque="false" name="teleport_btn_lp" auto_resize="true" width="109">
+								<button follows="bottom|left|right" height="23" label="Teleport" layout="topleft" left="1" name="teleport_btn" tool_tip="Teleport to the selected area" top="0" width="108"/>
+							</layout_panel>
+							<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" mouse_opaque="false" name="chat_btn_lp" auto_resize="true" width="86">
+								<button follows="bottom|left|right" height="23" label="Map" layout="topleft" left="1" name="map_btn" tool_tip="Show the corresponding area on the World Map" top="0" width="85"/>
+							</layout_panel>
+						</layout_stack>
 					</layout_panel>
-					
-					<layout_panel
-					follows="bottom|left|right"
-					height="23"
-					layout="bottomleft"
-					left_pad="3"
-					mouse_opaque="false"
-					name="chat_btn_lp"
-				    auto_resize="true"
-					width="86">
-						<button
-				         follows="bottom|left|right"
-				         height="23"
-				         label="Map"
-				         layout="topleft"
-				         left="1"
-				         name="map_btn"
-				         tool_tip="Show the corresponding area on the World Map"
-				         top="0"
-				         width="85" />		
+					<!--*********************** Options button ***********************-->
+					<layout_panel follows="bottom|right" height="23" layout="bottomleft" left_pad="0" mouse_opaque="false" visible="false" name="lp_options" auto_resize="false" width="23">
+						<menu_button follows="bottom|right" height="23" image_disabled="ComboButton_UpOff" image_unselected="ComboButton_UpOff" image_selected="ComboButton_UpSelected" layout="topleft" mouse_opaque="false" name="overflow_btn" tool_tip="Show additional options" top="0" left="0" width="23"/>
+					</layout_panel>
+					<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="0" mouse_opaque="false" name="lp2" auto_resize="true" width="116">
+						<!--*********************** Close button ***********************-->
+						<layout_stack follows="bottom|left|right" height="23" layout="topleft" mouse_opaque="false" name="bottom_bar_close_ls3" left="0" orientation="horizontal" top="0" width="112">
+							<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" mouse_opaque="false" name="close_btn_lp" top="0" auto_resize="true" width="51">
+								<button follows="bottom|left|right" height="23" label="Close" layout="topleft" mouse_opaque="false" name="close_btn" left="1" top="0" width="50"/>
+							</layout_panel>
+						</layout_stack>
 					</layout_panel>
 				</layout_stack>
-			</layout_panel>
-				 <!--*********************** Options button ***********************-->
-			<layout_panel
-				follows="bottom|right"
-				height="23"
-				layout="bottomleft"
-				left_pad="0"
-				mouse_opaque="false"
-				visible="false"
-				name="lp_options"
-				auto_resize="false"
-				width="23">
-				<menu_button
-					follows="bottom|right"
-					height="23"
-					image_disabled="ComboButton_UpOff"
-					image_unselected="ComboButton_UpOff"
-					image_selected="ComboButton_UpSelected"
-					layout="topleft"
-					mouse_opaque="false"
-					name="overflow_btn"
-					tool_tip="Show additional options"
-					top="0"
-					left="0"
-					width="23" />
-			</layout_panel>
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="0"			
-			mouse_opaque="false"
-			name="lp2"
-			auto_resize="true"
-			width="116">
-		
-		<!--*********************** Close button ***********************-->
-				
-				<layout_stack
-		     	follows="bottom|left|right"
-				height="23"
-				layout="topleft"
-				mouse_opaque="false"
-				name="bottom_bar_close_ls3"
-				left="0"
-				orientation="horizontal"
-				top="0"
-				width="112">
-					<layout_panel
-					follows="bottom|left|right"
-					height="23"
-					layout="bottomleft"
-					left_pad="3"			
-					mouse_opaque="false"
-					name="close_btn_lp"
-					top="0"
-				    auto_resize="true"
-					width="51">
-						<button
-				         follows="bottom|left|right"
-				         height="23"
-				         label="Close"
-				         layout="topleft"
-						 mouse_opaque="false"
-				         name="close_btn"
-				         left="1"
-				         top="0"
-				         width="50" />	
+				<!--*********************** Save, Cancel buttons ***********************-->
+				<layout_stack follows="bottom|left|right" animate="false" height="23" layout="topleft" mouse_opaque="false" name="bottom_bar_ls2" left="4" orientation="horizontal" top="0" width="313">
+					<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" mouse_opaque="false" name="save_btn_lp" top="0" auto_resize="true" width="153">
+						<button follows="bottom|left|right" height="23" label="Save" layout="topleft" mouse_opaque="false" name="save_btn" left="1" top_pad="0" width="152"/>
+					</layout_panel>
+					<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" mouse_opaque="false" name="cancel_btn_lp" top="0" auto_resize="true" width="154">
+						<button follows="bottom|left|right" height="23" label="Cancel" layout="topleft" mouse_opaque="false" name="cancel_btn" left="1" top="0" width="153"/>
 					</layout_panel>
 				</layout_stack>
-
-					
-			</layout_panel>
-		</layout_stack>	
-
-<!--*********************** Save, Cancel buttons ***********************-->		
-		
-		<layout_stack
-     	follows="bottom|left|right"
-      animate="false"
-		height="23"
-		layout="topleft"
-		mouse_opaque="false"
-		name="bottom_bar_ls2"
-		left="4"
-		orientation="horizontal"
-		top="0"
-		width="313">
-		
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			mouse_opaque="false"
-			name="save_btn_lp"
-			top="0"
-		    auto_resize="true"
-			width="153">
-				<button
-		         follows="bottom|left|right"
-		         height="23"
-		         label="Save"
-		         layout="topleft"
-				 mouse_opaque="false"
-		         name="save_btn"
-		         left="1"
-		         top_pad="0"
-		         width="152"/>		
-			</layout_panel>
-			
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			mouse_opaque="false"
-			name="cancel_btn_lp"
-			top="0"
-		    auto_resize="true"
-			width="154">
-				<button
-		         follows="bottom|left|right"
-		         height="23"
-		         label="Cancel"
-		         layout="topleft"
-				 mouse_opaque="false"
-		         name="cancel_btn"
-		         left="1"
-		         top="0"
-		         width="153" />		
-			</layout_panel>		
-		</layout_stack>
-    </panel>
-    </layout_panel>
-  </layout_stack>
+			</panel>
+		</layout_panel>
+	</layout_stack>
 </panel>

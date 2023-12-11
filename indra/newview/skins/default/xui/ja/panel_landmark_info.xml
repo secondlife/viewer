@@ -25,37 +25,27 @@
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<texture_picker name="logo"/>
 			<text name="parcel_title" value="SampleParcel, Name Long"/>
 			<text name="region_title">
-				リージョン(地域): [REGIONAMEPOS]
+				地域(リージョン): [REGIONAMEPOS]
 			</text>
 			<text name="parcel_owner_label" value="所有者:"/>
 			<text name="parcel_owner" value="一時的な所有者"/>
 			<expandable_text name="description" value="Du waltz die spritz"/>
-			<icon name="maturity_icon"/>
 			<text name="maturity_value" value="不明"/>
 			<panel name="landmark_info_panel">
-				<view_border name="lod_tab_border"/>
 				<text name="this_landmark">
 					ランドマーク:
 				</text>
 				<text name="owner_label" value="所有者:"/>
-				<text name="owner"/>
 				<text name="creator_label" value="作成者:"/>
-				<text name="creator"/>
 				<text name="created_label" value="作成日:"/>
-				<text name="created"/>
 			</panel>
 			<panel name="landmark_edit_panel">
-				<text value="タイトル:"/>
-				<line_editor name="title_value"/>
+				<text name="title_label" value="タイトル:"/>
 				<button name="edit_btn" tool_tip="ランドマーク情報を編集"/>
-				<line_editor name="title_editor"/>
 				<text name="notes_label" value="ノート:"/>
-				<text_editor name="notes_editor"/>
 				<text name="folder_label" value="ランドマークの場所:"/>
-				<combo_box name="folder_combo"/>
 			</panel>
 		</panel>
 	</scroll_container>

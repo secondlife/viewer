@@ -1,586 +1,190 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- legacy_header_height="18"
- can_minimize="false"
- height="645"
- layout="topleft"
- name="Animation Preview"
- help_topic="animation_preview"
- width="280">
-    <floater.string
-     name="failed_to_initialize">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater legacy_header_height="18" can_minimize="false" height="645" layout="topleft" name="Animation Preview" help_topic="animation_preview" width="280">
+	<floater.string name="failed_to_initialize">
         Failed to initialize motion
     </floater.string>
-    <floater.string
-     name="anim_too_long">
+	<floater.string name="anim_too_long">
         Animation file is [LENGTH] seconds in length.
 
 Maximum animation length is [MAX_LENGTH] seconds.
     </floater.string>
-    <floater.string
-     name="failed_file_read">
+	<floater.string name="failed_file_read">
         Unable to read animation file.
 
 [STATUS]
     </floater.string>
-    <floater.string
-     name="E_ST_OK">
+	<floater.string name="E_ST_OK">
         Ok
     </floater.string>
-    <floater.string
-     name="E_ST_EOF">
+	<floater.string name="E_ST_EOF">
         Premature end of file.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_CONSTRAINT">
+	<floater.string name="E_ST_NO_CONSTRAINT">
         Cannot read constraint definition.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_FILE">
+	<floater.string name="E_ST_NO_FILE">
         Cannot open BVH file.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_HIER">
+	<floater.string name="E_ST_NO_HIER">
         Invalid HIERARCHY header.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_JOINT">
+	<floater.string name="E_ST_NO_JOINT">
         Cannot find ROOT or JOINT.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_NAME">
+	<floater.string name="E_ST_NO_NAME">
         Cannot get JOINT name.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_OFFSET">
+	<floater.string name="E_ST_NO_OFFSET">
         Cannot find OFFSET.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_CHANNELS">
+	<floater.string name="E_ST_NO_CHANNELS">
         Cannot find CHANNELS.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_ROTATION">
+	<floater.string name="E_ST_NO_ROTATION">
         Cannot get rotation order.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_AXIS">
+	<floater.string name="E_ST_NO_AXIS">
         Cannot get rotation axis.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_MOTION">
+	<floater.string name="E_ST_NO_MOTION">
         Cannot find MOTION.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_FRAMES">
+	<floater.string name="E_ST_NO_FRAMES">
         Cannot get number of frames.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_FRAME_TIME">
+	<floater.string name="E_ST_NO_FRAME_TIME">
         Cannot get frame time.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_POS">
+	<floater.string name="E_ST_NO_POS">
         Cannot get position values.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_ROT">
+	<floater.string name="E_ST_NO_ROT">
         Cannot get rotation values.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_FILE">
+	<floater.string name="E_ST_NO_XLT_FILE">
         Cannot open translation file.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_HEADER">
+	<floater.string name="E_ST_NO_XLT_HEADER">
         Cannot read translation header.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_NAME">
+	<floater.string name="E_ST_NO_XLT_NAME">
         Cannot read translation names.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_IGNORE">
+	<floater.string name="E_ST_NO_XLT_IGNORE">
         Cannot read translation ignore value.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_RELATIVE">
+	<floater.string name="E_ST_NO_XLT_RELATIVE">
         Cannot read translation relative value.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_OUTNAME">
+	<floater.string name="E_ST_NO_XLT_OUTNAME">
         Cannot read translation outname value.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_MATRIX">
+	<floater.string name="E_ST_NO_XLT_MATRIX">
         Cannot read translation matrix.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_MERGECHILD">
+	<floater.string name="E_ST_NO_XLT_MERGECHILD">
         Cannot get mergechild name.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_MERGEPARENT">
+	<floater.string name="E_ST_NO_XLT_MERGEPARENT">
         Cannot get mergeparent name.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_PRIORITY">
+	<floater.string name="E_ST_NO_XLT_PRIORITY">
         Cannot get priority value.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_LOOP">
+	<floater.string name="E_ST_NO_XLT_LOOP">
         Cannot get loop value.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_EASEIN">
+	<floater.string name="E_ST_NO_XLT_EASEIN">
         Cannot get easeIn values.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_EASEOUT">
+	<floater.string name="E_ST_NO_XLT_EASEOUT">
         Cannot get easeOut values.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_HAND">
+	<floater.string name="E_ST_NO_XLT_HAND">
         Cannot get hand morph value.
     </floater.string>
-    <floater.string
-     name="E_ST_NO_XLT_EMOTE">
+	<floater.string name="E_ST_NO_XLT_EMOTE">
         Cannot read emote name.
     </floater.string>
-    <floater.string
-     name="E_ST_BAD_ROOT">
+	<floater.string name="E_ST_BAD_ROOT">
         Incorrect root joint name, use "hip".
     </floater.string>
-  <text
-     type="string"
-     length="1"
-     bottom="42"
-     follows="top|left"
-     height="23"
-     layout="topleft"
-     left="10"
-     name="name_label">
+	<text type="string" length="1" bottom="42" follows="top|left" height="23" layout="topleft" left="10" name="name_label">
         Name:
     </text>
-    <line_editor
-     bottom_delta="0"
-     follows="top|left|right"
-     height="23"
-     layout="topleft"
-     left="100"
-     name="name_form"
-     right="-10" />
-    <text
-     type="string"
-     length="1"
-     top_pad="5"
-     follows="top|left"
-     height="23"
-     layout="topleft"
-     left="10"
-     name="description_label">
+	<line_editor bottom_delta="0" follows="top|left|right" height="23" layout="topleft" left="100" name="name_form" right="-10"/>
+	<text type="string" length="1" top_pad="5" follows="top|left" height="23" layout="topleft" left="10" name="description_label">
         Description:
     </text>
-    <line_editor
-     bottom_delta="0"
-     follows="top|left|right"
-     height="23"
-     layout="topleft"
-     left="100"
-     name="description_form"
-     right="-10" />
-    <spinner
-     decimal_digits="0"
-     follows="left|top"
-     height="23"
-     increment="1"
-     initial_value="0"
-     label="Priority"
-     label_width="88"
-     layout="topleft"
-     left="10"
-     max_val="4"
-     name="priority"
-     tool_tip="Controls which other animations can be overridden by this animation"
-     width="160" />
-    <check_box
-     top_pad="0"
-     height="14"
-     label="Loop"
-     layout="topleft"
-     left="10"
-     width="100"
-     name="loop_check"
-     tool_tip="Makes this animation loop" />
-    <spinner
-     follows="left|top"
-     height="23"
-     increment="1"
-     initial_value="0"
-     label="In(%)"
-     label_width="70"
-     layout="topleft"
-     top_pad="5"
-     left="15"
-     max_val="100"
-     name="loop_in_point"
-     tool_tip="Sets point in animation that looping returns to"
-     width="130" />
-    <spinner
-     bottom_delta="0"
-     follows="left|top"
-     height="23"
-     increment="1"
-     initial_value="0"
-     label="Out(%)"
-     layout="topleft"
-     left_pad="10"
-     max_val="100"
-     name="loop_out_point"
-     tool_tip="Sets point in animation that ends a loop"
-     label_width="60"
-     width="120" />
-    <text
-     type="string"
-     length="1"
-     top_pad="0"
-     follows="top|left"
-     height="23"
-     width="110"
-     word_wrap="true"
-     layout="topleft"
-     left="10"
-     name="hand_label">
+	<line_editor bottom_delta="0" follows="top|left|right" height="23" layout="topleft" left="100" name="description_form" right="-10"/>
+	<spinner decimal_digits="0" follows="left|top" height="23" increment="1" initial_value="0" label="Priority" label_width="88" layout="topleft" left="10" max_val="4" name="priority" tool_tip="Controls which other animations can be overridden by this animation" width="160"/>
+	<check_box top_pad="0" height="14" label="Loop" layout="topleft" left="10" width="100" name="loop_check" tool_tip="Makes this animation loop"/>
+	<spinner follows="left|top" height="23" increment="1" initial_value="0" label="In(%)" label_width="70" layout="topleft" top_pad="5" left="15" max_val="100" name="loop_in_point" tool_tip="Sets point in animation that looping returns to" width="130"/>
+	<spinner bottom_delta="0" follows="left|top" height="23" increment="1" initial_value="0" label="Out(%)" layout="topleft" left_pad="10" max_val="100" name="loop_out_point" tool_tip="Sets point in animation that ends a loop" label_width="60" width="120"/>
+	<text type="string" length="1" top_pad="0" follows="top|left" height="23" width="110" word_wrap="true" layout="topleft" left="10" name="hand_label">
         Hand Pose
     </text>
-    <combo_box
-     height="23"
-     layout="topleft"
-     left_pad="20"
-     name="hand_pose_combo"
-     tool_tip="Controls what hands do during animation"
-     width="130">
-        <combo_box.item
-         label="Spread"
-         name="Spread"
-         value="" />
-        <combo_box.item
-         label="Relaxed"
-         name="Relaxed"
-         value="Hands_Relaxed" />
-        <combo_box.item
-         label="Point Both"
-         name="PointBoth"
-         value="Hands_Point" />
-        <combo_box.item
-         label="Fist"
-         name="Fist"
-         value="Hands_Fist" />
-        <combo_box.item
-         label="Relaxed Left"
-         name="RelaxedLeft"
-         value="Hands_Relaxed_L" />
-        <combo_box.item
-         label="Point Left"
-         name="PointLeft"
-         value="Hands_Point_L" />
-        <combo_box.item
-         label="Fist Left"
-         name="FistLeft"
-         value="Hands_Fist_L" />
-        <combo_box.item
-         label="Relaxed Right"
-         name="RelaxedRight"
-         value="Hands_Relaxed_R" />
-        <combo_box.item
-         label="Point Right"
-         name="PointRight"
-         value="Hands_Point_R" />
-        <combo_box.item
-         label="Fist Right"
-         name="FistRight"
-         value="Hands_Fist_R" />
-        <combo_box.item
-         label="Salute Right"
-         name="SaluteRight"
-         value="Hands_Salute_R" />
-        <combo_box.item
-         label="Typing"
-         name="Typing"
-         value="Hands_Typing" />
-        <combo_box.item
-         label="Peace Right"
-         name="PeaceRight"
-         value="Hands_Peace_R" />
-    </combo_box>
-    <text
-     type="string"
-     length="1"
-     top_pad="5"
-     follows="top|left"
-     height="23"
-     width="110"
-     word_wrap="true"
-     layout="topleft"
-     left="10"
-     name="emote_label">
+	<combo_box height="23" layout="topleft" left_pad="20" name="hand_pose_combo" tool_tip="Controls what hands do during animation" width="130">
+		<combo_box.item label="Spread" name="Spread" value=""/>
+		<combo_box.item label="Relaxed" name="Relaxed" value="Hands_Relaxed"/>
+		<combo_box.item label="Point Both" name="PointBoth" value="Hands_Point"/>
+		<combo_box.item label="Fist" name="Fist" value="Hands_Fist"/>
+		<combo_box.item label="Relaxed Left" name="RelaxedLeft" value="Hands_Relaxed_L"/>
+		<combo_box.item label="Point Left" name="PointLeft" value="Hands_Point_L"/>
+		<combo_box.item label="Fist Left" name="FistLeft" value="Hands_Fist_L"/>
+		<combo_box.item label="Relaxed Right" name="RelaxedRight" value="Hands_Relaxed_R"/>
+		<combo_box.item label="Point Right" name="PointRight" value="Hands_Point_R"/>
+		<combo_box.item label="Fist Right" name="FistRight" value="Hands_Fist_R"/>
+		<combo_box.item label="Salute Right" name="SaluteRight" value="Hands_Salute_R"/>
+		<combo_box.item label="Typing" name="Typing" value="Hands_Typing"/>
+		<combo_box.item label="Peace Right" name="PeaceRight" value="Hands_Peace_R"/>
+	</combo_box>
+	<text type="string" length="1" top_pad="5" follows="top|left" height="23" width="110" word_wrap="true" layout="topleft" left="10" name="emote_label">
         Expression
     </text>
-    <combo_box
-     height="23"
-     width="130"
-     layout="topleft"
-     left_pad="20"
-     name="emote_combo"
-     tool_tip="Controls what face does during animation">
-      <item
-       label="(None)"
-       value=""
-       name="[None]" />
-      <item
-       label="Aaaaah"
-       value="Aaaaah"
-       name="Aaaaah" />
-      <item
-       label="Afraid"
-       value="Afraid"
-       name="Afraid" />
-      <item
-       label="Angry"
-       value="Angry"
-       name="Angry" />
-      <item
-       label="Big Smile"
-       value="Big Smile"
-       name="BigSmile" />
-      <item
-       label="Bored"
-       value="Bored"
-       name="Bored" />
-      <item
-       label="Cry"
-       value="Cry"
-       name="Cry" />
-      <item
-       label="Disdain"
-       value="Disdain"
-       name="Disdain" />
-      <item
-       label="Embarrassed"
-       value="Embarrassed"
-       name="Embarrassed" />
-      <item
-       label="Frown"
-       value="Frown"
-       name="Frown" />
-      <item
-       label="Kiss"
-       value="Kiss"
-       name="Kiss" />
-      <item
-       label="Laugh"
-       value="Laugh"
-       name="Laugh" />
-      <item
-       label="Plllppt"
-       value="Plllppt"
-       name="Plllppt" />
-      <item
-       label="Repulsed"
-       value="Repulsed"
-       name="Repulsed" />
-      <item
-       label="Sad"
-       value="Sad"
-       name="Sad" />
-      <item
-       label="Shrug"
-       value="Shrug"
-       name="Shrug" />
-      <item
-       label="Smile"
-       value="Smile" 
-       name="Smile" />
-      <item
-       label="Surprise"
-       value="Surprise" 
-       name="Surprise" />
-      <item
-       label="Wink"
-       value="Wink"
-       name="Wink" />
-      <item
-       label="Worry"
-       value="Worry"
-       name="Worry" />
-    </combo_box>
-    <text
-     type="string"
-     length="1"
-     top_pad="5"
-     follows="top|left"
-     height="23"
-     width="110"
-     word_wrap="true"
-     layout="topleft"
-     left="10"
-     name="preview_label">
+	<combo_box height="23" width="130" layout="topleft" left_pad="20" name="emote_combo" tool_tip="Controls what face does during animation">
+		<item label="(None)" value="" name="[None]"/>
+		<item label="Aaaaah" value="Aaaaah" name="Aaaaah"/>
+		<item label="Afraid" value="Afraid" name="Afraid"/>
+		<item label="Angry" value="Angry" name="Angry"/>
+		<item label="Big Smile" value="Big Smile" name="BigSmile"/>
+		<item label="Bored" value="Bored" name="Bored"/>
+		<item label="Cry" value="Cry" name="Cry"/>
+		<item label="Disdain" value="Disdain" name="Disdain"/>
+		<item label="Embarrassed" value="Embarrassed" name="Embarrassed"/>
+		<item label="Frown" value="Frown" name="Frown"/>
+		<item label="Kiss" value="Kiss" name="Kiss"/>
+		<item label="Laugh" value="Laugh" name="Laugh"/>
+		<item label="Plllppt" value="Plllppt" name="Plllppt"/>
+		<item label="Repulsed" value="Repulsed" name="Repulsed"/>
+		<item label="Sad" value="Sad" name="Sad"/>
+		<item label="Shrug" value="Shrug" name="Shrug"/>
+		<item label="Smile" value="Smile" name="Smile"/>
+		<item label="Surprise" value="Surprise" name="Surprise"/>
+		<item label="Wink" value="Wink" name="Wink"/>
+		<item label="Worry" value="Worry" name="Worry"/>
+	</combo_box>
+	<text type="string" length="1" top_pad="5" follows="top|left" height="23" width="110" word_wrap="true" layout="topleft" left="10" name="preview_label">
         Preview while
     </text>
-    <combo_box
-     height="23"
-     width="130"
-     layout="topleft"
-     left_pad="20"
-     name="preview_base_anim"
-     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
-        <item
-         label="Standing"
-         value="Standing"
-         name="Standing" />
-        <item
-         label="Walking"
-         value="Walking"
-         name="Walking" />
-        <item
-         label="Sitting"
-         value="Sitting"
-         name="Sitting" />
-        <item
-         label="Flying"
-         value="Flying"
-         name="Flying" />
-    </combo_box>
-    <spinner
-     follows="left|top"
-     height="23"
-     increment="0.01"
-     initial_value="0"
-     label="Ease In (sec)"
-     label_width="140"
-     layout="topleft"
-     left="10"
-     max_val="10"
-     name="ease_in_time"
-     tool_tip="Amount of time (in seconds) over which animations blends in"
-     top_pad="10"
-     width="210" />
-    <spinner
-     follows="left|top"
-     height="23"
-     increment="0.01"
-     initial_value="0"
-     label="Ease Out (sec)"
-     label_width="140"
-     layout="topleft"
-     top_pad="0"
-     max_val="10"
-     name="ease_out_time"
-     tool_tip="Amount of time (in seconds) over which animations blends out"
-     width="210" />
-    <button
-     follows="top|right"
-     height="23"
-     image_overlay="Play_Over"
-     image_unselected="SegmentedBtn_Left_Off"
-     image_selected="SegmentedBtn_Left_On_Selected"
-	 image_disabled_selected="SegmentedBtn_Left_Selected_Disabled"
-	 image_disabled="SegmentedBtn_Left_Disabled"
-	 image_pressed="SegmentedBtn_Left_Press"
-	 image_pressed_selected="SegmentedBtn_Left_Selected_Press"
-     layout="topleft"
-     left="10"
-     name="play_btn"
-     tool_tip="Play your animation"
-     top_pad="0"
-     width="23" />
-    <button
-	 visible = "false"
-     follows="top|right"
-     height="23"
-     image_overlay="Pause_Over"
-     image_unselected="SegmentedBtn_Left_Off"
-     image_selected="SegmentedBtn_Left_On_Selected"
-	 image_disabled_selected="SegmentedBtn_Left_Selected_Disabled"
-	 image_disabled="SegmentedBtn_Left_Disabled"
-	 image_pressed="SegmentedBtn_Left_Press"
-	 image_pressed_selected="SegmentedBtn_Left_Selected_Press"
-     layout="topleft"
-     left="10"
-     name="pause_btn"
-     tool_tip="Pause your animation"
-     top_pad="-23"
-     width="23" />	 
-    <button
-     follows="top|right"
-     height="23"
-     image_overlay="StopReload_Over"
-     image_unselected="SegmentedBtn_Right_Off"
-     image_selected="SegmentedBtn_Right_On_Selected"
-	 image_disabled_selected="SegmentedBtn_Right_Selected_Disabled"
-	 image_disabled="SegmentedBtn_Right_Disabled"
-	 image_pressed="SegmentedBtn_Right_Press"
-	 image_pressed_selected="SegmentedBtn_Right_Selected_Press"
-     layout="topleft"
-     name="stop_btn"
-     tool_tip="Stop animation playback"
-     top_delta="0"
-     left_delta="23"
-     width="23" />
-    <slider
-     left_pad="10"
-     follows="top|right"
-     height="23"
-     width="200"
-     increment="0.0001"
-     initial_value="0"
-     layout="topleft"
-     name="playback_slider"
-     show_text="false" />
-    <text
-     type="string"
-     length="1"
-     height="72"
-     word_wrap="true"
-     top_pad="5"
-     text_color="EmphasisColor"
-     follows="top|left"
-     layout="topleft"
-     left="70"
-     name="bad_animation_text">
+	<combo_box height="23" width="130" layout="topleft" left_pad="20" name="preview_base_anim" tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
+		<item label="Standing" value="Standing" name="Standing"/>
+		<item label="Walking" value="Walking" name="Walking"/>
+		<item label="Sitting" value="Sitting" name="Sitting"/>
+		<item label="Flying" value="Flying" name="Flying"/>
+	</combo_box>
+	<spinner follows="left|top" height="23" increment="0.01" initial_value="0" label="Ease In (sec)" label_width="140" layout="topleft" left="10" max_val="10" name="ease_in_time" tool_tip="Amount of time (in seconds) over which animations blends in" top_pad="10" width="210"/>
+	<spinner follows="left|top" height="23" increment="0.01" initial_value="0" label="Ease Out (sec)" label_width="140" layout="topleft" top_pad="0" max_val="10" name="ease_out_time" tool_tip="Amount of time (in seconds) over which animations blends out" width="210"/>
+	<button follows="top|right" height="23" image_overlay="Play_Over" image_unselected="SegmentedBtn_Left_Off" image_selected="SegmentedBtn_Left_On_Selected" image_disabled_selected="SegmentedBtn_Left_Selected_Disabled" image_disabled="SegmentedBtn_Left_Disabled" image_pressed="SegmentedBtn_Left_Press" image_pressed_selected="SegmentedBtn_Left_Selected_Press" layout="topleft" left="10" name="play_btn" tool_tip="Play your animation" top_pad="0" width="23"/>
+	<button visible="false" follows="top|right" height="23" image_overlay="Pause_Over" image_unselected="SegmentedBtn_Left_Off" image_selected="SegmentedBtn_Left_On_Selected" image_disabled_selected="SegmentedBtn_Left_Selected_Disabled" image_disabled="SegmentedBtn_Left_Disabled" image_pressed="SegmentedBtn_Left_Press" image_pressed_selected="SegmentedBtn_Left_Selected_Press" layout="topleft" left="10" name="pause_btn" tool_tip="Pause your animation" top_pad="-23" width="23"/>
+	<button follows="top|right" height="23" image_overlay="StopReload_Over" image_unselected="SegmentedBtn_Right_Off" image_selected="SegmentedBtn_Right_On_Selected" image_disabled_selected="SegmentedBtn_Right_Selected_Disabled" image_disabled="SegmentedBtn_Right_Disabled" image_pressed="SegmentedBtn_Right_Press" image_pressed_selected="SegmentedBtn_Right_Selected_Press" layout="topleft" name="stop_btn" tool_tip="Stop animation playback" top_delta="0" left_delta="23" width="23"/>
+	<slider left_pad="10" follows="top|right" height="23" width="200" increment="0.0001" initial_value="0" layout="topleft" name="playback_slider" show_text="false"/>
+	<text type="string" length="1" height="72" word_wrap="true" top_pad="5" text_color="EmphasisColor" follows="top|left" layout="topleft" left="70" name="bad_animation_text">
         Unable to read animation file.
 
 We recommend BVH files exported from Poser 4.
     </text>
-    <button
-    	top="580"
-     follows="bottom|left"
-     height="23"
-     label="Upload (L$[AMOUNT])"
-     layout="topleft"
-     left="10"
-     name="ok_btn"
-     width="128" />
-    <button
-    	top="580"
-     follows="bottom|left"
-     height="23"
-     label="Cancel"
-     layout="topleft"
-     name="cancel_btn"
-     left="142"
-     width="128" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="35"
-     layout="topleft"
-     left="10"
-     mouse_opaque="false"
-     skip_link_underline="true"
-     name="info_text"
-     word_wrap="true"
-     top_pad="10"
-     width="270"/>
+	<button top="580" follows="bottom|left" height="23" label="Upload (L$[AMOUNT])" layout="topleft" left="10" name="ok_btn" width="128"/>
+	<button top="580" follows="bottom|left" height="23" label="Cancel" layout="topleft" name="cancel_btn" left="142" width="128"/>
+	<text type="string" length="1" follows="left|top" height="35" layout="topleft" left="10" mouse_opaque="false" skip_link_underline="true" name="info_text" word_wrap="true" top_pad="10" width="270"/>
 </floater>
