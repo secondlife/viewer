@@ -391,6 +391,7 @@ LLViewerObject::~LLViewerObject()
 	sNumObjects--;
 	sNumZombieObjects--;
 	llassert(mChildList.size() == 0);
+    llassert(mControlAvatar.isNull()); // Should have been cleaned by now
 
 	clearInventoryListeners();
 }
@@ -3105,6 +3106,10 @@ void LLViewerObject::updateControlAvatar()
     {
         return;
     }
+
+    // caller isn't supposed to operate on a dead object,
+    // avatar was already cleaned up
+    llassert(!isDead());
 
     bool should_have_control_avatar = false;
     if (is_animated_object)
