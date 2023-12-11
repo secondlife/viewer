@@ -4229,7 +4229,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     LLObjectSignaledAnimationMap::instance().getMap()[uuid] = signaled_anims;
     
     LLViewerObject *objp = gObjectList.findObject(uuid);
-    if (!objp)
+    if (!objp || objp->isDead())
     {
 		LL_DEBUGS("AnimatedObjectsNotify") << "Received animation state for unknown object " << uuid << LL_ENDL;
         return;
