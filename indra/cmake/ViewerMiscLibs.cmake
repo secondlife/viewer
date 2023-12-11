@@ -16,5 +16,10 @@ if( NOT USE_CONAN )
   use_prebuilt_binary(libhunspell)
 endif()
 
-use_prebuilt_binary(slvoice)
+if (INSTALL_PROPRIETARY)
+  set(USE_SLVOICE ON CACHE BOOL "Using slvoice for voice feature.")
+endif ()
 
+if( USE_SLVOICE )
+  use_prebuilt_binary(slvoice)
+endif()

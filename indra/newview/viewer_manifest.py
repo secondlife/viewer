@@ -573,11 +573,11 @@ class Windows_x86_64_Manifest(ViewerManifest):
 
             # SLVoice executable
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("SLVoice.exe")
+                self.path_optional("SLVoice.exe")
 
             # Vivox libraries
-            self.path("vivoxsdk_x64.dll")
-            self.path("ortp_x64.dll")
+            self.path_optional("vivoxsdk_x64.dll")
+            self.path_optional("ortp_x64.dll")
             
             # OpenSSL
             self.path("libcrypto-1_1-x64.dll")
@@ -1372,12 +1372,12 @@ class Linux_i686_Manifest(LinuxManifest):
 
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
-            self.path("SLVoice")
+            self.path_optional("SLVoice")
         with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libortp.so")
-            self.path("libsndfile.so.1")
+            self.path_optional("libortp.so")
+            self.path_optional("libsndfile.so.1")
             #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
-            self.path("libvivoxsdk.so")
+            self.path_optional("libvivoxsdk.so")
 
         self.strip_binaries()
 

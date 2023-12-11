@@ -262,21 +262,23 @@ endif(WINDOWS)
 # It's unclear whether this is oversight or intentional, but anyway leave the
 # single copy_if_different command rather than using to_staging_dirs.
 
-if( slvoice_src_dir )
-    copy_if_different(
-            ${slvoice_src_dir}
-            "${SHARED_LIB_STAGING_DIR_RELEASE}"
-            out_targets
-            ${slvoice_files}
-    )
-    list(APPEND third_party_targets ${out_targets})
-endif()
+if( USE_SLVOICE )
+  if( slvoice_src_dir )
+      copy_if_different(
+              ${slvoice_src_dir}
+              "${SHARED_LIB_STAGING_DIR_RELEASE}"
+              out_targets
+              ${slvoice_files}
+      )
+      list(APPEND third_party_targets ${out_targets})
+  endif()
 
-to_staging_dirs(
-    ${vivox_lib_dir}
-    third_party_targets
-    ${vivox_libs}
-    )
+  to_staging_dirs(
+      ${vivox_lib_dir}
+      third_party_targets
+      ${vivox_libs}
+      )
+endif()
 
 to_staging_dirs(
     ${release_src_dir}
