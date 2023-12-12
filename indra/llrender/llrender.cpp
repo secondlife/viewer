@@ -1580,7 +1580,12 @@ void LLRender::flush()
 	if (mCount > 0)
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-        llassert(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+        if (!LLGLSLShader::sCurBoundShaderPtr)
+        {
+            // The shader was not created yet? Report and shatdown the application
+            LL_ERRS() << "There are graphical problems (no shader), try updating driver" << LL_ENDL;
+        }
+
 		if (!mUIOffset.empty())
 		{
 			sUICalls++;
@@ -1590,28 +1595,28 @@ void LLRender::flush()
 		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
 		U32 count = mCount;
 
-			if (mMode == LLRender::QUADS && !sGLCoreProfile)
+		if (mMode == LLRender::QUADS && !sGLCoreProfile)
+		{
+			if (mCount%4 != 0)
 			{
-				if (mCount%4 != 0)
-				{
 				count -= (mCount % 4);
 				LL_WARNS() << "Incomplete quad requested." << LL_ENDL;
-				}
 			}
-			
-			if (mMode == LLRender::TRIANGLES)
+		}
+
+		if (mMode == LLRender::TRIANGLES)
+		{
+			if (mCount%3 != 0)
 			{
-				if (mCount%3 != 0)
-				{
 				count -= (mCount % 3);
 				LL_WARNS() << "Incomplete triangle requested." << LL_ENDL;
-				}
 			}
-			
-			if (mMode == LLRender::LINES)
+		}
+
+		if (mMode == LLRender::LINES)
+		{
+			if (mCount%2 != 0)
 			{
-				if (mCount%2 != 0)
-				{
 				count -= (mCount % 2);
 				LL_WARNS() << "Incomplete line requested." << LL_ENDL;
 			}
