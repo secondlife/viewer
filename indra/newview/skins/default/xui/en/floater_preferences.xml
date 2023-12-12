@@ -171,12 +171,12 @@
          help_topic="preferences_controls_tab"
          name="controls" />
         <panel
-         class="panel_preference_game_controls"
-         filename="panel_preferences_game_controls.xml"
-         label="Game Controls"
+         class="panel_preference_game_control"
+         filename="panel_preferences_game_control.xml"
+         label="Game Control"
          layout="topleft"
-         help_topic="preferences_game_controls_tab"
-         name="gamecontrols" />
+         help_topic="preferences_game_control_tab"
+         name="game_control" />
     </tab_container>
 
 </floater>

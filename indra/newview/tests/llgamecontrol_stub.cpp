@@ -24,34 +24,13 @@
  * $/LicenseInfo$
  */
 
+#pragma once
+
 #include "llgamecontrol.h"
 
 #include "SDL2/SDL_events.h"
 
-
-void LLGameControl::addKeyButtonMap(U16 key, U8 button)
-{
-}
-
-void LLGameControl::removeKeyButtonMap(U16 key)
-{
-}
-
-void LLGameControl::addKeyAxisMap(U16 key, U8 axis, bool positive)
-{
-}
-
-void LLGameControl::removeKeyAxisMap(U16 key)
-{
-}
-
-void LLGameControl::onKeyDown(U16 key, U32 mask)
-{
-}
-
-void LLGameControl::onKeyUp(U16 key, U32 mask)
-{
-}
+LLGameControl::State g_state;
 
 // static
 bool LLGameControl::isInitialized()
@@ -70,7 +49,51 @@ void LLGameControl::terminate()
 }
 
 // static
+bool LLGameControl::computeFinalStateAndCheckForChanges()
+{
+    return false;
+}
+
+// static
+void LLGameControl::clearAllState()
+{
+}
+
+// static
 void LLGameControl::processEvents(bool app_has_focus)
+{
+}
+
+// static
+const LLGameControl::State& LLGameControl::getState()
+{
+    return g_state;
+}
+
+// static
+void LLGameControl::setIncludeKeyboard(bool include)
+{
+}
+
+// static
+bool LLGameControl::getIncludeKeyboard()
+{
+    return false;
+}
+
+// static
+LLGameControl::InputChannel LLGameControl::getChannelByActionName(const std::string& name)
+{
+    return LLGameControl::InputChannel();
+}
+
+// static
+void LLGameControl::addActionMapping(const std::string& name, LLGameControl::InputChannel channel)
+{
+}
+
+// static
+void LLGameControl::setActionFlags(U32 action_flags)
 {
 }
 

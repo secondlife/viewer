@@ -33,6 +33,7 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
 #include "v3dmath.h"
@@ -488,10 +489,26 @@ public:
 private:
 	S32				mControlsTakenCount[TOTAL_CONTROLS];
 	S32				mControlsTakenPassedOnCount[TOTAL_CONTROLS];
-	U32				mControlFlags;					// Replacement for the mFooKey's
+    // mControlFlags is a bitmask of behavior instructions for compact
+    // transmission to the server.  It does NOT represent "input", rather
+    // the consequences of it, which will sometimes depend on "state".
+	U32				mControlFlags;
 	BOOL 			mbFlagsDirty;
 	BOOL 			mbFlagsNeedReset;				// ! HACK ! For preventing incorrect flags sent when crossing region boundaries
 	
+	//--------------------------------------------------------------------
+	// GameControls
+	//--------------------------------------------------------------------
+public:
+    void updateActionFlags(EKeystate s, S32 direction, U32 mask);
+    U32 getActionFlags() const;
+
+private:
+    // The "mActionFlags" bitmask stores "raw input" from key presses
+    // used for avatar/camera manipulation. It is used to translate mapped
+    // key presses to approximately equivalent input from a game controller.
+    U32 mActionFlags;
+
 	//--------------------------------------------------------------------
 	// Animations
 	//--------------------------------------------------------------------
@@ -544,7 +561,7 @@ public:
 	void			moveYaw(F32 mag, bool reset_view = true);
 	void			movePitch(F32 mag);
 
-	BOOL			isMovementLocked() const				{ return mMovementKeysLocked; }
+	BOOL			isMovementLocked() const			{ return mMovementKeysLocked; }
 	void			setMovementLocked(BOOL set_locked)	{ mMovementKeysLocked = set_locked; }
 
 	//--------------------------------------------------------------------

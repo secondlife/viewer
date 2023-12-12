@@ -36,6 +36,7 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
+#include "llgamecontroltranslator.h"
 #include "llsearcheditor.h"
 #include "llsetkeybinddialog.h"
 #include "llkeyconflict.h"
@@ -51,6 +52,7 @@ class LLScrollListCell;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
+class LLPanelPreferenceGameControl;
 
 namespace ll
 {
@@ -80,12 +82,12 @@ public:
 
 	void apply();
 	void cancel();
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/	void onClose(bool app_quitting);
-	/*virtual*/ void changed();
-	/*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
+	virtual void draw() override;
+	virtual BOOL postBuild() override;
+	virtual void onOpen(const LLSD& key) override;
+	virtual void onClose(bool app_quitting) override;
+	virtual void changed() override;
+	virtual void changed(const LLUUID& session_id, U32 mask) override {};
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility);
@@ -246,7 +248,7 @@ class LLPanelPreference : public LLPanel
 {
 public:
 	LLPanelPreference();
-	/*virtual*/ BOOL postBuild();
+	virtual BOOL postBuild() override;
 	
 	virtual ~LLPanelPreference();
 
@@ -292,10 +294,10 @@ private:
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
-	BOOL postBuild();
-	void draw();
-	void cancel();
-	void saveSettings();
+	BOOL postBuild() override;
+	void draw() override;
+	void cancel() override;
+	void saveSettings() override;
 	void resetDirtyChilds();
 	void setHardwareDefaults();
 	void setPresetText();
@@ -317,11 +319,11 @@ public:
 	LLPanelPreferenceControls();
 	virtual ~LLPanelPreferenceControls();
 
-	BOOL postBuild();
+	BOOL postBuild() override;
 
-	void apply();
-	void cancel();
-	void saveSettings();
+	void apply() override;
+	void cancel() override;
+	void saveSettings() override;
 	void resetDirtyChilds();
 
 	void onListCommit();
@@ -337,9 +339,9 @@ public:
     void updateAndApply();
 
     // from interface
-	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
-    /*virtual*/ void onDefaultKeyBind(bool all_modes);
-    /*virtual*/ void onCancelKeyBind();
+	bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes) override;
+    void onDefaultKeyBind(bool all_modes) override;
+    void onCancelKeyBind() override;
 
 private:
 	// reloads settings, discards current changes, updates table
@@ -362,6 +364,49 @@ private:
 	std::string mEditingControl;
 	S32 mEditingColumn;
 	S32 mEditingMode;
+};
+
+class LLPanelPreferenceGameControl : public LLPanelPreference
+{
+public:
+
+    enum InputType
+    {
+        TYPE_AXIS,
+        TYPE_BUTTON,
+        TYPE_UNKNOWN
+    };
+
+    LLPanelPreferenceGameControl();
+    ~LLPanelPreferenceGameControl();
+
+    void apply() override;
+    void loadDefaults();
+    void loadSettings();
+	void saveSettings() override;
+    void updateEnabledState();
+
+    //void onClickActionsAsGameControl();
+    void onClickActionsAsGameControl(LLUICtrl* ctrl);
+    //void onClickActionsAsGameControl(LLUICtrl* ctrl, const LLSD& data);
+    void onActionSelect();
+
+    //static void translateActionsToGameControl(U32 control_flags);
+    static bool isWaitingForInputChannel();
+    static void applyGameControlInput(const LLGameControl::InputChannel& channel);
+protected:
+    BOOL postBuild() override;
+
+    void populateTables();
+
+private:
+    bool addTableColumns(LLScrollListCtrl* table, const std::string &filename);
+    bool addTableRows(LLScrollListCtrl* table, const std::string &filename);
+    void addTableSeparator(LLScrollListCtrl* table);
+    void updateTable();
+
+	LLScrollListCtrl* mActionTable;
+    LLGameControlTranslator mActionTranslator;
 };
 
 class LLAvatarComplexityControls
@@ -388,7 +433,7 @@ public:
 	void cancel();
 	
 protected:
-	BOOL postBuild();
+	BOOL postBuild() override;
 	void onOpen(const LLSD& key);
 	void onClose(bool app_quitting);
 	void saveSettings();
