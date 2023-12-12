@@ -146,7 +146,9 @@ public:
     joint_state_map_t mCurrBodySizeState;
     void compareJointStateMaps(joint_state_map_t& last_state,
                                joint_state_map_t& curr_state);
-	void		computeBodySize();
+	void computeBodySize();
+    F32 computeBodyHeight();
+    F32 computePelvisToFoot();
 
 public:
 	typedef std::vector<LLAvatarJoint*> avatar_joint_list_t;
