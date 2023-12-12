@@ -101,7 +101,7 @@ public:
 	// update Show Favorites checkbox
 	static void updateShowFavoritesCheckbox(bool val);
 
-	void processProperties( void* pData, EAvatarProcessorType type );
+	void processProperties( void* pData, EAvatarProcessorType type ) override;
 	void saveAvatarProperties( void );
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
 	void selectPrivacyPanel();
@@ -170,7 +170,7 @@ public:
 	void setPersonalInfo(const std::string& visibility);
 	void refreshEnabledState();
 	void onCommitWindowedMode();
-	void refresh();	// Refresh enable/disable
+	void refresh() override; // Refresh enable/disable
 	// if the quality radio buttons are changed
 	void onChangeQuality(const LLSD& data);
 	
@@ -299,7 +299,7 @@ public:
 	void cancel() override;
 	void saveSettings() override;
 	void resetDirtyChilds();
-	void setHardwareDefaults();
+	void setHardwareDefaults() override;
 	void setPresetText();
 
 	static const std::string getPresetsPath();
@@ -383,7 +383,7 @@ public:
     void apply() override;
     void loadDefaults();
     void loadSettings();
-	void saveSettings() override;
+    void saveSettings() override;
     void updateEnabledState();
 
     //void onClickActionsAsGameControl();
@@ -404,8 +404,9 @@ private:
     bool addTableRows(LLScrollListCtrl* table, const std::string &filename);
     void addTableSeparator(LLScrollListCtrl* table);
     void updateTable();
+    LOG_CLASS(LLPanelPreferenceGameControl);
 
-	LLScrollListCtrl* mActionTable;
+    LLScrollListCtrl* mActionTable;
     LLGameControlTranslator mActionTranslator;
 };
 
@@ -434,12 +435,12 @@ public:
 	
 protected:
 	BOOL postBuild() override;
-	void onOpen(const LLSD& key);
-	void onClose(bool app_quitting);
+	void onOpen(const LLSD& key) override;
+	void onClose(bool app_quitting) override;
 	void saveSettings();
 	void onBtnOk();
 	void onBtnCancel();
-	void onClickCloseBtn(bool app_quitting = false);
+	void onClickCloseBtn(bool app_quitting = false) override;
 
 	void onChangeSocksSettings();
 
