@@ -1460,37 +1460,6 @@ LLVector3 LLAgent::getReferenceUpVector()
 //-----------------------------------------------------------------------------
 void LLAgent::pitch(F32 angle)
 {
-    // don't let user pitch if pointed almost all the way down or up
-
-    // A dot B = mag(A) * mag(B) * cos(angle between A and B)
-    // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
-    //                                  = A dot B for unit vectors
-
-    LLVector3 skyward = getReferenceUpVector();
-
-    // clamp pitch to limits
-    if (angle >= 0.f)
-    {
-        const F32 look_down_limit = 179.f * DEG_TO_RAD;
-        F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
-        if (angle_from_skyward + angle > look_down_limit)
-        {
-            angle = look_down_limit - angle_from_skyward;
-        }
-    }
-    else if (angle < 0.f)
-    {
-        const F32 look_up_limit = 5.f * DEG_TO_RAD;
-        const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
-        LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
-        LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
-        F32 angle_from_skyward = angle_between(look_dir, skyward);
-        if (angle_from_skyward + angle < look_up_limit)
-        {
-            angle = look_up_limit - angle_from_skyward;
-        }
-    }
-
     if (fabs(angle) > 1e-4)
     {
         mFrameAgent.pitch(angle);
@@ -4994,6 +4963,30 @@ void LLAgent::renderAutoPilotTarget()
 
         gGL.popMatrix();
     }
+}
+
+void LLAgent::updateActionFlags(EKeystate s, S32 direction, U32 mask)
+{
+    if (direction < 0)
+    {
+        // all NEG masks are one bit more than their POS counterpart
+        mask = mask << 1;
+    }
+    if ( KEYSTATE_UP == s )
+    {
+        // clear the mask bits
+        mActionFlags &= ~mask;
+    }
+    else
+    {
+        // set the mask bits
+        mActionFlags |= mask;
+    }
+}
+
+U32 LLAgent::getActionFlags() const
+{
+    return mActionFlags;
 }
 
 /********************************************************************************/

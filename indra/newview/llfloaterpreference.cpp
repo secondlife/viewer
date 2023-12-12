@@ -54,6 +54,7 @@
 #include "llfloaterperformance.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
+#include "llgamecontrol.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -2285,7 +2286,7 @@ public:
         mAccountIndependentSettings.push_back("AutoDisengageMic");
     }
 
-    /*virtual*/ void saveSettings()
+    void saveSettings() override
     {
         LLPanelPreference::saveSettings();
 
@@ -3092,6 +3093,266 @@ void LLPanelPreferenceControls::onCancelKeyBind()
 {
     pControlsTable->deselectAllItems();
 }
+
+//------------------------LLPanelPreferenceGameControl--------------------------------
+
+// LLPanelPreferenceGameControl is effectively a singleton, so we track its instance
+static LLPanelPreferenceGameControl* gGameControlPanel;
+
+LLPanelPreferenceGameControl::LLPanelPreferenceGameControl()
+{
+    gGameControlPanel = this;
+}
+
+LLPanelPreferenceGameControl::~LLPanelPreferenceGameControl()
+{
+    gGameControlPanel = nullptr;
+}
+
+static LLPanelInjector<LLPanelPreferenceGameControl> t_pref_game_control("panel_preference_game_control");
+
+void LLPanelPreferenceGameControl::apply()
+{
+}
+
+void LLPanelPreferenceGameControl::loadDefaults()
+{
+    // TODO: implement this
+}
+
+void LLPanelPreferenceGameControl::loadSettings()
+{
+    // TODO: implement this
+}
+
+void LLPanelPreferenceGameControl::saveSettings()
+{
+    // TODO: implement this
+}
+
+void LLPanelPreferenceGameControl::updateEnabledState()
+{
+
+}
+
+static LLScrollListItem* gSelectedItem { nullptr };
+
+void LLPanelPreferenceGameControl::onClickActionsAsGameControl(LLUICtrl* ctrl)
+{
+    LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
+    BOOL checked = check->get();
+    gSavedSettings.setBOOL( "InterpretControlActionsAsGameControl", checked );
+    mActionTable->deselectAllItems();
+    mActionTable->setEnabled(checked);
+}
+
+void LLPanelPreferenceGameControl::onActionSelect()
+{
+    LLScrollListItem* item = mActionTable->getFirstSelected();
+    gSelectedItem = nullptr;
+    if (item == NULL)
+    {
+        return;
+    }
+
+    std::string action = item->getValue();
+
+    if (action.empty())
+    {
+        mActionTable->deselectAllItems();
+        return;
+    }
+
+    S32 cell_index = item->getSelectedCell();
+    if (cell_index <= 0)
+    {
+        mActionTable->deselectAllItems();
+        return;
+    }
+
+    LLScrollListCell* cell = item->getColumn(cell_index);
+    if (cell)
+    {
+        gSelectedItem = item;
+    }
+    else
+    {
+        mActionTable->deselectAllItems();
+    }
+}
+
+// static
+bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
+{
+    return gSelectedItem != nullptr;
+}
+
+// static
+void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::InputChannel& channel)
+{
+    if (gSelectedItem && channel.mType != LLPanelPreferenceGameControl::TYPE_UNKNOWN)
+    {
+        S32 cell_index = gSelectedItem->getSelectedCell();
+        if (cell_index > 0)
+        {
+            LLScrollListCell* cell = gSelectedItem->getColumn(cell_index);
+            if (cell)
+            {
+                cell->setValue(channel.getLocalName());
+                LLGameControl::addActionMapping(gSelectedItem->getValue(), channel);
+                gGameControlPanel->updateTable();
+
+                // TODO?: also update the cell to the right with more human readable name
+            }
+        }
+        gSelectedItem = nullptr;
+    }
+}
+
+BOOL LLPanelPreferenceGameControl::postBuild()
+{
+    LLUICtrl* check = getChild<LLUICtrl>("control_actions_as_game_control");
+    check->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickActionsAsGameControl, this, _1));
+
+    mActionTable = getChild<LLScrollListCtrl>("action_table");
+    mActionTable->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onActionSelect, this));
+    populateTables();
+    return TRUE;
+}
+
+void LLPanelPreferenceGameControl::populateTables()
+{
+    loadSettings();
+    addTableColumns(mActionTable, "game_control_table_columns.xml");
+    addTableRows(mActionTable, "game_control_table_rows.xml");
+}
+
+bool LLPanelPreferenceGameControl::addTableColumns(LLScrollListCtrl* table, const std::string &filename)
+{
+    LLXMLNodePtr xmlNode;
+    LLScrollListCtrl::Contents contents;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
+    {
+        LL_WARNS("Preferences") << "Failed to load " << filename << LL_ENDL;
+        return false;
+    }
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+
+    if (!contents.validateBlock())
+    {
+        return false;
+    }
+
+    for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator col_it = contents.columns.begin();
+        col_it != contents.columns.end();
+        ++col_it)
+    {
+        table->addColumn(*col_it);
+    }
+
+    return true;
+}
+
+bool LLPanelPreferenceGameControl::addTableRows(LLScrollListCtrl* table, const std::string &filename)
+{
+    LLXMLNodePtr xmlNode;
+    LLScrollListCtrl::Contents contents;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
+    {
+        LL_WARNS("Preferences") << "Failed to load '" << filename << "'" << LL_ENDL;
+        return false;
+    }
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+
+    if (!contents.validateBlock())
+    {
+        return false;
+    }
+
+    LLScrollListCell::Params cell_params;
+    // init basic cell params
+    cell_params.font = LLFontGL::getFontSansSerif();
+    cell_params.font_halign = LLFontGL::LEFT;
+    cell_params.column = "";
+    cell_params.value = "";
+
+    // we expect the table to have at least three columns
+    if (table->getNumColumns() < 3)
+    {
+        LL_WARNS("Preferences") << "expected at least three columns in '" << filename << "'" << LL_ENDL;
+        return false;
+    }
+    LLScrollListColumn* local_channel_column = table->getColumn(1);
+    //LLScrollListColumn* remote_channel_column = table->getColumn(2);
+
+    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
+        row_it != contents.rows.end();
+        ++row_it)
+    {
+        std::string action = row_it->value.getValue().asString();
+        if (!action.empty() && action != "menu_separator")
+        {
+            LLScrollListItem::Params item_params(*row_it);
+            item_params.enabled.setValue(true);
+            size_t num_columns = item_params.columns.size();
+            // item_params should already have one column that was defined
+            // in XUI config file, and now we want to add two more
+            if (num_columns > 0)
+            {
+                //LLGameControl::InputChannel channel = mActionTranslator.getChannelByName(action);
+                LLGameControl::InputChannel channel = LLGameControl::getChannelByActionName(action);
+
+                cell_params.column = local_channel_column->mName;
+                cell_params.value = channel.getLocalName();
+                item_params.columns.add(cell_params);
+
+                /* TODO?: add a column with more human readable name
+                cell_params.column = remote_channel_column->mName;
+                cell_params.value = channel.getRemoteName();
+                item_params.columns.add(cell_params);
+                */
+            }
+            table->addRow(item_params, EAddPosition::ADD_BOTTOM);
+        }
+        else
+        {
+            // Separator example:
+            // <rows
+            //  enabled = "false">
+            //  <columns
+            //   type = "icon"
+            //   color = "0 0 0 0.7"
+            //   halign = "center"
+            //   value = "menu_separator"
+            //   column = "action" / >
+            //</rows>
+            table->addRow(*row_it, EAddPosition::ADD_BOTTOM);
+        }
+    }
+    return true;
+}
+
+void LLPanelPreferenceGameControl::addTableSeparator(LLScrollListCtrl* table)
+{
+    LLScrollListItem::Params separator_params;
+    separator_params.enabled(false);
+    LLScrollListCell::Params column_params;
+    column_params.type = "icon";
+    column_params.value = "menu_separator";
+    column_params.column = "action";
+    column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
+    column_params.font_halign = LLFontGL::HCENTER;
+    separator_params.columns.add(column_params);
+    table->addRow(separator_params, EAddPosition::ADD_BOTTOM);
+}
+
+void LLPanelPreferenceGameControl::updateTable()
+{
+    mActionTable->deselectAllItems();
+}
+
 
 LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
     : LLFloater(key),
