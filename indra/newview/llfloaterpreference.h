@@ -101,8 +101,7 @@ public:
     // update Show Favorites checkbox
     static void updateShowFavoritesCheckbox(bool val);
 
-    void processProperties( void* pData, EAvatarProcessorType type );
-    void saveAvatarProperties( void );
+    void processProperties( void* pData, EAvatarProcessorType type ) override;
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
     void selectPrivacyPanel();
     void selectChatPanel();
@@ -292,10 +291,10 @@ class LLPanelPreferenceGraphics : public LLPanelPreference
 public:
     bool postBuild() override;
     void draw() override;
-    void cancel(const std::vector<std::string> settings_to_skip = {});
+    void cancel(const std::vector<std::string> settings_to_skip = {}) override;
     void saveSettings() override;
     void resetDirtyChilds();
-    void setHardwareDefaults();
+    void setHardwareDefaults() override;
     void setPresetText();
 
     static const std::string getPresetsPath();
@@ -400,6 +399,7 @@ private:
     bool addTableRows(LLScrollListCtrl* table, const std::string &filename);
     void addTableSeparator(LLScrollListCtrl* table);
     void updateTable();
+    LOG_CLASS(LLPanelPreferenceGameControl);
 
     LLScrollListCtrl* mActionTable;
     LLGameControlTranslator mActionTranslator;
@@ -430,12 +430,12 @@ public:
 
 protected:
     bool postBuild() override;
-    void onOpen(const LLSD& key);
-    void onClose(bool app_quitting);
+    void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
     void saveSettings();
     void onBtnOk();
     void onBtnCancel();
-    void onClickCloseBtn(bool app_quitting = false);
+    void onClickCloseBtn(bool app_quitting = false) override;
 
     void onChangeSocksSettings();
 
