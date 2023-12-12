@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <llsd>
-<map>
+  <map>
     <key>version</key>
     <string>1.3</string>
     <key>type</key>
