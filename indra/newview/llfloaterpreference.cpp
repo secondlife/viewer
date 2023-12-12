@@ -3190,7 +3190,7 @@ bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 // static
 void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::InputChannel& channel)
 {
-    if (gSelectedItem && channel.mType != LLPanelPreferenceGameControl::TYPE_UNKNOWN)
+    if (gSelectedItem && channel.mType != (U8)(LLPanelPreferenceGameControl::TYPE_UNKNOWN))
     {
         S32 cell_index = gSelectedItem->getSelectedCell();
         if (cell_index > 0)
