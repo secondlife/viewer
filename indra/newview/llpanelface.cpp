@@ -4290,6 +4290,7 @@ void LLPanelFace::onCopyTexture()
                 te_data["te"]["bumpmap"] = tep->getBumpmap();
                 te_data["te"]["bumpshiny"] = tep->getBumpShiny();
                 te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
+                te_data["te"]["texgen"] = tep->getTexGen();
                 te_data["te"]["pbr"] = objectp->getRenderMaterialID(te);
                 if (tep->getGLTFMaterialOverride() != nullptr)
                 {
@@ -4685,6 +4686,11 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             {
                 objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
             }
+            if (te_data["te"].has("texgen"))
+            {
+                objectp->setTETexGen(te, (U8)te_data["te"]["texgen"].asInteger());
+            }
+
             // PBR/GLTF
             if (te_data["te"].has("pbr"))
             {
@@ -4796,11 +4802,11 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             LLSelectedTEMaterial::setSpecularOffsetX(this, (F32)te_data["material"]["SpecOffX"].asReal(), te, object_id);
             LLSelectedTEMaterial::setSpecularOffsetY(this, (F32)te_data["material"]["SpecOffY"].asReal(), te, object_id);
             LLSelectedTEMaterial::setSpecularRotation(this, (F32)te_data["material"]["SpecRot"].asReal(), te, object_id);
-            LLColor4 spec_color(te_data["material"]["SpecColor"]);
+            LLColor4U spec_color(te_data["material"]["SpecColor"]);
             LLSelectedTEMaterial::setSpecularLightColor(this, spec_color, te);
             LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
             LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
-            LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["DiffuseAlphaMode"].asInteger(), te, object_id);
             if (te_data.has("te") && te_data["te"].has("shiny"))
             {
                 objectp->setTEShiny(te, (U8)te_data["te"]["shiny"].asInteger());
