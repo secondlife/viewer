@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel
+    border="true"
+    follows="all"
+    height="408"
+    label="Game Controls"
+    layout="topleft"
+    left="102"
+    name="gamecontrol"
+    top="1"
+    width="517">
+    <check_box
+        control_name="EnableGameControl"
+        follows="top|left"
+        height="15"
+        label="Send GameControl Data to server"
+        layout="topleft"
+        left="10"
+        name="enable_game_control"
+        top="6"
+        width="232"/>
+    <check_box
+        control_name="InterpretControlActionsAsGameControl"
+        follows="top|left"
+        height="15"
+        label="Interpret keyboard Control Actions as GameControl Data"
+        layout="topleft"
+        left="10"
+        name="control_actions_as_game_control"
+        top="27"
+        width="232"/>
+    <scroll_list
+        draw_heading="true"
+        follows="all"
+        layout="topleft"
+        column_padding="0"
+        selection_type="header"
+        top="45"
+        left="3"
+        bottom="-3"
+        right="-3"
+        can_sort="false"
+        multi_select="false"
+        name="action_table"
+        fg_disable_color="ScrollUnselectedColor"/>
+</panel>

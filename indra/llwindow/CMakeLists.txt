@@ -22,6 +22,7 @@ include(SDL2)
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
     llgamecontrol.cpp
+    llgamecontroltranslator.cpp
     llkeyboard.cpp
     llkeyboardheadless.cpp
     llwindowheadless.cpp
@@ -34,6 +35,7 @@ set(llwindow_HEADER_FILES
 
     llcursortypes.h
     llgamecontrol.h
+    llgamecontroltranslator.h
     llkeyboard.h
     llkeyboardheadless.h
     llwindowheadless.h

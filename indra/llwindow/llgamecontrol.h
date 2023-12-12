@@ -42,6 +42,78 @@ class LLGameControl : public LLSingleton<LLGameControl>
     LOG_CLASS(LLGameControl);
 
 public:
+    enum KeyboardAxis
+    {
+        AXIS_LEFTX_NEG = 0,
+        AXIS_LEFTX_POS,
+        AXIS_LEFTY_NEG,
+        AXIS_LEFTY_POS,
+        AXIS_RIGHTX_NEG,
+        AXIS_RIGHTX_POS,
+        AXIS_RIGHTY_NEG,
+        AXIS_RIGHTY_POS,
+        AXIS_TRIGGERLEFT_NEG,
+        AXIS_TRIGGERLEFT_POS,
+        AXIS_TRIGGERRIGHT_NEG,
+        AXIS_TRIGGERRIGHT_POS,
+        AXIS_LAST
+    };
+
+    enum Button
+    {
+        BUTTON_A = 0,
+        BUTTON_B,
+        BUTTON_X,
+        BUTTON_Y,
+        BUTTON_BACK,
+        BUTTON_GUIDE,
+        BUTTON_START,
+        BUTTON_LEFTSTICK,
+        BUTTON_RIGHTSTICK,
+        BUTTON_LEFTSHOULDER,
+        BUTTON_RIGHTSHOULDER,
+        BUTTON_DPAD_UP,
+        BUTTON_DPAD_DOWN,
+        BUTTON_DPAD_LEFT,
+        BUTTON_DPAD_RIGHT,
+        BUTTON_MISC1,
+        BUTTON_PADDLE1,
+        BUTTON_PADDLE2,
+        BUTTON_PADDLE3,
+        BUTTON_PADDLE4,
+        BUTTON_TOUCHPAD,
+        BUTTON_21,
+        BUTTON_22,
+        BUTTON_23,
+        BUTTON_24,
+        BUTTON_25,
+        BUTTON_26,
+        BUTTON_27,
+        BUTTON_28,
+        BUTTON_29,
+        BUTTON_30,
+        BUTTON_31
+    };
+
+    class InputChannel
+    {
+    public:
+        enum Type
+        {
+            TYPE_AXIS,
+            TYPE_BUTTON,
+            TYPE_UNKNOWN
+        };
+
+        InputChannel() {}
+        InputChannel(Type type, U8 index) : mType(type), mIndex(index) {}
+        std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, etc
+        std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
+
+        Type mType { TYPE_UNKNOWN };
+        U8 mIndex { 255 };
+    };
+
     // State is a minimal class for storing axes and buttons values
     class State
     {
@@ -57,28 +129,27 @@ public:
 	static void init();
 	static void terminate();
 
-    static void addKeyButtonMap(U16 key, U8 button);
-    static void removeKeyButtonMap(U16 key);
-    static void addKeyAxisMap(U16 key, U8 axis, bool positive);
-    static void removeKeyAxisMap(U16 key);
-
-    static void onKeyDown(U16 key, U32 mask);
-    static void onKeyUp(U16 key, U32 mask);
-
     // returns 'true' if GameControlInput message needs to go out,
     // which will be the case for new data or resend. Call this right
     // before deciding to put a GameControlInput packet on the wire
     // or not.
-    static bool computeFinalInputAndCheckForChanges();
+    static bool computeFinalStateAndCheckForChanges();
 
-    static void clearAllInput();
-    static void clearAllKeys();
+    static void clearAllState();
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
 
-    static void setIncludeKeyboardButtons(bool include);
-    static bool getIncludeKeyboardButtons();
+    // these methods for accepting input from keyboard
+    static void setInterpretControlActionsAsGameControl(bool include);
+    static bool getInterpretControlActionsAsGameControl();
+
+    // "Action" refers to avatar motion actions (e.g. push_forward, slide_left, etc)
+    // this is a roundabout way to convert keystrokes to GameControl input.
+    static LLGameControl::InputChannel getChannelByActionName(const std::string& name);
+    static void addActionMapping(const std::string& name,  LLGameControl::InputChannel channel);
+    static void setActionFlags(U32 action_flags);
+
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();
