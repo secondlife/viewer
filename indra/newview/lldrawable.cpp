@@ -165,10 +165,12 @@ void LLDrawable::destroy()
 		gPipeline.checkReferences(this);
 	}
 
-	if (isDead())
+	if (!isDead())
 	{
-		sNumZombieDrawables--;
+		LL_WARNS() << "Warning!  Destroy before marking dead!" << LL_ENDL;
+		markDead();
 	}
+	sNumZombieDrawables--;
 
 	// Attempt to catch violations of this in debug,
 	// knowing that some false alarms may result
