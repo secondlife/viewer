@@ -1470,7 +1470,7 @@ void LLAgent::pitch(F32 angle)
 	//
 	// The issue is observed on angle below 10 degrees
 	const F32 look_down_limit = 179.f * DEG_TO_RAD;
-	const F32 look_up_limit   =  10.f * DEG_TO_RAD;
+	const F32 look_up_limit = 10.f * DEG_TO_RAD;
 
 	F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
 
@@ -4994,6 +4994,30 @@ void LLAgent::renderAutoPilotTarget()
 
 		gGL.popMatrix();
 	}
+}
+
+void LLAgent::updateActionFlags(EKeystate s, S32 direction, U32 mask)
+{
+    if (direction < 0)
+    {
+        // all NEG masks are one bit more than their POS counterpart
+        mask = mask << 1;
+    }
+    if ( KEYSTATE_UP == s )
+    {
+        // clear the mask bits
+        mActionFlags &= ~mask;
+    }
+    else
+    {
+        // set the mask bits
+        mActionFlags |= mask;
+    }
+}
+
+U32 LLAgent::getActionFlags() const
+{
+    return mActionFlags;
 }
 
 /********************************************************************************/
