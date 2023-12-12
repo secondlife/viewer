@@ -2589,10 +2589,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>EnableGameControlKeyboard</key>
+    <key>InterpretControlActionsAsGameControl</key>
     <map>
       <key>Comment</key>
-      <string>Consider keyboard a game controller</string>
+      <string>Interpret keyboard Control Actions as GameControl Data</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
