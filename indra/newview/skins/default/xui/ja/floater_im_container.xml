@@ -6,7 +6,7 @@
 		<layout_panel name="conversations_layout_panel">
 			<layout_stack name="conversations_pane_buttons_stack">
 				<layout_panel name="conversations_pane_buttons_expanded">
-					<menu_button name="sort_btn" tool_tip="表示／並び替えのオプションを表示します。"/>
+					<menu_button name="sort_btn" tool_tip="表示／並べ替えのオプションを表示します。"/>
 					<button name="add_btn" tool_tip="新しい会話を開始"/>
 					<button name="speak_btn" tool_tip="マイクを使って人と話す"/>
 				</layout_panel>

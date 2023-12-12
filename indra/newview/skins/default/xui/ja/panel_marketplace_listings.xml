@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="マーケットプレイス" name="Marketplace Panel">
 	<panel name="tool_panel">
-		<menu_button name="sort_btn" tool_tip="表示／並び替えオプションを表示します。"/>
+		<menu_button name="sort_btn" tool_tip="表示／並べ替えオプションを表示します。"/>
 		<button name="add_btn" tool_tip="新しいリストフォルダを作成します。"/>
 		<button label="エラーを確認" name="audit_btn" tool_tip="マーケットプレイスのリストを確認します。"/>
 	</panel>

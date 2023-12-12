@@ -15,7 +15,7 @@
 					<menu_button tool_tip="オプションを表示します。" name="options_gear_btn"/>
 				</layout_panel>
 				<layout_panel name="options_sort_btn_panel">
-					<menu_button tool_tip="並び替えオプションを表示します。" name="sorting_menu_btn"/>
+					<menu_button tool_tip="並べ替えオプションを表示します。" name="sorting_menu_btn"/>
 				</layout_panel>
 				<layout_panel name="add_btn_panel">
 					<menu_button name="add_menu_btn" tool_tip="新しいランドマークかフォルダを追加します。"/>

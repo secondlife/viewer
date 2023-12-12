@@ -37,7 +37,7 @@
 			<menu_button tool_tip="検索表示オプションを表示します。" name="options_visibility_btn"/>
 			<filter_editor label="検索語句を入力" name="inventory search editor" tool_tip="検索したい単語は「+」で区切って複数入力してください。"/>
 			<menu_button tool_tip="操作メニューを表示します。" name="options_gear_btn"/>
-			<menu_button tool_tip="表示と並び替えオプションメニューを表示します。" name="view_btn"/>
+			<menu_button tool_tip="表示／並べ替えオプションメニューを表示します。" name="view_btn"/>
 			<button name="add_btn" tool_tip="新しいアイテムを作成します。"/>
 			<button tool_tip="表示モードを切り替えます。" name="view_mode_btn"/>
 		</layout_panel>

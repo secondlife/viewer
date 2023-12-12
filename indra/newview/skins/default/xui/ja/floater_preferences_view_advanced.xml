@@ -6,9 +6,11 @@
 	<spinner name="camera_x"/>
 	<spinner label="Ｙ" name="camera_y"/>
 	<spinner label="Ｚ" name="camera_z"/>
+	<button name="reset_offset_rear" tool_tip="カメラのオフセットをデフォルトにリセットします。"/>
 	<text name="focus_offset_lbl">
-		焦点のオフセット：
+		フォーカスのオフセット：
 	</text>
+	<button name="reset_offset_rear" tool_tip="カメラのフォーカスをデフォルトにリセットします。"/>
 	<spinner name="focus_x"/>
 	<spinner label="Ｙ" name="focus_y"/>
 	<spinner label="Ｚ" name="focus_z"/>
@@ -17,4 +19,5 @@
 	</text>
 	<slider name="offset_scale_sld"/>
 	<spinner name="offset_scale_ctrl"/>
+	<button name="reset_offset_scale" tool_tip="カメラのオフセット倍率をデフォルトにリセットします。"/>
 </floater>
