@@ -47,10 +47,10 @@
 				</text>
 				<button name="Go Home" tool_tip="自分のホームの場所にテレポート"/>
 				<text name="Home_label">
-					ホーム
+					マイホーム
 				</text>
 				<text name="events_label">
-					イベント：
+					イベント:
 				</text>
 				<check_box name="event_chk"/>
 				<icon name="event"/>
@@ -75,18 +75,18 @@
 			</panel>
 			<panel name="layout_panel_4">
 				<icon name="friends_icon"/>
-				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示する。">
-					<combo_box.item label="オンラインのフレンド" name="item1" value="None"/>
+				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示">
+					<combo_box.item label="オンラインのフレンド" name="item1" value="なし"/>
 					<combo_box.commit_callback function="WMap.AvatarCombo"/>
 				</combo_box>
 				<icon name="landmark_icon"/>
 				<combo_box label="ランドマーク" name="landmark combo" tool_tip="マップにランドマークを表示する。">
-					<combo_box.item label="ランドマーク" name="item1" value="None"/>
+					<combo_box.item label="ランドマーク" name="item1" value="なし"/>
 					<combo_box.commit_callback function="WMap.Landmark"/>
 				</combo_box>
 				<icon name="location_icon"/>
-				<search_editor label="リージョン（地域）名で" tool_tip="リージョン（地域）名を入力してください"/>
-				<button label="探す" name="DoSearch" tool_tip="リージョン（地域）を検索する。"/>
+				<search_editor label="リージョン(地域)名で" tool_tip="リージョン(地域)名を入力してください"/>
+				<button label="探す" name="DoSearch" tool_tip="リージョン(地域)を検索する。"/>
 				<button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする。"/>
 				<scroll_list name="search_results">
 					<scroll_list.columns label="" name="icon"/>
@@ -94,12 +94,12 @@
 					<scroll_list.commit_callback function="WMap.SearchResult"/>
 				</scroll_list>
 				<text name="events_label">
-					場所：
+					場所:
 				</text>
 				<spinner name="teleport_coordinate_x"/>
 				<spinner name="teleport_coordinate_y"/>
 				<spinner name="teleport_coordinate_z"/>
-				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポートする。"/>
+				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポート"/>
 				<button label="SLurlをコピー" layout="topleft" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーする。"/>
 				<button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする。"/>
 			</panel>

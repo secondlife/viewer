@@ -3,7 +3,7 @@
 	<panel label="bottom_panel" name="blocked_buttons_panel">
 		<filter_editor label="フィルタ" name="blocked_filter_input"/>
 		<menu_button name="blocked_gear_btn" tool_tip="選択した住人・オブジェクトに対するアクション"/>
-		<menu_button name="view_btn" tool_tip="オプションを並べ替える"/>
+		<menu_button name="view_btn" tool_tip="オプションでソート"/>
 		<menu_button name="plus_btn" tool_tip="ブロックする住人・オブジェクトを選択"/>
 		<button name="unblock_btn" tool_tip="ブロックリストから住人・オブジェクトを削除"/>
 	</panel>

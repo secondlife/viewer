@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_help_browser" title="ヘルプブラウザ">
 	<floater.string name="loading_text">
-		読み込んでいます…。
+		読み込み中…
 	</floater.string>
 	<layout_stack name="stack1">
 		<layout_panel name="external_controls"/>

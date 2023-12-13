@@ -5,7 +5,7 @@
 			<button name="back" tool_tip="前へ"/>
 			<button name="forward" tool_tip="次へ"/>
 			<button name="stop" tool_tip="ナビゲーションを停止"/>
-			<button name="reload" tool_tip="ページを更新"/>
+			<button name="reload" tool_tip="ページをリロード"/>
 			<combo_box name="address" tool_tip="ここに URL を入力"/>
 			<icon name="media_secure_lock_flag" tool_tip="安全な閲覧"/>
 			<button name="popexternal" tool_tip="この URL をブラウザで開く"/>

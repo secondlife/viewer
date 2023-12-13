@@ -2,5 +2,5 @@
 <panel label="im_header" name="im_header">
 	<avatar_icon name="avatar_icon"/>
 	<text name="user_name" value="テスト文字列　無視してください"/>
-	<text name="time_box" value="23：30"/>
+	<text name="time_box" value="23:30"/>
 </panel>

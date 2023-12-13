@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_postcard_message">
 	<text name="to_label">
-		宛先：
+		宛先:
 	</text>
 	<text name="name_label">
-		名前：
+		名前:
 	</text>
 	<text name="subject_label">
-		件名：
+		件名:
 	</text>
 	<line_editor label="件名をここに入力してください。" name="subject_form"/>
 	<text name="msg_label">
-		メッセージ：
+		メッセージ:
 	</text>
 	<text_editor name="msg_form">
 		メッセージをここに入力してください。

@@ -6,24 +6,24 @@
 	<combo_box label="解像度" name="local_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="320✕240" name="320x240"/>
-		<combo_box.item label="640✕480" name="640x480"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
 		<combo_box.item label="800✕600" name="800x600"/>
 		<combo_box.item label="1024✕768" name="1024x768"/>
-		<combo_box.item label="1280✕1024" name="1280x1024"/>
-		<combo_box.item label="1600✕1200" name="1600x1200"/>
+		<combo_box.item label="1280 x 1024" name="1280x1024"/>
+		<combo_box.item label="1600 x 1200" name="1600x1200"/>
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
-	<spinner label="横幅✕高さ" name="local_snapshot_width"/>
+	<spinner label="横幅 x 高さ" name="local_snapshot_width"/>
 	<check_box label="縦横比の固定" name="local_keep_aspect_check"/>
 	<text name="local_format_label">
-		形式：
+		形式:
 	</text>
 	<combo_box label="ファイル形式" name="local_format_combo">
-		<combo_box.item label="PNG（可逆圧縮）" name="PNG"/>
+		<combo_box.item label="PNG(可逆圧縮)" name="PNG"/>
 		<combo_box.item label="JPEG" name="JPEG"/>
-		<combo_box.item label="BMP（可逆圧縮）" name="BMP"/>
+		<combo_box.item label="BMP(可逆圧縮)" name="BMP"/>
 	</combo_box>
-	<slider label="品質：" name="image_quality_slider"/>
+	<slider label="品質:" name="image_quality_slider"/>
 	<button label="キャンセル" name="cancel_btn"/>
 	<flyout_button label="保存" name="save_btn" tool_tip="画像をファイルとして保存">
 		<flyout_button.item label="保存" name="save_item"/>

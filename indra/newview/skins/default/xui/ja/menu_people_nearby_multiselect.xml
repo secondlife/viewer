@@ -2,9 +2,9 @@
 <context_menu name="Multi-Selected People Context Menu">
 	<menu_item_call label="フレンド登録" name="add_friends"/>
 	<menu_item_call label="フレンドを削除" name="remove_friends"/>
-	<menu_item_call label="ＩＭ" name="im"/>
+	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="コール" name="call"/>
 	<menu_item_call label="共有" name="share"/>
-	<menu_item_call label="支払い" name="pay"/>
+	<menu_item_call label="支払う" name="pay"/>
 	<menu_item_call label="テレポートをオファー" name="offer_teleport"/>
 </context_menu>

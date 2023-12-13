@@ -1,103 +1,103 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="env_adjust_snapshot" title="個人的な光源">
+<floater name="env_adjust_snapshot" title="個人的な照明">
 	<layout_stack name="outer_stack">
 		<layout_panel name="env_controls">
 			<layout_stack name="settings_stack">
 				<layout_panel>
 					<text>
-						周辺：
+						周辺:
 					</text>
 					<color_swatch name="ambient_light"/>
 					<text>
-						青のホライズン：
+						青のホライズン:
 					</text>
 					<color_swatch name="blue_horizon"/>
 					<text>
-						青の濃度：
+						青の濃度:
 					</text>
 					<color_swatch name="blue_density"/>
 					<button label="リセット" tool_tip="閉じて共有された環境にリセットします。" name="btn_reset"/>
 					<text>
-						太陽の色：
+						太陽の色:
 					</text>
 					<color_swatch name="sun_color"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="5" width="80">
-						雲の色：:
+						雲の色:
 					</text>
 					<color_swatch name="cloud_color"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="10" name="cloud_map_label" width="80">
-						雲の画像：:
+						雲の画像:
 					</text>
 					<texture_picker height="63" layout="topleft" left_delta="0" name="cloud_map" top_pad="5" width="60"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="-13" name="cloud_map_label" width="80">
-						水面の画像：
+					<text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="-13" name="water_map_label" width="80">
+						水の画像:
 					</text>
 					<texture_picker height="63" layout="topleft" left_delta="0" name="water_normal_map" top_pad="5" width="60"/>
 				</layout_panel>
 				<layout_panel border="false" bevel_style="in" auto_resize="false" user_resize="false" visible="true" width="200" height="150">
 					<text follows="left|top" height="10" layout="topleft" left_delta="5" top_pad="5" width="80">
-						靄のホライズン：
+						靄のホライズン:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="5" name="haze_horizon" top_pad="5" width="185" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="80">
-						靄の濃度：
+						靄の濃度:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="5" name="haze_density" top_pad="5" width="185" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="185">
-						雲の量：
+						雲の量:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1" name="cloud_coverage" top_pad="5" width="185" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="185">
-						雲のスケール：
+						雲のスケール:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0.01" max_val="3" name="cloud_scale" top_pad="5" width="185" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="15" width="80">
-						シーンのガンマ値：
+						シーンのガンマ値:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" max_val="20" name="scene_gamma" top_pad="5" width="185" can_edit_text="true"/>
 				</layout_panel>
 				<layout_panel border="false" bevel_style="in" auto_resize="false" user_resize="false" height="150" width="310" min_height="0" visible="true">
 					<text follows="top|left" font="SansSerifBold" height="10" layout="topleft" name="label" left="5" top="5" width="105">
-						太陽：
+						太陽:
 					</text>
 					<sun_moon_trackball name="sun_rotation" follows="left|top" left_delta="0" top_delta="20" height="150" width="150" thumb_mode="sun"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="5" width="200">
-						方位角：
+						方位角:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="359.99" name="sun_azimuth" top_pad="5" width="130" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="200">
-						標高：
+						標高:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-90" max_val="90" name="sun_elevation" top_pad="5" width="130" can_edit_text="true"/>
 					<check_box control_name="sunbeacon" width="60" height="16" label="ビーコンを表示" layout="topleft" name="sunbeacon" left_delta="-5" top_pad="8" follows="left|top"/>
 					<text follows="left|top" height="10" layout="topleft" left_pad="95" top="25" width="80">
-						スケール：
+						スケール:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0.25" max_val="20" name="sun_scale" top_delta="15" width="130" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="100">
-						フォーカスの発光量：
+						フォーカスの発光量:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-2" max_val="2" name="glow_focus" top_pad="5" width="130" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="200">
-						グローサイズ：
+						グローサイズ:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1.99" name="glow_size" top_pad="5" width="130" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="10" width="200">
-						星の輝度：
+						星の輝度:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="500" name="star_brightness" top_pad="5" width="130" can_edit_text="true"/>
 				</layout_panel>
 				<layout_panel border="false" bevel_style="in" auto_resize="false" user_resize="false" height="150" width="160" min_height="0" visible="true">
 					<text follows="top|left" font="SansSerifBold" height="10" layout="topleft" name="label" left="5" top="5" width="105">
-						月：
+						月:
 					</text>
 					<sun_moon_trackball name="moon_rotation" follows="left|top" left_delta="0" top_delta="20" height="150" width="150" thumb_mode="moon"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="5" width="200">
-						方位角：
+						方位角:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="359.99" name="moon_azimuth" top_pad="5" width="130" can_edit_text="true"/>
 					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="200">
-						標高：
+						標高:
 					</text>
 					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-90" max_val="90" name="moon_elevation" top_pad="5" width="130" can_edit_text="true"/>
 					<check_box control_name="moonbeacon" label="ビーコンを表示"/>

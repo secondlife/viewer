@@ -3,13 +3,10 @@
 	<check_box initial_value="true" label="近隣チャットでジェスチャーを自動補完する" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
-		<check_box label="オフライン時に受け取ったＩＭはメールで受信する" name="send_im_to_email"/>
-		<check_box label="フレンドとグループ以外からのコールとＩＭは受信しない" name="voice_call_friends_only_check"/>
-		<text name="email_settings">
-			[https://accounts.secondlife.com/change_email?lang=ja オフライン時のＩＭのメール送信先の設定]
-		</text>
+		<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
+		<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
 		<text name="font_size">
-			文字の大きさ：
+			文字の大きさ:
 		</text>
 		<combo_box name="chat_font_size">
 			<item label="小" name="Small" value="0"/>
@@ -20,7 +17,7 @@
 	</panel>
 	<panel name="im_notification_settings">
 		<text name="friend_ims">
-			フレンドＩＭ：
+			フレンドIM:
 		</text>
 		<combo_box name="FriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
@@ -30,7 +27,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
-			フレンドのいないＩＭ：
+			フレンドのいないIM:
 		</text>
 		<combo_box name="NonFriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
@@ -40,7 +37,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
-			会話ＩＭ：
+			会話IM:
 		</text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
@@ -50,7 +47,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_conference_im"/>
 		<text name="group_chat">
-			グループチャット：
+			グループチャット:
 		</text>
 		<combo_box name="GroupChatOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
@@ -60,7 +57,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
-			近隣チャット：
+			近隣チャット:
 		</text>
 		<combo_box name="NearbyChatOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
@@ -70,7 +67,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_nearby_chat_im"/>
 		<text name="object_ims">
-			オブジェクトによるＩＭ：
+			オブジェクトによるIM:
 		</text>
 		<combo_box name="ObjectIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
@@ -80,12 +77,12 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_object_im"/>
 		<text name="notifications_alert">
-			一時的にすべての通知を停止するには、「コミュニケーション」＞「着信拒否」を使用します。
+			一時的にすべての通知を停止するには、「コミュニケーション」&gt;「着信拒否」を使用します。
 		</text>
 	</panel>
 	<panel name="play_sound_settings">
 		<text name="play_sound">
-			サウンドを再生：
+			サウンドを再生:
 		</text>
 		<check_box label="新しい会話" name="new_conversation"/>
 		<check_box label="受信音声コール" name="incoming_voice_call"/>
@@ -94,21 +91,21 @@
 	</panel>
 	<panel name="log_settings">
 		<text name="logging_label">
-			保存：
+			保存:
 		</text>
 		<combo_box name="conversation_log_combo">
-			<item label="ログとテキストチャット" name="log_and_transcripts" value="2"/>
+			<item label="ログおよびテキストチャット" name="log_and_transcripts" value="2"/>
 			<item label="ログのみ" name="log_only" value="1"/>
-			<item label="ログかテキストチャットなし" name="no_log_or_transcript" value="0"/>
+			<item label="ログまたはテキストチャットなし" name="no_log_or_transcript" value="0"/>
 		</combo_box>
 		<button label="ログを消去…" name="clear_log"/>
 		<button label="テキストチャットを削除…" name="delete_transcripts"/>
 		<text name="log_location_label">
-			場所：
+			場所:
 		</text>
 		<button label="参照…" label_selected="参照" name="log_path_button"/>
 	</panel>
 	<button label="他の言語…" name="ok_btn"/>
 	<button label="自動置換…" name="autoreplace_showgui"/>
-	<button label="スペルチェック…" name="spellcheck_showgui"/>
+	<button label="スペルチェック中…" name="spellcheck_showgui"/>
 </panel>

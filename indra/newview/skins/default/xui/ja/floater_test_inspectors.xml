@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_test_inspectors" title="インスペクタのテスト">
 	<text name="test_inspectors">
-		クリックしてインスペクターを生成します：
+		クリックしてインスペクターを生成します:
 	</text>
 	<button name="avatar_2d_btn1" label="2Dアバター"/>
 	<button name="avatar_2d_btn5" label="2Dアバター"/>

@@ -7,17 +7,17 @@
 		住人に支払う
 	</string>
 	<text name="paying_text">
-		支払い先：
+		支払い先:
 	</text>
 	<text name="payee_name">
 		エリカシタ・モストポリゾン
 	</text>
 	<text name="object_name_label">
-		以下のオブジェクトを介して支払う：
+		以下のオブジェクトを介して支払う:
 	</text>
 	<icon name="icon_object" tool_tip="オブジェクト"/>
 	<text name="object_name_text">
-		…
+		長い名前が付いた私のオブジェクト
 	</text>
 	<panel label="検索" name="PatternsPanel">
 		<button label="L$ 1支払う" label_selected="L$ 1支払う" name="fastpay 1"/>
@@ -29,7 +29,7 @@
 		<text name="amount text">
 			その他の金額:
 		</text>
-		<button label="支払い" label_selected="オブジェクトに支払います。" name="pay btn"/>
+		<button label="支払う" label_selected="オブジェクトに支払います。" name="pay btn"/>
 		<button label="キャンセル" label_selected="オブジェクトへの支払いを取り消します。" name="cancel btn"/>
 	</panel>
 </floater>

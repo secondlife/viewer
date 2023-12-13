@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="ポップアップ" name="popups" title="ポップアップ">
 	<text name="tell_me_label">
-		知らせる：
+		知らせる:
 	</text>
 	<check_box label="L$の使用時" name="notify_money_spend_checkbox"/>
 	<check_box label="フレンドのログイン状態変化時" name="friends_online_notify_checkbox"/>
 	<check_box label="L$の入手時" name="notify_money_received_checkbox"/>
 	<text name="show_label">
-		常に表示するメッセージ：
+		常に表示するメッセージ:
 	</text>
 	<text name="dont_show_label">
-		表示しないメッセージ：
+		表示しないメッセージ:
 	</text>
 </panel>

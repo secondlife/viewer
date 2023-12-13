@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="ミニマップ">
 	<floater.string name="ToolTipMsg">
-		[REGION]（ダブルクリックでマップを表示。Shift＋ドラッグで水平・垂直移動）
+		[REGION](ダブルクリックでマップを開く。Shift‐ドラッグで水平・垂直移動)
 	</floater.string>
 	<floater.string name="AltToolTipMsg">
-		[REGION]（ダブルクリックでテレポート。Shift＋ドラッグで水平・垂直移動）
+		[地域] (ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		ミニマップ

@@ -24,12 +24,12 @@
 	<view name="contents_view">
 		<layout_stack name="main_stack">
 			<layout_panel name="toolbar_panel">
-				<menu_button name="view_options_btn" tool_tip="表示／並べ替えのオプション"/>
+				<menu_button name="view_options_btn" tool_tip="表示/並べ替え オプション"/>
 				<menu_button name="gear_btn" tool_tip="選択した人に対するアクション"/>
 				<button name="add_btn" tool_tip="この会話に他の人を追加する"/>
 				<button name="voice_call_btn" tool_tip="会話の接続を開く"/>
 				<button name="close_btn" tool_tip="この会話を終了する"/>
-				<button name="expand_collapse_btn" tool_tip="このペインを閉じる／開く"/>
+				<button name="expand_collapse_btn" tool_tip="このペインを閉じる/開く"/>
 			</layout_panel>
 			<layout_panel name="body_panel">
 				<layout_stack name="im_panels">
@@ -48,7 +48,7 @@
 						<chat_editor label="送信先" name="chat_editor"/>
 					</layout_panel>
 					<layout_panel name="input_button_layout_panel">
-						<button name="minz_btn" tool_tip="メッセージパネルの表示／非表示"/>
+						<button name="minz_btn" tool_tip="メッセージパネルの表示/非表示"/>
 					</layout_panel>
 				</layout_stack>
 			</layout_panel>

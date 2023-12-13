@@ -6,13 +6,13 @@
 	<text name="title_label" value="ランドマークの追加"/>
 	<text name="name_label" value="名前"/>
 	<line_editor name="title_editor"/>
-	<text name="folder_label" value="ランドマークの保存先："/>
+	<text name="folder_label" value="ランドマークの保存先:"/>
 	<combo_box name="folder_combo"/>
 	<text name="new_folder_textbox">
 		[secondlife:/// フォルダを作成]
 	</text>
 	<text name="notes_label" value="私のノート"/>
 	<text_editor name="notes_editor"/>
-	<button label="ＯＫ" name="ok_btn"/>
+	<button label="OK" name="ok_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

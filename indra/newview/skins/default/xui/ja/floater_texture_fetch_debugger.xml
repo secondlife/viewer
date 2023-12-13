@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="TexFetchDebugger" title="テクスチャ取得デバッガ">
 	<text name="total_num_fetched_label">
-		１，取得したテクスチャの合計数：[NUM]
+		1,取得したテクスチャの合計数: [NUM]
 	</text>
 	<text name="total_num_fetching_requests_label">
-		２，取得リクエストの合計数：[NUM]
+		2,取得リクエストの合計数: [NUM]
 	</text>
 	<text name="total_num_cache_hits_label">
-		３，キャッシュヒットの合計数：[NUM]
+		3,キャッシュヒットの合計数: [NUM]
 	</text>
 	<text name="total_num_visible_tex_label">
-		４，表示テクスチャの合計数：[NUM]
+		4,表示テクスチャの合計数: [NUM]
 	</text>
 	<text name="total_num_visible_tex_fetch_req_label">
-		５，表示テクスチャ取得リクエストの合計数：[NUM]
+		5,表示テクスチャ取得リクエストの合計数: [NUM]
 	</text>
 	<text name="total_fetched_data_label">
-		６，取得したデータの合計数：[SIZE1]㎅、デコードされたデータ：[SIZE2]㎅、[PIXEL]メガピクセル
+		6,取得したデータの合計数: [SIZE1]KB、デコードされたデータ: [SIZE2]KB、[PIXEL]メガピクセル
 	</text>
 	<text name="total_fetched_vis_data_label">
-		７，表示データの合計数：[SIZE1]㎅、デコードされたデータ：[SIZE2]㎅
+		7,表示データの合計数: [SIZE1]KB、デコードされたデータ: [SIZE2]KB
 	</text>
 	<text name="total_fetched_rendered_data_label">
-		８，レンダリングされたデータの合計数：[SIZE1]㎅、デコードされたデータ：[SIZE2]㎅、[PIXEL]メガピクセル
+		8,レンダリングされたデータの合計数: [SIZE1]KB、デコードされたデータ: [SIZE2]KB、[PIXEL]メガピクセル
 	</text>
 	<text name="total_time_cache_read_label">
-		９，キャッシュ読み取りの合計時間：[TIME]秒
+		9,キャッシュ読み取りの合計時間: [TIME]秒
 	</text>
 	<text name="total_time_cache_write_label">
-		１０，キャッシュ書き込みの合計時間：[TIME]秒
+		10,キャッシュ書き込みの合計時間: [TIME]秒
 	</text>
 	<text name="total_time_decode_label">
-		１１，デコードの合計時間：[TIME]秒
+		11,デコードの合計時間: [TIME]秒
 	</text>
 	<text name="total_time_gl_label">
-		１２，glテクスチャ作成の合計時間：[TIME]秒
+		12,glテクスチャ作成の合計時間: [TIME]秒
 	</text>
 	<text name="total_time_http_label">
-		１３，HTTP取得の合計時間：[TIME]秒
+		13,HTTP取得の合計時間: [TIME]秒
 	</text>
 	<text name="total_time_fetch_label">
-		１４，取得全体の合計時間：[TIME]秒
+		14,取得全体の合計時間: [TIME]秒
 	</text>
 	<text name="total_time_refetch_vis_cache_label">
-		１５，キャッシュから表示テクスチャを再取得、時間：[TIME]秒、取得：[SIZE]㎅、[PIXEL]メガピクセル
+		15,キャッシュから表示テクスチャを再取得、時間: [TIME]秒、取得: [SIZE]KB、[PIXEL]メガピクセル
 	</text>
 	<text name="total_time_refetch_all_cache_label">
-		１６，キャッシュからすべてのテクスチャを再フェッチ中、時間：[TIME]秒、フェッチ済み：[SIZE]㎅、[PIXEL]メガピクセル
+		16,キャッシュからすべてのテクスチャを再フェッチ中、時間: [TIME]秒、フェッチ済み: [SIZE]KB、[PIXEL]メガピクセル
 	</text>
 	<text name="total_time_refetch_vis_http_label">
-		１７，HTTPから可視ファイルを再フェッチ中、時間：[TIME]秒、フェッチ済み：[SIZE]㎅、[PIXEL]メガピクセル
+		17,HTTPから可視ファイルを再フェッチ中、時間: [TIME]秒、フェッチ済み: [SIZE]KB、[PIXEL]メガピクセル
 	</text>
 	<text name="total_time_refetch_all_http_label">
-		１８，HTTPからすべてのテクスチャを再フェッチ中、時間：[TIME]秒、フェッチ済み：[SIZE]㎅、[PIXEL]メガピクセル
+		18,HTTPからすべてのテクスチャを再フェッチ中、時間: [TIME]秒、フェッチ済み: [SIZE]KB、[PIXEL]メガピクセル
 	</text>
-	<spinner label="19、テセル／ピクセル比：" name="texel_pixel_ratio"/>
+	<spinner label="19、テセル/ピクセル比:" name="texel_pixel_ratio"/>
 	<text name="texture_source_label">
-		20、テクスチャ ソース：
+		20、テクスチャ ソース:
 	</text>
 	<radio_group name="texture_source">
 		<radio_item label="キャッシュ + HTTP" name="0"/>
@@ -71,7 +71,7 @@
 	<button label="デコード" name="decode_btn"/>
 	<button label="GLテクスチャ" name="gl_btn"/>
 	<button label="キャッシュ表示テクスチャ再取得" name="refetchviscache_btn"/>
-	<button label="すべてのキャッシュを再フェッチ" name="refetchallcache_btn"/>
+	<button label="全てのキャッシュを再フェッチ" name="refetchallcache_btn"/>
 	<button label="HTTP表示テクスチャ再取得" name="refetchvishttp_btn"/>
-	<button label="すべての HTTP を再フェッチ" name="refetchallhttp_btn"/>
+	<button label="全ての HTTP を再フェッチ" name="refetchallhttp_btn"/>
 </floater>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="world_map">
 	<panel.string name="Loading">
-		読み込んでいます…
+		読み込み中…
 	</panel.string>
 	<panel.string name="InvalidLocation">
 		無効な位置

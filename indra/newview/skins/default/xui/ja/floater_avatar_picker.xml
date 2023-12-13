@@ -10,7 +10,7 @@
 		近くに誰もいません
 	</floater.string>
 	<floater.string name="no_results">
-		検索結果：なし
+		検索結果: なし
 	</floater.string>
 	<floater.string name="searching">
 		検索しています…
@@ -24,7 +24,7 @@
 	<tab_container name="ResidentChooserTabs">
 		<panel label="検索" name="SearchPanel">
 			<text name="InstructSearchResidentName">
-				名前の一部を入力：
+				名前の一部を入力:
 			</text>
 			<line_editor name="Edit"/>
 			<button label="実行" label_selected="実行" name="Find"/>
@@ -42,7 +42,7 @@
 		</panel>
 		<panel label="近くにいる人" name="NearMePanel">
 			<text name="InstructSelectResident">
-				近くにいる人を選択：
+				近くにいる人を選択:
 			</text>
 			<slider label="範囲" name="near_me_range"/>
 			<text name="meters">
@@ -55,6 +55,6 @@
 			</scroll_list>
 		</panel>
 	</tab_container>
-	<button label="ＯＫ" label_selected="ＯＫ" name="ok_btn"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 </floater>

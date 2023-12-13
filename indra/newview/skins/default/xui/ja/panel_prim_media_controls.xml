@@ -8,7 +8,7 @@
 	</string>
 	<layout_stack name="progress_indicator_area">
 		<layout_panel name="media_progress_indicator">
-			<progress_bar name="media_progress_bar" tool_tip="読み込んでいます…"/>
+			<progress_bar name="media_progress_bar" tool_tip="読み込み中…"/>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="media_controls">
@@ -25,7 +25,7 @@
 			<button name="media_stop_btn" tool_tip="メディアを停止"/>
 		</layout_panel>
 		<layout_panel name="reload">
-			<button name="reload_btn" tool_tip="更新"/>
+			<button name="reload_btn" tool_tip="リロード"/>
 		</layout_panel>
 		<layout_panel name="stop">
 			<button name="stop_btn" tool_tip="読み込み停止"/>
@@ -37,7 +37,7 @@
 			<button name="pause_btn" tool_tip="メディアを一時停止"/>
 		</layout_panel>
 		<layout_panel name="media_address">
-			<line_editor name="media_address_url" tool_tip="メディア URL"/>
+			<line_editor name="media_address_url" tool_tip="メディアURL"/>
 			<layout_stack name="media_address_url_icons">
 				<layout_panel name="media_address_url_icons_wl">
 					<icon name="media_whitelist_flag" tool_tip="ホワイトリスト有効"/>
@@ -64,7 +64,7 @@
 			<button name="close_btn" tool_tip="ズームバック"/>
 		</layout_panel>
 		<layout_panel name="new_window">
-			<button name="new_window_btn" tool_tip="ＵＲＬをブラウザで開く"/>
+			<button name="new_window_btn" tool_tip="URL をブラウザで開く"/>
 		</layout_panel>
 	</layout_stack>
 	<icon name="media_secure_lock_flag" tool_tip="安全なブラウジング"/>

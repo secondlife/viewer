@@ -13,7 +13,7 @@
 		自分で作成したデイサイクルを編集するには、希望の設定に調節して、「保存」をクリックします。
 	</string>
 	<string name="time_label">
-		（[HH]：[MM]）
+		([HH]:[MM])
 	</string>
 	<string name="sky_track_label">
 		空[ALT]
@@ -28,12 +28,12 @@
 		区画に適用
 	</string>
 	<string name="commit_region">
-		リージョン（地域）に適用
+		リージョン(地域)に適用
 	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
-				デイサイクル名：
+				デイサイクル名:
 			</text>
 			<line_editor name="day_cycle_name"/>
 			<button label="インポート" fname="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
@@ -42,26 +42,26 @@
 			<layout_stack name="content_stack">
 				<layout_panel name="timeline_track_selection">
 					<panel name="timeline_layers">
-						<button label="空４" name="sky4_track"/>
-						<button label="空３" name="sky3_track"/>
-						<button label="空２" name="sky2_track"/>
-						<button label="地面" name="sky1_track"/>
-						<button label="水面" name="water_track"/>
+						<button label="空4" name="sky4_track"/>
+						<button label="空3" name="sky3_track"/>
+						<button label="空2" name="sky2_track"/>
+						<button label="地表レベル" name="sky1_track"/>
+						<button label="水" name="water_track"/>
 					</panel>
 					<panel name="timeline">
-						<text value="0％[DSC]"/>
-						<text name="p1" value="25％ [DSC]"/>
-						<text name="p2" value="50％ [DSC]"/>
-						<text name="p3" value="75％ [DSC]"/>
-						<text name="p4" value="100％ [DSC]"/>
+						<text value="0%[DSC]"/>
+						<text name="p1" value="25% [DSC]"/>
+						<text name="p2" value="50% [DSC]"/>
+						<text name="p3" value="75% [DSC]"/>
+						<text name="p4" value="100% [DSC]"/>
 						<multi_slider name="WLTimeSlider"/>
 						<multi_slider name="WLDayCycleFrames"/>
-						<text name="current_time" value="[PRCNT]％ [DSC]"/>
+						<text name="current_time" value="[PRCNT]% [DSC]"/>
 						<layout_stack name="track_options_ls">
 							<layout_panel name="track_options_lp">
-								<button label="トラックを以下から複製" name="copy_track"/>
-								<button label="トラックを以下から読み込み" name="load_track"/>
-								<button label="トラックを消去" name="clear_track"/>
+								<button label="トラックを以下からクローン" name="copy_track"/>
+								<button label="ラックを以下からロード" name="load_track"/>
+								<button label="トラックをクリア" name="clear_track"/>
 							</layout_panel>
 							<layout_panel name="track_progress_lp">
 								<layout_stack name="progress_control">
@@ -88,14 +88,14 @@
 				</layout_panel>
 				<layout_panel name="frame_settings_water">
 					<tab_container name="water_tabs">
-						<panel filename="panel_settings_water.xml" label="水面" name="water_panel"/>
+						<panel filename="panel_settings_water.xml" label="水" name="water_panel"/>
 					</tab_container>
 				</layout_panel>
 				<layout_panel name="frame_settings_sky">
 					<tab_container name="sky_tabs">
-						<panel filename="panel_settings_sky_atmos.xml" label="大気＆光源" name="atmosphere_panel"/>
+						<panel filename="panel_settings_sky_atmos.xml" label="大気と雷" name="atmosphere_panel"/>
 						<panel filename="panel_settings_sky_clouds.xml" label="雲" name="clouds_panel"/>
-						<panel filename="panel_settings_sky_sunmoon.xml" label="太陽＆月" name="moon_panel"/>
+						<panel filename="panel_settings_sky_sunmoon.xml" label="太陽&amp;月" name="moon_panel"/>
 					</tab_container>
 				</layout_panel>
 			</layout_stack>

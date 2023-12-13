@@ -4,8 +4,8 @@
 	<text name="spellcheck_main">
 		メイン辞書:
 	</text>
-	<text label="ログ：" name="spellcheck_additional">
-		その他の辞書：
+	<text label="ログ:" name="spellcheck_additional">
+		その他の辞書:
 	</text>
 	<text name="spellcheck_available">
 		入手可

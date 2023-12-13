@@ -4,11 +4,11 @@
 		保存
 	</string>
 	<string name="btn_label_replace">
-		置き換え
+		置換
 	</string>
 	<radio_group name="radio_save_preset">
 		<radio_item label="新しいプリセットとして保存" name="new_preset"/>
-		<radio_item label="プリセットを置き換え" name="replace_preset"/>
+		<radio_item label="プリセットを置換" name="replace_preset"/>
 	</radio_group>
 	<line_editor name="preset_txt_editor"/>
 	<button label="保存" name="save"/>

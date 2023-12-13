@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="不動産" name="Estate">
 	<text name="estate_help_text">
-		このタブ内の設定変更は、不動産内のすべてのリージョン（地域）に影響します。
+		このタブ内の設定変更は、不動産内のすべてのリージョン(地域)に影響します。
 	</text>
 	<text name="estate_text">
-		不動産：
+		不動産:
 	</text>
 	<text name="estate_name">
-		（不明）
+		(不明)
 	</text>
 	<text name="owner_text">
-		所有者：
+		所有者:
 	</text>
 	<text name="estate_owner">
-		（不明）
+		(不明)
 	</text>
 	<radio_group name="externally_visible_radio">
 		<radio_item label="アクセスタブに記載された住人とグループのみ許可する" name="estate_restricted_access"/>
 		<radio_item label="誰でも訪問可" name="estate_public_access"/>
 	</radio_group>
-	<check_box label="１８歳以上である必要があります" name="limit_age_verified" tool_tip="この不動産（不動産）にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE]をご覧ください。"/>
+	<check_box label="18歳以上である必要があります" name="limit_age_verified" tool_tip="この不動産(不動産)にアクセスするには、18 才以上でなければなりません。詳細については、[SUPPORT_SITE]をご覧ください。"/>
 	<check_box label="支払情報が登録されている必要があります" name="limit_payment" tool_tip="支払情報が登録されていないと、この不動産にアクセスすることはできません。詳細については、[SUPPORT_SITE]をご覧ください。"/>
 	<check_box label="区画所有者" name="parcel_access_override"/>
 	<check_box label="ボイスチャットを許可" name="voice_chat_check"/>
 	<check_box label="直接テレポートを許可" name="allow_direct_teleport"/>
 	<button label="適用" name="apply_btn"/>
 	<text name="estate_manager_label">
-		不動産マネージャー：
+		不動産マネージャー:
 	</text>
 	<text name="allow_resident_label">
-		常に許可：
+		常に許可:
 	</text>
 	<button label="追加…" name="add_estate_manager_btn"/>
 	<button label="削除…" name="remove_estate_manager_btn"/>
 	<button label="追加…" name="add_allowed_avatar_btn"/>
 	<button label="削除…" name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		グループを常に許可：
+		グループを常に許可:
 	</text>
 	<text name="ban_resident_label">
-		常に禁止：
+		常に禁止:
 	</text>
 	<button label="追加…" name="add_allowed_group_btn"/>
 	<button label="削除…" name="remove_allowed_group_btn"/>

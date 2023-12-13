@@ -34,16 +34,16 @@
 		標準
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		考えられる原因：描画距離の設定が高すぎる
+		考えられる原因: 描画距離の設定が高すぎる
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		考えられる原因：画像のロード中
+		考えられる原因: 画像のロード中
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		考えられる原因：メモリ内に画像が多すぎる
+		考えられる原因: メモリ内に画像が多すぎる
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		考えられる原因：シーンに複雑なオブジェクトが多すぎる
+		考えられる原因: シーンに複雑なオブジェクトが多すぎる
 	</floater.string>
 	<floater.string name="network_text_msg">
 		ネットワーク
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		接続で[NETWORK_PACKET_LOSS_CRITICAL]％を超えるパケットが脱落しています。
+		接続で[NETWORK_PACKET_LOSS_CRITICAL]%を超えるパケットが脱落しています。
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		接続で[NETWORK_PACKET_LOSS_WARNING]％～[NETWORK_PACKET_LOSS_CRITICAL]％のパケットが脱落しています。
+		接続で[NETWORK_PACKET_LOSS_WARNING]%～[NETWORK_PACKET_LOSS_CRITICAL]%のパケットが脱落しています。
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		標準
@@ -103,22 +103,22 @@
 		標準
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		考えられる原因：物理オブジェクトが多すぎる
+		考えられる原因: 物理オブジェクトが多すぎる
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		考えられる原因：スクリプトオブジェクトが多すぎる
+		考えられる原因: スクリプトオブジェクトが多すぎる
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		考えられる原因：ネットワークトラフィックが多すぎる
+		考えられる原因: ネットワークトラフィックが多すぎる
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		考えられる原因：リージョン内の人の移動が多すぎる
+		考えられる原因: リージョン内の人の移動が多すぎる
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		考えられる原因：画像計算が多すぎる
+		考えられる原因: 画像計算が多すぎる
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		考えられる原因：シミュレータのロードが重すぎる
+		考えられる原因: シミュレータのロードが重すぎる
 	</floater.string>
 	<floater.string name="smaller_label">
 		》

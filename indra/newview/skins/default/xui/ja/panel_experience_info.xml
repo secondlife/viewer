@@ -15,7 +15,7 @@
 				</layout_panel>
 				<layout_panel name="location panel">
 					<text name="Location">
-						場所：
+						場所:
 					</text>
 					<text name="LocationTextText">
 						どこか
@@ -25,7 +25,7 @@
 				</layout_panel>
 				<layout_panel name="marketplace panel">
 					<text name="Location">
-						マーケットプレイスストア：
+						マーケットプレイスストア:
 					</text>
 					<text name="LocationTextText">
 						どこか
@@ -33,13 +33,13 @@
 				</layout_panel>
 				<layout_panel name="details panel">
 					<text name="ContentRating">
-						レーティング：
+						レーティング:
 					</text>
 					<text name="ContentRatingText">
 						Adult
 					</text>
 					<text name="Owner">
-						所有者：
+						所有者:
 					</text>
 					<text name="OwnerText">
 						カイル

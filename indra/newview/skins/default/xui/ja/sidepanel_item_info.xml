@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="アイテムのプロフィール">
 	<panel.string name="loading_experience">
-		（読み込んでいます…）
+		(読み込んでいます…)
 	</panel.string>
 	<panel.string name="unknown">
-		（不明）
+		(不明)
 	</panel.string>
 	<panel.string name="unknown_multiple">
-		（不明／複数）
+		(不明/複数)
 	</panel.string>
 	<panel.string name="public">
-		（公開）
+		(公開)
 	</panel.string>
 	<panel.string name="you_can">
-		あなたができること：
+		できること:
 	</panel.string>
 	<panel.string name="owner_can">
-		所有者ができること：
+		所有者ができること:
 	</panel.string>
 	<panel.string name="acquiredDate">
-		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日[wkday,datetime,local]　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
+		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日[wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
 	<panel.string name="origin_inventory">
-		（インベントリ）
+		(インベントリ)
 	</panel.string>
 	<panel.string name="origin_inworld">
-		（インワールド）
+		(インワールド)
 	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
-	<text name="origin" value="（インベントリ）"/>
+	<text name="origin" value="(インベントリ)"/>
 	<scroll_container name="item_profile_scroll">
 		<panel label="" name="item_profile">
 			<text name="LabelItemNameTitle">
-				名前：
+				名前:
 			</text>
-			<line_editor name="LabelItemName" tool_tip="使用できる名前の文字数は最大63文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7（非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。"/>
+			<line_editor name="LabelItemName" tool_tip="使用できる名前の文字数は最大63文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7(非拡張)に含まれる印字可能な文字のみです(縦線「|」は例外)。"/>
 			<text name="LabelItemDescTitle">
-				説明：
+				説明:
 			</text>
-			<line_editor name="LabelItemDesc" tool_tip="ビューアの設定で[すべてのオブジェクト上でヒントを表示]が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大127バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。"/>
+			<line_editor name="LabelItemDesc" tool_tip="ビューアーの設定で[すべてのオブジェクト上でヒントを表示]が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大127バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。"/>
 			<text name="LabelCreatorTitle">
-				制作者：
+				制作者:
 			</text>
 			<text name="LabelOwnerTitle">
-				所有者：
+				所有者:
 			</text>
 			<text name="LabelAcquiredTitle">
-				取得：
+				取得:
 			</text>
 			<text name="LabelItemExperienceTitle">
-				体験：
+				体験:
 			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">
-					あなたができること：
+					できること:
 				</text>
 				<check_box label="修正" name="CheckOwnerModify"/>
 				<check_box label="コピー" name="CheckOwnerCopy"/>
 				<check_box label="再販・譲渡" name="CheckOwnerTransfer"/>
 				<text name="AnyoneLabel">
-					全員：
+					全員:
 				</text>
 				<check_box label="コピー" name="CheckEveryoneCopy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります。"/>
 				<text name="GroupLabel">
-					グループ：
+					グループ:
 				</text>
 				<check_box label="共有" name="CheckShareWithGroup" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。譲渡しない限り、役割制限を有効にはできません。"/>
 				<text name="NextOwnerLabel">
-					次の所有者：
+					次の所有者:
 				</text>
 				<check_box label="修正" name="CheckNextOwnerModify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。"/>
 				<check_box label="コピー" name="CheckNextOwnerCopy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。"/>
@@ -79,7 +79,7 @@
 				<combo_box.item label="コンテンツ" name="Contents"/>
 				<combo_box.item label="オリジナル" name="Original"/>
 			</combo_box>
-			<spinner label="価格：L$" name="Edit Cost" tool_tip="オブジェクトの価格"/>
+			<spinner label="価格: L$" name="Edit Cost" tool_tip="オブジェクトの価格"/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

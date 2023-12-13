@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits" label="モノ">
+<panel name="Outfits" label="もの">
 	<panel.string name="wear_outfit_tooltip">
 		選択したアウトフィットに着替える
 	</panel.string>

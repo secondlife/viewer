@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="地形" name="Terrain">
 	<text name="region_text_lbl">
-		地域：
+		リージョン(地域):
 	</text>
 	<text name="region_text">
 		未知
@@ -10,19 +10,19 @@
 	<spinner label="地形の上昇限度" name="terrain_raise_spin"/>
 	<spinner label="地形の下降限度" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-		地形テクスチャ（1024✕1024 の 24 bit .tga ファイル）
+		地形テクスチャ(1024 x 1024 の 24 bit .tga ファイル)
 	</text>
 	<text name="height_text_lbl">
-		１（低）
+		1(低)
 	</text>
 	<text name="height_text_lbl2">
-		２
+		2
 	</text>
 	<text name="height_text_lbl3">
-		３
+		3
 	</text>
 	<text name="height_text_lbl4">
-		４（高）
+		4(高)
 	</text>
 	<text name="height_text_lbl5">
 		地形の隆起範囲
@@ -31,7 +31,7 @@
 		数値は上のテクスチャのブレンド範囲を示します。
 	</text>
 	<text name="height_text_lbl11">
-		計測単位はメートルで、「低」の値は、１番のテクスチャの高さの「最大値」です。「高」の値は、４番のテクスチャの高さの「最低値」です。
+		計測単位はメートルで、「低」の値は、1番のテクスチャの高さの「最大値」です。「高」の値は、4番のテクスチャの高さの「最低値」です。
 	</text>
 	<text name="height_text_lbl6">
 		北西

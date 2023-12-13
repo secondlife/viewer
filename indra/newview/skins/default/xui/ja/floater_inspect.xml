@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect" title="オブジェクトの調査">
 	<floater.string name="timeStamp">
-		[year,datetime,slt]年[mth,datetime,slt]月[day,datetime,slt]日（[wkday,datetime,slt]）　[hour,datetime,slt]：[min,datetime,slt]：[second,datetime,slt]
+		[year,datetime,slt]年[mth,datetime,slt]月[day,datetime,slt]日([wkday,datetime,slt]) [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt]
 	</floater.string>
 	<scroll_list name="object_list" tool_tip="このリストからオブジェクトを選択して、インワールドでハイライトします。">
 		<scroll_list.columns label="オブジェクト名" name="object_name"/>

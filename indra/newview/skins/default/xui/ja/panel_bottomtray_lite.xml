@@ -6,7 +6,7 @@
 			<panel name="nearby_chat"/>
 		</layout_panel>
 		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="ジェスチャー" name="Gesture" tool_tip="ジェスチャーの表示／非表示"/>
+			<gesture_combo_list label="ジェスチャー" name="Gesture" tool_tip="ジェスチャーの表示/非表示"/>
 		</layout_panel>
 		<layout_panel name="after_gesture_panel"/>
 	</layout_stack>

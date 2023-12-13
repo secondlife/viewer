@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="objectcontents" title="オブジェクトのコンテンツ">
 	<text name="object_name">
-		[DESC]：
+		[DESC]:
 	</text>
 	<panel_inventory_object name="object_contents"/>
 	<button label="インベントリにコピーのみ" label_selected="インベントリにコピー" name="copy_to_inventory_button"/>

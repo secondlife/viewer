@@ -323,10 +323,10 @@
 	<notification name="PanelGroupApply">[NEEDS_APPLY_MESSAGE]
 [WANT_APPLY_MESSAGE]
     <tag>
-			group
+			confirm
 		</tag>
 		<tag>
-			fail
+			group
 		</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="変更を無視" yestext="変更を適用"/>
 	</notification>
@@ -752,11 +752,15 @@ L$が不足しているので、このグループに参加することができ
 			fail
 		</tag>
 	</notification>
-	<notification name="MustHaveAccountToLogIn">おっと、記入漏れがあります。
+	<notification name="MustHaveAccountToLogIn">
+		<tag>
+			fail
+		</tag>
+おっと、記入漏れがあります。
 アバターのユーザー名を入力してください。
 
 [SECOND_LIFE]に入るにはアカウントが必要です。今すぐアカウントを作成しますか？
-    <tag>
+		<tag>
 			confirm
 		</tag>
 		<url name="url">
@@ -990,13 +994,16 @@ L$が不足しているので、このグループに参加することができ
 このためパフォーマンスが低下する場合があります。恐れ入りますが[SUPPORT_SITE]は、サポートされていないシステム構成に対する技術的サポートを提供できません。
 
 詳細について、[_URL] を確認しますか？
-    <url name="url" option="0">
+		<tag>
+			confirm
+		</tag>
+		<url name="url" option="0">
 			https://secondlife.com/system-requirements?lang=ja
 		</url>
+		<usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 		<tag>
 			fail
 		</tag>
-		<usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="OldGPUDriver">グラフィックスチップに最新のドライバがある可能性があります。グラフィックドライバを更新することにより、大幅にパフォーマンスが向上します。
 ドライバの更新を確認するために[URL] にアクセスしますか？
@@ -1074,10 +1081,8 @@ L$が不足しているので、このグループに参加することができ
 			fail
 		</tag>
 	</notification>
-	<notification name="TransactionCancelled">取引がキャンセルされました。
-    <tag>
-			fail
-		</tag>
+	<notification name="TransactionCancelled">
+		取引がキャンセルされました。
 	</notification>
 	<notification name="TooManyItems">一度に42個以上のアイテムを渡すことはできません。
     <tag>
@@ -1809,7 +1814,7 @@ L$が不足しているので、このグループに参加することができ
 この辞書は追加辞書として使用できますが、メイン辞書としては使用できません。詳細については下記をご覧ください。
 https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
     <tag>
-			fail
+			confirm
 		</tag>
 	</notification>
 	<notification name="SpellingDictImportFailed">[FROM_NAME]から[TO_NAME]へコピーすることはできません。
@@ -2164,9 +2169,6 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 	<notification name="WelcomeChooseSex">まもなく、あなたのアバターが表示されます。矢印キーを使用して歩きます。
 ヘルプが必要なときや、[SECOND_LIFE]について知りたいときは、Ｆ１キーを押してください。
 男性あるいは女性のアバターを選択してください。この設定は後で変更できます。
-    <tag>
-			confirm
-		</tag>
 		<usetemplate name="okcancelbuttons" notext="女性" yestext="男性"/>
 	</notification>
 	<notification name="CantTeleportToGrid">現在のグリッド（[CURRENT_GRID]）とはグリッド（[GRID]）が異なるため、[SLURL] にテレポートできませんでした。ビューアーを閉じてからもう一度お試しください。
@@ -2233,9 +2235,6 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 	</notification>
 	<notification name="FlushMapVisibilityCaches">このリージョンのマップのキャッシュを消去します。デバッグ目的のみに便利な操作です。
 （作成中は５分経過すると、全員のマップが再度ログイン後に更新されます）
-    <tag>
-			fail
-		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="BuyOneObjectOnly">一度に１つ以上のオブジェクトを買うことはできません。オブジェクトを１つだけ選んでもう一度お試しください。
@@ -2508,7 +2507,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
 	</notification>
 	<notification name="RemoveItemWarn">コンテンツを削除すると、許可があってもオブジェクトに損傷を与えることがあります。削除を続けてもよろしいですか？
     <tag>
-			fail
+			confirm
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
@@ -2519,7 +2518,10 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="CantOfferFriendship">現在フレンド申請を送れません。数分後にもう一度お試しください。
-    <tag>
+		<tag>
+			friendship
+		</tag>
+		<tag>
 			fail
 		</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -2553,17 +2555,11 @@ OKをクリックして、ダウンロードとインストールを開始しま
     <tag>
 			group
 		</tag>
-		<tag>
-			fail
-		</tag>
 		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
 	<notification name="GroupLimitInfoPlus">ベーシック会員の住人は、最大[MAX_BASIC]個までグループに参加できます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。プレミアム・プラス会員は最大[MAX_PREMIUM_PLUS]個です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
     <tag>
 			group
-		</tag>
-		<tag>
-			fail
 		</tag>
 		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
@@ -2675,10 +2671,8 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 			fail
 		</tag>
 	</notification>
-	<notification name="DisplayNameUpdate">[OLD_NAME] ([SLID]) は、[NEW_NAME]に変更されました。
-    <tag>
-			fail
-		</tag>
+	<notification name="DisplayNameUpdate">
+		[OLD_NAME] ([SLID]) は、[NEW_NAME]に変更されました。
 	</notification>
 	<notification name="OfferTeleport">次のメッセージを使用して、あなたのいる場所へのテレポートのオファーしますか？
     <tag>
@@ -2879,12 +2873,13 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked">訪問しようとしているリージョン（地域）には、現在の初期設定を超えるレーティングのコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
+	<notification name="RegionEntryAccessBlocked">
+		<tag>
+			fail
+		</tag>
+訪問しようとしているリージョン（地域）には、現在の初期設定を超えるレーティングのコンテンツが含まれています。「ミー」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
 
 レーティング制限に関する詳細情報は、[https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E5%8C%BA%E5%88%86-r323/ こちら]をご覧になってください。
-    <tag>
-			confirm
-		</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">訪問しようとしているリージョン（地域）には、成人のみアクセスできる[REGIONMATURITY]コンテンツが含まれています。
@@ -3024,13 +3019,13 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 	</notification>
 	<notification name="PreferredMaturityChanged">今後、[RATING]コンテンツ付きのリージョン（地域）を訪問しようとしているという通知を受け取りません。後でメニューバーの「私」＞「初期設定」＞「一般」を使用して、コンテンツの初期設定を変更できます。
     <tag>
-			fail
+			confirm
 		</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="MaturityChangeError">現在、[PREFERRED_MATURITY]コンテンツを表示するように初期設定を変更できませんでした。あなたの初期設定は、[ACTUAL_MATURITY]コンテンツを表示するようにリセットされました。メニューバーの「私」＞「初期設定」＞「一般」を使用して、もう一度初期設定を変更できます。
     <tag>
-			fail
+			confirm
 		</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
@@ -3322,11 +3317,11 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 
 このまま購入を続けてもよろしいですか？
 パスワードを再入力し、「ＯＫ」をクリックしてください。
-    <tag>
-			confirm
-		</tag>
 		<tag>
 			funds
+		</tag>
+		<tag>
+			confirm
 		</tag>
 		<form name="form">
 			<input name="message"/>
@@ -3407,9 +3402,6 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 	<notification name="ConfirmRestoreToybox">この操作を実行すると、デフォルト設定のボタンとツールバーが復元されます。
 
 この操作は元に戻せません。
-    <tag>
-			confirm
-		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmClearAllToybox">この操作により、全てのボタンはツールボックスに戻り、ツールバーは空になります。
@@ -3888,10 +3880,8 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			fail
 		</tag>
 	</notification>
-	<notification name="SystemMessage">[MESSAGE]
-    <tag>
-			funds
-		</tag>
+	<notification name="SystemMessage">
+		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">[MESSAGE]
     <tag>
@@ -4297,9 +4287,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="OfferCallingCard">[NAME]が、コーリングカードを渡そうとしています。
 あなたのインベントリにブックマークが追加され、この住人に素早くＩＭを送ることができます。
-    <tag>
-			friendship
-		</tag>
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
@@ -4346,7 +4333,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 [QUESTIONS]
 よろしいですか？ 
     <tag>
-			fail
+			confirm
 		</tag>
 		<form name="form">
 			<button name="Yes" text="はい"/>
@@ -4738,9 +4725,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 安全のために数秒間ブロックされます。
 	</notification>
 	<notification name="IMToast">[MESSAGE]
-    <tag>
-			security
-		</tag>
 		<form name="form">
 			<button name="respondbutton" text="返答"/>
 		</form>
@@ -6524,9 +6508,6 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">チャット履歴ファイルが前の操作でビジーです。２、３分経ってからもう一度試すか、別の人とのチャットを選択してください。
-    <tag>
-			fail
-		</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="OutfitPhotoLoadError">[REASON]

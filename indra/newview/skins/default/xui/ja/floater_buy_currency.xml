@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater title="L$の購入" name="buy currency">
+<floater title="L$を購入" name="buy currency">
 	<floater.string name="buy_currency">
 		約[LOCALAMOUNT]でL$ [LINDENS]を購入
 	</floater.string>
@@ -56,7 +56,7 @@
 				1234
 			</line_editor>
 			<text name="currency_est">
-				平均[LOCALAMOUNT]
+				平均 [LOCALAMOUNT]
 			</text>
 			<text name="getting_data">
 				見積もり中…

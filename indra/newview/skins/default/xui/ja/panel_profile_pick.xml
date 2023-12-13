@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_pick_info">
 	<panel.string name="location_notice">
-		（掲載後更新）
+		(掲載後更新)
 	</panel.string>
 	<line_editor name="pick_location">
 		（読み込んでいます…）

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="participant_manu_view">
-	<menu_item_check label="会話をタイプで並べ替え" name="sort_sessions_by_type"/>
-	<menu_item_check label="会話を名前で並べ替え" name="sort_sessions_by_name"/>
-	<menu_item_check label="会話を最新アクティビティで並べ替え" name="sort_sessions_by_recent"/>
+	<menu_item_check label="会話をタイプでソート" name="sort_sessions_by_type"/>
+	<menu_item_check label="会話を名前でソート" name="sort_sessions_by_name"/>
+	<menu_item_check label="会話を最新アクティビティでソート" name="sort_sessions_by_recent"/>
 	<menu_item_separator/>
-	<menu_item_check label="参加者を名前で並べ替え" name="sort_participants_by_name"/>
-	<menu_item_check label="参加者を最新アクティビティで並べ替え" name="sort_participants_by_recent"/>
+	<menu_item_check label="参加者を名前でソート" name="sort_participants_by_name"/>
+	<menu_item_check label="参加者を最新アクティビティでソート" name="sort_participants_by_recent"/>
 	<menu_item_separator/>
 	<menu_item_call label="チャットの初期設定…" name="chat_preferences"/>
 	<menu_item_call label="プライバシーの初期設定…" name="privacy_preferences"/>

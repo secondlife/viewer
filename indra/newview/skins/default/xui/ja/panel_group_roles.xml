@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーと役割" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		保存していない変更があります。
+		保存していない変更があります
 	</panel.string>
 	<panel.string name="want_apply_text">
-		変更を保存しますか？
+		変更を保存しますか?
 	</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="メンバー" name="members_sub_tab" tool_tip="メンバー">
 			<panel.string name="help_text">
 				ここからメンバーに役割を付与したり、削除することができます。
-Ctrlキーを押しながら、メンバー名をクリックすることで複数の人を選択できます。
+        Ctrlキーを押しながら、メンバー名をクリックすることで複数の人を選択できます。
 			</panel.string>
 			<panel.string name="donation_area">
 				[AREA]㎡
@@ -29,11 +29,11 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 		<panel label="役割" name="roles_sub_tab">
 			<panel.string name="help_text">
 				役割には、タイトルと許可された能力が割り当てられています。
-メンバーは１つ以上の役割を持つことができます。
-グループで使える役割は１０個までで、「全員（Everyone）」と「所有者（Owner）」がそれに含まれています。
+メンバーは1つ以上の役割を持つことができます。
+グループで使える役割は10個までで、「全員(Everyone)」と「所有者(Owner)」がそれに含まれています。
 			</panel.string>
 			<panel.string name="cant_delete_role">
-				「全員（Everyone）」と「所有者（Owner）」の役割は削除することができません。
+				「全員(Everyone)」と「所有者(Owner)」の役割は削除することができません。
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -48,7 +48,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			<scroll_list name="role_list">
 				<scroll_list.columns label="役割" name="name"/>
 				<scroll_list.columns label="タイトル" name="title"/>
-				<scroll_list.columns label="＃" name="members"/>
+				<scroll_list.columns label="#" name="members"/>
 			</scroll_list>
 			<button label="新しい役割" name="role_create"/>
 			<button label="役割をコピー" name="role_copy"/>
@@ -69,7 +69,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 				Checkbox_Off
 			</panel.string>
 			<filter_editor label="能力でフィルタ" name="filter_input"/>
-			<scroll_list name="action_list" tool_tip="詳細を見るには、能力を選んでください。">
+			<scroll_list name="action_list" tool_tip="詳細を見るには、能力を選んでください">
 				<scroll_list.columns label="" name="icon"/>
 				<scroll_list.columns label="" name="checkbox"/>
 				<scroll_list.columns label="" name="action"/>
@@ -80,7 +80,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 				バンリストに登録された住人は、グループに参加できません。
 			</panel.string>
 			<panel.string name="ban_count_template">
-				バンされた人数：[LIMIT]人中[COUNT]人
+				バンされた人数: [LIMIT]人中[COUNT]人
 			</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="住人" name="name"/>
@@ -103,7 +103,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 		<text name="static2">
 			許可されたアクション
 		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="各能力の詳細は、能力のタブをご覧ください。">
+		<scroll_list name="member_allowed_actions" tool_tip="各能力の詳細は能力のタブをご覧ください。">
 			<scroll_list.columns label="" name="icon"/>
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="action"/>

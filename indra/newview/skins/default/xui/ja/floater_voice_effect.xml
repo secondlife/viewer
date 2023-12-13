@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater label="場所" name="voice_effects" title="ボイスモーフィングのプレビュー">
 	<string name="no_voice_effect">
-		（ボイスモーフィングなし）
+		(ボイスモーフィングなし)
 	</string>
 	<string name="active_voice_effect">
-		（アクティブ）
+		(アクティブ)
 	</string>
 	<string name="unsubscribed_voice_effect">
-		（取消し済み）
+		(取消し済み)
 	</string>
 	<string name="new_voice_effect">
-		（新登場！）
+		(新登場!)
 	</string>
 	<string name="effect_Arena">
 		アリーナ
@@ -133,7 +133,7 @@
 		艶かしい
 	</string>
 	<string name="effect_Thunder">
-		サンダー
+		雷
 	</string>
 	<string name="effect_Vixen">
 		性悪な

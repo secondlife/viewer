@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_media">
 	<string name="media_item_count_format">
-		（メディアアイテム %ld ）
+		(メディアアイテム %ld )
 	</string>
 	<string name="empty_item_text">
 		&lt;空&gt;
@@ -13,13 +13,13 @@
 		区画ストリーミングオーディオ
 	</string>
 	<string name="playing_suffix">
-		（再生中）
+		(再生中)
 	</string>
 	<panel name="minimized_controls">
-		<button label="すべて停止" name="all_nearby_media_disable_btn" tool_tip="近隣のメディアをすべてオフにします"/>
+		<button label="全て停止" name="all_nearby_media_disable_btn" tool_tip="近隣のメディアをすべてオフにします"/>
 		<button label="すべて開始" name="all_nearby_media_enable_btn" tool_tip="近隣のメディアをすべてオンにします"/>
 		<button name="open_prefs_btn" tool_tip="メディアの設定を開きます"/>
-		<button label="詳細　≫" label_selected="≪　簡易" name="more_btn" tool_tip="拡張コントロール"/>
+		<button label="詳細 ≫" label_selected="≪　簡易" name="more_btn" tool_tip="拡張コントロール"/>
 		<button label="詳細　≫" label_selected="≪　簡易" name="less_btn" tool_tip="拡張コントロール"/>
 	</panel>
 	<panel name="nearby_media_panel">
@@ -27,10 +27,10 @@
 			近隣のメディア
 		</text>
 		<text name="show_text">
-			表示：
+			表示:
 		</text>
 		<combo_box name="show_combo">
-			<combo_box.item label="すべて" name="All"/>
+			<combo_box.item label="全て" name="All"/>
 			<combo_box.item label="この区画内" name="WithinParcel"/>
 			<combo_box.item label="この区画外" name="OutsideParcel"/>
 			<combo_box.item label="他のアバター" name="OnOthers"/>

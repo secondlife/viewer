@@ -4,34 +4,34 @@
 	<slider label="視界角" name="camera_fov"/>
 	<slider label="距離" name="camera_offset_scale"/>
 	<text name="heading2">
-		自動ポジション：
+		自動ポジション:
 	</text>
 	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
 	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
 	<icon name="avatar_icon"/>
 	<text name="keyboard_lbl">
-		キーボード：
+		キーボード:
 	</text>
 	<check_box label="方向キー押下時は、常に移動するようにする" name="arrow_keys_move_avatar_check"/>
-	<check_box label="移動キー２度押し＋長押しで走る" name="tap_tap_hold_to_run"/>
+	<check_box label="移動キー2度押し+長押しで走る" name="tap_tap_hold_to_run"/>
 	<check_box label="ジャンプまたはしゃがみキーを押し続けると、飛行を開始または停止します。" name="automatic_fly"/>
 	<text name="mouse_lbl">
-		マウス：
+		マウス:
 	</text>
-	<check_box label="一人称視点で表示する" name="first_person_avatar_visible"/>
+	<check_box label="一人称視点で表示" name="first_person_avatar_visible"/>
 	<text name=" Mouse Sensitivity">
-		一人称視点時のマウスの感度：
+		一人称視点時のマウスの感度:
 	</text>
 	<check_box label="切り替え" name="invert_mouse"/>
 	<text name="single_click_action_lbl">
-		土地をシングルクリック：
+		土地をシングルクリック:
 	</text>
 	<combo_box name="single_click_action_combo">
 		<combo_box.item label="動作なし" name="0" value="0"/>
 		<combo_box.item label="クリックされた地点に移動" name="1" value="1"/>
 	</combo_box>
 	<text name="double_click_action_lbl">
-		土地をダブルクリック：
+		土地をダブルクリック:
 	</text>
 	<combo_box name="double_click_action_combo">
 		<combo_box.item label="動作なし" name="0" value="0"/>

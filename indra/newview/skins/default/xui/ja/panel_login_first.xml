@@ -21,7 +21,7 @@
 			<layout_stack name="widget_stack">
 				<layout_panel name="widget_left"/>
 				<layout_panel name="widget_container">
-					<combo_box label="ユーザ名" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）" name="username_combo">
+					<combo_box label="ユーザ名" tool_tip="登録時に自分で選んだユーザ名(例: bobsmith12、Steller Sunshineなど)" name="username_combo">
 						<combo_box.combo_editor/>
 						<combo_box.combo_button/>
 						<combo_box.drop_down_button/>
@@ -31,10 +31,10 @@
 					<text name="sign_up_text" valign="center">
 						サインアップ
 					</text>
-					<check_box label="ユーザ名を記憶" name="remember_name" tool_tip="すでに記憶されているユーザーは、「私」＞「初期設定」＞「詳細設定」＞「記憶されたユーザー名」から削除できます。"/>
-					<check_box label="パスワード記憶" name="remember_password"/>
+					<check_box label="名前を記憶" name="remember_name" tool_tip="既に記憶されているユーザは、「私」&gt;「初期設定」&gt;「詳細設定」&gt;「記憶されたユーザ名」から削除できます。"/>
+					<check_box label="パスワードを記憶" name="remember_password"/>
 					<text name="forgot_password_text">
-						パスワードを忘れましたか？
+						パスワードを忘れましたか?
 					</text>
 				</layout_panel>
 				<layout_panel name="widget_right"/>

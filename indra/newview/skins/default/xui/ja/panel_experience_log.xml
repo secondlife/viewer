@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experience_log" label="イベント">
 	<string name="no_events" value="イベントはありません。"/>
-	<string name="loading" value="読み込んでいます…。"/>
+	<string name="loading" value="読み込み中…"/>
 	<layout_stack name="ls1">
 		<layout_panel name="list panel">
 			<scroll_list name="experience_log_list">

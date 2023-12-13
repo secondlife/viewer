@@ -12,7 +12,7 @@
 			<text name="composite_label">
 				合成テクスチャ
 			</text>
-			<button label="ＩＤをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
+			<button label="IDをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="髪" name="hair-baked"/>
 				<texture_picker label="髪" name="hair_grain"/>
@@ -32,8 +32,8 @@
 				<texture_picker label="上半身の下着" name="upper_undershirt"/>
 				<texture_picker label="手袋" name="upper_gloves"/>
 				<texture_picker label="シャツ" name="upper_shirt"/>
-				<texture_picker label="上着" name="upper_jacket"/>
-				<texture_picker label="上半身のアルファ" name="upper_alpha"/>
+				<texture_picker label="ジャケット" name="upper_jacket"/>
+				<texture_picker label="アルファ(上半身)" name="upper_alpha"/>
 				<texture_picker label="上半身のタトゥ" name="upper_tattoo"/>
 				<texture_picker label="上半身全般のタトゥ" name="upper_universal_tattoo"/>
 				<texture_picker label="下半身" name="lower-baked"/>
@@ -53,12 +53,12 @@
 				<texture_picker label="左腕のタトゥ" name="leftarm_tattoo"/>
 				<texture_picker label="左足" name="leftleg-baked"/>
 				<texture_picker label="左足のタトゥ" name="leftleg_tattoo"/>
-				<texture_picker label="予備１" name="aux1-baked"/>
-				<texture_picker label="予備１タトゥ" name="aux1_tattoo"/>
-				<texture_picker label="予備２" name="aux2-baked"/>
-				<texture_picker label="予備２タトゥ" name="aux2_tattoo"/>
-				<texture_picker label="予備３" name="aux3-baked"/>
-				<texture_picker label="予備３タトゥ" name="aux3_tattoo"/>
+				<texture_picker label="予備1" name="aux1-baked"/>
+				<texture_picker label="予備1タトゥ" name="aux1_tattoo"/>
+				<texture_picker label="予備2" name="aux2-baked"/>
+				<texture_picker label="予備2タトゥ" name="aux2_tattoo"/>
+				<texture_picker label="予備3" name="aux3-baked"/>
+				<texture_picker label="予備3タトゥ" name="aux3_tattoo"/>
 			</panel>
 		</panel>
 	</scroll_container>

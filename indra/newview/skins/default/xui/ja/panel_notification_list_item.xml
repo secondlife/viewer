@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="main_panel" title="panel_notification_list_item">
 	<panel.string name="sender_resident_text">
-		送信者："[SENDER_RESIDENT]"
+		送信者: "[SENDER_RESIDENT]"
 	</panel.string>
 	<panel.string name="group_name_text">
-		グループ："[GROUP_NAME]"
+		グループ: "[GROUP_NAME]"
 	</panel.string>
 	<panel.string name="group_fee_text">
-		費用：[GROUP_FEE]
+		費用: [GROUP_FEE]
 	</panel.string>
 	<panel.string name="item_condensed_height">
 		50
@@ -32,15 +32,15 @@
 							<panel name="main_info_panel">
 								<panel name="notification_title_panel">
 									<text name="notification_title">
-										グループ名：通知件名 通知件名 通知件名 通知件名 通知件名
+										グループ名:通知件名 通知件名 通知件名 通知件名 通知件名
 									</text>
 									<icon name="attachment_icon" tool_tip="装着物"/>
 								</panel>
 								<panel name="sender_time_panel">
 									<text name="sender_or_fee_box">
-										送信者：住民 じゅうみん
+										送信者: 住民 じゅうみん
 									</text>
-									<text name="notification_time" value="2014年12月24日　23：30"/>
+									<text name="notification_time" value="2014年12月24日 23:30"/>
 								</panel>
 							</panel>
 						</layout_panel>
@@ -60,13 +60,13 @@
 							<group_icon name="group_icon_exp" tool_tip="グループ"/>
 							<avatar_icon name="avatar_icon_exp" tool_tip="アバター"/>
 							<icon name="system_notification_icon_exp" tool_tip="アイコン"/>
-							<icon name="attachment_icon_exp" tool_tip="添付"/>
+							<icon name="attachment_icon_exp" tool_tip="装着物"/>
 						</layout_panel>
 						<layout_panel name="layout_panel_middle_exp">
 							<panel name="main_info_panel_expanded">
 								<panel name="notification_title_panel_exp">
 									<text name="notification_title_exp">
-										通知件名 通知件名 通知件名 通知件名
+										通知件名
 									</text>
 									<text name="group_name_exp">
 										グループ名 グループ名 グループ名
@@ -74,13 +74,13 @@
 								</panel>
 								<panel name="sender_time_panel_exp">
 									<text name="sender_or_fee_box_exp">
-										送信者：住民 じゅうみん
+										送信者: 住民 じゅうみん
 									</text>
-									<text name="notification_time_exp" value="2014年12月24日　23：30"/>
+									<text name="notification_time_exp" value="2014年12月24日 23:30"/>
 								</panel>
 								<panel name="notification_text_panel_exp">
 									<chat_editor name="notification_text_exp">
-										通知件名がここに入る。あーだこーだ
+										通知件名がここに入る。
 									</chat_editor>
 								</panel>
 								<panel name="attachment_panel">

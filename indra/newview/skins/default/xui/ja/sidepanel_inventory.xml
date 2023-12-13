@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="オブジェクト" name="objects panel">
+<panel label="もの" name="objects panel">
 	<panel label="" name="sidepanel_inventory_panel">
 		<layout_stack name="inventory_layout_stack">
 			<layout_panel name="inbox_layout_panel">
 				<panel label="" name="marketplace_inbox">
 					<string name="InboxLabelWithArg">
-						受け取ったアイテム（[NUM]個）
+						受け取ったアイテム ([NUM]個)
 					</string>
 					<string name="InboxLabelNoArg">
 						受け取ったアイテム
@@ -25,16 +25,16 @@
 		<panel name="button_panel">
 			<layout_stack name="button_panel_ls">
 				<layout_panel name="info_btn_lp">
-					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示する"/>
+					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示"/>
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
-					<button label="共有" name="share_btn" tool_tip="インベントリ内のアイテムを共有する。"/>
+					<button label="共有" name="share_btn" tool_tip="「持ち物」のアイテムを共有する"/>
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
-					<button label="ショッピング" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く"/>
-					<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用す。る"/>
+					<button label="ショップ" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く"/>
+					<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用する"/>
 					<button label="再生" name="play_btn"/>
-					<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする。"/>
+					<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポート"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

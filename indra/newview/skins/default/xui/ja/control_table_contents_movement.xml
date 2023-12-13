@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-	<rows name="move_actions" value="">
+	<rows enabled="false" name="move_actions" value="">
 		<columns type="icontext" label="移動アクション" name="lst_action" value="Move_Walk_Off"/>
 	</rows>
 	<rows name="walk_to" value="walk_to">
 		<columns name="lst_action" tool_tip="マウスカーソルが指している場所に向かって歩きます。" value="移動先"/>
 	</rows>
 	<rows name="teleport_to" value="teleport_to">
-		<columns name="lst_action" tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。" value="テレポートする"/>
+		<columns name="lst_action" tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。" value="テレポート"/>
 	</rows>
 	<rows name="push_forward" value="push_forward">
 		<columns name="lst_action" value="前に移動"/>
@@ -28,7 +28,7 @@
 		<columns name="lst_action" value="右へ平行移動"/>
 	</rows>
 	<rows name="jump" value="jump">
-		<columns name="lst_action" value="ジャンプ／飛行"/>
+		<columns name="lst_action" value="ジャンプ/飛行"/>
 	</rows>
 	<rows name="push_down" value="push_down">
 		<columns name="lst_action" value="下降"/>
@@ -49,10 +49,10 @@
 		<columns name="lst_action" value="常時走行切り替え"/>
 	</rows>
 	<rows name="toggle_fly" value="toggle_fly">
-		<columns name="lst_action" value="飛行／停止切り替え"/>
+		<columns name="lst_action" value="飛行/停止切り替え"/>
 	</rows>
 	<rows name="toggle_sit" value="toggle_sit">
-		<columns name="lst_action" value="座る／立つ"/>
+		<columns name="lst_action" value="座る/立つ"/>
 	</rows>
 	<rows name="stop_moving" value="stop_moving">
 		<columns name="lst_action" value="立ち止まる"/>

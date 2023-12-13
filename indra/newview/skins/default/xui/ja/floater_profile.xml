@@ -5,9 +5,9 @@
 			<panel label="Second Life" name="panel_profile_secondlife"/>
 			<panel label="Web" name="panel_profile_web"/>
 			<panel label="趣味" name="panel_profile_interests"/>
-			<panel label="ピック" name="panel_profile_picks"/>
+			<panel label="選択" name="panel_profile_picks"/>
 			<panel label="クラシファイド広告" name="panel_profile_classifieds"/>
-			<panel label="リアルライフ（現実世界）" name="panel_profile_firstlife"/>
+			<panel label="リアルライフ(現実世界)" name="panel_profile_firstlife"/>
 			<panel label="メモ" name="panel_profile_notes"/>
 		</tab_container>
 		<button label="ＯＫ" name="ok_btn" tool_tip="プロフィールの変更を保存して閉じる"/>

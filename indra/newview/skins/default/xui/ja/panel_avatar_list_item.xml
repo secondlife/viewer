@@ -23,13 +23,13 @@
 	</string>
 	<icon name="hovered_icon"/>
 	<icon name="selected_icon"/>
-	<text name="avatar_name" value="（読み込んでいます）"/>
-	<text name="last_interaction" value="０秒"/>
-	<icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集することができます。"/>
+	<text name="avatar_name" value="(読み込んでいます)"/>
+	<text name="last_interaction" value="0秒"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集できます"/>
 	<icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトを編集・削除・取得することができます。"/>
-	<icon tool_tip="このフレンドはマップ上であなたの位置を表示できます。" name="permission_map_icon"/>
+	<icon tool_tip="このフレンドは、マップ上であなたの位置を表示できます。" name="permission_map_icon"/>
 	<icon name="permission_online_icon" tool_tip="このフレンドは、あなたのオンライン状況を確認できます。"/>
 	<button name="info_btn" tool_tip="詳細"/>
-	<button name="profile_btn" tool_tip="プロフィールの閲覧"/>
+	<button name="profile_btn" tool_tip="プロフィールを表示"/>
 	<output_monitor name="speaking_indicator" tool_tip="ボイスのボリューム"/>
 </panel>

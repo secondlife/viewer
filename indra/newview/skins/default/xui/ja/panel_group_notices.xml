@@ -9,8 +9,8 @@
 		過去の通知はありません
 	</panel.string>
 	<text name="lbl2">
-		通知は１４日間保存されます。
-１日の制限数は２００通です。
+		通知は14日間保存されます。
+1日の制限数は200通です。
 	</text>
 	<scroll_list name="notice_list">
 		<scroll_list.columns label="" name="icon"/>
@@ -28,16 +28,16 @@
 			通知の作成
 		</text>
 		<text name="lbl3">
-			件名：
+			件名:
 		</text>
 		<text name="lbl4">
-			内容：
+			内容:
 		</text>
 		<text name="lbl5">
-			添付：
+			添付:
 		</text>
 		<text name="string">
-			ここにアイテムをドラッグ＆ドロップして添付してください：
+			ここにアイテムをドラッグ&amp;ドロップして添付してください:
 		</text>
 		<button label="インベントリ" name="open_inventory" tool_tip="インベントリを開きます"/>
 		<button label="取り外す" label_selected="添付物を削除" name="remove_attachment" tool_tip="あなたの通知から添付されたアイテムを削除します"/>
@@ -49,13 +49,13 @@
 			アーカイブ通知
 		</text>
 		<text name="lbl2">
-			新しい通知を送信するには、＋ボタンを押してください
+			新しい通知を送信するには、+ボタンを押してください
 		</text>
 		<text name="lbl3">
-			件名：
+			件名:
 		</text>
 		<text name="lbl4">
-			内容：
+			内容:
 		</text>
 		<button label="添付アイテムを開く" label_selected="添付物を開く" name="open_attachment"/>
 	</panel>

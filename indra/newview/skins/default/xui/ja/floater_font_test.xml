@@ -7,7 +7,7 @@
 		普通の大きさのサンセリフ
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" height="16" layout="topleft" left="16">
-		サンセリフ。スタイル設定無し（普通の大きさと同じ）
+		サンセリフ。スタイル設定無し(普通の大きさと同じ)
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerifLarge" height="16" layout="topleft" left="16">
 		大きいサンセリフ
@@ -34,7 +34,7 @@
 		ボールドのサンセリフ
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="BOLD" height="16" layout="topleft" left="16">
-		サンセリフ style=BOLD（ボールドのサンセリフと一緒）
+		サンセリフ style=BOLD(ボールドのサンセリフと一緒)
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="ITALIC" height="16" layout="topleft" left="16">
 		サンセリフ style=ITALIC

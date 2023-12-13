@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Avatar Context Menu">
 	<menu_item_call label="プロフィールを表示" name="view_profile"/>
-	<menu_item_call label="ＩＭ" name="im"/>
+	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="テレポートを送る" name="offer_teleport"/>
 	<menu_item_call label="ボイスコール" name="voice_call"/>
 	<menu_item_call label="チャットの履歴を表示…" name="chat_history"/>
@@ -11,8 +11,8 @@
 	<menu_item_call label="ズームイン" name="zoom_in"/>
 	<menu_item_call label="マップ" name="map"/>
 	<menu_item_call label="共有" name="share"/>
-	<menu_item_call label="支払う" name="pay"/>
-	<menu_item_check label="ブロック／解除" name="block_unblock"/>
+	<menu_item_call label="支払い" name="pay"/>
+	<menu_item_check label="ブロック/解除" name="block_unblock"/>
 	<menu_item_call label="フリーズ" name="freeze"/>
 	<menu_item_call label="追放" name="eject"/>
 </context_menu>

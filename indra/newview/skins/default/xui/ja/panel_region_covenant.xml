@@ -4,22 +4,22 @@
 		不動産
 	</text>
 	<text name="estate_name_lbl">
-		名前：
+		名前:
 	</text>
 	<text name="estate_name_text">
 		メインランド
 	</text>
 	<text name="estate_owner_lbl">
-		所有者：
+		所有者:
 	</text>
 	<text name="estate_owner_text">
-		（無）
+		(無)
 	</text>
 	<text name="estate_cov_lbl">
-		約款：
+		約款:
 	</text>
 	<text name="covenant_timestamp_text">
-		最終更新日：1969年12月31日（水）16:00:00
+		最終更新日:1969年12月31日(水)16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
 	<text_editor bottom="-263" height="178" name="covenant_editor">
@@ -30,51 +30,51 @@
 		約款の変更は不動産全区画に適用となります。
 	</text>
 	<text name="covenant_instructions">
-		この不動産約款を変更する際は、ノートカードをドラッグ＆ドロップしてください。
+		この不動産約款を変更する際は、ノートカードをドラッグ&amp;ドロップしてください。
 	</text>
 	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl">
-		リージョン
+		リージョン(地域)
 	</text>
 	<text name="region_name_lbl">
-		名前：
+		名前:
 	</text>
 	<text name="region_name_text">
 		エリカ
 	</text>
 	<text name="region_landtype_lbl">
-		種類：
+		種類:
 	</text>
 	<text name="region_landtype_text">
-		メインランド／入植地
+		メインランド/入植地
 	</text>
 	<text name="region_maturity_lbl">
-		区分：
+		区分:
 	</text>
 	<text name="region_maturity_text">
 		アダルト
 	</text>
 	<text name="resellable_lbl">
-		再販：
+		再販:
 	</text>
 	<text name="resellable_clause">
-		このリージョン（地域）にある土地は再販できません。
+		このリージョン(地域)にある土地は再販できません。
 	</text>
 	<text name="changeable_lbl">
-		再分割：
+		再分割:
 	</text>
 	<text name="changeable_clause">
-		このリージョン（地域）にある土地は統合または分割ができません。
+		このリージョン(地域)にある土地は統合または分割ができません。
 	</text>
 	<string name="can_resell">
-		このリージョン（地域）で購入した土地は、再販できます。
+		このリージョン(地域)で購入した土地は、再販できます。
 	</string>
 	<string name="can_not_resell">
-		このリージョン（地域）の購入地は再販できないことがあります。
+		このリージョン(地域)の購入地は再販できないことがあります。
 	</string>
 	<string name="can_change">
-		このリージョン（地域）の購入地は統合または再分割できます。
+		このリージョン(地域)の購入地は統合または再分割できます。
 	</string>
 	<string name="can_not_change">
-		このリージョン（地域）の購入地は統合／再分割できないことがあります。
+		このリージョン(地域)の購入地は統合／再分割できないことがあります。
 	</string>
 </panel>

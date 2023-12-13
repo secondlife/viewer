@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="リージョン（地域）" name="General">
+<panel label="リージョン(地域)" name="General">
 	<text name="region_text_lbl">
-		リージョン（地域）：
+		リージョン(地域):
 	</text>
 	<text left_delta="70" name="region_text">
 		未知
 	</text>
 	<text name="version_channel_text_lbl">
-		バージョン：
+		バージョン:
 	</text>
 	<text left_delta="70" name="version_channel_text">
 		不明
 	</text>
 	<text name="region_type_lbl">
-		種類：
+		種類:
 	</text>
 	<text left_delta="70" name="region_type">
 		不明
@@ -29,12 +29,12 @@
 	<spinner label="アバター数上限" name="agent_limit_spin"/>
 	<spinner label="物体ボーナス" name="object_bonus_spin"/>
 	<text label="成人指定" name="access_text">
-		区分：
+		区分:
 	</text>
-	<icons_combo_box label="Moderate" name="access_combo">
-		<icons_combo_box.item label="Adult" name="Adult" value="42"/>
-		<icons_combo_box.item label="Moderate" name="Mature" value="21"/>
-		<icons_combo_box.item label="General" name="PG" value="13"/>
+	<icons_combo_box label="モデレート" name="access_combo">
+		<icons_combo_box.item label="アダルト" name="Adult" value="42"/>
+		<icons_combo_box.item label="モデレート" name="Mature" value="21"/>
+		<icons_combo_box.item label="一般" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="適用" name="apply_btn"/>
 	<button label="住人 1 名をホームにテレポート…" name="kick_btn"/>

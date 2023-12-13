@@ -7,7 +7,7 @@
 		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Loading%3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E%3C/body%3E %3C/html%3E
 	</floater.string>
 	<text name="tos_heading">
-		次の Second Lifeの利用規約、プライバシーポリシー、およびサービス規約（仲裁の利用および紛争解決のためのいかなるクラスまたはグループの請求の放棄に関する必要条件を含む）をお読みください。
+		次の Second Lifeの利用規約、プライバシーポリシー、およびサービス規約(仲裁の利用および紛争解決のためのいかなるクラスまたはグループの請求の放棄に関する必要条件を含む)をお読みください。
 [SECOND_LIFE]へのログインを続けるには、これらの規約に同意する必要があります。
 	</text>
 	<text name="external_tos_required">
@@ -15,8 +15,8 @@
 	</text>
 	<check_box label="" name="agree_chk"/>
 	<text name="agree_list">
-		私は、Second Life の利用規約、プライバシーポリシー、およびサービス規約（紛争解決のための必要条件を含む）を読み、同意しました。
+		私は、Second Life の利用規約、プライバシーポリシー、およびサービス規約(紛争解決のための必要条件を含む)を読み、同意しました。
 	</text>
-	<button label="続ける" label_selected="続ける" name="Continue"/>
+	<button label="続行" label_selected="続ける" name="Continue"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 </floater>

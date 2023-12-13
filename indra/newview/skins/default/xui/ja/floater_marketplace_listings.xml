@@ -4,7 +4,7 @@
 		<panel>
 			<panel name="marketplace_listings_inventory_placeholder_panel">
 				<text name="marketplace_listings_inventory_placeholder_title">
-					読み込んでいます…
+					読み込み中…
 				</text>
 				<text name="marketplace_listings_inventory_placeholder_text"/>
 			</panel>

@@ -8,10 +8,10 @@
 		<button label="E" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
 		<text name="currentlook_status">
-			（状態）
+			(状態)
 		</text>
 		<text name="currentlook_name">
-			MOOSEみたいな長い名前の私のアウトフィット
+			長い名前のアウトフィット
 		</text>
 		<button label="" name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
 	</panel>

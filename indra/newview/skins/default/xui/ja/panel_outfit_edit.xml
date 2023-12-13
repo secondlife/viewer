@@ -8,19 +8,19 @@
 	<string name="list_view_off" value="List_View_Disabled" translate="false"/>
 	<string name="list_view_on" value="List_View_On" translate="false"/>
 	<panel.string name="not_available">
-		（無し）
+		(無し)
 	</panel.string>
 	<panel.string name="unknown">
-		（不明）
+		(不明)
 	</panel.string>
 	<string name="Filter.All" value="全て"/>
-	<string name="Filter.Clothes/Body" value="服装／身体"/>
+	<string name="Filter.Clothes/Body" value="服装/身体"/>
 	<string name="Filter.Objects" value="オブジェクト"/>
 	<string name="Filter.Clothing" value="服装"/>
 	<string name="Filter.Bodyparts" value="身体部位"/>
 	<string name="replace_body_part" value="クリックして既存のシェイプと置き換える"/>
 	<button name="back_btn"/>
-	<text name="title" value="アウトフィットのパーツを編集"/>
+	<text name="title" value="アウトフィットの編集"/>
 	<panel name="header_panel">
 		<icon name="outfit_icon" top="2"/>
 		<panel name="outfit_name_and_status">
@@ -34,7 +34,7 @@
 			<layout_stack name="filter_panels">
 				<layout_panel name="add_button_and_combobox">
 					<panel name="cof_wearables_list"/>
-					<button name="show_add_wearables_btn" label="更に追加…" tool_tip="開く／閉じる"/>
+					<button name="show_add_wearables_btn" label="更に追加…" tool_tip="開く/閉じる"/>
 					<combo_box name="list_view_filter_combobox"/>
 					<combo_box name="folder_view_filter_combobox"/>
 					<button name="filter_button"/>
@@ -71,7 +71,7 @@
 				<button label="変更を保存" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="save_as_btn_lp">
-				<button label="別名で保存…" name="save_as_btn"/>
+				<button label="名前をつけて保存…" name="save_as_btn"/>
 			</layout_panel>
 			<layout_panel name="revert_btn_lp">
 				<button label="変更を元に戻す" name="revert_btn" tool_tip="最後に保存されたバージョンに復元します。"/>

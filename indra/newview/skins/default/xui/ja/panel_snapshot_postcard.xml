@@ -4,13 +4,13 @@
 		[SECOND_LIFE]からのポストカードです。
 	</string>
 	<string name="default_message">
-		ぜひご覧ください！
+		ぜひご覧ください!
 	</string>
 	<string name="upload_message">
 		送信中…
 	</string>
 	<text name="title">
-		Ｅメール
+		Eメール
 	</text>
 	<tab_container name="postcard_tabs">
 		<panel label="メッセージ" name="panel_postcard_message"/>

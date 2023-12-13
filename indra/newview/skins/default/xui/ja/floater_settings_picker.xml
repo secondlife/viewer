@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings picker" title="選択：設定">
+<floater name="settings picker" title="選択: 設定">
 	<floater.string name="pick title">
-		選択：
+		選択:
 	</floater.string>
 	<floater.string name="pick_track">
 		トラックを選択
@@ -10,7 +10,7 @@
 		設定を選択
 	</floater.string>
 	<floater.string name="track_water">
-		水面
+		水
 	</floater.string>
 	<floater.string name="track_ground">
 		地面
@@ -23,7 +23,7 @@
 			<filter_editor label="テクスチャをフィルタ" name="flt_inventory_search"/>
 		</layout_panel>
 		<layout_panel name="temp">
-			<button label="ＯＫ" label_selected="ＯＫ" name="btn_select"/>
+			<button label="OK" label_selected="OK" name="btn_select"/>
 			<button label="キャンセル" label_selected="キャンセル" name="btn_cancel"/>
 		</layout_panel>
 	</layout_stack>

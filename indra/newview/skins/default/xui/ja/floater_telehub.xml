@@ -15,7 +15,7 @@
 	<button label="テレハブの接続" name="connect_btn"/>
 	<button label="切断" name="disconnect_btn"/>
 	<text name="spawn_points_text">
-		出現地点（物体ではなく位置）
+		出現地点(物体ではなく位置)
 	</text>
 	<button label="出現位置を追加" name="add_spawn_point_btn"/>
 	<button label="出現地点を削除" name="remove_spawn_point_btn"/>
