@@ -296,11 +296,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d4d5f27008de1ff7e86ae852841c68849b02eaea</string>
+              <string>289b8dbabe6b8ee4a7f70e5b4263f757e5da111d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-darwin64-5a4a82d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-e929d3b/curl-7.54.1-e929d3b-darwin64-e929d3b.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -322,11 +322,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07423f41d1320ea405f493869f6460cf8c45def5</string>
+              <string>c09c95a93390be321268f8b51dec262b285364bd</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-5a4a82d/curl-7.54.1-5a4a82d-windows64-5a4a82d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-e929d3b/curl-7.54.1-e929d3b-windows64-e929d3b.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -339,7 +339,7 @@
         <key>copyright</key>
         <string>Copyright (c) 1996 - 2014, Daniel Stenberg, (daniel@haxx.se).</string>
         <key>version</key>
-        <string>7.54.1-5a4a82d</string>
+        <string>7.54.1-e929d3b</string>
         <key>name</key>
         <string>curl</string>
         <key>description</key>
@@ -2629,11 +2629,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4b6ee5113b1368ec9ff5b59e195adde370b9f585</string>
+              <string>d90cb785823febd2ebe614f403877fc14ff016a8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-darwin64-8fff38a.tar.zst</string>
+              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-42d7a6d/uriparser-0.9.4-darwin64-42d7a6d.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2643,11 +2643,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44dc74ec73e37c56bef6317d12a29d0435cb4bbb</string>
+              <string>df66574b3d70f49570709eccd8a1cdeee996cb43</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-linux64-8fff38a.tar.zst</string>
+              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-42d7a6d/uriparser-0.9.4-linux64-42d7a6d.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2657,11 +2657,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8b20edfc624f1d09bc83480932a9c844d47fc13</string>
+              <string>155756fdfc4e43757fad66ad4b697025c0ffcab5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-windows64-8fff38a.tar.zst</string>
+              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-42d7a6d/uriparser-0.9.4-windows64-42d7a6d.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
