@@ -76,9 +76,9 @@ void main()
 
     vec3 pos = vary_position;
 
+    color.a = final_alpha;
 #ifndef IS_HUD
     color.rgb = srgb_to_linear(color.rgb);
-    color.a = final_alpha;
 #ifdef IS_ALPHA
 
     vec3 sunlit;
