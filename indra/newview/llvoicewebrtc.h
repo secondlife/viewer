@@ -381,7 +381,7 @@ public:
 		LLUUID		mVoiceFontID;
 
         static void VerifySessions();
-        static void deleteAllSessions();
+        static bool hasSession(const std::string &sessionID) { return mSessions.find(sessionID) != mSessions.end(); }
 
     private:
 
@@ -414,6 +414,8 @@ public:
     static void predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool mute);
     static void predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
+    static void predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t &session);
+    void reapEmptySessions();
 
 	//////////////////////////////
 	/// @name TVC/Server management and communication
@@ -535,6 +537,8 @@ public:
 	void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString); 
 
 private:
+
+	float getAudioLevel();
     
 	LLVoiceVersionInfo mVoiceVersion;
 
@@ -544,7 +548,6 @@ private:
 
     void voiceConnectionStateMachine();
 
-    bool performMicTuning();
     //---
     /// Clean up objects created during a voice session.
 	void cleanUp();
@@ -732,6 +735,7 @@ class LLVoiceWebRTCConnection :
     void OnOfferAvailable(const std::string &sdp) override;
     void OnRenegotiationNeeded() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
+    void OnPeerShutDown() override;
     //@}
 
     /////////////////////////
