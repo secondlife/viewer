@@ -187,10 +187,6 @@ public:
 	bool getWeightStrider(LLStrider<F32>& strider, U32 index=0, S32 count = -1);
 	bool getWeight4Strider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
-    bool getBasecolorTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getNormalTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getMetallicRoughnessTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getEmissiveTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
 	
     void setPositionData(const LLVector4a* data);
     void setTexCoordData(const LLVector2* data);
