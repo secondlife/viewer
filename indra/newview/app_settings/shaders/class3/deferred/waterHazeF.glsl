@@ -60,6 +60,6 @@ void main()
 
     vec4 fogged = getWaterFogView(pos.xyz);
 
-    frag_color.rgb = max(fogged.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
-    frag_color.a = fogged.a;
+    frag_color = max(fogged, vec4(0)); //output linear since local lights will be added to this shader's results
+    
 }

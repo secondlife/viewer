@@ -102,6 +102,6 @@ void main()
         alpha = 1.0;
     }
 
-    frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
-    frag_color.a = alpha;
+    frag_color = max(vec4(color.rgb, alpha), vec4(0)); //output linear since local lights will be added to this shader's results
+    
 }
