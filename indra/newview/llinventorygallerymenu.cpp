@@ -50,6 +50,41 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 
+
+void modify_outfit(BOOL append, const LLUUID& cat_id, LLInventoryModel* model)
+{
+    LLViewerInventoryCategory* cat = model->getCategory(cat_id);
+    if (!cat) return;
+
+    // checking amount of items to wear
+    static LLCachedControl<U32> max_items(gSavedSettings, "WearFolderLimit", 125);
+    LLInventoryModel::cat_array_t cats;
+    LLInventoryModel::item_array_t items;
+    LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+    model->collectDescendentsIf(cat_id,
+                                    cats,
+                                    items,
+                                    LLInventoryModel::EXCLUDE_TRASH,
+                                    not_worn);
+
+    if (items.size() > max_items())
+    {
+        LLSD args;
+        args["AMOUNT"] = llformat("%d", max_items);
+        LLNotificationsUtil::add("TooManyWearables", args);
+        return;
+    }
+    if (model->isObjectDescendentOf(cat_id, gInventory.getRootFolderID()))
+    {
+        LLAppearanceMgr::instance().wearInventoryCategory(cat, FALSE, append);
+    }
+    else
+    {
+        // Library, we need to copy content first
+        LLAppearanceMgr::instance().wearInventoryCategory(cat, TRUE, append);
+    }
+}
+
 LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
 {
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -209,6 +244,22 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     else if ("ungroup_folder_items" == action)
     {
         ungroup_folder_items(mUUIDs.front());
+    }
+    else if ("replaceoutfit" == action)
+    {
+        modify_outfit(FALSE, mUUIDs.front(), &gInventory);
+    }
+    else if ("addtooutfit" == action)
+    {
+        modify_outfit(TRUE, mUUIDs.front(), &gInventory);
+    }
+    else if ("removefromoutfit" == action)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(mUUIDs.front());
+        if (cat)
+        {
+            LLAppearanceMgr::instance().takeOffOutfit(cat->getLinkedUUID());
+        }
     }
     else if ("take_off" == action || "detach" == action)
     {
@@ -498,6 +549,18 @@ bool can_list_on_marketplace(const LLUUID &id)
     return can_list;
 }
 
+bool check_folder_for_contents_of_type(const LLUUID &id, LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
+{
+    LLInventoryModel::cat_array_t cat_array;
+    LLInventoryModel::item_array_t item_array;
+    model->collectDescendentsIf(id,
+                                cat_array,
+                                item_array,
+                                LLInventoryModel::EXCLUDE_TRASH,
+                                is_type);
+    return item_array.size() > 0;
+}
+
 void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* menu)
 {
     LLUUID selected_id = mUUIDs.front();
@@ -566,6 +629,49 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             items.push_back(std::string("open_in_current_window"));
             items.push_back(std::string("open_in_new_window"));
             items.push_back(std::string("Open Folder Separator"));
+        }
+
+        // wearables related functionality for folders.
+        LLFindWearables is_wearable;
+        LLIsType is_object(LLAssetType::AT_OBJECT);
+        LLIsType is_gesture(LLAssetType::AT_GESTURE);
+
+        if (check_folder_for_contents_of_type(selected_id, &gInventory, is_wearable)
+            || check_folder_for_contents_of_type(selected_id, &gInventory, is_object)
+            || check_folder_for_contents_of_type(selected_id, &gInventory, is_gesture))
+        {
+            // Only enable add/replace outfit for non-system folders.
+            if (!is_system_folder)
+            {
+                // Adding an outfit onto another (versus replacing) doesn't make sense.
+                if (folder_type != LLFolderType::FT_OUTFIT)
+                {
+                    items.push_back(std::string("Add To Outfit"));
+                    if (!LLAppearanceMgr::instance().getCanAddToCOF(selected_id))
+                    {
+                        disabled_items.push_back(std::string("Add To Outfit"));
+                    }
+                }
+
+                items.push_back(std::string("Replace Outfit"));
+                if (!LLAppearanceMgr::instance().getCanReplaceCOF(selected_id))
+                {
+                    disabled_items.push_back(std::string("Replace Outfit"));
+                }
+            }
+            if (is_agent_inventory)
+            {
+                items.push_back(std::string("Folder Wearables Separator"));
+                // Note: If user tries to unwear "My Inventory", it's going to deactivate everything including gestures
+                // Might be safer to disable this for "My Inventory"
+                items.push_back(std::string("Remove From Outfit"));
+                if (folder_type != LLFolderType::FT_ROOT_INVENTORY // Unless COF is empty, whih shouldn't be, warrantied to have worn items
+                    && !LLAppearanceMgr::getCanRemoveFromCOF(selected_id)) // expensive from root!
+                {
+                    disabled_items.push_back(std::string("Remove From Outfit"));
+                }
+            }
+            items.push_back(std::string("Outfit Separator"));
         }
     }
     else
