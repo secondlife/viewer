@@ -2949,6 +2949,23 @@ bool get_selection_object_uuids(LLFolderView *root, uuid_vec_t& ids)
 void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm)
 {
 	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
+    if (selected_items.empty()
+        && action != "wear"
+        && action != "wear_add"
+        && !isRemoveAction(action))
+    {
+        // Was item removed while user was checking menu?
+        // "wear" and removal exlusions are due to use of
+        // getInventorySelectedUUIDs() below
+        LL_WARNS("Inventory") << "Menu tried to operate on empty selection" << LL_ENDL;
+
+        if (("copy" == action) || ("cut" == action))
+        {
+            LLClipboard::instance().reset();
+        }
+
+        return;
+    }
     
     // Prompt the user and check for authorization for some marketplace active listing edits
 	if (user_confirm && (("delete" == action) || ("cut" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action) || ("open" == action)))
