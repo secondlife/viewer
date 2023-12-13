@@ -125,6 +125,7 @@ class LLWebRTCSignalingObserver
     virtual void OnRenegotiationNeeded() = 0;
     virtual void OnAudioEstablished(LLWebRTCAudioInterface *audio_interface) = 0;
     virtual void OnDataChannelReady(LLWebRTCDataInterface *data_interface) = 0;
+    virtual void OnPeerShutDown() = 0;
 };
 
 class LLWebRTCPeerConnection

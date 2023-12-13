@@ -83,9 +83,10 @@ void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
 void LLWebRTCImpl::init()
 {
     RTC_DCHECK(mPeerConnectionFactory);
-    mPlayoutDevice  = -1;
-    mRecordingDevice = -1;
+    mPlayoutDevice  = 0;
+    mRecordingDevice = 0;
     rtc::InitializeSSL();
+    rtc::LogMessage::LogToDebug(rtc::LS_WARNING);
     mTaskQueueFactory = webrtc::CreateDefaultTaskQueueFactory();
     
     mNetworkThread = rtc::Thread::CreateWithSocketServer();
@@ -145,10 +146,9 @@ void LLWebRTCImpl::init()
                                     mPeerDeviceModule->InitSpeaker();
                                     mPeerDeviceModule->InitRecording();
                                     mPeerDeviceModule->InitPlayout();
-                                    mPeerDeviceModule->StartPlayout();
-                                    mPeerDeviceModule->StartRecording();
                                 });
-    
+
+    apm->ApplyConfig(apm_config);    
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
                                                                  mSignalingThread.get(),
@@ -159,7 +159,12 @@ void LLWebRTCImpl::init()
                                                                  nullptr /* video_decoder_factory */,
                                                                  nullptr /* audio_mixer */,
                                                                  apm);
-    apm->ApplyConfig(apm_config);
+    mWorkerThread->BlockingCall(
+        [this]()
+        {
+            mPeerDeviceModule->StartPlayout();
+            mPeerDeviceModule->StartRecording();
+        });
 }
 
 void LLWebRTCImpl::terminate()
@@ -235,15 +240,14 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
                                 mTuningDeviceModule->InitMicrophone();
                                 mTuningDeviceModule->InitRecording();
                                 mTuningDeviceModule->StartRecording();
-                                bool was_peer_recording = false;
                                 if (mPeerDeviceModule)
                                 {
-                                    int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
+                                    int16_t captureDeviceCount = mPeerDeviceModule->RecordingDevices();
                                     for (int16_t i = 0; i < captureDeviceCount; i++)
                                     {
                                         char name[webrtc::kAdmMaxDeviceNameSize];
                                         char guid[webrtc::kAdmMaxGuidSize];
-                                        mTuningDeviceModule->RecordingDeviceName(i, name, guid);
+                                        mPeerDeviceModule->RecordingDeviceName(i, name, guid);
                                         if (id == guid || id == "Default")  // first one in list is default
                                         {
                                             RTC_LOG(LS_INFO)
@@ -252,11 +256,13 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
                                             break;
                                         }
                                     }
-                                    was_peer_recording = mPeerDeviceModule->Recording();
+                                    bool was_peer_recording = mPeerDeviceModule->Recording();
                                     if (was_peer_recording)
                                     {
                                         mPeerDeviceModule->StopRecording();
                                     }
+
+                                    mPeerDeviceModule->StopRecording();
                                     mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
                                     mPeerDeviceModule->InitMicrophone();
                                     mPeerDeviceModule->InitRecording();
@@ -432,7 +438,15 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    shutdownConnection();
+    mWebRTCImpl->SignalingBlockingCall(
+        [this]()
+        {
+            if (mPeerConnection)
+            {
+                mPeerConnection->Close();
+                mPeerConnection = nullptr;
+            }
+        });
 }
 
 void LLWebRTCPeerConnectionImpl::setSignalingObserver(LLWebRTCSignalingObserver *observer) { mSignalingObserverList.emplace_back(observer); }
@@ -477,7 +491,6 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
     else
     {
         RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection: " << error_or_peer_connection.error().message();
-        shutdownConnection();
         return false;
     }
     
@@ -546,25 +559,19 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
 
 void LLWebRTCPeerConnectionImpl::shutdownConnection()
 {
-    mWebRTCImpl->SignalingBlockingCall(
-                                   [this]()
-                                   {
-                                       if (mPeerConnection)
-                                       {
-                                           mPeerConnection->Close();
-                                           mPeerConnection = nullptr;
-                                       }
-                                   });
-
-    mWebRTCImpl->NetworkBlockingCall(
-                                 [this]()
-                                 {
-                                     if (mDataChannel)
-                                     {
-                                         mDataChannel->Close();
-                                         mDataChannel = nullptr;
-                                     }
-                                 });
+    mWebRTCImpl->PostSignalingTask(
+        [this]()
+        {
+            if (mPeerConnection)
+            {
+                mPeerConnection->Close();
+                mPeerConnection = nullptr;
+            }
+            for (auto &observer : mSignalingObserverList)
+            {
+                observer->OnPeerShutDown();
+            }
+        });
 }
 
 void LLWebRTCPeerConnectionImpl::enableSenderTracks(bool enable)
@@ -638,15 +645,18 @@ void LLWebRTCPeerConnectionImpl::setReceiveVolume(float volume)
     mWebRTCImpl->PostSignalingTask(
         [this, volume]()
         {
-            auto receivers = mPeerConnection->GetReceivers();
-
-            for (auto &receiver : receivers)
+            if (mPeerConnection)
             {
-                for (auto &stream : receiver->streams())
+                auto receivers = mPeerConnection->GetReceivers();
+
+                for (auto &receiver : receivers)
                 {
-                    for (auto &track : stream->GetAudioTracks())
+                    for (auto &stream : receiver->streams())
                     {
-                        track->GetSource()->SetVolume(volume);
+                        for (auto &track : stream->GetAudioTracks())
+                        {
+                            track->GetSource()->SetVolume(volume);
+                        }
                     }
                 }
             }
