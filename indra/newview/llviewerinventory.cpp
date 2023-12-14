@@ -232,9 +232,29 @@ LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
 class LLInventoryHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
-	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_CLICK_ONLY) { }
-	
+    LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_THROTTLE) { }
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (params.size() < 1)
+        {
+            return true; // don't block, will fail later
+        }
+
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
 	bool handle(const LLSD& params,
                 const LLSD& query_map,
                 const std::string& grid,
@@ -1151,14 +1171,29 @@ void create_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
+void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
+                                           const LLUUID &parent,
+                                           const LLUUID &avatar_id,
+                                           const LLAvatarName &av_name)
+{
+    std::string item_desc = avatar_id.asString();
+    create_inventory_item(gAgent.getID(),
+                          gAgent.getSessionID(),
+                          parent,
+                          LLTransactionID::tnull,
+                          av_name.getUserName(),
+                          item_desc,
+                          LLAssetType::AT_CALLINGCARD,
+                          LLInventoryType::IT_CALLINGCARD,
+                          NO_INV_SUBTYPE,
+                          PERM_MOVE | PERM_TRANSFER,
+                          cb);
+}
+
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
-	std::string item_desc = avatar_id.asString();
 	LLAvatarName av_name;
-	LLAvatarNameCache::get(avatar_id, &av_name);
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
-                          LLInventoryType::IT_CALLINGCARD, NO_INV_SUBTYPE, PERM_MOVE | PERM_TRANSFER, cb);
+    LLAvatarNameCache::get(avatar_id, boost::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
 }
 
 void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
