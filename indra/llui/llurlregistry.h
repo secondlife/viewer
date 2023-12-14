@@ -36,6 +36,8 @@
 #include <string>
 #include <vector>
 
+class LLKeyBindingToStringHandler;
+
 /// This default callback for findUrl() simply ignores any label updates
 void LLUrlRegistryNullCallback(const std::string &url,
 							   const std::string &label,
@@ -88,6 +90,9 @@ public:
 	bool isUrl(const std::string &text);
 	bool isUrl(const LLWString &text);
 
+    // Set handler for url registry to be capable of parsing and populating keybindings
+    void setKeybindingHandler(LLKeyBindingToStringHandler* handler);
+
 private:
 	std::vector<LLUrlEntryBase *> mUrlEntry;
 	LLUrlEntryBase*	mUrlEntryTrusted;
@@ -96,6 +101,7 @@ private:
 	LLUrlEntryBase* mUrlEntryHTTPLabel;
 	LLUrlEntryBase* mUrlEntrySLLabel;
 	LLUrlEntryBase* mUrlEntryNoLink;
+    LLUrlEntryBase* mUrlEntryKeybinding;
 };
 
 #endif

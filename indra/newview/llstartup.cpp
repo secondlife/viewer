@@ -2904,8 +2904,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		// Need to fetch cof contents before we can wear.
         if (do_copy)
         {
-            callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
-							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+            callAfterCOFFetch(boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
         }
         else
         {
