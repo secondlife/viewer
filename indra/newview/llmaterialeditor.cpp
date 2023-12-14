@@ -1376,10 +1376,23 @@ bool LLMaterialEditor::saveIfNeeded()
         LLPermissions local_permissions;
         local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 
-        U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
-        U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
-        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
-        local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        if (mIsOverride)
+        {
+            // Shouldn't happen, but just in case it ever changes
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+
+        }
+        else
+        {
+            // Uploads are supposed to use Upload permissions, not material permissions
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Uploads");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Uploads");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Uploads");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        }
 
         std::string res_desc = buildMaterialDescription();
         createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);
