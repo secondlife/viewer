@@ -550,4 +550,37 @@ public:
 	std::string mHostPath;
 };
 
+class LLKeyBindingToStringHandler;
+
+///
+/// LLUrlEntryKeybinding A way to access keybindings and show currently used one in text.
+/// secondlife:///app/keybinding/control_name
+class LLUrlEntryKeybinding: public LLUrlEntryBase
+{
+public:
+    LLUrlEntryKeybinding();
+    /*virtual*/ std::string getLabel(const std::string& url, const LLUrlLabelCallback& cb);
+    /*virtual*/ std::string getTooltip(const std::string& url) const;
+    void setHandler(LLKeyBindingToStringHandler* handler) {pHandler = handler;}
+private:
+    std::string getControlName(const std::string& url) const;
+    std::string getMode(const std::string& url) const;
+    void initLocalization();
+    void initLocalizationFromFile(const std::string& filename);
+
+    struct LLLocalizationData
+    {
+        LLLocalizationData() {}
+        LLLocalizationData(const std::string& localization, const std::string& tooltip)
+            : mLocalization(localization)
+            , mTooltip(tooltip)
+        {}
+        std::string mLocalization;
+        std::string mTooltip;
+    };
+
+    std::map<std::string, LLLocalizationData> mLocalizations;
+    LLKeyBindingToStringHandler* pHandler;
+};
+
 #endif

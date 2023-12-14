@@ -565,6 +565,14 @@
      layout="topleft" 
      name="Gesture Separator" />
     <menu_item_call
+     label="Play"
+     layout="topleft"
+     name="PlayGesture">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="play" />
+    </menu_item_call>
+    <menu_item_call
      label="Activate"
      layout="topleft"
      name="Activate">

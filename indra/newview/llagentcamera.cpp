@@ -2002,15 +2002,13 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 	// Don't let camera go underground
 	F32 camera_min_off_ground = getCameraMinOffGround();
-
 	camera_land_height = LLWorld::getInstance()->resolveLandHeightGlobal(camera_position_global);
-
-	if (camera_position_global.mdV[VZ] < camera_land_height + camera_min_off_ground)
+	F32 minZ = llmax(F_ALMOST_ZERO, camera_land_height + camera_min_off_ground);
+	if (camera_position_global.mdV[VZ] < minZ)
 	{
-		camera_position_global.mdV[VZ] = camera_land_height + camera_min_off_ground;
+		camera_position_global.mdV[VZ] = minZ;
 		isConstrained = TRUE;
 	}
-
 
 	if (hit_limit)
 	{
