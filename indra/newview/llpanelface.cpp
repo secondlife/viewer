@@ -4759,8 +4759,6 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
         {
             LLUUID object_id = objectp->getID();
 
-            LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
-
             // Normal
             // Replace placeholders with target's
             if (te_data["material"].has("NormMapNoCopy"))
@@ -4807,6 +4805,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
             LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
             LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["DiffuseAlphaMode"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["AlphaMaskCutoff"].asInteger(), te, object_id);
             if (te_data.has("te") && te_data["te"].has("shiny"))
             {
                 objectp->setTEShiny(te, (U8)te_data["te"]["shiny"].asInteger());
