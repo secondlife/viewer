@@ -18,6 +18,7 @@
 #include <vector>
 // external library headers
 // other Linden headers
+#include "../llcommon/tests/StringVec.h"
 #include "../test/lltut.h"
 #include "llapp.h"
 #include "lldate.h"
@@ -27,7 +28,6 @@
 #include "lluri.h"
 #include "lluuid.h"
 #include "stringize.h"
-#include "../llcommon/tests/StringVec.h"
 
 class LLTestApp : public LLApp
 {

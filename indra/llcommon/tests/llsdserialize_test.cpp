@@ -53,10 +53,10 @@ typedef U32 uint32_t;
 #include "llmemorystream.h"
 
 #include "hexdump.h"
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
-#include "StringVec.h"
 #include <functional>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;

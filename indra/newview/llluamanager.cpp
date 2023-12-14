@@ -64,12 +64,9 @@ extern LLUIListener sUIListener;
 
 #include <boost/algorithm/string/replace.hpp>
 
-extern "C"
-{
 #include "lua/lua.h"
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
-}
 
 #include <algorithm>
 #include <cstdlib>                  // std::rand()
@@ -79,10 +76,6 @@ extern "C"
 #include <sstream>
 #include <string_view>
 #include <vector>
-
-#if LL_WINDOWS
-#pragma comment(lib, "liblua54.a")
-#endif
 
 std::string lua_tostdstring(lua_State* L, int index);
 void lua_pushstdstring(lua_State* L, const std::string& str);

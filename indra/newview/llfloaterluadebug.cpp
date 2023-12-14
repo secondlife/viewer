@@ -38,10 +38,6 @@
 
 #include "llluamanager.h"
 
-#if LL_WINDOWS
-#pragma comment(lib, "liblua54.a")
-#endif
-
 
 LLFloaterLUADebug::LLFloaterLUADebug(const LLSD &key)
     : LLFloater(key)

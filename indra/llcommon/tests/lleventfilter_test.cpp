@@ -34,10 +34,10 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "listener.h"
 #include "../test/lltut.h"
 #include "stringize.h"
 #include "llsdutil.h"
-#include "listener.h"
 #include "tests/wrapllerrs.h"
 
 #include <typeinfo>
