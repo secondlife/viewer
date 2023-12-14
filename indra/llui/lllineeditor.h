@@ -286,7 +286,10 @@ public:
 	void			setBgImage(LLPointer<LLUIImage> image) { mBgImage = image; }
 	void			setBgImageFocused(LLPointer<LLUIImage> image) { mBgImageFocused = image; }
 
-private:
+    void setShowContextMenu(bool show) { mShowContextMenu = show; }
+    bool getShowContextMenu() const { return mShowContextMenu; }
+
+  private:
 	// private helper methods
 
 	void                    pasteHelper(bool is_primary);
@@ -404,6 +407,8 @@ protected:
 	LLPreeditor::standouts_t mPreeditStandouts;
 
 	LLHandle<LLContextMenu> mContextMenuHandle;
+
+    bool mShowContextMenu;
 
 private:
 	// Instances that by default point to the statics but can be overidden in XML.

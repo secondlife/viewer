@@ -2149,14 +2149,19 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 {
 	if (!getTabsHidden() && hasMouseCapture())
 	{
-		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+		for (tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
-			LLTabTuple* tuple = *iter;
-			S32 local_x = x - tuple->mButton->getRect().mLeft;
-			S32 local_y = y - tuple->mButton->getRect().mBottom;
-			if (tuple->mButton->pointInView(local_x, local_y) && tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
+			LLButton* button = (*iter)->mButton;
+			LLPanel* panel = (*iter)->mTabPanel;
+			if (button->getEnabled() && button->getVisible() && !panel->getVisible())
 			{
-				tuple->mButton->onCommit();
+				S32 local_x = x - button->getRect().mLeft;
+				S32 local_y = y - button->getRect().mBottom;
+				if (button->pointInView(local_x, local_y))
+				{
+					button->onCommit();
+					break;
+				}
 			}
 		}
 	}

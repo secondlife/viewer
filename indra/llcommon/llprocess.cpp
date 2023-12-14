@@ -529,6 +529,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// preserve existing semantics, we promise that mAttached defaults to the
 	// same setting as mAutokill.
 	mAttached(params.attached.isProvided()? params.attached : params.autokill),
+    mPool(NULL),
 	mPipes(NSLOTS)
 {
 	// Hmm, when you construct a ptr_vector with a size, it merely reserves
@@ -549,8 +550,14 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
 	mPostend = params.postend;
 
+    apr_pool_create(&mPool, gAPRPoolp);
+    if (!mPool)
+    {
+        LLTHROW(LLProcessError(STRINGIZE("failed to create apr pool")));
+    }
+
 	apr_procattr_t *procattr = NULL;
-	chkapr(apr_procattr_create(&procattr, gAPRPoolp));
+	chkapr(apr_procattr_create(&procattr, mPool));
 
 	// IQA-490, CHOP-900: On Windows, ask APR to jump through hoops to
 	// constrain the set of handles passed to the child process. Before we
@@ -689,14 +696,14 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// one. Hand-expand chkapr() macro so we can fill in the actual command
 	// string instead of the variable names.
 	if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr,
-										   gAPRPoolp)))
+										   mPool)))
 	{
 		LLTHROW(LLProcessError(STRINGIZE(params << " failed")));
 	}
 
 	// arrange to call status_callback()
 	apr_proc_other_child_register(&mProcess, &LLProcess::status_callback, this, mProcess.in,
-								  gAPRPoolp);
+                                  mPool);
 	// and make sure we poll it once per "mainloop" tick
 	sProcessListener.addPoll(*this);
 	mStatus.mState = RUNNING;
@@ -815,6 +822,12 @@ LLProcess::~LLProcess()
 	{
 		kill("destructor");
 	}
+
+    if (mPool)
+    {
+        apr_pool_destroy(mPool);
+        mPool = NULL;
+    }
 }
 
 bool LLProcess::kill(const std::string& who)
