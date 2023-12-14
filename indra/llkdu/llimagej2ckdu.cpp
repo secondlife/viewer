@@ -514,6 +514,7 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	ECodeStreamMode mode = MODE_FAST;
 
+	bool limit_time = decode_time > 0.0f;
 	LLTimer decode_timer;
 
 	if (!mCodeStreamp->exists())
@@ -578,16 +579,18 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 															mCodeStreamp.get()));
 				}
 				// Do the actual processing
-				F32 remaining_time = decode_time - decode_timer.getElapsedTimeF32();
+				F32 remaining_time = limit_time ? decode_time - decode_timer.getElapsedTimeF32() : 0.0f;
 				// This is where we do the actual decode.  If we run out of time, return false.
-				if (mDecodeState->processTileDecode(remaining_time, (decode_time > 0.0f)))
+				if (mDecodeState->processTileDecode(remaining_time, limit_time))
 				{
 					mDecodeState.reset();
 				}
 				else
 				{
 					// Not finished decoding yet.
-					//					setLastError("Ran out of time while decoding");
+					base.setLastError("Ran out of time while decoding");
+					base.decodeFailed();
+					cleanupCodeStream();
 					return false;
 				}
 			}

@@ -2130,6 +2130,10 @@ U8* LLImageFormatted::reallocateData(S32 size)
 // virtual
 void LLImageFormatted::deleteData()
 {
+    if (mDecoding)
+    {
+        LL_ERRS() << "LLImageFormatted::deleteData() is called during decoding" << LL_ENDL;
+    }
 	sGlobalFormattedMemory -= getDataSize();
 	LLImageBase::deleteData();
 }
