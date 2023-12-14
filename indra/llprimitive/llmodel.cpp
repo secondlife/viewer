@@ -53,7 +53,6 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), 
       mNormalizedScale(1,1,1), 
-      mNormalizedTranslation(0,0,0), 
       mPelvisOffset( 0.0f ), 
       mStatus(NO_ERRORS), 
       mSubmodelID(0)
@@ -296,6 +295,7 @@ void LLModel::normalizeVolumeFaces()
 			// the positions to fit within the unit cube.
 			LLVector4a* pos = (LLVector4a*) face.mPositions;
 			LLVector4a* norm = (LLVector4a*) face.mNormals;
+            LLVector4a* t = (LLVector4a*)face.mTangents;
 
 			for (U32 j = 0; j < face.mNumVertices; ++j)
 			{
@@ -306,6 +306,14 @@ void LLModel::normalizeVolumeFaces()
 					norm[j].mul(inv_scale);
 					norm[j].normalize3();
 				}
+
+                if (t)
+                {
+                    F32 w = t[j].getF32ptr()[3];
+                    t[j].mul(inv_scale);
+                    t[j].normalize3();
+                    t[j].getF32ptr()[3] = w;
+                }
 			}
 		}
 
@@ -319,6 +327,12 @@ void LLModel::normalizeVolumeFaces()
 		mNormalizedScale.set(normalized_scale.getF32ptr());
 		mNormalizedTranslation.set(trans.getF32ptr());
 		mNormalizedTranslation *= -1.f; 
+
+        // remember normalized scale so original dimensions can be recovered for mesh processing (i.e. tangent generation)
+        for (auto& face : mVolumeFaces)
+        {
+            face.mNormalizedScale = mNormalizedScale;
+        }
 	}
 }
 
@@ -728,10 +742,12 @@ LLSD LLModel::writeModel(
 				LLSD::Binary verts(face.mNumVertices*3*2);
 				LLSD::Binary tc(face.mNumVertices*2*2);
 				LLSD::Binary normals(face.mNumVertices*3*2);
+                LLSD::Binary tangents(face.mNumVertices * 4 * 2);
 				LLSD::Binary indices(face.mNumIndices*2);
 
 				U32 vert_idx = 0;
 				U32 norm_idx = 0;
+                //U32 tan_idx = 0;
 				U32 tc_idx = 0;
 			
 				LLVector2* ftc = (LLVector2*) face.mTexCoords;
@@ -784,6 +800,24 @@ LLSD LLModel::writeModel(
 							normals[norm_idx++] = buff[1];
 						}
 					}
+
+#if 0 // keep this code for now in case we want to support transporting tangents with mesh assets
+                    if (face.mTangents)
+                    { //normals
+                        F32* tangent = face.mTangents[j].getF32ptr();
+
+                        for (U32 k = 0; k < 4; ++k)
+                        { //for each component
+                            //convert to 16-bit normalized
+                            U16 val = (U16)((tangent[k] + 1.f) * 0.5f * 65535);
+                            U8* buff = (U8*)&val;
+
+                            //write to binary buffer
+                            tangents[tan_idx++] = buff[0];
+                            tangents[tan_idx++] = buff[1];
+                        }
+                    }
+#endif
 					
 					//texcoord
 					if (face.mTexCoords)
@@ -814,12 +848,21 @@ LLSD LLModel::writeModel(
 				//write out face data
 				mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
 				mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
+                mdl[model_names[idx]][i]["NormalizedScale"] = face.mNormalizedScale.getValue();
+
 				mdl[model_names[idx]][i]["Position"] = verts;
 				
 				if (face.mNormals)
 				{
 					mdl[model_names[idx]][i]["Normal"] = normals;
 				}
+
+#if 0 // keep this code for now in case we decide to transport tangents with mesh assets
+                if (face.mTangents)
+                {
+                    mdl[model_names[idx]][i]["Tangent"] = tangents;
+                }
+#endif
 
 				if (face.mTexCoords)
 				{

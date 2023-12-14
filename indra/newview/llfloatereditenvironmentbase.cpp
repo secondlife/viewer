@@ -47,6 +47,7 @@
 
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
+#include "pipeline.h"
 
 namespace
 {
@@ -106,6 +107,9 @@ void LLFloaterEditEnvironmentBase::onFocusReceived()
     {
         updateEditEnvironment();
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+
+        // HACK -- resume reflection map manager because setSelectedEnvironment may pause it (SL-20456)
+        gPipeline.mReflectionMapManager.resume();
     }
 }
 
@@ -260,7 +264,7 @@ void LLFloaterEditEnvironmentBase::onSaveAsCommit(const LLSD& notification, cons
         }
         else if (mInventoryItem)
         {
-            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
             LLUUID parent_id = mInventoryItem->getParentUUID();
             if (marketplacelistings_id == parent_id || gInventory.isObjectDescendentOf(mInventoryItem->getUUID(), gInventory.getLibraryRootFolderID()))
             {

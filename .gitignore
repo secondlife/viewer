@@ -7,9 +7,18 @@
 *.pyc
 *.rej
 *.swp
+*.vcxproj
+*.filters
+*.sln
+*.depend
+*.stamp
+*.rc
+
 *~
 
 # Specific paths and/or names
+CMakeCache.txt
+cmake_install.cmake
 LICENSES
 build-darwin-*
 build-linux-*
@@ -17,6 +26,10 @@ debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*
 indra/.distcc
+indra/cmake/*
+indra/out/*
+
+indra/packages/*
 build-vc80/
 build-vc100/
 build-vc120/
@@ -74,3 +87,6 @@ trivial_change_force_build
 web/config.*
 web/locale.*
 web/secondlife.com.*
+
+.env
+.vscode

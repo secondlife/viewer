@@ -243,6 +243,7 @@ public:
 
 	ECursorType	getHoverCursor() { return mHoverCursor; }
 
+    static F32 getTooltipTimeout();
 	virtual const std::string getToolTip() const			{ return mToolTipMsg.getString(); }
 
 	void		sendChildToFront(LLView* child);

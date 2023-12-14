@@ -13,15 +13,16 @@
 #define LL_NAMEDTEMPFILE_H
 
 #include "llerror.h"
-#include "llapr.h"
-#include "apr_file_io.h"
+#include "llstring.h"
+#include "stringize.h"
 #include <string>
-#include <boost/function.hpp>
-#include <boost/phoenix/core/argument.hpp>
-#include <boost/phoenix/operator/bitwise.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/noncopyable.hpp>
+#include <functional>
 #include <iostream>
 #include <sstream>
+#include <string_view>
 
 /**
  * Create a text file with specified content "somewhere in the
@@ -31,134 +32,123 @@ class NamedTempFile: public boost::noncopyable
 {
     LOG_CLASS(NamedTempFile);
 public:
-    NamedTempFile(const std::string& pfx, const std::string& content, apr_pool_t* pool=gAPRPoolp):
-        mPool(pool)
+    NamedTempFile(const std::string_view& pfx,
+                  const std::string_view& content,
+                  const std::string_view& sfx=std::string_view(""))
     {
-        createFile(pfx, boost::phoenix::placeholders::arg1 << content);
+        createFile(pfx, [&content](std::ostream& out){ out << content; }, sfx);
     }
 
-    // Disambiguate when passing string literal
-    NamedTempFile(const std::string& pfx, const char* content, apr_pool_t* pool=gAPRPoolp):
-        mPool(pool)
+    // Disambiguate when passing string literal -- unclear why a string
+    // literal should be ambiguous wrt std::string_view and Streamer
+    NamedTempFile(const std::string_view& pfx,
+                  const char* content,
+                  const std::string_view& sfx=std::string_view(""))
     {
-        createFile(pfx, boost::phoenix::placeholders::arg1 << content);
+        createFile(pfx, [&content](std::ostream& out){ out << content; }, sfx);
     }
 
     // Function that accepts an ostream ref and (presumably) writes stuff to
     // it, e.g.:
     // (boost::phoenix::placeholders::arg1 << "the value is " << 17 << '\n')
-    typedef boost::function<void(std::ostream&)> Streamer;
+    typedef std::function<void(std::ostream&)> Streamer;
 
-    NamedTempFile(const std::string& pfx, const Streamer& func, apr_pool_t* pool=gAPRPoolp):
-        mPool(pool)
+    NamedTempFile(const std::string_view& pfx,
+                  const Streamer& func,
+                  const std::string_view& sfx=std::string_view(""))
     {
-        createFile(pfx, func);
+        createFile(pfx, func, sfx);
     }
 
     virtual ~NamedTempFile()
     {
-        ll_apr_assert_status(apr_file_remove(mPath.c_str(), mPool));
+        boost::filesystem::remove(mPath);
     }
 
-    virtual std::string getName() const { return mPath; }
+    std::string getName() const { return mPath.string(); }
 
-    void peep()
+    template <typename CALLABLE>
+    void peep_via(CALLABLE&& callable) const
     {
-        std::cout << "File '" << mPath << "' contains:\n";
-        std::ifstream reader(mPath.c_str());
+        std::forward<CALLABLE>(callable)(stringize("File '", mPath, "' contains:"));
+        boost::filesystem::ifstream reader(mPath, std::ios::binary);
         std::string line;
         while (std::getline(reader, line))
-            std::cout << line << '\n';
-        std::cout << "---\n";
+            std::forward<CALLABLE>(callable)(line);
+        std::forward<CALLABLE>(callable)("---");
+    }
+
+    void peep_log() const
+    {
+        peep_via([](const std::string& line){ LL_DEBUGS() << line << LL_ENDL; });
+    }
+
+    void peep(std::ostream& out=std::cout) const
+    {
+        peep_via([&out](const std::string& line){ out << line << '\n'; });
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const NamedTempFile& self)
+    {
+        self.peep(out);
+        return out;
+    }
+
+    static boost::filesystem::path temp_path(const std::string_view& pfx="",
+                                             const std::string_view& sfx="")
+    {
+        // This variable is set by GitHub actions and is the recommended place
+        // to put temp files belonging to an actions job.
+        const char* RUNNER_TEMP = getenv("RUNNER_TEMP");
+        boost::filesystem::path tempdir{
+            // if RUNNER_TEMP is set and not empty
+            (RUNNER_TEMP && *RUNNER_TEMP)?
+            boost::filesystem::path(RUNNER_TEMP) : // use RUNNER_TEMP if available
+            boost::filesystem::temp_directory_path()}; // else canonical temp dir
+        boost::filesystem::path tempname{
+            // use filename template recommended by unique_path() doc, but
+            // with underscores instead of hyphens: some use cases involve
+            // temporary Python scripts
+            tempdir / stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx) };
+        return boost::filesystem::unique_path(tempname);
     }
 
 protected:
-    void createFile(const std::string& pfx, const Streamer& func)
+    void createFile(const std::string_view& pfx,
+                    const Streamer& func,
+                    const std::string_view& sfx)
     {
         // Create file in a temporary place.
-        const char* tempdir = NULL;
-        ll_apr_assert_status(apr_temp_dir_get(&tempdir, mPool));
-
-        // Construct a temp filename template in that directory.
-        char *tempname = NULL;
-        ll_apr_assert_status(apr_filepath_merge(&tempname,
-                                                tempdir,
-                                                (pfx + "XXXXXX").c_str(),
-                                                0,
-                                                mPool));
-
-        // Create a temp file from that template.
-        apr_file_t* fp = NULL;
-        ll_apr_assert_status(apr_file_mktemp(&fp,
-                                             tempname,
-                                             APR_CREATE | APR_WRITE | APR_EXCL,
-                                             mPool));
-        // apr_file_mktemp() alters tempname with the actual name. Not until
-        // now is it valid to capture as our mPath.
-        mPath = tempname;
-
+        mPath = temp_path(pfx, sfx);
+        boost::filesystem::ofstream out{ mPath, std::ios::binary };
         // Write desired content.
-        std::ostringstream out;
-        // Stream stuff to it.
         func(out);
-
-        std::string data(out.str());
-        apr_size_t writelen(data.length());
-        ll_apr_assert_status(apr_file_write(fp, data.c_str(), &writelen));
-        ll_apr_assert_status(apr_file_close(fp));
-        llassert_always(writelen == data.length());
     }
 
-    std::string mPath;
-    apr_pool_t* mPool;
+    boost::filesystem::path mPath;
 };
 
 /**
  * Create a NamedTempFile with a specified filename extension. This is useful
  * when, for instance, you must be able to use the file in a Python import
  * statement.
- *
- * A NamedExtTempFile actually has two different names. We retain the original
- * no-extension name as a placeholder in the temp directory to ensure
- * uniqueness; to that we link the name plus the desired extension. Naturally,
- * both must be removed on destruction.
  */
 class NamedExtTempFile: public NamedTempFile
 {
     LOG_CLASS(NamedExtTempFile);
 public:
-    NamedExtTempFile(const std::string& ext, const std::string& content, apr_pool_t* pool=gAPRPoolp):
-        NamedTempFile(remove_dot(ext), content, pool),
-        mLink(mPath + ensure_dot(ext))
-    {
-        linkto(mLink);
-    }
+    NamedExtTempFile(const std::string& ext, const std::string_view& content):
+        NamedTempFile(remove_dot(ext), content, ensure_dot(ext))
+    {}
 
     // Disambiguate when passing string literal
-    NamedExtTempFile(const std::string& ext, const char* content, apr_pool_t* pool=gAPRPoolp):
-        NamedTempFile(remove_dot(ext), content, pool),
-        mLink(mPath + ensure_dot(ext))
-    {
-        linkto(mLink);
-    }
+    NamedExtTempFile(const std::string& ext, const char* content):
+        NamedTempFile(remove_dot(ext), content, ensure_dot(ext))
+    {}
 
-    NamedExtTempFile(const std::string& ext, const Streamer& func, apr_pool_t* pool=gAPRPoolp):
-        NamedTempFile(remove_dot(ext), func, pool),
-        mLink(mPath + ensure_dot(ext))
-    {
-        linkto(mLink);
-    }
-
-    virtual ~NamedExtTempFile()
-    {
-        ll_apr_assert_status(apr_file_remove(mLink.c_str(), mPool));
-    }
-
-    // Since the caller has gone to the trouble to create the name with the
-    // extension, that should be the name we return. In this class, mPath is
-    // just a placeholder to ensure that future createFile() calls won't
-    // collide.
-    virtual std::string getName() const { return mLink; }
+    NamedExtTempFile(const std::string& ext, const Streamer& func):
+        NamedTempFile(remove_dot(ext), func, ensure_dot(ext))
+    {}
 
     static std::string ensure_dot(const std::string& ext)
     {
@@ -175,7 +165,7 @@ public:
         {
             return ext;
         }
-        return std::string(".") + ext;
+        return "." + ext;
     }
 
     static std::string remove_dot(const std::string& ext)
@@ -187,19 +177,6 @@ public:
         }
         return ext.substr(found);
     }
-
-private:
-    void linkto(const std::string& path)
-    {
-        // This method assumes that since mPath (without extension) is
-        // guaranteed by apr_file_mktemp() to be unique, then (mPath + any
-        // extension) is also unique. This is likely, though not guaranteed:
-        // files could be created in the same temp directory other than by
-        // this class.
-        ll_apr_assert_status(apr_file_link(mPath.c_str(), path.c_str()));
-    }
-
-    std::string mLink;
 };
 
 #endif /* ! defined(LL_NAMEDTEMPFILE_H) */

@@ -726,6 +726,7 @@ bool LLImageJ2COJ::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int disca
 
 bool LLImageJ2COJ::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	// No specific implementation for this method in the OpenJpeg case
 	return false;
 }

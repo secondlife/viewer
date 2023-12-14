@@ -39,6 +39,7 @@
 #include "llsdutil_math.h"
 #include "llprimtexturelist.h"
 #include "llmaterialid.h"
+#include "llsdutil.h"
 
 /**
  * exported constants
@@ -79,6 +80,16 @@ const F32 LIGHT_MAX_FALLOFF = 2.0f;
 const F32 LIGHT_MIN_CUTOFF = 0.0f;
 const F32 LIGHT_DEFAULT_CUTOFF = 0.0f;
 const F32 LIGHT_MAX_CUTOFF = 180.f;
+
+// reflection probes
+const F32 REFLECTION_PROBE_MIN_AMBIANCE = 0.f;
+const F32 REFLECTION_PROBE_MAX_AMBIANCE = 100.f;
+const F32 REFLECTION_PROBE_DEFAULT_AMBIANCE = 0.f;
+// *NOTE: Clip distances are clamped in LLCamera::setNear. The max clip
+// distance is currently limited by the skybox
+const F32 REFLECTION_PROBE_MIN_CLIP_DISTANCE = 0.f;
+const F32 REFLECTION_PROBE_MAX_CLIP_DISTANCE = 1024.f;
+const F32 REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE = 0.f;
 
 // "Tension" => [0,10], increments of 0.1
 const F32 FLEXIBLE_OBJECT_MIN_TENSION = 0.0f;
@@ -1690,6 +1701,10 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
 		return (size == 28);
     case PARAMS_EXTENDED_MESH:
         return (size == 4);
+    case PARAMS_RENDER_MATERIAL:
+        return (size > 1);
+    case PARAMS_REFLECTION_PROBE:
+        return (size == 9);
 	}
 	
 	return FALSE;
@@ -1808,6 +1823,118 @@ bool LLLightParams::fromLLSD(LLSD& sd)
 
 //============================================================================
 
+//============================================================================
+
+LLReflectionProbeParams::LLReflectionProbeParams()
+{
+    mType = PARAMS_REFLECTION_PROBE;
+}
+
+BOOL LLReflectionProbeParams::pack(LLDataPacker &dp) const
+{
+	dp.packF32(mAmbiance, "ambiance");
+    dp.packF32(mClipDistance, "clip_distance");
+    dp.packU8(mFlags, "flags");
+	return TRUE;
+}
+
+BOOL LLReflectionProbeParams::unpack(LLDataPacker &dp)
+{
+	F32 ambiance;
+    F32 clip_distance;
+
+	dp.unpackF32(ambiance, "ambiance");
+	setAmbiance(ambiance);
+	
+    dp.unpackF32(clip_distance, "clip_distance");
+	setClipDistance(clip_distance);
+	
+    dp.unpackU8(mFlags, "flags");
+	
+	return TRUE;
+}
+
+bool LLReflectionProbeParams::operator==(const LLNetworkData& data) const
+{
+	if (data.mType != PARAMS_REFLECTION_PROBE)
+	{
+		return false;
+	}
+	const LLReflectionProbeParams *param = (const LLReflectionProbeParams*)&data;
+	if (param->mAmbiance != mAmbiance)
+	{
+		return false;
+	}
+    if (param->mClipDistance != mClipDistance)
+    {
+        return false;
+    }
+    if (param->mFlags != mFlags)
+    {
+        return false;
+    }
+	return true;
+}
+
+void LLReflectionProbeParams::copy(const LLNetworkData& data)
+{
+	const LLReflectionProbeParams *param = (LLReflectionProbeParams*)&data;
+	mType = param->mType;
+	mAmbiance = param->mAmbiance;
+    mClipDistance = param->mClipDistance;
+    mFlags = param->mFlags;
+}
+
+LLSD LLReflectionProbeParams::asLLSD() const
+{
+	LLSD sd;
+	sd["ambiance"] = getAmbiance();
+    sd["clip_distance"] = getClipDistance();
+    sd["flags"] = mFlags;
+	return sd;
+}
+
+bool LLReflectionProbeParams::fromLLSD(LLSD& sd)
+{
+    if (!sd.has("ambiance") ||
+        !sd.has("clip_distance") ||
+        !sd.has("flags"))
+    {
+        return false;
+    }
+
+	setAmbiance((F32)sd["ambiance"].asReal());
+    setClipDistance((F32)sd["clip_distance"].asReal());
+    mFlags = (U8) sd["flags"].asInteger();
+	
+    return true;
+}
+
+void LLReflectionProbeParams::setIsBox(bool is_box)
+{
+    if (is_box)
+    {
+        mFlags |= FLAG_BOX_VOLUME;
+    }
+    else
+    {
+        mFlags &= ~FLAG_BOX_VOLUME;
+    }
+}
+
+void LLReflectionProbeParams::setIsDynamic(bool is_dynamic)
+{
+    if (is_dynamic)
+    {
+        mFlags |= FLAG_DYNAMIC;
+    }
+    else
+    {
+        mFlags &= ~FLAG_DYNAMIC;
+    }
+}
+
+//============================================================================
 LLFlexibleObjectData::LLFlexibleObjectData()
 {
 	mSimulateLOD				= FLEXIBLE_OBJECT_DEFAULT_NUM_SECTIONS;
@@ -2181,3 +2308,106 @@ bool LLExtendedMeshParams::fromLLSD(LLSD& sd)
 	
 	return false;
 }
+
+//============================================================================
+
+LLRenderMaterialParams::LLRenderMaterialParams()
+{
+    mType = PARAMS_RENDER_MATERIAL;
+}
+
+BOOL LLRenderMaterialParams::pack(LLDataPacker& dp) const
+{
+    U8 count = (U8)llmin((S32)mEntries.size(), 14); //limited to 255 bytes, no more than 14 material ids
+
+    dp.packU8(count, "count");
+    for (auto& entry : mEntries)
+    {
+        dp.packU8(entry.te_idx, "te_idx");
+        dp.packUUID(entry.id, "id");
+    }
+
+    return TRUE;
+}
+
+BOOL LLRenderMaterialParams::unpack(LLDataPacker& dp)
+{
+    U8 count;
+    dp.unpackU8(count, "count");
+    mEntries.resize(count);
+    for (auto& entry : mEntries)
+    {
+        dp.unpackU8(entry.te_idx, "te_idx");
+        dp.unpackUUID(entry.id, "te_id");
+    }
+
+    return TRUE;
+}
+
+bool LLRenderMaterialParams::operator==(const LLNetworkData& data) const
+{
+    if (data.mType != PARAMS_RENDER_MATERIAL)
+    {
+        return false;
+    }
+
+    const LLRenderMaterialParams& param = static_cast<const LLRenderMaterialParams&>(data);
+
+    if (param.mEntries.size() != mEntries.size())
+    {
+        return false;
+    }
+
+    for (auto& entry : mEntries)
+    {
+        if (param.getMaterial(entry.te_idx) != entry.id)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void LLRenderMaterialParams::copy(const LLNetworkData& data)
+{
+    llassert_always(data.mType == PARAMS_RENDER_MATERIAL);
+    const LLRenderMaterialParams& param = static_cast<const LLRenderMaterialParams&>(data);
+    mEntries = param.mEntries;
+}
+
+
+void LLRenderMaterialParams::setMaterial(U8 te, const LLUUID& id)
+{
+    for (int i = 0; i < mEntries.size(); ++i)
+    {
+        if (mEntries[i].te_idx == te)
+        {
+            if (id.isNull())
+            {
+                mEntries.erase(mEntries.begin() + i);
+            }
+            else
+            {
+                mEntries[i].id = id;
+            }
+            return;
+        }
+    }
+
+    mEntries.push_back({ te, id });
+}
+
+const LLUUID& LLRenderMaterialParams::getMaterial(U8 te) const
+{
+    for (int i = 0; i < mEntries.size(); ++i)
+    {
+        if (mEntries[i].te_idx == te)
+        {
+            return mEntries[i].id;
+        }
+    }
+
+    return LLUUID::null;
+}
+

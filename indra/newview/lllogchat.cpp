@@ -41,7 +41,7 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/regex/v4/match_results.hpp>
+#include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 
 #if LL_MSVC
@@ -59,7 +59,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 
-const S32 LOG_RECALL_SIZE = 2048;
+const S32 LOG_RECALL_SIZE = 20480;
 
 const std::string LL_IM_TIME("time");
 const std::string LL_IM_DATE_TIME("datetime");

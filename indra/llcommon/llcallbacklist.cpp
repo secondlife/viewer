@@ -55,7 +55,7 @@ void LLCallbackList::addFunction( callback_t func, void *data)
 
 	// only add one callback per func/data pair
 	//
-	if (containsFunction(func))
+	if (containsFunction(func, data))
 	{
 		return;
 	}

@@ -75,19 +75,28 @@ void update_all_marketplace_count();
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name);
 
 void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id = LLUUID::null, bool move_no_copy_items = false);
+void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id, bool move_no_copy_items, inventory_func_type callback);
 
 void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& root_copy_id, bool move_no_copy_items);
 
-// Generates a string containing the path to the item specified by item_id.
+// Generates a string containing the path to the object specified by id (not including the object name).
 void append_path(const LLUUID& id, std::string& path);
 
-typedef boost::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)> validation_callback_t;
+// Generates a string containing the path name of the object.
+std::string make_path(const LLInventoryObject* object);
+// Generates a string containing the path name of the object specified by id.
+std::string make_inventory_path(const LLUUID& id);
+
+// Generates a string containing the path name and id of the object.
+std::string make_info(const LLInventoryObject* object);
+// Generates a string containing the path name and id of the object specified by id.
+std::string make_inventory_info(const LLUUID& id);
 
 bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryItem* inv_item, std::string& tooltip_msg, S32 bundle_size = 1, bool from_paste = false);
 bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryCategory* inv_cat, std::string& tooltip_msg, S32 bundle_size = 1, bool check_items = true, bool from_paste = false);
 bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy = false);
 bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy = false, bool move_no_copy_items = false);
-bool validate_marketplacelistings(LLInventoryCategory* inv_cat, validation_callback_t cb = NULL, bool fix_hierarchy = true, S32 depth = -1, bool notify_observers = true);
+
 S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
 S32 compute_stock_count(LLUUID cat_uuid, bool force_count = false);
@@ -98,9 +107,64 @@ void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected
 bool is_only_cats_selected(const uuid_vec_t& selected_uuids);
 bool is_only_items_selected(const uuid_vec_t& selected_uuids);
 
+bool can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+bool can_move_to_landmarks(LLInventoryItem* inv_item);
+bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
+std::string get_localized_folder_name(LLUUID cat_uuid);
+void new_folder_window(const LLUUID& folder_id);
+void ungroup_folder_items(const LLUUID& folder_id);
+std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id);
+std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& item_id);
+std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
+bool can_share_item(const LLUUID& item_id);
+
 /**                    Miscellaneous global functions
  **                                                                            **
  *******************************************************************************/
+
+class LLMarketplaceValidator: public LLSingleton<LLMarketplaceValidator>
+{
+    LLSINGLETON(LLMarketplaceValidator);
+    ~LLMarketplaceValidator();
+    LOG_CLASS(LLMarketplaceValidator);
+public:
+
+    typedef boost::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)> validation_msg_callback_t;
+    typedef boost::function<void(bool result)> validation_done_callback_t;
+
+    void validateMarketplaceListings(
+        const LLUUID &category_id,
+        validation_done_callback_t cb_done = NULL,
+        validation_msg_callback_t cb_msg = NULL,
+        bool fix_hierarchy = true,
+        S32 depth = -1);
+
+private:
+    void start();
+
+    class ValidationRequest
+    {
+    public:
+        ValidationRequest(
+            LLUUID category_id,
+            validation_done_callback_t cb_done,
+            validation_msg_callback_t cb_msg,
+            bool fix_hierarchy,
+            S32 depth);
+        LLUUID mCategoryId;
+        validation_done_callback_t mCbDone;
+        validation_msg_callback_t  mCbMsg;
+        bool mFixHierarchy;
+        S32 mDepth;
+    };
+
+    bool mValidationInProgress;
+    S32 mPendingCallbacks;
+    bool mPendingResult;
+    // todo: might be a good idea to memorize requests by id and
+    // filter out ones that got multiple validation requests
+    std::queue<ValidationRequest> mValidationQueue;
+};
 
 /********************************************************************************
  **                                                                            **
@@ -318,6 +382,20 @@ public:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindBrokenLinks
+//
+// Collects broken links
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindBrokenLinks : public LLInventoryCollectFunctor
+{
+public:
+    LLFindBrokenLinks() {}
+    virtual ~LLFindBrokenLinks() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFindByMask
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLFindByMask : public LLInventoryCollectFunctor
@@ -415,6 +493,15 @@ private:
 	LLWearableType::EType mWearableType;
 };
 
+class LLIsTextureType : public LLInventoryCollectFunctor
+{
+public:
+    LLIsTextureType() {}
+    virtual ~LLIsTextureType() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+};
+
 /** Filter out wearables-links */
 class LLFindActualWearablesOfType : public LLFindWearablesOfType
 {
@@ -474,7 +561,7 @@ struct LLInventoryAction
 
     static void saveMultipleTextures(const std::vector<std::string>& filenames, std::set<LLFolderViewItem*> selected_items, LLInventoryModel* model);
 
-	static const int sConfirmOnDeleteItemsNumber;
+    static bool sDeleteConfirmationDisplayed;
 
 private:
 	static void buildMarketplaceFolders(LLFolderView* root);

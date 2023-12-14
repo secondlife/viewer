@@ -73,6 +73,8 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
     registerUrl(new LLUrlEntryExperienceProfile());
+    mUrlEntryKeybinding = new LLUrlEntryKeybinding();
+    registerUrl(mUrlEntryKeybinding);
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
@@ -306,4 +308,10 @@ bool LLUrlRegistry::isUrl(const LLWString &text)
 		return (match.getStart() == 0 && match.getEnd() >= text.size()-1);
 	}
 	return false;
+}
+
+void LLUrlRegistry::setKeybindingHandler(LLKeyBindingToStringHandler* handler)
+{
+    LLUrlEntryKeybinding *entry = (LLUrlEntryKeybinding*)mUrlEntryKeybinding;
+    entry->setHandler(handler);
 }

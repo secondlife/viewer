@@ -2,7 +2,7 @@
 
 include_guard()
 
-# FMODSTUDIO can be set when launching the make using the argument -DFMODSTUDIO:BOOL=ON
+# FMODSTUDIO can be set when launching the make using the argument -DUSE_FMODSTUDIO:BOOL=ON
 # When building using proprietary binaries though (i.e. having access to LL private servers),
 # we always build with FMODSTUDIO.
 if (INSTALL_PROPRIETARY)

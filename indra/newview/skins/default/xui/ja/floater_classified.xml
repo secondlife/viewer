@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_classified" title="クラシファイド広告">
+	<panel name="main_panel" filename="panel_classified_info.xml"/>
+</floater>

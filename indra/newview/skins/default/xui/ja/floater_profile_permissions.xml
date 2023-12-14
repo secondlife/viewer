@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="profile_permissions">
+	<string name="description_string" value="エージェントの[AGENT_NAME]に許可："/>
+	<text name="perm_description" value="許可するエージェント："/>
+	<check_box name="online_check" label="自分のオンライン状況"/>
+	<check_box name="map_check" label="ワールドマップ上の自分の位置"/>
+	<check_box name="objects_check" label="自分の土地からの自分のオブジェクトの編集、削除、または取得"/>
+	<button name="perms_btn_ok" label="ＯＫ"/>
+	<button name="perms_btn_cancel" label="キャンセル"/>
+</floater>

@@ -172,7 +172,9 @@ public:
 	// or if the circuit to this simulator had been lost.
 	bool isRegionListed(const LLViewerRegion* region) const;
 
-    S32 getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_avs);
+    // profile nearby avatars using gPipeline.profileAvatar and update their render times
+    // return max GPU time
+    F32 getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs);
 
 private:
     void clearHoleWaterObjects();

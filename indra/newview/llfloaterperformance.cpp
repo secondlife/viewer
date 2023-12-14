@@ -56,10 +56,6 @@ const S32 BAR_LEFT_PAD = 2;
 const S32 BAR_RIGHT_PAD = 5;
 const S32 BAR_BOTTOM_PAD = 9;
 
-constexpr auto AvType       {LLPerfStats::ObjType_t::OT_AVATAR};
-constexpr auto AttType      {LLPerfStats::ObjType_t::OT_ATTACHMENT};
-constexpr auto HudType      {LLPerfStats::ObjType_t::OT_HUD};
-
 class LLExceptionsContextMenu : public LLListContextMenu
 {
 public:
@@ -83,8 +79,7 @@ protected:
 
 LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
 :   LLFloater(key),
-    mUpdateTimer(new LLTimer()),
-    mNearbyMaxComplexity(0)
+    mUpdateTimer(new LLTimer())
 {
     mContextMenu = new LLExceptionsContextMenu(this);
 }
@@ -142,8 +137,6 @@ BOOL LLFloaterPerformance::postBuild()
     mMaxARTChangedSignal = gSavedSettings.getControl("RenderAvatarMaxART")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateMaxRenderTime, this));
     mNearbyPanel->getChild<LLSliderCtrl>("RenderAvatarMaxART")->setCommitCallback(boost::bind(&LLFloaterPerformance::updateMaxRenderTime, this));
 
-    // store the current setting as the users desired reflection detail and DD
-    gSavedSettings.setS32("UserTargetReflections", LLPipeline::RenderReflectionDetail);
     if(!LLPerfStats::tunables.userAutoTuneEnabled)
     {
         gSavedSettings.setF32("AutoTuneRenderFarClipTarget", LLPipeline::RenderFarClip);
@@ -249,47 +242,82 @@ void LLFloaterPerformance::populateHUDList()
     mHUDList->clearRows();
     mHUDList->updateColumns(true);
 
-    hud_complexity_list_t complexity_list = LLHUDRenderNotifier::getInstance()->getHUDComplexityList();
+    LLVOAvatar* avatar = gAgentAvatarp;
 
-    hud_complexity_list_t::iterator iter = complexity_list.begin();
-    hud_complexity_list_t::iterator end = complexity_list.end();
+    gPipeline.profileAvatar(avatar, true);
 
-    auto huds_max_render_time_raw = LLPerfStats::StatsRecorder::getMax(HudType, LLPerfStats::StatType_t::RENDER_GEOMETRY);
-    for (iter = complexity_list.begin(); iter != end; ++iter)
+    LLVOAvatar::attachment_map_t::iterator iter;
+    LLVOAvatar::attachment_map_t::iterator begin = avatar->mAttachmentPoints.begin();
+    LLVOAvatar::attachment_map_t::iterator end = avatar->mAttachmentPoints.end();
+
+    // get max gpu render time of all attachments
+    F32 max_gpu_time = -1.f;
+
+    for (iter = begin; iter != end; ++iter)
     {
-        LLHUDComplexity hud_object_complexity = *iter;
-
-        auto hud_render_time_raw = LLPerfStats::StatsRecorder::get(HudType, hud_object_complexity.objectId, LLPerfStats::StatType_t::RENDER_GEOMETRY);
-
-        LLSD item;
-        item["special_id"] = hud_object_complexity.objectId;
-        item["target"] = LLNameListCtrl::SPECIAL;
-        LLSD& row = item["columns"];
-        row[0]["column"] = "complex_visual";
-        row[0]["type"] = "bar";
-        LLSD& value = row[0]["value"];
-        value["ratio"] = (F32)hud_render_time_raw / huds_max_render_time_raw;
-        value["bottom"] = BAR_BOTTOM_PAD;
-        value["left_pad"] = BAR_LEFT_PAD;
-        value["right_pad"] = BAR_RIGHT_PAD;
-
-        row[1]["column"] = "complex_value";
-        row[1]["type"] = "text";
-        row[1]["value"] = llformat( "%.f", llmax(LLPerfStats::raw_to_us(hud_render_time_raw), (double)1));
-        row[1]["font"]["name"] = "SANSSERIF";
- 
-        row[2]["column"] = "name";
-        row[2]["type"] = "text";
-        row[2]["value"] = hud_object_complexity.objectName;
-        row[2]["font"]["name"] = "SANSSERIF";
-
-        LLScrollListItem* obj = mHUDList->addElement(item);
-        if (obj)
+        LLViewerJointAttachment* attachment = iter->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+            attachment_iter != attachment->mAttachedObjects.end();
+            ++attachment_iter)
         {
-            LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
-            if (value_text)
+            LLViewerObject* attached_object = attachment_iter->get();
+            if (attached_object && attached_object->isHUDAttachment())
             {
-                value_text->setAlignment(LLFontGL::HCENTER);
+                max_gpu_time = llmax(max_gpu_time, attached_object->mGPURenderTime);
+            }
+        }
+    }
+
+
+    for (iter = begin; iter != end; ++iter)
+    {
+        if (!iter->second)
+        {
+            continue;
+        }
+
+        LLViewerJointAttachment* attachment = iter->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+            attachment_iter != attachment->mAttachedObjects.end();
+            ++attachment_iter)
+        {
+            LLViewerObject* attached_object = attachment_iter->get();
+            if (attached_object && attached_object->isHUDAttachment())
+            {
+                F32 gpu_time = attached_object->mGPURenderTime;
+
+                LLSD item;
+                item["special_id"] = attached_object->getID();
+                item["target"] = LLNameListCtrl::SPECIAL;
+                LLSD& row = item["columns"];
+                row[0]["column"] = "complex_visual";
+                row[0]["type"] = "bar";
+                LLSD& value = row[0]["value"];
+                value["ratio"] = gpu_time / max_gpu_time;
+                value["bottom"] = BAR_BOTTOM_PAD;
+                value["left_pad"] = BAR_LEFT_PAD;
+                value["right_pad"] = BAR_RIGHT_PAD;
+
+                row[1]["column"] = "complex_value";
+                row[1]["type"] = "text";
+                // show gpu time in us
+                row[1]["value"] = llformat("%.f", gpu_time * 1000.f);
+                row[1]["font"]["name"] = "SANSSERIF";
+
+                row[2]["column"] = "name";
+                row[2]["type"] = "text";
+                row[2]["value"] = attached_object->getAttachmentItemName();
+                row[2]["font"]["name"] = "SANSSERIF";
+
+                LLScrollListItem* obj = mHUDList->addElement(item);
+                if (obj)
+                {
+                    LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
+                    if (value_text)
+                    {
+                        value_text->setAlignment(LLFontGL::HCENTER);
+                    }
+                }
             }
         }
     }
@@ -305,50 +333,82 @@ void LLFloaterPerformance::populateObjectList()
     mObjectList->clearRows();
     mObjectList->updateColumns(true);
 
-    object_complexity_list_t complexity_list = LLAvatarRenderNotifier::getInstance()->getObjectComplexityList();
+    LLVOAvatar* avatar = gAgentAvatarp;
 
-    object_complexity_list_t::iterator iter = complexity_list.begin();
-    object_complexity_list_t::iterator end = complexity_list.end();
+    gPipeline.profileAvatar(avatar, true);
 
-    // for consistency we lock the buffer while we build the list. In theory this is uncontended as the buffer should only toggle on end of frame
+    LLVOAvatar::attachment_map_t::iterator iter;
+    LLVOAvatar::attachment_map_t::iterator begin = avatar->mAttachmentPoints.begin();
+    LLVOAvatar::attachment_map_t::iterator end = avatar->mAttachmentPoints.end();
+
+    // get max gpu render time of all attachments
+    F32 max_gpu_time = -1.f;
+
+    for (iter = begin; iter != end; ++iter)
     {
-        std::lock_guard<std::mutex> guard{ LLPerfStats::bufferToggleLock };
-        auto att_max_render_time_raw = LLPerfStats::StatsRecorder::getMax(AttType, LLPerfStats::StatType_t::RENDER_COMBINED);
-
-        for (iter = complexity_list.begin(); iter != end; ++iter)
+        LLViewerJointAttachment* attachment = iter->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+            attachment_iter != attachment->mAttachedObjects.end();
+            ++attachment_iter)
         {
-            LLObjectComplexity object_complexity = *iter;
-
-            auto attach_render_time_raw = LLPerfStats::StatsRecorder::get(AttType, object_complexity.objectId, LLPerfStats::StatType_t::RENDER_COMBINED);
-            LLSD item;
-            item["special_id"] = object_complexity.objectId;
-            item["target"] = LLNameListCtrl::SPECIAL;
-            LLSD& row = item["columns"];
-            row[0]["column"] = "complex_visual";
-            row[0]["type"] = "bar";
-            LLSD& value = row[0]["value"];
-            value["ratio"] = ((F32)attach_render_time_raw) / att_max_render_time_raw;
-            value["bottom"] = BAR_BOTTOM_PAD;
-            value["left_pad"] = BAR_LEFT_PAD;
-            value["right_pad"] = BAR_RIGHT_PAD;
-
-            row[1]["column"] = "complex_value";
-            row[1]["type"] = "text";
-            row[1]["value"] = llformat("%.f", llmax(LLPerfStats::raw_to_us(attach_render_time_raw), (double)1));
-            row[1]["font"]["name"] = "SANSSERIF";
-
-            row[2]["column"] = "name";
-            row[2]["type"] = "text";
-            row[2]["value"] = object_complexity.objectName;
-            row[2]["font"]["name"] = "SANSSERIF";
-
-            LLScrollListItem* obj = mObjectList->addElement(item);
-            if (obj)
+            LLViewerObject* attached_object = attachment_iter->get();
+            if (attached_object && !attached_object->isHUDAttachment())
             {
-                LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
-                if (value_text)
+                max_gpu_time = llmax(max_gpu_time, attached_object->mGPURenderTime);
+            }
+        }
+    }
+
+    {
+        for (iter = begin; iter != end; ++iter)
+        {
+            if (!iter->second)
+            {
+                continue;
+            }
+
+            LLViewerJointAttachment* attachment = iter->second;
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                attachment_iter != attachment->mAttachedObjects.end();
+                ++attachment_iter)
+            {
+                LLViewerObject* attached_object = attachment_iter->get();
+                if (attached_object && !attached_object->isHUDAttachment())
                 {
-                    value_text->setAlignment(LLFontGL::HCENTER);
+                    F32 gpu_time = attached_object->mGPURenderTime;
+
+                    LLSD item;
+                    item["special_id"] = attached_object->getID();
+                    item["target"] = LLNameListCtrl::SPECIAL;
+                    LLSD& row = item["columns"];
+                    row[0]["column"] = "complex_visual";
+                    row[0]["type"] = "bar";
+                    LLSD& value = row[0]["value"];
+                    value["ratio"] = gpu_time / max_gpu_time;
+                    value["bottom"] = BAR_BOTTOM_PAD;
+                    value["left_pad"] = BAR_LEFT_PAD;
+                    value["right_pad"] = BAR_RIGHT_PAD;
+
+                    row[1]["column"] = "complex_value";
+                    row[1]["type"] = "text";
+                    // show gpu time in us
+                    row[1]["value"] = llformat("%.f", gpu_time * 1000.f);
+                    row[1]["font"]["name"] = "SANSSERIF";
+
+                    row[2]["column"] = "name";
+                    row[2]["type"] = "text";
+                    row[2]["value"] = attached_object->getAttachmentItemName();
+                    row[2]["font"]["name"] = "SANSSERIF";
+
+                    LLScrollListItem* obj = mObjectList->addElement(item);
+                    if (obj)
+                    {
+                        LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
+                        if (value_text)
+                        {
+                            value_text->setAlignment(LLFontGL::HCENTER);
+                        }
+                    }
                 }
             }
         }
@@ -360,6 +420,7 @@ void LLFloaterPerformance::populateObjectList()
 
 void LLFloaterPerformance::populateNearbyList()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
     static LLCachedControl<bool> showTunedART(gSavedSettings, "ShowTunedART");
     S32 prev_pos = mNearbyList->getScrollPos();
     LLUUID prev_selected_id = mNearbyList->getStringUUIDSelectedItem();
@@ -368,22 +429,16 @@ void LLFloaterPerformance::populateNearbyList()
 
     static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
     std::vector<LLCharacter*> valid_nearby_avs;
-    mNearbyMaxComplexity = LLWorld::getInstance()->getNearbyAvatarsAndCompl(valid_nearby_avs);
+    mNearbyMaxGPUTime = LLWorld::getInstance()->getNearbyAvatarsAndMaxGPUTime(valid_nearby_avs);
 
     std::vector<LLCharacter*>::iterator char_iter = valid_nearby_avs.begin();
-
-    LLPerfStats::bufferToggleLock.lock();
-    auto av_render_max_raw = LLPerfStats::StatsRecorder::getMax(AvType, LLPerfStats::StatType_t::RENDER_COMBINED);
-    LLPerfStats::bufferToggleLock.unlock();
 
     while (char_iter != valid_nearby_avs.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
         if (avatar && (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance()))
         {
-            LLPerfStats::bufferToggleLock.lock();
-            auto render_av_raw  = LLPerfStats::StatsRecorder::get(AvType, avatar->getID(),LLPerfStats::StatType_t::RENDER_COMBINED);
-            LLPerfStats::bufferToggleLock.unlock();
+            F32 render_av_gpu_ms = avatar->getGPURenderTime();
 
             auto is_slow = avatar->isTooSlow();
             LLSD item;
@@ -394,27 +449,21 @@ void LLFloaterPerformance::populateNearbyList()
             LLSD& value = row[0]["value"];
             // The ratio used in the bar is the current cost, as soon as we take action this changes so we keep the 
             // pre-tune value for the numerical column and sorting.
-            value["ratio"] = (double)render_av_raw / av_render_max_raw;
+            value["ratio"] = render_av_gpu_ms / mNearbyMaxGPUTime;
             value["bottom"] = BAR_BOTTOM_PAD;
             value["left_pad"] = BAR_LEFT_PAD;
             value["right_pad"] = BAR_RIGHT_PAD;
 
             row[1]["column"] = "complex_value";
             row[1]["type"] = "text";
-            if (is_slow && !showTunedART)
-            {
-                row[1]["value"] = llformat( "%.f", LLPerfStats::raw_to_us( avatar->getLastART() ) );
-            }
-            else
-            {
-                row[1]["value"] = llformat( "%.f", LLPerfStats::raw_to_us( render_av_raw ) );
-            }
+            // use GPU time in us
+            row[1]["value"] = llformat( "%.f", render_av_gpu_ms * 1000.f);
             row[1]["font"]["name"] = "SANSSERIF";
 
-            row[2]["column"] = "name";
-            row[2]["type"] = "text";
-            row[2]["value"] = avatar->getFullname();
-            row[2]["font"]["name"] = "SANSSERIF";
+            row[3]["column"] = "name";
+            row[3]["type"] = "text";
+            row[3]["value"] = avatar->getFullname();
+            row[3]["font"]["name"] = "SANSSERIF";
 
             LLScrollListItem* av_item = mNearbyList->addElement(item);
             if(av_item)
@@ -633,7 +682,7 @@ void LLFloaterPerformance::changeQualityLevel(const std::string& notif)
 
 bool is_ALM_available()
 {
-    bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+    bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
     bool shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
     
     return LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&

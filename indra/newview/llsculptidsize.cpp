@@ -65,7 +65,7 @@ void LLSculptIDSize::inc(const LLDrawable *pdrawable, int sz)
 	pair_iter_iter_BY_SCULPT_ID_t itLU = mSizeInfo.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
 	if (itLU.first == itLU.second)
 	{ //register
-		llassert(mSizeInfo.get<tag_BY_DRAWABLE>().end() == mSizeInfo.get<tag_BY_DRAWABLE>().find(pdrawable));
+		//llassert(mSizeInfo.get<tag_BY_DRAWABLE>().end() == mSizeInfo.get<tag_BY_DRAWABLE>().find(pdrawable));
 		mSizeInfo.get<tag_BY_DRAWABLE>().insert(Info(pdrawable, sz, boost::make_shared<SizeSum>(sz), sculptId));
 		total_size = sz;
 	}
@@ -84,29 +84,6 @@ void LLSculptIDSize::inc(const LLDrawable *pdrawable, int sz)
 
 		//trying insert the LLDrawable
 		mSizeInfo.get<tag_BY_DRAWABLE>().insert(Info(pdrawable, sz, nfo.mSharedSizeSum, sculptId));
-	}
-
-	static LLCachedControl<U32> render_auto_mute_byte_limit(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
-
-	if (0 != render_auto_mute_byte_limit && total_size > render_auto_mute_byte_limit)
-	{
-		pair_iter_iter_BY_SCULPT_ID_t it_eqr = mSizeInfo.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
-		for (; it_eqr.first != it_eqr.second; ++it_eqr.first)
-		{
-			const Info &i = *it_eqr.first;
-			LLVOVolume *pVVol = i.mDrawable->getVOVolume();
-			if (pVVol
-				&& !pVVol->isDead()
-				&& pVVol->isAttachment()
-				&& !pVVol->getAvatar()->isSelf()
-				&& LLVOVolume::NO_LOD != pVVol->getLOD()
-				)
-			{
-				addToUnloaded(sculptId);
-				//immediately
-				const_cast<LLDrawable*>(i.mDrawable)->unload();
-			}
-		}
 	}
 }
 

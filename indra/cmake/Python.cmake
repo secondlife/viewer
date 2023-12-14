@@ -2,14 +2,18 @@
 
 set(PYTHONINTERP_FOUND)
 
-if (WINDOWS)
+if (DEFINED ENV{PYTHON})
+  # Allow python executable to be explicitly set
+  set(python "$ENV{PYTHON}")
+  set(PYTHONINTERP_FOUND ON)
+elseif (WINDOWS)
   # On Windows, explicitly avoid Cygwin Python.
 
   # if the user has their own version of Python installed, prefer that
   foreach(hive HKEY_CURRENT_USER HKEY_LOCAL_MACHINE)
     # prefer more recent Python versions to older ones, if multiple versions
     # are installed
-    foreach(pyver 3.11 3.10 3.9 3.8 3.7)
+    foreach(pyver 3.12 3.11 3.10 3.9 3.8 3.7)
       list(APPEND regpaths "[${hive}\\SOFTWARE\\Python\\PythonCore\\${pyver}\\InstallPath]")
     endforeach()
   endforeach()
@@ -36,14 +40,14 @@ if (WINDOWS)
     ${regpaths}
     ${pymaybe}
     )
-    include(FindPythonInterp)
+  find_package(Python3 COMPONENTS Interpreter)
 else()
   find_program(python python3)
 
   if (python)
     set(PYTHONINTERP_FOUND ON)
   endif (python)
-endif (WINDOWS)
+endif (DEFINED ENV{PYTHON})
 
 if (NOT python)
   message(FATAL_ERROR "No Python interpreter found")

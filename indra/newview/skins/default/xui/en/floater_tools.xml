@@ -2,7 +2,7 @@
 <floater
  positioning="cascading"
  legacy_header_height="18"
- height="609"
+ height="651"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -820,7 +820,7 @@
     width="282"/>
     <tab_container
      follows="left|top"
-     height="426"
+     height="476"
      halign="center"
      left="0"
      name="Object Info Tabs"
@@ -1114,10 +1114,14 @@
                  label="Open"
                  name="Open"
                  value="Open" />
-				 <combo_box.item
+                <combo_box.item
                  label="Zoom"
                  name="Zoom"
                  value="Zoom" />
+                <combo_box.item
+                 label="Ignore object"
+                 name="Ignoreobject"
+                 value="Ignore" />
                 <combo_box.item
                  label="None"
                  name="None"
@@ -2530,7 +2534,70 @@ even though the user gets a free copy.
                    mouse_opaque="true"
                    name="Light Ambiance"
                    width="120" />
-            <text
+          <check_box
+             height="16"
+             label="Reflection Probe"
+             layout="topleft"
+             left="10"
+             name="Reflection Probe"
+             tool_tip="Adjusts how objects within this volume receive reflections when PBR is enabled"
+             top_pad="10"
+             width="60" />
+          <combo_box
+			   height="19"
+			   top_delta="0"
+         left="144"
+			   follows="left|top"
+			   name="Probe Volume Type"
+			   tool_tip="Choose the probe influence volume"
+			   width="108">
+            <combo_box.item
+             label="Sphere"
+             name="Sphere"
+             value="Sphere" />
+            <combo_box.item
+             label="Box"
+             name="Box"
+             value="Box"/>
+          </combo_box>
+          <check_box
+             height="16"
+             label="Dynamic"
+             layout="topleft"
+             left="10"
+             name="Probe Dynamic"
+             tool_tip="When enabled, Avatars will appear in reflections within this probe's influence volume."
+             bottom_delta="19"
+             width="60" />
+          <spinner bottom_delta="19"
+                   decimal_digits="3"
+                   follows="left|top"
+                   height="16"
+                   increment="0.05"
+                   initial_value="0"
+                   label="Ambiance"
+                   label_width="55"
+                   left="10"
+                   max_val="100"
+                   min_val="0"
+                   mouse_opaque="true"
+                   name="Probe Ambiance"
+                   width="120" />
+          <spinner bottom_delta="0"
+                   decimal_digits="3"
+                   follows="left|top"
+                   height="16"
+                   increment="0.05"
+                   initial_value="0"
+                   label="Near Clip"
+                   label_width="55"
+                   left="144"
+                   max_val="1024"
+                   min_val="0"
+                   mouse_opaque="true"
+                   name="Probe Near Clip"
+                   width="120" />
+          <text
              type="string"
              length="1"
              follows="left|top"
@@ -2685,7 +2752,7 @@ even though the user gets a free copy.
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="335"
+             height="387"
              layout="topleft"
              left="10"
              name="contents_inventory"

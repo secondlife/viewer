@@ -58,7 +58,7 @@ public:
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
 	void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
-	void wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append);
+	void wearCategoryFinal(const LLUUID& cat_id, bool copy_items, bool append);
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 	void replaceCurrentOutfit(const LLUUID& new_outfit);
@@ -338,7 +338,9 @@ public:
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
 
 // Invoke a given callable after category contents are fully fetched.
+void callAfterCOFFetch(nullary_func_t cb);
 void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb);
+void callAfterCategoryLinksFetch(const LLUUID &cat_id, nullary_func_t cb);
 
 // Wear all items in a uuid vector.
 void wear_multiple(const uuid_vec_t& ids, bool replace);

@@ -38,15 +38,7 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color)
 	col.a = color.a;
 	
 	col.rgb = light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
-	col.rgb = scaleDownLight(col.rgb);
-
-#if defined(LOCAL_LIGHT_KILL)
-    col.rgb = vec3(0);
-#endif
-
-#if !defined(SUNLIGHT_KILL)
-	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
-#endif
+    col.rgb += light_diffuse[1].rgb * sqrt(calcDirectionalLight(norm, -light_position[1].xyz)*0.5+0.25);
 
 	col.rgb = min(col.rgb*color.rgb, 1.0);
 	return col;	

@@ -376,11 +376,11 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
 
 	if (mReferenceBuffer.isNull())
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	else if (trunk_LOD != mTrunkLOD)
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, FALSE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	else
 	{
@@ -538,8 +538,8 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 			max_vertices += sLODVertexCount[lod];
 		}
 
-		mReferenceBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, 0);
-		if (!mReferenceBuffer->allocateBuffer(max_vertices, max_indices, TRUE))
+		mReferenceBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+		if (!mReferenceBuffer->allocateBuffer(max_vertices, max_indices))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer on update to "
 				<< max_vertices << " vertices and "
@@ -862,7 +862,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 			slices /= 2; 
 		}
 
-		mReferenceBuffer->flush();
+		mReferenceBuffer->unmapBuffer();
 		llassert(vertex_count == max_vertices);
 		llassert(index_count == max_indices);
 	}
@@ -921,19 +921,19 @@ void LLVOTree::updateMesh()
 
 	LLFace* facep = mDrawable->getFace(0);
 	if (!facep) return;
-	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
-	if (!buff->allocateBuffer(vert_count, index_count, TRUE))
+	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+	if (!buff->allocateBuffer(vert_count, index_count))
 	{
 		LL_WARNS() << "Failed to allocate Vertex Buffer on mesh update to "
 			<< vert_count << " vertices and "
 			<< index_count << " indices" << LL_ENDL;
-		buff->allocateBuffer(1, 3, true);
+		buff->allocateBuffer(1, 3);
 		memset((U8*)buff->getMappedData(), 0, buff->getSize());
 		memset((U8*)buff->getMappedIndices(), 0, buff->getIndicesSize());
 		facep->setSize(1, 3);
 		facep->setVertexBuffer(buff);
-		mReferenceBuffer->flush();
-		buff->flush();
+		mReferenceBuffer->unmapBuffer();
+		buff->unmapBuffer();
 		return;
 	}
 
@@ -954,8 +954,8 @@ void LLVOTree::updateMesh()
 
 	genBranchPipeline(vertices, normals, tex_coords, colors, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
-	mReferenceBuffer->flush();
-	buff->flush();
+	mReferenceBuffer->unmapBuffer();
+	buff->unmapBuffer();
 }
 
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 
@@ -1170,7 +1170,7 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	mDrawable->setPositionGroup(pos);
 }
 
-BOOL LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, S32 *face_hitp,
+BOOL LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
@@ -1226,7 +1226,7 @@ U32 LLVOTree::getPartitionType() const
 }
 
 LLTreePartition::LLTreePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(0, FALSE, GL_DYNAMIC_DRAW_ARB, regionp)
+: LLSpatialPartition(0, FALSE, regionp)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_TREE;
 	mPartitionType = LLViewerRegion::PARTITION_TREE;

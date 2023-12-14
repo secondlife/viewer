@@ -23,14 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec3 atmosLighting(vec3 light);
 vec4 applyWaterFog(vec4 color);
@@ -41,6 +37,6 @@ void default_lighting_water()
 
 	color.rgb = atmosLighting(color.rgb);
 
-	frag_color = applyWaterFog(color);
+	frag_color = max(applyWaterFog(color), vec4(0));
 }
 

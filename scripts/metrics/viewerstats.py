@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 import json
 from collections import Counter, defaultdict
-from llbase import llsd
+import llsd
 import io
 import re
 import os

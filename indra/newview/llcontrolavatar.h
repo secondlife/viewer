@@ -35,9 +35,12 @@ class LLControlAvatar:
 {
     LOG_CLASS(LLControlAvatar);
 
+    using super = LLVOAvatar;
+
 public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual void 			initInstance(); // Called after construction to initialize the class.
+    virtual void initInstance(); // Called after construction to initialize the class.
+    virtual void markDead();
 	virtual	~LLControlAvatar();
 
 	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
@@ -68,6 +71,7 @@ public:
         S32 face = -1,                    // which face to check, -1 = ALL_SIDES
         BOOL pick_transparent = FALSE,
         BOOL pick_rigged = FALSE,
+        BOOL pick_unselectable = TRUE,
         S32* face_hit = NULL,             // which face was hit
         LLVector4a* intersection = NULL,   // return the intersection point
         LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
@@ -87,6 +91,7 @@ public:
     F32 mGlobalScale;
 
     LLVOVolume *mRootVolp;
+    class LLControlAVBridge* mControlAVBridge;
 
     bool mMarkedForDeath;
 

@@ -47,6 +47,7 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mGlobalScale(1.0f),
     mMarkedForDeath(false),
     mRootVolp(NULL),
+    mControlAVBridge(NULL),
     mScaleConstraintFixup(1.0),
 	mRegionChanged(false)
 {
@@ -312,8 +313,8 @@ void LLControlAvatar::updateVolumeGeom()
         }
     }
 
-    gPipeline.markRebuild(mRootVolp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-    mRootVolp->markForUpdate(TRUE);
+    gPipeline.markRebuild(mRootVolp->mDrawable, LLDrawable::REBUILD_ALL);
+    mRootVolp->markForUpdate();
 
     // Note that attachment overrides aren't needed here, have already
     // been applied at the time the mControlAvatar was created, in
@@ -374,6 +375,12 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     {
         LLVOAvatar::idleUpdate(agent,time);
     }
+}
+
+void LLControlAvatar::markDead()
+{
+    super::markDead();
+    mControlAVBridge = NULL;
 }
 
 bool LLControlAvatar::computeNeedsUpdate()
@@ -597,7 +604,7 @@ void LLControlAvatar::updateAnimations()
         //if (!mRootVolp->isAnySelected())
         {
             updateVolumeGeom();
-            mRootVolp->recursiveMarkForUpdate(TRUE);
+            mRootVolp->recursiveMarkForUpdate();
         }
     }
 
@@ -610,6 +617,7 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
 									  S32 face,
 									  BOOL pick_transparent,
 									  BOOL pick_rigged,
+                                      BOOL pick_unselectable,
 									  S32* face_hit,
 									  LLVector4a* intersection,
 									  LLVector2* tex_coord,
@@ -627,7 +635,7 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
 	{
 		LLVector4a local_end = end;
 		LLVector4a local_intersection;
-        if (mRootVolp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
+        if (mRootVolp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, pick_unselectable, face_hit, &local_intersection, tex_coord, normal, tangent))
         {
             local_end = local_intersection;
             if (intersection)
@@ -644,7 +652,7 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
             for (std::vector<LLVOVolume*>::iterator vol_it = volumes.begin(); vol_it != volumes.end(); ++vol_it)
             {
                 LLVOVolume *volp = *vol_it;
-                if (mRootVolp != volp && volp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
+                if (mRootVolp != volp && volp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, pick_unselectable, face_hit, &local_intersection, tex_coord, normal, tangent))
         {
             local_end = local_intersection;
             if (intersection)

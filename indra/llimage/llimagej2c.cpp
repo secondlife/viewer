@@ -146,6 +146,7 @@ bool LLImageJ2C::initEncode(LLImageRaw &raw_image, int blocks_size, int precinct
 
 bool LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	return decodeChannels(raw_imagep, decode_time, 0, 4);
 }
 
@@ -153,6 +154,7 @@ bool LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 // Returns true to mean done, whether successful or not.
 bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLTimer elapsed;
 
 	bool res = true;

@@ -25,34 +25,34 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec2 texcoord0;
 
 //////////////////////////////////////////////////////////////////////////
 // The vertex shader for creating the atmospheric sky
 ///////////////////////////////////////////////////////////////////////////////
 
 // Output parameters
-VARYING vec4 vary_CloudColorSun;
-VARYING vec4 vary_CloudColorAmbient;
-VARYING float vary_CloudDensity;
+out vec3 vary_CloudColorSun;
+out vec3 vary_CloudColorAmbient;
+out float vary_CloudDensity;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
-VARYING vec2 vary_texcoord3;
-VARYING float altitude_blend_factor;
+out vec2 vary_texcoord0;
+out vec2 vary_texcoord1;
+out vec2 vary_texcoord2;
+out vec2 vary_texcoord3;
+out float altitude_blend_factor;
 
 // Inputs
 uniform vec3 camPosLocal;
 
-uniform vec4 lightnorm;
-uniform vec4 sunlight_color;
-uniform vec4 moonlight_color;
+uniform vec3 lightnorm;
+uniform vec3 sunlight_color;
+uniform vec3 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient_color;
-uniform vec4 blue_horizon;
-uniform vec4 blue_density;
+uniform vec3 ambient_color;
+uniform vec3 blue_horizon;
+uniform vec3 blue_density;
 uniform float haze_horizon;
 uniform float haze_density;
 
@@ -60,10 +60,10 @@ uniform float cloud_shadow;
 uniform float density_multiplier;
 uniform float max_y;
 
-uniform vec4 glow;
+uniform vec3 glow;
 uniform float sun_moon_glow_factor;
 
-uniform vec4 cloud_color;
+uniform vec3 cloud_color;
 
 uniform float cloud_scale;
 
@@ -114,17 +114,17 @@ void main()
     float rel_pos_len  = length(rel_pos);
 
 	// Initialize temp variables
-	vec4 sunlight = sunlight_color;
-	vec4 light_atten;
+	vec3 sunlight = sunlight_color;
+	vec3 light_atten;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-    light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+    light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
 
 	// Calculate relative weights
-    vec4 combined_haze = abs(blue_density) + vec4(abs(haze_density));
-    vec4 blue_weight   = blue_density / combined_haze;
-    vec4 haze_weight   = haze_density / combined_haze;
+    vec3 combined_haze = abs(blue_density) + vec3(abs(haze_density));
+    vec3 blue_weight   = blue_density / combined_haze;
+    vec3 haze_weight   = haze_density / combined_haze;
 
     // Compute sunlight from rel_pos & lightnorm (for long rays like sky)
     float off_axis = 1.0 / max(1e-6, max(0., rel_pos_norm.y) + lightnorm.y);
@@ -155,18 +155,18 @@ void main()
     haze_glow = (sun_moon_glow_factor < 1.0) ? 0.0 : (haze_glow + 0.25);
 
 	// Increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient_color;
+	vec3 tmpAmbient = ambient_color;
 	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
 	// Dim sunlight by cloud shadow percentage
 	sunlight *= (1. - cloud_shadow);
 
 	// Haze color below cloud
-    vec4 additiveColorBelowCloud =
+    vec3 additiveColorBelowCloud =
         (blue_horizon * blue_weight * (sunlight + tmpAmbient) + (haze_horizon * haze_weight) * (sunlight * haze_glow + tmpAmbient));
 
 	// CLOUDS
-    sunlight = sunlight_color;  // SL-14707 reset color -- Clouds are unusually dim in EEP
+    sunlight = sunlight_color;
     off_axis = 1.0 / max(1e-6, lightnorm.y * 2.);
     sunlight *= exp(-light_atten * off_axis);
 
@@ -178,7 +178,7 @@ void main()
     combined_haze = sqrt(combined_haze);  // less atmos opacity (more transparency) below clouds
     vary_CloudColorSun *= combined_haze;
     vary_CloudColorAmbient *= combined_haze;
-    vec4 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - combined_haze);
+    vec3 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - combined_haze);
 
 	// Make a nice cloud density based on the cloud_shadow value that was passed in.
 	vary_CloudDensity = 2. * (cloud_shadow - 0.25);

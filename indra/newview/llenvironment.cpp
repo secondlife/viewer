@@ -168,6 +168,9 @@ namespace
     // Find normalized track position of given time along full length of cycle
     inline LLSettingsBase::TrackPosition convert_time_to_position(const LLSettingsBase::Seconds& time, const LLSettingsBase::Seconds& len)
     {
+        // early out to avoid divide by zero.  if len is zero then jump to end position
+        if (len == 0.f) return 1.f;
+
         LLSettingsBase::TrackPosition position = LLSettingsBase::TrackPosition(fmod((F64)time, (F64)len) / (F64)len);
         return llclamp(position, 0.0f, 1.0f);
     }
@@ -812,7 +815,8 @@ const F64Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("651510b8-5f4d-8991-1592-e7eeab2a5a06");
+const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("cef49723-0292-af49-9b14-9598a616b8a3");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
 
@@ -1178,13 +1182,14 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
         return;
     }
 
-    DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
+    bool reset_probes = false;
 
+    DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
 
     if (fixed.first)
     {
         logEnvironment(env, fixed.first, env_version);
-        environment->setSky(fixed.first);
+        reset_probes = environment->setSky(fixed.first);
         environment->setFlags(DayInstance::NO_ANIMATE_SKY);
     }
     else if (!environment->getSky())
@@ -1195,7 +1200,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
             // and then add water/sky on top
             // This looks like it will result in sky using single keyframe instead of whole day if day is present
             // when setting static water without static sky
-            environment->setSky(mCurrentEnvironment->getSky());
+            reset_probes = environment->setSky(mCurrentEnvironment->getSky());
             environment->setFlags(DayInstance::NO_ANIMATE_SKY);
         }
         else
@@ -1213,7 +1218,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
             if (substitute && substitute->getSky())
             {
-                environment->setSky(substitute->getSky());
+                reset_probes = environment->setSky(substitute->getSky());
                 environment->setFlags(DayInstance::NO_ANIMATE_SKY);
             }
             else
@@ -1263,6 +1268,11 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
                 LL_WARNS("ENVIRONMENT") << "Failed to assign substitute water/sky, environment is not properly initialized" << LL_ENDL;
             }
         }
+    }
+
+    if (reset_probes)
+    { // the sky changed in a way that merits a reset of reflection probes
+        gPipeline.mReflectionMapManager.reset();
     }
 
     if (!mSignalEnvChanged.empty())
@@ -1629,28 +1639,31 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
     return toLightNorm(light_direction);
 }
 
+extern BOOL gCubeSnapshot;
+
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT; //LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
     //F32Seconds now(LLDate::now().secondsSinceEpoch());
-    static LLFrameTimer timer;
-
-    F32Seconds delta(timer.getElapsedTimeAndResetF32());
-
+    if (!gCubeSnapshot)
     {
-        DayInstance::ptr_t keeper = mCurrentEnvironment;    
-        // make sure the current environment does not go away until applyTimeDelta is done.
-        mCurrentEnvironment->applyTimeDelta(delta);
+        static LLFrameTimer timer;
 
+        F32Seconds delta(timer.getElapsedTimeAndResetF32());
+
+        {
+            DayInstance::ptr_t keeper = mCurrentEnvironment;
+            // make sure the current environment does not go away until applyTimeDelta is done.
+            mCurrentEnvironment->applyTimeDelta(delta);
+
+        }
+        // update clouds, sun, and general
+        updateCloudScroll();
+
+        // cache this for use in rotating the rotated light vec for shader param updates later...
+        mLastCamYaw = cam->getYaw() + SUN_DELTA_YAW;
     }
-    // update clouds, sun, and general
-    updateCloudScroll();
-
-    // cache this for use in rotating the rotated light vec for shader param updates later...
-    mLastCamYaw = cam->getYaw() + SUN_DELTA_YAW;
-
-    stop_glerror();
 
     updateSettingsUniforms();
 
@@ -1681,8 +1694,16 @@ void LLEnvironment::updateCloudScroll()
     
     if (mCurrentEnvironment->getSky() && !mCloudScrollPaused)
     {
-        LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentEnvironment->getSky()->getCloudScrollRate()) / 100.0;
-        mCloudScrollDelta += cloud_delta;
+        LLVector2 rate = mCurrentEnvironment->getSky()->getCloudScrollRate();
+        if (rate.isExactlyZero())
+        {
+            mCloudScrollDelta.setZero();
+        }
+        else
+        {
+            LLVector2 cloud_delta = static_cast<F32>(delta_t) * (mCurrentEnvironment->getSky()->getCloudScrollRate()) / 100.0;
+            mCloudScrollDelta += cloud_delta;
+        }
     }
 
 }
@@ -1739,8 +1760,30 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
         case LLSD::TypeArray:
         {
             LLVector4 vect4(value);
+
+            if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+            { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
+                auto max_vec = [](LLVector4 col)
+                {
+                    LLColor3 color(col);
+                    F32 h, s, l;
+                    color.calcHSL(&h, &s, &l);
+
+                    col.mV[0] = col.mV[1] = col.mV[2] = l;
+                    return col;
+                };
+
+                switch (it.second.getShaderKey())
+                { 
+                case LLShaderMgr::BLUE_HORIZON:
+                case LLShaderMgr::BLUE_DENSITY:
+                    vect4 = max_vec(vect4);
+                        break;
+                }
+            }
+
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform4fv(it.second.getShaderKey(), vect4 );
+            shader->uniform3fv(it.second.getShaderKey(), LLVector3(vect4.mV) );
             break;
         }
 
@@ -2741,10 +2784,12 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSett
 }
 
 
-void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
+bool LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 {
     mInitialized = false;
 
+    bool changed = psky == nullptr || mSky == nullptr || mSky->getHash() != psky->getHash();
+    
     bool different_sky = mSky != psky;
     
     mSky = psky;
@@ -2758,6 +2803,8 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
         LLEnvironment::getAtmosphericModelSettings(settings, psky);
         gAtmosphere->configureAtmosphericModel(settings);
     }
+
+    return changed;
 }
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
@@ -2907,11 +2954,19 @@ void LLEnvironment::DayTransition::animate()
                 setWater(mNextInstance->getWater());
     });
 
+
+    // pause probe updates and reset reflection maps on sky change
+    gPipeline.mReflectionMapManager.pause();
+    gPipeline.mReflectionMapManager.reset();
+
     mSky = mStartSky->buildClone();
     mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(mSky, mStartSky, mNextInstance->getSky(), mTransitionTime);
     mBlenderSky->setOnFinished(
         [this](LLSettingsBlender::ptr_t blender) {
         mBlenderSky.reset();
+
+        // resume reflection probe updates
+        gPipeline.mReflectionMapManager.resume();
 
         if (!mBlenderSky && !mBlenderWater)
             LLEnvironment::instance().mCurrentEnvironment = mNextInstance;
@@ -3503,12 +3558,19 @@ namespace
             LLSettingsSky::ptr_t target_sky(start_sky->buildClone());
             mInjectedSky->setSource(target_sky);
 
+            // clear reflection probes and pause updates during sky change
+            gPipeline.mReflectionMapManager.pause();
+            gPipeline.mReflectionMapManager.reset();
+
             mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(target_sky, start_sky, psky, transition);
             mBlenderSky->setOnFinished(
                 [this, psky](LLSettingsBlender::ptr_t blender) 
                 {
                     mBlenderSky.reset();
                     mInjectedSky->setSource(psky);
+
+                    // resume updating reflection probes when done animating sky
+                    gPipeline.mReflectionMapManager.resume();
                     setSky(mInjectedSky);
                     if (!mBlenderWater && (countExperiencesActive() == 0))
                     {

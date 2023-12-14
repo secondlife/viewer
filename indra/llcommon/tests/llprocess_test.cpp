@@ -151,8 +151,38 @@ struct PythonProcessLauncher
     /// Launch Python script; verify that it launched
     void launch()
     {
-        mPy = LLProcess::create(mParams);
-        tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
+        try
+        {
+            mPy = LLProcess::create(mParams);
+            tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
+        }
+        catch (const tut::failure&)
+        {
+            // On Windows, if APR_LOG is set, our version of APR's
+            // apr_create_proc() logs to the specified file. If this test
+            // failed, try to report that log.
+            const char* APR_LOG = getenv("APR_LOG");
+            if (APR_LOG && *APR_LOG)
+            {
+                std::ifstream inf(APR_LOG);
+                if (! inf.is_open())
+                {
+                    LL_WARNS() << "Couldn't open '" << APR_LOG << "'" << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS() << "==============================" << LL_ENDL;
+                    LL_WARNS() << "From '" << APR_LOG << "':" << LL_ENDL;
+                    std::string line;
+                    while (std::getline(inf, line))
+                    {
+                        LL_WARNS() << line << LL_ENDL;
+                    }
+                    LL_WARNS() << "==============================" << LL_ENDL;
+                }
+            }
+            throw;
+        }
     }
 
     /// Run Python script and wait for it to complete.
@@ -191,7 +221,7 @@ struct PythonProcessLauncher
     LLProcess::Params mParams;
     LLProcessPtr mPy;
     std::string mDesc;
-    NamedTempFile mScript;
+    NamedExtTempFile mScript;
 };
 
 /// convenience function for PythonProcessLauncher::run()
@@ -214,30 +244,26 @@ static std::string python_out(const std::string& desc, const CONTENT& script)
 class NamedTempDir: public boost::noncopyable
 {
 public:
-    // Use python() function to create a temp directory: I've found
-    // nothing in either Boost.Filesystem or APR quite like Python's
-    // tempfile.mkdtemp().
-    // Special extra bonus: on Mac, mkdtemp() reports a pathname
-    // starting with /var/folders/something, whereas that's really a
-    // symlink to /private/var/folders/something. Have to use
-    // realpath() to compare properly.
     NamedTempDir():
-        mPath(python_out("mkdtemp()",
-                         "from __future__ import with_statement\n"
-                         "import os.path, sys, tempfile\n"
-                         "with open(sys.argv[1], 'w') as f:\n"
-                         "    f.write(os.path.normcase(os.path.normpath(os.path.realpath(tempfile.mkdtemp()))))\n"))
-    {}
+        mPath(NamedTempFile::temp_path()),
+        mCreated(boost::filesystem::create_directories(mPath))
+    {
+        mPath = boost::filesystem::canonical(mPath);
+    }
 
     ~NamedTempDir()
     {
-        aprchk(apr_dir_remove(mPath.c_str(), gAPRPoolp));
+        if (mCreated)
+        {
+            boost::filesystem::remove_all(mPath);
+        }
     }
 
-    std::string getName() const { return mPath; }
+    std::string getName() const { return mPath.string(); }
 
 private:
-    std::string mPath;
+    boost::filesystem::path mPath;
+    bool mCreated;
 };
 
 /*****************************************************************************
@@ -355,7 +381,7 @@ namespace tut
         set_test_name("raw APR nonblocking I/O");
 
         // Create a script file in a temporary place.
-        NamedTempFile script("py",
+        NamedExtTempFile script("py",
             "from __future__ import print_function" EOL
             "import sys" EOL
             "import time" EOL
@@ -565,7 +591,13 @@ namespace tut
                                  "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
-        ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
+        std::string expected{ tempdir.getName() };
+#if LL_WINDOWS
+        // SIGH, don't get tripped up by "C:" != "c:" --
+        // but on the Mac, using tolower() fails because "/users" != "/Users"!
+        expected = utf8str_tolower(expected);
+#endif
+        ensure_equals("os.getcwd()", py.run_read(), expected);
     }
 
     template<> template<>

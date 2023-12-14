@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="アップロード" name="uploads">
 	<text name="title">
-		アップロード用の最新の宛先フォルダ
+		アップロード先のフォルダ
 	</text>
 	<text name="title_models">
 		画像
@@ -16,6 +16,7 @@
 		モデル
 	</text>
 	<text name="upload_help">
-		宛先フォルダを変更するには、持ち物でそのフォルダを右クリックして、&quot;デフォルトとして使用&quot; を選択します
+		宛先フォルダを変更するには、インベントリでそのフォルダを右クリックして、
+「デフォルトとして使用」を選択します。
 	</text>
 </panel>

@@ -1,5 +1,5 @@
-/** 
- * @file class1\windlight\atmosphericsV.glsl 
+/**
+ * @file class2\wl\atmosphericsV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,14 +22,35 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+// out param funcs
 
 
+uniform vec3 sun_dir;
+uniform vec3 moon_dir;
+uniform int sun_up_factor;
+
+void setSunlitColor(vec3 v);
+void setAmblitColor(vec3 v);
+void setAdditiveColor(vec3 v);
+void setAtmosAttenuation(vec3 v);
 void setPositionEye(vec3 v);
 
-void calcAtmospherics(vec3 inPositionEye)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-    setPositionEye(inPositionEye);
-}
+vec3 getAdditiveColor();
 
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+
+void calcAtmospherics(vec3 inPositionEye) {
+    vec3 P = inPositionEye;
+    setPositionEye(P);
+    vec3 tmpsunlit = vec3(1);
+    vec3 tmpamblit = vec3(1);
+    vec3 tmpaddlit = vec3(1);
+    vec3 tmpattenlit = vec3(1);
+	vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;	
+    calcAtmosphericVars(inPositionEye, light_dir, 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit);
+    setSunlitColor(tmpsunlit);
+    setAmblitColor(tmpamblit);
+    setAdditiveColor(tmpaddlit);
+    setAtmosAttenuation(tmpattenlit);
+}

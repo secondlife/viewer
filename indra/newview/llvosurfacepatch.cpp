@@ -45,26 +45,6 @@
 
 F32 LLVOSurfacePatch::sLODFactor = 1.f;
 
-//============================================================================
-
-class LLVertexBufferTerrain : public LLVertexBuffer
-{
-public:
-	LLVertexBufferTerrain() :
-		LLVertexBuffer(MAP_VERTEX | MAP_NORMAL | MAP_TEXCOORD0 | MAP_TEXCOORD1 | MAP_COLOR, GL_DYNAMIC_DRAW_ARB)
-	{
-		//texture coordinates 2 and 3 exist, but use the same data as texture coordinate 1
-	};
-
-	// virtual
-	void setupVertexBuffer(U32 data_mask)
-	{	
-		LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
-	}
-};
-
-//============================================================================
-
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	:	LLStaticViewerObject(id, pcode, regionp),
 		mDirtiedPatch(FALSE),
@@ -170,7 +150,7 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-	dirtySpatialGroup(TRUE);
+	dirtySpatialGroup();
 	
 	S32 min_comp, max_comp, range;
 	min_comp = lltrunc(mPatchp->getMinComposition());
@@ -408,7 +388,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 										LLStrider<U16> &indicesp,
 										U32 &index_offset)
 {
-	S32 vertex_count = 0;
 	S32 i, x, y;
 
 	S32 num_vertices;
@@ -443,7 +422,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 			normalsp++;
 			texCoords0p++;
 			texCoords1p++;
-			vertex_count++;
 		}
 
 		// North patch
@@ -456,7 +434,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 			normalsp++;
 			texCoords0p++;
 			texCoords1p++;
-			vertex_count++;
 		}
 
 
@@ -493,7 +470,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 			normalsp++;
 			texCoords0p++;
 			texCoords1p++;
-			vertex_count++;
 		}
 
 		// Iterate through the north patch's points
@@ -507,7 +483,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 			normalsp++;
 			texCoords0p++;
 			texCoords1p++;
-			vertex_count++;
 		}
 
 
@@ -551,7 +526,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 			normalsp++;
 			texCoords0p++;
 			texCoords1p++;
-			vertex_count++;
 		}
 
 		// Iterate through the north patch's points
@@ -565,7 +539,6 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 			normalsp++;
 			texCoords0p++;
 			texCoords1p++;
-			vertex_count++;
 		}
 
 		for (i = 0; i < length; i++)
@@ -805,7 +778,7 @@ void LLVOSurfacePatch::dirtyGeom()
 {
 	if (mDrawable)
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 		LLFace* facep = mDrawable->getFace(0);
 		if (facep)
 		{
@@ -880,7 +853,7 @@ void LLVOSurfacePatch::getGeomSizesEast(const S32 stride, const S32 east_stride,
 	}
 }
 
-BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, S32 *face_hitp,
+BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
@@ -1001,17 +974,12 @@ U32 LLVOSurfacePatch::getPartitionType() const
 }
 
 LLTerrainPartition::LLTerrainPartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, GL_DYNAMIC_DRAW_ARB, regionp)
+: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, regionp)
 {
 	mOcclusionEnabled = FALSE;
 	mInfiniteFarClip = TRUE;
 	mDrawableType = LLPipeline::RENDER_TYPE_TERRAIN;
 	mPartitionType = LLViewerRegion::PARTITION_TERRAIN;
-}
-
-LLVertexBuffer* LLTerrainPartition::createVertexBuffer(U32 type_mask, U32 usage)
-{
-	return new LLVertexBufferTerrain();
 }
 
 void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
@@ -1051,7 +1019,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 		index_offset += facep->getGeomCount();
 	}
 
-	buffer->flush();
+	buffer->unmapBuffer();
 	mFaceList.clear();
 }
 

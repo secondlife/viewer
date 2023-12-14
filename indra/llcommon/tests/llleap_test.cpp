@@ -17,8 +17,6 @@
 // std headers
 #include <functional>
 // external library headers
-#include <boost/assign/list_of.hpp>
-#include <boost/phoenix/core/argument.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -29,10 +27,6 @@
 #include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
-
-using boost::assign::list_of;
-
-StringVec sv(const StringVec& listof) { return listof; }
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -104,12 +98,12 @@ namespace tut
         llleap_data():
             reader(".py",
                    // This logic is adapted from vita.viewerclient.receiveEvent()
-                   boost::phoenix::placeholders::arg1 <<
+                   [](std::ostream& out){ out <<
                    "import re\n"
                    "import os\n"
                    "import sys\n"
                    "\n"
-                   "from llbase import llsd\n"
+                   "import llsd\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
                    "    def __init__(self, msg, data):\n"
@@ -120,26 +114,26 @@ namespace tut
                    "    pass\n"
                    "\n"
                    "def get():\n"
-                   "    hdr = ''\n"
-                   "    while ':' not in hdr and len(hdr) < 20:\n"
-                   "        hdr += sys.stdin.read(1)\n"
+                   "    hdr = []\n"
+                   "    while b':' not in hdr and len(hdr) < 20:\n"
+                   "        hdr.append(sys.stdin.buffer.read(1))\n"
                    "        if not hdr:\n"
                    "            sys.exit(0)\n"
-                   "    if not hdr.endswith(':'):\n"
+                   "    if not hdr[-1] == b':':\n"
                    "        raise ProtocolError('Expected len:data, got %r' % hdr, hdr)\n"
                    "    try:\n"
-                   "        length = int(hdr[:-1])\n"
+                   "        length = int(b''.join(hdr[:-1]))\n"
                    "    except ValueError:\n"
                    "        raise ProtocolError('Non-numeric len %r' % hdr[:-1], hdr[:-1])\n"
                    "    parts = []\n"
                    "    received = 0\n"
                    "    while received < length:\n"
-                   "        parts.append(sys.stdin.read(length - received))\n"
+                   "        parts.append(sys.stdin.buffer.read(length - received))\n"
                    "        received += len(parts[-1])\n"
-                   "    data = ''.join(parts)\n"
+                   "    data = b''.join(parts)\n"
                    "    assert len(data) == length\n"
                    "    try:\n"
-                   "        return llsd.parse(data.encode())\n"
+                   "        return llsd.parse(data)\n"
                    //   Seems the old indra.base.llsd module didn't properly
                    //   convert IndexError (from running off end of string) to
                    //   LLSDParseError.
@@ -179,16 +173,16 @@ namespace tut
                    "    return _reply\n"
                    "\n"
                    "def put(req):\n"
-                   "    sys.stdout.write(':'.join((str(len(req)), req)))\n"
+                   "    sys.stdout.buffer.write(b'%d:%b' % (len(req), req))\n"
                    "    sys.stdout.flush()\n"
                    "\n"
                    "def send(pump, data):\n"
-                   "    put(llsd.format_notation(dict(pump=pump, data=data)).decode())\n"
+                   "    put(llsd.format_notation(dict(pump=pump, data=data)))\n"
                    "\n"
                    "def request(pump, data):\n"
                    "    # we expect 'data' is a dict\n"
                    "    data['reply'] = _reply\n"
-                   "    send(pump, data)\n"),
+                   "    send(pump, data)\n";}),
             // Get the actual pathname of the NamedExtTempFile and trim off
             // the ".py" extension. (We could cache reader.getName() in a
             // separate member variable, but I happen to know getName() just
@@ -213,14 +207,14 @@ namespace tut
     void object::test<1>()
     {
         set_test_name("multiple LLLeap instances");
-        NamedTempFile script("py",
-                             "import time\n"
-                             "time.sleep(1)\n");
+        NamedExtTempFile script("py",
+                                "import time\n"
+                                "time.sleep(1)\n");
         LLLeapVector instances;
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
+                                           StringVec{PYTHON, script.getName()})->getWeak());
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
+                                           StringVec{PYTHON, script.getName()})->getWeak());
         // In this case we're simply establishing that two LLLeap instances
         // can coexist without throwing exceptions or bombing in any other
         // way. Wait for them to terminate.
@@ -231,10 +225,10 @@ namespace tut
     void object::test<2>()
     {
         set_test_name("stderr to log");
-        NamedTempFile script("py",
-                             "import sys\n"
-                             "sys.stderr.write('''Hello from Python!\n"
-                             "note partial line''')\n");
+        NamedExtTempFile script("py",
+                                "import sys\n"
+                                "sys.stderr.write('''Hello from Python!\n"
+                                "note partial line''')\n");
         StringVec vcommand{ PYTHON, script.getName() };
         CaptureLog log(LLError::LEVEL_INFO);
         waitfor(LLLeap::create(get_test_name(), vcommand));
@@ -246,11 +240,11 @@ namespace tut
     void object::test<3>()
     {
         set_test_name("bad stdout protocol");
-        NamedTempFile script("py",
-                             "print('Hello from Python!')\n");
+        NamedExtTempFile script("py",
+                                "print('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("invalid protocol"), "Hello from Python!");
     }
@@ -259,13 +253,13 @@ namespace tut
     void object::test<4>()
     {
         set_test_name("leftover stdout");
-        NamedTempFile script("py",
-                             "import sys\n"
-                             // note lack of newline
-                             "sys.stdout.write('Hello from Python!')\n");
+        NamedExtTempFile script("py",
+                                "import sys\n"
+                                // note lack of newline
+                                "sys.stdout.write('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("Discarding"), "Hello from Python!");
     }
@@ -274,12 +268,12 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("bad stdout len prefix");
-        NamedTempFile script("py",
-                             "import sys\n"
-                             "sys.stdout.write('5a2:something')\n");
+        NamedExtTempFile script("py",
+                                "import sys\n"
+                                "sys.stdout.write('5a2:something')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("invalid protocol"), "5a2:");
     }
@@ -381,17 +375,18 @@ namespace tut
         set_test_name("round trip");
         AckAPI api;
         Result result;
-        NamedTempFile script("py",
-                             boost::phoenix::placeholders::arg1 <<
-                             "from " << reader_module << " import *\n"
-                             // make a request on our little API
-                             "request(pump='" << api.getName() << "', data={})\n"
-                             // wait for its response
-                             "resp = get()\n"
-                             "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
-                             "            else 'bad: ' + str(resp)\n"
-                             "send(pump='" << result.getName() << "', data=result)\n");
-        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))));
+        NamedExtTempFile script("py",
+                                [&](std::ostream& out){ out <<
+                                "from " << reader_module << " import *\n"
+                                // make a request on our little API
+                                "request(pump='" << api.getName() << "', data={})\n"
+                                // wait for its response
+                                "resp = get()\n"
+                                "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
+                                "            else 'bad: ' + str(resp)\n"
+                                "send(pump='" << result.getName() << "', data=result)\n";});
+        waitfor(LLLeap::create(get_test_name(),
+                               StringVec{PYTHON, script.getName()}));
         result.ensure();
     }
 
@@ -419,38 +414,38 @@ namespace tut
         // iterations etc. in OS pipes and the LLLeap/LLProcess implementation.
         ReqIDAPI api;
         Result result;
-        NamedTempFile script("py",
-                             boost::phoenix::placeholders::arg1 <<
-                             "import sys\n"
-                             "from " << reader_module << " import *\n"
-                             // Note that since reader imports llsd, this
-                             // 'import *' gets us llsd too.
-                             "sample = llsd.format_notation(dict(pump='" <<
-                             api.getName() << "', data=dict(reqid=999999, reply=replypump())))\n"
-                             // The whole packet has length prefix too: "len:data"
-                             "samplen = len(str(len(sample))) + 1 + len(sample)\n"
-                             // guess how many messages it will take to
-                             // accumulate BUFFERED_LENGTH
-                             "count = int(" << BUFFERED_LENGTH << "/samplen)\n"
-                             "print('Sending %s requests' % count, file=sys.stderr)\n"
-                             "for i in range(count):\n"
-                             "    request('" << api.getName() << "', dict(reqid=i))\n"
-                             // The assumption in this specific test that
-                             // replies will arrive in the same order as
-                             // requests is ONLY valid because the API we're
-                             // invoking sends replies instantly. If the API
-                             // had to wait for some external event before
-                             // sending its reply, replies could arrive in
-                             // arbitrary order, and we'd have to tick them
-                             // off from a set.
-                             "result = ''\n"
-                             "for i in range(count):\n"
-                             "    resp = get()\n"
-                             "    if resp['data']['reqid'] != i:\n"
-                             "        result = 'expected reqid=%s in %s' % (i, resp)\n"
-                             "        break\n"
-                             "send(pump='" << result.getName() << "', data=result)\n");
-        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))),
+        NamedExtTempFile script("py",
+                                [&](std::ostream& out){ out <<
+                                "import sys\n"
+                                "from " << reader_module << " import *\n"
+                                // Note that since reader imports llsd, this
+                                // 'import *' gets us llsd too.
+                                "sample = llsd.format_notation(dict(pump='" <<
+                                api.getName() << "', data=dict(reqid=999999, reply=replypump())))\n"
+                                // The whole packet has length prefix too: "len:data"
+                                "samplen = len(str(len(sample))) + 1 + len(sample)\n"
+                                // guess how many messages it will take to
+                                // accumulate BUFFERED_LENGTH
+                                "count = int(" << BUFFERED_LENGTH << "/samplen)\n"
+                                "print('Sending %s requests' % count, file=sys.stderr)\n"
+                                "for i in range(count):\n"
+                                "    request('" << api.getName() << "', dict(reqid=i))\n"
+                                // The assumption in this specific test that
+                                // replies will arrive in the same order as
+                                // requests is ONLY valid because the API we're
+                                // invoking sends replies instantly. If the API
+                                // had to wait for some external event before
+                                // sending its reply, replies could arrive in
+                                // arbitrary order, and we'd have to tick them
+                                // off from a set.
+                                "result = ''\n"
+                                "for i in range(count):\n"
+                                "    resp = get()\n"
+                                "    if resp['data']['reqid'] != i:\n"
+                                "        result = 'expected reqid=%s in %s' % (i, resp)\n"
+                                "        break\n"
+                                "send(pump='" << result.getName() << "', data=result)\n";});
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}),
                 300);               // needs more realtime than most tests
         result.ensure();
     }
@@ -462,65 +457,62 @@ namespace tut
     {
         ReqIDAPI api;
         Result result;
-        NamedTempFile script("py",
-                             boost::phoenix::placeholders::arg1 <<
-                             "import sys\n"
-                             "from " << reader_module << " import *\n"
-                             // Generate a very large string value.
-                             "desired = int(sys.argv[1])\n"
-                             // 7 chars per item: 6 digits, 1 comma
-                             "count = int((desired - 50)/7)\n"
-                             "large = ''.join('%06d,' % i for i in range(count))\n"
-                             // Pass 'large' as reqid because we know the API
-                             // will echo reqid, and we want to receive it back.
-                             "request('" << api.getName() << "', dict(reqid=large))\n"
-                             "try:\n"
-                             "    resp = get()\n"
-                             "except ParseError as e:\n"
-                             "    # try to find where e.data diverges from expectation\n"
-                             // Normally we'd expect a 'pump' key in there,
-                             // too, with value replypump(). But Python
-                             // serializes keys in a different order than C++,
-                             // so incoming data start with 'data'.
-                             // Truthfully, though, if we get as far as 'pump'
-                             // before we find a difference, something's very
-                             // strange.
-                             "    expect = llsd.format_notation(dict(data=dict(reqid=large)))\n"
-                             "    chunk = 40\n"
-                             "    for offset in range(0, max(len(e.data), len(expect)), chunk):\n"
-                             "        if e.data[offset:offset+chunk] != \\\n"
-                             "           expect[offset:offset+chunk]:\n"
-                             "            print('Offset %06d: expect %r,\\n'\\\n"
-                             "                                '                  get %r' %\\\n"
-                             "                                (offset,\n"
-                             "                                 expect[offset:offset+chunk],\n"
-                             "                                 e.data[offset:offset+chunk]),\n"
-                             "                                 file=sys.stderr)\n"
-                             "            break\n"
-                             "    else:\n"
-                             "        print('incoming data matches expect?!', file=sys.stderr)\n"
-                             "    send('" << result.getName() << "', '%s: %s' % (e.__class__.__name__, e))\n"
-                             "    sys.exit(1)\n"
-                             "\n"
-                             "echoed = resp['data']['reqid']\n"
-                             "if echoed == large:\n"
-                             "    send('" << result.getName() << "', '')\n"
-                             "    sys.exit(0)\n"
-                             // Here we know echoed did NOT match; try to find where
-                             "for i in range(count):\n"
-                             "    start = 7*i\n"
-                             "    end   = 7*(i+1)\n"
-                             "    if end > len(echoed)\\\n"
-                             "    or echoed[start:end] != large[start:end]:\n"
-                             "        send('" << result.getName() << "',\n"
-                             "             'at offset %s, expected %r but got %r' %\n"
-                             "             (start, large[start:end], echoed[start:end]))\n"
-                             "sys.exit(1)\n");
+        NamedExtTempFile script("py",
+                                [&](std::ostream& out){ out <<
+                                "import sys\n"
+                                "from " << reader_module << " import *\n"
+                                // Generate a very large string value.
+                                "desired = int(sys.argv[1])\n"
+                                // 7 chars per item: 6 digits, 1 comma
+                                "count = int((desired - 50)/7)\n"
+                                "large = ''.join('%06d,' % i for i in range(count))\n"
+                                // Pass 'large' as reqid because we know the API
+                                // will echo reqid, and we want to receive it back.
+                                "request('" << api.getName() << "', dict(reqid=large))\n"
+                                "try:\n"
+                                "    resp = get()\n"
+                                "except ParseError as e:\n"
+                                "    # try to find where e.data diverges from expectation\n"
+                                // Normally we'd expect a 'pump' key in there,
+                                // too, with value replypump(). But Python
+                                // serializes keys in a different order than C++,
+                                // so incoming data start with 'data'.
+                                // Truthfully, though, if we get as far as 'pump'
+                                // before we find a difference, something's very
+                                // strange.
+                                "    expect = llsd.format_notation(dict(data=dict(reqid=large)))\n"
+                                "    chunk = 40\n"
+                                "    for offset in range(0, max(len(e.data), len(expect)), chunk):\n"
+                                "        if e.data[offset:offset+chunk] != \\\n"
+                                "           expect[offset:offset+chunk]:\n"
+                                "            print('Offset %06d: expect %r,\\n'\\\n"
+                                "                                '                  get %r' %\\\n"
+                                "                                (offset,\n"
+                                "                                 expect[offset:offset+chunk],\n"
+                                "                                 e.data[offset:offset+chunk]),\n"
+                                "                                 file=sys.stderr)\n"
+                                "            break\n"
+                                "    else:\n"
+                                "        print('incoming data matches expect?!', file=sys.stderr)\n"
+                                "    send('" << result.getName() << "', '%s: %s' % (e.__class__.__name__, e))\n"
+                                "    sys.exit(1)\n"
+                                "\n"
+                                "echoed = resp['data']['reqid']\n"
+                                "if echoed == large:\n"
+                                "    send('" << result.getName() << "', '')\n"
+                                "    sys.exit(0)\n"
+                                // Here we know echoed did NOT match; try to find where
+                                "for i in range(count):\n"
+                                "    start = 7*i\n"
+                                "    end   = 7*(i+1)\n"
+                                "    if end > len(echoed)\\\n"
+                                "    or echoed[start:end] != large[start:end]:\n"
+                                "        send('" << result.getName() << "',\n"
+                                "             'at offset %s, expected %r but got %r' %\n"
+                                "             (start, large[start:end], echoed[start:end]))\n"
+                                "sys.exit(1)\n";});
         waitfor(LLLeap::create(test_name,
-                               sv(list_of
-                                  (PYTHON)
-                                  (script.getName())
-                                  (stringize(size)))),
+                               StringVec{PYTHON, script.getName(), stringize(size)}),
                 180);               // try a longer timeout
         result.ensure();
     }
