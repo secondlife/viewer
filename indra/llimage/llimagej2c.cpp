@@ -157,10 +157,10 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLTimer elapsed;
 
-	bool res = true;
-	
 	resetLastError();
+	mDecoding = true;
 
+	bool res;
 	// Check to make sure that this instance has been initialized with data
 	if (!getData() || (getDataSize() < 16))
 	{
@@ -171,7 +171,6 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 	{
 		// Update the raw discard level
 		updateRawDiscardLevel();
-		mDecoding = true;
 		res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
 	}
 	
@@ -181,9 +180,18 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 		{
 			// Failed
 			raw_imagep->deleteData();
+			res = false;
 		}
 		else
 		{
+			mDecoding = false;
+		}
+	}
+	else
+	{
+		if (mDecoding)
+		{
+			LL_WARNS() << "decodeImpl failed but mDecoding is TRUE" << LL_ENDL;
 			mDecoding = false;
 		}
 	}
