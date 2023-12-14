@@ -50,6 +50,8 @@ public:
 
     bool isFetching() const { return mFetching; }
 
+    LLPointer<LLViewerFetchedTexture> getUITexture();
+
     void addTextureEntry(LLTextureEntry* te) override;
     void removeTextureEntry(LLTextureEntry* te) override;
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id) override;
@@ -62,6 +64,9 @@ public:
     LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
 
     std::set<LLTextureEntry*> mTextureEntires;
+
+    // Texture used for previewing the material in the UI
+    LLPointer<LLViewerFetchedTexture> mPreviewTexture;
 
 protected:
     // Lifetime management

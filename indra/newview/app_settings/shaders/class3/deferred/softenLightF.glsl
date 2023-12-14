@@ -83,10 +83,6 @@ uniform vec4 waterPlane;
 
 uniform int cube_snapshot;
 
-#ifdef WATER_FOG
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
-#endif
-
 uniform float sky_hdr_scale;
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
@@ -167,18 +163,6 @@ void main()
     vec3 sunlit_linear = srgb_to_linear(sunlit);
     vec3 amblit_linear = amblit;
 
-    bool do_atmospherics = false;
-
-#ifndef WATER_FOG
-    // when above water, mask off atmospherics below water
-    if (dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0)
-    {
-        do_atmospherics = true;
-    }
-#else
-    do_atmospherics = true;
-#endif
-
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
 
@@ -203,11 +187,6 @@ void main()
 
         vec3 v = -normalize(pos.xyz);
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
-        
-        if (do_atmospherics)
-        {
-            color = atmosFragLightingLinear(color, additive, atten);
-        }
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -273,20 +252,7 @@ void main()
         {  // add environment map
             applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
         }
-
-        
-        if (do_atmospherics)
-        {
-            color = atmosFragLightingLinear(color, additive, atten);
-        }
    }
-
-    
-
-    #ifdef WATER_FOG
-        vec4 fogged = applyWaterFogViewLinear(pos.xyz, vec4(color, bloom));
-        color       = fogged.rgb;
-    #endif
 
     frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;

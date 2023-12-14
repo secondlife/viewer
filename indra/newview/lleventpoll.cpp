@@ -102,6 +102,7 @@ namespace Details
 
     void LLEventPollImpl::handleMessage(const LLSD& content)
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
         std::string	msg_name = content["message"];
         LLSD message;
         message["sender"] = mSenderIp;
@@ -148,6 +149,14 @@ namespace Details
         LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
         mAdapter = httpAdapter;
+
+        LL::WorkQueue::ptr_t main_queue = nullptr;
+
+        // HACK -- grab the mainloop workqueue to move execution of the handler
+        // to a place that's safe in the main thread
+#if 1
+        main_queue = LL::WorkQueue::getInstance("mainloop");
+#endif
 
         // continually poll for a server update until we've been flagged as 
         // finished 
@@ -266,13 +275,26 @@ namespace Details
             // was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << acknowledge << ")" << LL_ENDL;
 
+
             LLSD::array_const_iterator i = events.beginArray();
             LLSD::array_const_iterator end = events.endArray();
             for (; i != end; ++i)
             {
                 if (i->has("message"))
                 {
-                    handleMessage(*i);
+                    if (main_queue)
+                    { // shuttle to a sensible spot in the main thread instead
+                        // of wherever this coroutine happens to be executing
+                        const LLSD& msg = *i;
+                        main_queue->post([this, msg]()
+                            { 
+                                handleMessage(msg); 
+                            });
+                    }
+                    else
+                    {
+                        handleMessage(*i);
+                    }
                 }
             }
         }

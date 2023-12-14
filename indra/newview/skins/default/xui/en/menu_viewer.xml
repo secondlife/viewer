@@ -1545,7 +1545,7 @@ function="World.EnvPreset"
         <menu_item_separator/>
           
           <menu_item_check
-            label="No Post"
+            label="No Post-processing"
             name="No Post">
             <menu_item_check.on_check
              control="RenderDisablePostProcessing" />
