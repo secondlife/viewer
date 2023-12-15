@@ -3485,6 +3485,12 @@ void LLViewerObject::doInventoryCallback()
 
 void LLViewerObject::removeInventory(const LLUUID& item_id)
 {
+    // close associated floater properties
+    LLSD params;
+    params["id"] = item_id;
+    params["object"] = mID;
+    LLFloaterReg::hideInstance("item_properties", params);
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_RemoveTaskInventory);
 	msg->nextBlockFast(_PREHASH_AgentData);

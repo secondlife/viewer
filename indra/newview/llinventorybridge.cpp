@@ -4336,7 +4336,8 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			|| is_recent_panel
 			|| !trash
 			|| trash->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN
-			|| trash->getDescendentCount() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+			|| trash->getDescendentCount() == LLViewerInventoryCategory::VERSION_UNKNOWN
+			|| gAgentAvatarp->hasAttachmentsInTrash())
 		{
 			disabled_items.push_back(std::string("Empty Trash"));
 		}
@@ -6510,6 +6511,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			items.push_back(std::string("Activate"));
 		}
+        items.push_back(std::string("PlayGesture"));
 	}
 	addLinkReplaceMenuOption(items, disabled_items);
 	hide_context_entries(menu, items, disabled_items);

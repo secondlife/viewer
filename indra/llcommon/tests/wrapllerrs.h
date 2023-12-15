@@ -226,6 +226,11 @@ public:
         return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->streamto(out);
     }
 
+    friend inline std::ostream& operator<<(std::ostream& out, const CaptureLog& self)
+    {
+        return self.streamto(out);
+    }
+
 private:
     LLError::FatalFunction mFatalFunction;
     LLError::SettingsStoragePtr mOldSettings;

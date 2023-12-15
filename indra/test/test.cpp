@@ -265,7 +265,7 @@ public:
 				break;
 			case tut::test_result::ex:
 				++mFailedTests;
-				out << "exception: " << tr.exception_typeid;
+				out << "exception: " << LLError::Log::demangle(tr.exception_typeid.c_str());
 				break;
 			case tut::test_result::warn:
 				++mFailedTests;

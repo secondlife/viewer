@@ -62,6 +62,7 @@ public:
 		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
 		BOOST_HUD			,
 		BOOST_ICON			,
+        BOOST_THUMBNAIL		,
 		BOOST_UI			,
 		BOOST_PREVIEW		,
 		BOOST_MAP			,
