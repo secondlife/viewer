@@ -70,7 +70,7 @@ void modify_outfit(BOOL append, const LLUUID& cat_id, LLInventoryModel* model)
     if (items.size() > max_items())
     {
         LLSD args;
-        args["AMOUNT"] = llformat("%d", static_cast<U32>(max_items));
+        args["AMOUNT"] = llformat("%u", max_items());
         LLNotificationsUtil::add("TooManyWearables", args);
         return;
     }

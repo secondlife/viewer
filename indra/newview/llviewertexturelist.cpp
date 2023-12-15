@@ -1252,6 +1252,8 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    LLImageDataSharedLock lock(raw_image);
+
     // make a copy, since convertToUploadFile scales raw image
     LLPointer<LLImageRaw> scale_image = new LLImageRaw(
         raw_image->getData(),
@@ -1357,6 +1359,8 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImageRaw> raw_image, const S32 max_image_dimentions, bool force_square, bool force_lossless)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    LLImageDataLock lock(raw_image);
+
     if (force_square)
     {
         S32 biggest_side = llmax(raw_image->getWidth(), raw_image->getHeight());

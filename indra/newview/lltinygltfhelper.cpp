@@ -31,7 +31,7 @@
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 
-void strip_alpha_channel(LLPointer<LLImageRaw>& img)
+static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
 {
     if (img->getComponents() == 4)
     {
@@ -45,13 +45,13 @@ void strip_alpha_channel(LLPointer<LLImageRaw>& img)
 // PRECONDITIONS:
 // dst_img must be 3 component
 // src_img and dst_image must have the same dimensions
-void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
+static void copy_red_channel(const LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
 {
     llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
     llassert(dst_img->getComponents() == 3);
 
     U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
-    U8* src = src_img->getData();
+    const U8* src = src_img->getData();
     U8* dst = dst_img->getData();
     S8 src_components = src_img->getComponents();
 
@@ -95,6 +95,8 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
             int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
             if (occlusion_idx != mr_idx)
             {
+                LLImageDataLock lockIn(occlusion_img);
+                LLImageDataLock lockOut(mr_img);
                 //scale occlusion image to match resolution of mr image
                 occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
 
@@ -104,6 +106,7 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
     }
     else if (occlusion_img)
     {
+        LLImageDataSharedLock lock(occlusion_img);
         //no mr but occlusion exists, make a white mr_img and copy occlusion red channel over
         mr_img = new LLImageRaw(occlusion_img->getWidth(), occlusion_img->getHeight(), 3);
         mr_img->clear(255, 255, 255);
