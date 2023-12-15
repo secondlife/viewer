@@ -549,20 +549,7 @@ void LLFriendCardsManager::syncFriendsFolder()
 	// Create own calling card if it was not found in Friends/All folder
 	if (!collector.isAgentCallingCardFound())
 	{
-		LLAvatarName av_name;
-		LLAvatarNameCache::get( gAgentID, &av_name );
-
-		create_inventory_item(gAgentID,
-							  gAgent.getSessionID(),
-							  calling_cards_folder_id,
-							  LLTransactionID::tnull,
-							  av_name.getCompleteName(),
-							  gAgentID.asString(),
-							  LLAssetType::AT_CALLINGCARD,
-							  LLInventoryType::IT_CALLINGCARD,
-                              NO_INV_SUBTYPE,
-							  PERM_MOVE | PERM_TRANSFER,
-							  NULL);
+		create_inventory_callingcard(gAgentID, calling_cards_folder_id);
 	}
 
     // All folders created and updated.
