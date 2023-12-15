@@ -766,6 +766,8 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
     // Get the decoded version of the formatted image
     getEncodedImage();
 
+    LLImageDataSharedLock lock(mPreviewImageEncoded);
+
     // We need to scale that a bit for display...
     LLPointer<LLImageRaw> scaled = new LLImageRaw(
         mPreviewImageEncoded->getData(),
@@ -825,13 +827,15 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
 {
 	if (!mPreviewImageEncoded)
 	{
+		LLImageDataSharedLock lock(mPreviewImage);
+
 		mPreviewImageEncoded = new LLImageRaw;
-    
+
 		mPreviewImageEncoded->resize(
             mPreviewImage->getWidth(),
             mPreviewImage->getHeight(),
             mPreviewImage->getComponents());
-        
+
         if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
 		{
             // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
@@ -978,6 +982,8 @@ void LLSnapshotLivePreview::getSize(S32& w, S32& h) const
 
 void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 {
+	LLImageDataSharedLock lock(mPreviewImage);
+
 	LL_DEBUGS("Snapshot") << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
 	// gen a new uuid for this asset
 	LLTransactionID tid;

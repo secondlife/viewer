@@ -4890,6 +4890,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		return FALSE;
 	}
+
 	//check if there is enough memory for the snapshot image
 	if(image_width * image_height > (1 << 22)) //if snapshot image is larger than 2K by 2K
 	{
@@ -5008,6 +5009,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
 		image_buffer_y = llfloor(snapshot_height * scale_factor) ;
 	}
+
+	LLImageDataLock lock(raw);
+
 	if ((image_buffer_x > 0) && (image_buffer_y > 0))
 	{
 		raw->resize(image_buffer_x, image_buffer_y, 3);
@@ -5265,6 +5269,8 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
         const bool for_snapshot = TRUE;
         display(do_rebuild, zoom, subfield, for_snapshot);
     }
+
+    LLImageDataSharedLock lock(raw);
 
     glReadPixels(
         0, 0,

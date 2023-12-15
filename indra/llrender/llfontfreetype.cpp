@@ -669,6 +669,7 @@ U8 LLFontFreetype::getStyle() const
 void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride) const
 {
 	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
+	LLImageDataLock lock(image_raw);
 
 	llassert(!mIsFallback);
 	llassert(image_raw && (image_raw->getComponents() == 2));

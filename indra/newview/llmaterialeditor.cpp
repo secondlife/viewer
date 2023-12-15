@@ -3424,6 +3424,8 @@ void LLMaterialEditor::inventoryChanged(LLViewerObject* object,
 
 void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb)
 {
+    LLImageDataSharedLock lock(img);
+
     if (asset_id.isNull()
         || img == nullptr
         || img->getDataSize() == 0)

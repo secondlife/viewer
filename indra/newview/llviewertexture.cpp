@@ -285,6 +285,7 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const U32 wid
 
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLImageRaw* raw, FTType type, bool usemipmaps)
 {
+    LLImageDataSharedLock lock(raw);
     LLViewerFetchedTexture* ret = new LLViewerFetchedTexture(raw, type, usemipmaps);
     gTextureList.addImage(ret, TEX_LIST_STANDARD);
     return ret;
@@ -2904,6 +2905,8 @@ void LLViewerFetchedTexture::saveRawImage()
 	{
 		return;
 	}
+
+    LLImageDataSharedLock lock(mRawImage);
 
 	mSavedRawDiscardLevel = mRawDiscardLevel;
     if (mBoostLevel == LLGLTexture::BOOST_ICON)
