@@ -3328,7 +3328,6 @@ LLSD LLAppViewer::getViewerInfo() const
     info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
-    info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
     info["TEXTURE_MEMORY"] = gGLManager.mVRAM;
 
 #if LL_DARWIN
