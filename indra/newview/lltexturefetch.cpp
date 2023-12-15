@@ -1699,7 +1699,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					mFormattedImage = new LLImageJ2C; // default
 				}
 			}
-						
+
+			LLImageDataLock lock(mFormattedImage);
+
 			if (mHaveAllData) //the image file is fully loaded.
 			{
 				mFileSize = total_size;
@@ -1857,6 +1859,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//return false;
             return doWork(param);
 		}
+
+		LLImageDataSharedLock lock(mFormattedImage);
+
 		S32 datasize = mFormattedImage->getDataSize();
 		if(mFileSize < datasize)//This could happen when http fetching and sim fetching mixed.
 		{

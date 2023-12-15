@@ -448,6 +448,8 @@ void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch
 	// disable use of glReadPixels which messes up nVidia nSight graphics debugging
 	if (!LLRender::sNsightDebugSupport)
 	{
+		LLImageDataSharedLock lock(scratch);
+
 		//read result back into raw image
 		glReadPixels(0, 0, 1024, 512, GL_RGB, GL_UNSIGNED_BYTE, scratch->getData());
 

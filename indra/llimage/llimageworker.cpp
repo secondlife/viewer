@@ -149,9 +149,18 @@ ImageRequest::~ImageRequest()
 bool ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+	if (mFormattedImage.isNull())
+		return true;
+
 	const F32 decode_time_slice = 0.f; //disable time slicing
 	bool done = true;
-	if (!mDecodedRaw && mFormattedImage.notNull())
+
+	LLImageDataLock lockFormatted(mFormattedImage);
+	LLImageDataLock lockDecodedRaw(mDecodedImageRaw);
+	LLImageDataLock lockDecodedAux(mDecodedImageAux);
+
+	if (!mDecodedRaw)
 	{
 		// Decode primary channels
 		if (mDecodedImageRaw.isNull())
@@ -177,7 +186,7 @@ bool ImageRequest::processRequest()
 		// some decoders are removing data when task is complete and there were errors
 		mDecodedRaw = done && mDecodedImageRaw->getData();
 	}
-	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
+	if (done && mNeedsAux && !mDecodedAux)
 	{
 		// Decode aux channel
 		if (!mDecodedImageAux)

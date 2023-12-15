@@ -1311,11 +1311,13 @@ void LLVOVolume::sculpt()
 			}
 		}
 		else
-		{					
+		{
+			LLImageDataSharedLock lock(raw_image);
+
 			sculpt_height = raw_image->getHeight();
 			sculpt_width = raw_image->getWidth();
 			sculpt_components = raw_image->getComponents();		
-					   
+
 			sculpt_data = raw_image->getData();
 
 			if(LLViewerTextureManager::sTesterp)

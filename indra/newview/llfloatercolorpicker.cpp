@@ -135,6 +135,8 @@ void LLFloaterColorPicker::createUI ()
 	// create RGB type area (not really RGB but it's got R,G & B in it.,..
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw ( mRGBViewerImageWidth, mRGBViewerImageHeight, mComponents );
+	LLImageDataLock lock(raw);
+
 	U8* bits = raw->getData();
 	S32 linesize = mRGBViewerImageWidth * mComponents;
 	for ( S32 y = 0; y < mRGBViewerImageHeight; ++y )

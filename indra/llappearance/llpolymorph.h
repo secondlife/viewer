@@ -84,7 +84,7 @@ public:
 	LLPolyVertexMask(const LLPolyVertexMask& pOther);
 	~LLPolyVertexMask();
 
-	void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
+	void generateMask(const U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
 	F32* getMorphMaskWeights();
 
 
@@ -170,7 +170,7 @@ public:
 	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
 	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 
-	void	applyMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
+	void	applyMask(const U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
 	void	addPendingMorphMask() { mNumMorphMasksPending++; }
 
     void    applyVolumeChanges(F32 delta_weight); // SL-315 - for resetSkeleton()

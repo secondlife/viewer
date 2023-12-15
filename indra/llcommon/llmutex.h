@@ -32,6 +32,7 @@
 #include <boost/noncopyable.hpp>
 
 #include "mutex.h"
+#include <shared_mutex>
 #include <condition_variable>
 
 //============================================================================
@@ -66,6 +67,69 @@ protected:
 #endif
 };
 
+class LL_COMMON_API LLSharedMutex
+{
+public:
+    LLSharedMutex();
+    virtual ~LLSharedMutex();
+
+    bool isLocked() const;
+    bool isThreadLocked() const;
+    bool isShared() const { return mShared; }
+
+    void lock();
+    void lockShared();
+    void lock(bool shared)
+    {
+        if (shared)
+        {
+            lockShared();
+        }
+        else
+        {
+            lock();
+        }
+    }
+
+    bool trylock();
+    bool trylockShared();
+    bool trylock(bool shared) { return shared ? trylockShared() : trylock(); }
+
+    void unlock();
+    void unlockShared();
+    void unlock(bool shared)
+    {
+        if (shared)
+        {
+            unlockShared();
+        }
+        else
+        {
+            unlock();
+        }
+    }
+    void unlockAny()
+    {
+        if (mShared)
+        {
+            unlockShared();
+        }
+        else
+        {
+            unlock();
+        }
+    }
+
+private:
+    std::map<LLThread::id_t, U32> mLockingThreads;
+    std::shared_mutex mMutex;
+    LLMutex mLockMutex;
+    bool mShared;
+
+    using iterator = std::map<LLThread::id_t, U32>::iterator;
+    using const_iterator = std::map<LLThread::id_t, U32>::const_iterator;
+};
+
 // Actually a condition/mutex pair (since each condition needs to be associated with a mutex).
 class LL_COMMON_API LLCondition : public LLMutex
 {
@@ -87,17 +151,73 @@ public:
 	LLMutexLock(LLMutex* mutex)
 	{
 		mMutex = mutex;
-		
-		if(mMutex)
+
+		if (mMutex)
 			mMutex->lock();
 	}
+
 	~LLMutexLock()
 	{
-		if(mMutex)
+		if (mMutex)
 			mMutex->unlock();
 	}
+
+    void lock()
+    {
+        if (mMutex)
+            mMutex->lock();
+    }
+
+    void unlock()
+    {
+        if (mMutex)
+            mMutex->unlock();
+    }
+
 private:
 	LLMutex* mMutex;
+};
+
+class LLSharedMutexLock
+{
+public:
+	LLSharedMutexLock(LLSharedMutex* mutex)
+	{
+		mMutex = mutex;
+
+		if (mMutex)
+			mMutex->lockShared();
+	}
+
+	~LLSharedMutexLock()
+	{
+		if (mMutex)
+			mMutex->unlockShared();
+	}
+
+private:
+	LLSharedMutex* mMutex;
+};
+
+class LLExclusiveMutexLock
+{
+public:
+	LLExclusiveMutexLock(LLSharedMutex* mutex)
+	{
+		mMutex = mutex;
+
+		if (mMutex)
+			mMutex->lock();
+	}
+
+	~LLExclusiveMutexLock()
+	{
+		if (mMutex)
+			mMutex->unlock();
+	}
+
+private:
+	LLSharedMutex* mMutex;
 };
 
 //============================================================================

@@ -8891,7 +8891,7 @@ void LLVOAvatar::clearChat()
 }
 
 
-void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index)
+void LLVOAvatar::applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index)
 {
 	if (index >= BAKED_NUM_INDICES)
 	{
@@ -9767,6 +9767,8 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 	{
 		if(aux_src && aux_src->getComponents() == 1)
 		{
+			LLImageDataSharedLock lock(aux_src);
+
 			if (!aux_src->getData())
 			{
 				LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;

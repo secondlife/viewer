@@ -116,7 +116,11 @@ class LLImageBase
 {
 protected:
 	virtual ~LLImageBase();
-	
+
+	virtual void deleteData();
+	virtual U8* allocateData(S32 size = -1);
+	virtual U8* reallocateData(S32 size = -1);
+
 public:
 	LLImageBase();
 
@@ -125,10 +129,6 @@ public:
 		TYPE_NORMAL = 0,
 		TYPE_AVATAR_BAKE = 1,
 	};
-
-	virtual void deleteData();
-	virtual U8* allocateData(S32 size = -1);
-	virtual U8* reallocateData(S32 size = -1);
 
 	virtual void dump();
 	virtual void sanityCheck();
@@ -171,8 +171,14 @@ private:
 
 	S8 mComponents;
 
-	bool mBadBufferAllocation ;
-	bool mAllowOverSize ;
+	bool mBadBufferAllocation;
+	bool mAllowOverSize;
+
+protected:
+	LLSharedMutex mDataMutex;
+
+	friend class LLImageDataLock;
+	friend class LLImageDataSharedLock;
 };
 
 // Raw representation of an image (used for textures, and other uncompressed formats
@@ -231,51 +237,51 @@ public:
 	LLPointer<LLImageRaw> duplicate();
 
 	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
-	void copy( LLImageRaw* src );
+	void copy( const LLImageRaw* src );
 
 	// Src and dst are same size.  Src and dst have same number of components.
-	void copyUnscaled( LLImageRaw* src );
+	void copyUnscaled( const LLImageRaw* src );
 	
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
-	void copyUnscaled4onto3( LLImageRaw* src );
+	void copyUnscaled4onto3( const LLImageRaw* src );
 
 	// Src and dst are same size.  Src has 3 components.  Dst has 4 components.
-	void copyUnscaled3onto4( LLImageRaw* src );
+	void copyUnscaled3onto4( const LLImageRaw* src );
 
 	// Src and dst are same size.  Src has 1 component.  Dst has 4 components.
 	// Alpha component is set to source alpha mask component.
 	// RGB components are set to fill color.
-	void copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill);
+	void copyUnscaledAlphaMask( const LLImageRaw* src, const LLColor4U& fill);
 
 	// Src and dst can be any size.  Src and dst have same number of components.
-	void copyScaled( LLImageRaw* src );
-
-	// Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
-	void copyScaled3onto4( LLImageRaw* src );
-
-	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
-	void copyScaled4onto3( LLImageRaw* src );
+	void copyScaled( const LLImageRaw* src );
 
 
 	// Composite operations
 
 	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
-	void composite( LLImageRaw* src );
-
-	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
-	void compositeScaled4onto3( LLImageRaw* src );
-
-	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
-	void compositeUnscaled4onto3( LLImageRaw* src );
+	void composite( const LLImageRaw* src );
 
 protected:
+	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
+	void compositeScaled4onto3( const LLImageRaw* src );
+
+	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
+	void compositeUnscaled4onto3( const LLImageRaw* src );
+
+	// Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
+	void copyScaled3onto4( const LLImageRaw* src );
+
+	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
+	void copyScaled4onto3( const LLImageRaw* src );
+
 	// Create an image from a local file (generally used in tools)
 	//bool createFromFile(const std::string& filename, bool j2c_lowest_mip_only = false);
 
-	void copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
-	void compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
+	void copyLineScaled( const U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
+	void compositeRowScaled4onto3( const U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
 
-	U8	fastFractionalMult(U8 a,U8 b);
+	static U8 fastFractionalMult(U8 a, U8 b);
 
 	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
 
@@ -283,7 +289,7 @@ public:
 	static S32 sRawImageCount;
 
 private:
-	bool validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw* dst);
+	static bool validateSrcAndDst(std::string func, const LLImageRaw* src, const LLImageRaw* dst);
 };
 
 // Compressed representation of image.
@@ -356,9 +362,35 @@ protected:
 	S8 mDecoded;  // unused, but changing LLImage layout requires recompiling static Mac/Linux libs. 2009-01-30 JC
 	S8 mDiscardLevel;	// Current resolution level worked on. 0 = full res, 1 = half res, 2 = quarter res, etc...
 	S8 mLevels;			// Number of resolution levels in that image. Min is 1. 0 means unknown.
-	
+
 public:
 	static S32 sGlobalFormattedMemory;
+};
+
+class LLImageDataLock
+{
+public:
+    LLImageDataLock(const LLImageRaw* image);
+    LLImageDataLock(const LLImageFormatted* image);
+    virtual ~LLImageDataLock();
+
+    void update(const LLImageBase* image);
+
+private:
+    LLImageBase* mImage;
+};
+
+class LLImageDataSharedLock
+{
+public:
+    LLImageDataSharedLock(const LLImageRaw* image);
+    LLImageDataSharedLock(const LLImageFormatted* image);
+    virtual ~LLImageDataSharedLock();
+
+    void update(const LLImageBase* image);
+
+private:
+    LLImageBase* mImage;
 };
 
 #endif

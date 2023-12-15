@@ -96,7 +96,7 @@ private:
 	
 public:
 	LLTextureCacheWorker(LLTextureCache* cache, const LLUUID& id,
-						 U8* data, S32 datasize, S32 offset,
+						 const U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
 						 LLTextureCache::Responder* responder)
 		: LLWorkerClass(cache, "LLTextureCacheWorker"),
@@ -145,7 +145,7 @@ protected:
 	LLUUID	mID;
 	
 	U8* mReadData;
-	U8* mWriteData;
+    const U8* mWriteData;
 	S32 mDataSize;
 	S32 mOffset;
 	S32 mImageSize;
@@ -239,7 +239,7 @@ class LLTextureCacheRemoteWorker : public LLTextureCacheWorker
 {
 public:
 	LLTextureCacheRemoteWorker(LLTextureCache* cache, const LLUUID& id,
-						 U8* data, S32 datasize, S32 offset,
+						 const U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
 						 LLPointer<LLImageRaw> raw, S32 discardlevel,
 						 LLTextureCache::Responder* responder) 
@@ -1961,7 +1961,7 @@ bool LLTextureCache::readComplete(handle_t handle, bool abort)
 }
 
 LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id,
-													  U8* data, S32 datasize, S32 imagesize,
+													  const U8* data, S32 datasize, S32 imagesize,
 													  LLPointer<LLImageRaw> rawimage, S32 discardlevel,
 													  WriteResponder* responder)
 {
@@ -2047,6 +2047,9 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+	LLImageDataSharedLock lock(raw);
+
 	//rescale image if needed
 	if (raw.isNull() || raw->isBufferInvalid() || !raw->getData())
 	{
@@ -2075,6 +2078,7 @@ bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImage
 		{
             // Make a duplicate to keep the original raw image untouched.
             raw = raw->duplicate();
+            lock.update(raw);
 
 			if (raw->isBufferInvalid())
 			{

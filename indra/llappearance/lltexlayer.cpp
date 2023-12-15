@@ -528,7 +528,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
-void LLTexLayerSet::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components)
+void LLTexLayerSet::applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components)
 {
 	mAvatarAppearance->applyMorphMask(tex_data, width, height, num_components, mBakedTexIndex);
 }

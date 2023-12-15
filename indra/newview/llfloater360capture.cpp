@@ -360,6 +360,8 @@ void LLFloater360Capture::encodeAndSave(LLPointer<LLImageRaw> raw_image, const s
     int jpeg_encode_quality = gSavedSettings.getU32("360CaptureJPEGEncodeQuality");
     LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG(jpeg_encode_quality);
 
+    LLImageDataSharedLock lock(raw_image);
+
     // Actually encode the JPEG image. This is where a lot of time
     // is spent now that the snapshot capture process has been
     // optimized.  The encode_time parameter doesn't appear to be
@@ -410,6 +412,8 @@ void LLFloater360Capture::suspendForAFrame()
 // Probably not needed anymore but saving here just in case.
 void LLFloater360Capture::mockSnapShot(LLImageRaw* raw)
 {
+    LLImageDataLock lock(raw);
+
     unsigned int width = raw->getWidth();
     unsigned int height = raw->getHeight();
     unsigned int depth = raw->getComponents();

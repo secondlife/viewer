@@ -137,6 +137,170 @@ bool LLMutex::trylock()
 
 //============================================================================
 
+LLSharedMutex::LLSharedMutex()
+: mShared(false)
+{
+}
+
+LLSharedMutex::~LLSharedMutex()
+{
+}
+
+bool LLSharedMutex::isLocked() const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLMutexLock lock(const_cast<LLMutex*>(&mLockMutex));
+
+    return !mLockingThreads.empty();
+}
+
+bool LLSharedMutex::isThreadLocked() const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(const_cast<LLMutex*>(&mLockMutex));
+
+    const_iterator it = mLockingThreads.find(current_thread);
+    return it != mLockingThreads.end();
+}
+
+void LLSharedMutex::lock()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(&mLockMutex);
+
+    if (mLockingThreads.size() == 1 && mLockingThreads.begin()->first == current_thread)
+    {
+        mLockingThreads.begin()->second++;
+    }
+    else
+    {
+        // Acquire the mutex immediately if mLockingThreads is empty
+        // or enter a locking state if mLockingThreads is not empty
+        lock.unlock();
+        mMutex.lock();
+        lock.lock();
+        // Continue after acquiring the mutex (and possible quitting the locking state)
+        mLockingThreads.emplace(std::make_pair(current_thread, 1));
+        mShared = false;
+    }
+}
+
+void LLSharedMutex::lockShared()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(&mLockMutex);
+
+    iterator it = mLockingThreads.find(current_thread);
+    if (it != mLockingThreads.end())
+    {
+        it->second++;
+    }
+    else
+    {
+        // Acquire the mutex immediately if the mutex is not locked exclusively
+        // or enter a locking state if the mutex is already locked exclusively
+        lock.unlock();
+        mMutex.lock_shared();
+        lock.lock();
+        // Continue after acquiring the mutex
+        mLockingThreads.emplace(std::make_pair(current_thread, 1));
+        mShared = true;
+    }
+}
+
+bool LLSharedMutex::trylock()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(&mLockMutex);
+
+    if (mLockingThreads.size() == 1 && mLockingThreads.begin()->first == current_thread)
+    {
+        mLockingThreads.begin()->second++;
+    }
+    else
+    {
+        if (!mMutex.try_lock())
+            return false;
+
+        mLockingThreads.emplace(std::make_pair(current_thread, 1));
+        mShared = false;
+    }
+
+    return true;
+}
+
+bool LLSharedMutex::trylockShared()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(&mLockMutex);
+
+    iterator it = mLockingThreads.find(current_thread);
+    if (it != mLockingThreads.end())
+    {
+        it->second++;
+    }
+    else
+    {
+        if (!mMutex.try_lock_shared())
+            return false;
+
+        mLockingThreads.emplace(std::make_pair(current_thread, 1));
+        mShared = true;
+    }
+
+    return true;
+}
+
+void LLSharedMutex::unlock()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(const_cast<LLMutex*>(&mLockMutex));
+
+    iterator it = mLockingThreads.find(current_thread);
+    if (it != mLockingThreads.end())
+    {
+        if (it->second > 1)
+        {
+            it->second--;
+        }
+        else
+        {
+            mLockingThreads.erase(it);
+            mMutex.unlock();
+        }
+    }
+}
+
+void LLSharedMutex::unlockShared()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LLThread::id_t current_thread = LLThread::currentID();
+    LLMutexLock lock(const_cast<LLMutex*>(&mLockMutex));
+
+    iterator it = mLockingThreads.find(current_thread);
+    if (it != mLockingThreads.end())
+    {
+        if (it->second > 1)
+        {
+            it->second--;
+        }
+        else
+        {
+            mLockingThreads.erase(it);
+            mMutex.unlock_shared();
+        }
+    }
+}
+
+
+//============================================================================
+
 LLCondition::LLCondition() :
 	LLMutex()
 {
