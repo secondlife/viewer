@@ -54,7 +54,7 @@
 	</string>
 	<string name="AboutPosition">
 		あなたは、現在[REGION]の[POSITION_LOCAL_0,number,1]，[POSITION_LOCAL_1,number,1]，[POSITION_LOCAL_2,number,1]にいます。
-位置は、&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;です。（[HOSTIP]）
+位置は、&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;です。
 SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 （グローバル座標は、[POSITION_0,number,1]，[POSITION_1,number,1]，[POSITION_2,number,1]です。）
 [SERVER_VERSION]
@@ -4330,8 +4330,8 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="GroupMoneyDebits">
 		支出
 	</string>
-	<string name="GroupMoneyDate">
-		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日　[weekday,datetime,utc]
+	<string name="GroupMoneyStartDate">
+		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日　[weekday,datetime,utc]から取引開始
 	</string>
 	<string name="AcquiredItems">
 		取得アイテム
@@ -7274,6 +7274,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Profile_Label">
 		プロフィール
 	</string>
+	<string name="Command_Performance_Label">
+		グラフィック最適化
+	</string>
 	<string name="Command_Report_Abuse_Label">
 		嫌がらせの報告
 	</string>
@@ -7351,6 +7354,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_People_Tooltip">
 		フレンド、グループ、近くの人物を表示します。
+	</string>
+	<string name="Command_Performance_Tooltip">
+		グラフィック性能を向上させます。
 	</string>
 	<string name="Command_Picks_Tooltip">
 		プロフィールで紹介しているお気に入りの場所を表示します。
