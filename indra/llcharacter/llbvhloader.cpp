@@ -196,6 +196,7 @@ LLBVHLoader::~LLBVHLoader()
     reset();        // Clean up mAssimpImporter and mAssimpScene
 }
 
+/*  Currently unused, clean up when fully working
 static S32 test_transform_chain = 3;
 
 static std::string test_joint_chain[] =
@@ -221,6 +222,7 @@ static bool joint_in_test(const std::string & joint_name, const std::string & al
     }
     return false;
 }
+*/
 
 void LLBVHLoader::selectTransformMatrix(const std::string & in_name, LLAnimTranslation & translation)
 {   // Select the transform for coordinate system matching
@@ -233,8 +235,6 @@ void LLBVHLoader::selectTransformMatrix(const std::string & in_name, LLAnimTrans
     LLVector3 vect1(1, 0, 0);   // 4  x -> x
     LLVector3 vect2(0, 1, 0);   // 2  y -> y
     LLVector3 vect3(0, 0, 1);   // 1  z -> z
-
-    static S32 test_transform = 999;
 
     S32 use_transform = mTransformType;
     if (use_transform != 2 && use_transform != 214)

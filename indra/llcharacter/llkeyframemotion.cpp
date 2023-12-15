@@ -240,14 +240,14 @@ LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey
 // Scale time values by the adjustment factor
 // The passed in curve_map (mKeys) has a time as key, and a value KeyT object with the same mTime.
 // Both need to be adjusted.
-template <class KeyT, class CurveT> void adjustTimeMaps(CurveT &curve_map, F32 adjustment)
+template <typename KeyT, typename CurveT> void adjustTimeMaps(CurveT &curve_map, F32 adjustment)
 {
     typedef std::vector<KeyT>   key_vec_t;
     typedef std::map<F32, KeyT> key_map_t;
 
 	// Get all the existing objects, adjust their time, and save them
     key_vec_t new_keys;
-    key_map_t::iterator cur_key = curve_map.begin();
+    typename key_map_t::iterator cur_key = curve_map.begin();
     while (cur_key != curve_map.end())
     {
 	    KeyT new_key = cur_key->second;
@@ -258,7 +258,7 @@ template <class KeyT, class CurveT> void adjustTimeMaps(CurveT &curve_map, F32 a
 
 	// Clear the mMap and re-add the adjusted keys
     curve_map.clear();
-    key_vec_t::iterator new_key = new_keys.begin();
+    typename key_vec_t::iterator new_key = new_keys.begin();
     while (new_key != new_keys.end())
     {
 		curve_map[new_key->mTime] = *new_key;
