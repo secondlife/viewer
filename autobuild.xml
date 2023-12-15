@@ -1734,18 +1734,6 @@
       </map>
       <key>mikktspace</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
-        <key>description</key>
-        <string>Mikktspace Tangent Generator</string>
-        <key>license</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
-        <key>license_file</key>
-        <string>mikktspace.txt</string>
-        <key>name</key>
-        <string>mikktspace</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1753,40 +1741,58 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b48b7ac0792d3ea8f087d99d9e4a29d8</string>
+              <string>6542ca342661ec4dc7f3fbcd29ca7962d3bf4a01</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104415/914944/mikktspace-1-darwin64-574859.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-12b73ee/mikktspace-1-darwin64-12b73ee.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0a016b9c0c1e2c0b557e0124094da6c5</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104407/914918/mikktspace-1-windows-574859.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>02e9e5b6fe6788f4d2babb83ec544843</string>
+              <string>b4c1138005a224018e8c1b9c057f03695b23e70b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104406/914909/mikktspace-1-windows64-574859.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-12b73ee/mikktspace-1-windows64-12b73ee.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e61c1e678b82d75764e29cac107431bdddb3f21f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-12b73ee/mikktspace-1-linux64-12b73ee.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
         </map>
+        <key>license</key>
+        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
+        <key>license_file</key>
+        <string>mikktspace.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
         <key>version</key>
         <string>1</string>
+        <key>name</key>
+        <string>mikktspace</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
+        <key>description</key>
+        <string>Mikktspace Tangent Generator</string>
       </map>
       <key>minizip-ng</key>
       <map>
@@ -2376,18 +2382,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>tinygltf</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-tinygltf</string>
-        <key>copyright</key>
-        <string>// Copyright (c) 2015 - Present Syoyo Fujita, Aurélien Chatelain and many contributors.</string>
-        <key>description</key>
-        <string>tinygltf import library</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/tinygltf_license.txt</string>
-        <key>name</key>
-        <string>tinygltf</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -2395,20 +2389,34 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4dad1c0948141e1667c01a3ee755e4dc</string>
+              <string>eee6b755cea664e228dcc28b2ea2a036741a4d77</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105849/926137/tinygltf-v2.5.0-common-575729.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tinygltf/releases/download/v2.5.0-5d136c3/tinygltf-v2.5.0-common-5d136c3.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/tinygltf_license.txt</string>
+        <key>copyright</key>
+        <string>// Copyright (c) 2015 - Present Syoyo Fujita, Aurélien Chatelain and many contributors.</string>
+        <key>version</key>
+        <string>v2.5.0</string>
+        <key>name</key>
+        <string>tinygltf</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-tinygltf</string>
+        <key>description</key>
+        <string>tinygltf import library</string>
         <key>source</key>
         <string>https://bitbucket.org/lindenlab/3p-tinygltf</string>
         <key>source_type</key>
         <string>git</string>
-        <key>version</key>
-        <string>v2.5.0</string>
       </map>
       <key>tracy</key>
       <map>
@@ -2448,7 +2456,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2017-2022, Bartosz Taudul (wolf@nereid.pl)</string>
         <key>version</key>
-        <string>v0.8.1.235e98f</string>
+        <string>v0.8.1.578241</string>
         <key>name</key>
         <string>tracy</string>
         <key>canonical_repo</key>
@@ -2459,8 +2467,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>https://bitbucket.org/lindenlab/3p-tracy</string>
         <key>source_type</key>
         <string>git</string>
-        <key>version</key>
-        <string>v0.8.1.578241</string>
       </map>
       <key>tut</key>
       <map>
