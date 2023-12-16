@@ -579,7 +579,7 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 															mCodeStreamp.get()));
 				}
 				// Do the actual processing
-				F32 remaining_time = limit_time ? static_cast<F32>(decode_time - decode_timer.getElapsedTimeF32()) : 0.0f;
+				F32 remaining_time = limit_time ? (decode_time - decode_timer.getElapsedTimeF32()) : 0.0f;
 				// This is where we do the actual decode.  If we run out of time, return false.
 				if (mDecodeState->processTileDecode(remaining_time, limit_time))
 				{
