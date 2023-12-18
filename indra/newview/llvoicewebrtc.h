@@ -330,7 +330,9 @@ public:
 		bool isCallBackPossible();
 		bool isTextIMPossible();
 
-        void processSessionStates();
+		static void processSessionStates();
+
+        bool processConnectionStates();
 
 		void OnConnectionEstablished(const std::string &channelID);
         void OnConnectionFailure(const std::string &channelID);
@@ -347,6 +349,15 @@ public:
 
 		bool isEmpty() { return mWebRTCConnections.empty(); }
 
+		bool isSpatial() { return mSessionType == SESSION_TYPE_ESTATE || mSessionType == SESSION_TYPE_PARCEL; }
+
+    typedef enum e_session_type
+        {
+            SESSION_TYPE_ESTATE                = 1,
+            SESSION_TYPE_PARCEL,
+            SESSION_TYPE_P2P
+        } ESessionType;
+
 		std::string mHandle;
 		std::string mGroupHandle;
 		std::string mChannelID;
@@ -362,9 +373,8 @@ public:
 		LLUUID		mIMSessionID;
 		LLUUID		mCallerID;
 		int			mErrorStatusCode;
-		bool		mIsChannel;	// True for both group and spatial channels (false for p2p, PSTN)
-		bool		mIsSpatial;	// True for spatial channels
-		bool		mIsP2P;
+        ESessionType mSessionType;
+
 		bool		mIncoming;
 		bool		mVoiceActive;
 		bool		mReconnect;	// Whether we should try to reconnect to this session if it's dropped
@@ -381,16 +391,17 @@ public:
 		LLUUID		mVoiceFontID;
 
         static void VerifySessions();
-        static bool hasSession(const std::string &sessionID) { return mSessions.find(sessionID) != mSessions.end(); }
+        static bool hasSession(const std::string &sessionID) 
+		{ return mSessions.find(sessionID) != mSessions.end(); }
 
     private:
 
-		std::map<std::string, connectionPtr_t> mWebRTCConnections;
-        std::string   					       mPrimaryConnectionID;
+		std::list<connectionPtr_t> mWebRTCConnections;
+        std::string   			   mPrimaryConnectionID;
+        static std::map<std::string, ptr_t> mSessions;  // canonical list of outstanding sessions.
 
         sessionState();
 
-        static std::map<std::string, ptr_t> mSessions;  // canonical list of outstanding sessions.
 
         static void for_eachPredicate(const std::pair<std::string, LLWebRTCVoiceClient::sessionState::wptr_t> &a, sessionFunc_t func);
 
@@ -406,7 +417,6 @@ public:
 	// Private Member Functions
 	//////////////////////////////////////////////////////
 
-    static void predProcessSessionStates(const LLWebRTCVoiceClient::sessionStatePtr_t &session);
     static void predOnConnectionEstablished(const LLWebRTCVoiceClient::sessionStatePtr_t &session, std::string channelID);
     static void predOnConnectionFailure(const LLWebRTCVoiceClient::sessionStatePtr_t &session, std::string channelID);
     static void predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const std::string& spatial_data, const std::string& volume_data);
@@ -415,7 +425,6 @@ public:
     static void predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t &session);
-    void reapEmptySessions();
 
 	//////////////////////////////
 	/// @name TVC/Server management and communication
@@ -475,9 +484,6 @@ public:
     void deleteSession(const sessionStatePtr_t &session);
 
 	void verifySessionState(void);
-
-    void joinedAudioSession(const sessionStatePtr_t &session);
-    void leftAudioSession(const sessionStatePtr_t &session);
 
 	// This is called in several places where the session _may_ need to be deleted.
 	// It contains logic for whether to delete the session or keep it around.
@@ -596,12 +602,8 @@ private:
 	bool mIsInitialized;
 	bool mShutdownComplete;
 	
-	bool checkParcelChanged(bool update = false);
     bool switchChannel(const std::string channelID,
-                       bool         spatial      = true,
-                       bool         no_reconnect = false,
-                       bool         is_p2p       = false,
-                       std::string  hash         = "",
+                       sessionState::ESessionType sessionType,
 		               S32          parcel_local_id = INVALID_PARCEL_ID);
     void joinSession(const sessionStatePtr_t &session);
 	
@@ -808,6 +810,10 @@ protected:
     }
     EVoiceConnectionState getVoiceConnectionState()
     {
+		if (mVoiceStateMutex.isLocked())
+		{
+            LL_WARNS("Voice") << "LOCKED." << LL_ENDL;
+		}
         LLMutexLock lock(&mVoiceStateMutex);
         return mVoiceConnectionState;
     }
@@ -839,6 +845,7 @@ protected:
     llwebrtc::LLWebRTCDataInterface  *mWebRTCDataInterface;
 };
 
+#define VOICE_ELAPSED LLVoiceTimer(__FUNCTION__);
 
 #endif //LL_WebRTC_VOICE_CLIENT_H
 

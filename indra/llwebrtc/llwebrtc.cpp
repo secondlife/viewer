@@ -86,7 +86,9 @@ void LLWebRTCImpl::init()
     mPlayoutDevice  = 0;
     mRecordingDevice = 0;
     rtc::InitializeSSL();
-    rtc::LogMessage::LogToDebug(rtc::LS_WARNING);
+    rtc::LogMessage::LogToDebug(rtc::LS_NONE);
+    rtc::LogMessage::SetLogToStderr(true);
+
     mTaskQueueFactory = webrtc::CreateDefaultTaskQueueFactory();
     
     mNetworkThread = rtc::Thread::CreateWithSocketServer();
@@ -98,7 +100,7 @@ void LLWebRTCImpl::init()
     mSignalingThread = rtc::Thread::Create();
     mSignalingThread->SetName("WebRTCSignalingThread", nullptr);
     mSignalingThread->Start();
-    
+
     mWorkerThread->PostTask(
                             [this]()
                             {
@@ -466,93 +468,98 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
     RTC_DCHECK(!mPeerConnection);
     mAnswerReceived = false;
 
-    webrtc::PeerConnectionInterface::RTCConfiguration config;
-    config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-    webrtc::PeerConnectionInterface::IceServer server;
-    server.uri = "stun:roxie-turn.staging.secondlife.io:3478";
-    config.servers.push_back(server);
-    server.uri = "stun:stun.l.google.com:19302";
-    config.servers.push_back(server);
-    server.uri = "stun:stun1.l.google.com:19302";
-    config.servers.push_back(server);
-    server.uri = "stun:stun2.l.google.com:19302";
-    config.servers.push_back(server);
-    server.uri = "stun:stun3.l.google.com:19302";
-    config.servers.push_back(server);
-    server.uri = "stun:stun4.l.google.com:19302";
-    config.servers.push_back(server);
-    
-    webrtc::PeerConnectionDependencies pc_dependencies(this);
-    auto error_or_peer_connection = mPeerConnectionFactory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));
-    if (error_or_peer_connection.ok())
-    {
-        mPeerConnection = std::move(error_or_peer_connection.value());
-    }
-    else
-    {
-        RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection: " << error_or_peer_connection.error().message();
-        return false;
-    }
-    
-    webrtc::DataChannelInit init;
-    init.ordered = true;
-    
-    auto data_channel_or_error = mPeerConnection->CreateDataChannelOrError("SLData", &init);
-    if (data_channel_or_error.ok())
-    {
-        mDataChannel = std::move(data_channel_or_error.value());
-        
-        mDataChannel->RegisterObserver(this);
-    }
-    
-    RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->signaling_state();
-    
-    cricket::AudioOptions audioOptions;
-    audioOptions.auto_gain_control = true;
-    audioOptions.echo_cancellation = false;  // incompatible with opus stereo
-    audioOptions.noise_suppression = true;
-    
-    mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
-    rtc::scoped_refptr<webrtc::AudioTrackInterface>  audio_track(
-                                                                 mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
-    audio_track->set_enabled(true);
-    mLocalStream->AddTrack(audio_track);
-    
-    mPeerConnection->AddTrack(audio_track, {"SLStream"});
-    
-    auto senders = mPeerConnection->GetSenders();
-    
-    for (auto &sender : senders)
-    {
-        webrtc::RtpParameters      params;
-        webrtc::RtpCodecParameters codecparam;
-        codecparam.name                       = "opus";
-        codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
-        codecparam.clock_rate                 = 48000;
-        codecparam.num_channels               = 2;
-        codecparam.parameters["stereo"]       = "1";
-        codecparam.parameters["sprop-stereo"] = "1";
-        params.codecs.push_back(codecparam);
-        sender->SetParameters(params);
-    }
-    
-    auto receivers = mPeerConnection->GetReceivers();
-    for (auto &receiver : receivers)
-    {
-        webrtc::RtpParameters      params;
-        webrtc::RtpCodecParameters codecparam;
-        codecparam.name                       = "opus";
-        codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
-        codecparam.clock_rate                 = 48000;
-        codecparam.num_channels               = 2;
-        codecparam.parameters["stereo"]       = "1";
-        codecparam.parameters["sprop-stereo"] = "1";
-        params.codecs.push_back(codecparam);
-        receiver->SetParameters(params);
-    }
-    
-    webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
-    mPeerConnection->CreateOffer(this, offerOptions);
+    mWebRTCImpl->PostSignalingTask(
+        [this]()
+        {
+            webrtc::PeerConnectionInterface::RTCConfiguration config;
+            config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+            webrtc::PeerConnectionInterface::IceServer server;
+            server.uri = "stun:roxie-turn.staging.secondlife.io:3478";
+            config.servers.push_back(server);
+            server.uri = "stun:stun.l.google.com:19302";
+            config.servers.push_back(server);
+            server.uri = "stun:stun1.l.google.com:19302";
+            config.servers.push_back(server);
+            server.uri = "stun:stun2.l.google.com:19302";
+            config.servers.push_back(server);
+            server.uri = "stun:stun3.l.google.com:19302";
+            config.servers.push_back(server);
+            server.uri = "stun:stun4.l.google.com:19302";
+            config.servers.push_back(server);
+
+            config.set_min_port(60000);
+            config.set_max_port(60100);
+
+            webrtc::PeerConnectionDependencies pc_dependencies(this);
+            auto error_or_peer_connection = mPeerConnectionFactory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));
+            if (error_or_peer_connection.ok())
+            {
+                mPeerConnection = std::move(error_or_peer_connection.value());
+            }
+            else
+            {
+                RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection: " << error_or_peer_connection.error().message();
+                return;
+            }
+
+            webrtc::DataChannelInit init;
+            init.ordered = true;
+
+            auto data_channel_or_error = mPeerConnection->CreateDataChannelOrError("SLData", &init);
+            if (data_channel_or_error.ok())
+            {
+                mDataChannel = std::move(data_channel_or_error.value());
+
+                mDataChannel->RegisterObserver(this);
+            }
+
+            cricket::AudioOptions audioOptions;
+            audioOptions.auto_gain_control = true;
+            audioOptions.echo_cancellation = false;  // incompatible with opus stereo
+            audioOptions.noise_suppression = true;
+
+            mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
+            rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
+                mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
+            audio_track->set_enabled(true);
+            mLocalStream->AddTrack(audio_track);
+
+            mPeerConnection->AddTrack(audio_track, {"SLStream"});
+
+            auto senders = mPeerConnection->GetSenders();
+
+            for (auto &sender : senders)
+            {
+                webrtc::RtpParameters      params;
+                webrtc::RtpCodecParameters codecparam;
+                codecparam.name                       = "opus";
+                codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+                codecparam.clock_rate                 = 48000;
+                codecparam.num_channels               = 2;
+                codecparam.parameters["stereo"]       = "1";
+                codecparam.parameters["sprop-stereo"] = "1";
+                params.codecs.push_back(codecparam);
+                sender->SetParameters(params);
+            }
+
+            auto receivers = mPeerConnection->GetReceivers();
+            for (auto &receiver : receivers)
+            {
+                webrtc::RtpParameters      params;
+                webrtc::RtpCodecParameters codecparam;
+                codecparam.name                       = "opus";
+                codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+                codecparam.clock_rate                 = 48000;
+                codecparam.num_channels               = 2;
+                codecparam.parameters["stereo"]       = "1";
+                codecparam.parameters["sprop-stereo"] = "1";
+                params.codecs.push_back(codecparam);
+                receiver->SetParameters(params);
+            }
+
+            webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
+            mPeerConnection->CreateOffer(this, offerOptions);
+        });
     
     return true;
 }
@@ -839,7 +846,7 @@ void LLWebRTCPeerConnectionImpl::OnIceCandidate(const webrtc::IceCandidateInterf
     else
     {
         mCachedIceCandidates.push_back(
-                                       webrtc::CreateIceCandidate(candidate->sdp_mid(), candidate->sdp_mline_index(), candidate->candidate()));
+            webrtc::CreateIceCandidate(candidate->sdp_mid(), candidate->sdp_mline_index(), candidate->candidate()));
     }
 }
 
@@ -878,21 +885,16 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
             sdp_mangled_stream << sdp_line << "\n";
         }
     }
-    
-    webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdp_mangled_stream.str());
-    
-    
-    
-    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(
-                                                                                              webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdp_mangled_stream.str())),
-                                         rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
+
     RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_mangled_stream.str();
-    
-    
+
     for (auto &observer : mSignalingObserverList)
     {
         observer->OnOfferAvailable(sdp_mangled_stream.str());
     }
+
+    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdp_mangled_stream.str())),
+                                         rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
 }
 
 void LLWebRTCPeerConnectionImpl::OnFailure(webrtc::RTCError error) { RTC_LOG(LS_ERROR) << ToString(error.type()) << ": " << error.message(); }
@@ -930,7 +932,6 @@ void LLWebRTCPeerConnectionImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError
 //
 void LLWebRTCPeerConnectionImpl::OnSetLocalDescriptionComplete(webrtc::RTCError error)
 {
-    
 }
 
 //
