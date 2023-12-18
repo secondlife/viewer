@@ -65,7 +65,8 @@ public:
             return true; // don't block, will fail later
         }
 
-        if (nav_type == NAV_TYPE_CLICKED)
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
         {
             return true;
         }

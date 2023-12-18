@@ -340,11 +340,28 @@ public:
             }
             else
             {
-                // The LLSD object we got from our stream contains the keys we
-                // need.
-                LLEventPumps::instance().obtain(data["pump"]).post(data["data"]);
-                // Block calls to this method; resetting mBlocker unblocks calls
-                // to the other method.
+                try
+                {
+                    // The LLSD object we got from our stream contains the
+                    // keys we need.
+                    LLEventPumps::instance().obtain(data["pump"]).post(data["data"]);
+                }
+                catch (const std::exception& err)
+                {
+                    // No plugin should be allowed to crash the viewer by
+                    // driving an exception -- intentionally or not.
+                    LOG_UNHANDLED_EXCEPTION(stringize("handling request ", data));
+                    // Whether or not the plugin added a "reply" key to the
+                    // request, send a reply. We happen to know who originated
+                    // this request, and the reply LLEventPump of interest.
+                    // Not our problem if the plugin ignores the reply event.
+                    data["reply"] = mReplyPump.getName();
+                    sendReply(llsd::map("error",
+                                        stringize(LLError::Log::classname(err), ": ", err.what())),
+                              data);
+                }
+                // Block calls to this method; resetting mBlocker unblocks
+                // calls to the other method.
                 mBlocker.reset(new LLEventPump::Blocker(mStdoutDataConnection));
                 // Go check for any more pending events in the buffer.
                 if (childout.size())

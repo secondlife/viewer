@@ -74,40 +74,6 @@ std::string string_from_mask(MASK mask)
     return res;
 }
 
-std::string string_from_mouse(EMouseClickType click, bool translate)
-{
-    std::string res;
-    switch (click)
-    {
-    case CLICK_LEFT:
-        res = "LMB";
-        break;
-    case CLICK_MIDDLE:
-        res = "MMB";
-        break;
-    case CLICK_RIGHT:
-        res = "RMB";
-        break;
-    case CLICK_BUTTON4:
-        res = "MB4";
-        break;
-    case CLICK_BUTTON5:
-        res = "MB5";
-        break;
-    case CLICK_DOUBLELEFT:
-        res = "Double LMB";
-        break;
-    default:
-        break;
-    }
-
-    if (translate && !res.empty())
-    {
-        res = LLTrans::getString(res);
-    }
-    return res;
-}
-
 // LLKeyConflictHandler
 
 S32 LLKeyConflictHandler::sTemporaryFileUseCount = 0;
@@ -270,7 +236,7 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
         result = LLKeyboard::stringFromAccelerator(keydata.mMask);
     }
 
-    result += string_from_mouse(keydata.mMouse, true);
+    result += LLKeyboard::stringFromMouse(keydata.mMouse);
 
     return result;
 }
@@ -545,7 +511,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                     {
                         // set() because 'optional', for compatibility purposes
                         // just copy old keys.xml and rename to key_bindings.xml, it should work
-                        binding.mouse.set(string_from_mouse(data.mMouse, false), true);
+                        binding.mouse.set(LLKeyboard::stringFromMouse(data.mMouse, false), true);
                     }
                     binding.command = iter->first;
                     mode.bindings.add(binding);

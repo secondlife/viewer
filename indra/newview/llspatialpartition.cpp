@@ -867,7 +867,7 @@ void LLSpatialGroup::rebound()
     }
 }
 
-void LLSpatialGroup::destroyGLState(bool keep_occlusion) 
+void LLSpatialGroup::destroyGLState(bool keep_occlusion)
 {
 	setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::IMAGE_DIRTY);
 

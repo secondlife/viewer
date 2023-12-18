@@ -254,7 +254,7 @@ jobs:
     runs-on: windows
     steps:
       - name: Sign and package Windows viewer
-        uses: secondlife/viewer-build-util/sign-pkg-windows@main
+        uses: secondlife/viewer-build-util/sign-pkg-windows@v1
         with:
           vault_uri: "${{ secrets.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ secrets.AZURE_CERT_NAME }}"
@@ -286,7 +286,7 @@ jobs:
           [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
 
       - name: Sign and package Mac viewer
-        uses: secondlife/viewer-build-util/sign-pkg-mac@main
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v1
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -302,7 +302,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post Windows symbols
-        uses: secondlife/viewer-build-util/post-bugsplat-windows@main
+        uses: secondlife/viewer-build-util/post-bugsplat-windows@v1
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
@@ -315,7 +315,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post Mac symbols
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@main
+        uses: secondlife/viewer-build-util/post-bugsplat-mac@v1
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
@@ -330,29 +330,29 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          path: artifacts
+          name: Windows-installer
 
-      - name: Reshuffle artifact files
-        uses: secondlife/viewer-build-util/release-artifacts@main
+      - uses: actions/download-artifact@v3
         with:
-          input-path: artifacts
-          output-path: assets
-          # The *-app artifacts are for use only by the signing and
-          # packaging steps. Once we've generated signed installers, we no
-          # longer need them, and we CERTAINLY don't want to publish
-          # thousands of individual files as separate URLs.
-          exclude: |-
-            Windows-app
-            macOS-app
-          # Use just "Windows" or "macOS" prefix because these are the only
-          # artifacts in which we expect files from both platforms with
-          # colliding names (e.g. autobuild-package.xml). release-artifacts
-          # normally resolves collisions by prepending the artifact name, so
-          # when we anticipate collisions, it's good to keep the prefix
-          # short and sweet.
-          prefix: |-
-            Windows-metadata=Windows
-            macOS-metadata=macOS
+          name: macOS-installer
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Windows-metadata
+
+      - name: Rename windows metadata 
+        run: |
+          mv autobuild-package.xml Windows-autobuild-package.xml
+          mv newview/viewer_version.txt Windows-viewer_version.txt
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: macOS-metadata
+
+      - name: Rename macOS metadata 
+        run: |
+          mv autobuild-package.xml macOS-autobuild-package.xml
+          mv newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - uses: secondlife-3p/action-gh-release@v1
@@ -364,4 +364,8 @@ jobs:
           generate_release_notes: true
           # the only reason we generate a GH release is to post build products
           fail_on_unmatched_files: true
-          files: "assets/*"
+          files: |
+            *.dmg 
+            *.exe
+            *-autobuild-package.xml
+            *-viewer_version.txt

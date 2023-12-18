@@ -196,6 +196,7 @@
 #include "llhudeffecttrail.h"
 #include "llvectorperfoptions.h"
 #include "llslurl.h"
+#include "llurlregistry.h"
 #include "llwatchdog.h"
 
 // Included so that constants/settings might be initialized
@@ -4306,6 +4307,7 @@ void LLAppViewer::loadKeyBindings()
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
+    LLUrlRegistry::instance().setKeybindingHandler(&gViewerInput);
 }
 
 void LLAppViewer::purgeCache()
