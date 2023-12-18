@@ -98,10 +98,17 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install nsis-unicode
 
+      - name: Determine source branch
+        id: which-branch
+        uses: secondlife/viewer-build-util/which-branch@v1
+        with:
+          token: ${{ github.token }}
+
       - name: Build
         id: build
         shell: bash
         env:
+          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
@@ -152,7 +159,7 @@ jobs:
           }
           repo_branch()
           {
-            git -C "$1" branch | grep '^* ' | cut -c 3-
+            echo "$AUTOBUILD_VCS_BRANCH"
           }
           record_dependencies_graph()
           {
