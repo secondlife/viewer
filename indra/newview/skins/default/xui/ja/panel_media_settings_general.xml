@@ -6,8 +6,8 @@
 	<text name="home_fails_whitelist_label">
 		(このページは指定したホワイトリストをパスしません)
 	</text>
-	<line_editor name="home_url" tool_tip="このメディアソースのホームページ">
-	</line_editor>
+	<line_editor name="home_url" tool_tip="このメディアソースのホームページ"/>
+	<web_browser name="preview_media"/>
 	<text name="preview_label">
 		プレビュー
 	</text>
@@ -27,9 +27,8 @@
 	<text name="size_label">
 		サイズ:
 	</text>
-	<spinner initial_value="256" label="" name="width_pixels"/>
 	<text name="X_label">
-		x
+		X
 	</text>
 	<spinner label="" name="height_pixels"/>
 </panel>

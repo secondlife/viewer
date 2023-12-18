@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="home_tab" name="home_tab">
+	<scroll_container name="profile_scroll">
+		<panel name="profile_scroll_panel">
+			<panel name="sidebar_people">
+				<text name="tab_name" value="人物"/>
+				<text name="tab_description">
+					あなたのフレンド、グループ、連絡先、近隣の人物を探します。
+				</text>
+			</panel>
+			<panel name="sidebar_places">
+				<text name="tab_name" value="場所"/>
+				<text name="tab_description">
+					行きたい場所、行ったことのある場所を探します。
+				</text>
+			</panel>
+			<panel name="sidebar_me">
+				<text name="tab_name" value="プロフィール"/>
+				<text name="tab_description">
+					公開プロフィールを編集します。
+				</text>
+			</panel>
+			<panel name="sidebar_appearance">
+				<text name="tab_name" value="容姿"/>
+				<text name="tab_description">
+					現在の見た目を変更します。
+				</text>
+			</panel>
+			<panel name="sidebar_inventory">
+				<text name="tab_name" value="インベントリ"/>
+				<text name="tab_description">
+					現在のインベントリを確認します。
+				</text>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

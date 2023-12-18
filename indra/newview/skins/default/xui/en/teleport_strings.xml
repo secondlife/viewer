@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
@@ -21,7 +21,7 @@ Try again in a moment.
 		</message>
 		<message name="NoHelpIslandTP">
 You cannot teleport back to Welcome Island.
-Go to 'Welcome Island Public' to repeat the tutorial.
+Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
 		</message>
 		<message name="noaccess_tport">
 			Sorry, you do not have access to that teleport destination.
@@ -47,13 +47,13 @@ Go to 'Welcome Island Public' to repeat the tutorial.
 		<message name="no_inventory_host">
 			The inventory system is currently unavailable.
 		</message>
-		<message name="MustGetAgeRegion">
+    <message name="MustGetAgeRegion">
       You must be age 18 or over to enter this region.
     </message>
-		<message name="RegionTPSpecialUsageBlocked">
+    <message name="RegionTPSpecialUsageBlocked">
       Unable to enter region. '[REGION_NAME]' is a Skill Gaming Region, and you must meet certain criteria in order to enter. For details, please review the [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
     </message>
-	</message_set>
+  </message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
 			Sending to destination.
@@ -88,8 +88,8 @@ Go to 'Welcome Island Public' to repeat the tutorial.
 		<message name="requesting">
 			Requesting Teleport...
 		</message>
-		<message name="pending">
+    <message name="pending">
       Pending Teleport...
     </message>
-	</message_set>
+  </message_set>
 </teleport_messages>

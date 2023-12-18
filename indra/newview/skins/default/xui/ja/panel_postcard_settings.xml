@@ -8,7 +8,6 @@
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<spinner label="横幅 x 高さ" name="postcard_snapshot_width"/>
-	<spinner label="" name="postcard_snapshot_height"/>
 	<check_box label="縦横比の固定" name="postcard_keep_aspect_check"/>
 	<slider label="品質:" name="image_quality_slider"/>
 </panel>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="profile_permissions">
-	<string name="description_string" value="エージェントの [AGENT_NAME] に許可:"/>
+	<string name="description_string" value="エージェントの[AGENT_NAME]に許可:"/>
 	<text name="perm_description" value="許可するエージェント:"/>
 	<check_box name="online_check" label="自分のオンライン状況"/>
 	<check_box name="map_check" label="ワールドマップ上の自分の位置"/>

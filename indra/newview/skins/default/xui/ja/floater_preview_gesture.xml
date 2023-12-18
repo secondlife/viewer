@@ -30,10 +30,10 @@
 	<text name="trigger_label">
 		トリガー:
 	</text>
-	<text name="replace_text" tool_tip="トリガーワードをこれらの単語に置換します。例えばトリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
+	<text name="replace_text" tool_tip="トリガーワードをこれらの単語に置き換えます。たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
 		置換:
 	</text>
-	<line_editor name="replace_editor" tool_tip="トリガーワードをこれらの単語に置換します。例えばトリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
+	<line_editor name="replace_editor" tool_tip="トリガーワードをこれらの単語に置き換えます。たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
 	<text name="key_label">
 		ショートカット:
 	</text>
@@ -48,7 +48,7 @@
 		<scroll_list.rows name="action_chat" value="チャット"/>
 		<scroll_list.rows name="action_wait" value="待機"/>
 	</scroll_list>
-	<button label="追加 ≫" name="add_btn"/>
+	<button label="追加&gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		手順:
 	</text>
@@ -62,13 +62,12 @@
 		<radio_item label="開始" name="start"/>
 		<radio_item label="停止" name="stop"/>
 	</radio_group>
-	<check_box label="キーが離されるまで" name="wait_key_release_check"/>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="時間(秒):" name="wait_time_check"/>
 	<text name="help_label">
-		待機ステップを入れない限りは全てのステップが同時に起こります。
+		待機ステップを入れない限りは、すべてのステップが同時に起こります。
 	</text>
-	<check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
+	<check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。 1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>
 </floater>

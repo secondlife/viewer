@@ -1,56 +1,286 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel background_visible="true" follows="all" height="570" label="Group Profile" layout="topleft" min_height="350" left="0" top="20" name="GroupInfo" width="313">
-	<panel.string name="default_needs_apply_text">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+background_visible="true"
+ follows="all"
+ height="570"
+ label="Group Profile"
+ layout="topleft"
+ min_height="350"
+ left="0"
+ top="20"
+ name="GroupInfo"
+ width="313">
+    <panel.string
+     name="default_needs_apply_text">
         There are unsaved changes
     </panel.string>
-	<panel.string name="want_apply_text">
+    <panel.string
+     name="want_apply_text">
         Do you want to save these changes?
     </panel.string>
-	<panel.string name="group_join_btn">
+    <panel.string
+     name="group_join_btn">
         Join (L$[AMOUNT])
     </panel.string>
-	<panel.string name="group_join_free">No charge to join</panel.string>
-	<panel.string name="group_member">You are a member</panel.string>
-	<panel.string name="join_txt">Join group</panel.string>
-	<panel.string name="leave_txt">Leave</panel.string>
-	<panel name="group_info_top" follows="top|left" top="0" left="0" height="29" width="313" layout="topleft">
-		<button follows="top|right" height="24" image_hover_unselected="BackButton_Over" image_pressed="BackButton_Press" image_unselected="BackButton_Off" layout="topleft" name="back" left="7" tab_stop="false" top="2" width="30" use_draw_context_alpha="false"/>
-		<text_editor allow_scroll="false" bg_visible="false" read_only="true" layout="topleft" name="group_name" v_pad="0" value="(Loading...)" font="SansSerifHugeBold" h_pad="0" height="26" left_pad="8" text_color="LtGray" top="1" use_ellipses="true" width="275" follows="top|left|right" word_wrap="false" mouse_opaque="false"/>
-		<line_editor follows="left|top" font="SansSerif" label="Type your new group name here" layout="topleft" left_delta="10" max_length_bytes="35" name="group_name_editor" top_delta="5" width="270" height="20" visible="false"/>
-	</panel>
-	<layout_stack name="layout" orientation="vertical" follows="all" left="8" top_pad="0" height="506" width="292" border_size="0">
-		<layout_panel bg_alpha_color="DkGray2" bg_opaque_color="DkGray2" background_visible="true" background_opaque="true" name="group_accordions" follows="all" layout="topleft" auto_resize="true" user_resize="true" height="513" width="313">
-			<accordion left="0" top="0" single_expansion="true" fit_parent="true" follows="all" layout="topleft" name="groups_accordion" height="513" width="313">
-				<accordion_tab expanded="true" layout="topleft" name="group_general_tab" title="General" fit_panel="false">
-					<panel border="false" class="panel_group_general" filename="panel_group_general.xml" layout="topleft" left="0" follows="left|top|right" help_topic="group_general_tab" name="group_general_tab_panel" top="0"/>
-				</accordion_tab>
-				<accordion_tab expanded="false" layout="topleft" name="group_roles_tab" title="Roles &amp; Members" fit_panel="false">
-					<panel border="false" class="panel_group_roles" filename="panel_group_roles.xml" follows="left|top|right" layout="topleft" left="0" name="group_roles_tab_panel" top="0"/>
-				</accordion_tab>
-				<accordion_tab expanded="false" layout="topleft" name="group_notices_tab" title="Notices" fit_panel="false">
-					<panel border="false" class="panel_group_notices" filename="panel_group_notices.xml" follows="left|top|right" layout="topleft" left="0" help_topic="group_notices_tab" name="group_notices_tab_panel" top="0"/>
-				</accordion_tab>
-				<accordion_tab expanded="false" layout="topleft" name="group_land_tab" title="Land/Assets" fit_panel="false">
-					<panel border="false" class="panel_group_land_money" filename="panel_group_land_money.xml" follows="left|top|right" layout="topleft" left="0" name="group_land_tab_panel" top="0"/>
-				</accordion_tab>
-				<accordion_tab expanded="false" layout="topleft" name="group_experiences_tab" title="Experiences" fit_panel="false">
-					<panel border="false" class="panel_group_experiences" filename="panel_experiences.xml" follows="left|top|right" layout="topleft" left="0" name="group_experiences_tab_panel" top="0"/>
-				</accordion_tab>
-			</accordion>
-		</layout_panel>
-	</layout_stack>
-	<layout_stack follows="bottom|left|right" height="25" layout="topleft" name="button_row_ls" left="6" orientation="horizontal" top_pad="5" width="297">
-		<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left="0" name="btn_refresh_lp" auto_resize="false" width="24">
-			<button follows="bottom|left|right" height="23" image_overlay="Refresh_Off" layout="topleft" left="1" top="0" name="btn_refresh" width="23"/>
-		</layout_panel>
-		<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" name="btn_chat_lp" auto_resize="true" width="91">
-			<button follows="bottom|left|right" label="Chat" name="btn_chat" left="1" height="23" top="0" width="90"/>
-		</layout_panel>
-		<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" name="call_btn_lp" auto_resize="true" width="91">
-			<button follows="bottom|left|right" left="1" height="23" name="btn_call" label="Group Call" layout="topleft" tool_tip="Call this group" top="0" width="90"/>
-		</layout_panel>
-		<layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" name="btn_apply_lp" auto_resize="true" width="91">
-			<button follows="bottom|left|right" height="23" label="Save" label_selected="Save" name="btn_apply" left="1" top="0" width="90"/>
-		</layout_panel>
-	</layout_stack>
+    <panel.string name="group_join_free">No charge to join</panel.string>
+    <panel.string name="group_member">You are a member</panel.string>
+    <panel.string name="join_txt">Join group</panel.string>
+    <panel.string name="leave_txt">Leave</panel.string>
+    <panel
+      name="group_info_top"
+      follows="top|left"
+      top="0"
+      left="0"
+      height="29"
+      width="313"
+      layout="topleft">
+    <button
+     follows="top|right"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
+     layout="topleft"
+     name="back"
+     left="7"
+     tab_stop="false"
+     top="2"
+     width="30"
+     use_draw_context_alpha="false" />
+    <text_editor
+     allow_scroll="false"
+     bg_visible="false"
+     read_only = "true"
+     layout="topleft"
+     name="group_name"
+     v_pad="0"
+     value="(Loading...)"
+      font="SansSerifHugeBold"
+     h_pad="0"
+      height="26"
+      left_pad="8"
+     text_color="LtGray"
+      top="1"
+     use_ellipses="true"
+      width="275"
+      follows="top|left|right"
+      word_wrap="false"
+      mouse_opaque="false"/>
+    <line_editor
+     follows="left|top"
+     font="SansSerif"
+     label="Type your new group name here"
+     layout="topleft"
+     left_delta="10"
+     max_length_bytes="35"
+     name="group_name_editor"
+     top_delta="5"
+     width="270"
+     height="20"
+     visible="false" />
+    </panel>
+   <layout_stack
+     name="layout"
+     orientation="vertical"
+      follows="all"
+     left="8"
+     top_pad="0"
+     height="506"
+     width="292"
+     border_size="0">
+   <layout_panel
+       bg_alpha_color="DkGray2"
+       bg_opaque_color="DkGray2"
+       background_visible="true"
+       background_opaque="true"
+       name="group_accordions"
+       follows="all"
+       layout="topleft"
+       auto_resize="true"
+       user_resize="true"
+       height="513"
+       width="313">
+   <accordion
+     left="0"
+     top="0"
+     single_expansion="true"
+     fit_parent="true"
+     follows="all"
+     layout="topleft"
+     name="groups_accordion"
+     height="513"
+     width="313">
+         <accordion_tab
+            expanded="true"
+            layout="topleft"
+            name="group_general_tab"
+            title="General"
+            fit_panel="false">
+                   <panel
+                      border="false"
+                      class="panel_group_general"
+                      filename="panel_group_general.xml"
+                      layout="topleft"
+                      left="0"
+                      follows="left|top|right"
+                      help_topic="group_general_tab"
+                      name="group_general_tab_panel"
+                      top="0" />
+         </accordion_tab>
+         <accordion_tab
+            expanded="false"
+            layout="topleft"
+            name="group_roles_tab"
+            title="Roles &amp; Members"
+            fit_panel="false">
+                <panel
+                   border="false"
+                   class="panel_group_roles"
+                   filename="panel_group_roles.xml"
+                   follows="left|top|right"
+                   layout="topleft"
+                   left="0"
+                   name="group_roles_tab_panel"
+                   top="0" />
+         </accordion_tab>
+         <accordion_tab
+            expanded="false"
+            layout="topleft"
+            name="group_notices_tab"
+            title="Notices"
+            fit_panel="false">
+                <panel
+                    border="false"
+                    class="panel_group_notices"
+                    filename="panel_group_notices.xml"
+                    follows="left|top|right"
+                    layout="topleft"
+                    left="0"
+                    help_topic="group_notices_tab"
+                    name="group_notices_tab_panel"
+                    top="0" />
+         </accordion_tab>
+         <accordion_tab
+             expanded="false"
+             layout="topleft"
+             name="group_land_tab"
+             title="Land/Assets"
+             fit_panel="false">
+                 <panel
+					 border="false"
+                     class="panel_group_land_money"
+                     filename="panel_group_land_money.xml"
+                     follows="left|top|right"
+                     layout="topleft"
+                     left="0"
+                     name="group_land_tab_panel"
+                     top="0" />
+         </accordion_tab>
+         <accordion_tab
+             expanded="false"
+             layout="topleft"
+             name="group_experiences_tab"
+             title="Experiences"
+             fit_panel="false">
+           <panel
+               border="false"
+               class="panel_group_experiences"
+               filename="panel_experiences.xml"
+               follows="left|top|right"
+               layout="topleft"
+               left="0"
+               name="group_experiences_tab_panel"
+               top="0" />
+         </accordion_tab>
+         </accordion>
+   </layout_panel>
+  </layout_stack>
+   
+   		   <layout_stack
+	     	follows="bottom|left|right"
+			height="25"
+			layout="topleft"
+			name="button_row_ls"
+			left="6"
+			orientation="horizontal"
+			top_pad="5"
+			width="297">
+	
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left="0"
+				name="btn_refresh_lp"
+			    auto_resize="false"
+				width="24">
+					<button
+				     follows="bottom|left|right"
+				     height="23"
+				     image_overlay="Refresh_Off"
+				     layout="topleft"
+				     left="1"
+				     top="0"
+				     name="btn_refresh"
+				     width="23" />
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="btn_chat_lp"
+			    auto_resize="true"
+				width="91">
+					<button
+				     follows="bottom|left|right"
+				     label="Chat"
+				     name="btn_chat"
+				     left="1"     
+				     height="23"
+				     top="0"
+				     width="90" />		
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="call_btn_lp"
+			    auto_resize="true"
+				width="91">
+					<button
+			         follows="bottom|left|right"
+			         left="1"
+			         height="23"
+				     name="btn_call"
+				     label="Group Call"
+			         layout="topleft"
+			         tool_tip="Call this group"
+			         top="0"
+			         width="90" />		
+				</layout_panel>
+				
+				<layout_panel
+				follows="bottom|left|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="3"
+				name="btn_apply_lp"
+			    auto_resize="true"
+				width="91">
+					<button
+				     follows="bottom|left|right"
+				     height="23"
+				     label="Save"
+				     label_selected="Save"
+				     name="btn_apply"
+				     left="1"
+				     top="0"
+				     width="90" />
+				</layout_panel>
+		   </layout_stack>
+  
 </panel>

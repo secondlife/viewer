@@ -4,10 +4,10 @@
 		<columns type="icontext" label="サウンドとメディア" name="lst_action" value="Audio_Press"/>
 	</rows>
 	<rows name="toggle_pause_media" value="toggle_pause_media">
-		<columns name="lst_action" value="メディアの再生 / 一時停止"/>
+		<columns name="lst_action" value="メディアの再生/停止"/>
 	</rows>
 	<rows name="toggle_enable_media" value="toggle_enable_media">
-		<columns name="lst_action" value="全てのメディアを再生 / 停止"/>
+		<columns name="lst_action" value="全てのメディアを再生/停止"/>
 	</rows>
 	<rows name="voice_follow_key" value="voice_follow_key">
 		<columns name="lst_action" value="ボイスチャット"/>

@@ -1,78 +1,162 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="27" can_resize="true" height="500" name="voice_effects" help_topic="voice_effects" title="VOICE MORPHING PREVIEW" background_visible="true" label="Places" layout="topleft" min_height="360" min_width="200" save_rect="true" width="300">
-	<string name="no_voice_effect">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="27"
+ can_resize="true"
+ height="500"
+ name="voice_effects"
+ help_topic="voice_effects"
+ title="VOICE MORPHING PREVIEW"
+ background_visible="true"
+ label="Places"
+ layout="topleft"
+ min_height="360"
+ min_width="200"
+ save_rect="true"
+ width="300">
+  <string name="no_voice_effect">
     (No Voice Morph)
   </string>
-	<string name="active_voice_effect">
+  <string name="active_voice_effect">
     (Active)
   </string>
-	<string name="unsubscribed_voice_effect">
+  <string name="unsubscribed_voice_effect">
     (Unsubscribed)
   </string>
-	<string name="new_voice_effect">
+  <string name="new_voice_effect">
     (New!)
   </string>
-	<!--  effect names begin -->
-	<string name="effect_Arena">Arena</string>
-	<string name="effect_Beast">Beast</string>
-	<string name="effect_Buff">Buff</string>
-	<string name="effect_Buzz">Buzz</string>
-	<string name="effect_Camille">Camille</string>
-	<string name="effect_Creepy">Creepy</string>
-	<string name="effect_CreepyBot">CreepyBot</string>
-	<string name="effect_Cyber">Cyber</string>
-	<string name="effect_DeepBot">DeepBot</string>
-	<string name="effect_Demon">Demon</string>
-	<string name="effect_Female Elf">Female Elf</string>
-	<string name="effect_Flirty">Flirty</string>
-	<string name="effect_Foxy">Foxy</string>
-	<string name="effect_Halloween 2010 Bonus">Halloween_2010_Bonus</string>
-	<string name="effect_Helium">Helium</string>
-	<string name="effect_Husky">Husky</string>
-	<string name="effect_Husky Whisper">Husky Whisper</string>
-	<string name="effect_Intercom">Intercom</string>
-	<string name="effect_Julia">Julia</string>
-	<string name="effect_Lo Lilt">Lo Lilt</string>
-	<string name="effect_Macho">Macho</string>
-	<string name="effect_Micro">Micro</string>
-	<string name="effect_Mini">Mini</string>
-	<string name="effect_Model">Model</string>
-	<string name="effect_Nano">Nano</string>
-	<string name="effect_Nightmare">Nightmare</string>
-	<string name="effect_PopBot">PopBot</string>
-	<string name="effect_Rachel">Rachel</string>
-	<string name="effect_Radio">Radio</string>
-	<string name="effect_Robot">Robot</string>
-	<string name="effect_Roxanne">Roxanne</string>
-	<string name="effect_Rumble">Rumble</string>
-	<string name="effect_Sabrina">Sabrina</string>
-	<string name="effect_Samantha">Samantha</string>
-	<string name="effect_Sexy">Sexy</string>
-	<string name="effect_Shorty">Shorty</string>
-	<string name="effect_Smaller">Smaller</string>
-	<string name="effect_Sneaky">Sneaky</string>
-	<string name="effect_Stallion">Stallion</string>
-	<string name="effect_Sultry">Sultry</string>
-	<string name="effect_Thunder">Thunder</string>
-	<string name="effect_Vixen">Vixen</string>
-	<string name="effect_WhinyBot">WhinyBot</string>
-	<!--  effect names end -->
-	<text height="16" word_wrap="true" use_ellipses="true" type="string" follows="left|top|right" layout="topleft" font="SansSerifBold" color="White" left="10" name="preview_text" right="-10" top="27">To Preview
+
+  <!--  effect names begin -->
+  <string name="effect_Arena">Arena</string>
+  <string name="effect_Beast">Beast</string>
+  <string name="effect_Buff">Buff</string>
+  <string name="effect_Buzz">Buzz</string>
+  <string name="effect_Camille">Camille</string>
+  <string name="effect_Creepy">Creepy</string>
+  <string name="effect_CreepyBot">CreepyBot</string>
+  <string name="effect_Cyber">Cyber</string>
+  <string name="effect_DeepBot">DeepBot</string>
+  <string name="effect_Demon">Demon</string>
+  <string name="effect_Female Elf">Female Elf</string>
+  <string name="effect_Flirty">Flirty</string>
+  <string name="effect_Foxy">Foxy</string>
+  <string name="effect_Halloween 2010 Bonus">Halloween_2010_Bonus</string>
+  <string name="effect_Helium">Helium</string>
+  <string name="effect_Husky">Husky</string>
+  <string name="effect_Husky Whisper">Husky Whisper</string>
+  <string name="effect_Intercom">Intercom</string>
+  <string name="effect_Julia">Julia</string>
+  <string name="effect_Lo Lilt">Lo Lilt</string>
+  <string name="effect_Macho">Macho</string>
+  <string name="effect_Micro">Micro</string>
+  <string name="effect_Mini">Mini</string>
+  <string name="effect_Model">Model</string>
+  <string name="effect_Nano">Nano</string>
+  <string name="effect_Nightmare">Nightmare</string>
+  <string name="effect_PopBot">PopBot</string>
+  <string name="effect_Rachel">Rachel</string>
+  <string name="effect_Radio">Radio</string>
+  <string name="effect_Robot">Robot</string>
+  <string name="effect_Roxanne">Roxanne</string>
+  <string name="effect_Rumble">Rumble</string>
+  <string name="effect_Sabrina">Sabrina</string>
+  <string name="effect_Samantha">Samantha</string>
+  <string name="effect_Sexy">Sexy</string>
+  <string name="effect_Shorty">Shorty</string>
+  <string name="effect_Smaller">Smaller</string>
+  <string name="effect_Sneaky">Sneaky</string>
+  <string name="effect_Stallion">Stallion</string>
+  <string name="effect_Sultry">Sultry</string>
+  <string name="effect_Thunder">Thunder</string>
+  <string name="effect_Vixen">Vixen</string>
+  <string name="effect_WhinyBot">WhinyBot</string>
+  <!--  effect names end -->
+
+ <text
+   height="16"
+   word_wrap="true"
+   use_ellipses="true"
+   type="string"
+   follows="left|top|right"
+   layout="topleft"
+   font="SansSerifBold"
+   color="White"
+   left="10"
+   name="preview_text"
+   right="-10"
+   top="27">To Preview
    </text>
-	<text height="23" word_wrap="true" use_ellipses="true" type="string" follows="left|top|right" layout="topleft" left="10" name="status_text" right="-5" top_pad="0">
+  <text
+   height="23"
+   word_wrap="true"
+   use_ellipses="true"
+   type="string"
+   follows="left|top|right"
+   layout="topleft"
+   left="10"
+   name="status_text"
+   right="-5"
+   top_pad="0">
 Record a sample, then click on a voice to hear how it will sound.
   </text>
-	<button follows="left|top" height="23" label="Record" layout="topleft" left="10" name="record_btn" tool_tip="Record a sample of your voice." top_pad="5" width="100">
-		<button.commit_callback function="VoiceEffect.Record"/>
-	</button>
-	<button follows="left|top" height="23" label="Stop" layout="topleft" left_delta="0" name="record_stop_btn" top_delta="0" width="100">
-		<button.commit_callback function="VoiceEffect.Stop"/>
-	</button>
-	<text height="23" halign="right" use_ellipses="true" type="string" follows="left|top|right" layout="topleft" left_pad="10" top_delta="10" name="voice_morphing_link" right="-10">
+  <button
+   follows="left|top"
+   height="23"
+   label="Record"
+   layout="topleft"
+   left="10"
+   name="record_btn"
+   tool_tip="Record a sample of your voice."
+   top_pad="5"
+   width="100">
+    <button.commit_callback
+     function="VoiceEffect.Record" />
+  </button>
+  <button
+   follows="left|top"
+   height="23"
+   label="Stop"
+   layout="topleft"
+   left_delta="0"
+   name="record_stop_btn"
+   top_delta="0"
+   width="100">
+    <button.commit_callback
+     function="VoiceEffect.Stop" />
+  </button>
+  <text
+   height="23"
+   halign="right"
+   use_ellipses="true"
+   type="string"
+   follows="left|top|right"
+   layout="topleft"
+   left_pad="10"
+   top_delta="10"
+   name="voice_morphing_link"
+   right="-10">
     [[URL] Subscribe Now]
   </text>
-	<scroll_list bottom="-10" draw_heading="true" follows="all" layout="topleft" left="10" multi_select="false" name="voice_effect_list" right="-10" tool_tip="Record a sample of your voice, then click an effect to preview." top="95">
-		<scroll_list.columns label="Voice Name" name="name" relative_width="0.60"/>
-		<scroll_list.columns dynamic_width="true" label="Expires" name="expires" relative_width="0.30"/>
-	</scroll_list>
+  <scroll_list
+   bottom="-10"
+   draw_heading="true"
+   follows="all"
+   layout="topleft"
+   left="10"
+   multi_select="false"
+   name="voice_effect_list"
+   right="-10"
+   tool_tip="Record a sample of your voice, then click an effect to preview."
+   top="95">
+    <scroll_list.columns
+     label="Voice Name"
+     name="name"
+     relative_width="0.60" />
+    <scroll_list.columns
+     dynamic_width="true"
+     label="Expires"
+     name="expires"
+     relative_width="0.30" />
+  </scroll_list>
+
 </floater>

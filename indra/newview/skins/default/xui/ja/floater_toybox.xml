@@ -6,8 +6,6 @@
 	<text name="toybox label 2">
 		各ツールバーの設定に応じて、ボタンは以下のように表示されたり、アイコンのみで表示されます。
 	</text>
-	<button label="ツールバーを全てクリア" label_selected="ツールバーを全てクリア" name="btn_clear_all">
-	</button>
-	<button label="デフォルトに戻す" label_selected="デフォルトに戻す" name="btn_restore_defaults">
-	</button>
+	<button label="ツールバーを全てクリア" label_selected="ツールバーを全てクリア" name="btn_clear_all"/>
+	<button label="デフォルトに戻す" label_selected="デフォルトに戻す" name="btn_restore_defaults"/>
 </floater>

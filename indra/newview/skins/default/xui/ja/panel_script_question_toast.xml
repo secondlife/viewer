@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="script_question_panel" name="panel_script_question_toast">
-	<text name="top_info_message" value=""/>
-	<panel label="buttons_panel" name="buttons_panel">
-	</panel>
-	<text name="bottom_info_message" value=""/>
+	<panel label="buttons_panel" name="buttons_panel"/>
 </panel>

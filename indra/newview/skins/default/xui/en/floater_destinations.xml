@@ -1,4 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater positioning="cascading" legacy_header_height="225" can_minimize="true" can_close="true" can_resize="true" min_height="230" min_width="350" height="230" layout="topleft" name="Destinations" single_instance="true" help_topic="destinations" save_rect="true" save_visibility="true" title="DESTINATIONS" width="550">
-	<web_browser top="25" height="200" width="550" follows="all" name="destination_guide_contents" trusted_content="true"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ positioning="cascading"	
+ legacy_header_height="225"
+ can_minimize="true"
+ can_close="true"
+ can_resize="true"
+ min_height="230"
+ min_width="350"
+ height="230"
+ layout="topleft"
+ name="Destinations"
+ single_instance="true"
+ help_topic="destinations"
+ save_rect="true"
+ save_visibility="true"
+ title="DESTINATIONS"
+ width="550">
+    <web_browser
+      top="25"
+      height="200"
+      width="550"
+      follows="all"
+      name="destination_guide_contents"
+      trusted_content="true"/>
 </floater>

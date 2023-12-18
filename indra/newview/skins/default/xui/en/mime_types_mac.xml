@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <mimetypes name="default">
 	<defaultlabel>
 		(Unknown)
@@ -69,7 +69,7 @@
 			There is an image at this location
 		</tooltip>
 		<playtip name="image_playtip">
-			View this location's image
+			View this location&apos;s image
 		</playtip>
 		<allow_resize>
 			false
@@ -92,7 +92,7 @@
 			There is audio at this location
 		</tooltip>
 		<playtip name="audio_playtip">
-			Play this location's audio
+			Play this location&apos;s audio
 		</playtip>
 		<allow_resize>
 			false
@@ -114,7 +114,7 @@
 		<tooltip name="none_tooltip">
 			No media here
 		</tooltip>
-		<playtip name="none_playtip"/>
+		<playtip name="none_playtip" />
 		<allow_resize>
 			false
 		</allow_resize>
@@ -184,7 +184,7 @@
 		<widgettype>
 			image
 		</widgettype>
-		<impl>
+        <impl>
 			media_plugin_cef
 		</impl>
 	</mimetype>
@@ -287,17 +287,17 @@
 			media_plugin_cef
 		</impl>
 	</mimetype>
-	<mimetype name="application/octet-stream">
-		<label name="application/octet-stream_label">
+    <mimetype name="application/octet-stream">
+        <label name="application/octet-stream_label">
             Stream
         </label>
-		<widgettype>
+        <widgettype>
             movie
         </widgettype>
-		<impl>
+        <impl>
             media_plugin_libvlc
         </impl>
-	</mimetype>
+    </mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
 			Audio (MIDI)
@@ -463,17 +463,17 @@
 			media_plugin_libvlc
 		</impl>
 	</mimetype>
-	<mimetype name="video/x-flv">
-		<label name="video/x-flv_label">
+    <mimetype name="video/x-flv">
+        <label name="video/x-flv_label">
             Movie (flv)
         </label>
-		<widgettype>
+        <widgettype>
             movie
         </widgettype>
-		<impl>
+        <impl>
             media_plugin_libvlc
         </impl>
-	</mimetype>
+    </mimetype>
 	<mimetype menu="1" name="video/quicktime">
 		<label name="video/quicktime_label">
 			Movie (QuickTime)

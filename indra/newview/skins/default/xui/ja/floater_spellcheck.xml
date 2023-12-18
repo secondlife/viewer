@@ -11,8 +11,8 @@
 		入手可
 	</text>
 	<text name="spellcheck_active">
-		アクティブ
+		有効
 	</text>
 	<button label="削除" name="spellcheck_remove_btn"/>
-	<button label="インポート..." name="spellcheck_import_btn"/>
+	<button label="インポート…" name="spellcheck_import_btn"/>
 </floater>

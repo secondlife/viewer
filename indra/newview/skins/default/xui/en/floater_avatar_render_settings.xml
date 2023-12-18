@@ -1,12 +1,62 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater can_resize="true" positioning="cascading" height="200" min_height="100" min_width="230" layout="topleft" name="floater_avatar_render_settings" save_rect="true" single_instance="true" reuse_instance="true" title="AVATAR DISPLAY EXCEPTIONS" width="300">
-	<string name="av_never_render" value="Never"/>
-	<string name="av_always_render" value="Always"/>
-	<name_list bottom="-33" draw_heading="true" follows="all" left="8" multi_select="false" name="render_settings_list" right="-8" top="0">
-		<name_list.columns label="Name" name="name" relative_width="0.65"/>
-		<name_list.columns label="Full detail" name="setting" relative_width="0.35"/>
-	</name_list>
-	<panel bg_alpha_color="ScrollBgWriteableColor" background_visible="true" background_opaque="false" bevel_style="none" follows="bottom|left|right" name="add_subpanel" layout="topleft" height="28" top_pad="0">
-		<menu_button follows="bottom|left" height="25" label="Add someone..." layout="topleft" menu_filename="menu_avatar_rendering_settings_add.xml" menu_position="bottomleft" name="plus_btn" tool_tip="Actions on selected person" top="1" left="8" width="120"/>
-	</panel>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ positioning="cascading"
+ height="200"
+ min_height="100"
+ min_width="230"
+ layout="topleft"
+ name="floater_avatar_render_settings"
+ save_rect="true"
+ single_instance="true"
+ reuse_instance="true"
+ title="AVATAR DISPLAY EXCEPTIONS"
+ width="300">
+    <string
+     name="av_never_render"
+     value="Never"/>
+    <string
+     name="av_always_render"
+     value="Always"/>
+    <name_list
+     bottom="-33"
+     draw_heading="true"
+     follows="all"
+     left="8"
+     multi_select="false"
+     name="render_settings_list"
+     right="-8"
+     top="0">
+        <name_list.columns
+         label="Name"
+         name="name"
+         relative_width="0.65" />
+        <name_list.columns
+         label="Full detail"
+         name="setting"
+         relative_width="0.35" />
+     </name_list>
+    <panel
+     bg_alpha_color="ScrollBgWriteableColor"
+     background_visible="true"
+     background_opaque="false"
+     bevel_style="none"
+     follows="bottom|left|right"
+     name="add_subpanel"
+     layout="topleft"
+     height="28"
+     top_pad="0">
+     <menu_button
+       follows="bottom|left"
+       height="25"
+       label="Add someone..."
+       layout="topleft"
+       menu_filename="menu_avatar_rendering_settings_add.xml"
+       menu_position="bottomleft"
+       name="plus_btn"
+       tool_tip="Actions on selected person"
+       top="1"
+       left="8"
+       width="120" />
+     </panel>
 </floater>

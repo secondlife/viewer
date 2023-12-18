@@ -1,15 +1,45 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<avatar_list_item name_right_pad="5" height="0" layout="topleft" left="0" name="avatar_list_item" top="0" width="0">
-	<!-- DEFAULT styles for avatar item -->
-	<default_style font="SansSerifSmall" font.style="NORMAL" color="DkGray"/>
-	<!-- styles for avatar item INVITED to voice call -->
-	<voice_call_invited_style font="SansSerifSmall" font.style="NORMAL" color="AvatarListItemIconVoiceInvitedColor"/>
-	<!-- styles for avatar item JOINED to voice call -->
-	<voice_call_joined_style font="SansSerifSmall" font.style="NORMAL" color="White"/>
-	<!-- styles for avatar item which HAS LEFT voice call -->
-	<voice_call_left_style font="SansSerifSmall" font.style="ITALIC" color="LtGray_50"/>
-	<!-- styles for ONLINE avatar item -->
-	<online_style font="SansSerifSmall" font.style="NORMAL" color="White"/>
-	<!-- styles for OFFLINE avatar item -->
-	<offline_style font="SansSerifSmall" font.style="NORMAL" color="Gray"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<avatar_list_item
+ name_right_pad="5"
+ height="0"
+ layout="topleft"
+ left="0"
+ name="avatar_list_item"
+ top="0"
+ width="0">
+  <!-- DEFAULT styles for avatar item -->
+  <default_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   color="DkGray"/>
+
+  <!-- styles for avatar item INVITED to voice call -->
+  <voice_call_invited_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   color="AvatarListItemIconVoiceInvitedColor"/>
+
+  <!-- styles for avatar item JOINED to voice call -->
+  <voice_call_joined_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   color="White"/>
+
+  <!-- styles for avatar item which HAS LEFT voice call -->
+  <voice_call_left_style
+   font="SansSerifSmall"
+   font.style="ITALIC"
+   color="LtGray_50"/>
+
+  <!-- styles for ONLINE avatar item -->
+  <online_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   color="White"/>
+
+  <!-- styles for OFFLINE avatar item -->
+  <offline_style
+   font="SansSerifSmall"
+   font.style="NORMAL"
+   color="Gray"/>
 </avatar_list_item>

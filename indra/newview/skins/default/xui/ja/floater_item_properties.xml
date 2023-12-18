@@ -1,5 +1,2 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Item Properties" title="アイテムのプロパティ">
-	<panel name="sidepanel" label="">
-	</panel>
-</floater>
+<floater name="Item Properties" title="アイテムのプロパティ"/>

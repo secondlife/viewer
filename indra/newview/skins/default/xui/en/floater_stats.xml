@@ -1,111 +1,359 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_resize="true" height="400" layout="topleft" name="Statistics" help_topic="statistics" save_rect="true" save_visibility="true" title="STATISTICS" min_width="250" width="270">
-	<scroll_container follows="all" height="380" layout="topleft" left="0" name="statistics_scroll" reserve_scroll_corner="true" top="20" width="265">
-		<container_view follows="all" height="378" layout="topleft" left="0" name="statistics_view" top="20" width="250">
-			<stat_view name="basic" label="Basic" setting="OpenDebugStatBasic">
-				<stat_bar name="fps" label="FPS" unit_label="fps" stat="FPS" decimal_digits="1" show_bar="true" show_history="true"/>
-				<stat_bar name="frame_mean" label="frame (mean)" unit_label="ms" stat="frametime" decimal_digits="1" show_bar="false" show_history="false"/>
-				<stat_bar name="frame_median" label="frame (median)" unit_label="ms" stat="frametime" show_median="true" decimal_digits="1" show_bar="false" show_history="false"/>
-				<stat_bar name="framet_jitter" label="jitter" decimal_digits="1" stat="frametimejitter"/>
-				<stat_bar name="bandwidth" label="UDP Data Received" stat="activemessagedatareceived" decimal_digits="0" show_bar="true"/>
-				<stat_bar name="packet_loss" label="Packet Loss" decimal_digits="1" stat="packetslostpercentstat"/>
-				<stat_bar name="ping" label="Ping Sim" stat="simpingstat"/>
-			</stat_view>
-			<stat_view name="advanced" label="Advanced" setting="OpenDebugStatAdvanced">
-				<stat_view name="render" label="Render" setting="OpenDebugStatRender">
-					<stat_bar name="ktrisframe" label="KTris per Frame" unit_label="ktris/fr" stat="trianglesdrawnperframestat"/>
-					<stat_bar name="ktrissec" label="KTris per Sec" stat="trianglesdrawnstat"/>
-					<stat_bar name="totalobjs" label="Total Objects" stat="numobjectsstat"/>
-					<stat_bar name="cachedobjs" label="Cached Objects" stat="numactivecachedobjects"/>
-					<stat_bar name="newobjs" label="New Objects" stat="numnewobjectsstat"/>
-					<stat_bar name="object_cache_hits" label="Object Cache Hit Rate" stat="object_cache_hits" show_history="true"/>
-					<stat_bar name="occlusion_queries" label="Occlusion Queries Performed" stat="occlusion_queries"/>
-					<stat_bar name="occluded" label="Objects Occluded" stat="occluded_objects"/>
-					<stat_bar name="unoccluded" label="Object Unoccluded" stat="unoccluded_objects"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater legacy_header_height="18"
+         can_resize="true"
+         height="400"
+         layout="topleft"
+         name="Statistics"
+         help_topic="statistics"
+         save_rect="true"
+         save_visibility="true"
+         title="STATISTICS"
+         min_width="250"
+         width="270">
+  <scroll_container follows="all"
+                    height="380"
+                    layout="topleft"
+                    left="0"
+                    name="statistics_scroll"
+                    reserve_scroll_corner="true"
+                    top="20"
+                    width="265">
+    <container_view follows="all"
+                    height="378"
+                    layout="topleft"
+                    left="0"
+                    name="statistics_view"
+                    top="20"
+                    width="250" >
+     <stat_view name="basic"
+                 label="Basic"
+                 setting="OpenDebugStatBasic">
+        <stat_bar name="fps"
+                  label="FPS"
+                  unit_label="fps"
+                  stat="FPS"
+                  decimal_digits="1"
+                  show_bar="true"
+                  show_history="true"/>
+        <stat_bar name="frame_mean"
+                  label="frame (mean)"
+                  unit_label="ms"
+                  stat="frametime"
+                  decimal_digits="1"
+                  show_bar="false"
+                  show_history="false"/>
+        <stat_bar name="frame_median"
+                  label="frame (median)"
+                  unit_label="ms"
+                  stat="frametime"
+                  show_median="true"
+                  decimal_digits="1"
+                  show_bar="false"
+                  show_history="false"/>
+        <stat_bar name="framet_jitter"
+                  label="jitter"
+                  decimal_digits="1"
+                  stat="frametimejitter"/>
+       <stat_bar name="bandwidth"
+                  label="UDP Data Received"
+                  stat="activemessagedatareceived"
+                  decimal_digits="0"
+                  show_bar="true"/>
+        <stat_bar name="packet_loss"
+                  label="Packet Loss"
+                  decimal_digits="1"
+                  stat="packetslostpercentstat"/>
+        <stat_bar name="ping"
+                  label="Ping Sim"
+                  stat="simpingstat"/>
+      </stat_view>
+
+     <stat_view name="advanced"
+                 label="Advanced"
+                 setting="OpenDebugStatAdvanced">
+        <stat_view name="render"
+                   label="Render"
+                   setting="OpenDebugStatRender">
+          <stat_bar name="ktrisframe"
+                    label="KTris per Frame"
+                    unit_label="ktris/fr"
+                    stat="trianglesdrawnperframestat"/>
+          <stat_bar name="ktrissec"
+                    label="KTris per Sec"
+                    stat="trianglesdrawnstat"/>
+          <stat_bar name="totalobjs"
+                    label="Total Objects"
+                    stat="numobjectsstat"/>
+					<stat_bar name="cachedobjs"
+                    label="Cached Objects"
+                    stat="numactivecachedobjects"/>
+					<stat_bar name="newobjs"
+                    label="New Objects"
+                    stat="numnewobjectsstat"/>
+          <stat_bar name="object_cache_hits"
+                    label="Object Cache Hit Rate"
+                    stat="object_cache_hits"
+                    show_history="true"/>
+					<stat_bar name="occlusion_queries"
+										label="Occlusion Queries Performed"
+										stat="occlusion_queries"/>
+					<stat_bar name="occluded"
+										label="Objects Occluded"
+										stat="occluded_objects"/>
+					<stat_bar name="unoccluded"
+										label="Object Unoccluded"
+										stat="unoccluded_objects"/>
 				</stat_view>
-				<stat_view name="texture" label="Texture">
-					<stat_bar name="texture_cache_hits" label="Cache Hit Rate" stat="texture_cache_hits" show_history="true"/>
-					<stat_bar name="texture_cache_read_latency" label="Cache Read Latency" stat="texture_cache_read_latency" show_history="true"/>
-					<stat_bar name="numimagesstat" label="Count" stat="numimagesstat"/>
-					<stat_bar name="numrawimagesstat" label="Raw Count" stat="numrawimagesstat"/>
-					<stat_bar name="gltexmemstat" label="GL Mem" stat="gltexmemstat"/>
-					<stat_bar name="formattedmemstat" label="Formatted Mem" stat="formattedmemstat"/>
-					<stat_bar name="rawmemstat" label="Raw Mem" stat="rawmemstat"/>
-					<stat_bar name="glboundmemstat" label="Bound Mem" stat="glboundmemstat"/>
-				</stat_view>
-				<stat_view name="memory" label="Memory Usage">
-					<stat_bar name="LLTrace" label="LLTrace" stat="LLTrace"/>
-					<stat_bar name="LLView" label="UI" stat="LLView"/>
-					<stat_bar name="LLFontFreetype" label="Fonts" stat="LLFontFreetype"/>
-					<stat_bar name="LLInventoryObject" label="Inventory" stat="LLInventoryObject"/>
-					<stat_bar name="LLViewerObject" label="Viewer Objects" stat="LLViewerObject"/>
-					<stat_bar name="LLViewerOctreeGroup" label="Octree Group Data" stat="LLViewerOctreeGroup"/>
-					<stat_bar name="LLViewerOctreeEntry" label="Octree Data" stat="LLViewerOctreeEntry"/>
-					<stat_bar name="LLVOCacheEntry" label="Viewer Object Cache" stat="LLVOCacheEntry"/>
-					<stat_bar name="LLDrawable" label="Drawables" stat="LLDrawable"/>
-					<stat_bar name="LLFace" label="Face Data" stat="LLFace"/>
-					<stat_bar name="LLDrawInfo" label="Draw Info" stat="LLDrawInfo"/>
-					<stat_bar name="LLTexture" label="Texture Data" stat="LLTexture"/>
-					<stat_bar name="LLImage" label="Image Data" stat="LLImage"/>
-					<stat_bar name="LLImageGL" label="GL Image Data" stat="LLImageGL"/>
-					<stat_bar name="LLVertexBuffer" label="Vertex Buffers" stat="LLVertexBuffer"/>
-				</stat_view>
-				<stat_view name="network" label="Network" setting="OpenDebugStatNet">
-					<stat_bar name="packetsinstat" label="Packets In" stat="Packets In" decimal_digits="1"/>
-					<stat_bar name="packetsoutstat" label="Packets Out" stat="packetsoutstat" decimal_digits="1"/>
-					<stat_bar name="objectdatareceived" label="Objects" stat="objectdatareceived" decimal_digits="1"/>
-					<stat_bar name="texturedatareceived" label="Texture" stat="texturedatareceived" decimal_digits="1"/>
-					<stat_bar name="assetudpdatareceived" label="Asset" stat="assetudpdatareceived" decimal_digits="1"/>
-					<stat_bar name="layersdatareceived" label="Layers" stat="layersdatareceived" decimal_digits="1"/>
-					<stat_bar name="messagedatain" label="Actual In" stat="messagedatain" decimal_digits="1"/>
-					<stat_bar name="messagedataout" label="Actual Out" stat="messagedataout" decimal_digits="1" show_history="false"/>
-				</stat_view>
-			</stat_view>
-			<stat_view name="sim" label="Simulator" setting="OpenDebugStatSim">
-				<stat_bar name="simtimedilation" label="Time Dilation" stat="simtimedilation"/>
-				<stat_bar name="simfps" label="Sim FPS" stat="simfps" decimal_digits="1" bar_max="45"/>
-				<stat_bar name="simphysicsfps" label="Physics FPS" stat="simphysicsfps" decimal_digits="1" bar_max="45"/>
-				<stat_view name="physicsdetail" label="Physics Details">
-					<stat_bar name="physicspinnedtasks" label="Pinned Objects" stat="physicspinnedtasks"/>
-					<stat_bar name="physicslodtasks" label="Low LOD Objects" stat="physicslodtasks"/>
-					<stat_bar name="physicsmemoryallocated" label="Memory Allocated" stat="physicsmemoryallocated" decimal_digits="1"/>
-				</stat_view>
-				<stat_bar name="simagentups" label="Agent Updates/Sec" stat="simagentups" decimal_digits="1"/>
-				<stat_bar name="simmainagents" label="Main Agents" stat="simmainagents"/>
-				<stat_bar name="simchildagents" label="Child Agents" stat="simchildagents"/>
-				<stat_bar name="simobjects" label="Objects" stat="simobjects"/>
-				<stat_bar name="simactiveobjects" label="Active Objects" stat="simactiveobjects"/>
-				<stat_bar name="simactivescripts" label="Active Scripts" stat="simactivescripts"/>
-				<stat_bar name="simpctscriptsrun" label="Scripts Run" stat="simpctscriptsrun"/>
-				<stat_bar name="simscripteps" label="Script Events" stat="simscripteps" unit_label="eps"/>
-				<stat_view name="simpathfinding" label="Pathfinding">
-					<stat_bar name="simsimaistepmsec" label="AI Step Time" stat="simsimaistepmsec"/>
-					<stat_bar name="simsimskippedsilhouettesteps" label="Skipped Silhouette Steps" stat="simsimskippedsilhouettesteps" unit_label="/sec"/>
-					<stat_bar name="simsimpctsteppedcharacters" label="Characters Updated" stat="simsimpctsteppedcharacters" unit_label="%" decimal_digits="1"/>
-				</stat_view>
-				<stat_bar name="siminpps" label="Packets In" stat="siminpps" unit_label="pkt/sec"/>
-				<stat_bar name="simoutpps" label="Packets Out" stat="simoutpps" unit_label="pkt/sec"/>
-				<stat_bar name="simpendingdownloads" label="Pending Downloads" stat="simpendingdownloads"/>
-				<stat_bar name="simpendinguploads" label="Pending Uploads" stat="simpendinguploads"/>
-				<stat_bar name="simtotalunackedbytes" label="Total Unacked Data" stat="simtotalunackedbytes" decimal_digits="1"/>
-				<stat_view name="simperf" label="Time">
-					<stat_bar name="simframemsec" label="Total Frame Time" stat="simframemsec"/>
-					<stat_bar name="simnetmsec" label="Net Time" stat="simnetmsec"/>
-					<stat_bar name="simsimphysicsmsec" label="Physics Time" stat="simsimphysicsmsec"/>
-					<stat_bar name="simsimothermsec" label="Simulation Time" stat="simsimothermsec"/>
-					<stat_bar name="simagentmsec" label="Agent Time" stat="simagentmsec"/>
-					<stat_bar name="simimagesmsec" label="Images Time" stat="simimagesmsec"/>
-					<stat_bar name="simscriptmsec" label="Script Time" stat="simscriptmsec"/>
-					<stat_bar name="simsparemsec" label="Spare Time" stat="simsparemsec"/>
-					<stat_view name="timedetails" label="Time Details">
-						<stat_bar name="simsimphysicsstepmsec" label="Physics Step" stat="simsimphysicsstepmsec"/>
-						<stat_bar name="simsimphysicsshapeupdatemsec" label="Update Phys Shapes" stat="simsimphysicsshapeupdatemsec"/>
-						<stat_bar name="simsimphysicsothermsec" label="Physics Other" stat="simsimphysicsothermsec"/>
-						<stat_bar name="simsleepmsec" label="Sleep Time" stat="simsleepmsec"/>
-						<stat_bar name="simpumpiomsec" label="Pump IO" stat="simpumpiomsec"/>
-					</stat_view>
-				</stat_view>
-			</stat_view>
-		</container_view>
-	</scroll_container>
+        <stat_view name="texture"
+                   label="Texture">
+          <stat_bar name="texture_cache_hits"
+                    label="Cache Hit Rate"
+                    stat="texture_cache_hits"
+                    show_history="true"/>
+          <stat_bar name="texture_cache_read_latency"
+                    label="Cache Read Latency"
+                    stat="texture_cache_read_latency"
+                    show_history="true"/>
+          <stat_bar name="numimagesstat"
+                    label="Count"
+                    stat="numimagesstat"/>
+          <stat_bar name="numrawimagesstat"
+                    label="Raw Count"
+                    stat="numrawimagesstat"/>
+          <stat_bar name="gltexmemstat"
+                    label="GL Mem"
+                    stat="gltexmemstat"/>
+          <stat_bar name="formattedmemstat"
+                    label="Formatted Mem"
+                    stat="formattedmemstat"/>
+          <stat_bar name="rawmemstat"
+                    label="Raw Mem"
+                    stat="rawmemstat"/>
+          <stat_bar name="glboundmemstat"
+                    label="Bound Mem"
+                    stat="glboundmemstat"/>
+        </stat_view>
+			 <stat_view name="memory"
+									label="Memory Usage">
+				 <stat_bar name="LLTrace"
+                    label="LLTrace"
+                    stat="LLTrace"/>
+				 <stat_bar name="LLView"
+                    label="UI"
+                    stat="LLView"/>
+				 <stat_bar name="LLFontFreetype"
+                    label="Fonts"
+                    stat="LLFontFreetype"/>
+				 <stat_bar name="LLInventoryObject"
+                    label="Inventory"
+                    stat="LLInventoryObject"/>
+				 <stat_bar name="LLViewerObject"
+                    label="Viewer Objects"
+                    stat="LLViewerObject"/>
+				 <stat_bar name="LLViewerOctreeGroup"
+									 label="Octree Group Data"
+									 stat="LLViewerOctreeGroup"/>
+				 <stat_bar name="LLViewerOctreeEntry"
+									 label="Octree Data"
+									 stat="LLViewerOctreeEntry"/>
+				 <stat_bar name="LLVOCacheEntry"
+                    label="Viewer Object Cache"
+                    stat="LLVOCacheEntry"/>
+				 <stat_bar name="LLDrawable"
+                    label="Drawables"
+                    stat="LLDrawable"/>
+         <stat_bar name="LLFace"
+                     label="Face Data"
+                     stat="LLFace"/>
+          <stat_bar name="LLDrawInfo"
+                     label="Draw Info"
+                     stat="LLDrawInfo"/>
+          <stat_bar name="LLTexture"
+                     label="Texture Data"
+                     stat="LLTexture"/>
+				 <stat_bar name="LLImage"
+                    label="Image Data"
+                    stat="LLImage"/>
+				 <stat_bar name="LLImageGL"
+                    label="GL Image Data"
+                    stat="LLImageGL"/>
+				 <stat_bar name="LLVertexBuffer"
+                    label="Vertex Buffers"
+                    stat="LLVertexBuffer"/>
+			 </stat_view>
+        <stat_view name="network"
+                   label="Network"
+                   setting="OpenDebugStatNet">
+          <stat_bar name="packetsinstat"
+                    label="Packets In"
+                    stat="Packets In"
+                    decimal_digits="1"/>
+          <stat_bar name="packetsoutstat"
+                    label="Packets Out"
+                    stat="packetsoutstat"
+                    decimal_digits="1"/>
+          <stat_bar name="objectdatareceived"
+                    label="Objects"
+                    stat="objectdatareceived"
+                    decimal_digits="1"/>
+          <stat_bar name="texturedatareceived"
+                    label="Texture"
+                    stat="texturedatareceived"
+                    decimal_digits="1"/>
+          <stat_bar name="assetudpdatareceived"
+                    label="Asset"
+                    stat="assetudpdatareceived"
+                    decimal_digits="1"/>
+          <stat_bar name="layersdatareceived"
+                    label="Layers"
+                    stat="layersdatareceived"
+                    decimal_digits="1"/>
+          <stat_bar name="messagedatain"
+                    label="Actual In"
+                    stat="messagedatain"
+                    decimal_digits="1"/>
+          <stat_bar name="messagedataout"
+                    label="Actual Out"
+                    stat="messagedataout"
+                    decimal_digits="1"
+                    show_history="false"/>
+        </stat_view>
+      </stat_view>
+
+      <stat_view name="sim"
+                 label="Simulator"
+                 setting="OpenDebugStatSim">
+        <stat_bar name="simtimedilation"
+                  label="Time Dilation"
+                  stat="simtimedilation"/>
+        <stat_bar name="simfps"
+                  label="Sim FPS"
+                  stat="simfps"
+                  decimal_digits="1"
+                  bar_max="45" />
+        <stat_bar name="simphysicsfps"
+                  label="Physics FPS"
+                  stat="simphysicsfps"
+                  decimal_digits="1"
+                  bar_max="45" />
+        <stat_view name="physicsdetail"
+                   label="Physics Details">
+          <stat_bar name="physicspinnedtasks"
+                    label="Pinned Objects"
+                    stat="physicspinnedtasks"/>
+          <stat_bar name="physicslodtasks"
+                    label="Low LOD Objects"
+                    stat="physicslodtasks"/>
+          <stat_bar name="physicsmemoryallocated"
+                    label="Memory Allocated"
+                    stat="physicsmemoryallocated"
+                    decimal_digits="1"/>
+        </stat_view>
+        <stat_bar name="simagentups"
+                  label="Agent Updates/Sec"
+                  stat="simagentups"
+                  decimal_digits="1"/>
+        <stat_bar name="simmainagents"
+                  label="Main Agents"
+                  stat="simmainagents"/>
+        <stat_bar name="simchildagents"
+                  label="Child Agents"
+                  stat="simchildagents"/>
+        <stat_bar name="simobjects"
+                  label="Objects"
+                  stat="simobjects"/>
+        <stat_bar name="simactiveobjects"
+                  label="Active Objects"
+                  stat="simactiveobjects"/>
+        <stat_bar name="simactivescripts"
+                  label="Active Scripts"
+                  stat="simactivescripts"/>
+        <stat_bar name="simpctscriptsrun"
+                  label="Scripts Run"
+                  stat="simpctscriptsrun"/>
+        <stat_bar name="simscripteps"
+                  label="Script Events"
+                  stat="simscripteps"
+                  unit_label="eps"/>
+        <stat_view name="simpathfinding"
+                   label="Pathfinding">
+          <stat_bar name="simsimaistepmsec"
+                    label="AI Step Time"
+                    stat="simsimaistepmsec"/>
+          <stat_bar name="simsimskippedsilhouettesteps"
+                    label="Skipped Silhouette Steps"
+                    stat="simsimskippedsilhouettesteps"
+                    unit_label="/sec"/>
+          <stat_bar name="simsimpctsteppedcharacters"
+          			label="Characters Updated"
+                    stat="simsimpctsteppedcharacters"
+          			unit_label="%"
+                    decimal_digits="1"/>
+        </stat_view>
+        <stat_bar name="siminpps"
+                  label="Packets In"
+                  stat="siminpps"
+                  unit_label="pkt/sec"/>
+        <stat_bar name="simoutpps"
+                  label="Packets Out"
+                  stat="simoutpps"
+                  unit_label="pkt/sec"/>
+        <stat_bar name="simpendingdownloads"
+                  label="Pending Downloads"
+                  stat="simpendingdownloads"/>
+        <stat_bar name="simpendinguploads"
+                  label="Pending Uploads"
+                  stat="simpendinguploads"/>
+        <stat_bar name="simtotalunackedbytes"
+                  label="Total Unacked Data"
+                  stat="simtotalunackedbytes"
+                  decimal_digits="1"/>
+        <stat_view name="simperf"
+                   label="Time">
+          <stat_bar name="simframemsec"
+                    label="Total Frame Time"
+                    stat="simframemsec"/>
+          <stat_bar name="simnetmsec"
+                    label="Net Time"
+                    stat="simnetmsec"/>
+          <stat_bar name="simsimphysicsmsec"
+                    label="Physics Time"
+                    stat="simsimphysicsmsec"/>
+          <stat_bar name="simsimothermsec"
+                    label="Simulation Time"
+                    stat="simsimothermsec"/>
+          <stat_bar name="simagentmsec"
+                    label="Agent Time"
+                    stat="simagentmsec"/>
+          <stat_bar name="simimagesmsec"
+                    label="Images Time"
+                    stat="simimagesmsec"/>
+          <stat_bar name="simscriptmsec"
+                    label="Script Time"
+                    stat="simscriptmsec"/>
+          <stat_bar name="simsparemsec"
+                    label="Spare Time"
+                    stat="simsparemsec"/>
+          <stat_view name="timedetails"
+                     label="Time Details">
+            <stat_bar name="simsimphysicsstepmsec"
+                      label="Physics Step"
+                      stat="simsimphysicsstepmsec"/>
+            <stat_bar name="simsimphysicsshapeupdatemsec"
+                      label="Update Phys Shapes"
+                      stat="simsimphysicsshapeupdatemsec"/>
+            <stat_bar name="simsimphysicsothermsec"
+                      label="Physics Other"
+                      stat="simsimphysicsothermsec"/>
+            <stat_bar name="simsleepmsec"
+                      label="Sleep Time"
+                      stat="simsleepmsec"/>
+            <stat_bar name="simpumpiomsec"
+                      label="Pump IO"
+                      stat="simpumpiomsec"/>
+          </stat_view>
+        </stat_view>
+      </stat_view>
+    </container_view>
+  </scroll_container>
 </floater>

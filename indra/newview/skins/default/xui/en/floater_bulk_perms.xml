@@ -1,70 +1,341 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_tear_off="false" height="310" layout="topleft" name="floaterbulkperms" help_topic="floaterbulkperms" title="ADJUST CONTENT PERMISSIONS" width="410">
-	<floater.string name="nothing_to_modify_text">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_tear_off="false"
+ height="310"
+ layout="topleft"
+ name="floaterbulkperms"
+ help_topic="floaterbulkperms"
+ title="ADJUST CONTENT PERMISSIONS"
+ width="410">
+    <floater.string
+     name="nothing_to_modify_text">
         Selection contains no editable contents.
     </floater.string>
-	<floater.string name="status_text">
+    <floater.string
+     name="status_text">
         Setting permissions on [NAME]
     </floater.string>
-	<floater.string name="start_text">
+    <floater.string
+     name="start_text">
         Starting permission change requests...
     </floater.string>
-	<floater.string name="done_text">
+    <floater.string
+     name="done_text">
         Finished permission change requests.
     </floater.string>
-	<check_box control_name="BulkChangeIncludeAnimations" height="16" name="check_animation" top="24" left="10" width="16"/>
-	<icon height="16" image_name="Inv_Animation" mouse_opaque="true" name="icon_animation" tool_tip="Animation" left_pad="5"/>
-	<check_box control_name="BulkChangeIncludeBodyParts" height="16" name="check_bodypart" left="10" width="16" top_pad="2"/>
-	<icon height="16" image_name="Inv_Eye" tool_tip="Body Parts" mouse_opaque="true" name="icon_bodypart" left_pad="2"/>
-	<check_box control_name="BulkChangeIncludeClothing" height="16" name="check_clothing" left="10" width="16" top_pad="5"/>
-	<icon height="16" image_name="Inv_Shirt" mouse_opaque="true" name="icon_clothing" tool_tip="Clothing" left_pad="2"/>
-	<check_box control_name="BulkChangeIncludeGestures" height="16" name="check_gesture" left="95" width="16" top="25"/>
-	<icon height="16" image_name="Inv_Gesture" layout="topleft" mouse_opaque="true" name="icon_gesture" tool_tip="Gestures" left_pad="2"/>
-	<check_box control_name="BulkChangeIncludeNotecards" height="16" layout="topleft" name="check_notecard" left="95" width="16" top_pad="5"/>
-	<icon height="16" image_name="Inv_Notecard" layout="topleft" mouse_opaque="true" name="icon_notecard" tool_tip="Notecards" left_pad="4"/>
-	<check_box control_name="BulkChangeIncludeObjects" height="16" name="check_object" left="95" top_pad="5" width="16"/>
-	<icon height="16" image_name="Inv_Object" mouse_opaque="true" name="icon_object" tool_tip="Objects" left_pad="2"/>
-	<check_box control_name="BulkChangeIncludeScripts" height="16" name="check_script" top="25" left="180" width="16"/>
-	<icon height="16" image_name="Inv_Script" layout="topleft" mouse_opaque="true" name="icon_script" tool_tip="Scripts" left_pad="4"/>
-	<check_box control_name="BulkChangeIncludeSounds" height="16" name="check_sound" top_pad="5" left="180" width="16"/>
-	<icon height="16" image_name="Inv_Sound" mouse_opaque="true" name="icon_sound" tool_tip="Sounds" left_pad="4"/>
-	<check_box control_name="BulkChangeIncludeTextures" height="16" name="check_texture" top_pad="5" left="180" width="16"/>
-	<icon height="16" image_name="Inv_Texture" mouse_opaque="true" name="icon_texture" tool_tip="Textures" left_pad="2"/>
-	<check_box control_name="BulkChangeIncludeSettings" height="16" name="check_settings" left="245" top="25" width="16"/>
-	<icon height="16" image_name="Inv_Settings" mouse_opaque="true" name="icon_setting" tool_tip="Environment settings" left_pad="2"/>
-	<button height="23" layout="topleft" name="check_all" label="√ All" left="290" top="26" width="115">
-		<button.commit_callback function="BulkPermission.CheckAll"/>
-	</button>
-	<button follows="left|top" height="23" label="Clear" label_selected="None" layout="topleft" top_pad="8" name="check_none" width="115">
-		<button.commit_callback function="BulkPermission.UncheckAll"/>
-	</button>
-	<text type="string" length="1" follows="left|top" font="SansSerifLarge" height="16" layout="topleft" left="10" name="newperms" top="90" width="250">
+
+    <check_box
+     control_name="BulkChangeIncludeAnimations"
+     height="16"
+     name="check_animation"
+     top="24"
+     left="10"
+     width="16" />
+    <icon
+     height="16"
+     image_name="Inv_Animation"
+     mouse_opaque="true"
+     name="icon_animation"
+     tool_tip="Animation"
+     left_pad="5" />
+    <check_box
+     control_name="BulkChangeIncludeBodyParts"
+     height="16"
+     name="check_bodypart"
+     left="10"
+     width="16"
+     top_pad="2" />
+    <icon
+     height="16"
+     image_name="Inv_Eye"
+     tool_tip="Body Parts"
+     mouse_opaque="true"
+     name="icon_bodypart"
+     left_pad="2" />
+    <check_box
+     control_name="BulkChangeIncludeClothing"
+     height="16"
+     name="check_clothing"
+     left="10"
+     width="16"
+     top_pad="5" />
+    <icon
+     height="16"
+     image_name="Inv_Shirt"
+     mouse_opaque="true"
+     name="icon_clothing"
+     tool_tip="Clothing"
+     left_pad="2" />
+      <check_box
+     control_name="BulkChangeIncludeGestures"
+     height="16"
+     name="check_gesture"
+     left="95"
+     width="16"
+     top="25" />
+    <icon
+     height="16"
+     image_name="Inv_Gesture"
+     layout="topleft"
+     mouse_opaque="true"
+     name="icon_gesture"
+     tool_tip="Gestures"
+     left_pad="2" />
+    <check_box
+     control_name="BulkChangeIncludeNotecards"
+     height="16"
+     layout="topleft"
+     name="check_notecard"
+     left="95"
+     width="16"
+     top_pad="5" />
+    <icon
+     height="16"
+     image_name="Inv_Notecard"
+     layout="topleft"
+     mouse_opaque="true"
+     name="icon_notecard"
+     tool_tip="Notecards"
+     left_pad="4" />
+   <check_box
+     control_name="BulkChangeIncludeObjects"
+     height="16"
+     name="check_object"
+     left="95"
+     top_pad="5"
+     width="16" />
+   <icon
+     height="16"
+     image_name="Inv_Object"
+     mouse_opaque="true"
+     name="icon_object"
+     tool_tip="Objects"
+     left_pad="2" />
+    <check_box
+     control_name="BulkChangeIncludeScripts"
+     height="16"
+     name="check_script"
+     top="25"
+     left="180"
+     width="16"
+     />
+    <icon
+     height="16"
+     image_name="Inv_Script"
+     layout="topleft"
+     mouse_opaque="true"
+     name="icon_script"
+     tool_tip="Scripts"
+     left_pad="4" />
+    <check_box
+     control_name="BulkChangeIncludeSounds"
+     height="16"
+     name="check_sound"
+     top_pad="5"
+     left="180"
+     width="16" />
+    <icon
+     height="16"
+     image_name="Inv_Sound"
+     mouse_opaque="true"
+     name="icon_sound"
+     tool_tip="Sounds"
+     left_pad="4" />
+    <check_box
+     control_name="BulkChangeIncludeTextures"
+     height="16"
+     name="check_texture"
+     top_pad="5"
+     left="180"
+     width="16" />
+    <icon
+     height="16"
+     image_name="Inv_Texture"
+     mouse_opaque="true"
+     name="icon_texture"
+     tool_tip="Textures"
+     left_pad="2" />
+  <check_box
+    control_name="BulkChangeIncludeSettings"
+    height="16"
+    name="check_settings"
+    left="245"
+    top="25"
+    width="16" />
+  <icon
+    height="16"
+    image_name="Inv_Settings"
+    mouse_opaque="true"
+    name="icon_setting"
+    tool_tip="Environment settings"
+    left_pad="2" />
+    <button
+      height="23"
+    layout="topleft"
+   name="check_all"
+     label="√ All"
+     left="290"
+     top="26"
+     width="115">
+      <button.commit_callback
+       function="BulkPermission.CheckAll" />
+    </button>
+    <button
+     follows="left|top"
+     height="23"
+     label="Clear"
+     label_selected="None"
+     layout="topleft"
+     top_pad="8"
+     name="check_none"
+     width="115" >
+      <button.commit_callback
+       function="BulkPermission.UncheckAll"/>
+    </button>
+
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerifLarge"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="newperms"
+     top="90"
+     width="250">
         Adjust Content Permissions To
     </text>
-	<text type="string" length="1" follows="left|top" layout="topleft" height="28" left="10" name="GroupLabel" width="92" word_wrap="true">
+      <text
+       type="string"
+       length="1"
+      follows="left|top"
+      layout="topleft"
+       height="28"
+     left="10"
+      name="GroupLabel"
+      width="92"
+      word_wrap="true">
        Group:
     </text>
-	<check_box control_name="BulkChangeShareWithGroup" height="16" label="Share" layout="topleft" top_pad="0" name="share_with_group" tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions." width="92"/>
-	<text type="string" length="1" follows="left|top" height="28" layout="topleft" name="AnyoneLabel" left="124" top="110" width="92" word_wrap="true">
+    <check_box
+     control_name="BulkChangeShareWithGroup"
+     height="16"
+     label="Share"
+     layout="topleft"
+     top_pad="0"
+     name="share_with_group"
+     tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
+     width="92" />
+        <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="28"
+     layout="topleft"
+     name="AnyoneLabel"
+     left="124"
+     top="110"
+     width="92"
+     word_wrap="true">
         Anyone:
     </text>
-	<check_box control_name="BulkChangeEveryoneCopy" height="16" label="Copy" layout="topleft" top_pad="0" name="everyone_copy" tool_tip="Anyone can take a copy of the object. Object and all of its contents must be copy and transfer permissive" width="92"/>
-	<text type="string" length="1" follows="left|top" height="28" layout="topleft" name="NextOwnerLabel" top="110" left="275" width="92" word_wrap="true">
+    <check_box
+     control_name="BulkChangeEveryoneCopy"
+     height="16"
+     label="Copy"
+     layout="topleft"
+     top_pad="0"
+     name="everyone_copy"
+     tool_tip="Anyone can take a copy of the object. Object and all of its contents must be copy and transfer permissive"
+     width="92" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="28"
+     layout="topleft"
+     name="NextOwnerLabel"
+     top="110"
+     left="275"
+     width="92"
+     word_wrap="true">
         Next owner:
     </text>
-	<check_box control_name="BulkChangeNextOwnerModify" height="16" label="Modify" layout="topleft" name="next_owner_modify" tool_tip="Next owner can edit properties like item name or scale of this object." top_pad="0" width="92"/>
-	<check_box control_name="BulkChangeNextOwnerCopy" height="16" label="Copy" layout="topleft" top_pad="0" name="next_owner_copy" tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied." width="92">
-		<check_box.commit_callback function="BulkPermission.CommitCopy"/>
-	</check_box>
-	<check_box control_name="BulkChangeNextOwnerTransfer" enabled_control="BulkChangeNextOwnerCopy" height="16" top_pad="0" initial_value="true" label="Transfer" layout="topleft" name="next_owner_transfer" tool_tip="Next owner can give away or resell this object." width="92"/>
-	<scroll_list enabled="false" follows="all" height="95" layout="topleft" left="10" name="queue output" top="175" width="250"/>
-	<button follows="left|top" height="23" label="OK" layout="topleft" left="110" name="ok" top_pad="10" width="90">
-		<button.commit_callback function="BulkPermission.Ok"/>
-	</button>
-	<button follows="left|top" height="23" label="Apply" layout="topleft" left_pad="5" name="apply" width="90">
-		<button.commit_callback function="BulkPermission.Apply"/>
-	</button>
-	<button follows="left|top" height="23" label="Cancel" layout="topleft" left_pad="5" name="close" width="100">
-		<button.commit_callback function="BulkPermission.Close"/>
-	</button>
+    <check_box
+     control_name="BulkChangeNextOwnerModify"
+     height="16"
+     label="Modify"
+     layout="topleft"
+     name="next_owner_modify"
+     tool_tip="Next owner can edit properties like item name or scale of this object."
+     top_pad="0"
+     width="92" />
+    <check_box
+     control_name="BulkChangeNextOwnerCopy"
+     height="16"
+     label="Copy"
+     layout="topleft"
+     top_pad="0"
+     name="next_owner_copy"
+     tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
+     width="92">
+      <check_box.commit_callback
+       function="BulkPermission.CommitCopy"/>
+     </check_box>
+     <check_box
+     control_name="BulkChangeNextOwnerTransfer"
+     enabled_control="BulkChangeNextOwnerCopy"
+     height="16"
+     top_pad="0"
+     initial_value="true"
+     label="Transfer"
+     layout="topleft"
+     name="next_owner_transfer"
+     tool_tip="Next owner can give away or resell this object."
+     width="92" />
+    <scroll_list
+     enabled="false"
+     follows="all"
+     height="95"
+     layout="topleft"
+     left="10"
+     name="queue output"
+     top="175"
+     width="250" />
+    <button
+     follows="left|top"
+     height="23"
+     label="OK"
+     layout="topleft"
+     left="110"
+     name="ok"
+     top_pad="10"
+     width="90">
+      <button.commit_callback
+       function="BulkPermission.Ok"/>
+    </button>
+    <button
+     follows="left|top"
+     height="23"
+     label="Apply"
+     layout="topleft"
+     left_pad="5"
+     name="apply"
+     width="90">
+      <button.commit_callback
+       function="BulkPermission.Apply"/>
+    </button>
+    <button
+     follows="left|top"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="close"
+     width="100" >
+      <button.commit_callback
+       function="BulkPermission.Close"/>
+    </button>
 </floater>

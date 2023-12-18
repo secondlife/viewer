@@ -1,22 +1,100 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_close="false" can_minimize="false" height="500" layout="topleft" name="modal container" width="600">
-	<floater.string name="real_url">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_close="false"
+ can_minimize="false"
+ height="500"
+ layout="topleft"
+ name="modal container"
+ width="600">
+    <floater.string
+     name="real_url">
         http://secondlife.com/app/tos/
     </floater.string>
-	<floater.string name="loading_url">
+    <floater.string
+     name="loading_url">
       data:text/html;charset=utf-8;base64,PGh0bWw+DQo8aGVhZD4NCjxzdHlsZT4NCmJvZHkgew0KICBmb250LWZhbWlseTogIkRlamEgVnUgU2FucyIsIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7DQogIGNvbG9yOiAjZmZmOw0KICBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMzEsIDMxLCAzMSk7DQp9DQphIHsNCiAgICBjb2xvcjogcmdiKDkyLCAxNzcsIDE0Nik7DQogICAgdGV4dC1kZWNvcmF0aW9uOiBub25lOw0KfQ0KI2NlbnRlcmVkIHsNCiAgcG9zaXRpb246IHJlbGF0aXZlOw0KICBmbG9hdDogbGVmdDsNCiAgdG9wOiA1MCU7DQogIGxlZnQ6IDUwJTsNCiAgdHJhbnNmb3JtOiB0cmFuc2xhdGUoLTUwJSwgLTUwJSk7DQp9DQo8L3N0eWxlPg0KPC9oZWFkPg0KPGJvZHk+DQo8ZGl2IGlkPSJjZW50ZXJlZCI+TG9hZGluZyA8YSB0YXJnZXQ9Il9leHRlcm5hbCIgaHJlZj0iaHR0cDovL3NlY29uZGxpZmUuY29tL2FwcC90b3MvIj5UZXJtcyBvZiBTZXJ2aWNlPC9hPi4uLjwvZGl2Pg0KPC9ib2R5Pg0KPC9odG1sPg==
     </floater.string>
-	<text type="string" length="1" follows="left|top" font="SansSerif" height="45" layout="topleft" left="20" name="tos_heading" top="20" word_wrap="true" width="552">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="45"
+     layout="topleft"
+     left="20"
+     name="tos_heading"
+     top="20"
+     word_wrap="true"
+     width="552">
         Please read the following Second Life Terms and Conditions, Privacy Policy, and Terms of Service, including the requirements for the use of arbitration and the waiver of any class or group claim to resolve disputes. To continue logging in to [SECOND_LIFE], you must accept these agreements.
     </text>
-	<text type="string" length="1" follows="left|top" font="SansSerif" height="30" layout="topleft" left="20" name="external_tos_required" visible="false" top="20" word_wrap="true" width="552">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="30"
+     layout="topleft"
+     left="20"
+     name="external_tos_required"
+     visible="false"
+     top="20"
+     word_wrap="true"
+     width="552">
        You will need to go to https://my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
      </text>
-	<web_browser trusted_content="true" follows="left|top" height="305" layout="topleft" left_delta="0" name="tos_html" top_delta="70" width="568"/>
-	<check_box follows="top|left" font="SansSerif" height="16" label="" layout="topleft" left_delta="0" name="agree_chk" top_delta="320" width="55"/>
-	<text type="string" length="1" follows="left|top" font="SansSerif" height="30" layout="topleft" left_delta="28" name="agree_list" top_delta="0" word_wrap="true" text_readonly_color="LabelDisabledColor" width="552">
+    <web_browser
+      trusted_content="true" 
+     follows="left|top"
+     height="305"
+     layout="topleft"
+     left_delta="0"
+     name="tos_html"
+     top_delta="70"
+     width="568" />
+    <check_box
+     follows="top|left"
+     font="SansSerif"
+     height="16"
+     label=""
+     layout="topleft"
+     left_delta="0"
+     name="agree_chk"
+     top_delta="320"
+     width="55" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="30"
+     layout="topleft"
+     left_delta="28"
+     name="agree_list"
+     top_delta="0"
+     word_wrap="true"
+     text_readonly_color="LabelDisabledColor"
+     width="552">
       I consent to the Linden Lab Terms of Service, Second Life Terms and Conditions, and acknowledge receipt of the Privacy Policy.
     </text>
-	<button enabled="false" height="20" label="Continue" label_selected="Continue" layout="topleft" left="484" name="Continue" top_delta="55" width="100"/>
-	<button height="20" label="Cancel" label_selected="Cancel" layout="topleft" left_delta="-468" name="Cancel" top_delta="0" width="100"/>
+    <button
+     enabled="false"
+     height="20"
+     label="Continue"
+     label_selected="Continue"
+     layout="topleft"
+     left="484"
+     name="Continue"
+     top_delta="55"
+     width="100" />
+    <button
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_delta="-468"
+     name="Cancel"
+     top_delta="0"
+     width="100" />
 </floater>

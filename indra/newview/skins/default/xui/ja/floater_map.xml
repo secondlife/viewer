@@ -3,52 +3,34 @@
 	<floater.string name="ToolTipMsg">
 		[REGION](ダブルクリックでマップを開く。Shift‐ドラッグで水平・垂直移動)
 	</floater.string>
-	<floater.string name="ParcelNameMsg">
-		[PARCEL_NAME]
-	</floater.string>
-	<floater.string name="ParcelSalePriceMsg">
-		価格: L$[PRICE] (L$[PRICE_PER_SQM]/m²)
-	</floater.string>
-	<floater.string name="ParcelSaleAreaMsg">
-		面積: [AREA]m²
-	</floater.string>
-	<floater.string name="ParcelOwnerMsg">
-		所有者: [PARCEL_OWNER]
-	</floater.string>
-	<floater.string name="RegionNameMsg">
-		地域(リージョン): [REGION_NAME]
-	</floater.string>
-	<floater.string name="ToolTipHintMsg">
-		ダブルクリックして地図を開く
-	</floater.string>
-	<floater.string name="AltToolTipHintMsg">
-		ダブルクリックしてテレポート
+	<floater.string name="AltToolTipMsg">
+		[地域] (ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動)
 	</floater.string>
 	<floater.string name="mini_map_caption">
 		ミニマップ
 	</floater.string>
-	<text label="北" name="floater_map_north">
+	<text label="北" name="floater_map_north" text="北">
 		北
 	</text>
-	<text label="東" name="floater_map_east">
+	<text label="東" name="floater_map_east" text="東">
 		東
 	</text>
-	<text label="西" name="floater_map_west">
+	<text label="西" name="floater_map_west" text="西">
 		西
 	</text>
-	<text label="南" name="floater_map_south">
+	<text label="南" name="floater_map_south" text="南">
 		南
 	</text>
-	<text label="南東" name="floater_map_southeast">
+	<text label="南東" name="floater_map_southeast" text="南東">
 		南東
 	</text>
-	<text label="北東" name="floater_map_northeast">
+	<text label="北東" name="floater_map_northeast" text="北東">
 		北東
 	</text>
-	<text label="南西" name="floater_map_southwest">
+	<text label="南西" name="floater_map_southwest" text="南西">
 		南西
 	</text>
-	<text label="北西" name="floater_map_northwest">
+	<text label="北西" name="floater_map_northwest" text="北西">
 		北西
 	</text>
 </floater>

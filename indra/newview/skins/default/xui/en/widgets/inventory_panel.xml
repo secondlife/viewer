@@ -1,4 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel bg_opaque_color="InventoryBackgroundColor" background_visible="true" background_opaque="true" accepts_drag_and_drop="true">
-	<scroll name="Inventory Scroller" follows="all" reserve_scroll_corner="true" tab_stop="true"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+  bg_opaque_color="InventoryBackgroundColor"
+  background_visible="true"
+  background_opaque="true"
+  accepts_drag_and_drop="true"
+  >
+    <scroll
+      name="Inventory Scroller"
+      follows="all"
+      reserve_scroll_corner="true"
+      tab_stop="true"
+    />
 </panel>

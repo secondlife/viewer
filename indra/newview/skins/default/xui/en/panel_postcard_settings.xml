@@ -1,14 +1,88 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel height="380" layout="topleft" name="panel_postcard_settings" width="490">
-	<combo_box follows="left|top|right" height="23" label="Resolution" layout="topleft" left="5" name="postcard_size_combo" right="-3" top_pad="5">
-		<combo_box.item label="Current Window" name="CurrentWindow" value="[i0,i0]"/>
-		<combo_box.item label="640x480" name="640x480" value="[i640,i480]"/>
-		<combo_box.item label="800x600" name="800x600" value="[i800,i600]"/>
-		<combo_box.item label="1024x768" name="1024x768" value="[i1024,i768]"/>
-		<combo_box.item label="Custom" name="Custom" value="[i-1,i-1]"/>
-	</combo_box>
-	<spinner allow_text_entry="false" decimal_digits="0" follows="left|top" height="20" increment="32" label="Width x Height" label_width="90" layout="topleft" left="5" max_val="6016" min_val="32" name="postcard_snapshot_width" top_pad="5" width="144"/>
-	<spinner allow_text_entry="false" decimal_digits="0" follows="left|top" height="20" increment="32" label="" label_width="0" layout="topleft" left_pad="0" max_val="6016" min_val="32" name="postcard_snapshot_height" top_delta="0" width="52"/>
-	<check_box top_pad="12" follows="left|top" label="Constrain proportions" layout="topleft" left="5" name="postcard_keep_aspect_check"/>
-	<slider decimal_digits="0" follows="left|top" height="15" increment="1" initial_value="75" label="Quality:" label_width="45" layout="topleft" left="5" max_val="100" name="image_quality_slider" top_pad="6" width="190"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_postcard_settings"
+ width="490">
+    <combo_box
+     follows="left|top|right"
+     height="23"
+     label="Resolution"
+     layout="topleft"
+     left="5"
+     name="postcard_size_combo"
+     right="-3"
+     top_pad="5">
+        <combo_box.item
+         label="Current Window"
+         name="CurrentWindow"
+         value="[i0,i0]" />
+        <combo_box.item
+         label="640x480"
+         name="640x480"
+         value="[i640,i480]" />
+        <combo_box.item
+         label="800x600"
+         name="800x600"
+         value="[i800,i600]" />
+        <combo_box.item
+         label="1024x768"
+         name="1024x768"
+         value="[i1024,i768]" />
+        <combo_box.item
+         label="Custom"
+         name="Custom"
+         value="[i-1,i-1]" />
+    </combo_box>
+   <spinner
+    allow_text_entry="false"
+    decimal_digits="0"
+    follows="left|top"
+    height="20"
+    increment="32"
+    label="Width x Height"
+    label_width="90"
+    layout="topleft"
+    left="5"
+    max_val="6016"
+    min_val="32"
+    name="postcard_snapshot_width"
+    top_pad="5"
+    width="144" />
+   <spinner
+    allow_text_entry="false"
+    decimal_digits="0"
+    follows="left|top"
+    height="20"
+    increment="32"
+    label=""
+    label_width="0"
+    layout="topleft"
+    left_pad="0"
+    max_val="6016"
+    min_val="32"
+    name="postcard_snapshot_height"
+    top_delta="0"
+    width="52" />
+   <check_box
+    top_pad="12"
+    follows="left|top"
+    label="Constrain proportions"
+    layout="topleft"
+    left="5"
+    name="postcard_keep_aspect_check" />
+   <slider
+   decimal_digits="0"
+   follows="left|top"
+   height="15"
+   increment="1"
+   initial_value="75"
+   label="Quality:"
+   label_width="45"
+   layout="topleft"
+   left="5"
+   max_val="100"
+   name="image_quality_slider"
+   top_pad="6"
+   width="190" />
 </panel>

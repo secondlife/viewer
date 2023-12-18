@@ -1,6 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater can_minimize="false" can_tear_off="false" can_resize="true" can_drag_on_left="false" can_close="true" can_dock="true" bevel_style="in" height="300" layout="topleft" name="Test Floater" save_rect="true" title="TEST FLOATER" save_dock_state="true" save_visibility="true" single_instance="true" width="650">
-	<text left="0" follows="left|top|bottom" top="5" clip_partial="true" bottom="-5" width="100" valign="top">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="true"
+ can_drag_on_left="false"
+ can_close="true"
+ can_dock="true"
+ bevel_style="in"
+ height="300"
+ layout="topleft"
+ name="Test Floater"
+ save_rect="true"
+ title="TEST FLOATER"
+ save_dock_state="true"
+ save_visibility="true"
+ single_instance="true" 
+ width="650">
+  <text left="0"
+        follows="left|top|bottom"
+        top="5"
+        clip_partial="true"        
+        bottom="-5"
+        width="100"
+        valign="top">
 this
 is
 some
@@ -9,7 +31,13 @@ that
 is
 top
 aligned</text>
-	<text left_pad="5" follows="left|top|bottom" top="5" bottom="-5" clip_partial="true" width="100" valign="center">
+  <text left_pad="5"
+        follows="left|top|bottom"
+        top="5"
+        bottom="-5"
+        clip_partial="true"
+        width="100"
+        valign="center">
 this
 is
 some
@@ -18,7 +46,13 @@ that
 is
 center
 aligned</text>
-	<text left_pad="5" follows="left|top|bottom" top="5" clip_partial="true" bottom="-5" width="100" valign="bottom">
+  <text left_pad="5"
+        follows="left|top|bottom"
+        top="5"
+        clip_partial="true"        
+        bottom="-5"
+        width="100"
+        valign="bottom">
 this
 is
 some
@@ -27,7 +61,13 @@ that
 is
 bottom
 aligned</text>
-	<text_editor left_pad="5" follows="left|top|bottom" top="5" clip_partial="true" bottom="-5" width="100" valign="top">
+  <text_editor left_pad="5"
+        follows="left|top|bottom"
+        top="5"
+        clip_partial="true"
+        bottom="-5"
+        width="100"
+        valign="top">
 this
 is
 some
@@ -37,7 +77,13 @@ is
 top
 aligned
   </text_editor>
-	<text_editor left_pad="5" follows="left|top|bottom" top="5" bottom="-5" clip_partial="true" width="100" valign="center">
+  <text_editor left_pad="5"
+        follows="left|top|bottom"
+        top="5"
+        bottom="-5"
+        clip_partial="true"
+        width="100"
+        valign="center">
 this
 is
 some
@@ -47,7 +93,13 @@ is
 center
 aligned
   </text_editor>
-	<text_editor left_pad="5" follows="left|top|bottom" top="5" clip_partial="true" bottom="-5" width="100" valign="bottom">
+  <text_editor left_pad="5"
+        follows="left|top|bottom"
+        top="5"
+        clip_partial="true"
+        bottom="-5"
+        width="100"
+        valign="bottom">
 this
 is
 some

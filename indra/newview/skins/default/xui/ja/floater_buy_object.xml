@@ -4,7 +4,7 @@
 		購入
 	</floater.string>
 	<floater.string name="title_buy_copy_text">
-		次のものを購入
+		以下を購入:
 	</floater.string>
 	<floater.string name="no_copy_text">
 		(コピー不可)
@@ -15,14 +15,11 @@
 	<floater.string name="no_transfer_text">
 		(再販・譲渡不可)
 	</floater.string>
-	<floater.string name="mupliple_selected">
-		複数選択
-	</floater.string>
 	<text name="contents_text">
 		中身:
 	</text>
 	<text name="buy_text">
-		次の売り手からL$[AMOUNT]で購入:
+		次の売り手から L$ [AMOUNT]で購入:
 	</text>
 	<text name="buy_name_text">
 		[NAME]?

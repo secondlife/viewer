@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="グリッド" name="grids">
+	<text name="add_grid_text">
+		新しいグリッドを追加：
+	</text>
+	<line_editor name="add_grid" label="ログインURIを入力"/>
+	<button label="追加" name="add_grid_commit"/>
+	<text name="manage_grid_text">
+		グリッド管理：
+	</text>
+	<scroll_list name="grid_list">
+		<scroll_list.columns label="グリッド名" name="grid_label"/>
+		<scroll_list.columns label="ログインURI" name="login_uri"/>
+		<scroll_list.commit_callback function="Pref.SelectGrid"/>
+	</scroll_list>
+	<button label="有効化" name="activate_grid"/>
+	<button label="リフレッシュ" name="refresh_grid"/>
+	<button label="削除" name="remove_grid"/>
+	<button label="デバッグ" name="debug_grid"/>
+	<check_box label="ログイン時にグリッド選択を表示" name="show_grid_selection_check" tool_tip="ログイン画面にグリッド選択を表示して、他のワールドにログインします。"/>
+</panel>

@@ -1,28 +1,69 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu layout="topleft" name="Multi-Selected People Context Menu">
-	<menu_item_call enabled="false" label="Add Friends" layout="topleft" name="add_friends">
-		<on_click function="Avatar.AddFriends"/>
-		<on_enable function="Avatar.EnableItem" parameter="can_add"/>
-	</menu_item_call>
-	<menu_item_call label="Remove Friends" layout="topleft" name="remove_friends">
-		<menu_item_call.on_click function="Avatar.RemoveFriend"/>
-		<menu_item_call.on_enable function="Avatar.EnableItem" parameter="can_delete"/>
-	</menu_item_call>
-	<menu_item_call label="IM" layout="topleft" name="im">
-		<on_click function="Avatar.IM"/>
-	</menu_item_call>
-	<menu_item_call enabled="false" label="Call" layout="topleft" name="call">
-		<on_click function="Avatar.Call"/>
-		<on_enable function="Avatar.EnableItem" parameter="can_call"/>
-	</menu_item_call>
-	<menu_item_call enabled="false" label="Share" layout="topleft" name="share">
-		<on_click function="Avatar.Share"/>
-	</menu_item_call>
-	<menu_item_call enabled="false" label="Pay" layout="topleft" name="pay">
-		<on_click function="Avatar.Pay"/>
-	</menu_item_call>
-	<menu_item_call label="Offer Teleport" name="offer_teleport">
-		<menu_item_call.on_click function="Avatar.OfferTeleport"/>
-		<menu_item_call.on_enable function="Avatar.EnableItem" parameter="can_offer_teleport"/>
-	</menu_item_call>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Multi-Selected People Context Menu">
+    <menu_item_call
+     enabled="false"
+     label="Add Friends"
+     layout="topleft"
+     name="add_friends">
+        <on_click
+         function="Avatar.AddFriends" />
+        <on_enable
+         function="Avatar.EnableItem"
+         parameter="can_add" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove Friends"
+     layout="topleft"
+     name="remove_friends">
+        <menu_item_call.on_click
+         function="Avatar.RemoveFriend" />
+        <menu_item_call.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_delete" />
+    </menu_item_call>
+    <menu_item_call
+     label="IM"
+     layout="topleft"
+     name="im">
+        <on_click
+         function="Avatar.IM" />
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
+     label="Call"
+     layout="topleft"
+     name="call">
+        <on_click
+         function="Avatar.Call" />
+        <on_enable
+         function="Avatar.EnableItem"
+         parameter="can_call" />
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
+     label="Share"
+     layout="topleft"
+     name="share">
+        <on_click
+         function="Avatar.Share" />
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
+     label="Pay"
+     layout="topleft"
+     name="pay">
+        <on_click
+         function="Avatar.Pay" />
+    </menu_item_call>
+    <menu_item_call
+    label="Offer Teleport"
+    name="offer_teleport">
+      <menu_item_call.on_click
+       function="Avatar.OfferTeleport"/>
+      <menu_item_call.on_enable
+      function="Avatar.EnableItem"
+      parameter="can_offer_teleport"/>
+    </menu_item_call>
 </context_menu>

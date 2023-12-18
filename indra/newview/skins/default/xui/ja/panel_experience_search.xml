@@ -7,10 +7,10 @@
 		検索結果: なし
 	</string>
 	<string name="searching">
-		検索中...
+		検索しています…
 	</string>
 	<string name="loading">
-		読込中...
+		読み込み中…
 	</string>
 	<string name="maturity_icon_general">
 		"Parcel_PG_Light"
@@ -25,20 +25,16 @@
 		<text name="lbl name part">
 			名前の一部を入力してください:
 		</text>
+		<line_editor name="edit"/>
 		<button label="進む" name="find"/>
 		<text name="lbl max content rating">
 			コンテンツの最大レーティング:
 		</text>
 		<icons_combo_box label="モデレート" name="maturity">
-			<icons_combo_box.item label="アダルト" name="Adult" value="42">
-				<item.columns value="Parcel_R_Light"/>
-			</icons_combo_box.item>
-			<icons_combo_box.item label="モデレート" name="Mature" value="21">
-				<item.columns value="Parcel_M_Light"/>
-			</icons_combo_box.item>
-			<icons_combo_box.item label="一般" name="PG" value="13">
-				<item.columns value="Parcel_PG_Light"/>
-			</icons_combo_box.item>
+			<icons_combo_box.drop_down_button/>
+			<icons_combo_box.item label="アダルト" name="Adult" value="42"/>
+			<icons_combo_box.item label="モデレート" name="Mature" value="21"/>
+			<icons_combo_box.item label="一般" name="PG" value="13"/>
 		</icons_combo_box>
 		<scroll_list name="search_results">
 			<columns name="maturity" label=""/>

@@ -6,5 +6,6 @@
 		<combo_box.item label="アバター編集時" name="edit_avatar" value="2"/>
 		<combo_box.item label="着席時" name="sitting" value="3"/>
 	</combo_box>
-	<button label="デフォルトに戻す" tool_tip="全ての操作設定をデフォルト値に戻します。" name="restore_defaults"/>
+	<button label="デフォルトに戻す" tool_tip="すべての操作設定をデフォルト値に戻します。" name="restore_defaults"/>
+	<scroll_list name="controls_list"/>
 </panel>

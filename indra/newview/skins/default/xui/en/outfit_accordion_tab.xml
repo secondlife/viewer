@@ -1,7 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- *NOTE: mantipov: this xml is intended to be used inside panel_outfits_list.xml for each outfit folder-->
 <!-- All accordion tabs in the My Appearance/My Outfits panel will be created from this one at runtime-->
 <!-- Non of string values of controls below are visible to user. They are not need to be translated. -->
-<accordion_tab expanded="false" follows="all" height="45" layout="topleft" name="Mockup Tab" selection_enabled="true" tab_stop="false" title="MOCKUP TAB" translate="false" width="0">
-	<wearable_items_list allow_select="true" follows="all" keep_one_selected="true" multi_select="true" show_item_widgets="true" name="wearable_items_list" translate="false" standalone="false"/>
+<accordion_tab
+ expanded="false"
+ follows="all"
+ height="45"
+ layout="topleft"
+ name="Mockup Tab"
+ selection_enabled="true"
+ tab_stop="false"
+ title="MOCKUP TAB"
+ translate="false"
+ width="0">
+    <wearable_items_list
+     allow_select="true"
+     follows="all"
+     keep_one_selected="true"
+     multi_select="true"
+     show_item_widgets="true"
+     name="wearable_items_list"
+     translate="false"
+     standalone="false"
+    />
 </accordion_tab>

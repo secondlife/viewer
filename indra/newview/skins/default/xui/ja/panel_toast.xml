@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toast" title="">
-	<panel label="wrapper_panel" name="wrapper_panel">
-		<text name="toast_text">
-			トーストテキスト;
-		</text>
-	</panel>
-	<button name="hide_btn" label=""/>
-</floater>

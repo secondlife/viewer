@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="約款" name="Covenant">
-	<panel.string name="can_resell">
-		この地域(リージョン)で購入した土地は再販できます。
-	</panel.string>
-	<panel.string name="can_not_resell">
-		この地域(リージョン)で購入した土地は再販することができないことがあります。
-	</panel.string>
-	<panel.string name="can_change">
-		この地域(リージョン)で購入した土地は結合や再分割できます。
-	</panel.string>
-	<panel.string name="can_not_change">
-		この地域(リージョン)で購入した土地は結合や再分割できないことがあります。
-	</panel.string>
-	<text font="SansSerif" name="estate_section_lbl">
+	<text font="SansSerifLarge" name="estate_section_lbl">
 		不動産
 	</text>
 	<text name="estate_name_lbl">
@@ -31,9 +19,10 @@
 		約款:
 	</text>
 	<text name="covenant_timestamp_text">
-		最後の更新1969年12月31日水曜日16: 00: 00
+		最終更新日:1969年12月31日(水)16:00:00
 	</text>
-	<text_editor height="180" name="covenant_editor">
+	<button label="?" name="covenant_help"/>
+	<text_editor bottom="-263" height="178" name="covenant_editor">
 		この不動産には約款がありません。
 	</text_editor>
 	<button label="リセット" name="reset_covenant"/>
@@ -41,10 +30,10 @@
 		約款の変更は不動産全区画に適用となります。
 	</text>
 	<text name="covenant_instructions">
-		この不動産約款を変更する際は、ノートカードをドラッグ &amp; ドロップしてください。
+		この不動産約款を変更する際は、ノートカードをドラッグ&amp;ドロップしてください。
 	</text>
-	<text font="SansSerif" name="region_section_lbl">
-		地域(リージョン)
+	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl">
+		リージョン(地域)
 	</text>
 	<text name="region_name_lbl">
 		名前:
@@ -56,7 +45,7 @@
 		種類:
 	</text>
 	<text name="region_landtype_text">
-		メインランド / ホームステッド
+		メインランド/入植地
 	</text>
 	<text name="region_maturity_lbl">
 		区分:
@@ -68,12 +57,24 @@
 		再販:
 	</text>
 	<text name="resellable_clause">
-		この地域(リージョン)にある土地は再販できません。
+		このリージョン(地域)にある土地は再販できません。
 	</text>
 	<text name="changeable_lbl">
 		再分割:
 	</text>
 	<text name="changeable_clause">
-		この地域(リージョン)にある土地は統合または分割ができません。
+		このリージョン(地域)にある土地は統合または分割ができません。
 	</text>
+	<string name="can_resell">
+		このリージョン(地域)で購入した土地は、再販できます。
+	</string>
+	<string name="can_not_resell">
+		このリージョン(地域)の購入地は再販できないことがあります。
+	</string>
+	<string name="can_change">
+		このリージョン(地域)の購入地は統合または再分割できます。
+	</string>
+	<string name="can_not_change">
+		このリージョン(地域)の購入地は統合／再分割できないことがあります。
+	</string>
 </panel>

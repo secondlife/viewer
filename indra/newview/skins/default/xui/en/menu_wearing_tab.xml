@@ -1,22 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu layout="topleft" name="Wearing">
-	<menu_item_call label="Touch" layout="topleft" name="touch_attach">
-		<on_click function="Wearing.TouchAttach"/>
-	</menu_item_call>
-	<menu_item_call label="Edit" layout="topleft" name="edit_item">
-		<on_click function="Wearing.EditItem"/>
-	</menu_item_call>
-	<menu_item_call label="Take Off" layout="topleft" name="take_off">
-		<on_click function="Wearing.TakeOff"/>
-	</menu_item_call>
-	<menu_item_call label="Detach" layout="topleft" name="detach">
-		<on_click function="Wearing.Detach" parameter="detach"/>
-	</menu_item_call>
-	<menu_item_separator layout="topleft" name="edit_outfit_separator"/>
-	<menu_item_call label="Edit Outfit" layout="topleft" name="edit_outfit">
-		<on_click function="Wearing.EditOutfit"/>
-	</menu_item_call>
-	<menu_item_call label="Show Original" layout="topleft" name="show_original">
-		<on_click function="Wearing.ShowOriginal"/>
-	</menu_item_call>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Wearing">
+    <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="touch_attach">
+        <on_click
+         function="Wearing.TouchAttach" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit_item">
+        <on_click
+         function="Wearing.EditItem" />
+    </menu_item_call>
+    <menu_item_call
+     label="Take Off"
+     layout="topleft"
+     name="take_off">
+        <on_click
+         function="Wearing.TakeOff" />
+    </menu_item_call>
+    <menu_item_call
+     label="Detach"
+     layout="topleft"
+     name="detach">
+        <on_click
+         function="Wearing.Detach"
+         parameter="detach"/>
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="edit_outfit_separator" />
+    <menu_item_call
+     label="Edit Outfit"
+     layout="topleft"
+     name="edit_outfit">
+        <on_click
+         function="Wearing.EditOutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Show Original"
+     layout="topleft"
+     name="show_original">
+        <on_click
+         function="Wearing.ShowOriginal" />
+    </menu_item_call>
 </context_menu>

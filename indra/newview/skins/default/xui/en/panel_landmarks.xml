@@ -1,4 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Landmarks" layout="topleft" left="0" help_topic="panel_landmarks" border="false" background_visible="true" bg_alpha_color="DkGray" follows="all">
-	<places_inventory_panel allow_multi_select="true" border="false" top="1" follows="all" left="3" bottom="0" right="-3" mouse_opaque="true" name="landmarks_list" folder_view.use_ellipses="true" start_folder.name="Landmarks"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   name="Landmarks"
+   layout="topleft" 
+   left="0"
+   help_topic="panel_landmarks"
+   border="false"
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   follows="all">
+    <places_inventory_panel
+      allow_multi_select="true"
+      border="false"
+      top="1"
+      follows="all"
+      left="3"
+      bottom="0"
+      right="-3"
+      mouse_opaque="true"
+      name="landmarks_list"
+      folder_view.use_ellipses="true"
+      start_folder.name="Landmarks"/>
 </panel>

@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- This file contains strings that used to be hardcoded in the source.-->
 <strings>
+
 	<!-- Locale Information -->
 	<string name="MicrosoftLocale">english</string>
 	<string name="MacLocale">C</string>
 	<string name="DarwinLocale">C</string>
 	<string name="LinuxLocale">C</string>
-	<!-- Note: for plural nouns, see strings.xml.  For example:
+  
+  <!-- Note: for plural nouns, see strings.xml.  For example:
        AgeYearsA = singular,
        AgeYearsB = plural,
        AgeYearsC = plural for non-English languages like Russian
@@ -31,23 +33,26 @@
 	datetimeToCodes["second"]	= "%S";		// 59
 	datetimeToCodes["timezone"]	= "%Z";		// PST	
 	-->
+
 	<string name="TimeHour">hour,datetime,slt</string>
-	<string name="TimeMin">min,datetime,slt</string>
-	<string name="TimeYear">year,datetime,slt</string>
-	<string name="TimeDay">day,datetime,slt</string>
-	<string name="TimeMonth">mthnum,datetime,slt</string>
+	<string name="TimeMin">min,datetime,slt</string>	
+	<string name="TimeYear">year,datetime,slt</string>	
+	<string name="TimeDay">day,datetime,slt</string>	
+	<string name="TimeMonth">mthnum,datetime,slt</string>	
 	<string name="TimeWeek">wkday,datetime,slt</string>
 	<string name="TimeAMPM">ampm,datetime,slt</string>
-	<string name="TimeHour12">hour12,datetime,slt</string>
+	<string name="TimeHour12">hour12,datetime,slt</string>	
 	<string name="TimeTimezone">timezone,datetime,slt</string>
+
 	<string name="LTimeMthNum">mthnum,datetime,local</string>
 	<string name="LTimeWeek">wkday,datetime,local</string>
-	<string name="LTimeMonth">mth,datetime,local</string>
-	<string name="LTimeDay">day,datetime,local</string>
+	<string name="LTimeMonth">mth,datetime,local</string>	
+	<string name="LTimeDay">day,datetime,local</string>	
 	<string name="LTimeSec">second,datetime,local</string>
 	<string name="LTimeHour">hour,datetime,local</string>
-	<string name="LTimeMin">min,datetime,local</string>
-	<string name="LTimeYear">year,datetime,local</string>
+	<string name="LTimeMin">min,datetime,local</string>	
+	<string name="LTimeYear">year,datetime,local</string>	
+	
 	<string name="UTCTimeWeek">weekday,datetime,utc</string>
 	<string name="UTCTimeDay">day,datetime,utc</string>
 	<string name="UTCTimeMth">mth,datetime,utc</string>
@@ -55,5 +60,5 @@
 	<string name="UTCTimeHr">hour,datetime,utc</string>
 	<string name="UTCTimeMin">min,datetime,utc</string>
 	<string name="UTCTimeSec">second,datetime,utc</string>
-	<string name="UTCTimeTimezone">timezone,datetime,utc</string>
+	<string name="UTCTimeTimezone">timezone,datetime,utc</string>							
 </strings>

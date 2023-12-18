@@ -1,4 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_resize="true" height="200" layout="topleft" name="script" help_topic="script" short_title="[ALL SCRIPTS]" title="[ALL SCRIPTS]" width="440">
-	<text_editor bottom="197" follows="left|top|right|bottom" height="176" layout="topleft" max_length="2147483647" name="Chat History Editor" parse_highlights="true" read_only="true" width="420" track_bottom="true" word_wrap="true"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="200"
+ layout="topleft"
+ name="script"
+ help_topic="script"
+ short_title="[ALL SCRIPTS]"
+ title="[ALL SCRIPTS]"
+ width="440">
+    <text_editor
+     bottom="197"
+     follows="left|top|right|bottom"
+     height="176"
+     layout="topleft"
+     max_length="2147483647"
+     name="Chat History Editor"
+     parse_highlights="true" 
+     read_only="true"
+     width="420"
+     track_bottom="true" 
+     word_wrap="true" />
 </floater>
