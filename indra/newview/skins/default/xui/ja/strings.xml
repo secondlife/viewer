@@ -4628,16 +4628,6 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="MBPixelFmtDescErr">
 		ピクセル形式情報が見つかりません
 	</string>
-	<string name="MBTrueColorWindow">
-		[APP_NAME]を実行するには、True Color（３２ビット）が必要です。
-お使いのコンピューターの「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （３２ビット）」に設定してください。
-	</string>
-	<string name="MBAlpha">
-		[APP_NAME]は８ビットのアルファチャンネルを取得できないため実行できません。通常ビデオカードのドライバの問題で起こります。
-お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
-また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （３２ビット）」に設定されていることもご確認ください。
-このメッセージが何度も出る場合は、 [SUPPORT_SITE] へご連絡ください。
-	</string>
 	<string name="MBPixelFmtSetErr">
 		ピクセル形式が設定できません。
 	</string>
@@ -6785,7 +6775,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Notices">
 		通知
 	</string>
-	<string name="Chat" value="チャット：">
+	<string name="Chat">
 		チャット
 	</string>
 	<string name="BaseMembership">
@@ -7261,6 +7251,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_People_Label">
 		人物
+	</string>
+	<string name="Command_Performance_Label">
+		グラフィック最適化
 	</string>
 	<string name="Command_Picks_Label">
 		ピック

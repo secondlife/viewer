@@ -46,7 +46,6 @@
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="オンライン"/>
 				<accordion_tab name="tab_all" title="全員"/>
-				<accordion_tab name="tab_suggested_friends" title="友だちになりたくない人物"/>
 			</accordion>
 		</panel>
 		<panel label="グループ" name="groups_panel">

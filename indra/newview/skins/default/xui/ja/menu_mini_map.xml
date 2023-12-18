@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
 	<menu_item_check label="ズーム（かなり近く）" name="Zoom very close"/>
-	<menu_item_call label="ズーム（近）" name="Zoom close"/>
-	<menu_item_call label="ズーム（中）" name="Zoom medium"/>
-	<menu_item_call label="ズーム（遠）" name="Zoom far"/>
+	<menu_item_check label="ズーム（近）" name="Zoom close"/>
+	<menu_item_check label="ズーム（中）" name="Zoom medium"/>
+	<menu_item_check label="ズーム（遠）" name="Zoom far"/>
 	<menu_item_separator/>
 	<menu_item_check label="北を上に" name="North at top"/>
 	<menu_item_check label="カメラの向きを上に" name="Camera at top"/>

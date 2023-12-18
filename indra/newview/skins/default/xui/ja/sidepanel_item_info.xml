@@ -27,8 +27,6 @@
 	<panel.string name="origin_inworld">
 		（インワールド）
 	</panel.string>
-	<text name="title" value="アイテムのプロフィール"/>
-	<text name="origin" value="（インベントリ）"/>
 	<layout_stack name="main_stack">
 		<layout_panel name="layout_item_name">
 			<icon name="item_type_icon"/>
@@ -91,7 +89,6 @@
 			<check_box label="編集" name="CheckNextOwnerModify" tool_tip="次の所有者は、アイテム名などのプロパティを編集したり、サイズ変更ができるようになります。"/>
 			<check_box label="コピー" name="CheckNextOwnerCopy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできるようになります。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関して制約があります。"/>
 			<check_box label="再販・譲渡" name="CheckNextOwnerTransfer" tool_tip="次の所有者は、このオブジェクトを他の人に譲渡したり、再販することができるようになります。"/>
-			<check_box label="エクスポート" name="CheckOwnerExport"/>
 			<view_border name="cost_text_border"/>
 			<check_box label="販売対象とする" name="CheckPurchase" tool_tip="このオブジェクトやオブジェクトの中身を購入できるようにするか、指定価格でインワールドにコピーできるようになります。"/>
 			<combo_box name="ComboBoxSaleType" tool_tip="購入者がコピー、コピーの中身、またはアイテム自体を受け取るのか選択してください。">

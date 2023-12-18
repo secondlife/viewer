@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="quick_settings">
+	<text value="描画距離：" name="draw_distance_label"/>
+	<slider_bar name="draw_dist_slider_bar" left="100"/>
+	<spinner label="" name="draw_dist_spinner"/>
+	<text value="詳細レベル：" name="lod_label"/>
+	<slider_bar name="lod_slider_bar" left="100"/>
+	<spinner name="lod_spinner"/>
+	<text value="最大パーティクル数：" name="max_particles_label"/>
+	<slider_bar name="max_particles_slider_bar" left="100"/>
+	<spinner name="max_particles_spinner"/>
+	<text value="最大アバター数：" name="max_avatars_label"/>
+	<slider_bar name="max_avatar_slider_bar" left="100"/>
+	<spinner name="max_avatar_spinner"/>
+	<text value="最大帯域幅：" name="max_bandwith_label"/>
+	<slider_bar name="bandwith_slider_bar" left="100"/>
+	<spinner name="bandwith_spinner"/>
+	<text value="ホバー高さ：" name="hover_height_label"/>
+	<slider_bar name="hover_slider_bar" left="100"/>
+	<spinner name="hover_spinner"/>
+</panel>

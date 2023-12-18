@@ -461,12 +461,6 @@ L$が不足しているので、このグループに参加することができ
 		<tag>success</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
-	<notification name="JoinGroupSuccess">
-		このユーザーグループに入会しました。
-		<tag>group_id</tag>
-		<tag>success</tag>
-		<usetemplate name="okbutton" yestext="ＯＫ"/>
-	</notification>
 	<notification name="JoinGroupInsufficientFunds">
 		会員料金として必要なL$ [membership_fee]を送金することができません。
 		<tag>group_id</tag>
@@ -721,10 +715,6 @@ L$が不足しているので、このグループに参加することができ
 		<tag>confirm</tag>
 		<tag>save</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="破棄" yestext="保存"/>
-	</notification>
-	<notification name="DeleteAvatarPick">
-		「&lt;nolink&gt;[PICK]&lt;/nolink&gt;」を削除してもよろしいですか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="DeleteOutfits">
 		このアウトフィットを削除してもよろしいですか？
@@ -1856,7 +1846,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 	</notification>
 	<notification name="ClothingLoading">
 		現在服装をダウンロードしています。
-このまま[SECOND_LIFE]を通常通りご使用いただけます。他者からはあなたは正常に表示されています。
+このまま[CURRENT_GRID]を通常通りご使用いただけます。他者からはあなたは正常に表示されています。
 		<form name="form">
 			<ignore name="ignore" text="服装がダウンロードされるまで時間がかかっているとき"/>
 		</form>
@@ -3924,7 +3914,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<footer>[FOOTERTEXT]</footer>
 	</notification>
 	<notification name="ScriptDialog">
-		[NAME]の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
+		[NAME]の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」（チャンネル[CHANNEL]）
 [MESSAGE]
 		<form name="form">
 			<button name="Client_Side_Mute" text="ブロック"/>
@@ -4700,11 +4690,6 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		<tag>confirm</tag>
 		<usetemplate ignoretext="選択したオブジェクトをフレキシブルパスに変更する際にナビメッシュから削除されることの確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<global name="UnsupportedGLRequirements">
-		[APP_NAME]の動作に必要なハードウェア要件を満たしていないようです。[APP_NAME]にはマルチテクスチャをサポートするOpenGLグラフィックカードが必要です。
-お使いのグラフィックカードの最新ドライバがインストールされているか、もしくは、オペレーティングシステムに最新のサービスパックやパッチが当たっているかをご確認ください。
-
-この問題が何度も起きる場合は、[SUPPORT_SITE]をご確認ください。</global>
 	<global name="UnsupportedCPUAmount">796</global>
 	<global name="UnsupportedRAMAmount">510</global>
 	<global name="UnsupportedGPU">‐あなたのグラフィックカードは、必須動作環境の条件を満たしていません。</global>
@@ -5801,9 +5786,6 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 まずそれらを保存しますか？
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
-	</notification>
-	<notification name="MaterialCreated">
-		マテリアルは正常に作成されました。アセットＩＤ：[ASSET_ID]
 	</notification>
 	<notification name="ReflectionProbeApplied">
 		警告：オブジェクトを反射プローブとしました。これにより、オブジェクトが暗黙的に反射量を模倣するように不可逆的な変更が加えられます。

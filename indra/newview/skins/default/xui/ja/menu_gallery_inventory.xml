@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="ギャラリー">
+<context_menu name="Gallery" label="ギャラリー">
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="ゴミ箱を空に" name="Empty Trash"/>
 	<menu_item_call label="遺失物を空に" name="Empty Lost And Found"/>
@@ -61,8 +61,8 @@
 	<menu_item_call label="自身から取り外す" name="Detach From Yourself"/>
 	<menu_item_call label="脱ぐ" name="Take Off"/>
 	<menu_item_separator name="Settings Separator"/>
-	<menu_item_call name="ローカルに自然環境の設定を反映" label="Apply Only To Myself"/>
-	<menu_item_call name="区画に自然環境の設定を反映" label="Apply To Parcel"/>
+	<menu_item_call label="ローカルに自然環境の設定を反映" name="Apply Only To Myself"/>
+	<menu_item_call label="区画に自然環境の設定を反映" name="Apply To Parcel"/>
 	<menu_item_separator name="Subfolder Separator"/>
 	<menu_item_call label="新しいフォルダを選択から作成" name="New folder from selected"/>
 	<menu_item_call label="フォルダのアイテムのグループ解除" name="Ungroup folder items"/>

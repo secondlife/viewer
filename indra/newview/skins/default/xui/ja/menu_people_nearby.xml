@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Avatar Context Menu">
+<context_menu name="Nearby People Context Menu">
 	<menu_item_call label="プロフィールを表示" name="view_profile"/>
 	<menu_item_call label="ＩＭ" name="im"/>
 	<menu_item_call label="テレポートを送る" name="offer_teleport"/>
