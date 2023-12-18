@@ -1729,11 +1729,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6542ca342661ec4dc7f3fbcd29ca7962d3bf4a01</string>
+              <string>6cc1585dba85b0226a2e7033a7e2a2ceaae7c983</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-12b73ee/mikktspace-1-darwin64-12b73ee.tar.zst</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-5cee1f4/mikktspace-1-darwin64-5cee1f4.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1743,11 +1743,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4c1138005a224018e8c1b9c057f03695b23e70b</string>
+              <string>6b7d01ad54e4a88a001f66840c32329cedb28202</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-12b73ee/mikktspace-1-windows64-12b73ee.tar.zst</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-5cee1f4/mikktspace-1-windows64-5cee1f4.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1757,11 +1757,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e61c1e678b82d75764e29cac107431bdddb3f21f</string>
+              <string>edc9782bf209e17ad1845498b42f16d733582082</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-12b73ee/mikktspace-1-linux64-12b73ee.tar.zst</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-5cee1f4/mikktspace-1-linux64-5cee1f4.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2377,11 +2377,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>eee6b755cea664e228dcc28b2ea2a036741a4d77</string>
+              <string>2c47ae2d0c38c86b8c2db8d9317f0ab15edfc74f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tinygltf/releases/download/v2.5.0-5d136c3/tinygltf-v2.5.0-common-5d136c3.tar.zst</string>
+              <string>https://github.com/secondlife/3p-tinygltf/releases/download/v2.5.0-1ae57fd/tinygltf-v2.5.0-common-1ae57fd.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2415,9 +2415,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b6e1a1f4b0969d38a1ca8ee00aeb548</string>
+              <string>49650353442698c3e05102676fe427d0ebe02f0b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110584/960613/tracy-v0.8.1.578241-darwin64-578241.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.8.1-eecbf72/tracy-v0.8.1-eecbf72-darwin64-eecbf72.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2427,11 +2429,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>05b72ae5d733aed7d3bf142287601cc6</string>
+              <string>2b80e7407e4f3e82eff3879add0e9ad63e7fcace</string>
               <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110586/960637/tracy-v0.8.1.578241-windows64-578241.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.8.1-eecbf72/tracy-v0.8.1-eecbf72-windows64-eecbf72.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2444,7 +2446,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2017-2022, Bartosz Taudul (wolf@nereid.pl)</string>
         <key>version</key>
-        <string>v0.8.1.578241</string>
+        <string>v0.8.1-eecbf72</string>
         <key>name</key>
         <string>tracy</string>
         <key>canonical_repo</key>
@@ -2725,11 +2727,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c4742a4b1a870de9ef0ecfc3ba7ee7d996cb8fc</string>
+              <string>8e365eff8dcace48d91e2530f8b13e420849aefc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vulkan-gltf-pbr/releases/download/v1.0.0-93b7b3b/vulkan_gltf-1.0.0-common-93b7b3b.tar.zst</string>
+              <string>https://github.com/secondlife/3p-vulkan-gltf-pbr/releases/download/v1.0.0-d7c372f/vulkan_gltf-1.0.0-common-d7c372f.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2771,11 +2773,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fdcc803a76a3359bb426db7dac161406676d51e7</string>
+              <string>71921e972a9181da916d9f9da6bceaa99935901b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1.7501c90/xxhash-0.8.1.7501c90-darwin64-7501c90.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1-d405199/xxhash-0.8.1-d405199-darwin64-d405199.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2785,11 +2787,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7acb3f94a549fbb9bd7bc16604e34f33c5365a9b</string>
+              <string>b5b47855316f1f82266e3f9086997048b8d81952</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1.7501c90/xxhash-0.8.1.7501c90-linux64-7501c90.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1-d405199/xxhash-0.8.1-d405199-linux64-d405199.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2799,11 +2801,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4522d075ea4703ef4b527c3039864ef735ea7953</string>
+              <string>069d5f4a4b25462092d74da24d03db34cc2b91f3</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1.7501c90/xxhash-0.8.1.7501c90-windows64-7501c90.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1-d405199/xxhash-0.8.1-d405199-windows64-d405199.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2816,7 +2818,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2012-2021 Yann Collet</string>
         <key>version</key>
-        <string>0.8.1.7501c90</string>
+        <string>0.8.1-d405199</string>
         <key>name</key>
         <string>xxhash</string>
         <key>description</key>
