@@ -102,45 +102,6 @@ static const std::string PROFILE_IMAGE_UPLOAD_CAP = "UploadAgentProfileImage";
 
 //////////////////////////////////////////////////////////////////////////
 
-
-//TODO: changes take two minutes to propagate!
-// Add some storage that holds updated data for two minutes
-// for new instances to reuse the data
-// Profile data is only relevant to own avatar, but notes
-// are for everybody (no onger an issue?)
-void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data, std::function<void(bool)> callback)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("put_avatar_properties_coro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    httpOpts->setFollowRedirects(true);
-
-    std::string finalUrl = cap_url + "/" + agent_id.asString();
-
-    LLSD result = httpAdapter->putAndSuspend(httpRequest, finalUrl, data, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        LL_WARNS("AvatarProperties") << "Failed to put agent information " << data << " for id " << agent_id << LL_ENDL;
-    }
-    else
-    {
-        LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
-    }
-
-    if (callback)
-    {
-        callback(status);
-    }
-}
-
 LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::string path_to_image, LLHandle<LLPanel> *handle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -1840,7 +1801,17 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
     if (mImageId == id)
         return;
 
-    if (!saveAgentUserInfoCoro("sl_image_id", id))
+    std::function<void(bool)> callback = [id](bool result)
+    {
+        if (result)
+        {
+            LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
+            // Should trigger callbacks in icon controls
+            LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
+        }
+    };
+
+    if (!saveAgentUserInfoCoro("sl_image_id", id, callback))
         return;
 
     mImageId = id;

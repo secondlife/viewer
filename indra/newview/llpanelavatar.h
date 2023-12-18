@@ -133,7 +133,7 @@ protected:
 
     const bool getSelfProfile() const { return mSelfProfile; }
 
-    bool saveAgentUserInfoCoro(std::string name, LLSD value) const;
+    bool saveAgentUserInfoCoro(std::string name, LLSD value, std::function<void(bool)> callback = nullptr) const;
 
 public:
     void setIsLoading() { mLoadingState = PROFILE_LOADING; }
