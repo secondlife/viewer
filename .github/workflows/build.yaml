@@ -33,6 +33,9 @@ jobs:
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      # Direct autobuild to store vcs_url, vcs_branch and vcs_revision in
+      # autobuild-package.xml.
+      AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that Linden viewer builds engage Bugsplat.
@@ -191,6 +194,11 @@ jobs:
             export PYTHON_COMMAND="python3"
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
+
+          # branch will be something like "origin/mybranch"
+          branch="$(git branch -r --contains ${{ github.event.pull_request.head.sha || github.sha }} | head -n 1)"
+          # strip off "origin/"
+          export AUTOBUILD_VCS_BRANCH="${branch#*/}"
 
           ./build.sh
 
