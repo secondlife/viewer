@@ -417,10 +417,22 @@ void LLInventoryFetchDescendentsObserver::changed(U32 mask)
 		}
 		++it;
 	}
-	if (mIncomplete.empty())
-	{
-		done();
-	}
+
+    if (mIncomplete.empty())
+    {
+        done();
+    }
+    else
+    {
+        LLInventoryModelBackgroundFetch* fetcher = LLInventoryModelBackgroundFetch::getInstance();
+        if (fetcher->isEverythingFetched()
+            && !fetcher->folderFetchActive())
+        {
+            // If fetcher is done with folders yet we are waiting, fetch either
+            // failed or version is somehow stuck at -1
+            done();
+        }
+    }
 }
 
 void LLInventoryFetchDescendentsObserver::startFetch()
@@ -431,12 +443,8 @@ void LLInventoryFetchDescendentsObserver::startFetch()
 		if (!cat) continue;
 		if (!isCategoryComplete(cat))
 		{
-			// CHECK IT: isCategoryComplete() checks both version and descendant count but
-			// fetch() only works for Unknown version and doesn't care about descentants,
-			// as result fetch won't start and folder will potentially get stuck as
-			// incomplete in observer.
-			// Likely either both should use only version or both should check descendants.
-			cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
+            //blindly fetch it without seeing if anything else is fetching it.
+            LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(*it, true);
 			mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
 		}
 		else

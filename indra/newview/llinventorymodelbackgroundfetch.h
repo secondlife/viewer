@@ -53,6 +53,13 @@ public:
     void scheduleFolderFetch(const LLUUID& cat_id, bool forced = false);
     void scheduleItemFetch(const LLUUID& item_id, bool forced = false);
 
+    typedef boost::function<void()> nullary_func_t;
+    // AIS3 only, Fetches folder and everithing links inside the folder point to
+    // Intended for outfits
+    void fetchFolderAndLinks(const LLUUID& cat_id, nullary_func_t callback);
+    // AIS3 only
+    void fetchCOF(nullary_func_t callback);
+
 	BOOL folderFetchActive() const;
 	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
 

@@ -79,8 +79,14 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t 
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+    // Going to request each 15 seconds either way, so don't wait
+    // too long and don't repeat
+    httpOpts->setRetries(0);
+    httpOpts->setTimeout(SECS_BETWEEN_REGION_REQUEST);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
 
     LLWorld *world_inst = LLWorld::getInstance();
     if (!world_inst)
@@ -190,6 +196,11 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    // Going to request each 60+ seconds, timeout is 30s.
+    // Don't repeat too often, will be sending newer data soon
+    httpOpts->setRetries(1);
 
     LLWorld *world_inst = LLWorld::getInstance();
     if (!world_inst)
@@ -256,7 +267,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
 
     regionp = NULL;
     world_inst = NULL;
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, report);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, report, httpOpts);
 
     world_inst = LLWorld::getInstance();
     if (!world_inst)

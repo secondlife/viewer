@@ -93,7 +93,8 @@ S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
 const S32 MAX_CACHED_RAW_TERRAIN_IMAGE_AREA = 128 * 128;
-const S32 DEFAULT_ICON_DIMENTIONS = 32;
+const S32 DEFAULT_ICON_DIMENSIONS = 32;
+const S32 DEFAULT_THUMBNAIL_DIMENSIONS = 256;
 U32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
 U32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 bool LLViewerTexture::sFreezeImageUpdates = false;
@@ -665,7 +666,8 @@ void LLViewerTexture::setBoostLevel(S32 level)
 		mBoostLevel = level;
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE && 
 			mBoostLevel != LLViewerTexture::BOOST_SELECTED && 
-			mBoostLevel != LLViewerTexture::BOOST_ICON)
+			mBoostLevel != LLViewerTexture::BOOST_ICON &&
+            mBoostLevel != LLViewerTexture::BOOST_THUMBNAIL)
 		{
 			setNoDelete();		
 		}
@@ -1180,8 +1182,19 @@ void LLViewerFetchedTexture::loadFromFastCache()
             {
                 // Shouldn't do anything usefull since texures in fast cache are 16x16,
                 // it is here in case fast cache changes.
-                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENSIONS;
+                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENSIONS;
+                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                {
+                    // scale oversized icon, no need to give more work to gl
+                    mRawImage->scale(expected_width, expected_height);
+                }
+            }
+
+            if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
+            {
+                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
+                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
                 if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                 {
                     // scale oversized icon, no need to give more work to gl
@@ -1682,7 +1695,7 @@ void LLViewerFetchedTexture::processTextureStats()
 		{
 			mDesiredDiscardLevel = 0;
 		}
-        else if (mDontDiscard && mBoostLevel == LLGLTexture::BOOST_ICON)
+        else if (mDontDiscard && (mBoostLevel == LLGLTexture::BOOST_ICON || mBoostLevel == LLGLTexture::BOOST_THUMBNAIL))
         {
             if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
             {
@@ -1916,8 +1929,20 @@ bool LLViewerFetchedTexture::updateFetch()
 
                 if (mBoostLevel == LLGLTexture::BOOST_ICON)
                 {
-                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENSIONS;
+                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENSIONS;
+                    if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                    {
+                        // scale oversized icon, no need to give more work to gl
+                        // since we got mRawImage from thread worker and image may be in use (ex: writing cache), make a copy
+                        mRawImage = mRawImage->scaled(expected_width, expected_height);
+                    }
+                }
+
+                if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
+                {
+                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
+                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
                     if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                     {
                         // scale oversized icon, no need to give more work to gl
@@ -2652,7 +2677,9 @@ LLImageRaw* LLViewerFetchedTexture::reloadRawImage(S8 discard_level)
 
 	if(mSavedRawDiscardLevel >= 0 && mSavedRawDiscardLevel <= discard_level)
 	{
-		if (mSavedRawDiscardLevel != discard_level && mBoostLevel != BOOST_ICON)
+		if (mSavedRawDiscardLevel != discard_level
+            && mBoostLevel != BOOST_ICON
+            && mBoostLevel != BOOST_THUMBNAIL)
 		{
 			mRawImage = new LLImageRaw(getWidth(discard_level), getHeight(discard_level), getComponents());
 			mRawImage->copy(getSavedRawImage());
@@ -2759,8 +2786,22 @@ void LLViewerFetchedTexture::setCachedRawImage(S32 discard_level, LLImageRaw* im
     {
         if (mBoostLevel == LLGLTexture::BOOST_ICON)
         {
-            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENSIONS;
+            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENSIONS;
+            if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+            {
+                mCachedRawImage = new LLImageRaw(expected_width, expected_height, imageraw->getComponents());
+                mCachedRawImage->copyScaled(imageraw);
+            }
+            else
+            {
+                mCachedRawImage = imageraw;
+            }
+        }
+        else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
+        {
+            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
+            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
             if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
             {
                 mCachedRawImage = new LLImageRaw(expected_width, expected_height, imageraw->getComponents());
@@ -2867,8 +2908,22 @@ void LLViewerFetchedTexture::saveRawImage()
 	mSavedRawDiscardLevel = mRawDiscardLevel;
     if (mBoostLevel == LLGLTexture::BOOST_ICON)
     {
-        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENSIONS;
+        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENSIONS;
+        if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+        {
+            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
+            mSavedRawImage->copyScaled(mRawImage);
+        }
+        else
+        {
+            mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
+        }
+    }
+    else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
+    {
+        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
+        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
         if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
         {
             mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());

@@ -106,7 +106,7 @@ public:
 	LLConversationViewModel& getRootViewModel() { return mConversationViewModel; }
     LLUUID getSelectedSession() { return mSelectedSession; }
     void setSelectedSession(LLUUID sessionID) { mSelectedSession = sessionID; }
-	LLConversationItem* getSessionModel(const LLUUID& session_id) { return get_ptr_in_map(mConversationsItems,session_id); }
+	LLConversationItem* getSessionModel(const LLUUID& session_id);
 	LLConversationSort& getSortOrder() { return mConversationViewModel.getSorter(); }
 
 	// Handling of lists of participants is public so to be common with llfloatersessiontab
