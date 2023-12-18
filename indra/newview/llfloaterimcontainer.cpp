@@ -155,6 +155,20 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
 	LLFloaterIMSessionTab::addToHost(new_session_id);
 }
 
+
+LLConversationItem* LLFloaterIMContainer::getSessionModel(const LLUUID& session_id)
+{
+    conversations_items_map::iterator iter = mConversationsItems.find(session_id);
+    if (iter == mConversationsItems.end())
+    {
+        return NULL;
+    }
+    else
+    {
+        return iter->second.get();
+    }
+}
+
 void LLFloaterIMContainer::sessionRemoved(const LLUUID& session_id)
 {
 	removeConversationListItem(session_id);
@@ -611,7 +625,8 @@ void LLFloaterIMContainer::handleConversationModelEvent(const LLSD& event)
 	}
 	else if (type == "add_participant")
 	{
-		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
+        LLConversationItem* item = getSessionModel(session_id);
+		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(item);
 		LLConversationItemParticipant* participant_model = (session_model ? session_model->findParticipant(participant_id) : NULL);
 		LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(session_id);
 		if (!participant_view && session_model && participant_model)
@@ -1752,10 +1767,9 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 
 void LLFloaterIMContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
-	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
+	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(getSessionModel(session_id));
 	if (item)
 	{
-		item->setTimeNow(participant_id);
 		mConversationViewModel.requestSortAll();
 		mConversationsRoot->arrangeAll();
 	}
@@ -1764,7 +1778,7 @@ void LLFloaterIMContainer::setTimeNow(const LLUUID& session_id, const LLUUID& pa
 void LLFloaterIMContainer::setNearbyDistances()
 {
 	// Get the nearby chat session: that's the one with uuid nul
-	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,LLUUID()));
+    LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(getSessionModel(LLUUID()));
 	if (item)
 	{
 		// Get the positions of the nearby avatars and their ids

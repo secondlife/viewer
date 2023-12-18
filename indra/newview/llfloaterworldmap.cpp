@@ -121,10 +121,27 @@ static const F32 ZOOM_MAX = 128.f;
 class LLWorldMapHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
-	LLWorldMapHandler() : LLCommandHandler("worldmap", UNTRUSTED_CLICK_ONLY ) { }
-	
-	bool handle(const LLSD& params,
+    LLWorldMapHandler() : LLCommandHandler("worldmap", UNTRUSTED_THROTTLE)
+    {
+    }
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
+    bool handle(const LLSD& params,
                 const LLSD& query_map,
                 const std::string& grid,
                 LLMediaCtrl* web)
@@ -160,12 +177,32 @@ LLWorldMapHandler gWorldMapHandler;
 class LLMapTrackAvatarHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
-	LLMapTrackAvatarHandler() : LLCommandHandler("maptrackavatar", UNTRUSTED_CLICK_ONLY) 
+	LLMapTrackAvatarHandler() : LLCommandHandler("maptrackavatar", UNTRUSTED_THROTTLE)
 	{ 
 	}
-	
-	bool handle(const LLSD& params,
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (params.size() < 1)
+        {
+            return true; // don't block, will fail later
+        }
+
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
+    bool handle(const LLSD& params,
                 const LLSD& query_map,
                 const std::string& grid,
                 LLMediaCtrl* web)

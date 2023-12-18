@@ -9,20 +9,17 @@
 	<text name="ItemcountText">
 		Genstande:
 	</text>
-	<filter_editor label="Filter" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Alle ting" name="All Items"/>
-		<recent_inventory_panel label="Nye ting" name="Recent Items"/>
-	</tab_container>
-	<layout_stack name="bottom_panel">
-		<layout_panel name="options_gear_btn_panel">
-			<button name="options_gear_btn" tool_tip="Vis yderligere valg"/>
-		</layout_panel>
-		<layout_panel name="add_btn_panel">
-			<button name="add_btn" tool_tip="Tilføj ny genstand"/>
-		</layout_panel>
-		<layout_panel name="trash_btn_panel">
-			<dnd_button name="trash_btn" tool_tip="Fjern valgte genstand"/>
-		</layout_panel>
-	</layout_stack>
+    <layout_stack name="top_stack">
+        <layout_panel name="filter_layout_panel">
+            <filter_editor label="Filter" name="inventory search editor"/>
+            <button name="options_gear_btn" tool_tip="Vis yderligere valg"/>
+            <button name="add_btn" tool_tip="Tilføj ny genstand"/>
+        </layout_panel>
+    </layout_stack>
+    <panel name="default_inventory_panel">
+        <tab_container name="inventory filter tabs">
+            <inventory_panel label="Alle ting" name="All Items"/>
+            <recent_inventory_panel label="Nye ting" name="Recent Items"/>
+        </tab_container>
+    </panel>
 </panel>

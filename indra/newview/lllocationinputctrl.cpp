@@ -391,7 +391,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 		LL_WARNS() << "Error loading navigation bar context menu" << LL_ENDL;
 		
 	}
-	getTextEntry()->setRightMouseUpCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked,this,_2,_3,_4));
+    //don't show default context menu
+    getTextEntry()->setShowContextMenu(false);
+    getTextEntry()->setRightMouseDownCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked, this, _2, _3, _4));
 	updateWidgetlayout();
 
 	// Connecting signal for updating location on "Show Coordinates" setting change.

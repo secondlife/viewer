@@ -35,7 +35,9 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llkeyboard.h"
 #include "llregex.h"
+#include "llscrolllistctrl.h" // for LLUrlEntryKeybinding file parsing
 #include "lltrans.h"
 #include "lluicolortable.h"
 #include "message.h"
@@ -1608,4 +1610,123 @@ std::string LLUrlEntryIPv6::getQuery(const std::string &url) const
 std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
 {
 	return string;
+}
+
+
+//
+// LLUrlEntryKeybinding Displays currently assigned key
+//
+LLUrlEntryKeybinding::LLUrlEntryKeybinding()
+    : LLUrlEntryBase()
+    , pHandler(NULL)
+{
+    mPattern = boost::regex(APP_HEADER_REGEX "/keybinding/\\w+(\\?mode=\\w+)?$",
+                            boost::regex::perl | boost::regex::icase);
+    mMenuName = "menu_url_experience.xml";
+
+    initLocalization();
+}
+
+std::string LLUrlEntryKeybinding::getLabel(const std::string& url, const LLUrlLabelCallback& cb)
+{
+    std::string control = getControlName(url);
+
+    std::map<std::string, LLLocalizationData>::iterator iter = mLocalizations.find(control);
+
+    std::string keybind;
+    if (pHandler)
+    {
+        keybind = pHandler->getKeyBindingAsString(getMode(url), control);
+    }
+
+    if (iter != mLocalizations.end())
+    {
+        return iter->second.mLocalization + ": " + keybind;
+    }
+
+    return control + ": " + keybind;
+}
+
+std::string LLUrlEntryKeybinding::getTooltip(const std::string& url) const
+{
+    std::string control = getControlName(url);
+
+    std::map<std::string, LLLocalizationData>::const_iterator iter = mLocalizations.find(control);
+    if (iter != mLocalizations.end())
+    {
+        return iter->second.mTooltip;
+    }
+    return url;
+}
+
+std::string LLUrlEntryKeybinding::getControlName(const std::string& url) const
+{
+    std::string search = "/keybinding/";
+    size_t pos_start = url.find(search);
+    if (pos_start == std::string::npos)
+    {
+        return std::string();
+    }
+    pos_start += search.size();
+
+    size_t pos_end = url.find("?mode=");
+    if (pos_end == std::string::npos)
+    {
+        pos_end = url.size();
+    }
+    return url.substr(pos_start, pos_end - pos_start);
+}
+
+std::string LLUrlEntryKeybinding::getMode(const std::string& url) const
+{
+    std::string search = "?mode=";
+    size_t pos_start = url.find(search);
+    if (pos_start == std::string::npos)
+    {
+        return std::string();
+    }
+    pos_start += search.size();
+    return url.substr(pos_start, url.size() - pos_start);
+}
+
+void LLUrlEntryKeybinding::initLocalization()
+{
+    initLocalizationFromFile("control_table_contents_movement.xml");
+    initLocalizationFromFile("control_table_contents_camera.xml");
+    initLocalizationFromFile("control_table_contents_editing.xml");
+    initLocalizationFromFile("control_table_contents_media.xml");
+}
+
+void LLUrlEntryKeybinding::initLocalizationFromFile(const std::string& filename)
+{
+    LLXMLNodePtr xmlNode;
+    LLScrollListCtrl::Contents contents;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
+    {
+        LL_WARNS() << "Failed to load " << filename << LL_ENDL;
+        return;
+    }
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+
+    if (!contents.validateBlock())
+    {
+        LL_WARNS() << "Failed to validate " << filename << LL_ENDL;
+        return;
+    }
+
+    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
+         row_it != contents.rows.end();
+         ++row_it)
+    {
+        std::string control = row_it->value.getValue().asString();
+        if (!control.empty() && control != "menu_separator")
+        {
+            mLocalizations[control] =
+                LLLocalizationData(
+                                   row_it->columns.begin()->value.getValue().asString(),
+                                   row_it->columns.begin()->tool_tip.getValue()
+                );
+        }
+    }
 }

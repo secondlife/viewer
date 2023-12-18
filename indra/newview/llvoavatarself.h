@@ -289,6 +289,8 @@ public:
 	/*virtual*/ BOOL 	detachObject(LLViewerObject *viewer_object);
 	static BOOL			detachAttachmentIntoInventory(const LLUUID& item_id);
 
+    bool hasAttachmentsInTrash();
+
 	//--------------------------------------------------------------------
 	// HUDs
 	//--------------------------------------------------------------------
