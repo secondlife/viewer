@@ -1574,7 +1574,7 @@ void LLWebRTCVoiceClient::updatePosition(void)
 void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot)
 {
 
-	mListenerPosition = position;
+	mListenerRequestedPosition = position;
 	
 	if(mListenerVelocity != velocity)
 	{
