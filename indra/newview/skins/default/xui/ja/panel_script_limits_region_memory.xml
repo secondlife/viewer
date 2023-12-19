@@ -3,10 +3,8 @@
 	<text name="script_memory">
 		区画スクリプトメモリ
 	</text>
-	<text name="parcels_listed"/>
-	<text name="memory_used"/>
 	<text name="loading_text">
-		読み込み中…
+		読込中...
 	</text>
 	<scroll_list name="scripts_list">
 		<scroll_list.columns label="サイズ (KB)" name="size"/>
@@ -17,6 +15,6 @@
 		<scroll_list.columns label="場所" name="location"/>
 	</scroll_list>
 	<button label="リスト更新" name="refresh_list_btn"/>
-	<button label="ハイライト" name="highlight_btn"/>
 	<button label="返却" name="return_btn"/>
+	<button label="ハイライト" name="highlight_btn"/>
 </panel>

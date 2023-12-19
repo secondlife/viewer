@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings picker" title="選択: 設定">
+<floater name="settings picker" title="ピック: 設定">
 	<floater.string name="pick title">
-		選択:
+		ピック:
 	</floater.string>
 	<floater.string name="pick_track">
 		トラックを選択
@@ -10,7 +10,7 @@
 		設定を選択
 	</floater.string>
 	<floater.string name="track_water">
-		水
+		水面
 	</floater.string>
 	<floater.string name="track_ground">
 		地面

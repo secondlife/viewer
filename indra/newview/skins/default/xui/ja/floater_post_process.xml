@@ -6,12 +6,15 @@
 			<text name="wmiColorFilterBrightnessText">
 				明度
 			</text>
+			<slider initial_value="1.0" name="wmiColorFilterBrightness"/>
 			<text name="wmiColorFilterSaturationText">
 				彩度
 			</text>
+			<slider initial_value="1.0" name="wmiColorFilterSaturation"/>
 			<text name="wmiColorFilterContrastText">
 				輝度
 			</text>
+			<slider initial_value="1.0" name="wmiColorFilterContrast"/>
 			<text name="wmiColorFilterBaseText">
 				輝度の基準色
 			</text>
@@ -25,27 +28,33 @@
 			<text name="wmiNightVisionBrightMultText">
 				光の増幅(マルチ)
 			</text>
+			<slider initial_value="3.0" name="wmiNightVisionBrightMult"/>
 			<text name="wmiNightVisionNoiseSizeText">
 				ノイズ・サイズ
 			</text>
+			<slider initial_value="1" name="wmiNightVisionNoiseSize"/>
 			<text name="wmiNightVisionNoiseStrengthText">
 				ノイズ強度
 			</text>
+			<slider initial_value="0.3" name="wmiNightVisionNoiseStrength"/>
 		</panel>
 		<panel label="ブルーム" name="wmiBloomPanel">
 			<check_box label="有効" name="wmiBloomToggle"/>
 			<text name="wmiBloomExtractText">
 				明度の抽出
 			</text>
+			<slider initial_value="0.9" name="wmiBloomExtract"/>
 			<text name="wmiBloomSizeText">
 				ブルーム・サイズ
 			</text>
+			<slider initial_value="3.0" name="wmiBloomSize"/>
 			<text name="wmiBloomStrengthText">
 				ブルーム強度
 			</text>
+			<slider initial_value="1.2" name="wmiBloomStrength"/>
 		</panel>
 		<panel label="その他" name="Extras">
-			<button label="効果読み込み" label_selected="効果読み込み" name="PPLoadEffect"/>
+			<button label="効果読込" label_selected="効果読込" name="PPLoadEffect"/>
 			<button label="効果保存" label_selected="効果保存" name="PPSaveEffect"/>
 			<line_editor label="効果名" name="PPEffectNameEditor"/>
 		</panel>

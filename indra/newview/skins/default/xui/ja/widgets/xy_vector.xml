@@ -3,5 +3,4 @@
 	<xy_vector.border visible="true"/>
 	<xy_vector.x_entry name="XEntry" tab_stop="true" label="X軸:"/>
 	<xy_vector.y_entry name="YEntry" tab_stop="true" label="Y軸:"/>
-	<xy_vector.touch_area name="TouchArea"/>
 </xy_vector>

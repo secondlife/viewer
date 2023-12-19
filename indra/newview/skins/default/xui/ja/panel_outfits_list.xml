@@ -6,7 +6,6 @@
 	</accordion>
 	<panel name="bottom_panel">
 		<menu_button tool_tip="追加オプションを表示" name="options_gear_btn"/>
-		<icon name="dummy_icon"/>
-		<button name="trash_btn" tool_tip="選択されたアウトフィットを削除する。"/>
+		<button name="trash_btn" tool_tip="選択されたアウトフィットを削除"/>
 	</panel>
 </panel>

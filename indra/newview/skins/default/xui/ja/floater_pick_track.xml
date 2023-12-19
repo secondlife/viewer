@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="track picker" title="選択: トラック">
+<floater name="track picker" title="ピック: トラック">
 	<layout_stack name="adjuster">
 		<layout_panel name="pnl_desc">
 			<text name="select_description">

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="group_list_item">
-	<icon name="hovered_icon"/>
-	<icon name="selected_icon"/>
-	<group_icon name="group_icon"/>
 	<text name="group_name" value="不明"/>
+	<button name="notices_btn" tool_tip="グループ通知"/>
 	<button name="info_btn" tool_tip="詳細詳細"/>
 	<button name="profile_btn" tool_tip="プロフィールの表示"/>
 </panel>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="main_panel" title="panel_notification_list_item">
 	<panel.string name="sender_resident_text">
-		送信者: "[SENDER_RESIDENT]"
+		送信者: 「[SENDER_RESIDENT]」
 	</panel.string>
 	<panel.string name="group_name_text">
-		グループ: "[GROUP_NAME]"
+		グループ: 「[GROUP_NAME]」
 	</panel.string>
 	<panel.string name="group_fee_text">
 		費用: [GROUP_FEE]
@@ -42,12 +42,6 @@
 									</text>
 									<text name="notification_time" value="2014年12月24日 23:30"/>
 								</panel>
-							</panel>
-						</layout_panel>
-						<layout_panel name="layout_panel_right">
-							<panel name="close_expand_panel">
-								<button name="close_btn"/>
-								<button name="expand_btn"/>
 							</panel>
 						</layout_panel>
 					</layout_stack>
@@ -93,12 +87,6 @@
 									<button name="decline_btn" label="却下"/>
 									<button name="info_btn" label="情報"/>
 								</panel>
-							</panel>
-						</layout_panel>
-						<layout_panel name="layout_panel_left_exp">
-							<panel name="close_expand_panel_exp">
-								<button name="close_expanded_btn"/>
-								<button name="condense_btn"/>
 							</panel>
 						</layout_panel>
 					</layout_stack>

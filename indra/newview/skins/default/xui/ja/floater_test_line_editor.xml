@@ -18,10 +18,10 @@
 	<line_editor name="left_pad_editor">
 		左に25pxの余白
 	</line_editor>
-	<line_editor name="left_pad_editor">
+	<line_editor name="left_pad_editor2">
 		右に75pxの余白
 	</line_editor>
-	<line_editor name="left_pad_editor">
+	<line_editor name="left_pad_editor3">
 		左に25px、右に75pxの余白
 	</line_editor>
 	<search_editor label="検索語句を入力" name="search editor" tool_tip="エディタを検索"/>

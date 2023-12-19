@@ -3,18 +3,18 @@
 	<text name="camera_offset_lbl">
 		カメラのオフセット:
 	</text>
-	<spinner name="camera_x"/>
-	<spinner label="Y" name="camera_y"/>
-	<spinner label="Z" name="camera_z"/>
+	<spinner label="Y" name="camera_y">
+	</spinner>
+	<spinner label="Z" name="camera_z">
+	</spinner>
 	<text name="focus_offset_lbl">
 		焦点のオフセット:
 	</text>
-	<spinner name="focus_x"/>
-	<spinner label="Y" name="focus_y"/>
-	<spinner label="Z" name="focus_z"/>
+	<spinner label="Y" name="focus_y">
+	</spinner>
+	<spinner label="Z" name="focus_z">
+	</spinner>
 	<text name="offset_scale_lbl">
 		カメラのオフセット倍率:
 	</text>
-	<slider name="offset_scale_sld"/>
-	<spinner name="offset_scale_ctrl"/>
 </floater>

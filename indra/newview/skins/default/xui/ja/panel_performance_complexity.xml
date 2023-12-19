@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_performance_complexity">
-	<button name="back_btn"/>
 	<text name="back_lbl">
 		戻る
 	</text>

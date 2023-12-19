@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experience_info">
-	<text name="title" value="体験のプロフィール"/>
+	<text name="title" value="体験プロフィール"/>
 	<scroll_container name="xp_scroll">
 		<panel name="scrolling_panel">
 			<layout_stack name="ls1">
-				<layout_panel name="image_panel">
-					<texture_picker name="logo"/>
-				</layout_panel>
 				<layout_panel name="title panel">
 					<text name="experience_title" value="カイルのスーパーヒーローRPG"/>
-				</layout_panel>
-				<layout_panel name="description panel">
-					<expandable_text name="experience_description"/>
 				</layout_panel>
 				<layout_panel name="location panel">
 					<text name="Location">
@@ -36,7 +30,7 @@
 						レーティング:
 					</text>
 					<text name="ContentRatingText">
-						Adult
+						アダルト
 					</text>
 					<text name="Owner">
 						所有者:

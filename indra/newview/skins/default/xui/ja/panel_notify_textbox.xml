@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="instant_message" name="panel_notify_textbox">
 	<string name="message_max_lines_count" value="14"/>
-	<panel label="情報パネル" name="info_panel"/>
-	<panel label="情報パネル" name="textbox_panel">
-		<text_editor name="message" value="メッセージ"/>
+	<panel label="INFO_PANEL" name="info_panel">
+	</panel>
+	<panel label="INFO_PANEL" name="textbox_panel">
+		<text_editor name="message" value="メッセージ">
+		</text_editor>
 	</panel>
 	<panel label="control_panel" name="control_panel">
 		<button label="送信" name="btn_submit"/>

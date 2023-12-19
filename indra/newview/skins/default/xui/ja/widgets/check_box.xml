@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<check_box>
+	<check_box.check_button name="CheckboxCtrl Button" label=""/>
+</check_box>

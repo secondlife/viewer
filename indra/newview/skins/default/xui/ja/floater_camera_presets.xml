@@ -1,4 +1,2 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater title="カメラのプリセット" name="floater_camera_presets">
-	<flat_list_view name="preset_list"/>
-</floater>
+<floater title="カメラのプリセット" name="floater_camera_presets"/>

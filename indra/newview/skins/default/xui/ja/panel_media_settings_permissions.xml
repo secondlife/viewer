@@ -19,6 +19,7 @@
 	<text name="group_label">
 		グループ:
 	</text>
+	<name_box name="perms_group_name" value=""/>
 	<check_box label="ナビゲーションと相互作用力を有効にする" name="perms_group_interact"/>
 	<check_box label="コントロールバーを表示" name="perms_group_control"/>
 	<text name="anyone_label">

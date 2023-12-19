@@ -3,7 +3,6 @@
 	<text name="token_prompt_text">
 		トークンのプロンプト
 	</text>
-	<line_editor name="token_edit"/>
-	<button label="続ける" name="continue_btn"/>
+	<button label="続行" name="continue_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

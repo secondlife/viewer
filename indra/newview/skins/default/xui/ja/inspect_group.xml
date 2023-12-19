@@ -7,11 +7,14 @@
 		参加費無料
 	</string>
 	<string name="CostToJoin">
-		参加費L$ [AMOUNT]
+		参加費L$[AMOUNT]
 	</string>
 	<string name="YouAreMember">
 		あなたはメンバーです。
 	</string>
+	<text name="group_name">
+		テスト文字列 無視してください
+	</text>
 	<text name="group_subtitle">
 		123メートル
 	</text>

@@ -5,17 +5,17 @@
 	</text>
 	<combo_box name="language_combobox">
 		<combo_box.item label="English (英語)" name="English"/>
-		<combo_box.item label="Dansk(デンマーク語)-ベータ" name="Danish"/>
-		<combo_box.item label="Deutsch(ドイツ語)-ベータ" name="Deutsch(German)"/>
-		<combo_box.item label="Español(スペイン語) - ベータ" name="Spanish"/>
-		<combo_box.item label="Français(フランス語) - ベータ" name="French"/>
-		<combo_box.item label="Italiano(イタリア語)-ベータ" name="Italian"/>
-		<combo_box.item label="Polski(ポーランド語)-ベータ" name="Polish"/>
-		<combo_box.item label="Português(ポルトガル語) - ベータ" name="Portugese"/>
-		<combo_box.item label="Русский(ロシア語)-ベータ" name="Russian"/>
-		<combo_box.item label="Türkçe(トルコ語) - ベータ" name="Turkish"/>
-		<combo_box.item label="日本語-ベータ" name="(Japanese)"/>
-		<combo_box.item label="正體中文(簡体字中国語)-ベータ版" name="Traditional Chinese"/>
+		<combo_box.item label="Dansk (デンマーク語) - ベータ" name="Danish"/>
+		<combo_box.item label="Deutsch (ドイツ語) - ベータ" name="Deutsch(German)"/>
+		<combo_box.item label="Español (スペイン語) - ベータ" name="Spanish"/>
+		<combo_box.item label="Français (フランス語) - ベータ" name="French"/>
+		<combo_box.item label="Italiano (イタリア語) - ベータ" name="Italian"/>
+		<combo_box.item label="Polski (ポーランド語) - ベータ" name="Polish"/>
+		<combo_box.item label="Português (ポルトガル語) - ベータ" name="Portugese"/>
+		<combo_box.item label="Русский (ロシア語) - ベータ" name="Russian"/>
+		<combo_box.item label="Türkçe (トルコ語) - ベータ" name="Turkish"/>
+		<combo_box.item label="日本語 (Japanese) - ベータ" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (簡体字中国語) - ベータ" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(再起動後に反映)
@@ -23,9 +23,8 @@
 	<text name="maturity_desired_prompt">
 		アクセスしたいコンテンツ:
 	</text>
-	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="General、Moderate、Adult" name="Desired_Adult"/>
+		<combo_box.item label="一般、モデレート、アダルト" name="Desired_Adult"/>
 		<combo_box.item label="GeneralとModerate" name="Desired_Mature"/>
 		<combo_box.item label="一般" name="Desired_PG"/>
 	</combo_box>
@@ -34,7 +33,7 @@
 		(このコンピュータを使用する他の人にも表示されます)
 	</text>
 	<text name="name_tags_textbox">
-		名前の表示:
+		名前タグ:
 	</text>
 	<radio_group name="Name_Tag_Preference">
 		<radio_item label="オフ" name="radio" value="0"/>
