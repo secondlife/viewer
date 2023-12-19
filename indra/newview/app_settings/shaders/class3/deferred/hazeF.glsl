@@ -78,13 +78,12 @@ void main()
         do_atmospherics = true;
     }
     
-
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
 
     if (depth >= 1.0)
     {
-        //should only be true of WL sky, just port over base color value
+        //should only be true of sky, clouds, sun/moon, and stars
         discard;
     }
 
