@@ -242,8 +242,8 @@ public:
     void userAuthorized(const std::string &user_id, const LLUUID &agentID) override {};
 
 
-	void OnConnectionEstablished(const std::string& channelID);
-    void OnConnectionFailure(const std::string &channelID);
+	void OnConnectionEstablished(const std::string& channelID, const LLUUID& regionID);
+    void OnConnectionFailure(const std::string &channelID, const LLUUID& regionID);
     void sendPositionAndVolumeUpdate(bool force);
     void updateOwnVolume();
 	
@@ -312,6 +312,12 @@ public:
         typedef boost::weak_ptr<sessionState> wptr_t;
 
         typedef boost::function<void(const ptr_t &)> sessionFunc_t;
+        typedef enum e_session_type
+        {
+            SESSION_TYPE_ESTATE = 1,
+            SESSION_TYPE_PARCEL,
+            SESSION_TYPE_P2P
+        } ESessionType;
 
         static ptr_t createSession(const std::string& channelID, S32 parcel_local_id);
 		~sessionState();
@@ -334,9 +340,6 @@ public:
 
         bool processConnectionStates();
 
-		void OnConnectionEstablished(const std::string &channelID);
-        void OnConnectionFailure(const std::string &channelID);
-
 		void sendData(const std::string &data);
         
         void setMuteMic(bool muted);
@@ -351,12 +354,7 @@ public:
 
 		bool isSpatial() { return mSessionType == SESSION_TYPE_ESTATE || mSessionType == SESSION_TYPE_PARCEL; }
 
-    typedef enum e_session_type
-        {
-            SESSION_TYPE_ESTATE                = 1,
-            SESSION_TYPE_PARCEL,
-            SESSION_TYPE_P2P
-        } ESessionType;
+        ESessionType getSessionType() { return mSessionType; }
 
 		std::string mHandle;
 		std::string mGroupHandle;
@@ -378,6 +376,7 @@ public:
 		bool		mIncoming;
 		bool		mVoiceActive;
 		bool		mReconnect;	// Whether we should try to reconnect to this session if it's dropped
+        bool        mShuttingDown;
 
 		// Set to true when the volume/mute state of someone in the participant list changes.
 		// The code will have to walk the list to find the changed participant(s).
@@ -417,8 +416,6 @@ public:
 	// Private Member Functions
 	//////////////////////////////////////////////////////
 
-    static void predOnConnectionEstablished(const LLWebRTCVoiceClient::sessionStatePtr_t &session, std::string channelID);
-    static void predOnConnectionFailure(const LLWebRTCVoiceClient::sessionStatePtr_t &session, std::string channelID);
     static void predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const std::string& spatial_data, const std::string& volume_data);
     static void predUpdateOwnVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 audio_level);
     static void predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool mute);
@@ -459,9 +456,12 @@ public:
 	/////////////////////////////
 	// Sending updates of current state
 	void updatePosition(void);
-	void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
+	void setListenerPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 	void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 	bool channelFromRegion(LLViewerRegion *region, std::string &name);
+
+	LLVector3d getListenerPosition() { return mListenerPosition; }
+    LLVector3d getSpeakerPosition() { return mAvatarPosition; }
 
 	void setEarLocation(S32 loc);
 
@@ -613,23 +613,28 @@ private:
 	std::string displayNameFromAvatar(LLVOAvatar *avatar);
 	
 
-	bool inSpatialChannel(void);
+	bool inSpatialChannel();
 	std::string getAudioSessionURI();
 			
     void setHidden(bool hidden) override; //virtual
 
-	void enforceTether(void);
+	void enforceTether();
+
+	void updateNeighboringRegions();
+    std::set<LLUUID> getNeighboringRegions() { return mNeighboringRegions; }
 	
 	bool		mSpatialCoordsDirty;
 	
-	LLVector3d	mCameraPosition;
-	LLVector3d	mCameraRequestedPosition;
-	LLVector3	mCameraVelocity;
-	LLQuaternion mCameraRot;
+	LLVector3d	mListenerPosition;
+	LLVector3d	mListenerRequestedPosition;
+	LLVector3	mListenerVelocity;
+	LLQuaternion mListenerRot;
 
 	LLVector3d	mAvatarPosition;
 	LLVector3	mAvatarVelocity;
 	LLQuaternion mAvatarRot;
+
+	std::set<LLUUID> mNeighboringRegions; // includes current region
 	
 	bool		mMuteMic;
 	bool		mMuteMicDirty;
@@ -762,6 +767,8 @@ class LLVoiceWebRTCConnection :
     void setMuteMic(bool muted);
     void setMicGain(F32 volume);
     void setSpeakerVolume(F32 volume);
+
+	LLUUID getRegionID() { return mRegionID; }
 
 	void shutDown()
 	{ 
