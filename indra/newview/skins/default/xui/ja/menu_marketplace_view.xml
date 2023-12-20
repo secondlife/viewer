@@ -3,5 +3,6 @@
 	<menu_item_check label="名前順で並べ替え" name="sort_by_name"/>
 	<menu_item_check label="新着順で並べ替え" name="sort_by_recent"/>
 	<menu_item_check label="在庫数順で並べ替え（少から多へ）" name="sort_by_stock_amount"/>
-	<menu_item_check label="リストフォルダのみ表示" name="show_only_listing_folders"/>
+	<menu_item_separator/>
+	<menu_item_check label="出品リストフォルダのみ表示" name="show_only_listing_folders"/>
 </toggleable_menu>

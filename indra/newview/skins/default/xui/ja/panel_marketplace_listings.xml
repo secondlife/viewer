@@ -2,16 +2,16 @@
 <panel label="マーケットプレイス" name="Marketplace Panel">
 	<panel name="tool_panel">
 		<menu_button name="sort_btn" tool_tip="表示／並べ替えオプションを表示します。"/>
-		<button name="add_btn" tool_tip="新しいリストフォルダを作成します。"/>
-		<button label="エラーを確認" name="audit_btn" tool_tip="マーケットプレイスのリストを確認します。"/>
+		<button name="add_btn" tool_tip="新しい出品リストフォルダを作成します。"/>
+		<button label="エラーを確認" name="audit_btn" tool_tip="マーケットプレイスの出品リストを確認します。"/>
 	</panel>
 	<panel name="tab_container_panel">
-		<filter_editor label="マーケットプレイスのリストをフィルタ" name="filter_editor"/>
+		<filter_editor label="マーケットプレイスの出品リストをフィルタ" name="filter_editor"/>
 		<tab_container name="marketplace_filter_tabs"/>
 	</panel>
 	<panel name="marketplace_drop_zone">
 		<text name="drop_zone_label">
-			ここにフォルダをドロップして新しいリストを作成
+			ここにフォルダをドロップして新しい出品リストを作成
 		</text>
 	</panel>
 </panel>
