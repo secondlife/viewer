@@ -2131,7 +2131,7 @@ bool LLMaterialEditor::canModifyObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector<PermissionBit>({PERM_MODIFY}), permissions, item_out);
 }
 
 bool LLMaterialEditor::canSaveObjectsMaterial()
@@ -2139,7 +2139,7 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector<PermissionBit>({PERM_COPY, PERM_MODIFY}), permissions, item_out);
 }
 
 bool LLMaterialEditor::canClipboardObjectsMaterial()
@@ -2165,7 +2165,7 @@ bool LLMaterialEditor::canClipboardObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
+    return can_use_objects_material(func, std::vector<PermissionBit>({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
 }
 
 void LLMaterialEditor::saveObjectsMaterialAs()
@@ -2173,7 +2173,7 @@ void LLMaterialEditor::saveObjectsMaterialAs()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item = nullptr;
-    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item);
+    bool allowed = can_use_objects_material(func, std::vector<PermissionBit>({PERM_COPY, PERM_MODIFY}), permissions, item);
     if (!allowed)
     {
         LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
