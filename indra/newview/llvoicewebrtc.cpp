@@ -5,7 +5,7 @@
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ * ne
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
@@ -506,6 +506,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             {
                 continue;
             }
+            mNeighboringRegions.insert(regionp->getRegionID());
             bool voiceEnabled = mVoiceEnabled && regionp->isVoiceEnabled();
             if ((!mAudioSession || mAudioSession->isSpatial()) && !mNextAudioSession)
             {
@@ -540,10 +541,6 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                 {
                     setSpatialChannel(channelID, "", parcel_local_id);
                 }
-            }
-            else
-            {
-
             }
             sessionState::processSessionStates();
             if (voiceEnabled)
@@ -822,7 +819,6 @@ void LLWebRTCVoiceClient::updateOwnVolume() {
     if (!mMuteMic && !mTuningMode)
     {
         audio_level = getAudioLevel();
-        LL_WARNS("Voice") << "Level " << audio_level << LL_ENDL;
     }
 
     sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level)); 
@@ -2509,9 +2505,16 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
             }
 
             LLWebRTCVoiceClient::participantStatePtr_t participant = LLWebRTCVoiceClient::getInstance()->findParticipantByID(mChannelID, agent_id);
-            bool                  joined      = voice_data[participant_id].get("j", Json::Value(false)).asBool();
+            bool joined = false;
+            bool primary = false;
+            if (voice_data[participant_id].isMember("j"))
+            {
+                joined = true;
+                primary = voice_data[participant_id]["j"].get("p", Json::Value(false)).asBool();
+            }
+
             new_participant |= joined;
-            if (!participant && joined)
+            if (!participant && joined && primary)
             {
                 participant = LLWebRTCVoiceClient::getInstance()->addParticipantByID(mChannelID, agent_id);
             }
@@ -2541,9 +2544,15 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
     {
         mWebRTCDataInterface = data_interface;
         mWebRTCDataInterface->setDataObserver(this);
+
         Json::FastWriter writer;
-        Json::Value      root = Json::objectValue;
-        root["j"]             = true;
+        Json::Value root = Json::objectValue;
+        Json::Value join_obj = Json::objectValue;
+        if (gAgent.getRegion()->getRegionID() == mRegionID)
+        {
+            join_obj["p"] = true;
+        }
+        root["j"] = join_obj;
         std::string json_data = writer.write(root);
         mWebRTCDataInterface->sendData(json_data, false);
     }

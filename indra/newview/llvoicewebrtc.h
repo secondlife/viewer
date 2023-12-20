@@ -843,6 +843,8 @@ protected:
     F32         mMicGain;
     F32         mSpeakerVolume;
 
+	bool        mPrimary;
+
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;
     bool                                        mTrickling;
