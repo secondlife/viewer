@@ -37,7 +37,7 @@ const S32 MAX_IMAGE_MIP = 12; // 4096x4096
 
 // *TODO : Use MAX_IMAGE_MIP as max discard level and modify j2c management so that the number 
 // of levels is read from the header's file, not inferred from its size.
-const S32 MAX_DISCARD_LEVEL = 6;
+const S32 MAX_DISCARD_LEVEL = 5;
 
 // JPEG2000 size constraints
 // Those are declared here as they are germane to other image constraints used in the viewer
