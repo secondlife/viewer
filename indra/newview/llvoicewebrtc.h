@@ -244,7 +244,7 @@ public:
 
 	void OnConnectionEstablished(const std::string& channelID, const LLUUID& regionID);
     void OnConnectionFailure(const std::string &channelID, const LLUUID& regionID);
-    void sendPositionAndVolumeUpdate(bool force);
+    void sendPositionUpdate(bool force);
     void updateOwnVolume();
 	
 	//////////////////////////////
@@ -396,7 +396,6 @@ public:
     private:
 
 		std::list<connectionPtr_t> mWebRTCConnections;
-        std::string   			   mPrimaryConnectionID;
         static std::map<std::string, ptr_t> mSessions;  // canonical list of outstanding sessions.
 
         sessionState();
@@ -416,7 +415,7 @@ public:
 	// Private Member Functions
 	//////////////////////////////////////////////////////
 
-    static void predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const std::string& spatial_data, const std::string& volume_data);
+    static void predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const std::string& spatial_data);
     static void predUpdateOwnVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 audio_level);
     static void predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool mute);
     static void predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
@@ -596,8 +595,6 @@ private:
 
 	LLVoiceDeviceList mCaptureDevices;
 	LLVoiceDeviceList mRenderDevices;
-
-	uint32_t mAudioLevel;
 
 	bool mIsInitialized;
 	bool mShutdownComplete;
@@ -842,8 +839,6 @@ protected:
     bool        mMuted;
     F32         mMicGain;
     F32         mSpeakerVolume;
-
-	bool        mPrimary;
 
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;

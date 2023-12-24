@@ -508,45 +508,43 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             }
             mNeighboringRegions.insert(regionp->getRegionID());
             bool voiceEnabled = mVoiceEnabled && regionp->isVoiceEnabled();
-            if ((!mAudioSession || mAudioSession->isSpatial()) && !mNextAudioSession)
-            {
-                // check to see if parcel changed.
-                std::string channelID = "Estate";
-                S32         parcel_local_id = INVALID_PARCEL_ID;
+            // check to see if parcel changed.
+            std::string channelID = "Estate";
+            S32         parcel_local_id = INVALID_PARCEL_ID;
 
-                if (voiceEnabled)
+            if (voiceEnabled)
+            {
+                LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+                if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
                 {
-                    LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-                    if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
+                    if (!parcel->getParcelFlagAllowVoice())
                     {
-                        if (!parcel->getParcelFlagAllowVoice())
-                        {
-                            channelID.clear();
-                        }
-                        else if (!parcel->getParcelFlagUseEstateVoiceChannel())
-                        {
-                            parcel_local_id = parcel->getLocalID();
-                            channelID       = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
-                        }
+                        channelID.clear();
+                    }
+                    else if (!parcel->getParcelFlagUseEstateVoiceChannel())
+                    {
+                        parcel_local_id = parcel->getLocalID();
+                        channelID       = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
                     }
                 }
-                else
-                {
-                    channelID.clear();
-                }
-                
-                if ((mNextAudioSession && channelID != mNextAudioSession->mChannelID) ||
-                    (!mAudioSession && !channelID.empty()) || 
-                    (mAudioSession && channelID != mAudioSession->mChannelID))
-                {
-                    setSpatialChannel(channelID, "", parcel_local_id);
-                }
             }
+            else
+            {
+                channelID.clear();
+            }
+                
+            if ((mNextAudioSession && channelID != mNextAudioSession->mChannelID) ||
+                (!mAudioSession && !mNextAudioSession && !channelID.empty()) || 
+                (mAudioSession && channelID != mAudioSession->mChannelID))
+            {
+                setSpatialChannel(channelID, "", parcel_local_id);
+            }
+            
             sessionState::processSessionStates();
             if (voiceEnabled)
             {
                 updatePosition();
-                sendPositionAndVolumeUpdate(true);
+                sendPositionUpdate(true);
                 updateOwnVolume();
             }
         }
@@ -752,25 +750,14 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
     }
     else
     {
-        sendPositionAndVolumeUpdate(true);
+        sendPositionUpdate(true);
     }
 }
 
-void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(bool force)
+void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 {
     Json::FastWriter writer;
     std::string      spatial_data;
-    std::string      volume_data;
-
-    F32 audio_level = 0.0;
-    uint32_t uint_audio_level = 0.0;
-
-    if (!mMuteMic && !mTuningMode)
-    {
-        audio_level = getAudioLevel();
-        uint_audio_level = (uint32_t) (audio_level*128);
-
-    }
 
     if (mSpatialCoordsDirty || force)
     {
@@ -797,21 +784,10 @@ void LLWebRTCVoiceClient::sendPositionAndVolumeUpdate(bool force)
         spatial["lh"]["w"] = (int) (mListenerRot[3] * 100);
 
         mSpatialCoordsDirty = false;
-        if (force || (uint_audio_level != mAudioLevel))
-        {
-            spatial["p"] = uint_audio_level;
-        }
         spatial_data = writer.write(spatial);
-    }
-    if (force || (uint_audio_level != mAudioLevel))
-    {
-        Json::Value volume    = Json::objectValue;
-        volume["p"]           = uint_audio_level;
-        volume_data           = writer.write(volume);
-    }
-    mAudioLevel = uint_audio_level;
 
-    sessionState::for_each(boost::bind(predSendData, _1, spatial_data, volume_data));
+        sessionState::for_each(boost::bind(predSendData, _1, spatial_data));
+    }
 }
 
 void LLWebRTCVoiceClient::updateOwnVolume() { 
@@ -834,15 +810,11 @@ void LLWebRTCVoiceClient::predUpdateOwnVolume(const LLWebRTCVoiceClient::session
     }
 }
 
-void LLWebRTCVoiceClient::predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t& session, const std::string& spatial_data, const std::string& volume_data)
+void LLWebRTCVoiceClient::predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t& session, const std::string& spatial_data)
 {
     if (session->isSpatial() && !spatial_data.empty())
     {
         session->sendData(spatial_data);
-    }
-    else if (!volume_data.empty())
-    {
-        session->sendData(volume_data);
     }
 }
 
@@ -966,6 +938,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::ad
 		// participant isn't already in one list or the other.
 		result.reset(new participantState(agent_id));
         mParticipantsByURI.insert(participantMap::value_type(agent_id.asString(), result));
+        mParticipantsByUUID.insert(participantUUIDMap::value_type(agent_id, result));
 		mParticipantsChanged = true;
 
 		result->mAvatarIDValid = true;
@@ -975,8 +948,6 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::ad
         {
 	        mMuteDirty = true;
         }
-		
-		mParticipantsByUUID.insert(participantUUIDMap::value_type(result->mAvatarID, result));
 
 		if (LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID, result->mVolume))
 		{
@@ -1682,7 +1653,8 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
             LL_DEBUGS("Voice") << "enabling" << LL_ENDL;
 			LLVoiceChannel::getCurrentVoiceChannel()->activate();
 			status = LLVoiceClientStatusObserver::STATUS_VOICE_ENABLED;
-
+            mSpatialCoordsDirty = true;
+            updatePosition();
             if (!mIsCoroutineActive)
             {
                 LLCoros::instance().launch("LLWebRTCVoiceClient::voiceConnectionCoro",
@@ -1967,8 +1939,6 @@ LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::crea
     sessionState::ptr_t session(new sessionState());
     session->mChannelID = channelID;
     session->mWebRTCConnections.emplace_back(new LLVoiceWebRTCConnection(region_id, parcelLocalID, channelID));
-    
-    session->mPrimaryConnectionID          = channelID;
 
     // add agent as participant
     session->addParticipant(gAgentID);
@@ -2548,7 +2518,8 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
         Json::FastWriter writer;
         Json::Value root = Json::objectValue;
         Json::Value join_obj = Json::objectValue;
-        if (gAgent.getRegion()->getRegionID() == mRegionID)
+        LLUUID           regionID = gAgent.getRegion()->getRegionID();
+        if (regionID == mRegionID)
         {
             join_obj["p"] = true;
         }
@@ -2868,6 +2839,7 @@ bool LLVoiceWebRTCConnection::breakVoiceConnection(bool corowait)
     if (!regionp || !regionp->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
+        setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
         return false;
     }
 
