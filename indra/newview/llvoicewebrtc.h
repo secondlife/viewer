@@ -829,6 +829,8 @@ protected:
     std::string mChannelSDP;
     std::string mRemoteChannelSDP;
 
+    LLUUID mViewerSession;
+
     std::string mChannelID;
     LLUUID mRegionID;
     S32    mParcelLocalID;
