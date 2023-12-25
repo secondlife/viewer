@@ -414,6 +414,10 @@ void LLWebRTCVoiceClient::OnConnectionEstablished(const std::string& channelID, 
     {
         if (mNextAudioSession && mNextAudioSession->mChannelID == channelID)
         {
+            if (mAudioSession)
+            {
+                mAudioSession->shutdownAllConnections();
+            }
             mAudioSession = mNextAudioSession;
             mNextAudioSession.reset();
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
@@ -2593,6 +2597,8 @@ void LLVoiceWebRTCConnection::processIceUpdates()
                     iceCompleted                = mIceCompleted;
                     mIceCompleted               = false;
                 }
+                
+                body["viewer_session"] = mViewerSession;
 
                 LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
                 LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
@@ -2663,9 +2669,10 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     }
     LLVoiceWebRTCStats::getInstance()->provisionAttemptEnd(true);
 
-    if (result.has("jsep") && result["jsep"].has("type") && result["jsep"]["type"] == "answer" && result["jsep"].has("sdp"))
+    if (result.has("viewer_session") && result.has("jsep") && result["jsep"].has("type") && result["jsep"]["type"] == "answer" && result["jsep"].has("sdp"))
     {
         mRemoteChannelSDP = result["jsep"]["sdp"].asString();
+        mViewerSession = result["viewer_session"];
     }
     else
     {
@@ -2673,13 +2680,9 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
         mOutstandingRequests--;
         return;
     }
-    std::string voiceAccountServerUri;
-    std::string voiceUserName = gAgent.getID().asString();
-    std::string voicePassword = "";  // no password for now.
 
     LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response"
-                       << " user " << (voiceUserName.empty() ? "not set" : "set") << " password "
-                       << (voicePassword.empty() ? "not set" : "set") << " channel sdp " << mRemoteChannelSDP << LL_ENDL;
+                       << " channel sdp " << mRemoteChannelSDP << LL_ENDL;
 
     mWebRTCPeerConnection->AnswerAvailable(mRemoteChannelSDP);
     mOutstandingRequests--;
@@ -2819,8 +2822,9 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 }
 
 
-void LLVoiceWebRTCConnection::sendData(const std::string& data) { 
-    if (mWebRTCDataInterface)
+void LLVoiceWebRTCConnection::sendData(const std::string& data) {
+    
+    if (getVoiceConnectionState() == VOICE_STATE_SESSION_UP && mWebRTCDataInterface)
     {
         mWebRTCDataInterface->sendData(data, false);
     }
@@ -2858,6 +2862,7 @@ bool LLVoiceWebRTCConnection::breakVoiceConnection(bool corowait)
     LLVoiceWebRTCStats::getInstance()->provisionAttemptStart();
     LLSD body;
     body["logout"] = TRUE;
+    body["viewer_session"] = mViewerSession;
 
     LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(
         url,
