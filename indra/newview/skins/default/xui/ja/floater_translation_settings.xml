@@ -66,7 +66,7 @@
 	</text>
 	<line_editor default_text="翻訳キーを入力して「認証」ボタンをクリックしてください。" name="azure_api_key"/>
 	<text name="azure_api_region_label">
-		地域：
+		リージョン：
 	</text>
 	<line_editor default_text="グローバルサービスの場合は空のままにすることができます。"/>
 	<button label="認証" name="verify_azure_api_key_btn"/>

@@ -24,6 +24,9 @@
 	<text name="size_lbl">
 		[DIMENSIONS]
 	</text>
+	<text name="over_limit_lbl">
+		選択されているテクスチャは[TEXDIM]です。インベントリ画像は[MINTEXDIM]以上の正方形である必要があります。
+	</text>
 	<button label="デフォルト" label_selected="デフォルト" name="Default"/>
 	<button label="透明" label_selected="透明" name="Transparent"/>
 	<button label="ブランク" label_selected="ブランク" name="Blank"/>
@@ -55,7 +58,7 @@
 		<combo_box.item label="BAKED_AUX2" name="BAKED_AUX2"/>
 		<combo_box.item label="BAKED_AUX3" name="BAKED_AUX3"/>
 	</combo_box>
-	<check_box initial_value="false" label="基本となるメッシュリージョンを隠す" name="hide_base_mesh_region"/>
+	<!-- bottom static -->
 	<button label="ＯＫ" label_selected="ＯＫ" name="Select"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<check_box label="すぐ反映" name="apply_immediate_check"/>

@@ -27,9 +27,10 @@
 	<check_box label="他人の土地にあるもの" name="return_other_land" tool_tip="他人に属する土地にあるオブジェクトのみを返却します。"/>
 	<check_box label="この不動産に属するすべてのリージョンのもの" name="return_estate_wide" tool_tip="この不動産に含まれているすべてのリージョンのオブジェクトを返却します。"/>
 	<button label="返却" name="return_btn"/>
-	<button label="上部コライダー取得" name="top_colliders_btn" tool_tip="衝突する可能性が最も高いオブジェクトのリストを表示します。"/>
+	<button label="高コライダー取得" name="top_colliders_btn" tool_tip="衝突する可能性が最も高いオブジェクトのリストを表示します。"/>
 	<button label="リージョン再起動" name="restart_btn" tool_tip="２分間のカウントダウン後、リージョンを再起動します。"/>
-	<button label="上部スクリプト取得" name="top_scripts_btn" tool_tip="スクリプトの実行に最も時間を費やしているオブジェクトのリストを表示します。"/>
+	<spinner name="restart_timer" tool_tip="再起動までの秒数" />
+	<button label="高負荷スクリプト取得" name="top_scripts_btn" tool_tip="スクリプトの実行に最も時間を費やしているオブジェクトのリストを表示します。"/>
 	<button label="再起動をキャンセル" name="cancel_restart_btn" tool_tip="リージョンの再起動を取り消します。"/>
 	<button label="デバッグコンソール" name="region_debug_console_btn" tool_tip="リージョンデバッグコンソールを開きます。"/>
 </panel>

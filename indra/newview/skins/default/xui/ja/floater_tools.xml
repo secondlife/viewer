@@ -49,7 +49,7 @@
 		リンク数：
 	</floater.string>
 	<floater.string name="selected_faces">
-		面数：
+		面：
 	</floater.string>
 	<button name="button focus" tool_tip="注視"/>
 	<button name="button move" tool_tip="移動"/>
@@ -64,6 +64,7 @@
 		<radio_item label="旋回（Ctrl）" name="radio orbit"/>
 		<radio_item label="水平・垂直移動 (Ctrl＋Shift)" name="radio pan"/>
 	</radio_group>
+	<slider_bar name="slider zoom"/>
 	<radio_group name="move_radio_group">
 		<radio_item label="移動" name="radio move"/>
 		<radio_item label="持ち上げる（Ctrl）" name="radio lift"/>
@@ -281,6 +282,7 @@
 			<check_box label="物理的" name="Physical Checkbox Ctrl" tool_tip="オブジェクトを押したり、重力の影響を受けるようにします。"/>
 			<check_box label="一時的" name="Temporary Checkbox Ctrl" tool_tip="作成から１分後にオブジェクトを削除します。"/>
 			<check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクトが他のオブジェクトやアバターと衝突しないようにします。"/>
+			<view_border name="object_horizontal"/>
 			<text name="label position">
 				位置（メートル）
 			</text>
@@ -300,7 +302,7 @@
 			<spinner label="Ｙ" name="Rot Y"/>
 			<spinner label="Ｚ" name="Rot Z"/>
 			<combo_box name="comboBaseType">
-				<combo_box.item label="箱（ボックス）" name="Box"/>
+				<combo_box.item label="箱" name="Box"/>
 				<combo_box.item label="円柱（シリンダー）" name="Cylinder"/>
 				<combo_box.item label="三角錐（プリズム）" name="Prism"/>
 				<combo_box.item label="球体（スフィア）" name="Sphere"/>
@@ -320,6 +322,8 @@
 			<text name="text skew">
 				傾斜
 			</text>
+			<spinner name="Scale 1"/>
+			<spinner name="Skew"/>
 			<text name="Hollow Shape">
 				中空の形状
 			</text>
@@ -343,7 +347,7 @@
 			<spinner label="Ｘ" name="Taper Scale X"/>
 			<spinner label="Ｙ" name="Taper Scale Y"/>
 			<text name="text topshear">
-				上部層
+				上部せん断
 			</text>
 			<spinner label="Ｘ" name="Shear X"/>
 			<spinner label="Ｙ" name="Shear Y"/>
@@ -369,6 +373,8 @@
 			<text name="text revolutions">
 				回転体
 			</text>
+			<spinner name="Radius Offset"/>
+			<spinner name="Revolutions"/>
 			<texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="画像を選択してください。"/>
 			<check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムをＸ軸に沿って反転させます。"/>
 			<check_box label="裏返す" name="sculpt invert control" tool_tip="スカルプトプリムの法線を反転し、裏返しに見えるようにします。"/>
@@ -473,4 +479,5 @@
 		<button label="土地の購入" label_selected="土地の購入" name="button buy land"/>
 		<button label="土地の放棄" label_selected="土地の放棄" name="button abandon land"/>
 	</panel>
+	<!-- end of tabs -->
 </floater>

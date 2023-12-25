@@ -32,9 +32,12 @@
 		<text name="total_contributed_land_value">
 			[AREA]㎡
 		</text>
-		<button label="マップ" name="map_button"/>
+		<button label="マップ" label_selected="マップ" name="map_button"/>
 		<text name="total_land_in_use_label">
 			土地の総利用面積：
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA]㎡
 		</text>
 		<text name="land_available_label">
 			利用可能な土地面積：

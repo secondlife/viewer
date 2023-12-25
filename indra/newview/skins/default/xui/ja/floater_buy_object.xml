@@ -15,6 +15,9 @@
 	<floater.string name="no_transfer_text">
 		（再販・譲渡不可）
 	</floater.string>
+	<floater.string name="mupliple_selected">
+		複数の選択
+	</floater.string>
 	<text name="contents_text">
 		中身：
 	</text>

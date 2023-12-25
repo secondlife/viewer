@@ -39,6 +39,9 @@
 	<string name="StartupClearingShaderCache">
 		シェーダーキャッシュを消去しています…
 	</string>
+	<string name="StartupInitializingDiskCache">
+		ディスクキャッシュを初期化しています…
+	</string>
 	<string name="StartupInitializingTextureCache">
 		テクスチャキャッシュを初期化しています…
 	</string>
@@ -99,6 +102,9 @@ LibVLCバージョン：[LIBVLC_VERSION]
 	</string>
 	<string name="AboutTime">
 		[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日　[hour, datetime, slt]：[min,datetime, slt]：[second,datetime,slt]
+	</string>
+	<string name="LocalTime">
+		[year, datetime, local]年[month, datetime, local]月[day, datetime, local]日　[hour, datetime, local]：[min, datetime, local]：[second,datetime, local]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		サーバーのリリースノートのＵＲＬ取得時にエラーが発生しました。
@@ -328,6 +334,10 @@ support@secondlife.com にお問い合わせください。
 		リージョンは、現在オフラインです。
 しばらくしてから再度お試しください。
 	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		エージェントはリージョンにいません。
+しばらくしてからもう一度ログインし直してください。
+	</string>
 	<string name="LogoutFailedPendingLogin">
 		このリージョンでは、別のセッションでログインされていました。
 しばらくしてから再度お試しください。
@@ -351,6 +361,10 @@ support@secondlife.com にお問い合わせください。
 	<string name="LoginFailedLoggingOutSession">
 		あなたの前のセッションはシステムによってログアウトされています。
 しばらくしてから再度お試しください。
+	</string>
+	<string name="LoginFailedAuthenticationMFARequired">
+		ログインするには二段階認証アプリから新しいトークンを入力する必要があります。
+それでもこのエラーが発生する場合は、support@secondlife.comにお問い合わせください。
 	</string>
 	<string name="AgentLostConnection">
 		これは恥ずべきことだ。このリージョンではトラブルが発生している可能性があります。インターネットへの接続を確認してください。
@@ -502,6 +516,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="TooltipOutboxMixedStock">
 		在庫フォルダ内のアイテムは、すべて同じ種類と権限でなければなりません。
+	</string>
+	<string name="TooltipCantCreateOutfit">
+		１つ以上のアイテムが 「アウトフィット」内で使用できません。
+	</string>
+	<string name="TooltipOutfitNotInInventory">
+		「アウトフィット」に入れることができるのは、自分のインベントリにあるアイテムや衣装のみです。
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		フォルダをその子フォルダに移動することはできません。
@@ -1135,6 +1155,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="TeleportYourAgent">
 		あなたをテレポート
+	</string>
+	<string name="ManageEstateSilently">
+		不動産のサイレント管理
+	</string>
+	<string name="ChangeYourDefaultAnimations">
+		デフォルトのアニメーション変更
 	</string>
 	<string name="ForceSitAvatar">
 		アバターを強制的に座らせる
@@ -3127,6 +3153,9 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="FavoritesNoMatchingItems">
 		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
+	<string name="MarketplaceNoListing">
+		まだ何も出品していません。
+	</string>
 	<string name="MarketplaceNoMatchingItems">
 		アイテムが見つかりませんでした。検索文字列のスペルを確認して、もう一度やり直してください。
 	</string>
@@ -3195,11 +3224,24 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventoryMarketplaceError">
 		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート（http://support.secondlife.com）にお問い合わせください
 	</string>
+	<string name="InventoryMarketplaceConnectionError">
+マーケットプレイス掲載の接続に失敗しました。
+このメッセージが続けて表示される場合は、
+https://support.secondlife.com よりSecond Lifeのサポートまでお問い合わせください。
+	</string>
+	<string name="InventoryMarketplaceConnectionErrorReason">
+マーケットプレイス掲載の接続に失敗しました：[REASON]
+このメッセージが続けて表示される場合は、
+https://support.secondlife.com よりSecond Lifeのサポートまでお問い合わせください。
+	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		マーケットプレイスのリストフォルダが空です。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
-		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグします。
+		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを出品するには、フォルダをこのエリアにドラッグします。
+	</string>
+	<string name="InventoryFolderDebug">
+		（Ｆ：[FOLDER_COUNT]　Ｉ：[ITEMS_COUNT]　Ｖ：[VERSION]　ＤＣ：[VIEWER_DESCENDANT_COUNT]／[SERVER_DESCENDANT_COUNT]）
 	</string>
 	<string name="InventoryItemsCount">
 		（[ITEMS_COUNT]個のアイテム）
@@ -3340,6 +3382,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="Scripts" value="スクリプト、"/>
 	<string name="Sounds" value="サウンド、"/>
 	<string name="Textures" value="テクスチャ、"/>
+	<string name="Settings" value="自然環境の設定、"/>
 	<string name="Snapshots" value="スナップショット、"/>
 	<string name="No Filters" value="なし"/>
 	<string name="Since Logoff" value="–ログオフ以来"/>
@@ -3818,6 +3861,12 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="CompileQueueInsufficientPermDownload">
 		権限が不足しているためスクリプトをダウンロードできません。
 	</string>
+	<string name="CompileQueueInsufficientPermFor">
+		以下の操作を実行する権限が不足しています：
+	</string>
+	<string name="CompileQueueUnknownFailure">
+		ダウンロード時に不明なエラーが発生しました。
+	</string>
 	<string name="CompileNoExperiencePerm">
 		[EXPERIENCE]体験による[SCRIPT]スクリプトをスキップします。
 	</string>
@@ -3911,7 +3960,10 @@ For AI Character: Get the closest navigable point to the point provided.
 		合計
 	</string>
 	<string name="NoGroupDataFound">
-		グループのデータが見つかりませんでした。
+		グループのデータが見つかりませんでした：
+	</string>
+	<string name="AlreadyInGroup">
+		すでにグループに入っています：
 	</string>
 	<string name="IMParentEstate">
 		親の不動産
@@ -3941,7 +3993,10 @@ For AI Character: Get the closest navigable point to the point provided.
 		常時許可：（全[MAXACCESS]人中[ALLOWEDAGENTS]人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		グループを常に許可：（最大[MAXACCESS]グループ中[ALLOWEDGROUPS]グループ）
+		グループを常に許可：（全[MAXACCESS]グループ中[ALLOWEDGROUPS]グループ）
+	</string>
+	<string name="RegionInfoEstateManagers">
+		不動産マネージャー数：（全[MAXMANAGERS]人中[ESTATEMANAGERS]人）
 	</string>
 	<string name="RegionInfoBannedResidents">
 		常時バン：（全[MAXBANNED]人中[BANNEDAGENTS]人）
@@ -5892,7 +5947,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		スリット：右
 	</string>
 	<string name="Small">
-		小さく
+		小さい
 	</string>
 	<string name="Small Hands">
 		小さく
@@ -6312,7 +6367,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		セッションの初期化がタイムアウトしました。
 	</string>
 	<string name="Home position set.">
-		家の配置の設定。
+		ホーム配置を設定しました。
 	</string>
 	<string name="voice_morphing_url">
 		https://secondlife.com/destination/voice-island
@@ -6480,6 +6535,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="New Gesture">
 		ジェスチャー
+	</string>
+	<string name="New Material">
+		新しいマテリアル
 	</string>
 	<string name="New Script">
 		新しいスクリプト
@@ -6719,7 +6777,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		日:月:火:水:木:金:土
 	</string>
 	<string name="dateTimeMonthNames">
-		１月:２月:３月:４月:５月:６月:７月:８月:９月:１０月:１１月:１２月
+		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
 	</string>
 	<string name="dateTimeMonthShortNames">
 		㋀:㋁:㋂:㋃:㋄:㋅:㋆:㋇:㋈:㋉:㋊:㋋

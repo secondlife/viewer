@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<floater name="my_environments" title="私の環境">
+<floater name="my_environments" title="私の環境" label="場所">
 	<layout_stack name="main_layout">
 		<layout_panel name="filter_panel" label="フィルタ">
 			<icon name="icon_settingsdays"/>

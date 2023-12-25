@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Map" title="ミニマップ">
 	<floater.string name="ToolTipMsg">
+		[PARCEL_NAME_MSG][PARCEL_SALE_PRICE_MSG][PARCEL_SALE_AREA_MSG][PARCEL_OWNER_MSG][REGION_NAME_MSG][TOOL_TIP_HINT_MSG]
+	</floater.string>
+	<floater.string name="ParcelNameMsg">
+		[PARCEL_NAME]
+	</floater.string>
+	<floater.string name="ParcelSalePriceMsg">
+		価格：L$ [PRICE]（L$ [PRICE_PER_SQM]／㎡）
+	</floater.string>
+	<floater.string name="ParcelSaleAreaMsg">
+		エリア：[AREA]㎡
+	</floater.string>
+	<floater.string name="ParcelOwnerMsg">
+		所有者：[PARCEL_OWNER]
+	</floater.string>
+	<floater.string name="RegionNameMsg">
+		リージョン：[REGION_NAME]
+	</floater.string>
+	<floater.string name="ToolTipHintMsg">
+		ダブルクリックでマップを開く
+	</floater.string>
+	<floater.string name="AltToolTipHintMsg">
+		ダブルクリックでテレポート
+	</floater.string>
+	<floater.string name="ToolTipMsg">
 		[REGION]（ダブルクリックでマップを表示。Shift＋ドラッグで水平・垂直移動）
 	</floater.string>
 	<floater.string name="AltToolTipMsg">
@@ -9,6 +33,7 @@
 	<floater.string name="mini_map_caption">
 		ミニマップ
 	</floater.string>
+	<net_map name="Net Map"/>
 	<text label="北" name="floater_map_north" text="北">
 		北
 	</text>

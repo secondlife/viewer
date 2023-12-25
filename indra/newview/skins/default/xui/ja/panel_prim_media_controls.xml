@@ -6,6 +6,24 @@
 	<string name="skip_step">
 		0.2
 	</string>
+	<string name="min_width">
+		300
+	</string>
+	<string name="min_height">
+		75
+	</string>
+	<string name="zoom_near_padding">
+		1.0
+	</string>
+	<string name="zoom_medium_padding">
+		1.1
+	</string>
+	<string name="zoom_far_padding">
+		1.5
+	</string>
+	<string name="top_world_view_avoid_zone">
+		50
+	</string>
 	<layout_stack name="progress_indicator_area">
 		<layout_panel name="media_progress_indicator">
 			<progress_bar name="media_progress_bar" tool_tip="読み込んでいます…"/>

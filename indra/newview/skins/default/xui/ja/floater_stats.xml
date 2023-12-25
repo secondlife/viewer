@@ -32,6 +32,9 @@
 					<stat_bar label="フォーマット済メモリ" name="formattedmemstat"/>
 					<stat_bar label="ＲＡＷメモリ" name="rawmemstat"/>
 					<stat_bar label="統合メモリ" name="glboundmemstat"/>
+					<stat_view name="material" label="マテリアル">
+						<stat_bar name="nummaterials" label="個"/>
+					</stat_view>
 				</stat_view>
 				<stat_view label="メモリ使用量" name="memory">
 					<stat_bar label="ＬＬトレース" name="LLTrace"/>

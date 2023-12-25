@@ -15,6 +15,9 @@
 	<floater.string name="NotRunning">
 		実行されていません
 	</floater.string>
+	<floater.string name="Deleting">
+		削除中
+	</floater.string>
 	<floater.string name="Timeout">
 		タイムアウト：[OBJECT_NAME]
 	</floater.string>

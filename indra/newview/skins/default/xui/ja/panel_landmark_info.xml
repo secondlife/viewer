@@ -53,7 +53,7 @@
 			<panel name="landmark_edit_panel">
 				<text name="title_label" value="タイトル："/>
 				<line_editor name="title_value"/>
-				<button name="edit_btn" tool_tip="ランドマーク情報を編集"/>
+				<button name="edit_btn" label="編集" tool_tip="ランドマーク情報を編集"/>
 				<line_editor name="title_editor"/>
 				<text name="notes_label" value="ノート："/>
 				<text_editor name="notes_editor"/>

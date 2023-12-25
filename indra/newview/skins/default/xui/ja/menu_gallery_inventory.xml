@@ -61,8 +61,8 @@
 	<menu_item_call label="自身から取り外す" name="Detach From Yourself"/>
 	<menu_item_call label="脱ぐ" name="Take Off"/>
 	<menu_item_separator name="Settings Separator"/>
-	<menu_item_call label="ローカルに自然環境の設定を反映" name="Apply Only To Myself"/>
-	<menu_item_call label="区画に自然環境の設定を反映" name="Apply To Parcel"/>
+	<menu_item_call label="自分のみに反映" name="Settings Apply Local"/>
+	<menu_item_call label="区画に反映" name="Settings Apply Parcel"/>
 	<menu_item_separator name="Subfolder Separator"/>
 	<menu_item_call label="新しいフォルダを選択から作成" name="New folder from selected"/>
 	<menu_item_call label="フォルダのアイテムのグループ解除" name="Ungroup folder items"/>
