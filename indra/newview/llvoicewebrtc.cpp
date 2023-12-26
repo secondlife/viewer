@@ -362,6 +362,7 @@ void LLWebRTCVoiceClient::cleanUp()
 
     mNextAudioSession.reset();
     mAudioSession.reset();
+    mNeighboringRegions.clear();
     sessionState::for_each(boost::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "exiting" << LL_ENDL;
 }
@@ -510,7 +511,6 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             {
                 continue;
             }
-            mNeighboringRegions.insert(regionp->getRegionID());
             bool voiceEnabled = mVoiceEnabled && regionp->isVoiceEnabled();
             // check to see if parcel changed.
             std::string channelID = "Estate";
@@ -1215,6 +1215,7 @@ bool LLWebRTCVoiceClient::setSpatialChannel(
 	}
 	else
 	{
+        mNeighboringRegions.insert(gAgent.getRegion()->getRegionID());
         return switchChannel(uri, parcel_local_id == INVALID_PARCEL_ID ? sessionState::SESSION_TYPE_ESTATE : sessionState::SESSION_TYPE_PARCEL, parcel_local_id);
 	}
 }
@@ -1535,10 +1536,7 @@ void LLWebRTCVoiceClient::updatePosition(void)
 
         enforceTether();
 
-        if (mSpatialCoordsDirty)
-        {
-            updateNeighboringRegions();
-        }
+        updateNeighboringRegions();
 	}
 }
 
@@ -2843,7 +2841,7 @@ bool LLVoiceWebRTCConnection::breakVoiceConnection(bool corowait)
     if (!regionp || !regionp->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
-        setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
+        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
         return false;
     }
 
