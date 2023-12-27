@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater name="360capture" title="360度スナップショット">
 	<panel name="ui_panel_left">
 		<text name="quality_level_label">

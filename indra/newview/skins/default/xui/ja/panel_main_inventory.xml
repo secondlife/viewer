@@ -9,9 +9,15 @@
 	<panel.string name="ItemcountUnknown">
 		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダを取得しました[FILTER]
 	</panel.string>
-	<panel.string name="inventory_title">インベントリ</panel.string>
-	<panel.string name="default_mode_btn">Multi_Folder_Mode</panel.string>
-	<panel.string name="single_folder_mode_btn">Single_Folder_Mode</panel.string>
+	<panel.string name="inventory_title">
+		インベントリ
+	</panel.string>
+	<panel.string name="default_mode_btn">
+		Multi_Folder_Mode
+	</panel.string>
+	<panel.string name="single_folder_mode_btn">
+		Single_Folder_Mode
+	</panel.string>
 	<text name="ItemcountText">
 		アイテム:
 	</text>

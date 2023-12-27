@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <mimetypes name="default">
 	<defaultlabel>
 		(Unknown)
@@ -496,7 +496,7 @@
             media_plugin_libvlc
         </impl>
     </mimetype>
- <mimetype name="application/octet-stream2">
+  <mimetype name="application/octet-stream2">
     <label name="video/octet-stream">
       Movie
     </label>

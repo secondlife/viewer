@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <panel label="アップロード" name="uploads">
 	<text name="title">
 		アップロード先のフォルダ
@@ -17,6 +17,6 @@
 	</text>
 	<text name="upload_help">
 		宛先フォルダを変更するには、インベントリでそのフォルダを右クリックして、
-「デフォルトとして使用」を選択します。
+		「デフォルトとして使用」を選択します。
 	</text>
 </panel>

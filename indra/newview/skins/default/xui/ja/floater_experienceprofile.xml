@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater name="experience_profile" title="体験プロフィール">
 	<floater.string name="empty_slurl">
 		(なし)

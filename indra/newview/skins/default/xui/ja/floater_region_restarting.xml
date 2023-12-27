@@ -7,7 +7,7 @@
 	</string>
 	<string name="RestartSeconds">
 		再起動まであと
-[SECONDS]秒
+				[SECONDS]秒
 	</string>
 	<panel name="layout_panel_1">
 		<text name="region_name">
@@ -17,7 +17,7 @@
 		</text>
 		<text name="restart_seconds">
 			再起動まであと
-32767秒
+						32767秒
 		</text>
 	</panel>
 </floater>

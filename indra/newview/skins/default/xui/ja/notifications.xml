@@ -1236,9 +1236,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-	<notification name="CannotCreateLandmarkNotOwner">
-		土地の所有者が許可していないため、ランドマークを作成することはできません。
-	<tag>
+	<notification name="CannotCreateLandmarkNotOwner">土地の所有者が許可していないため、ランドマークを作成することはできません。<tag>
 			FAIL
 		</tag>
 	</notification>
@@ -1920,8 +1918,8 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 	</notification>
 	<notification name="DisplaySetToRecommendedGPUChange">
 		グラフィックの変更により、画面設定は推奨レベルに設定されました。
-「[LAST_GPU]」から
-「[THIS_GPU]」まで
+				「[LAST_GPU]」から
+				「[THIS_GPU]」まで
 	</notification>
 	<notification name="DisplaySetToRecommendedFeatureChange">
 		レンダリングサブシステムの変更により、画面設定は推奨レベルに設定されました。
@@ -2026,7 +2024,9 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 			FAIL
 		</tag>接続できません。 インターネット接続または [SECOND_LIFE_GRID] に問題がある可能性があります。
 
-インターネット接続を確認して数分後に再試行するか、[ヘルプ] をクリックして [SUPPORT_SITE] を表示してください。<url name="url">http://secondlife.com/support/</url>
+インターネット接続を確認して数分後に再試行するか、[ヘルプ] をクリックして [SUPPORT_SITE] を表示してください。<url name="url">
+			http://secondlife.com/support/
+		</url>
 		<form name="form">
 			<button name="OK" text="OK"/>
 			<button name="Help" text="ヘルプ"/>
@@ -2211,7 +2211,7 @@ SHA1フィンガープリント: [MD5_DIGEST]
 	</notification>
 	<notification name="CantSetBuyObject">
 		オブジェクトが販売対象ではないため、オブジェクトの購入ができません。
-販売対象のオブジェクトを指定してもう一度試してください。
+				販売対象のオブジェクトを指定してもう一度試してください。
 	</notification>
 	<notification name="FinishedRawDownload">
 		未加工の地形ファイルをダウンロードしました:
@@ -3365,9 +3365,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="後でゴミ箱を空にする" yestext="ゴミ箱フォルダを確認する"/>
 	</notification>
-	<notification name="InventoryLimitReachedAISAlert">
-		インベントリに問題が発生しています。お手数ですが、サポートにお問い合わせください。
-	<tag>
+	<notification name="InventoryLimitReachedAISAlert">インベントリに問題が発生しています。お手数ですが、サポートにお問い合わせください。<tag>
 			FAIL
 		</tag>
 	</notification>
@@ -3582,7 +3580,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="CapsKeyOn">
 		CapsLockキーが有効になっています。
-パスワードに影響するかもしれません。
+				パスワードに影響するかもしれません。
 	</notification>
 	<notification name="NotecardMissing">ノートカードがデータベースにありません。
     <tag>
@@ -3760,7 +3758,9 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			fail
 		</tag>
 		<unique>
-			<context>MIME_TYPE</context>
+			<context>
+				MIME_TYPE
+			</context>
 		</unique>
 	</notification>
 	<notification name="MediaPluginFailed">次のメディアプラグインが実行できませんでした: [PLUGIN]
@@ -3806,7 +3806,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="PushRestricted">
 		このエリアでのプッシュは禁止されています。
-土地所有者以外は他人をプッシュすることはできません。
+				土地所有者以外は他人をプッシュすることはできません。
 	</notification>
 	<notification name="NoVoice">このエリアでのボイスチャットは無効になっています。
 音声で誰かと話ことはできません。
@@ -3984,8 +3984,8 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="GodMessage">
 		[NAME]
-
-[MESSAGE]
+				
+				[MESSAGE]
 	</notification>
 	<notification name="JoinGroup">
 		<tag>
@@ -4105,11 +4105,11 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="RegionRestartMinutes">
 		このリージョン「[NAME]」は、[SECONDS]分後に再起動されます。
-このまま、このリージョンに留まっているとログアウトされます。
+				このまま、このリージョンに留まっているとログアウトされます。
 	</notification>
 	<notification name="RegionRestartSeconds">
 		このリージョン「[NAME]」は、[SECONDS]秒後に再起動されます。
-このまま、このリージョンに留まっているとログアウトされます。
+				このまま、このリージョンに留まっているとログアウトされます。
 	</notification>
 	<notification name="LoadWebPage">のWebページ[URL] を開きますか?
 
@@ -4249,13 +4249,13 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 あなたのL$残高は、処理が完了するとアップデートされます。処理に20分以上かかった場合、お取り引きがキャンセルされることがあります。その場合は、購入金額はあなたの US$残高に追加されます。[https://secondlife.com/my/account/?lang=ja-JP マイアカウント]の取引履歴ページで、支払状況を確認できます。</notification>
 	<notification name="FirstOverrideKeys">
 		あなたの移動キーをオブジェクトが操作しています。
-矢印かAWSDのキーで動作を確認してください。
-銃などのオブジェクトだと、一人称視点に変更する必要があります。
-「M」キーを押して変更します。
+				矢印かAWSDのキーで動作を確認してください。
+				銃などのオブジェクトだと、一人称視点に変更する必要があります。
+				「M」キーを押して変更します。
 	</notification>
 	<notification name="FirstSandbox">
 		ここはサンドボックスエリアです。住人が制作を学ぶことができます。
-ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、インベントリに入れてお持ち帰りするのをお忘れなく。
+				ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、インベントリに入れてお持ち帰りするのをお忘れなく。
 	</notification>
 	<notification name="MaxListSelectMessage">
 		このリストから[MAX_SELECT]個までのアイテムを選択できます。
@@ -4787,22 +4787,28 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 		<usetemplate ignoretext="グループコールの参加者全員をミュートする前の確認" name="okcancelignore" yestext="OK" notext="キャンセル">
 		</usetemplate>
 	</notification>
-	<notification name="HintChat" label="チャット">チャットに参加するには、画面下のチャットフィールドにテキストを入力します。
-    </notification>
-	<notification name="HintSit" label="立ち上がる">座る姿勢から立ち上がるには、「立ち上がる」ボタンをクリックします。
-    </notification>
-	<notification name="HintSpeak" label="話す">「スピーカー」ボタンをクリックすると、マイクのオン・オフが切り替わります。
-
-上矢印をクリックすると、ボイスコントロールパネルが表示されます。
-
-「スピーカー」ボタンを非表示にすると、ボイス機能も無効になります。
-    </notification>
-	<notification name="HintDestinationGuide" label="世界を探検">行き先ガイドには数多くの探索場所が含まれます。どこか行きたい場所をみつけたら、テレポートして探索に出かけましょう。
-    </notification>
-	<notification name="HintSidePanel" label="サイドパネル">サイドパネルから、インベントリや服装、プロフィールなどに素早くアクセスできます。
-    </notification>
-	<notification name="HintMove" label="移動">歩行や走行は、「移動」パネルを開き、矢印コントロールによって操作します。この操作はキーボードの矢印キーで実行することも可能です。
-    </notification>
+	<notification name="HintChat" label="チャット">
+		チャットに参加するには、画面下のチャットフィールドにテキストを入力します。
+	</notification>
+	<notification name="HintSit" label="立ち上がる">
+		座る姿勢から立ち上がるには、「立ち上がる」ボタンをクリックします。
+	</notification>
+	<notification name="HintSpeak" label="話す">
+		「スピーカー」ボタンをクリックすると、マイクのオン・オフが切り替わります。
+				
+				上矢印をクリックすると、ボイスコントロールパネルが表示されます。
+				
+				「スピーカー」ボタンを非表示にすると、ボイス機能も無効になります。
+	</notification>
+	<notification name="HintDestinationGuide" label="世界を探検">
+		行き先ガイドには数多くの探索場所が含まれます。どこか行きたい場所をみつけたら、テレポートして探索に出かけましょう。
+	</notification>
+	<notification name="HintSidePanel" label="サイドパネル">
+		サイドパネルから、インベントリや服装、プロフィールなどに素早くアクセスできます。
+	</notification>
+	<notification name="HintMove" label="移動">
+		歩行や走行は、「移動」パネルを開き、矢印コントロールによって操作します。この操作はキーボードの矢印キーで実行することも可能です。
+	</notification>
 	<notification name="HintMoveClick" label="">1, クリックで移動
 地面をクリックすると、その場所まで歩きます。
 
@@ -6271,9 +6277,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			<button name="cancel" text="キャンセル"/>
 		</form>
 	</notification>
-	<notification label="二段階認証トークンプロンプト" name="PromptMFATokenWithSave">
-		[MESSAGE]
-	<tag>
+	<notification label="二段階認証トークンプロンプト" name="PromptMFATokenWithSave">[MESSAGE]<tag>
 			CONFIRM
 		</tag>
 		<form name="form">

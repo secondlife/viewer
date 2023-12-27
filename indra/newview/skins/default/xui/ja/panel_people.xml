@@ -8,7 +8,7 @@
 	<string name="no_friends" value="フレンドはいません"/>
 	<string name="no_friends_msg">
 		フレンドを見つけるには、[secondlife:///app/search/people 検索]をするか、人物を右クリックしてフレンド登録してください。
-一緒に何かするフレンドをお探しですか?[secondlife:///app/worldmap ワールドマップ]をお試しください。
+				一緒に何かするフレンドをお探しですか?[secondlife:///app/worldmap ワールドマップ]をお試しください。
 	</string>
 	<string name="no_filtered_friends_msg">
 		お探しの人物は見つかりましたか? [secondlife:///app/search/people/[SEARCH_TERM] 検索]をお試しください。

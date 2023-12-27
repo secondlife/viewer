@@ -15,9 +15,15 @@
 			<panel.string name="donation_area">
 				[AREA]m²
 			</panel.string>
-			<panel.string name="power_folder_icon">Inv_FolderClosed</panel.string>
-			<panel.string name="power_all_have_icon">Checkbox_On</panel.string>
-			<panel.string name="power_partial_icon">Checkbox_Off</panel.string>
+			<panel.string name="power_folder_icon">
+				Inv_FolderClosed
+			</panel.string>
+			<panel.string name="power_all_have_icon">
+				Checkbox_On
+			</panel.string>
+			<panel.string name="power_partial_icon">
+				Checkbox_Off
+			</panel.string>
 			<filter_editor label="メンバーをフィルタ" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="メンバー" name="name"/>
@@ -32,8 +38,8 @@
 		<panel label="役割" name="roles_sub_tab">
 			<panel.string name="help_text">
 				役割には、タイトルと許可された能力が割り当てられています。
-メンバーは1つ以上の役割を持つことができます。
-グループで使える役割は10個までで、「全員(Everyone)」と「所有者(Owner)」がそれに含まれています。
+								メンバーは1つ以上の役割を持つことができます。
+								グループで使える役割は10個までで、「全員(Everyone)」と「所有者(Owner)」がそれに含まれています。
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				「全員(Everyone)」と「所有者(Owner)」の役割は削除できません。
@@ -60,7 +66,7 @@
 		<panel label="能力" name="actions_sub_tab" tool_tip="能力の説明と、その能力を実行できる役割とメンバーを表示できます。">
 			<panel.string name="help_text">
 				能力は、ロール内のメンバーはこのグループ内で特定のことを行うことができます。
-多種多様な能力が指定可能です。
+								多種多様な能力が指定可能です。
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -144,13 +150,13 @@
 	<panel name="roles_header">
 		<text_editor name="role_action_description">
 			これは「このグループからメンバーを追放」する能力です。
-「所有者」のみが他の「所有者」を追放できます。
+						「所有者」のみが他の「所有者」を追放できます。
 		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">
 			これは「グループからメンバーを追放する」能力です。
-「所有者」を追放できるのは、別の「所有者」だけです。
+						「所有者」を追放できるのは、別の「所有者」だけです。
 		</text_editor>
 		<text name="static2">
 			この能力を持つ役割

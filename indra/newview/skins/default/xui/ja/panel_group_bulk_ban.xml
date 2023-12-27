@@ -14,11 +14,11 @@
 	</panel.string>
 	<panel.string name="partial_ban">
 		グループのバンが送信されていません:
-[REASONS]
+				[REASONS]
 	</panel.string>
 	<panel.string name="ban_failed">
 		グループのバンが送信されていません:
-[REASONS]
+				[REASONS]
 	</panel.string>
 	<panel.string name="residents_already_banned">
 		- 次の住民は既にバンされています: [RESIDENTS]
