@@ -123,6 +123,9 @@
 	<text name="selection_empty">
 		選択されていません。
 	</text>
+	<text name="selection_faces">
+		選択された面：[FACES_STRING]
+	</text>
 	<view_border name="cost_text_border"/>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
@@ -265,18 +268,21 @@
 			<check_box label="一時的" name="Temporary Checkbox Ctrl" tool_tip="作成から１分後にオブジェクトを削除します。"/>
 			<check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクトが他のオブジェクトやアバターと衝突しないようにします。"/>
 			<view_border name="object_horizontal"/>
-			<text name="label position">
+			<menu_button name="clipboard_pos_btn" tool_tip="ペースト時のオプションを選択します。"/>
+			<text name="label position" tool_tip="位置（メートル）">
 				位置（メートル）
 			</text>
 			<spinner label="Ｘ" name="Pos X"/>
 			<spinner label="Ｙ" name="Pos Y"/>
 			<spinner label="Ｚ" name="Pos Z"/>
+			<menu_button name="clipboard_size_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="label size">
 				サイズ（メートル）
 			</text>
 			<spinner label="Ｘ" name="Scale X"/>
 			<spinner label="Ｙ" name="Scale Y"/>
 			<spinner label="Ｚ" name="Scale Z"/>
+			<menu_button name="clipboard_rot_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="label rotation">
 				回転（角度）
 			</text>
@@ -293,6 +299,7 @@
 				<combo_box.item label="輪（リング）" name="Ring"/>
 				<combo_box.item label="スカルプト" name="Sculpted"/>
 			</combo_box>
+			<menu_button name="clipboard_obj_params_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="text cut">
 				パスカット（始点と終点）
 			</text>
@@ -380,6 +387,7 @@
 			<panel.string name="Convex Hull">
 				凸包
 			</panel.string>
+			<menu_button name="clipboard_features_params_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="select_single">
 				プリムを１つだけ選択して編集してください。
 			</text>
@@ -408,8 +416,8 @@
 			<spinner label="光の雰囲気" name="Light Ambiance"/>
 			<check_box label="反射プローブ" name="Reflection Probe" tool_tip="ＰＢＲが有効な場合に、このボリューム内のオブジェクトが光の反射をどのように受け取るかを調整します。"/>
 			<combo_box name="Probe Volume Type" tool_tip="プローブの影響量を選択してください。">
-				<combo_box.item label="球状" name="Sphere" value="Sphere"/>
-				<combo_box.item label="箱状" name="Box" value="Box"/>
+				<combo_box.item label="球状（スフィア）" name="Sphere" value="Sphere"/>
+				<combo_box.item label="箱状（ボックス）" name="Box" value="Box"/>
 			</combo_box>
 			<check_box label="動的" name="Probe Dynamic" tool_tip="有効にすると、アバターはこのプローブ範囲内の反射に影響されて表示されます。"/>
 			<spinner label="雰囲気" name="Probe Ambiance"/>
@@ -461,5 +469,4 @@
 		<button label="土地の購入" label_selected="土地の購入" name="button buy land"/>
 		<button label="土地の放棄" label_selected="土地の放棄" name="button abandon land"/>
 	</panel>
-	<!-- end of tabs -->
 </floater>

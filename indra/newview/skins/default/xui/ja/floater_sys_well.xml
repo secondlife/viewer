@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="sys_well_window">
-	<string name="title_im_well_window">
-		会話
-	</string>
+<floater name="sys_well_window" title="通知">
+	<string name="title_im_well_window">会話</string>
 </floater>

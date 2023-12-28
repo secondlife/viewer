@@ -61,7 +61,7 @@
 						最大高度：
 					</text>
 					<slider name="max_alt"/>
-					<slider name="probe_ambiance"/>
+					<slider name="probe_ambiance" tool_tip="環境ベースの間接照明の強度を制御します。０の場合、ＨＤＲスケールは明るさになります。"/>
 					<text name="scene_gamma_label">
 						ブライトネス：
 					</text>

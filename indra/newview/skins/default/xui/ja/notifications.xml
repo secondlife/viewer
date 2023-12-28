@@ -941,6 +941,16 @@ L$が不足しているので、このグループに参加することができ
 		<tag>confirm</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ"/>
 	</notification>
+	<notification name="EjectAvatarFullname">
+		あなたの土地から[AVATAR_NAMES]を追放しますか？
+		<tag>confirm</tag>
+		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="追放しバンする" yestext="追放する"/>
+	</notification>
+	<notification name="EjectAvatarFullnameNoBan">
+		[AVATAR_NAMES]をあなたの土地から追放しますか？
+		<tag>confirm</tag>
+		<usetemplate name="okcancelbuttons" notext="Cancel" yestext="Eject"/>
+	</notification>
 	<notification name="EjectAvatarFromGroup">
 		&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;から[AVATAR_NAME]を追放しました。
 		<tag>group</tag>

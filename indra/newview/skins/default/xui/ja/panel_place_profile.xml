@@ -45,8 +45,11 @@
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
-			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="region_title">
+				リージョン：[REGIONAMEPOS]
+			</text>
+			<text name="parcel_title" value="不明"/>
+			<expandable_text name="description" value="不明"/>
 			<text name="owner_label" value="所有者："/>
 			<text name="parcel_owner" value="不明"/>
 			<icon name="maturity_icon"/>

@@ -18,6 +18,9 @@
 	<string name="StartupDetectingHardware">
 		ハードウェアを検出しています…
 	</string>
+	<string name="StartupClearingCache">
+		キャッシュを消去しています…
+	</string>
 	<string name="StartupLoading">
 		[APP_NAME]をインストールしています…
 	</string>
@@ -255,8 +258,8 @@ https://secondlife.com/viewer-access-faq
 申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Lifeへのアクセスをご遠慮いただいています。
 	</string>
 	<string name="LoginFailedComputerProhibited">
-		お使いのパソコンからは、Second Lifeにアクセスできません。
-システムエラーだと思われる場合は、 support@secondlife.com にお問い合わせください。
+		このコンピュータからSecond Lifeにアクセスできません。
+エラーと思われる場合は、サポートまでご連絡ください。
 	</string>
 	<string name="LoginFailedAcountSuspended">
 		あなたのアカウントは、太平洋時間の[TIME]までご利用いただけません。
@@ -276,7 +279,7 @@ support@secondlife.com にお問い合わせください。
 		現在アカウントのメンテナンスが行われています。
 あなたのアカウントは、
 太平洋時間の[TIME]までご利用いただけません。
-システム側のエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+エラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
 		ログアウトのリスクエスト時に、シミュレーターから「fault」が返されました。
@@ -295,19 +298,19 @@ support@secondlife.com にお問い合わせください。
 		あなたのSecond Lifeアカウントにアクセスできるのは、
 太平洋時間の[START]～[END]の間に限られます。
 有効な時間帯に再度お試しください。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+エラーと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedIncorrectParameters">
 		パラメーターが正しくありません。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+エラーと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedFirstNameNotAlphanumeric">
 		ファーストネームのパラメーターは英数字です。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+エラーと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedLastNameNotAlphanumeric">
 		ラストネームのパラメーターは英数字です。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+エラーと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LogoutFailedRegionGoingOffline">
 		リージョンは、現在オフラインです。
@@ -3181,12 +3184,12 @@ For AI Character: Get the closest navigable point to the point provided.
 		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート（http://support.secondlife.com）にお問い合わせください
 	</string>
 	<string name="InventoryMarketplaceConnectionError">
-マーケットプレイス掲載の接続に失敗しました。
+マーケットプレイス出品時の接続に失敗しました。
 このメッセージが続けて表示される場合は、
 https://support.secondlife.com よりSecond Lifeのサポートまでお問い合わせください。
 	</string>
 	<string name="InventoryMarketplaceConnectionErrorReason">
-マーケットプレイス掲載の接続に失敗しました：[REASON]
+マーケットプレイス出品時の接続に失敗しました：[REASON]
 このメッセージが続けて表示される場合は、
 https://support.secondlife.com よりSecond Lifeのサポートまでお問い合わせください。
 	</string>
@@ -6295,6 +6298,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="unread_chat_multiple">
 		[SOURCES]は、何か新しいことを言いました。
 	</string>
+	<string name="teleport_preamble_compact_chat">
+		現在地：
+	</string>
 	<string name="session_initialization_timed_out_error">
 		セッションの初期化がタイムアウトしました。
 	</string>
@@ -7419,6 +7425,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Pathfinding_Object_Attr_MultiSelect">
 		（複数）
 	</string>
+	<!-- Snapshot image quality levels -->
 	<string name="snapshot_quality_very_low">
 		最低
 	</string>

@@ -142,7 +142,7 @@
 				読み込んでいます…
 			</text>
 			<button label="土地の購入" name="Buy Land..."/>
-			<button label="Lindenセール…" lname="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
+			<button label="Lindenセール…" name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
 			<button label="スクリプト情報…" name="Scripts..."/>
 			<button label="グループに購入" name="Buy For Group..."/>
 			<button label="入場許可を購入" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。"/>
@@ -245,7 +245,7 @@
 			<text name="owner_objects_text" width="64">
 				[COUNT]個
 			</text>
-			<button label="表示" lname="ShowOwner"/>
+			<button label="表示" label_selected="表示" name="ShowOwner"/>
 			<button label="返却" name="ReturnOwner..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Set to group:">
 				グループに設定：
@@ -253,7 +253,7 @@
 			<text name="group_objects_text" width="64">
 				[COUNT]個
 			</text>
-			<button label="表示" name="ShowGroup"/>
+			<button label="表示" label_selected="表示" name="ShowGroup"/>
 			<button label="返却" name="ReturnGroup..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Owned by others:">
 				他人の所有物：
@@ -261,7 +261,7 @@
 			<text name="other_objects_text" width="64">
 				[COUNT]個
 			</text>
-			<button label="表示" name="ShowOther"/>
+			<button label="表示" label_selected="表示" name="ShowOther"/>
 			<button label="返却" name="ReturnOther..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Selected / sat upon:">
 				選択済み／決定済み：
@@ -397,7 +397,7 @@
 			<text name="Media texture:">
 				テクスチャの差し替え：
 			</text>
-			<texture_picker name="media texture" tool_tip="画像をクリックして選択"/>
+			<texture_picker name="media texture" tool_tip="クリックして画像を選択します。"/>
 			<text name="replace_texture_help">
 				このテクスチャを使用するオブジェクトの「再生」をクリックすると、動画やWebページを表示します。テクスチャを変更するにはサムネイルを選択してください。
 			</text>

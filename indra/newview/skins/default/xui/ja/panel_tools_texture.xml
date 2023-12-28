@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="テクスチャ" name="Texture">
+	<panel.string name="paste_error_face_selection_mismatch">
+		複数の面をコピーしたい場合は、対象オブジェクトは同じ数の面が選択されていなければなりません。
+	</panel.string>
+	<panel.string name="paste_error_object_face_count_mismatch">
+		オブジェクトの全ての面をコピーしたい場合は、対象オブジェクトの面数が同じでなければなりません。
+	</panel.string>
+	<panel.string name="paste_error_inventory_not_found">
+		インベントリに１つ以上のテクスチャがありません。
+	</panel.string>
+	<panel.string name="paste_options">
+		ペースト時のオプション
+	</panel.string>
+	<menu_button name="clipboard_color_params_btn" tool_tip="ペースト時のオプションを選択します。"/>
 	<text name="color label">
 		色
 	</text>

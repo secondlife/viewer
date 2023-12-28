@@ -31,10 +31,10 @@
 		読み込んでいます…
 	</text>
 	<scroll_list name="objects_list">
-		<scroll_list.columns label="数" name="score"/>
+		<scroll_list.columns label="スコア" name="score"/>
 		<scroll_list.columns label="名前" name="name"/>
 		<scroll_list.columns label="所有者" name="owner"/>
-		<scroll_list.columns label="ロケーション" name="location"/>
+		<scroll_list.columns label="場所" name="location"/>
 		<scroll_list.columns label="区画" name="parcel"/>
 		<scroll_list.columns label="日付" name="time"/>
 		<scroll_list.columns label="ＵＲＬ" name="URLs"/>
@@ -59,4 +59,5 @@
 	<button name="refresh_btn"/>
 	<button label="選択内容を返却" name="return_selected_btn"/>
 	<button label="すべて返却" name="return_all_btn"/>
+	<button label="選択の場所にテレポート" name="teleport_btn"/>
 </floater>

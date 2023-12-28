@@ -129,6 +129,7 @@
 		<menu label="自然環境" name="Environment">
 			<menu_item_check label="夜明け" name="Sunrise"/>
 			<menu_item_check label="正午" name="Noon"/>
+			<menu_item_check label="正午（レガシー）" name="legacy noon"/>
 			<menu_item_check label="夕方" name="Sunset"/>
 			<menu_item_check label="深夜" name="Midnight"/>
 			<menu_item_check label="共有された環境を使用" name="Use Shared Environment"/>

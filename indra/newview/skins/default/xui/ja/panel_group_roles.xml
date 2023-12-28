@@ -72,11 +72,11 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			<panel.string name="power_partial_icon">
 				Checkbox_Off
 			</panel.string>
-			<filter_editor label="役割でフィルタ" name="filter_input"/>
-			<scroll_list name="role_list">
-				<scroll_list.columns label="役割" name="name"/>
-				<scroll_list.columns label="タイトル" name="title"/>
-				<scroll_list.columns label="＃" name="members"/>
+			<filter_editor label="能力でフィルタ" name="filter_input"/>
+			<scroll_list name="action_list" tool_tip="能力を選択して詳細を表示します。">
+				<scroll_list.columns label="" name="icon"/>
+				<scroll_list.columns label="" name="checkbox"/>
+				<scroll_list.columns label=""/>
 			</scroll_list>
 		</panel>
 		<panel label="バンされた住民" name="banlist_sub_tab" tool_tip="このグループからバンされた住人を表示します。">
@@ -92,6 +92,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			</name_list>
 			<button label="住人をバンする" name="ban_create" tool_tip="グループから住人をバンします。"/>
 			<button label="バンの解除" name="ban_delete" tool_tip="選択した住人のバンを解除します。"/>
+			<button name="ban_refresh" tool_tip="バンリストをリフレッシュします。"/>
 			<text name="ban_count" width="100"/>
 		</panel>
 	</tab_container>

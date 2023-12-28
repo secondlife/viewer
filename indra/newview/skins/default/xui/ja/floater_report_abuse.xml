@@ -3,6 +3,11 @@
 	<floater.string name="Screenshot">
 		スクリーンショット
 	</floater.string>
+	<floater.string name="chat_report_format">
+		時間：[MSG_TIME]
+説明：[MSG_DESCRIPTION]
+	</floater.string>
+	<texture_picker name="screenshot"/>
 	<text name="reporter_title">
 		報告者：
 	</text>
@@ -57,6 +62,8 @@
 	<text name="abuser_name_title">
 		迷惑ユーザーの名前：
 	</text>
+	<line_editor name="abuser_name_edit"/>
+	<button label="選択" name="select_abuser" tool_tip="嫌がらせをしてきた人の名前をリストから選択してください。"/>
 	<text name="abuser_name_title2">
 		嫌がらせを受けた場所：
 	</text>
