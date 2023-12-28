@@ -53,7 +53,7 @@
 						<text name="p1" value="25％[DSC]"/>
 						<text name="p2" value="50％[DSC]"/>
 						<text name="p3" value="75％[DSC]"/>
-						<text name="p4" value="100％[DSC] />
+						<text name="p4" value="100％[DSC]"/>
 						<multi_slider name="WLTimeSlider"/>
 						<multi_slider name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]％[DSC]"/>
