@@ -201,7 +201,6 @@
 			<menu_item_check label="反射プローブのボリュームを表示" name="Show Reflection Probe Volumes"/>
 			<menu_item_check label="選択ビームを表示する" name="Show Selection Beam"/>
 			<menu_item_check label="ハイライトを透過" name="Highlight Transparent"/>
-			<menu_item_check label="Ctrl＋ドラッグでオブジェクトを掴む" name="EnableCtrlDragMovement"/>
 			<menu_item_separator/>
 			<menu_item_check label="ポストプロセッシングを無効化" name="No Post"/>
 			<menu_item_separator/>
@@ -242,14 +241,11 @@
 	</menu>
 	<menu label="拡張" name="Advanced">
 		<menu_item_call label="テクスチャをリベークする" name="Rebake Texture"/>
-		<menu_item_call label="装着物をリフレッシュ" name="Refresh Attachments"/>
 		<menu_item_call label="ＵＩサイズをデフォルトにする" name="Set UI Size to Default"/>
 		<menu_item_call label="ウィンドウサイズ設定…" name="Set Window Size..."/>
 		<menu_item_separator/>
 		<menu_item_check label="オブジェクトの選択距離の制限" name="Limit Select Distance"/>
 		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
-		<menu_item_check label="最小ズーム距離を無効化" name="Disable Minimum Zoom Distance"/>
-		<menu_item_check label="ＳＩＭのカメラの衝突面を無効化" name="Disable Sim Camera Collision Plane"/>
 		<menu_item_separator/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
 		<menu_item_check label="スナップショットをディスクに保存" name="QuietSnapshotsToDisk"/>
@@ -281,7 +277,6 @@
 			<menu_item_check label="雲" name="Rendering Type Clouds"/>
 			<menu_item_check label="パーティクル" name="Rendering Type Particles"/>
 			<menu_item_check label="衝突" name="Rendering Type Bump"/>
-			<menu_item_check label="ＰＢＲ" name="Rendering Type PBR"/>
 		</menu>
 		<menu label="レンダリング機能" name="Rendering Features">
 			<menu_item_check label="ＵＩ" name="ToggleUI"/>
@@ -331,7 +326,6 @@
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
 			<menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console"/>
 			<menu_item_call label="性能情報をデバッグコンソールへ" name="Capabilities Info to Debug Console"/>
-			<menu_item_call label="シミュレータの機能を表示" name="View Simulator Features"/>
 			<menu_item_separator/>
 			<menu_item_check label="カメラ" name="Camera"/>
 			<menu_item_check label="風" name="Wind"/>
@@ -416,7 +410,6 @@
 			<menu_item_check label="パイプラインをデバッグ" name="Debug Pipeline"/>
 			<menu_item_check label="自動アルファマスク（遅延）" name="Automatic Alpha Masks (deferred)"/>
 			<menu_item_check label="自動アルファマスク（遅延なし）" name="Automatic Alpha Masks (non-deferred)"/>
-			<menu_item_check label="自動アルファマスク（ＲＭＳＥ）" name="Automatic Alpha Masks (RMSE)"/>
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
@@ -479,7 +472,6 @@
 			<menu_item_check label="WindowProcのデバッグ" name="Debug WindowProc"/>
 		</menu>
 		<menu label="ＸＵＩ" name="XUI">
-			<menu_item_call label="ＸＵＩプレビューツール" name="UI Preview Tool"/>
 			<menu_item_call label="色の設定をリロード" name="Reload Color Settings"/>
 			<menu_item_call label="フォントテストを表示" name="Show Font Test"/>
 			<menu_item_check label="ＸＵＩ名を表示" name="Show XUI Names"/>

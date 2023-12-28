@@ -72,15 +72,15 @@
 			<text_editor name="group_money_details_text">
 				読み込んでいます…
 			</text_editor>
-			<button label="前の週" label_selected="前の週" name="earlier_details_button" tool_tip="前の週"/>
-			<button label="次の週" label_selected="次の週" name="later_details_button" tool_tip="次の週"/>
+			<button name="earlier_details_button" tool_tip="前の週"/>
+			<button name="later_details_button" tool_tip="次の週"/>
 		</panel>
 		<panel label="販売中" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				読み込んでいます…
 			</text_editor>
-			<button label="前の週" label_selected="前の週" name="earlier_sales_button" tool_tip="前の週"/>
-			<button label="次の週" label_selected="次の週" name="later_sales_button" tool_tip="次の週"/>
+			<button name="earlier_sales_button" tool_tip="前の週"/>
+			<button name="later_sales_button" tool_tip="次の週"/>
 		</panel>
 	</tab_container>
 </panel>

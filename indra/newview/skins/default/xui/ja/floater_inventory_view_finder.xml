@@ -7,7 +7,6 @@
 	<check_box label="ランドマーク" name="check_landmark"/>
 	<check_box label="マテリアル" name="check_material"/>
 	<check_box label="ノートカード" name="check_notecard"/>
-	<check_box label="メッシュ" name="check_mesh"/>
 	<check_box label="オブジェクト" name="check_object"/>
 	<check_box label="スクリプト" name="check_script"/>
 	<check_box label="サウンド" name="check_sound"/>
@@ -27,11 +26,9 @@
 		<radio_item label="より新しい" name="newer"/>
 		<radio_item label="より古い" name="older"/>
 	</radio_group>
-	<spinner label="経過時間" name="spin_hours_ago"/>
 	<text name="label_hours">
 		時間
 	</text>
-	<spinner label="経過日数" name="spin_days_ago"/>
 	<text name="label_days">
 		日間
 	</text>

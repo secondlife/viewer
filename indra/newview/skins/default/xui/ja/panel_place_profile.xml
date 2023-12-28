@@ -45,7 +45,6 @@
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<text name="region_title" value="SampleRegion"/>
 			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
 			<expandable_text name="description" value="Du waltz die spritz"/>
 			<text name="owner_label" value="所有者："/>

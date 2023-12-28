@@ -75,31 +75,10 @@
 		シェーダー
 	</text>
 	<check_box label="透明な水" name="TransparentWater"/>
-	<check_box label="バンプマッピングと光沢" name="BumpShiny"/>
-	<check_box label="ローカル光源" name="LocalLights"/>
-	<slider label="地形の詳細：" name="TerrainDetail"/>
-	<text name="TerrainDetailText">
-		低
-	</text>
-	<check_box label="アバターの衣類" name="AvatarCloth"/>
-	<text name="ReflectionsText">
-		水面の反射：
-	</text>
-	<combo_box name="Reflections">
-		<combo_box.item label="無し；不透明" name="0" value="-2"/>
-		<combo_box.item label="無し；透明" name="0" value="-1"/>
-		<combo_box.item label="最小限" name="0" value="0"/>
-		<combo_box.item label="地形と樹木" name="1" value="1"/>
-		<combo_box.item label="すべての静止オブジェクト" name="2" value="2"/>
-		<combo_box.item label="すべてのアバターとオブジェクト" name="3" value="3"/>
-		<combo_box.item label="すべて" name="4" value="4"/>
-	</combo_box>
-	<check_box label="大気（周囲）シェーダー" name="WindLightUseAtmosShaders"/>
 	<slider label="空：" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
 		低
 	</text>
-	<check_box label="高度な光源モデル" name="UseLightShaders"/>
 	<check_box label="アンビエントオクルージョン" name="UseSSAO"/>
 	<check_box label="被写界深度（ＤｏＦ）" name="UseDoF"/>
 	<text name="RenderShadowDetailText">

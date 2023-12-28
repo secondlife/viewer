@@ -51,7 +51,7 @@
 		<text name="emissive_lbl" width="128">
 			放射（エミッシブ）：
 		</text>
-		<texture_picker name="emissive_texture" tool_tip="放射（エミッシブ）マップを指定します。"/>
+		<texture_picker name="emissive_texture"/>
 		<text name="emissive_upload_fee">
 			アップロード費用なし
 		</text>
@@ -64,7 +64,7 @@
 		<text name="normal_lbl" width="128">
 			法線（ノーマル）：
 		</text>
-		<texture_picker name="normal_texture" tool_tip="法線（ノーマル）マップを指定します。"/>
+		<texture_picker name="normal_texture"/>
 		<text name="normal_upload_fee">
 			アップロード費用なし
 		</text>

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="stream_info">
-	<icon name="music_icon"/>
-	<text name="message" value=""/>
-</panel>

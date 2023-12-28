@@ -13,8 +13,6 @@
 	<string name="BadgeLinden" value="Linden Lab社員"/>
 	<string name="BadgePremiumLifetime" value="生涯プレミアム会員"/>
 	<string name="BadgePremiumPlusLifetime" value="生涯プレミアム・プラス会員"/>
-	<string name="BadgePremium" value="プレミアム会員"/>
-	<string name="BadgePremiumPlus" value="プレミアム・プラス会員"/>
 	<layout_stack name="image_stack">
 		<layout_panel name="image_panel">
 			<icon name="2nd_life_pic"/>

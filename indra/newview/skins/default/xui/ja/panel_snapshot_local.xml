@@ -8,22 +8,9 @@
 		<combo_box.item label="320×240" name="320x240" value="[i320,i240]"/>
 		<combo_box.item label="640×480" name="640x480" value="[i640,i480]"/>
 		<combo_box.item label="800×600" name="800x600" value="[i800,i600]"/>
-		<combo_box.item label="720p" name="1280x720" value="[i1280,i720]"/>
 		<combo_box.item label="1024×768" name="1024x768" value="[i1024,i768]"/>
-		<combo_box.item label="ＳＬテクスチャ（1024x1024）" name="1024x1024" value="[i1024,i1024]"/>
 		<combo_box.item label="1280×1024" name="1280x1024" value="[i1280,i1024]"/>
-		<combo_box.item label="1080p（16:9）" name="1920x1080" value="[i1920,i1080]"/>
 		<combo_box.item label="1600×1200" name="1600x1200" value="[i1600,i1200]"/>
-		<combo_box.item label="1080p FHD（21:9）" name="2560x1080" value="[i2560,i1080]"/>
-		<combo_box.item label="1440p QHD（16:9）" name="2560x1440" value="[i2560,i1440]"/>
-		<combo_box.item label="1440p WQHDウルトラワイド (21:9)" name="3440x1440" value="[i3440,i1440]"/>
-		<combo_box.item label="1440p DQHD（32:9）" name="5120x1440" value="[i5120,i1440]"/>
-		<combo_box.item label="4K（16:9）" name="3840x2160" value="[i3840,i2160]"/>
-		<combo_box.item label="4K（1.90:1）" name="4096x2160" value="[i4096,i2160]"/>
-		<combo_box.item label="4K UWD（21:9）" name="5120x2160" value="[i5120,i2160]"/>
-		<combo_box.item label="4K（4:3）" name="4096x3072" value="[i4096,i3072]"/>
-		<combo_box.item label="8K（16:9）" name="7680x4320" value="[i7680,i4320]"/>
-		<combo_box.item label="8K（21:9）" name="10240x4320" value="[i10240,i4320]"/>
 		<combo_box.item label="カスタム" name="Custom" value="[i-1,i-1]"/>
 	</combo_box>
 	<spinner label="横幅×高さ" name="local_snapshot_width"/>

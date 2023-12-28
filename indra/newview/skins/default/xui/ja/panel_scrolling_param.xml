@@ -10,7 +10,7 @@
 	</text>
 	<view_border name="left_border"/>
 	<view_border name="right_border"/>
-	<button name="less" tool_tip="折りたたむ"/>
-	<button name="more" tool_tip="拡げる"/>
+	<button name="less"/>
+	<button name="more"/>
 	<slider label="[DESC]" name="param slider"/>
 </panel>

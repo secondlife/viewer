@@ -55,8 +55,6 @@
 	<text name="enhancements_desc">
 		影により視覚的な品質は大幅に向上しますが、速度低下する可能性があります。
 	</text>
-	<check_box label="大気（周辺）シェーダー" name="advanced_lighting_model"/>
-	<check_box label="高度な光源" name="advanced_lighting_model"/>
 	<text name="RenderShadowDetailText">
 		影の詳細：
 	</text>
@@ -73,18 +71,6 @@
 		水面の透明効果を減らしたり切ると、フレームレートが大幅に向上する可能性があります。
 	</text>
 	<check_box label="透明な水" name="TransparentWater"/>
-	<text name="ReflectionsText">
-		水面の反射：
-	</text>
-	<combo_box name="Reflections">
-		<combo_box.item label="なし；不透明" name="0" value="-2"/>
-		<combo_box.item label="なし；透明" name="0" value="-1"/>
-		<combo_box.item label="最小限" name="0" value="0"/>
-		<combo_box.item label="地形と樹木" name="1" value="1"/>
-		<combo_box.item label="全ての静的なオブジェクト" name="2" value="2"/>
-		<combo_box.item label="全てのアバターとオブジェクト" name="3" value="3"/>
-		<combo_box.item label="全て" name="4" value="4"/>
-	</combo_box>
 	<view_border name="border4"/>
 	<text name="photo_lbl">
 		写真

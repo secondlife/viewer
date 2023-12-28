@@ -22,21 +22,5 @@
 				</panel>
 			</layout_panel>
 		</layout_stack>
-		<panel name="button_panel">
-			<layout_stack name="button_panel_ls">
-				<layout_panel name="info_btn_lp">
-					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示する"/>
-				</layout_panel>
-				<layout_panel name="share_btn_lp">
-					<button label="共有" name="share_btn" tool_tip="インベントリ内のアイテムを共有する。"/>
-				</layout_panel>
-				<layout_panel name="shop_btn_lp">
-					<button label="ショッピング" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く"/>
-					<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用す。る"/>
-					<button label="再生" name="play_btn"/>
-					<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする。"/>
-				</layout_panel>
-			</layout_stack>
-		</panel>
 	</panel>
 </panel>

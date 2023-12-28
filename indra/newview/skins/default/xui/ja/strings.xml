@@ -21,27 +21,6 @@
 	<string name="StartupLoading">
 		[APP_NAME]をインストールしています…
 	</string>
-	<string name="StartupChangingCacheLocation">
-		キャッシュを移行しています…
-	</string>
-	<string name="StartupClearingCache">
-		キャッシュを消去しています…
-	</string>
-	<string name="StartupClearingTextureCache">
-		テクスチャキャッシュを消去しています…
-	</string>
-	<string name="StartupClearingDiskCache">
-		アセットキャッシュを消去しています…
-	</string>
-	<string name="StartupClearingObjectCache">
-		オブジェクトキャッシュを消去しています…
-	</string>
-	<string name="StartupClearingShaderCache">
-		シェーダーキャッシュを消去しています…
-	</string>
-	<string name="StartupInitializingDiskCache">
-		ディスクキャッシュを初期化しています…
-	</string>
 	<string name="StartupInitializingTextureCache">
 		テクスチャキャッシュを初期化しています…
 	</string>
@@ -627,9 +606,6 @@ support@secondlife.com にお問い合わせください。
 	<string name="BUTTON_RESTORE">
 		復元
 	</string>
-	<string name="BUTTON_COLLAPSE">
-		折り畳む
-	</string>
 	<string name="BUTTON_MINIMIZE">
 		最小化
 	</string>
@@ -1071,9 +1047,6 @@ support@secondlife.com にお問い合わせください。
 	<string name="worldmap_results_none_found">
 		何も見つかりませんでした。
 	</string>
-	<string name="worldmap_agent_position">
-		現在地
-	</string>
 	<string name="Ok">
 		ＯＫ
 	</string>
@@ -1174,9 +1147,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="AgentNameSubst">
 		（あなた）
 	</string>
-	<string name="JoinAnExperience">
-		体験に参加
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		土地のアクセスリストを管理するときにアラートを表示しない
 	</string>
@@ -1246,9 +1217,6 @@ support@secondlife.com にお問い合わせください。
 	<string name="png_image_files">
 		PNG画像
 	</string>
-	<string name="webp_image_files">
-		WebP画像
-	</string>
 	<string name="save_texture_image_files">
 		TargaまたはPNG画像
 	</string>
@@ -1260,9 +1228,6 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="xml_file">
 		XMLファイル
-	</string>
-	<string name="csv_files">
-		CSVファイル
 	</string>
 	<string name="raw_file">
 		RAWファイル
@@ -1281,15 +1246,6 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="dictionary_files">
 		辞書
-	</string>
-	<string name="gltf_files">
-		GLTFファイル
-	</string>
-	<string name="zip_files">
-		Zipファイル
-	</string>
-	<string name="recompile_script_verb">
-		再コンパイル
 	</string>
 	<string name="LSLTipSleepTime" translate="false">
 		Sleeps script for [SLEEP_TIME] seconds.
@@ -3386,9 +3342,6 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	<string name="Snapshots" value="スナップショット、"/>
 	<string name="No Filters" value="なし"/>
 	<string name="Since Logoff" value="–ログオフ以来"/>
-	<string name="InvFolder Basic Root">
-		基本ルート
-	</string>
 	<string name="InvFolder My Inventory">
 		インベントリ
 	</string>
@@ -3876,18 +3829,6 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	<string name="CompileQueueStart">
 		再コンパイル
 	</string>
-	<string name="CompileQueueCompiling">
-		「[SCRIPT]」のコンパイルをしています…
-	</string>
-	<string name="CompileSuccess">
-		「[SCRIPT]」のコンパイルに成功しました。
-	</string>
-	<string name="CompileFailure">
-		「[SCRIPT]」のコンパイルに失敗しました：
-	</string>
-	<string name="CompilePermissions">
-		スキップしています：[ITEM_NAME]（権限）
-	</string>
 	<string name="ResetQueueTitle">
 		進行をリセット
 	</string>
@@ -3905,12 +3846,6 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	</string>
 	<string name="NotRunQueueStart">
 		実行停止に設定
-	</string>
-	<string name="DeleteQueueTitle">
-		削除中
-	</string>
-	<string name="DeleteQueueStart">
-		削除
 	</string>
 	<string name="CompileSuccessful">
 		コンパイルが完了しました！
@@ -4396,9 +4331,6 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	</string>
 	<string name="UploadingCosts">
 		[NAME]のアップロード料金は L$ [AMOUNT]です。
-	</string>
-	<string name="BuyingCosts">
-		これをL$ [AMOUNT]で購入します。
 	</string>
 	<string name="UnknownFileExtension">
 		不明な拡張子：%s
@@ -7424,20 +7356,11 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Report_Abuse_Tooltip">
 		嫌がらせを報告します。
 	</string>
-	<string name="Command_Scripts_Tooltip">
-		自分のアバターに取り付けられているスクリプトを表示します。
-	</string>
-	<string name="Command_Stats_Tooltip">
-		ＦＰＳやネットワーク使用量、ＳＩＭパフォーマンスなどの統計情報を表示します。
-	</string>
 	<string name="Command_Search_Tooltip">
 		場所、イベント、人物を検索します。
 	</string>
 	<string name="Command_Snapshot_Tooltip">
 		スナップショット画像を撮ります。
-	</string>
-	<string name="Command_Snapshot_Disk_Tooltip">
-		スナップショット画像を直ちに撮影します。
 	</string>
 	<string name="Command_Speak_Tooltip">
 		マイクを使って近くの人と話します。

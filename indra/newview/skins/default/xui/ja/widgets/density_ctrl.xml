@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<densityctrl abel="密度" name="density_ctrl">
+<densityctrl label="密度" name="density_ctrl">
 	<text name="exponential_term_label">
 		指数項
 	</text>

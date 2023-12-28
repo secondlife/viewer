@@ -49,9 +49,6 @@
 		<radio_item initial_value="google" label="Google翻訳" name="google"/>
 		<radio_item initial_value="deepl" label="DeepL翻訳" name="deepl"/>
 	</radio_group>
-	<text name="azure_links_text">
-		[https://learn.microsoft.com/ja-jp/azure/cognitive-services/translator/create-translator-resource セットアップ]
-	</text>
 	<text name="azure_api_endoint_label">
 		エンドポイント：
 	</text>

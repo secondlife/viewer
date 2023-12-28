@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="ポップアップ" name="popups" title="ポップアップ">
+<panel label="ポップアップ" name="popups">
 	<text name="tell_me_label">
 		通知：
 	</text>

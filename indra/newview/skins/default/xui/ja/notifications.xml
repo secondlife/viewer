@@ -152,6 +152,10 @@
 		在庫フォルダへのコピーまたは移動がエラーにより失敗しました：[ERROR_CODE]
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
+	<notification name="MyOutfitsPasteFailed">
+		１つ以上のアイテムが「アウトフィット」内で使用できませんでした。
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
 	<notification name="MerchantPasteFailed">
 		マーケットプレイスのリストへのコピーまたは移動が以下のエラーにより失敗しました：[ERROR_CODE]
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -620,15 +624,6 @@ L$が不足しているので、このグループに参加することができ
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
-	<notification name="CouldNotBuyCurrencyOS">
-[TITLE]
-[MESSAGE]
-		<tag>confirm</tag>
-		<url option="0" name="url" target = "_external">
-			[LINK]
-		</url>
-		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
-	</notification>
 	<notification name="CouldNotPutOnOutfit">
 		アウトフィットを装着できません。
 アウトフィットフォルダに服装、身体部位、装着物がありません。
@@ -946,82 +941,6 @@ L$が不足しているので、このグループに参加することができ
 		<tag>confirm</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ"/>
 	</notification>
-	<notification name="FreezeAvatarMultiple">
-		以下の住民らをフリーズしますか？
-彼らは一時的に動けなくなり、チャットを含めインワールドで何もできなくなります。
-
-[AVATAR_NAMES]
-		<tag>confirm</tag>
-		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ"/>
-	</notification>
-	<notification name="FreezeAvatarFullname">
-		[AVATAR_NAMES]をフリーズしますか？
-フリーズされた人は一時的に動けなくなり、チャットなど、このワールドに対する関わりを持つことができなくなります。
-		<tag>confirm</tag>
-		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ"/>
-	</notification>
-	<notification name="EjectAvatarFullname">
-		あなたの土地から[AVATAR_NAMES]を追放しますか？
-		<tag>confirm</tag>
-		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="追放しバンする" yestext="追放する"/>
-	</notification>
-	<notification name="EjectAvatarNoBan">
-		このアバターをあなたの土地から追放しますか？
-		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放"/>
-	</notification>
-	<notification name="EjectAvatarFullnameNoBan">
-		[AVATAR_NAMES]をあなたの土地から追放しますか？
-		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="Cancel" yestext="Eject"/>
-	</notification>
-	<notification name="EjectAvatarMultiple">
-		以下の住民らをあなたの土地から追放しますか？
-
-[AVATAR_NAMES]
-		<tag>confirm</tag>
-		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="追放しバンする" yestext="追放する"/>
-	</notification>
-	<notification name="EjectAvatarMultipleNoBan">
-		以下の住民らをあなたの土地から追放しますか？
-
-[AVATAR_NAMES]
-		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放"/>
-	</notification>
-	<notification label="住民をホームにテレポートさせる確認" name="EstateTeleportHomeSingle">
-		[AVATAR_NAMES]というアバターをホームにテレポートさせますか？
-		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
-	</notification>
-	<notification label="複数の住民をホームにテレポートさせる確認" name="EstateTeleportHomeMultiple">
-		以下の住民らをホームにテレポートさせますか？
-
-[AVATAR_NAMES]
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
-	</notification>
-	<notification label="Confirm Kick" name="EstateKickSingle">
-		この不動産から[AVATAR_NAMES]をキックしますか？
-		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
-	</notification>
-	<notification label="Confirm Kick" name="EstateKickMultiple">
-		以下の住民らをこの不動産からキックしますか？
-
-[AVATAR_NAMES]
-		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
-	</notification>
-	<notification label="バンの確認" name="EstateBanSingle">
-		[AVATAR_NAMES]のこの不動産のみ、または[ALL_ESTATES]へのアクセスを拒否しますか？
-		<usetemplate name="yesnocancelbuttons" canceltext="キャンセル" notext="すべての不動産" yestext="この不動産"/>
-	</notification>
-	<notification label="Confirm Ban" name="EstateBanMultiple">
-		以下の住民らをこの不動産のみ、または[ALL_ESTATES]へのアクセスを拒否しますか？
-
-[AVATAR_NAMES]
-		<usetemplate name="yesnocancelbuttons" canceltext="キャンセル" notext="すべての不動産" yestext="この不動産"/>
-	</notification>
 	<notification name="EjectAvatarFromGroup">
 		&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;から[AVATAR_NAME]を追放しました。
 		<tag>group</tag>
@@ -1191,13 +1110,17 @@ L$が不足しているので、このグループに参加することができ
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
+	<notification name="CannotCreateLandmarkNotOwner">
+		この土地の所有者が許可していないためランドマークを作成することができませんでした。
+		<tag>fail</tag>
+	</notification>
 	<notification label="フォルダ作成" name="CreateLandmarkFolder">
 		<unique/>
 フォルダ名を入力してください：
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message" type="text"/>
-			<button default="true" index="0" name="ＯＫ" text="ＯＫ"/>
+			<button default="true" index="0" name="OK" text="ＯＫ"/>
 			<button index="1" name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -1213,12 +1136,6 @@ L$が不足しているので、このグループに参加することができ
 	</notification>
 	<notification name="CannotResetSelectObjectsNoScripts">
 		「再設定」ができません。
-
-スクリプトが入ったオブジェクトを選択してください。
-		<tag>fail</tag>
-	</notification>
-	<notification name="CannotDeleteSelectObjectsNoScripts">
-		「削除」ができません。
 
 スクリプトが入ったオブジェクトを選択してください。
 		<tag>fail</tag>
@@ -1607,7 +1524,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">[DESC] (new)</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -1616,7 +1533,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">[DESC] (new)</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -1625,7 +1542,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="new_name">[NAME]</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -1634,7 +1551,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="new_name">[NAME]</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -1643,7 +1560,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="new_name">[NAME]</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -1896,7 +1813,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>fail</tag>
 		<url name="url">https://support.secondlife.com/</url>
 		<form name="form">
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Help" text="ヘルプ"/>
 			<button name="Teleport" text="テレポート"/>
 		</form>
@@ -2172,8 +2089,6 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<notification name="GroupDepart">
-		グループ「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」から抜けました。</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -2254,7 +2169,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">あなたは管理者によりログオフされました。</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2264,7 +2179,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">あなたは管理者によりログオフされました。</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2274,7 +2189,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">あなたはフリーズされています。動くこともチャットすることもできません。管理者がＩＭであなたに連絡します。</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2284,7 +2199,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">あなたのフリーズはすでに解除されています。</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2339,7 +2254,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">[REGION]に来てみませんか？</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2363,7 +2278,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message">[REGION]に来てみませんか？</input>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2397,7 +2312,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message"/>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2538,7 +2453,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<form name="form">
-			<button name="ＯＫ" text="初期設定の変更"/>
+			<button name="OK" text="初期設定の変更"/>
 			<button default="true" name="Cancel" text="キャンセル"/>
 			<ignore name="ignore" text="リージョンの横断：訪問しようとしているリージョンに初期設定により除外されたコンテンツが含まれているときの警告"/>
 		</form>
@@ -2586,7 +2501,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<form name="form">
-			<button name="ＯＫ" text="変更して続ける"/>
+			<button name="OK" text="変更して続ける"/>
 			<button name="Cancel" text="キャンセル"/>
 			<ignore name="ignore" text="テレポート（再起動可能）：訪問しようとしているリージョンに、初期設定により除外されたコンテンツが含まれているときの警告"/>
 		</form>
@@ -2600,7 +2515,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<form name="form">
-			<button name="ＯＫ" text="初期設定の変更"/>
+			<button name="OK" text="初期設定の変更"/>
 			<button name="Cancel" text="キャンセル"/>
 			<ignore name="ignore" text="テレポート（再起動不可）：訪問しようとしているリージョンに、初期設定により除外されたコンテンツが含まれているときの警告"/>
 		</form>
@@ -2650,7 +2565,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<form name="form">
-			<button name="ＯＫ" text="初期設定の変更"/>
+			<button name="OK" text="初期設定の変更"/>
 			<button name="Cancel" text="キャンセル"/>
 			<ignore name="ignore" text="取得しようとしている土地には、現在の初期設定により除外されているコンテンツが含まれているときの警告"/>
 		</form>
@@ -2679,7 +2594,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>confirm</tag>
 		<tag>fail</tag>
 		<form name="form">
-			<button name="ＯＫ" text="初期設定の変更"/>
+			<button name="OK" text="初期設定の変更"/>
 			<button name="Cancel" text="キャンセル"/>
 			<ignore name="ignore" text="購入しようとしている土地には現在の初期設定により除外されたコンテンツが含まれているときの警告"/>
 		</form>
@@ -2755,7 +2670,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<tag>confirm</tag>
 		<form name="form">
 			<input name="message"/>
-			<button name="ＯＫ" text="ＯＫ"/>
+			<button name="OK" text="ＯＫ"/>
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -3065,6 +2980,17 @@ Linden Lab
 			<button ignore="「取り込み中」モードを維持する" name="No" text="キャンセル"/>
 		</form>
 	</notification>
+	<notification label="区画で再生中のメディア" name="ParcelPlayingMedia">
+		この場所では下記のメディアが再生されています：
+[URL]
+再生してもよろしいですか？
+		<tag>confirm</tag>
+		<form name="form">
+			<ignore name="ignore" text="この土地では常にこのオプションを選択する。"/>
+			<button ignore="Play Media" name="Yes" text="再生する"/>
+			<button ignore="Ignore Media" name="No" text="再生しない"/>
+		</form>
+	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
 		「[FOLDERNAME]」は、システムフォルダです。
 システムフォルダを削除すると不安定になることがあります。このまま続けてもよろしいですか？
@@ -3229,9 +3155,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
-	<notification name="ChatSystemMessageTip">
-		[MESSAGE]
-	</notification>
 	<notification name="IMSystemMessageTip">
 		[MESSAGE]
 	</notification>
@@ -3296,6 +3219,14 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		このノートカードを見る権限がありません。
 		<tag>fail</tag>
 	</notification>
+	<notification name="MaterialMissing">
+		マテリアルがデーターベースにありませんでした。
+		<tag>fail</tag>
+	</notification>
+	<notification name="MaterialNoPermissions">
+		このマテリアルを見る権限がありません。
+		<tag>fail</tag>
+	</notification>
 	<notification name="RezItemNoPermissions">
 		この場所では、オブジェクトをRezする権限がありません。
 		<tag>fail</tag>
@@ -3320,12 +3251,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="MissingMaterialCaps">
 		<tag>fail</tag>
     マテリアル対応リージョンに接続されていません。
-	</notification>
-	<notification name="CantSelectReflectionProbe">
-		<unique/>
-    反射プローブを設置しましたが、「反射プローブの選択」が無効になっています。反射プローブを選択できるようにするには、「ビルド」＞「オプション」＞「反射プローブを選択」にチェックを入れてください。
-		<tag>confirm</tag>
-		<usetemplate ignoretext="次回から表示しない" name="okignore" yestext="はい"/>
 	</notification>
 	<notification name="ScriptMissing">
 		データベースにスクリプトがありません。
@@ -3665,7 +3590,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Discard" text="処分する"/>
 		</form>
 	</notification>
-	<notification name="UserGiveItem" label="[NAME_LABEL]からのインベントリのオファー">
+	<notification name="UserGiveItem">
 		[NAME_SLURL] が、あなたに[OBJECTTYPE]を渡しました：
 [ITEM_SLURL]
 		<form name="form">
@@ -3688,7 +3613,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Info" text="情報"/>
 		</form>
 	</notification>
-	<notification name="TeleportOffered" label="[NAME_LABEL]からのテレポートのオファー">
+	<notification name="TeleportOffered">
 		[NAME_SLURL] は、テレポートであなたを呼んでいます。
 [MESSAGE]
 
@@ -3743,7 +3668,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="GoNow..." text="今すぐ行く…"/>
 		</form>
 	</notification>
-	<notification name="OfferFriendship" label="[NAME_LABEL]からのフレンド登録のオファー">
+	<notification name="OfferFriendship">
 		[NAME_SLURL] は、あなたにフレンド登録を申し込んでいます。
 
 [MESSAGE]
@@ -3760,7 +3685,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		[TO_NAME]にフレンド登録依頼を送りました。
 		<tag>friendship</tag>
 	</notification>
-	<notification name="OfferFriendshipNoMessage" label="[NAME_LABEL]からのフレンドシップの申し込み">
+	<notification name="OfferFriendshipNoMessage">
 		[NAME_SLURL] は、フレンド登録を申し込んでいます。（デフォルト設定では、お互いのオンライン状態を見ることができます。）
 		<tag>friendship</tag>
 		<form name="form">
@@ -4300,9 +4225,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		（[EXISTENCE]秒）
 アバター「[NAME]」、クラウドになります。
 	</notification>
-	<notification name="AvatarRezSelfBakeForceUpdateNotification">
-		ビューアは、あなたがクラウドのように見えることを検知し、自動的に修正しようとしています。
-	</notification>
 	<notification name="AvatarRezArrivedNotification">
 		（[EXISTENCE]秒）
 アバター「[NAME]」が、現れます。
@@ -4368,8 +4290,35 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 [REASON]
 		<tag>fail</tag>
 	</notification>
-	<notification name="LivePreviewUnavailable">コ
-		ピー禁止／譲渡不可のため、このテクスチャを表示できません。
+	<notification name="CannotUploadMaterial">
+		ファイルアップロード時に問題が発生しました。
+		<tag>fail</tag>
+	</notification>
+	<notification label="マテリアルの保存" name="SaveMaterialAs">
+		<unique/>
+		このマテリアルに名前をつけてください：
+		<tag>confirm</tag>
+		<form name="form">
+			<input name="message" type="text">
+			[DESC]
+		</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="キャンセル"/>
+		</form>
+	</notification>
+	<notification name="InvalidMaterialName">
+		空でない名前を入力してください。
+		<tag>fail</tag>
+	</notification>
+	<notification name="UsavedMaterialChanges">
+		保存されていない変更があります。
+		<form name="form">
+			<button name="discard" text="変更を破棄"/>
+			<button name="keep" text="編集を続ける"/>
+		</form>
+	</notification>
+	<notification name="LivePreviewUnavailable">
+		コピー禁止／譲渡不可のため、このテクスチャを表示できません。
 		<usetemplate ignoretext="コピー禁止／譲渡不可のテクスチャでライブプレビューモードが使用できないことの警告" name="okignore" yestext="ＯＫ"/>
 	</notification>
 	<notification name="LivePreviewUnavailablePBR">
@@ -4690,22 +4639,48 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		<tag>confirm</tag>
 		<usetemplate ignoretext="選択したオブジェクトをフレキシブルパスに変更する際にナビメッシュから削除されることの確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<global name="UnsupportedCPUAmount">796</global>
-	<global name="UnsupportedRAMAmount">510</global>
-	<global name="UnsupportedGPU">‐あなたのグラフィックカードは、必須動作環境の条件を満たしていません。</global>
-	<global name="UnsupportedRAM">‐あなたのシステムメモリは、必須動作環境の条件を満たしていません。</global>
-	<global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">自分の土地を持っている場合、そこを「ホーム」に設定できます。持っていない場合は、マップから「情報ハブ」をお探しください。</global>
+	<global name="UnsupportedIntelDriver">
+		インストールされているIntelグラフィックスドライバ[GPUNAME]（バージョン[VERSION]）は古いため、プログラムのクラッシュの原因になりえます。最新のIntelドライバーに更新することを強くお勧めします。
+
+Intelドライバーのウェブサイトを確認しますか？
+	</global>
+	<global name="UnsupportedCPUAmount">
+		796
+	</global>
+	<global name="UnsupportedRAMAmount">
+		510
+	</global>
+	<global name="UnsupportedGPU">
+		‐あなたのグラフィックカードは、必須動作環境の条件を満たしていません。
+
+	</global>
+	<global name="UnsupportedRAM">
+		‐あなたのシステムメモリは、必須動作環境の条件を満たしていません。
+
+	</global>
+	<global name="LLLeapUpdaterFailure">
+		アップデーターサービス[UPDATER_APP]の起動に失敗しました。ビューアが正しくインストールされ、実行に必要な権限があることを確認してください。引き続き問題が発生する場合は、[SUPPORT_SITE]をご覧ください。
+  </global>
+	<global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">
+		自分の土地を持っている場合、そこを「ホーム」に設定できます。持っていない場合は、マップから「情報ハブ」をお探しください。
+	</global>
 	<global name="You died and have been teleported to your home location">死んでしまったので、ホームにテレポートされました。</global>
-	<notification name="LocalBitmapsUpdateFileNotFound">[FNAME]が見つからなかったため、更新できませんでした。
+	<notification name="LocalBitmapsUpdateFileNotFound">
+		[FNAME]が見つからなかったため、更新できませんでした。
 このファイルに対する今後の更新を無効にします。
 	</notification>
-	<notification name="LocalBitmapsUpdateFailedFinal">[FNAME]は、[NRETRIES]回の試行で開くこともデコードすることもできなかったため、壊れているとみなしました。
+	<notification name="LocalBitmapsUpdateFailedFinal">
+		[FNAME]は、[NRETRIES]回の試行で開くこともデコードすることもできなかったため、壊れているとみなしました。
 このファイルに対する今後の更新を無効にします。
 	</notification>
 	<notification name="LocalBitmapsVerifyFail">
 		開いたりデコードすることができない、無効である、もしくは読み取り不能な画像ファイル「[FNAME]」を追加しようとしました。
 この試行はキャンセルされました。
 	</notification>
+	<notification name="LocalGLTFVerifyFail">
+		開いたりデコードすることができない、無効または読み取り不可能なＧＬＴＦマテリアル[FNAME]を追加しようとしました。
+読み込みはキャンセルされました。
+  </notification>
 	<notification name="PathfindingReturnMultipleItems">
 		[NUM_ITEMS]個のアイテムを返却しようとしています。
 このまま続けてもよろしいですか？
@@ -5598,23 +5573,15 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		他の住民と交差する大きなプリムを作成することはできません。他の住民が移動した場合は再度お試しください。
 		<tag>fail</tag>
 	</notification>
-	<notification name="RLVaChangeStrings">
-		[APP_NAME]を再起動するまで効果は現れません。
-	</notification>
-	<notification name="RLVaListRequested" label="[NAME_LABEL]からの制限要求">
-		[NAME_SLURL] は、現在有効なＲＬＶ制限のリストを送信するよう要請しました。
-		<tag>confirm</tag>
-		<form name="form">
-			<button name="Allow" text="許可"/>
-			<button name="Always Allow" text="常に許可"/>
-			<button name="Deny" text="拒否"/>
-			<ignore text="現在のＲＬＶの制限のリストを誰かに送る前の確認"/>
-		</form>
-	</notification>
 	<notification name="PreferenceChatClearLog">
 		これにより、過去の会話のログ、およびそのファイルのすべてのバックアップが削除されます。
 		<tag>confirm</tag>
 		<usetemplate ignoretext="過去の会話ログを削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
+	</notification>
+	<notification name="PreferenceControlsDefaults">
+		コントロールのデフォルト値を復元しますか？
+		<tag>confirm</tag>
+		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="現在のモード" yestext="全てのモード"/>
 	</notification>
 	<notification name="PreferenceChatDeleteTranscripts">
 		これにより、以前のすべての会話のテキストが削除されます。過去の会話のリストには影響しません。
@@ -5637,13 +5604,20 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
+	<notification name="AddPaymentMethod">
+		次のページで、L$の金額を入力し、
+注文ボタンをクリックしてください。
+チェックアウト時に支払い方法を追加できます。
+		<tag>confirm</tag>
+		<form name="form">
+			<button name="Continue" text="続ける"/>
+			<button name="Cancel" text="キャンセル"/>
+		</form>
+	</notification>
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
-	</notification>
-	<notification name="EnableHiDPI">
-		HiDPIサポートを有効にすると、パフォーマンスが低下する可能性があります。
 	</notification>
 	<notification name="FailedToFindSettings">
 		[NAME]の設定をデータベースから読み込むことができませんでした。

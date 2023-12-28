@@ -9,9 +9,5 @@
 		<filter_editor label="マーケットプレイスの出品リストをフィルタ" name="filter_editor"/>
 		<tab_container name="marketplace_filter_tabs"/>
 	</panel>
-	<panel name="marketplace_drop_zone">
-		<text name="drop_zone_label">
-			ここにフォルダをドロップして新しい出品リストを作成
-		</text>
-	</panel>
+	<panel name="marketplace_drop_zone"/>
 </panel>

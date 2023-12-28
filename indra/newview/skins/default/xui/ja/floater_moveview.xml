@@ -58,14 +58,14 @@
 		飛ぶ
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="turn left btn" tool_tip="左を向く（←かAを押す）"/>
+		<button name="turn left btn" tool_tip="左を向く（←かAを押す）"/>
 		<joystick_slide name="move left btn" tool_tip="左に歩く（Shift＋←かAを押す）"/>
-		<button label="" label_selected="" name="turn right btn" tool_tip="右を向く（→かDを押す）"/>
+		<button name="turn right btn" tool_tip="右を向く（→かDを押す）"/>
 		<joystick_slide name="move right btn" tool_tip="右に歩く（Shift＋→かDを押す）"/>
 		<joystick_turn name="forward btn" tool_tip="前に進む（↑かWを押す）"/>
 		<joystick_turn name="backward btn" tool_tip="後ろに歩く（↓かSを押す）"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="上昇（Eを押す）"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="下降（Cを押す）"/>
+		<button name="move up btn" tool_tip="上昇（Eを押す）"/>
+		<button name="move down btn" tool_tip="下降（Cを押す）"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="歩行モード"/>

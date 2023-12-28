@@ -99,9 +99,9 @@
 			<text name="Group:">
 				グループ：
 			</text>
-			<button label="設定" label_selected="設定…" name="Set..."/>
+			<button label="設定" name="Set..."/>
 			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>
-			<button label="譲渡" label_selected="譲渡…" name="Deed..." tool_tip="選択したグループのオフィサーのみ、土地を譲渡できます。"/>
+			<button label="譲渡" name="Deed..." tool_tip="選択したグループのオフィサーのみ、土地を譲渡できます。"/>
 			<check_box label="所有者が譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
 			<text name="For Sale:">
 				販売の有無：
@@ -112,7 +112,7 @@
 			<text name="For Sale: Price L$[PRICE].">
 				価格：L$ [PRICE]（L$ [PRICE_PER_SQM]／㎡）
 			</text>
-			<button label="土地を売る" label_selected="土地を販売…" name="Sell Land..."/>
+			<button label="土地を売る" name="Sell Land..."/>
 			<text name="For sale to">
 				販売先：[BUYER]
 			</text>
@@ -141,13 +141,13 @@
 			<text name="DwellText">
 				読み込んでいます…
 			</text>
-			<button label="土地の購入" label_selected="土地を購入…" name="Buy Land..."/>
-			<button label="Lindenセール…" label_selected="Lindenセール…" name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
+			<button label="土地の購入" name="Buy Land..."/>
+			<button label="Lindenセール…" lname="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
 			<button label="スクリプト情報…" name="Scripts..."/>
-			<button label="グループに購入" label_selected="グループ用に購入…" name="Buy For Group..."/>
-			<button label="入場許可を購入" label_selected="入場許可を購入…" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。"/>
-			<button label="土地の放棄" label_selected="土地を放棄…" name="Abandon Land..."/>
-			<button label="土地を取り戻す" label_selected="土地の返還を要求…" name="Reclaim Land..."/>
+			<button label="グループに購入" name="Buy For Group..."/>
+			<button label="入場許可を購入" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。"/>
+			<button label="土地の放棄" name="Abandon Land..."/>
+			<button label="土地を取り戻す" name="Reclaim Land..."/>
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -245,24 +245,24 @@
 			<text name="owner_objects_text" width="64">
 				[COUNT]個
 			</text>
-			<button label="表示" label_selected="表示" name="ShowOwner"/>
-			<button label="返却" label_selected="返却…" name="ReturnOwner..." tool_tip="オブジェクトを所有者に返却します"/>
+			<button label="表示" lname="ShowOwner"/>
+			<button label="返却" name="ReturnOwner..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Set to group:">
 				グループに設定：
 			</text>
 			<text name="group_objects_text" width="64">
 				[COUNT]個
 			</text>
-			<button label="表示" label_selected="表示" name="ShowGroup"/>
-			<button label="返却" label_selected="返却…" name="ReturnGroup..." tool_tip="オブジェクトを所有者に返却します"/>
+			<button label="表示" name="ShowGroup"/>
+			<button label="返却" name="ReturnGroup..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Owned by others:">
 				他人の所有物：
 			</text>
 			<text name="other_objects_text" width="64">
 				[COUNT]個
 			</text>
-			<button label="表示" label_selected="表示" name="ShowOther"/>
-			<button label="返却" label_selected="返却…" name="ReturnOther..." tool_tip="オブジェクトを所有者に返却します"/>
+			<button label="表示" name="ShowOther"/>
+			<button label="返却" name="ReturnOther..." tool_tip="オブジェクトを所有者に返却します"/>
 			<text name="Selected / sat upon:">
 				選択済み／決定済み：
 			</text>
@@ -276,9 +276,9 @@
 			<text name="Object Owners:">
 				オブジェクトの所有者：
 			</text>
-			<button label="リスト更新" label_selected="リスト更新" name="Refresh List" tool_tip="オブジェクトのリストを更新します"/>
-			<button label="オブジェクトを返却する" label_selected="オブジェクトの返却…" name="Return objects..."/>
-			<name_list label="カウント" name="owner list">
+			<button name="Refresh List" tool_tip="オブジェクトのリストを更新します"/>
+			<button label="オブジェクトを返却する" name="Return objects..."/>
+			<name_list name="owner list">
 				<name_list.columns label="タイプ" name="type"/>
 				<name_list.columns name="online_status"/>
 				<name_list.columns label="名前" name="name"/>
@@ -321,13 +321,6 @@
 			<text name="allow_label">
 				他の住人への許可設定：
 			</text>
-			<text name="allow_label1">
-				地形の編集：
-			</text>
-			<check_box label="全員" name="edit land check" tool_tip="ここにチェックを入れると、誰でもあなたの土地をテラフォーミングすることができるようになります。自分の土地はいつでも編集できるため、ここはオフのままにしておくことを推奨します。"/>
-			<text name="caution_text">
-				（使用には注意してください！）
-			</text>
 			<text name="allow_label0">
 				飛行：
 			</text>
@@ -369,11 +362,11 @@
 			<text name="Snapshot:">
 				スナップショット：
 			</text>
-			<texture_picker label="" name="snapshot_ctrl" tool_tip="画像をクリックして選択"/>
+			<texture_picker name="snapshot_ctrl" tool_tip="画像をクリックして選択"/>
 			<text name="allow_see_label">
 				別の区画にいるアバターが、この区画にいるアバターとチャットできるようになります。
 			</text>
-			<check_box label="アバターを表示" name="SeeAvatarsCheck" tool_tip="別の区画のアバターが、この区画にいるアバターとチャットすることを許可し、あなたもそれらアバターに会ってチャットできるようにします。"/>
+			<check_box name="SeeAvatarsCheck" tool_tip="別の区画のアバターが、この区画にいるアバターとチャットすることを許可し、あなたもそれらアバターに会ってチャットできるようにします。"/>
 			<text name="landing_point">
 				ランディング地点：[LANDING]
 			</text>
@@ -404,7 +397,7 @@
 			<text name="Media texture:">
 				テクスチャの差し替え：
 			</text>
-			<texture_picker label="" name="media texture" tool_tip="画像をクリックして選択"/>
+			<texture_picker name="media texture" tool_tip="画像をクリックして選択"/>
 			<text name="replace_texture_help">
 				このテクスチャを使用するオブジェクトの「再生」をクリックすると、動画やWebページを表示します。テクスチャを変更するにはサムネイルを選択してください。
 			</text>

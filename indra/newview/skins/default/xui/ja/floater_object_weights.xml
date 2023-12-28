@@ -24,5 +24,4 @@
 	<text name="remaining_capacity_label" value="残りの許容数"/>
 	<text name="total_capacity" value="‐"/>
 	<text name="total_capacity_label" value="許容数合計"/>
-	<text name="help_SLURL" value="[secondlife:///app/help/object_weights オブジェクトのウェイトとは？]"/>
 </floater>

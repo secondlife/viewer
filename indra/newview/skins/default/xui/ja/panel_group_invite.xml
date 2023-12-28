@@ -16,7 +16,6 @@
 	<text name="help_text">
 		グループには一度に複数の住人を招待することができます。「リストから住人を選択」をクリックしてください。
 	</text>
-	<button label="リストから住人を選択" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
 	<button label="リストから選択したものを削除" name="remove_button" tool_tip="招待リストから上で選択した住人を削除します"/>
 	<text name="role_text">

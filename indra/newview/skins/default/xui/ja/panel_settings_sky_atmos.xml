@@ -61,9 +61,6 @@
 						最大高度：
 					</text>
 					<slider name="max_alt"/>
-					<text name="probe_ambiance_label" tool_tip="放射照度制御。０以外の場合、ＨＤＲライティングモデルが有効になります。">
-						環境反射プローブ（ＨＤＲ）：
-					</text>
 					<slider name="probe_ambiance"/>
 					<text name="scene_gamma_label">
 						ブライトネス：

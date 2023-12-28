@@ -20,7 +20,6 @@
 		<button label="すべて開始" name="all_nearby_media_enable_btn" tool_tip="近くのメディアをすべてオンにします。"/>
 		<button name="open_prefs_btn" tool_tip="メディアの設定を開きます"/>
 		<button label="詳細　≫" label_selected="≪　簡易" name="more_btn" tool_tip="拡張コントロールを表示します。"/>
-		<button label="詳細　≫" label_selected="≪　簡易" name="less_btn" tool_tip="拡張コントロールを非表示にします。"/>
 	</panel>
 	<panel name="nearby_media_panel">
 		<text name="nearby_media_title">

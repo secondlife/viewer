@@ -7,7 +7,6 @@
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="ここに座る" name="Object Sit"/>
 	<menu_item_call label="立ち上がる" name="Object Stand Up"/>
-	<menu_item_call label="オブジェクトのプロフィール" name="Object Profile"/>
 	<menu_item_call label="オブジェクトの調査" name="Object Inspect"/>
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<menu_item_call label="リンクセットで表示" name="show_in_linksets"/>
@@ -24,8 +23,6 @@
 		<menu_item_separator/>
 		<menu_item_call label="ブロック" name="Object Mute"/>
 		<menu_item_call label="ブロック解除" name="Object Unmute"/>
-		<menu_item_call label="このセッションでは描画しない" name="Object Session Derender"/>
-		<menu_item_call label="常に描画しない" name="Object Permanent Derender"/>
 		<menu_item_separator/>
 		<menu_item_call label="返却…" name="Return..."/>
 	</context_menu>
@@ -39,5 +36,4 @@
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
 	<menu_item_call label="ＸＭＬとしてダンプ" name="Dump XML"/>
 	<menu_item_call label="スケルトンをリセット" name="Reset Skeleton"/>
-	<menu_item_call label="ＩＤをコピー" name="Copy ID"/>
 </context_menu>

@@ -63,16 +63,6 @@
 			リアルタイム・ストリーミング
 		</label>
 	</scheme>
-	<scheme name="example">
-		<label name="example_label">
-			プラグインスキームトリガーの例
-		</label>
-	</scheme>
-	<scheme name="libvlc">
-		<label name="libvlc_label">
-			LibVLCがサポートしているメディア
-		</label>
-	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
 			‐なし‐
@@ -141,11 +131,6 @@
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
 			Macromedia Director
-		</label>
-	</mimetype>
-	<mimetype name="application/octet-stream">
-		<label name="application/octet-stream_label">
-			ストリーム
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -226,11 +211,6 @@
 	<mimetype name="video/x-flv">
 		<label name="video/x-flv_label">
 			ムービー（flv）
-		</label>
-	</mimetype>
-	<mimetype name="application/octet-stream">
-		<label name="video/octet-stream">
-			ムービー
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">

@@ -3,7 +3,6 @@
 	<check_box initial_value="true" label="近くのチャットでジェスチャーを自動補完する" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
-		<check_box label="オフライン時に受け取ったＩＭはメールで受信する" name="send_im_to_email"/>
 		<check_box label="フレンドとグループ以外からのコールとＩＭは受信しない" name="voice_call_friends_only_check"/>
 		<text name="email_settings">
 			[https://accounts.secondlife.com/change_email?lang=ja オフライン時のＩＭのメール送信先の設定]

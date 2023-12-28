@@ -24,13 +24,10 @@
 		輝度：
 	</text>
 	<spinner name="lspin"/>
-	<text name="hex_text">
-		Hex #
-	</text>
 	<check_box label="すぐに適用" name="apply_immediate"/>
 	<button label="ＯＫ" name="select_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
-	<text tool_tip="パレットの下にドラッグして保存" name="Current color:">
+	<text name="Current color:">
 		現在の色：
 	</text>
 	<text name="(Drag below to save.)">

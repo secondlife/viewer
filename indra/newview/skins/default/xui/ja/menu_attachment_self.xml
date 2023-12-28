@@ -6,10 +6,6 @@
 	<menu_item_call label="触る" name="Attachment Object Touch"/>
 	<menu_item_call label="インベントリに表示" name="Show original"/>
 	<menu_item_separator/>
-	<menu_item_call label="プロフィール…" name="Profile..."/>
-	<menu_item_call label="フレンド…" name="Friends..."/>
-	<menu_item_call label="グループ…" name="Groups..."/>
-	<menu_item_separator/>
 	<menu_item_call label="着用中…" name="NowWearing"/>
 	<menu_item_call label="アウトフィット…" name="Change Outfit"/>
 	<menu_item_call label="ホバー高さ…" name="Hover Height"/>
@@ -41,7 +37,6 @@
 	<menu_item_call label="飛行／着地" name="Fly land"/>
 	<menu_item_call label="アニメーションを停止" name="Stop Animating My Avatar"/>
 	<menu_item_separator/>
-	<menu_item_call label="テクスチャをリフレッシュ" name="Refresh Textures"/>
 	<menu_item_call label="スケルトンをリセット" name="Reset Skeleton"/>
 	<menu_item_call label="スケルトンとアニメをリセット" name="Reset Skeleton And Animations"/>
 	<menu_item_call label="テクスチャのデバッグ" name="Debug..."/>

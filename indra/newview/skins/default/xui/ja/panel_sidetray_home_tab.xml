@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="ホームタブ" name="home_tab">
+<panel name="home_tab">
 	<layout_stack name="stack">
 		<layout_panel name="browser_layout">
 			<web_browser name="browser" start_url="data:text/html;charset=utf-8;base64,PGh0bWwgbGFuZz0iamEiPjxoZWFkPjxtZXRhIGVuY29kaW5nPSJ1dGYtOCIgLz48L2hlYWQ+PGJvZHkgYmdjb2xvcj0iIzJBMkEyQSIgdGV4dD0iI2VlZWVlZSI+PGgzPuiqreOBv+i+vOOCk+OBp+OBhOOBvuOBmeKApjwvaDM+PC9ib2R5PjwvaHRtbD4="/>

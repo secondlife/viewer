@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="avatar_list_item">
+	<!-- 
+	Strings used to localize last interaction time.
+	See last_interaction textbox below.
+	-->
 	<string name="FormatSeconds">
 		[COUNT]秒
 	</string>
@@ -21,19 +25,21 @@
 	<string name="FormatYears">
 		[COUNT]年
 	</string>
+	<!--
+	*NOTE: llavatarlistitem.cpp lays these controls out depending on which
+	ones are visible. Trying to change their order here will break it
+	... which kinda sucks.
+	-->
 	<icon name="hovered_icon"/>
 	<icon name="selected_icon"/>
 	<avatar_icon/>
 	<text name="avatar_name" value="（読み込んでいます）"/>
-	<icon name="permission_online_theirs_icon" tool_tip="あなたは、このフレンドがオンラインになったことを知ることができます。"/>
-	<icon name="permission_map_theirs_icon" tool_tip="あなたは、このフレンドのいる場所をマップから確認することができます。"/>
 	<icon name="permission_edit_theirs_icon" tool_tip="あなたは、このフレンドのオブジェクトを編集することができます。"/>
 	<button name="permission_edit_mine_icon" tool_tip="このフレンドに、あなたのオブジェクトを編集・削除・取得することができるようにします。"/>
 	<button name="permission_map_icon" tool_tip="このフレンドに、あなたのいる場所をマップから確認することができるようにします。"/>
 	<button name="permission_online_icon" tool_tip="このフレンドに、あなたがオンラインになったことを知ることができるようにします。"/>
 	<button name="info_btn" tool_tip="詳細"/>
 	<button name="profile_btn" tool_tip="プロフィールの閲覧"/>
-	<text name="text_field" value="0秒"/>
 	<output_monitor name="speaking_indicator" tool_tip="ボイスのボリューム"/>
 	<icon name="hovered_icon"/>
 	<icon name="selected_icon"/>

@@ -19,10 +19,6 @@
 	<menu_item_call label="支払う" name="Pay..."/>
 	<menu_item_separator/>
 	<context_menu label="このアバターの描画" name="Render Avatar">
-		<menu_item_check name="常に描画する" label="Always full detail"/>
-		<menu_item_check name="描画しない" label="Never full detail"/>
-		<menu_item_call name="通常の描画設定" label="Remove from exceptions"/>
-		<menu_item_separator/>
 		<menu_item_call label="例外…" name="RenderExceptions"/>
 	</context_menu>
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>

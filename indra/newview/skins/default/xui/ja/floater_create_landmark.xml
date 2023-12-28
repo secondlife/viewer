@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="create_landmark" title="ランドマーク作成">
+<floater name="create_landmark">
 	<string name="favorites_bar">
 		お気に入りバー
 	</string>

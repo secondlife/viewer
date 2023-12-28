@@ -16,7 +16,7 @@
 		<text name="prepend_founded_by">
 			創設者：
 		</text>
-		<name_box initial_value="（取得中）" name="founder_name"/>
+		<name_box name="founder_name"/>
 		<text name="join_cost_text">
 			無料
 		</text>
@@ -25,11 +25,6 @@
 	<text_editor name="charter">
 		グループの理念、指針を記入してください。
 	</text_editor>
-	<name_list name="visible_members">
-		<name_list.columns label="メンバー" name="name"/>
-		<name_list.columns label="タイトル" name="title"/>
-		<name_list.columns label="ログイン" name="status"/>
-	</name_list>
 	<text name="my_group_settngs_label">
 		自分の設定
 	</text>
@@ -38,17 +33,7 @@
 	</text>
 	<combo_box name="active_title" tool_tip="このグループをアクティブにしたときに、アバター名の上に表示されるタイトルを設定します。"/>
 	<check_box label="グループ通知を受信" name="receive_notices" tool_tip="このグループからの通知を受信するかどうかの設定を行います。グループからスパムが送られてくる場合は、このボックスのチェックを外してください。"/>
-	<check_box label="グループのインスタントメッセージを受け取る" name="receive_chat" tool_tip="このグループのグループチャットに参加するかどうかを設定します。"/>
 	<check_box label="プロフィールに表示" name="list_groups_in_profile" tool_tip="あなたのプロフィールに、このグループを表示するかどうかの設定を行います。"/>
-	<check_box label="グループチャットを閉じるときにスヌーズする" name="snooze_chat" tool_tip="グループチャットを再度受信するまで、以下の時間このグループを一時的にミュートします。このチェックを外すと、グループチャットを閉じた後に再ログインするまでグループチャットを受信できなくなります。"/>
-	<combo_box name="snooze_chat_duration">
-		<combo_box.item label="次のメッセージまで" value="0"/>
-		<combo_box.item label="５分間" value="5"/>
-		<combo_box.item label="１５分間" value="15"/>
-		<combo_box.item label="３０分間" value="30"/>
-		<combo_box.item label="４５分間" value="45"/>
-		<combo_box.item label="１時間" value="60"/>
-	</combo_box>
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
 			グループの設定

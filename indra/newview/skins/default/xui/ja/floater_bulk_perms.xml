@@ -12,29 +12,29 @@
 	<floater.string name="done_text">
 		権限変更リクエストが完了しました。
 	</floater.string>
-	<check_box label="アニメーション" name="check_animation"/>
+	<check_box name="check_animation"/>
 	<icon name="icon_animation" tool_tip="アニメーション"/>
-	<check_box label="身体部位" name="check_bodypart"/>
+	<check_box name="check_bodypart"/>
 	<icon name="icon_bodypart" tool_tip="身体部位"/>
-	<check_box label="服装" name="check_clothing"/>
+	<check_box name="check_clothing"/>
 	<icon name="icon_clothing" tool_tip="服装"/>
-	<check_box label="ジェスチャー" name="check_gesture"/>
+	<check_box name="check_gesture"/>
 	<icon name="icon_gesture" tool_tip="ジェスチャー"/>
-	<check_box label="ノートカード" name="check_notecard"/>
+	<check_box name="check_notecard"/>
 	<icon name="icon_notecard" tool_tip="ノートカード"/>
-	<check_box label="オブジェクト" name="check_object"/>
+	<check_box name="check_object"/>
 	<icon name="icon_object" tool_tip="オブジェクト"/>
-	<check_box label="スクリプト" name="check_script"/>
+	<check_box name="check_script"/>
 	<icon name="icon_script" tool_tip="スクリプト"/>
-	<check_box label="サウンド" name="check_sound"/>
+	<check_box name="check_sound"/>
 	<icon name="icon_sound" tool_tip="サウンド"/>
-	<check_box label="テクスチャ" name="check_texture"/>
+	<check_box name="check_texture"/>
 	<icon name="icon_texture" tool_tip="テクスチャ"/>
-	<check_box label="自然環境の設定" name="check_settings"/>
+	<check_box name="check_settings"/>
 	<icon name="icon_setting" tool_tip="自然環境の設定"/>
-	<check_box label="マテリアル" name="check_materials"/>
+	<check_box name="check_materials"/>
 	<icon name="icon_materials" tool_tip="マテリアル"/>
-	<button label="すべてに√" label_selected="全て" name="check_all"/>
+	<button label="すべてに✔" name="check_all"/>
 	<button label="クリア" label_selected="なし" name="check_none"/>
 	<text name="newperms">
 		コンテンツ権限を以下に調整

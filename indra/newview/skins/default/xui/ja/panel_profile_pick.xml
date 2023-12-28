@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="ピック" name="panel_pick_info">
+<panel name="panel_pick_info">
 	<panel.string name="location_notice">
 		（保存後に更新されます）
 	</panel.string>

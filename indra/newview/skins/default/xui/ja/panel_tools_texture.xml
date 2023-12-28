@@ -77,7 +77,6 @@
 		<combo_box.item label="化粧しっくい" name="stucco"/>
 		<combo_box.item label="吸盤" name="suction"/>
 		<combo_box.item label="織物" name="weave"/>
-		<combo_box.item label="テクスチャを使用" name="Use texture" value="Use texture"/>
 	</combo_box>
 	<texture_picker label="鏡面反射" name="shinytexture control" tool_tip="クリックで鏡面反射（スペキュラ）マップのテクスチャを選択します。"/>
 	<text name="label shininess">

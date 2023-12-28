@@ -36,7 +36,6 @@
 		</layout_panel>
 		<layout_panel name="btn_apply_lp">
 			<button label="保存" label_selected="保存" name="btn_apply"/>
-			<button label="グループを作成" name="btn_create" tool_tip="新しいグループを作成します。"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

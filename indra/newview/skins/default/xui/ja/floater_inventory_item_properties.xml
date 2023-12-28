@@ -15,12 +15,6 @@
 	<floater.string name="acquiredDate">
 		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日（[wkday,datetime,local]）　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
 	</floater.string>
-	<floater.string name="origin_inventory">
-		（インベントリ）
-	</floater.string>
-	<floater.string name="origin_inworld">
-		（インワールド）
-	</floater.string>
 	<text name="LabelItemNameTitle">
 		名前：
 	</text>
@@ -30,11 +24,11 @@
 	<text name="LabelCreatorTitle">
 		制作者：
 	</text>
-	<button label="プロフィール…" label_selected="" name="BtnCreator"/>
+	<button label="プロフィール…" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		所有者：
 	</text>
-	<button label="プロフィール…" label_selected="" name="BtnOwner"/>
+	<button label="プロフィール…" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		入手日時：
 	</text>
@@ -61,21 +55,6 @@
 	<check_box label="編集" name="CheckNextOwnerModify"/>
 	<check_box label="コピー" name="CheckNextOwnerCopy"/>
 	<check_box label="再販・譲渡" name="CheckNextOwnerTransfer"/>
-	<text name="BaseMaskDebug">
-		Ｂ：
-	</text>
-	<text name="OwnerMaskDebug">
-		Ｏ：
-	</text>
-	<text name="GroupMaskDebug">
-		Ｇ：
-	</text>
-	<text name="EveryoneMaskDebug">
-		Ｅ：
-	</text>
-	<text name="NextMaskDebug">
-		Ｎ：
-	</text>
 	<check_box label="売り出し中" name="CheckPurchase"/>
 	<combo_box name="ComboBoxSaleType">
 		<combo_box.item label="コピー" name="Copy"/>

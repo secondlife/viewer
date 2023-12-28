@@ -18,9 +18,6 @@
 	<string name="acquired_date">
 		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日（[wkday,datetime,local]）[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
 	</string>
-	<string name="information_text">
-		トラフィック：[TRAFFIC]　面積：[AREA]㎡
-	</string>
 	<string name="icon_PG" value="Parcel_PG_Dark"/>
 	<string name="icon_M" value="Parcel_M_Dark"/>
 	<string name="icon_R" value="Parcel_R_Dark"/>

@@ -39,8 +39,6 @@
 	<text name="DrawDistanceMeterText2">
 		ｍ
 	</text>
-	<check_box initial_value="true" label="大気（周辺）シェーダー" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="高度な光源モデル" name="UseLightShaders"/>
 	<button label="自動調整" name="AutoAdjustmentsButton"/>
 	<slider label="アバターの最大複雑度：" name="IndirectMaxComplexity" tool_tip="どの程度の複雑度で他のアバターをJellyDollとして描画するを設定します。"/>
 	<text name="IndirectMaxComplexityText">

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Preferences" title="初期設定">
-	<floater.string name="email_unverified_tooltip">
-		ＩＭから電子メールを有効にするには、次のサイトにアクセスして電子メールアドレスを確認してください。 https://accounts.secondlife.com/change_email/?lang=ja-JP
-	</floater.string>
 	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<panel name="search_panel">

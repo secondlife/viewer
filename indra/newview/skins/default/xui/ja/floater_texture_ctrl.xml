@@ -28,15 +28,12 @@
 		選択されているテクスチャは[TEXDIM]です。インベントリ画像は[MINTEXDIM]以上の正方形である必要があります。
 	</text>
 	<button label="デフォルト" label_selected="デフォルト" name="Default"/>
-	<button label="透明" label_selected="透明" name="Transparent"/>
 	<button label="ブランク" label_selected="ブランク" name="Blank"/>
 	<button label="なし" label_selected="なし" name="None"/>
-	<button label="" label_selected="" name="Pipette"/>
+	<button name="Pipette"/>
 	<text name="preview_disabled" value="プレビュー無効"/>
 	<filter_editor label="テクスチャをフィルタ" name="inventory search editor"/>
 	<asset_filtered_inv_panel name="inventory panel"/>
-	<line_editor name="uuid_editor" label="テクスチャのＵＵＩＤを入力"/>
-	<button name="apply_uuid_btn" label="キーを反映"/>
 	<button label="追加" label_selected="追加" name="l_add_btn"/>
 	<button label="削除" label_selected="削除" name="l_rem_btn"/>
 	<button label="アップロード" label_selected="アップロード" name="l_upl_btn"/>

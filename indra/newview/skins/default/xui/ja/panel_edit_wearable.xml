@@ -121,9 +121,6 @@
 			<layout_panel name="revert_btn_lp">
 				<button label="変更を元に戻す" name="revert_button"/>
 			</layout_panel>
-			<layout_panel name="import_btn_lp">
-				<button label="インポート" name="import_btn"/>
-			</layout_panel>
 		</layout_stack>
 	</panel>
 </panel>
