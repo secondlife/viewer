@@ -134,6 +134,7 @@ if (LINUX)
           -pthread
           -Wno-parentheses
           -Wno-deprecated
+          -Wno-c++20-compat
           -fvisibility=hidden
   )
 
