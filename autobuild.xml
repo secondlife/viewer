@@ -978,11 +978,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>97e268754808cb2fbd682c4d3beafd2c598e1ba7</string>
+              <string>6af9e1400987c01c3e1893d3dcb9e1c8b3ae4f46</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-linux64-bc46e62.tar.zst</string>
+              <string>https://github.com/Nicky-D/3p-jsoncpp/releases/download/v0.5.0.1db375e/jsoncpp-0.5.0.1db375e-linux64-1db375e.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1009,7 +1009,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2007-2010 Baptiste Lepilleur</string>
         <key>version</key>
-        <string>0.5.0.bc46e62</string>
+        <string>0.5.0.1db375e</string>
         <key>name</key>
         <string>jsoncpp</string>
         <key>description</key>
