@@ -637,15 +637,15 @@ public:
     LLProcessorInfoDarwinImpl()
     {
         getCPUIDInfo();
-#ifdef __arm64__
-        auto frequency = getSysctlInt64("hw.tbfrequency");
-        struct clockinfo clockrate;
-        auto clockrate_len = sizeof(clockrate);
-        if (!sysctlbyname("kern.clockrate", &clockrate, &clockrate_len, NULL, 0))
-            frequency *= clockrate.hz;
-#else
         uint64_t frequency = getSysctlInt64("hw.cpufrequency");
-#endif
+        if (!frequency)
+        {
+            auto tbfrequency = getSysctlInt64("hw.tbfrequency");
+            struct clockinfo clockrate;
+            auto clockrate_len = sizeof(clockrate);
+            if (!sysctlbyname("kern.clockrate", &clockrate, &clockrate_len, NULL, 0))
+                frequency = tbfrequency * clockrate.hz;
+        }
         setInfo(eFrequency, (F64)frequency  / (F64)1000000);
     }
 
