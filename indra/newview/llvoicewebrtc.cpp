@@ -358,8 +358,6 @@ void LLWebRTCVoiceClient::terminate()
 
 void LLWebRTCVoiceClient::cleanUp()
 {
-    LL_DEBUGS("Voice") << LL_ENDL;
-
     mNextAudioSession.reset();
     mAudioSession.reset();
     mNeighboringRegions.clear();
@@ -489,7 +487,10 @@ bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
     {
         for (auto &neighbor : neighbor_ids)
         {
-            mWebRTCConnections.emplace_back(new LLVoiceWebRTCConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+            connectionPtr_t connection = mWebRTCConnections.emplace_back(new LLVoiceWebRTCConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+            connection->setMicGain(mMicGain);
+            connection->setMuteMic(mMuted);
+            connection->setSpeakerVolume(mSpeakerVolume);
         }
     }
     return !mWebRTCConnections.empty();
@@ -2494,7 +2495,10 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
             {
                 if (voice_data[participant_id].get("l", Json::Value(false)).asBool())
                 {
-                    LLWebRTCVoiceClient::getInstance()->removeParticipantByID(mChannelID, agent_id);
+                    if (agent_id != gAgentID)
+                    {
+                        LLWebRTCVoiceClient::getInstance()->removeParticipantByID(mChannelID, agent_id);
+                    }
                 }
                 else
                 {
