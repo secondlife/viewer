@@ -1806,7 +1806,7 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
         if (result)
         {
             LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
-            // Should trigger callbacks in icon controls
+            // Should trigger callbacks in icon controls (or request Legacy)
             LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
         }
     };

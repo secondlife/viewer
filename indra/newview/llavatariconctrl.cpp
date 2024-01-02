@@ -299,7 +299,13 @@ bool LLAvatarIconCtrl::updateFromCache()
 //virtual
 void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 {
-	if (APT_PROPERTIES_LEGACY == type)
+    // Both APT_PROPERTIES_LEGACY and APT_PROPERTIES have icon data.
+    // 'Legacy' is cheaper to request so LLAvatarIconCtrl issues that,
+    // but own icon should track any source for the sake of timely updates.
+    // 
+    // If this needs to change, make sure to update onCommitProfileImage
+    // to issue right kind of request
+    if (APT_PROPERTIES_LEGACY == type)
 	{
         LLAvatarLegacyData* avatar_data = static_cast<LLAvatarLegacyData*>(data);
 		if (avatar_data)
@@ -313,6 +319,20 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 			updateFromCache();
 		}
 	}
+    else if (APT_PROPERTIES == type)
+    {
+        LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+        if (avatar_data)
+        {
+            if (avatar_data->avatar_id != mAvatarId)
+            {
+                return;
+            }
+
+            LLAvatarIconIDCache::getInstance()->add(mAvatarId, avatar_data->image_id);
+            updateFromCache();
+        }
+    }
 }
 
 void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
