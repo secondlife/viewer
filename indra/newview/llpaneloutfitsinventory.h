@@ -61,6 +61,8 @@ public:
 
 	void openApearanceTab(const std::string& tab_name);
 
+    bool isCOFPanelActive() const;
+
 protected:
 	void updateVerbs();
 
@@ -73,7 +75,6 @@ private:
 protected:
 	void 					initTabPanels();
 	void 					onTabChange();
-	bool 					isCOFPanelActive() const;
 	bool 					isOutfitsListPanelActive() const;
 	bool 					isOutfitsGalleryPanelActive() const;
 
