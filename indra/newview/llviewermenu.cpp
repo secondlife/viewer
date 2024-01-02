@@ -102,6 +102,7 @@
 #include "llsceneview.h"
 #include "llscenemonitor.h"
 #include "llselectmgr.h"
+#include "llsidepanelappearance.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
@@ -6651,6 +6652,13 @@ void handle_edit_outfit()
 
 void handle_now_wearing()
 {
+    LLSidepanelAppearance *panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLFloaterSidePanelContainer::getPanel("appearance"));
+    if (panel_appearance && panel_appearance->isInVisibleChain() && panel_appearance->isCOFPanelVisible())
+    {
+        LLFloaterReg::findInstance("appearance")->closeFloater();
+        return;
+    }
+
     LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "now_wearing"));
 }
 
