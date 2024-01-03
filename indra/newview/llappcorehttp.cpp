@@ -168,6 +168,7 @@ void LLAppCoreHttp::init()
     }
     else
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS("Init") << "Missing CA File; should be at " << ca_file << LL_ENDL;
     }
     

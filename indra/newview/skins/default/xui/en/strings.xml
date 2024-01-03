@@ -3020,8 +3020,19 @@ Running in window.
 
 If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
+    <string name="MBOutOfMemoryTitle">Out Of Memory</string>
+    <string name="MBOutOfMemoryErr">
+        [APP_NAME]'s request for memory failed. Application can't proceed and will be closed.
 
-	<!-- Avatar Shape Information -->
+If your computer's RAM is low, quit any heavy applications before runing Second Life, allocate a page file or reduce graphical settings like draw distance.
+    </string>
+    <string name="MBMissingFile">
+        [APP_NAME] couldn't access or find some of the files it needs and will be closed.
+
+Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall.
+    </string>
+
+    <!-- Avatar Shape Information -->
 <string name="5 O'Clock Shadow">5 O'Clock Shadow</string>
 
 <string name="All White">All White</string>
