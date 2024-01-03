@@ -286,7 +286,7 @@ jobs:
           [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
 
       - name: Sign and package Mac viewer
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v1
+        uses: secondlife/viewer-build-util/sign-pkg-mac@gh-edu
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
