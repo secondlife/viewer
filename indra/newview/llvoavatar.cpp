@@ -5233,6 +5233,9 @@ U32 LLVOAvatar::renderRigid()
 		return 0;
 	}
 
+	bool should_alpha_mask = shouldAlphaMask();
+	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+
 	if (isTextureVisible(TEX_EYES_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 	{
 		LLViewerJoint* eyeball_left = getViewerJoint(MESH_ID_EYEBALL_LEFT);

@@ -64,17 +64,24 @@ public:
 	virtual ~LLThumbnailCtrl();
 
 	virtual void draw() override;
+    void setVisible(BOOL visible) override;
 
 	virtual void setValue(const LLSD& value ) override;
+    void setInitImmediately(bool val) { mInitImmediately = val; }
     void clearTexture();
     
     virtual BOOL handleHover(S32 x, S32 y, MASK mask) override;
+
+protected:
+    void initImage();
+    void unloadImage();
 	
 private:
-	S32 mPriority;
     bool mBorderVisible;
     bool mInteractable;
     bool mShowLoadingPlaceholder;
+    bool mInited;
+    bool mInitImmediately;
     std::string mLoadingPlaceholderString;
     LLUUID mImageAssetID;
     LLViewBorder* mBorder;

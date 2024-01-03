@@ -13,7 +13,7 @@ elseif (WINDOWS)
   foreach(hive HKEY_CURRENT_USER HKEY_LOCAL_MACHINE)
     # prefer more recent Python versions to older ones, if multiple versions
     # are installed
-    foreach(pyver 3.11 3.10 3.9 3.8 3.7)
+    foreach(pyver 3.12 3.11 3.10 3.9 3.8 3.7)
       list(APPEND regpaths "[${hive}\\SOFTWARE\\Python\\PythonCore\\${pyver}\\InstallPath]")
     endforeach()
   endforeach()
@@ -40,7 +40,7 @@ elseif (WINDOWS)
     ${regpaths}
     ${pymaybe}
     )
-    include(FindPythonInterp)
+  find_package(Python3 COMPONENTS Interpreter)
 else()
   find_program(python python3)
 

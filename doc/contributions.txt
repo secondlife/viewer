@@ -240,6 +240,7 @@ Ansariel Hiller
 	SL-18432
 	SL-19140
 	SL-4126
+	SL-20224
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -928,6 +929,8 @@ LSL Scientist
 Lamorna Proctor
 Lares Carter
 Larry Pixel
+Lars Næsbye Christensen
+	SL-20054
 Laurent Bechir
 Leal Choche
 Lenae Munz
