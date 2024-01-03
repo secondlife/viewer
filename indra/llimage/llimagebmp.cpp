@@ -141,7 +141,7 @@ bool LLImageBMP::updateData()
 	// Part 2: "Bitmap Header"
 	const S32 BITMAP_HEADER_SIZE = 40;
 	LLBMPHeader header;
-	llassert( sizeof( header ) == BITMAP_HEADER_SIZE );
+	llassert_return_false( sizeof( header ) == BITMAP_HEADER_SIZE );
 
 	memcpy(	/* Flawfinder: ignore */
 		(void*)&header,
@@ -288,7 +288,7 @@ bool LLImageBMP::updateData()
 		Win95BmpHeaderExtension win_95_extension;
 		extension_size = sizeof( win_95_extension );
 
-		llassert( sizeof( win_95_extension ) + BITMAP_HEADER_SIZE == 108 );
+		llassert_return_false( sizeof( win_95_extension ) + BITMAP_HEADER_SIZE == 108 );
 		memcpy( &win_95_extension, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, sizeof( win_95_extension ) );	/* Flawfinder: ignore */
 
 		if( 3 == header.mCompression )
@@ -384,7 +384,7 @@ bool LLImageBMP::decode(LLImageRaw* raw_image, F32 decode_time)
 
 	if( success && mOriginAtTop )
 	{
-		raw_image->verticalFlip();
+		success = raw_image->verticalFlip();
 	}
 
 	return success;
@@ -404,7 +404,7 @@ U32 LLImageBMP::countTrailingZeros( U32 m )
 
 bool LLImageBMP::decodeColorMask16( U8* dst, const U8* src )
 {
-	llassert( 16 == mBitsPerPixel );
+	llassert_return_false( 16 == mBitsPerPixel );
 
 	if( !mBitfieldMask[0] && !mBitfieldMask[1] && !mBitfieldMask[2] )
 	{
@@ -442,7 +442,7 @@ bool LLImageBMP::decodeColorMask32( U8* dst, const U8* src )
 {
 	// Note: alpha is not supported
 
-	llassert( 32 == mBitsPerPixel );
+	llassert_return_false( 32 == mBitsPerPixel );
 
 	if( !mBitfieldMask[0] && !mBitfieldMask[1] && !mBitfieldMask[2] )
 	{
@@ -484,7 +484,7 @@ bool LLImageBMP::decodeColorMask32( U8* dst, const U8* src )
 
 bool LLImageBMP::decodeColorTable8( U8* dst, const U8* src )
 {
-	llassert( (8 == mBitsPerPixel) && (mColorPaletteColors >= 256) );
+	llassert_return_false( (8 == mBitsPerPixel) && (mColorPaletteColors >= 256) );
 
 	S32 src_row_span = getWidth() * 1;
 	S32 alignment_bytes = (3 * src_row_span) % 4;  // round up to nearest multiple of 4
@@ -514,8 +514,8 @@ bool LLImageBMP::decodeColorTable8( U8* dst, const U8* src )
 
 bool LLImageBMP::decodeTruecolor24( U8* dst, const U8* src )
 {
-	llassert( 24 == mBitsPerPixel );
-	llassert( 3 == getComponents() );
+	llassert_return_false( 24 == mBitsPerPixel );
+	llassert_return_false( 3 == getComponents() );
 	S32 src_row_span = getWidth() * 3;
 	S32 alignment_bytes = (3 * src_row_span) % 4;  // round up to nearest multiple of 4
 
@@ -562,7 +562,7 @@ bool LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 	U8 magic[14];
 	LLBMPHeader header;
 	int header_bytes = 14+sizeof(header);
-	llassert(header_bytes == 54);
+	llassert_return_false(header_bytes == 54);
 	if (getComponents() == 1)
 	{
 		header_bytes += 1024; // Need colour LUT.

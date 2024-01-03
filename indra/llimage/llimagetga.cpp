@@ -449,7 +449,7 @@ bool LLImageTGA::decodeTruecolor( LLImageRaw* raw_image, bool rle, bool flipped 
 		// encode pixels from more than one scanline.
 		// (On the other hand, it's not as fast as writing separate flipped versions as 
 		// we did with TruecolorNonRle.)
-		raw_image->verticalFlip();
+		success = raw_image->verticalFlip();
 	}
 
 	return success;
@@ -559,6 +559,7 @@ bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 		return false;
 	}
 
+	bool success = true;
 	U8* src = getData() + mDataOffset;
 	U8* dst = raw_image->getData();	// start from the top
 	
@@ -570,7 +571,7 @@ bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 		case 2:	pixel_decoder = &LLImageTGA::decodeColorMapPixel15; break;
 		case 3:	pixel_decoder = &LLImageTGA::decodeColorMapPixel24; break;
 		case 4:	pixel_decoder = &LLImageTGA::decodeColorMapPixel32; break;
-		default: llassert(0); return false;
+		default: LL_WARNS_ONCE() << "mColorMapBytesPerEntry is not in [1..4] (in fact " << mColorMapBytesPerEntry << ")" << LL_ENDL; return false;
 	}
 
 	if( rle )
@@ -609,7 +610,7 @@ bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 			}
 		}
 
-		raw_image->verticalFlip();
+		success = raw_image->verticalFlip();
 	}
 	else
 	{
@@ -639,7 +640,7 @@ bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 		}
 	}
 
-	return true;
+	return success;
 }
 
 
@@ -751,7 +752,7 @@ bool LLImageTGA::encode(const LLImageRaw* raw_image, F32 encode_time)
 
 	// Write pixels
 	const U8* src = raw_image->getData();
-	llassert( dst == getData() + mDataOffset );
+	llassert_return_false( dst == getData() + mDataOffset );
 	S32 i = 0;
 	S32 j = 0;
 	switch( getComponents() )
@@ -799,7 +800,7 @@ bool LLImageTGA::encode(const LLImageRaw* raw_image, F32 encode_time)
 
 bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque )
 {
-	llassert( getComponents() == 4 );
+	llassert_return_false( getComponents() == 4 );
 	alpha_opaque = true;
 
 	U8* dst = raw_image->getData();
@@ -878,8 +879,8 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
 
 bool LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 {
-	llassert( getComponents() == 3 );
-	llassert( mIs15Bit );
+	llassert_return_false( getComponents() == 3 );
+	llassert_return_false( mIs15Bit );
 
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
@@ -937,7 +938,7 @@ bool LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 
 bool LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 {
-	llassert( getComponents() == 3 );
+	llassert_return_false( getComponents() == 3 );
 
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
@@ -997,7 +998,7 @@ bool LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 
 bool LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 {
-	llassert( getComponents() == 1 );
+	llassert_return_false( getComponents() == 1 );
 
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
@@ -1052,7 +1053,7 @@ bool LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight )
 {
 	llassert_always(raw_image);
-	
+
 	// "Domain" isn't really the right word.  It refers to the width of the 
 	// ramp portion of the function that relates input and output pixel values.
 	// A domain of 0 gives a step function.

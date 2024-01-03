@@ -787,7 +787,7 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
     // argument, dest always starts writing at channel zero.
     for (S32 comp = first_channel, dest = 0; comp < first_channel + channels; comp++, dest++)
     {
-        llassert(image->comps[comp].data);
+        llassert_return_false(image->comps[comp].data);
         if (image->comps[comp].data)
         {
             S32 offset = dest;

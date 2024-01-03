@@ -47,8 +47,8 @@ static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
 // src_img and dst_image must have the same dimensions
 static void copy_red_channel(const LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
 {
-    llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
-    llassert(dst_img->getComponents() == 3);
+    llassert_return(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
+    llassert_return(dst_img->getComponents() == 3);
 
     U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
     const U8* src = src_img->getData();
@@ -241,7 +241,7 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
     LLFetchedGLTFMaterial* material,
     std::string& material_name)
 {
-    llassert(material);
+    llassert_return_false(material);
 
     if (model_in.materials.size() <= mat_index)
     {

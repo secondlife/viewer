@@ -85,7 +85,7 @@ bool LLImagePNG::updateData()
 // used within SecondLife.
 bool LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 {
-	llassert_always(raw_image);
+	llassert_return_false(raw_image);
 
     resetLastError();
 
@@ -120,7 +120,7 @@ bool LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 // Encode the in memory RGB image into PNG format.
 bool LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 {
-	llassert_always(raw_image);
+	llassert_return_false(raw_image);
 
     resetLastError();
 

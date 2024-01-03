@@ -312,7 +312,7 @@ void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue
 void LLImageFilter::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue)
 {
 	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+	llassert_return( components >= 1 && components <= 4 );
     
 	S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
@@ -332,7 +332,7 @@ void LLImageFilter::colorCorrect(const U8* lut_red, const U8* lut_green, const U
 void LLImageFilter::colorTransform(const LLMatrix3 &transform)
 {
 	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+	llassert_return( components >= 1 && components <= 4 );
     
 	S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
@@ -357,7 +357,7 @@ void LLImageFilter::colorTransform(const LLMatrix3 &transform)
 void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_value)
 {
 	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+	llassert_return( components >= 1 && components <= 4 );
     
     // Compute normalization factors
     F32 kernel_min = 0.0;
@@ -388,7 +388,7 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
 	U8* dst_data = mImage->getData();
 
 	S32 buffer_size = width * components;
-	llassert_always(buffer_size > 0);
+	llassert_return(buffer_size > 0);
 	std::vector<U8> even_buffer(buffer_size);
 	std::vector<U8> odd_buffer(buffer_size);
 	
@@ -494,7 +494,7 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
 void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const F32 angle)
 {
 	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+	llassert_return( components >= 1 && components <= 4 );
     
 	S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
@@ -613,7 +613,7 @@ U32* LLImageFilter::getBrightnessHistogram()
 void LLImageFilter::computeHistograms()
 {
  	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+	llassert_return( components >= 1 && components <= 4 );
     
     // Allocate memory for the histograms
     if (!mHistoRed)
