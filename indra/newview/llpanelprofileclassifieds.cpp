@@ -650,6 +650,8 @@ BOOL LLPanelProfileClassified::postBuild()
     mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelProfileClassified::onTextureSelected, this));
     mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseEnter, this));
     mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseLeave, this));
+    mSnapshotCtrl->setAllowLocalTexture(FALSE);
+    mSnapshotCtrl->setBakeTextureEnabled(FALSE);
     mEditIcon->setVisible(false);
 
     mMapButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onMapClick, this));
