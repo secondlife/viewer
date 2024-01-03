@@ -90,6 +90,42 @@ const int LL_ERR_NOERR = 0;
 #define llverify(func)			do {if (func) {}} while(0)
 #endif
 
+
+// The following 2 macros are used below in llassert_returning
+#define llvalue_flag0(value)
+#define llvalue_flag1(value) value
+
+// The macro llassert_returning is used in the following macros:
+// - llassert_message_return_value
+// - llassert_message_return
+// - llassert_return_value
+// - llassert_return
+#define llassert_returning(condition, separator, message, flag, value) \
+{                                                                      \
+    if (!LL_LIKELY(condition))                                         \
+    {                                                                  \
+        LL_WARNS_ONCE()                                                \
+            << "Condition FAILED: (" << #condition << ")"              \
+            << (separator) << (message) << LL_ENDL;                    \
+        return llvalue_flag##flag(value);                              \
+    }                                                                  \
+}
+
+// Log message and return value
+#define llassert_message_return_value(condition, message, value) llassert_returning(condition, " ", message, 1, value)
+
+// Log message and simply return
+#define llassert_message_return(condition, message, value) llassert_returning(condition, " ", message, 0, 0)
+
+// No log message:
+#define llassert_return_value(condition, value) llassert_returning(condition, "", "", 1, value)
+#define llassert_return(condition) llassert_returning(condition, "", "", 0, 0)
+
+// Use return false
+#define llassert_message_return_false(condition, message) llassert_message_return_value(condition, message, false)
+#define llassert_return_false(condition) llassert_return_value(condition, false)
+
+
 #ifdef LL_WINDOWS
 #define LL_STATIC_ASSERT(func, msg) static_assert(func, msg)
 #define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(false, msg)

@@ -224,7 +224,7 @@ public:
 
 	void clear(U8 r=0, U8 g=0, U8 b=0, U8 a=255);
 
-	void verticalFlip();
+	bool verticalFlip();
     
     // if the alpha channel is all 100% opaque, delete it
     // returns true if alpha channel was deleted

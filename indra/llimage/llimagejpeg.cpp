@@ -187,7 +187,7 @@ void LLImageJPEG::decodeTermSource (j_decompress_ptr cinfo)
 // Returns true when done, whether or not decode was successful.
 bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 {
-	llassert_always(raw_image);
+	llassert_return_false(raw_image);
 	
 	resetLastError();
 
@@ -487,7 +487,7 @@ void LLImageJPEG::errorOutputMessage( j_common_ptr cinfo )
 
 bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 {
-	llassert_always(raw_image);
+	llassert_return_false(raw_image);
 	
 	resetLastError();
 

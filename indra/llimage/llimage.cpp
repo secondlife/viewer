@@ -557,9 +557,9 @@ inline void bilinear_scale(
 }
 
 //wrapper
-static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 srcStride, U8 *dst, U32 dstW, U32 dstH, U32 dstCh, U32 dstStride)
+inline void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 srcStride, U8 *dst, U32 dstW, U32 dstH, U32 dstCh, U32 dstStride)
 {
-	llassert(srcCh == dstCh);
+	llassert_return(srcCh == dstCh);
 
 	switch(srcCh)
 	{
@@ -574,9 +574,7 @@ static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 src
 		break;
 	default:
 		llassert(!"Implement if need");
-		break;
 	}
-
 }
 
 //---------------------------------------------------------------------------
@@ -946,7 +944,7 @@ bool LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 
 void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
-	llassert( getComponents() <= 4 );
+	llassert_return(getComponents() <= 4);
 
 	LLImageDataLock lock(this);
 
@@ -988,12 +986,12 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 }
 
 // Reverses the order of the rows in the image
-void LLImageRaw::verticalFlip()
+bool LLImageRaw::verticalFlip()
 {
 	LLImageDataLock lock(this);
 
 	S32 row_bytes = getWidth() * getComponents();
-	llassert(row_bytes > 0);
+	llassert_return_false(row_bytes > 0);
 	std::vector<U8> line_buffer(row_bytes);
 	S32 mid_row = getHeight() / 2;
 	for( S32 row = 0; row < mid_row; row++ )
@@ -1004,6 +1002,8 @@ void LLImageRaw::verticalFlip()
 		memcpy( row_a_data,  row_b_data,  row_bytes );
 		memcpy( row_b_data,  &line_buffer[0], row_bytes );
 	}
+
+	return true;
 }
 
 
@@ -1140,8 +1140,8 @@ void LLImageRaw::composite( const LLImageRaw* src )
 		return;
 	}
 
-	llassert(3 == src->getComponents());
-	llassert(3 == dst->getComponents());
+	llassert_return(3 == src->getComponents());
+	llassert_return(3 == dst->getComponents());
 
 	if( 3 == dst->getComponents() )
 	{
@@ -1181,10 +1181,10 @@ void LLImageRaw::compositeScaled4onto3(const LLImageRaw* src)
 
 	LLImageDataLock lock(this);
 
-	llassert( (4 == src->getComponents()) && (3 == dst->getComponents()) );
+	llassert_return( (4 == src->getComponents()) && (3 == dst->getComponents()) );
 
 	S32 temp_data_size = src->getWidth() * dst->getHeight() * src->getComponents();
-	llassert_always(temp_data_size > 0);
+	llassert_return(temp_data_size > 0);
 	std::vector<U8> temp_buffer(temp_data_size);
 
 	// Vertical: scale but no composite
@@ -1208,8 +1208,8 @@ void LLImageRaw::compositeUnscaled4onto3( const LLImageRaw* src )
 
 	LLImageDataLock lock(this);
 
-	llassert( (3 == src->getComponents()) || (4 == src->getComponents()) );
-	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+	llassert_return( (3 == src->getComponents()) || (4 == src->getComponents()) );
+	llassert_return( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
 	const U8* src_data = src->getData();
 	U8* dst_data = dst->getData();
@@ -1253,9 +1253,9 @@ void LLImageRaw::copyUnscaledAlphaMask( const LLImageRaw* src, const LLColor4U& 
 		return;
 	}
 
-	llassert( 1 == src->getComponents() );
-	llassert( 4 == dst->getComponents() );
-	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+	llassert_return( 1 == src->getComponents() );
+	llassert_return( 4 == dst->getComponents() );
+	llassert_return( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
 	S32 pixels = getWidth() * getHeight();
 	const U8* src_data = src->getData();
@@ -1380,9 +1380,9 @@ void LLImageRaw::copyUnscaled(const LLImageRaw* src)
 
 	LLImageDataLock lock(this);
 
-	llassert( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
-	llassert( src->getComponents() == dst->getComponents() );
-	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+	llassert_return( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
+	llassert_return( src->getComponents() == dst->getComponents() );
+	llassert_return( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
 	memcpy( dst->getData(), src->getData(), getWidth() * getHeight() * getComponents() );	/* Flawfinder: ignore */
 }
@@ -1391,7 +1391,7 @@ void LLImageRaw::copyUnscaled(const LLImageRaw* src)
 // Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
 void LLImageRaw::copyScaled3onto4(const LLImageRaw* src)
 {
-	llassert( (3 == src->getComponents()) && (4 == getComponents()) );
+	llassert_return( (3 == src->getComponents()) && (4 == getComponents()) );
 
 	// Slow, but simple.  Optimize later if needed.
 	LLImageRaw temp( src->getWidth(), src->getHeight(), 4);
@@ -1403,7 +1403,7 @@ void LLImageRaw::copyScaled3onto4(const LLImageRaw* src)
 // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
 void LLImageRaw::copyScaled4onto3(const LLImageRaw* src)
 {
-	llassert( (4 == src->getComponents()) && (3 == getComponents()) );
+	llassert_return( (4 == src->getComponents()) && (3 == getComponents()) );
 
 	// Slow, but simple.  Optimize later if needed.
 	LLImageRaw temp( src->getWidth(), src->getHeight(), 3);
@@ -1419,8 +1419,8 @@ void LLImageRaw::copyUnscaled4onto3( const LLImageRaw* src )
 
 	LLImageDataLock lock(this);
 
-	llassert( (3 == dst->getComponents()) && (4 == src->getComponents()) );
-	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+	llassert_return( (3 == dst->getComponents()) && (4 == src->getComponents()) );
+	llassert_return( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
 	S32 pixels = getWidth() * getHeight();
 	const U8* src_data = src->getData();
@@ -1443,9 +1443,9 @@ void LLImageRaw::copyUnscaled3onto4( const LLImageRaw* src )
 
 	LLImageDataLock lock(this);
 
-	llassert( 3 == src->getComponents() );
-	llassert( 4 == dst->getComponents() );
-	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+	llassert_return( 3 == src->getComponents() );
+	llassert_return( 4 == dst->getComponents() );
+	llassert_return( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
 	S32 pixels = getWidth() * getHeight();
 	const U8* src_data = src->getData();
@@ -1475,8 +1475,8 @@ void LLImageRaw::copyScaled( const LLImageRaw* src )
 		return;
 	}
 
-	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
-	llassert_always( src->getComponents() == dst->getComponents() );
+	llassert_return( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
+	llassert_return( src->getComponents() == dst->getComponents() );
 
 	if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
 	{
@@ -1649,7 +1649,7 @@ LLPointer<LLImageRaw> LLImageRaw::scaled(S32 new_width, S32 new_height)
 void LLImageRaw::copyLineScaled( const U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step )
 {
 	const S32 components = getComponents();
-	llassert( components >= 1 && components <= 4 );
+	llassert_return( components >= 1 && components <= 4 );
 
 	const F32 ratio = F32(in_pixel_len) / out_pixel_len; // ratio of old to new
 	const F32 norm_factor = 1.f / ratio;
@@ -1763,7 +1763,7 @@ void LLImageRaw::copyLineScaled( const U8* in, U8* out, S32 in_pixel_len, S32 ou
 
 void LLImageRaw::compositeRowScaled4onto3( const U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len )
 {
-	llassert( getComponents() == 3 );
+	llassert_return( getComponents() == 3 );
 
 	const S32 IN_COMPONENTS = 4;
 	const S32 OUT_COMPONENTS = 3;
@@ -1982,7 +1982,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	}
 	
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
-	llassert(image.notNull());
+	llassert_return_false(image.notNull());
 
 	U8 *buffer = image->allocateData(length);
 	ifs.read ((char*)buffer, length);
@@ -2142,7 +2142,7 @@ S32 LLImageFormatted::calcDataSize(S32 discard_level)
 
 S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 {
-	llassert(bytes >= 0);
+	llassert_return_value(bytes >= 0, -1);
 	S32 discard_level = 0;
 	while (1)
 	{
@@ -2166,7 +2166,7 @@ S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 // Subclasses that can handle more than 4 channels should override this function.
 bool LLImageFormatted::decodeChannels(LLImageRaw* raw_image,F32  decode_time, S32 first_channel, S32 max_channel)
 {
-	llassert( (first_channel == 0) && (max_channel == 4) );
+	llassert_return_false( (first_channel == 0) && (max_channel == 4) );
 	return decode( raw_image, decode_time );  // Loads first 4 channels by default.
 } 
 
@@ -2215,7 +2215,7 @@ void LLImageFormatted::sanityCheck()
 
 	if (mCodec >= IMG_CODEC_EOF)
 	{
-		LL_ERRS() << "Failed LLImageFormatted::sanityCheck "
+		LL_WARNS() << "Failed LLImageFormatted::sanityCheck "
 			   << "decoding " << S32(mDecoding)
 			   << "decoded " << S32(mDecoded)
 			   << "codec " << S32(mCodec)
@@ -2352,7 +2352,7 @@ S8 LLImageFormatted::getCodec() const
 	return mCodec;
 }
 
-static void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
+inline void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
 	dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
 	dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
@@ -2360,14 +2360,14 @@ static void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8*
 	dst[3] = (U8)(((U32)(a[3]) + b[3] + c[3] + d[3])>>2);
 }
 
-static void avg4_colors3(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
+inline void avg4_colors3(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
 	dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
 	dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
 	dst[2] = (U8)(((U32)(a[2]) + b[2] + c[2] + d[2])>>2);
 }
 
-static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
+inline void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
 	dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
 	dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
@@ -2383,7 +2383,7 @@ void LLImageBase::setDataAndSize(U8 *data, S32 size)
 //static
 void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 height, S32 nchannels)
 {
-	llassert(width > 0 && height > 0);
+	llassert_return(width > 0 && height > 0);
 	U8* data = mipdata;
 	S32 in_width = width*2;
 	for (S32 h=0; h<height; h++)
@@ -2405,7 +2405,8 @@ void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 heig
 				*(U8*)data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
 				break;
 			  default:
-				LL_ERRS() << "generateMmip called with bad num channels" << LL_ENDL;
+				LL_ERRS() << "generateMmip called with bad num channels (" << nchannels << ")" << LL_ENDL;
+				return;
 			}
 			indata += nchannels*2;
 			data += nchannels;
