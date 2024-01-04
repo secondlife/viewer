@@ -669,7 +669,7 @@ BOOL LLPanelProfileClassified::postBuild()
         mCategoryCombo->add(LLTrans::getString(iter->second));
     }
 
-    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this), NULL);
+    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onTitleChange, this), NULL);
     mClassifiedDescEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mCategoryCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mContentTypeCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
@@ -937,6 +937,8 @@ void LLPanelProfileClassified::onCancelClick()
     }
     else
     {
+        updateTabLabel(mClassifiedNameText->getValue());
+
         // Reload data to undo changes to forms
         LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
     }
@@ -1403,6 +1405,12 @@ void LLPanelProfileClassified::onSetLocationClick()
 void LLPanelProfileClassified::onChange()
 {
     enableSave(isDirty());
+}
+
+void LLPanelProfileClassified::onTitleChange()
+{
+    updateTabLabel(getClassifiedName());
+    onChange();
 }
 
 void LLPanelProfileClassified::doSave()

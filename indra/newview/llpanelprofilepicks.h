@@ -237,6 +237,7 @@ protected:
     LLUUID mParcelId;
     LLUUID mPickId;
     LLUUID mRequestedId;
+    std::string mPickNameStr;
 
     bool mLocationChanged;
     bool mNewPick;
