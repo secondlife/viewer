@@ -63,6 +63,7 @@ public:
 
     static const LLUUID         KNOWN_SKY_SUNRISE;
     static const LLUUID         KNOWN_SKY_MIDDAY;
+    static const LLUUID         KNOWN_SKY_LEGACY_MIDDAY;
     static const LLUUID         KNOWN_SKY_SUNSET;
     static const LLUUID         KNOWN_SKY_MIDNIGHT;
 
@@ -265,7 +266,7 @@ public:
         virtual bool                    applyTimeDelta(const LLSettingsBase::Seconds& delta);
 
         virtual void                    setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
-        virtual void                    setSky(const LLSettingsSky::ptr_t &psky);
+        bool                            setSky(const LLSettingsSky::ptr_t &psky);
         virtual void                    setWater(const LLSettingsWater::ptr_t &pwater);
 
         void                            initialize();

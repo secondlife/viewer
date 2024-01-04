@@ -184,6 +184,7 @@ protected:
 public:
 	LLImageRaw();
 	LLImageRaw(U16 width, U16 height, S8 components);
+    LLImageRaw(const U8* data, U16 width, U16 height, S8 components);
 	LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy = false);
 	// Construct using createFromFile (used by tools)
 	//LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
@@ -207,6 +208,10 @@ public:
 	void clear(U8 r=0, U8 g=0, U8 b=0, U8 a=255);
 
 	void verticalFlip();
+    
+    // if the alpha channel is all 100% opaque, delete it
+    // returns true if alpha channel was deleted
+    bool optimizeAwayAlpha();
 
     static S32 biasedDimToPowerOfTwo(S32 curr_dim, S32 max_dim = MAX_IMAGE_SIZE);
     static S32 expandDimToPowerOfTwo(S32 curr_dim, S32 max_dim = MAX_IMAGE_SIZE);
@@ -275,7 +280,6 @@ protected:
 	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
 
 public:
-	static S32 sGlobalRawMemory;
 	static S32 sRawImageCount;
 
 private:

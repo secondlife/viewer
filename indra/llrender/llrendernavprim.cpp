@@ -53,7 +53,7 @@ void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt )
 {	
-	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
+	pVBO->setBuffer();
 	pVBO->drawArrays( mode, 0, vertCnt );	
 }
 //=============================================================================

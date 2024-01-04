@@ -574,7 +574,6 @@ static void init_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const L
                 // Don't allow (no copy) or (notransfer) textures to be selected.
                 texture_ctrl->setImmediateFilterPermMask(PERM_NONE);
                 texture_ctrl->setDnDFilterPermMask(PERM_NONE);
-                texture_ctrl->setNonImmediateFilterPermMask(PERM_NONE);
         }
 }
 

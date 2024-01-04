@@ -64,7 +64,6 @@ LLHUDIcon::icon_instance_t LLHUDIcon::sIconInstances;
 LLHUDIcon::LLHUDIcon(const U8 type) :
 			LLHUDObject(type),
 			mImagep(NULL),
-			mPickID(0),
 			mScale(0.1f),
 			mHidden(FALSE)
 {
@@ -76,15 +75,11 @@ LLHUDIcon::~LLHUDIcon()
 	mImagep = NULL;
 }
 
-void LLHUDIcon::renderIcon(BOOL for_select)
+void LLHUDIcon::render()
 {
 	LLGLSUIDefault texture_state;
 	LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLDisable gls_stencil(GL_STENCIL_TEST);
-	if (for_select)
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	}
+	//LLGLDisable gls_stencil(GL_STENCIL_TEST);
 	
 	if (mHidden)
 		return;
@@ -116,7 +111,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 
 	mDistance = dist_vec(icon_position, camera->getOrigin());
 
-	F32 alpha_factor = for_select ? 1.f : clamp_rescale(mDistance, DIST_START_FADE, DIST_END_FADE, 1.f, 0.f);
+	F32 alpha_factor = clamp_rescale(mDistance, DIST_START_FADE, DIST_END_FADE, 1.f, 0.f);
 
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
@@ -150,13 +145,6 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	LLVector3 upper_left = icon_position - (x_scale * 0.5f) + y_scale;
 	LLVector3 upper_right = icon_position + (x_scale * 0.5f) + y_scale;
 
-	if (for_select)
-	{
-		// set color to unique color id for picking
-		LLColor4U coloru((U8)(mPickID >> 16), (U8)(mPickID >> 8), (U8)mPickID);
-		gGL.color4ubv(coloru.mV);
-	}
-	else
 	{
 		LLColor4 icon_color = LLColor4::white;
 		icon_color.mV[VALPHA] = alpha_factor;
@@ -196,11 +184,6 @@ void LLHUDIcon::markDead()
 		mSourceObject->clearIcon();
 	}
 	LLHUDObject::markDead();
-}
-
-void LLHUDIcon::render()
-{
-	renderIcon(FALSE);
 }
 
 BOOL LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection)
@@ -293,37 +276,6 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 	}
 
 	return FALSE;
-}
-
-//static
-S32 LLHUDIcon::generatePickIDs(S32 start_id, S32 step_size)
-{
-	S32 cur_id = start_id;
-	icon_instance_t::iterator icon_it;
-
-	for(icon_it = sIconInstances.begin(); icon_it != sIconInstances.end(); ++icon_it)
-	{
-		(*icon_it)->mPickID = cur_id;
-		cur_id += step_size;
-	}
-
-	return cur_id;
-}
-
-//static
-LLHUDIcon* LLHUDIcon::handlePick(S32 pick_id)
-{
-	icon_instance_t::iterator icon_it;
-
-	for(icon_it = sIconInstances.begin(); icon_it != sIconInstances.end(); ++icon_it)
-	{
-		if (pick_id == (*icon_it)->mPickID)
-		{
-			return *icon_it;
-		}
-	}
-
-	return NULL;
 }
 
 //static

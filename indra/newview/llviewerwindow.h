@@ -68,6 +68,8 @@ class LLWindowListener;
 class LLViewerWindowListener;
 class LLVOPartGroup;
 class LLPopupView;
+class LLCubeMap;
+class LLCubeMapArray;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -92,6 +94,7 @@ public:
 		BOOL pick_transparent,
 		BOOL pick_rigged,
 		BOOL pick_particle,
+        BOOL pick_reflection_probe,
 		BOOL pick_surface_info,
 		BOOL pick_unselectable,
 		void (*pick_callback)(const LLPickInfo& pick_info));
@@ -128,6 +131,7 @@ public:
 	BOOL			mPickRigged;
 	BOOL			mPickParticle;
 	BOOL			mPickUnselectable;
+    BOOL            mPickReflectionProbe = FALSE;
 	void		    getSurfaceInfo();
 
 private:
@@ -362,6 +366,20 @@ public:
 
     BOOL			simpleSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, const int num_render_passes);
 
+    
+    
+    // take a cubemap snapshot
+    // origin - vantage point to take the snapshot from
+    // cubearray - cubemap array for storing the results
+    // index - cube index in the array to use (cube index, not face-layer)
+    // face - which cube face to update
+    // near_clip - near clip setting to use
+    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars);
+
+    
+    // special implementation of simpleSnapshot for reflection maps
+    BOOL			reflectionSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes);
+
     BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
 	BOOL			isSnapshotLocSet() const;
 	void			resetSnapshotLoc() const;
@@ -390,8 +408,9 @@ public:
 								void (*callback)(const LLPickInfo& pick_info),
 								BOOL pick_transparent = FALSE,
 								BOOL pick_rigged = FALSE,
-								BOOL pick_unselectable = FALSE);
-	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_rigged = FALSE, BOOL pick_particle = FALSE);
+								BOOL pick_unselectable = FALSE,
+                                BOOL pick_reflection_probes = FALSE);
+	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_rigged = FALSE, BOOL pick_particle = FALSE, BOOL pick_unselectable = TRUE, BOOL pick_reflection_probe = FALSE);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
 										   LLVector4a* intersection);
 
@@ -400,6 +419,8 @@ public:
 									S32 this_face = -1,
 									BOOL pick_transparent = FALSE,
 									BOOL pick_rigged = FALSE,
+                                    BOOL pick_unselectable = TRUE,
+                                    BOOL pick_reflection_probe = TRUE,
 									S32* face_hit = NULL,
 									LLVector4a *intersection = NULL,
 									LLVector2 *uv = NULL,

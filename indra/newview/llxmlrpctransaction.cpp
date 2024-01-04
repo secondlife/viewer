@@ -51,6 +51,12 @@
 #else
 #include <xmlrpc-epi/xmlrpc.h>
 #endif
+// <xmlrpc-epi/queue.h> contains a harmful #define queue xmlrpc_queue. This
+// breaks any use of std::queue. Ditch that #define: if any of our code wants
+// to reference xmlrpc_queue, let it reference it directly.
+#if defined(queue)
+#undef queue
+#endif
 
 #include "llappviewer.h"
 #include "lltrans.h"
@@ -411,7 +417,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
 
 	mHandler = LLXMLRPCTransaction::Handler::ptr_t(new Handler( mHttpRequest, this ));
 
-	mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID, 0, 
+	mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID,
 		mURI, body.get(), httpOpts, httpHeaders, mHandler);
 
 }

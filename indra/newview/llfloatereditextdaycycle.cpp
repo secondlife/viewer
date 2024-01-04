@@ -475,6 +475,8 @@ void LLFloaterEditExtDayCycle::refresh()
 void LLFloaterEditExtDayCycle::setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings)
 {
     setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
+
+    showHDRNotification(std::dynamic_pointer_cast<LLSettingsDay>(settings));
 }
 
 void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
@@ -1524,7 +1526,7 @@ bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
 
 void LLFloaterEditExtDayCycle::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    (new LLFilePickerReplyThread(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string>& filenames)
@@ -1707,6 +1709,28 @@ void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)
     {
         LLSettingsVOBase::getSettingsAsset(itemp->getAssetUUID(),
             [this, track, frame, item_id](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoadedForInsertion(item_id, asset_id, settings, status, track, mCurrentTrack, frame); });
+    }
+}
+
+void LLFloaterEditExtDayCycle::showHDRNotification(const LLSettingsDay::ptr_t &pday)
+{
+    for (U32 i = LLSettingsDay::TRACK_GROUND_LEVEL; i <= LLSettingsDay::TRACK_MAX; i++)
+    {
+        LLSettingsDay::CycleTrack_t &day_track = pday->getCycleTrack(i);
+
+        LLSettingsDay::CycleTrack_t::iterator iter = day_track.begin();
+        LLSettingsDay::CycleTrack_t::iterator end = day_track.end();
+
+        while (iter != end)
+        {
+            LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(iter->second);
+            if (sky && sky->canAutoAdjust()) 
+            {
+                LLNotificationsUtil::add("AutoAdjustHDRSky");
+                return;
+            }
+            iter++;
+        }
     }
 }
 

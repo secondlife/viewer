@@ -79,7 +79,7 @@ LLSidepanelTaskInfo::LLSidepanelTaskInfo()
     : mVisibleDebugPermissions(true) // space was allocated by default
 {
 	setMouseOpaque(FALSE);
-	LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLSidepanelTaskInfo::refreshAll, this));
+    mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLSidepanelTaskInfo::refreshAll, this));
     gIdleCallbacks.addFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
 }
 
@@ -89,6 +89,11 @@ LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
 	if (sActivePanel == this)
 		sActivePanel = NULL;
     gIdleCallbacks.deleteFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
+
+    if (mSelectionUpdateSlot.connected())
+    {
+        mSelectionUpdateSlot.disconnect();
+    }
 }
 
 // virtual

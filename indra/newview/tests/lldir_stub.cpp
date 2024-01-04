@@ -30,25 +30,29 @@ LLDir::LLDir() {}
 LLDir::~LLDir() {}
 BOOL LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask) { return true; }
 void LLDir::setChatLogsDir(const std::string &path) {}
-void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string &last) {}
-void LLDir::setLindenUserDir(const std::string &first, const std::string &last) {}
+void LLDir::setPerAccountChatLogsDir(const std::string &) {}
+void LLDir::updatePerAccountChatLogsDir() {}
+void LLDir::setLindenUserDir(const std::string &) {}
 void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language) {}
 bool LLDir::setCacheDir(const std::string &path) { return true; }
-void LLDir::dumpCurrentDirectories() {}
+void LLDir::dumpCurrentDirectories(LLError::ELevel) {}
+std::string LLDir::getSkinFolder() const { return ""; }
+std::string LLDir::getLanguage() const { return ""; }
+
 
 class LLDir_stub : public LLDir
 {
 public:
-	LLDir_stub() {}
-	~LLDir_stub() {}
+    LLDir_stub() = default;
+    ~LLDir_stub() = default;
 
-	/*virtual*/ void initAppDirs(const std::string &app_name) {}
+	void initAppDirs(const std::string &app_name, const std::string &) override {}
 
-	/*virtual*/ std::string getCurPath() { return "CUR_PATH_FROM_LLDIR"; }
-	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask) { return 42; }
-	/*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) { fname = fname + "_NEXT"; return false; }
-	/*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) { fname = "RANDOM_FILE"; }
-	/*virtual*/ bool fileExists(const std::string &filename) const { return false; }
+	std::string getCurPath() override { return "CUR_PATH_FROM_LLDIR"; }
+    bool fileExists(const std::string &filename) const override { return false; }
+
+    std::string getLLPluginLauncher()  override { return ""; }
+    std::string getLLPluginFilename(std::string base_name) override { return ""; }
 };
 
 LLDir_stub gDirUtil;
@@ -60,3 +64,7 @@ std::string LLDir::getExpandedFilename(ELLPath loc, const std::string& subdir, c
 	return subdir + " --- " + filename + " --- expanded!";
 }
 
+std::string LLDir::getExpandedFilename(ELLPath location, const std::string &filename) const
+{
+    return filename + " --- expanded!";
+}

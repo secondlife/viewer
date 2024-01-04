@@ -33,6 +33,7 @@ class LLVector4;
 #include "llerror.h"
 #include "llmath.h"
 #include "llsd.h"
+#include "v3math.h"  // needed for linearColor3v implemtation below
 #include <string.h>
 
 //  LLColor3 = |r g b|
@@ -87,6 +88,16 @@ public:
 	const LLColor3&	set(F32 x, F32 y, F32 z);	// Sets LLColor3 to (x, y, z)
 	const LLColor3&	set(const LLColor3 &vec);	// Sets LLColor3 to vec
 	const LLColor3&	set(const F32 *vec);		// Sets LLColor3 to vec
+    
+    // set from a vector of unknown type and size
+    // may leave some data unmodified
+    template<typename T>
+    const LLColor3& set(const std::vector<T>& v);
+
+    // write to a vector of unknown type and size
+    // maye leave some data unmodified
+    template<typename T>
+    void write(std::vector<T>& v) const;
 
 	F32		magVec() const;				// deprecated
 	F32		magVecSquared() const;		// deprecated
@@ -484,13 +495,45 @@ inline const LLColor3 srgbColor3(const LLColor3 &a) {
 	return srgbColor;
 }
 
-inline const LLColor3 linearColor3(const LLColor3 &a) {
+inline const LLColor3 linearColor3p(const F32* v) {
     LLColor3 linearColor;
-    linearColor.mV[0] = sRGBtoLinear(a.mV[0]);
-    linearColor.mV[1] = sRGBtoLinear(a.mV[1]);
-    linearColor.mV[2] = sRGBtoLinear(a.mV[2]);
+    linearColor.mV[0] = sRGBtoLinear(v[0]);
+    linearColor.mV[1] = sRGBtoLinear(v[1]);
+    linearColor.mV[2] = sRGBtoLinear(v[2]);
 
     return linearColor;
+}
+
+template<class T>
+inline const LLColor3 linearColor3(const T& a) {
+    return linearColor3p(a.mV);
+}
+
+template<class T>
+inline const LLVector3 linearColor3v(const T& a) {
+    return LLVector3(linearColor3p(a.mV).mV);
+}
+
+template<typename T>
+const LLColor3& LLColor3::set(const std::vector<T>& v)
+{
+    for (S32 i = 0; i < llmin((S32)v.size(), 3); ++i)
+    {
+        mV[i] = v[i];
+    }
+
+    return *this;
+}
+
+// write to a vector of unknown type and size
+// maye leave some data unmodified
+template<typename T>
+void LLColor3::write(std::vector<T>& v) const
+{
+    for (int i = 0; i < llmin((S32)v.size(), 3); ++i)
+    {
+        v[i] = mV[i];
+    }
 }
 
 #endif

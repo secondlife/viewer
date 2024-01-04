@@ -95,7 +95,6 @@ private:
 
 public:
 	typedef unsigned int policy_t;
-	typedef unsigned int priority_t;
 	
 	typedef boost::shared_ptr<HttpRequest> ptr_t;
     typedef boost::weak_ptr<HttpRequest>   wptr_t;
@@ -316,8 +315,6 @@ public:
 	///
 	/// @param	policy_id		Default or user-defined policy class under
 	///							which this request is to be serviced.
-	/// @param	priority		Standard priority scheme inherited from
-	///							Indra code base (U32-type scheme).
 	/// @param	url				URL with any encoded query parameters to
 	///							be accessed.
 	/// @param	options			Optional instance of an HttpOptions object
@@ -346,7 +343,6 @@ public:
 	///							case, @see getStatus() will return more info.
 	///
 	HttpHandle requestGet(policy_t policy_id,
-						  priority_t priority,
 						  const std::string & url,
                           const HttpOptions::ptr_t & options,
 						  const HttpHeaders::ptr_t & headers,
@@ -377,7 +373,6 @@ public:
 	/// - Referer:
 	///
 	/// @param	policy_id		@see requestGet()
-	/// @param	priority		"
 	/// @param	url				"
 	/// @param	offset			Offset of first byte into resource to be returned.
 	/// @param	len				Count of bytes to be returned
@@ -387,7 +382,6 @@ public:
 	/// @return					"
 	///
 	HttpHandle requestGetByteRange(policy_t policy_id,
-								   priority_t priority,
 								   const std::string & url,
 								   size_t offset,
 								   size_t len,
@@ -418,7 +412,6 @@ public:
 	/// - Expect:
 	///
 	/// @param	policy_id		@see requestGet()
-	/// @param	priority		"
 	/// @param	url				"
 	/// @param	body			Byte stream to be sent as the body.  No
 	///							further encoding or escaping will be done
@@ -429,7 +422,6 @@ public:
 	/// @return					"
 	///
 	HttpHandle requestPost(policy_t policy_id,
-						   priority_t priority,
 						   const std::string & url,
 						   BufferArray * body,
                            const HttpOptions::ptr_t & options,
@@ -459,7 +451,6 @@ public:
 	/// - Content-Type:
 	///
 	/// @param	policy_id		@see requestGet()
-	/// @param	priority		"
 	/// @param	url				"
 	/// @param	body			Byte stream to be sent as the body.  No
 	///							further encoding or escaping will be done
@@ -470,7 +461,6 @@ public:
 	/// @return					"
 	///
 	HttpHandle requestPut(policy_t policy_id,
-						  priority_t priority,
 						  const std::string & url,
 						  BufferArray * body,
                           const HttpOptions::ptr_t & options,
@@ -483,7 +473,6 @@ public:
     /// encoding and communicating the content types.
     ///
     /// @param	policy_id		@see requestGet()
-    /// @param	priority		"
     /// @param	url				"
     /// @param	options			@see requestGet()K(optional)
     /// @param	headers			"
@@ -491,7 +480,6 @@ public:
     /// @return					"
     ///
     HttpHandle requestDelete(policy_t policy_id,
-            priority_t priority,
             const std::string & url,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
@@ -502,7 +490,6 @@ public:
     /// encoding and communicating the content types.
     ///
     /// @param	policy_id		@see requestGet()
-    /// @param	priority		"
     /// @param	url				"
     /// @param	body			Byte stream to be sent as the body.  No
     ///							further encoding or escaping will be done
@@ -513,7 +500,6 @@ public:
     /// @return					"
     ///
     HttpHandle requestPatch(policy_t policy_id,
-            priority_t priority,
             const std::string & url,
             BufferArray * body,
             const HttpOptions::ptr_t & options,
@@ -525,7 +511,6 @@ public:
     /// encoding and communicating the content types.
     ///
     /// @param	policy_id		@see requestGet()
-    /// @param	priority		"
     /// @param	url				"
     /// @param	options			@see requestGet()K(optional)
     /// @param	headers			"
@@ -533,7 +518,6 @@ public:
     /// @return					"
     ///
     HttpHandle requestCopy(policy_t policy_id,
-            priority_t priority,
             const std::string & url,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
@@ -544,7 +528,6 @@ public:
     /// encoding and communicating the content types.
     ///
     /// @param	policy_id		@see requestGet()
-    /// @param	priority		"
     /// @param	url				"
     /// @param	options			@see requestGet()K(optional)
     /// @param	headers			"
@@ -552,7 +535,6 @@ public:
     /// @return					"
     ///
     HttpHandle requestMove(policy_t policy_id,
-            priority_t priority,
             const std::string & url,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
@@ -592,18 +574,6 @@ public:
 	/// @{
 	
 	HttpHandle requestCancel(HttpHandle request, HttpHandler::ptr_t);
-
-	/// Request that a previously-issued request be reprioritized.
-	/// The status of whether the change itself succeeded arrives
-	/// via notification.  
-	///
-	/// @param	request			Handle of previously-issued request to
-	///							be changed.
-	/// @param	priority		New priority value.
-	/// @param	handler			@see requestGet()
-	/// @return					"
-	///
-	HttpHandle requestSetPriority(HttpHandle request, priority_t priority, HttpHandler::ptr_t handler);
 
 	/// @}
 

@@ -1963,6 +1963,15 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>INVENTORY_MATERIAL</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>57</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>JSON_APPEND</key>
          <map>
             <key>type</key>

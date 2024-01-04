@@ -36,6 +36,7 @@
 #include "llvirtualtrackball.h"
 #include "llenvironment.h"
 #include "llviewercontrol.h"
+#include "pipeline.h"
 
 //=========================================================================
 namespace
@@ -62,6 +63,7 @@ namespace
     const std::string FIELD_SKY_MOON_ROTATION("moon_rotation");
     const std::string FIELD_SKY_MOON_AZIMUTH("moon_azimuth");
     const std::string FIELD_SKY_MOON_ELEVATION("moon_elevation");
+    const std::string FIELD_REFLECTION_PROBE_AMBIANCE("probe_ambiance");
     const std::string BTN_RESET("btn_reset");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
@@ -117,6 +119,8 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setBlankImageAssetID(LLUUID(gSavedSettings.getString("DefaultBlankNormalTexture")));
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onWaterMapChanged(); });
 
+    getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
+
     refresh();
     return TRUE;
 }
@@ -130,6 +134,9 @@ void LLFloaterEnvironmentAdjust::onOpen(const LLSD& key)
     captureCurrentEnvironment();
 
     mEventConnection = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version){ onEnvironmentUpdated(env, version); });
+
+    // HACK -- resume reflection map manager because "setEnvironmentChanged" may pause it (SL-20456)
+    gPipeline.mReflectionMapManager.resume();
 
     LLFloater::onOpen(key);
     refresh();
@@ -171,6 +178,9 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mLiveSky->getCloudNoiseTextureId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setValue(mLiveWater->getNormalMapID());
 
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(mLiveSky->getReflectionProbeAmbiance(should_auto_adjust));
+
     LLColor3 glow(mLiveSky->getGlow());
 
     // takes 40 - 0.2 range -> 0 - 1.99 UI range
@@ -196,6 +206,8 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setValue(azimuth);
     getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setValue(elevation);
     getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(quat);
+
+    updateGammaLabel();
 }
 
 
@@ -468,6 +480,33 @@ void LLFloaterEnvironmentAdjust::onSunColorChanged()
     mLiveSky->update();
 }
 
+void LLFloaterEnvironmentAdjust::onReflectionProbeAmbianceChanged()
+{
+    if (!mLiveSky) return;
+    F32 ambiance = getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal();
+    mLiveSky->setReflectionProbeAmbiance(ambiance);
+
+    updateGammaLabel();
+    mLiveSky->update();
+}
+
+void LLFloaterEnvironmentAdjust::updateGammaLabel()
+{
+    if (!mLiveSky) return;
+
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    F32 ambiance = mLiveSky->getReflectionProbeAmbiance(should_auto_adjust);
+    if (ambiance != 0.f)
+    {
+        childSetValue("scene_gamma_label", getString("hdr_string"));
+        getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setToolTip(getString("hdr_tooltip"));
+    }
+    else
+    {
+        childSetValue("scene_gamma_label", getString("brightness_string"));
+        getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setToolTip(std::string());
+    }
+}
 
 void LLFloaterEnvironmentAdjust::onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version)
 {

@@ -40,69 +40,11 @@
 // other Linden headers
 #include "llevents.h"
 #include "llerror.h"
+#include "llexception.h"
 #include "llsdutil.h"
 #include "stringize.h"
+#include <iomanip>                  // std::quoted()
 #include <memory>                   // std::auto_ptr
-
-/*****************************************************************************
-*   LLSDArgsSource
-*****************************************************************************/
-/**
- * Store an LLSD array, producing its elements one at a time. Die with LL_ERRS
- * if the consumer requests more elements than the array contains.
- */
-class LL_COMMON_API LLSDArgsSource
-{
-public:
-    LLSDArgsSource(const std::string function, const LLSD& args);
-    ~LLSDArgsSource();
-
-    LLSD next();
-
-    void done() const;
-
-private:
-    std::string _function;
-    LLSD _args;
-    LLSD::Integer _index;
-};
-
-LLSDArgsSource::LLSDArgsSource(const std::string function, const LLSD& args):
-    _function(function),
-    _args(args),
-    _index(0)
-{
-    if (! (_args.isUndefined() || _args.isArray()))
-    {
-        LL_ERRS("LLSDArgsSource") << _function << " needs an args array instead of "
-                                  << _args << LL_ENDL;
-    }
-}
-
-LLSDArgsSource::~LLSDArgsSource()
-{
-    done();
-}
-
-LLSD LLSDArgsSource::next()
-{
-    if (_index >= _args.size())
-    {
-        LL_ERRS("LLSDArgsSource") << _function << " requires more arguments than the "
-                                  << _args.size() << " provided: " << _args << LL_ENDL;
-    }
-    return _args[_index++];
-}
-
-void LLSDArgsSource::done() const
-{
-    if (_index < _args.size())
-    {
-        LL_WARNS("LLSDArgsSource") << _function << " only consumed " << _index
-                                   << " of the " << _args.size() << " arguments provided: "
-                                   << _args << LL_ENDL;
-    }
-}
 
 /*****************************************************************************
 *   LLSDArgsMapper
@@ -156,19 +98,26 @@ void LLSDArgsSource::done() const
  * - Holes are filled with the default values.
  * - Any remaining holes constitute an error.
  */
-class LL_COMMON_API LLSDArgsMapper
+class LL_COMMON_API LLEventDispatcher::LLSDArgsMapper
 {
 public:
     /// Accept description of function: function name, param names, param
     /// default values
-    LLSDArgsMapper(const std::string& function, const LLSD& names, const LLSD& defaults);
+    LLSDArgsMapper(LLEventDispatcher* parent, const std::string& function,
+                   const LLSD& names, const LLSD& defaults);
 
-    /// Given arguments map, return LLSD::Array of parameter values, or LL_ERRS.
+    /// Given arguments map, return LLSD::Array of parameter values, or
+    /// trigger error.
     LLSD map(const LLSD& argsmap) const;
 
 private:
     static std::string formatlist(const LLSD&);
+    template <typename... ARGS>
+    [[noreturn]] void callFail(ARGS&&... args) const;
 
+    // store a plain dumb back-pointer because we don't have to manage the
+    // parent LLEventDispatcher's lifespan
+    LLEventDispatcher* _parent;
     // The function-name string is purely descriptive. We want error messages
     // to be able to indicate which function's LLSDArgsMapper has the problem.
     std::string _function;
@@ -187,15 +136,18 @@ private:
     FilledVector _has_dft;
 };
 
-LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
-                               const LLSD& names, const LLSD& defaults):
+LLEventDispatcher::LLSDArgsMapper::LLSDArgsMapper(LLEventDispatcher* parent,
+                                                  const std::string& function,
+                                                  const LLSD& names,
+                                                  const LLSD& defaults):
+    _parent(parent),
     _function(function),
     _names(names),
     _has_dft(names.size())
 {
     if (! (_names.isUndefined() || _names.isArray()))
     {
-        LL_ERRS("LLSDArgsMapper") << function << " names must be an array, not " << names << LL_ENDL;
+        callFail(" names must be an array, not ", names);
     }
     auto nparams(_names.size());
     // From _names generate _indexes.
@@ -218,8 +170,7 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
         // defaults is a (possibly empty) array. Right-align it with names.
         if (ndefaults > nparams)
         {
-            LL_ERRS("LLSDArgsMapper") << function << " names array " << names
-                                      << " shorter than defaults array " << defaults << LL_ENDL;
+            callFail(" names array ", names, " shorter than defaults array ", defaults);
         }
 
         // Offset by which we slide defaults array right to right-align with
@@ -256,23 +207,20 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
         }
         if (bogus.size())
         {
-            LL_ERRS("LLSDArgsMapper") << function << " defaults specified for nonexistent params "
-                                      << formatlist(bogus) << LL_ENDL;
+            callFail(" defaults specified for nonexistent params ", formatlist(bogus));
         }
     }
     else
     {
-        LL_ERRS("LLSDArgsMapper") << function << " defaults must be a map or an array, not "
-                                  << defaults << LL_ENDL;
+        callFail(" defaults must be a map or an array, not ", defaults);
     }
 }
 
-LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
+LLSD LLEventDispatcher::LLSDArgsMapper::map(const LLSD& argsmap) const
 {
     if (! (argsmap.isUndefined() || argsmap.isMap() || argsmap.isArray()))
     {
-        LL_ERRS("LLSDArgsMapper") << _function << " map() needs a map or array, not "
-                                  << argsmap << LL_ENDL;
+        callFail(" map() needs a map or array, not ", argsmap);
     }
     // Initialize the args array. Indexing a non-const LLSD array grows it
     // to appropriate size, but we don't want to resize this one on each
@@ -369,15 +317,14 @@ LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
     // by argsmap, that's a problem.
     if (unfilled.size())
     {
-        LL_ERRS("LLSDArgsMapper") << _function << " missing required arguments "
-                                  << formatlist(unfilled) << " from " << argsmap << LL_ENDL;
+        callFail(" missing required arguments ", formatlist(unfilled), " from ", argsmap);
     }
 
     // done
     return args;
 }
 
-std::string LLSDArgsMapper::formatlist(const LLSD& list)
+std::string LLEventDispatcher::LLSDArgsMapper::formatlist(const LLSD& list)
 {
     std::ostringstream out;
     const char* delim = "";
@@ -390,23 +337,44 @@ std::string LLSDArgsMapper::formatlist(const LLSD& list)
     return out.str();
 }
 
-LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string& key):
-    mDesc(desc),
-    mKey(key)
+template <typename... ARGS>
+[[noreturn]] void LLEventDispatcher::LLSDArgsMapper::callFail(ARGS&&... args) const
 {
+    _parent->callFail<LLEventDispatcher::DispatchError>
+        (_function, std::forward<ARGS>(args)...);
 }
+
+/*****************************************************************************
+*   LLEventDispatcher
+*****************************************************************************/
+LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string& key):
+    LLEventDispatcher(desc, key, "args")
+{}
+
+LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string& key,
+                                     const std::string& argskey):
+    mDesc(desc),
+    mKey(key),
+    mArgskey(argskey)
+{}
 
 LLEventDispatcher::~LLEventDispatcher()
 {
 }
+
+LLEventDispatcher::DispatchEntry::DispatchEntry(LLEventDispatcher* parent, const std::string& desc):
+    mParent(parent),
+    mDesc(desc)
+{}
 
 /**
  * DispatchEntry subclass used for callables accepting(const LLSD&)
  */
 struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchEntry
 {
-    LLSDDispatchEntry(const std::string& desc, const Callable& func, const LLSD& required):
-        DispatchEntry(desc),
+    LLSDDispatchEntry(LLEventDispatcher* parent, const std::string& desc,
+                      const Callable& func, const LLSD& required):
+        DispatchEntry(parent, desc),
         mFunc(func),
         mRequired(required)
     {}
@@ -414,22 +382,21 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
     Callable mFunc;
     LLSD mRequired;
 
-    virtual void call(const std::string& desc, const LLSD& event) const
+    LLSD call(const std::string& desc, const LLSD& event, bool, const std::string&) const override
     {
         // Validate the syntax of the event itself.
         std::string mismatch(llsd_matches(mRequired, event));
         if (! mismatch.empty())
         {
-            LL_ERRS("LLEventDispatcher") << desc << ": bad request: " << mismatch << LL_ENDL;
+            callFail(desc, ": bad request: ", mismatch);
         }
         // Event syntax looks good, go for it!
-        mFunc(event);
+        return mFunc(event);
     }
 
-    virtual LLSD addMetadata(LLSD meta) const
+    LLSD getMetadata() const override
     {
-        meta["required"] = mRequired;
-        return meta;
+        return llsd::map("required", mRequired);
     }
 };
 
@@ -439,17 +406,27 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
  */
 struct LLEventDispatcher::ParamsDispatchEntry: public LLEventDispatcher::DispatchEntry
 {
-    ParamsDispatchEntry(const std::string& desc, const invoker_function& func):
-        DispatchEntry(desc),
+    ParamsDispatchEntry(LLEventDispatcher* parent, const std::string& name,
+                        const std::string& desc, const invoker_function& func):
+        DispatchEntry(parent, desc),
+        mName(name),
         mInvoker(func)
     {}
 
+    std::string mName;
     invoker_function mInvoker;
 
-    virtual void call(const std::string& desc, const LLSD& event) const
+    LLSD call(const std::string&, const LLSD& event, bool, const std::string&) const override
     {
-        LLSDArgsSource src(desc, event);
-        mInvoker(boost::bind(&LLSDArgsSource::next, boost::ref(src)));
+        try
+        {
+            return mInvoker(event);
+        }
+        catch (const LL::apply_error& err)
+        {
+            // could hit runtime errors with LL::apply()
+            callFail(err.what());
+        }
     }
 };
 
@@ -459,23 +436,62 @@ struct LLEventDispatcher::ParamsDispatchEntry: public LLEventDispatcher::Dispatc
  */
 struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::ParamsDispatchEntry
 {
-    ArrayParamsDispatchEntry(const std::string& desc, const invoker_function& func,
+    ArrayParamsDispatchEntry(LLEventDispatcher* parent, const std::string& name,
+                             const std::string& desc, const invoker_function& func,
                              LLSD::Integer arity):
-        ParamsDispatchEntry(desc, func),
+        ParamsDispatchEntry(parent, name, desc, func),
         mArity(arity)
     {}
 
     LLSD::Integer mArity;
 
-    virtual LLSD addMetadata(LLSD meta) const
+    LLSD call(const std::string& desc, const LLSD& event, bool fromMap, const std::string& argskey) const override
+    {
+//      std::string context { stringize(desc, "(", event, ") with argskey ", std::quoted(argskey), ": ") };
+        // Whether we try to extract arguments from 'event' depends on whether
+        // the LLEventDispatcher consumer called one of the (name, event)
+        // methods (! fromMap) or one of the (event) methods (fromMap). If we
+        // were called with (name, event), the passed event must itself be
+        // suitable to pass to the registered callable, no args extraction
+        // required or even attempted. Only if called with plain (event) do we
+        // consider extracting args from that event. Initially assume 'event'
+        // itself contains the arguments.
+        LLSD args{ event };
+        if (fromMap)
+        {
+            if (! mArity)
+            {
+                // When the target function is nullary, and we're called from
+                // an (event) method, just ignore the rest of the map entries.
+                args.clear();
+            }
+            else
+            {
+                // We only require/retrieve argskey if the target function
+                // isn't nullary. For all others, since we require an LLSD
+                // array, we must have an argskey.
+                if (argskey.empty())
+                {
+                    callFail("LLEventDispatcher has no args key");
+                }
+                if ((! event.has(argskey)))
+                {
+                    callFail("missing required key ", std::quoted(argskey));
+                }
+                args = event[argskey];
+            }
+        }
+        return ParamsDispatchEntry::call(desc, args, fromMap, argskey);
+    }
+
+    LLSD getMetadata() const override
     {
         LLSD array(LLSD::emptyArray());
         // Resize to number of arguments required
         if (mArity)
             array[mArity - 1] = LLSD();
         llassert_always(array.size() == mArity);
-        meta["required"] = array;
-        return meta;
+        return llsd::map("required", array);
     }
 };
 
@@ -485,11 +501,11 @@ struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::Pa
  */
 struct LLEventDispatcher::MapParamsDispatchEntry: public LLEventDispatcher::ParamsDispatchEntry
 {
-    MapParamsDispatchEntry(const std::string& name, const std::string& desc,
-                           const invoker_function& func,
+    MapParamsDispatchEntry(LLEventDispatcher* parent, const std::string& name,
+                           const std::string& desc, const invoker_function& func,
                            const LLSD& params, const LLSD& defaults):
-        ParamsDispatchEntry(desc, func),
-        mMapper(name, params, defaults),
+        ParamsDispatchEntry(parent, name, desc, func),
+        mMapper(parent, name, params, defaults),
         mRequired(LLSD::emptyMap())
     {
         // Build the set of all param keys, then delete the ones that are
@@ -532,18 +548,27 @@ struct LLEventDispatcher::MapParamsDispatchEntry: public LLEventDispatcher::Para
     LLSD mRequired;
     LLSD mOptional;
 
-    virtual void call(const std::string& desc, const LLSD& event) const
+    LLSD call(const std::string& desc, const LLSD& event, bool fromMap, const std::string& argskey) const override
     {
-        // Just convert from LLSD::Map to LLSD::Array using mMapper, then pass
-        // to base-class call() method.
-        ParamsDispatchEntry::call(desc, mMapper.map(event));
+        // by default, pass the whole event as the arguments map
+        LLSD args{ event };
+        // Were we called by one of the (event) methods (instead of the (name,
+        // event) methods), do we have an argskey, and does the incoming event
+        // have that key?
+        if (fromMap && (! argskey.empty()) && event.has(argskey))
+        {
+            // if so, extract the value of argskey from the incoming event,
+            // and use that as the arguments map
+            args = event[argskey];
+        }
+        // Now convert args from LLSD map to LLSD array using mMapper, then
+        // pass to base-class call() method.
+        return ParamsDispatchEntry::call(desc, mMapper.map(args), fromMap, argskey);
     }
 
-    virtual LLSD addMetadata(LLSD meta) const
+    LLSD getMetadata() const override
     {
-        meta["required"] = mRequired;
-        meta["optional"] = mOptional;
-        return meta;
+        return llsd::map("required", mRequired, "optional", mOptional);
     }
 };
 
@@ -552,9 +577,9 @@ void LLEventDispatcher::addArrayParamsDispatchEntry(const std::string& name,
                                                     const invoker_function& invoker,
                                                     LLSD::Integer arity)
 {
-    mDispatch.insert(
-        DispatchMap::value_type(name, DispatchMap::mapped_type(
-                                    new ArrayParamsDispatchEntry(desc, invoker, arity))));
+    mDispatch.emplace(
+        name,
+        new ArrayParamsDispatchEntry(this, "", desc, invoker, arity));
 }
 
 void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
@@ -563,25 +588,25 @@ void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
                                                   const LLSD& params,
                                                   const LLSD& defaults)
 {
-    mDispatch.insert(
-        DispatchMap::value_type(name, DispatchMap::mapped_type(
-                                    new MapParamsDispatchEntry(name, desc, invoker, params, defaults))));
+    // Pass instance info as well as this entry name for error messages.
+    mDispatch.emplace(
+        name,
+        new MapParamsDispatchEntry(this, "", desc, invoker, params, defaults));
 }
 
 /// Register a callable by name
-void LLEventDispatcher::add(const std::string& name, const std::string& desc,
-                            const Callable& callable, const LLSD& required)
+void LLEventDispatcher::addLLSD(const std::string& name, const std::string& desc,
+                                const Callable& callable, const LLSD& required)
 {
-    mDispatch.insert(
-        DispatchMap::value_type(name, DispatchMap::mapped_type(
-                                    new LLSDDispatchEntry(desc, callable, required))));
+    mDispatch.emplace(name, new LLSDDispatchEntry(this, desc, callable, required));
 }
 
-void LLEventDispatcher::addFail(const std::string& name, const std::string& classname) const
+void LLEventDispatcher::addFail(const std::string& name, const char* classname) const
 {
     LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << ")::add(" << name
-                                 << "): " << classname << " is not a subclass "
-                                 << "of LLEventDispatcher" << LL_ENDL;
+                                 << "): " << LLError::Log::demangle(classname)
+                                 << " is not a subclass of LLEventDispatcher"
+                                 << LL_ENDL;
 }
 
 /// Unregister a callable
@@ -596,48 +621,105 @@ bool LLEventDispatcher::remove(const std::string& name)
     return true;
 }
 
-/// Call a registered callable with an explicitly-specified name. If no
-/// such callable exists, die with LL_ERRS.
-void LLEventDispatcher::operator()(const std::string& name, const LLSD& event) const
+/// Call a registered callable with an explicitly-specified name. It is an
+/// error if no such callable exists.
+LLSD LLEventDispatcher::operator()(const std::string& name, const LLSD& event) const
 {
-    if (! try_call(name, event))
-    {
-        LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << "): '" << name
-                                     << "' not found" << LL_ENDL;
-    }
-}
-
-/// Extract the @a key value from the incoming @a event, and call the
-/// callable whose name is specified by that map @a key. If no such
-/// callable exists, die with LL_ERRS.
-void LLEventDispatcher::operator()(const LLSD& event) const
-{
-    // This could/should be implemented in terms of the two-arg overload.
-    // However -- we can produce a more informative error message.
-    std::string name(event[mKey]);
-    if (! try_call(name, event))
-    {
-        LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << "): bad " << mKey
-                                     << " value '" << name << "'" << LL_ENDL;
-    }
-}
-
-bool LLEventDispatcher::try_call(const LLSD& event) const
-{
-    return try_call(event[mKey], event);
+    return try_call(std::string(), name, event);
 }
 
 bool LLEventDispatcher::try_call(const std::string& name, const LLSD& event) const
 {
-    DispatchMap::const_iterator found = mDispatch.find(name);
-    if (found == mDispatch.end())
+    try
+    {
+        try_call(std::string(), name, event);
+        return true;
+    }
+    // Note that we don't catch the generic DispatchError, only the specific
+    // DispatchMissing. try_call() only promises to return false if the
+    // specified callable name isn't found -- not for general errors.
+    catch (const DispatchMissing&)
     {
         return false;
     }
+}
+
+/// Extract the @a key value from the incoming @a event, and call the callable
+/// whose name is specified by that map @a key. It is an error if no such
+/// callable exists.
+LLSD LLEventDispatcher::operator()(const LLSD& event) const
+{
+    return try_call(mKey, event[mKey], event);
+}
+
+bool LLEventDispatcher::try_call(const LLSD& event) const
+{
+    try
+    {
+        try_call(mKey, event[mKey], event);
+        return true;
+    }
+    catch (const DispatchMissing&)
+    {
+        return false;
+    }
+}
+
+LLSD LLEventDispatcher::try_call(const std::string& key, const std::string& name,
+                                 const LLSD& event) const
+{
+    if (name.empty())
+    {
+        if (key.empty())
+        {
+            callFail<DispatchError>("attempting to call with no name");
+        }
+        else
+        {
+            callFail<DispatchError>("no ", key);
+        }
+    }
+
+    DispatchMap::const_iterator found = mDispatch.find(name);
+    if (found == mDispatch.end())
+    {
+        // Here we were passed a non-empty name, but there's no registered
+        // callable with that name. This is the one case in which we throw
+        // DispatchMissing instead of the generic DispatchError.
+        // Distinguish the public method by which our caller reached here:
+        // key.empty() means the name was passed explicitly, non-empty means
+        // we extracted the name from the incoming event using that key.
+        if (key.empty())
+        {
+            callFail<DispatchMissing>(std::quoted(name), " not found");
+        }
+        else
+        {
+            callFail<DispatchMissing>("bad ", key, " value ", std::quoted(name));
+        }
+    }
+
     // Found the name, so it's plausible to even attempt the call.
-    found->second->call(STRINGIZE("LLEventDispatcher(" << mDesc << ") calling '" << name << "'"),
-                        event);
-    return true;                    // tell caller we were able to call
+    const char* delim = (key.empty()? "" : "=");
+    // append either "[key=name]" or just "[name]"
+    SetState transient(this, '[', key, delim, name, ']');
+    return found->second->call("", event, (! key.empty()), mArgskey);
+}
+
+template <typename EXCEPTION, typename... ARGS>
+//static
+[[noreturn]] void LLEventDispatcher::sCallFail(ARGS&&... args)
+{
+    auto error = stringize(std::forward<ARGS>(args)...);
+    LL_WARNS("LLEventDispatcher") << error << LL_ENDL;
+    LLTHROW(EXCEPTION(error));
+}
+
+template <typename EXCEPTION, typename... ARGS>
+[[noreturn]] void LLEventDispatcher::callFail(ARGS&&... args) const
+{
+    // Describe this instance in addition to the error itself.
+    sCallFail<EXCEPTION>(*this, ": ", std::forward<ARGS>(args)...);
 }
 
 LLSD LLEventDispatcher::getMetadata(const std::string& name) const
@@ -647,26 +729,243 @@ LLSD LLEventDispatcher::getMetadata(const std::string& name) const
     {
         return LLSD();
     }
-    LLSD meta;
+    LLSD meta{ found->second->getMetadata() };
     meta["name"] = name;
     meta["desc"] = found->second->mDesc;
-    return found->second->addMetadata(meta);
+    return meta;
 }
 
-LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::string& key):
-    LLEventDispatcher(pumpname, key),
-    mPump(pumpname, true),          // allow tweaking for uniqueness
-    mBoundListener(mPump.listen("self", boost::bind(&LLDispatchListener::process, this, _1)))
+std::ostream& operator<<(std::ostream& out, const LLEventDispatcher& self)
 {
+    // If we're a subclass of LLEventDispatcher, e.g. LLEventAPI, report that.
+    // Also report whatever transient state is active.
+    return out << LLError::Log::classname(self) << '(' << self.mDesc << ')'
+               << self.getState();
 }
 
-bool LLDispatchListener::process(const LLSD& event)
+std::string LLEventDispatcher::getState() const
 {
-    (*this)(event);
+    // default value of fiber_specific_ptr is nullptr, and ~SetState() reverts
+    // to that; infer empty string
+    if (! mState.get())
+        return {};
+    else
+        return *mState;
+}
+
+bool LLEventDispatcher::setState(SetState&, const std::string& state) const
+{
+    // If SetState is instantiated at multiple levels of function call, ignore 
+    // the lower-level call because the outer call presumably provides more
+    // context.
+    if (mState.get())
+        return false;
+
+    // Pass us empty string (a la ~SetState()) to reset to nullptr, else take
+    // a heap copy of the passed state string so we can delete it on
+    // subsequent reset().
+    mState.reset(state.empty()? nullptr : new std::string(state));
+    return true;
+}
+
+/*****************************************************************************
+*   LLDispatchListener
+*****************************************************************************/
+std::string LLDispatchListener::mReplyKey{ "reply" };
+
+bool LLDispatchListener::process(const LLSD& event) const
+{
+    // Decide what to do based on the incoming value of the specified dispatch
+    // key.
+    LLSD name{ event[getDispatchKey()] };
+    if (name.isMap())
+    {
+        call_map(name, event);
+    }
+    else if (name.isArray())
+    {
+        call_array(name, event);
+    }
+    else
+    {
+        call_one(name, event);
+    }
     return false;
 }
 
-LLEventDispatcher::DispatchEntry::DispatchEntry(const std::string& desc):
-    mDesc(desc)
-{}
+void LLDispatchListener::call_one(const LLSD& name, const LLSD& event) const
+{
+    LLSD result;
+    try
+    {
+        result = (*this)(event);
+    }
+    catch (const DispatchError& err)
+    {
+        if (! event.has(mReplyKey))
+        {
+            // Without a reply key, let the exception propagate.
+            throw;
+        }
 
+        // Here there was an error and the incoming event has mReplyKey. Reply
+        // with a map containing an "error" key explaining the problem.
+        return reply(llsd::map("error", err.what()), event);
+    }
+
+    // We seem to have gotten a valid result. But we don't know whether the
+    // registered callable is void or non-void. If it's void,
+    // LLEventDispatcher returned isUndefined(). Otherwise, try to send it
+    // back to our invoker.
+    if (result.isDefined())
+    {
+        if (! result.isMap())
+        {
+            // wrap the result in a map as the "data" key
+            result = llsd::map("data", result);
+        }
+        reply(result, event);
+    }
+}
+
+void LLDispatchListener::call_map(const LLSD& reqmap, const LLSD& event) const
+{
+    // LLSD map containing returned values
+    LLSD result;
+    // cache dispatch key
+    std::string key{ getDispatchKey() };
+    // collect any error messages here
+    std::ostringstream errors;
+    const char* delim = "";
+
+    for (const auto& pair : llsd::inMap(reqmap))
+    {
+        const LLSD::String& name{ pair.first };
+        const LLSD& args{ pair.second };
+        try
+        {
+            // in case of errors, tell user the dispatch key, the fact that
+            // we're processing a request map and the current key in that map
+            SetState(this, '[', key, '[', name, "]]");
+            // With this form, capture return value even if undefined:
+            // presence of the key in the response map can be used to detect
+            // which request keys succeeded.
+            result[name] = (*this)(name, args);
+        }
+        catch (const std::exception& err)
+        {
+            // Catch not only DispatchError, but any C++ exception thrown by
+            // the target callable. Collect exception name and message in
+            // 'errors'.
+            errors << delim << LLError::Log::classname(err) << ": " << err.what();
+            delim = "\n";
+        }
+    }
+
+    // so, were there any errors?
+    std::string error = errors.str();
+    if (! error.empty())
+    {
+        if (! event.has(mReplyKey))
+        {
+            // can't send reply, throw
+            sCallFail<DispatchError>(error);
+        }
+        else
+        {
+            // reply key present
+            result["error"] = error;
+        }
+    }
+
+    reply(result, event);
+}
+
+void LLDispatchListener::call_array(const LLSD& reqarray, const LLSD& event) const
+{
+    // LLSD array containing returned values
+    LLSD results;
+    // cache the dispatch key
+    std::string key{ getDispatchKey() };
+    // arguments array, if present -- const because, if it's shorter than
+    // reqarray, we don't want to grow it
+    const LLSD argsarray{ event[getArgsKey()] };
+    // error message, if any
+    std::string error;
+
+    // classic index loop because we need the index
+    for (size_t i = 0, size = reqarray.size(); i < size; ++i)
+    {
+        const auto& reqentry{ reqarray[i] };
+        std::string name;
+        LLSD args;
+        if (reqentry.isString())
+        {
+            name = reqentry.asString();
+            args = argsarray[i];
+        }
+        else if (reqentry.isArray() && reqentry.size() == 2 && reqentry[0].isString())
+        {
+            name = reqentry[0].asString();
+            args = reqentry[1];
+        }
+        else
+        {
+            // reqentry isn't in either of the documented forms
+            error = stringize(*this, ": ", getDispatchKey(), '[', i, "] ",
+                              reqentry, " unsupported");
+            break;
+        }
+
+        // reqentry is one of the valid forms, got name and args
+        try
+        {
+            // in case of errors, tell user the dispatch key, the fact that
+            // we're processing a request array, the current entry in that
+            // array and the corresponding callable name
+            SetState(this, '[', key, '[', i, "]=", name, ']');
+            // With this form, capture return value even if undefined
+            results.append((*this)(name, args));
+        }
+        catch (const std::exception& err)
+        {
+            // Catch not only DispatchError, but any C++ exception thrown by
+            // the target callable. Report the exception class as well as the
+            // error string.
+            error = stringize(LLError::Log::classname(err), ": ", err.what());
+            break;
+        }
+    }
+
+    LLSD result;
+    // was there an error?
+    if (! error.empty())
+    {
+        if (! event.has(mReplyKey))
+        {
+            // can't send reply, throw
+            sCallFail<DispatchError>(error);
+        }
+        else
+        {
+            // reply key present
+            result["error"] = error;
+        }
+    }
+
+    // wrap the results array as response map "data" key, as promised
+    if (results.isDefined())
+    {
+        result["data"] = results;
+    }
+
+    reply(result, event);
+}
+
+void LLDispatchListener::reply(const LLSD& reply, const LLSD& request) const
+{
+    // Call sendReply() unconditionally: sendReply() itself tests whether the
+    // specified reply key is present in the incoming request, and does
+    // nothing if there's no such key.
+    sendReply(reply, request, mReplyKey);
+}

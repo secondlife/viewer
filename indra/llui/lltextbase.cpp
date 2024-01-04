@@ -1550,7 +1550,13 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	case LLFontGL::HCENTER:
 		return mHPad + llmax(0, (mVisibleTextRect.getWidth() - width - mHPad) / 2);
 	case LLFontGL::RIGHT:
-		return mVisibleTextRect.getWidth() - width;
+        {
+            // Font's rendering rounds string size, if value gets rounded
+            // down last symbol might not have enough space to render,
+            // compensate by adding an extra pixel as padding
+            const S32 right_padding = 1;
+            return llmax(mHPad, mVisibleTextRect.getWidth() - width - right_padding);
+        }
 	default:
 		return mHPad;
 	}

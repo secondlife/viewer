@@ -42,6 +42,7 @@
 #include "llrect.h"
 #include "llappviewer.h" // for gFrameTimeSeconds
 #include "llvieweroctree.h"
+#include <unordered_set>
 
 class LLCamera;
 class LLDrawPool;
@@ -165,7 +166,7 @@ public:
 	void updateTexture();
 	void updateMaterial();
 	virtual void updateDistance(LLCamera& camera, bool force_update);
-	BOOL updateGeometry(BOOL priority);
+	BOOL updateGeometry();
 	void updateFaceSize(S32 idx);
 		
 	void updateSpecialHoverCursor(BOOL enabled);
@@ -223,7 +224,8 @@ public:
 	friend class LLDrawPool;
 	friend class LLSpatialBridge;
 	
-	typedef std::set<LLPointer<LLDrawable> > drawable_set_t;
+	typedef std::unordered_set<LLPointer<LLDrawable> > drawable_set_t;
+    typedef std::set<LLPointer<LLDrawable> > ordered_drawable_set_t;
 	typedef std::vector<LLPointer<LLDrawable> > drawable_vector_t;
 	typedef std::list<LLPointer<LLDrawable> > drawable_list_t;
 	typedef std::queue<LLPointer<LLDrawable> > drawable_queue_t;
@@ -255,8 +257,7 @@ public:
 	
 	typedef enum e_drawable_flags
 	{
- 		IN_REBUILD_Q1	= 0x00000001,
- 		IN_REBUILD_Q2	= 0x00000002,
+ 		IN_REBUILD_Q	= 0x00000001,
 		EARLY_MOVE		= 0x00000004,
 		MOVE_UNDAMPED	= 0x00000008,
 		ON_MOVE_LIST	= 0x00000010,

@@ -259,7 +259,7 @@ public:
 				break;
 			case tut::test_result::ex:
 				++mFailedTests;
-				out << "exception: " << tr.exception_typeid;
+				out << "exception: " << LLError::Log::demangle(tr.exception_typeid.c_str());
 				break;
 			case tut::test_result::warn:
 				++mFailedTests;
@@ -401,7 +401,7 @@ public:
 	{
 		// Per http://confluence.jetbrains.net/display/TCD65/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ServiceMessages
 		std::string result;
-		BOOST_FOREACH(char c, str)
+		for (char c : str)
 		{
 			switch (c)
 			{

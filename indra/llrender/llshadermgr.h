@@ -44,6 +44,7 @@ public:
         INVERSE_PROJECTION_MATRIX,          //  "inv_proj"
         MODELVIEW_PROJECTION_MATRIX,        //  "modelview_projection_matrix"
         INVERSE_MODELVIEW_MATRIX,           //  "inv_modelview"
+        IDENTITY_MATRIX,                    //  "identity_matrix"
         NORMAL_MATRIX,                      //  "normal_matrix"
         TEXTURE_MATRIX0,                    //  "texture_matrix0"
         TEXTURE_MATRIX1,                    //  "texture_matrix1"
@@ -51,10 +52,17 @@ public:
         TEXTURE_MATRIX3,                    //  "texture_matrix3"
         OBJECT_PLANE_S,                     //  "object_plane_s"
         OBJECT_PLANE_T,                     //  "object_plane_t"
+
+        TEXTURE_BASE_COLOR_TRANSFORM,         //  "texture_base_color_transform" (GLTF)
+        TEXTURE_NORMAL_TRANSFORM,             //  "texture_normal_transform" (GLTF)
+        TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, //  "texture_metallic_roughness_transform" (GLTF)
+        TEXTURE_EMISSIVE_TRANSFORM,           //  "texture_emissive_transform" (GLTF)
+
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
         LIGHT_DIRECTION,                    //  "light_direction"
         LIGHT_ATTENUATION,                  //  "light_attenuation"
+        LIGHT_DEFERRED_ATTENUATION,         //  "light_deferred_attenuation"
         LIGHT_DIFFUSE,                      //  "light_diffuse"
         LIGHT_AMBIENT,                      //  "light_ambient"
         MULTI_LIGHT_COUNT,                  //  "light_count"
@@ -74,18 +82,29 @@ public:
         PROJECTOR_LOD,                      //  "proj_lod"
         PROJECTOR_AMBIENT_LOD,              //  "proj_ambient_lod"
         DIFFUSE_COLOR,                      //  "color"
+        EMISSIVE_COLOR,                     //  "emissiveColor"
+        METALLIC_FACTOR,                    //  "metallicFactor"
+        ROUGHNESS_FACTOR,                   //  "roughnessFactor"
         DIFFUSE_MAP,                        //  "diffuseMap"
         ALTERNATE_DIFFUSE_MAP,              //  "altDiffuseMap"
         SPECULAR_MAP,                       //  "specularMap"
+        EMISSIVE_MAP,                       //  "emissiveMap"
         BUMP_MAP,                           //  "bumpMap"
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
+        SCENE_MAP,                          //  "sceneMap"
+        SCENE_DEPTH,                        //  "sceneDepth"
+        REFLECTION_PROBES,                  //  "reflectionProbes"
+        IRRADIANCE_PROBES,                  //  "irradianceProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         FULLBRIGHT,                         //  "fullbright"
         LIGHTNORM,                          //  "lightnorm"
         SUNLIGHT_COLOR,                     //  "sunlight_color"
         AMBIENT,                            //  "ambient_color"
+        SKY_HDR_SCALE,                      //  "sky_hdr_scale"
+        SKY_SUNLIGHT_SCALE,                 //  "sky_sunlight_scale"
+        SKY_AMBIENT_SCALE,                  //  "sky_ambient_scale"
         BLUE_HORIZON,                       //  "blue_horizon"
         BLUE_DENSITY,                       //  "blue_density"
         HAZE_HORIZON,                       //  "haze_horizon"
@@ -114,6 +133,7 @@ public:
         GLOW_WARMTH_AMOUNT,                 //  "warmthAmount"
         GLOW_STRENGTH,                      //  "glowStrength"
         GLOW_DELTA,                         //  "glowDelta"
+        GLOW_NOISE_MAP,                     //  "glowNoiseMap"
 
         MINIMUM_ALPHA,                      //  "minimum_alpha"
         EMISSIVE_BRIGHTNESS,                //  "emissive_brightness"
@@ -143,6 +163,18 @@ public:
         DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
+        DEFERRED_SSR_ITR_COUNT,             //  "iterationCount"
+        DEFERRED_SSR_RAY_STEP,              //  "rayStep"
+        DEFERRED_SSR_DIST_BIAS,             //  "distanceBias"
+        DEFERRED_SSR_REJECT_BIAS,           //  "depthRejectBias"
+        DEFERRED_SSR_GLOSSY_SAMPLES,        //  "glossySampleCount"
+        DEFERRED_SSR_NOISE_SINE,            //  "noiseSine"
+        DEFERRED_SSR_ADAPTIVE_STEP_MULT,    //  "adaptiveStepMultiplier"
+
+        MODELVIEW_DELTA_MATRIX,             //  "modelview_delta"
+        INVERSE_MODELVIEW_DELTA_MATRIX,     //  "inv_modelview_delta"
+        CUBE_SNAPSHOT,                      //  "cube_snapshot"
+
         FXAA_TC_SCALE,                      //  "tc_scale"
         FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"
         FXAA_RCP_FRAME_OPT,                 //  "rcp_frame_opt"
@@ -168,6 +200,9 @@ public:
         DEFERRED_POSITION,                  //  "positionMap"
         DEFERRED_DIFFUSE,                   //  "diffuseRect"
         DEFERRED_SPECULAR,                  //  "specularRect"
+        DEFERRED_EMISSIVE,                  //  "emissiveRect"
+        EXPOSURE_MAP,                       //  "exposureMap"
+        DEFERRED_BRDF_LUT,                  //  "brdfLut"
         DEFERRED_NOISE,                     //  "noiseMap"
         DEFERRED_LIGHTFUNC,                 //  "lightFunc"
         DEFERRED_LIGHT,                     //  "lightMap"
@@ -192,6 +227,7 @@ public:
         WATER_SPECULAR,                     //  "specular"
         WATER_SPECULAR_EXP,                 //  "lightExp"
         WATER_FOGCOLOR,                     //  "waterFogColor"
+        WATER_FOGCOLOR_LINEAR,              //  "waterFogColorLinear"
         WATER_FOGDENSITY,                   //  "waterFogDensity"
         WATER_FOGKS,                        //  "waterFogKS"
         WATER_REFSCALE,                     //  "refScale"
@@ -231,7 +267,6 @@ public:
         ILLUMINANCE_TEX,                    //  "irradiance_texture"
         BLEND_FACTOR,                       //  "blend_factor"
 
-        NO_ATMO,                            //  "no_atmo"
         MOISTURE_LEVEL,                     //  "moisture_level"
         DROPLET_RADIUS,                     //  "droplet_radius"
         ICE_LEVEL,                          //  "ice_level"
@@ -242,6 +277,8 @@ public:
 
         CLOUD_VARIANCE,                     //  "cloud_variance"
 
+        REFLECTION_PROBE_AMBIANCE,          //  "reflection_probe_ambiance"
+        REFLECTION_PROBE_MAX_LOD,            //  "max_probe_lod"
         SH_INPUT_L1R,                       //  "sh_input_r"
         SH_INPUT_L1G,                       //  "sh_input_g"
         SH_INPUT_L1B,                       //  "sh_input_b"
@@ -260,11 +297,11 @@ public:
 	virtual void initAttribsAndUniforms(void);
 
 	BOOL attachShaderFeatures(LLGLSLShader * shader);
-	void dumpObjectLog(GLhandleARB ret, BOOL warns = TRUE, const std::string& filename = "");
-    void dumpShaderSource(U32 shader_code_count, GLcharARB** shader_code_text);
-	BOOL	linkProgramObject(GLhandleARB obj, BOOL suppress_errors = FALSE);
-	BOOL	validateProgramObject(GLhandleARB obj);
-	GLhandleARB loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::unordered_map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
+	void dumpObjectLog(GLuint ret, BOOL warns = TRUE, const std::string& filename = "");
+    void dumpShaderSource(U32 shader_code_count, GLchar** shader_code_text);
+	BOOL	linkProgramObject(GLuint obj, BOOL suppress_errors = FALSE);
+	BOOL	validateProgramObject(GLuint obj);
+	GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
 
 	// Implemented in the application to actually point to the shader directory.
 	virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual
@@ -272,18 +309,33 @@ public:
 	// Implemented in the application to actually update out of date uniforms for a particular shader
 	virtual void updateShaderUniforms(LLGLSLShader * shader) = 0; // Pure Virtual
 
+    void initShaderCache(bool enabled, const LLUUID& old_cache_version, const LLUUID& current_cache_version);
+    void clearShaderCache();
+    void persistShaderCacheMetadata();
+
+    bool loadCachedProgramBinary(LLGLSLShader* shader);
+    bool saveCachedProgramBinary(LLGLSLShader* shader);
+
 public:
 	// Map of shader names to compiled
-    std::map<std::string, GLhandleARB> mVertexShaderObjects;
-    std::map<std::string, GLhandleARB> mFragmentShaderObjects;
+    std::map<std::string, GLuint> mVertexShaderObjects;
+    std::map<std::string, GLuint> mFragmentShaderObjects;
 
 	//global (reserved slot) shader parameters
 	std::vector<std::string> mReservedAttribs;
 
 	std::vector<std::string> mReservedUniforms;
 
-	//preprocessor definitions (name/value)
-	std::map<std::string, std::string> mDefinitions;
+    struct ProgramBinaryData
+    {
+        GLsizei mBinaryLength = 0;
+        GLenum mBinaryFormat = 0;
+        F32 mLastUsedTime = 0.0;
+    };
+    std::map<LLUUID, ProgramBinaryData> mShaderBinaryCache;
+    bool mShaderCacheInitialized = false;
+    bool mShaderCacheEnabled = false;
+    std::string mShaderCacheDir;
 
 protected:
 

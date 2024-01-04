@@ -23,13 +23,13 @@
  * $/LicenseInfo$
  */
  
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
+out vec4 frag_data[4];
 
 void main() 
 {
-	frag_color = vec4(1,1,1,1);
+    // emissive red PBR material for debugging
+    frag_data[0] = vec4(0, 0, 0, 0);
+    frag_data[1] = vec4(0, 0, 0, 0);
+    frag_data[2] = vec4(1, 0, 0, GBUFFER_FLAG_HAS_PBR);
+    frag_data[3] = vec4(1, 0, 0, 0);
 }

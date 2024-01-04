@@ -27,21 +27,23 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
 uniform float time;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec4 diffuse_color;
+in vec2 texcoord0;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 screenpos;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
+out vec2 screenpos;
 
 void main()
 {
 	//transform vertex
     vec4 pos = modelview_projection_matrix * vec4(position, 1.0);
 
-// bias z to fix SL-9806 and get stars to depth test against clouds
-    pos.z += 0.001f;
+    
+    // smash to far clip plane to 
+    // avoid rendering on top of moon (do NOT write to gl_FragDepth, it's slow)
+    pos.z = pos.w;
 
 	gl_Position = pos;
 

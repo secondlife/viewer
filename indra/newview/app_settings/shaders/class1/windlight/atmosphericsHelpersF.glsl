@@ -1,5 +1,5 @@
-/** 
- * @file class1\windlight\atmosphericsHelpersF.glsl 
+/**
+ * @file class2\wl\atmosphericsHelpersV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,30 +22,23 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-uniform vec4 sunlight_color;
-uniform vec4 light_ambient;
-uniform int no_atmo;
 
-vec3 atmosAmbient()
+// Output variables
+
+uniform float scene_light_strength;
+
+vec3 atmosFragAmbient(vec3 light, vec3 amblit)
 {
-    if (no_atmo == 1) return vec3(0.16);
-    return light_ambient.rgb;
+    return amblit + light / 2.0;
 }
 
-vec3 atmosAffectDirectionalLight(float lightIntensity)
+vec3 atmosFragAffectDirectionalLight(float lightIntensity, vec3 sunlit)
 {
-    return sunlight_color.rgb * lightIntensity;
+    return sunlit * lightIntensity;
 }
 
-vec3 atmosGetDiffuseSunlightColor()
+vec3 scaleDownLightFrag(vec3 light)
 {
-    return sunlight_color.rgb;
-}
-
-vec3 scaleDownLight(vec3 light)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-    return light;
+    return (light / scene_light_strength );
 }
 

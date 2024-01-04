@@ -337,50 +337,47 @@ void LLInventoryFetchItemsObserver::startFetch()
     {
         for (requests_by_folders_t::value_type &folder : requests)
         {
-            if (folder.second.size() > MAX_INDIVIDUAL_ITEM_REQUESTS)
+            LLViewerInventoryCategory* cat = gInventory.getCategory(folder.first);
+            if (cat)
             {
-                // requesting one by one will take a while
-                // do whole folder
-                LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
-            }
-            else
-            {
-                LLViewerInventoryCategory* cat = gInventory.getCategory(folder.first);
-                if (cat)
+                if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
                 {
-                    if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
-                    {
-                        // start fetching whole folder since it's not ready either way
-                        cat->fetch();
-                    }
-                    else if (cat->getViewerDescendentCount() <= folder.second.size()
-                             || cat->getDescendentCount() <= folder.second.size())
-                    {
-                        // Start fetching whole folder since we need all items
-                        LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
+                    // start fetching whole folder since it's not ready either way
+                    cat->fetch();
+                }
+                else if (folder.second.size() > MAX_INDIVIDUAL_ITEM_REQUESTS)
+                {
+                    // requesting one by one will take a while
+                    // do whole folder
+                    LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
+                }
+                else if (cat->getViewerDescendentCount() <= folder.second.size()
+                         || cat->getDescendentCount() <= folder.second.size())
+                {
+                    // Start fetching whole folder since we need all items
+                    LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
 
-                    }
-                    else
-                    {
-                        // get items one by one
-                        for (LLUUID &item_id : folder.second)
-                        {
-                            LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
-                        }
-                    }
                 }
                 else
                 {
-                    // Isn't supposed to happen? We should have all folders
-                    // and if item exists, folder is supposed to exist as well.
-                    llassert(false);
-                    LL_WARNS("Inventory") << "Missing folder: " << folder.first << " fetching items individually" << LL_ENDL;
-
                     // get items one by one
-                    for (LLUUID &item_id : folder.second)
+                    for (LLUUID& item_id : folder.second)
                     {
                         LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
                     }
+                }
+            }
+            else
+            {
+                // Isn't supposed to happen? We should have all folders
+                // and if item exists, folder is supposed to exist as well.
+                llassert(false);
+                LL_WARNS("Inventory") << "Missing folder: " << folder.first << " fetching items individually" << LL_ENDL;
+
+                // get items one by one
+                for (LLUUID& item_id : folder.second)
+                {
+                    LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
                 }
             }
         }
@@ -421,10 +418,22 @@ void LLInventoryFetchDescendentsObserver::changed(U32 mask)
 		}
 		++it;
 	}
-	if (mIncomplete.empty())
-	{
-		done();
-	}
+
+    if (mIncomplete.empty())
+    {
+        done();
+    }
+    else
+    {
+        LLInventoryModelBackgroundFetch* fetcher = LLInventoryModelBackgroundFetch::getInstance();
+        if (fetcher->isEverythingFetched()
+            && !fetcher->folderFetchActive())
+        {
+            // If fetcher is done with folders yet we are waiting, fetch either
+            // failed or version is somehow stuck at -1
+            done();
+        }
+    }
 }
 
 void LLInventoryFetchDescendentsObserver::startFetch()
@@ -435,12 +444,8 @@ void LLInventoryFetchDescendentsObserver::startFetch()
 		if (!cat) continue;
 		if (!isCategoryComplete(cat))
 		{
-			// CHECK IT: isCategoryComplete() checks both version and descendant count but
-			// fetch() only works for Unknown version and doesn't care about descentants,
-			// as result fetch won't start and folder will potentially get stuck as
-			// incomplete in observer.
-			// Likely either both should use only version or both should check descendants.
-			cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
+            //blindly fetch it without seeing if anything else is fetching it.
+            LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(*it, true);
 			mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
 		}
 		else

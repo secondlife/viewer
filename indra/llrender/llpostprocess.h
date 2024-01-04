@@ -249,12 +249,12 @@ private:
 	void applyColorFilterShader(void);
 
 	/// OpenGL Helper Functions
-	void getShaderUniforms(glslUniforms & uniforms, GLhandleARB & prog);
+	void getShaderUniforms(glslUniforms & uniforms, GLuint & prog);
 	void createTexture(LLPointer<LLImageGL>& texture, unsigned int width, unsigned int height);
 	void copyFrameBuffer(U32 & texture, unsigned int width, unsigned int height);
 	void createNoiseTexture(LLPointer<LLImageGL>& texture);
 	bool checkError(void);
-	void checkShaderError(GLhandleARB shader);
+	void checkShaderError(GLuint shader);
 	void drawOrthoQuad(unsigned int width, unsigned int height, QuadType type);
 	void viewOrthogonal(unsigned int width, unsigned int height);
 	void changeOrthogonal(unsigned int width, unsigned int height);

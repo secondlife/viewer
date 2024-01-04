@@ -94,7 +94,9 @@ private:
 
     LLTimer* mUpdateTimer;
 
-    S32 mNearbyMaxComplexity;
+    // maximum GPU time of nearby avatars in ms according to LLWorld::getNearbyAvatarsAndMaxGPUTime
+    // -1.f if no profile has happened yet
+    F32 mNearbyMaxGPUTime = -1.f;
 
     boost::signals2::connection	mMaxARTChangedSignal;
 };

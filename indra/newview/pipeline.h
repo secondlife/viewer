@@ -38,6 +38,7 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
+#include "llreflectionmapmanager.h"
 
 #include <stack>
 
@@ -50,6 +51,7 @@ class LLVOAvatar;
 class LLVOPartGroup;
 class LLGLSLShader;
 class LLDrawPoolAlpha;
+class LLSettingsSky;
 
 typedef enum e_avatar_skinning_method
 {
@@ -95,9 +97,7 @@ public:
 
 	void destroyGL();
 	void restoreGL();
-	void resetVertexBuffers();
-	void doResetVertexBuffers(bool forced = false);
-    void requestResizeScreenTexture(); // set flag only, no work, safer for callbacks...
+	void requestResizeScreenTexture(); // set flag only, no work, safer for callbacks...
     void requestResizeShadowTexture(); // set flag only, no work, safer for callbacks...
 
 	void resizeScreenTexture();
@@ -131,12 +131,34 @@ public:
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
-	void allocatePhysicsBuffer();
-	
+    // rebuild all LLVOVolume render batches
+    void rebuildDrawInfo();
+
+    // Clear LLFace mVertexBuffer pointers
 	void resetVertexBuffers(LLDrawable* drawable);
-	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
+
+    // perform a profile of the given avatar
+    // if profile_attachments is true, run a profile for each attachment
+    void profileAvatar(LLVOAvatar* avatar, bool profile_attachments = false);
+
+    // generate an impostor for the given avatar
+    //  preview_avatar - if true, a preview window render is being performed
+    //  for_profile - if true, a profile is being performed, do not update actual impostor
+    //  specific_attachment - specific attachment to profile, or nullptr to profile entire avatar
+	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false, bool for_profile = false, LLViewerObject* specific_attachment = nullptr);
+
 	void bindScreenToTexture();
 	void renderFinalize();
+	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst);
+	void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateGlow(LLRenderTarget* src);
+	void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
+	void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
+	void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
+	void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
+	void visualizeBuffers(LLRenderTarget* src, LLRenderTarget* dst, U32 bufferIndex);
 
 	void init();
 	void cleanup();
@@ -167,19 +189,14 @@ public:
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	void		markOccluder(LLSpatialGroup* group);
 
-	//downsample source to dest, taking the maximum depth value per pixel in source and writing to dest
-	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
-	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
-
-	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
 	void        markMoved(LLDrawable *drawablep, bool damped_motion = false);
 	void        markShift(LLDrawable *drawablep);
 	void        markTextured(LLDrawable *drawablep);
 	void		markGLRebuild(LLGLUpdate* glu);
-	void		markRebuild(LLSpatialGroup* group, bool priority = false);
-	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, bool priority = false);
+	void		markRebuild(LLSpatialGroup* group);
+	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL);
 	void		markPartitionMove(LLDrawable* drawablep);
 	void		markMeshDirty(LLSpatialGroup* group);
 
@@ -187,6 +204,8 @@ public:
 	LLViewerObject* lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
 												bool pick_transparent,
 												bool pick_rigged,
+                                                bool pick_unselectable,
+                                                bool pick_reflection_probe,
 												S32* face_hit,                          // return the face hit
 												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -216,18 +235,12 @@ public:
 	U32         addObject(LLViewerObject *obj);
 
 	void		enableShadows(const bool enable_shadows);
-    void        releaseShadowTargets();
-    void        releaseShadowTarget(U32 index);
+    void        releaseSpotShadowTargets();
+    void        releaseSunShadowTargets();
+    void        releaseSunShadowTarget(U32 index);
 
-// 	void		setLocalLighting(const bool local_lighting);
-// 	bool		isLocalLightingEnabled() const;
-	S32			setLightingDetail(S32 level);
-	S32			getLightingDetail() const { return mLightingDetail; }
-	S32			getMaxLightingDetail() const;
-		
 	bool		shadersLoaded();
 	bool		canUseWindLightShaders() const;
-	bool		canUseWindLightShadersOnObjects() const;
 	bool		canUseAntiAliasing() const;
 
 	// phases
@@ -240,7 +253,9 @@ public:
 	bool visibleObjectsInFrustum(LLCamera& camera);
 	bool getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	bool getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
-	void updateCull(LLCamera& camera, LLCullResult& result, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
+
+    // Populate given LLCullResult with results of a frustum cull of the entire scene against the given LLCamera
+	void updateCull(LLCamera& camera, LLCullResult& result);
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
 	void processPartitionQ();
@@ -261,19 +276,17 @@ public:
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
     
-    //update stats for textures in given DrawInfo
-    void touchTextures(LLDrawInfo* info);
-    void touchTexture(LLViewerTexture* tex, F32 vsize);
-
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
-    void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
-    void renderAlphaObjects(U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
-	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
-    void renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderGLTFObjects(U32 type, bool texture = true, bool rigged = false);
+    
+    void renderAlphaObjects(bool rigged = false);
+	void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderFullbrightMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
 
-	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
-    void renderRiggedGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
+	void renderGroups(LLRenderPass* pass, U32 type, bool texture);
+    void renderRiggedGroups(LLRenderPass* pass, U32 type, bool texture);
 
 	void grabReferences(LLCullResult& result);
 	void clearReferences();
@@ -283,29 +296,37 @@ public:
 	void checkReferences(LLDrawable* drawable);
 	void checkReferences(LLDrawInfo* draw_info);
 	void checkReferences(LLSpatialGroup* group);
-
-
-	void renderGeom(LLCamera& camera, bool forceVBOUpdate = false);
-	void renderGeomDeferred(LLCamera& camera);
-	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
+	
+	void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
+	void renderGeomPostDeferred(LLCamera& camera);
 	void renderGeomShadow(LLCamera& camera);
+    void bindLightFunc(LLGLSLShader& shader);
+
+    // bind shadow maps
+    // if setup is true, wil lset texture compare mode function and filtering options
+    void bindShadowMaps(LLGLSLShader& shader);
+    void bindDeferredShaderFast(LLGLSLShader& shader);
 	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
-	void renderDeferredLighting(LLRenderTarget* light_target);
+
+    // set env_mat parameter in given shader
+    void setEnvMat(LLGLSLShader& shader);
+
+    void bindReflectionProbes(LLGLSLShader& shader);
+    void unbindReflectionProbes(LLGLSLShader& shader);
+
+	void renderDeferredLighting();
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
-	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
-    LLRenderTarget* getShadowTarget(U32 i);
+    LLRenderTarget* getSunShadowTarget(U32 i);
+    LLRenderTarget* getSpotShadowTarget(U32 i);
 
-	void generateHighlight(LLCamera& camera);
 	void renderHighlight(const LLViewerObject* obj, F32 fade);
-	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
-
-
-	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool use_shader, bool use_occlusion, U32 target_width);
+	
+	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -318,10 +339,9 @@ public:
 	S32  getLightCount() const { return mLights.size(); }
 
 	void calcNearbyLights(LLCamera& camera);
-	void setupHWLights(LLDrawPool* pool);
+	void setupHWLights();
 	void setupAvatarLights(bool for_edit = false);
 	void enableLights(U32 mask);
-	void enableLightsStatic();
 	void enableLightsDynamic();
 	void enableLightsAvatar();
 	void enableLightsPreview();
@@ -341,8 +361,8 @@ public:
     LLCullResult::sg_iterator beginRiggedAlphaGroups();
     LLCullResult::sg_iterator endRiggedAlphaGroups();
 	
-
-	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
+	void addTrianglesDrawn(S32 index_count);
+    void recordTrianglesDrawn();
 
 	bool hasRenderDebugFeatureMask(const U32 mask) const	{ return bool(mRenderDebugFeatureMask & mask); }
 	bool hasRenderDebugMask(const U64 mask) const			{ return bool(mRenderDebugMask & mask); }
@@ -353,6 +373,8 @@ public:
 
 	bool hasRenderType(const U32 type) const;
 	bool hasAnyRenderType(const U32 type, ...) const;
+
+	static bool isWaterClip();
 
 	void setRenderTypeMask(U32 type, ...);
 	// This is equivalent to 'setRenderTypeMask'
@@ -414,8 +436,6 @@ public:
 	static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
 	static void updateRenderTransparentWater();
-	static void updateRenderBump();
-	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
@@ -427,11 +447,13 @@ public:
 	void restoreHiddenObject( const LLUUID& id );
     void handleShadowDetailChanged();
 
+    LLReflectionMapManager mReflectionMapManager;
+
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
 	void removeFromQuickLookup( LLDrawPool* poolp );
-	bool updateDrawableGeom(LLDrawable* drawable, bool priority);
+	bool updateDrawableGeom(LLDrawable* drawable);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
 	void connectRefreshCachedSettingsSafe(const std::string name);
@@ -446,7 +468,6 @@ public:
 		// Following are pool types (some are also object types)
 		RENDER_TYPE_SKY							= LLDrawPool::POOL_SKY,
 		RENDER_TYPE_WL_SKY						= LLDrawPool::POOL_WL_SKY,
-		RENDER_TYPE_GROUND						= LLDrawPool::POOL_GROUND,	
 		RENDER_TYPE_TERRAIN						= LLDrawPool::POOL_TERRAIN,
 		RENDER_TYPE_SIMPLE						= LLDrawPool::POOL_SIMPLE,
 		RENDER_TYPE_GRASS						= LLDrawPool::POOL_GRASS,
@@ -458,10 +479,13 @@ public:
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_CONTROL_AV					= LLDrawPool::POOL_CONTROL_AV, // Animesh
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
-		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
 		RENDER_TYPE_VOIDWATER					= LLDrawPool::POOL_VOIDWATER,
 		RENDER_TYPE_WATER						= LLDrawPool::POOL_WATER,
+        RENDER_TYPE_GLTF_PBR                    = LLDrawPool::POOL_GLTF_PBR,
+        RENDER_TYPE_GLTF_PBR_ALPHA_MASK         = LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK,
  		RENDER_TYPE_ALPHA						= LLDrawPool::POOL_ALPHA,
+        RENDER_TYPE_ALPHA_PRE_WATER             = LLDrawPool::POOL_ALPHA_PRE_WATER,
+        RENDER_TYPE_ALPHA_POST_WATER            = LLDrawPool::POOL_ALPHA_POST_WATER,
 		RENDER_TYPE_GLOW						= LLDrawPool::POOL_GLOW,
 		RENDER_TYPE_PASS_SIMPLE 				= LLRenderPass::PASS_SIMPLE,
         RENDER_TYPE_PASS_SIMPLE_RIGGED = LLRenderPass::PASS_SIMPLE_RIGGED,
@@ -482,6 +506,8 @@ public:
         RENDER_TYPE_PASS_POST_BUMP_RIGGED = LLRenderPass::PASS_POST_BUMP_RIGGED,
 		RENDER_TYPE_PASS_GLOW					= LLRenderPass::PASS_GLOW,
         RENDER_TYPE_PASS_GLOW_RIGGED = LLRenderPass::PASS_GLOW_RIGGED,
+        RENDER_TYPE_PASS_GLTF_GLOW = LLRenderPass::PASS_GLTF_GLOW,
+        RENDER_TYPE_PASS_GLTF_GLOW_RIGGED = LLRenderPass::PASS_GLTF_GLOW_RIGGED,
 		RENDER_TYPE_PASS_ALPHA					= LLRenderPass::PASS_ALPHA,
 		RENDER_TYPE_PASS_ALPHA_MASK				= LLRenderPass::PASS_ALPHA_MASK,
         RENDER_TYPE_PASS_ALPHA_MASK_RIGGED = LLRenderPass::PASS_ALPHA_MASK_RIGGED,
@@ -519,6 +545,10 @@ public:
         RENDER_TYPE_PASS_NORMSPEC_MASK_RIGGED = LLRenderPass::PASS_NORMSPEC_MASK_RIGGED,
 		RENDER_TYPE_PASS_NORMSPEC_EMISSIVE		= LLRenderPass::PASS_NORMSPEC_EMISSIVE,
         RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED = LLRenderPass::PASS_NORMSPEC_EMISSIVE_RIGGED,
+        RENDER_TYPE_PASS_GLTF_PBR                 = LLRenderPass::PASS_GLTF_PBR,
+        RENDER_TYPE_PASS_GLTF_PBR_RIGGED         = LLRenderPass::PASS_GLTF_PBR_RIGGED,
+        RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK        = LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK,
+        RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK_RIGGED = LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK_RIGGED,
 		// Following are object types (only used in drawable mRenderType)
 		RENDER_TYPE_HUD = LLRenderPass::NUM_RENDER_TYPES,
 		RENDER_TYPE_VOLUME,
@@ -566,17 +596,17 @@ public:
 		RENDER_DEBUG_SCULPTED           =  0x00080000,
 		RENDER_DEBUG_AVATAR_VOLUME      =  0x00100000,
 		RENDER_DEBUG_AVATAR_JOINTS      =  0x00200000,
-		RENDER_DEBUG_BUILD_QUEUE		=  0x00400000,
 		RENDER_DEBUG_AGENT_TARGET       =  0x00800000,
 		RENDER_DEBUG_UPDATE_TYPE		=  0x01000000,
 		RENDER_DEBUG_PHYSICS_SHAPES     =  0x02000000,
 		RENDER_DEBUG_NORMALS	        =  0x04000000,
 		RENDER_DEBUG_LOD_INFO	        =  0x08000000,
-		RENDER_DEBUG_RENDER_COMPLEXITY  =  0x10000000,
 		RENDER_DEBUG_ATTACHMENT_BYTES	=  0x20000000, // not used
 		RENDER_DEBUG_TEXEL_DENSITY		=  0x40000000,
 		RENDER_DEBUG_TRIANGLE_COUNT		=  0x80000000,
-		RENDER_DEBUG_IMPOSTORS			= 0x100000000
+		RENDER_DEBUG_IMPOSTORS			= 0x100000000,
+        RENDER_DEBUG_REFLECTION_PROBES  = 0x200000000,
+        RENDER_DEBUG_PROBE_UPDATES      = 0x400000000
 	};
 
 public:
@@ -599,22 +629,20 @@ public:
 
 	S32						 mNumVisibleFaces;
 
+	S32						mPoissonOffset;
+
 	static S32				sCompiles;
 
 	static bool				sShowHUDAttachments;
 	static bool				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
-	static bool				sDelayVBUpdate;
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
 	static bool				sRenderTransparentWater;
-	static bool				sRenderBump;
 	static bool				sBakeSunlight;
 	static bool				sNoAlpha;
-	static bool				sUseTriStrips;
 	static bool				sUseFarClip;
 	static bool				sShadowRender;
-	static bool				sWaterReflections;
 	static bool				sDynamicLOD;
 	static bool				sPickAvatar;
 	static bool				sReflectionRender;
@@ -624,50 +652,82 @@ public:
 	static bool				sUnderWaterRender;
 	static bool				sRenderGlow;
 	static bool				sTextureBindTest;
-	static bool				sRenderFrameTest;
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
+    static bool				sReflectionProbesEnabled;
 	static S32				sVisibleLightCount;
 	static bool				sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;
 
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
-	//screen texture
-	U32 					mScreenWidth;
-	U32 					mScreenHeight;
-	
-	LLRenderTarget			mScreen;
-	LLRenderTarget			mUIScreen;
-	LLRenderTarget			mDeferredScreen;
-	LLRenderTarget			mFXAABuffer;
-	LLRenderTarget			mEdgeMap;
-	LLRenderTarget			mDeferredDepth;
-	LLRenderTarget			mOcclusionDepth;
-	LLRenderTarget			mDeferredLight;
-	LLRenderTarget			mHighlight;
-	LLRenderTarget			mPhysicsDisplay;
+    class RenderTargetPack
+    {
+    public:
+        U32 					width = 0;
+        U32 					height = 0;
+
+        //screen texture
+        LLRenderTarget			screen;
+        LLRenderTarget			uiScreen;
+        LLRenderTarget			deferredScreen;
+        LLRenderTarget			fxaaBuffer;
+        LLRenderTarget			edgeMap;
+        LLRenderTarget			deferredLight;
+
+        //sun shadow map
+        LLRenderTarget			shadow[4];
+    };
+
+    // main full resoltuion render target
+    RenderTargetPack mMainRT;
+
+    // auxillary 512x512 render target pack
+    RenderTargetPack mAuxillaryRT;
+
+    // currently used render target pack
+    RenderTargetPack* mRT;
+
+    LLRenderTarget          mSpotShadow[2];
+
+    LLRenderTarget          mPbrBrdfLut;
+
+    // copy of the color/depth buffer just before gamma correction
+    // for use by SSR
+    LLRenderTarget          mSceneMap;
+
+    // exposure map for getting average color in scene
+    LLRenderTarget          mLuminanceMap;
+    LLRenderTarget          mExposureMap;
+    LLRenderTarget          mLastExposure;
+
+    // tonemapped and gamma corrected render ready for post
+    LLRenderTarget          mPostMap;
 
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
     LLCullResult            mRefractedObjects;
 
-	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
+	//utility buffers for rendering post effects
 	LLPointer<LLVertexBuffer> mDeferredVB;
+
+    // a single triangle that covers the whole screen
+    LLPointer<LLVertexBuffer> mScreenTriangleVB;
 
 	//utility buffer for rendering cubes, 8 vertices are corners of a cube [-1, 1]
 	LLPointer<LLVertexBuffer> mCubeVB;
 
-	//sun shadow map
-	LLRenderTarget			mShadow[6];
-	LLRenderTarget			mShadowOcclusion[6];
+    //list of currently bound reflection maps
+    std::vector<LLReflectionMap*> mReflectionMaps;
+
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 	LLVector4				mShadowError;
 	LLVector4				mShadowFOV;
 	LLVector3				mShadowFrustOrigin[4];
 	LLCamera				mShadowCamera[8];
 	LLVector3				mShadowExtents[4][2];
+    // TODO : separate Sun Shadow and Spot Shadow matrices
 	glh::matrix4f			mSunShadowMatrix[6];
 	glh::matrix4f			mShadowModelview[6];
 	glh::matrix4f			mShadowProjection[6];
@@ -680,9 +740,6 @@ public:
 	LLVector4				mSunClipPlanes;
 	LLVector4				mSunOrthoClipPlanes;
 	LLVector2				mScreenScale;
-
-	//water reflection texture
-	LLRenderTarget				mWaterRef;
 
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
@@ -754,7 +811,7 @@ protected:
 	};
 	typedef std::set< Light, Light::compare > light_set_t;
 	
-	LLDrawable::drawable_set_t		mLights;
+	LLDrawable::ordered_drawable_set_t	mLights;
 	light_set_t						mNearbyLights; // lights near camera
 	LLColor4						mHWLightColors[8];
 	
@@ -763,9 +820,7 @@ protected:
 	// Different queues of drawables being processed.
 	//
 	LLDrawable::drawable_list_t 	mBuildQ1; // priority
-	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
-	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
 
 	LLSpatialGroup::sg_vector_t		mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
 
@@ -774,7 +829,6 @@ protected:
 
 	LLDrawable::drawable_list_t		mPartitionQ; //drawables that need to update their spatial partition radius 
 
-	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
 
 	bool mResetVertexBuffers; //if true, clear vertex buffers on next update
@@ -810,9 +864,6 @@ protected:
 		}
 	};
 
-	std::set<HighlightItem> mHighlightSet;
-	LLPointer<LLDrawable> mHighlightObject;
-
 	//////////////////////////////////////////////////
 	//
 	// Draw pools are responsible for storing all rendered data,
@@ -846,21 +897,23 @@ protected:
 	// For quick-lookups into mPools (mapped by texture pointer)
 	std::map<uintptr_t, LLDrawPool*>	mTerrainPools;
 	std::map<uintptr_t, LLDrawPool*>	mTreePools;
-	LLDrawPoolAlpha*			mAlphaPool;
-	LLDrawPool*					mSkyPool;
-	LLDrawPool*					mTerrainPool;
-	LLDrawPool*					mWaterPool;
-	LLDrawPool*					mGroundPool;
-	LLRenderPass*				mSimplePool;
-	LLRenderPass*				mGrassPool;
-	LLRenderPass*				mAlphaMaskPool;
-	LLRenderPass*				mFullbrightAlphaMaskPool;
-	LLRenderPass*				mFullbrightPool;
-	LLDrawPool*					mInvisiblePool;
-	LLDrawPool*					mGlowPool;
-	LLDrawPool*					mBumpPool;
-	LLDrawPool*					mMaterialsPool;
-	LLDrawPool*					mWLSkyPool;
+	LLDrawPoolAlpha*			mAlphaPoolPreWater = nullptr;
+    LLDrawPoolAlpha*            mAlphaPoolPostWater = nullptr;
+	LLDrawPool*					mSkyPool = nullptr;
+	LLDrawPool*					mTerrainPool = nullptr;
+	LLDrawPool*					mWaterPool = nullptr;
+	LLRenderPass*				mSimplePool = nullptr;
+	LLRenderPass*				mGrassPool = nullptr;
+	LLRenderPass*				mAlphaMaskPool = nullptr;
+	LLRenderPass*				mFullbrightAlphaMaskPool = nullptr;
+	LLRenderPass*				mFullbrightPool = nullptr;
+	LLDrawPool*					mGlowPool = nullptr;
+	LLDrawPool*					mBumpPool = nullptr;
+	LLDrawPool*					mMaterialsPool = nullptr;
+	LLDrawPool*					mWLSkyPool = nullptr;
+	LLDrawPool*					mPBROpaquePool = nullptr;
+    LLDrawPool*                 mPBRAlphaMaskPool = nullptr;
+
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	
 public:
@@ -886,7 +939,6 @@ protected:
 	
 	U32						mLightMask;
 	U32						mLightMovingMask;
-	S32						mLightingDetail;
 		
 	static bool				sRenderPhysicalBeacons;
 	static bool				sRenderMOAPBeacons;
@@ -916,7 +968,6 @@ public:
     static S32 RenderShadowSplits;
 	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
-	static bool RenderLocalLights;
 	static bool RenderDelayCreation;
 	static bool RenderAnimateRes;
 	static bool FreezeTime;
@@ -944,6 +995,7 @@ public:
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
+	static bool RenderGlowNoise;
 	static bool RenderDepthOfField;
 	static bool RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;
@@ -968,11 +1020,7 @@ public:
 	static LLVector3 RenderShadowGaussian;
 	static F32 RenderShadowBlurDistFactor;
 	static bool RenderDeferredAtmospheric;
-	static S32 RenderReflectionDetail;
 	static F32 RenderHighlightFadeTime;
-	static LLVector3 RenderShadowClipPlanes;
-	static LLVector3 RenderShadowOrthoClipPlanes;
-	static LLVector3 RenderShadowNearDist;
 	static F32 RenderFarClip;
 	static LLVector3 RenderShadowSplitExponent;
 	static F32 RenderShadowErrorCutoff;
@@ -981,6 +1029,14 @@ public:
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
+	static bool RenderScreenSpaceReflections;
+    static S32 RenderScreenSpaceReflectionIterations;
+	static F32 RenderScreenSpaceReflectionRayStep;
+	static F32 RenderScreenSpaceReflectionDistanceBias;
+	static F32 RenderScreenSpaceReflectionDepthRejectBias;
+	static F32 RenderScreenSpaceReflectionAdaptiveStepMultiplier;
+	static S32 RenderScreenSpaceReflectionGlossySamples;
+	static S32 RenderBufferVisualization;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

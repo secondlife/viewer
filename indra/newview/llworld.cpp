@@ -39,6 +39,7 @@
 #include "llglheaders.h"
 #include "llhttpnode.h"
 #include "llregionhandle.h"
+#include "llsky.h"
 #include "llsurface.h"
 #include "lltrans.h"
 #include "llviewercamera.h"
@@ -110,7 +111,7 @@ LLWorld::LLWorld() :
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
 	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("RequestFullRegionCache") && gSavedSettings.getBOOL("ObjectCacheEnabled");
+    LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("RequestFullRegionCache") && gSavedSettings.getBOOL("ObjectCacheEnabled");
 }
 
 
@@ -118,6 +119,7 @@ void LLWorld::resetClass()
 {
 	mHoleWaterObjects.clear();
 	gObjectList.destroy();
+    gSky.cleanup(); // references an object
 	for(region_list_t::iterator region_it = mRegionList.begin(); region_it != mRegionList.end(); )
 	{
 		LLViewerRegion* region_to_delete = *region_it++;
@@ -679,6 +681,7 @@ static LLTrace::SampleStatHandle<> sNumActiveCachedObjects("numactivecachedobjec
 
 void LLWorld::updateRegions(F32 max_update_time)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLTimer update_timer;
 	mNumOfActiveCachedObjects = 0;
 	
@@ -817,7 +820,7 @@ void LLWorld::updateNetStats()
 
 void LLWorld::printPacketsLost()
 {
-	LL_INFOS() << "Simulators:" << LL_ENDL;
+	LL_INFOS() << "Simulators:" << LL_ENDL; 
 	LL_INFOS() << "----------" << LL_ENDL;
 
 	LLCircuitData *cdp = NULL;
@@ -852,6 +855,7 @@ F32 LLWorld::getLandFarClip() const
 
 void LLWorld::setLandFarClip(const F32 far_clip)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
 	static S32 const rwidth = (S32)REGION_WIDTH_U32;
 	S32 const n1 = (llceil(mLandFarClip) - 1) / rwidth;
 	S32 const n2 = (llceil(far_clip) - 1) / rwidth;
@@ -1421,10 +1425,10 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	}
 }
 
-S32 LLWorld::getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_avs)
+F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs)
 {
     static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
-    S32 nearby_max_complexity = 0;
+    F32 nearby_max_complexity = 0;
     F32 radius = render_far_clip * render_far_clip;
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
@@ -1438,8 +1442,12 @@ S32 LLWorld::getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_av
                 char_iter++;
                 continue;
             }
-            avatar->calculateUpdateRenderComplexity();
-            nearby_max_complexity = llmax(nearby_max_complexity, (S32)avatar->getVisualComplexity());
+
+            if (!avatar->isTooSlow())
+            {
+                gPipeline.profileAvatar(avatar);
+            }
+            nearby_max_complexity = llmax(nearby_max_complexity, avatar->getGPURenderTime());
             valid_nearby_avs.push_back(*char_iter);
         }
         char_iter++;

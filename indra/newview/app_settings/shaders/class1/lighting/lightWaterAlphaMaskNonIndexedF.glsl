@@ -23,11 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 
@@ -36,12 +32,12 @@ uniform sampler2D diffuseMap;
 vec3 atmosLighting(vec3 light);
 vec4 applyWaterFog(vec4 color);
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 void default_lighting_water()
 {
-	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy);
+	vec4 color = texture(diffuseMap,vary_texcoord0.xy);
 
 	if (color.a < minimum_alpha)
 	{
@@ -54,6 +50,6 @@ void default_lighting_water()
 
 	color = applyWaterFog(color);
 	
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

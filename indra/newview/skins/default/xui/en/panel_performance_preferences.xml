@@ -273,7 +273,7 @@
    left="20"
    name="environment_lbl"
    width="100">
-    Environment
+    Shadows
   </text>
   <text
    follows="left|top"
@@ -285,29 +285,8 @@
    left="160"
    name="enhancements_desc"
    width="350">
-    Each enhancement improves realism but can reduce speed.
+    Shadows significantly improve visual quality but can reduce speed.
   </text>
-  <check_box
-    control_name="WindLightUseAtmosShaders"
-    height="16"
-    initial_value="true"
-    label="Atmospheric shaders"
-    layout="topleft"
-    name="atmospheric_shaders"
-    top_pad="5"
-    left="157"
-    width="280">
-  </check_box>
-  <check_box
-    control_name="RenderDeferred"
-    height="16"
-    initial_value="true"
-    label="Advanced Lighting"
-    layout="topleft"
-    name="advanced_lighting_model"
-    top_delta="24"
-    width="280">
-  </check_box>  
   <text
     type="string"
     length="1"
@@ -319,7 +298,7 @@
     text_readonly_color="LabelDisabledColor"
     top_pad="10"
     width="128">
-    Shadows:
+    Shadow Detail:
   </text>
   <combo_box
    control_name="RenderShadowDetail"
@@ -372,7 +351,7 @@
    left="160"
    name="water_desc"
    width="380">
-    Reducing or turning off water effects can greatly improve frame rate.
+    Reducing or turning off transparent water may improve frame rate.
   </text>
   <check_box
     control_name="RenderTransparentWater"
@@ -385,56 +364,6 @@
     left="157"
     width="280">
   </check_box>
-  <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="16"
-    layout="topleft"
-    name="ReflectionsText"
-    text_readonly_color="LabelDisabledColor"
-    top_pad="16"
-    left="160"
-    width="128">
-    Water Reflections:
-  </text>
-  <combo_box
-    control_name="RenderReflectionDetail"
-    height="18"
-    layout="topleft"
-    left_delta="150"
-    top_delta="0"
-    name="Reflections"
-    width="150">
-    <combo_box.item
-      label="None; opaque"
-      name="0"
-      value="-2"/>
-    <combo_box.item
-      label="None; transparent"
-      name="0"
-      value="-1"/>
-    <combo_box.item
-      label="Minimal"
-      name="0"
-      value="0"/>
-    <combo_box.item
-      label="Terrain and trees"
-      name="1"
-      value="1"/>
-    <combo_box.item
-      label="All static objects"
-      name="2"
-      value="2"/>
-    <combo_box.item
-      label="All avatars and objects"
-      name="3"
-      value="3"/>
-    <combo_box.item
-      label="Everything"
-      name="4"
-      value="4"/>
-  </combo_box>
   <view_border
     bevel_style="in"
     height="0"

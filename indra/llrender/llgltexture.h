@@ -49,10 +49,8 @@ public:
 	enum EBoostLevel
 	{
 		BOOST_NONE 			= 0,
-		BOOST_ALM			, //acts like NONE when ALM is on, max discard when ALM is off
-		BOOST_AVATAR_BAKED	,
 		BOOST_AVATAR		,
-		BOOST_CLOUDS		,
+        BOOST_AVATAR_BAKED  ,
 		BOOST_SCULPTED      ,
 		
 		BOOST_HIGH 			= 10,
@@ -64,6 +62,7 @@ public:
 		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
 		BOOST_HUD			,
 		BOOST_ICON			,
+        BOOST_THUMBNAIL		,
 		BOOST_UI			,
 		BOOST_PREVIEW		,
 		BOOST_MAP			,
@@ -88,10 +87,6 @@ public:
 		ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
 		NO_DELETE = 99       //stay in memory, can not be removed.
 	} LLGLTextureState;
-
-	static S32 getTotalNumOfCategories() ;
-	static S32 getIndexFromCategory(S32 category) ;
-	static S32 getCategoryFromIndex(S32 index) ;
 
 protected:
 	virtual ~LLGLTexture();

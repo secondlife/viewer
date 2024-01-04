@@ -86,8 +86,12 @@ extern thread_local bool gProfilerEnabled;
         #define TRACY_ONLY_IPV4      1
         #include "Tracy.hpp"
 
-        // Mutually exclusive with detailed memory tracing
+        // Enable OpenGL profiling
         #define LL_PROFILER_ENABLE_TRACY_OPENGL 0
+
+        // Enable RenderDoc labeling
+        #define LL_PROFILER_ENABLE_RENDER_DOC 0
+
     #endif
 
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY
@@ -104,14 +108,13 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               LL_PROFILE_ZONE_NAMED_COLOR( name, 0XFF0000  )  // RGB yellow
         #define LL_PROFILE_ZONE_INFO(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0X00FFFF  )  // RGB cyan
         #define LL_PROFILE_ZONE_WARN(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0x0FFFF00 )  // RGB red
-        #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
-        #define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
     #endif
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_FAST_TIMER
         #define LL_PROFILER_FRAME_END
         #define LL_PROFILER_SET_THREAD_NAME( name )      (void)(name)
         #define LL_RECORD_BLOCK_TIME(name)                                                                  const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(name)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
         #define LL_PROFILE_ZONE_NAMED(name)             // LL_PROFILE_ZONE_NAMED is a no-op when Tracy is disabled
+        #define LL_PROFILE_ZONE_NAMED_COLOR(name,color) // LL_PROFILE_ZONE_NAMED_COLOR is a no-op when Tracy is disabled
         #define LL_PROFILE_ZONE_SCOPED                  // LL_PROFILE_ZONE_SCOPED is a no-op when Tracy is disabled
         #define LL_PROFILE_ZONE_COLOR(name,color)       // LL_RECORD_BLOCK_TIME(name)
 
@@ -121,8 +124,6 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               (void)(name); // Not supported
         #define LL_PROFILE_ZONE_INFO(name)              (void)(name); // Not supported
         #define LL_PROFILE_ZONE_WARN(name)              (void)(name); // Not supported
-        #define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
-        #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
     #endif
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
         #define LL_PROFILER_FRAME_END                   FrameMark
@@ -138,13 +139,44 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               LL_PROFILE_ZONE_NAMED_COLOR( name, 0XFF0000  )  // RGB yellow
         #define LL_PROFILE_ZONE_INFO(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0X00FFFF  )  // RGB cyan
         #define LL_PROFILE_ZONE_WARN(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0x0FFFF00 )  // RGB red
-        #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
-        #define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
     #endif
 #else
     #define LL_PROFILER_FRAME_END
     #define LL_PROFILER_SET_THREAD_NAME( name ) (void)(name)
 #endif // LL_PROFILER
+
+#if LL_PROFILER_ENABLE_TRACY_OPENGL
+#define LL_PROFILE_GPU_ZONE(name)        TracyGpuZone(name)
+#define LL_PROFILE_GPU_ZONEC(name,color) TracyGpuZoneC(name,color)
+#define LL_PROFILER_GPU_COLLECT           TracyGpuCollect
+#define LL_PROFILER_GPU_CONTEXT           TracyGpuContext
+
+// disable memory tracking (incompatible with GPU tracing
+#define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
+#define LL_PROFILE_FREE(ptr)                    (void)(ptr);
+#else
+#define LL_PROFILE_GPU_ZONE(name)        (void)name;
+#define LL_PROFILE_GPU_ZONEC(name,color) (void)name;(void)color;
+#define LL_PROFILER_GPU_COLLECT
+#define LL_PROFILER_GPU_CONTEXT
+
+#define LL_LABEL_OBJECT_GL(type, name, length, label)
+
+#if LL_PROFILER_CONFIGURATION > 1
+#define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
+#define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
+#else
+#define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
+#define LL_PROFILE_FREE(ptr)                    (void)(ptr);
+#endif
+
+#endif
+
+#if LL_PROFILER_ENABLE_RENDER_DOC
+#define LL_LABEL_OBJECT_GL(type, name, length, label) glObjectLabel(type, name, length, label)
+#else
+#define LL_LABEL_OBJECT_GL(type, name, length, label)
+#endif
 
 #include "llprofilercategories.h"
 

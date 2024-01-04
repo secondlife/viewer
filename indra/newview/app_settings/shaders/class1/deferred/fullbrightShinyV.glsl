@@ -36,16 +36,16 @@ uniform vec4 origin;
 
 
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 void passTextureIndex();
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+in vec3 normal;
+in vec4 diffuse_color;
+in vec2 texcoord0;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec3 vary_texcoord1;
-VARYING vec4 vary_position;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
+out vec3 vary_texcoord1;
+out vec3 vary_position;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
@@ -62,17 +62,18 @@ void main()
     mat4 mat = getObjectSkinnedTransform();
     mat = modelview_matrix * mat;
     vec4 pos = mat * vert;
-    vary_position = gl_Position = projection_matrix * pos;
+    gl_Position = projection_matrix * pos;
 	vec3 norm = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
 #else
 	vec4 pos = (modelview_matrix * vert);
-	vary_position = gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	vec3 norm = normalize(normal_matrix * normal);
 #endif
-	vec3 ref = reflect(pos.xyz, -norm);
 
+    vary_position = pos.xyz;
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	vary_texcoord1 = (texture_matrix1 * vec4(ref,1.0)).xyz;
+
+    vary_texcoord1 = norm;
 
 	calcAtmospherics(pos.xyz);
 

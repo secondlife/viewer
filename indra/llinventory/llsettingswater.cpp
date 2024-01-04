@@ -231,7 +231,7 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
                 llsd::array(0.0f, 0.0f, 0.0f, 1.0f),
                 llsd::array(1.0f, 1.0f, 1.0f, 1.0f))));
         validation.push_back(Validator(SETTING_FOG_DENSITY, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(-10.0f, 10.0f))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(0.001f, 100.0f))));
         validation.push_back(Validator(SETTING_FOG_MOD, true, LLSD::TypeReal,
             boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(0.0f, 20.0f))));
         validation.push_back(Validator(SETTING_FRESNEL_OFFSET, true, LLSD::TypeReal,

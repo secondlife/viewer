@@ -94,7 +94,7 @@ public:
 
 	// deal with permissions of object, etc. returns TRUE if drop can
 	// proceed, otherwise FALSE.
-	static BOOL handleDropTextureProtections(LLViewerObject* hit_obj,
+	static BOOL handleDropMaterialProtections(LLViewerObject* hit_obj,
 						 LLInventoryItem* item,
 						 LLToolDragAndDrop::ESource source,
 						 const LLUUID& src_id);
@@ -168,6 +168,8 @@ protected:
 							   MASK mask, BOOL drop);
 	EAcceptance dad3dTextureObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
+    EAcceptance dad3dMaterialObject(LLViewerObject* obj, S32 face,
+        MASK mask, BOOL drop);
 	EAcceptance dad3dMeshObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
 //	EAcceptance dad3dTextureSelf(LLViewerObject* obj, S32 face,
@@ -241,7 +243,15 @@ public:
 						   BOOL active,
 						   ESource source,
 						   const LLUUID& src_id);
-	static void dropTextureOneFace(LLViewerObject* hit_obj, S32 hit_face,
+    static void dropTexture(LLViewerObject* hit_obj,
+                            S32 hit_face,
+                            LLInventoryItem* item,
+                            ESource source,
+                            const LLUUID& src_id,
+                            bool all_faces,
+                            S32 tex_channel = -1);
+	static void dropTextureOneFace(LLViewerObject* hit_obj,
+                                   S32 hit_face,
 								   LLInventoryItem* item,
 								   ESource source,
 								   const LLUUID& src_id,
@@ -250,6 +260,21 @@ public:
 									LLInventoryItem* item,
 									ESource source,
 									const LLUUID& src_id);
+    static void dropMaterial(LLViewerObject* hit_obj,
+                             S32 hit_face,
+                             LLInventoryItem* item,
+                             ESource source,
+                             const LLUUID& src_id,
+                             bool all_faces);
+    static void dropMaterialOneFace(LLViewerObject* hit_obj,
+                                    S32 hit_face,
+                                    LLInventoryItem* item,
+                                    ESource source,
+                                    const LLUUID& src_id);
+    static void dropMaterialAllFaces(LLViewerObject* hit_obj,
+                                    LLInventoryItem* item,
+                                    ESource source,
+                                    const LLUUID& src_id);
 	static void dropMesh(LLViewerObject* hit_obj,
 						 LLInventoryItem* item,
 						 ESource source,
