@@ -364,9 +364,9 @@ public:
 		std::string mErrorStatusString;
 		std::queue<std::string> mTextMsgQueue;
         
-        bool        mMuted;
-        F32         mMicGain;
-        F32         mSpeakerVolume;
+        bool        mMuted;          // this session is muted.
+        F32         mMicGain;        // gain for this session.
+        F32         mSpeakerVolume;  // volume for this session.
 		
 		LLUUID		mIMSessionID;
 		LLUUID		mCallerID;
