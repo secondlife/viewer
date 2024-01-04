@@ -110,7 +110,7 @@ void LLWebRTCImpl::init()
                                                                           mTaskQueueFactory.get(),
                                                                           std::unique_ptr<webrtc::AudioDeviceDataObserver>(mTuningAudioDeviceObserver));
                                 mTuningDeviceModule->Init();
-                                mTuningDeviceModule->SetStereoRecording(false);
+                                mTuningDeviceModule->SetStereoRecording(true);
                                 mTuningDeviceModule->SetStereoPlayout(true);
                                 mTuningDeviceModule->EnableBuiltInAEC(false);
                                 updateDevices();
@@ -118,7 +118,7 @@ void LLWebRTCImpl::init()
     
     rtc::scoped_refptr<webrtc::AudioProcessing> apm = webrtc::AudioProcessingBuilder().Create();
     webrtc::AudioProcessing::Config             apm_config;
-    apm_config.echo_canceller.enabled         = false;
+    apm_config.echo_canceller.enabled         = true;
     apm_config.echo_canceller.mobile_mode     = false;
     apm_config.gain_controller1.enabled       = true;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
@@ -141,7 +141,7 @@ void LLWebRTCImpl::init()
                                     mPeerDeviceModule->Init();
                                     mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
                                     mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
-                                    mPeerDeviceModule->SetStereoRecording(false);
+                                    mPeerDeviceModule->SetStereoRecording(true);
                                     mPeerDeviceModule->SetStereoPlayout(true);
                                     mPeerDeviceModule->EnableBuiltInAEC(false);
                                     mPeerDeviceModule->InitMicrophone();
@@ -515,7 +515,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
 
             cricket::AudioOptions audioOptions;
             audioOptions.auto_gain_control = true;
-            audioOptions.echo_cancellation = false;  // incompatible with opus stereo
+            audioOptions.echo_cancellation = true;  // incompatible with opus stereo
             audioOptions.noise_suppression = true;
 
             mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
@@ -878,7 +878,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
         else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
-            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000\n";
+            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000;sprop-maxcapturerate=48000;sprop-maxplaybackrate=48000\n";
         }
         else
         {
