@@ -139,6 +139,13 @@ void LLFloaterProfileTexture::draw()
     static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
     drawConeToOwner(mContextConeOpacity, max_opacity, owner);
 
+    if (mImage.notNull())
+    {
+        // Pump the texture priority
+        mImage->addTextureStats(MAX_IMAGE_AREA);
+        mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
+    }
+
     LLFloater::draw();
 }
 
@@ -176,6 +183,8 @@ void LLFloaterProfileTexture::loadAsset(const LLUUID &image_id)
     mImageID = image_id;
     mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
     mImageOldBoostLevel = mImage->getBoostLevel();
+    mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
+    mImage->forceToSaveRawImage(0);
 
     if ((mImage->getFullWidth() * mImage->getFullHeight()) == 0)
     {
