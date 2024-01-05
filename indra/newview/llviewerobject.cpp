@@ -1340,7 +1340,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
-                    [[fallthrough]];
 
                 case OBJECTDATA_FIELD_SIZE_124:
                 case OBJECTDATA_FIELD_SIZE_60:
@@ -1564,7 +1563,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
-                    [[fallthrough]];
 
                 case OBJECTDATA_FIELD_SIZE_64:
                 case OBJECTDATA_FIELD_SIZE_32:
