@@ -270,27 +270,27 @@
 			<view_border name="object_horizontal"/>
 			<menu_button name="clipboard_pos_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="label position" tool_tip="位置（メートル）">
-				位置（メートル）
+				位置（ｍ）
 			</text>
 			<spinner label="Ｘ" name="Pos X"/>
 			<spinner label="Ｙ" name="Pos Y"/>
 			<spinner label="Ｚ" name="Pos Z"/>
 			<menu_button name="clipboard_size_btn" tool_tip="ペースト時のオプションを選択します。"/>
-			<text name="label size">
-				サイズ（メートル）
+			<text name="label size" tool_tip="サイズ（メートル）">
+				サイズ（ｍ）
 			</text>
 			<spinner label="Ｘ" name="Scale X"/>
 			<spinner label="Ｙ" name="Scale Y"/>
 			<spinner label="Ｚ" name="Scale Z"/>
 			<menu_button name="clipboard_rot_btn" tool_tip="ペースト時のオプションを選択します。"/>
-			<text name="label rotation">
-				回転（角度）
+			<text name="label rotation" tool_tip="回転（角度）">
+				回転（°）
 			</text>
 			<spinner label="Ｘ" name="Rot X"/>
 			<spinner label="Ｙ" name="Rot Y"/>
 			<spinner label="Ｚ" name="Rot Z"/>
 			<combo_box name="comboBaseType">
-				<combo_box.item label="箱" name="Box"/>
+				<combo_box.item label="箱（ボックス）" name="Box"/>
 				<combo_box.item label="円柱（シリンダー）" name="Cylinder"/>
 				<combo_box.item label="三角錐（プリズム）" name="Prism"/>
 				<combo_box.item label="球体（スフィア）" name="Sphere"/>

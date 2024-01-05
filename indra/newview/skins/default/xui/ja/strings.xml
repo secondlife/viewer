@@ -458,10 +458,10 @@ support@secondlife.com にお問い合わせください。
 		これは、SecondLife.com または LindenLab.com の公式ドメイン上のページにリンクします。
 	</string>
 	<string name="TooltipOutboxDragToWorld">
-		マーケットプレイスのリストフォルダから、直接アイテムをRezすることはできません。
+		マーケットプレイスの出品リストフォルダから、直接アイテムをRezすることはできません。
 	</string>
 	<string name="TooltipOutboxWorn">
-		着用しているアイテムをマーケットプレイスのリストフォルダに置くことはできません。
+		着用しているアイテムをマーケットプレイスの出品リストフォルダに置くことはできません。
 	</string>
 	<string name="TooltipOutboxFolderLevels">
 		フォルダの階層の深さが、[AMOUNT]階層を超えています。必要に応じてアイテムをボックスに入れるなどをして、フォルダの階層数を減らしてください。
@@ -491,7 +491,7 @@ support@secondlife.com にお問い合わせください。
 		コーリングカードは、マーケットプレイスに置くことはできません。
 	</string>
 	<string name="TooltipOutboxDragActive">
-		表示されているリストを移動できません。
+		表示されている出品リストを移動できません。
 	</string>
 	<string name="TooltipOutboxCannotMoveRoot">
 		ルートフォルダをリストに表示するマーケットプレイスを移動できません。
@@ -3169,19 +3169,19 @@ For AI Character: Get the closest navigable point to the point provided.
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
 	<string name="InventoryOutboxInitializingTitle">
-		マーケットプレイスの初期化。
+		マーケットプレイスを初期化しています。
 	</string>
 	<string name="InventoryOutboxInitializing">
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア]のアカウントにアクセスしています。
 	</string>
 	<string name="InventoryOutboxErrorTitle">
-		マーケットプレイス エラー
+		マーケットプレイス出品時にエラーが発生しました。
 	</string>
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア]がエラーを返しています。
 	</string>
 	<string name="InventoryMarketplaceError">
-		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート（http://support.secondlife.com）にお問い合わせください
+		マーケットプレイスの出品リストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート（http://support.secondlife.com）にお問い合わせください
 	</string>
 	<string name="InventoryMarketplaceConnectionError">
 マーケットプレイス出品時の接続に失敗しました。
@@ -3194,7 +3194,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 https://support.secondlife.com よりSecond Lifeのサポートまでお問い合わせください。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
-		マーケットプレイスのリストフォルダが空です。
+		マーケットプレイスの出品リストフォルダが空です。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを出品するには、フォルダをこのエリアにドラッグします。

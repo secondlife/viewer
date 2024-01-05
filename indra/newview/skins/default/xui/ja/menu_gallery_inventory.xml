@@ -73,8 +73,8 @@
 		<menu_item_call label="アップロードしたモデル" name="Model uploads"/>
 	</menu>
 	<menu_item_separator name="Marketplace Separator"/>
-	<menu_item_call label="マーケットプレイス一覧にコピー" name="Marketplace Copy"/>
-	<menu_item_call label="マーケットプレイス一覧に移動" name="Marketplace Move"/>
+	<menu_item_call label="マーケットプレイスの出品リストにコピー" name="Marketplace Copy"/>
+	<menu_item_call label="マーケットプレイスの出品リストに移動" name="Marketplace Move"/>
 	<menu_item_call label="‐オプション無し‐" name="--no options--"/>
 	<menu_item_separator/>
 </context_menu>

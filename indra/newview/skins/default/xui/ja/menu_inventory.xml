@@ -137,7 +137,7 @@
 		<menu_item_call label="ＰＢＲマテリアルのアップロード" name="PBR uploads"/>
 	</menu>
 	<menu_item_separator name="Marketplace Separator"/>
-	<menu_item_call label="マーケットプレイスのリストにコピー" name="Marketplace Copy"/>
-	<menu_item_call label="マーケットプレイスのリストに移動" name="Marketplace Move"/>
+	<menu_item_call label="マーケットプレイスの出品リストにコピー" name="Marketplace Copy"/>
+	<menu_item_call label="マーケットプレイスの出品リストに移動" name="Marketplace Move"/>
 	<menu_item_call label="－オプションなし－" name="--no options--"/>
 </menu>

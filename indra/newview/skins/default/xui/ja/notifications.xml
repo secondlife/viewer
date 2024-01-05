@@ -157,7 +157,7 @@
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="MerchantPasteFailed">
-		マーケットプレイスのリストへのコピーまたは移動が以下のエラーにより失敗しました：[ERROR_CODE]
+		マーケットプレイスの出品リストへのコピーまたは移動が以下のエラーにより失敗しました：[ERROR_CODE]
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="MerchantTransactionFailed">
@@ -171,7 +171,7 @@
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="MerchantListingFailed">
-		マーケットプレイスへのリスト表示が次のエラーで失敗しました：
+		マーケットプレイスへの出品リスト表示が次のエラーで失敗しました：
 '[ERROR_CODE]'
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
@@ -186,19 +186,19 @@
 		<usetemplate ignoretext="リストの作成によりコンテンツの階層が修正されることを警告" name="okignore" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmMerchantActiveChange">
-		この操作により、このリストの有効な内容が変更されます。続けてもよろしいですか？
+		この操作により、この出品リストの有効な内容が変更されます。続けてもよろしいですか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="マーケットプレイスで有効なリストを変更する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmMerchantMoveInventory">
-		マーケットプレイスのリストウィンドウにドラッグしたアイテムは、元の場所からコピーされるのではなく移動となります。続けてもよろしいですか？
+		マーケットプレイスの出品リストウィンドウにドラッグしたアイテムは、元の場所からコピーされるのではなく移動となります。続けてもよろしいですか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="アイテムをインベントリからマーケットプレイスに移動する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmListingCutOrDelete">
-		リストフォルダを移動または削除すると、マーケットプレイスのリストが削除されます。マーケットプレイスのリストを維持する場合は、変更するバージョンフォルダの中身を移動または削除してください。続けてもよろしいですか？
+		出品リストフォルダを移動または削除すると、マーケットプレイスの出品リストが削除されます。マーケットプレイスのリストを維持する場合は、変更するバージョンフォルダの中身を移動または削除してください。続けてもよろしいですか？
 		<tag>confirm</tag>
-		<usetemplate ignoretext="マーケットプレイスからリストを移動または削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
+		<usetemplate ignoretext="マーケットプレイスから出品リストを移動または削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmCopyToMarketplace">
 		これらのアイテムの１つまたは複数をマーケットプレイスにコピーする権限がありません。移動するか、残したままにすることはできます。
@@ -208,12 +208,12 @@
 	<notification name="ConfirmMerchantUnlist">
 		この操作により、このリストが削除されます。続けてもよろしいですか？
 		<tag>confirm</tag>
-		<usetemplate ignoretext="マーケットプレイスの有効なリストを削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
+		<usetemplate ignoretext="マーケットプレイスの有効な出品リストを削除する前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmMerchantClearVersion">
 		この操作により、現在のリストのバージョンフォルダが無効になります。続けてもよろしいですか？
 		<tag>confirm</tag>
-		<usetemplate ignoretext="マーケットプレイスでリストのバージョンフォルダを無効にする前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
+		<usetemplate ignoretext="マーケットプレイスで出品リストのバージョンフォルダを無効にする前の確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="AlertMerchantListingNotUpdated">
 		このリストをアップデートできませんでした。
@@ -239,12 +239,12 @@
 		<usetemplate ignoretext="商品リストで在庫フォルダを分割する際に警告を表示" name="okignore" yestext="ＯＫ"/>
 	</notification>
 	<notification name="AlertMerchantStockFolderEmpty">
-		在庫が空のため、リストを削除しました。もう一度リストを表示するには、在庫フォルダにユニットを追加する必要があります。
+		在庫が空のため、出品リストを削除しました。もう一度リストを表示するには、在庫フォルダにユニットを追加する必要があります。
 		<tag>confirm</tag>
 		<usetemplate ignoretext="商品リストで在庫フォルダが空だったときに警告を表示" name="okignore" yestext="ＯＫ"/>
 	</notification>
 	<notification name="AlertMerchantVersionFolderEmpty">
-		バージョンフォルダが空のため、リストを削除しました。もう一度リストを表示するには、バージョンフォルダにアイテムを追加する必要があります。
+		バージョンフォルダが空のため、出品リストを削除しました。もう一度リストを表示するには、バージョンフォルダにアイテムを追加する必要があります。
 		<tag>confirm</tag>
 		<usetemplate ignoretext="商品リストでバージョンフォルダが空で表示されないときに警告を表示" name="okignore" yestext="ＯＫ"/>
 	</notification>
@@ -941,15 +941,26 @@ L$が不足しているので、このグループに参加することができ
 		<tag>confirm</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ"/>
 	</notification>
+	<notification name="FreezeAvatarFullname">
+		[AVATAR_NAME]をフリーズしますか？
+アバターは一時的に動けなくなり、チャットを含めインワールドで何もできなくなります。
+		<tag>confirm</tag>
+		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="フリーズ解除" yestext="フリーズ"/>
+	</notification>
 	<notification name="EjectAvatarFullname">
 		あなたの土地から[AVATAR_NAMES]を追放しますか？
 		<tag>confirm</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="追放しバンする" yestext="追放する"/>
 	</notification>
+	<notification name="EjectAvatarNoBan">
+		このアバターをあなたの土地から追放しますか？
+		<tag>confirm</tag>
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放する"/>
+	</notification>
 	<notification name="EjectAvatarFullnameNoBan">
 		[AVATAR_NAMES]をあなたの土地から追放しますか？
 		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="Cancel" yestext="Eject"/>
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放する"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
 		&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;から[AVATAR_NAME]を追放しました。

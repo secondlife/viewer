@@ -30,18 +30,18 @@
 	<string name="str_region_env">
 		（リージョンの環境）
 	</string>
-	<layout_stack name="ls_main">
+	<layout_stack>
 		<layout_panel name="pnl_environment_disabled">
 			<text name="txt_environment_disabled">
 				…
 			</text>
 		</layout_panel>
 		<layout_panel name="pnl_environment_config">
-			<layout_stack name="ls_environment_config">
+			<layout_stack>
 				<layout_panel name="pnl_environment_config">
-					<layout_stack name="ls_environment_config2">
+					<layout_stack>
 						<layout_panel name="pnl_environment_current">
-							<text name="select_environment_label">
+							<text>
 								自然環境の設定を選択
 							</text>
 							<button label="[USEDEFAULT]" name="btn_usedefault"/>
@@ -50,21 +50,21 @@
 							<check_box label="区画所有者による自然環境の設定を上書きを許可" name="chk_allow_override"/>
 						</layout_panel>
 						<layout_panel name="pnl_environment_length">
-							<text name="day_settings_label">
+							<text>
 								一日の設定
 							</text>
-							<text name="day_length_label">
+							<text>
 								一日の長さ（時間）
 							</text>
 							<slider name="sld_day_length"/>
-							<text name="day_offset_label">
+							<text>
 								日中のオフセット（時間）
 							</text>
 							<slider name="sld_day_offset"/>
-							<text name="apparent_time_of_day_label">
+							<text>
 								見かけ上の時刻：
 							</text>
-							<text name="lbl_apparent_time">
+							<text>
 								[AP]　[HH]：[MM]（[PRC]％）
 							</text>
 						</layout_panel>
@@ -101,7 +101,7 @@
 						</line_editor>
 						<settings_drop_target name="sdt_alt3" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の空として選択します。"/>
 					</panel>
-					<text name="sky_altitudes_label">
+					<text>
 						空の高度
 					</text>
 					<multi_slider name="sld_altitudes">
