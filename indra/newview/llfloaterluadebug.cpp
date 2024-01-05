@@ -87,7 +87,7 @@ void LLFloaterLUADebug::onExecuteClicked()
 
 void LLFloaterLUADebug::onBtnBrowse()
 {
-    (new LLFilePickerReplyThread(boost::bind(&LLFloaterLUADebug::runSelectedScript, this, _1), LLFilePicker::FFLOAD_LUA, false))->getFile();
+    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterLUADebug::runSelectedScript, this, _1), LLFilePicker::FFLOAD_LUA, false);
 }
 
 void LLFloaterLUADebug::onBtnRun()
