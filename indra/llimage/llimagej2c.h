@@ -95,7 +95,7 @@ protected:
 	S8  mRawDiscardLevel;
 	F32 mRate;
 	bool mReversible;
-	boost::scoped_ptr<LLImageJ2CImpl> mImpl;
+	std::unique_ptr<LLImageJ2CImpl> mImpl;
 	std::string mLastError;
 
     // Image compression/decompression tester

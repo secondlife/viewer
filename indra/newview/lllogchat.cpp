@@ -723,7 +723,7 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 			while(LLFile::isfile(backupFileName))
 			{
 				++backupFileCount;
-				backupFileName = newFullPath + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+				backupFileName = newFullPath + ".backup" + std::to_string(backupFileCount);
 			}
 
 			//Rename the file to its backup name so it is not overwritten

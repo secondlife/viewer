@@ -3323,7 +3323,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
 
         if (accept && drop)
         {
-            boost::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
+            std::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
             move_inv->mObjectID = inv_item->getParentUUID();
             std::pair<LLUUID, LLUUID> item_pair(folder_id, inv_item->getUUID());
             move_inv->mMoveList.push_back(item_pair);
