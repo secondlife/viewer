@@ -3742,7 +3742,7 @@ LLSD LLAppearanceMgr::dumpCOF() const
 			LLUUID linked_asset_id(linked_item->getAssetUUID());
 			md5.update((unsigned char*)linked_asset_id.mData, 16);
 			U32 flags = linked_item->getFlags();
-			md5.update(boost::lexical_cast<std::string>(flags));
+			md5.update(std::to_string(flags));
 		}
 		else if (LLAssetType::AT_LINK_FOLDER != inv_item->getActualType())
 		{

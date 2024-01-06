@@ -552,7 +552,7 @@ protected:
 		LLNotificationChiclet* const mChiclet;
 	};
 				
-	boost::scoped_ptr<ChicletNotificationChannel> mNotificationChannel;
+	std::unique_ptr<ChicletNotificationChannel> mNotificationChannel;
 				
 	LLNotificationChiclet(const Params& p);
 				

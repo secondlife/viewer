@@ -3027,7 +3027,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	return accept;
 }
 
-void warn_move_inventory(LLViewerObject* object, boost::shared_ptr<LLMoveInv> move_inv)
+void warn_move_inventory(LLViewerObject* object, std::shared_ptr<LLMoveInv> move_inv)
 {
 	const char* dialog = NULL;
 	if (object->flagScripted())
@@ -3040,7 +3040,7 @@ void warn_move_inventory(LLViewerObject* object, boost::shared_ptr<LLMoveInv> mo
 	}
 
     static LLNotificationPtr notification_ptr;
-    static boost::shared_ptr<LLMoveInv> inv_ptr;
+    static std::shared_ptr<LLMoveInv> inv_ptr;
 
     // Notification blocks user from interacting with inventories so everything that comes after first message
     // is part of this message - don'r show it again
@@ -3153,7 +3153,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	if(drop && accept)
 	{
 		it = inventory_objects.begin();
-        boost::shared_ptr<LLMoveInv> move_inv(new LLMoveInv);
+        std::shared_ptr<LLMoveInv> move_inv(new LLMoveInv);
 		move_inv->mObjectID = object_id;
 		move_inv->mCategoryID = category_id;
 		move_inv->mCallback = callback;
@@ -5012,7 +5012,7 @@ LLFontGL::StyleFlags LLMarketplaceFolderBridge::getLabelStyle() const
 
 
 // helper stuff
-bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv> move_inv)
+bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, std::shared_ptr<LLMoveInv> move_inv)
 {
 	LLFloaterOpenObject::LLCatAndWear* cat_and_wear = (LLFloaterOpenObject::LLCatAndWear* )move_inv->mUserData;
 	LLViewerObject* object = gObjectList.findObject(move_inv->mObjectID);
@@ -5486,7 +5486,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if (accept && drop)
 		{
             LLUUID item_id = inv_item->getUUID();
-            boost::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
+            std::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
 			move_inv->mObjectID = inv_item->getParentUUID();
 			two_uuids_t item_pair(mUUID, item_id);
 			move_inv->mMoveList.push_back(item_pair);

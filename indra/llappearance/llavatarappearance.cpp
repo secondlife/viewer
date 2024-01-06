@@ -230,7 +230,7 @@ void LLAvatarAppearance::initInstance()
 		for (U32 lod = 0; lod < mesh_dict->mLOD; lod++)
 		{
 			LLAvatarJointMesh* mesh = createAvatarJointMesh();
-			std::string mesh_name = "m" + mesh_dict->mName + boost::lexical_cast<std::string>(lod);
+			std::string mesh_name = "m" + mesh_dict->mName + std::to_string(lod);
 			// We pre-pended an m - need to capitalize first character for camelCase
 			mesh_name[1] = toupper(mesh_name[1]);
 			mesh->setName(mesh_name);
