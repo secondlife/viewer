@@ -152,7 +152,7 @@ protected:
 	void setDataAndSize(U8 *data, S32 size);
 	
 public:
-	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
+	static bool generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	
 	// Function for calculating the download priority for textures
 	// <= 0 priority means that there's no need for more data.
@@ -161,6 +161,76 @@ public:
 	static EImageCodec getCodecFromExtension(const std::string& exten);
 
 	//static LLTrace::MemStatHandle sMemStat;
+
+	bool hasError() const;
+	bool hasErrorNoLock() const { return !mError.empty(); }
+	std::string getError() const;
+	std::string getErrorMessage() const;
+	void resetError() { setError(""); }
+	void setError(std::string error, std::string message = std::string());
+
+// Stop execution in case of error status
+#define LLIMAGE_IF_HAS_ERROR_RETURN { if (hasError()) return; }
+#define LLIMAGE_IF_HAS_ERROR_RETURN_FALSE { if (hasError()) return false; }
+#define LLIMAGE_IF_HAS_ERROR_RETURN_NO_LOCK { if (hasErrorNoLock()) return; }
+#define LLIMAGE_IF_HAS_ERROR_RETURN_FALSE_NO_LOCK { if (hasErrorNoLock()) return false; }
+
+// The following 2 macros are used below in LLIMAGE_ASSERT
+#define LLIMAGE_VALUE_FLAG0(value)
+#define LLIMAGE_VALUE_FLAG1(value) value
+
+// The macro LLIMAGE_ASSERT is used in the following macros:
+// - LLASSERT_IMAGE_MESSAGE_RETURN_VALUE
+// - LLASSERT_IMAGE_MESSAGE_RETURN
+// - LLASSERT_IMAGE_RETURN_VALUE
+// - LLASSERT_IMAGE_RETURN
+#define LLIMAGE_ASSERT(image, condition, error, separator, message, flag, value) \
+{                                                                                \
+    if (!LL_LIKELY(condition))                                                   \
+    {                                                                            \
+        LL_WARNS_ONCE()                                                          \
+            << "Condition FAILED: (" << #condition << ")"                        \
+            << (separator) << (message) << LL_ENDL;                              \
+        image->setError(error, message);                                         \
+        return LLIMAGE_VALUE_FLAG##flag(value);                                  \
+    }                                                                            \
+}
+
+// Log message and return value
+#define LLASSERT_IMAGE_MESSAGE_RETURN_VALUE(image, condition, error, message, value) \
+    LLIMAGE_ASSERT(image, condition, error, " ", message, 1, value)
+#define LLIMAGE_ASSERT_MESSAGE_RETURN_VALUE(condition, error, message, value) \
+    LLASSERT_IMAGE_MESSAGE_RETURN_VALUE(this, condition, error, message, value)
+
+// Log message and return false
+#define LLASSERT_IMAGE_MESSAGE_RETURN_FALSE(image, condition, error, message) \
+    LLASSERT_IMAGE_MESSAGE_RETURN_VALUE(image, condition, error, message, false)
+#define LLIMAGE_ASSERT_MESSAGE_RETURN_FALSE(condition, error, message) \
+    LLIMAGE_ASSERT_MESSAGE_RETURN_VALUE(condition, error, message, false)
+
+// Log message and simply return
+#define LLASSERT_IMAGE_MESSAGE_RETURN(image, condition, error, message) \
+    LLIMAGE_ASSERT(image, condition, error, " ", message, 0, 0)
+#define LLIMAGE_ASSERT_MESSAGE_RETURN(condition, error, message) \
+    LLASSERT_IMAGE_MESSAGE_RETURN(this, condition, error, message)
+
+// No log message and return value
+#define LLASSERT_IMAGE_RETURN_VALUE(image, condition, error, value) \
+    LLIMAGE_ASSERT(image, condition, error, "", "", 1, value)
+#define LLIMAGE_ASSERT_RETURN_VALUE(condition, error, value) \
+    LLASSERT_IMAGE_RETURN_VALUE(this, condition, error, value)
+
+// No log message and return false
+#define LLASSERT_IMAGE_RETURN_FALSE(image, condition, error) \
+    LLASSERT_IMAGE_RETURN_VALUE(image, condition, error, false)
+#define LLIMAGE_ASSERT_RETURN_FALSE(condition, error) \
+    LLIMAGE_ASSERT_RETURN_VALUE(condition, error, false)
+
+// No log message and simply return
+#define LLASSERT_IMAGE_RETURN(image, condition, error) \
+    LLIMAGE_ASSERT(image, condition, error, "", "", 0, 0)
+#define LLIMAGE_ASSERT_RETURN(condition, error) \
+    LLASSERT_IMAGE_RETURN(this, condition, error)
 
 private:
 	U8 *mData;
@@ -173,6 +243,9 @@ private:
 
 	bool mBadBufferAllocation;
 	bool mAllowOverSize;
+
+	std::string mError;
+	std::string mErrorMessage;
 
 private:
     mutable LLSharedMutex mDataMutex;

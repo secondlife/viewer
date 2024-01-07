@@ -320,9 +320,11 @@ bool LLImageDXT::getMipData(LLPointer<LLImageRaw>& raw, S32 discard)
 
 bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_mips)
 {
-	llassert_return_false(raw_image);
+	LLIMAGE_ASSERT_RETURN_FALSE(raw_image, "raw_image");
 	
 	S32 ncomponents = raw_image->getComponents();
+	LLIMAGE_ASSERT_RETURN_FALSE((ncomponents == 1) || (ncomponents == 3) || (ncomponents == 4), "components");
+
 	EFileFormat format;
 	switch (ncomponents)
 	{
@@ -337,7 +339,7 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 		break;
 	  default:
 		LL_ERRS() << "LLImageDXT::encode: Unhandled channel number: " << ncomponents << LL_ENDL;
-		return 0;
+		return false;
 	}
 
 	LLImageDataLock lock(this);
@@ -349,6 +351,8 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 	{
 		height = (height/3)*2;
 	}
+
+	LLIMAGE_ASSERT_RETURN_FALSE((width > 0) && (height > 0), "data_size");
 
 	setSize(width, height, ncomponents);
 	mHeaderSize = sizeof(dxtfile_header_t);
@@ -370,7 +374,7 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 
 	U8* data = getData();
 	dxtfile_header_t* header = (dxtfile_header_t*)data;
-	llassert_return_false(mHeaderSize > 0);
+	LLIMAGE_ASSERT_RETURN_FALSE(mHeaderSize > 0, "header");
 	memset(header, 0, mHeaderSize);
 	header->fourcc = 0x20534444;
 	header->pixel_fmt.fourcc = getFourCC(format);
@@ -396,7 +400,8 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 		}
 		else
 		{
-			generateMip(prev_mipdata, mipdata, w, h, ncomponents);
+			bool mip = generateMip(prev_mipdata, mipdata, w, h, ncomponents);
+			LLIMAGE_ASSERT_RETURN_FALSE(mip, "mip");
 		}
 		w >>= 1;
 		h >>= 1;
