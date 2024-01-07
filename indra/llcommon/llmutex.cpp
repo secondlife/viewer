@@ -196,9 +196,18 @@ void LLSharedMutex::lockExclusive()
     LLThread::id_t current_thread = LLThread::currentID();
 
     mLockMutex.lock();
-    if (mLockingThreads.size() == 1 && mLockingThreads.begin()->first == current_thread)
+    iterator it = mLockingThreads.find(current_thread);
+    if (it != mLockingThreads.end())
     {
-        mLockingThreads.begin()->second++;
+        if (mIsShared)
+        {
+            // The mutex is already locked in the current thread
+            // but this lock is SHARED (not EXCLISIVE)
+            // We can't lock it again, the lock stays shared
+            // This can lead to a collision (theoretically)
+            llassert_always(!"The current thread is already locked SHARED and can't be locked EXCLUSIVE");
+        }
+        it->second++;
     }
     else
     {
