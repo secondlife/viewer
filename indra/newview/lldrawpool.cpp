@@ -320,6 +320,14 @@ void LLFacePool::addFaceReference(LLFace *facep)
 	}
 }
 
+void LLFacePool::pushFaceGeometry()
+{
+    for (LLFace* const& face : mDrawFace)
+    {
+        face->renderIndexed();
+    }
+}
+
 BOOL LLFacePool::verify() const
 {
 	BOOL ok = TRUE;

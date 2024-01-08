@@ -106,7 +106,7 @@ vec3 toneMap(vec3 color)
     color *= exposure * exp_scale;
 
     // mix ACES and Linear here as a compromise to avoid over-darkening legacy content
-    color = mix(toneMapACES_Hill(color), color, 0.333);
+    color = mix(toneMapACES_Hill(color), color, 0.3);
 #endif
 
     return color;
