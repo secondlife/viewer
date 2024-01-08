@@ -584,7 +584,7 @@ static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 src
 //---------------------------------------------------------------------------
 
 //static
-std::string LLImage::sLastErrorMessage;
+thread_local std::string LLImage::sLastThreadErrorMessage;
 LLMutex* LLImage::sMutex = NULL;
 bool LLImage::sUseNewByteRange = false;
 S32  LLImage::sMinimalReverseByteRangePercent = 75;
@@ -605,17 +605,16 @@ void LLImage::cleanupClass()
 }
 
 //static
-const std::string& LLImage::getLastError()
+const std::string& LLImage::getLastThreadError()
 {
 	static const std::string noerr("No Error");
-	return sLastErrorMessage.empty() ? noerr : sLastErrorMessage;
+	return sLastThreadErrorMessage.empty() ? noerr : sLastThreadErrorMessage;
 }
 
 //static
 void LLImage::setLastError(const std::string& message)
 {
-	LLMutexLock m(sMutex);
-	sLastErrorMessage = message;
+    sLastThreadErrorMessage = message;
 }
 
 //---------------------------------------------------------------------------
