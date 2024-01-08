@@ -27,7 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -1647,7 +1646,7 @@ void LLAppearanceMgr::removeOutfitPhoto(const LLUUID& outfit_id)
         sub_cat_array,
         outfit_item_array,
         LLInventoryModel::EXCLUDE_TRASH);
-    BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+    for (LLViewerInventoryItem* outfit_item : outfit_item_array)
     {
         LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
         if (linked_item != NULL)
@@ -3438,7 +3437,7 @@ void update_base_outfit_after_ordering()
 								sub_cat_array,
 								outfit_item_array,
 								LLInventoryModel::EXCLUDE_TRASH);
-	BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+	for (LLViewerInventoryItem* outfit_item : outfit_item_array)
 	{
 		LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
 		if (linked_item != NULL)
