@@ -40,6 +40,8 @@ in vec3 vary_position;
 uniform samplerCube environmentMap;
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
+
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec3 linear_to_srgb(vec3 c);
@@ -83,7 +85,6 @@ void main()
     color.rgb = srgb_to_linear(color.rgb);
 
     applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
-    color.rgb = atmosFragLighting(color.rgb, additive, atten);
 #endif
 
 	color.a = 1.0;

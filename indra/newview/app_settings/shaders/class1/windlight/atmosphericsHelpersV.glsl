@@ -30,7 +30,6 @@ vec3 getSunlitColor();
 vec3 getAmblitColor();
 vec3 getAdditiveColor();
 vec3 getAtmosAttenuation();
-vec3 getPositionEye();
 
 uniform float scene_light_strength;
 

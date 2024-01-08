@@ -44,5 +44,5 @@ vec3 getAdditiveColor()
 
 vec3 getAtmosAttenuation()
 {
-	return vec3(vary_AtmosAttenuation);
+	return vary_AtmosAttenuation;
 }

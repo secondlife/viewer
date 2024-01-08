@@ -252,13 +252,11 @@ void LLReflectionMapManager::update()
             continue;
         }
         
-        if (probe != mDefaultProbe && 
+        if (probe != mDefaultProbe &&
             (!probe->isRelevant() || mPaused))
         { // skip irrelevant probes (or all non-default probes if paused)
             continue;
         }
-
-        
 
         LLVector4a d;
 
@@ -999,10 +997,21 @@ void LLReflectionMapManager::updateUniforms()
         llassert(refmap->mCubeIndex >= 0); // should always be  true, if not, getReflectionMaps is bugged
 
         {
-            if (refmap->mViewerObject)
+            if (refmap->mViewerObject && refmap->mViewerObject->getVolume())
             { // have active manual probes live-track the object they're associated with
-                refmap->mOrigin.load3(refmap->mViewerObject->getPositionAgent().mV);
-                refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+                LLVOVolume* vobj = (LLVOVolume*)refmap->mViewerObject;
+
+                refmap->mOrigin.load3(vobj->getPositionAgent().mV);
+
+                if (vobj->getReflectionProbeIsBox())
+                {
+                    LLVector3 s = vobj->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+                    refmap->mRadius = s.magVec();
+                }
+                else
+                {
+                    refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+                }
 
             }
             modelview.affineTransform(refmap->mOrigin, oa);

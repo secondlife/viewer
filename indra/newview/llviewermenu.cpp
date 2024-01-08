@@ -787,6 +787,10 @@ U32 render_type_from_string(std::string render_type)
 	{
 		return LLPipeline::RENDER_TYPE_BUMP;
 	}
+    else if ("pbr" == render_type) 
+    {
+        return LLPipeline::RENDER_TYPE_GLTF_PBR;
+    }
 	else
 	{
 		return 0;

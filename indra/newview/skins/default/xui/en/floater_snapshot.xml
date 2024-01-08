@@ -5,7 +5,7 @@
  can_minimize="true"
  can_resize="false"
  can_close="true"
- height="455"
+ height="475"
  layout="topleft"
  name="Snapshot"
  single_instance="true"
@@ -115,7 +115,7 @@
 	   top_delta="0"
        width="31" />
 	<panel
-     height="159"
+     height="179"
      layout="topleft"
 	 follows="top|left"
      left="0"
@@ -193,6 +193,14 @@
          top_pad="1"
          width="180"
          name="auto_snapshot_check" />
+        <check_box
+         label="No post-processing"
+         layout="topleft"
+         height="16"
+         left="10"
+         top_pad="1"
+         width="180"
+         name="no_post_check" />
         <text
          type="string"
          length="1"
@@ -391,8 +399,8 @@
     name="thumbnail_placeholder"
     top="23"
 	left="215"
-	width="400"
-	height="400"
+	width="420"
+	height="420"
     follows="top|left"/>
   <view_border 
    bevel_style="in" 

@@ -369,6 +369,35 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 		nvapi_error(status);
 		return;
 	}
+
+	// enable Threaded Optimization instead of letting the driver decide
+	status = NvAPI_DRS_GetSetting(hSession, hProfile, OGL_THREAD_CONTROL_ID, &drsSetting);
+	if (status == NVAPI_SETTING_NOT_FOUND || (status == NVAPI_OK && drsSetting.u32CurrentValue != OGL_THREAD_CONTROL_ENABLE))
+	{
+		drsSetting.version = NVDRS_SETTING_VER;
+		drsSetting.settingId = OGL_THREAD_CONTROL_ID;
+		drsSetting.settingType = NVDRS_DWORD_TYPE;
+		drsSetting.u32CurrentValue = OGL_THREAD_CONTROL_ENABLE;
+		status = NvAPI_DRS_SetSetting(hSession, hProfile, &drsSetting);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+
+		// Now we apply (or save) our changes to the system
+		status = NvAPI_DRS_SaveSettings(hSession);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+	}
+	else if (status != NVAPI_OK)
+	{
+		nvapi_error(status);
+		return;
+	}
 }
 
 //#define DEBUGGING_SEH_FILTER 1

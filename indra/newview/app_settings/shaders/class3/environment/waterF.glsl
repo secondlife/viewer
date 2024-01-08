@@ -32,9 +32,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
 vec3 scaleSoftClipFragLinear(vec3 l);
-vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 
 // PBR interface
 vec2 BRDF(float NoV, float roughness);
@@ -77,7 +76,7 @@ uniform sampler2D bumpMap2;
 uniform float     blend_factor;
 #ifdef TRANSPARENT_WATER
 uniform sampler2D screenTex;
-uniform sampler2D screenDepth;
+uniform sampler2D depthMap;
 #endif
 
 uniform sampler2D refTex;
@@ -211,7 +210,7 @@ void main()
 
 #ifdef TRANSPARENT_WATER
     vec4 fb = texture(screenTex, distort2);
-    float depth = texture(screenDepth, distort2).r;
+    float depth = texture(depthMap, distort2).r;
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
 
     if (refPos.z > pos.z-0.05)
@@ -219,13 +218,12 @@ void main()
         //we sampled an above water sample, don't distort
         distort2 = distort;
         fb = texture(screenTex, distort2);
-        depth = texture(screenDepth, distort2).r;
+        depth = texture(depthMap, distort2).r;
         refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
 
-    fb = applyWaterFogViewLinear(refPos, fb, sunlit);
 #else
-    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0), sunlit_linear);
+    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
 #endif
 
     // fudge sample on other side of water to be a tad darker
@@ -281,8 +279,6 @@ void main()
     f = clamp(f, 0, 1);
 
     color = ((1.0 - f) * color) + fb.rgb;
-
-    color = atmosFragLightingLinear(color, additive, atten);
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     
