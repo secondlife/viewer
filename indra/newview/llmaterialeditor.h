@@ -117,7 +117,6 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static bool canSaveObjectsMaterial();
     static bool canClipboardObjectsMaterial();
     static void saveObjectsMaterialAs();
-    static void onCopyObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id);
     static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);

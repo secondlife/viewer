@@ -100,6 +100,7 @@ BOOL gResizeShadowTexture = FALSE;
 BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
 BOOL gCubeSnapshot = FALSE;
+BOOL gSnapshotNoPost = FALSE;
 BOOL gShaderProfileFrame = FALSE;
 
 // This is how long the sim will try to teleport you before giving up.
@@ -410,12 +411,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		gResizeShadowTexture = FALSE;
 	}
 
+	gSnapshot = for_snapshot;
+
 	if (LLPipeline::sRenderDeferred)
 	{ //hack to make sky show up in deferred snapshots
 		for_snapshot = FALSE;
 	}
-
-	gSnapshot = for_snapshot;
 
 	LLGLSDefault gls_default;
 	LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE, GL_LEQUAL);

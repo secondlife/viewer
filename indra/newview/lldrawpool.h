@@ -53,7 +53,9 @@ public:
         // before grass, so grass should be the first alpha masked pool.  Other ordering should be done
         // based on fill rate and likelihood to occlude future passes (faster, large occluders first).
         //  
-		POOL_SIMPLE = 1,
+        POOL_SKY = 1,
+        POOL_WL_SKY,
+		POOL_SIMPLE,
 		POOL_FULLBRIGHT,
 		POOL_BUMP,
 		POOL_TERRAIN,
@@ -64,8 +66,6 @@ public:
 		POOL_TREE,
 		POOL_ALPHA_MASK,
 		POOL_FULLBRIGHT_ALPHA_MASK,
-        POOL_SKY,
-        POOL_WL_SKY,
 		POOL_AVATAR,
 		POOL_CONTROL_AV, // Animesh
 		POOL_GLOW,
@@ -118,8 +118,8 @@ public:
 	virtual LLViewerTexture* getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
+    virtual void pushFaceGeometry() {}
 
-protected:
 	S32 mShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
@@ -428,6 +428,9 @@ public:
 	void printDebugInfo() const;
 	
 	BOOL isFacePool() { return TRUE; }
+
+    // call drawIndexed on every draw face
+    void pushFaceGeometry();
 
 	friend class LLFace;
 	friend class LLPipeline;

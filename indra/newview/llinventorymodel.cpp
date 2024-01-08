@@ -1465,6 +1465,10 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		{
 			mask |= LLInventoryObserver::LABEL;
 		}
+        if (old_item->getPermissions() != item->getPermissions())
+        {
+            mask |= LLInventoryObserver::INTERNAL;
+        }
 		old_item->copyViewerItem(item);
 		if (update_parent_on_server)
 		{
