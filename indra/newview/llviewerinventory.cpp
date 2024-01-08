@@ -1693,67 +1693,6 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
     }
 }
 
-void move_or_copy_inventory_from_object(const LLUUID& destination_id,
-                                        const LLUUID& object_id,
-                                        const LLUUID& item_id,
-                                        LLPointer<LLInventoryCallback> cb)
-{
-    LLViewerObject* object = gObjectList.findObject(object_id);
-    if (!object)
-    {
-        return;
-    }
-    const LLInventoryItem* item = object->getInventoryItem(item_id);
-    if (!item)
-    {
-        return;
-    }
-
-    class LLItemAddedObserver : public LLInventoryObserver
-    {
-    public:
-        LLItemAddedObserver(const LLUUID& copied_asset_id, LLPointer<LLInventoryCallback> cb)
-        : LLInventoryObserver(),
-          mAssetId(copied_asset_id),
-          mCallback(cb)
-        {
-        }
-
-        void changed(U32 mask) override
-        {
-            if((mask & (LLInventoryObserver::ADD)) == 0)
-            {
-                return;
-            }
-            for (const LLUUID& changed_id : gInventory.getChangedIDs())
-            {
-                LLViewerInventoryItem* changed_item = gInventory.getItem(changed_id);
-                if (changed_item->getAssetUUID() == mAssetId)
-                {
-                    changeComplete(changed_item->getUUID());
-                    return;
-                }
-            }
-        }
-
-    private:
-        void changeComplete(const LLUUID& item_id)
-        {
-			mCallback->fire(item_id);
-            gInventory.removeObserver(this);
-            delete this;
-        }
-
-        LLUUID mAssetId;
-        LLPointer<LLInventoryCallback> mCallback;
-    };
-
-	const LLUUID& asset_id = item->getAssetUUID();
-    LLItemAddedObserver* observer = new LLItemAddedObserver(asset_id, cb);
-    gInventory.addObserver(observer);
-    object->moveInventory(destination_id, item_id);
-}
-
 void create_new_item(const std::string& name,
 				   const LLUUID& parent_id,
 				   LLAssetType::EType asset_type,

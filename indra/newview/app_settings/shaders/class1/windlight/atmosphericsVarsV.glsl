@@ -31,7 +31,6 @@ vec3 additive_color;
 vec3 atmos_attenuation;
 vec3 sunlit_color;
 vec3 amblit_color;
-vec3 position_eye;
 
 vec3 getSunlitColor()
 {
@@ -49,16 +48,6 @@ vec3 getAdditiveColor()
 vec3 getAtmosAttenuation()
 {
 	return atmos_attenuation;
-}
-
-vec3 getPositionEye()
-{
-	return position_eye;
-}
-
-void setPositionEye(vec3 v)
-{
-	position_eye = v;
 }
 
 void setSunlitColor(vec3 v)

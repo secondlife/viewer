@@ -899,6 +899,13 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 {
                     F32 vsize = face->getPixelArea();
 
+                    // scale desired texture resolution higher or lower depending on texture scale
+                    const LLTextureEntry* te = face->getTextureEntry();
+                    F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
+                    min_scale = llmax(min_scale*min_scale, 0.1f);
+
+                    vsize /= min_scale;
+
 #if LL_DARWIN
                     vsize /= 1.f + LLViewerTexture::sDesiredDiscardBias*(1.f+face->getDrawable()->mDistanceWRTCamera*bias_distance_scale);
 #else
@@ -916,7 +923,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     // if a GLTF material is present, ignore that face
                     // as far as this texture stats go, but update the GLTF material 
                     // stats
-                    const LLTextureEntry* te = face->getTextureEntry();
                     LLFetchedGLTFMaterial* mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
                     llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
                     if (mat)
