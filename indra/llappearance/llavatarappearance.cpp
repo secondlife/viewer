@@ -24,12 +24,6 @@
  * $/LicenseInfo$
  */
 
-#if LL_MSVC
-// disable warning about boost::lexical_cast returning uninitialized data
-// when it fails to parse the string
-#pragma warning (disable:4701)
-#endif
-
 #include "linden_common.h"
 
 #include "llavatarappearance.h"
@@ -45,14 +39,6 @@
 #include "llwearabledata.h"
 #include "boost/bind.hpp"
 #include "boost/tokenizer.hpp"
-
-
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
-#include <boost/lexical_cast.hpp>
 
 using namespace LLAvatarAppearanceDefines;
 
