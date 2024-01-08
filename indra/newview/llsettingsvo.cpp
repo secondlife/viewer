@@ -63,6 +63,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "llinventoryobserver.h"
 #include "llinventorydefines.h"
+#include "llworld.h"
 
 #include "lltrans.h"
 
@@ -983,11 +984,20 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
     LLEnvironment& env = LLEnvironment::instance();
 
-    auto group = LLGLSLShader::SG_WATER;
+    auto group = LLGLSLShader::SG_ANY;
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[group];
     
 	{
         F32 water_height = env.getWaterHeight();
+
+        if (LLViewerCamera::instance().cameraUnderWater())
+        { // when the camera is under water, use the water height at the camera position
+            LLViewerRegion* region = LLWorld::instance().getRegionFromPosAgent(LLViewerCamera::instance().getOrigin());
+            if (region)
+            {
+                water_height = region->getWaterHeight();
+            }
+        }
 
         //transform water plane to eye space
         glh::vec3f norm(0.f, 0.f, 1.f);

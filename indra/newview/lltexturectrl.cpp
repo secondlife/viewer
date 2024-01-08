@@ -719,17 +719,27 @@ void LLFloaterTexturePicker::draw()
 
 		// If the floater is focused, don't apply its alpha to the texture (STORM-677).
 		const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
-		if( mTexturep )
+        LLViewerTexture* texture = nullptr;
+        if (mGLTFMaterial)
+        {
+            texture = mGLTFMaterial->getUITexture();
+        }
+        else
+        {
+            texture = mTexturep.get();
+        }
+
+		if( texture )
 		{
-			if( mTexturep->getComponents() == 4 )
+			if( texture->getComponents() == 4 )
 			{
 				gl_rect_2d_checkerboard( interior, alpha );
 			}
 
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha );
+			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), texture, UI_VERTEX_COLOR % alpha );
 
 			// Pump the priority
-			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
+			texture->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 		}
 		else if (!mFallbackImage.isNull())
 		{
@@ -1705,6 +1715,12 @@ void LLTextureCtrl::setImmediateFilterPermMask(PermissionMask mask)
     }
 }
 
+void LLTextureCtrl::setFilterPermissionMasks(PermissionMask mask) 
+{
+    setImmediateFilterPermMask(mask);
+    setDnDFilterPermMask(mask);
+}
+
 void LLTextureCtrl::setVisible( BOOL visible ) 
 {
 	if( !visible )
@@ -2140,11 +2156,21 @@ void LLTextureCtrl::draw()
 
 		if (texture.isNull())
 		{
-			texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            {
+                LLPointer<LLFetchedGLTFMaterial> material = gGLTFMaterialList.getMaterial(mImageAssetID);
+                if (material)
+                {
+                    texture = material->getUITexture();
+                }
+            }
+            else
+            {
+                texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+                texture->forceToSaveRawImage(0);
+            }
 		}
-		
-		texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-		texture->forceToSaveRawImage(0) ;
 
 		mTexturep = texture;
 	}
