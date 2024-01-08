@@ -32,7 +32,6 @@
 #include "llnotificationtemplate.h"
 #include "llsd.h"
 #include "llui.h"
-#include <boost/foreach.hpp>
 
 LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications) :
     LLEventAPI("LLNotifications",
