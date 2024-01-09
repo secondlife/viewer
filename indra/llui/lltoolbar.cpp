@@ -218,7 +218,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
-	for (const LLCommandId& id : p.commands)
+	for (const LLInitParam::TypeValues<LLCommandId::Params>& id : p.commands)
 	{
 		addCommand(id);
 	}
