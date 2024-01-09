@@ -699,24 +699,44 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     if (bc.isDefined())
     {
         mBaseColor.setValue(bc);
+        if (mBaseColor == getDefaultBaseColor())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mBaseColor.mV[3] -= FLT_EPSILON;
+        }
     }
 
     const LLSD& ec = data["ec"];
     if (ec.isDefined())
     {
         mEmissiveColor.setValue(ec);
+        if (mEmissiveColor == getDefaultEmissiveColor())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mEmissiveColor.mV[0] += FLT_EPSILON;
+        }
     }
 
     const LLSD& mf = data["mf"];
     if (mf.isReal())
     {
         mMetallicFactor = mf.asReal();
+        if (mMetallicFactor == getDefaultMetallicFactor())
+        { 
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mMetallicFactor -= FLT_EPSILON;
+        }
     }
 
     const LLSD& rf = data["rf"];
     if (rf.isReal())
     {
         mRoughnessFactor = rf.asReal();
+        if (mRoughnessFactor == getDefaultRoughnessFactor())
+        { 
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mRoughnessFactor -= FLT_EPSILON;
+        }
     }
 
     const LLSD& am = data["am"];
@@ -730,6 +750,11 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     if (ac.isReal())
     {
         mAlphaCutoff = ac.asReal();
+        if (mAlphaCutoff == getDefaultAlphaCutoff())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mAlphaCutoff -= FLT_EPSILON;
+        }
     }
 
     const LLSD& ds = data["ds"];
