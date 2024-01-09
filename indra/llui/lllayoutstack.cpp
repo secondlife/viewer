@@ -408,9 +408,9 @@ void LLLayoutStack::updateLayout()
 	llassert(total_visible_fraction < 1.05f);
 
 	// don't need spacing after last panel
+	if (!mPanels.empty())
 	{
-		LLLayoutPanel* panelp = mPanels.empty() ? nullptr : mPanels.back();
-		space_to_distribute += panelp ? ll_round((F32)mPanelSpacing * panelp->getVisibleAmount()) : 0;
+		space_to_distribute += ll_round(F32(mPanelSpacing) * mPanels.back()->getVisibleAmount());
 	}
 
 	S32 remaining_space = space_to_distribute;
