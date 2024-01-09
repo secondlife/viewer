@@ -252,6 +252,8 @@ void LLPanelProfilePicks::onClickNewBtn()
         select_tab(true).
         label(pick_panel->getPickName()));
     updateButtons();
+
+    pick_panel->addLocationChangedCallbacks();
 }
 
 void LLPanelProfilePicks::onClickDelete()
@@ -488,6 +490,8 @@ LLPanelProfilePick::LLPanelProfilePick()
  , mLocationChanged(false)
  , mNewPick(false)
  , mIsEditing(false)
+ , mRegionCallbackConnection()
+ , mParcelCallbackConnection()
 {
 }
 
@@ -504,6 +508,15 @@ LLPanelProfilePick::~LLPanelProfilePick()
     if (mParcelId.notNull())
     {
         LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+    }
+
+    if (mRegionCallbackConnection.connected())
+    {
+        mRegionCallbackConnection.disconnect();
+    }
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
     }
 }
 
@@ -781,6 +794,18 @@ void LLPanelProfilePick::onClickSetLocation()
 
 void LLPanelProfilePick::onClickSave()
 {
+    if (mRegionCallbackConnection.connected())
+    {
+        mRegionCallbackConnection.disconnect();
+    }
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
+    }
+    if (mLocationChanged) 
+    {
+        onClickSetLocation();
+    }
     sendUpdate();
 
     mLocationChanged = false;
@@ -827,6 +852,13 @@ void LLPanelProfilePick::processParcelInfo(const LLParcelData& parcel_data)
         LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
     }
 }
+
+void LLPanelProfilePick::addLocationChangedCallbacks()
+{
+    mRegionCallbackConnection = gAgent.addRegionChangedCallback([this]() { onClickSetLocation(); });
+    mParcelCallbackConnection = gAgent.addParcelChangedCallback([this]() { onClickSetLocation(); });
+}
+
 
 void LLPanelProfilePick::sendUpdate()
 {
