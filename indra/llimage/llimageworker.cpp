@@ -55,6 +55,7 @@ private:
 	BOOL mDecodedRaw;
 	BOOL mDecodedAux;
 	LLPointer<LLImageDecodeThread::Responder> mResponder;
+    std::string mErrorString;
 };
 
 
@@ -149,8 +150,9 @@ ImageRequest::~ImageRequest()
 bool ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	const F32 decode_time_slice = 0.f; //disable time slicing
-	bool done = true;
+    const F32 decode_time_slice = 0.f; //disable time slicing
+    bool done = true;
+    mErrorString.clear();
 	if (!mDecodedRaw && mFormattedImage.notNull())
 	{
 		// Decode primary channels
@@ -159,10 +161,13 @@ bool ImageRequest::processRequest()
 			// parse formatted header
 			if (!mFormattedImage->updateData())
 			{
+                // Pick up errors from updateData
+                mErrorString = LLImage::getLastThreadError();
 				return true; // done (failed)
 			}
 			if (!(mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
 			{
+                mErrorString = "Invalid image size";
 				return true; // done (failed)
 			}
 			if (mDiscardLevel >= 0)
@@ -176,6 +181,9 @@ bool ImageRequest::processRequest()
 		done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice);
 		// some decoders are removing data when task is complete and there were errors
 		mDecodedRaw = done && mDecodedImageRaw->getData();
+
+        // Pick up errors from decoding
+        mErrorString = LLImage::getLastThreadError();
 	}
 	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
 	{
@@ -188,7 +196,10 @@ bool ImageRequest::processRequest()
 		}
 		done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4);
 		mDecodedAux = done && mDecodedImageAux->getData();
-	}
+
+        // Pick up errors from decoding
+        mErrorString = LLImage::getLastThreadError();
+    }
 
 	return done;
 }
@@ -199,7 +210,7 @@ void ImageRequest::finishRequest(bool completed)
 	if (mResponder.notNull())
 	{
 		bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);
-		mResponder->completed(success, mDecodedImageRaw, mDecodedImageAux);
+		mResponder->completed(success, mErrorString, mDecodedImageRaw, mDecodedImageAux);
 	}
 	// Will automatically be deleted
 }

@@ -39,7 +39,7 @@ public:
 	protected:
 		virtual ~Responder();
 	public:
-		virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux) = 0;
+		virtual void completed(bool success, const std::string& error_message, LLImageRaw* raw, LLImageRaw* aux) = 0;
 	};
 
 public:
