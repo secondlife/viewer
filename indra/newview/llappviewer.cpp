@@ -1206,7 +1206,7 @@ bool LLAppViewer::init()
             LLSD item(LeapCommand);
             LeapCommand.append(item);
         }
-        for (const std::string& leap : llsd::inArray(LeapCommand))
+        for (const auto& leap : llsd::inArray(LeapCommand))
         {
             LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
             // We don't have any better description of this plugin than the
