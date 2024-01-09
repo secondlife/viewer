@@ -37,11 +37,7 @@
 uniform float emissive_brightness;  // fullbright flag, 1.0 == fullbright, 0.0 otherwise
 uniform int sun_up_factor;
 
-#ifdef WATER_FOG
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
-#endif
-
-vec3 atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 vec3 scaleSoftClipFragLinear(vec3 l);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
@@ -386,13 +382,6 @@ void main()
         glare += cur_glare;
     }
 
-    color.rgb = atmosFragLightingLinear(color.rgb, additive, atten); 
-
-#ifdef WATER_FOG
-    vec4 temp = applyWaterFogViewLinear(pos, vec4(color, 0.0), sunlit_linear);
-    color = temp.rgb;
-#endif
-
     vec3 npos = normalize(-pos.xyz);
     vec3 light = vec3(0, 0, 0);
 
@@ -407,6 +396,8 @@ void main()
         LIGHT_LOOP(7)
 
     color += light;
+
+    color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);

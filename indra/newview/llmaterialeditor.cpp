@@ -38,6 +38,7 @@
 #include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llinventoryfunctions.h"
 #include "lllocalgltfmaterials.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
@@ -435,10 +436,10 @@ BOOL LLMaterialEditor::postBuild()
     if (!gAgent.isGodlike())
     {
         // Only allow fully permissive textures
-        mBaseColorTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mMetallicTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mEmissiveTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mNormalTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+        mBaseColorTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mMetallicTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mEmissiveTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mNormalTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
     }
 
     // Texture callback
@@ -1495,16 +1496,22 @@ public:
             return;
         }
 
+        // Name may or may not have already been applied
+        const bool changed_name = item->getName() != mNewName;
         // create_inventory_item/copy_inventory_item don't allow presetting some permissions, fix it now
-        item->setPermissions(mPermissions);
-        item->updateServer(FALSE);
-        gInventory.updateItem(item);
-        gInventory.notifyObservers();
-
-        if (item->getName() != mNewName)
+        const bool changed_permissions = item->getPermissions() != mPermissions;
+        const bool changed = changed_name || changed_permissions;
+        LLSD updates;
+        if (changed)
         {
-            LLSD updates;
-            updates["name"] = mNewName;
+            if (changed_name)
+            {
+                updates["name"] = mNewName;
+            }
+            if (changed_permissions)
+            {
+                updates["permissions"] = ll_create_sd_from_permissions(mPermissions);
+            }
             update_inventory_item(inv_item_id, updates, NULL);
         }
 
@@ -1514,10 +1521,16 @@ public:
                 inv_item_id,
                 LLAssetType::AT_MATERIAL,
                 mAssetData,
-                [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
+                [changed, updates](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
                 {
                     // done callback
                     LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+
+                    // *HACK: Sometimes permissions do not stick in the UI. They are correct on the server-side, though.
+                    if (changed)
+                    {
+                        update_inventory_item(new_item_id, updates, NULL);
+                    }
                 },
                 nullptr // failure callback, floater already closed
             );
@@ -2014,8 +2027,49 @@ void LLMaterialEditor::loadLive()
     }
 }
 
+namespace
+{
+    // Which inventory to consult for item permissions
+    enum class ItemSource
+    {
+        // Consult the permissions of the item in the object's inventory. If
+        // the item is not present, then usage of the asset is allowed.
+        OBJECT,
+        // Consult the permissions of the item in the agent's inventory. If
+        // the item is not present, then usage of the asset is not allowed.
+        AGENT
+    };
+
+    class LLAssetIDMatchesWithPerms : public LLInventoryCollectFunctor
+    {
+    public:
+        LLAssetIDMatchesWithPerms(const LLUUID& asset_id, const std::vector<PermissionBit>& ops) : mAssetID(asset_id), mOps(ops) {}
+        virtual ~LLAssetIDMatchesWithPerms() {}
+        bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+        {
+            if (!item || item->getAssetUUID() != mAssetID)
+            {
+                return false;
+            }
+            LLPermissions item_permissions = item->getPermissions();
+            for (PermissionBit op : mOps)
+            {
+                if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    protected:
+        LLUUID mAssetID;
+        std::vector<PermissionBit> mOps;
+    };
+};
+
 // *NOTE: permissions_out includes user preferences for new item creation (LLFloaterPerms)
-bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, LLPermissions& permissions_out, LLViewerInventoryItem*& item_out)
+bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, const ItemSource item_source, LLPermissions& permissions_out, LLViewerInventoryItem*& item_out)
 {
     if (!LLMaterialEditor::capabilitiesAvailable())
     {
@@ -2028,6 +2082,10 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     llassert(func.mIsOverride);
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
 
+    if (item_source == ItemSource::AGENT)
+    {
+        func.mObjectId = LLUUID::null;
+    }
     LLViewerObject* selected_object = func.mObject;
     if (!selected_object)
     {
@@ -2048,19 +2106,47 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
         }
     }
 
-    item_out = selected_object->getInventoryItemByAsset(func.mMaterialId);
+    // Look for the item to base permissions off of
+    item_out = nullptr;
+    const bool blank_material = func.mMaterialId == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    if (!blank_material)
+    {
+        LLAssetIDMatchesWithPerms item_has_perms(func.mMaterialId, ops);
+        if (item_source == ItemSource::OBJECT)
+        {
+            LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
+            if (item && !item_has_perms(nullptr, item))
+            {
+                return false;
+            }
+            item_out = item;
+        }
+        else
+        {
+            llassert(item_source == ItemSource::AGENT);
+
+            LLViewerInventoryCategory::cat_array_t cats;
+            LLViewerInventoryItem::item_array_t items;
+            gInventory.collectDescendentsIf(LLUUID::null,
+                                    cats,
+                                    items,
+                                    // *NOTE: PBRPickerAgentListener will need
+                                    // to be changed if checking the trash is
+                                    // disabled
+                                    LLInventoryModel::INCLUDE_TRASH,
+                                    item_has_perms);
+            if (items.empty())
+            {
+                return false;
+            }
+            item_out = items[0];
+        }
+    }
 
     LLPermissions item_permissions;
     if (item_out)
     {
-        item_permissions.set(item_out->getPermissions());
-        for (PermissionBit op : ops)
-        {
-            if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
-            {
-                return false;
-            }
-        }
+        item_permissions = item_out->getPermissions();
         // Update flags for new owner
         if (!item_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
         {
@@ -2113,13 +2199,24 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     // creation history when there's no material item present. In that case,
     // the agent who saved the material will be considered the creator.
     // -Cosmic,2023-08-07
-    if (item_out)
+    if (item_source == ItemSource::AGENT)
     {
+        llassert(blank_material || item_out); // See comment at ItemSource::AGENT definition
+
         permissions_out.set(item_permissions);
     }
     else
     {
-        permissions_out.set(object_permissions);
+        llassert(item_source == ItemSource::OBJECT);
+
+        if (item_out)
+        {
+            permissions_out.set(item_permissions);
+        }
+        else
+        {
+            permissions_out.set(object_permissions);
+        }
     }
     permissions_out.accumulate(floater_perm);
 
@@ -2131,7 +2228,7 @@ bool LLMaterialEditor::canModifyObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector({PERM_MODIFY}), ItemSource::OBJECT, permissions, item_out);
 }
 
 bool LLMaterialEditor::canSaveObjectsMaterial()
@@ -2139,7 +2236,7 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), ItemSource::AGENT, permissions, item_out);
 }
 
 bool LLMaterialEditor::canClipboardObjectsMaterial()
@@ -2165,7 +2262,7 @@ bool LLMaterialEditor::canClipboardObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
+    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), ItemSource::OBJECT, permissions, item_out);
 }
 
 void LLMaterialEditor::saveObjectsMaterialAs()
@@ -2173,7 +2270,7 @@ void LLMaterialEditor::saveObjectsMaterialAs()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item = nullptr;
-    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item);
+    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), ItemSource::AGENT, permissions, item);
     if (!allowed)
     {
         LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
@@ -2268,62 +2365,9 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
     }
     else
     {
-        if (item_id.notNull())
-        {
-            // Copy existing item from object inventory, and create new composite asset on top of it
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback, _1, _2, permissions, object_id, item_id));
-        }
-        else
-        {
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
-        }
+        llassert(object_id.isNull()); // Case for copying item from object inventory is no longer implemented
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
     }
-}
-
-// static
-void LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (0 != option)
-    {
-        return;
-    }
-
-    LLSD asset;
-    asset["version"] = LLGLTFMaterial::ASSET_VERSION;
-    asset["type"] = LLGLTFMaterial::ASSET_TYPE;
-    // This is the string serialized from LLGLTFMaterial::asJSON
-    asset["data"] = notification["payload"]["data"];
-
-    std::ostringstream str;
-    LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
-
-    LLViewerObject* object = gObjectList.findObject(object_id);
-    if (!object)
-    {
-        return;
-    }
-    const LLInventoryItem* item = object->getInventoryItem(item_id);
-    if (!item)
-    {
-        return;
-    }
-
-    std::string new_name = response["message"].asString();
-    LLInventoryObject::correctInventoryName(new_name);
-    if (new_name.empty())
-    {
-        return;
-    }
-
-    const LLUUID destination_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
-
-    LLPointer<LLInventoryCallback> cb = new LLObjectsMaterialItemCallback(permissions, str.str(), new_name);
-    // NOTE: This should be an item copy. Saving a material to an inventory should be disabled when the associated material is no-copy.
-    move_or_copy_inventory_from_object(destination_id,
-                                       object_id,
-                                       item_id,
-                                       cb);
 }
 
 // static

@@ -87,6 +87,9 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
     cloud_shader = nullptr;
     sun_shader   = nullptr;
     moon_shader  = nullptr;
+
+    // clear the depth buffer so haze shaders can use unwritten depth as a mask
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const

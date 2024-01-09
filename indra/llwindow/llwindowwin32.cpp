@@ -1929,7 +1929,7 @@ void LLWindowWin32::toggleVSync(bool enable_vsync)
         LL_INFOS("Window") << "Disabling vertical sync" << LL_ENDL;
         wglSwapIntervalEXT(0);
     }
-    else
+    else if (wglSwapIntervalEXT)
     {
         LL_INFOS("Window") << "Enabling vertical sync" << LL_ENDL;
         wglSwapIntervalEXT(1);
