@@ -804,7 +804,6 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 
 void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
 {
-	typedef conversations_widgets_map::value_type conv_pair;
 	LLFloaterIMNearbyChat *nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 
 	for (const auto& [key, fvi] : mConversationsWidgets)
