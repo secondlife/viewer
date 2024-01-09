@@ -585,7 +585,6 @@ static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 src
 
 //static
 thread_local std::string LLImage::sLastThreadErrorMessage;
-LLMutex* LLImage::sMutex = NULL;
 bool LLImage::sUseNewByteRange = false;
 S32  LLImage::sMinimalReverseByteRangePercent = 75;
 
@@ -594,14 +593,11 @@ void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_
 {
 	sUseNewByteRange = use_new_byte_range;
     sMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
-	sMutex = new LLMutex();
 }
 
 //static
 void LLImage::cleanupClass()
 {
-	delete sMutex;
-	sMutex = NULL;
 }
 
 //static

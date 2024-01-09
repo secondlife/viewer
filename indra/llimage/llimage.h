@@ -102,7 +102,6 @@ public:
 	static S32  getReverseByteRangePercent() { return sMinimalReverseByteRangePercent; }
 	
 protected:
-	static LLMutex* sMutex;
 	static thread_local std::string sLastThreadErrorMessage;
 	static bool sUseNewByteRange;
     static S32  sMinimalReverseByteRangePercent;
