@@ -150,7 +150,34 @@ void LLWebRTCImpl::init()
                                     mPeerDeviceModule->InitPlayout();
                                 });
 
-    apm->ApplyConfig(apm_config);    
+    rtc::scoped_refptr<webrtc::AudioProcessing> apm = webrtc::AudioProcessingBuilder().Create();
+    webrtc::AudioProcessing::Config             apm_config;
+    apm_config.echo_canceller.enabled         = true;
+    apm_config.echo_canceller.mobile_mode     = false;
+    apm_config.gain_controller1.enabled       = true;
+    apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
+    apm_config.gain_controller2.enabled       = true;
+    apm_config.high_pass_filter.enabled       = true;
+    apm_config.noise_suppression.enabled      = true;
+    apm_config.noise_suppression.level        = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
+    apm_config.transient_suppression.enabled  = true;
+    apm_config.pipeline.multi_channel_render  = true;
+    apm_config.pipeline.multi_channel_capture = true;
+    apm_config.pipeline.multi_channel_capture = true;
+
+    webrtc::ProcessingConfig processing_config;
+    processing_config.input_stream().set_num_channels(2);
+    processing_config.input_stream().set_sample_rate_hz(8000);
+    processing_config.output_stream().set_num_channels(2);
+    processing_config.output_stream().set_sample_rate_hz(8000);
+    processing_config.reverse_input_stream().set_num_channels(2);
+    processing_config.reverse_input_stream().set_sample_rate_hz(48000);
+    processing_config.reverse_output_stream().set_num_channels(2);
+    processing_config.reverse_output_stream().set_sample_rate_hz(48000);
+
+    apm->Initialize(processing_config);
+    apm->ApplyConfig(apm_config);
+
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
                                                                  mSignalingThread.get(),
@@ -161,11 +188,28 @@ void LLWebRTCImpl::init()
                                                                  nullptr /* video_decoder_factory */,
                                                                  nullptr /* audio_mixer */,
                                                                  apm);
+
+
     mWorkerThread->BlockingCall(
         [this]()
         {
             mPeerDeviceModule->StartPlayout();
-            mPeerDeviceModule->StartRecording();
+        });
+}
+
+void LLWebRTCImpl::setRecording(bool recording)
+{
+    mWorkerThread->PostTask(
+        [this, recording]()
+        {
+            if (recording)
+            {
+                mPeerDeviceModule->StartRecording();
+            }
+            else
+            {
+                mPeerDeviceModule->StopRecording();
+            }
         });
 }
 
@@ -263,8 +307,6 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
                                     {
                                         mPeerDeviceModule->StopRecording();
                                     }
-
-                                    mPeerDeviceModule->StopRecording();
                                     mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
                                     mPeerDeviceModule->InitMicrophone();
                                     mPeerDeviceModule->InitRecording();
@@ -427,6 +469,10 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnection * peer_connection)
         (*it)->terminate();
         mPeerConnections.erase(it);
     }
+    if (mPeerConnections.empty())
+    {
+        setRecording(false);
+    }
 }
 
 //
@@ -519,6 +565,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
             audioOptions.noise_suppression = true;
 
             mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
+
             rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
                 mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
             audio_track->set_enabled(true);
@@ -750,15 +797,14 @@ void LLWebRTCPeerConnectionImpl::OnConnectionChange(webrtc::PeerConnectionInterf
     {
         case webrtc::PeerConnectionInterface::PeerConnectionState::kConnected:
         {
-            if (new_state == webrtc::PeerConnectionInterface::PeerConnectionState::kConnected)
-            {
-                mWebRTCImpl->PostWorkerTask([this]() {
-                    for (auto &observer : mSignalingObserverList)
-                    {
-                        observer->OnAudioEstablished(this);
-                    }
-                });
-            }
+            mWebRTCImpl->setRecording(true);
+
+            mWebRTCImpl->PostWorkerTask([this]() {
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnAudioEstablished(this);
+                }
+            });
             break;
         }
         case webrtc::PeerConnectionInterface::PeerConnectionState::kFailed:
@@ -872,8 +918,8 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
         // force mono down, stereo up
         if (std::sscanf(sdp_line.c_str(), "a=rtpmap:%i opus/%i/2", &payload_id, &bandwidth) == 2)
         {
-            sdp_mangled_stream << sdp_line << "\n";
             opus_payload = std::to_string(payload_id);
+            sdp_mangled_stream << "a=rtpmap:" << opus_payload << " opus/48000/2" << "\n";
         }
         else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
         {

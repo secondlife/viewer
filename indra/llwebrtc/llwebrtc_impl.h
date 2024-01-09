@@ -162,6 +162,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface
     LLWebRTCPeerConnection *  newPeerConnection();
     void freePeerConnection(LLWebRTCPeerConnection * peer_connection);
 
+    void setRecording(bool recording);
+
   protected:
 
     std::unique_ptr<rtc::Thread>                               mNetworkThread;
