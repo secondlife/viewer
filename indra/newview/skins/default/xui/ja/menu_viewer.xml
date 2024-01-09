@@ -278,6 +278,7 @@
 			<menu_item_check label="雲" name="Rendering Type Clouds"/>
 			<menu_item_check label="パーティクル" name="Rendering Type Particles"/>
 			<menu_item_check label="衝突" name="Rendering Type Bump"/>
+			<menu_item_check label="ＰＢＲ" name="Rendering Type PBR"/>
 		</menu>
 		<menu label="レンダリング機能" name="Rendering Features">
 			<menu_item_check label="ＵＩ" name="ToggleUI"/>

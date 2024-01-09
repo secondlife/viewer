@@ -52,6 +52,7 @@
 		<check_box label="ＨＵＤ" name="hud_check"/>
 		<check_box label="フレームをフリーズ（全画面）" name="freeze_frame_check"/>
 		<check_box label="自動リフレッシュ" name="auto_snapshot_check"/>
+		<check_box label="ポストプロセッシングなし" name="no_post_check"/>
 		<text name="filter_list_label">
 			フィルタ：
 		</text>
