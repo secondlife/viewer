@@ -99,7 +99,6 @@ LLGLSLShader        gSkinnedObjectFullbrightAlphaMaskProgram;
 LLGLSLShader		gObjectBumpProgram;
 LLGLSLShader        gSkinnedObjectBumpProgram;
 LLGLSLShader		gObjectAlphaMaskNoColorProgram;
-LLGLSLShader		gObjectAlphaMaskNoColorWaterProgram;
 
 //environment shaders
 LLGLSLShader		gWaterProgram;
@@ -138,7 +137,6 @@ LLGLSLShader			gDeferredSkinnedDiffuseProgram;
 LLGLSLShader			gDeferredSkinnedBumpProgram;
 LLGLSLShader			gDeferredBumpProgram;
 LLGLSLShader			gDeferredTerrainProgram;
-LLGLSLShader            gDeferredTerrainWaterProgram;
 LLGLSLShader			gDeferredTreeProgram;
 LLGLSLShader			gDeferredTreeShadowProgram;
 LLGLSLShader            gDeferredSkinnedTreeShadowProgram;
@@ -149,9 +147,10 @@ LLGLSLShader			gDeferredMultiLightProgram[16];
 LLGLSLShader			gDeferredSpotLightProgram;
 LLGLSLShader			gDeferredMultiSpotLightProgram;
 LLGLSLShader			gDeferredSunProgram;
+LLGLSLShader            gHazeProgram;
+LLGLSLShader            gHazeWaterProgram;
 LLGLSLShader			gDeferredBlurLightProgram;
 LLGLSLShader			gDeferredSoftenProgram;
-LLGLSLShader			gDeferredSoftenWaterProgram;
 LLGLSLShader			gDeferredShadowProgram;
 LLGLSLShader            gDeferredSkinnedShadowProgram;
 LLGLSLShader			gDeferredShadowCubeProgram;
@@ -171,8 +170,6 @@ LLGLSLShader			gHUDAlphaProgram;
 LLGLSLShader            gDeferredSkinnedAlphaProgram;
 LLGLSLShader			gDeferredAlphaImpostorProgram;
 LLGLSLShader            gDeferredSkinnedAlphaImpostorProgram;
-LLGLSLShader			gDeferredAlphaWaterProgram;
-LLGLSLShader            gDeferredSkinnedAlphaWaterProgram;
 LLGLSLShader			gDeferredAvatarEyesProgram;
 LLGLSLShader			gDeferredFullbrightProgram;
 LLGLSLShader            gHUDFullbrightProgram;
@@ -180,12 +177,6 @@ LLGLSLShader			gDeferredFullbrightAlphaMaskProgram;
 LLGLSLShader			gHUDFullbrightAlphaMaskProgram;
 LLGLSLShader			gDeferredFullbrightAlphaMaskAlphaProgram;
 LLGLSLShader			gHUDFullbrightAlphaMaskAlphaProgram;
-LLGLSLShader			gDeferredFullbrightWaterProgram;
-LLGLSLShader            gDeferredSkinnedFullbrightWaterProgram;
-LLGLSLShader			gDeferredFullbrightWaterAlphaProgram;
-LLGLSLShader			gDeferredSkinnedFullbrightWaterAlphaProgram;
-LLGLSLShader			gDeferredFullbrightAlphaMaskWaterProgram;
-LLGLSLShader            gDeferredSkinnedFullbrightAlphaMaskWaterProgram;
 LLGLSLShader			gDeferredEmissiveProgram;
 LLGLSLShader            gDeferredSkinnedEmissiveProgram;
 LLGLSLShader			gDeferredPostProgram;
@@ -215,7 +206,6 @@ LLGLSLShader            gDeferredBufferVisualProgram;
 
 // Deferred materials shaders
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
-LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gHUDPBROpaqueProgram;
 LLGLSLShader            gPBRGlowProgram;
 LLGLSLShader            gPBRGlowSkinnedProgram;
@@ -224,8 +214,6 @@ LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
-LLGLSLShader            gDeferredPBRAlphaWaterProgram;
-LLGLSLShader            gDeferredSkinnedPBRAlphaWaterProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -258,30 +246,22 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightAlphaMaskProgram);
     mShaderList.push_back(&gSkinnedObjectFullbrightAlphaMaskProgram);
 	mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
-	mShaderList.push_back(&gObjectAlphaMaskNoColorWaterProgram);
 	mShaderList.push_back(&gUnderWaterProgram);
 	mShaderList.push_back(&gDeferredSunProgram);
+    mShaderList.push_back(&gHazeProgram);
+    mShaderList.push_back(&gHazeWaterProgram);
 	mShaderList.push_back(&gDeferredSoftenProgram);
-	mShaderList.push_back(&gDeferredSoftenWaterProgram);
 	mShaderList.push_back(&gDeferredAlphaProgram);
     mShaderList.push_back(&gHUDAlphaProgram);
     mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
 	mShaderList.push_back(&gDeferredAlphaImpostorProgram);
     mShaderList.push_back(&gDeferredSkinnedAlphaImpostorProgram);
-	mShaderList.push_back(&gDeferredAlphaWaterProgram);
-    mShaderList.push_back(&gDeferredSkinnedAlphaWaterProgram);
 	mShaderList.push_back(&gDeferredFullbrightProgram);
     mShaderList.push_back(&gHUDFullbrightProgram);
 	mShaderList.push_back(&gDeferredFullbrightAlphaMaskProgram);
     mShaderList.push_back(&gHUDFullbrightAlphaMaskProgram);
     mShaderList.push_back(&gDeferredFullbrightAlphaMaskAlphaProgram);
     mShaderList.push_back(&gHUDFullbrightAlphaMaskAlphaProgram);
-	mShaderList.push_back(&gDeferredFullbrightWaterProgram);
-    mShaderList.push_back(&gDeferredSkinnedFullbrightWaterProgram);
-    mShaderList.push_back(&gDeferredFullbrightWaterAlphaProgram);
-    mShaderList.push_back(&gDeferredSkinnedFullbrightWaterAlphaProgram);
-	mShaderList.push_back(&gDeferredFullbrightAlphaMaskWaterProgram);
-    mShaderList.push_back(&gDeferredSkinnedFullbrightAlphaMaskWaterProgram);
 	mShaderList.push_back(&gDeferredFullbrightShinyProgram);
     mShaderList.push_back(&gHUDFullbrightShinyProgram);
     mShaderList.push_back(&gDeferredSkinnedFullbrightShinyProgram);
@@ -291,17 +271,14 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredEmissiveProgram);
     mShaderList.push_back(&gDeferredSkinnedEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
-    mShaderList.push_back(&gDeferredTerrainWaterProgram);
-	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
+    mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
     mShaderList.push_back(&gDeferredWLSunProgram);
     mShaderList.push_back(&gDeferredPBRAlphaProgram);
-    mShaderList.push_back(&gDeferredPBRAlphaWaterProgram);
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
-    mShaderList.push_back(&gDeferredSkinnedPBRAlphaWaterProgram);
     mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
     mShaderList.push_back(&gNoPostGammaCorrectProgram);
     mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
@@ -594,7 +571,6 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	vector< pair<string, S32> > shaders;
 	shaders.push_back( make_pair( "windlight/atmosphericsVarsV.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
-	shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterV.glsl",  mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsHelpersV.glsl",    mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "lighting/lightFuncV.glsl",               mShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "lighting/sumLightsV.glsl",               sum_lights_class ) );
@@ -674,7 +650,6 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	std::vector<S32> index_channels;    
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsF.glsl",      mShaderLevel[SHADER_WINDLIGHT] ) );
-	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterF.glsl",     mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsHelpersF.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/gammaF.glsl",                 mShaderLevel[SHADER_WINDLIGHT]) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
@@ -689,12 +664,8 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightWaterNonIndexedF.glsl",               mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightWaterAlphaMaskNonIndexedF.glsl",              mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightF.glsl",                  mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightAlphaMaskF.glsl",                 mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightWaterF.glsl",             mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightWaterAlphaMaskF.glsl",    mShaderLevel[SHADER_LIGHTING] ) );
 	
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
@@ -732,7 +703,6 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mName = "Water Shader";
 		gWaterProgram.mFeatures.calculatesAtmospherics = true;
         gWaterProgram.mFeatures.hasAtmospherics = true;
-        gWaterProgram.mFeatures.hasWaterFog = true;
 		gWaterProgram.mFeatures.hasGamma = true;
 		gWaterProgram.mFeatures.hasSrgb = true;
         gWaterProgram.mFeatures.hasReflectionProbes = true;
@@ -763,7 +733,6 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterEdgeProgram.mName = "Water Edge Shader";
 		gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
         gWaterEdgeProgram.mFeatures.hasAtmospherics = true;
-        gWaterEdgeProgram.mFeatures.hasWaterFog = true;
 		gWaterEdgeProgram.mFeatures.hasGamma = true;
 		gWaterEdgeProgram.mFeatures.hasSrgb = true;
         gWaterEdgeProgram.mFeatures.hasReflectionProbes = true;
@@ -793,7 +762,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		//load under water vertex shader
 		gUnderWaterProgram.mName = "Underwater Shader";
 		gUnderWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gUnderWaterProgram.mFeatures.hasWaterFog = true;
+		gUnderWaterProgram.mFeatures.hasAtmospherics = true;
 		gUnderWaterProgram.mShaderFiles.clear();
 		gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
 		gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/underWaterF.glsl", GL_FRAGMENT_SHADER));
@@ -908,7 +877,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedBumpProgram.unload();
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
-		gDeferredTerrainWaterProgram.unload();
 		gDeferredLightProgram.unload();
 		for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; ++i)
 		{
@@ -919,7 +887,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSunProgram.unload();
 		gDeferredBlurLightProgram.unload();
 		gDeferredSoftenProgram.unload();
-		gDeferredSoftenWaterProgram.unload();
 		gDeferredShadowProgram.unload();
         gDeferredSkinnedShadowProgram.unload();
 		gDeferredShadowCubeProgram.unload();
@@ -937,20 +904,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.unload();
         gHUDAlphaProgram.unload();
         gDeferredSkinnedAlphaProgram.unload();
-		gDeferredAlphaWaterProgram.unload();
-        gDeferredSkinnedAlphaWaterProgram.unload();
 		gDeferredFullbrightProgram.unload();
         gHUDFullbrightProgram.unload();
 		gDeferredFullbrightAlphaMaskProgram.unload();
         gHUDFullbrightAlphaMaskProgram.unload();
         gDeferredFullbrightAlphaMaskAlphaProgram.unload();
         gHUDFullbrightAlphaMaskAlphaProgram.unload();
-		gDeferredFullbrightWaterProgram.unload();
-        gDeferredSkinnedFullbrightWaterProgram.unload();
-        gDeferredFullbrightWaterAlphaProgram.unload();
-        gDeferredSkinnedFullbrightWaterAlphaProgram.unload();
-		gDeferredFullbrightAlphaMaskWaterProgram.unload();
-        gDeferredSkinnedFullbrightAlphaMaskWaterProgram.unload();
 		gDeferredEmissiveProgram.unload();
         gDeferredSkinnedEmissiveProgram.unload();
 		gDeferredAvatarEyesProgram.unload();
@@ -984,7 +943,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
 		{
 			gDeferredMaterialProgram[i].unload();
-			gDeferredMaterialWaterProgram[i].unload();
 		}
 
         gHUDPBROpaqueProgram.unload();
@@ -993,8 +951,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
         gDeferredSkinnedPBRAlphaProgram.unload();
-        gDeferredPBRAlphaWaterProgram.unload();
-        gDeferredSkinnedPBRAlphaWaterProgram.unload();
 
 		return TRUE;
 	}
@@ -1084,15 +1040,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
 	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
 
-	gDeferredMaterialWaterProgram[1].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[5].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[9].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[13].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-
 	for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
 	{
 		if (success)
@@ -1158,77 +1105,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             success = gDeferredMaterialProgram[i].createShader(NULL, NULL);
             llassert(success);
 		}
-
-		if (success)
-		{
-            mShaderList.push_back(&gDeferredMaterialWaterProgram[i]);
-
-            gDeferredMaterialWaterProgram[i].mName = llformat("Deferred Underwater Material Shader %d", i);
-
-            U32 alpha_mode = i & 0x3;
-
-            gDeferredMaterialWaterProgram[i].mShaderFiles.clear();
-            gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER));
-            gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER));
-            gDeferredMaterialWaterProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-            gDeferredMaterialWaterProgram[i].mShaderGroup = LLGLSLShader::SG_WATER;
-
-            gDeferredMaterialWaterProgram[i].clearPermutations();
-
-            bool has_normal_map   = (i & 0x8) > 0;
-            bool has_specular_map = (i & 0x4) > 0;
-
-            if (has_normal_map)
-            {
-                gDeferredMaterialWaterProgram[i].addPermutation("HAS_NORMAL_MAP", "1");
-            }
-
-            if (has_specular_map)
-            {
-                gDeferredMaterialWaterProgram[i].addPermutation("HAS_SPECULAR_MAP", "1");
-            }
-
-            gDeferredMaterialWaterProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-            if (alpha_mode != 0)
-            {
-                gDeferredMaterialWaterProgram[i].mFeatures.hasAlphaMask = true;
-                gDeferredMaterialWaterProgram[i].addPermutation("HAS_ALPHA_MASK", "1");
-            }
-
-            if (use_sun_shadow)
-            {
-                gDeferredMaterialWaterProgram[i].addPermutation("HAS_SUN_SHADOW", "1");
-            }
-
-            bool has_skin = i & 0x10;
-            if (has_skin)
-            {
-                gDeferredMaterialWaterProgram[i].addPermutation("HAS_SKIN", "1");
-            }
-            else
-            {
-                gDeferredMaterialWaterProgram[i].mRiggedVariant = &(gDeferredMaterialWaterProgram[i + 0x10]);
-            }
-            gDeferredMaterialWaterProgram[i].addPermutation("WATER_FOG","1");
-
-            gDeferredMaterialWaterProgram[i].mFeatures.hasReflectionProbes = true;
-            gDeferredMaterialWaterProgram[i].mFeatures.hasWaterFog = true;
-            gDeferredMaterialWaterProgram[i].mFeatures.hasSrgb = true;
-            gDeferredMaterialWaterProgram[i].mFeatures.encodesNormal = true;
-            gDeferredMaterialWaterProgram[i].mFeatures.calculatesAtmospherics = true;
-            gDeferredMaterialWaterProgram[i].mFeatures.hasAtmospherics = true;
-            gDeferredMaterialWaterProgram[i].mFeatures.hasGamma = true;
-
-            gDeferredMaterialWaterProgram[i].mFeatures.hasShadows = use_sun_shadow;
-            
-            if (has_skin)
-            {
-                gDeferredMaterialWaterProgram[i].mFeatures.hasObjectSkinning = true;
-            }
-
-            success = gDeferredMaterialWaterProgram[i].createShader(NULL, NULL);//&mWLUniforms);
-            llassert(success);
-		}
 	}
 
 	gDeferredMaterialProgram[1].mFeatures.hasLighting = true;
@@ -1239,15 +1115,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-
-	gDeferredMaterialWaterProgram[1].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[5].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[9].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[13].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 
     if (success)
     {
@@ -1341,62 +1208,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
-        if (success)
-        {
-            success = shader->createShader(NULL, NULL);
-        }
-        llassert(success);
-
-        // Alpha Shader Hack
-        // See: LLRender::syncMatrices()
-        shader->mFeatures.calculatesLighting = true;
-        shader->mFeatures.hasLighting = true;
-
-        shader->mRiggedVariant->mFeatures.calculatesLighting = true;
-        shader->mRiggedVariant->mFeatures.hasLighting = true;
-    }
-
-    if (success)
-    {
-        LLGLSLShader* shader = &gDeferredPBRAlphaWaterProgram;
-        shader->mName = "Deferred PBR Alpha Underwater Shader";
-                          
-        shader->mFeatures.calculatesLighting = false;
-        shader->mFeatures.hasLighting = false;
-        shader->mFeatures.isAlphaLighting = true;
-        shader->mFeatures.hasWaterFog = true;
-        shader->mFeatures.hasSrgb = true;
-        shader->mFeatures.encodesNormal = true;
-        shader->mFeatures.calculatesAtmospherics = true;
-        shader->mFeatures.hasAtmospherics = true;
-        shader->mFeatures.hasGamma = true;
-        shader->mFeatures.hasShadows = use_sun_shadow;
-        shader->mFeatures.isDeferred = true; // include deferredUtils
-        shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
-
-        shader->mShaderGroup = LLGLSLShader::SG_WATER;
-
-        shader->mShaderFiles.clear();
-        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER));
-        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER));
-
-        shader->clearPermutations();
-
-        U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
-        shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-        shader->addPermutation("HAS_NORMAL_MAP", "1");
-        shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
-        shader->addPermutation("HAS_EMISSIVE_MAP", "1");
-        shader->addPermutation("USE_VERTEX_COLOR", "1");
-        shader->addPermutation("WATER_FOG", "1");
-
-        if (use_sun_shadow)
-        {
-            shader->addPermutation("HAS_SUN_SHADOW", "1");
-        }
-
-        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaWaterProgram);
         if (success)
         {
             success = shader->createShader(NULL, NULL);
@@ -1640,7 +1451,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.hasGamma = true;
             shader->mFeatures.hasShadows = use_sun_shadow;
             shader->mFeatures.hasReflectionProbes = true;
-            shader->mFeatures.hasWaterFog = true;
             shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 
             shader->mShaderFiles.clear();
@@ -1736,68 +1546,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.hasLighting = true;
         }
     }
-
-    if (success)
-    {
-        LLGLSLShader* shader[] = {
-            &gDeferredAlphaWaterProgram,
-            &gDeferredSkinnedAlphaWaterProgram
-        };
-        
-        gDeferredAlphaWaterProgram.mRiggedVariant = &gDeferredSkinnedAlphaWaterProgram;
-		
-        gDeferredAlphaWaterProgram.mName = "Deferred Alpha Underwater Shader";
-        gDeferredSkinnedAlphaWaterProgram.mName = "Deferred Skinned Alpha Underwater Shader";
-
-        for (int i = 0; i < 2 && success; ++i)
-        {
-            shader[i]->mFeatures.calculatesLighting = false;
-            shader[i]->mFeatures.hasLighting = false;
-            shader[i]->mFeatures.isAlphaLighting = true;
-            shader[i]->mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-            shader[i]->mFeatures.hasWaterFog = true;
-            shader[i]->mFeatures.hasSrgb = true;
-            shader[i]->mFeatures.encodesNormal = true;
-            shader[i]->mFeatures.calculatesAtmospherics = true;
-            shader[i]->mFeatures.hasAtmospherics = true;
-            shader[i]->mFeatures.hasGamma = true;
-            shader[i]->mFeatures.hasShadows = use_sun_shadow;
-            shader[i]->mFeatures.hasReflectionProbes = true;
-            shader[i]->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-            shader[i]->mShaderGroup = LLGLSLShader::SG_WATER;
-            shader[i]->mShaderFiles.clear();
-            shader[i]->mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
-            shader[i]->mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
-
-            shader[i]->clearPermutations();
-            shader[i]->addPermutation("USE_INDEXED_TEX", "1");
-            shader[i]->addPermutation("WATER_FOG", "1");
-            shader[i]->addPermutation("USE_VERTEX_COLOR", "1");
-            shader[i]->addPermutation("HAS_ALPHA_MASK", "1");
-            if (use_sun_shadow)
-            {
-                shader[i]->addPermutation("HAS_SUN_SHADOW", "1");
-            }
-
-            if (i == 1)
-            { // rigged variant
-                shader[i]->mFeatures.hasObjectSkinning = true;
-                shader[i]->addPermutation("HAS_SKIN", "1");
-            }
-            else
-            {
-                shader[i]->mRiggedVariant = shader[1];
-            }
-            shader[i]->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-
-            success = shader[i]->createShader(NULL, NULL);
-            llassert(success);
-
-            // Hack
-            shader[i]->mFeatures.calculatesLighting = true;
-            shader[i]->mFeatures.hasLighting = true;
-        }
-	}
 
 	if (success)
 	{
@@ -1935,71 +1683,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredFullbrightWaterProgram.mName = "Deferred Fullbright Underwater Shader";
-		gDeferredFullbrightWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredFullbrightWaterProgram.mFeatures.hasGamma = true;
-		gDeferredFullbrightWaterProgram.mFeatures.hasAtmospherics = true;
-		gDeferredFullbrightWaterProgram.mFeatures.hasWaterFog = true;
-		gDeferredFullbrightWaterProgram.mFeatures.hasSrgb = true;
-		gDeferredFullbrightWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-		gDeferredFullbrightWaterProgram.mShaderFiles.clear();
-		gDeferredFullbrightWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
-		gDeferredFullbrightWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredFullbrightWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		gDeferredFullbrightWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredFullbrightWaterProgram.addPermutation("WATER_FOG","1");
-        success = make_rigged_variant(gDeferredFullbrightWaterProgram, gDeferredSkinnedFullbrightWaterProgram);
-		success = success && gDeferredFullbrightWaterProgram.createShader(NULL, NULL);
-		llassert(success);
-	}
-    
-    if (success)
-    {
-        gDeferredFullbrightWaterAlphaProgram.mName = "Deferred Fullbright Underwater Alpha Shader";
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.calculatesAtmospherics = true;
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.hasGamma = true;
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.hasAtmospherics = true;
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.hasWaterFog = true;
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.hasSrgb = true;
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.isDeferred = true;
-        gDeferredFullbrightWaterAlphaProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-        gDeferredFullbrightWaterAlphaProgram.mShaderFiles.clear();
-        gDeferredFullbrightWaterAlphaProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
-        gDeferredFullbrightWaterAlphaProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER));
-        gDeferredFullbrightWaterAlphaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredFullbrightWaterAlphaProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-        gDeferredFullbrightWaterAlphaProgram.clearPermutations();
-        gDeferredFullbrightWaterAlphaProgram.addPermutation("WATER_FOG", "1");
-        gDeferredFullbrightWaterAlphaProgram.addPermutation("IS_ALPHA", "1");
-        success = make_rigged_variant(gDeferredFullbrightWaterAlphaProgram, gDeferredSkinnedFullbrightWaterAlphaProgram);
-        success = success && gDeferredFullbrightWaterAlphaProgram.createShader(NULL, NULL);
-        llassert(success);
-    }
-
-	if (success)
-	{
-		gDeferredFullbrightAlphaMaskWaterProgram.mName = "Deferred Fullbright Underwater Alpha Masking Shader";
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasGamma = true;
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasAtmospherics = true;
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasWaterFog = true;
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.hasSrgb = true;
-		gDeferredFullbrightAlphaMaskWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.clear();
-		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
-		gDeferredFullbrightAlphaMaskWaterProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredFullbrightAlphaMaskWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		gDeferredFullbrightAlphaMaskWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredFullbrightAlphaMaskWaterProgram.clearPermutations();
-		gDeferredFullbrightAlphaMaskWaterProgram.addPermutation("HAS_ALPHA_MASK","1");
-		gDeferredFullbrightAlphaMaskWaterProgram.addPermutation("WATER_FOG","1");
-        success = make_rigged_variant(gDeferredFullbrightAlphaMaskWaterProgram, gDeferredSkinnedFullbrightAlphaMaskWaterProgram);
-		success = success && gDeferredFullbrightAlphaMaskWaterProgram.createShader(NULL, NULL);
-		llassert(success);
-	}
-
-	if (success)
-	{
 		gDeferredFullbrightShinyProgram.mName = "Deferred FullbrightShiny Shader";
 		gDeferredFullbrightShinyProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasAtmospherics = true;
@@ -2084,40 +1767,52 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		llassert(success);
 	}
 
-	if (success)
-	{
-		gDeferredSoftenWaterProgram.mName = "Deferred Soften Underwater Shader";
-		gDeferredSoftenWaterProgram.mShaderFiles.clear();
-		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
-		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER));
+    if (success)
+    {
+        gHazeProgram.mName = "Haze Shader";
+        gHazeProgram.mShaderFiles.clear();
+        gHazeProgram.mFeatures.hasSrgb                = true;
+        gHazeProgram.mFeatures.calculatesAtmospherics = true;
+        gHazeProgram.mFeatures.hasAtmospherics        = true;
+        gHazeProgram.mFeatures.hasGamma               = true;
+        gHazeProgram.mFeatures.isDeferred             = true;
+        gHazeProgram.mFeatures.hasShadows             = use_sun_shadow;
+        gHazeProgram.mFeatures.hasReflectionProbes    = mShaderLevel[SHADER_DEFERRED] > 2;
 
-        gDeferredSoftenWaterProgram.clearPermutations();
-		gDeferredSoftenWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		gDeferredSoftenWaterProgram.addPermutation("WATER_FOG", "1");
-		gDeferredSoftenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredSoftenWaterProgram.mFeatures.hasWaterFog = true;
-		gDeferredSoftenWaterProgram.mFeatures.hasSrgb = true;
-		gDeferredSoftenWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredSoftenWaterProgram.mFeatures.hasAtmospherics = true;
-		gDeferredSoftenWaterProgram.mFeatures.hasGamma = true;
-        gDeferredSoftenWaterProgram.mFeatures.isDeferred = true;
-        gDeferredSoftenWaterProgram.mFeatures.hasShadows = use_sun_shadow;
-        gDeferredSoftenWaterProgram.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED] > 2;
+        gHazeProgram.clearPermutations();
+        gHazeProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
+        gHazeProgram.mShaderFiles.push_back(make_pair("deferred/hazeF.glsl", GL_FRAGMENT_SHADER));
 
-        if (use_sun_shadow)
-        {
-            gDeferredSoftenWaterProgram.addPermutation("HAS_SUN_SHADOW", "1");
-        }
+        gHazeProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
-		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
-		{ //if using SSAO, take screen space light map into account as if shadows are enabled
-			gDeferredSoftenWaterProgram.mShaderLevel = llmax(gDeferredSoftenWaterProgram.mShaderLevel, 2);
-            gDeferredSoftenWaterProgram.addPermutation("HAS_SSAO", "1");
-		}
+        success = gHazeProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
 
-		success = gDeferredSoftenWaterProgram.createShader(NULL, NULL);
-		llassert(success);
-	}
+
+    if (success)
+    {
+        gHazeWaterProgram.mName = "Water Haze Shader";
+        gHazeWaterProgram.mShaderFiles.clear();
+        gHazeWaterProgram.mShaderGroup           = LLGLSLShader::SG_WATER;
+        gHazeWaterProgram.mFeatures.hasSrgb                = true;
+        gHazeWaterProgram.mFeatures.calculatesAtmospherics = true;
+        gHazeWaterProgram.mFeatures.hasAtmospherics        = true;
+        gHazeWaterProgram.mFeatures.hasGamma               = true;
+        gHazeWaterProgram.mFeatures.isDeferred             = true;
+        gHazeWaterProgram.mFeatures.hasShadows             = use_sun_shadow;
+        gHazeWaterProgram.mFeatures.hasReflectionProbes    = mShaderLevel[SHADER_DEFERRED] > 2;
+
+        gHazeWaterProgram.clearPermutations();
+        gHazeWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterHazeV.glsl", GL_VERTEX_SHADER));
+        gHazeWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterHazeF.glsl", GL_FRAGMENT_SHADER));
+
+        gHazeWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        success = gHazeWaterProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
+
 
 	if (success)
 	{
@@ -2264,7 +1959,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mFeatures.hasLighting = false;
 		gDeferredTerrainProgram.mFeatures.isAlphaLighting = true;
 		gDeferredTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		gDeferredTerrainProgram.mFeatures.hasWaterFog = true;
 		gDeferredTerrainProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredTerrainProgram.mFeatures.hasAtmospherics = true;
 		gDeferredTerrainProgram.mFeatures.hasGamma = true;
@@ -2275,31 +1969,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredTerrainProgram.createShader(NULL, NULL);
 		llassert(success);
-	}
-
-	if (success)
-	{
-		gDeferredTerrainWaterProgram.mName = "Deferred Terrain Underwater Shader";
-		gDeferredTerrainWaterProgram.mFeatures.encodesNormal = true;
-		gDeferredTerrainWaterProgram.mFeatures.hasSrgb = true;
-		gDeferredTerrainWaterProgram.mFeatures.calculatesLighting = false;
-		gDeferredTerrainWaterProgram.mFeatures.hasLighting = false;
-		gDeferredTerrainWaterProgram.mFeatures.isAlphaLighting = true;
-		gDeferredTerrainWaterProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		gDeferredTerrainWaterProgram.mFeatures.hasWaterFog = true;
-		gDeferredTerrainWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredTerrainWaterProgram.mFeatures.hasAtmospherics = true;
-		gDeferredTerrainWaterProgram.mFeatures.hasGamma = true;
-		
-		gDeferredTerrainWaterProgram.mShaderFiles.clear();
-		gDeferredTerrainWaterProgram.mShaderFiles.push_back(make_pair("deferred/terrainV.glsl", GL_VERTEX_SHADER));
-		gDeferredTerrainWaterProgram.mShaderFiles.push_back(make_pair("deferred/terrainF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredTerrainWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		gDeferredTerrainWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredTerrainWaterProgram.clearPermutations();
-		gDeferredTerrainWaterProgram.addPermutation("WATER_FOG", "1");
-		success = gDeferredTerrainWaterProgram.createShader(NULL, NULL);
-        llassert(success);
 	}
 
 	if (success)
@@ -2660,24 +2329,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		success = gObjectAlphaMaskNoColorProgram.createShader(NULL, NULL);
 	}
 	
-	if (success)
-	{
-		gObjectAlphaMaskNoColorWaterProgram.mName = "No color alpha mask Water Shader";
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.calculatesLighting = true;
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.hasWaterFog = true;
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.hasAtmospherics = true;
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.hasLighting = true;
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.disableTextureIndex = true;
-		gObjectAlphaMaskNoColorWaterProgram.mFeatures.hasAlphaMask = true;
-		gObjectAlphaMaskNoColorWaterProgram.mShaderFiles.clear();
-		gObjectAlphaMaskNoColorWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleNoColorV.glsl", GL_VERTEX_SHADER));
-		gObjectAlphaMaskNoColorWaterProgram.mShaderFiles.push_back(make_pair("objects/simpleWaterF.glsl", GL_FRAGMENT_SHADER));
-		gObjectAlphaMaskNoColorWaterProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
-		gObjectAlphaMaskNoColorWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		success = gObjectAlphaMaskNoColorWaterProgram.createShader(NULL, NULL);
-	}
-
 	if (success)
 	{
 		gImpostorProgram.mName = "Impostor Shader";

@@ -42,7 +42,6 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
 void calcAtmospherics(vec3 inPositionEye) {
     vec3 P = inPositionEye;
-    setPositionEye(P);
     vec3 tmpsunlit = vec3(1);
     vec3 tmpamblit = vec3(1);
     vec3 tmpaddlit = vec3(1);

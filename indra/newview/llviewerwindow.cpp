@@ -229,6 +229,7 @@ extern BOOL gDisplaySwapBuffers;
 extern BOOL gDepthDirty;
 extern BOOL gResizeScreenTexture;
 extern BOOL gCubeSnapshot;
+extern BOOL gSnapshotNoPost;
 
 LLViewerWindow	*gViewerWindow = NULL;
 
@@ -4875,16 +4876,16 @@ void LLViewerWindow::resetSnapshotLoc() const
 	gSavedPerAccountSettings.setString("SnapshotBaseDir", std::string());
 }
 
-BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type)
+BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, BOOL no_post, LLSnapshotModel::ESnapshotLayerType type)
 {
-	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, show_hud, do_rebuild, type);
+	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, show_hud, do_rebuild, no_post, type);
 }
 
 // Saves the image from the screen to a raw image
 // Since the required size might be bigger than the available screen, this method rerenders the scene in parts (called subimages) and copy
 // the results over to the final raw image.
 BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, 
-    BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type, S32 max_size)
+    BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, BOOL no_post, LLSnapshotModel::ESnapshotLayerType type, S32 max_size)
 {
 	if (!raw)
 	{
@@ -4901,6 +4902,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 
 	// PRE SNAPSHOT
+	gSnapshotNoPost = no_post;
 	gDisplaySwapBuffers = FALSE;
 	
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
@@ -5131,6 +5133,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 
 	gDisplaySwapBuffers = FALSE;
+	gSnapshotNoPost = FALSE;
 	gDepthDirty = TRUE;
 
 	// POST SNAPSHOT

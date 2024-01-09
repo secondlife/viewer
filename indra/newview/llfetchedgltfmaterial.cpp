@@ -29,6 +29,8 @@
 
 #include "llviewertexturelist.h"
 #include "llavatarappearancedefines.h"
+#include "llviewerobject.h"
+#include "llselectmgr.h"
 #include "llshadermgr.h"
 #include "pipeline.h"
 
@@ -251,4 +253,56 @@ void LLFetchedGLTFMaterial::materialComplete()
     }
     materialCompleteCallbacks.clear();
     materialCompleteCallbacks.shrink_to_fit();
+}
+
+LLPointer<LLViewerFetchedTexture> LLFetchedGLTFMaterial::getUITexture()
+{
+    if (mFetching)
+    {
+        return nullptr;
+    }
+
+    auto fetch_texture_for_ui = [](LLPointer<LLViewerFetchedTexture>& img, const LLUUID& id)
+    {
+        if (id.notNull())
+        {
+            if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
+            {
+                LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+                if (obj)
+                {
+                    LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(id);
+                    img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+                }
+
+            }
+            else
+            {
+                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            }
+        }
+        if (img)
+        {
+            img->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+            img->forceToSaveRawImage(0);
+        }
+    };
+
+    fetch_texture_for_ui(mBaseColorTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
+    fetch_texture_for_ui(mNormalTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
+    fetch_texture_for_ui(mMetallicRoughnessTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
+    fetch_texture_for_ui(mEmissiveTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+
+    if ((mBaseColorTexture && (mBaseColorTexture->getRawImageLevel() != 0)) ||
+        (mNormalTexture && (mNormalTexture->getRawImageLevel() != 0)) ||
+        (mMetallicRoughnessTexture && (mMetallicRoughnessTexture->getRawImageLevel() != 0)) ||
+        (mEmissiveTexture && (mEmissiveTexture->getRawImageLevel() != 0)))
+    {
+        return nullptr;
+    }
+
+    // *HACK: Use one of the PBR texture components as the preview texture for now
+    mPreviewTexture = mBaseColorTexture;
+
+    return mPreviewTexture;
 }

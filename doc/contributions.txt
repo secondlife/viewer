@@ -597,6 +597,7 @@ Henri Beauchamp
 	SL-15175
 	SL-19110
 	SL-19159
+	[NO JIRA] (fullbright HUD alpha fix)
 herina Bode
 Hikkoshi Sakai
 	VWR-429
