@@ -2432,9 +2432,7 @@ void LLInventoryGallery::startDrag()
             ids.push_back(selected_id);
         }
     }
-    // We must have set this for some reason, but it's causing compile errors
-    (void)src;
-    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, LLToolDragAndDrop::SOURCE_AGENT);
+    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, src);
 }
 
 bool LLInventoryGallery::areViewsInitialized()
