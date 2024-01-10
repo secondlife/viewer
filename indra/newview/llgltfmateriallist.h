@@ -52,8 +52,6 @@ public:
 
     void flushMaterials();
 
-    static void registerCallbacks();
-
     // Queue an modification of a material that we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
     //  id - ID of object to modify
     //  side - TexureEntry index to modify, or -1 for all sides
@@ -98,8 +96,6 @@ public:
     // Called by batch builder to give LLGLTMaterialList an opportunity to apply
     // any override data that arrived before the object was ready to receive it
     void applyQueuedOverrides(LLViewerObject* obj);
-
-    static void loadCacheOverrides(const LLGLTFOverrideCacheEntry& override);
 
     // Apply an override update with the given data
     void applyOverrideMessage(LLMessageSystem* msg, const std::string& data);

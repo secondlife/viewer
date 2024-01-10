@@ -2554,6 +2554,12 @@ bool LLIsOfAssetType::operator()(LLInventoryCategory* cat, LLInventoryItem* item
 	return FALSE;
 }
 
+bool LLAssetIDAndTypeMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    if (!item) return false;
+    return (item->getActualType() == mType && item->getAssetUUID() == mAssetID);
+}
+
 bool LLIsValidItemLink::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
