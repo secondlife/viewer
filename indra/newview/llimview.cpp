@@ -3160,7 +3160,7 @@ void LLIMMgr::addMessage(
 			}
 
             // Fetch group chat history, enabled by default.
-            if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory"))
+            if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory") && gAgent.getRegion())
             {
                 std::string chat_url = gAgent.getRegion()->getCapability("ChatSessionRequest");
                 LLCoros::instance().launch("chatterBoxHistoryCoro",
