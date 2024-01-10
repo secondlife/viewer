@@ -1473,8 +1473,9 @@ void LLAgent::pitch(F32 angle)
 	// after left-clicking the mouse on the avatar and dragging down
 	//
 	// The issue is observed on angle below 10 degrees
+	bool isMouseLookOn = mControlFlags & AGENT_CONTROL_MOUSELOOK;
 	const F32 look_down_limit = 179.f * DEG_TO_RAD;
-	const F32 look_up_limit   =  10.f * DEG_TO_RAD;
+	const F32 look_up_limit   = (isMouseLookOn ? 1.f : 10.f) * DEG_TO_RAD;
 
 	F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
 
