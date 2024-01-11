@@ -4,7 +4,7 @@ include(Prebuilt)
 include_guard()
 add_library( ll::tracy INTERFACE IMPORTED )
 
-set(USE_TRACY OFF CACHE BOOL "Use Tracy profiler.")
+set(USE_TRACY ON CACHE BOOL "Use Tracy profiler.")
 
 if (USE_TRACY)
   use_system_binary(tracy)
