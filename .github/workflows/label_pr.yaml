@@ -7,7 +7,7 @@ jobs:
   label_pr:
     runs-on: ubuntu-latest
     permissions:
-      issues: write
+      pull-requests: write
     steps:
       - run: gh pr edit "$NUMBER" --add-label "$LABELS"
         env:
