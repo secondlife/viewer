@@ -9022,7 +9022,7 @@
    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
-    <string>Enable support for HiDPI displays, like Retina (MacOS X ONLY, requires restart)</string>
+    <string>Enable support for HiDPI displays, like Retina (macOS ONLY, requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

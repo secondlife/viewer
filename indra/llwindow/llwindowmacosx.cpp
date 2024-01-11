@@ -1249,7 +1249,7 @@ F32 LLWindowMacOSX::getNativeAspectRatio()
 
 F32 LLWindowMacOSX::getPixelAspectRatio()
 {
-	//OS X always enforces a 1:1 pixel aspect ratio, regardless of video mode
+	//macOS always enforces a 1:1 pixel aspect ratio, regardless of video mode
 	return 1.f;
 }
 
@@ -1281,7 +1281,7 @@ void LLWindowMacOSX::afterDialog()
 
 void LLWindowMacOSX::flashIcon(F32 seconds)
 {
-	// For consistency with OS X conventions, the number of seconds given is ignored and
+	// For consistency with macOS conventions, the number of seconds given is ignored and
 	// left up to the OS (which will actually bounce it for one second).
 	requestUserAttention();
 }
