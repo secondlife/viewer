@@ -269,9 +269,9 @@ LLOSInfo::LLOSInfo() :
 #elif LL_DARWIN
 	
 	// Initialize mOSStringSimple to something like:
-	// "Mac OS X 10.6.7"
+	// "macOS 10.13.1"
 	{
-		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
+		const char * DARWIN_PRODUCT_NAME = "macOS";
 		
 		int64_t major_version, minor_version, bugfix_version = 0;
 
@@ -294,7 +294,7 @@ LLOSInfo::LLOSInfo() :
 	}
 	
 	// Initialize mOSString to something like:
-	// "Mac OS X 10.6.7 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
+	// "macOS 10.13.1 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
 	struct utsname un;
 	if(uname(&un) != -1)
 	{		
