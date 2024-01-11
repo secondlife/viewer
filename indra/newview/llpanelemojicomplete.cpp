@@ -264,7 +264,11 @@ BOOL LLPanelEmojiComplete::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
     if (mTotalEmojis > mVisibleEmojis)
     {
-        mScrollPos = llclamp<size_t>(mScrollPos + clicks, 0, mTotalEmojis - mVisibleEmojis);
+        // In case of wheel up (clicks < 0) we shouldn't subtract more than value of mScrollPos
+        // Example: if mScrollPos = 0, clicks = -1 then (mScrollPos + clicks) becomes SIZE_MAX
+        // As a result of llclamp<size_t>() mScrollPos becomes (mTotalEmojis - mVisibleEmojis)
+        S32 newScrollPos = llmax(0, (S32)mScrollPos + clicks);
+        mScrollPos = llclamp<size_t>((size_t)newScrollPos, 0, mTotalEmojis - mVisibleEmojis);
         mCurSelected = posToIndex(x, y);
         return TRUE;
     }
