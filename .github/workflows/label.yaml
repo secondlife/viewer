@@ -13,3 +13,18 @@ jobs:
         with:
           configuration-path: .github/labeler.yaml
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+  label-pr:
+    if:
+      ${{ github.event_name == 'opened' &&
+          github.event.pull_request.head.repo.owner.login == 'secondlife' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - run: gh pr edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          LABELS: "team:viewer"
