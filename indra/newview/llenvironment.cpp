@@ -895,6 +895,14 @@ void LLEnvironment::initSingleton()
         gGenericDispatcher.addHandler(MESSAGE_PUSHENVIRONMENT, &environment_push_dispatch_handler);
     }
 
+    gSavedSettings.getControl("RenderSkyAutoAdjustProbeAmbiance")->getSignal()->connect(
+        [](LLControlVariable*, const LLSD& new_val, const LLSD& old_val)
+        {
+            LLSettingsSky::sAutoAdjustProbeAmbiance = new_val.asReal();
+        }
+    );
+    LLSettingsSky::sAutoAdjustProbeAmbiance = gSavedSettings.getF32("RenderSkyAutoAdjustProbeAmbiance");
+
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
 }
