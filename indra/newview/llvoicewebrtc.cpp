@@ -246,9 +246,9 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mDevicesListUpdated(false),
 
     mAreaVoiceDisabled(false),
-    mAudioSession(),  // TBD - should be NULL
-    mAudioSessionChanged(false),
-    mNextAudioSession(),
+    mSession(),  // TBD - should be NULL
+    mSessionChanged(false),
+    mNextSession(),
 
     mCurrentParcelLocalID(0),
 
@@ -358,8 +358,8 @@ void LLWebRTCVoiceClient::terminate()
 
 void LLWebRTCVoiceClient::cleanUp()
 {
-    mNextAudioSession.reset();
-    mAudioSession.reset();
+    mNextSession.reset();
+    mSession.reset();
     mNeighboringRegions.clear();
     sessionState::for_each(boost::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "exiting" << LL_ENDL;
@@ -396,11 +396,11 @@ void LLWebRTCVoiceClient::OnConnectionFailure(const std::string& channelID, cons
 {
     if (gAgent.getRegion()->getRegionID() == regionID)
     {
-        if (mNextAudioSession && mNextAudioSession->mChannelID == channelID)
+        if (mNextSession && mNextSession->mChannelID == channelID)
         {
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::ERROR_UNKNOWN);
         }
-        else if (mAudioSession && mAudioSession->mChannelID == channelID)
+        else if (mSession && mSession->mChannelID == channelID)
         {
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::ERROR_UNKNOWN);
         }
@@ -411,17 +411,17 @@ void LLWebRTCVoiceClient::OnConnectionEstablished(const std::string& channelID, 
 {
     if (gAgent.getRegion()->getRegionID() == regionID)
     {
-        if (mNextAudioSession && mNextAudioSession->mChannelID == channelID)
+        if (mNextSession && mNextSession->mChannelID == channelID)
         {
-            if (mAudioSession)
+            if (mSession)
             {
-                mAudioSession->shutdownAllConnections();
+                mSession->shutdownAllConnections();
             }
-            mAudioSession = mNextAudioSession;
-            mNextAudioSession.reset();
+            mSession = mNextSession;
+            mNextSession.reset();
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
         }
-        else if (mAudioSession && mAudioSession->mChannelID == channelID)
+        else if (mSession && mSession->mChannelID == channelID)
         {
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
         }
@@ -458,20 +458,9 @@ void LLWebRTCVoiceClient::sessionState::processSessionStates()
 
 bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
 {
-
-    // Estate voice requires connection to neighboring regions.
-    std::set<LLUUID> neighbor_ids = LLWebRTCVoiceClient::getInstance()->getNeighboringRegions();
-
     std::list<connectionPtr_t>::iterator iter = mWebRTCConnections.begin();
     while (iter != mWebRTCConnections.end())
     {
-        if (neighbor_ids.find(iter->get()->getRegionID()) == neighbor_ids.end())
-        {
-            // shut down connections to neighbors that are too far away.
-            iter->get()->shutDown();
-        }
-        neighbor_ids.erase(iter->get()->getRegionID());
-
         if (!iter->get()->connectionStateMachine())
         {
             iter = mWebRTCConnections.erase(iter);
@@ -481,19 +470,62 @@ bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
             ++iter;
         }
     }
+    return !mWebRTCConnections.empty();
+}
+
+
+//////////////////////////
+// LLWebRTCVoiceClient::estateSessionState
+
+LLWebRTCVoiceClient::estateSessionState::estateSessionState()
+{
+    mChannelID       = "Estate";
+    LLUUID region_id = gAgent.getRegion()->getRegionID();
+
+    mWebRTCConnections.emplace_back(new LLVoiceWebRTCSpatialConnection(region_id, INVALID_PARCEL_ID, "Estate"));
+}
+
+LLWebRTCVoiceClient::parcelSessionState::parcelSessionState(const std::string &channelID, S32 parcel_local_id)
+{
+    LLUUID region_id = gAgent.getRegion()->getRegionID();
+    mChannelID       = channelID;
+    mWebRTCConnections.emplace_back(new LLVoiceWebRTCSpatialConnection(region_id, parcel_local_id, channelID));
+}
+
+LLWebRTCVoiceClient::adhocSessionState::adhocSessionState(const std::string &channelID)
+{
+}
+
+bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
+{
+
+    // Estate voice requires connection to neighboring regions.
+    std::set<LLUUID> neighbor_ids = LLWebRTCVoiceClient::getInstance()->getNeighboringRegions();
+
+    for (auto& connection : mWebRTCConnections)
+    {
+        boost::shared_ptr<LLVoiceWebRTCSpatialConnection> spatialConnection =
+            boost::static_pointer_cast<LLVoiceWebRTCSpatialConnection>(connection);
+
+        LLUUID regionID = spatialConnection.get()->getRegionID();
+     
+        if (neighbor_ids.find(regionID) == neighbor_ids.end())
+        {
+            // shut down connections to neighbors that are too far away.
+            spatialConnection.get()->shutDown();
+        }
+        neighbor_ids.erase(regionID);
+    }
 
     // add new connections for new neighbors
-    if (mSessionType == SESSION_TYPE_ESTATE)
+    for (auto &neighbor : neighbor_ids)
     {
-        for (auto &neighbor : neighbor_ids)
-        {
-            connectionPtr_t connection = mWebRTCConnections.emplace_back(new LLVoiceWebRTCConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
-            connection->setMicGain(mMicGain);
-            connection->setMuteMic(mMuted);
-            connection->setSpeakerVolume(mSpeakerVolume);
-        }
+        connectionPtr_t connection = mWebRTCConnections.emplace_back(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+        connection->setMicGain(mMicGain);
+        connection->setMuteMic(mMuted);
+        connection->setSpeakerVolume(mSpeakerVolume);
     }
-    return !mWebRTCConnections.empty();
+    return LLWebRTCVoiceClient::sessionState::processConnectionStates();
 }
 
 void LLWebRTCVoiceClient::voiceConnectionCoro()
@@ -506,49 +538,75 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
         while (!sShuttingDown)
         {
             llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
-            // add session for region or parcel voice.
-            LLViewerRegion *regionp = gAgent.getRegion();
-            if (!regionp || regionp->getRegionID().isNull())
+            bool voiceEnabled = mVoiceEnabled;
+
+            if (!isAgentAvatarValid())
             {
                 continue;
             }
-            bool voiceEnabled = mVoiceEnabled && regionp->isVoiceEnabled();
-            // check to see if parcel changed.
-            std::string channelID = "Estate";
-            S32         parcel_local_id = INVALID_PARCEL_ID;
 
-            if (voiceEnabled)
+            if (inSpatialChannel())
             {
-                LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-                if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
+                // add session for region or parcel voice.
+                LLViewerRegion *regionp = gAgent.getRegion();
+                if (!regionp || regionp->getRegionID().isNull())
                 {
-                    if (!parcel->getParcelFlagAllowVoice())
+                    continue;
+                }
+
+                updatePosition();
+
+                voiceEnabled = voiceEnabled && regionp->isVoiceEnabled();
+
+                if (voiceEnabled)
+                {
+                    LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+                    // check to see if parcel changed.
+                    if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
                     {
-                        channelID.clear();
+                        // parcel voice
+                        if (!parcel->getParcelFlagAllowVoice())
+                        {
+                            voiceEnabled = false;
+                        }
+                        else if (!parcel->getParcelFlagUseEstateVoiceChannel())
+                        {
+                            S32 parcel_local_id = parcel->getLocalID();
+                            std::string channelID = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
+
+                            if (!inOrJoiningChannel(channelID))
+                            {
+                                startParcelSession(channelID, parcel_local_id);
+                            }
+                        }
+                        else 
+                        {
+                            // parcel using estate voice
+                            if (!inEstateChannel())
+                            {
+                                startEstateSession();
+                            }
+                        }
                     }
-                    else if (!parcel->getParcelFlagUseEstateVoiceChannel())
+                    else
                     {
-                        parcel_local_id = parcel->getLocalID();
-                        channelID       = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
+                        // estate voice
+                        if (!inEstateChannel())
+                        {
+                            startEstateSession();
+                        }
                     }
                 }
-            }
-            else
-            {
-                channelID.clear();
-            }
-                
-            if ((mNextAudioSession && channelID != mNextAudioSession->mChannelID) ||
-                (!mAudioSession && !mNextAudioSession && !channelID.empty()) || 
-                (mAudioSession && channelID != mAudioSession->mChannelID))
-            {
-                setSpatialChannel(channelID, "", parcel_local_id);
+                else
+                {
+                    // voice is disabled, so leave and disable PTT
+                    leaveChannel(true);
+                }
             }
             
             sessionState::processSessionStates();
             if (voiceEnabled)
             {
-                updatePosition();
                 sendPositionUpdate(true);
                 updateOwnVolume();
             }
@@ -591,9 +649,9 @@ void LLWebRTCVoiceClient::requestRelog()
 
 void LLWebRTCVoiceClient::leaveAudioSession()
 {
-	if(mAudioSession)
+	if(mSession)
 	{
-		LL_DEBUGS("Voice") << "leaving session: " << mAudioSession->mChannelID << LL_ENDL;
+		LL_DEBUGS("Voice") << "leaving session: " << mSession->mChannelID << LL_ENDL;
 	}
 	else
 	{
@@ -866,11 +924,11 @@ void LLWebRTCVoiceClient::reapSession(const sessionStatePtr_t &session)
 {
 	if(session)
 	{		
-		if(session == mAudioSession)
+		if(session == mSession)
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mChannelID << " (it's the current session)" << LL_ENDL;
 		}
-		else if(session == mNextAudioSession)
+		else if(session == mNextSession)
 		{
             LL_DEBUGS("Voice") << "NOT deleting session " << session->mChannelID << " (it's the next session)" << LL_ENDL;
 		}
@@ -891,17 +949,17 @@ void LLWebRTCVoiceClient::reapSession(const sessionStatePtr_t &session)
 void LLWebRTCVoiceClient::muteListChanged()
 {
 	// The user's mute list has been updated.  Go through the current participant list and sync it with the mute list.
-	if(mAudioSession)
+	if(mSession)
 	{
-		participantMap::iterator iter = mAudioSession->mParticipantsByURI.begin();
+		participantMap::iterator iter = mSession->mParticipantsByURI.begin();
 		
-		for(; iter != mAudioSession->mParticipantsByURI.end(); iter++)
+		for(; iter != mSession->mParticipantsByURI.end(); iter++)
 		{
 			participantStatePtr_t p(iter->second);
 			
 			// Check to see if this participant is on the mute list already
 			if(p->updateMuteState())
-				mAudioSession->mVolumeDirty = true;
+				mSession->mVolumeDirty = true;
 		}
 	}
 }
@@ -1031,32 +1089,13 @@ void LLWebRTCVoiceClient::sessionState::removeAllParticipants()
 	}
 }
 
-/*static*/
-void LLWebRTCVoiceClient::sessionState::VerifySessions()
-{
-    return;
-    /*
-    std::map<std::string, wptr_t>::iterator it = mSessions.begin();
-    while (it != mSessions.end())
-    {
-        if ((*it).second.expired())
-        {
-            LL_WARNS("Voice") << "Expired session found! removing" << LL_ENDL;
-            it = mSessions.erase(it);
-        }
-        else
-            ++it;
-    }
-    */
-}
-
 
 void LLWebRTCVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 {
-	if(mAudioSession)
+	if(mSession)
 	{
-		for(participantUUIDMap::iterator iter = mAudioSession->mParticipantsByUUID.begin();
-			iter != mAudioSession->mParticipantsByUUID.end(); 
+		for(participantUUIDMap::iterator iter = mSession->mParticipantsByUUID.begin();
+			iter != mSession->mParticipantsByUUID.end(); 
 			iter++)
 		{
 			participants.insert(iter->first);
@@ -1066,9 +1105,9 @@ void LLWebRTCVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 
 bool LLWebRTCVoiceClient::isParticipant(const LLUUID &speaker_id)
 {
-  if(mAudioSession)
+  if(mSession)
     {
-      return (mAudioSession->mParticipantsByUUID.find(speaker_id) != mAudioSession->mParticipantsByUUID.end());
+      return (mSession->mParticipantsByUUID.find(speaker_id) != mSession->mParticipantsByUUID.end());
     }
   return false;
 }
@@ -1139,54 +1178,32 @@ void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, co
     }
 }
 
-bool LLWebRTCVoiceClient::switchChannel(const std::string          channelID,
-                                        sessionState::ESessionType session_type,
-                                        S32                        parcel_local_id)
+bool LLWebRTCVoiceClient::startEstateSession()
 {
-    if (mAudioSession)
-    {
-        // If we're already in a channel, or if we're joining one, terminate
-        // so we can rejoin with the new session data.
-        sessionTerminate();
-        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
-        deleteSession(mAudioSession);
-    }
+    leaveChannel(false);
+    mNextSession = addSession("Estate", sessionState::ptr_t(new estateSessionState()));
+    return true;
+}
 
-    if (channelID.empty())
-    {
-        // Leave any channel we may be in
-        LL_DEBUGS("Voice") << "leaving channel" << LL_ENDL;
+bool LLWebRTCVoiceClient::startParcelSession(const std::string &channelID, S32 parcelID)
+{
+    leaveChannel(false);
+    mNextSession = addSession(channelID, sessionState::ptr_t(new parcelSessionState(channelID, parcelID)));
+    return true;
+}
 
-        if (mNextAudioSession)
-        {
-            deleteSession(mNextAudioSession);
-        }
-        // If voice was on, turn it off
-        if (LLVoiceClient::getInstance()->getUserPTTState())
-        {
-            LLVoiceClient::getInstance()->setUserPTTState(false);
-        }
-
-        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
-    }
-    else
-    {
-        if (mNextAudioSession)
-        {
-            deleteSession(mNextAudioSession);
-        }
-        LL_DEBUGS("Voice") << "switching to channel " << channelID << LL_ENDL;
-        mNextAudioSession             = addSession(channelID, parcel_local_id);
-        mNextAudioSession->mSessionType = session_type;
-    }
-    return true;	
+bool LLWebRTCVoiceClient::startAdHocSession(const std::string &channelID)
+{
+    leaveChannel(false);
+    mNextSession = addSession(channelID, sessionState::ptr_t(new adhocSessionState(channelID)));
+    return true;
 }
 
 void LLWebRTCVoiceClient::joinSession(const sessionStatePtr_t &session)
 {
-	mNextAudioSession = session;
+	mNextSession = session;
 
-    if (mAudioSession)
+    if (mSession)
     {
         // If we're already in a channel, or if we're joining one, terminate
         // so we can rejoin with the new session data.
@@ -1194,36 +1211,9 @@ void LLWebRTCVoiceClient::joinSession(const sessionStatePtr_t &session)
     }
 }
 
-void LLWebRTCVoiceClient::setNonSpatialChannel(
-	const std::string &uri,
-	const std::string &credentials)
-{
-	switchChannel(uri, sessionState::SESSION_TYPE_P2P);
-}
-
-bool LLWebRTCVoiceClient::setSpatialChannel(
-	const std::string &uri, const std::string &credentials, S32 parcel_local_id)
-{
-    mAreaVoiceDisabled = uri.empty();
-
-	LL_DEBUGS("Voice") << "got spatial channel uri: \"" << uri << "\"" << LL_ENDL;
-	
-	if((mAudioSession && !mAudioSession->isSpatial()) || (mNextAudioSession && !mNextAudioSession->isSpatial()))
-	{
-		// User is in a non-spatial chat or joining a non-spatial chat.  Don't switch channels.
-		LL_INFOS("Voice") << "in non-spatial chat, not switching channels" << LL_ENDL;
-        return false;
-	}
-	else
-	{
-        mNeighboringRegions.insert(gAgent.getRegion()->getRegionID());
-        return switchChannel(uri, parcel_local_id == INVALID_PARCEL_ID ? sessionState::SESSION_TYPE_ESTATE : sessionState::SESSION_TYPE_PARCEL, parcel_local_id);
-	}
-}
-
 void LLWebRTCVoiceClient::callUser(const LLUUID &uuid)
 { 
-    switchChannel(uuid.asString(), sessionState::SESSION_TYPE_P2P);
+    startAdHocSession(uuid.asString());
 }
 
 void LLWebRTCVoiceClient::endUserIMSession(const LLUUID &uuid)
@@ -1242,9 +1232,7 @@ bool LLWebRTCVoiceClient::answerInvite(std::string &channelID)
     sessionStatePtr_t session(findP2PSession(LLUUID(channelID)));
 	if(session)
 	{
-        session->mSessionType = sessionState::ESessionType::SESSION_TYPE_P2P;
-
-		joinSession(session);
+        startAdHocSession(channelID);
 		return true;
 	}
 	
@@ -1309,13 +1297,11 @@ void LLWebRTCVoiceClient::leaveNonSpatialChannel()
     LL_DEBUGS("Voice") << "Request to leave spacial channel." << LL_ENDL;
 	
 	// Make sure we don't rejoin the current session.	
-    sessionStatePtr_t oldNextSession(mNextAudioSession);
-	mNextAudioSession.reset();
+    sessionStatePtr_t oldNextSession(mNextSession);
+	mNextSession.reset();
 	
 	// Most likely this will still be the current session at this point, but check it anyway.
 	reapSession(oldNextSession);
-	
-	verifySessionState();
 	
 	sessionTerminate();
 }
@@ -1419,13 +1405,23 @@ std::string LLWebRTCVoiceClient::displayNameFromAvatar(LLVOAvatar *avatar)
 	return avatar->getFullname();
 }
 
-bool LLWebRTCVoiceClient::inSpatialChannel(void)
+bool LLWebRTCVoiceClient::inOrJoiningChannel(const std::string& channelID)
 {
-	bool result = false;
+    return (mSession && mSession->mChannelID == channelID) || (mNextSession && mNextSession->mChannelID == channelID);
+}
+
+bool LLWebRTCVoiceClient::inEstateChannel()
+{
+    return (mSession && mSession->isEstate()) || (mNextSession && mNextSession->isEstate());
+}
+
+bool LLWebRTCVoiceClient::inSpatialChannel()
+{
+	bool result = true;
 	
-	if(mAudioSession)
+	if(mSession)
     {
-		result = mAudioSession->isSpatial();
+		result = mSession->isSpatial();
     }
     
 	return result;
@@ -1435,8 +1431,8 @@ std::string LLWebRTCVoiceClient::getAudioSessionURI()
 {
 	std::string result;
 	
-	if(mAudioSession)
-		result = mAudioSession->mChannelID;
+	if(mSession)
+		result = mSession->mChannelID;
 		
 	return result;
 }
@@ -1599,14 +1595,29 @@ bool LLWebRTCVoiceClient::channelFromRegion(LLViewerRegion *region, std::string 
 	return result;
 }
 
-void LLWebRTCVoiceClient::leaveChannel(void)
+void LLWebRTCVoiceClient::leaveChannel(bool stopTalking)
 {
-    if (mAudioSession || mNextAudioSession)
-	{
-		LL_DEBUGS("Voice") << "leaving channel for teleport/logout" << LL_ENDL;
-		mChannelName.clear();
-		sessionTerminate();
-	}
+    mChannelName.clear();
+
+   if (mSession)
+    {
+        // If we're already in a channel, or if we're joining one, terminate
+        // so we can rejoin with the new session data.
+        sessionTerminate();
+        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+        deleteSession(mSession);
+    }
+
+    if (mNextSession)
+    {
+        deleteSession(mNextSession);
+    }
+
+    // If voice was on, turn it off
+    if (stopTalking && LLVoiceClient::getInstance()->getUserPTTState())
+    {
+        LLVoiceClient::getInstance()->setUserPTTState(false);
+    }
 }
 
 void LLWebRTCVoiceClient::setMuteMic(bool muted)
@@ -1748,11 +1759,11 @@ void LLWebRTCVoiceClient::setMicGain(F32 gain)
 BOOL LLWebRTCVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
 	BOOL result = FALSE;
-    if (!mAudioSession)
+    if (!mSession)
     {
         return FALSE;
     }
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		// I'm not sure what the semantics of this should be.
@@ -1766,11 +1777,11 @@ BOOL LLWebRTCVoiceClient::getVoiceEnabled(const LLUUID& id)
 std::string LLWebRTCVoiceClient::getDisplayName(const LLUUID& id)
 {
 	std::string result;
-    if (!mAudioSession)
+    if (!mSession)
     {
         return result;
     }
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		result = participant->mDisplayName;
@@ -1784,11 +1795,11 @@ std::string LLWebRTCVoiceClient::getDisplayName(const LLUUID& id)
 BOOL LLWebRTCVoiceClient::getIsSpeaking(const LLUUID& id)
 {
 	BOOL result = FALSE;
-    if (!mAudioSession)
+    if (!mSession)
     {
         return result;
     }
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		result = participant->mIsSpeaking;
@@ -1800,11 +1811,11 @@ BOOL LLWebRTCVoiceClient::getIsSpeaking(const LLUUID& id)
 BOOL LLWebRTCVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
 	BOOL result = FALSE;
-    if (!mAudioSession)
+    if (!mSession)
     {
         return result;
     }
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		result = participant->mIsModeratorMuted;
@@ -1816,11 +1827,11 @@ BOOL LLWebRTCVoiceClient::getIsModeratorMuted(const LLUUID& id)
 F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
 {
     F32 result = 0;
-    if (!mAudioSession)
+    if (!mSession)
     {
         return result;
     }
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if (participant)
 	{
 		result = participant->mLevel;
@@ -1831,11 +1842,11 @@ F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
 BOOL LLWebRTCVoiceClient::getUsingPTT(const LLUUID& id)
 {
 	BOOL result = FALSE;
-    if (!mAudioSession)
+    if (!mSession)
     {
         return result;
     }
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		// I'm not sure what the semantics of this should be.
@@ -1850,7 +1861,7 @@ BOOL LLWebRTCVoiceClient::getOnMuteList(const LLUUID& id)
 {
 	BOOL result = FALSE;
 	
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		result = participant->mOnMuteList;
@@ -1865,7 +1876,7 @@ F32 LLWebRTCVoiceClient::getUserVolume(const LLUUID& id)
     // Minimum volume will be returned for users with voice disabled
     F32 result = LLVoiceClient::VOLUME_MIN;
 	
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
     if(participant)
 	{
 		result = participant->mVolume;
@@ -1879,9 +1890,9 @@ F32 LLWebRTCVoiceClient::getUserVolume(const LLUUID& id)
 
 void LLWebRTCVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 {
-	if(mAudioSession)
+	if(mSession)
 	{
-        participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+        participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 		if (participant && !participant->mIsSelf)
 		{
 			if (!is_approx_equal(volume, LLVoiceClient::VOLUME_DEFAULT))
@@ -1898,7 +1909,7 @@ void LLWebRTCVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 
 			participant->mVolume = llclamp(volume, LLVoiceClient::VOLUME_MIN, LLVoiceClient::VOLUME_MAX);
 			participant->mVolumeDirty = true;
-			mAudioSession->mVolumeDirty = true;
+			mSession->mVolumeDirty = true;
 		}
 	}
 }
@@ -1907,7 +1918,7 @@ std::string LLWebRTCVoiceClient::getGroupID(const LLUUID& id)
 {
 	std::string result;
 
-    participantStatePtr_t participant(mAudioSession->findParticipant(id.asString()));
+    participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if(participant)
 	{
 		result = participant->mGroupID;
@@ -1935,20 +1946,12 @@ LLWebRTCVoiceClient::sessionState::sessionState() :
 }
 
 /*static*/
-LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::createSession(const std::string& channelID, S32 parcelLocalID)
+void LLWebRTCVoiceClient::sessionState::addSession(
+    const std::string                       &channelID,
+    LLWebRTCVoiceClient::sessionState::ptr_t& session)
 {
-    LLUUID  region_id = gAgent.getRegion()->getRegionID();    
-
-    sessionState::ptr_t session(new sessionState());
-    session->mChannelID = channelID;
-    session->mWebRTCConnections.emplace_back(new LLVoiceWebRTCConnection(region_id, parcelLocalID, channelID));
-
-    // add agent as participant
     session->addParticipant(gAgentID);
-
     mSessions[channelID] = session;
-
-    return session;
 }
 
 LLWebRTCVoiceClient::sessionState::~sessionState()
@@ -2038,7 +2041,7 @@ void LLWebRTCVoiceClient::sessionState::for_eachPredicate(const std::pair<std::s
 LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::findP2PSession(const LLUUID &agent_id)
 {
     sessionStatePtr_t result = sessionState::matchSessionByChannelID(agent_id.asString());
-    if (result && result->mSessionType == sessionState::SESSION_TYPE_P2P)
+    if (result && !result->isSpatial())
     {
         return result;
     }
@@ -2059,48 +2062,32 @@ void LLWebRTCVoiceClient::sessionState::shutdownAllConnections()
 }
 
 
-LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::addSession(const std::string& channel_id, S32 parcel_local_id)
+LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::addSession(const std::string &channel_id, sessionStatePtr_t &session)
 {
-    sessionStatePtr_t result;
-
-    // Check whether there's already a session with this URI
-    result = sessionState::matchSessionByChannelID(channel_id);
-
-	if(!result)
+    sessionStatePtr_t existingSession = sessionState::matchSessionByChannelID(channel_id);
+	if (!existingSession)
 	{
 		// No existing session found.
 		
 		LL_DEBUGS("Voice") << "adding new session: CHANNEL " << channel_id << LL_ENDL;
-        result = sessionState::createSession(channel_id, parcel_local_id);
-        result->setMuteMic(mMuteMic);
-        result->setMicGain(mMicGain);
-        result->setSpeakerVolume(mSpeakerVolume);
+        session->setMuteMic(mMuteMic);
+        session->setMicGain(mMicGain);
+        session->setSpeakerVolume(mSpeakerVolume);
 
 		if (LLVoiceClient::instance().getVoiceEffectEnabled())
 		{
-			result->mVoiceFontID = LLVoiceClient::instance().getVoiceEffectDefault();
+            session->mVoiceFontID = LLVoiceClient::instance().getVoiceEffectDefault();
 		}
+
+        sessionState::addSession(channel_id, session);
+        return session;
 	}
 	else
 	{
 		// Found an existing session
-		
-		if (channel_id != result->mChannelID)
-		{
-			// TODO: Should this be an internal error?
-			LL_DEBUGS("Voice") << "changing uri from " << result->mChannelID << " to " << channel_id << LL_ENDL;
-
-            result->mChannelID = channel_id;
-
-            verifySessionState();
-		}
-		
-		LL_DEBUGS("Voice") << "returning existing session: CHANNEL " << channel_id << LL_ENDL;
-	}
-
-	verifySessionState();
-		
-	return result;
+		LL_DEBUGS("Voice") << "Attempting to add already-existing session " << channel_id << LL_ENDL;
+        return existingSession;
+	}	
 }
 
 void LLWebRTCVoiceClient::predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t& session)
@@ -2111,27 +2098,21 @@ void LLWebRTCVoiceClient::predShutdownSession(const LLWebRTCVoiceClient::session
 void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
 {
 	// At this point, the session should be unhooked from all lists and all state should be consistent.
-	verifySessionState();
     session->shutdownAllConnections();
 	// If this is the current audio session, clean up the pointer which will soon be dangling.
-    bool deleteAudioSession = mAudioSession == session;
-    bool deleteNextAudioSession = mNextAudioSession == session;
+    bool deleteAudioSession = mSession == session;
+    bool deleteNextAudioSession = mNextSession == session;
     if (deleteAudioSession)
 	{
-		mAudioSession.reset();
-		mAudioSessionChanged = true;
+		mSession.reset();
+		mSessionChanged = true;
 	}
 
 	// ditto for the next audio session
     if (deleteNextAudioSession)
 	{
-		mNextAudioSession.reset();
+		mNextSession.reset();
 	}
-}
-
-void LLWebRTCVoiceClient::verifySessionState(void)
-{
-    sessionState::VerifySessions();
 }
 
 void LLWebRTCVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
@@ -2170,14 +2151,14 @@ void LLWebRTCVoiceClient::removeObserver(LLVoiceClientStatusObserver* observer)
 void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::EStatusType status)
 {
     LL_DEBUGS("Voice") << "( " << LLVoiceClientStatusObserver::status2string(status) << " )"
-                       << " mAudioSession=" << mAudioSession
+                       << " mSession=" << mSession
                        << LL_ENDL;
 
-	if(mAudioSession)
+	if(mSession)
 	{
 		if(status == LLVoiceClientStatusObserver::ERROR_UNKNOWN)
 		{
-			switch(mAudioSession->mErrorStatusCode)
+			switch(mSession->mErrorStatusCode)
 			{
 				case 20713:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_FULL; 		break;
 				case 20714:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_LOCKED; 	break;
@@ -2193,11 +2174,11 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 			}
 
 			// Reset the error code to make sure it won't be reused later by accident.
-			mAudioSession->mErrorStatusCode = 0;
+			mSession->mErrorStatusCode = 0;
 		}
 		else if(status == LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL)
 		{
-			switch(mAudioSession->mErrorStatusCode)
+			switch(mSession->mErrorStatusCode)
 			{
 				case HTTP_NOT_FOUND:	// NOT_FOUND
 				// *TODO: Should this be 503?
@@ -2208,7 +2189,7 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 					status = LLVoiceClientStatusObserver::ERROR_NOT_AVAILABLE;
 
 					// Reset the error code to make sure it won't be reused later by accident.
-					mAudioSession->mErrorStatusCode = 0;
+					mSession->mErrorStatusCode = 0;
 				break;
 			}
 		}
@@ -2316,9 +2297,62 @@ std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id) { return id.asSt
 
 
 /////////////////////////////
+// LLVoiceWebRTCConnection
+
+LLVoiceWebRTCConnection::LLVoiceWebRTCConnection() :
+    mWebRTCAudioInterface(nullptr),
+    mWebRTCPeerConnection(nullptr),
+    mMuted(true),
+    mSpeakerVolume(0.0),
+    mMicGain(0.0)
+{
+
+}
+
+LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
+{
+    if (LLWebRTCVoiceClient::isShuttingDown())
+    {
+        // peer connection and observers will be cleaned up
+        // by llwebrtc::terminate() on shutdown.
+        return;
+    }
+    llwebrtc::freePeerConnection(mWebRTCPeerConnection);
+    mWebRTCPeerConnection = nullptr;
+}
+
+
+void LLVoiceWebRTCConnection::setMuteMic(bool muted)
+{
+    mMuted = muted;
+    if (mWebRTCAudioInterface)
+    {
+        mWebRTCAudioInterface->setMute(muted);
+    }
+}
+
+void LLVoiceWebRTCConnection::setMicGain(F32 gain)
+{
+    mMicGain = gain;
+    if (mWebRTCAudioInterface)
+    {
+        mWebRTCAudioInterface->setSendVolume(gain);
+    }
+}
+
+void LLVoiceWebRTCConnection::setSpeakerVolume(F32 volume)
+{
+    mSpeakerVolume = volume;
+    if (mWebRTCAudioInterface)
+    {
+        mWebRTCAudioInterface->setReceiveVolume(volume);
+    }
+}
+
+/////////////////////////////
 // WebRTC Signaling Handlers
 
-LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, S32 parcelLocalID, const std::string& channelID) :
+LLVoiceWebRTCSpatialConnection::LLVoiceWebRTCSpatialConnection(const LLUUID &regionID, S32 parcelLocalID, const std::string &channelID) :
     mWebRTCPeerConnection(nullptr),
     mWebRTCAudioInterface(nullptr),
     mWebRTCDataInterface(nullptr),
@@ -2329,16 +2363,13 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, S32 par
     mRegionID(regionID),
     mParcelLocalID(parcelLocalID),
     mShutDown(false),
-    mOutstandingRequests(0),
-    mMuted(true),
-    mSpeakerVolume(0.0),
-    mMicGain(0.0)
+    mOutstandingRequests(0)
 {
     mWebRTCPeerConnection = llwebrtc::newPeerConnection();
     mWebRTCPeerConnection->setSignalingObserver(this);
 }
 
-LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection() 
+LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection() 
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2348,11 +2379,9 @@ LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
     }
     assert(mOutstandingRequests == 0);
     mWebRTCPeerConnection->unsetSignalingObserver(this);
-    llwebrtc::freePeerConnection(mWebRTCPeerConnection);
-    mWebRTCPeerConnection = nullptr;
 }
 
-void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::IceGatheringState state)
+void LLVoiceWebRTCSpatialConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::IceGatheringState state)
 {
     LL_INFOS("Voice") << "Ice Gathering voice account. " << state << LL_ENDL;
 
@@ -2374,13 +2403,13 @@ void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObs
     }
 }
 
-void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate)
+void LLVoiceWebRTCSpatialConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate)
 {
     LLMutexLock lock(&mVoiceStateMutex);
     mIceCandidates.push_back(candidate);
 }
 
-void LLVoiceWebRTCConnection::onIceUpdateComplete(bool ice_completed, const LLSD &result)
+void LLVoiceWebRTCSpatialConnection::onIceUpdateComplete(bool ice_completed, const LLSD &result)
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2390,7 +2419,7 @@ void LLVoiceWebRTCConnection::onIceUpdateComplete(bool ice_completed, const LLSD
     mOutstandingRequests--;
 }
 
-void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result)
+void LLVoiceWebRTCSpatialConnection::onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result)
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2406,8 +2435,8 @@ void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLS
             url,
             LLCore::HttpRequest::DEFAULT_POLICY_ID,
             body,
-            boost::bind(&LLVoiceWebRTCConnection::onIceUpdateComplete, this, ice_completed, _1),
-            boost::bind(&LLVoiceWebRTCConnection::onIceUpdateError, this, retries - 1, url, body, ice_completed, _1));
+            boost::bind(&LLVoiceWebRTCSpatialConnection::onIceUpdateComplete, this, ice_completed, _1),
+            boost::bind(&LLVoiceWebRTCSpatialConnection::onIceUpdateError, this, retries - 1, url, body, ice_completed, _1));
         return;
     }
 
@@ -2421,7 +2450,7 @@ void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLS
     mOutstandingRequests--;
 }
 
-void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
+void LLVoiceWebRTCSpatialConnection::OnOfferAvailable(const std::string &sdp)
 {
     LL_INFOS("Voice") << "On Offer Available." << LL_ENDL;
     LLMutexLock lock(&mVoiceStateMutex);
@@ -2432,14 +2461,14 @@ void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
     }
 }
 
-void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface)
+void LLVoiceWebRTCSpatialConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface)
 {
     LL_INFOS("Voice") << "On AudioEstablished." << LL_ENDL;
     mWebRTCAudioInterface = audio_interface;
     setVoiceConnectionState(VOICE_STATE_SESSION_ESTABLISHED);
 }
 
-void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binary)
+void LLVoiceWebRTCSpatialConnection::OnDataReceived(const std::string &data, bool binary)
 {
     // incoming data will be a json structure (if it's not binary.)  We may pack
     // binary for size reasons.  Most of the keys in the json objects are
@@ -2514,7 +2543,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
     }
 }
 
-void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface)
+void LLVoiceWebRTCSpatialConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface)
 {
     if (data_interface)
     {
@@ -2535,7 +2564,7 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
     }
 }
 
-void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
+void LLVoiceWebRTCSpatialConnection::OnRenegotiationNeeded()
 {
     LL_INFOS("Voice") << "On Renegotiation Needed." << LL_ENDL;
     if (!mShutDown)
@@ -2544,13 +2573,13 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
     }
 }
 
-void LLVoiceWebRTCConnection::OnPeerShutDown() 
+void LLVoiceWebRTCSpatialConnection::OnPeerShutDown() 
 {
     setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
     mOutstandingRequests--;
 }
 
-void LLVoiceWebRTCConnection::processIceUpdates()
+void LLVoiceWebRTCSpatialConnection::processIceUpdates()
 {
     if (mShutDown || LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2611,8 +2640,8 @@ void LLVoiceWebRTCConnection::processIceUpdates()
                     url,
                     LLCore::HttpRequest::DEFAULT_POLICY_ID,
                     body,
-                    boost::bind(&LLVoiceWebRTCConnection::onIceUpdateComplete, this, iceCompleted, _1),
-                    boost::bind(&LLVoiceWebRTCConnection::onIceUpdateError, this, 3, url, body, iceCompleted, _1));
+                    boost::bind(&LLVoiceWebRTCSpatialConnection::onIceUpdateComplete, this, iceCompleted, _1),
+                    boost::bind(&LLVoiceWebRTCSpatialConnection::onIceUpdateError, this, 3, url, body, iceCompleted, _1));
                 mOutstandingRequests++;
                 mTrickling = true;
             }
@@ -2620,7 +2649,7 @@ void LLVoiceWebRTCConnection::processIceUpdates()
     }
 }
 
-bool LLVoiceWebRTCConnection::requestVoiceConnection()
+bool LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
 {
     LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
 
@@ -2657,13 +2686,13 @@ bool LLVoiceWebRTCConnection::requestVoiceConnection()
         url,
         LLCore::HttpRequest::DEFAULT_POLICY_ID,
         body,
-        boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess, this, _1),
-        boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure, this, url, 3, body, _1));
+        boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceConnectionRequestSuccess, this, _1),
+        boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceConnectionRequestFailure, this, url, 3, body, _1));
     mOutstandingRequests++;
     return true;
 }
 
-void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result)
+void LLVoiceWebRTCSpatialConnection::OnVoiceConnectionRequestSuccess(const LLSD &result)
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2690,7 +2719,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     mOutstandingRequests--;
 }
 
-void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result)
+void LLVoiceWebRTCSpatialConnection::OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result)
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2702,8 +2731,8 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, i
             url,
             LLCore::HttpRequest::DEFAULT_POLICY_ID,
             body,
-            boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess, this, _1),
-            boost::bind(&LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure, this, url, retries - 1, body, _1));
+            boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceConnectionRequestSuccess, this, _1),
+            boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceConnectionRequestFailure, this, url, retries - 1, body, _1));
         return;
     }
     LL_WARNS("Voice") << "Unable to connect voice." << body << " RESULT: " << result << LL_ENDL;
@@ -2711,7 +2740,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, i
     mOutstandingRequests--;
 }
 
-bool LLVoiceWebRTCConnection::connectionStateMachine()
+bool LLVoiceWebRTCSpatialConnection::connectionStateMachine()
 {  
     processIceUpdates();
 
@@ -2824,7 +2853,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 }
 
 
-void LLVoiceWebRTCConnection::sendData(const std::string& data) {
+void LLVoiceWebRTCSpatialConnection::sendData(const std::string& data) {
     
     if (getVoiceConnectionState() == VOICE_STATE_SESSION_UP && mWebRTCDataInterface)
     {
@@ -2832,7 +2861,7 @@ void LLVoiceWebRTCConnection::sendData(const std::string& data) {
     }
 }
 
-bool LLVoiceWebRTCConnection::breakVoiceConnection(bool corowait)
+bool LLVoiceWebRTCSpatialConnection::breakVoiceConnection(bool corowait)
 {
     LL_INFOS("Voice") << "Disconnecting voice." << LL_ENDL;
     if (mWebRTCDataInterface)
@@ -2870,14 +2899,14 @@ bool LLVoiceWebRTCConnection::breakVoiceConnection(bool corowait)
         url,
         LLCore::HttpRequest::DEFAULT_POLICY_ID,
         body,
-        boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess, this, _1),
-        boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure, this, url, 3, body, _1));
+        boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceDisconnectionRequestSuccess, this, _1),
+        boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceDisconnectionRequestFailure, this, url, 3, body, _1));
     setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
     mOutstandingRequests++;
     return true;
 }
 
-void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess(const LLSD &result)
+void LLVoiceWebRTCSpatialConnection::OnVoiceDisconnectionRequestSuccess(const LLSD &result)
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2896,7 +2925,7 @@ void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess(const LLSD &res
     mOutstandingRequests--;
 }
 
-void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result)
+void LLVoiceWebRTCSpatialConnection::OnVoiceDisconnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result)
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2908,8 +2937,8 @@ void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure(std::string url
             url,
             LLCore::HttpRequest::DEFAULT_POLICY_ID,
             body,
-            boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess, this, _1),
-            boost::bind(&LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure, this, url, retries - 1, body, _1));
+            boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceDisconnectionRequestSuccess, this, _1),
+            boost::bind(&LLVoiceWebRTCSpatialConnection::OnVoiceDisconnectionRequestFailure, this, url, retries - 1, body, _1));
         return;
     }
     if (mWebRTCPeerConnection)
@@ -2924,7 +2953,7 @@ void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestFailure(std::string url
     mOutstandingRequests--;
 }
 
-void LLVoiceWebRTCConnection::setMuteMic(bool muted)
+void LLVoiceWebRTCSpatialConnection::setMuteMic(bool muted)
 {
     mMuted = muted;
     if (mWebRTCAudioInterface)
@@ -2939,23 +2968,5 @@ void LLVoiceWebRTCConnection::setMuteMic(bool muted)
             // always mute to regions the agent isn't on, to prevent echo.
             mWebRTCAudioInterface->setMute(true);
         }
-    }
-}
-
-void LLVoiceWebRTCConnection::setMicGain(F32 gain)
-{
-    mMicGain = gain;
-    if (mWebRTCAudioInterface)
-    {
-        mWebRTCAudioInterface->setSendVolume(gain);
-    }
-}
-
-void LLVoiceWebRTCConnection::setSpeakerVolume(F32 volume)
-{
-    mSpeakerVolume = volume;
-    if (mWebRTCAudioInterface)
-    {
-        mWebRTCAudioInterface->setReceiveVolume(volume);
     }
 }
