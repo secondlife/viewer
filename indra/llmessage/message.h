@@ -58,7 +58,6 @@
 #include "boost/function.hpp"
 #include "llpounceable.h"
 #include "llcoros.h"
-#include LLCOROS_MUTEX_HEADER
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;

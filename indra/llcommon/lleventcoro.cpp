@@ -285,7 +285,7 @@ LLSD llcoro::postAndSuspendWithTimeout(const LLSD& event,
     // declare the future
     LLCoros::Future<LLSD> future = LLCoros::getFuture(promise);
     // wait for specified timeout
-    boost::fibers::future_status status;
+    std::future_status status;
     {
         LLCoros::TempStatus st(STRINGIZE("waiting for " << replyPump.getPump().getName()
                                          << " for " << timeout << "s"));
@@ -296,7 +296,7 @@ LLSD llcoro::postAndSuspendWithTimeout(const LLSD& event,
         status = future.wait_for(std::chrono::milliseconds(long(timeout * 1000)));
     }
     // if the future is NOT yet ready, return timeoutResult instead
-    if (status == boost::fibers::future_status::timeout)
+    if (status == std::future_status::timeout)
     {
         LL_DEBUGS("lleventcoro") << "postAndSuspendWithTimeout(): coroutine " << listenerName
                                  << " timed out after " << timeout << " seconds,"
@@ -305,7 +305,7 @@ LLSD llcoro::postAndSuspendWithTimeout(const LLSD& event,
     }
     else
     {
-        llassert_always(status == boost::fibers::future_status::ready);
+        llassert_always(status == std::future_status::ready);
 
         // future is now ready, no more waiting
         LLSD value(future.get());

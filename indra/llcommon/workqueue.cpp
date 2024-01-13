@@ -18,7 +18,6 @@
 // external library headers
 // other Linden headers
 #include "llcoros.h"
-#include LLCOROS_MUTEX_HEADER
 #include "llerror.h"
 #include "llexception.h"
 #include "stringize.h"
