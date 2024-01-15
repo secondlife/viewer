@@ -2107,7 +2107,7 @@ void LLLineEditor::draw()
 							LLFontGL::NO_SHADOW,
 							S32_MAX,
 							mTextRightEdge - ll_round(rendered_pixels_right),
-							&rendered_pixels_right, FALSE);
+							&rendered_pixels_right);
 		}
 		// Draw children (border)
 		LLView::draw();
