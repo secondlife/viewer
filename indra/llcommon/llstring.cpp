@@ -339,8 +339,6 @@ S32 wchar_utf8_length(const llwchar wc)
 {
 	if (wc < 0x80)
 	{
-		// This case will also catch negative values which are
-		// technically invalid.
 		return 1;
 	}
 	else if (wc < 0x800)

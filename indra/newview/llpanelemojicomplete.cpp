@@ -118,7 +118,7 @@ void LLPanelEmojiComplete::draw()
         LLWString text(1, mEmojis[curIdx].Character);
         mIconFont->render(text, 0, iconCenterX, iconCenterY,
             LLColor4::white, LLFontGL::HCENTER, LLFontGL::VCENTER, LLFontGL::NORMAL,
-            LLFontGL::DROP_SHADOW_SOFT, 1, S32_MAX, nullptr, false, true);
+            LLFontGL::DROP_SHADOW_SOFT, 1);
         if (mVertical)
         {
             const std::string& shortCode = mEmojis[curIdx].String;
@@ -129,7 +129,7 @@ void LLPanelEmojiComplete::draw()
                 std::string text = shortCode.substr(0, mEmojis[curIdx].Begin);
                 mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::white,
                     LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    text.size(), x1, NULL, FALSE, FALSE);
+                    text.size(), x1);
                 x0 += mTextFont->getWidthF32(text);
                 x1 = textLeft + textWidth - x0;
             }
@@ -138,7 +138,7 @@ void LLPanelEmojiComplete::draw()
                 std::string text = shortCode.substr(mEmojis[curIdx].Begin, mEmojis[curIdx].End - mEmojis[curIdx].Begin);
                 mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::yellow6,
                     LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    text.size(), x1, NULL, FALSE, FALSE);
+                    text.size(), x1);
                 x0 += mTextFont->getWidthF32(text);
                 x1 = textLeft + textWidth - x0;
             }
@@ -147,7 +147,7 @@ void LLPanelEmojiComplete::draw()
                 std::string text = shortCode.substr(mEmojis[curIdx].End);
                 mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::white,
                     LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    text.size(), x1, NULL, FALSE, FALSE);
+                    text.size(), x1);
             }
             iconCenterY -= mEmojiHeight;
         }

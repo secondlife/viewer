@@ -68,7 +68,7 @@ LLButton::Params::Params()
 	label_shadow("label_shadow", true),
 	auto_resize("auto_resize", false),
 	use_ellipses("use_ellipses", false),
-	use_font_color("use_font_color", false),
+	use_font_color("use_font_color", true),
 	image_unselected("image_unselected"),
 	image_selected("image_selected"),
 	image_hover_selected("image_hover_selected"),

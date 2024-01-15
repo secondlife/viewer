@@ -665,7 +665,16 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) co
 		load_flags |= FT_LOAD_COLOR;
 	}
 
-	llassert_always(! FT_Load_Glyph(mFTFace, glyph_index, load_flags) );
+	FT_Error error = FT_Load_Glyph(mFTFace, glyph_index, load_flags);
+	if (FT_Err_Ok != error)
+	{
+		std::string message = llformat(
+			"Error %d (%s) loading glyph %u: bitmap_type=%u, load_flags=%d",
+			error, FT_Error_String(error), glyph_index, bitmap_type, load_flags);
+		LL_WARNS_ONCE() << message << LL_ENDL;
+		error = FT_Load_Glyph(mFTFace, glyph_index, load_flags ^ FT_LOAD_COLOR);
+		llassert_always_msg(FT_Err_Ok == error, message.c_str());
+	}
 
 	llassert_always(! FT_Render_Glyph(mFTFace->glyph, gFontRenderMode) );
 

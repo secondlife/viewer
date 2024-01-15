@@ -102,11 +102,7 @@ public:
             LLFontGL::VCENTER,          // valign
             LLFontGL::NORMAL,           // style
             LLFontGL::DROP_SHADOW_SOFT, // shadow
-            mText.size(),               // max_chars
-            S32_MAX,                    // max_pixels
-            nullptr,                    // right_x
-            false,                      // use_ellipses
-            true);                      // use_color
+            mText.size());              // max_chars
     }
 
     virtual void updatePanel(BOOL allow_modify) override {}
@@ -144,11 +140,7 @@ public:
             LLFontGL::VCENTER,          // valign
             LLFontGL::NORMAL,           // style
             LLFontGL::DROP_SHADOW_SOFT, // shadow
-            1,                          // max_chars
-            S32_MAX,                    // max_pixels
-            nullptr,                    // right_x
-            false,                      // use_ellipses
-            true);                      // use_color
+            1);                         // max_chars
     }
 
     virtual void updatePanel(BOOL allow_modify) override {}
@@ -225,10 +217,7 @@ protected:
             LLFontGL::NORMAL,           // style
             LLFontGL::DROP_SHADOW_SOFT, // shadow
             1,                          // max_chars
-            max_pixels,                 // max_pixels
-            nullptr,                    // right_x
-            false,                      // use_ellipses
-            true);                      // use_color
+            max_pixels);                // max_pixels
     }
 
     void drawName(std::string name, F32 x, F32 y, S32 max_pixels, LLColor4& color)
@@ -244,10 +233,7 @@ protected:
             LLFontGL::NORMAL,           // style
             LLFontGL::DROP_SHADOW_SOFT, // shadow
             -1,                         // max_chars
-            max_pixels,                 // max_pixels
-            nullptr,                    // right_x
-            true,                       // use_ellipses
-            false);                     // use_color
+            max_pixels);                // max_pixels
     }
 
 private:

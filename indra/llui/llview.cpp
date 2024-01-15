@@ -1336,8 +1336,7 @@ void LLView::drawDebugRect()
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
-												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-												S32_MAX, S32_MAX, NULL, /*use_ellipses*/FALSE, /*use_color*/FALSE);
+					LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
 		}
 	}
 	LLUI::popMatrix();
