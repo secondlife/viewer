@@ -4681,16 +4681,23 @@ void LLAppViewer::idle()
 		// When appropriate, update agent location to the simulator.
 		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
 		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-		BOOL force_update = gAgent.controlFlagsDirty()
-							|| (mLastAgentControlFlags != gAgent.getControlFlags())
-							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
+        BOOL force_send =
+            // if there is something to send
+            (gAgent.controlFlagsDirty() && timed_out)
+            // if something changed
+            || (mLastAgentControlFlags != gAgent.getControlFlags())
+            // keep alive
+            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+        // timing out doesn't warranty that an update will be sent,
+        // just that it will be checked.
+		if (force_send || timed_out)
 		{
 			LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 			// Send avatar and camera info
 			mLastAgentControlFlags = gAgent.getControlFlags();
-			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
-			send_agent_update(force_update);
+			mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
+			send_agent_update(force_send);
 			agent_update_timer.reset();
 		}
 	}
