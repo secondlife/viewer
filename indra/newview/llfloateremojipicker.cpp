@@ -973,7 +973,7 @@ void LLFloaterEmojiPicker::loadState()
     if (!sStateFileName.empty())
         return; // Already loaded
 
-    sStateFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "emoji_floater_state.xml");
+    sStateFileName = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "emoji_floater_state.xml");
 
     llifstream file;
     file.open(sStateFileName.c_str());
