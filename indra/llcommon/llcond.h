@@ -16,6 +16,7 @@
 
 #include "llunits.h"
 #include "llcoros.h"
+#include LLCOROS_MUTEX_HEADER
 #include "mutex.h"
 #include <chrono>
 
