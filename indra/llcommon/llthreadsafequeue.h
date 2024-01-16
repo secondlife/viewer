@@ -28,6 +28,9 @@
 #define LL_LLTHREADSAFEQUEUE_H
 
 #include "llcoros.h"
+#include LLCOROS_MUTEX_HEADER
+#include <boost/fiber/timed_mutex.hpp>
+#include LLCOROS_CONDVAR_HEADER
 #include "llexception.h"
 #include "mutex.h"
 #include <chrono>
@@ -179,10 +182,10 @@ protected:
 	size_t mCapacity;
 	bool mClosed;
 
-	std::timed_mutex mLock;
+	boost::fibers::timed_mutex mLock;
 	typedef std::unique_lock<decltype(mLock)> lock_t;
-	std::condition_variable_any mCapacityCond;
-	std::condition_variable_any mEmptyCond;
+	boost::fibers::condition_variable_any mCapacityCond;
+	boost::fibers::condition_variable_any mEmptyCond;
 
 	enum pop_result { EMPTY, DONE, WAITING, POPPED };
 	// implementation logic, suitable for passing to tryLockUntil()

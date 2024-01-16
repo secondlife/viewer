@@ -41,6 +41,10 @@
 #include <exception>
 #include <queue>
 
+// e.g. #include LLCOROS_MUTEX_HEADER
+#define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
+#define LLCOROS_CONDVAR_HEADER <boost/fiber/condition_variable.hpp>
+
 namespace boost {
     namespace fibers {
         class mutex;
@@ -285,17 +289,17 @@ public:
      * proxy, so continue using the aliases.
      */
     template <typename T>
-    using Promise = std::promise<T>;
+    using Promise = boost::fibers::promise<T>;
     template <typename T>
-    using Future = std::future<T>;
+    using Future = boost::fibers::future<T>;
     template <typename T>
     static Future<T> getFuture(Promise<T>& promise) { return promise.get_future(); }
 
     // use mutex, lock, condition_variable suitable for coroutines
-    using Mutex = std::mutex;
+    using Mutex = boost::fibers::mutex;
     using LockType = std::unique_lock<Mutex>;
-    using cv_status = std::cv_status;
-    using ConditionVariable = std::condition_variable;
+    using cv_status = boost::fibers::cv_status;
+    using ConditionVariable = boost::fibers::condition_variable;
 
     /// for data local to each running coroutine
     template <typename T>
