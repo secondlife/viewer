@@ -381,9 +381,8 @@ public:
     void saveSettings() override;
     void updateEnabledState();
 
-    //void onClickActionsAsGameControl();
+    void onClickEnable(LLUICtrl* ctrl);
     void onClickActionsAsGameControl(LLUICtrl* ctrl);
-    //void onClickActionsAsGameControl(LLUICtrl* ctrl, const LLSD& data);
     void onActionSelect();
 
     //static void translateActionsToGameControl(U32 control_flags);
@@ -392,15 +391,17 @@ public:
 protected:
     bool postBuild() override;
 
-    void populateTables();
+    void populateActionTable();
+    void populateColumns();
+    void populateRows();
 
 private:
-    bool addTableColumns(LLScrollListCtrl* table, const std::string &filename);
-    bool addTableRows(LLScrollListCtrl* table, const std::string &filename);
     void addTableSeparator(LLScrollListCtrl* table);
     void updateTable();
     LOG_CLASS(LLPanelPreferenceGameControl);
 
+    LLCheckBoxCtrl  *mCheckEnableGameControl;
+    LLCheckBoxCtrl  *mCheckInterpretActions;
     LLScrollListCtrl* mActionTable;
     LLGameControlTranslator mActionTranslator;
 };

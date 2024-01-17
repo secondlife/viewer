@@ -3137,10 +3137,17 @@ void LLPanelPreferenceGameControl::updateEnabledState()
 
 static LLScrollListItem* gSelectedItem { nullptr };
 
+void LLPanelPreferenceGameControl::onClickEnable(LLUICtrl* ctrl)
+{
+    BOOL checked = mCheckEnableGameControl->get();
+    gSavedSettings.setBOOL( "EnableGameControl", checked );
+    mCheckInterpretActions->setEnabled(checked);
+    mActionTable->setEnabled(checked && mCheckInterpretActions->get());
+}
+
 void LLPanelPreferenceGameControl::onClickActionsAsGameControl(LLUICtrl* ctrl)
 {
-    LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
-    BOOL checked = check->get();
+    BOOL checked = mCheckInterpretActions->get();
     gSavedSettings.setBOOL( "InterpretControlActionsAsGameControl", checked );
     mActionTable->deselectAllItems();
     mActionTable->setEnabled(checked);
@@ -3211,81 +3218,85 @@ void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::In
 
 BOOL LLPanelPreferenceGameControl::postBuild()
 {
-    LLUICtrl* check = getChild<LLUICtrl>("control_actions_as_game_control");
-    check->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickActionsAsGameControl, this, _1));
+    mCheckEnableGameControl = getChild<LLCheckBoxCtrl>("enable_game_control");
+    mCheckEnableGameControl->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickEnable, this, _1));
+
+    mCheckInterpretActions = getChild<LLCheckBoxCtrl>("control_actions_as_game_control");
+    mCheckInterpretActions->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickActionsAsGameControl, this, _1));
 
     mActionTable = getChild<LLScrollListCtrl>("action_table");
     mActionTable->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onActionSelect, this));
-    populateTables();
+
+    populateActionTable();
+
+    mActionTable->setEnabled(mCheckEnableGameControl->get() && mCheckInterpretActions->get());
     return TRUE;
 }
 
-void LLPanelPreferenceGameControl::populateTables()
+void LLPanelPreferenceGameControl::populateActionTable()
 {
     loadSettings();
-    addTableColumns(mActionTable, "game_control_table_columns.xml");
-    addTableRows(mActionTable, "game_control_table_rows.xml");
+    populateColumns();
+    populateRows();
 }
 
-bool LLPanelPreferenceGameControl::addTableColumns(LLScrollListCtrl* table, const std::string &filename)
+void LLPanelPreferenceGameControl::populateColumns()
 {
+    // populate columns
+    std::string filename = "game_control_table_columns.xml";
     LLXMLNodePtr xmlNode;
     LLScrollListCtrl::Contents contents;
     if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
     {
-        LL_WARNS("Preferences") << "Failed to load " << filename << LL_ENDL;
-        return false;
+        LL_WARNS("Preferences") << "Failed to populate columns from '" << filename << "'" << LL_ENDL;
+        return;
     }
     LLXUIParser parser;
     parser.readXUI(xmlNode, contents, filename);
-
     if (!contents.validateBlock())
     {
-        return false;
+        return;
     }
-
     for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator col_it = contents.columns.begin();
         col_it != contents.columns.end();
         ++col_it)
     {
-        table->addColumn(*col_it);
+        mActionTable->addColumn(*col_it);
     }
-
-    return true;
 }
 
-bool LLPanelPreferenceGameControl::addTableRows(LLScrollListCtrl* table, const std::string &filename)
+void LLPanelPreferenceGameControl::populateRows()
 {
+    // populate rows
+    std::string filename = "game_control_table_rows.xml";
     LLXMLNodePtr xmlNode;
-    LLScrollListCtrl::Contents contents;
     if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
     {
-        LL_WARNS("Preferences") << "Failed to load '" << filename << "'" << LL_ENDL;
-        return false;
+        LL_WARNS("Preferences") << "Failed to populate rows from '" << filename << "'" << LL_ENDL;
+        return;
     }
+    LLScrollListCtrl::Contents contents;
     LLXUIParser parser;
     parser.readXUI(xmlNode, contents, filename);
-
     if (!contents.validateBlock())
     {
-        return false;
+        return;
     }
 
-    LLScrollListCell::Params cell_params;
     // init basic cell params
+    LLScrollListCell::Params cell_params;
     cell_params.font = LLFontGL::getFontSansSerif();
     cell_params.font_halign = LLFontGL::LEFT;
     cell_params.column = "";
     cell_params.value = "";
 
-    // we expect the table to have at least three columns
-    if (table->getNumColumns() < 3)
+    // we expect the mActionTable to have at least three columns
+    if (mActionTable->getNumColumns() < 3)
     {
         LL_WARNS("Preferences") << "expected at least three columns in '" << filename << "'" << LL_ENDL;
-        return false;
+        return;
     }
-    LLScrollListColumn* local_channel_column = table->getColumn(1);
-    //LLScrollListColumn* remote_channel_column = table->getColumn(2);
+    LLScrollListColumn* local_channel_column = mActionTable->getColumn(1);
 
     for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
         row_it != contents.rows.end();
@@ -3314,7 +3325,7 @@ bool LLPanelPreferenceGameControl::addTableRows(LLScrollListCtrl* table, const s
                 item_params.columns.add(cell_params);
                 */
             }
-            table->addRow(item_params, EAddPosition::ADD_BOTTOM);
+            mActionTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
         }
         else
         {
@@ -3328,10 +3339,9 @@ bool LLPanelPreferenceGameControl::addTableRows(LLScrollListCtrl* table, const s
             //   value = "menu_separator"
             //   column = "action" / >
             //</rows>
-            table->addRow(*row_it, EAddPosition::ADD_BOTTOM);
+            mActionTable->addRow(*row_it, EAddPosition::ADD_BOTTOM);
         }
     }
-    return true;
 }
 
 void LLPanelPreferenceGameControl::addTableSeparator(LLScrollListCtrl* table)
