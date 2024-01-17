@@ -261,12 +261,12 @@ void LLFloaterEmojiPicker::show(pick_callback_t pick_callback, close_callback_t 
     mEmojiPickCallback = pick_callback;
     mFloaterCloseCallback = close_callback;
     openFloater(mKey);
-    setFocus(TRUE);
 }
 
 LLFloaterEmojiPicker::LLFloaterEmojiPicker(const LLSD& key)
 : super(key)
 {
+    setAutoFocus(FALSE);
     loadState();
 }
 

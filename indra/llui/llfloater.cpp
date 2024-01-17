@@ -1551,7 +1551,7 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition, BOOL r
 	if (floaterp->isFrontmost())
 	{
 		// make sure to bring self and sibling floaters to front
-		gFloaterView->bringToFront(floaterp);
+		gFloaterView->bringToFront(floaterp, floaterp->getAutoFocus());
 	}
 }
 
@@ -2557,6 +2557,10 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore
 		if (give_focus && child->canFocusStealFrontmost() && !gFocusMgr.childHasKeyboardFocus(child))
 		{
 			child->setFocus(TRUE);
+		}
+		else
+		{
+			child->updateTransparency(TT_ACTIVE);
 		}
 		return;
 	}
