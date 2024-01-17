@@ -9269,7 +9269,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
 
-	// Parse the AppearanceData field, if any.
+	// Parse the AppearanceHover field, if any.
 	contents.mHoverOffsetWasSet = false;
 	if (mesgsys->has(_PREHASH_AppearanceHover))
 	{
@@ -9279,7 +9279,24 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		contents.mHoverOffset = hover;
 		contents.mHoverOffsetWasSet = true;
 	}
-	
+
+    // Get attachment info, if sent
+    LLUUID attachment_id;
+    U8     attach_point;
+    S32    attach_count = mesgsys->getNumberOfBlocksFast(_PREHASH_AttachmentBlock);
+    LL_DEBUGS("AVAppearanceAttachments") << "Agent " << getID() << " has "
+                                         << attach_count << " attachments" << LL_ENDL;
+
+    for (S32 attach_i = 0; attach_i < attach_count; attach_i++)
+    {
+        mesgsys->getUUIDFast(_PREHASH_AttachmentBlock, _PREHASH_ID, attachment_id, attach_i);
+        mesgsys->getU8Fast(_PREHASH_AttachmentBlock, _PREHASH_AttachmentPoint, attach_point, attach_i);
+        LL_DEBUGS("AVAppearanceAttachments") << "AV " << getID() << " has attachment " << attach_i << " "
+            << (attachment_id.isNull() ? "pending" : attachment_id.asString())
+            << " on point " << (S32)attach_point << LL_ENDL;
+        // To do - store and use this information as needed
+	}
+
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
     static LLCachedControl<bool> block_some_avatars(gSavedSettings, "BlockSomeAvatarAppearanceVisualParams");
