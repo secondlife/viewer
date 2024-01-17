@@ -82,9 +82,11 @@
 //static
 bool get_is_predefined_texture(LLUUID asset_id)
 {
-    if (asset_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
-        || asset_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
-        || asset_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
+    if (asset_id == DEFAULT_OBJECT_TEXTURE
+        || asset_id == DEFAULT_OBJECT_SPECULAR
+        || asset_id == DEFAULT_OBJECT_NORMAL
+        || asset_id == BLANK_OBJECT_NORMAL
+        || asset_id == IMG_WHITE
         || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
     {
         return true;
@@ -1646,8 +1648,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 
 	// Default of defaults is white image for diff tex
 	//
-	LLUUID whiteImage( gSavedSettings.getString( "UIImgWhiteUUID" ) );
-	setBlankImageAssetID( whiteImage );
+	setBlankImageAssetID(IMG_WHITE);
 
 	setAllowNoTexture(p.allow_no_texture);
 	setCanApplyImmediately(p.can_apply_immediately);

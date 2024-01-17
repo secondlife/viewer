@@ -449,9 +449,7 @@ BOOL LLMaterialEditor::postBuild()
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
 
-    // should match normal textures from mBumpyTextureCtrl
-    mNormalTextureCtrl->setDefaultImageAssetID(LLUUID(gSavedSettings.getString("DefaultObjectNormalTexture")));
-    mNormalTextureCtrl->setBlankImageAssetID(LLUUID(gSavedSettings.getString("DefaultBlankNormalTexture")));
+    mNormalTextureCtrl->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
 
     if (mIsOverride)
     {
