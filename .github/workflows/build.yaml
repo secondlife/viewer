@@ -24,7 +24,7 @@ jobs:
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
-      viewer_branch:  ${{ steps.build.outputs.viewer_branch }}
+      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -187,15 +187,9 @@ jobs:
           if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
           then viewer_channel="${GITHUB_REF_NAME%#*}"
                export viewer_channel="${viewer_channel//_/ }"
-               # Since GITHUB_REF_NAME is a tag rather than a branch, we need
-               # to discover to what branch this tag corresponds.
-               viewer_branch="$(python3 .github/workflows/which_branch.py \
-                                --token "${{ github.token }}" ${{ github.workflow_sha }})"
           else export viewer_channel="Second Life Test"
-               viewer_branch="${GITHUB_REF_NAME}"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-          echo "viewer_branch=$viewer_branch" >> "$GITHUB_OUTPUT"
 
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
