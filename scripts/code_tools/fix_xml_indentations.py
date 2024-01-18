@@ -79,7 +79,10 @@ def save_xml(tree, file_path, xml_decl, indent_text=False, indent_tab=False, rm_
             with io.open(file_path, 'wb') as file:
                 file.write(xml_decl.encode('utf-8'))
                 file.write('\n'.encode('utf-8'))
-                file.write(xml_string.encode('utf-8'))
+                if xml_string:
+                    file.write(xml_string.encode('utf-8'))
+                    if not xml_string.endswith('\n'):
+                        file.write('\n'.encode('utf-8'))
         except IOError as e:
             print(f"Error saving file {file_path}: {e}")
 
