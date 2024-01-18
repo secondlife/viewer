@@ -6474,14 +6474,6 @@ Your inventory is experiencing issues. Please, contact support.
   </notification>
 
   <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS1"
-   type="notifytip">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
