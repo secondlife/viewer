@@ -288,7 +288,7 @@ TestString PleaseIgnore
         height="15"
         follows="left|top"
         layout="topleft"
-        name="perm_modify1"
+        name="you_perm_modify"
         width="200">
         You can:
       </text>

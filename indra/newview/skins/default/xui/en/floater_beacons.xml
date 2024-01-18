@@ -157,7 +157,7 @@
          font="SansSerif"
          left="0"
          top_pad="7"
-         name="label_objects1"
+         name="label_direction"
          text_color="White"
          type="string">
            Show direction to:

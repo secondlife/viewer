@@ -119,7 +119,7 @@
                     tick_spacing="100"
                     show_history="true"
                     show_bar="false"/>
-          <stat_bar name="texture_decode_latency1"
+          <stat_bar name="texture_write_latency"
                     label="Cache Write Latency"
                     orientation="horizontal"
                     unit_label="sec"

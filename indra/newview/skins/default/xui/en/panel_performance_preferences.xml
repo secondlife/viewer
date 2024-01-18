@@ -156,7 +156,7 @@
    layout="topleft"
    left_pad="10"
    top_delta="1"
-   name="quality_lbl1"
+   name="best_quality_lbl"
    width="70">
     Best quality
   </text>
@@ -416,7 +416,7 @@
    layout="topleft"
    top_delta="3"
    left_pad="10"
-   name="photo_desc1"
+   name="photo_dist_det_desc"
    width="180">
       (Enter value between 0.0 and 4.0)
   </text>
