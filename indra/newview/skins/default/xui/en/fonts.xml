@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <fonts>
 
   <font name="default" comment="default font files (global fallbacks)">
@@ -51,19 +51,19 @@
       </os>
   </font>
 
-  <font name="SansSerif"
+  <font name="SansSerif1"
 	comment="Name of bold sans-serif font"
 	font_style="BOLD">
     <file>DejaVuSans-Bold.ttf</file>
   </font>
 
-  <font name="SansSerif"
+  <font name="SansSerif2"
 	comment="Name of italic sans-serif font"
 	font_style="ITALIC">
     <file>DejaVuSans-Oblique.ttf</file>
   </font>
 
-  <font name="SansSerif"
+  <font name="SansSerif3"
 	comment="Name of bold italic sans-serif font"
 	font_style="BOLD|ITALIC">
     <file>DejaVuSans-BoldOblique.ttf</file>
@@ -79,19 +79,19 @@
     <file>DejaVuSans.ttf</file>
   </font>
 
-  <font name="DejaVu"
+  <font name="DejaVu1"
 	comment="Name of DejaVu font (bold)"
 	font_style="BOLD">
     <file>DejaVuSans-Bold.ttf</file>
   </font>
 
-  <font name="DejaVu"
+  <font name="DejaVu2"
 	comment="Name of DejaVu font (italic)"
 	font_style="ITALIC">
     <file>DejaVuSans-Oblique.ttf</file>
   </font>
 
-  <font name="DejaVu"
+  <font name="DejaVu3"
 	comment="Name of DejaVu font (bold italic)"
 	font_style="BOLD|ITALIC">
     <file>DejaVuSans-BoldOblique.ttf</file>
@@ -108,7 +108,7 @@
       </os>
   </font>
 
-  <font name="Helvetica"
+  <font name="Helvetica1"
 	comment="Name of Helvetica font (bold)"
 	font_style="BOLD">
     <file>DejaVuSans-Bold.ttf</file>
@@ -120,7 +120,7 @@
       </os>
   </font>
 
-  <font name="Helvetica"
+  <font name="Helvetica2"
 	comment="Name of Helvetica font (italic)"
 	font_style="ITALIC">
     <file>DejaVuSans-Oblique.ttf</file>
@@ -132,7 +132,7 @@
       </os>
   </font>
 
-  <font name="Helvetica"
+  <font name="Helvetica3"
 	comment="Name of Helvetica font (bold italic)"
 	font_style="BOLD|ITALIC">
     <file>DejaVuSans-BoldOblique.ttf</file>

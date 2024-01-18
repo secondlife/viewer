@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
         border="true"
         follows="all"
@@ -72,8 +72,8 @@
                     initial_value="0"
                     layout="top"
                     left_delta="15"
-                    min_val="-10"
-                    max_val="10"
+                    min_val="0.001"
+                    max_val="100"
                     name="water_fog_density"
                     top_delta="5"
                     width="150"

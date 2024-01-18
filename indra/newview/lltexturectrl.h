@@ -47,6 +47,7 @@ class LLComboBox;
 class LLFloaterTexturePicker;
 class LLInventoryItem;
 class LLViewerFetchedTexture;
+class LLFetchedGLTFMaterial;
 
 // used for setting drag & drop callbacks.
 typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
@@ -86,6 +87,13 @@ public:
 		TEXTURE_CANCEL
 	} ETexturePickOp;
 
+    typedef enum e_pick_inventory_type
+    {
+        PICK_TEXTURE_MATERIAL = 0,
+        PICK_TEXTURE = 1,
+        PICK_MATERIAL = 2,
+    } EPickInventoryType;
+
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
@@ -109,7 +117,7 @@ public:
 		:	image_id("image"),
 			default_image_id("default_image_id"),
 			default_image_name("default_image_name"),
-			allow_no_texture("allow_no_texture"),
+			allow_no_texture("allow_no_texture", false),
 			can_apply_immediately("can_apply_immediately"),
 			no_commit_on_selection("no_commit_on_selection", false),
 		    label_width("label_width", -1),
@@ -184,19 +192,20 @@ public:
 
 	void			setCanApply(bool can_preview, bool can_apply);
 
-	void			setImmediateFilterPermMask(PermissionMask mask)
-					{ mImmediateFilterPermMask = mask; }
+	void			setImmediateFilterPermMask(PermissionMask mask);
 	void			setDnDFilterPermMask(PermissionMask mask)
 						{ mDnDFilterPermMask = mask; }
-	void			setNonImmediateFilterPermMask(PermissionMask mask)
-					{ mNonImmediateFilterPermMask = mask; }
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
-	PermissionMask	getNonImmediateFilterPermMask() { return mNonImmediateFilterPermMask; }
+    void setFilterPermissionMasks(PermissionMask mask);
 
 	void			closeDependentFloater();
 
 	void			onFloaterClose();
-	void			onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& local_id, const LLUUID& inv_id);
+    void			onFloaterCommit(ETexturePickOp op,
+                                    LLPickerSource source,
+                                    const LLUUID& local_id,
+                                    const LLUUID& inv_id,
+                                    const LLUUID& tracking_id);
 
 	// This call is returned when a drag is detected. Your callback
 	// should return TRUE if the drag is acceptable.
@@ -220,10 +229,17 @@ public:
 
 	LLViewerFetchedTexture* getTexture() { return mTexturep; }
 
-	void setBakeTextureEnabled(BOOL enabled);
+    void setBakeTextureEnabled(bool enabled);
+    bool getBakeTextureEnabled() const { return mBakeTextureEnabled; }
+
+    void setInventoryPickType(EPickInventoryType type);
+    EPickInventoryType getInventoryPickType() { return mInventoryPickType; };
+
+    bool isImageLocal() { return mLocalTrackingID.notNull(); }
+    LLUUID getLocalTrackingID() { return mLocalTrackingID; }
 
 private:
-	BOOL allowDrop(LLInventoryItem* item);
+	BOOL allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg);
 	BOOL doDrop(LLInventoryItem* item);
 
 private:
@@ -239,6 +255,7 @@ private:
 	LLUUID					 	mImageAssetID;
 	LLUUID					 	mDefaultImageAssetID;
 	LLUUID					 	mBlankImageAssetID;
+    LLUUID						mLocalTrackingID;
 	LLUIImagePtr				mFallbackImage;
 	std::string					mDefaultImageName;
 	LLHandle<LLFloater>			mFloaterHandle;
@@ -249,7 +266,6 @@ private:
 	BOOL						mAllowLocalTexture;
 	PermissionMask			 	mImmediateFilterPermMask;
 	PermissionMask				mDnDFilterPermMask;
-	PermissionMask			 	mNonImmediateFilterPermMask;
 	BOOL					 	mCanApplyImmediately;
 	BOOL					 	mCommitOnSelection;
 	BOOL					 	mNeedsRawImageData;
@@ -259,12 +275,13 @@ private:
 	std::string				 	mLoadingPlaceholderString;
 	S32						 	mLabelWidth;
 	bool						mOpenTexPreview;
-	BOOL						mBakeTextureEnabled;
+	bool						mBakeTextureEnabled;
+    LLTextureCtrl::EPickInventoryType mInventoryPickType;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLFloaterTexturePicker
-typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id)> floater_commit_callback;
+typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id, const LLUUID& tracking_id)> floater_commit_callback;
 typedef boost::function<void()> floater_close_callback;
 typedef boost::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
 typedef boost::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
@@ -282,7 +299,6 @@ public:
 		const std::string& label,
 		PermissionMask immediate_filter_perm_mask,
 		PermissionMask dnd_filter_perm_mask,
-		PermissionMask non_immediate_filter_perm_mask,
 		BOOL can_apply_immediately,
 		LLUIImagePtr fallback_image_name
 		);
@@ -299,6 +315,7 @@ public:
 
 	// LLFloater overrides
 	/*virtual*/ BOOL    postBuild();
+    /*virtual*/ void	onOpen(const LLSD& key);
 	/*virtual*/ void	onClose(bool app_settings);
 
 	// New functions
@@ -313,9 +330,7 @@ public:
 	LLView*			getOwner() const { return mOwner; }
 	void			setOwner(LLView* owner) { mOwner = owner; }
 	void			stopUsingPipette();
-	PermissionMask 	getFilterPermMask();
 
-	void updateFilterPermMask();
 	void commitIfImmediateSet();
     void commitCallback(LLTextureCtrl::ETexturePickOp op);
 	void commitCancel();
@@ -339,9 +354,7 @@ public:
 	//static void		onBtnRevert( void* userdata );
 	static void		onBtnBlank(void* userdata);
 	static void		onBtnNone(void* userdata);
-	static void		onBtnClear(void* userdata);
 	void			onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	static void		onShowFolders(LLUICtrl* ctrl, void* userdata);
 	static void		onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
 	void			onTextureSelect(const LLTextureEntry& te);
 
@@ -352,13 +365,23 @@ public:
 	static void		onLocalScrollCommit(LLUICtrl* ctrl, void* userdata);
 
 	static void		onBakeTextureSelect(LLUICtrl* ctrl, void *userdata);
-	static void		onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *userdata);
 
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
 
+    void setInventoryPickType(LLTextureCtrl::EPickInventoryType type);
+    void setImmediateFilterPermMask(PermissionMask mask);
+
+    static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
+
 protected:
+    void changeMode();
+    void refreshLocalList();
+    void refreshInventoryFilter();
+    void setImageIDFromItem(const LLInventoryItem* itemp, bool set_selection = true);
+
 	LLPointer<LLViewerTexture> mTexturep;
+    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
 	LLView*				mOwner;
 
 	LLUUID				mImageAssetID; // Currently selected texture
@@ -383,7 +406,6 @@ protected:
 	LLInventoryPanel*	mInventoryPanel;
 	PermissionMask		mImmediateFilterPermMask;
 	PermissionMask		mDnDFilterPermMask;
-	PermissionMask		mNonImmediateFilterPermMask;
 	BOOL				mCanApplyImmediately;
 	BOOL				mNoCopyTextureSelected;
 	F32					mContextConeOpacity;
@@ -406,6 +428,7 @@ private:
     bool mLimitsSet;
     S32 mMaxDim;
     S32 mMinDim;
+    LLTextureCtrl::EPickInventoryType mInventoryPickType;
 
 
 	texture_selected_callback mTextureSelectedCallback;
@@ -415,6 +438,8 @@ private:
 	set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
 
 	BOOL mBakeTextureEnabled;
+
+    static S32 sLastPickerMode;
 };
 
 #endif  // LL_LLTEXTURECTRL_H

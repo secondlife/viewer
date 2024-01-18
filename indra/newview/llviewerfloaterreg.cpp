@@ -138,7 +138,6 @@
 #include "llfloatertelehub.h"
 #include "llfloatertestinspectors.h"
 #include "llfloatertestlistview.h"
-#include "llfloatertexturefetchdebugger.h"
 #include "llfloatertools.h"
 #include "llfloatertopobjects.h"
 #include "llfloatertos.h"
@@ -157,6 +156,7 @@
 #include "llinspectobject.h"
 #include "llinspectremoteobject.h"
 #include "llinspecttoast.h"
+#include "llmaterialeditor.h"
 #include "llmoveview.h"
 #include "llfloaterimnearbychat.h"
 #include "llpanelblockedlist.h"
@@ -193,7 +193,11 @@ public:
         
         std::string fl_name = params[0].asString();
 
-        if (nav_type == NAV_TYPE_CLICKED)
+        // External browsers explicitly ask user about opening links
+        // so treat "external" same as "clicked" in this case,
+        // despite it being treated as untrusted.
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
         {
             const std::list<std::string> blacklist_clicked = {
                 "camera_presets",
@@ -394,10 +398,6 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 
-	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
-	{
-		LLFloaterReg::add("tex_fetch_debugger", "floater_texture_fetch_debugger.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTextureFetchDebugger>);
-	}
 	LLFloaterReg::add("media_settings", "floater_media_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaSettings>);	
 	LLFloaterReg::add("marketplace_listings", "floater_marketplace_listings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceListings>);
 	LLFloaterReg::add("marketplace_validation", "floater_marketplace_validation.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceValidation>);
@@ -447,6 +447,9 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("save_camera_preset", "floater_save_camera_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSaveCameraPreset>);
 	LLFloaterReg::add("script_colors", "floater_script_ed_prefs.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptEdPrefs>);
 
+    LLFloaterReg::add("material_editor", "floater_material_editor.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLMaterialEditor>);
+    LLFloaterReg::add("live_material_editor", "floater_live_material_editor.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLMaterialEditor>);
+    
 	LLFloaterReg::add("telehubs", "floater_telehub.xml",&LLFloaterReg::build<LLFloaterTelehub>);
 	LLFloaterReg::add("test_inspectors", "floater_test_inspectors.xml", &LLFloaterReg::build<LLFloaterTestInspectors>);
 	//LLFloaterReg::add("test_list_view", "floater_test_list_view.xml",&LLFloaterReg::build<LLFloaterTestListView>);

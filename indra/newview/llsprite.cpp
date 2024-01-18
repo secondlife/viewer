@@ -188,9 +188,8 @@ void LLSprite::updateFace(LLFace &face)
 	if (!face.getVertexBuffer())
 	{	
 		LLVertexBuffer* buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | 
-												LLVertexBuffer::MAP_TEXCOORD0,
-												GL_STREAM_DRAW_ARB);
-		buff->allocateBuffer(4, 12, TRUE);
+												LLVertexBuffer::MAP_TEXCOORD0 );
+		buff->allocateBuffer(4, 12);
 		face.setGeomIndex(0);
 		face.setIndicesIndex(0);
 		face.setVertexBuffer(buff);
@@ -238,7 +237,7 @@ void LLSprite::updateFace(LLFace &face)
 		*indicesp++ = 3 + index_offset;
 	}
 
-	face.getVertexBuffer()->flush();
+	face.getVertexBuffer()->unmapBuffer();
 	face.mCenterAgent = mPosition;
 }
 

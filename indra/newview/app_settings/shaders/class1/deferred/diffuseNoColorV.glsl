@@ -27,13 +27,13 @@ uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix; 
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec3 normal;
+in vec2 texcoord0;
 
-VARYING vec3 vary_normal;
+out vec3 vary_normal;
 
-VARYING vec2 vary_texcoord0;
+out vec2 vary_texcoord0;
 
 void main()
 {

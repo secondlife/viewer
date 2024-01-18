@@ -50,6 +50,7 @@
 #include "llinventoryicon.h"
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
+#include "llmaterialeditor.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewnotecard.h"
@@ -717,6 +718,7 @@ BOOL LLTaskCategoryBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_CALLINGCARD:
 		case DAD_MESH:
         case DAD_SETTINGS:
+        case DAD_MATERIAL:
 			accept = LLToolDragAndDrop::isInventoryDropAcceptable(object, (LLViewerInventoryItem*)cargo_data);
 			if(accept && drop)
 			{
@@ -1170,6 +1172,58 @@ LLSettingsType::type_e LLTaskSettingsBridge::getSettingsType() const
 }
 
 ///----------------------------------------------------------------------------
+/// Class LLTaskMaterialBridge
+///----------------------------------------------------------------------------
+
+class LLTaskMaterialBridge : public LLTaskInvFVBridge
+{
+public:
+    LLTaskMaterialBridge(LLPanelObjectInventory* panel,
+                         const LLUUID& uuid,
+                         const std::string& name) :
+        LLTaskInvFVBridge(panel, uuid, name) {}
+
+    BOOL canOpenItem() const override { return TRUE; }
+    void openItem() override;
+    BOOL removeItem() override;
+};
+
+void LLTaskMaterialBridge::openItem()
+{
+    LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
+    if(!object || object->isInventoryPending())
+    {
+        return;
+    }
+
+    // Note: even if we are not allowed to modify copyable notecard, we should be able to view it
+    LLInventoryItem *item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mUUID));
+    BOOL item_copy = item && gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+    if( item_copy
+        || object->permModify()
+        || gAgent.isGodlike())
+    {
+        LLSD floater_key;
+        floater_key["taskid"] = mPanel->getTaskUUID();
+        floater_key["itemid"] = mUUID;
+        LLMaterialEditor* mat = LLFloaterReg::getTypedInstance<LLMaterialEditor>("material_editor", floater_key);
+        if (mat)
+        {
+            mat->setObjectID(mPanel->getTaskUUID());
+            mat->openFloater(floater_key);
+            mat->setFocus(TRUE);
+        }
+    }
+}
+
+BOOL LLTaskMaterialBridge::removeItem()
+{
+    LLFloaterReg::hideInstance("material_editor", LLSD(mUUID));
+    return LLTaskInvFVBridge::removeItem();
+}
+
+
+///----------------------------------------------------------------------------
 /// LLTaskInvFVBridge impl
 //----------------------------------------------------------------------------
 
@@ -1256,6 +1310,11 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 										  object_name,
                                           itemflags);
 		break;
+    case LLAssetType::AT_MATERIAL:
+        new_bridge = new LLTaskMaterialBridge(panel,
+                              object_id,
+                              object_name);
+        break;
 	default:
 		LL_INFOS() << "Unhandled inventory type (llassetstorage.h): "
 				<< (S32)type << LL_ENDL;

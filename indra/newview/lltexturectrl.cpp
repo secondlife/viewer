@@ -41,12 +41,15 @@
 #include "llfolderviewmodel.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryicon.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
+#include "llmaterialeditor.h"
 #include "llui.h"
 #include "llviewerinventory.h"
+#include "llviewermenufile.h"	// LLFilePickerReplyThread
 #include "llpermissions.h"
 #include "llpreviewtexture.h"
 #include "llsaleinfo.h"
@@ -70,17 +73,10 @@
 #include "llradiogroup.h"
 #include "llfloaterreg.h"
 #include "lllocalbitmaps.h"
+#include "lllocalgltfmaterials.h"
 #include "llerror.h"
 
 #include "llavatarappearancedefines.h"
-
-
-static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
-
-//static const char CURRENT_IMAGE_NAME[] = "Current Texture";
-//static const char WHITE_IMAGE_NAME[] = "Blank Texture";
-//static const char NO_IMAGE_NAME[] = "None";
-
 
 
 //static
@@ -142,6 +138,8 @@ bool get_can_copy_texture(LLUUID asset_id)
     return get_is_predefined_texture(asset_id) || get_copy_free_item_by_asset_id(asset_id).notNull();
 }
 
+S32 LLFloaterTexturePicker::sLastPickerMode = 0;
+
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
 	LLUUID image_asset_id,
@@ -152,7 +150,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	const std::string& label,
 	PermissionMask immediate_filter_perm_mask,
 	PermissionMask dnd_filter_perm_mask,
-	PermissionMask non_immediate_filter_perm_mask,
 	BOOL can_apply_immediately,
 	LLUIImagePtr fallback_image)
 :	LLFloater(LLSD()),
@@ -171,7 +168,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mDnDFilterPermMask(dnd_filter_perm_mask),
-	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
 	mContextConeOpacity(0.f),
 	mSelectedItemPinned( FALSE ),
 	mCanApply(true),
@@ -184,10 +180,11 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mOnFloaterCloseCallback(NULL),
 	mSetImageAssetIDCallback(NULL),
 	mOnUpdateImageStatsCallback(NULL),
-	mBakeTextureEnabled(FALSE)
+	mBakeTextureEnabled(FALSE),
+    mInventoryPickType(LLTextureCtrl::PICK_TEXTURE)
 {
-	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
+	buildFromFile("floater_texture_ctrl.xml");
 	setCanMinimize(FALSE);
 }
 
@@ -218,15 +215,38 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 				mModeSelector->selectByValue(0);
 				onModeSelect(0,this);
 			}
-			
-			LLUUID item_id = findItemID(mImageAssetID, FALSE);
+
+            LLUUID item_id;
+            LLFolderView* root_folder = mInventoryPanel->getRootFolder();
+            if (root_folder && root_folder->getCurSelectedItem())
+            {
+                LLFolderViewItem* last_selected = root_folder->getCurSelectedItem();
+                LLFolderViewModelItemInventory* inv_view = static_cast<LLFolderViewModelItemInventory*>(last_selected->getViewModelItem());
+
+                LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
+
+                if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL
+                    && mImageAssetID == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID
+                    && itemp && itemp->getAssetUUID().isNull())
+                {
+                    item_id = inv_view->getUUID();
+                }
+                else if (itemp && itemp->getAssetUUID() == mImageAssetID)
+                {
+                    item_id = inv_view->getUUID();
+                }
+            }
+            if (item_id.isNull())
+            {
+                item_id = findItemID(mImageAssetID, FALSE);
+            }
 			if (item_id.isNull())
 			{
 				mInventoryPanel->getRootFolder()->clearSelection();
 			}
 			else
 			{
-				LLInventoryItem* itemp = gInventory.getItem(image_id);
+				LLInventoryItem* itemp = gInventory.getItem(item_id);
 				if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
 				{
 					// no copy texture
@@ -240,10 +260,18 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 				mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
 			}
 		}
-		
-
-		
 	}
+}
+
+void LLFloaterTexturePicker::setImageIDFromItem(const LLInventoryItem* itemp, bool set_selection)
+{
+    LLUUID asset_id = itemp->getAssetUUID();
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL && asset_id.isNull())
+    {
+        // If an inventory item has a null asset, consider it a valid blank material(gltf)
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    }
+    setImageID(asset_id, set_selection);
 }
 
 void LLFloaterTexturePicker::setActive( BOOL active )					
@@ -258,11 +286,10 @@ void LLFloaterTexturePicker::setActive( BOOL active )
 void LLFloaterTexturePicker::setCanApplyImmediately(BOOL b)
 {
 	mCanApplyImmediately = b;
-	if (!mCanApplyImmediately)
-	{
-		getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
-	}
-	updateFilterPermMask();
+
+    LLUICtrl *apply_checkbox = getChild<LLUICtrl>("apply_immediate_check");
+    apply_checkbox->setValue(mCanApplyImmediately && gSavedSettings.getBOOL("TextureLivePreview"));
+    apply_checkbox->setEnabled(mCanApplyImmediately);
 }
 
 void LLFloaterTexturePicker::stopUsingPipette()
@@ -276,7 +303,59 @@ void LLFloaterTexturePicker::stopUsingPipette()
 bool LLFloaterTexturePicker::updateImageStats()
 {
     bool result = true;
-	if (mTexturep.notNull())
+    if (mGLTFMaterial.notNull())
+    {
+        S32 width = 0;
+        S32 height = 0;
+
+        bool has_texture = false;
+
+        if (mGLTFMaterial->mBaseColorTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mBaseColorTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mBaseColorTexture->getFullHeight());
+            has_texture = true;
+        }
+        if (mGLTFMaterial->mNormalTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mNormalTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mNormalTexture->getFullHeight());
+            has_texture = true;
+        }
+        if (mGLTFMaterial->mMetallicRoughnessTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mMetallicRoughnessTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mMetallicRoughnessTexture->getFullHeight());
+            has_texture = true;
+        }
+        if (mGLTFMaterial->mEmissiveTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mEmissiveTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mEmissiveTexture->getFullHeight());
+            has_texture = true;
+        }
+
+        if (width > 0 && height > 0)
+        {
+            std::string formatted_dims = llformat("%d x %d", width, height);
+            mResolutionLabel->setTextArg("[DIMENSIONS]", formatted_dims);
+            if (mOnUpdateImageStatsCallback)
+            {
+                mOnUpdateImageStatsCallback(mTexturep);
+            }
+        }
+        else if (has_texture)
+        {
+            // unknown resolution
+            mResolutionLabel->setTextArg("[DIMENSIONS]", std::string("[? x ?]"));
+        }
+        else
+        {
+            // No textures - no applicable resolution (may be show some max value instead?)
+            mResolutionLabel->setTextArg("[DIMENSIONS]", std::string(""));
+        }
+    }
+	else if (mTexturep.notNull())
 	{
 		//RN: have we received header data for this image?
         S32 width = mTexturep->getFullWidth();
@@ -342,8 +421,24 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	BOOL handled = FALSE;
 
 	bool is_mesh = cargo_type == DAD_MESH;
+    bool is_texture = cargo_type == DAD_TEXTURE;
+    bool is_material = cargo_type == DAD_MATERIAL;
 
-	if ((cargo_type == DAD_TEXTURE) || is_mesh)
+    bool allow_dnd = false;
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        allow_dnd = is_material;
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        allow_dnd = is_texture || is_mesh;
+    }
+    else
+    {
+        allow_dnd = is_texture || is_mesh || is_material;
+    }
+
+	if (allow_dnd)
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 
@@ -357,13 +452,12 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (mod)  item_perm_mask |= PERM_MODIFY;
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
-		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
 		PermissionMask filter_perm_mask = mDnDFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 		{
 			if (drop)
 			{
-				setImageID( item->getAssetUUID() );
+                setImageIDFromItem(item);
 				commitIfImmediateSet();
 			}
 
@@ -423,6 +517,15 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 	return LLFloater::handleKeyHere(key, mask);
 }
 
+void LLFloaterTexturePicker::onOpen(const LLSD& key)
+{
+    if (sLastPickerMode != 0
+        && mModeSelector->selectByValue(sLastPickerMode))
+    {
+        changeMode();
+    }
+}
+
 void LLFloaterTexturePicker::onClose(bool app_quitting)
 {
 	if (mOwner && mOnFloaterCloseCallback)
@@ -430,6 +533,7 @@ void LLFloaterTexturePicker::onClose(bool app_quitting)
 		mOnFloaterCloseCallback();
 	}
 	stopUsingPipette();
+    sLastPickerMode = mModeSelector->getValue().asInteger();
 }
 
 // virtual
@@ -463,12 +567,8 @@ BOOL LLFloaterTexturePicker::postBuild()
     mSelectBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnSelect, this));
     mCancelBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnCancel, this));
 
-
-	childSetCommitCallback("show_folders_check", onShowFolders, this);
-	getChildView("show_folders_check")->setVisible( FALSE);
-
-	mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
-	mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
+    mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
+    mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
 
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
@@ -478,12 +578,12 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	if(mInventoryPanel)
 	{
-		U32 filter_types = 0x0;
-		filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
-		filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+        // to avoid having to make an assumption about which option is
+        // selected at startup, we call the same function that is triggered
+        // when a texture/materials/both choice is made and let it take care
+        // of setting the filters
+        refreshInventoryFilter();
 
-		mInventoryPanel->setFilterTypes(filter_types);
-		//mInventoryPanel->setFilterPermMask(getFilterPermMask());  //Commented out due to no-copy texture loss.
 		mInventoryPanel->setFilterPermMask(mImmediateFilterPermMask);
 		mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
@@ -516,26 +616,23 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mLocalScrollCtrl = getChild<LLScrollListCtrl>("l_name_list");
 	mLocalScrollCtrl->setCommitCallback(onLocalScrollCommit, this);
-	LLLocalBitmapMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
+    refreshLocalList();
 
 	mNoCopyTextureSelected = FALSE;
 
-	getChild<LLUICtrl>("apply_immediate_check")->setValue(gSavedSettings.getBOOL("TextureLivePreview"));
+	getChild<LLUICtrl>("apply_immediate_check")->setValue(mCanApplyImmediately && gSavedSettings.getBOOL("TextureLivePreview"));
 	childSetCommitCallback("apply_immediate_check", onApplyImmediateCheck, this);
+    getChildView("apply_immediate_check")->setEnabled(mCanApplyImmediately);
 
-	if (!mCanApplyImmediately)
-	{
-		getChildView("show_folders_check")->setEnabled(FALSE);
-	}
+	getChild<LLUICtrl>("Pipette")->setCommitCallback( boost::bind(&LLFloaterTexturePicker::onBtnPipette, this));
+	childSetAction("Cancel", LLFloaterTexturePicker::onBtnCancel,this);
+	childSetAction("Select", LLFloaterTexturePicker::onBtnSelect,this);
 
-	// update permission filter once UI is fully initialized
-	updateFilterPermMask();
 	mSavedFolderState.setApply(FALSE);
 
 	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterTexturePicker::onTextureSelect, this, _1));
 	
 	getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
-	getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setCommitCallback(onHideBaseMeshRegionCheck, this);
 
 	setBakeTextureEnabled(TRUE);
 	return TRUE;
@@ -547,6 +644,8 @@ void LLFloaterTexturePicker::draw()
     static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
     drawConeToOwner(mContextConeOpacity, max_opacity, mOwner);
 
+    // This is going to spam mOnUpdateImageStatsCallback,
+    // either move elsewhere or fix to cause update once per image
 	bool valid_dims = updateImageStats();
 
 	// if we're inactive, gray out "apply immediate" checkbox
@@ -559,28 +658,39 @@ void LLFloaterTexturePicker::draw()
 	if( mOwner ) 
 	{
 		mTexturep = NULL;
-		if(mImageAssetID.notNull())
-		{
-			LLPointer<LLViewerFetchedTexture> texture = NULL;
+        mGLTFMaterial = NULL;
+        if (mImageAssetID.notNull())
+        {
+            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            {
+                mGLTFMaterial = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mImageAssetID);
+                llassert(mGLTFMaterial == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(gGLTFMaterialList.getMaterial(mImageAssetID)) != nullptr);
+            }
+            else
+            {
+                LLPointer<LLViewerFetchedTexture> texture = NULL;
 
-			if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
-			{
-				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
-				if (obj)
-				{
-					LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
-					texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
-				}
-			}
+                if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
+                {
+                    // TODO: Fix this! Picker is not warrantied to be connected to a selection
+                    // LLSelectMgr shouldn't be used in texture picker
+                    LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+                    if (obj)
+                    {
+                        LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+                        texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+                    }
+                }
 
-			if (texture.isNull())
-			{
-				texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
-			}
+                if (texture.isNull())
+                {
+                    texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
+                }
 
-			mTexturep = texture;
-			mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-		}
+                mTexturep = texture;
+                mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+            }
+        }
 
 		if (mTentativeLabel)
 		{
@@ -588,7 +698,7 @@ void LLFloaterTexturePicker::draw()
 		}
 
 		mDefaultBtn->setEnabled(mImageAssetID != mDefaultImageAssetID || mTentative);
-		mBlankBtn->setEnabled(mImageAssetID != mBlankImageAssetID || mTentative);
+		mBlankBtn->setEnabled((mImageAssetID != mBlankImageAssetID && mBlankImageAssetID.notNull()) || mTentative);
 		mNoneBtn->setEnabled(mAllowNoTexture && (!mImageAssetID.isNull() || mTentative));
 
 		LLFloater::draw();
@@ -609,17 +719,27 @@ void LLFloaterTexturePicker::draw()
 
 		// If the floater is focused, don't apply its alpha to the texture (STORM-677).
 		const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
-		if( mTexturep )
+        LLViewerTexture* texture = nullptr;
+        if (mGLTFMaterial)
+        {
+            texture = mGLTFMaterial->getUITexture();
+        }
+        else
+        {
+            texture = mTexturep.get();
+        }
+
+		if( texture )
 		{
-			if( mTexturep->getComponents() == 4 )
+			if( texture->getComponents() == 4 )
 			{
 				gl_rect_2d_checkerboard( interior, alpha );
 			}
 
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha );
+			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), texture, UI_VERTEX_COLOR % alpha );
 
 			// Pump the priority
-			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
+			texture->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 		}
 		else if (!mFallbackImage.isNull())
 		{
@@ -666,9 +786,22 @@ void LLFloaterTexturePicker::draw()
 
 const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL copyable_only, BOOL ignore_library)
 {
+    LLUUID loockup_id = asset_id;
+	if (loockup_id.isNull())
+	{
+        if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        {
+            loockup_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+        }
+        else
+        {
+            return LLUUID::null;
+        }
+	}
+
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
-	LLAssetIDMatches asset_id_matches(asset_id);
+	LLAssetIDMatches asset_id_matches(loockup_id);
 	gInventory.collectDescendentsIf(LLUUID::null,
 							cats,
 							items,
@@ -707,12 +840,6 @@ const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL co
 	return LLUUID::null;
 }
 
-PermissionMask LLFloaterTexturePicker::getFilterPermMask()
-{
-	bool apply_immediate = getChild<LLUICtrl>("apply_immediate_check")->getValue().asBoolean();
-	return apply_immediate ? mImmediateFilterPermMask : mNonImmediateFilterPermMask;
-}
-
 void LLFloaterTexturePicker::commitIfImmediateSet()
 {
 	if (!mNoCopyTextureSelected && mCanApply)
@@ -729,6 +856,7 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
     }
     LLUUID asset_id = mImageAssetID;
     LLUUID inventory_id;
+    LLUUID tracking_id;
     LLPickerSource mode = (LLPickerSource)mModeSelector->getValue().asInteger();
 
     switch (mode)
@@ -742,7 +870,14 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
                     LLFolderViewModelItemInventory* inv_view = static_cast<LLFolderViewModelItemInventory*>(last_selected->getViewModelItem());
 
                     LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
-                    if (itemp && itemp->getAssetUUID() == mImageAssetID)
+
+                    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL
+                        && mImageAssetID == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID
+                        && itemp && itemp->getAssetUUID().isNull())
+                    {
+                        inventory_id = inv_view->getUUID();
+                    }
+                    else if (itemp && itemp->getAssetUUID() == mImageAssetID)
                     {
                         inventory_id = inv_view->getUUID();
                     }
@@ -761,8 +896,18 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
             {
                 if (!mLocalScrollCtrl->getAllSelected().empty())
                 {
-                    LLUUID temp_id = mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
-                    asset_id = LLLocalBitmapMgr::getInstance()->getWorldID(temp_id);
+                    LLSD data = mLocalScrollCtrl->getFirstSelected()->getValue();
+                    tracking_id = data["id"];
+                    S32 asset_type = data["type"].asInteger();
+
+                    if (LLAssetType::AT_MATERIAL == asset_type)
+                    {
+                        asset_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(tracking_id);
+                    }
+                    else
+                    {
+                        asset_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+                    }
                 }
                 else
                 {
@@ -778,13 +923,13 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
             break;
     }
 
-    mOnFloaterCommitCallback(op, mode, asset_id, inventory_id);
+    mOnFloaterCommitCallback(op, mode, asset_id, inventory_id, tracking_id);
 }
 void LLFloaterTexturePicker::commitCancel()
 {
 	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback && mCanApply)
 	{
-		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, mOriginalImageAssetID, LLUUID::null);
+		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, mOriginalImageAssetID, LLUUID::null, LLUUID::null);
 	}
 }
 
@@ -814,8 +959,9 @@ void LLFloaterTexturePicker::onBtnBlank(void* userdata)
 void LLFloaterTexturePicker::onBtnNone(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+    self->setCanApply(true, true);
 	self->setImageID( LLUUID::null );
-	self->commitCancel();
+    self->commitIfImmediateSet();
 }
 
 /*
@@ -837,7 +983,7 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 	self->setImageID( self->mOriginalImageAssetID );
 	if (self->mOnFloaterCommitCallback)
 	{
-		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, self->mOriginalImageAssetID, LLUUID::null);
+		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, PICKER_UNKNOWN, self->mOriginalImageAssetID, LLUUID::null, LLUUID::null);
 	}
 	self->mViewModel->resetDirty();
 	self->closeFloater();
@@ -846,8 +992,11 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 // static
 void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 {
-	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	self->commitCallback(LLTextureCtrl::TEXTURE_SELECT);
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;	
+	if (self->mOnFloaterCommitCallback)
+	{
+		self->commitCallback(LLTextureCtrl::TEXTURE_SELECT);
+	}
 	self->closeFloater();
 }
 
@@ -882,12 +1031,12 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 			{
 				mNoCopyTextureSelected = TRUE;
 			}
-			setImageID(itemp->getAssetUUID(),false);
+            setImageIDFromItem(itemp, false);
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 
 			if(!mPreviewSettingChanged)
 			{
-				mCanPreview = gSavedSettings.getBOOL("TextureLivePreview");
+				mCanPreview = mCanApplyImmediately && gSavedSettings.getBOOL("TextureLivePreview");
 			}
 			else
 			{
@@ -906,92 +1055,27 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 // static
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
-	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-    int index = self->mModeSelector->getValue().asInteger();
-
-	self->mDefaultBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->mBlankBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->mNoneBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->mPipetteBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
-
-	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
-	  no idea under which conditions the above is even shown, needs testing. */
-
-	self->getChild<LLButton>("l_add_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-	self->getChild<LLButton>("l_rem_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-	self->getChild<LLButton>("l_upl_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
-
-	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == PICKER_BAKE ? TRUE : FALSE);
-	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
-
-	if (index == PICKER_BAKE)
-	{
-		self->stopUsingPipette();
-
-		S8 val = -1;
-
-		LLUUID imageID = self->mImageAssetID;
-		if (imageID == IMG_USE_BAKED_HEAD)
-		{
-			val = 0;
-		}
-		else if (imageID == IMG_USE_BAKED_UPPER)
-		{
-			val = 1;
-		}
-		else if (imageID == IMG_USE_BAKED_LOWER)
-		{
-			val = 2;
-		}
-		else if (imageID == IMG_USE_BAKED_EYES)
-		{
-			val = 3;
-		}
-		else if (imageID == IMG_USE_BAKED_SKIRT)
-		{
-			val = 4;
-		}
-		else if (imageID == IMG_USE_BAKED_HAIR)
-		{
-			val = 5;
-		}
-		else if (imageID == IMG_USE_BAKED_LEFTARM)
-		{
-			val = 6;
-		}
-		else if (imageID == IMG_USE_BAKED_LEFTLEG)
-		{
-			val = 7;
-		}
-		else if (imageID == IMG_USE_BAKED_AUX1)
-		{
-			val = 8;
-		}
-		else if (imageID == IMG_USE_BAKED_AUX2)
-		{
-			val = 9;
-		}
-		else if (imageID == IMG_USE_BAKED_AUX3)
-		{
-			val = 10;
-		}
-
-
-		self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setSelectedByValue(val, TRUE);
-	}
+    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+    self->changeMode();
 }
 
 // static
 void LLFloaterTexturePicker::onBtnAdd(void* userdata)
 {
-	if (LLLocalBitmapMgr::getInstance()->addUnit() == true)
-	{
-		LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-		LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
-	}
+    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)userdata;
+
+    if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL_TEXTURE, true);
+    }
+    else if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_IMAGE, true);
+    }
+    else if (self->mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL, true);
+    }
 }
 
 // static
@@ -1002,22 +1086,32 @@ void LLFloaterTexturePicker::onBtnRemove(void* userdata)
 
 	if (!selected_items.empty())
 	{
+
 		for(std::vector<LLScrollListItem*>::iterator iter = selected_items.begin();
 			iter != selected_items.end(); iter++)
 		{
 			LLScrollListItem* list_item = *iter;
 			if (list_item)
 			{
-				LLUUID tracking_id = list_item->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
-				LLLocalBitmapMgr::getInstance()->delUnit(tracking_id);
+                LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+                LLUUID tracking_id = data["id"];
+                S32 asset_type = data["type"].asInteger();
+
+                if (LLAssetType::AT_MATERIAL == asset_type)
+                {
+                    LLLocalGLTFMaterialMgr::getInstance()->delUnit(tracking_id);
+                }
+                else
+                {
+                    LLLocalBitmapMgr::getInstance()->delUnit(tracking_id);
+                }
 			}
 		}
 
 		self->getChild<LLButton>("l_rem_btn")->setEnabled(false);
 		self->getChild<LLButton>("l_upl_btn")->setEnabled(false);
-		LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+        self->refreshLocalList();
 	}
-
 }
 
 // static
@@ -1033,15 +1127,29 @@ void LLFloaterTexturePicker::onBtnUpload(void* userdata)
 
 	/* currently only allows uploading one by one, picks the first item from the selection list.  (not the vector!)
 	   in the future, it might be a good idea to check the vector size and if more than one units is selected - opt for multi-image upload. */
-	
-	LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN);
-	std::string filename = LLLocalBitmapMgr::getInstance()->getFilename(tracking_id);
 
-	if (!filename.empty())
-	{
-		LLFloaterReg::showInstance("upload_image", LLSD(filename));
-	}
+    LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+    LLUUID tracking_id = data["id"];
+    S32 asset_type = data["type"].asInteger();
 
+    if (LLAssetType::AT_MATERIAL == asset_type)
+    {
+        std::string filename;
+        S32 index;
+        LLLocalGLTFMaterialMgr::getInstance()->getFilenameAndIndex(tracking_id, filename, index);
+        if (!filename.empty())
+        {
+            LLMaterialEditor::loadMaterialFromFile(filename, index);
+        }
+    }
+    else
+    {
+        std::string filename = LLLocalBitmapMgr::getInstance()->getFilename(tracking_id);
+        if (!filename.empty())
+        {
+            LLFloaterReg::showInstance("upload_image", LLSD(filename));
+        }
+    }
 }
 
 //static
@@ -1057,8 +1165,20 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 
 	if (has_selection)
 	{
-		LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN); 
-		LLUUID inworld_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+        LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+        LLUUID tracking_id = data["id"];
+        S32 asset_type = data["type"].asInteger();
+        LLUUID inworld_id;
+
+        if (LLAssetType::AT_MATERIAL == asset_type)
+        {
+            inworld_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(tracking_id);
+        }
+        else
+        {
+            inworld_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+        }
+
 		if (self->mSetImageAssetIDCallback)
 		{
 			self->mSetImageAssetIDCallback(inworld_id);
@@ -1068,25 +1188,9 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 		{
 			if (self->mOnFloaterCommitCallback)
 			{
-				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, PICKER_LOCAL, inworld_id, LLUUID::null);
+				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, PICKER_LOCAL, inworld_id, LLUUID::null, tracking_id);
 			}
 		}
-	}
-}
-
-// static
-void LLFloaterTexturePicker::onShowFolders(LLUICtrl* ctrl, void *user_data)
-{
-	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
-	LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
-
-	if (check_box->get())
-	{
-		picker->mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	}
-	else
-	{
-		picker->mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NO_FOLDERS);
 	}
 }
 
@@ -1098,7 +1202,6 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
 	gSavedSettings.setBOOL("TextureLivePreview", check_box->get());
 
-	picker->updateFilterPermMask();
 	picker->commitIfImmediateSet();
 }
 
@@ -1161,7 +1264,7 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 
 	if (!self->mPreviewSettingChanged)
 	{
-		self->mCanPreview = gSavedSettings.getBOOL("TextureLivePreview");
+		self->mCanPreview = self->mCanApplyImmediately && gSavedSettings.getBOOL("TextureLivePreview");
 	}
 	else
 	{
@@ -1175,18 +1278,6 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 	}
 }
 
-//static
-void LLFloaterTexturePicker::onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *user_data)
-{
-	//LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
-	//LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
-}
-
-void LLFloaterTexturePicker::updateFilterPermMask()
-{
-	//mInventoryPanel->setFilterPermMask( getFilterPermMask() );  Commented out due to no-copy texture loss.
-}
-
 void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply, bool inworld_image)
 {
 	mSelectBtn->setEnabled(can_apply);
@@ -1194,7 +1285,7 @@ void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply, bool 
 	getChildRef<LLUICtrl>("apply_immediate_check").setVisible(can_preview);
 
 	mCanApply = can_apply;
-	mCanPreview = can_preview ? gSavedSettings.getBOOL("TextureLivePreview") : false;
+	mCanPreview = can_preview ? (mCanApplyImmediately && gSavedSettings.getBOOL("TextureLivePreview")) : false;
 	mPreviewSettingChanged = true;
 }
 
@@ -1241,6 +1332,126 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	mInventoryPanel->setFilterSubString(search_string);
 }
 
+void LLFloaterTexturePicker::changeMode()
+{
+    int index = mModeSelector->getValue().asInteger();
+
+    mDefaultBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mBlankBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mNoneBtn->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mFilterEdit->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+    mInventoryPanel->setVisible(index == PICKER_INVENTORY ? TRUE : FALSE);
+
+    getChild<LLButton>("l_add_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+    getChild<LLButton>("l_rem_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+    getChild<LLButton>("l_upl_btn")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+    getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == PICKER_LOCAL ? TRUE : FALSE);
+
+    getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == PICKER_BAKE ? TRUE : FALSE);
+    getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
+
+    bool pipette_visible = (index == PICKER_INVENTORY)
+        && (mInventoryPickType != LLTextureCtrl::PICK_MATERIAL);
+    mPipetteBtn->setVisible(pipette_visible);
+
+    if (index == PICKER_BAKE)
+    {
+        stopUsingPipette();
+
+        S8 val = -1;
+
+        LLUUID imageID = mImageAssetID;
+        if (imageID == IMG_USE_BAKED_HEAD)
+        {
+            val = 0;
+        }
+        else if (imageID == IMG_USE_BAKED_UPPER)
+        {
+            val = 1;
+        }
+        else if (imageID == IMG_USE_BAKED_LOWER)
+        {
+            val = 2;
+        }
+        else if (imageID == IMG_USE_BAKED_EYES)
+        {
+            val = 3;
+        }
+        else if (imageID == IMG_USE_BAKED_SKIRT)
+        {
+            val = 4;
+        }
+        else if (imageID == IMG_USE_BAKED_HAIR)
+        {
+            val = 5;
+        }
+        else if (imageID == IMG_USE_BAKED_LEFTARM)
+        {
+            val = 6;
+        }
+        else if (imageID == IMG_USE_BAKED_LEFTLEG)
+        {
+            val = 7;
+        }
+        else if (imageID == IMG_USE_BAKED_AUX1)
+        {
+            val = 8;
+        }
+        else if (imageID == IMG_USE_BAKED_AUX2)
+        {
+            val = 9;
+        }
+        else if (imageID == IMG_USE_BAKED_AUX3)
+        {
+            val = 10;
+        }
+
+        getChild<LLComboBox>("l_bake_use_texture_combo_box")->setSelectedByValue(val, TRUE);
+    }
+}
+
+void LLFloaterTexturePicker::refreshLocalList()
+{
+    mLocalScrollCtrl->clearRows();
+
+    if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+    {
+        LLLocalBitmapMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
+        LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        LLLocalBitmapMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
+    }
+}
+
+void LLFloaterTexturePicker::refreshInventoryFilter()
+{
+    U32 filter_types = 0x0;
+
+    if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+    {
+        filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
+        filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+        filter_types |= 0x1 << LLInventoryType::IT_MATERIAL;
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
+        filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        filter_types |= 0x1 << LLInventoryType::IT_MATERIAL;
+    }
+
+    mInventoryPanel->setFilterTypes(filter_types);
+}
+
 void LLFloaterTexturePicker::setLocalTextureEnabled(BOOL enabled)
 {
     mModeSelector->setEnabledByValue(1, enabled);
@@ -1268,13 +1479,103 @@ void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
 	onModeSelect(0, this);
 }
 
+void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryType type)
+{
+    mInventoryPickType = type;
+    refreshLocalList();
+    refreshInventoryFilter();
+
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        getChild<LLButton>("Pipette")->setVisible(false);
+    }
+    else
+    {
+        S32 index = mModeSelector->getValue().asInteger();
+        getChild<LLButton>("Pipette")->setVisible(index == 0);
+    }
+
+    if (!mLabel.empty())
+    {
+        std::string pick = getString("pick title");
+
+        setTitle(pick + mLabel);
+    }
+    else if(mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        setTitle(getString("pick_material"));
+    }
+    else
+    {
+        setTitle(getString("pick_texture"));
+    }
+}
+
+void LLFloaterTexturePicker::setImmediateFilterPermMask(PermissionMask mask)
+{
+    mImmediateFilterPermMask = mask;
+    mInventoryPanel->setFilterPermMask(mask);
+}
+
+void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle)
+{
+    std::vector<std::string>::const_iterator iter = filenames.begin();
+    while (iter != filenames.end())
+    {
+        if (!iter->empty())
+        {
+            std::string temp_exten = gDirUtilp->getExtension(*iter);
+            if (temp_exten == "gltf" || temp_exten == "glb")
+            {
+                LLLocalGLTFMaterialMgr::getInstance()->addUnit(*iter);
+            }
+            else
+            {
+                LLLocalBitmapMgr::getInstance()->addUnit(*iter);
+            }
+        }
+        iter++;
+    }
+
+    // Todo: this should referesh all pickers, not just a current one
+    if (!handle.isDead())
+    {
+        LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)handle.get();
+        self->mLocalScrollCtrl->clearRows();
+
+        if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
+        {
+            LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+            LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+        }
+        else if (self->mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+        {
+            LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+        }
+        else if (self->mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        {
+            LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+        }
+    }
+}
+
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 {
 	LLUUID inventory_item_id = findItemID(te.getID(), TRUE);
 	if (inventory_item_id.notNull())
 	{
 		LLToolPipette::getInstance()->setResult(TRUE, "");
-		setImageID(te.getID());
+        if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        {
+            // tes have no data about material ids
+            // Plus gltf materials are layered with overrides,
+            // which mean that end result might have no id.
+            LL_WARNS() << "tes have no data about material ids" << LL_ENDL;
+        }
+        else
+        {
+            setImageID(te.getID());
+        }
 
 		mNoCopyTextureSelected = FALSE;
 		LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
@@ -1306,15 +1607,16 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mOnCloseCallback(NULL),
 	mOnSelectCallback(NULL),
 	mBorderColor( p.border_color() ),
-	mAllowNoTexture( FALSE ),
+	mAllowNoTexture( p.allow_no_texture ),
 	mAllowLocalTexture( TRUE ),
 	mImmediateFilterPermMask( PERM_NONE ),
-	mNonImmediateFilterPermMask( PERM_NONE ),
 	mCanApplyImmediately( FALSE ),
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
 	mShowLoadingPlaceholder( TRUE ),
 	mOpenTexPreview(false),
+    mBakeTextureEnabled(true),
+    mInventoryPickType(PICK_TEXTURE),
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
@@ -1402,6 +1704,23 @@ void LLTextureCtrl::setCanApply(bool can_preview, bool can_apply)
 	}
 }
 
+void LLTextureCtrl::setImmediateFilterPermMask(PermissionMask mask)
+{
+    mImmediateFilterPermMask = mask;
+
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
+    if (floaterp)
+    {
+        floaterp->setImmediateFilterPermMask(mask);
+    }
+}
+
+void LLTextureCtrl::setFilterPermissionMasks(PermissionMask mask) 
+{
+    setImmediateFilterPermMask(mask);
+    setDnDFilterPermMask(mask);
+}
+
 void LLTextureCtrl::setVisible( BOOL visible ) 
 {
 	if( !visible )
@@ -1487,7 +1806,6 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 			mLabel,
 			mImmediateFilterPermMask,
 			mDnDFilterPermMask,
-			mNonImmediateFilterPermMask,
 			mCanApplyImmediately,
 			mFallbackImage);
 		mFloaterHandle = floaterp->getHandle();
@@ -1503,15 +1821,14 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		}
 		if (texture_floaterp)
 		{
-			texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4));
+			texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4, _5));
 		}
 		if (texture_floaterp)
 		{
 			texture_floaterp->setSetImageAssetIDCallback(boost::bind(&LLTextureCtrl::setImageAssetID, this, _1));
-		}
-		if (texture_floaterp)
-		{
-			texture_floaterp->setBakeTextureEnabled(TRUE);
+
+			texture_floaterp->setBakeTextureEnabled(mBakeTextureEnabled);
+            texture_floaterp->setInventoryPickType(mInventoryPickType);
 		}
 
 		LLFloater* root_floater = gFloaterView->getParentFloater(this);
@@ -1574,9 +1891,17 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 		if (!mOpenTexPreview)
 		{
 			showPicker(FALSE);
-			//grab textures first...
-			LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
-			//...then start full inventory fetch (should have been done on startup, but just in case.
+            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            {
+                //grab materials first...
+                LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL));
+            }
+            else
+            {
+                //grab textures first...
+                LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
+            }
+			//...then start full inventory fetch.
             if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
             {
                 LLInventoryModelBackgroundFetch::instance().start();
@@ -1620,11 +1945,11 @@ void LLTextureCtrl::onFloaterClose()
 	mFloaterHandle.markDead();
 }
 
-void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inv_id)
+void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inv_id, const LLUUID& tracking_id)
 {
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
-	if( floaterp && getEnabled())
+    if( floaterp && getEnabled())
 	{
 		if (op == TEXTURE_CANCEL)
 			mViewModel->resetDirty();
@@ -1643,16 +1968,23 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, co
                 case PICKER_INVENTORY:
                     mImageItemID = inv_id;
                     mImageAssetID = asset_id;
+                    mLocalTrackingID.setNull();
                     break;
                 case PICKER_BAKE:
+                    mImageItemID = LLUUID::null;
+                    mImageAssetID = asset_id;
+                    mLocalTrackingID.setNull();
+                    break;
                 case PICKER_LOCAL:
                     mImageItemID = LLUUID::null;
                     mImageAssetID = asset_id;
+                    mLocalTrackingID = tracking_id;
                     break;
                 case PICKER_UNKNOWN:
                 default:
                     mImageItemID = floaterp->findItemID(asset_id, FALSE);
                     mImageAssetID = asset_id;
+                    mLocalTrackingID.setNull();
                     break;
             }
 
@@ -1660,7 +1992,7 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, co
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)
 			{
-				mOnSelectCallback( this, LLSD() );
+                mOnSelectCallback(this, LLSD());
 			}
 			else if (op == TEXTURE_CANCEL && mOnCancelCallback)
 			{
@@ -1671,8 +2003,10 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLPickerSource source, co
 				// If the "no_commit_on_selection" parameter is set
 				// we commit only when user presses OK in the picker
 				// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
-				if (mCommitOnSelection || op == TEXTURE_SELECT)
-					onCommit();
+                if (mCommitOnSelection || op == TEXTURE_SELECT)
+                {
+                    onCommit();
+                }
 			}
 		}
 	}
@@ -1708,6 +2042,7 @@ void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 	{
 		mImageItemID.setNull();
 		mImageAssetID = asset_id;
+        mLocalTrackingID.setNull();
 		LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 		if( floaterp && getEnabled() )
 		{
@@ -1717,13 +2052,24 @@ void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 	}
 }
 
-void LLTextureCtrl::setBakeTextureEnabled(BOOL enabled)
+void LLTextureCtrl::setBakeTextureEnabled(bool enabled)
 {
+    mBakeTextureEnabled = enabled;
 	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if (floaterp)
 	{
 		floaterp->setBakeTextureEnabled(enabled);
 	}
+}
+
+void LLTextureCtrl::setInventoryPickType(EPickInventoryType type)
+{
+    mInventoryPickType = type;
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
+    if (floaterp)
+    {
+        floaterp->setInventoryPickType(type);
+    }
 }
 
 BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
@@ -1737,11 +2083,26 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	// returns true, then the cast was valid, and we can perform
 	// the third test without problems.
 	LLInventoryItem* item = (LLInventoryItem*)cargo_data; 
-	bool is_mesh = cargo_type == DAD_MESH;
 
-	if (getEnabled() &&
-		((cargo_type == DAD_TEXTURE) || is_mesh) &&
-		 allowDrop(item))
+    bool is_mesh = cargo_type == DAD_MESH;
+    bool is_texture = cargo_type == DAD_TEXTURE;
+    bool is_material = cargo_type == DAD_MATERIAL;
+
+    bool allow_dnd = false;
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        allow_dnd = is_material;
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        allow_dnd = is_texture || is_mesh;
+    }
+    else
+    {
+        allow_dnd = is_texture || is_mesh || is_material;
+    }
+
+	if (getEnabled() && allow_dnd && allowDrop(item, cargo_type, tooltip_msg))
 	{
 		if (drop)
 		{
@@ -1795,17 +2156,27 @@ void LLTextureCtrl::draw()
 
 		if (texture.isNull())
 		{
-			texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            {
+                LLPointer<LLFetchedGLTFMaterial> material = gGLTFMaterialList.getMaterial(mImageAssetID);
+                if (material)
+                {
+                    texture = material->getUITexture();
+                }
+            }
+            else
+            {
+                texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+                texture->forceToSaveRawImage(0);
+            }
 		}
-		
-		texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-		texture->forceToSaveRawImage(0) ;
 
 		mTexturep = texture;
 	}
 	else//mImageAssetID == LLUUID::null
 	{
-		mTexturep = NULL;
+		mTexturep = NULL; 
 	}
 	
 	// Border
@@ -1893,7 +2264,7 @@ void LLTextureCtrl::draw()
 	LLUICtrl::draw();
 }
 
-BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
+BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg)
 {
 	BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 	BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
@@ -1905,8 +2276,6 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	if (mod)  item_perm_mask |= PERM_MODIFY;
 	if (xfer) item_perm_mask |= PERM_TRANSFER;
 	
-//	PermissionMask filter_perm_mask = mCanApplyImmediately ?			commented out due to no-copy texture loss.
-//			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
 	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 	{
@@ -1921,6 +2290,12 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	}
 	else
 	{
+        PermissionMask mask = PERM_COPY | PERM_TRANSFER;
+        if ((filter_perm_mask & mask) == mask
+            && cargo_type == DAD_TEXTURE)
+        {
+            tooltip_msg.assign(LLTrans::getString("TooltipTextureRestrictedDrop"));
+        }
 		return FALSE;
 	}
 }
@@ -1935,8 +2310,16 @@ BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
 		return mDropCallback(this, item);
 	}
 
-	// no callback installed, so just set the image ids and carry on.
-	setImageAssetID( item->getAssetUUID() );
+    // no callback installed, so just set the image ids and carry on.
+    LLUUID asset_id = item->getAssetUUID();
+
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL && asset_id.isNull())
+    {
+        // If an inventory material has a null asset, consider it a valid blank material(gltf)
+        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    }
+
+	setImageAssetID(asset_id);
 	mImageItemID = item->getUUID();
 	return TRUE;
 }

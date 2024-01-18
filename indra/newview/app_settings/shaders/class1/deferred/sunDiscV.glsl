@@ -27,11 +27,11 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec2 texcoord0;
 
-VARYING vec2 vary_texcoord0;
-VARYING float sun_fade;
+out vec2 vary_texcoord0;
+out float sun_fade;
 
 void calcAtmospherics(vec3 eye_pos);
 
@@ -44,6 +44,8 @@ void main()
 
     sun_fade = smoothstep(0.3, 1.0, (position.z + 50) / 512.0f);
 
+    // smash to *almost* far clip plane -- behind clouds but in front of stars
+    pos.z = pos.w*0.999999;
     gl_Position = pos;
     
     calcAtmospherics(pos.xyz);

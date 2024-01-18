@@ -23,28 +23,22 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-uniform sampler2DRect diffuseRect;
+uniform sampler2D diffuseRect;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform float max_cof;
 uniform float res_scale;
 
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 {
-	vec4 s = texture2DRect(diffuseRect, tc);
+	vec4 s = texture(diffuseRect, tc);
 
 	float sc = abs(s.a*2.0-1.0)*max_cof;
 
@@ -63,7 +57,7 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 
 void dofSampleNear(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 {
-	vec4 s = texture2DRect(diffuseRect, tc);
+	vec4 s = texture(diffuseRect, tc);
 
 	float wg = 0.25;
 
@@ -79,7 +73,7 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 	
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture(diffuseRect, vary_fragcoord.xy);
 	
 	{ 
 		float w = 1.0;
@@ -93,14 +87,14 @@ void main()
 		{
 			while (sc > 0.5)
 			{
-				int its = int(max(1.0,(sc*3.7)));
+				int its = int(max(1.0,(sc*3.7)));	
 				for (int i=0; i<its; ++i)
 				{
 					float ang = sc+i*2*PI/its; // sc is added for rotary perturbance
 					float samp_x = sc*sin(ang);
 					float samp_y = sc*cos(ang);
 					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
-					dofSampleNear(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
+					dofSampleNear(diff, w, sc, vary_fragcoord.xy + (vec2(samp_x,samp_y) / screen_res));
 				}
 				sc -= 1.0;
 			}
@@ -117,7 +111,7 @@ void main()
 					float samp_x = sc*sin(ang);
 					float samp_y = sc*cos(ang);
 					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
-					dofSample(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
+					dofSample(diff, w, sc, vary_fragcoord.xy + (vec2(samp_x,samp_y) / screen_res));
 				}
 				sc -= 1.0;
 			}
@@ -125,6 +119,6 @@ void main()
 
 		diff /= w;
 	}
-		
+	
 	frag_color = diff;
 }

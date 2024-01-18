@@ -147,6 +147,7 @@ LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
 	mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
 	mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
+    mInventoryItemsDict["New Material"] = LLTrans::getString("New Material");
 	mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 	mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
 	mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
@@ -231,9 +232,29 @@ LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
 class LLInventoryHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
-	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_CLICK_ONLY) { }
-	
+    LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_THROTTLE) { }
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (params.size() < 1)
+        {
+            return true; // don't block, will fail later
+        }
+
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
 	bool handle(const LLSD& params,
                 const LLSD& query_map,
                 const std::string& grid,
@@ -1034,6 +1055,21 @@ void create_notecard_cb(const LLUUID& inv_item)
 	}
 }
 
+void create_gltf_material_cb(const LLUUID& inv_item)
+{
+    if (!inv_item.isNull())
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+        if (item)
+        {
+            set_default_permissions(item, "Materials");
+
+            gInventory.updateItem(item);
+            gInventory.notifyObservers();
+        }
+    }
+}
+
 LLInventoryCallbackManager gInventoryCallbacks;
 
 void create_inventory_item(
@@ -1135,14 +1171,29 @@ void create_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
+void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
+                                           const LLUUID &parent,
+                                           const LLUUID &avatar_id,
+                                           const LLAvatarName &av_name)
+{
+    std::string item_desc = avatar_id.asString();
+    create_inventory_item(gAgent.getID(),
+                          gAgent.getSessionID(),
+                          parent,
+                          LLTransactionID::tnull,
+                          av_name.getUserName(),
+                          item_desc,
+                          LLAssetType::AT_CALLINGCARD,
+                          LLInventoryType::IT_CALLINGCARD,
+                          NO_INV_SUBTYPE,
+                          PERM_MOVE | PERM_TRANSFER,
+                          cb);
+}
+
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
-	std::string item_desc = avatar_id.asString();
 	LLAvatarName av_name;
-	LLAvatarNameCache::get(avatar_id, &av_name);
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
-                          LLInventoryType::IT_CALLINGCARD, NO_INV_SUBTYPE, PERM_MOVE | PERM_TRANSFER, cb);
+    LLAvatarNameCache::get(avatar_id, boost::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
 }
 
 void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
@@ -1678,6 +1729,12 @@ void create_new_item(const std::string& name,
 			break;
 		}
 
+        case LLInventoryType::IT_MATERIAL:
+        {
+            cb = new LLBoostFuncInventoryCallback(create_gltf_material_cb);
+            next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            break;
+        }
         default:
         {
             cb = new LLBoostFuncInventoryCallback();
@@ -1735,6 +1792,7 @@ void remove_folder_contents(const LLUUID& category, bool keep_outfit_links,
 const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not)
 const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably not)
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
+const std::string NEW_MATERIAL_NAME = "New Material"; // *TODO:Translate? (probably not)
 
 // ! REFACTOR ! Really need to refactor this so that it's not a bunch of if-then statements...
 void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
@@ -1818,6 +1876,16 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                       LLInventoryType::IT_GESTURE,
                       PERM_ALL,
                       created_cb);    // overridden in create_new_item
+    }
+    else if ("material" == type_name)
+    {
+        const LLUUID parent_id = dest_id.notNull() ? dest_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+        create_new_item(NEW_MATERIAL_NAME,
+            parent_id,
+            LLAssetType::AT_MATERIAL,
+            LLInventoryType::IT_MATERIAL,
+            PERM_ALL,
+            created_cb);	// overridden in create_new_item
     }
     else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
     {

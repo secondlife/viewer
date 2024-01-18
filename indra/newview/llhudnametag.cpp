@@ -229,7 +229,7 @@ void LLHUDNameTag::render()
 	if (sDisplayText)
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-		LLGLDisable gls_stencil(GL_STENCIL_TEST);
+		//LLGLDisable gls_stencil(GL_STENCIL_TEST);
 		renderText(FALSE);
 	}
 }
@@ -258,7 +258,6 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	}
 
 	LLGLState gls_blend(GL_BLEND, for_select ? FALSE : TRUE);
-	LLGLState gls_alpha(GL_ALPHA_TEST, for_select ? FALSE : TRUE);
 	
 	LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
 	F32 alpha_factor = 1.f;

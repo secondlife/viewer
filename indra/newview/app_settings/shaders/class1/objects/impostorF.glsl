@@ -23,26 +23,22 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 void main()
 {
-	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy);
+	vec4 color = texture(diffuseMap,vary_texcoord0.xy);
 	
 	if (color.a < minimum_alpha)
 	{
 		discard;
 	}
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }

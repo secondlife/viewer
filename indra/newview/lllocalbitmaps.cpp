@@ -46,8 +46,8 @@
 #include <ctime>
 
 /* misc headers */
+#include "llgltfmaterial.h"
 #include "llscrolllistctrl.h"
-#include "llfilepicker.h"
 #include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
@@ -62,6 +62,7 @@
 #include "pipeline.h"
 #include "llmaterialmgr.h"
 #include "llimagedimensionsinfo.h"
+#include "llinventoryicon.h"
 #include "llviewercontrol.h"
 #include "lltrans.h"
 #include "llviewerdisplay.h"
@@ -131,6 +132,14 @@ LLLocalBitmap::~LLLocalBitmap()
 		LLLocalBitmapMgr::getInstance()->doRebake();
 	}
 
+    for (LLPointer<LLGLTFMaterial> &mat : mGLTFMaterialWithLocalTextures)
+    {
+        mat->removeLocalTextureTracking(getTrackingID());
+    }
+
+    mChangedSignal(getTrackingID(), getWorldID(), LLUUID());
+    mChangedSignal.disconnect_all_slots();
+
 	// delete self from gimagelist
 	LLViewerFetchedTexture* image = gTextureList.findImage(mWorldID, TEX_LIST_STANDARD);
 	gTextureList.deleteImage(image);
@@ -142,27 +151,27 @@ LLLocalBitmap::~LLLocalBitmap()
 }
 
 /* accessors */
-std::string LLLocalBitmap::getFilename()
+std::string LLLocalBitmap::getFilename() const
 {
 	return mFilename;
 }
 
-std::string LLLocalBitmap::getShortName()
+std::string LLLocalBitmap::getShortName() const
 {
 	return mShortName;
 }
 
-LLUUID LLLocalBitmap::getTrackingID()
+LLUUID LLLocalBitmap::getTrackingID() const
 {
 	return mTrackingID;
 }
 
-LLUUID LLLocalBitmap::getWorldID()
+LLUUID LLLocalBitmap::getWorldID() const
 {
 	return mWorldID;
 }
 
-bool LLLocalBitmap::getValid()
+bool LLLocalBitmap::getValid() const
 {
 	return mValid;
 }
@@ -273,6 +282,41 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 	return updated;
 }
 
+boost::signals2::connection LLLocalBitmap::setChangedCallback(const LLLocalTextureCallback& cb)
+{
+    return mChangedSignal.connect(cb);
+}
+
+void LLLocalBitmap::addGLTFMaterial(LLGLTFMaterial* mat)
+{
+    if (!mat)
+    {
+        return;
+    }
+
+    mat_list_t::iterator end = mGLTFMaterialWithLocalTextures.end();
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    {
+        if (it->get() == mat)
+        {
+            return;
+        }
+
+        if ((*it)->getNumRefs() == 1)
+        {
+            it = mGLTFMaterialWithLocalTextures.erase(it);
+            end = mGLTFMaterialWithLocalTextures.end();
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    mat->addLocalTextureTracking(getTrackingID(), getWorldID());
+    mGLTFMaterialWithLocalTextures.push_back(mat);
+}
+
 bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 {
 	bool decode_successful = false;
@@ -340,7 +384,7 @@ bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 	return decode_successful;
 }
 
-void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
+void LLLocalBitmap::replaceIDs(const LLUUID& old_id, LLUUID new_id)
 {
 	// checking for misuse.
 	if (old_id == new_id)
@@ -349,6 +393,8 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 			    << "Texture UUID: " << old_id.asString() << LL_ENDL;
 		return;
 	}
+
+    mChangedSignal(getTrackingID(), old_id, new_id);
 
 	// processing updates per channel; makes the process scalable.
 	// the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
@@ -381,6 +427,8 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
+
+    updateGLTFMaterials(old_id, new_id);
 }
 
 // this function sorts the faces from a getFaceList[getNumFaces] into a list of objects
@@ -576,6 +624,67 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 			}
 		}
 	}
+}
+
+void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
+{
+    // Might be a better idea to hold this in LLGLTFMaterialList
+    mat_list_t::iterator end = mGLTFMaterialWithLocalTextures.end();
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    {
+        if ((*it)->getNumRefs() == 1)
+        {
+            // render and override materials are often recreated,
+            // clean up any remains
+            it = mGLTFMaterialWithLocalTextures.erase(it);
+            end = mGLTFMaterialWithLocalTextures.end();
+        }
+        else if ((*it)->replaceLocalTexture(mTrackingID, old_id, new_id))
+        {
+            it++;
+        }
+        else
+        {
+            // Matching id not found, no longer in use
+            // material would clean itself, remove from the list
+            it = mGLTFMaterialWithLocalTextures.erase(it);
+            end = mGLTFMaterialWithLocalTextures.end();
+        }
+    }
+
+    // Render material consists of base and override materials, make sure replaceLocalTexture
+    // gets called for base and override before applyOverride
+    end = mGLTFMaterialWithLocalTextures.end();
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    {
+        LLFetchedGLTFMaterial* fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
+        if (fetched_mat)
+        {
+            for (LLTextureEntry* entry : fetched_mat->mTextureEntires)
+            {
+                // Normally a change in applied material id is supposed to
+                // drop overrides thus reset material, but local materials
+                // currently reuse their existing asset id, and purpose is
+                // to preview how material will work in-world, overrides
+                // included, so do an override to render update instead.
+                LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
+                if (override_mat)
+                {
+                    // do not create a new material, reuse existing pointer
+                    LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
+                    if (render_mat)
+                    {
+                        llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
+                        {
+                            *render_mat = *fetched_mat;
+                        }
+                        render_mat->applyOverride(*override_mat);
+                    }
+                }
+            }
+        }
+        ++it;
+    }
 }
 
 LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
@@ -919,7 +1028,22 @@ LLLocalBitmapMgr::~LLLocalBitmapMgr()
     mBitmapList.clear();
 }
 
-LLUUID LLLocalBitmapMgr::addUnit(const std::string &filename)
+bool LLLocalBitmapMgr::addUnit(const std::vector<std::string>& filenames)
+{
+    bool add_successful = false;
+    std::vector<std::string>::const_iterator iter = filenames.begin();
+    while (iter != filenames.end())
+    {
+        if (!iter->empty() && addUnit(*iter).notNull())
+        {
+            add_successful = true;
+        }
+        iter++;
+    }
+    return add_successful;
+}
+
+LLUUID LLLocalBitmapMgr::addUnit(const std::string& filename)
 {
     if (!checkTextureDimensions(filename))
     {
@@ -947,31 +1071,6 @@ LLUUID LLLocalBitmapMgr::addUnit(const std::string &filename)
     }
 
     return LLUUID::null;
-}
-
-bool LLLocalBitmapMgr::addUnit()
-{
-	bool add_successful = false;
-
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
-	{
-		mTimer.stopTimer();
-
-		std::string filename = picker.getFirstFile();
-		while(!filename.empty())
-		{
-            if (addUnit(filename).notNull())
-            {
-                add_successful = true;
-            }
-			filename = picker.getNextFile();
-		}
-		
-		mTimer.startTimer();
-	}
-
-	return add_successful;
 }
 
 bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
@@ -1038,11 +1137,11 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 	}
 }
 
-LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
+LLUUID LLLocalBitmapMgr::getWorldID(const LLUUID &tracking_id) const
 {
 	LLUUID world_id = LLUUID::null;
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+	for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -1054,9 +1153,9 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 	return world_id;
 }
 
-bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
+bool LLLocalBitmapMgr::isLocal(const LLUUID &world_id) const
 {
-    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
     {
         LLLocalBitmap* unit = *iter;
         if (unit->getWorldID() == world_id)
@@ -1067,11 +1166,11 @@ bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
     return false;
 }
 
-std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
+std::string LLLocalBitmapMgr::getFilename(const LLUUID &tracking_id) const
 {
 	std::string filename = "";
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+	for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -1083,11 +1182,39 @@ std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 	return filename;
 }
 
+boost::signals2::connection LLLocalBitmapMgr::setOnChangedCallback(const LLUUID tracking_id, const LLLocalBitmap::LLLocalTextureCallback &cb)
+{
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getTrackingID() == tracking_id)
+        {
+            return unit->setChangedCallback(cb);
+        }
+    }
+
+    return boost::signals2::connection();
+}
+
+void LLLocalBitmapMgr::associateGLTFMaterial(const LLUUID tracking_id, LLGLTFMaterial* mat)
+{
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getTrackingID() == tracking_id)
+        {
+            unit->addGLTFMaterial(mat);
+        }
+    }
+}
+
 void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 {
 	if (ctrl)
 	{
-		ctrl->clearRows();
+        std::string icon_name = LLInventoryIcon::getIconName(
+            LLAssetType::AT_TEXTURE,
+            LLInventoryType::IT_NONE);
 
 		if (!mBitmapList.empty())
 		{
@@ -1095,13 +1222,19 @@ void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 				 iter != mBitmapList.end(); iter++)
 			{
 				LLSD element;
-				element["columns"][0]["column"] = "unit_name";
-				element["columns"][0]["type"]   = "text";
-				element["columns"][0]["value"]  = (*iter)->getShortName();
 
-				element["columns"][1]["column"] = "unit_id_HIDDEN";
-				element["columns"][1]["type"]   = "text";
-				element["columns"][1]["value"]  = (*iter)->getTrackingID();
+                element["columns"][0]["column"] = "icon";
+                element["columns"][0]["type"] = "icon";
+                element["columns"][0]["value"] = icon_name;
+
+                element["columns"][1]["column"] = "unit_name";
+                element["columns"][1]["type"] = "text";
+                element["columns"][1]["value"] = (*iter)->getShortName();
+
+                LLSD data;
+                data["id"] = (*iter)->getTrackingID();
+                data["type"] = (S32)LLAssetType::AT_TEXTURE;
+                element["value"] = data;
 
 				ctrl->addElement(element);
 			}

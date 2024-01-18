@@ -217,6 +217,7 @@ public:
 	virtual void draw();
 	virtual void deleteAllChildren();
 
+    void stopAutoScollining() {mNeedsScroll = false;}
 	void scrollToShowSelection();
 	void scrollToShowItem(LLFolderViewItem* item, const LLRect& constraint_rect);
 	void setScrollContainer( LLScrollContainer* parent ) { mScrollContainer = parent; }

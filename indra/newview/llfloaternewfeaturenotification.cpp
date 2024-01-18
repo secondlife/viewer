@@ -50,6 +50,13 @@ BOOL LLFloaterNewFeatureNotification::postBuild()
     getChild<LLUICtrl>(title_txt)->setValue(getString(title_txt + feature));
     getChild<LLUICtrl>(dsc_txt)->setValue(getString(dsc_txt + feature));
 
+    if (getKey().asString() == "gltf")
+    {
+        LLRect rect = getRect();
+        // make automatic?
+        reshape(rect.getWidth() + 90, rect.getHeight() + 45);
+    }
+
     return TRUE;
 }
 

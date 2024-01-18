@@ -251,7 +251,6 @@ void LLFloaterImagePreview::draw()
 		if (selected <= 0)
 		{
 			gl_rect_2d_checkerboard(mPreviewRect);
-			LLGLDisable gls_alpha(GL_ALPHA_TEST);
 
 			if(mImagep.notNull())
 			{
@@ -797,8 +796,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	U32 num_indices = vf.mNumIndices;
 	U32 num_vertices = vf.mNumVertices;
 
-	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0, 0);
-	if (!mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE))
+	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
+	if (!mVertexBuffer->allocateBuffer(num_vertices, num_indices))
 	{
 		LL_WARNS() << "Failed to allocate Vertex Buffer for image preview to"
 			<< num_vertices << " vertices and "
@@ -838,6 +837,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	{
 		*(index_strider++) = vf.mIndices[i];
 	}
+
+    mVertexBuffer->unmapBuffer();
 }
 
 
@@ -906,7 +907,7 @@ BOOL LLImagePreviewSculpted::render()
 	const F32 BRIGHTNESS = 0.9f;
 	gGL.diffuseColor3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
 
-	mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
+	mVertexBuffer->setBuffer();
 	mVertexBuffer->draw(LLRender::TRIANGLES, num_indices, 0);
 
 	gGL.popMatrix();

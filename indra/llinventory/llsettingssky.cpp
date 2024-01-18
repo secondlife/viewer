@@ -33,6 +33,7 @@
 #include "v3colorutil.h"
 #include <boost/bind.hpp>
 
+
 //=========================================================================
 namespace
 {
@@ -132,7 +133,11 @@ const std::string LLSettingsSky::SETTING_SKY_MOISTURE_LEVEL("moisture_level");
 const std::string LLSettingsSky::SETTING_SKY_DROPLET_RADIUS("droplet_radius");
 const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
-const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("3ae23978-ac82-bcf3-a9cb-ba6e52dcb9ad");
+const std::string LLSettingsSky::SETTING_REFLECTION_PROBE_AMBIANCE("reflection_probe_ambiance");
+
+const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("651510b8-5f4d-8991-1592-e7eeab2a5a06");
+
+F32 LLSettingsSky::sAutoAdjustProbeAmbiance = 1.f;
 
 static const LLUUID DEFAULT_SUN_ID("32bfbcea-24b1-fb9d-1ef9-48a28a63730f"); // dataserver
 static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
@@ -402,6 +407,7 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     mNextRainbowTextureId(),
     mNextHaloTextureId()
 {
+    mCanAutoAdjust = !data.has(SETTING_REFLECTION_PROBE_AMBIANCE);
 }
 
 LLSettingsSky::LLSettingsSky():
@@ -424,6 +430,8 @@ void LLSettingsSky::replaceSettings(LLSD settings)
     mNextBloomTextureId.setNull();
     mNextRainbowTextureId.setNull();
     mNextHaloTextureId.setNull();
+
+    mCanAutoAdjust = !settings.has(SETTING_REFLECTION_PROBE_AMBIANCE);
 }
 
 void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
@@ -436,6 +444,7 @@ void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
     mNextBloomTextureId = pother->mNextBloomTextureId;
     mNextRainbowTextureId = pother->mNextRainbowTextureId;
     mNextHaloTextureId = pother->mNextHaloTextureId;
+    mCanAutoAdjust = pother->mCanAutoAdjust;
 }
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
@@ -628,6 +637,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_SKY_ICE_LEVEL,      false,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(0.0f, 1.0f))));
 
+        validation.push_back(Validator(SETTING_REFLECTION_PROBE_AMBIANCE, false, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(llsd::array(0.0f, 10.0f)))));
+
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
         validation.push_back(Validator(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers));
@@ -752,6 +764,8 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_SKY_MOISTURE_LEVEL] = 0.0f;
         dfltsetting[SETTING_SKY_DROPLET_RADIUS] = 800.0f;
         dfltsetting[SETTING_SKY_ICE_LEVEL]      = 0.0f;
+
+        dfltsetting[SETTING_REFLECTION_PROBE_AMBIANCE] = 0.0f;
 
         dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
         dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
@@ -1130,6 +1144,12 @@ void LLSettingsSky::setSkyIceLevel(F32 ice_level)
     setValue(SETTING_SKY_ICE_LEVEL, ice_level);
 }
 
+void LLSettingsSky::setReflectionProbeAmbiance(F32 ambiance)
+{
+    mCanAutoAdjust = false; // we've now touched this sky in a "new" way, it can no longer auto adjust
+    setValue(SETTING_REFLECTION_PROBE_AMBIANCE, ambiance);
+}
+
 void LLSettingsSky::setAmbientColor(const LLColor3 &val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT] = val.getValue();
@@ -1416,6 +1436,34 @@ F32 LLSettingsSky::getSkyDropletRadius() const
 F32 LLSettingsSky::getSkyIceLevel() const
 {
     return mSettings[SETTING_SKY_ICE_LEVEL].asReal();
+}
+
+F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
+{
+    if (auto_adjust && canAutoAdjust())
+    {
+        return sAutoAdjustProbeAmbiance;
+    }
+
+    return mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
+}
+
+F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust) const
+{
+#if 0
+    // feed cloud shadow back into reflection probe ambiance to mimic pre-reflection-probe behavior 
+    // without brightening dark/interior spaces
+    F32 probe_ambiance = getReflectionProbeAmbiance(auto_adjust);
+
+    if (probe_ambiance > 0.f && probe_ambiance < 1.f)
+    {
+        probe_ambiance += (1.f - probe_ambiance) * getCloudShadow() * cloud_shadow_scale;
+    }
+
+    return probe_ambiance;
+#else
+    return getReflectionProbeAmbiance(auto_adjust);
+#endif
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const

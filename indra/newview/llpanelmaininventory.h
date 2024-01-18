@@ -229,6 +229,7 @@ protected:
 	void onCustomAction(const LLSD& command_name);
     bool isActionVisible(const LLSD& userdata);
     static bool hasSettingsInventory();
+    static bool hasMaterialsInventory();
     void updateTitle();
     void updateNavButtons();
     

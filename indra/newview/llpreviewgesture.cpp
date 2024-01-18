@@ -1108,14 +1108,16 @@ void LLPreviewGesture::saveIfNeeded()
                 item->setComplete(true);
 
                 uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_GESTURE, buffer,
-                    [](LLUUID itemId, LLUUID newAssetId, LLUUID, LLSD) {
+                    [](LLUUID itemId, LLUUID newAssetId, LLUUID, LLSD)
+                    {
                         LLPreviewGesture::finishInventoryUpload(itemId, newAssetId);
-                    });
+                    },
+                    nullptr);
                 url = agent_url;
             }
             else if (!mObjectUUID.isNull() && !task_url.empty())
             {
-                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, nullptr);
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, nullptr, nullptr);
                 url = task_url;
             }
 

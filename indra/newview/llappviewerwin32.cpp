@@ -369,6 +369,35 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 		nvapi_error(status);
 		return;
 	}
+
+	// enable Threaded Optimization instead of letting the driver decide
+	status = NvAPI_DRS_GetSetting(hSession, hProfile, OGL_THREAD_CONTROL_ID, &drsSetting);
+	if (status == NVAPI_SETTING_NOT_FOUND || (status == NVAPI_OK && drsSetting.u32CurrentValue != OGL_THREAD_CONTROL_ENABLE))
+	{
+		drsSetting.version = NVDRS_SETTING_VER;
+		drsSetting.settingId = OGL_THREAD_CONTROL_ID;
+		drsSetting.settingType = NVDRS_DWORD_TYPE;
+		drsSetting.u32CurrentValue = OGL_THREAD_CONTROL_ENABLE;
+		status = NvAPI_DRS_SetSetting(hSession, hProfile, &drsSetting);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+
+		// Now we apply (or save) our changes to the system
+		status = NvAPI_DRS_SaveSettings(hSession);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+	}
+	else if (status != NVAPI_OK)
+	{
+		nvapi_error(status);
+		return;
+	}
 }
 
 //#define DEBUGGING_SEH_FILTER 1
@@ -720,13 +749,15 @@ bool LLAppViewerWin32::init()
                     DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
                         MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
 
-                    bool needs_log_file = !isSecondInstance() && debugLoggingEnabled("BUGSPLAT");
+                    bool needs_log_file = !isSecondInstance();
+                    LL_DEBUGS("BUGSPLAT");
                     if (needs_log_file)
                     {
                         // Startup only!
                         LL_INFOS("BUGSPLAT") << "Engaged BugSplat logging to bugsplat.log" << LL_ENDL;
                         dwFlags |= MDSF_LOGFILE | MDSF_LOG_VERBOSE;
                     }
+                    LL_ENDL;
 
                     // have to convert normal wide strings to strings of __wchar_t
                     sBugSplatSender = new MiniDmpSender(
@@ -737,12 +768,14 @@ bool LLAppViewerWin32::init()
                         dwFlags);
                     sBugSplatSender->setCallback(bugsplatSendLog);
 
+                    LL_DEBUGS("BUGSPLAT");
                     if (needs_log_file)
                     {
                         // Log file will be created in %TEMP%, but it will be moved into logs folder in case of crash
                         std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
                         sBugSplatSender->setLogFilePath(WCSTR(log_file));
                     }
+                    LL_ENDL;
 
                     // engage stringize() overload that converts from wstring
                     LL_INFOS("BUGSPLAT") << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)

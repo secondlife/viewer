@@ -64,7 +64,6 @@ LLCore::HttpRequest::ptr_t		sHttpRequest;
 LLCore::HttpHeaders::ptr_t		sHttpHeaders;
 LLCore::HttpOptions::ptr_t		sHttpOptions;
 LLCore::HttpRequest::policy_t	sHttpPolicy;
-LLCore::HttpRequest::priority_t	sHttpPriority;
 
 /* Sample response:
 <?xml version="1.0"?>
@@ -121,7 +120,6 @@ LLAvatarNameCache::LLAvatarNameCache()
     sHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
     sHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
     sHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
-    sHttpPriority = 0;
 }
 
 LLAvatarNameCache::~LLAvatarNameCache()

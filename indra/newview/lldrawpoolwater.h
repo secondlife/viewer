@@ -35,7 +35,7 @@ class LLHeavenBody;
 class LLWaterSurface;
 class LLGLSLShader;
 
-class LLDrawPoolWater: public LLFacePool
+class LLDrawPoolWater final: public LLFacePool
 {
 protected:
 	LLPointer<LLViewerTexture> mWaterImagep[2];	
@@ -56,29 +56,19 @@ public:
 							LLVertexBuffer::MAP_TEXCOORD0	
 	};
 
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+	virtual U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 
 	LLDrawPoolWater();
 	/*virtual*/ ~LLDrawPoolWater();
 
-	static void restoreGL();
-	
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 0; } //getNumPasses(); }
-	/*virtual*/ void beginPostDeferredPass(S32 pass);
-	/*virtual*/ void endPostDeferredPass(S32 pass);
-	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void renderDeferred(S32 pass = 0);
+    S32 getNumPostDeferredPasses() override;
+    void beginPostDeferredPass(S32 pass) override;
+    void renderPostDeferred(S32 pass) override;
 
-	/*virtual*/ S32 getNumPasses();
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
+	void prerender() override;
 
-	/*virtual*/ LLViewerTexture *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
-
-	void renderReflection(LLFace* face);
-	void renderWater();
+	LLViewerTexture *getDebugTexture() override;
+	LLColor3 getDebugColor() const; // For AGP debug display
 
     void setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId);
     void setOpaqueTexture(const LLUUID& opaqueTextureId);

@@ -32,9 +32,10 @@
 #include "lldispatcher.h"
 #include "lluuid.h"
 #include "message.h"
+#include "llgenericstreamingmessage.h"
 
 #include "llagent.h"
-
+#include "llgltfmateriallist.h"
 
 LLDispatcher gGenericDispatcher;
 
@@ -94,7 +95,17 @@ void process_generic_message(LLMessageSystem* msg, void**)
 
 void process_generic_streaming_message(LLMessageSystem* msg, void**)
 {
-    // placeholder to suppress packet loss reports and log spam (SL-20473)
+    LLGenericStreamingMessage data;
+    data.unpack(msg);
+    switch (data.mMethod)
+    {
+    case LLGenericStreamingMessage::METHOD_GLTF_MATERIAL_OVERRIDE:
+        gGLTFMaterialList.applyOverrideMessage(msg, data.mData);
+        break;
+    default:
+        LL_WARNS_ONCE() << "Received unknown method" << LL_ENDL;
+        break;
+    }
 }
 
 void process_large_generic_message(LLMessageSystem* msg, void**)

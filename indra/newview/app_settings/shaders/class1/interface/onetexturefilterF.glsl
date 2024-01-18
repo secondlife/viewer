@@ -23,20 +23,16 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D tex0;
 uniform float tolerance;
 
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 void main() 
 {
-	frag_color = texture2D(tex0, vary_texcoord0.xy);
+	frag_color = texture(tex0, vary_texcoord0.xy);
 	
 	if(frag_color[0] + frag_color[1] + frag_color[2] < tolerance)
 	{

@@ -130,10 +130,9 @@ private:
 	void clearParseResults();
     void checkTimeout();
 
-    // Debug is very log-heavy, give it more time or it will take forever to process
-    // Todo: find a way to make throttle static isntead of per-request
-    const F32 EXPIRY_SECONDS_DEBUG = 1.f;
-    const F32 EXPIRY_SECONDS_LIVE = 0.008f;
+    // Fetch can return large packets of data, throttle it to not cause lags
+    // Todo: make throttle work over all fetch requests isntead of per-request
+    const F32 AIS_EXPIRY_SECONDS = 0.008f;
 
 	typedef std::map<LLUUID,S32> uuid_int_map_t;
 	uuid_int_map_t mCatDescendentDeltas;

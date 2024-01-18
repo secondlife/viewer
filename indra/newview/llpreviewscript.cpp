@@ -1245,7 +1245,7 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 
 void LLScriptEdCore::onBtnLoadFromFile( void* data )
 {
-	(new LLFilePickerReplyThread(boost::bind(&LLScriptEdCore::loadScriptFromFile, _1, data), LLFilePicker::FFLOAD_SCRIPT, false))->getFile();
+	LLFilePickerReplyThread::startPicker(boost::bind(&LLScriptEdCore::loadScriptFromFile, _1, data), LLFilePicker::FFLOAD_SCRIPT, false);
 }
 
 void LLScriptEdCore::loadScriptFromFile(const std::vector<std::string>& filenames, void* data)
@@ -1286,7 +1286,7 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 
 	if( self->mSaveCallback )
 	{
-		(new LLFilePickerReplyThread(boost::bind(&LLScriptEdCore::saveScriptToFile, _1, userdata), LLFilePicker::FFSAVE_SCRIPT, self->mScriptName))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&LLScriptEdCore::saveScriptToFile, _1, userdata), LLFilePicker::FFSAVE_SCRIPT, self->mScriptName);
 	}
 }
 
@@ -1774,6 +1774,32 @@ void LLPreviewLSL::finishedLSLUpload(LLUUID itemId, LLSD response)
     }
 }
 
+bool LLPreviewLSL::failedLSLUpload(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)
+{
+    LLSD floater_key;
+    if (taskId.notNull())
+    {
+        floater_key["taskid"] = taskId;
+        floater_key["itemid"] = itemId;
+    }
+    else
+    {
+        floater_key = LLSD(itemId);
+    }
+
+    LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", floater_key);
+    if (preview)
+    {
+        // unfreeze floater
+        LLSD errors;
+        errors.append(LLTrans::getString("UploadFailed") + reason);
+        preview->callbackLSLCompileFailed(errors);
+        return true;
+    }
+
+    return false;
+}
+
 // Save needs to compile the text in the buffer. If the compile
 // succeeds, then save both assets out to the database. If the compile
 // fails, go ahead and save the text anyway.
@@ -1811,7 +1837,8 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
                 [old_asset_id](LLUUID itemId, LLUUID, LLUUID, LLSD response) {
                     LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                     LLPreviewLSL::finishedLSLUpload(itemId, response);
-                }));
+                },
+                LLPreviewLSL::failedLSLUpload));
 
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
         }
@@ -2372,7 +2399,8 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
                 [isRunning, old_asset_id](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) { 
                         LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                         LLLiveLSLEditor::finishLSLUpload(itemId, taskId, newAssetId, response, isRunning);
-                }));
+                },
+                nullptr)); // needs failure handling?
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }

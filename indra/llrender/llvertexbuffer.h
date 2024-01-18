@@ -51,69 +51,18 @@
 
 
 //============================================================================
-// gl name pools for dynamic and streaming buffers
-class LLVBOPool
-{
-public:
-	static U32 sBytesPooled;
-	static U32 sIndexBytesPooled;
-	
-	LLVBOPool(U32 vboUsage, U32 vboType);
-		
-	const U32 mUsage;
-	const U32 mType;
-
-	//size MUST be a power of 2
-	U8* allocate(U32& name, U32 size, bool for_seed = false);
-	
-	//size MUST be the size provided to allocate that returned the given name
-	void release(U32 name, U8* buffer, U32 size);
-	
-	//batch allocate buffers to be provided to the application on demand
-	void seedPool();
-
-	//destroy all records in mFreeList
-	void cleanup();
-
-	U32 genBuffer();
-	void deleteBuffer(U32 name);
-
-	class Record
-	{
-	public:
-		U32 mGLName;
-		U8* mClientData;
-	};
-
-	typedef std::list<Record> record_list_t;
-	std::vector<record_list_t> mFreeList;
-	std::vector<U32> mMissCount;
-
-	//used to avoid calling glGenBuffers for every VBO creation
-	static U32 sNamePool[1024];
-	static U32 sNameIdx;
-};
-
-
-//============================================================================
 // base class 
 class LLPrivateMemoryPool;
-class LLVertexBuffer : public LLRefCount
+class LLVertexBuffer final : public LLRefCount
 {
 public:
-	class MappedRegion
+	struct MappedRegion
 	{
-	public:
-		S32 mType;
-		S32 mIndex;
-		S32 mCount;
-		S32 mEnd;
-		
-		MappedRegion(S32 type, S32 index, S32 count);
+        U32 mStart;
+        U32 mEnd;
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
-	:	mUsage(rhs.mUsage)
 	{
 		*this = rhs;
 	}
@@ -124,50 +73,31 @@ public:
 		return *this;
 	}
 
-	static LLVBOPool sStreamVBOPool;
-	static LLVBOPool sDynamicVBOPool;
-	static LLVBOPool sDynamicCopyVBOPool;
-	static LLVBOPool sStreamIBOPool;
-	static LLVBOPool sDynamicIBOPool;
-
-	static std::list<U32> sAvailableVAOName;
-	static U32 sCurVAOName;
-
-	static bool	sUseStreamDraw;
-	static bool sUseVAO;
-	static bool	sPreferStreamDraw;
-
-	static void seedPools();
-
-	static U32 getVAOName();
-	static void releaseVAOName(U32 name);
-
-	static void initClass(bool use_vbo, bool no_vbo_mapping);
+	static void initClass(LLWindow* window);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos);
-	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
+	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, U32 num_indices, const U16* indicesp);
 
  	static void unbind(); //unbind any bound vertex buffer
 
 	//get the size of a vertex with the given typemask
-	static S32 calcVertexSize(const U32& typemask);
+	static U32 calcVertexSize(const U32& typemask);
 
 	//get the size of a buffer with the given typemask and vertex count
 	//fill offsets with the offset of each vertex component array into the buffer
 	// indexed by the following enum
-	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);
+	static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
 
 	//WARNING -- when updating these enums you MUST 
 	// 1 - update LLVertexBuffer::sTypeSize
-	// 2 - add a strider accessor
-	// 3 - modify LLVertexBuffer::setupVertexBuffer
-	// 4 - modify LLVertexBuffer::setupClientArray
-	// 5 - modify LLViewerShaderMgr::mReservedAttribs
-	// 6 - update LLVertexBuffer::setupVertexArray
-
+    // 2 - update LLVertexBuffer::vb_type_name
+	// 3 - add a strider accessor
+	// 4 - modify LLVertexBuffer::setupVertexBuffer
+	// 6 - modify LLViewerShaderMgr::mReservedAttribs
+	
     // clang-format off
-    enum {                      // Shader attribute name, set in LLShaderMgr::initAttribsAndUniforms()
+    enum AttributeType {                      // Shader attribute name, set in LLShaderMgr::initAttribsAndUniforms()
         TYPE_VERTEX = 0,        //  "position"
         TYPE_NORMAL,            //  "normal"
         TYPE_TEXCOORD0,         //  "texcoord0"
@@ -195,7 +125,6 @@ public:
 		MAP_TEXCOORD3 = (1<<TYPE_TEXCOORD3),
 		MAP_COLOR = (1<<TYPE_COLOR),
 		MAP_EMISSIVE = (1<<TYPE_EMISSIVE),
-		// These use VertexAttribPointer and should possibly be made generic
 		MAP_TANGENT = (1<<TYPE_TANGENT),
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
 		MAP_WEIGHT4 = (1<<TYPE_WEIGHT4),
@@ -206,48 +135,37 @@ public:
 protected:
 	friend class LLRender;
 
-	virtual ~LLVertexBuffer(); // use unref()
+	~LLVertexBuffer(); // use unref()
 
-	virtual void setupVertexBuffer(U32 data_mask);
-    void setupVertexBufferFast(U32 data_mask);
+	void setupVertexBuffer();
 
-	void setupVertexArray();
-	
 	void	genBuffer(U32 size);
 	void	genIndices(U32 size);
-	bool	bindGLBuffer(bool force_bind = false);
-    bool	bindGLBufferFast();
-	bool	bindGLIndices(bool force_bind = false);
-    bool    bindGLIndicesFast();
-	bool	bindGLArray();
-	void	releaseBuffer();
-	void	releaseIndices();
 	bool	createGLBuffer(U32 size);
 	bool	createGLIndices(U32 size);
 	void 	destroyGLBuffer();
 	void 	destroyGLIndices();
-	bool	updateNumVerts(S32 nverts);
-	bool	updateNumIndices(S32 nindices); 
-	void	unmapBuffer();
-		
-public:
-	LLVertexBuffer(U32 typemask, S32 usage);
-	
-	// map for data access
-	U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
-	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
+	bool	updateNumVerts(U32 nverts);
+	bool	updateNumIndices(U32 nindices); 
 
-	void bindForFeedback(U32 channel, U32 type, U32 index, U32 count);
+public:
+	LLVertexBuffer(U32 typemask);
+	
+    // allocate buffer
+    bool	allocateBuffer(U32 nverts, U32 nindices);
+
+	// map for data access (see also getFooStrider below)
+	U8*		mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
+	U8*		mapIndexBuffer(U32 index, S32 count = -1);
+    void	unmapBuffer();
 
 	// set for rendering
-	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
-    void	setBufferFast(U32 data_mask); 	// calls setupVertexBufferFast(), assumes data_mask is not 0 among other assumptions
-
-	void flush(); //flush pending data to GL memory
-	// allocate buffer
-	bool	allocateBuffer(S32 nverts, S32 nindices, bool create);
-	virtual bool resizeBuffer(S32 newnverts, S32 newnindices);
-			
+    // assumes (and will assert on) the following:
+    //      - this buffer has no pending unampBuffer call
+    //      - a shader is currently bound
+    //      - This buffer has sufficient attributes within it to satisfy the needs of the currently bound shader
+	void	setBuffer();
+    		
 	// Only call each getVertexPointer, etc, once before calling unmapBuffer()
 	// call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
 	// example:
@@ -255,119 +173,104 @@ public:
 	//   vb->getNormalStrider(norms);
 	//   setVertsNorms(verts, norms);
 	//   vb->unmapBuffer();
-	bool getVertexStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getVertexStrider(LLStrider<LLVector4a>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getIndexStrider(LLStrider<U16>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getTexCoord0Strider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getTexCoord1Strider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getTexCoord2Strider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getTangentStrider(LLStrider<LLVector3>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getTangentStrider(LLStrider<LLVector4a>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getEmissiveStrider(LLStrider<LLColor4U>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
-	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
+	bool getVertexStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+	bool getVertexStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
+	bool getIndexStrider(LLStrider<U16>& strider, U32 index=0, S32 count = -1);
+	bool getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+	bool getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+	bool getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+	bool getNormalStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+	bool getTangentStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+	bool getTangentStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
+	bool getColorStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
+	bool getEmissiveStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
+	bool getWeightStrider(LLStrider<F32>& strider, U32 index=0, S32 count = -1);
+	bool getWeight4Strider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
+	bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
+    bool getBasecolorTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getNormalTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getMetallicRoughnessTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getEmissiveTexcoordStrider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
 	
+    void setPositionData(const LLVector4a* data);
+    void setTexCoordData(const LLVector2* data);
+    void setColorData(const LLColor4U* data);
 
-	bool useVBOs() const;
-	bool isEmpty() const					{ return mEmpty; }
-	bool isLocked() const					{ return mVertexLocked || mIndexLocked; }
-	S32 getNumVerts() const					{ return mNumVerts; }
-	S32 getNumIndices() const				{ return mNumIndices; }
+
+	U32 getNumVerts() const					{ return mNumVerts; }
+	U32 getNumIndices() const				{ return mNumIndices; }
 	
-	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
-	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
-	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
-	S32 getSize() const;
-	S32 getIndicesSize() const				{ return mIndicesSize; }
+	bool hasDataType(AttributeType type) const		{ return ((1 << type) & getTypeMask()); }
+    U32 getSize() const                     { return mSize; }
+	U32 getIndicesSize() const				{ return mIndicesSize; }
 	U8* getMappedData() const				{ return mMappedData; }
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
-	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
-	S32 getUsage() const					{ return mUsage; }
-	bool isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? true : false; }
-
+	U32 getOffset(AttributeType type) const			{ return mOffsets[type]; }
+	
+    // these functions assume (and assert on) the current VBO being bound
+    // Detailed error checking can be enabled by setting gDebugGL to true
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
-	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
-
-    //implementation for inner loops that does no safety checking
-    void drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
+    void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
 	//for debugging, validate data in given range is valid
-	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;
+	bool validateRange(U32 start, U32 end, U32 count, U32 offset) const;
 
+	#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+	void setLabel(const char* label);
+	#endif
 	
 
 protected:	
-	S32		mNumVerts;		// Number of vertices allocated
-	S32		mNumIndices;	// Number of indices allocated
+    U32		mGLBuffer = 0;		// GL VBO handle
+    U32		mGLIndices = 0;		// GL IBO handle
+    U32		mNumVerts = 0;		// Number of vertices allocated
+    U32		mNumIndices = 0;	// Number of indices allocated
+    U32		mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute
+
+    U8* mMappedData = nullptr;	// pointer to currently mapped data (NULL if unmapped)
+    U8* mMappedIndexData = nullptr;	// pointer to currently mapped indices (NULL if unmapped)
+
+    U32		mTypeMask = 0;      // bitmask of present vertex attributes
 	
-	ptrdiff_t mAlignedOffset;
-	ptrdiff_t mAlignedIndexOffset;
-	S32		mSize;
-	S32		mIndicesSize;
-	U32		mTypeMask;
+	U32		mSize = 0;          // size in bytes of mMappedData
+	U32		mIndicesSize = 0;   // size in bytes of mMappedIndexData
 
-	const S32		mUsage;			// GL usage
-	
-	U32		mGLBuffer;		// GL VBO handle
-	U32		mGLIndices;		// GL IBO handle
-	U32		mGLArray;		// GL VAO handle
-	
-	U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
-	U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
-
-	U32		mMappedDataUsingVBOs : 1;
-	U32		mMappedIndexDataUsingVBOs : 1;
-	U32		mVertexLocked : 1;			// if true, vertex buffer is being or has been written to in client memory
-	U32		mIndexLocked : 1;			// if true, index buffer is being or has been written to in client memory
-	U32		mFinal : 1;			// if true, buffer can not be mapped again
-	U32		mEmpty : 1;			// if true, client buffer is empty (or NULL). Old values have been discarded.	
-	
-	mutable bool	mMappable;     // if true, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
-
-	S32		mOffsets[TYPE_MAX];
-
-	std::vector<MappedRegion> mMappedVertexRegions;
-	std::vector<MappedRegion> mMappedIndexRegions;
-
-	mutable LLGLFence* mFence;
-
-	void placeFence() const;
-	void waitFence() const;
-
-	static S32 determineUsage(S32 usage);
+	std::vector<MappedRegion> mMappedVertexRegions;  // list of mMappedData byte ranges that must be sent to GL
+	std::vector<MappedRegion> mMappedIndexRegions;   // list of mMappedIndexData byte ranges that must be sent to GL
 
 private:
-	static LLPrivateMemoryPool* sPrivatePoolp;
+    // DEPRECATED
+    // These function signatures are deprecated, but for some reason 
+    // there are classes in an external package that depend on LLVertexBuffer
+    
+    // TODO: move these classes into viewer repository
+    friend class LLNavShapeVBOManager;
+    friend class LLNavMeshVBOManager;
+    
+    LLVertexBuffer(U32 typemask, U32 usage)
+        : LLVertexBuffer(typemask)
+    {}
+
+    bool	allocateBuffer(S32 nverts, S32 nindices, BOOL create) { return allocateBuffer(nverts, nindices); }
 
 public:
-	static S32 sCount;
-	static S32 sGLCount;
-	static S32 sMappedCount;
-	static bool sMapped;
-	typedef std::list<LLVertexBuffer*> buffer_list_t;
-		
-	static bool sDisableVBOMapping; //disable glMapBufferARB
-	static bool sEnableVBOs;
-	static const S32 sTypeSize[TYPE_MAX];
+
+    static U64 getBytesAllocated();
+	static const U32 sTypeSize[TYPE_MAX];
 	static const U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
-	static U32 sGLRenderArray;
 	static U32 sGLRenderIndices;
-	static bool sVBOActive;
-	static bool sIBOActive;
 	static U32 sLastMask;
-	static U32 sAllocatedBytes;
-	static U32 sAllocatedIndexBytes;
 	static U32 sVertexCount;
-	static U32 sIndexCount;
-	static U32 sBindCount;
-	static U32 sSetCount;
 };
+
+#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+#define LL_LABEL_VERTEX_BUFFER(buf, name) buf->setLabel(name)
+#else
+#define LL_LABEL_VERTEX_BUFFER(buf, name)
+#endif
 
 
 #endif // LL_LLVERTEXBUFFER_H

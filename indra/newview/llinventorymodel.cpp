@@ -66,6 +66,7 @@
 #include "bufferstream.h"
 #include "llcorehttputil.h"
 #include "hbxxh.h"
+#include "llstartup.h"
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
@@ -450,8 +451,6 @@ LLInventoryModel::LLInventoryModel()
 	mHttpOptions(),
 	mHttpHeaders(),
 	mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	mHttpPriorityFG(0),
-	mHttpPriorityBG(0),
 	mCategoryLock(),
 	mItemLock(),
 	mValidationInfo(new LLInventoryValidationInfo)
@@ -961,6 +960,11 @@ const LLUUID LLInventoryModel::findUserDefinedCategoryUUIDForType(LLFolderType::
         cat_id = LLUUID(gSavedPerAccountSettings.getString("AnimationUploadFolder"));
         break;
     }
+    case LLFolderType::FT_MATERIAL:
+    {
+        cat_id = LLUUID(gSavedPerAccountSettings.getString("PBRUploadFolder"));
+        break;
+    }
     default:
         break;
     }
@@ -1461,6 +1465,10 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		{
 			mask |= LLInventoryObserver::LABEL;
 		}
+        if (old_item->getPermissions() != item->getPermissions())
+        {
+            mask |= LLInventoryObserver::INTERNAL;
+        }
 		old_item->copyViewerItem(item);
 		if (update_parent_on_server)
 		{
@@ -2639,6 +2647,7 @@ bool LLInventoryModel::loadSkeleton(
 	const LLSD& options,
 	const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
 
 	typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
@@ -3247,7 +3256,6 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 		
 	handle = LLCoreHttpUtil::requestPostWithLLSD(request,
 												 mHttpPolicyClass,
-												 (foreground ? mHttpPriorityFG : mHttpPriorityBG),
 												 url,
 												 body,
 												 mHttpOptions,
@@ -3267,7 +3275,7 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 void LLInventoryModel::createCommonSystemCategories()
 {
     //amount of System Folder we should wait for
-    sPendingSystemFolders = 8;
+    sPendingSystemFolders = 9;
 
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_TRASH);
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_FAVORITE);
@@ -3276,6 +3284,7 @@ void LLInventoryModel::createCommonSystemCategories()
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
 	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_LANDMARK); // folder should exist before user tries to 'landmark this'
     gInventory.ensureCategoryForTypeExists(LLFolderType::FT_SETTINGS);
+    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_MATERIAL); // probably should be server created
     gInventory.ensureCategoryForTypeExists(LLFolderType::FT_INBOX);
 }
 
@@ -3318,6 +3327,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 									LLInventoryModel::changed_items_t& cats_to_update,
 									bool &is_cache_obsolete)
 {
+    LL_PROFILE_ZONE_NAMED("inventory load from file");
+
 	if(filename.empty())
 	{
 		LL_ERRS(LOG_INV) << "filename is Null!" << LL_ENDL;
@@ -3335,6 +3346,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 
 	is_cache_obsolete = true; // Obsolete until proven current
 
+	//U64 lines_count = 0U;
 	std::string line;
 	LLPointer<LLSDParser> parser = new LLSDNotationParser();
 	while (std::getline(file, line)) 
@@ -3383,7 +3395,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			{
 				if(inv_item->getUUID().isNull())
 				{
-					LL_WARNS(LOG_INV) << "Ignoring inventory with null item id: "
+					LL_DEBUGS(LOG_INV) << "Ignoring inventory with null item id: "
 						<< inv_item->getName() << LL_ENDL;
 				}
 				else
@@ -3399,6 +3411,14 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 				}
 			}	
 		}
+
+//      TODO(brad) - figure out how to reenable this without breaking everything else
+//		static constexpr U64 BATCH_SIZE = 512U;
+//		if ((++lines_count % BATCH_SIZE) == 0)
+//		{
+//			// SL-19968 - make sure message system code gets a chance to run every so often
+//			pump_idle_startup_network();
+//		}
 	}
 
 	file.close();
@@ -4732,7 +4752,11 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			else if (count_under_root > 1)
 			{
 				validation_info->mDuplicateRequiredSystemFolders.insert(folder_type);
-                if (!is_automatic && folder_type != LLFolderType::FT_SETTINGS)
+                if (!is_automatic
+                    && folder_type != LLFolderType::FT_SETTINGS
+                    // FT_MATERIAL might need to be automatic like the rest of upload folders
+                    && folder_type != LLFolderType::FT_MATERIAL
+                    )
                 {
                     // It is a fatal problem or can lead to fatal problems for COF,
                     // outfits, trash and other non-automatic folders.

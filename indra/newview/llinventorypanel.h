@@ -404,6 +404,8 @@ public:
     {};
 
     void initFromParams(const Params& p);
+    void onFocusReceived() override;
+
     bool isSelectionRemovable() { return false; }
 
     void initFolderRoot(const LLUUID& start_folder_id = LLUUID::null);
@@ -457,9 +459,9 @@ public:
     struct Params
         : public LLInitParam::Block<Params, LLInventoryPanel::Params>
     {
-        Mandatory<std::string>	filter_asset_type;
+        Mandatory<std::string>	filter_asset_types;
 
-        Params() : filter_asset_type("filter_asset_type") {}
+        Params() : filter_asset_types("filter_asset_types") {}
     };
 
     void initFromParams(const Params& p);
@@ -480,7 +482,8 @@ protected:
     /*virtual*/ void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
 
 private:
-    LLAssetType::EType mAssetType;
+    bool mAssetTypes[LLAssetType::AT_COUNT];
+    bool mDragTypes[EDragAndDropType::DAD_COUNT];
 };
 
 #endif // LL_LLINVENTORYPANEL_H

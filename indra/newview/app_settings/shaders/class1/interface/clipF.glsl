@@ -23,16 +23,12 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform vec4 color;
 uniform vec4 clip_plane;
 
-VARYING vec3 vary_position;
+in vec3 vary_position;
 
 
 void main() 
@@ -42,5 +38,5 @@ void main()
 		discard;
 	}
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }

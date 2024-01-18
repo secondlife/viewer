@@ -1050,7 +1050,6 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 	mRoot->addChild(mMeshLOD[MESH_ID_UPPER_BODY]);
 	mRoot->addChild(mMeshLOD[MESH_ID_LOWER_BODY]);
 	mRoot->addChild(mMeshLOD[MESH_ID_SKIRT]);
-	mRoot->addChild(mMeshLOD[MESH_ID_HEAD]);
 
 	LLAvatarJoint *skull = (LLAvatarJoint*)mRoot->findJoint("mSkull");
 	if (skull)
