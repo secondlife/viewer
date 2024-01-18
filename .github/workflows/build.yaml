@@ -84,7 +84,7 @@ jobs:
           path: .master-message-template
 
       - name: Install autobuild and python dependencies
-        run: pip3 install autobuild PyGithub llsd
+        run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
         uses: actions/cache@v3
