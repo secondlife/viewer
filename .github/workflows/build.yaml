@@ -25,7 +25,7 @@ jobs:
       # pass these from build job to release job
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
-      viewer_branch:  ${{ steps.build.outputs.viewer_branch }}
+      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -192,10 +192,8 @@ jobs:
                viewer_branch="$(git branch --contains "$(git log -n 1 --format=%h)" |
                                 grep -v '(HEAD')"
           else export viewer_channel="Second Life Test"
-               viewer_branch="${GITHUB_REF_NAME}"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-          echo "viewer_branch=$viewer_branch" >> "$GITHUB_OUTPUT"
 
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
