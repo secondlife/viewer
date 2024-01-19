@@ -787,6 +787,10 @@ U32 render_type_from_string(std::string render_type)
 	{
 		return LLPipeline::RENDER_TYPE_BUMP;
 	}
+    else if ("pbr" == render_type) 
+    {
+        return LLPipeline::RENDER_TYPE_GLTF_PBR;
+    }
 	else
 	{
 		return 0;
@@ -1089,7 +1093,11 @@ U64 info_display_from_string(std::string info_display)
 	}
     else if ("reflection probes" == info_display)
     {
-    return LLPipeline::RENDER_DEBUG_REFLECTION_PROBES;
+        return LLPipeline::RENDER_DEBUG_REFLECTION_PROBES;
+    }
+    else if ("probe updates" == info_display)
+    {
+        return LLPipeline::RENDER_DEBUG_PROBE_UPDATES;
     }
 	else
 	{

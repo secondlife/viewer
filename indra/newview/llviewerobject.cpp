@@ -3485,6 +3485,12 @@ void LLViewerObject::doInventoryCallback()
 
 void LLViewerObject::removeInventory(const LLUUID& item_id)
 {
+    // close associated floater properties
+    LLSD params;
+    params["id"] = item_id;
+    params["object"] = mID;
+    LLFloaterReg::hideInstance("item_properties", params);
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_RemoveTaskInventory);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -3498,22 +3504,29 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	++mExpectedInventorySerialNum;
 }
 
-bool LLViewerObject::isAssetInInventory(LLViewerInventoryItem* item)
+bool LLViewerObject::isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type)
 {
-	bool result = false;
+    bool result = false;
 
-	if (item)
-	{
-		std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
-		std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
+    if (item)
+    {
+        // For now mPendingInventoryItemsIDs only stores textures and materials
+        // but if it gets to store more types, it will need to verify type as well
+        // since null can be a shared default id and it is fine to need a null
+        // script and a null material simultaneously.
+        std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
+        std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
 
-		bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
-		bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
+        bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
 
-		result = is_fetched || is_fetching;
-	}
+        // null is the default asset for materials and default for scripts
+        // so need to check type as well
+        bool is_fetched = getInventoryItemByAsset(item->getAssetUUID(), type) != NULL;
 
-	return result;
+        result = is_fetched || is_fetching;
+    }
+
+    return result;
 }
 
 void LLViewerObject::updateMaterialInventory(LLViewerInventoryItem* item, U8 key, bool is_new)
@@ -3529,7 +3542,7 @@ void LLViewerObject::updateMaterialInventory(LLViewerInventoryItem* item, U8 key
         return;
     }
 
-    if (isAssetInInventory(item))
+    if (isAssetInInventory(item, item->getType()))
     {
         // already there
         return;
@@ -3670,6 +3683,44 @@ LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& ass
 		}		
 	}
 	return rv;
+}
+
+LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& asset_id, LLAssetType::EType type)
+{
+    if (mInventoryDirty)
+        LL_WARNS() << "Peforming inventory lookup for object " << mID << " that has dirty inventory!" << LL_ENDL;
+
+    LLViewerInventoryItem* rv = NULL;
+    if (type == LLAssetType::AT_CATEGORY)
+    {
+        // Whatever called this shouldn't be trying to get a folder by asset
+        // categories don't have assets
+        llassert(0);
+        return rv;
+    }
+
+    if (mInventory)
+    {
+        LLViewerInventoryItem* item = NULL;
+
+        LLInventoryObject::object_list_t::iterator it = mInventory->begin();
+        LLInventoryObject::object_list_t::iterator end = mInventory->end();
+        for (; it != end; ++it)
+        {
+            LLInventoryObject* obj = *it;
+            if (obj->getType() == type)
+            {
+                // *FIX: gank-ass down cast!
+                item = (LLViewerInventoryItem*)obj;
+                if (item->getAssetUUID() == asset_id)
+                {
+                    rv = item;
+                    break;
+                }
+            }
+        }
+    }
+    return rv;
 }
 
 void LLViewerObject::updateViewerInventoryAsset(
@@ -4990,11 +5041,6 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
-                        LLViewerRegion* region = obj->getRegion();
-                        if(region)
-                        {
-                            region->loadCacheMiscExtras(obj->getLocalID());
-                        }
                         obj->markForUpdate();
                     }
                 });
@@ -5429,6 +5475,11 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
             render_mat->applyOverride(*override_mat);
             tep->setGLTFRenderMaterial(render_mat);
             retval = TEM_CHANGE_TEXTURE;
+
+            for (LLGLTFMaterial::local_tex_map_t::value_type &val : override_mat->mTrackingIdToLocalTexture)
+            {
+                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.first, override_mat);
+            }
 
         }
         else if (tep->setGLTFRenderMaterial(nullptr))
@@ -7221,14 +7272,17 @@ void LLViewerObject::rebuildMaterial()
     gPipeline.markTextured(mDrawable);
 }
 
-void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool update_server)
+void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool update_server, bool local_origin)
 {
     // implementation is delicate
 
     // if update is bound for server, should always null out GLTFRenderMaterial and clear GLTFMaterialOverride even if ids haven't changed
     //  (the case where ids haven't changed indicates the user has reapplied the original material, in which case overrides should be dropped)
     // otherwise, should only null out the render material where ids or overrides have changed
-    //  (the case where ids have changed but overrides are still present is from unsynchronized updates from the simulator)
+    //  (the case where ids have changed but overrides are still present is from unsynchronized updates from the simulator, or synchronized
+    //  updates with solely transform overrides)
+
+    llassert(!update_server || local_origin);
 
     S32 start_idx = 0;
     S32 end_idx = getNumTEs();
@@ -7260,7 +7314,12 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     {
         LLTextureEntry* tep = getTE(te);
         
-        bool material_changed = !param_block || id != param_block->getMaterial(te);
+        // If local_origin=false (i.e. it's from the server), we know the
+        // material has updated or been created, because extra params are
+        // checked for equality on unpacking. In that case, checking the
+        // material ID for inequality won't work, because the material ID has
+        // already been set.
+        bool material_changed = !local_origin || !param_block || id != param_block->getMaterial(te);
 
         if (update_server)
         { 
@@ -7281,6 +7340,34 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         if (new_material != tep->getGLTFMaterial())
         {
             tep->setGLTFMaterial(new_material, !update_server);
+        }
+
+        if (material_changed && new_material)
+        {
+            // Sometimes, the material may change out from underneath the overrides.
+            // This is usually due to the server sending a new material ID, but
+            // the overrides have not changed due to being only texture
+            // transforms. Re-apply the overrides to the render material here,
+            // if present.
+            const LLGLTFMaterial* override_material = tep->getGLTFMaterialOverride();
+            if (override_material)
+            {
+                new_material->onMaterialComplete([obj_id = getID(), te]()
+                    {
+                        LLViewerObject* obj = gObjectList.findObject(obj_id);
+                        if (!obj) { return; }
+                        LLTextureEntry* tep = obj->getTE(te);
+                        if (!tep) { return; }
+                        const LLGLTFMaterial* new_material = tep->getGLTFMaterial();
+                        if (!new_material) { return; }
+                        const LLGLTFMaterial* override_material = tep->getGLTFMaterialOverride();
+                        if (!override_material) { return; }
+                        LLGLTFMaterial* render_material = new LLFetchedGLTFMaterial();
+                        *render_material = *new_material;
+                        render_material->applyOverride(*override_material);
+                        tep->setGLTFRenderMaterial(render_material);
+                    });
+            }
         }
     }
 
@@ -7341,7 +7428,9 @@ void LLViewerObject::setRenderMaterialIDs(const LLRenderMaterialParams* material
         for (S32 te = 0; te < getNumTEs(); ++te)
         {
             const LLUUID& id = material_params ? material_params->getMaterial(te) : LLUUID::null;
-            setRenderMaterialID(te, id, false);
+            // We know material_params has updated or been created, because
+            // extra params are checked for equality on unpacking.
+            setRenderMaterialID(te, id, false, false);
         }
     }
 }

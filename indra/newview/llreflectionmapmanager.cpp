@@ -39,6 +39,8 @@
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
 
+static U32 sUpdateCount = 0;
+
 // get the next highest power of two of v (or v if v is already a power of two)
 //defined in llvertexbuffer.cpp
 extern U32 nhpo2(U32 v);
@@ -91,7 +93,7 @@ static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
         return false;
     }
     else if (b->mCubeIndex == -1)
-    { // certainly higher priority than b
+    { // b is not a candidate for updating, a is higher priority by default
         return true;
     }
     else if (!a->mComplete && !b->mComplete)
@@ -103,7 +105,13 @@ static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
         return update_score(a) > update_score(b);
     }
 
-    // one of these probes is not complete, if b is complete, a is higher priority
+    // a or b is not complete,
+    if (sUpdateCount % 3 == 0)
+    { // every third update, allow complete probes to cut in line in front of non-complete probes to avoid spammy probe generators from deadlocking scheduler (SL-20258))
+        return !b->mComplete;
+    }
+
+    // prioritize incomplete probe
     return b->mComplete;
 }
 
@@ -244,13 +252,11 @@ void LLReflectionMapManager::update()
             continue;
         }
         
-        if (probe != mDefaultProbe && 
+        if (probe != mDefaultProbe &&
             (!probe->isRelevant() || mPaused))
         { // skip irrelevant probes (or all non-default probes if paused)
             continue;
         }
-
-        
 
         LLVector4a d;
 
@@ -351,6 +357,7 @@ void LLReflectionMapManager::update()
         
         probe->autoAdjustOrigin();
 
+        sUpdateCount++;
         mUpdatingProbe = probe;
         doProbeUpdate();
     }
@@ -537,8 +544,14 @@ void LLReflectionMapManager::doProbeUpdate()
 
     updateProbeFace(mUpdatingProbe, mUpdatingFace);
     
+    bool debug_updates = gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PROBE_UPDATES) && mUpdatingProbe->mViewerObject;
+
     if (++mUpdatingFace == 6)
     {
+        if (debug_updates)
+        {
+            mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", (F32)gFrameTimeSeconds), LLColor4(1, 1, 1, 1));
+        }
         updateNeighbors(mUpdatingProbe);
         mUpdatingFace = 0;
         if (isRadiancePass())
@@ -551,6 +564,10 @@ void LLReflectionMapManager::doProbeUpdate()
         {
             mRadiancePass = true;
         }
+    }
+    else if (debug_updates)
+    {
+        mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", (F32)gFrameTimeSeconds), LLColor4(1, 1, 0, 1));
     }
 }
 
@@ -980,10 +997,21 @@ void LLReflectionMapManager::updateUniforms()
         llassert(refmap->mCubeIndex >= 0); // should always be  true, if not, getReflectionMaps is bugged
 
         {
-            if (refmap->mViewerObject)
+            if (refmap->mViewerObject && refmap->mViewerObject->getVolume())
             { // have active manual probes live-track the object they're associated with
-                refmap->mOrigin.load3(refmap->mViewerObject->getPositionAgent().mV);
-                refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+                LLVOVolume* vobj = (LLVOVolume*)refmap->mViewerObject;
+
+                refmap->mOrigin.load3(vobj->getPositionAgent().mV);
+
+                if (vobj->getReflectionProbeIsBox())
+                {
+                    LLVector3 s = vobj->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+                    refmap->mRadius = s.magVec();
+                }
+                else
+                {
+                    refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+                }
 
             }
             modelview.affineTransform(refmap->mOrigin, oa);
@@ -1239,19 +1267,27 @@ void LLReflectionMapManager::initReflectionMaps()
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
 
-        mTexture = new LLCubeMapArray();
+        if (mTexture.isNull() ||
+            mTexture->getWidth() != mProbeResolution ||
+            mReflectionProbeCount + 2 != mTexture->getCount())
+        {
+            mTexture = new LLCubeMapArray();
 
-        // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-        mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
+            // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
+            mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
 
-        mIrradianceMaps = new LLCubeMapArray();
-        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+            mIrradianceMaps = new LLCubeMapArray();
+            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+        }
 
         // reset probe state
         mUpdatingFace = 0;
         mUpdatingProbe = nullptr;
         mRadiancePass = false;
         mRealtimeRadiancePass = false;
+
+        // if default probe already exists, remember whether or not it's complete (SL-20498)
+        bool default_complete = mDefaultProbe.isNull() ? false : mDefaultProbe->mComplete;
 
         for (auto& probe : mProbes)
         {
@@ -1280,6 +1316,8 @@ void LLReflectionMapManager::initReflectionMaps()
         mDefaultProbe->mDistance = 64.f;
         mDefaultProbe->mRadius = 4096.f;
         mDefaultProbe->mProbeIndex = 0;
+        mDefaultProbe->mComplete = default_complete;
+
         touch_default_probe(mDefaultProbe);
 
     }

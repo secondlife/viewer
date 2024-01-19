@@ -302,10 +302,22 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 // exported functionality
 //
 
+void pump_idle_startup_network(void)
+{
+    {
+        LockMessageChecker lmc(gMessageSystem);
+        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+        {
+            display_startup();
+        }
+        lmc.processAcks();
+    }
+    display_startup();
+}
+
 //
 // local classes
 //
-
 void update_texture_fetch()
 {
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
@@ -1499,9 +1511,6 @@ bool idle_startup()
 		gXferManager->registerCallbacks(gMessageSystem);
 		display_startup();
 
-		LLGLTFMaterialList::registerCallbacks();
-		display_startup();
-
 		LLStartUp::initNameCache();
 		display_startup();
 
@@ -1644,15 +1653,7 @@ bool idle_startup()
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
 		}
-		{
-			LockMessageChecker lmc(gMessageSystem);
-			while (lmc.checkAllMessages(gFrameCount, gServicePump))
-			{
-				display_startup();
-			}
-			lmc.processAcks();
-		}
-		display_startup();
+		pump_idle_startup_network();
 		return FALSE;
 	}
 
@@ -1752,6 +1753,7 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
 	{
+		LL_PROFILE_ZONE_NAMED("State inventory send")
 		display_startup();
 
         // request mute list
@@ -1783,7 +1785,7 @@ bool idle_startup()
 			}
 		}
 		display_startup();
- 		
+
 		LLSD inv_lib_owner = response["inventory-lib-owner"];
 		if(inv_lib_owner.isDefined())
 		{
@@ -1791,30 +1793,52 @@ bool idle_startup()
 			LLSD id = inv_lib_owner[0]["agent_id"];
 			if(id.isDefined())
 			{
-				gInventory.setLibraryOwnerID( LLUUID(id.asUUID()));
+				gInventory.setLibraryOwnerID(LLUUID(id.asUUID()));
 			}
 		}
 		display_startup();
-
-		LLSD inv_skel_lib = response["inventory-skel-lib"];
- 		if(inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
- 		{
- 			if(!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
- 			{
- 				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
- 			}
- 		}
+		LLStartUp::setStartupState(STATE_INVENTORY_SKEL);
 		display_startup();
+		return FALSE;
+	}
 
-		LLSD inv_skeleton = response["inventory-skeleton"];
- 		if(inv_skeleton.isDefined())
- 		{
- 			if(!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
- 			{
- 				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
- 			}
- 		}
-		display_startup();
+    if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
+
+		LLSD response = LLLoginInstance::getInstance()->getResponse();
+
+        LLSD inv_skel_lib = response["inventory-skel-lib"];
+        if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
+        {
+            LL_PROFILE_ZONE_NAMED("load library inv")
+            if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+            {
+                LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+            }
+        }
+        display_startup();
+
+        LLSD inv_skeleton = response["inventory-skeleton"];
+        if (inv_skeleton.isDefined())
+        {
+            LL_PROFILE_ZONE_NAMED("load personal inv")
+            if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+            {
+                LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
+            }
+        }
+        display_startup();
+        LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+        display_startup();
+        return FALSE;
+    }
+
+    if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory send2")
+
+		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
 		LLSD inv_basic = response["inventory-basic"];
  		if(inv_basic.isDefined())
@@ -2877,8 +2901,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		// Need to fetch cof contents before we can wear.
         if (do_copy)
         {
-            callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
-							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+            callAfterCOFFetch(boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
         }
         else
         {

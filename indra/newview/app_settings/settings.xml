@@ -533,6 +533,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderSnapshotNoPost</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable tone mapping and exposure correction when snapshot is being rendered</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AutomaticFly</key>
     <map>
       <key>Comment</key>
@@ -9017,7 +9028,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
     <key>RenderPerformanceTest</key>
     <map>
@@ -9543,7 +9554,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>-0.004</real>
+    <real>-0.002</real>
   </map>
   <key>RenderShadowOffset</key>
   <map>
@@ -10665,7 +10676,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>2.0</real>
+    <real>1.0</real>
   </map>
   <key>RendeSkyAutoAdjustBlueHorizonScale</key>
   <map>
@@ -10709,7 +10720,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.001</real>
+    <real>0.01</real>
   </map>
   <key>RenderSkySunlightScale</key>
   <map>
@@ -15722,7 +15733,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <key>max_texture_dimension_Y</key>
     <map>
@@ -15733,7 +15744,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <!-- End of back compatibility settings -->
     <key>teleport_offer_invitation_max_length</key>

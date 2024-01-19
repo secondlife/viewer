@@ -751,7 +751,8 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             PERM_NONE,
             PERM_NONE,
             FALSE,
-            NULL);
+            NULL,
+            PICK_TEXTURE);
 
         mPickerHandle = floaterp->getHandle();
 
@@ -760,7 +761,7 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
         {
             //texture_floaterp->setTextureSelectedCallback();
             //texture_floaterp->setOnUpdateImageStatsCallback();
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource, const LLUUID&, const LLUUID&)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource, const LLUUID&, const LLUUID&, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {

@@ -114,6 +114,7 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILER_SET_THREAD_NAME( name )      (void)(name)
         #define LL_RECORD_BLOCK_TIME(name)                                                                  const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(name)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
         #define LL_PROFILE_ZONE_NAMED(name)             // LL_PROFILE_ZONE_NAMED is a no-op when Tracy is disabled
+        #define LL_PROFILE_ZONE_NAMED_COLOR(name,color) // LL_PROFILE_ZONE_NAMED_COLOR is a no-op when Tracy is disabled
         #define LL_PROFILE_ZONE_SCOPED                  // LL_PROFILE_ZONE_SCOPED is a no-op when Tracy is disabled
         #define LL_PROFILE_ZONE_COLOR(name,color)       // LL_RECORD_BLOCK_TIME(name)
 

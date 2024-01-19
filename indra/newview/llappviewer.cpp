@@ -196,6 +196,7 @@
 #include "llhudeffecttrail.h"
 #include "llvectorperfoptions.h"
 #include "llslurl.h"
+#include "llurlregistry.h"
 #include "llwatchdog.h"
 
 // Included so that constants/settings might be initialized
@@ -3227,8 +3228,10 @@ LLSD LLAppViewer::getViewerInfo() const
 	// LLFloaterAbout.
 	LLSD info;
 	auto& versionInfo(LLVersionInfo::instance());
+	// With GitHub builds, the build number is too big to fit in a 32-bit int,
+	// and LLSD doesn't deal with integers wider than int. Use string.
 	info["VIEWER_VERSION"] = llsd::array(versionInfo.getMajor(), versionInfo.getMinor(),
-										 versionInfo.getPatch(), versionInfo.getBuild());
+										 versionInfo.getPatch(), stringize(versionInfo.getBuild()));
 	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
 	info["CHANNEL"] = versionInfo.getChannel();
 	info["ADDRESS_SIZE"] = ADDRESS_SIZE;
@@ -3326,7 +3329,6 @@ LLSD LLAppViewer::getViewerInfo() const
     info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
-    info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
     info["TEXTURE_MEMORY"] = gGLManager.mVRAM;
 
 #if LL_DARWIN
@@ -3575,7 +3577,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::instance().getBuild();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = std::to_string(LLVersionInfo::instance().getBuild());
 	gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::instance().getAddressSize();
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
@@ -4311,6 +4313,7 @@ void LLAppViewer::loadKeyBindings()
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
+    LLUrlRegistry::instance().setKeybindingHandler(&gViewerInput);
 }
 
 void LLAppViewer::purgeCache()
@@ -5534,7 +5537,7 @@ void LLAppViewer::handleLoginComplete()
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::instance().getBuild();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = std::to_string(LLVersionInfo::instance().getBuild());
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])

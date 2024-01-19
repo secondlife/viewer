@@ -960,7 +960,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 }
 
 //--------------------------------------------------------------------
-// draw tractor beam when editing objects
+// draw tractor (selection) beam when editing objects
 //--------------------------------------------------------------------
 //virtual
 void LLVOAvatarSelf::idleUpdateTractorBeam()
@@ -1246,6 +1246,27 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+bool LLVOAvatarSelf::hasAttachmentsInTrash()
+{
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+
+    for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter)
+    {
+        LLViewerJointAttachment *attachment = iter->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+             attachment_iter != attachment->mAttachedObjects.end();
+             ++attachment_iter)
+        {
+            LLViewerObject *attached_object = attachment_iter->get();
+            if (attached_object && gInventory.isObjectDescendentOf(attached_object->getAttachmentItemID(), trash_id))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // static
@@ -2799,12 +2820,14 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
 	BOOL is_touching_or_grabbing = (tool == LLToolGrab::getInstance() && LLToolGrab::getInstance()->isEditing());
-	if (LLToolGrab::getInstance()->getEditingObject() && 
-		LLToolGrab::getInstance()->getEditingObject()->isAttachment())
-	{
-		// don't render selection beam on hud objects
-		is_touching_or_grabbing = FALSE;
-	}
+    LLViewerObject* objp = LLToolGrab::getInstance()->getEditingObject();
+    if (objp // might need to be "!objp ||" instead of "objp &&".
+        && (objp->isAttachment() || objp->isAvatar()))
+    {
+        // don't render grab tool's selection beam on hud objects,
+        // attachments or avatars
+        is_touching_or_grabbing = FALSE;
+    }
 	return is_touching_or_grabbing || (getAttachmentState() & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
 }
 

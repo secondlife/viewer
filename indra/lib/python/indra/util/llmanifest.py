@@ -38,6 +38,7 @@ import itertools
 import operator
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -531,15 +532,15 @@ class LLManifest(object, metaclass=LLManifestRegistry):
         self.cmakedirs(path)
         return path
 
-    def run_command(self, command):
+    def run_command(self, command, **kwds):
         """ 
         Runs an external command.  
         Raises ManifestError exception if the command returns a nonzero status.
         """
-        print("Running command:", command)
+        print("Running command:", shlex.join(command))
         sys.stdout.flush()
         try:
-            subprocess.check_call(command)
+            subprocess.check_call(command, **kwds)
         except subprocess.CalledProcessError as err:
             raise ManifestError( "Command %s returned non-zero status (%s)"
                                 % (command, err.returncode) )

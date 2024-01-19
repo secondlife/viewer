@@ -110,6 +110,8 @@ LLCubeMapArray::~LLCubeMapArray()
 void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL use_mips)
 {
     U32 texname = 0;
+    mWidth = resolution;
+    mCount = count;
 
     LLImageGL::generateTextures(1, &texname);
 

@@ -190,7 +190,7 @@ public:
     // te - TextureEntry index to set, or -1 for all TEs
     // id - asset id of material asset
     // update_server - if true, will send updates to server and clear most overrides
-    void setRenderMaterialID(S32 te, const LLUUID& id, bool update_server = true);
+    void setRenderMaterialID(S32 te, const LLUUID& id, bool update_server = true, bool local_origin = true);
     void setRenderMaterialIDs(const LLUUID& id);
 
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
@@ -500,6 +500,7 @@ public:
 	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
+    LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id, LLAssetType::EType type);
 	S16 getInventorySerial() const { return mInventorySerialNum; }
 
 	// These functions does viewer-side only object inventory modifications
@@ -639,7 +640,7 @@ public:
 
 private:
     void setObjectCostStale();
-    bool isAssetInInventory(LLViewerInventoryItem* item);
+    bool isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type);
 
 	ExtraParameter* createNewParameterEntry(U16 param_type);
 	ExtraParameter* getExtraParameterEntry(U16 param_type) const;

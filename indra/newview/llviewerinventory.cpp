@@ -232,9 +232,29 @@ LLLocalizedInventoryItemsDictionary::LLLocalizedInventoryItemsDictionary()
 class LLInventoryHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
-	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_CLICK_ONLY) { }
-	
+    LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_THROTTLE) { }
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (params.size() < 1)
+        {
+            return true; // don't block, will fail later
+        }
+
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
 	bool handle(const LLSD& params,
                 const LLSD& query_map,
                 const std::string& grid,
@@ -1151,14 +1171,29 @@ void create_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
+void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
+                                           const LLUUID &parent,
+                                           const LLUUID &avatar_id,
+                                           const LLAvatarName &av_name)
+{
+    std::string item_desc = avatar_id.asString();
+    create_inventory_item(gAgent.getID(),
+                          gAgent.getSessionID(),
+                          parent,
+                          LLTransactionID::tnull,
+                          av_name.getUserName(),
+                          item_desc,
+                          LLAssetType::AT_CALLINGCARD,
+                          LLInventoryType::IT_CALLINGCARD,
+                          NO_INV_SUBTYPE,
+                          PERM_MOVE | PERM_TRANSFER,
+                          cb);
+}
+
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
-	std::string item_desc = avatar_id.asString();
 	LLAvatarName av_name;
-	LLAvatarNameCache::get(avatar_id, &av_name);
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
-                          LLInventoryType::IT_CALLINGCARD, NO_INV_SUBTYPE, PERM_MOVE | PERM_TRANSFER, cb);
+    LLAvatarNameCache::get(avatar_id, boost::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
 }
 
 void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
@@ -1656,67 +1691,6 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
     {
         LL_WARNS() << "SIM does not have the capability to copy from notecard." << LL_ENDL;
     }
-}
-
-void move_or_copy_inventory_from_object(const LLUUID& destination_id,
-                                        const LLUUID& object_id,
-                                        const LLUUID& item_id,
-                                        LLPointer<LLInventoryCallback> cb)
-{
-    LLViewerObject* object = gObjectList.findObject(object_id);
-    if (!object)
-    {
-        return;
-    }
-    const LLInventoryItem* item = object->getInventoryItem(item_id);
-    if (!item)
-    {
-        return;
-    }
-
-    class LLItemAddedObserver : public LLInventoryObserver
-    {
-    public:
-        LLItemAddedObserver(const LLUUID& copied_asset_id, LLPointer<LLInventoryCallback> cb)
-        : LLInventoryObserver(),
-          mAssetId(copied_asset_id),
-          mCallback(cb)
-        {
-        }
-
-        void changed(U32 mask) override
-        {
-            if((mask & (LLInventoryObserver::ADD)) == 0)
-            {
-                return;
-            }
-            for (const LLUUID& changed_id : gInventory.getChangedIDs())
-            {
-                LLViewerInventoryItem* changed_item = gInventory.getItem(changed_id);
-                if (changed_item->getAssetUUID() == mAssetId)
-                {
-                    changeComplete(changed_item->getUUID());
-                    return;
-                }
-            }
-        }
-
-    private:
-        void changeComplete(const LLUUID& item_id)
-        {
-			mCallback->fire(item_id);
-            gInventory.removeObserver(this);
-            delete this;
-        }
-
-        LLUUID mAssetId;
-        LLPointer<LLInventoryCallback> mCallback;
-    };
-
-	const LLUUID& asset_id = item->getAssetUUID();
-    LLItemAddedObserver* observer = new LLItemAddedObserver(asset_id, cb);
-    gInventory.addObserver(observer);
-    object->moveInventory(destination_id, item_id);
 }
 
 void create_new_item(const std::string& name,

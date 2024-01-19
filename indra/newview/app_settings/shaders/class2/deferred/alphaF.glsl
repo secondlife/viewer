@@ -65,16 +65,11 @@ uniform vec3 light_diffuse[8];
 
 void waterClip(vec3 pos);
 
-#ifdef WATER_FOG
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
-#endif
-
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
 vec2 encode_normal (vec3 n);
-vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
-
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
 #ifdef HAS_SUN_SHADOW
@@ -270,12 +265,6 @@ void main()
 
     color.rgb *= diffuse_linear.rgb;
 
-    color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
-
-#ifdef WATER_FOG
-    color = applyWaterFogViewLinear(pos.xyz, color, sunlit_linear);
-#endif // WATER_FOG
-
     vec4 light = vec4(0,0,0,0);
     
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
@@ -290,6 +279,8 @@ void main()
 
     // sum local light contrib in linear colorspace
     color.rgb += light.rgb;
+
+    color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, color).rgb;
 
 #endif // #else // FOR_IMPOSTOR
 

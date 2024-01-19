@@ -44,6 +44,8 @@
 #include "llmatrix4a.h"
 #include "glh/glh_linear.h"
 
+#include <array>
+
 class LLVertexBuffer;
 class LLCubeMap;
 class LLImageGL;

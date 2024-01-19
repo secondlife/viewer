@@ -57,7 +57,6 @@ if(WINDOWS)
         openjp2.dll
         libapr-1.dll
         libaprutil-1.dll
-        libapriconv-1.dll
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
@@ -87,7 +86,8 @@ if(WINDOWS)
     endif (USE_BUGSPLAT)
 
     if (TARGET ll::fmodstudio)
-        set(debug_files ${debug_files} fmodL.dll)
+        # fmodL is included for logging, only one should be picked by manifest
+        set(release_files ${release_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
     endif ()
 
@@ -172,7 +172,6 @@ elseif(DARWIN)
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-        libnghttp2.14.19.0.dylib
         liburiparser.dylib
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib

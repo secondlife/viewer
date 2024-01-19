@@ -382,10 +382,7 @@ public:
     BOOL unpack(LLDataPacker& dp) override;
     bool operator==(const LLNetworkData& data) const override;
     void copy(const LLNetworkData& data) override;
-    LLSD asLLSD() const;
-    operator LLSD() const { return asLLSD(); }
-    bool fromLLSD(LLSD& sd);
-
+    
     void setMaterial(U8 te_idx, const LLUUID& id);
     const LLUUID& getMaterial(U8 te_idx) const;
 
