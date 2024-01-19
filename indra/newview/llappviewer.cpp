@@ -5435,6 +5435,13 @@ void LLAppViewer::forceErrorSoftwareException()
     LLTHROW(LLException("User selected Force Software Exception"));
 }
 
+void LLAppViewer::forceErrorOSSpecificException()
+{
+    // Virtual, MacOS only
+    const std::string exception_text = "User selected Force OS Exception, Not implemented on this OS";
+    throw std::runtime_error(exception_text);
+}
+
 void LLAppViewer::forceErrorDriverCrash()
 {
    	LL_WARNS() << "Forcing a deliberate driver crash" << LL_ENDL;
