@@ -330,7 +330,7 @@ BOOL	LLPanelFace::postBuild()
         pbr_ctrl->setImmediateFilterPermMask(PERM_NONE);
         pbr_ctrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
         pbr_ctrl->setBakeTextureEnabled(false);
-        pbr_ctrl->setInventoryPickType(LLTextureCtrl::PICK_MATERIAL);
+        pbr_ctrl->setInventoryPickType(PICK_MATERIAL);
     }
 
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
@@ -5176,8 +5176,9 @@ void LLPanelFace::onPbrSelectionChanged(LLInventoryItem* itemp)
         bool can_modify = itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgentID); // do we have perm to transfer this material?
         bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply material belong to the agent?
         bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply material not for sale?
+        bool from_library = ALEXANDRIA_LINDEN_ID == itemp->getPermissions().getOwner();
 
-        if (can_copy && can_transfer && can_modify)
+        if ((can_copy && can_transfer && can_modify) || from_library)
         {
             pbr_ctrl->setCanApply(true, true);
             return;
