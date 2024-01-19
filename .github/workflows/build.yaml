@@ -33,6 +33,9 @@ jobs:
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      # Direct autobuild to store vcs_url, vcs_branch and vcs_revision in
+      # autobuild-package.xml.
+      AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that Linden viewer builds engage Bugsplat.
@@ -96,10 +99,17 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install nsis-unicode
 
+      - name: Determine source branch
+        id: which-branch
+        uses: secondlife/viewer-build-util/which-branch@v1
+        with:
+          token: ${{ github.token }}
+
       - name: Build
         id: build
         shell: bash
         env:
+          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
@@ -150,7 +160,7 @@ jobs:
           }
           repo_branch()
           {
-            git -C "$1" branch | grep '^* ' | cut -c 3-
+            echo "$AUTOBUILD_VCS_BRANCH"
           }
           record_dependencies_graph()
           {
