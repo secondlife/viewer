@@ -9406,17 +9406,6 @@
     <key>Value</key>
     <integer>16</integer>
   </map>
-  <key>RenderMaxTextureResolution</key>
-  <map>
-    <key>Comment</key>
-    <string>Maximum texture resolution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>1024</integer>
-  </map>
     <key>RenderDebugTextureBind</key>
     <map>
       <key>Comment</key>
@@ -15700,7 +15689,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <key>max_texture_dimension_Y</key>
     <map>
@@ -15711,7 +15700,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <!-- End of back compatibility settings -->
     <key>teleport_offer_invitation_max_length</key>
