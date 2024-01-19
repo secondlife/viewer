@@ -27,6 +27,7 @@
 
 #include "llgltfmaterialpreviewmgr.h"
 
+#include <memory>
 #include <vector>
 
 #include "llavatarappearancedefines.h"
@@ -210,12 +211,22 @@ struct GLTFPreviewModel
     {
         mDrawInfo->mModelMatrix = &mModelMatrix;
     }
+    GLTFPreviewModel(GLTFPreviewModel&) = delete;
+    ~GLTFPreviewModel()
+    {
+        // No model matrix necromancy
+        llassert(gGLLastMatrix != &mModelMatrix);
+        gGLLastMatrix = nullptr;
+    }
     LLPointer<LLDrawInfo> mDrawInfo;
     LLMatrix4 mModelMatrix; // Referenced by mDrawInfo
 };
 
+using PreviewSpherePart = std::unique_ptr<GLTFPreviewModel>;
+using PreviewSphere = std::vector<PreviewSpherePart>;
+
 // Like LLVolumeGeometryManager::registerFace but without batching or too-many-indices/vertices checking.
-std::vector<GLTFPreviewModel> create_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, const LLMatrix4& model_matrix)
+PreviewSphere create_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, const LLMatrix4& model_matrix)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -239,7 +250,7 @@ std::vector<GLTFPreviewModel> create_preview_sphere(LLPointer<LLFetchedGLTFMater
         face.createTangents();
     }
 
-    std::vector<GLTFPreviewModel> preview_sphere;
+    PreviewSphere preview_sphere;
     preview_sphere.reserve(volume->getNumFaces());
 
     LLPointer<LLVertexBuffer> buf = new LLVertexBuffer(
@@ -299,13 +310,51 @@ std::vector<GLTFPreviewModel> create_preview_sphere(LLPointer<LLFetchedGLTFMater
         constexpr LLViewerTexture* no_media = nullptr;
         LLPointer<LLDrawInfo> info = new LLDrawInfo(U16(vertex_offset), U16(vertex_offset + face.mNumVertices - 1), face.mNumIndices, index_offset, no_media, buf.get());
         info->mGLTFMaterial = material;
-        preview_sphere.emplace_back(info, model_matrix);
+        preview_sphere.emplace_back(std::make_unique<GLTFPreviewModel>(info, model_matrix));
         index_offset += face.mNumIndices;
         vertex_offset += face.mNumVertices;
     }
 
     buf->unmapBuffer();
 
+    return preview_sphere;
+}
+
+void set_preview_sphere_material(PreviewSphere& preview_sphere, LLPointer<LLFetchedGLTFMaterial>& material)
+{
+    llassert(!preview_sphere.empty());
+    if (preview_sphere.empty()) { return; }
+
+    const LLColor4U vertex_color(material->mBaseColor);
+
+    // See comments about unmapBuffer in llvertexbuffer.h
+    for (PreviewSpherePart& part : preview_sphere)
+    {
+        LLDrawInfo* info = part->mDrawInfo.get();
+        info->mGLTFMaterial = material;
+        LLVertexBuffer* buf = info->mVertexBuffer.get();
+        LLStrider<LLColor4U> colors;
+        const S32 count = info->mEnd - info->mStart;
+        buf->getColorStrider(colors, info->mStart, count);
+        for (S32 i = 0; i < count; ++i)
+        {
+            *colors++ = vertex_color;
+        }
+        buf->unmapBuffer();
+    }
+}
+
+PreviewSphere& get_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, const LLMatrix4& model_matrix)
+{
+    static PreviewSphere preview_sphere;
+    if (preview_sphere.empty())
+    {
+        preview_sphere = create_preview_sphere(material, model_matrix);
+    }
+    else
+    {
+        set_preview_sphere_material(preview_sphere, material);
+    }
     return preview_sphere;
 }
 
@@ -354,10 +403,14 @@ BOOL LLGLTFPreviewTexture::render()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     if (!mShouldRender) { return FALSE; }
+
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     LLGLDepthTest(GL_FALSE);
     LLGLDisable stencil(GL_STENCIL_TEST);
     LLGLDisable scissor(GL_SCISSOR_TEST);
+    SetTemporarily<bool> no_dof(&LLPipeline::RenderDepthOfField, false);
     SetTemporarily<bool> no_glow(&LLPipeline::sRenderGlow, false);
     SetTemporarily<bool> no_ssr(&LLPipeline::RenderScreenSpaceReflections, false);
     SetTemporarily<U32> no_fxaa(&LLPipeline::RenderFSAASamples, U32(0));
@@ -393,11 +446,7 @@ BOOL LLGLTFPreviewTexture::render()
 
     // Generate sphere object on-the-fly. Discard afterwards. (Vertex buffer is
     // discarded, but the sphere should be cached in LLVolumeMgr.)
-    std::vector<GLTFPreviewModel> preview_sphere = create_preview_sphere(mGLTFMaterial, object_transform);
-
-    glClearColor(0, 0, 0, 0);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PreviewSphere& preview_sphere = get_preview_sphere(mGLTFMaterial, object_transform);
 
     gPipeline.setupHWLights();
     glh::matrix4f mat = copy_matrix(gGLModelView);
@@ -415,10 +464,13 @@ BOOL LLGLTFPreviewTexture::render()
 
     LLRenderTarget& screen = gPipeline.mAuxillaryRT.screen;
 
+    // *HACK: Force reset of the model matrix
+    gGLLastMatrix = nullptr;
+
 #if 0
     if (mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_OPAQUE || mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
     {
-        // *TODO: Opaque/alpha mask rendering (gDeferredPBROpaqueProgram)
+        // *TODO: Opaque/alpha mask rendering
     }
     else
 #endif
@@ -433,9 +485,9 @@ BOOL LLGLTFPreviewTexture::render()
         gPipeline.bindDeferredShader(shader);
         fixup_shader_constants(shader);
 
-        for (GLTFPreviewModel& part : preview_sphere)
+        for (PreviewSpherePart& part : preview_sphere)
         {
-            LLRenderPass::pushGLTFBatch(*part.mDrawInfo);
+            LLRenderPass::pushGLTFBatch(*part->mDrawInfo);
         }
 
         gPipeline.unbindDeferredShader(shader);
@@ -452,6 +504,8 @@ BOOL LLGLTFPreviewTexture::render()
     gPipeline.combineGlow(&gPipeline.mPostMap, &screen);
 	gPipeline.renderDoF(&screen, &gPipeline.mPostMap);
 	gPipeline.applyFXAA(&gPipeline.mPostMap, &screen);
+
+    // Final render
 
 	gDeferredPostNoDoFProgram.bind();
 
