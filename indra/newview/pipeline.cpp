@@ -768,10 +768,13 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    if (mRT == &mMainRT && sReflectionProbesEnabled)
+    if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
-        gCubeSnapshot = TRUE;
-        mReflectionMapManager.initReflectionMaps();
+        if (sReflectionProbesEnabled)
+        {
+            gCubeSnapshot = TRUE;
+            mReflectionMapManager.initReflectionMaps();
+        }
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
