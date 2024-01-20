@@ -28,7 +28,7 @@
 
 #include "llreflectionmapmanager.h"
 
-#include <bitset>
+#include <vector>
 
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
@@ -1389,14 +1389,16 @@ void LLReflectionMapManager::doOcclusion()
 
 void LLReflectionMapManager::forceDefaultProbeAndUpdateUniforms(bool force)
 {
-    static std::bitset<LL_MAX_REFLECTION_PROBE_COUNT> mProbeWasOccluded;
+    static std::vector<bool> mProbeWasOccluded;
 
     if (force)
     {
+        llassert(mProbeWasOccluded.empty());
+
         for (size_t i = 0; i < mProbes.size(); ++i)
         {
             auto& probe = mProbes[i];
-            mProbeWasOccluded[i] = probe->mOccluded;
+            mProbeWasOccluded.push_back(probe->mOccluded);
             if (probe != nullptr && probe != mDefaultProbe)
             {
                 probe->mOccluded = true;
@@ -1407,11 +1409,16 @@ void LLReflectionMapManager::forceDefaultProbeAndUpdateUniforms(bool force)
     }
     else
     {
-        for (size_t i = 0; i < mProbes.size(); ++i)
+        llassert(mProbes.size() == mProbeWasOccluded.size());
+
+        const size_t n = llmin(mProbes.size(), mProbeWasOccluded.size());
+        for (size_t i = 0; i < n; ++i)
         {
             auto& probe = mProbes[i];
             llassert(probe->mOccluded == (probe != mDefaultProbe));
             probe->mOccluded = mProbeWasOccluded[i];
         }
+        mProbeWasOccluded.clear();
+        mProbeWasOccluded.shrink_to_fit();
     }
 }
