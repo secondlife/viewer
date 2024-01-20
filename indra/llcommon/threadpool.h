@@ -40,7 +40,7 @@ namespace LL
          * overrides this parameter.
          */
         ThreadPoolBase(const std::string& name, size_t threads,
-                       WorkQueueBase* queue);
+                       WorkQueueBase* queue, bool auto_shutdown = true);
         virtual ~ThreadPoolBase();
 
         /**
@@ -87,6 +87,7 @@ namespace LL
 
     protected:
         std::unique_ptr<WorkQueueBase> mQueue;
+        bool mAutomaticShutdown;
 
     private:
         void run(const std::string& name);
@@ -117,8 +118,11 @@ namespace LL
          * Constraining the queue can cause a submitter to block. Do not
          * constrain any ThreadPool accepting work from the main thread.
          */
-        ThreadPoolUsing(const std::string& name, size_t threads=1, size_t capacity=1024*1024):
-            ThreadPoolBase(name, threads, new queue_t(name, capacity))
+        ThreadPoolUsing(const std::string& name,
+                        size_t threads=1,
+                        size_t capacity=1024*1024,
+                        bool auto_shutdown = true):
+            ThreadPoolBase(name, threads, new queue_t(name, capacity), auto_shutdown)
         {}
         ~ThreadPoolUsing() override {}
 

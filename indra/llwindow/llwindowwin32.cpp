@@ -412,8 +412,8 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     using FuncType = std::function<void()>;
     // call GetMessage() and pull enqueue messages for later processing
     void gatherInput();
-    HWND mWindowHandle = NULL;
-    HDC mhDC = 0;
+    HWND mWindowHandleThrd = NULL;
+    HDC mhDCThrd = 0;
 
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
@@ -987,23 +987,23 @@ void LLWindowWin32::close()
 
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
 
-    mWindowThread->post([=]()
+    mWindowThread->post([this, self = mWindowThread]()
         {
-            if (IsWindow(mWindowHandle))
+            if (IsWindow(self->mWindowHandleThrd))
             {
-                if (mhDC)
+                if (self->mhDCThrd)
                 {
-                    if (!ReleaseDC(mWindowHandle, mhDC))
+                    if (!ReleaseDC(self->mWindowHandleThrd, self->mhDCThrd))
                     {
                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
                     }
                 }
 
                 // Make sure we don't leave a blank toolbar button.
-                ShowWindow(mWindowHandle, SW_HIDE);
+                ShowWindow(self->mWindowHandleThrd, SW_HIDE);
 
                 // This causes WM_DESTROY to be sent *immediately*
-                if (!destroy_window_handler(mWindowHandle))
+                if (!destroy_window_handler(self->mWindowHandleThrd))
                 {
                     OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
                         mCallbacks->translateString("MBShutdownErr"),
@@ -1015,17 +1015,18 @@ void LLWindowWin32::close()
                 // Something killed the window while we were busy destroying gl or handle somehow got broken
                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
             }
-
+            self->mWindowHandleThrd = NULL;
+            self->mhDCThrd = NULL;
+            self->mGLReady = false;
         });
+
+    mhDC = NULL;
+    mWindowHandle = NULL;
+
     // Window thread might be waiting for a getMessage(), give it
     // a push to enshure it will process destroy_window_handler
     kickWindowThread();
-
-    // Even though the above lambda might not yet have run, we've already
-    // bound mWindowHandle into it by value, which should suffice for the
-    // operations we're asking. That's the last time WE should touch it.
-    mhDC = NULL;
-    mWindowHandle = NULL;
+    
     mWindowThread->close();
 }
 
@@ -1777,8 +1778,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
         ()
         {
             LL_DEBUGS("Window") << "recreateWindow(): window_work entry" << LL_ENDL;
-            self->mWindowHandle = 0;
-            self->mhDC = 0;
+            self->mWindowHandleThrd = 0;
+            self->mhDCThrd = 0;
 
             if (oldWindowHandle)
             {
@@ -1813,20 +1814,20 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
             {
                 // Failed to create window: clear the variables. This
                 // assignment is valid because we're running on mWindowThread.
-                self->mWindowHandle = NULL;
-                self->mhDC = 0;
+                self->mWindowHandleThrd = NULL;
+                self->mhDCThrd = 0;
             }
             else
             {
                 // Update mWindowThread's own mWindowHandle and mhDC.
-                self->mWindowHandle = handle;
-                self->mhDC = GetDC(handle);
+                self->mWindowHandleThrd = handle;
+                self->mhDCThrd = GetDC(handle);
             }
             
             updateWindowRect();
 
             // It's important to wake up the future either way.
-            promise.set_value(std::make_pair(self->mWindowHandle, self->mhDC));
+            promise.set_value(std::make_pair(self->mWindowHandleThrd, self->mhDCThrd));
             LL_DEBUGS("Window") << "recreateWindow(): window_work done" << LL_ENDL;
         };
     // But how we pass window_work to the window thread depends on whether we
@@ -4589,7 +4590,7 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     LL::ThreadPool::start();
 }
@@ -4745,7 +4746,7 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
 {
     if (!mGLReady) { return; }
 
-    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandle != 0)
+    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandleThrd != 0)
     {
         mD3D = Direct3DCreate9(D3D_SDK_VERSION);
         
@@ -4755,7 +4756,7 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
         d3dpp.Windowed = TRUE;
         d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandle, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandleThrd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
         
         if (FAILED(res))
         {
@@ -4861,7 +4862,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         // lazily call initD3D inside this loop to catch when mGLReady has been set to true
         initDX();
 
-        if (mWindowHandle != 0)
+        if (mWindowHandleThrd != 0)
         {
             // lazily call initD3D inside this loop to catch when mWindowHandle has been set, and mGLReady has been set to true
             // *TODO: Shutdown if this fails when mWindowHandle exists
@@ -4869,16 +4870,16 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
             MSG msg;
             BOOL status;
-            if (mhDC == 0)
+            if (mhDCThrd == 0)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - PeekMessage");
-                logger.onChange("PeekMessage(", std::hex, mWindowHandle, ")");
-                status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
+                logger.onChange("PeekMessage(", std::hex, mWindowHandleThrd, ")");
+                status = PeekMessage(&msg, mWindowHandleThrd, 0, 0, PM_REMOVE);
             }
             else
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - GetMessage");
-                logger.always("GetMessage(", std::hex, mWindowHandle, ")");
+                logger.always("GetMessage(", std::hex, mWindowHandleThrd, ")");
                 status = GetMessage(&msg, NULL, 0, 0);
             }
             if (status > 0)

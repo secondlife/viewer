@@ -1892,6 +1892,9 @@ bool LLAppViewer::cleanup()
 		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
 
+    LLSplashScreen::show();
+    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
+
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
@@ -2169,6 +2172,8 @@ bool LLAppViewer::cleanup()
 	// This calls every remaining LLSingleton's cleanupSingleton() and
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
+
+    LLSplashScreen::hide();
 
     LL_INFOS() << "Goodbye!" << LL_ENDL;
 
@@ -5059,6 +5064,9 @@ void LLAppViewer::idleShutdown()
 		&& gLogoutTimer.getElapsedTimeF32() < SHUTDOWN_UPLOAD_SAVE_TIME
 		&& !logoutRequestSent())
 	{
+        gViewerWindow->setShowProgress(TRUE);
+        gViewerWindow->setProgressPercent(100.f);
+        gViewerWindow->setProgressString(LLTrans::getString("LoggingOut"));
 		return;
 	}
 

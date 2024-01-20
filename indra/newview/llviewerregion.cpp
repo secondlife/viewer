@@ -829,10 +829,17 @@ void LLViewerRegion::saveObjectCache()
 		mCacheDirty = FALSE;
 	}
 
-	// Map of LLVOCacheEntry takes time to release, store map for cleanup on idle
-	sRegionCacheCleanup.insert(mImpl->mCacheMap.begin(), mImpl->mCacheMap.end());
-	mImpl->mCacheMap.clear();
-	// TODO - probably need to do the same for overrides cache
+    if (LLAppViewer::instance()->isQuitting())
+    {
+        mImpl->mCacheMap.clear();
+    }
+    else
+    {
+        // Map of LLVOCacheEntry takes time to release, store map for cleanup on idle
+        sRegionCacheCleanup.insert(mImpl->mCacheMap.begin(), mImpl->mCacheMap.end());
+        mImpl->mCacheMap.clear();
+        // TODO - probably need to do the same for overrides cache
+    }
 }
 
 void LLViewerRegion::sendMessage()
