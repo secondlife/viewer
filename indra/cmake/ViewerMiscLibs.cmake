@@ -2,7 +2,6 @@
 include(Prebuilt)
 
 if (LINUX)
-  #use_prebuilt_binary(libuuid)
   add_library( ll::fontconfig INTERFACE IMPORTED )
 
   find_package(Fontconfig REQUIRED)
