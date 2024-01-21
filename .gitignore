@@ -26,7 +26,6 @@ debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*
 indra/.distcc
-indra/cmake/*
 indra/out/*
 
 indra/packages/*
