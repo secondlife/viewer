@@ -107,7 +107,15 @@ endif (WINDOWS)
 
 
 if (LINUX)
-  set(CMAKE_SKIP_RPATH TRUE)
+  set( CMAKE_BUILD_WITH_INSTALL_RPATH TRUE )
+  set( CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/../lib )
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
+
+  find_program(CCACHE_EXE ccache)
+  if(CCACHE_EXE AND NOT DISABLE_CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_EXE} )
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_EXE} )
+  endif()
 
    # EXTERNAL_TOS
    # force this platform to accept TOS via external browser
@@ -137,10 +145,10 @@ if (LINUX)
           -Wno-c++20-compat
           -fvisibility=hidden
   )
-
-  if (ADDRESS_SIZE EQUAL 32)
-    add_compile_options(-march=pentium4)
-  endif (ADDRESS_SIZE EQUAL 32)
+  add_link_options(
+    -Wl,--no-keep-memory
+    -Wl,--build-id
+  )
 
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)
