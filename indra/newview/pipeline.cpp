@@ -163,6 +163,7 @@ F32 LLPipeline::CameraFocusTransitionTime;
 F32 LLPipeline::CameraFNumber;
 F32 LLPipeline::CameraFocalLength;
 F32 LLPipeline::CameraFieldOfView;
+S32 LLPipeline::RenderLocalLightCount;
 F32 LLPipeline::RenderShadowNoise;
 F32 LLPipeline::RenderShadowBlurSize;
 F32 LLPipeline::RenderSSAOScale;
@@ -199,6 +200,8 @@ F32 LLPipeline::RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
+
+const U32 LLPipeline::MAX_BAKE_WIDTH = 512;
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
@@ -521,6 +524,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraFNumber");
 	connectRefreshCachedSettingsSafe("CameraFocalLength");
 	connectRefreshCachedSettingsSafe("CameraFieldOfView");
+	connectRefreshCachedSettingsSafe("RenderLocalLightCount");
 	connectRefreshCachedSettingsSafe("RenderShadowNoise");
 	connectRefreshCachedSettingsSafe("RenderShadowBlurSize");
 	connectRefreshCachedSettingsSafe("RenderSSAOScale");
@@ -764,10 +768,13 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    if (mRT == &mMainRT && sReflectionProbesEnabled)
+    if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
-        gCubeSnapshot = TRUE;
-        mReflectionMapManager.initReflectionMaps();
+        if (sReflectionProbesEnabled)
+        {
+            gCubeSnapshot = TRUE;
+            mReflectionMapManager.initReflectionMaps();
+        }
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
@@ -1009,6 +1016,7 @@ void LLPipeline::refreshCachedSettings()
 	CameraFNumber = gSavedSettings.getF32("CameraFNumber");
 	CameraFocalLength = gSavedSettings.getF32("CameraFocalLength");
 	CameraFieldOfView = gSavedSettings.getF32("CameraFieldOfView");
+	RenderLocalLightCount = gSavedSettings.getS32("RenderLocalLightCount");
 	RenderShadowNoise = gSavedSettings.getF32("RenderShadowNoise");
 	RenderShadowBlurSize = gSavedSettings.getF32("RenderShadowBlurSize");
 	RenderSSAOScale = gSavedSettings.getF32("RenderSSAOScale");
@@ -1072,7 +1080,6 @@ void LLPipeline::releaseGLBuffers()
 	releaseLUTBuffers();
 
 	mWaterDis.release();
-    mBake.release();
 	
     mSceneMap.release();
 
@@ -1150,9 +1157,6 @@ void LLPipeline::createGLBuffers()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     stop_glerror();
 	assertInitialized();
-
-    // Use FBO for bake tex
-    mBake.allocate(512, 512, GL_RGBA, true); // SL-12781 Build > Upload > Model; 3D Preview
 
 	stop_glerror();
 
@@ -5227,7 +5231,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		return;
 	}
 
-    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+    const S32 local_light_count = LLPipeline::RenderLocalLightCount;
 
 	if (local_light_count >= 1)
 	{
@@ -5496,7 +5500,7 @@ void LLPipeline::setupHWLights()
 
 	mLightMovingMask = 0;
 	
-    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+    const S32 local_light_count = LLPipeline::RenderLocalLightCount;
 
 	if (local_light_count >= 1)
 	{
@@ -6536,7 +6540,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                mSimplePool->pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
+                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
             }
             else
             {
@@ -6562,7 +6566,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                mSimplePool->pushGLTFBatch(*pparams);
+                LLRenderPass::pushGLTFBatch(*pparams);
             }
             else
             {
@@ -7930,7 +7934,7 @@ void LLPipeline::renderDeferredLighting()
             unbindDeferredShader(gDeferredSoftenProgram);
         }
 
-        static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+        const S32 local_light_count = LLPipeline::RenderLocalLightCount;
 
         if (local_light_count > 0)
         {
