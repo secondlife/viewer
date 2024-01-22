@@ -64,17 +64,18 @@ bool get_is_predefined_texture(LLUUID asset_id);
 LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = false);
 bool get_can_copy_texture(LLUUID image_id);
 
-enum class LLTexPickInventoryType : U32
+
+typedef enum e_pick_inventory_type
 {
-	TEXTURE_MATERIAL = 0,
-	TEXTURE = 1,
-	MATERIAL = 2,
-};
+    PICK_TEXTURE_MATERIAL = 0,
+    PICK_TEXTURE = 1,
+    PICK_MATERIAL = 2,
+} EPickInventoryType;
 
 namespace LLInitParam
 {
     template<>
-	struct TypeValues<LLTexPickInventoryType> : public TypeValuesHelper<LLTexPickInventoryType>
+	struct TypeValues<EPickInventoryType> : public TypeValuesHelper<EPickInventoryType>
 	{
 		static void declareValues();
 	};
@@ -87,13 +88,6 @@ enum LLPickerSource
     PICKER_BAKE,
     PICKER_UNKNOWN, // on cancel, default ids
 };
-
-typedef enum e_pick_inventory_type
-{
-    PICK_TEXTURE_MATERIAL = 0,
-    PICK_TEXTURE = 1,
-    PICK_MATERIAL = 2,
-} EPickInventoryType;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
@@ -109,12 +103,6 @@ public:
 		TEXTURE_SELECT,
 		TEXTURE_CANCEL
 	} ETexturePickOp;
-
-	// *HACK: Can't forward-declare an enum scoped inside a class. Maybe there's a better way to initialize LLInitParam::TypeValues<LLTexPickInventoryType> that doesn't run into this limitation.
-    typedef LLTexPickInventoryType EPickInventoryType;
-	static const EPickInventoryType PICK_TEXTURE_MATERIAL = LLTexPickInventoryType::TEXTURE_MATERIAL;
-	static const EPickInventoryType PICK_TEXTURE = LLTexPickInventoryType::TEXTURE;
-	static const EPickInventoryType PICK_MATERIAL = LLTexPickInventoryType::MATERIAL;
 
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -140,7 +128,7 @@ public:
 		:	image_id("image"),
 			default_image_id("default_image_id"),
 			default_image_name("default_image_name"),
-            pick_type("pick_type", LLTexPickInventoryType::TEXTURE),
+            pick_type("pick_type", PICK_TEXTURE),
 			allow_no_texture("allow_no_texture", false),
 			can_apply_immediately("can_apply_immediately"),
 			no_commit_on_selection("no_commit_on_selection", false),

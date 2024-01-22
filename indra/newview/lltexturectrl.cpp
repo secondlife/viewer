@@ -2367,12 +2367,12 @@ LLSD LLTextureCtrl::getValue() const
 
 namespace LLInitParam
 {
-	void TypeValues<LLTextureCtrl::EPickInventoryType>::declareValues()
-	{
-		declare("texture_material", LLTextureCtrl::PICK_TEXTURE_MATERIAL);	
-		declare("texture", LLTextureCtrl::PICK_TEXTURE);
-        declare("material", LLTextureCtrl::PICK_MATERIAL);	
-	}
+    void TypeValues<EPickInventoryType>::declareValues()
+    {
+        declare("texture_material", PICK_TEXTURE_MATERIAL);
+        declare("texture", PICK_TEXTURE);
+        declare("material", PICK_MATERIAL);
+    }
 }
 
 
