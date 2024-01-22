@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llreflectionmapmanager.h"
+
+#include <vector>
+
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
 #include "llviewerregion.h"
@@ -1381,5 +1384,41 @@ void LLReflectionMapManager::doOcclusion()
         {
             probe->doOcclusion(eye);
         }
+    }
+}
+
+void LLReflectionMapManager::forceDefaultProbeAndUpdateUniforms(bool force)
+{
+    static std::vector<bool> mProbeWasOccluded;
+
+    if (force)
+    {
+        llassert(mProbeWasOccluded.empty());
+
+        for (size_t i = 0; i < mProbes.size(); ++i)
+        {
+            auto& probe = mProbes[i];
+            mProbeWasOccluded.push_back(probe->mOccluded);
+            if (probe != nullptr && probe != mDefaultProbe)
+            {
+                probe->mOccluded = true;
+            }
+        }
+
+        updateUniforms();
+    }
+    else
+    {
+        llassert(mProbes.size() == mProbeWasOccluded.size());
+
+        const size_t n = llmin(mProbes.size(), mProbeWasOccluded.size());
+        for (size_t i = 0; i < n; ++i)
+        {
+            auto& probe = mProbes[i];
+            llassert(probe->mOccluded == (probe != mDefaultProbe));
+            probe->mOccluded = mProbeWasOccluded[i];
+        }
+        mProbeWasOccluded.clear();
+        mProbeWasOccluded.shrink_to_fit();
     }
 }
