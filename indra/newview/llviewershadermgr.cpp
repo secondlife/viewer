@@ -1275,7 +1275,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
         gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
         gDeferredPBRTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-        gDeferredPBRTerrainProgram.mFeatures.hasWaterFog = true;
         gDeferredPBRTerrainProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
         gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
