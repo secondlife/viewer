@@ -259,7 +259,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	mEmojiRecentPanelToggleBtn = getChild<LLButton>("emoji_recent_panel_toggle_btn");
 	mEmojiRecentPanelToggleBtn->setLabel(LLUIString(LLWString(1, 128512)));
-	mEmojiRecentPanelToggleBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiRecentPanelToggleBtnClicked(this); });
+	mEmojiRecentPanelToggleBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiRecentPanelToggleBtnClicked(); });
 
 	mEmojiRecentPanel = getChild<LLLayoutPanel>("emoji_recent_layout_panel");
 	mEmojiRecentPanel->setVisible(false);
@@ -272,8 +272,8 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mEmojiRecentIconsCtrl->setCommitCallback([this](LLUICtrl*, const LLSD& value) { onRecentEmojiPicked(value); });
 	mEmojiRecentIconsCtrl->setVisible(false);
 
-	mEmojiPickerToggleBtn = getChild<LLButton>("emoji_picker_toggle_btn");
-	mEmojiPickerToggleBtn->setClickedCallback([](LLUICtrl*, const LLSD&) { onEmojiPickerToggleBtnClicked(); });
+	mEmojiPickerShowBtn = getChild<LLButton>("emoji_picker_show_btn");
+	mEmojiPickerShowBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerShowBtnClicked(); });
 
 	mGearBtn = getChild<LLButton>("gear_btn");
 	mAddBtn = getChild<LLButton>("add_btn");
@@ -452,56 +452,30 @@ void LLFloaterIMSessionTab::onInputEditorClicked()
 	gToolBarView->flashCommand(LLCommandId("chat"), false);
 }
 
-void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked(LLFloaterIMSessionTab* self)
+void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked()
 {
-    bool show = !self->mEmojiRecentPanel->getVisible();
-    bool restore_focus = !show || (gFocusMgr.getLastKeyboardFocus() == self->mInputEditor);
-
+    BOOL show = mEmojiRecentPanel->getVisible() ? FALSE : TRUE;
     if (show)
     {
-        self->initEmojiRecentPanel(!restore_focus);
+        initEmojiRecentPanel();
     }
 
-    self->mEmojiRecentPanel->setVisible(show ? TRUE : FALSE);
-
-    if (restore_focus)
-    {
-        self->mInputEditor->setFocus(true);
-    }
+    mEmojiRecentPanel->setVisible(show);
+    mInputEditor->setFocus(TRUE);
 }
 
-void LLFloaterIMSessionTab::onEmojiPickerToggleBtnClicked()
+void LLFloaterIMSessionTab::onEmojiPickerShowBtnClicked()
 {
-	if (LLFloaterEmojiPicker* picker = LLFloaterEmojiPicker::getInstance())
-	{
-		if (!picker->isShown())
-		{
-			picker->show(
-				[](llwchar emoji) { onEmojiPicked(emoji); },
-				[]() { onEmojiPickerClosed(); });
-			if (LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance())
-			{
-				im_box->addDependentFloater(picker, TRUE, TRUE);
-			}
-		}
-		else
-		{
-			picker->closeFloater();
-		}
-	}
+    mInputEditor->showEmojiHelper();
 }
 
-void LLFloaterIMSessionTab::initEmojiRecentPanel(bool moveFocus)
+void LLFloaterIMSessionTab::initEmojiRecentPanel()
 {
     std::list<llwchar>& recentlyUsed = LLFloaterEmojiPicker::getRecentlyUsed();
     if (recentlyUsed.empty())
     {
         mEmojiRecentEmptyText->setVisible(TRUE);
         mEmojiRecentIconsCtrl->setVisible(FALSE);
-        if (moveFocus)
-        {
-            mEmojiPickerToggleBtn->setFocus(TRUE);
-        }
     }
     else
     {
@@ -513,10 +487,6 @@ void LLFloaterIMSessionTab::initEmojiRecentPanel(bool moveFocus)
         mEmojiRecentIconsCtrl->setEmojis(emojis);
         mEmojiRecentEmptyText->setVisible(FALSE);
         mEmojiRecentIconsCtrl->setVisible(TRUE);
-        if (moveFocus)
-        {
-            mEmojiRecentIconsCtrl->setFocus(TRUE);
-        }
     }
 }
 
@@ -532,31 +502,6 @@ void LLFloaterIMSessionTab::onRecentEmojiPicked(const LLSD& value)
 			mInputEditor->insertEmoji(emoji);
 		}
 	}
-}
-
-// static
-void LLFloaterIMSessionTab::onEmojiPicked(llwchar emoji)
-{
-    if (LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance())
-    {
-        if (LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(im_box->getSelectedSession()))
-        {
-            session_floater->mInputEditor->insertEmoji(emoji);
-            session_floater->mInputEditor->setFocus(TRUE);
-        }
-    }
-}
-
-// static
-void LLFloaterIMSessionTab::onEmojiPickerClosed()
-{
-    if (LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance())
-    {
-        if (LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(im_box->getSelectedSession()))
-        {
-            session_floater->mInputEditor->setFocus(TRUE);
-        }
-    }
 }
 
 void LLFloaterIMSessionTab::closeFloater(bool app_quitting)
@@ -624,11 +569,11 @@ void LLFloaterIMSessionTab::updateUsedEmojis(LLWString text)
     if (!emojiSent)
         return;
 
-    LLFloaterEmojiPicker::onRecentlyUsedChanged();
+    LLFloaterEmojiPicker::saveState();
 
     if (mEmojiRecentPanel->getVisible())
     {
-        initEmojiRecentPanel(false);
+        initEmojiRecentPanel();
     }
 }
 

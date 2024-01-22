@@ -163,7 +163,8 @@ public:
 								save_visibility,
 								save_dock_state,
 								can_dock,
-								show_title;
+								show_title,
+								auto_close;
 		
 		Optional<LLFloaterEnums::EOpenPositioning>	positioning;
 		
@@ -390,6 +391,7 @@ protected:
 	void		 	setInstanceName(const std::string& name);
 	
 	virtual void	bringToFront(S32 x, S32 y);
+	virtual void	goneFromFront();
 	
 	void			setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
 	const LLRect&	getExpandedRect() const { return mExpandedRect; }
@@ -488,6 +490,7 @@ private:
     bool            mFocusStealsFrontmost = true;	// FALSE if we don't want the currently focused floater to cover this floater without user interaction
 	BOOL			mDragOnLeft;
 	BOOL			mResizable;
+	BOOL			mAutoClose;
 
 	LLFloaterEnums::EOpenPositioning	mPositioning;
 	LLCoordFloater	mPosition;

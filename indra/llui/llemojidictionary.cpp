@@ -41,9 +41,9 @@
 static const std::string SKINNED_EMOJI_FILENAME("emoji_characters.xml");
 static const std::string SKINNED_CATEGORY_FILENAME("emoji_categories.xml");
 static const std::string COMMON_GROUP_FILENAME("emoji_groups.xml");
-static const std::string GROUP_NAME_ALL("all");
-static const std::string GROUP_NAME_OTHERS("others");
 static const std::string GROUP_NAME_SKIP("skip");
+// https://www.compart.com/en/unicode/U+1F302
+static const S32 GROUP_OTHERS_IMAGE_INDEX = 0x1F302;
 
 // ============================================================================
 // Helper functions
@@ -143,68 +143,76 @@ LLWString LLEmojiDictionary::findMatchingEmojis(const std::string& needle) const
     return result;
 }
 
-void LLEmojiDictionary::findByShortCode(std::vector<LLEmojiSearchResult>& result, const std::string& needle) const
+// static
+bool LLEmojiDictionary::searchInShortCode(std::size_t& begin, std::size_t& end, const std::string& shortCode, const std::string& needle)
+{
+    begin = 0;
+    end = 1;
+    std::size_t index = 1;
+    // Search for begin
+    char d = tolower(needle[index++]);
+    while (end < shortCode.size())
+    {
+        char s = tolower(shortCode[end++]);
+        if (s == d)
+        {
+            begin = end - 1;
+            break;
+        }
+    }
+    if (!begin)
+        return false;
+    // Search for end
+    d = tolower(needle[index++]);
+    if (!d)
+        return true;
+    while (end < shortCode.size() && index <= needle.size())
+    {
+        char s = tolower(shortCode[end++]);
+        if (s == d)
+        {
+            if (index == needle.size())
+                return true;
+            d = tolower(needle[index++]);
+            continue;
+        }
+        switch (s)
+        {
+        case L'-':
+        case L'_':
+        case L'+':
+            continue;
+        }
+        break;
+    }
+    return false;
+}
+
+void LLEmojiDictionary::findByShortCode(
+    std::vector<LLEmojiSearchResult>& result,
+    const std::string& needle
+) const
 {
     result.clear();
 
     if (needle.empty() || needle.front() != ':')
         return;
 
-    auto search = [needle](std::size_t& begin, std::size_t& end, const std::string& shortCode) -> bool
-        {
-            begin = 0;
-            end = 1;
-            std::size_t index = 1;
-            // Search for begin
-            char d = tolower(needle[index++]);
-            while (end < shortCode.size())
-            {
-                char s = tolower(shortCode[end++]);
-                if (s == d)
-                {
-                    begin = end - 1;
-                    break;
-                }
-            }
-            if (!begin)
-                return false;
-            // Search for end
-            d = tolower(needle[index++]);
-            while (end < shortCode.size() && index <= needle.size())
-            {
-                char s = tolower(shortCode[end++]);
-                if (s == d)
-                {
-                    if (index == needle.size())
-                        return true;
-                    d = tolower(needle[index++]);
-                    continue;
-                }
-                switch (s)
-                {
-                case L'-':
-                case L'_':
-                case L'+':
-                    continue;
-                }
-                break;
-            }
-            return false;
-        };
-
-    std::map<std::size_t, std::vector<LLEmojiSearchResult>> results;
+    std::map<llwchar, std::vector<LLEmojiSearchResult>> results;
 
     for (const LLEmojiDescriptor& d : mEmojis)
     {
-        if (d.ShortCodes.empty())
-            continue;
-        const std::string& shortCode = d.ShortCodes.front();
-        if (shortCode.size() < needle.size() || shortCode.front() != needle.front())
-            continue;
-        std::size_t begin, end;
-        if (search(begin, end, shortCode))
+        if (!d.ShortCodes.empty())
         {
-            results[begin].emplace_back(d.Character, shortCode, begin, end);
+            const std::string& shortCode = d.ShortCodes.front();
+            if (shortCode.size() >= needle.size() && shortCode.front() == needle.front())
+            {
+                std::size_t begin, end;
+                if (searchInShortCode(begin, end, shortCode, needle))
+                {
+                    results[begin].emplace_back(d.Character, shortCode, begin, end);
+                }
+            }
         }
     }
 
@@ -312,27 +320,13 @@ void LLEmojiDictionary::loadGroups()
     }
 
     mGroups.clear();
-    // Add group "all"
-    mGroups.emplace_back();
-    // https://www.compart.com/en/unicode/U+1F50D
-    mGroups.front().Character = 0x1F50D;
-    // https://www.compart.com/en/unicode/U+1F302
-    llwchar iconOthers = 0x1F302;
 
     // Register all groups
     for (LLSD::array_const_iterator it = data.beginArray(), end = data.endArray(); it != end; ++it)
     {
         const LLSD& sd = *it;
         const std::string& name = sd["Name"].asStringRef();
-        if (name == GROUP_NAME_ALL)
-        {
-            mGroups.front().Character = loadIcon(sd);
-        }
-        else if (name == GROUP_NAME_OTHERS)
-        {
-            iconOthers = loadIcon(sd);
-        }
-        else if (name == GROUP_NAME_SKIP)
+        if (name == GROUP_NAME_SKIP)
         {
             mSkipCategories = loadCategories(sd);
             translateCategories(mSkipCategories);
@@ -355,7 +349,7 @@ void LLEmojiDictionary::loadGroups()
 
     // Add group "others"
     mGroups.emplace_back();
-    mGroups.back().Character = iconOthers;
+    mGroups.back().Character = GROUP_OTHERS_IMAGE_INDEX;
 }
 
 void LLEmojiDictionary::loadEmojis()

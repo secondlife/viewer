@@ -29,7 +29,10 @@
 
 #include "llfloater.h"
 
+class LLEmojiGridRow;
+class LLEmojiGridIcon;
 struct LLEmojiDescriptor;
+struct LLEmojiSearchResult;
 
 class LLFloaterEmojiPicker : public LLFloater
 {
@@ -40,36 +43,40 @@ public:
     typedef boost::function<void (llwchar)> pick_callback_t;
     typedef boost::function<void ()> close_callback_t;
 
-    // Call this to select an emoji.
-    static LLFloaterEmojiPicker* getInstance();
-    static LLFloaterEmojiPicker* showInstance(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
-
     LLFloaterEmojiPicker(const LLSD& key);
-    virtual ~LLFloaterEmojiPicker();
 
     virtual	BOOL postBuild() override;
     virtual void dirtyRect() override;
+    virtual void goneFromFront() override;
 
-    void show(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
-
-    virtual void closeFloater(bool app_quitting = false) override;
+    void hideFloater() const;
 
     static std::list<llwchar>& getRecentlyUsed();
     static void onEmojiUsed(llwchar emoji);
-    static void onRecentlyUsedChanged();
+
     static void loadState();
     static void saveState();
 
 private:
+    void initialize();
     void fillGroups();
-    void moveGroups();
-    void showPreview(bool show);
+    void fillCategoryRecentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats);
+    void fillCategoryFrequentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats);
+    void fillGroupEmojis(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats, U32 index);
+    void createGroupButton(LLButton::Params& params, const LLRect& rect, llwchar emoji);
+    void resizeGroupButtons();
+    void selectEmojiGroup(U32 index);
     void fillEmojis(bool fromResize = false);
+    void fillEmojisCategory(const std::vector<LLEmojiSearchResult>& emojis,
+        const std::string& category, const LLPanel::Params& row_panel_params, const LLUICtrl::Params& row_list_params,
+        const LLPanel::Params& icon_params, const LLRect& icon_rect, S32 max_icons, const LLColor4& bg);
+    void createEmojiIcon(const LLEmojiSearchResult& emoji,
+        const std::string& category, const LLPanel::Params& row_panel_params, const LLUICtrl::Params& row_list_params,
+        const LLPanel::Params& icon_params, const LLRect& icon_rect, S32 max_icons, const LLColor4& bg,
+        LLEmojiGridRow*& row, int& icon_index);
+    void showPreview(bool show);
 
     void onGroupButtonClick(LLUICtrl* ctrl);
-    void onFilterChanged();
-    void onGridMouseEnter();
-    void onGridMouseLeave();
     void onGroupButtonMouseEnter(LLUICtrl* ctrl);
     void onGroupButtonMouseLeave(LLUICtrl* ctrl);
     void onEmojiMouseEnter(LLUICtrl* ctrl);
@@ -77,40 +84,37 @@ private:
     void onEmojiMouseDown(LLUICtrl* ctrl);
     void onEmojiMouseUp(LLUICtrl* ctrl);
 
-    bool enterArrowMode();
-    void exitArrowMode();
     void selectFocusedIcon();
-    bool moveFocusedIconUp();
-    bool moveFocusedIconDown();
-    bool moveFocusedIconLeft();
-    bool moveFocusedIconRight();
+    bool moveFocusedIconPrev();
+    bool moveFocusedIconNext();
 
-    void selectGridIcon(LLUICtrl* ctrl);
-    void unselectGridIcon(LLUICtrl* ctrl);
+    void selectGridIcon(LLEmojiGridIcon* icon);
+    void unselectGridIcon(LLEmojiGridIcon* icon);
 
+    void onOpen(const LLSD& key) override;
     virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
-    virtual BOOL handleKeyHere(KEY key, MASK mask) override;
 
     class LLPanel* mGroups { nullptr };
     class LLPanel* mBadge { nullptr };
-    class LLFilterEditor* mFilter { nullptr };
     class LLScrollContainer* mEmojiScroll { nullptr };
     class LLScrollingPanelList* mEmojiGrid { nullptr };
     class LLEmojiPreviewPanel* mPreview { nullptr };
     class LLTextBox* mDummy { nullptr };
 
-    pick_callback_t mEmojiPickCallback;
-    close_callback_t mFloaterCloseCallback;
-
+    std::vector<S32> mFilteredEmojiGroups;
+    std::vector<std::map<std::string, std::vector<LLEmojiSearchResult>>> mFilteredEmojis;
     std::vector<class LLButton*> mGroupButtons;
 
-    S32 mRecentBadgeWidth { 0 };
-    S32 mRecentGridWidth { 0 };
+    std::string mHint;
+    std::string mFilterPattern;
+    U32 mSelectedGroupIndex { 0 };
     S32 mRecentMaxIcons { 0 };
     S32 mFocusedIconRow { 0 };
     S32 mFocusedIconCol { 0 };
-    LLUICtrl* mFocusedIcon { nullptr };
-    LLUICtrl* mHoveredIcon { nullptr };
+    LLEmojiGridIcon* mFocusedIcon { nullptr };
+    LLEmojiGridIcon* mHoveredIcon { nullptr };
+
+    U64 mRecentReturnPressedMs { 0 };
 };
 
 #endif
