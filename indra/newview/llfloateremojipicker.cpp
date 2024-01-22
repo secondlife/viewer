@@ -31,7 +31,7 @@
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llemojidictionary.h"
-#include "llfiltereditor.h"
+#include "llemojihelper.h"
 #include "llfloaterreg.h"
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
@@ -46,16 +46,25 @@ namespace {
 // The following variables and constants are used for storing the floater state
 // between different lifecycles of the floater and different sissions of the viewer
 
+// Floater constants
+static const S32 ALL_EMOJIS_GROUP_INDEX = -2;
+// https://www.compart.com/en/unicode/U+1F50D
+static const S32 ALL_EMOJIS_IMAGE_INDEX = 0x1F50D;
+static const S32 USED_EMOJIS_GROUP_INDEX = -1;
+// https://www.compart.com/en/unicode/U+23F2
+static const S32 USED_EMOJIS_IMAGE_INDEX = 0x23F2;
+// https://www.compart.com/en/unicode/U+1F6D1
+static const S32 EMPTY_LIST_IMAGE_INDEX = 0x1F6D1;
+// The following categories should follow the required alphabetic order
+static const std::string RECENTLY_USED_CATEGORY = "1 recently used";
+static const std::string FREQUENTLY_USED_CATEGORY = "2 frequently used";
+
 // Floater state related variables
-static U32 sSelectedGroupIndex = 0;
-static std::string sFilterPattern;
 static std::list<llwchar> sRecentlyUsed;
 static std::list<std::pair<llwchar, U32>> sFrequentlyUsed;
 
 // State file related values
 static std::string sStateFileName;
-static const std::string sKeySelectedGroupIndex("SelectedGroupIndex");
-static const std::string sKeyFilterPattern("FilterPattern");
 static const std::string sKeyRecentlyUsed("RecentlyUsed");
 static const std::string sKeyFrequentlyUsed("FrequentlyUsed");
 }
@@ -116,11 +125,10 @@ class LLEmojiGridIcon : public LLScrollingPanel
 public:
     LLEmojiGridIcon(
         const LLPanel::Params& panel_params
-        , const LLEmojiDescriptor* descr
-        , std::string category)
+        , const LLEmojiSearchResult& emoji)
         : LLScrollingPanel(panel_params)
-        , mDescr(descr)
-        , mText(LLWString(1, descr->Character))
+        , mData(emoji)
+        , mText(LLWString(1, emoji.Character))
     {
     }
 
@@ -145,12 +153,11 @@ public:
 
     virtual void updatePanel(BOOL allow_modify) override {}
 
-    const LLEmojiDescriptor* getDescr() const { return mDescr; }
-    llwchar getEmoji() const { return mDescr->Character; }
+    const LLEmojiSearchResult& getData() const { return mData; }
     LLWString getText() const { return mText; }
 
 private:
-    const LLEmojiDescriptor* mDescr;
+    const LLEmojiSearchResult mData;
     const LLWString mText;
 };
 
@@ -162,22 +169,30 @@ public:
     {
     }
 
-    void setEmoji(const LLEmojiDescriptor* descr)
+    void setIcon(const LLEmojiGridIcon* icon)
     {
-        mDescr = descr;
+        if (icon)
+        {
+            setData(icon->getData().Character, icon->getData().String, icon->getData().Begin, icon->getData().End);
+        }
+        else
+        {
+            setData(0, LLStringUtil::null, 0, 0);
+        }
+    }
 
-        if (!mDescr)
-            return;
-
-        mEmojiText = LLWString(1, descr->Character);
+    void setData(llwchar emoji, std::string title, size_t begin, size_t end)
+    {
+        mWStr = LLWString(1, emoji);
+        mEmoji = emoji;
+        mTitle = title;
+        mBegin = begin;
+        mEnd = end;
     }
 
     virtual void draw() override
     {
         LLPanel::draw();
-
-        if (!mDescr)
-            return;
 
         S32 clientHeight = getRect().getHeight();
         S32 clientWidth = getRect().getWidth();
@@ -190,24 +205,14 @@ public:
         static LLColor4 defaultColor(0.75f, 0.75f, 0.75f, 1.0f);
         LLColor4 textColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", defaultColor);
         S32 max_pixels = clientWidth - iconWidth;
-        size_t count = mDescr->ShortCodes.size();
-        if (count == 1)
-        {
-            drawName(mDescr->ShortCodes.front(), iconWidth, centerY, max_pixels, textColor);
-        }
-        else if (count > 1)
-        {
-            F32 quarterY = 0.5f * centerY;
-            drawName(mDescr->ShortCodes.front(), iconWidth, centerY + quarterY, max_pixels, textColor);
-            drawName(*++mDescr->ShortCodes.begin(), iconWidth, quarterY, max_pixels, textColor);
-        }
+        drawName(iconWidth, centerY, max_pixels, textColor);
     }
 
 protected:
     void drawIcon(F32 x, F32 y, S32 max_pixels)
     {
         LLFontGL::getFontEmojiHuge()->render(
-            mEmojiText,                 // wstr
+            mWStr,                      // wstr
             0,                          // begin_offset
             x,                          // x
             y,                          // y
@@ -220,90 +225,118 @@ protected:
             max_pixels);                // max_pixels
     }
 
-    void drawName(std::string name, F32 x, F32 y, S32 max_pixels, LLColor4& color)
+    void drawName(F32 x, F32 y, S32 max_pixels, LLColor4& color)
     {
-        LLFontGL::getFontEmoji()->renderUTF8(
-            name,                       // wstr
-            0,                          // begin_offset
-            x,                          // x
-            y,                          // y
-            color,                      // color
-            LLFontGL::LEFT,             // halign
-            LLFontGL::VCENTER,          // valign
-            LLFontGL::NORMAL,           // style
-            LLFontGL::DROP_SHADOW_SOFT, // shadow
-            -1,                         // max_chars
-            max_pixels);                // max_pixels
+        F32 x0 = x;
+        F32 x1 = max_pixels;
+        LLFontGL* font = LLFontGL::getFontEmoji();
+        if (mBegin)
+        {
+            std::string text = mTitle.substr(0, mBegin);
+            font->renderUTF8(
+                text,                       // text
+                0,                          // begin_offset
+                x0,                         // x
+                y,                          // y
+                color,                      // color
+                LLFontGL::LEFT,             // halign
+                LLFontGL::VCENTER,          // valign
+                LLFontGL::NORMAL,           // style
+                LLFontGL::DROP_SHADOW_SOFT, // shadow
+                text.size(),                // max_chars
+                x1);                        // max_pixels
+            F32 dx = font->getWidthF32(text);
+            x0 += dx;
+            x1 -= dx;
+        }
+        if (x1 > 0 && mEnd > mBegin)
+        {
+            std::string text = mTitle.substr(mBegin, mEnd - mBegin);
+            font->renderUTF8(
+                text,                       // text
+                0,                          // begin_offset
+                x0,                         // x
+                y,                          // y
+                LLColor4::yellow6,          // color
+                LLFontGL::LEFT,             // halign
+                LLFontGL::VCENTER,          // valign
+                LLFontGL::NORMAL,           // style
+                LLFontGL::DROP_SHADOW_SOFT, // shadow
+                text.size(),                // max_chars
+                x1);                        // max_pixels
+            F32 dx = font->getWidthF32(text);
+            x0 += dx;
+            x1 -= dx;
+        }
+        if (x1 > 0 && mEnd < mTitle.size())
+        {
+            std::string text = mEnd ? mTitle.substr(mEnd) : mTitle;
+            font->renderUTF8(
+                text,                       // text
+                0,                          // begin_offset
+                x0,                         // x
+                y,                          // y
+                color,                      // color
+                LLFontGL::LEFT,             // halign
+                LLFontGL::VCENTER,          // valign
+                LLFontGL::NORMAL,           // style
+                LLFontGL::DROP_SHADOW_SOFT, // shadow
+                text.size(),                // max_chars
+                x1);                        // max_pixels
+        }
     }
 
 private:
-    const LLEmojiDescriptor* mDescr { nullptr };
-    LLWString mEmojiText;
+    llwchar mEmoji;
+    LLWString mWStr;
+    std::string mTitle;
+    size_t mBegin;
+    size_t mEnd;
 };
-
-LLFloaterEmojiPicker* LLFloaterEmojiPicker::getInstance()
-{
-    LLFloaterEmojiPicker* floater = LLFloaterReg::getTypedInstance<LLFloaterEmojiPicker>("emoji_picker");
-    if (!floater)
-        LL_ERRS() << "Cannot instantiate emoji picker" << LL_ENDL;
-    return floater;
-}
-
-LLFloaterEmojiPicker* LLFloaterEmojiPicker::showInstance(pick_callback_t pick_callback, close_callback_t close_callback)
-{
-    LLFloaterEmojiPicker* floater = getInstance();
-    floater->show(pick_callback, close_callback);
-    return floater;
-}
-
-void LLFloaterEmojiPicker::show(pick_callback_t pick_callback, close_callback_t close_callback)
-{
-    mEmojiPickCallback = pick_callback;
-    mFloaterCloseCallback = close_callback;
-    openFloater(mKey);
-    setFocus(TRUE);
-}
 
 LLFloaterEmojiPicker::LLFloaterEmojiPicker(const LLSD& key)
 : super(key)
 {
+    // This floater should hover on top of our dependent (with the dependent having the focus)
+    setFocusStealsFrontmost(FALSE);
+    setBackgroundVisible(FALSE);
+    setAutoFocus(FALSE);
+
     loadState();
 }
 
 BOOL LLFloaterEmojiPicker::postBuild()
 {
-    // Should be initialized first
+    mGroups = getChild<LLPanel>("Groups");
+    mBadge = getChild<LLPanel>("Badge");
+    mEmojiScroll = getChild<LLScrollContainer>("EmojiGridContainer");
+    mEmojiGrid = getChild<LLScrollingPanelList>("EmojiGrid");
+    mDummy = getChild<LLTextBox>("Dummy");
+
     mPreview = new LLEmojiPreviewPanel();
     mPreview->setVisible(FALSE);
     addChild(mPreview);
 
-    mDummy = getChild<LLTextBox>("Dummy");
+    return LLFloater::postBuild();
+}
 
-    mGroups = getChild<LLPanel>("Groups");
-    mBadge = getChild<LLPanel>("Badge");
+void LLFloaterEmojiPicker::onOpen(const LLSD& key)
+{
+    mHint = key["hint"].asString();
 
-    mFilter = getChild<LLFilterEditor>("Filter");
-    mFilter->setKeystrokeCallback([this](LLUICtrl*, const LLSD&) { onFilterChanged(); });
-    mFilter->setTextChangedCallback([this](LLUICtrl*, const LLSD&) { onFilterChanged(); });
-    mFilter->setText(sFilterPattern);
+    LLEmojiHelper::instance().setIsHideDisabled(mHint.empty());
+    mFilterPattern = mHint;
 
-    mEmojiScroll = getChild<LLScrollContainer>("EmojiGridContainer");
-    mEmojiScroll->setMouseEnterCallback([this](LLUICtrl*, const LLSD&) { onGridMouseEnter(); });
-    mEmojiScroll->setMouseLeaveCallback([this](LLUICtrl*, const LLSD&) { onGridMouseLeave(); });
+    initialize();
 
-    mEmojiGrid = getChild<LLScrollingPanelList>("EmojiGrid");
-
-    fillGroups();
-    fillEmojis();
-
-    return TRUE;
+    gFloaterView->adjustToFitScreen(this, FALSE);
 }
 
 void LLFloaterEmojiPicker::dirtyRect()
 {
     super::dirtyRect();
 
-    if (!mFilter)
+    if (!mPreview)
         return;
 
     const S32 HPADDING = 4;
@@ -314,20 +347,81 @@ void LLFloaterEmojiPicker::dirtyRect()
         mPreview->setRect(rect);
     }
 
-    if (mEmojiScroll && mEmojiScroll->getRect().getWidth() != mRecentGridWidth)
+    if (mEmojiScroll && mEmojiGrid)
     {
-        moveGroups();
-        fillEmojis(true);
+        S32 outer_width = mEmojiScroll->getRect().getWidth();
+        S32 inner_width = mEmojiGrid->getRect().getWidth();
+        if (outer_width != inner_width)
+        {
+            resizeGroupButtons();
+            fillEmojis(true);
+        }
     }
 }
 
-LLFloaterEmojiPicker::~LLFloaterEmojiPicker()
+void LLFloaterEmojiPicker::initialize()
 {
-    gFocusMgr.releaseFocusIfNeeded( this );
+    S32 groupIndex = mSelectedGroupIndex && mSelectedGroupIndex <= mFilteredEmojiGroups.size() ?
+        mFilteredEmojiGroups[mSelectedGroupIndex - 1] : ALL_EMOJIS_GROUP_INDEX;
+
+    fillGroups();
+
+    if (mFilteredEmojis.empty())
+    {
+        if (!mHint.empty())
+        {
+            hideFloater();
+            return;
+        }
+
+        mGroups->setVisible(FALSE);
+        mFocusedIconRow = -1;
+        mFocusedIconCol = -1;
+        mFocusedIcon = nullptr;
+        mHoveredIcon = nullptr;
+        mEmojiScroll->goToTop();
+        mEmojiGrid->clearPanels();
+
+        if (mFilterPattern.empty())
+        {
+            showPreview(false);
+        }
+        else
+        {
+            const std::string prompt("No emoji found for ");
+            std::string title(prompt + '"' + mFilterPattern.substr(1) + '"');
+            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, prompt.size() + 1, title.size() - 1);
+            showPreview(true);
+        }
+        return;
+    }
+
+    mGroups->setVisible(TRUE);
+    mPreview->setIcon(nullptr);
+    showPreview(true);
+
+    mSelectedGroupIndex = groupIndex == ALL_EMOJIS_GROUP_INDEX ? 0 :
+        (1 + std::distance(mFilteredEmojiGroups.begin(),
+            std::find(mFilteredEmojiGroups.begin(), mFilteredEmojiGroups.end(), groupIndex))) %
+        (1 + mFilteredEmojiGroups.size());
+
+    mGroupButtons[mSelectedGroupIndex]->setToggleState(TRUE);
+    mGroupButtons[mSelectedGroupIndex]->setUseFontColor(TRUE);
+
+    fillEmojis();
 }
 
 void LLFloaterEmojiPicker::fillGroups()
 {
+    // Do not use deleteAllChildren() because mBadge shouldn't be removed
+    for (LLButton* button : mGroupButtons)
+    {
+        mGroups->removeChild(button);
+    }
+    mFilteredEmojiGroups.clear();
+    mFilteredEmojis.clear();
+    mGroupButtons.clear();
+
     LLButton::Params params;
     params.font = LLFontGL::getFontEmoji();
 
@@ -335,277 +429,426 @@ void LLFloaterEmojiPicker::fillGroups()
     rect.mTop = mGroups->getRect().getHeight();
     rect.mBottom = mBadge->getRect().getHeight();
 
-    const std::vector<LLEmojiGroup>& groups = LLEmojiDictionary::instance().getGroups();
-    for (const LLEmojiGroup& group : groups)
+    // Create button for "All categories"
+    createGroupButton(params, rect, ALL_EMOJIS_IMAGE_INDEX);
+
+    // Create group and button for "Recently used" and/or "Frequently used"
+    if (!sRecentlyUsed.empty() || !sFrequentlyUsed.empty())
     {
-        LLButton* button = LLUICtrlFactory::create<LLButton>(params);
-        button->setClickedCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonClick(ctrl); });
-        button->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonMouseEnter(ctrl); });
-        button->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonMouseLeave(ctrl); });
+        std::map<std::string, std::vector<LLEmojiSearchResult>> cats;
+        fillCategoryRecentlyUsed(cats);
+        fillCategoryFrequentlyUsed(cats);
 
-        button->setRect(rect);
-        button->setLabel(LLUIString(LLWString(1, group.Character)));
-
-        if (mGroupButtons.size() == sSelectedGroupIndex)
+        if (!cats.empty())
         {
-            button->setToggleState(TRUE);
-            button->setUseFontColor(TRUE);
+            mFilteredEmojiGroups.push_back(USED_EMOJIS_GROUP_INDEX);
+            mFilteredEmojis.emplace_back(cats);
+            createGroupButton(params, rect, USED_EMOJIS_IMAGE_INDEX);
         }
-
-        mGroupButtons.push_back(button);
-        mGroups->addChild(button);
     }
 
-    moveGroups();
+    const std::vector<LLEmojiGroup>& groups = LLEmojiDictionary::instance().getGroups();
+
+    // List all categories in the dictionary
+    for (U32 i = 0; i < groups.size(); ++i)
+    {
+        std::map<std::string, std::vector<LLEmojiSearchResult>> cats;
+
+        fillGroupEmojis(cats, i);
+
+        if (!cats.empty())
+        {
+            mFilteredEmojiGroups.push_back(i);
+            mFilteredEmojis.emplace_back(cats);
+            createGroupButton(params, rect, groups[i].Character);
+        }
+    }
+
+    resizeGroupButtons();
 }
 
-void LLFloaterEmojiPicker::moveGroups()
+void LLFloaterEmojiPicker::fillCategoryRecentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats)
+{
+    if (sRecentlyUsed.empty())
+        return;
+
+    std::vector<LLEmojiSearchResult> emojis;
+
+    // In case of empty mFilterPattern we'd use sRecentlyUsed directly
+    if (!mFilterPattern.empty())
+    {
+        // List all emojis in "Recently used"
+        const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
+        std::size_t begin, end;
+        for (llwchar emoji : sRecentlyUsed)
+        {
+            auto e2d = emoji2descr.find(emoji);
+            if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
+            {
+                const std::string shortcode(e2d->second->ShortCodes.front());
+                if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                {
+                    emojis.emplace_back(emoji, shortcode, begin, end);
+                }
+            }
+        }
+        if (emojis.empty())
+            return;
+    }
+
+    cats.emplace(std::make_pair(RECENTLY_USED_CATEGORY, emojis));
+}
+
+void LLFloaterEmojiPicker::fillCategoryFrequentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats)
+{
+    if (sFrequentlyUsed.empty())
+        return;
+
+    std::vector<LLEmojiSearchResult> emojis;
+
+    // In case of empty mFilterPattern we'd use sFrequentlyUsed directly
+    if (!mFilterPattern.empty())
+    {
+        // List all emojis in "Frequently used"
+        const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
+        std::size_t begin, end;
+        for (const auto& emoji : sFrequentlyUsed)
+        {
+            auto e2d = emoji2descr.find(emoji.first);
+            if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
+            {
+                const std::string shortcode(e2d->second->ShortCodes.front());
+                if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                {
+                    emojis.emplace_back(emoji.first, shortcode, begin, end);
+                }
+            }
+        }
+        if (emojis.empty())
+            return;
+    }
+
+    cats.emplace(std::make_pair(FREQUENTLY_USED_CATEGORY, emojis));
+}
+
+void LLFloaterEmojiPicker::fillGroupEmojis(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats, U32 index)
 {
     const std::vector<LLEmojiGroup>& groups = LLEmojiDictionary::instance().getGroups();
-    if (groups.empty())
+    const LLEmojiDictionary::cat2descrs_map_t& category2Descr = LLEmojiDictionary::instance().getCategory2Descrs();
+
+    for (const std::string& category : groups[index].Categories)
+    {
+        const LLEmojiDictionary::cat2descrs_map_t::const_iterator& c2d = category2Descr.find(category);
+        if (c2d == category2Descr.end())
+            continue;
+
+        std::vector<LLEmojiSearchResult> emojis;
+
+        // In case of empty mFilterPattern we'd use category2Descr directly
+        if (!mFilterPattern.empty())
+        {
+            // List all emojis in category
+            std::size_t begin, end;
+            for (const LLEmojiDescriptor* descr : c2d->second)
+            {
+                if (!descr->ShortCodes.empty())
+                {
+                    const std::string shortcode(descr->ShortCodes.front());
+                    if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                    {
+                        emojis.emplace_back(descr->Character, shortcode, begin, end);
+                    }
+                }
+            }
+            if (emojis.empty())
+                continue;
+        }
+
+        cats.emplace(std::make_pair(category, emojis));
+    }
+}
+
+void LLFloaterEmojiPicker::createGroupButton(LLButton::Params& params, const LLRect& rect, llwchar emoji)
+{
+    LLButton* button = LLUICtrlFactory::create<LLButton>(params);
+    button->setClickedCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonClick(ctrl); });
+    button->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonMouseEnter(ctrl); });
+    button->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onGroupButtonMouseLeave(ctrl); });
+
+    button->setRect(rect);
+    button->setTabStop(FALSE);
+    button->setLabel(LLUIString(LLWString(1, emoji)));
+    button->setUseFontColor(FALSE);
+
+    mGroupButtons.push_back(button);
+    mGroups->addChild(button);
+}
+
+void LLFloaterEmojiPicker::resizeGroupButtons()
+{
+    U32 groupCount = (U32)mGroupButtons.size();
+    if (!groupCount)
         return;
 
-    int badgeWidth = mGroups->getRect().getWidth() / groups.size();
-    if (badgeWidth == mRecentBadgeWidth)
-        return;
+    S32 totalWidth = mGroups->getRect().getWidth();
+    S32 badgeWidth = totalWidth / groupCount;
+    S32 leftOffset = (totalWidth - badgeWidth * groupCount) / 2;
 
-    mRecentBadgeWidth = badgeWidth;
-
-    for (int i = 0; i < mGroupButtons.size(); ++i)
+    for (U32 i = 0; i < groupCount; ++i)
     {
         LLRect rect = mGroupButtons[i]->getRect();
-        rect.mLeft = badgeWidth * i;
+        rect.mLeft = leftOffset + badgeWidth * i;
         rect.mRight = rect.mLeft + badgeWidth;
         mGroupButtons[i]->setRect(rect);
     }
 
     LLRect rect = mBadge->getRect();
-    rect.mLeft = badgeWidth * sSelectedGroupIndex;
+    rect.mLeft = leftOffset + badgeWidth * mSelectedGroupIndex;
     rect.mRight = rect.mLeft + badgeWidth;
     mBadge->setRect(rect);
 }
 
-void LLFloaterEmojiPicker::showPreview(bool show)
+void LLFloaterEmojiPicker::selectEmojiGroup(U32 index)
 {
-    mPreview->setEmoji(nullptr);
-    mDummy->setVisible(show ? FALSE : TRUE);
-    mPreview->setVisible(show ? TRUE : FALSE);
+    if (index == mSelectedGroupIndex || index >= mGroupButtons.size())
+        return;
+
+    if (mSelectedGroupIndex < mGroupButtons.size())
+    {
+        mGroupButtons[mSelectedGroupIndex]->setUseFontColor(FALSE);
+        mGroupButtons[mSelectedGroupIndex]->setToggleState(FALSE);
+    }
+
+    mSelectedGroupIndex = index;
+    mGroupButtons[mSelectedGroupIndex]->setToggleState(TRUE);
+    mGroupButtons[mSelectedGroupIndex]->setUseFontColor(TRUE);
+
+    LLButton* button = mGroupButtons[mSelectedGroupIndex];
+    LLRect rect = mBadge->getRect();
+    rect.mLeft = button->getRect().mLeft;
+    rect.mRight = button->getRect().mRight;
+    mBadge->setRect(rect);
+
+    fillEmojis();
 }
 
 void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
 {
-    mRecentGridWidth = mEmojiScroll->getRect().getWidth();
-
-    S32 scrollbarSize = mEmojiScroll->getSize();
-    if (scrollbarSize < 0)
+    S32 scrollbar_size = mEmojiScroll->getSize();
+    if (scrollbar_size < 0)
     {
         static LLUICachedControl<S32> scrollbar_size_control("UIScrollbarSize", 0);
-        scrollbarSize = scrollbar_size_control;
+        scrollbar_size = scrollbar_size_control;
     }
 
-    const S32 clientWidth = mRecentGridWidth - scrollbarSize - mEmojiScroll->getBorderWidth() * 2;
-    const S32 gridPadding = mEmojiGrid->getPadding();
-    const S32 iconSpacing = mEmojiGrid->getSpacing();
-    const S32 rowWidth = clientWidth - gridPadding * 2;
-    const S32 iconSize = 28; // icon width and height
-    const S32 maxIcons = llmax(1, (rowWidth + iconSpacing) / (iconSize + iconSpacing));
+    const S32 scroll_width = mEmojiScroll->getRect().getWidth();
+    const S32 client_width = scroll_width - scrollbar_size - mEmojiScroll->getBorderWidth() * 2;
+    const S32 grid_padding = mEmojiGrid->getPadding();
+    const S32 icon_spacing = mEmojiGrid->getSpacing();
+    const S32 row_width = client_width - grid_padding * 2;
+    const S32 icon_size = 28; // icon width and height
+    const S32 max_icons = llmax(1, (row_width + icon_spacing) / (icon_size + icon_spacing));
 
     // Optimization: don't rearrange for different widths with the same maxIcons
-    if (fromResize && (maxIcons == mRecentMaxIcons))
+    if (fromResize && (max_icons == mRecentMaxIcons))
         return;
 
-    mRecentMaxIcons = maxIcons;
+    mRecentMaxIcons = max_icons;
 
     mFocusedIconRow = 0;
     mFocusedIconCol = 0;
     mFocusedIcon = nullptr;
     mHoveredIcon = nullptr;
+    mEmojiScroll->goToTop();
     mEmojiGrid->clearPanels();
-    mPreview->setEmoji(nullptr);
+    mPreview->setIcon(nullptr);
 
-    if (mEmojiGrid->getRect().getWidth() != clientWidth)
+    if (mEmojiGrid->getRect().getWidth() != client_width)
     {
         LLRect rect = mEmojiGrid->getRect();
-        rect.mRight = rect.mLeft + clientWidth;
+        rect.mRight = rect.mLeft + client_width;
         mEmojiGrid->setRect(rect);
     }
 
     LLPanel::Params row_panel_params;
-    row_panel_params.rect = LLRect(0, iconSize, rowWidth, 0);
+    row_panel_params.rect = LLRect(0, icon_size, row_width, 0);
 
     LLScrollingPanelList::Params row_list_params;
     row_list_params.rect = row_panel_params.rect;
     row_list_params.is_horizontal = TRUE;
     row_list_params.padding = 0;
-    row_list_params.spacing = iconSpacing;
+    row_list_params.spacing = icon_spacing;
 
     LLPanel::Params icon_params;
-    LLRect icon_rect(0, iconSize, iconSize, 0);
+    LLRect icon_rect(0, icon_size, icon_size, 0);
 
-    static LLColor4 defaultColor(0.75f, 0.75f, 0.75f, 1.0f);
-    LLColor4 bgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", defaultColor);
+    static LLColor4 default_color(0.75f, 0.75f, 0.75f, 1.0f);
+    LLColor4 bg_color = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", default_color);
 
-    auto matchesPattern = [](const LLEmojiDescriptor* descr) -> bool
+    if (!mSelectedGroupIndex)
     {
-        for (const std::string& shortCode : descr->ShortCodes)
-            if (shortCode.find(sFilterPattern) != std::string::npos)
-                return true;
-        return false;
-    };
-
-    auto listCategory = [&](std::string category, const std::vector<const LLEmojiDescriptor*>& emojis, int maxRows = 0)
-    {
-        int rowCount = 0;
-        int iconIndex = 0;
-        bool showDivider = true;
-        bool mixedFolder = maxRows;
-        LLEmojiGridRow* row = nullptr;
-        if (!mixedFolder && !isupper(category.front()))
-        {
-            LLStringUtil::capitalize(category);
-        }
-
-        for (const LLEmojiDescriptor* descr : emojis)
-        {
-            if (sFilterPattern.empty() || matchesPattern(descr))
-            {
-                // Place a category title if needed
-                if (showDivider)
-                {
-                    LLEmojiGridDivider* div = new LLEmojiGridDivider(row_panel_params, category);
-                    mEmojiGrid->addPanel(div, true);
-                    showDivider = false;
-                }
-
-                // Place a new row each (maxIcons) icons
-                if (!(iconIndex % maxIcons))
-                {
-                    if (maxRows && ++rowCount > maxRows)
-                        break;
-                    row = new LLEmojiGridRow(row_panel_params, row_list_params);
-                    mEmojiGrid->addPanel(row, true);
-                }
-
-                // Place a new icon to the current row
-                LLEmojiGridIcon* icon = new LLEmojiGridIcon(icon_params, descr, mixedFolder ? LLStringUtil::capitalize(descr->Category) : category);
-                icon->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseEnter(ctrl); });
-                icon->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseLeave(ctrl); });
-                icon->setMouseDownCallback([this](LLUICtrl* ctrl, S32, S32, MASK) { onEmojiMouseDown(ctrl); });
-                icon->setMouseUpCallback([this](LLUICtrl* ctrl, S32, S32, MASK) { onEmojiMouseUp(ctrl); });
-                icon->setBackgroundColor(bgColor);
-                icon->setBackgroundOpaque(1);
-                icon->setRect(icon_rect);
-                row->mList->addPanel(icon, true);
-
-                iconIndex++;
-            }
-        }
-    };
-
-    const std::vector<LLEmojiGroup>& groups = LLEmojiDictionary::instance().getGroups();
-    const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
-    const LLEmojiDictionary::cat2descrs_map_t& category2Descr = LLEmojiDictionary::instance().getCategory2Descrs();
-    if (!sSelectedGroupIndex)
-    {
-        std::vector<const LLEmojiDescriptor*> recentlyUsed;
-        for (llwchar emoji : sRecentlyUsed)
-        {
-            auto it = emoji2descr.find(emoji);
-            if (it != emoji2descr.end())
-            {
-                recentlyUsed.push_back(it->second);
-            }
-        }
-        listCategory(getString("title_for_recently_used"), recentlyUsed, 1);
-
-        std::vector<const LLEmojiDescriptor*> frequentlyUsed;
-        for (auto& emoji : sFrequentlyUsed)
-        {
-            auto it = emoji2descr.find(emoji.first);
-            if (it != emoji2descr.end())
-            {
-                frequentlyUsed.push_back(it->second);
-            }
-        }
-        listCategory(getString("title_for_frequently_used"), frequentlyUsed, 1);
-
         // List all groups
-        for (const LLEmojiGroup& group : groups)
+        for (const auto& group : mFilteredEmojis)
         {
-            // List all categories in group
-            for (const std::string& category : group.Categories)
+            // List all categories in the group
+            for (const auto& category : group)
             {
-                // List all emojis in category
-                const LLEmojiDictionary::cat2descrs_map_t::const_iterator& item = category2Descr.find(category);
-                if (item != category2Descr.end())
-                {
-                    listCategory(category, item->second);
-                }
+                // List all emojis in the category
+                fillEmojisCategory(category.second, category.first, row_panel_params,
+                    row_list_params, icon_params, icon_rect, max_icons, bg_color);
             }
         }
     }
     else
     {
         // List all categories in the selected group
-        for (const std::string& category : groups[sSelectedGroupIndex].Categories)
+        const auto& group = mFilteredEmojis[mSelectedGroupIndex - 1];
+        for (const auto& category : group)
         {
-            // List all emojis in category
-            const LLEmojiDictionary::cat2descrs_map_t::const_iterator& item = category2Descr.find(category);
-            if (item != category2Descr.end())
+            // List all emojis in the category
+            fillEmojisCategory(category.second, category.first, row_panel_params,
+                row_list_params, icon_params, icon_rect, max_icons, bg_color);
+        }
+    }
+
+    if (mEmojiGrid->getPanelList().empty())
+    {
+        showPreview(false);
+        mFocusedIconRow = -1;
+        mFocusedIconCol = -1;
+        if (!mHint.empty())
+        {
+            hideFloater();
+        }
+    }
+    else
+    {
+        showPreview(true);
+        mFocusedIconRow = 0;
+        mFocusedIconCol = 0;
+        moveFocusedIconNext();
+    }
+}
+
+void LLFloaterEmojiPicker::fillEmojisCategory(const std::vector<LLEmojiSearchResult>& emojis,
+    const std::string& category, const LLPanel::Params& row_panel_params, const LLUICtrl::Params& row_list_params,
+    const LLPanel::Params& icon_params, const LLRect& icon_rect, S32 max_icons, const LLColor4& bg)
+{
+    // Place the category title
+    std::string title =
+        category == RECENTLY_USED_CATEGORY ? getString("title_for_recently_used") :
+        category == FREQUENTLY_USED_CATEGORY ? getString("title_for_frequently_used") :
+        isupper(category.front()) ? category : LLStringUtil::capitalize(category);
+    LLEmojiGridDivider* div = new LLEmojiGridDivider(row_panel_params, title);
+    mEmojiGrid->addPanel(div, true);
+
+    int icon_index = 0;
+    LLEmojiGridRow* row = nullptr;
+
+    if (mFilterPattern.empty())
+    {
+        const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
+        LLEmojiSearchResult emoji { 0, "", 0, 0 };
+        if (category == RECENTLY_USED_CATEGORY)
+        {
+            for (llwchar code : sRecentlyUsed)
             {
-                listCategory(category, item->second);
+                const LLEmojiDictionary::emoji2descr_map_t::const_iterator& e2d = emoji2descr.find(code);
+                if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
+                {
+                    emoji.Character = code;
+                    emoji.String = e2d->second->ShortCodes.front();
+                    createEmojiIcon(emoji, category, row_panel_params, row_list_params, icon_params,
+                        icon_rect, max_icons, bg, row, icon_index);
+                }
+            }
+        }
+        else if (category == FREQUENTLY_USED_CATEGORY)
+        {
+            for (const auto& code : sFrequentlyUsed)
+            {
+                const LLEmojiDictionary::emoji2descr_map_t::const_iterator& e2d = emoji2descr.find(code.first);
+                if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
+                {
+                    emoji.Character = code.first;
+                    emoji.String = e2d->second->ShortCodes.front();
+                    createEmojiIcon(emoji, category, row_panel_params, row_list_params, icon_params,
+                        icon_rect, max_icons, bg, row, icon_index);
+                }
+            }
+        }
+        else
+        {
+            const LLEmojiDictionary::cat2descrs_map_t& category2Descr = LLEmojiDictionary::instance().getCategory2Descrs();
+            const LLEmojiDictionary::cat2descrs_map_t::const_iterator& c2d = category2Descr.find(category);
+            if (c2d != category2Descr.end())
+            {
+                for (const LLEmojiDescriptor* descr : c2d->second)
+                {
+                    emoji.Character = descr->Character;
+                    emoji.String = descr->ShortCodes.front();
+                    createEmojiIcon(emoji, category, row_panel_params, row_list_params, icon_params,
+                        icon_rect, max_icons, bg, row, icon_index);
+                }
             }
         }
     }
+    else
+    {
+        for (const LLEmojiSearchResult& emoji : emojis)
+        {
+            createEmojiIcon(emoji, category, row_panel_params, row_list_params, icon_params,
+                icon_rect, max_icons, bg, row, icon_index);
+        }
+    }
+}
+
+void LLFloaterEmojiPicker::createEmojiIcon(const LLEmojiSearchResult& emoji,
+    const std::string& category, const LLPanel::Params& row_panel_params, const LLUICtrl::Params& row_list_params,
+    const LLPanel::Params& icon_params, const LLRect& icon_rect, S32 max_icons, const LLColor4& bg,
+    LLEmojiGridRow*& row, int& icon_index)
+{
+    // Place a new row each (max_icons) icons
+    if (!(icon_index % max_icons))
+    {
+        row = new LLEmojiGridRow(row_panel_params, *(const LLScrollingPanelList::Params*)&row_list_params);
+        mEmojiGrid->addPanel(row, true);
+    }
+
+    // Place a new icon to the current row
+    LLEmojiGridIcon* icon = new LLEmojiGridIcon(icon_params, emoji);
+    icon->setMouseEnterCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseEnter(ctrl); });
+    icon->setMouseLeaveCallback([this](LLUICtrl* ctrl, const LLSD&) { onEmojiMouseLeave(ctrl); });
+    icon->setMouseDownCallback([this](LLUICtrl* ctrl, S32, S32, MASK) { onEmojiMouseDown(ctrl); });
+    icon->setMouseUpCallback([this](LLUICtrl* ctrl, S32, S32, MASK) { onEmojiMouseUp(ctrl); });
+    icon->setBackgroundColor(bg);
+    icon->setBackgroundOpaque(1);
+    icon->setRect(icon_rect);
+    row->mList->addPanel(icon, true);
+
+    icon_index++;
+}
+
+void LLFloaterEmojiPicker::showPreview(bool show)
+{
+    //mPreview->setIcon(nullptr);
+    mDummy->setVisible(show ? FALSE : TRUE);
+    mPreview->setVisible(show ? TRUE : FALSE);
 }
 
 void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
 {
     if (LLButton* button = dynamic_cast<LLButton*>(ctrl))
     {
-        mFilter->setFocus(TRUE);
-
-        if (button == mGroupButtons[sSelectedGroupIndex] || button->getToggleState())
+        if (button == mGroupButtons[mSelectedGroupIndex] || button->getToggleState())
             return;
 
         auto it = std::find(mGroupButtons.begin(), mGroupButtons.end(), button);
         if (it == mGroupButtons.end())
             return;
 
-        mGroupButtons[sSelectedGroupIndex]->setUseFontColor(FALSE);
-        mGroupButtons[sSelectedGroupIndex]->setToggleState(FALSE);
-        sSelectedGroupIndex = it - mGroupButtons.begin();
-        mGroupButtons[sSelectedGroupIndex]->setToggleState(TRUE);
-        mGroupButtons[sSelectedGroupIndex]->setUseFontColor(TRUE);
-
-        LLRect rect = mBadge->getRect();
-        rect.mLeft = button->getRect().mLeft;
-        rect.mRight = button->getRect().mRight;
-        mBadge->setRect(rect);
-
-        fillEmojis();
+        selectEmojiGroup(it - mGroupButtons.begin());
     }
-}
-
-void LLFloaterEmojiPicker::onFilterChanged()
-{
-    sFilterPattern = mFilter->getText();
-    fillEmojis();
-}
-
-void LLFloaterEmojiPicker::onGridMouseEnter()
-{
-    LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
-    if (focus == mEmojiGrid)
-    {
-        exitArrowMode();
-    }
-    showPreview(true);
-}
-
-void LLFloaterEmojiPicker::onGridMouseLeave()
-{
-    showPreview(false);
 }
 
 void LLFloaterEmojiPicker::onGroupButtonMouseEnter(LLUICtrl* ctrl)
@@ -626,33 +869,40 @@ void LLFloaterEmojiPicker::onGroupButtonMouseLeave(LLUICtrl* ctrl)
 
 void LLFloaterEmojiPicker::onEmojiMouseEnter(LLUICtrl* ctrl)
 {
-    if (ctrl)
+    if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
-        LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
-        if (focus == mEmojiGrid)
+        if (mFocusedIcon && mFocusedIcon != icon && mFocusedIcon->isBackgroundVisible())
         {
-            exitArrowMode();
-            showPreview(true);
+            unselectGridIcon(mFocusedIcon);
         }
 
-        if (mHoveredIcon && mHoveredIcon != ctrl)
+        if (mHoveredIcon && mHoveredIcon != icon)
         {
             unselectGridIcon(mHoveredIcon);
         }
 
-        selectGridIcon(ctrl);
+        selectGridIcon(icon);
 
-        mHoveredIcon = ctrl;
+        mHoveredIcon = icon;
     }
 }
 
 void LLFloaterEmojiPicker::onEmojiMouseLeave(LLUICtrl* ctrl)
 {
-    if (ctrl)
+    if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
-        if (ctrl == mHoveredIcon)
+        if (icon == mHoveredIcon)
         {
-            unselectGridIcon(ctrl);
+            if (icon != mFocusedIcon)
+            {
+                unselectGridIcon(icon);
+            }
+            mHoveredIcon = nullptr;
+        }
+
+        if (!mHoveredIcon && mFocusedIcon && !mFocusedIcon->isBackgroundVisible())
+        {
+            selectGridIcon(mFocusedIcon);
         }
     }
 }
@@ -672,141 +922,109 @@ void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
         make_ui_sound("UISndClickRelease");
     }
 
-    if (mEmojiPickCallback)
+    if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
-        if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
+        LLSD value(wstring_to_utf8str(icon->getText()));
+        setValue(value);
+
+        onCommit();
+
+        if (!mHint.empty() || !(gKeyboard->currentMask(TRUE) & MASK_SHIFT))
         {
-            if (mEmojiPickCallback)
-            {
-                mEmojiPickCallback(icon->getEmoji());
-            }
+            hideFloater();
         }
     }
-}
-
-bool LLFloaterEmojiPicker::enterArrowMode()
-{
-    S32 rowCount = mEmojiGrid->getPanelList().size();
-    if (rowCount)
-    {
-        mFocusedIconRow = -1;
-        mFocusedIconCol = 0;
-        if (moveFocusedIconDown())
-        {
-            showPreview(true);
-            mEmojiScroll->goToTop();
-            mEmojiGrid->setFocus(TRUE);
-            return true;
-        }
-    }
-    return false;
-}
-
-void LLFloaterEmojiPicker::exitArrowMode()
-{
-    if (mFocusedIcon)
-    {
-        unselectGridIcon(mFocusedIcon);
-        mFocusedIcon = nullptr;
-    }
-
-    showPreview(false);
-    mEmojiScroll->goToTop();
-    mFocusedIconRow = mFocusedIconCol = 0;
-    mFilter->setFocus(TRUE);
 }
 
 void LLFloaterEmojiPicker::selectFocusedIcon()
 {
-    if (mHoveredIcon)
-    {
-        unselectGridIcon(mHoveredIcon);
-    }
-
-    if (mFocusedIcon)
+    if (mFocusedIcon && mFocusedIcon != mHoveredIcon)
     {
         unselectGridIcon(mFocusedIcon);
     }
 
     // Both mFocusedIconRow and mFocusedIconCol should be already verified
-    LLEmojiGridRow* row = (LLEmojiGridRow*)mEmojiGrid->getPanelList()[mFocusedIconRow];
-    mFocusedIcon = row->mList->getPanelList()[mFocusedIconCol];
-    selectGridIcon(mFocusedIcon);
+    LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(mEmojiGrid->getPanelList()[mFocusedIconRow]);
+    mFocusedIcon = row ? dynamic_cast<LLEmojiGridIcon*>(row->mList->getPanelList()[mFocusedIconCol]) : nullptr;
+
+    if (mFocusedIcon && !mHoveredIcon)
+    {
+        selectGridIcon(mFocusedIcon);
+    }
 }
 
-bool LLFloaterEmojiPicker::moveFocusedIconUp()
+bool LLFloaterEmojiPicker::moveFocusedIconPrev()
 {
+    if (mHoveredIcon)
+        return false;
+
+    if (mFocusedIconCol > 0)
+    {
+        mFocusedIconCol--;
+        selectFocusedIcon();
+        return true;
+    }
+
     for (S32 i = mFocusedIconRow - 1; i >= 0; --i)
     {
         LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
         LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
-        if (row && row->mList->getPanelList().size() > mFocusedIconCol)
+        if (row && row->mList->getPanelList().size())
         {
             mEmojiScroll->scrollToShowRect(row->getBoundingRect());
+            mFocusedIconCol = row->mList->getPanelList().size() - 1;
             mFocusedIconRow = i;
             selectFocusedIcon();
             return true;
         }
     }
+
     return false;
 }
 
-bool LLFloaterEmojiPicker::moveFocusedIconDown()
+bool LLFloaterEmojiPicker::moveFocusedIconNext()
 {
+    if (mHoveredIcon)
+        return false;
+
+    LLScrollingPanel* panel = mEmojiGrid->getPanelList()[mFocusedIconRow];
+    LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
+    S32 colCount = row ? row->mList->getPanelList().size() : 0;
+    if (mFocusedIconCol < colCount - 1)
+    {
+        mFocusedIconCol++;
+        selectFocusedIcon();
+        return true;
+    }
+
     S32 rowCount = mEmojiGrid->getPanelList().size();
     for (S32 i = mFocusedIconRow + 1; i < rowCount; ++i)
     {
         LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
         LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
-        if (row && row->mList->getPanelList().size() > mFocusedIconCol)
+        if (row && row->mList->getPanelList().size())
         {
             mEmojiScroll->scrollToShowRect(row->getBoundingRect());
+            mFocusedIconCol = 0;
             mFocusedIconRow = i;
             selectFocusedIcon();
             return true;
         }
     }
+
     return false;
 }
 
-bool LLFloaterEmojiPicker::moveFocusedIconLeft()
+void LLFloaterEmojiPicker::selectGridIcon(LLEmojiGridIcon* icon)
 {
-    if (mFocusedIconCol <= 0)
-        return false;
-
-    mFocusedIconCol--;
-    selectFocusedIcon();
-    return true;
+    icon->setBackgroundVisible(TRUE);
+    mPreview->setIcon(icon);
 }
 
-bool LLFloaterEmojiPicker::moveFocusedIconRight()
+void LLFloaterEmojiPicker::unselectGridIcon(LLEmojiGridIcon* icon)
 {
-    LLEmojiGridRow* row = (LLEmojiGridRow*)mEmojiGrid->getPanelList()[mFocusedIconRow];
-    S32 colCount = row->mList->getPanelList().size();
-    if (mFocusedIconCol >= colCount - 1)
-        return false;
-
-    mFocusedIconCol++;
-    selectFocusedIcon();
-    return true;
-}
-
-void LLFloaterEmojiPicker::selectGridIcon(LLUICtrl* ctrl)
-{
-    if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
-    {
-        icon->setBackgroundVisible(TRUE);
-        mPreview->setEmoji(icon->getDescr());
-    }
-}
-
-void LLFloaterEmojiPicker::unselectGridIcon(LLUICtrl* ctrl)
-{
-    if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
-    {
-        icon->setBackgroundVisible(FALSE);
-        mPreview->setEmoji(nullptr);
-    }
+    icon->setBackgroundVisible(FALSE);
+    mPreview->setIcon(nullptr);
 }
 
 // virtual
@@ -814,53 +1032,66 @@ BOOL LLFloaterEmojiPicker::handleKey(KEY key, MASK mask, BOOL called_from_parent
 {
     if (mask == MASK_NONE)
     {
-        LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
-        if (focus == mEmojiGrid)
+        switch (key)
         {
-            if (key == KEY_RETURN)
-            {
-                if (mFocusedIcon)
-                {
-                    onEmojiMouseDown(mFocusedIcon);
-                    onEmojiMouseUp(mFocusedIcon);
-                    closeFloater();
-                    return TRUE;
-                }
-            }
-            else if (key == KEY_TAB)
-            {
-                exitArrowMode();
-                return TRUE;
-            }
-            else if (key == KEY_UP)
-            {
-                if (!moveFocusedIconUp())
-                    exitArrowMode();
-                return TRUE;
-            }
-            else if (key == KEY_DOWN)
-            {
-                if (moveFocusedIconDown())
-                    return TRUE;
-            }
-            else if (key == KEY_LEFT)
-            {
-                if (moveFocusedIconLeft())
-                    return TRUE;
-            }
-            else if (key == KEY_RIGHT)
-            {
-                if (moveFocusedIconRight())
-                    return TRUE;
-            }
+        case KEY_LEFT:
+            selectEmojiGroup((mSelectedGroupIndex + mFilteredEmojis.size()) % mGroupButtons.size());
+            return TRUE;
+        case KEY_RIGHT:
+            selectEmojiGroup((mSelectedGroupIndex + 1) % mGroupButtons.size());
+            return TRUE;
+        case KEY_UP:
+            moveFocusedIconPrev();
+            return TRUE;
+        case KEY_DOWN:
+            moveFocusedIconNext();
+            return TRUE;
+        case KEY_ESCAPE:
+            hideFloater();
+            return TRUE;
         }
-        else // if (focus != mEmojiGrid)
+    }
+
+    if (key == KEY_RETURN)
+    {
+        U64 time = totalTime();
+        // <Shift+Return> comes twice for unknown reason
+        if (mFocusedIcon && (time - mRecentReturnPressedMs > 100000)) // Min interval 0.1 sec.
         {
-            if (key == KEY_DOWN)
+            onEmojiMouseDown(mFocusedIcon);
+            onEmojiMouseUp(mFocusedIcon);
+        }
+        mRecentReturnPressedMs = time;
+        return TRUE;
+    }
+
+    if (mHint.empty())
+    {
+        if (key >= 0x20 && key < 0x80)
+        {
+            if (!mEmojiGrid->getPanelList().empty())
             {
-                if (enterArrowMode())
-                    return TRUE;
+                if (mFilterPattern.empty())
+                {
+                    mFilterPattern = ":";
+                }
+                mFilterPattern += (char)key;
+                initialize();
             }
+            return TRUE;
+        }
+        else if (key == KEY_BACKSPACE)
+        {
+            if (!mFilterPattern.empty())
+            {
+                mFilterPattern.pop_back();
+                if (mFilterPattern == ":")
+                {
+                    mFilterPattern.clear();
+                }
+                initialize();
+            }
+            return TRUE;
         }
     }
 
@@ -868,30 +1099,14 @@ BOOL LLFloaterEmojiPicker::handleKey(KEY key, MASK mask, BOOL called_from_parent
 }
 
 // virtual
-BOOL LLFloaterEmojiPicker::handleKeyHere(KEY key, MASK mask)
+void LLFloaterEmojiPicker::goneFromFront()
 {
-    if (mask == MASK_NONE)
-    {
-        switch (key)
-        {
-        case KEY_ESCAPE:
-            closeFloater();
-            return TRUE;
-        }
-    }
-
-    return super::handleKeyHere(key, mask);
+    hideFloater();
 }
 
-// virtual
-void LLFloaterEmojiPicker::closeFloater(bool app_quitting)
+void LLFloaterEmojiPicker::hideFloater() const
 {
-    saveState();
-    super::closeFloater(app_quitting);
-    if (mFloaterCloseCallback)
-    {
-        mFloaterCloseCallback();
-    }
+    LLEmojiHelper::instance().hideHelper(nullptr, true);
 }
 
 // static
@@ -938,18 +1153,17 @@ void LLFloaterEmojiPicker::onEmojiUsed(llwchar emoji)
     }
     // Append new if not found
     if (itf == sFrequentlyUsed.end())
-        sFrequentlyUsed.push_back(std::make_pair(emoji, 1));
-}
-
-// static
-void LLFloaterEmojiPicker::onRecentlyUsedChanged()
-{
-    if (sSelectedGroupIndex)
-        return;
-
-    if (LLFloaterEmojiPicker* picker = getInstance())
     {
-        picker->fillEmojis();
+        // Insert before others with count == 1
+        while (itf != sFrequentlyUsed.begin())
+        {
+            auto prior = itf;
+            prior--;
+            if (prior->second > 1)
+                break;
+            itf = prior;
+        }
+        sFrequentlyUsed.insert(itf, std::make_pair(emoji, 1));
     }
 }
 
@@ -976,10 +1190,6 @@ void LLFloaterEmojiPicker::loadState()
         LL_WARNS() << "Emoji floater state file is missing or ill-formed: " << sStateFileName << LL_ENDL;
         return;
     }
-
-    sSelectedGroupIndex = state[sKeySelectedGroupIndex].asInteger();
-
-    sFilterPattern = state[sKeyFilterPattern].asString();
 
     // Load and parse sRecentlyUsed
     std::string recentlyUsed = state[sKeyRecentlyUsed];
@@ -1028,7 +1238,7 @@ void LLFloaterEmojiPicker::loadState()
     // Normalize by minimum
     if (!sFrequentlyUsed.empty())
     {
-        U32 delta = sFrequentlyUsed.back().second;
+        U32 delta = sFrequentlyUsed.back().second - 1;
         for (auto& it : sFrequentlyUsed)
         {
             it.second = std::max((U32)0, it.second - delta);
@@ -1046,16 +1256,6 @@ void LLFloaterEmojiPicker::saveState()
         return; // Not allowed
 
     LLSD state = LLSD::emptyMap();
-
-    if (sSelectedGroupIndex)
-    {
-        state[sKeySelectedGroupIndex] = (int)sSelectedGroupIndex;
-    }
-
-    if (!sFilterPattern.empty())
-    {
-        state[sKeyFilterPattern] = sFilterPattern;
-    }
 
     if (!sRecentlyUsed.empty())
     {

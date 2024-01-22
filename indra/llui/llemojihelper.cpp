@@ -36,7 +36,7 @@
 // Constants
 //
 
-constexpr char DEFAULT_EMOJI_HELPER_FLOATER[] = "emoji_complete";
+constexpr char DEFAULT_EMOJI_HELPER_FLOATER[] = "emoji_picker";
 constexpr S32 HELPER_FLOATER_OFFSET_X = 0;
 constexpr S32 HELPER_FLOATER_OFFSET_Y = 0;
 
@@ -117,9 +117,10 @@ void LLEmojiHelper::showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, c
 	pHelperFloater->openFloater(LLSD().with("hint", short_code));
 }
 
-void LLEmojiHelper::hideHelper(const LLUICtrl* ctrl_p)
+void LLEmojiHelper::hideHelper(const LLUICtrl* ctrl_p, bool strict)
 {
-	if (ctrl_p && !isActive(ctrl_p))
+	mIsHideDisabled &= !strict;
+	if (mIsHideDisabled || (ctrl_p && !isActive(ctrl_p)))
 	{
 		return;
 	}

@@ -89,6 +89,7 @@ public:
 
     static void initClass();
     LLWString findMatchingEmojis(const std::string& needle) const;
+    static bool searchInShortCode(std::size_t& begin, std::size_t& end, const std::string& shortCode, const std::string& needle);
     void findByShortCode(std::vector<LLEmojiSearchResult>& result, const std::string& needle) const;
     const LLEmojiDescriptor* getDescriptorFromEmoji(llwchar emoji) const;
     const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;

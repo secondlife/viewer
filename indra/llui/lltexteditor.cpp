@@ -508,7 +508,8 @@ void LLTextEditor::getSegmentsInRange(LLTextEditor::segment_vec_t& segments_out,
 	}
 }
 
-void LLTextEditor::setShowEmojiHelper(bool show) {
+void LLTextEditor::setShowEmojiHelper(bool show)
+{
 	if (!mShowEmojiHelper)
 	{
 		LLEmojiHelper::instance().hideHelper(this);
@@ -1192,6 +1193,16 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 }
 
+void LLTextEditor::showEmojiHelper()
+{
+    if (mReadOnly || !mShowEmojiHelper)
+        return;
+
+    const LLRect cursorRect(getLocalRectFromDocIndex(mCursorPos));
+    auto cb = [this](llwchar emoji) { insertEmoji(emoji); };
+    LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, LLStringUtil::null, cb);
+}
+
 void LLTextEditor::tryToShowEmojiHelper()
 {
     if (mReadOnly || !mShowEmojiHelper)
@@ -1206,6 +1217,10 @@ void LLTextEditor::tryToShowEmojiHelper()
         const std::string part(wstring_to_utf8str(wpart));
         auto cb = [this](llwchar emoji) { handleEmojiCommit(emoji); };
         LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, part, cb);
+    }
+    else
+    {
+        LLEmojiHelper::instance().hideHelper();
     }
 }
 
@@ -1911,7 +1926,12 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 	// Handle most keys only if the text editor is writeable.
 	if( !mReadOnly )
 	{
-		if( mAutoIndent && '}' == uni_char )
+        if (mShowEmojiHelper && uni_char < 0x80 && LLEmojiHelper::instance().handleKey(this, (KEY)uni_char, MASK_NONE))
+        {
+            return TRUE;
+        }
+
+        if( mAutoIndent && '}' == uni_char )
 		{
 			unindentLineBeforeCloseBrace();
 		}

@@ -182,6 +182,7 @@ LLFloater::Params::Params()
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
 	show_title("show_title", true),
+	auto_close("auto_close", false),
 	positioning("positioning", LLFloaterEnums::POSITIONING_RELATIVE),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
@@ -254,6 +255,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mCanClose(p.can_close),
 	mDragOnLeft(p.can_drag_on_left),
 	mResizable(p.can_resize),
+	mAutoClose(p.auto_close),
 	mPositioning(p.positioning),
 	mMinWidth(p.min_width),
 	mMinHeight(p.min_height),
@@ -681,7 +683,7 @@ void LLFloater::openFloater(const LLSD& key)
 	if (getHost() != NULL)
 	{
 		getHost()->setMinimized(FALSE);
-		getHost()->setVisibleAndFrontmost(mAutoFocus);
+		getHost()->setVisibleAndFrontmost(mAutoFocus && !getIsChrome());
 		getHost()->showFloater(this);
 	}
 	else
@@ -693,7 +695,7 @@ void LLFloater::openFloater(const LLSD& key)
 		}
 		applyControlsAndPosition(floater_to_stack);
 		setMinimized(FALSE);
-		setVisibleAndFrontmost(mAutoFocus);
+		setVisibleAndFrontmost(mAutoFocus && !getIsChrome());
 	}
 
 	mOpenSignal(this, key);
@@ -1551,7 +1553,7 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition, BOOL r
 	if (floaterp->isFrontmost())
 	{
 		// make sure to bring self and sibling floaters to front
-		gFloaterView->bringToFront(floaterp);
+		gFloaterView->bringToFront(floaterp, floaterp->getAutoFocus() && !getIsChrome());
 	}
 }
 
@@ -1696,6 +1698,7 @@ BOOL LLFloater::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return was_minimized || LLPanel::handleDoubleClick(x, y, mask);
 }
 
+// virtual
 void LLFloater::bringToFront( S32 x, S32 y )
 {
 	if (getVisible() && pointInView(x, y))
@@ -1710,12 +1713,20 @@ void LLFloater::bringToFront( S32 x, S32 y )
 			LLFloaterView* parent = dynamic_cast<LLFloaterView*>( getParent() );
 			if (parent)
 			{
-				parent->bringToFront( this );
+				parent->bringToFront(this, !getIsChrome());
 			}
 		}
 	}
 }
 
+// virtual
+void LLFloater::goneFromFront()
+{
+    if (mAutoClose)
+    {
+        closeFloater();
+    }
+}
 
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus,const LLSD& key)
@@ -2561,6 +2572,11 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore
 		return;
 	}
 
+	if (mFrontChild && !mFrontChild->isDead())
+	{
+		mFrontChild->goneFromFront();
+	}
+
 	mFrontChild = child;
 
 	// *TODO: make this respect floater's mAutoFocus value, instead of
@@ -3060,6 +3076,9 @@ LLFloater *LLFloaterView::getBackmost() const
 
 void LLFloaterView::syncFloaterTabOrder()
 {
+	if (mFrontChild && !mFrontChild->isDead() && mFrontChild->getIsChrome())
+		return;
+
 	// look for a visible modal dialog, starting from first
 	LLModalDialog* modal_dialog = NULL;
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
@@ -3307,6 +3326,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mDefaultRelativeY = p.rel_y;
 
 	mPositioning = p.positioning;
+	mAutoClose = p.auto_close;
 
 	mSaveRect = p.save_rect;
 	if (p.save_visibility)

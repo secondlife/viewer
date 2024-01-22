@@ -206,6 +206,7 @@ public:
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }
 
+	void			showEmojiHelper();
 	void			setShowEmojiHelper(bool show);
 	bool			getShowEmojiHelper() const { return mShowEmojiHelper; }
 
