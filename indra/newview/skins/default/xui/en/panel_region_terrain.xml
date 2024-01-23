@@ -95,6 +95,20 @@
     <text
      type="string"
      length="1"
+     follows="left|top"
+     halign="left"
+     valign="center"
+     height="20"
+     layout="topleft"
+     name="detail_texture_text"
+     top_delta="0"
+     left_delta="0"
+     width="170">
+        Terrain Textures
+    </text>
+    <text
+     type="string"
+     length="1"
      halign="left"
      valign="center"
      follows="left|top"
@@ -102,7 +116,7 @@
      layout="topleft"
      top_delta="0"
      left_delta="180"
-     name="detail_texture_text"
+     name="detail_texture_limits_text"
      width="200">
         Maximum size: 1024x1024
     </text>

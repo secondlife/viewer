@@ -1441,32 +1441,45 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	mAskedTextureHeights = false;
 	mConfirmedTextureHeights = false;
 
+    refresh();
+
 	return LLPanelRegionInfo::postBuild();
 }
 
 // virtual
 void LLPanelRegionTerrainInfo::refresh()
 {
-    std::string buffer;
+    // For simplicity, require restart
+    static BOOL feature_pbr_terrain_enabled = gSavedSettings.getBOOL("RenderTerrainPBREnabled");
 
-    bool has_material_assets = false;
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-    {
-        buffer = llformat("material_detail_%d", i);
-        LLTextureCtrl* material_ctrl = getChild<LLTextureCtrl>(buffer);
-        if (material_ctrl && material_ctrl->getImageAssetID().notNull())
-        {
-            has_material_assets = true;
-            break;
-        }
-    }
+    LLTextBox* texture_text = getChild<LLTextBox>("detail_texture_text");
+    if (texture_text) { texture_text->setVisible(!feature_pbr_terrain_enabled); }
 
     LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
     if (material_type_ctrl)
     {
-        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+        material_type_ctrl->setVisible(feature_pbr_terrain_enabled);
+
+        bool has_material_assets = false;
+
+        std::string buffer;
+        for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+        {
+            buffer = llformat("material_detail_%d", i);
+            LLTextureCtrl* material_ctrl = getChild<LLTextureCtrl>(buffer);
+            if (material_ctrl && material_ctrl->getImageAssetID().notNull())
+            {
+                has_material_assets = true;
+                break;
+            }
+        }
+
+        TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+
+        if (!feature_pbr_terrain_enabled) { material_type = TerrainMaterialType::TEXTURE; }
+
         const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
-        material_type_ctrl->setEnabled(!(is_material_selected && has_material_assets));
+        material_type_ctrl->setEnabled(feature_pbr_terrain_enabled && !(is_material_selected && has_material_assets));
     }
 }
 

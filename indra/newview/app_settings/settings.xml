@@ -10833,6 +10833,17 @@
       <key>Value</key>
       <real>12.0</real>
     </map>
+    <key>RenderTerrainPBREnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>EXPERIMENTAL: Enable PBR Terrain features. Requires restart.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderTerrainPBRDetail</key>
     <map>
       <key>Comment</key>
