@@ -2572,7 +2572,7 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore
 		return;
 	}
 
-	if (mFrontChild && !mFrontChild->isDead())
+	if (mFrontChild && !mFrontChild->isDead() && mFrontChild->getVisible())
 	{
 		mFrontChild->goneFromFront();
 	}
