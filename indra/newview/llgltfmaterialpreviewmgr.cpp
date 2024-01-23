@@ -34,6 +34,7 @@
 #include "llenvironment.h"
 #include "llselectmgr.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewerobject.h"
 #include "llviewershadermgr.h"
 #include "llviewertexturelist.h"
@@ -419,7 +420,8 @@ BOOL LLGLTFPreviewTexture::render()
     LLVector3 light_dir3(1.0f, 1.0f, 1.0f);
     light_dir3.normalize();
     const LLVector4 light_dir = LLVector4(light_dir3, 0);
-    SetTemporarily<S32> sun_light_only(&LLPipeline::RenderLocalLightCount, 0);
+    const S32 old_local_light_count = gSavedSettings.get<S32>("RenderLocalLightCount");
+    gSavedSettings.set<S32>("RenderLocalLightCount", 0);
 
     gPipeline.mReflectionMapManager.forceDefaultProbeAndUpdateUniforms();
 
@@ -524,6 +526,7 @@ BOOL LLGLTFPreviewTexture::render()
     // Clean up
     gPipeline.setupHWLights();
     gPipeline.mReflectionMapManager.forceDefaultProbeAndUpdateUniforms(false);
+    gSavedSettings.set<S32>("RenderLocalLightCount", old_local_light_count);
 
     return TRUE;
 }
