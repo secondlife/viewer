@@ -2062,7 +2062,7 @@ void LLWebRTCVoiceClient::sessionState::shutdownAllConnections()
 }
 
 
-LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::addSession(const std::string &channel_id, sessionStatePtr_t &session)
+LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::addSession(const std::string &channel_id, sessionState::ptr_t session)
 {
     sessionStatePtr_t existingSession = sessionState::matchSessionByChannelID(channel_id);
 	if (!existingSession)

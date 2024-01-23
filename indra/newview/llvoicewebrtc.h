@@ -410,10 +410,10 @@ public:
 	{
       public:
         estateSessionState();
-        virtual bool processConnectionStates() override;
+        bool processConnectionStates() override;
 
-		virtual bool isSpatial() { return true; }
-        virtual bool isEstate() { return true; }
+		bool isSpatial() override { return true; }
+        bool isEstate() override { return true; }
 	};
 
     class parcelSessionState : public sessionState
@@ -421,8 +421,8 @@ public:
       public:
         parcelSessionState(const std::string& channelID, S32 parcel_local_id);
 
-        virtual bool isSpatial() { return true; }
-        virtual bool isEstate() { return false; }
+        bool isSpatial() override { return true; }
+        bool isEstate() override { return false; }
     };
 
     class adhocSessionState : public sessionState
@@ -430,8 +430,8 @@ public:
       public:
         adhocSessionState(const std::string &channelID);
 
-        virtual bool isSpatial() { return false; }
-        virtual bool isEstate() { return false; }
+        bool isSpatial() override { return false; }
+        bool isEstate() override { return false; }
     };
 
 
@@ -504,7 +504,7 @@ public:
     void              sessionEstablished(const LLUUID& region_id);
     sessionStatePtr_t findP2PSession(const LLUUID &agent_id);
 	
-    sessionStatePtr_t addSession(const std::string &channel_id, sessionStatePtr_t &session);
+    sessionStatePtr_t addSession(const std::string &channel_id, sessionState::ptr_t session);
     void deleteSession(const sessionStatePtr_t &session);
 
 	// This is called in several places where the session _may_ need to be deleted.
@@ -814,14 +814,14 @@ class LLVoiceWebRTCSpatialConnection :
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
     void OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result);
 
-	bool connectionStateMachine();
+	bool connectionStateMachine() override;
 
 	void sendData(const std::string &data) override;
     void setMuteMic(bool muted) override;
 
 	LLUUID getRegionID() { return mRegionID; }
 
-	void shutDown()
+	void shutDown() override
 	{ 
 		LLMutexLock lock(&mVoiceStateMutex);
 		mShutDown = true;
