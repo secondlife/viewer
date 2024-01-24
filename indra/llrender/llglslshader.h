@@ -56,6 +56,7 @@ public:
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
     bool attachNothing = false;
+    bool isPBRTerrain = false; // include: shaders\class1\deferred\pbrterrainUtilF.glsl
 };
 
 // ============= Structure for caching shader uniforms ===============

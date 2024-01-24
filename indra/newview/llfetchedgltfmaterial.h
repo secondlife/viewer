@@ -49,6 +49,7 @@ public:
     void bind(LLViewerTexture* media_tex = nullptr);
 
     bool isFetching() const { return mFetching; }
+    bool isLoaded() const { return !mFetching && mFetchSuccess; }
 
     void addTextureEntry(LLTextureEntry* te) override;
     void removeTextureEntry(LLTextureEntry* te) override;
@@ -67,11 +68,12 @@ protected:
     // Lifetime management
     
     void materialBegin();
-    void materialComplete();
+    void materialComplete(bool success);
 
     F64 mExpectedFlusTime; // since epoch in seconds
-    bool mActive;
-    bool mFetching;
+    bool mActive = true;
+    bool mFetching = false;
+    bool mFetchSuccess = false;
     std::vector<std::function<void()>> materialCompleteCallbacks;
 };
 

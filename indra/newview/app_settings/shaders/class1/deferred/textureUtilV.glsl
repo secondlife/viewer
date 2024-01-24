@@ -65,7 +65,7 @@ vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl
     // Apply texture animation first to avoid shearing and other artifacts
     texcoord = (sl_animation_transform * vec4(texcoord, 0, 1)).xy;
     // Convert to left-handed coordinate system. The offset of 1 is necessary
-    // for rotations to be applied correctly.
+    // for rotation and scale to be applied correctly.
     texcoord.y = 1.0 - texcoord.y;
     texcoord = khr_texture_transform(texcoord, khr_gltf_transform[0].xy, khr_gltf_transform[0].z, khr_gltf_transform[1].xy);
     // Convert back to right-handed coordinate system

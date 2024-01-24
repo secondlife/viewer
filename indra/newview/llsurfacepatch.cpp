@@ -221,7 +221,9 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 	*vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
 
 	LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
-	LLVector3 tex_pos = rel_pos * (1.f/surface_stride);
+	// *NOTE: Only PBR terrain uses the UVs right now. Texture terrain just ignores it.
+    // *NOTE: In the future, UVs and horizontal position will no longer have a 1:1 relationship for PBR terrain
+	LLVector3 tex_pos = rel_pos;
 	tex0->mV[0]  = tex_pos.mV[0];
 	tex0->mV[1]  = tex_pos.mV[1];
 	tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
@@ -739,7 +741,7 @@ void LLSurfacePatch::updateGL()
 	
 	updateCompositionStats();
 	F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
-	if (comp->generateTexture((F32)origin_region[VX], (F32)origin_region[VY],
+	if (comp->generateMinimapTileLand((F32)origin_region[VX], (F32)origin_region[VY],
 							  tex_patch_size, tex_patch_size))
 	{
 		mSTexUpdate = FALSE;

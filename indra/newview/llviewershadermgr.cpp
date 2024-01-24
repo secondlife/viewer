@@ -69,6 +69,14 @@ bool				LLViewerShaderMgr::sSkipReload = false;
 
 LLVector4			gShinyOrigin;
 
+S32 clamp_terrain_mapping(S32 mapping)
+{
+    // 1 = "flat", 2 not implemented, 3 = triplanar mapping
+    mapping = llclamp(mapping, 1, 3);
+    if (mapping == 2) { mapping = 1; }
+    return mapping;
+}
+
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
 LLGLSLShader    gSkinnedOcclusionProgram;
@@ -214,6 +222,7 @@ LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
+LLGLSLShader			gDeferredPBRTerrainProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -271,7 +280,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredEmissiveProgram);
     mShaderList.push_back(&gDeferredSkinnedEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
-    mShaderList.push_back(&gDeferredAvatarAlphaProgram);
+	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
@@ -623,6 +632,15 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 		attribs["REF_SAMPLE_COUNT"] = "32";
 	}
 
+    { // PBR terrain
+        const S32 mapping = clamp_terrain_mapping(gSavedSettings.getS32("RenderTerrainPBRPlanarSampleCount"));
+        attribs["TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT"] = llformat("%d", mapping);
+        const F32 triplanar_factor = gSavedSettings.getF32("RenderTerrainPBRTriplanarBlendFactor");
+        attribs["TERRAIN_TRIPLANAR_BLEND_FACTOR"] = llformat("%.2f", triplanar_factor);
+        S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
+        attribs["TERRAIN_PBR_DETAIL"] = llformat("%d", detail);
+    }
+
 	LLGLSLShader::sGlobalDefines = attribs;
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
@@ -660,6 +678,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
+	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/pbrterrainUtilF.glsl",                 1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
@@ -951,6 +970,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
         gDeferredSkinnedPBRAlphaProgram.unload();
+		gDeferredPBRTerrainProgram.unload();
 
 		return TRUE;
 	}
@@ -1242,6 +1262,34 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         success = shader->createShader(NULL, NULL);
         llassert(success);
     }
+
+	if (success)
+	{
+        S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
+        detail = llclamp(detail, TERRAIN_PBR_DETAIL_MIN, TERRAIN_PBR_DETAIL_MAX);
+        const S32 mapping = clamp_terrain_mapping(gSavedSettings.getS32("RenderTerrainPBRPlanarSampleCount"));
+        gDeferredPBRTerrainProgram.mName = llformat("Deferred PBR Terrain Shader %d %s",
+                detail,
+                (mapping == 1 ? "flat" : "triplanar"));
+        gDeferredPBRTerrainProgram.mFeatures.encodesNormal = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
+        gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
+        gDeferredPBRTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+        gDeferredPBRTerrainProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
+        gDeferredPBRTerrainProgram.mFeatures.hasTransport = true;
+        gDeferredPBRTerrainProgram.mFeatures.isPBRTerrain = true;
+
+        gDeferredPBRTerrainProgram.mShaderFiles.clear();
+        gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainV.glsl", GL_VERTEX_SHADER));
+        gDeferredPBRTerrainProgram.mShaderFiles.push_back(make_pair("deferred/pbrterrainF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredPBRTerrainProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredPBRTerrainProgram.addPermutation("TERRAIN_PBR_DETAIL", llformat("%d", detail));
+        gDeferredPBRTerrainProgram.addPermutation("TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT", llformat("%d", mapping));
+        success = gDeferredPBRTerrainProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
 	
 	if (success)
 	{
@@ -1955,8 +2003,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainProgram.mName = "Deferred Terrain Shader";
 		gDeferredTerrainProgram.mFeatures.encodesNormal = true;
 		gDeferredTerrainProgram.mFeatures.hasSrgb = true;
-		gDeferredTerrainProgram.mFeatures.calculatesLighting = false;
-		gDeferredTerrainProgram.mFeatures.hasLighting = false;
 		gDeferredTerrainProgram.mFeatures.isAlphaLighting = true;
 		gDeferredTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
 		gDeferredTerrainProgram.mFeatures.calculatesAtmospherics = true;

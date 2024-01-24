@@ -229,6 +229,7 @@
 #include "pipeline.h"
 #include "llgesturemgr.h"
 #include "llsky.h"
+#include "llvlcomposition.h"
 #include "llvlmanager.h"
 #include "llviewercamera.h"
 #include "lldrawpoolbump.h"

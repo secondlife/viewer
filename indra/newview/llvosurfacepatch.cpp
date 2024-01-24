@@ -39,6 +39,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llvlcomposition.h"
+#include "llvolume.h"
 #include "llvovolume.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
@@ -241,48 +242,50 @@ BOOL LLVOSurfacePatch::updateLOD()
 	return TRUE;
 }
 
-void LLVOSurfacePatch::getGeometry(LLStrider<LLVector3> &verticesp,
-								LLStrider<LLVector3> &normalsp,
-								LLStrider<LLVector2> &texCoords0p,
-								LLStrider<LLVector2> &texCoords1p,
-								LLStrider<U16> &indicesp)
+void LLVOSurfacePatch::getTerrainGeometry(LLStrider<LLVector3> &verticesp,
+                                              LLStrider<LLVector3> &normalsp,
+                                              LLStrider<LLVector2> &texCoords0p,
+                                              LLStrider<LLVector2> &texCoords1p,
+                                              LLStrider<U16> &indicesp)
 {
 	LLFace* facep = mDrawable->getFace(0);
-	if (facep)
-	{
-		U32 index_offset = facep->getGeomIndex();
+    if (!facep)
+    {
+        return;
+    }
 
-		updateMainGeometry(facep, 
-						verticesp,
-						normalsp,
-						texCoords0p,
-						texCoords1p,
-						indicesp,
-						index_offset);
-		updateNorthGeometry(facep, 
-							verticesp,
-							normalsp,
-							texCoords0p,
-							texCoords1p,
-							indicesp,
-							index_offset);
-		updateEastGeometry(facep, 
-							verticesp,
-							normalsp,
-							texCoords0p,
-							texCoords1p,
-							indicesp,
-							index_offset);
-	}
+    U32 index_offset = facep->getGeomIndex();
+
+    updateMainGeometry(facep, 
+                    verticesp,
+                    normalsp,
+                    texCoords0p,
+                    texCoords1p,
+                    indicesp,
+                    index_offset);
+    updateNorthGeometry(facep, 
+                        verticesp,
+                        normalsp,
+                        texCoords0p,
+                        texCoords1p,
+                        indicesp,
+                        index_offset);
+    updateEastGeometry(facep, 
+                        verticesp,
+                        normalsp,
+                        texCoords0p,
+                        texCoords1p,
+                        indicesp,
+                        index_offset);
 }
 
 void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
-										LLStrider<LLVector3> &verticesp,
-										LLStrider<LLVector3> &normalsp,
-										LLStrider<LLVector2> &texCoords0p,
-										LLStrider<LLVector2> &texCoords1p,
-										LLStrider<U16> &indicesp,
-										U32 &index_offset)
+                                        LLStrider<LLVector3> &verticesp,
+                                        LLStrider<LLVector3> &normalsp,
+                                        LLStrider<LLVector2> &texCoords0p,
+                                        LLStrider<LLVector2> &texCoords1p,
+                                        LLStrider<U16> &indicesp,
+                                        U32 &index_offset)
 {
 	S32 i, j, x, y;
 
@@ -381,12 +384,12 @@ void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
 
 
 void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
-										LLStrider<LLVector3> &verticesp,
-										LLStrider<LLVector3> &normalsp,
-										LLStrider<LLVector2> &texCoords0p,
-										LLStrider<LLVector2> &texCoords1p,
-										LLStrider<U16> &indicesp,
-										U32 &index_offset)
+                                        LLStrider<LLVector3> &verticesp,
+                                        LLStrider<LLVector3> &normalsp,
+                                        LLStrider<LLVector2> &texCoords0p,
+                                        LLStrider<LLVector2> &texCoords1p,
+                                        LLStrider<U16> &indicesp,
+                                        U32 &index_offset)
 {
 	S32 i, x, y;
 
@@ -571,12 +574,12 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 }
 
 void LLVOSurfacePatch::updateEastGeometry(LLFace *facep,
-										  LLStrider<LLVector3> &verticesp,
-										  LLStrider<LLVector3> &normalsp,
-										  LLStrider<LLVector2> &texCoords0p,
-										  LLStrider<LLVector2> &texCoords1p,
-										  LLStrider<U16> &indicesp,
-										  U32 &index_offset)
+                                          LLStrider<LLVector3> &verticesp,
+                                          LLStrider<LLVector3> &normalsp,
+                                          LLStrider<LLVector2> &texCoords0p,
+                                          LLStrider<LLVector2> &texCoords1p,
+                                          LLStrider<U16> &indicesp,
+                                          U32 &index_offset)
 {
 	S32 i, x, y;
 
@@ -982,6 +985,49 @@ LLTerrainPartition::LLTerrainPartition(LLViewerRegion* regionp)
 	mPartitionType = LLViewerRegion::PARTITION_TERRAIN;
 }
 
+// Do not add vertices; honor strict vertex count specified by strider_vertex_count
+void gen_terrain_tangents(U16                    strider_vertex_count,
+                          U32                    strider_index_count,
+                          LLStrider<LLVector3>  &verticesp,
+                          LLStrider<LLVector3>  &normalsp,
+                          LLStrider<LLVector4a> &tangentsp,
+                          LLStrider<LLVector2>  &texCoords0p,
+                          LLStrider<U16>        &indicesp)
+{
+    LL_PROFILE_ZONE_SCOPED
+
+    LLVector4a            *vertices = new LLVector4a[strider_vertex_count];
+    LLVector4a            *normals  = new LLVector4a[strider_vertex_count];
+    LLVector4a            *tangents = new LLVector4a[strider_vertex_count];
+    std::vector<LLVector2> texcoords(strider_vertex_count);
+    std::vector<U16>       indices(strider_index_count);
+
+    for (U16 v = 0; v < strider_vertex_count; ++v)
+    {
+        F32 *vert    = verticesp[v].mV;
+        vertices[v]  = LLVector4a(vert[0], vert[1], vert[2], 1.f);
+        F32 *n       = normalsp[v].mV;
+        normals[v]   = LLVector4a(n[0], n[1], n[2], 1.f);
+        tangents[v]  = tangentsp[v];
+        texcoords[v] = texCoords0p[v];
+    }
+    for (U32 i = 0; i < strider_index_count; ++i)
+    {
+        indices[i] = indicesp[i];
+    }
+
+    LLCalculateTangentArray(strider_vertex_count, vertices, normals, texcoords.data(), strider_index_count / 3, indices.data(), tangents);
+
+    for (U16 v = 0; v < strider_vertex_count; ++v)
+    {
+        tangentsp[v] = tangents[v];
+    }
+
+    delete[] vertices;
+    delete[] normals;
+    delete[] tangents;
+}
+
 void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -989,35 +1035,57 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 	LLVertexBuffer* buffer = group->mVertexBuffer;
 
 	//get vertex buffer striders
-	LLStrider<LLVector3> vertices;
-	LLStrider<LLVector3> normals;
-	LLStrider<LLVector2> texcoords2;
-	LLStrider<LLVector2> texcoords;
-	LLStrider<U16> indices;
+	LLStrider<LLVector3> vertices_start;
+	LLStrider<LLVector3> normals_start;
+	LLStrider<LLVector4a> tangents_start;
+	LLStrider<LLVector2> texcoords_start;
+	LLStrider<LLVector2> texcoords2_start;
+	LLStrider<U16> indices_start;
 
-	llassert_always(buffer->getVertexStrider(vertices));
-	llassert_always(buffer->getNormalStrider(normals));
-	llassert_always(buffer->getTexCoord0Strider(texcoords));
-	llassert_always(buffer->getTexCoord1Strider(texcoords2));
-	llassert_always(buffer->getIndexStrider(indices));
+	llassert_always(buffer->getVertexStrider(vertices_start));
+	llassert_always(buffer->getNormalStrider(normals_start));
+	llassert_always(buffer->getTangentStrider(tangents_start));
+	llassert_always(buffer->getTexCoord0Strider(texcoords_start));
+	llassert_always(buffer->getTexCoord1Strider(texcoords2_start));
+	llassert_always(buffer->getIndexStrider(indices_start));
 
-	U32 indices_index = 0;
-	U32 index_offset = 0;
+    U32 indices_index = 0;
+    U32 index_offset = 0;
 
-	for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)
-	{
-		LLFace* facep = *i;
+    {
+        LLStrider<LLVector3> vertices = vertices_start;
+        LLStrider<LLVector3> normals = normals_start;
+        LLStrider<LLVector2> texcoords = texcoords_start;
+        LLStrider<LLVector2> texcoords2 = texcoords2_start;
+        LLStrider<U16> indices = indices_start;
 
-		facep->setIndicesIndex(indices_index);
-		facep->setGeomIndex(index_offset);
-		facep->setVertexBuffer(buffer);
+        for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)
+        {
+            LLFace* facep = *i;
 
-		LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
-		patchp->getGeometry(vertices, normals, texcoords, texcoords2, indices);
+            facep->setIndicesIndex(indices_index);
+            facep->setGeomIndex(index_offset);
+            facep->setVertexBuffer(buffer);
 
-		indices_index += facep->getIndicesCount();
-		index_offset += facep->getGeomCount();
-	}
+            LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
+            patchp->getTerrainGeometry(vertices, normals, texcoords, texcoords2, indices);
+
+            indices_index += facep->getIndicesCount();
+            index_offset += facep->getGeomCount();
+        }
+    }
+
+    const bool has_tangents = tangents_start.get() != nullptr;
+    if (has_tangents)
+    {
+        LLStrider<LLVector3> vertices = vertices_start;
+        LLStrider<LLVector3> normals = normals_start;
+        LLStrider<LLVector4a> tangents = tangents_start;
+        LLStrider<LLVector2> texcoords = texcoords_start;
+        LLStrider<U16> indices = indices_start;
+
+        gen_terrain_tangents(index_offset, indices_index, vertices, normals, tangents, texcoords, indices);
+    }
 
 	buffer->unmapBuffer();
 	mFaceList.clear();

@@ -1654,7 +1654,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mShowLoadingPlaceholder( TRUE ),
 	mOpenTexPreview(false),
     mBakeTextureEnabled(true),
-    mInventoryPickType(PICK_TEXTURE),
+    mInventoryPickType(p.pick_type),
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
@@ -2404,6 +2404,16 @@ void LLTextureCtrl::setValue( const LLSD& value )
 LLSD LLTextureCtrl::getValue() const
 {
 	return LLSD(getImageAssetID());
+}
+
+namespace LLInitParam
+{
+    void TypeValues<EPickInventoryType>::declareValues()
+    {
+        declare("texture_material", PICK_TEXTURE_MATERIAL);
+        declare("texture", PICK_TEXTURE);
+        declare("material", PICK_MATERIAL);
+    }
 }
 
 
