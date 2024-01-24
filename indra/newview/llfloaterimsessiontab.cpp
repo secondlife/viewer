@@ -258,7 +258,6 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
 	mEmojiRecentPanelToggleBtn = getChild<LLButton>("emoji_recent_panel_toggle_btn");
-	mEmojiRecentPanelToggleBtn->setLabel(LLUIString(LLWString(1, 128512)));
 	mEmojiRecentPanelToggleBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiRecentPanelToggleBtnClicked(); });
 
 	mEmojiRecentPanel = getChild<LLLayoutPanel>("emoji_recent_layout_panel");
