@@ -47,7 +47,8 @@
    top_pad="10"
    left="2"
    right="-4"
-   orientation="horizontal">
+   orientation="horizontal"
+   name="top_stack">
     <layout_panel
      border="false"
      bevel_style="in"
@@ -101,7 +102,8 @@
       user_resize="false"
       height="25"
       width="381"
-      visible="true">
+      visible="true"
+      name="filter_layout_panel">
       <combo_box
        height="23"
        layout="topleft"

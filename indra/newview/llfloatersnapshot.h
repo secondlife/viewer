@@ -100,6 +100,7 @@ public:
 
 	static void onClickNewSnapshot(void* data);
 	static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
+	static void onClickNoPost(LLUICtrl *ctrl, void* data);
 	static void onClickFilter(LLUICtrl *ctrl, void* data);
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);

@@ -35,13 +35,13 @@ import os.path
 import plistlib
 import random
 import re
+import secrets
 import shutil
-import stat
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
-import zipfile
 
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
@@ -410,11 +410,29 @@ class ViewerManifest(LLManifest):
 
         return os.path.relpath(abspath(path), abspath(base))
 
+    def set_github_output_path(self, variable, path):
+        self.set_github_output(variable,
+                               os.path.normpath(os.path.join(self.get_dst_prefix(), path)))
 
-class WindowsManifest(ViewerManifest):
+    def set_github_output(self, variable, *values):
+        GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
+        if GITHUB_OUTPUT and values:
+            with open(GITHUB_OUTPUT, 'a') as outf:
+                if len(values) == 1:
+                    print('='.join((variable, values[0])), file=outf)
+                else:
+                    delim = secrets.token_hex(8)
+                    print('<<'.join((variable, delim)), file=outf)
+                    for value in values:
+                        print(value, file=outf)
+                    print(delim, file=outf)
+
+
+class Windows_x86_64_Manifest(ViewerManifest):
     # We want the platform, per se, for every Windows build to be 'win'. The
     # VMP will concatenate that with the address_size.
     build_data_json_platform = 'win'
+    address_size = 64
 
     def final_exe(self):
         return self.exec_name()+".exe"
@@ -475,7 +493,7 @@ class WindowsManifest(ViewerManifest):
             print("Doesn't exist:", src)
         
     def construct(self):
-        super(WindowsManifest, self).construct()
+        super().construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -484,6 +502,30 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+            # Emit the whole app image as one of the GitHub step outputs. We
+            # want the whole app -- but NOT the extraneous build products that
+            # get tossed into the same directory, such as the installer and
+            # the symbols tarball, so add exclusions. When we feed
+            # upload-artifact multiple absolute pathnames, even just for
+            # exclusion, it ends up creating several extraneous directory
+            # levels within the artifact -- so try using only relative paths.
+            # One problem: as of right now, our current directory os.getcwd()
+            # is not the same as the initial working directory for this job
+            # step, meaning paths relative to our os.getcwd() won't work for
+            # the subsequent upload-artifact step. We're a couple directory
+            # levels down. Try adjusting for those when specifying the base
+            # for self.relpath().
+            appbase = self.relpath(
+                self.get_dst_prefix(),
+                base=os.path.join(os.getcwd(), os.pardir, os.pardir))
+            self.set_github_output('viewer_app', appbase,
+                                   # except for this stuff
+                                   *(('!' + os.path.join(appbase, pattern))
+                                     for pattern in (
+                                             'secondlife-bin.*',
+                                             '*_Setup.exe',
+                                             '*.bat',
+                                             '*.tar.bz2')))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -534,20 +576,12 @@ class WindowsManifest(ViewerManifest):
                 self.path("SLVoice.exe")
 
             # Vivox libraries
-            if (self.address_size == 64):
-                self.path("vivoxsdk_x64.dll")
-                self.path("ortp_x64.dll")
-            else:
-                self.path("vivoxsdk.dll")
-                self.path("ortp.dll")
+            self.path("vivoxsdk_x64.dll")
+            self.path("ortp_x64.dll")
             
             # OpenSSL
-            if (self.address_size == 64):
-                self.path("libcrypto-1_1-x64.dll")
-                self.path("libssl-1_1-x64.dll")
-            else:
-                self.path("libcrypto-1_1.dll")
-                self.path("libssl-1_1.dll")
+            self.path("libcrypto-1_1-x64.dll")
+            self.path("libssl-1_1-x64.dll")
 
             # HTTP/2
             self.path("nghttp2.dll")
@@ -557,14 +591,9 @@ class WindowsManifest(ViewerManifest):
 
             # BugSplat
             if self.args.get('bugsplat'):
-                if(self.address_size == 64):
-                    self.path("BsSndRpt64.exe")
-                    self.path("BugSplat64.dll")
-                    self.path("BugSplatRc64.dll")
-                else:
-                    self.path("BsSndRpt.exe")
-                    self.path("BugSplat.dll")
-                    self.path("BugSplatRc.dll")
+                self.path("BsSndRpt64.exe")
+                self.path("BugSplat64.dll")
+                self.path("BugSplatRc64.dll")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -679,46 +708,46 @@ class WindowsManifest(ViewerManifest):
             self.package_file = "copied_deps"    
 
     def nsi_file_commands(self, install=True):
-        def wpath(path):
-            if path.endswith('/') or path.endswith(os.path.sep):
-                path = path[:-1]
-            path = path.replace('/', '\\')
-            return path
+        def INSTDIR(path):
+            # Note that '$INSTDIR' is purely textual here: we write
+            # exactly that into the .nsi file for NSIS to interpret.
+            # Pass the result through normpath() to handle the case in which
+            # path is the empty string. On Windows, that produces "$INSTDIR\".
+            # Unfortunately, if that's the last item on a line, NSIS takes
+            # that as line continuation and misinterprets the following line.
+            # Ensure we don't emit a trailing backslash.
+            return os.path.normpath(os.path.join('$INSTDIR', path))
 
-        result = ""
+        result = []
         dest_files = [pair[1] for pair in self.file_list if pair[0] and os.path.isfile(pair[1])]
         # sort deepest hierarchy first
         dest_files.sort(key=lambda f: (f.count(os.path.sep), f), reverse=True)
         out_path = None
         for pkg_file in dest_files:
-            rel_file = os.path.normpath(pkg_file.replace(self.get_dst_prefix()+os.path.sep,''))
-            installed_dir = wpath(os.path.join('$INSTDIR', os.path.dirname(rel_file)))
-            pkg_file = wpath(os.path.normpath(pkg_file))
-            if installed_dir != out_path:
-                if install:
-                    out_path = installed_dir
-                    result += 'SetOutPath ' + out_path + '\n'
+            pkg_file = os.path.normpath(pkg_file)
+            rel_file = self.relpath(pkg_file)
+            installed_dir = INSTDIR(os.path.dirname(rel_file))
+            if install and installed_dir != out_path:
+                out_path = installed_dir
+                # emit SetOutPath every time it changes
+                result.append('SetOutPath ' + out_path)
             if install:
-                result += 'File ' + pkg_file + '\n'
+                result.append('File ' + rel_file)
             else:
-                result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
+                result.append('Delete ' + INSTDIR(rel_file))
 
         # at the end of a delete, just rmdir all the directories
         if not install:
-            deleted_file_dirs = [os.path.dirname(pair[1].replace(self.get_dst_prefix()+os.path.sep,'')) for pair in self.file_list]
-            # find all ancestors so that we don't skip any dirs that happened to have no non-dir children
-            deleted_dirs = []
-            for d in deleted_file_dirs:
-                deleted_dirs.extend(path_ancestors(d))
+            deleted_file_dirs = [os.path.dirname(self.relpath(f)) for f in dest_files]
+            # find all ancestors so that we don't skip any dirs that happened
+            # to have no non-dir children
+            deleted_dirs = set(itertools.chain.from_iterable(path_ancestors(d)
+                                                             for d in deleted_file_dirs))
             # sort deepest hierarchy first
-            deleted_dirs.sort(key=lambda f: (f.count(os.path.sep), f), reverse=True)
-            prev = None
-            for d in deleted_dirs:
-                if d != prev:   # skip duplicates
-                    result += 'RMDir ' + wpath(os.path.join('$INSTDIR', os.path.normpath(d))) + '\n'
-                prev = d
+            for d in sorted(deleted_dirs, key=lambda f: (f.count(os.path.sep), f), reverse=True):
+                result.append('RMDir ' + INSTDIR(d))
 
-        return result
+        return '\n'.join(result)
 
     def package_finish(self):
         # a standard map of strings for replacing in the templates
@@ -726,8 +755,7 @@ class WindowsManifest(ViewerManifest):
             'version' : '.'.join(self.args['version']),
             'version_short' : '.'.join(self.args['version'][:-1]),
             'version_dashes' : '-'.join(self.args['version']),
-            'version_registry' : '%s(%s)' %
-            ('.'.join(self.args['version']), self.address_size),
+            'version_registry' : '%s(64)' % '.'.join(self.args['version']),
             'final_exe' : self.final_exe(),
             'flags':'',
             'app_name':self.app_name(),
@@ -759,75 +787,38 @@ class WindowsManifest(ViewerManifest):
             Caption "%(caption)s"
             """
 
-        if(self.address_size == 64):
-            engage_registry="SetRegView 64"
-            program_files="!define MULTIUSER_USE_PROGRAMFILES64"
-        else:
-            engage_registry="SetRegView 32"
-            program_files=""
+        engage_registry="SetRegView 64"
+        program_files="!define MULTIUSER_USE_PROGRAMFILES64"
+
+        # Dump the installers/windows directory into the raw app image tree
+        # because NSIS needs those files. But don't use path() because we
+        # don't want them installed with the viewer - they're only for use by
+        # the installer itself.
+        shutil.copytree(os.path.join(self.get_src_prefix(), 'installers', 'windows'),
+                        os.path.join(self.get_dst_prefix(), 'installers', 'windows'),
+                        dirs_exist_ok=True)
 
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
                 "%%VERSION%%":version_vars,
-                "%%SOURCE%%":self.get_src_prefix(),
+                # The template references "%%SOURCE%%\installers\windows\...".
+                # Now that we've copied that directory into the app image
+                # tree, we can just replace %%SOURCE%% with '.'.
+                "%%SOURCE%%":'.',
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%PROGRAMFILES%%":program_files,
                 "%%ENGAGEREGISTRY%%":engage_registry,
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
-        # If we're on a build machine, sign the code using our Authenticode certificate. JC
-        # note that the enclosing setup exe is signed later, after the makensis makes it.
-        # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
-        for exe in (
-            self.final_exe(),
-            "SLVersionChecker.exe",
-            "llplugin/dullahan_host.exe",
-            ):
-            self.sign(exe)
-            
-        # Check two paths, one for Program Files, and one for Program Files (x86).
-        # Yay 64bit windows.
-        nsis_path = "makensis.exe"
-        for program_files in '${programfiles}', '${programfiles(x86)}':
-            for nesis_path in 'NSIS', 'NSIS\\Unicode':
-                possible_path = os.path.expandvars(f"{program_files}\\{nesis_path}\\makensis.exe")
-                if os.path.exists(possible_path):
-                    nsis_path = possible_path
-                    break
-
-        self.run_command([possible_path, '/V2', self.dst_path_of(tempfile)])
-
-        self.sign(installer_file)
-        self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
 
-    def sign(self, exe):
-        sign_py = os.environ.get('SIGN', r'C:\buildscripts\code-signing\sign.py')
-        python  = os.environ.get('PYTHON', sys.executable)
-        if os.path.exists(sign_py):
-            dst_path = self.dst_path_of(exe)
-            print("about to run signing of: ", dst_path)
-            self.run_command([python, sign_py, dst_path])
-        else:
-            print("Skipping code signing of %s %s: %s not found" % (self.dst_path_of(exe), exe, sign_py))
 
-    def escape_slashes(self, path):
-        return path.replace('\\', '\\\\\\\\')
-
-class Windows_i686_Manifest(WindowsManifest):
-    # Although we aren't literally passed ADDRESS_SIZE, we can infer it from
-    # the passed 'arch', which is used to select the specific subclass.
-    address_size = 32
-
-class Windows_x86_64_Manifest(WindowsManifest):
-    address_size = 64
-
-
-class DarwinManifest(ViewerManifest):
+class Darwin_x86_64_Manifest(ViewerManifest):
     build_data_json_platform = 'mac'
+    address_size = 64
 
     def finish_build_data_dict(self, build_data_dict):
         build_data_dict.update({'Bundle Id':self.args['bundleid']})
@@ -844,8 +835,9 @@ class DarwinManifest(ViewerManifest):
         return bool(set(["package", "unpacked"]).intersection(self.args['actions']))
 
     def construct(self):
-        # copy over the build result (this is a no-op if run within the xcode script)
-        self.path(os.path.join(self.args['configuration'], self.channel()+".app"), dst="")
+        # copy over the build result (this is a no-op if run within the xcode
+        # script)
+        self.path(os.path.join(self.args['configuration'], self.channel() + ".app"), dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -898,7 +890,8 @@ class DarwinManifest(ViewerManifest):
                     # work, we need the build to noisily fail!
                     oldpath = subprocess.check_output(
                         ['objdump', '--macho', '--dylib-id', '--non-verbose',
-                         os.path.join(relpkgdir, "BugsplatMac.framework", "BugsplatMac")]
+                         os.path.join(relpkgdir, "BugsplatMac.framework", "BugsplatMac")],
+                        text=True
                         ).splitlines()[-1]  # take the last line of output
                     self.run_command(
                         ['install_name_tool', '-change', oldpath,
@@ -919,7 +912,7 @@ class DarwinManifest(ViewerManifest):
             with self.prefix(dst="Resources"):
                 # defer cross-platform file copies until we're in the
                 # nested Resources directory
-                super(DarwinManifest, self).construct()
+                super().construct()
 
                 # need .icns file referenced by Info.plist
                 with self.prefix(src=self.icon_path(), dst="") :
@@ -1167,194 +1160,35 @@ class DarwinManifest(ViewerManifest):
                             self.path( "plugins.dat" )
 
     def package_finish(self):
-        global CHANNEL_VENDOR_BASE
-        # MBW -- If the mounted volume name changes, it breaks the .DS_Store's background image and icon positioning.
-        #  If we really need differently named volumes, we'll need to create multiple DS_Store file images, or use some other trick.
-
-        volname=CHANNEL_VENDOR_BASE+" Installer"  # DO NOT CHANGE without understanding comment above
-
         imagename = self.installer_base_name()
-
-        sparsename = imagename + ".sparseimage"
+        self.set_github_output('imagename', imagename)
         finalname = imagename + ".dmg"
-        # make sure we don't have stale files laying about
-        self.remove(sparsename, finalname)
-
-        self.run_command(['hdiutil', 'create', sparsename,
-                          '-volname', volname, '-fs', 'HFS+',
-                          '-type', 'SPARSE', '-megabytes', '1300',
-                          '-layout', 'SPUD'])
-
-        # mount the image and get the name of the mount point and device node
-        try:
-            hdi_output = subprocess.check_output(['hdiutil', 'attach', '-private', sparsename], text=True)
-        except subprocess.CalledProcessError as err:
-            sys.exit("failed to mount image at '%s'" % sparsename)
-            
-        try:
-            devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
-            volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
-
-            # Copy everything in to the mounted .dmg
-
-            app_name = self.app_name()
-
-            # Hack:
-            # Because there is no easy way to coerce the Finder into positioning
-            # the app bundle in the same place with different app names, we are
-            # adding multiple .DS_Store files to svn. There is one for release,
-            # one for release candidate and one for first look. Any other channels
-            # will use the release .DS_Store, and will look broken.
-            # - Ambroff 2008-08-20
-            dmg_template = os.path.join(
-                'installers', 'darwin', '%s-dmg' % self.channel_type())
-
-            if not os.path.exists (self.src_path_of(dmg_template)):
-                dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
-
-            for s,d in list({self.get_dst_prefix():app_name + ".app",
-                        os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
-                        os.path.join(dmg_template, "background.jpg"): "background.jpg",
-                        os.path.join(dmg_template, "_DS_Store"): ".DS_Store"}.items()):
-                print("Copying to dmg", s, d)
-                self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
-
-            # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
-            for f in ".VolumeIcon.icns", "background.jpg", ".DS_Store":
-                pathname = os.path.join(volpath, f)
-                self.run_command(['SetFile', '-a', 'V', pathname])
-
-            # Create the alias file (which is a resource file) from the .r
-            self.run_command(
-                ['Rez', self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
-                 '-o', os.path.join(volpath, "Applications")])
-
-            # Set the alias file's alias and custom icon bits
-            self.run_command(['SetFile', '-a', 'AC', os.path.join(volpath, "Applications")])
-
-            # Set the disk image root's custom icon bit
-            self.run_command(['SetFile', '-a', 'C', volpath])
-
-            # Sign the app if requested; 
-            # do this in the copy that's in the .dmg so that the extended attributes used by 
-            # the signature are preserved; moving the files using python will leave them behind
-            # and invalidate the signatures.
-            if 'signature' in self.args:
-                app_in_dmg=os.path.join(volpath,self.app_name()+".app")
-                print("Attempting to sign '%s'" % app_in_dmg)
-                identity = self.args['signature']
-                if identity == '':
-                    identity = 'Developer ID Application'
-
-                # Look for an environment variable set via build.sh when running in Team City.
-                try:
-                    build_secrets_checkout = os.environ['build_secrets_checkout']
-                except KeyError:
-                    pass
-                else:
-                    # variable found so use it to unlock keychain followed by codesign
-                    home_path = os.environ['HOME']
-                    keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
-                    keychain_pwd = open(keychain_pwd_path).read().rstrip()
-
-                    # Note: As of macOS Sierra, keychains are created with
-                    #       names postfixed with '-db' so for example, the SL
-                    #       Viewer keychain would by default be found in
-                    #       ~/Library/Keychains/viewer.keychain-db instead of
-                    #       just ~/Library/Keychains/viewer.keychain in
-                    #       earlier versions.
-                    #
-                    #       Because we have old OS files from previous
-                    #       versions of macOS on the build hosts, the
-                    #       configurations are different on each host. Some
-                    #       have viewer.keychain, some have viewer.keychain-db
-                    #       and some have both. As you can see in the line
-                    #       below, this script expects the Linden Developer
-                    #       cert/keys to be in viewer.keychain.
-                    #
-                    #       To correctly sign builds you need to make sure
-                    #       ~/Library/Keychains/viewer.keychain exists on the
-                    #       host and that it contains the correct cert/key. If
-                    #       a build host is set up with a clean version of
-                    #       macOS Sierra (or later) then you will need to
-                    #       change this line (and the one for 'codesign'
-                    #       command below) to point to right place or else
-                    #       pull in the cert/key into the default viewer
-                    #       keychain 'viewer.keychain-db' and export it to
-                    #       'viewer.keychain'
-                    viewer_keychain = os.path.join(home_path, 'Library',
-                                                   'Keychains', 'viewer.keychain')
-                    self.run_command(['security', 'unlock-keychain',
-                                      '-p', keychain_pwd, viewer_keychain])
-                    sign_retry_wait=15
-                    resources = app_in_dmg + "/Contents/Resources/"
-                    plain_sign = glob.glob(resources + "llplugin/*.dylib")
-                    deep_sign = [
-                        resources + "updater/SLVersionChecker",
-                        resources + "SLPlugin.app/Contents/MacOS/SLPlugin",
-                        app_in_dmg,
-                        ]
-                    for attempt in range(3):
-                        if attempt: # second or subsequent iteration
-                            print("codesign failed, waiting {:d} seconds before retrying".format(sign_retry_wait),
-                                  file=sys.stderr)
-                            time.sleep(sign_retry_wait)
-                            sign_retry_wait*=2
-
-                        try:
-                            # Note: See blurb above about names of keychains
-                            for signee in plain_sign:
-                                self.run_command(
-                                    ['codesign',
-                                     '--force',
-                                     '--timestamp',
-                                     '--keychain', viewer_keychain,
-                                     '--sign', identity,
-                                     signee])
-                            for signee in deep_sign:
-                                self.run_command(
-                                    ['codesign',
-                                     '--verbose',
-                                     '--deep',
-                                     '--force',
-                                     '--entitlements', self.src_path_of("slplugin.entitlements"),
-                                     '--options', 'runtime',
-                                     '--keychain', viewer_keychain,
-                                     '--sign', identity,
-                                     signee])
-                            break # if no exception was raised, the codesign worked
-                        except ManifestError as err:
-                            # 'err' goes out of scope
-                            sign_failed = err
-                    else:
-                        print("Maximum codesign attempts exceeded; giving up", file=sys.stderr)
-                        raise sign_failed
-                    self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
-                    self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
-
-        finally:
-            # Unmount the image even if exceptions from any of the above 
-            self.run_command(['hdiutil', 'detach', '-force', devfile])
-
-        print("Converting temp disk image to final disk image")
-        self.run_command(['hdiutil', 'convert', sparsename, '-format', 'UDZO',
-                          '-imagekey', 'zlib-level=9', '-o', finalname])
-        # get rid of the temp file
         self.package_file = finalname
-        self.remove(sparsename)
 
-
-class Darwin_i386_Manifest(DarwinManifest):
-    address_size = 32
-
-
-class Darwin_i686_Manifest(DarwinManifest):
-    """alias in case arch is passed as i686 instead of i386"""
-    pass
-
-
-class Darwin_x86_64_Manifest(DarwinManifest):
-    address_size = 64
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
+        # When running as a GitHub Action job, RUNNER_TEMP is the recommended
+        # temp directory. If we're not running on GitHub, don't create this
+        # temp directory or this tarball: we don't clean them up, trusting
+        # that the runner is itself transient. On a dev machine, that would
+        # result in temp-directory clutter.
+        if RUNNER_TEMP:
+            # Per GitHub's actions/upload-artifact documentation
+            # https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
+            # we must package the app bundle with tar before posting as an
+            # artifact. Posting individual files follows symlinks, which
+            # causes problems, especially with frameworks: a framework's top
+            # level must contain symlinks into its Versions/Current, which
+            # must itself be a symlink to some specific Versions subdir.
+            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
+            print(f'Creating {tarpath} from {self.get_dst_prefix()}')
+            with tarfile.open(tarpath, mode="w:bz2") as tarball:
+                # Store in the tarball as just 'Second Life Mumble.app'
+                # instead of 'Users/someone/.../newview/Release/Second...'
+                # It's at this point that we rename 'Second Life Release.app'
+                # to 'Second Life Viewer.app'.
+                tarball.add(self.get_dst_prefix(),
+                            arcname=self.app_name() + ".app")
+            self.set_github_output_path('viewer_app', tarpath)
 
 
 class LinuxManifest(ViewerManifest):

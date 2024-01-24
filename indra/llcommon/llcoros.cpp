@@ -123,11 +123,7 @@ LLCoros::LLCoros():
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
     // empirically this is insufficient.
-#if ADDRESS_SIZE == 64
-    mStackSize(512*1024),
-#else
-    mStackSize(256*1024),
-#endif
+    mStackSize(768*1024),
     // mCurrent does NOT own the current CoroData instance -- it simply
     // points to it. So initialize it with a no-op deleter.
     mCurrent{ [](CoroData*){} }
@@ -282,6 +278,7 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     catch (std::bad_alloc&)
     {
         // Out of memory on stack allocation?
+        printActiveCoroutines();
         LL_ERRS("LLCoros") << "Bad memory allocation in LLCoros::launch(" << prefix << ")!" << LL_ENDL;
     }
 

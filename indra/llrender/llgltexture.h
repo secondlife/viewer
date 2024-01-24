@@ -42,7 +42,7 @@ class LLGLTexture : public LLTexture
 public:
 	enum
 	{
-		MAX_IMAGE_SIZE_DEFAULT = 1024,
+		MAX_IMAGE_SIZE_DEFAULT = 2048,
 		INVALID_DISCARD_LEVEL = 0x7fff
 	};
 
@@ -62,6 +62,7 @@ public:
 		BOOST_SUPER_HIGH    , //textures higher than this need to be downloaded at the required resolution without delay.
 		BOOST_HUD			,
 		BOOST_ICON			,
+        BOOST_THUMBNAIL		,
 		BOOST_UI			,
 		BOOST_PREVIEW		,
 		BOOST_MAP			,

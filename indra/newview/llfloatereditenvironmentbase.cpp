@@ -47,6 +47,7 @@
 
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
+#include "pipeline.h"
 
 namespace
 {
@@ -106,6 +107,9 @@ void LLFloaterEditEnvironmentBase::onFocusReceived()
     {
         updateEditEnvironment();
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+
+        // HACK -- resume reflection map manager because setSelectedEnvironment may pause it (SL-20456)
+        gPipeline.mReflectionMapManager.resume();
     }
 }
 

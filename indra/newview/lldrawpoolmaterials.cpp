@@ -82,14 +82,7 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 	
     U32 idx = shader_idx[pass];
     
-    if (LLPipeline::sUnderWaterRender)
-    {
-        mShader = &(gDeferredMaterialWaterProgram[idx]);
-    }
-    else
-    {
-        mShader = &(gDeferredMaterialProgram[idx]);
-    }
+    mShader = &(gDeferredMaterialProgram[idx]);
     
     if (rigged)
     {

@@ -49,6 +49,12 @@ public:
     void bind(LLViewerTexture* media_tex = nullptr);
 
     bool isFetching() const { return mFetching; }
+    bool isLoaded() const { return !mFetching && mFetchSuccess; }
+
+    void addTextureEntry(LLTextureEntry* te) override;
+    void removeTextureEntry(LLTextureEntry* te) override;
+    virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id) override;
+    virtual void updateTextureTracking() override;
 
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;
@@ -56,15 +62,18 @@ public:
     LLPointer<LLViewerFetchedTexture> mMetallicRoughnessTexture;
     LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
 
+    std::set<LLTextureEntry*> mTextureEntires;
+
 protected:
     // Lifetime management
     
     void materialBegin();
-    void materialComplete();
+    void materialComplete(bool success);
 
     F64 mExpectedFlusTime; // since epoch in seconds
-    bool mActive;
-    bool mFetching;
+    bool mActive = true;
+    bool mFetching = false;
+    bool mFetchSuccess = false;
     std::vector<std::function<void()>> materialCompleteCallbacks;
 };
 

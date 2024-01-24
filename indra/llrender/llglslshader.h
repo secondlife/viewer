@@ -41,7 +41,6 @@ public:
     bool hasLighting = false; // implies no transport (it's possible to have neither though)
     bool isAlphaLighting = false; // indicates lighting shaders need not be linked in (lighting performed directly in alpha shader to match deferred lighting functions)
     bool isSpecular = false;
-    bool hasWaterFog = false; // implies no gamma
     bool hasTransport = false; // implies no lighting (it's possible to have neither though)
     bool hasSkinning = false;
     bool hasObjectSkinning = false;
@@ -58,6 +57,7 @@ public:
     bool hasReflectionProbes = false;
     bool attachNothing = false;
     bool hasHeroProbes = false;
+    bool isPBRTerrain = false;
 };
 
 // ============= Structure for caching shader uniforms ===============

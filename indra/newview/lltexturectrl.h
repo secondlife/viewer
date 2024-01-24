@@ -64,6 +64,23 @@ bool get_is_predefined_texture(LLUUID asset_id);
 LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = false);
 bool get_can_copy_texture(LLUUID image_id);
 
+
+typedef enum e_pick_inventory_type
+{
+    PICK_TEXTURE_MATERIAL = 0,
+    PICK_TEXTURE = 1,
+    PICK_MATERIAL = 2,
+} EPickInventoryType;
+
+namespace LLInitParam
+{
+    template<>
+	struct TypeValues<EPickInventoryType> : public TypeValuesHelper<EPickInventoryType>
+	{
+		static void declareValues();
+	};
+}
+
 enum LLPickerSource
 {
     PICKER_INVENTORY,
@@ -87,19 +104,13 @@ public:
 		TEXTURE_CANCEL
 	} ETexturePickOp;
 
-    typedef enum e_pick_inventory_type
-    {
-        PICK_TEXTURE_MATERIAL = 0,
-        PICK_TEXTURE = 1,
-        PICK_MATERIAL = 2,
-    } EPickInventoryType;
-
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<LLUUID>		image_id;
 		Optional<LLUUID>		default_image_id;
 		Optional<std::string>	default_image_name;
+        Optional<EPickInventoryType> pick_type;
 		Optional<bool>			allow_no_texture;
 		Optional<bool>			can_apply_immediately;
 		Optional<bool>			no_commit_on_selection; // alternative mode: commit occurs and the widget gets dirty
@@ -117,6 +128,7 @@ public:
 		:	image_id("image"),
 			default_image_id("default_image_id"),
 			default_image_name("default_image_name"),
+            pick_type("pick_type", PICK_TEXTURE),
 			allow_no_texture("allow_no_texture", false),
 			can_apply_immediately("can_apply_immediately"),
 			no_commit_on_selection("no_commit_on_selection", false),
@@ -196,11 +208,16 @@ public:
 	void			setDnDFilterPermMask(PermissionMask mask)
 						{ mDnDFilterPermMask = mask; }
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
+    void setFilterPermissionMasks(PermissionMask mask);
 
 	void			closeDependentFloater();
 
 	void			onFloaterClose();
-	void			onFloaterCommit(ETexturePickOp op, LLPickerSource source, const LLUUID& local_id, const LLUUID& inv_id);
+    void			onFloaterCommit(ETexturePickOp op,
+                                    LLPickerSource source,
+                                    const LLUUID& local_id,
+                                    const LLUUID& inv_id,
+                                    const LLUUID& tracking_id);
 
 	// This call is returned when a drag is detected. Your callback
 	// should return TRUE if the drag is acceptable.
@@ -230,6 +247,9 @@ public:
     void setInventoryPickType(EPickInventoryType type);
     EPickInventoryType getInventoryPickType() { return mInventoryPickType; };
 
+    bool isImageLocal() { return mLocalTrackingID.notNull(); }
+    LLUUID getLocalTrackingID() { return mLocalTrackingID; }
+
 private:
 	BOOL allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg);
 	BOOL doDrop(LLInventoryItem* item);
@@ -242,11 +262,14 @@ private:
 	commit_callback_t		 	mOnCloseCallback;
 	texture_selected_callback	mOnTextureSelectedCallback;
 	LLPointer<LLViewerFetchedTexture> mTexturep;
+	LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
+	LLPointer<LLViewerTexture> mGLTFPreview;
 	LLUIColor				 	mBorderColor;
 	LLUUID					 	mImageItemID;
 	LLUUID					 	mImageAssetID;
 	LLUUID					 	mDefaultImageAssetID;
 	LLUUID					 	mBlankImageAssetID;
+    LLUUID						mLocalTrackingID;
 	LLUIImagePtr				mFallbackImage;
 	std::string					mDefaultImageName;
 	LLHandle<LLFloater>			mFloaterHandle;
@@ -267,12 +290,12 @@ private:
 	S32						 	mLabelWidth;
 	bool						mOpenTexPreview;
 	bool						mBakeTextureEnabled;
-    LLTextureCtrl::EPickInventoryType mInventoryPickType;
+    EPickInventoryType mInventoryPickType;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLFloaterTexturePicker
-typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id)> floater_commit_callback;
+typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id, const LLUUID& tracking_id)> floater_commit_callback;
 typedef boost::function<void()> floater_close_callback;
 typedef boost::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
 typedef boost::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
@@ -291,8 +314,8 @@ public:
 		PermissionMask immediate_filter_perm_mask,
 		PermissionMask dnd_filter_perm_mask,
 		BOOL can_apply_immediately,
-		LLUIImagePtr fallback_image_name
-		);
+		LLUIImagePtr fallback_image_name,
+		EPickInventoryType pick_type);
 
 	virtual ~LLFloaterTexturePicker();
 
@@ -360,7 +383,7 @@ public:
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
 
-    void setInventoryPickType(LLTextureCtrl::EPickInventoryType type);
+    void setInventoryPickType(EPickInventoryType type);
     void setImmediateFilterPermMask(PermissionMask mask);
 
     static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
@@ -373,6 +396,7 @@ protected:
 
 	LLPointer<LLViewerTexture> mTexturep;
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
+    LLPointer<LLViewerTexture> mGLTFPreview;
 	LLView*				mOwner;
 
 	LLUUID				mImageAssetID; // Currently selected texture
@@ -419,7 +443,7 @@ private:
     bool mLimitsSet;
     S32 mMaxDim;
     S32 mMinDim;
-    LLTextureCtrl::EPickInventoryType mInventoryPickType;
+    EPickInventoryType mInventoryPickType;
 
 
 	texture_selected_callback mTextureSelectedCallback;

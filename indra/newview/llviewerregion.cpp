@@ -1879,8 +1879,6 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		addActiveCacheEntry(entry);
 	}
 
-    loadCacheMiscExtras(entry->getLocalID());
-
 	return obj;
 }
 
@@ -2965,20 +2963,20 @@ void LLViewerRegion::unpackRegionHandshake()
 
 		// Get the 4 textures for land
 		msg->getUUID("RegionInfo", "TerrainDetail0", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(0));		
-		compp->setDetailTextureID(0, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(0));		
+		compp->setDetailAssetID(0, tmp_id);
 
 		msg->getUUID("RegionInfo", "TerrainDetail1", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(1));		
-		compp->setDetailTextureID(1, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(1));		
+		compp->setDetailAssetID(1, tmp_id);
 
 		msg->getUUID("RegionInfo", "TerrainDetail2", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(2));		
-		compp->setDetailTextureID(2, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(2));		
+		compp->setDetailAssetID(2, tmp_id);
 
 		msg->getUUID("RegionInfo", "TerrainDetail3", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(3));		
-		compp->setDetailTextureID(3, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(3));		
+		compp->setDetailAssetID(3, tmp_id);
 
 		// Get the start altitude and range values for land textures
 		F32 tmp_f32;
@@ -3653,15 +3651,6 @@ std::string LLViewerRegion::getSimHostName()
 		return mSimulatorFeatures.has("HostName") ? mSimulatorFeatures["HostName"].asString() : getHost().getHostName();
 	}
 	return std::string("...");
-}
-
-void LLViewerRegion::loadCacheMiscExtras(U32 local_id)
-{
-    auto iter = mImpl->mGLTFOverridesLLSD.find(local_id);
-    if (iter != mImpl->mGLTFOverridesLLSD.end())
-    {
-        LLGLTFMaterialList::loadCacheOverrides(iter->second);
-    }
 }
 
 void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)

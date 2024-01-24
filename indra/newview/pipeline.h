@@ -307,7 +307,7 @@ public:
     // if setup is true, wil lset texture compare mode function and filtering options
     void bindShadowMaps(LLGLSLShader& shader);
     void bindDeferredShaderFast(LLGLSLShader& shader);
-	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr, LLRenderTarget* depth_target = nullptr);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
@@ -319,6 +319,16 @@ public:
     void unbindReflectionProbes(LLGLSLShader& shader);
 
 	void renderDeferredLighting();
+
+    // apply atmospheric haze based on contents of color and depth buffer
+    // should be called just before rendering water when camera is under water 
+    // and just before rendering alpha when camera is above water
+    void doAtmospherics();
+
+    // apply water haze based on contents of color and depth buffer
+    // should be called just before rendering pre-water alpha objects
+    void doWaterHaze();
+
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
 	void generateSunShadow(LLCamera& camera);
@@ -607,7 +617,8 @@ public:
 		RENDER_DEBUG_TEXEL_DENSITY		=  0x40000000,
 		RENDER_DEBUG_TRIANGLE_COUNT		=  0x80000000,
 		RENDER_DEBUG_IMPOSTORS			= 0x100000000,
-        RENDER_DEBUG_REFLECTION_PROBES  = 0x200000000
+        RENDER_DEBUG_REFLECTION_PROBES  = 0x200000000,
+        RENDER_DEBUG_PROBE_UPDATES      = 0x400000000
 	};
 
 public:
@@ -685,6 +696,7 @@ public:
     RenderTargetPack mMainRT;
 
     // auxillary 512x512 render target pack
+    // used by reflection probes and dynamic texture bakes
     RenderTargetPack mAuxillaryRT;
 
     // currently used render target pack
@@ -745,7 +757,7 @@ public:
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 
-    LLRenderTarget				mBake;
+    static const U32 MAX_BAKE_WIDTH;
 
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
@@ -1003,6 +1015,7 @@ public:
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;
 	static F32 CameraFieldOfView;
+	static S32 RenderLocalLightCount;
 	static F32 RenderShadowNoise;
 	static F32 RenderShadowBlurSize;
 	static F32 RenderSSAOScale;

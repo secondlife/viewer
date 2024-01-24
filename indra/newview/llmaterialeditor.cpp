@@ -38,10 +38,12 @@
 #include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llinventoryfunctions.h"
 #include "lllocalgltfmaterials.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewermenufile.h"
 #include "llviewertexture.h"
 #include "llsdutil.h"
@@ -343,6 +345,39 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
     return false;
 }
 
+class LLSelectedTEUpdateOverrides: public LLSelectedNodeFunctor
+{
+public:
+    LLSelectedTEUpdateOverrides(LLMaterialEditor* me) : mEditor(me) {}
+
+    virtual bool apply(LLSelectNode* nodep);
+
+    LLMaterialEditor* mEditor;
+};
+
+bool LLSelectedTEUpdateOverrides::apply(LLSelectNode* nodep)
+{
+    LLViewerObject* objectp = nodep->getObject();
+    if (!objectp)
+    {
+        return false;
+    }
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
+    for (S32 te_index = 0; te_index < num_tes; ++te_index)
+    {
+
+        LLTextureEntry* tep = objectp->getTE(te_index);
+        LLGLTFMaterial* override_mat = tep->getGLTFMaterialOverride();
+        if (mEditor->updateMaterialLocalSubscription(override_mat))
+        {
+            LLGLTFMaterial* render_mat = tep->getGLTFRenderMaterial();
+            mEditor->updateMaterialLocalSubscription(render_mat);
+        }
+    }
+
+    return true;
+}
+
 ///----------------------------------------------------------------------------
 /// Class LLMaterialEditor
 ///----------------------------------------------------------------------------
@@ -361,6 +396,10 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     {
         mAssetID = item->getAssetUUID();
     }
+}
+
+LLMaterialEditor::~LLMaterialEditor()
+{
 }
 
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
@@ -398,10 +437,10 @@ BOOL LLMaterialEditor::postBuild()
     if (!gAgent.isGodlike())
     {
         // Only allow fully permissive textures
-        mBaseColorTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mMetallicTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mEmissiveTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-        mNormalTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+        mBaseColorTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mMetallicTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mEmissiveTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mNormalTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
     }
 
     // Texture callback
@@ -409,6 +448,10 @@ BOOL LLMaterialEditor::postBuild()
     mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
+
+    // should match normal textures from mBumpyTextureCtrl
+    mNormalTextureCtrl->setDefaultImageAssetID(LLUUID(gSavedSettings.getString("DefaultObjectNormalTexture")));
+    mNormalTextureCtrl->setBlankImageAssetID(LLUUID(gSavedSettings.getString("DefaultBlankNormalTexture")));
 
     if (mIsOverride)
     {
@@ -531,6 +574,11 @@ void LLMaterialEditor::onClose(bool app_quitting)
     {
         mSelectionUpdateSlot.disconnect();
     }
+    for (mat_connection_map_t::value_type &cn : mTextureChangesUpdates)
+    {
+        cn.second.mConnection.disconnect();
+    }
+    mTextureChangesUpdates.clear();
 
     LLPreview::onClose(app_quitting);
 }
@@ -861,6 +909,118 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
     mNormalTextureCtrl->setEnabled(can_modify);
 }
 
+void LLMaterialEditor::subscribeToLocalTexture(S32 dirty_flag, const LLUUID& tracking_id)
+{
+    if (mTextureChangesUpdates[dirty_flag].mTrackingId != tracking_id)
+    {
+        mTextureChangesUpdates[dirty_flag].mConnection.disconnect();
+        mTextureChangesUpdates[dirty_flag].mTrackingId = tracking_id;
+        mTextureChangesUpdates[dirty_flag].mConnection = LLLocalBitmapMgr::getInstance()->setOnChangedCallback(tracking_id,
+                                                                                                               [this, dirty_flag](const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
+                                                                                                               {
+                                                                                                                   if (new_id.isNull())
+                                                                                                                   {
+                                                                                                                       mTextureChangesUpdates[dirty_flag].mConnection.disconnect();
+                                                                                                                       //mTextureChangesUpdates.erase(dirty_flag);
+                                                                                                                   }
+                                                                                                                   else
+                                                                                                                   {
+                                                                                                                       replaceLocalTexture(old_id, new_id);
+                                                                                                                   }
+                                                                                                               });
+    }
+}
+
+LLUUID LLMaterialEditor::getLocalTextureTrackingIdFromFlag(U32 flag)
+{
+    mat_connection_map_t::iterator found = mTextureChangesUpdates.find(flag);
+    if (found != mTextureChangesUpdates.end())
+    {
+        return found->second.mTrackingId;
+    }
+    return LLUUID();
+}
+
+bool LLMaterialEditor::updateMaterialLocalSubscription(LLGLTFMaterial* mat)
+{
+    if (!mat)
+    {
+        return false;
+    }
+
+    bool res = false;
+    for (mat_connection_map_t::value_type& cn : mTextureChangesUpdates)
+    {
+        LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(cn.second.mTrackingId);
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+        if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
+        {
+            LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(cn.second.mTrackingId, mat);
+            res = true;
+            continue;
+        }
+    }
+    return res;
+}
+
+void LLMaterialEditor::replaceLocalTexture(const LLUUID& old_id, const LLUUID& new_id)
+{
+    // todo: might be a good idea to set mBaseColorTextureUploadId here
+    // and when texturectrl picks a local texture
+    if (getBaseColorId() == old_id)
+    {
+        mBaseColorTextureCtrl->setValue(new_id);
+    }
+    if (mBaseColorTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mBaseColorTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+
+    if (getMetallicRoughnessId() == old_id)
+    {
+        mMetallicTextureCtrl->setValue(new_id);
+    }
+    if (mMetallicTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mMetallicTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+
+    if (getEmissiveId() == old_id)
+    {
+        mEmissiveTextureCtrl->setValue(new_id);
+    }
+    if (mEmissiveTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mEmissiveTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+
+    if (getNormalId() == old_id)
+    {
+        mNormalTextureCtrl->setValue(new_id);
+    }
+    if (mNormalTextureCtrl->getDefaultImageAssetID() == old_id)
+    {
+        mNormalTextureCtrl->setDefaultImageAssetID(new_id);
+    }
+}
+
 void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag)
 {
     if (!mIsOverride)
@@ -913,6 +1073,21 @@ void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dir
         }
     }
 
+    LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+    if (tex_ctrl->isImageLocal())
+    {
+        subscribeToLocalTexture(dirty_flag, tex_ctrl->getLocalTrackingID());
+    }
+    else
+    {
+        // unsubcribe potential old callabck
+        mat_connection_map_t::iterator found = mTextureChangesUpdates.find(dirty_flag);
+        if (found != mTextureChangesUpdates.end())
+        {
+            found->second.mConnection.disconnect();
+        }
+    }
+
     markChangesUnsaved(dirty_flag);
     applyToSelection();
 }
@@ -921,6 +1096,16 @@ void LLMaterialEditor::onCancelCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
 {
     mRevertedChanges |= dirty_flag;
     applyToSelection();
+}
+
+void update_local_texture(LLUICtrl* ctrl, LLGLTFMaterial* mat)
+{
+    LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+    if (tex_ctrl->isImageLocal())
+    {
+        // subscrive material to updates of local textures
+        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tex_ctrl->getLocalTrackingID(), mat);
+    }
 }
 
 void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag)
@@ -958,21 +1143,25 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                     case MATERIAL_BASE_COLOR_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setBaseColorId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     case MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setOcclusionRoughnessMetallicId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     case MATERIAL_EMISIVE_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setEmissiveId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     case MATERIAL_NORMAL_TEX_DIRTY:
                     {
                         nodep->mSavedGLTFOverrideMaterials[te]->setNormalId(mCtrl->getValue().asUUID(), true);
+                        update_local_texture(mCtrl, nodep->mSavedGLTFOverrideMaterials[te].get());
                         break;
                     }
                     // Colors
@@ -1192,10 +1381,23 @@ bool LLMaterialEditor::saveIfNeeded()
         LLPermissions local_permissions;
         local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 
-        U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
-        U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
-        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
-        local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        if (mIsOverride)
+        {
+            // Shouldn't happen, but just in case it ever changes
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+
+        }
+        else
+        {
+            // Uploads are supposed to use Upload permissions, not material permissions
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Uploads");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Uploads");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Uploads");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        }
 
         std::string res_desc = buildMaterialDescription();
         createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);
@@ -1312,16 +1514,22 @@ public:
             return;
         }
 
+        // Name may or may not have already been applied
+        const bool changed_name = item->getName() != mNewName;
         // create_inventory_item/copy_inventory_item don't allow presetting some permissions, fix it now
-        item->setPermissions(mPermissions);
-        item->updateServer(FALSE);
-        gInventory.updateItem(item);
-        gInventory.notifyObservers();
-
-        if (item->getName() != mNewName)
+        const bool changed_permissions = item->getPermissions() != mPermissions;
+        const bool changed = changed_name || changed_permissions;
+        LLSD updates;
+        if (changed)
         {
-            LLSD updates;
-            updates["name"] = mNewName;
+            if (changed_name)
+            {
+                updates["name"] = mNewName;
+            }
+            if (changed_permissions)
+            {
+                updates["permissions"] = ll_create_sd_from_permissions(mPermissions);
+            }
             update_inventory_item(inv_item_id, updates, NULL);
         }
 
@@ -1331,10 +1539,16 @@ public:
                 inv_item_id,
                 LLAssetType::AT_MATERIAL,
                 mAssetData,
-                [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
+                [changed, updates](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response)
                 {
                     // done callback
                     LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+
+                    // *HACK: Sometimes permissions do not stick in the UI. They are correct on the server-side, though.
+                    if (changed)
+                    {
+                        update_inventory_item(new_item_id, updates, NULL);
+                    }
                 },
                 nullptr // failure callback, floater already closed
             );
@@ -1390,6 +1604,20 @@ void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, L
         {
             me->refreshFromInventory(itemId);
         }
+
+        if (me && !me->mTextureChangesUpdates.empty())
+        {
+            const LLInventoryItem* item = me->getItem();
+            if (item)
+            {
+                // local materials were assigned, force load material and init tracking
+                LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(item->getAssetUUID());
+                for (mat_connection_map_t::value_type &val : me->mTextureChangesUpdates)
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
+                }
+            }
+        }
     }
 }
 
@@ -1404,6 +1632,16 @@ void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID
         me->setAssetId(newAssetId);
         me->refreshFromInventory();
         me->setEnabled(true);
+
+        if (me && !me->mTextureChangesUpdates.empty())
+        {
+            // local materials were assigned, force load material and init tracking
+            LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(newAssetId);
+            for (mat_connection_map_t::value_type &val : me->mTextureChangesUpdates)
+            {
+                LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
+            }
+        }
     }
 }
 
@@ -1437,6 +1675,17 @@ void LLMaterialEditor::finishSaveAs(
             {
                 me->loadAsset();
                 me->setEnabled(true);
+
+                // Local texure support
+                if (!me->mTextureChangesUpdates.empty())
+                {
+                    // local materials were assigned, force load material and init tracking
+                    LLGLTFMaterial* mat = gGLTFMaterialList.getMaterial(item->getAssetUUID());
+                    for (mat_connection_map_t::value_type &val : me->mTextureChangesUpdates)
+                    {
+                        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.second.mTrackingId, mat);
+                    }
+                }
             }
         }
         else if(has_unsaved_changes)
@@ -1622,17 +1871,9 @@ static void pack_textures(
 
     if (normal_img)
     {
-        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img);
-
-        LLPointer<LLImageJ2C> test;
-        test = LLViewerTextureList::convertToUploadFile(normal_img, 1024, true);
-
-        S32 lossy_bytes = normal_j2c->getDataSize();
-        S32 lossless_bytes = test->getDataSize();
-
-        LL_DEBUGS("MaterialEditor") << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
-
-        normal_j2c = test;
+        // create a losslessly compressed version of the normal map
+        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img, 2048, false, true);
+        LL_DEBUGS("MaterialEditor") << "Normal: " << normal_j2c->getDataSize() << LL_ENDL;
     }
 
     if (mr_img)
@@ -1804,8 +2045,49 @@ void LLMaterialEditor::loadLive()
     }
 }
 
+namespace
+{
+    // Which inventory to consult for item permissions
+    enum class ItemSource
+    {
+        // Consult the permissions of the item in the object's inventory. If
+        // the item is not present, then usage of the asset is allowed.
+        OBJECT,
+        // Consult the permissions of the item in the agent's inventory. If
+        // the item is not present, then usage of the asset is not allowed.
+        AGENT
+    };
+
+    class LLAssetIDMatchesWithPerms : public LLInventoryCollectFunctor
+    {
+    public:
+        LLAssetIDMatchesWithPerms(const LLUUID& asset_id, const std::vector<PermissionBit>& ops) : mAssetID(asset_id), mOps(ops) {}
+        virtual ~LLAssetIDMatchesWithPerms() {}
+        bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+        {
+            if (!item || item->getAssetUUID() != mAssetID)
+            {
+                return false;
+            }
+            LLPermissions item_permissions = item->getPermissions();
+            for (PermissionBit op : mOps)
+            {
+                if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    protected:
+        LLUUID mAssetID;
+        std::vector<PermissionBit> mOps;
+    };
+};
+
 // *NOTE: permissions_out includes user preferences for new item creation (LLFloaterPerms)
-bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, LLPermissions& permissions_out, LLViewerInventoryItem*& item_out)
+bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<PermissionBit>& ops, const ItemSource item_source, LLPermissions& permissions_out, LLViewerInventoryItem*& item_out)
 {
     if (!LLMaterialEditor::capabilitiesAvailable())
     {
@@ -1818,6 +2100,10 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     llassert(func.mIsOverride);
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
 
+    if (item_source == ItemSource::AGENT)
+    {
+        func.mObjectId = LLUUID::null;
+    }
     LLViewerObject* selected_object = func.mObject;
     if (!selected_object)
     {
@@ -1838,19 +2124,47 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
         }
     }
 
-    item_out = selected_object->getInventoryItemByAsset(func.mMaterialId);
+    // Look for the item to base permissions off of
+    item_out = nullptr;
+    const bool blank_material = func.mMaterialId == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    if (!blank_material)
+    {
+        LLAssetIDMatchesWithPerms item_has_perms(func.mMaterialId, ops);
+        if (item_source == ItemSource::OBJECT)
+        {
+            LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
+            if (item && !item_has_perms(nullptr, item))
+            {
+                return false;
+            }
+            item_out = item;
+        }
+        else
+        {
+            llassert(item_source == ItemSource::AGENT);
+
+            LLViewerInventoryCategory::cat_array_t cats;
+            LLViewerInventoryItem::item_array_t items;
+            gInventory.collectDescendentsIf(LLUUID::null,
+                                    cats,
+                                    items,
+                                    // *NOTE: PBRPickerAgentListener will need
+                                    // to be changed if checking the trash is
+                                    // disabled
+                                    LLInventoryModel::INCLUDE_TRASH,
+                                    item_has_perms);
+            if (items.empty())
+            {
+                return false;
+            }
+            item_out = items[0];
+        }
+    }
 
     LLPermissions item_permissions;
     if (item_out)
     {
-        item_permissions.set(item_out->getPermissions());
-        for (PermissionBit op : ops)
-        {
-            if (!gAgent.allowOperation(op, item_permissions, GP_OBJECT_MANIPULATE))
-            {
-                return false;
-            }
-        }
+        item_permissions = item_out->getPermissions();
         // Update flags for new owner
         if (!item_permissions.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true))
         {
@@ -1903,13 +2217,24 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
     // creation history when there's no material item present. In that case,
     // the agent who saved the material will be considered the creator.
     // -Cosmic,2023-08-07
-    if (item_out)
+    if (item_source == ItemSource::AGENT)
     {
+        llassert(blank_material || item_out); // See comment at ItemSource::AGENT definition
+
         permissions_out.set(item_permissions);
     }
     else
     {
-        permissions_out.set(object_permissions);
+        llassert(item_source == ItemSource::OBJECT);
+
+        if (item_out)
+        {
+            permissions_out.set(item_permissions);
+        }
+        else
+        {
+            permissions_out.set(object_permissions);
+        }
     }
     permissions_out.accumulate(floater_perm);
 
@@ -1921,7 +2246,7 @@ bool LLMaterialEditor::canModifyObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector<PermissionBit>({PERM_MODIFY}), ItemSource::OBJECT, permissions, item_out);
 }
 
 bool LLMaterialEditor::canSaveObjectsMaterial()
@@ -1929,7 +2254,7 @@ bool LLMaterialEditor::canSaveObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item_out);
+    return can_use_objects_material(func, std::vector<PermissionBit>({PERM_COPY, PERM_MODIFY}), ItemSource::AGENT, permissions, item_out);
 }
 
 bool LLMaterialEditor::canClipboardObjectsMaterial()
@@ -1955,7 +2280,7 @@ bool LLMaterialEditor::canClipboardObjectsMaterial()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item_out;
-    return can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), permissions, item_out);
+    return can_use_objects_material(func, std::vector<PermissionBit>({PERM_COPY, PERM_MODIFY, PERM_TRANSFER}), ItemSource::OBJECT, permissions, item_out);
 }
 
 void LLMaterialEditor::saveObjectsMaterialAs()
@@ -1963,7 +2288,7 @@ void LLMaterialEditor::saveObjectsMaterialAs()
     LLSelectedTEGetMatData func(true);
     LLPermissions permissions;
     LLViewerInventoryItem* item = nullptr;
-    bool allowed = can_use_objects_material(func, std::vector({PERM_COPY, PERM_MODIFY}), permissions, item);
+    bool allowed = can_use_objects_material(func, std::vector<PermissionBit>({PERM_COPY, PERM_MODIFY}), ItemSource::AGENT, permissions, item);
     if (!allowed)
     {
         LL_WARNS("MaterialEditor") << "Failed to save GLTF material from object" << LL_ENDL;
@@ -2058,62 +2383,9 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
     }
     else
     {
-        if (item_id.notNull())
-        {
-            // Copy existing item from object inventory, and create new composite asset on top of it
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback, _1, _2, permissions, object_id, item_id));
-        }
-        else
-        {
-            LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
-        }
+        llassert(object_id.isNull()); // Case for copying item from object inventory is no longer implemented
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
     }
-}
-
-// static
-void LLMaterialEditor::onCopyObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response, const LLPermissions& permissions, const LLUUID& object_id, const LLUUID& item_id)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (0 != option)
-    {
-        return;
-    }
-
-    LLSD asset;
-    asset["version"] = LLGLTFMaterial::ASSET_VERSION;
-    asset["type"] = LLGLTFMaterial::ASSET_TYPE;
-    // This is the string serialized from LLGLTFMaterial::asJSON
-    asset["data"] = notification["payload"]["data"];
-
-    std::ostringstream str;
-    LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
-
-    LLViewerObject* object = gObjectList.findObject(object_id);
-    if (!object)
-    {
-        return;
-    }
-    const LLInventoryItem* item = object->getInventoryItem(item_id);
-    if (!item)
-    {
-        return;
-    }
-
-    std::string new_name = response["message"].asString();
-    LLInventoryObject::correctInventoryName(new_name);
-    if (new_name.empty())
-    {
-        return;
-    }
-
-    const LLUUID destination_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
-
-    LLPointer<LLInventoryCallback> cb = new LLObjectsMaterialItemCallback(permissions, str.str(), new_name);
-    // NOTE: This should be an item copy. Saving a material to an inventory should be disabled when the associated material is no-copy.
-    move_or_copy_inventory_from_object(destination_id,
-                                       object_id,
-                                       item_id,
-                                       cb);
 }
 
 // static
@@ -2691,28 +2963,58 @@ public:
             if (changed_flags & MATERIAL_BASE_COLOR_TEX_DIRTY)
             {
                 material->setBaseColorId(mEditor->getBaseColorId(), true);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_BASE_COLOR_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
             else if ((reverted_flags & MATERIAL_BASE_COLOR_TEX_DIRTY) && revert_mat.notNull())
             {
                 material->setBaseColorId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR], false);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_BASE_COLOR_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
 
             if (changed_flags & MATERIAL_NORMAL_TEX_DIRTY)
             {
                 material->setNormalId(mEditor->getNormalId(), true);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_NORMAL_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
             else if ((reverted_flags & MATERIAL_NORMAL_TEX_DIRTY) && revert_mat.notNull())
             {
                 material->setNormalId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL], false);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_NORMAL_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY)
             {
                 material->setOcclusionRoughnessMetallicId(mEditor->getMetallicRoughnessId(), true);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
             else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY) && revert_mat.notNull())
             {
                 material->setOcclusionRoughnessMetallicId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS], false);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY)
@@ -2745,10 +3047,20 @@ public:
             if (changed_flags & MATERIAL_EMISIVE_TEX_DIRTY)
             {
                 material->setEmissiveId(mEditor->getEmissiveId(), true);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_EMISIVE_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
             else if ((reverted_flags & MATERIAL_EMISIVE_TEX_DIRTY) && revert_mat.notNull())
             {
                 material->setEmissiveId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE], false);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_EMISIVE_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
             }
 
             if (changed_flags & MATERIAL_DOUBLE_SIDED_DIRTY)
@@ -2900,6 +3212,34 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setDoubleSided(mat->mDoubleSided);
     setAlphaMode(mat->getAlphaMode());
     setAlphaCutoff(mat->mAlphaCutoff);
+
+    if (mat->hasLocalTextures())
+    {
+        for (LLGLTFMaterial::local_tex_map_t::value_type &val : mat->mTrackingIdToLocalTexture)
+        {
+            LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(val.first);
+            if (val.second != world_id)
+            {
+                LL_WARNS() << "world id mismatch" << LL_ENDL;
+            }
+            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
+            {
+                subscribeToLocalTexture(MATERIAL_BASE_COLOR_TEX_DIRTY, val.first);
+            }
+            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
+            {
+                subscribeToLocalTexture(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY, val.first);
+            }
+            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
+            {
+                subscribeToLocalTexture(MATERIAL_EMISIVE_TEX_DIRTY, val.first);
+            }
+            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
+            {
+                subscribeToLocalTexture(MATERIAL_NORMAL_TEX_DIRTY, val.first);
+            }
+        }
+    }
 }
 
 bool LLMaterialEditor::setFromSelection()
@@ -2918,6 +3258,8 @@ bool LLMaterialEditor::setFromSelection()
         const LLViewerInventoryItem* item = selected_object->getInventoryItemByAsset(func.mMaterialId);
         const bool allow_modify = !item || canModify(selected_object, item);
         setEnableEditing(allow_modify);
+
+        // todo: apply local texture data to all materials in selection
     }
     else
     {
@@ -2940,6 +3282,15 @@ bool LLMaterialEditor::setFromSelection()
         // Memorize selection data for filtering further updates
         mOverrideObjectId = func.mObjectId;
         mOverrideObjectTE = func.mObjectTE;
+
+        // Ovverdired might have been updated,
+        // refresh state of local textures in overrides
+        // 
+        // Todo: this probably shouldn't be here, but in localbitmap,
+        // subscried to all material overrides if we want copied
+        // objects to get properly updated as well
+        LLSelectedTEUpdateOverrides local_tex_func(this);
+        selected_objects->applyToNodes(&local_tex_func);
     }
 
     return func.mMaterial.notNull();
@@ -3199,7 +3550,11 @@ S32 LLMaterialEditor::saveTextures()
     {
         mUploadingTexturesCount++;
         work_count++;
-        saveTexture(mBaseColorJ2C, mBaseColorName, mBaseColorTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+
+        // For ease of inventory management, we prepend the material name.
+        std::string name = mMaterialName + ": " + mBaseColorName;
+
+        saveTexture(mBaseColorJ2C, name, mBaseColorTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
             LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
             if (me)
@@ -3237,7 +3592,11 @@ S32 LLMaterialEditor::saveTextures()
     {
         mUploadingTexturesCount++;
         work_count++;
-        saveTexture(mNormalJ2C, mNormalName, mNormalTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+
+        // For ease of inventory management, we prepend the material name.
+        std::string name = mMaterialName + ": " + mNormalName;
+
+        saveTexture(mNormalJ2C, name, mNormalTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
             LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
             if (me)
@@ -3275,7 +3634,11 @@ S32 LLMaterialEditor::saveTextures()
     {
         mUploadingTexturesCount++;
         work_count++;
-        saveTexture(mMetallicRoughnessJ2C, mMetallicRoughnessName, mMetallicTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+
+        // For ease of inventory management, we prepend the material name.
+        std::string name = mMaterialName + ": " + mMetallicRoughnessName;
+
+        saveTexture(mMetallicRoughnessJ2C, name, mMetallicTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
             LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
             if (me)
@@ -3314,7 +3677,11 @@ S32 LLMaterialEditor::saveTextures()
     {
         mUploadingTexturesCount++;
         work_count++;
-        saveTexture(mEmissiveJ2C, mEmissiveName, mEmissiveTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+
+        // For ease of inventory management, we prepend the material name.
+        std::string name = mMaterialName + ": " + mEmissiveName;
+
+        saveTexture(mEmissiveJ2C, name, mEmissiveTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
             LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(key));
             if (me)

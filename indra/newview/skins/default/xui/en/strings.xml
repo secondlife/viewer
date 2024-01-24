@@ -53,7 +53,6 @@ Draw distance: [DRAW_DISTANCE]m
 Bandwidth: [NET_BANDWITH]kbit/s
 LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
-Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 Disk cache: [DISK_CACHE_INFO]
 	</string>
@@ -2864,7 +2863,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="GroupMoneyBalance">Balance</string>
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
-	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
+	<string name="GroupMoneyStartDate">Transactions since [weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
 
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>

@@ -89,6 +89,10 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mOverrideDoubleSided = rhs.mOverrideDoubleSided;
     mOverrideAlphaMode = rhs.mOverrideAlphaMode;
 
+    mTrackingIdToLocalTexture = rhs.mTrackingIdToLocalTexture;
+
+    updateTextureTracking();
+
     return *this;
 }
 
@@ -601,6 +605,10 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
             mTextureTransform[i].mRotation = override_mat.mTextureTransform[i].mRotation;
         }
     }
+
+    mTrackingIdToLocalTexture.insert(override_mat.mTrackingIdToLocalTexture.begin(), override_mat.mTrackingIdToLocalTexture.begin());
+
+    updateTextureTracking();
 }
 
 void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data)
@@ -691,36 +699,62 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     if (bc.isDefined())
     {
         mBaseColor.setValue(bc);
+        if (mBaseColor == getDefaultBaseColor())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mBaseColor.mV[3] -= FLT_EPSILON;
+        }
     }
 
     const LLSD& ec = data["ec"];
     if (ec.isDefined())
     {
         mEmissiveColor.setValue(ec);
+        if (mEmissiveColor == getDefaultEmissiveColor())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mEmissiveColor.mV[0] += FLT_EPSILON;
+        }
     }
 
     const LLSD& mf = data["mf"];
     if (mf.isReal())
     {
         mMetallicFactor = mf.asReal();
+        if (mMetallicFactor == getDefaultMetallicFactor())
+        { 
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mMetallicFactor -= FLT_EPSILON;
+        }
     }
 
     const LLSD& rf = data["rf"];
     if (rf.isReal())
     {
         mRoughnessFactor = rf.asReal();
+        if (mRoughnessFactor == getDefaultRoughnessFactor())
+        { 
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mRoughnessFactor -= FLT_EPSILON;
+        }
     }
 
     const LLSD& am = data["am"];
     if (am.isInteger())
     {
         mAlphaMode = (AlphaMode) am.asInteger();
+        mOverrideAlphaMode = true;
     }
 
     const LLSD& ac = data["ac"];
     if (ac.isReal())
     {
         mAlphaCutoff = ac.asReal();
+        if (mAlphaCutoff == getDefaultAlphaCutoff())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mAlphaCutoff -= FLT_EPSILON;
+        }
     }
 
     const LLSD& ds = data["ds"];
@@ -765,3 +799,47 @@ LLUUID LLGLTFMaterial::getHash() const
     return hash;
 }
 
+void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
+{
+    mTrackingIdToLocalTexture[tracking_id] = tex_id;
+}
+
+void LLGLTFMaterial::removeLocalTextureTracking(const LLUUID& tracking_id)
+{
+    mTrackingIdToLocalTexture.erase(tracking_id);
+}
+
+bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
+{
+    bool res = false;
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (mTextureId[i] == old_id)
+        {
+            mTextureId[i] = new_id;
+            res = true;
+        }
+        else if (mTextureId[i] == new_id)
+        {
+            res = true;
+        }
+    }
+
+    if (res)
+    {
+        mTrackingIdToLocalTexture[tracking_id] = new_id;
+    }
+    else
+    {
+        mTrackingIdToLocalTexture.erase(tracking_id);
+    }
+
+    return res;
+}
+
+void LLGLTFMaterial::updateTextureTracking()
+{
+    // setTEGLTFMaterialOverride is responsible for tracking
+    // for material overrides editor will set it
+}

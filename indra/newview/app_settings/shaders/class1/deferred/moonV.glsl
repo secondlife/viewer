@@ -39,7 +39,8 @@ void main()
     vec4 pos = (modelview_projection_matrix * vert);
 
     // smash to *almost* far clip plane -- stars are still behind
-    pos.z = pos.w*0.999999;
+    // SL-19283 - finagle the moon position to be between clouds and stars.
+    pos.z = pos.w*0.999991;
     gl_Position = pos;
 
     vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;

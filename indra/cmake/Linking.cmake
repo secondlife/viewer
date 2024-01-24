@@ -62,6 +62,7 @@ elseif (WINDOWS)
           user32
           ole32
           dbghelp
+          rpcrt4.lib
           legacy_stdio_definitions
           )
 else()

@@ -991,34 +991,50 @@ LLViewerInput::LLViewerInput()
 	}
 }
 
-// static
-BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode)
+LLViewerInput::~LLViewerInput()
 {
-	if (string == "FIRST_PERSON")
+
+}
+
+// static
+bool LLViewerInput::modeFromString(const std::string& string, S32 *mode)
+{
+    if (string.empty())
+    {
+        return false;
+    }
+
+    std::string cmp_string = string;
+    LLStringUtil::toLower(cmp_string);
+	if (cmp_string == "first_person")
 	{
 		*mode = MODE_FIRST_PERSON;
-		return TRUE;
+		return true;
 	}
-	else if (string == "THIRD_PERSON")
+	else if (cmp_string == "third_person")
 	{
 		*mode = MODE_THIRD_PERSON;
-		return TRUE;
+		return true;
 	}
-	else if (string == "EDIT_AVATAR")
+	else if (cmp_string == "edit_avatar")
 	{
 		*mode = MODE_EDIT_AVATAR;
-		return TRUE;
+		return true;
 	}
-	else if (string == "SITTING")
+	else if (cmp_string == "sitting")
 	{
 		*mode = MODE_SITTING;
-		return TRUE;
+		return true;
 	}
-	else
-	{
-		*mode = MODE_THIRD_PERSON;
-		return FALSE;
-	}
+
+    S32 val = atoi(string.c_str());
+    if (val >= 0 && val < MODE_COUNT)
+    {
+        *mode = val;
+        return true;
+    }
+
+    return false;
 }
 
 // static
@@ -1222,6 +1238,7 @@ BOOL LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
     bind.mKey = key;
     bind.mMask = mask;
     bind.mFunction = function;
+    bind.mFunctionName = function_name;
 
     if (result->mIsGlobal)
     {
@@ -1303,6 +1320,7 @@ BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
     bind.mMouse = mouse;
     bind.mMask = mask;
     bind.mFunction = function;
+    bind.mFunctionName = function_name;
 
     if (result->mIsGlobal)
     {
@@ -1800,4 +1818,50 @@ bool LLViewerInput::isMouseBindUsed(const EMouseClickType mouse, const MASK mask
             return true;
     }
     return false;
+}
+
+std::string LLViewerInput::getKeyBindingAsString(const std::string& mode, const std::string& control) const
+{
+    S32 keyboard_mode;
+    if (!modeFromString(mode, &keyboard_mode))
+    {
+        keyboard_mode = getMode();
+    }
+
+    std::string res;
+    bool needs_separator = false;
+
+    // keybindings are sorted from having most mask to no mask (from restrictive to less restrictive),
+    // but it's visually better to present this data in reverse
+    std::vector<LLKeyboardBinding>::const_reverse_iterator iter_key = mKeyBindings[keyboard_mode].rbegin();
+    while (iter_key != mKeyBindings[keyboard_mode].rend())
+    {
+        if (iter_key->mFunctionName == control)
+        {
+            if (needs_separator)
+            {
+                res.append(" | ");
+            }
+            res.append(LLKeyboard::stringFromAccelerator(iter_key->mMask, iter_key->mKey));
+            needs_separator = true;
+        }
+        iter_key++;
+    }
+
+    std::vector<LLMouseBinding>::const_reverse_iterator iter_mouse = mMouseBindings[keyboard_mode].rbegin();
+    while (iter_mouse != mMouseBindings[keyboard_mode].rend())
+    {
+        if (iter_mouse->mFunctionName == control)
+        {
+            if (needs_separator)
+            {
+                res.append(" | ");
+            }
+            res.append(LLKeyboard::stringFromAccelerator(iter_mouse->mMask, iter_mouse->mMouse));
+            needs_separator = true;
+        }
+        iter_mouse++;
+    }
+
+    return res;
 }

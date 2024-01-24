@@ -29,14 +29,14 @@
 
 #include "llviewertexturelist.h"
 #include "llavatarappearancedefines.h"
+#include "llviewerobject.h"
+#include "llselectmgr.h"
 #include "llshadermgr.h"
 #include "pipeline.h"
 
 LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
     : LLGLTFMaterial()
     , mExpectedFlusTime(0.f)
-    , mActive(true)
-    , mFetching(false)
 {
 
 }
@@ -83,11 +83,11 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     if (baseColorTex != nullptr)
     {
-        gGL.getTexUnit(0)->bindFast(baseColorTex);
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, baseColorTex);
     }
     else
     {
-        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep);
     }
 
     F32 base_color_packed[8];
@@ -145,6 +145,83 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
 }
 
+LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
+{
+    LLViewerFetchedTexture* img = nullptr;
+    if (id.notNull())
+    {
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(64.f * 64.f, TRUE);
+    }
+    return img;
+};
+
+bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
+{
+    bool res = false;
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] = new_id;
+        mBaseColorTexture = fetch_texture(new_id);
+        res = true;
+    }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] = new_id;
+        mNormalTexture = fetch_texture(new_id);
+        res = true;
+    }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = new_id;
+        mMetallicRoughnessTexture = fetch_texture(new_id);
+        res = true;
+    }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = new_id;
+        mEmissiveTexture = fetch_texture(new_id);
+        res = true;
+    }
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (mTextureId[i] == new_id)
+        {
+            res = true;
+        }
+    }
+
+    if (res)
+    {
+        mTrackingIdToLocalTexture[tracking_id] = new_id;
+    }
+    else
+    {
+        mTrackingIdToLocalTexture.erase(tracking_id);
+    }
+
+    return res;
+}
+
+void LLFetchedGLTFMaterial::addTextureEntry(LLTextureEntry* te)
+{
+    mTextureEntires.insert(te);
+}
+
+void LLFetchedGLTFMaterial::removeTextureEntry(LLTextureEntry* te)
+{
+    mTextureEntires.erase(te);
+}
+
+void LLFetchedGLTFMaterial::updateTextureTracking()
+{
+    for (local_tex_map_t::value_type &val : mTrackingIdToLocalTexture)
+    {
+        LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(val.first, this);
+    }
+}
+
 void LLFetchedGLTFMaterial::materialBegin()
 {
     llassert(!mFetching);
@@ -164,10 +241,11 @@ void LLFetchedGLTFMaterial::onMaterialComplete(std::function<void()> material_co
     materialCompleteCallbacks.push_back(material_complete);
 }
 
-void LLFetchedGLTFMaterial::materialComplete()
+void LLFetchedGLTFMaterial::materialComplete(bool success)
 {
     llassert(mFetching);
     mFetching = false;
+    mFetchSuccess = success;
 
     for (std::function<void()> material_complete : materialCompleteCallbacks)
     {

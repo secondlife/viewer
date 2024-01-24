@@ -108,6 +108,11 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
+    // *HACK: "cull" all reflection probes except the default one. Only call
+    // this if you don't intend to call updateUniforms directly. Call again
+    // with false when done.
+    void forceDefaultProbeAndUpdateUniforms(bool force = true);
+
 private:
     friend class LLPipeline;
     friend class LLHeroProbeManager;

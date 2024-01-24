@@ -28,11 +28,54 @@
 #define LL_LLVLCOMPOSITION_H
 
 #include "llviewerlayer.h"
-#include "llviewertexture.h"
+#include "llpointer.h"
+
+#include "llimage.h"
 
 class LLSurface;
 
-class LLVLComposition : public LLViewerLayer
+class LLViewerFetchedTexture;
+class LLFetchedGLTFMaterial;
+
+class LLTerrainMaterials
+{
+public:
+	friend class LLDrawPoolTerrain;
+
+    LLTerrainMaterials();
+    virtual ~LLTerrainMaterials();
+
+	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
+	// So we need to compress heights into this range.
+    static const S32 ASSET_COUNT = 4;
+
+    enum class Type
+    {
+        TEXTURE,
+        PBR,
+        COUNT
+    };
+
+    BOOL generateMaterials();
+
+	LLUUID getDetailAssetID(S32 asset);
+	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
+    Type getMaterialType();
+    BOOL texturesReady(BOOL boost = FALSE);
+    BOOL materialsReady(BOOL boost = FALSE);
+
+protected:
+    static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
+    static BOOL materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost = FALSE);
+	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
+	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
+    bool mMaterialTexturesSet[ASSET_COUNT];
+};
+
+// Local materials to override all regions
+extern LLTerrainMaterials gLocalTerrainMaterials;
+
+class LLVLComposition : public LLTerrainMaterials, public LLViewerLayer
 {
 public:
 	LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale);
@@ -44,7 +87,11 @@ public:
 	BOOL generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
 	BOOL generateComposition();
 	// Generate texture from composition values.
-	BOOL generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);		
+	BOOL generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);		
+
+	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
+	// So we need to compress heights into this range.
+    static const S32 ASSET_COUNT = 4;
 
 	// Use these as indeces ito the get/setters below that use 'corner'
 	enum ECorner
@@ -55,12 +102,11 @@ public:
 		NORTHEAST = 3,
 		CORNER_COUNT = 4
 	};
-	LLUUID getDetailTextureID(S32 corner);
-	LLViewerFetchedTexture* getDetailTexture(S32 corner);
+
+	void setDetailAssetID(S32 asset, const LLUUID& id) override;
 	F32 getStartHeight(S32 corner);
 	F32 getHeightRange(S32 corner);
 
-	void setDetailTextureID(S32 corner, const LLUUID& id);
 	void setStartHeight(S32 corner, F32 start_height);
 	void setHeightRange(S32 corner, F32 range);
 
@@ -68,19 +114,21 @@ public:
 	friend class LLDrawPoolTerrain;
 	void setParamsReady()		{ mParamsReady = TRUE; }
 	BOOL getParamsReady() const	{ return mParamsReady; }
-protected:
-	BOOL mParamsReady;
-	LLSurface *mSurfacep;
-	BOOL mTexturesLoaded;
 
-	LLPointer<LLViewerFetchedTexture> mDetailTextures[CORNER_COUNT];
-	LLPointer<LLImageRaw> mRawImages[CORNER_COUNT];
+protected:
+    static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
+    static BOOL materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost = FALSE);
+
+	BOOL mParamsReady = FALSE;
+	LLSurface *mSurfacep;
+
+	LLPointer<LLImageRaw> mRawImages[LLTerrainMaterials::ASSET_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];
 
-	F32 mTexScaleX;
-	F32 mTexScaleY;
+	F32 mTexScaleX = 16.f;
+	F32 mTexScaleY = 16.f;
 };
 
 #endif //LL_LLVLCOMPOSITION_H

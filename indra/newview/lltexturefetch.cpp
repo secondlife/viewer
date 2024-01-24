@@ -1379,7 +1379,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		//
 		// If it looks like we're busy, keep this request here.
 		// Otherwise, advance into the HTTP states.
-		if (mFetcher->getHttpWaitersCount() || ! acquireHttpSemaphore())
+        
+		if (!mHttpHasResource && // sometimes we get into this state when we already have an http resource, go ahead and send the request in that case
+            (mFetcher->getHttpWaitersCount() || ! acquireHttpSemaphore()))
 		{
 			setState(WAIT_HTTP_RESOURCE2);
 			mFetcher->addHttpWaiter(this->mID);

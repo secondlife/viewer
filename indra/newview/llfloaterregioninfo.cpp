@@ -605,6 +605,26 @@ LLPanelRegionEnvironment* LLFloaterRegionInfo::getPanelEnvironment()
 	return panel;
 }
 
+enum class TerrainMaterialType
+{
+    TEXTURE,
+    PBR_MATERIAL,
+    COUNT
+};
+
+TerrainMaterialType material_type_from_index(S32 index)
+{
+    if (index == 0)
+    {
+        return TerrainMaterialType::TEXTURE;
+    }
+    if (index == 1)
+    {
+        return TerrainMaterialType::PBR_MATERIAL;
+    }
+    return TerrainMaterialType::COUNT;
+}
+
 // static
 LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 {
@@ -1307,6 +1327,17 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
+    // *TODO: Don't early-exit in PBR material terrain editing mode, and
+    // instead do some reasonable checks that the PBR material is compatible
+    // with the terrain rendering pipeline. Err on the side of permissive.
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (material_type_ctrl)
+    {
+        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
+        if (is_material_selected) { return TRUE; }
+    }
+
     static const S32 MAX_TERRAIN_TEXTURE_SIZE = 1024;
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
@@ -1324,7 +1355,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 
 		//LL_INFOS() << "texture detail " << i << " is " << width << "x" << height << "x" << components << LL_ENDL;
 
-		if (components != 3)
+		if (components != 3 && components != 4)
 		{
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
@@ -1380,10 +1411,18 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	initCtrl("terrain_raise_spin");
 	initCtrl("terrain_lower_spin");
 
+    getChild<LLUICtrl>("terrain_material_type")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onSelectMaterialType, this));
+
 	std::string buffer;
+
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
 		buffer = llformat("texture_detail_%d", i);
+		initCtrl(buffer);
+	}
+	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+	{
+		buffer = llformat("material_detail_%d", i);
 		initCtrl(buffer);
 	}
 
@@ -1402,7 +1441,75 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	mAskedTextureHeights = false;
 	mConfirmedTextureHeights = false;
 
+    refresh();
+
 	return LLPanelRegionInfo::postBuild();
+}
+
+// virtual
+void LLPanelRegionTerrainInfo::refresh()
+{
+    // For simplicity, require restart
+    static BOOL feature_pbr_terrain_enabled = gSavedSettings.getBOOL("RenderTerrainPBREnabled");
+
+    LLTextBox* texture_text = getChild<LLTextBox>("detail_texture_text");
+    if (texture_text) { texture_text->setVisible(!feature_pbr_terrain_enabled); }
+
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (material_type_ctrl)
+    {
+        material_type_ctrl->setVisible(feature_pbr_terrain_enabled);
+
+        bool has_material_assets = false;
+
+        std::string buffer;
+        for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+        {
+            buffer = llformat("material_detail_%d", i);
+            LLTextureCtrl* material_ctrl = getChild<LLTextureCtrl>(buffer);
+            if (material_ctrl && material_ctrl->getImageAssetID().notNull())
+            {
+                has_material_assets = true;
+                break;
+            }
+        }
+
+        TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+
+        if (!feature_pbr_terrain_enabled) { material_type = TerrainMaterialType::TEXTURE; }
+
+        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
+        material_type_ctrl->setEnabled(feature_pbr_terrain_enabled && !(is_material_selected && has_material_assets));
+    }
+}
+
+void LLPanelRegionTerrainInfo::onSelectMaterialType()
+{
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (!material_type_ctrl) { return; }
+    const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+    const bool show_texture_controls = material_type == TerrainMaterialType::TEXTURE;
+    const bool show_material_controls = material_type == TerrainMaterialType::PBR_MATERIAL;
+    std::string buffer;
+    LLTextureCtrl* texture_ctrl;
+    for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+    {
+        buffer = llformat("texture_detail_%d", i);
+        texture_ctrl = getChild<LLTextureCtrl>(buffer);
+        if (texture_ctrl)
+        {
+            texture_ctrl->setVisible(show_texture_controls);
+        }
+    }
+    for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+    {
+        buffer = llformat("material_detail_%d", i);
+        texture_ctrl = getChild<LLTextureCtrl>(buffer);
+        if (texture_ctrl)
+        {
+            texture_ctrl->setVisible(show_material_controls);
+        }
+    }
 }
 
 // virtual
@@ -1421,18 +1528,30 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 		getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
 
 		LLVLComposition* compp = region->getComposition();
-		LLTextureCtrl* texture_ctrl;
+
+        // Are these 4 texture IDs or 4 material IDs? Who knows! Let's set the IDs on both pickers for now.
+		LLTextureCtrl* asset_ctrl;
 		std::string buffer;
 		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 		{
 			buffer = llformat("texture_detail_%d", i);
-			texture_ctrl = getChild<LLTextureCtrl>(buffer);
-			if(texture_ctrl)
+			asset_ctrl = getChild<LLTextureCtrl>(buffer);
+			if(asset_ctrl)
 			{
 				LL_DEBUGS() << "Detail Texture " << i << ": "
-						 << compp->getDetailTextureID(i) << LL_ENDL;
-				LLUUID tmp_id(compp->getDetailTextureID(i));
-				texture_ctrl->setImageAssetID(tmp_id);
+						 << compp->getDetailAssetID(i) << LL_ENDL;
+				LLUUID tmp_id(compp->getDetailAssetID(i));
+				asset_ctrl->setImageAssetID(tmp_id);
+			}
+		}
+		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+		{
+			buffer = llformat("material_detail_%d", i);
+			asset_ctrl = getChild<LLTextureCtrl>(buffer);
+			if(asset_ctrl)
+			{
+				LLUUID tmp_id(compp->getDetailAssetID(i));
+				asset_ctrl->setImageAssetID(tmp_id);
 			}
 		}
 
@@ -1499,17 +1618,45 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 		}
 	}
 
-	LLTextureCtrl* texture_ctrl;
+	LLTextureCtrl* asset_ctrl;
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
 
+    // Use material IDs instead of texture IDs if all material IDs are set, AND the mode is set to PBR materials.
+    S32 materials_used = 0;
+    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+    if (material_type_ctrl)
+    {
+        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
+        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
+        if (is_material_selected)
+        {
+            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+            {
+                buffer = llformat("material_detail_%d", i);
+                asset_ctrl = getChild<LLTextureCtrl>(buffer);
+                if(asset_ctrl && asset_ctrl->getImageAssetID().notNull())
+                {
+                    ++materials_used;
+                }
+            }
+        }
+    }
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
-		buffer = llformat("texture_detail_%d", i);
-		texture_ctrl = getChild<LLTextureCtrl>(buffer);
-		if(texture_ctrl)
+        if (materials_used == TERRAIN_TEXTURE_COUNT)
+        {
+            buffer = llformat("material_detail_%d", i);
+            asset_ctrl = getChild<LLTextureCtrl>(buffer);
+        }
+        else
+        {
+            buffer = llformat("texture_detail_%d", i);
+            asset_ctrl = getChild<LLTextureCtrl>(buffer);
+        }
+		if(asset_ctrl)
 		{
-			LLUUID tmp_id(texture_ctrl->getImageAssetID());
+			LLUUID tmp_id(asset_ctrl->getImageAssetID());
 			tmp_id.toString(id_str);
 			buffer = llformat("%d %s", i, id_str.c_str());
 			strings.push_back(buffer);

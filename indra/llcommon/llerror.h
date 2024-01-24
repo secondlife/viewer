@@ -385,11 +385,9 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_NEWLINE '\n'
 
 // Use this only in LL_ERRS or in a place that LL_ERRS may not be used
-#define LLERROR_CRASH         \
-{                             \
-    int* make_me_crash = NULL;\
-    *make_me_crash = 0;       \
-    exit(*make_me_crash);     \
+#define LLERROR_CRASH                                   \
+{                                                       \
+    crashdriver([](int* ptr){ *ptr = 0; exit(*ptr); }); \
 }
 
 #define LL_ENDL                                         \
@@ -490,5 +488,8 @@ LL_ENDL;
 LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
 the result in a static variable.
 */ 
+
+// used by LLERROR_CRASH
+void crashdriver(void (*)(int*));
 
 #endif // LL_LLERROR_H

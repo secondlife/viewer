@@ -72,7 +72,7 @@ LLViewerTextureList gTextureList;
 
 ETexListType get_element_type(S32 priority)
 {
-    return (priority == LLViewerFetchedTexture::BOOST_ICON) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
+    return (priority == LLViewerFetchedTexture::BOOST_ICON || priority == LLViewerFetchedTexture::BOOST_THUMBNAIL) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -492,7 +492,8 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 			{
 				imagep->dontDiscard();
 			}
-			if (boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+			if (boost_priority == LLViewerFetchedTexture::BOOST_ICON
+                || boost_priority == LLViewerFetchedTexture::BOOST_THUMBNAIL)
 			{
 				// Agent and group Icons are downloadable content, nothing manages
 				// icon deletion yet, so they should not persist
@@ -604,7 +605,8 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 		{
 			imagep->dontDiscard();
 		}
-		if (boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+		if (boost_priority == LLViewerFetchedTexture::BOOST_ICON
+            || boost_priority == LLViewerFetchedTexture::BOOST_THUMBNAIL)
 		{
 			// Agent and group Icons are downloadable content, nothing manages
 			// icon deletion yet, so they should not persist.
@@ -897,6 +899,13 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 {
                     F32 vsize = face->getPixelArea();
 
+                    // scale desired texture resolution higher or lower depending on texture scale
+                    const LLTextureEntry* te = face->getTextureEntry();
+                    F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
+                    min_scale = llmax(min_scale*min_scale, 0.1f);
+
+                    vsize /= min_scale;
+
 #if LL_DARWIN
                     vsize /= 1.f + LLViewerTexture::sDesiredDiscardBias*(1.f+face->getDrawable()->mDistanceWRTCamera*bias_distance_scale);
 #else
@@ -914,7 +923,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     // if a GLTF material is present, ignore that face
                     // as far as this texture stats go, but update the GLTF material 
                     // stats
-                    const LLTextureEntry* te = face->getTextureEntry();
                     LLFetchedGLTFMaterial* mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
                     llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
                     if (mat)
@@ -1510,8 +1518,9 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	LLUIImagePtr new_imagep = new LLUIImage(name, imagep);
 	new_imagep->setScaleStyle(scale_style);
 
-	if (imagep->getBoostLevel() != LLGLTexture::BOOST_ICON &&
-		imagep->getBoostLevel() != LLGLTexture::BOOST_PREVIEW)
+	if (imagep->getBoostLevel() != LLGLTexture::BOOST_ICON
+        && imagep->getBoostLevel() != LLGLTexture::BOOST_THUMBNAIL
+		&& imagep->getBoostLevel() != LLGLTexture::BOOST_PREVIEW)
 	{
 		// Don't add downloadable content into this list
 		// all UI images are non-deletable and list does not support deletion

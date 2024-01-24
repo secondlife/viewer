@@ -48,6 +48,8 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTreeLODFactor			1	1.0
 RenderVBOEnable				1	1
 RenderVBOMappingDisable		1	1
@@ -94,6 +96,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
@@ -123,6 +126,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
@@ -150,6 +154,7 @@ RenderLocalLightCount		1	512
 RenderTransparentWater      1   0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.25
 RenderDeferredSSAO			1	0
@@ -179,6 +184,7 @@ RenderLocalLightCount		1	1024
 RenderTransparentWater      1   1
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.375
 RenderDeferredSSAO			1	0
@@ -208,6 +214,7 @@ RenderLocalLightCount		1	2048
 RenderTransparentWater      1   1
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.5
 RenderDeferredSSAO			1	1
@@ -236,6 +243,7 @@ RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	4096
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.75
@@ -264,6 +272,7 @@ RenderLocalLightCount		1	8192
 RenderMaxPartCount			1	8192
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
@@ -321,3 +330,5 @@ RenderFSAASamples           0   0
 RenderReflectionsEnabled    0   0
 RenderReflectionProbeDetail	0	0
 
+list TexUnit16orLess
+RenderTerrainPBRDetail      1   -1

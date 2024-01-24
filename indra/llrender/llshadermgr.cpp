@@ -81,14 +81,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->calculatesAtmospherics)
 	{
-		if (features->hasWaterFog)
-		{
-			if (!shader->attachVertexObject("windlight/atmosphericsVarsWaterV.glsl"))
-			{
-				return FALSE;
-			}
-		}
-        else if (!shader->attachVertexObject("windlight/atmosphericsVarsV.glsl"))
+		if (!shader->attachVertexObject("windlight/atmosphericsVarsV.glsl"))
 		{
 			return FALSE;
 		}
@@ -201,14 +194,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if(features->calculatesAtmospherics || features->hasGamma || features->isDeferred)
 	{
-		if (features->hasWaterFog)
-		{
-			if (!shader->attachFragmentObject("windlight/atmosphericsVarsWaterF.glsl"))
-			{
-				return FALSE;
-			}
-		}
-        else if (!shader->attachFragmentObject("windlight/atmosphericsVarsF.glsl"))
+		if (!shader->attachFragmentObject("windlight/atmosphericsVarsF.glsl"))
 		{
 			return FALSE;
 		}
@@ -299,8 +285,16 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 	
+    if (features->isPBRTerrain)
+    {
+        if (!shader->attachFragmentObject("deferred/pbrterrainUtilF.glsl"))
+        {
+            return FALSE;
+        }
+    }
+	
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
-	if (features->hasWaterFog)
+	if (features->hasAtmospherics)
 	{
         if (!shader->attachFragmentObject("environment/waterFogF.glsl"))
 		{
@@ -310,82 +304,40 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	
 	if (features->hasLighting)
 	{
-		if (features->hasWaterFog)
+		if (features->disableTextureIndex)
 		{
-			if (features->disableTextureIndex)
+			if (features->hasAlphaMask)
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightAlphaMaskNonIndexedF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterAlphaMaskNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
 			}
-			else 
+			else
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightNonIndexedF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterAlphaMaskF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightWaterF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
-		
-		else
+		else 
 		{
-			if (features->disableTextureIndex)
+			if (features->hasAlphaMask)
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightAlphaMaskF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightAlphaMaskNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightNonIndexedF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
 			}
-			else 
+			else
 			{
-				if (features->hasAlphaMask)
+                if (!shader->attachFragmentObject("lighting/lightF.glsl"))
 				{
-                    if (!shader->attachFragmentObject("lighting/lightAlphaMaskF.glsl"))
-					{
-						return FALSE;
-					}
+					return FALSE;
 				}
-				else
-				{
-                    if (!shader->attachFragmentObject("lighting/lightF.glsl"))
-					{
-						return FALSE;
-					}
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
+			shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 		}
 	}
 	
@@ -1443,7 +1395,31 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_1");
 	mReservedUniforms.push_back("detail_2");
 	mReservedUniforms.push_back("detail_3");
+
 	mReservedUniforms.push_back("alpha_ramp");
+
+	mReservedUniforms.push_back("detail_0_base_color");
+	mReservedUniforms.push_back("detail_1_base_color");
+	mReservedUniforms.push_back("detail_2_base_color");
+	mReservedUniforms.push_back("detail_3_base_color");
+	mReservedUniforms.push_back("detail_0_normal");
+	mReservedUniforms.push_back("detail_1_normal");
+	mReservedUniforms.push_back("detail_2_normal");
+	mReservedUniforms.push_back("detail_3_normal");
+	mReservedUniforms.push_back("detail_0_metallic_roughness");
+	mReservedUniforms.push_back("detail_1_metallic_roughness");
+	mReservedUniforms.push_back("detail_2_metallic_roughness");
+	mReservedUniforms.push_back("detail_3_metallic_roughness");
+	mReservedUniforms.push_back("detail_0_emissive");
+	mReservedUniforms.push_back("detail_1_emissive");
+	mReservedUniforms.push_back("detail_2_emissive");
+	mReservedUniforms.push_back("detail_3_emissive");
+
+    mReservedUniforms.push_back("baseColorFactors");
+    mReservedUniforms.push_back("metallicFactors");
+    mReservedUniforms.push_back("roughnessFactors");
+    mReservedUniforms.push_back("emissiveColors");
+    mReservedUniforms.push_back("minimum_alphas");
 
 	mReservedUniforms.push_back("origin");
 	mReservedUniforms.push_back("display_gamma");

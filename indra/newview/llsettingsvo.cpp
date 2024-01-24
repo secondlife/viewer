@@ -63,6 +63,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "llinventoryobserver.h"
 #include "llinventorydefines.h"
+#include "llworld.h"
 
 #include "lltrans.h"
 
@@ -738,7 +739,6 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> auto_adjust_blue_horizon_scale(gSavedSettings, "RenderSkyAutoAdjustBlueHorizonScale", 1.f);
     static LLCachedControl<F32> auto_adjust_blue_density_scale(gSavedSettings, "RenderSkyAutoAdjustBlueDensityScale", 1.f);
     static LLCachedControl<F32> auto_adjust_sun_color_scale(gSavedSettings, "RenderSkyAutoAdjustSunColorScale", 1.f);
-    static LLCachedControl<F32> auto_adjust_probe_ambiance(gSavedSettings, "RenderSkyAutoAdjustProbeAmbiance", 1.f);
     static LLCachedControl<F32> sunlight_scale(gSavedSettings, "RenderSkySunlightScale", 1.5f);
     static LLCachedControl<F32> ambient_scale(gSavedSettings, "RenderSkyAmbientScale", 1.5f);
 
@@ -771,8 +771,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
             shader->uniform3fv(LLShaderMgr::BLUE_DENSITY, blue_density.mV);
             shader->uniform3fv(LLShaderMgr::BLUE_HORIZON, blue_horizon.mV);
 
-            LLSettingsSky::sAutoAdjustProbeAmbiance = auto_adjust_probe_ambiance;
-            probe_ambiance = auto_adjust_probe_ambiance;  // NOTE -- must match LLSettingsSky::getReflectionProbeAmbiance value for "auto_adjust" true
+            probe_ambiance = sAutoAdjustProbeAmbiance;
         }
         else
         {
@@ -983,11 +982,20 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
     LLEnvironment& env = LLEnvironment::instance();
 
-    auto group = LLGLSLShader::SG_WATER;
+    auto group = LLGLSLShader::SG_ANY;
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[group];
     
 	{
         F32 water_height = env.getWaterHeight();
+
+        if (LLViewerCamera::instance().cameraUnderWater())
+        { // when the camera is under water, use the water height at the camera position
+            LLViewerRegion* region = LLWorld::instance().getRegionFromPosAgent(LLViewerCamera::instance().getOrigin());
+            if (region)
+            {
+                water_height = region->getWaterHeight();
+            }
+        }
 
         //transform water plane to eye space
         glh::vec3f norm(0.f, 0.f, 1.f);

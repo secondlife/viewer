@@ -310,6 +310,7 @@ set(viewer_SOURCE_FILES
     llgiveinventory.cpp
     llglsandbox.cpp
     llgltfmateriallist.cpp
+    llgltfmaterialpreviewmgr.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
     llgrouplist.cpp
@@ -964,6 +965,7 @@ set(viewer_HEADER_FILES
     llgesturemgr.h
     llgiveinventory.h
     llgltfmateriallist.h
+    llgltfmaterialpreviewmgr.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -1701,6 +1703,7 @@ if (WINDOWS)
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
         LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
+    target_compile_options(${VIEWER_BINARY_NAME} PRIVATE /bigobj)
 
     if(USE_PRECOMPILED_HEADERS)
        target_precompile_headers( ${VIEWER_BINARY_NAME} PRIVATE llviewerprecompiledheaders.h )
@@ -1757,7 +1760,7 @@ if (WINDOWS)
     if (TARGET ll::fmodstudio)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/fmod.dll
-           ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
+           ${SHARED_LIB_STAGING_DIR}/fmodL.dll
           )
     endif ()
 
@@ -2168,20 +2171,6 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         )
       add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
       add_dependencies(dsym_generate ${VIEWER_BINARY_NAME})
-      add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # See above comments about "tar ...j"
-        COMMAND "tar"
-        ARGS
-          "cjf"
-          "${VIEWER_SYMBOL_FILE}"
-          "-C"
-          "${VIEWER_APP_DSYM}/.."
-          "${product}.dSYM"
-        DEPENDS "${VIEWER_APP_DSYM}"
-        COMMENT "Packing dSYM into ${VIEWER_SYMBOL_FILE}"
-        )
-      add_custom_target(dsym_tarball DEPENDS "${VIEWER_SYMBOL_FILE}")
-      add_dependencies(dsym_tarball dsym_generate)
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
         COMMAND "zip"
         ARGS
@@ -2199,24 +2188,22 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         COMMAND rm -rf "${VIEWER_APP_DSYM}"
         COMMAND touch "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
-        DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_APP_XCARCHIVE}"
+        DEPENDS "${VIEWER_APP_XCARCHIVE}"
         COMMENT "Cleaning up dSYM"
         )
       add_custom_target(generate_symbols DEPENDS
         "${VIEWER_APP_DSYM}"
-        "${VIEWER_SYMBOL_FILE}"
         "${VIEWER_APP_XCARCHIVE}"
         "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         )
-      add_dependencies(generate_symbols dsym_tarball dsym_xcarchive)
+      add_dependencies(generate_symbols dsym_xcarchive)
     endif (DARWIN)
     if (LINUX)
       # TBD
     endif (LINUX)
-  endif (USE_BUGSPLAT)
 
-  # for both Bugsplat and Breakpad
-  add_dependencies(llpackage generate_symbols)
+    add_dependencies(llpackage generate_symbols)
+  endif (USE_BUGSPLAT)
 endif ()
 
 if (LL_TESTS)

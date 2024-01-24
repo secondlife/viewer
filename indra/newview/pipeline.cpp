@@ -163,6 +163,7 @@ F32 LLPipeline::CameraFocusTransitionTime;
 F32 LLPipeline::CameraFNumber;
 F32 LLPipeline::CameraFocalLength;
 F32 LLPipeline::CameraFieldOfView;
+S32 LLPipeline::RenderLocalLightCount;
 F32 LLPipeline::RenderShadowNoise;
 F32 LLPipeline::RenderShadowBlurSize;
 F32 LLPipeline::RenderSSAOScale;
@@ -200,6 +201,8 @@ S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
+const U32 LLPipeline::MAX_BAKE_WIDTH = 512;
+
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
 const F32 ALPHA_BLEND_CUTOFF = 0.598f;
@@ -211,6 +214,7 @@ extern S32 gBoxFrame;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDebugGL;
 extern BOOL gCubeSnapshot;
+extern BOOL gSnapshotNoPost;
 
 bool	gAvatarBacklight = false;
 
@@ -520,6 +524,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraFNumber");
 	connectRefreshCachedSettingsSafe("CameraFocalLength");
 	connectRefreshCachedSettingsSafe("CameraFieldOfView");
+	connectRefreshCachedSettingsSafe("RenderLocalLightCount");
 	connectRefreshCachedSettingsSafe("RenderShadowNoise");
 	connectRefreshCachedSettingsSafe("RenderShadowBlurSize");
 	connectRefreshCachedSettingsSafe("RenderSSAOScale");
@@ -764,11 +769,19 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    if (mRT == &mMainRT && sReflectionProbesEnabled)
+    if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
+
         gCubeSnapshot = TRUE;
         mReflectionMapManager.initReflectionMaps();
         mHeroProbeManager.initReflectionMaps();
+
+        if (sReflectionProbesEnabled)
+        {
+            gCubeSnapshot = TRUE;
+            mReflectionMapManager.initReflectionMaps();
+        }
+
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
@@ -788,10 +801,8 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		resY /= res_mod;
 	}
 
-    if (LLPipeline::sRenderTransparentWater)
-    { //water reflection texture
-        mWaterDis.allocate(resX, resY, GL_RGBA, true);
-    }
+    //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
+    mWaterDis.allocate(resX, resY, GL_RGBA16F, true);
 
 	if (RenderUIBuffer)
 	{
@@ -1012,6 +1023,7 @@ void LLPipeline::refreshCachedSettings()
 	CameraFNumber = gSavedSettings.getF32("CameraFNumber");
 	CameraFocalLength = gSavedSettings.getF32("CameraFocalLength");
 	CameraFieldOfView = gSavedSettings.getF32("CameraFieldOfView");
+	RenderLocalLightCount = gSavedSettings.getS32("RenderLocalLightCount");
 	RenderShadowNoise = gSavedSettings.getF32("RenderShadowNoise");
 	RenderShadowBlurSize = gSavedSettings.getF32("RenderShadowBlurSize");
 	RenderSSAOScale = gSavedSettings.getF32("RenderSSAOScale");
@@ -1075,7 +1087,6 @@ void LLPipeline::releaseGLBuffers()
 	releaseLUTBuffers();
 
 	mWaterDis.release();
-    mBake.release();
 	
     mSceneMap.release();
 
@@ -1153,9 +1164,6 @@ void LLPipeline::createGLBuffers()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     stop_glerror();
 	assertInitialized();
-
-    // Use FBO for bake tex
-    mBake.allocate(512, 512, GL_RGBA, true); // SL-12781 Build > Upload > Model; 3D Preview
 
 	stop_glerror();
 
@@ -2311,13 +2319,6 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
     {
         gSky.mVOWLSkyp->mDrawable->setVisible(camera);
         sCull->pushDrawable(gSky.mVOWLSkyp->mDrawable);
-    }
-
-    bool render_water = !sReflectionRender && (hasRenderType(LLPipeline::RENDER_TYPE_WATER) || hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER));
-
-    if (render_water)
-    {
-        LLWorld::getInstance()->precullWaterObjects(camera, sCull, render_water);
     }
 }
 
@@ -3850,10 +3851,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 					poolp->endDeferredPass(i);
 					LLVertexBuffer::unbind();
 
-					if (gDebugGL || gDebugPipeline)
-					{
-						LLGLState::checkStates();
-					}
+					LLGLState::checkStates();
 				}
 			}
 			else
@@ -3900,6 +3898,20 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 
 	LLGLEnable cull(GL_CULL_FACE);
 
+    bool done_atmospherics = LLPipeline::sRenderingHUDs; //skip atmospherics on huds
+    bool done_water_haze = done_atmospherics;
+
+    // do atmospheric haze just before post water alpha
+    U32 atmospherics_pass = LLDrawPool::POOL_ALPHA_POST_WATER;
+
+    if (LLPipeline::sUnderWaterRender)
+    { // if under water, do atmospherics just before the water pass
+        atmospherics_pass = LLDrawPool::POOL_WATER;
+    }
+
+    // do water haze just before pre water alpha
+    U32 water_haze_pass = LLDrawPool::POOL_ALPHA_PRE_WATER;
+
 	calcNearbyLights(camera);
 	setupHWLights();
 
@@ -3918,6 +3930,18 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 		LLDrawPool *poolp = *iter1;
 		
 		cur_type = poolp->getType();
+
+        if (cur_type >= atmospherics_pass && !done_atmospherics)
+        { // do atmospherics against depth buffer before rendering alpha
+            doAtmospherics();
+            done_atmospherics = true;
+        }
+
+        if (cur_type >= water_haze_pass && !done_water_haze)
+        { // do water haze against depth buffer before rendering alpha
+            doWaterHaze();
+            done_water_haze = true;
+        }
 
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
@@ -5235,7 +5259,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		return;
 	}
 
-    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+    const S32 local_light_count = LLPipeline::RenderLocalLightCount;
 
 	if (local_light_count >= 1)
 	{
@@ -5504,7 +5528,7 @@ void LLPipeline::setupHWLights()
 
 	mLightMovingMask = 0;
 	
-    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+    const S32 local_light_count = LLPipeline::RenderLocalLightCount;
 
 	if (local_light_count >= 1)
 	{
@@ -6544,7 +6568,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                mSimplePool->pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
+                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
             }
             else
             {
@@ -6570,7 +6594,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                mSimplePool->pushGLTFBatch(*pparams);
+                LLRenderPass::pushGLTFBatch(*pparams);
             }
             else
             {
@@ -6814,7 +6838,7 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
 	{
 		LL_PROFILE_GPU_ZONE("gamma correct");
 
-        static LLCachedControl<bool> no_post(gSavedSettings, "RenderDisablePostProcessing", false);
+        static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
@@ -6824,7 +6848,8 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
         
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        LLGLSLShader& shader = no_post && gFloaterTools->isAvailable() ? gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        LLGLSLShader& shader = no_post ? gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
             psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? gLegacyPostGammaCorrectProgram :
             gDeferredPostGammaCorrectProgram;
         
@@ -7481,7 +7506,7 @@ void LLPipeline::bindDeferredShaderFast(LLGLSLShader& shader)
     }
 }
 
-void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target)
+void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target, LLRenderTarget* depth_target)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LLRenderTarget* deferred_target       = &mRT->deferredScreen;
@@ -7520,7 +7545,14 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_target->getUsage());
     if (channel > -1)
     {
-        gGL.getTexUnit(channel)->bind(deferred_target, TRUE);
+        if (depth_target)
+        {
+            gGL.getTexUnit(channel)->bind(depth_target, TRUE);
+        }
+        else
+        {
+            gGL.getTexUnit(channel)->bind(deferred_target, TRUE);
+        }
         stop_glerror();
     }
 
@@ -7898,7 +7930,7 @@ void LLPipeline::renderDeferredLighting()
 
         if (RenderDeferredAtmospheric)
         {  // apply sunlight contribution
-            LLGLSLShader &soften_shader = LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram;
+            LLGLSLShader &soften_shader = gDeferredSoftenProgram;
 
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - atmospherics");
             LL_PROFILE_GPU_ZONE("atmospherics");
@@ -7927,10 +7959,10 @@ void LLPipeline::renderDeferredLighting()
                 mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
             }
 
-            unbindDeferredShader(LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram);
+            unbindDeferredShader(gDeferredSoftenProgram);
         }
 
-        static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+        const S32 local_light_count = LLPipeline::RenderLocalLightCount;
 
         if (local_light_count > 0)
         {
@@ -8079,7 +8111,7 @@ void LLPipeline::renderDeferredLighting()
 
                     LLVector4a center;
                     center.load3(drawablep->getPositionAgent().mV);
-                    const F32 *c = center.getF32ptr();
+                    const F32* c = center.getF32ptr();
                     F32        s = volume->getLightRadius() * 1.5f;
 
                     sVisibleLightCount++;
@@ -8128,8 +8160,8 @@ void LLPipeline::renderDeferredLighting()
                         U32 idx = count - 1;
                         bindDeferredShader(gDeferredMultiLightProgram[idx]);
                         gDeferredMultiLightProgram[idx].uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
-                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat *) light);
-                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat *) col);
+                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*)light);
+                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*)col);
                         gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
                         far_z = 0.f;
                         count = 0;
@@ -8147,11 +8179,11 @@ void LLPipeline::renderDeferredLighting()
 
                 for (LLDrawable::drawable_list_t::iterator iter = fullscreen_spot_lights.begin(); iter != fullscreen_spot_lights.end(); ++iter)
                 {
-                    LLDrawable *drawablep           = *iter;
-                    LLVOVolume *volume              = drawablep->getVOVolume();
-                    LLVector3   center              = drawablep->getPositionAgent();
-                    F32 *       c                   = center.mV;
-                    F32         light_size_final    = volume->getLightRadius() * 1.5f;
+                    LLDrawable* drawablep = *iter;
+                    LLVOVolume* volume = drawablep->getVOVolume();
+                    LLVector3   center = drawablep->getPositionAgent();
+                    F32* c = center.mV;
+                    F32         light_size_final = volume->getLightRadius() * 1.5f;
                     F32         light_falloff_final = volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF);
 
                     sVisibleLightCount++;
@@ -8176,13 +8208,11 @@ void LLPipeline::renderDeferredLighting()
             }
         }
 
-
         gGL.setColorMask(true, true);
     }
 
     {  // render non-deferred geometry (alpha, fullbright, glow)
         LLGLDisable blend(GL_BLEND);
-        //LLGLDisable stencil(GL_STENCIL_TEST);
 
         pushRenderTypeMask();
         andRenderTypeMask(LLPipeline::RENDER_TYPE_ALPHA,
@@ -8231,6 +8261,153 @@ void LLPipeline::renderDeferredLighting()
         }
     }
     gGL.setColorMask(true, true);
+}
+
+void LLPipeline::doAtmospherics()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+
+    if (sImpostorRender)
+    { // do not attempt atmospherics on impostors
+        return;
+    }
+
+    if (RenderDeferredAtmospheric)
+    {
+        {
+            // copy depth buffer for use in haze shader (use water displacement map as temp storage)
+            LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+            LLRenderTarget& src = gPipeline.mRT->screen;
+            LLRenderTarget& depth_src = gPipeline.mRT->deferredScreen;
+            LLRenderTarget& dst = gPipeline.mWaterDis;
+
+            mRT->screen.flush();
+            dst.bindTarget();
+            gCopyDepthProgram.bind();
+
+            S32 diff_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+            S32 depth_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
+
+            gGL.getTexUnit(diff_map)->bind(&src);
+            gGL.getTexUnit(depth_map)->bind(&depth_src, true);
+
+            gGL.setColorMask(false, false);
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+            dst.flush();
+            mRT->screen.bindTarget();
+        }
+
+        LLGLEnable blend(GL_BLEND);
+        gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA, LLRender::BF_ZERO, LLRender::BF_SOURCE_ALPHA);
+        gGL.setColorMask(true, true);
+
+        // apply haze
+        LLGLSLShader& haze_shader = gHazeProgram;
+
+        LL_PROFILE_GPU_ZONE("haze");
+        bindDeferredShader(haze_shader, nullptr, &mWaterDis);
+
+        LLEnvironment& environment = LLEnvironment::instance();
+        haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
+
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+        LLGLDepthTest depth(GL_FALSE);
+
+        // full screen blit
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    
+        unbindDeferredShader(haze_shader);
+
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    }
+}
+
+void LLPipeline::doWaterHaze()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    if (sImpostorRender)
+    { // do not attempt water haze on impostors
+        return;
+    }
+
+    if (RenderDeferredAtmospheric)
+    {
+        // copy depth buffer for use in haze shader (use water displacement map as temp storage)
+        {
+            LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+            LLRenderTarget& src = gPipeline.mRT->screen;
+            LLRenderTarget& depth_src = gPipeline.mRT->deferredScreen;
+            LLRenderTarget& dst = gPipeline.mWaterDis;
+
+            mRT->screen.flush();
+            dst.bindTarget();
+            gCopyDepthProgram.bind();
+
+            S32 diff_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+            S32 depth_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
+
+            gGL.getTexUnit(diff_map)->bind(&src);
+            gGL.getTexUnit(depth_map)->bind(&depth_src, true);
+
+            gGL.setColorMask(false, false);
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+            dst.flush();
+            mRT->screen.bindTarget();
+        }
+
+        LLGLEnable blend(GL_BLEND);
+        gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA, LLRender::BF_ZERO, LLRender::BF_SOURCE_ALPHA);
+
+        gGL.setColorMask(true, true);
+
+        // apply haze
+        LLGLSLShader& haze_shader = gHazeWaterProgram;
+
+        LL_PROFILE_GPU_ZONE("haze");
+        bindDeferredShader(haze_shader, nullptr, &mWaterDis);
+
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+        static LLStaticHashedString above_water_str("above_water");
+        haze_shader.uniform1i(above_water_str, sUnderWaterRender ? -1 : 1);
+
+        if (LLPipeline::sUnderWaterRender)
+        {
+            LLGLDepthTest depth(GL_FALSE);
+
+            // full screen blit
+            mScreenTriangleVB->setBuffer();
+            mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+        }
+        else
+        {
+            //render water patches like LLDrawPoolWater does
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+            LLGLDisable   cull(GL_CULL_FACE);
+
+            gGLLastMatrix = NULL;
+            gGL.loadMatrix(gGLModelView);
+
+            if (mWaterPool)
+            {
+                mWaterPool->pushFaceGeometry();
+            }
+        }
+
+        unbindDeferredShader(haze_shader);
+
+
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    }
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
