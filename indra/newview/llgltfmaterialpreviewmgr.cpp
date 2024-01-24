@@ -130,6 +130,8 @@ namespace
 
     LLGLTFPreviewTexture::MaterialLoadLevels get_material_load_levels(LLFetchedGLTFMaterial& material)
     {
+        llassert(!material.isFetching());
+
         using MaterialTextures = LLPointer<LLViewerFetchedTexture>*[LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT];
 
         MaterialTextures textures;
