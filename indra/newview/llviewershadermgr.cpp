@@ -1805,7 +1805,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredSoftenProgram.addPermutation("HAS_SUN_SHADOW", "1");
         }
 
-        gDeferredSoftenProgram.addPermutation("HERO_PROBES", "1");
+		if (LLPipeline::RenderMirrors)
+		{
+            gDeferredSoftenProgram.addPermutation("HERO_PROBES", "1");
+		}
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled

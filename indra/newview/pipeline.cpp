@@ -199,6 +199,7 @@ F32 LLPipeline::RenderScreenSpaceReflectionDepthRejectBias;
 F32 LLPipeline::RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
+bool LLPipeline::RenderMirrors;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const U32 LLPipeline::MAX_BAKE_WIDTH = 512;
@@ -559,6 +560,7 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionGlossySamples");
 	connectRefreshCachedSettingsSafe("RenderBufferVisualization");
+    connectRefreshCachedSettingsSafe("RenderMirrors");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
@@ -1058,6 +1060,7 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
 	RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
+    RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
 
@@ -8645,11 +8648,14 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         bound = true;
     }
     
-    channel = shader.enableTexture(LLShaderMgr::HERO_PROBE, LLTexUnit::TT_CUBE_MAP_ARRAY);
-    if (channel > -1 && mHeroProbeManager.mTexture.notNull())
+	if (RenderMirrors)
     {
-        mHeroProbeManager.mTexture->bind(channel);
-        bound = true;
+        channel = shader.enableTexture(LLShaderMgr::HERO_PROBE, LLTexUnit::TT_CUBE_MAP_ARRAY);
+        if (channel > -1 && mHeroProbeManager.mTexture.notNull())
+        {
+            mHeroProbeManager.mTexture->bind(channel);
+            bound = true;
+        }
     }
      
 

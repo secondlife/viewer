@@ -1051,6 +1051,7 @@ public:
 	static F32 RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 	static S32 RenderScreenSpaceReflectionGlossySamples;
 	static S32 RenderBufferVisualization;
+	static bool RenderMirrors;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);
