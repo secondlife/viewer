@@ -337,7 +337,7 @@ void set_preview_sphere_material(PreviewSphere& preview_sphere, LLPointer<LLFetc
         info->mGLTFMaterial = material;
         LLVertexBuffer* buf = info->mVertexBuffer.get();
         LLStrider<LLColor4U> colors;
-        const S32 count = info->mEnd - info->mStart;
+        const S32 count = info->mEnd - info->mStart + 1;
         buf->getColorStrider(colors, info->mStart, count);
         for (S32 i = 0; i < count; ++i)
         {
