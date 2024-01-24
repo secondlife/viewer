@@ -506,6 +506,7 @@ void LLFloater::enableResizeCtrls(bool enable, bool width, bool height)
 
 void LLFloater::destroy()
 {
+	gFloaterView->onDestroyFloater(this);
 	// LLFloaterReg should be synchronized with "dead" floater to avoid returning dead instance before
 	// it was deleted via LLMortician::updateClass(). See EXT-8458.
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
@@ -2572,7 +2573,7 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore
 		return;
 	}
 
-	if (mFrontChild && !mFrontChild->isDead() && mFrontChild->getVisible())
+	if (mFrontChild)
 	{
 		mFrontChild->goneFromFront();
 	}
@@ -3232,6 +3233,14 @@ void LLFloaterView::setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LL
 		LL_WARNS() << "setToolbarRect() passed odd toolbar number " << (S32) tb << LL_ENDL;
 		break;
 	}
+}
+
+void LLFloaterView::onDestroyFloater(LLFloater* floater)
+{
+    if (mFrontChild == floater)
+    {
+        mFrontChild = nullptr;
+    }
 }
 
 void LLFloater::setInstanceName(const std::string& name)
