@@ -28,24 +28,17 @@
 #define DIFFUSE_ALPHA_MODE_MASK 2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
-#ifdef HAS_SKIN
 uniform mat4 modelview_matrix;
 uniform mat4 projection_matrix;
+uniform mat4 modelview_projection_matrix;
+
+#ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 #else
 uniform mat3 normal_matrix;
-uniform mat4 modelview_projection_matrix;
-#endif
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-
-#if !defined(HAS_SKIN)
-uniform mat4 modelview_matrix;
 #endif
 
 out vec3 vary_position;
-
-#endif
 
 uniform mat4 texture_matrix0;
 
@@ -133,10 +126,8 @@ void main()
 	
 	vertex_color = diffuse_color;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 #if !defined(HAS_SKIN)
-	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
-#endif
+	vary_position = (projection_matrix*vec4(position.xyz, 1.0)).xyz;
 #endif
 }
 

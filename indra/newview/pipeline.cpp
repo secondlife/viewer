@@ -199,6 +199,7 @@ F32 LLPipeline::RenderScreenSpaceReflectionDepthRejectBias;
 F32 LLPipeline::RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
+bool LLPipeline::RenderMirrors;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const U32 LLPipeline::MAX_BAKE_WIDTH = 512;
@@ -559,6 +560,7 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionGlossySamples");
 	connectRefreshCachedSettingsSafe("RenderBufferVisualization");
+    connectRefreshCachedSettingsSafe("RenderMirrors");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
@@ -642,6 +644,7 @@ void LLPipeline::cleanup()
 	mCubeVB = NULL;
 
     mReflectionMapManager.cleanup();
+    mHeroProbeManager.cleanup();
 }
 
 //============================================================================
@@ -770,11 +773,17 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
+
+        gCubeSnapshot = TRUE;
+        mReflectionMapManager.initReflectionMaps();
+        mHeroProbeManager.initReflectionMaps();
+
         if (sReflectionProbesEnabled)
         {
             gCubeSnapshot = TRUE;
             mReflectionMapManager.initReflectionMaps();
         }
+
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
@@ -1051,6 +1060,7 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
 	RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
+    RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
 
@@ -2394,6 +2404,26 @@ void LLPipeline::doOcclusion(LLCamera& camera)
         mCubeVB->setBuffer();
 
         mReflectionMapManager.doOcclusion();
+        gOcclusionCubeProgram.unbind();
+
+        gGL.setColorMask(true, true);
+    }
+    
+    if (sReflectionProbesEnabled && sUseOcclusion > 1 && !LLPipeline::sShadowRender && !gCubeSnapshot)
+    {
+        gGL.setColorMask(false, false);
+        LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+        LLGLDisable cull(GL_CULL_FACE);
+
+        gOcclusionCubeProgram.bind();
+
+        if (mCubeVB.isNull())
+        { //cube VB will be used for issuing occlusion queries
+            mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX);
+        }
+        mCubeVB->setBuffer();
+
+        mHeroProbeManager.doOcclusion();
         gOcclusionCubeProgram.unbind();
 
         gGL.setColorMask(true, true);
@@ -3775,6 +3805,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
         {
             //update reflection probe uniform
             mReflectionMapManager.updateUniforms();
+            mHeroProbeManager.updateUniforms();
         }
 
 		U32 cur_type = 0;
@@ -8616,6 +8647,17 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         mReflectionMapManager.mIrradianceMaps->bind(channel);
         bound = true;
     }
+    
+	if (RenderMirrors)
+    {
+        channel = shader.enableTexture(LLShaderMgr::HERO_PROBE, LLTexUnit::TT_CUBE_MAP_ARRAY);
+        if (channel > -1 && mHeroProbeManager.mTexture.notNull())
+        {
+            mHeroProbeManager.mTexture->bind(channel);
+            bound = true;
+        }
+    }
+     
 
     if (bound)
     {

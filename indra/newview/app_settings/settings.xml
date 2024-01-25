@@ -9197,6 +9197,17 @@
       <real>0.00</real>
     </array>
   </map>
+  <key>RenderMirrors</key>
+  <map>
+    <key>Comment</key>
+    <string>Renders realtime mirrors.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderScreenSpaceReflections</key>
   <map>
     <key>Comment</key>
@@ -10401,6 +10412,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderHeroProbeResolution</key>
+    <map>
+        <key>Comment</key>
+        <string>Resolution to render hero probes used for mirrors, water, etc.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>1024</integer>
+    </map>
+	<key>RenderHeroProbeDistance</key>
+	<map>
+		<key>Comment</key>
+		<string>Distance in meters for hero probes to render out to.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>16</real>
+	</map>
+	<key>RenderHeroProbeNearClipOffset</key>
+	<map>
+		<key>Comment</key>
+		<string>Distance offset in meters for hero probes to near clip.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>2.1</real>
+	</map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>

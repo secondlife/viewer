@@ -43,21 +43,23 @@ class LLViewerObject;
 // reflection probe mininum scale
 #define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
 
+void renderReflectionProbe(LLReflectionMap* probe);
+
 class alignas(16) LLReflectionMapManager
 {
     LL_ALIGN_NEW
 public:
-    enum class DetailLevel 
+    enum class DetailLevel
     {
         STATIC_ONLY = 0,
         STATIC_AND_DYNAMIC,
         REALTIME = 2
     };
 
-    // allocate an environment map of the given resolution 
+    // allocate an environment map of the given resolution
     LLReflectionMapManager();
 
-    // release any GL state 
+    // release any GL state
     void cleanup();
 
     // maintain reflection probes
@@ -113,6 +115,7 @@ public:
 
 private:
     friend class LLPipeline;
+    friend class LLHeroProbeManager;
 
     // initialize mCubeFree array to default values
     void initCubeFree();
@@ -124,7 +127,7 @@ private:
     // returns -1 if allocation failed
     S32 allocateCubeIndex();
 
-    // update the neighbors of the given probe 
+    // update the neighbors of the given probe
     void updateNeighbors(LLReflectionMap* probe);
 
     // update UBO used for rendering (call only once per render pipe flush)

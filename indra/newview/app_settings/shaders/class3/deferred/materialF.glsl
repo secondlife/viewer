@@ -45,6 +45,23 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
 
+uniform vec4 clipPlane;
+uniform float clipSign;
+uniform float mirror_flag;
+void applyClip(vec3 pos)
+{
+    float funnyClip = 0;
+    if (mirror_flag > 0)
+    {
+            if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) > 0.0)
+            {
+                discard;
+            }
+    }
+}
+
+in vec3 vary_position;
+
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
 out vec4 frag_color;
@@ -66,11 +83,11 @@ uniform vec4 morphFactor;
 uniform vec3 camPosLocal;
 uniform mat3 env_mat;
 
+uniform float is_mirror;
+
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 in vec2 vary_fragcoord;
-
-in vec3 vary_position;
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
@@ -285,6 +302,7 @@ float getShadow(vec3 pos, vec3 norm)
 
 void main()
 {
+    applyClip(vary_position);
     waterClip();
 
     // diffcol == diffuse map combined with vertex color
@@ -407,9 +425,15 @@ void main()
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
+
+    float flag = GBUFFER_FLAG_HAS_ATMOS;
+
+    if (mirror_flag > 0)
+        flag = 1;
+
     frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = vec4(encode_normal(norm), env, GBUFFER_FLAG_HAS_ATMOS);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[2] = vec4(encode_normal(norm), env, flag);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
     frag_data[3] = vec4(0);
 #endif
 }

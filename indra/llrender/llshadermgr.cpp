@@ -224,6 +224,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
             return FALSE;
         }
 	}
+    
+    if (features->hasHeroProbes)
+    {
+        if (!shader->attachFragmentObject("deferred/heroProbesUtil.glsl"))
+        {
+            return FALSE;
+        }
+    }
 
     if (features->hasShadows)
 	{
@@ -595,6 +603,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_SKIP_ATMOS   0.0 \n"); // atmo kill
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_ATMOS    0.34\n"); // bit 0
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_PBR      0.67\n"); // bit 1
+    extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_MIRROR      1.0\n");  // bit 2
     extra_code_text[extra_code_count++] = strdup("#define GET_GBUFFER_FLAG(flag)    (abs(norm.w-flag)< 0.1)\n");
 
 	if (defines)
@@ -1200,6 +1209,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("emissiveColor");
     mReservedUniforms.push_back("metallicFactor");
     mReservedUniforms.push_back("roughnessFactor");
+    mReservedUniforms.push_back("mirror_flag");
+    mReservedUniforms.push_back("clipPlane");
+    mReservedUniforms.push_back("clipSign");
 
 	mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
@@ -1212,6 +1224,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sceneDepth");
     mReservedUniforms.push_back("reflectionProbes");
     mReservedUniforms.push_back("irradianceProbes");
+    mReservedUniforms.push_back("heroProbes");
 	mReservedUniforms.push_back("cloud_noise_texture");
     mReservedUniforms.push_back("cloud_noise_texture_next");
 	mReservedUniforms.push_back("fullbright");
@@ -1429,6 +1442,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("cloud_variance");
     mReservedUniforms.push_back("reflection_probe_ambiance");
     mReservedUniforms.push_back("max_probe_lod");
+    mReservedUniforms.push_back("probe_strength");
 
     mReservedUniforms.push_back("sh_input_r");
     mReservedUniforms.push_back("sh_input_g");

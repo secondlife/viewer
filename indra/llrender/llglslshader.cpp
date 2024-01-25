@@ -1184,12 +1184,14 @@ S32 LLGLSLShader::getTextureChannel(S32 uniform) const
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-
+    
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
         return -1;
     }
+
+    
     S32 index = mTexture[uniform];
     if (index != -1)
     {

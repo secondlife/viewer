@@ -31,6 +31,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
 
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
+
 uniform sampler2D sceneMap;
 uniform int cube_snapshot;
 uniform float max_probe_lod;

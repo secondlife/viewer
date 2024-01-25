@@ -114,6 +114,11 @@ BOOL	LLPanelVolume::postBuild()
 		getChild<LLUICtrl>("FlexForceZ")->setValidateBeforeCommit(precommitValidate);
 	}
 
+    // Mirror Parameters
+    {
+        childSetCommitCallback("Mirror Checkbox Ctrl", onCommitIsMirror, this);
+    }
+    
 	// LIGHT Parameters
 	{
 		childSetCommitCallback("Light Checkbox Ctrl",onCommitIsLight,this);
@@ -305,6 +310,10 @@ void LLPanelVolume::getState( )
 		getChildView("select_single")->setEnabled(true);
 	}
 	
+    BOOL is_mirror = volobjp && volobjp->isMirror();
+    getChild<LLUICtrl>("Mirror Checkbox Ctrl")->setValue(is_mirror);
+    getChildView("Mirror Checkbox Ctrl")->setEnabled(editable && single_volume && volobjp);
+    
 	// Light properties
 	BOOL is_light = volobjp && volobjp->getIsLight();
 	getChild<LLUICtrl>("Light Checkbox Ctrl")->setValue(is_light);
@@ -744,6 +753,20 @@ void LLPanelVolume::sendIsLight()
 	BOOL value = getChild<LLUICtrl>("Light Checkbox Ctrl")->getValue();
 	volobjp->setIsLight(value);
 	LL_INFOS() << "update light sent" << LL_ENDL;
+}
+
+void LLPanelVolume::sendIsMirror()
+{
+    LLViewerObject* objectp = mObject;
+    if (!objectp || (objectp->getPCode() != LL_PCODE_VOLUME))
+    {
+        return;
+    }
+    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    
+    BOOL value = getChild<LLUICtrl>("Mirror Checkbox Ctrl")->getValue();
+    volobjp->setIsMirror(value);
+    LL_INFOS() << "update mirror sent" << LL_ENDL;
 }
 
 void notify_cant_select_reflection_probe()
@@ -1444,6 +1467,12 @@ void LLPanelVolume::onCommitIsLight( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelVolume* self = (LLPanelVolume*) userdata;
 	self->sendIsLight();
+}
+
+void LLPanelVolume::onCommitIsMirror( LLUICtrl* ctrl, void* userdata )
+{
+    LLPanelVolume* self = (LLPanelVolume*) userdata;
+    self->sendIsMirror();
 }
 
 // static

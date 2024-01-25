@@ -1520,6 +1520,7 @@ bool LLAppViewer::doFrame()
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df Snapshot");
                     pingMainloopTimeout("Main:Snapshot");
                     gPipeline.mReflectionMapManager.update();
+                    gPipeline.mHeroProbeManager.update();
                     LLFloaterSnapshot::update(); // take snapshots
                     LLFloaterSimpleSnapshot::update();
                     gGLActive = FALSE;
