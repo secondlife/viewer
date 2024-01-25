@@ -488,11 +488,6 @@ U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &no
 	return mGeomIndex;
 }
 
-LLVector3 LLFace::getAverageNormal()
-{
-    return mAverageNormal;
-}
-
 void LLFace::updateCenterAgent()
 {
 	if (mDrawablep->isActive())
@@ -1895,20 +1890,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a* src = vf.mNormals;
 			LLVector4a* end = src+num_vertices;
 
-            LLVector4a normal_total;
-
 			while (src < end)
 			{	
 				LLVector4a normal;
 				mat_normal.rotate(*src++, normal);
 				normal.store4a(normals);
-                normal_total.add(normal);
 				normals += 4;
 			}
-
-			normal_total.div(LLVector4a(num_vertices));
-
-			mAverageNormal = LLVector3(normal_total[0], normal_total[1], normal_total[2]);
 		}
 		
 		if (rebuild_tangent)

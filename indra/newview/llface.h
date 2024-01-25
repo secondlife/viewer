@@ -176,8 +176,6 @@ public:
 								LLStrider<LLVector3> &normals,
 								LLStrider<LLVector2> &texCoords, 
 								LLStrider<U16>  &indices);
-    
-    LLVector3       getAverageNormal();
 
 	S32 getColors(LLStrider<LLColor4U> &colors);
 	S32 getIndices(LLStrider<U16> &indices);
@@ -280,9 +278,6 @@ private:
 	U32			mIndicesCount;
 	U32			mIndicesIndex;		// index into mVertexBuffer's index array
 	S32         mIndexInTex[LLRender::NUM_TEXTURE_CHANNELS];
-    
-    LLVector3   mAverageNormal;
-    bool        mHasAverageNormal;
 
 	LLXformMatrix* mXform;
 
