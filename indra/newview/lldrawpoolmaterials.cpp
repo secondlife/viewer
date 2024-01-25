@@ -185,7 +185,11 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 
     if (gPipeline.mHeroProbeManager.isMirrorPass())
     {
-        glUniform1f(LLShaderMgr::MIRROR_FLAG, 1);
+        mShader->uniform1f(LLShaderMgr::MIRROR_FLAG, 1);
+    }
+    else
+    {
+        mShader->uniform1f(LLShaderMgr::MIRROR_FLAG, 0);
     }
 
     LLVector4 clipPlane = LLVector4(gPipeline.mHeroProbeManager.currentMirrorClip()[0],
