@@ -138,7 +138,7 @@ void LLHeroProbeManager::update()
 
         if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
         {
-            U8        mode     = mNearestHero->mirrorPlacementMode();
+            U8        mode     = mNearestHero->mirrorFace();
             mode    = llmin(mNearestHero->mDrawable->getNumFaces() - 1, mode);
 
             mCurrentFace       = mNearestHero->mDrawable->getFace(mode);

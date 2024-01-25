@@ -3364,9 +3364,9 @@ BOOL LLVOVolume::isMirror() const
     return mIsMirror;
 }
 
-U8 LLVOVolume::mirrorPlacementMode() const
+U8 LLVOVolume::mirrorFace() const
 {
-    return mMirrorPlacementMode;
+    return mMirrorFace;
 }
 
 BOOL LLVOVolume::isReflectionProbe() const

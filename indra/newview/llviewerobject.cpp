@@ -314,8 +314,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mCachedMuteListUpdateTime(0),
 	mCachedOwnerInMuteList(false),
 	mRiggedAttachedWarned(false),
-mIsMirror(false),
-mMirrorPlacementMode(3)
+	mIsMirror(false),
+	mMirrorFace(3)
 {
 	if (!is_global)
 	{
@@ -1558,7 +1558,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					std::string temp_string;
 					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, temp_string, block_num );
 					
-                    detectMirror(temp_string, mIsMirror, mMirrorPlacementMode);
+                    detectMirror(temp_string, mIsMirror, mMirrorFace);
                     
 					LLColor4U coloru;
 					mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextColor, coloru.mV, 4, block_num);
@@ -1946,7 +1946,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					std::string temp_string;
 					dp->unpackString(temp_string, "Text");
                     
-                    detectMirror(temp_string, mIsMirror, mMirrorPlacementMode);
+                    detectMirror(temp_string, mIsMirror, mMirrorFace);
                     
 					LLColor4U coloru;
 					dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
