@@ -336,7 +336,7 @@ BOOL	LLPanelFace::postBuild()
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(mTextureCtrl)
 	{
-		mTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectTexture" )));
+		mTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_TEXTURE);
 		mTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitTexture, this, _2) );
 		mTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelTexture, this, _2) );
 		mTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectTexture, this, _2) );
