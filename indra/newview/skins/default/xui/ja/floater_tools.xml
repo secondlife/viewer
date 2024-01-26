@@ -130,10 +130,10 @@
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
 			<panel.string name="text deed continued">
-				再譲渡
+				続けて寄贈
 			</panel.string>
 			<panel.string name="text deed">
-				譲渡
+				寄贈
 			</panel.string>
 			<panel.string name="text modify info 1">
 				このオブジェクトは、修正することができます。
@@ -197,7 +197,7 @@
 			<name_box initial_value="読み込んでいます…" name="Group Name Proxy"/>
 			<button name="button set group" tool_tip="このオブジェクト権限を共有したいグループを選択します。"/>
 			<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員に、このオブジェクトの修正権限を与えます。譲渡しない限り、役割による制限は有効にできません。"/>
-			<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
+			<button label="寄贈" label_selected="寄贈" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
 			<text name="label click action">
 				クリックで：
 			</text>
@@ -270,21 +270,21 @@
 			<view_border name="object_horizontal"/>
 			<menu_button name="clipboard_pos_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="label position" tool_tip="位置（メートル）">
-				位置（ｍ）
+				位置（メートル）
 			</text>
 			<spinner label="Ｘ" name="Pos X"/>
 			<spinner label="Ｙ" name="Pos Y"/>
 			<spinner label="Ｚ" name="Pos Z"/>
 			<menu_button name="clipboard_size_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="label size" tool_tip="サイズ（メートル）">
-				サイズ（ｍ）
+				サイズ（メートル）
 			</text>
 			<spinner label="Ｘ" name="Scale X"/>
 			<spinner label="Ｙ" name="Scale Y"/>
 			<spinner label="Ｚ" name="Scale Z"/>
 			<menu_button name="clipboard_rot_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="label rotation" tool_tip="回転（角度）">
-				回転（°）
+				回転角°
 			</text>
 			<spinner label="Ｘ" name="Rot X"/>
 			<spinner label="Ｙ" name="Rot Y"/>
@@ -373,7 +373,7 @@
 			<combo_box name="sculpt type control">
 				<combo_box.item label="球体（スフィア）" name="Sphere"/>
 				<combo_box.item label="円環（トーラス）" name="Torus"/>
-				<combo_box.item label="平面／なし" name="Plane"/>
+				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="円柱（シリンダー）" name="Cylinder"/>
 			</combo_box>
 		</panel>
@@ -389,7 +389,7 @@
 			</panel.string>
 			<menu_button name="clipboard_features_params_btn" tool_tip="ペースト時のオプションを選択します。"/>
 			<text name="select_single">
-				プリムを１つだけ選択して編集してください。
+				編集したいプリムを１つだけ選択してください。
 			</text>
 			<text name="edit_object">
 				オブジェクトの特徴を編集：

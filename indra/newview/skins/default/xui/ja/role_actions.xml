@@ -18,11 +18,11 @@
 	<action_set description="これらの能力には、グループの公開性や理念、憲章の変更といった、グループのアイデンティティを修正する権限が含まれます。" name="Group Identity">
 		<action description="理念、憲章、「Web上で公開」、およびグループ情報内で公開のメンバーを変更。" longdescription="理念、憲章、「検索に表示」の変更をします。「一般」セクションで行えます。" name="group change identity" value="11"/>
 	</action_set>
-	<action_set description="これらの「能力」には、このグループの所有地の譲渡、修正、販売をする権限があります。「土地情報」ウィンドウを見るには、地表を右クリックして「土地情報」を選ぶか、ナビゲーションバーの「i」アイコンをクリックします。" name="Parcel Management">
-		<action description="グループ用の土地の譲渡と購入" longdescription="グループ用の土地の譲渡と購入を行います。この操作には、「土地情報」＞「一般」タブを使います。" name="land deed" value="12"/>
-		<action description="リンデン総督に土地を明け渡す" longdescription="リンデン総督に土地を明け渡します。*警告* この能力を持つ役割のメンバーは、「土地情報」＞「一般」でグループ所有の土地を放棄して、売り上げなしでリンデン総督に明け渡すことができます。この能力の割り当ては、そのことを理解した上で行ってください。" name="land release" value="13"/>
+	<action_set description="これらの「能力」には、このグループの所有地の寄贈、修正、販売をする権限があります。「土地情報」ウィンドウを見るには、地表を右クリックして「土地情報」を選ぶか、ナビゲーションバーの「i」アイコンをクリックします。" name="Parcel Management">
+		<action description="グループ用の土地の寄贈と購入" longdescription="グループ用の土地の寄贈と購入を行います。この操作には、「土地情報」＞「一般」タブを使います。" name="land deed" value="12"/>
+		<action description="リンデンに土地を明け渡す" longdescription="リンデンに土地を明け渡します。*警告*この能力を持つ役割のメンバーは、「土地情報」＞「一般」でグループ所有の土地を放棄して、売り上げなしでリンデンに明け渡すことができます。この能力の割り当ては、そのことを理解した上で行ってください。" name="land release" value="13"/>
 		<action description="売り地情報の設定" longdescription="売り地情報を設定します。*警告* この能力を持つ役割のメンバーは、「土地情報」＞「一般」タブでグループ所有の土地を自分の思いどおりに販売することができます。この能力の割り当ては、そのことを理解した上で行ってください。" name="land set sale info" value="14"/>
-		<action description="区画の再分割と統合" longdescription="区画を再分割、統合します。地面を右クリックして「地形の編集」を選び、マウスを土地の上でドラッグして範囲を選択します。再分割するには、分割対象を選んで「再分割」をクリックします。統合するには、2つ以上の隣接する区画を選んで「統合」をクリックします。" name="land divide join" value="15"/>
+		<action description="区画の再分割と統合" longdescription="区画を再分割、統合します。地表を右クリックして「地形の編集」を選び、マウスを土地の上でドラッグして範囲を選択します。再分割するには、分割対象を選んで「再分割」をクリックします。統合するには、2つ以上の隣接する区画を選んで「統合」をクリックします。" name="land divide join" value="15"/>
 	</action_set>
 	<action_set description="これらの能力には、区画名、公開設定、検索ディレクトリへの登録、着地点ならびにTPルートのオプションを変更する権限が含まれます。" name="Parcel Identity">
 		<action description="「場所検索に表示」を切り替えカテゴリを設定" longdescription="「場所検索に表示」に切り替え、「土地情報」＞「オプション」タブで区画のカテゴリを設定します。" name="land find places" value="17"/>
@@ -40,7 +40,7 @@
 		<action description="常に「飛行」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上を飛行することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、飛行が可能です。" name="land allow fly" value="24"/>
 		<action description="常に「オブジェクト作成」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上にオブジェクトを作成することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、オブジェクトの作成が可能です。" name="land allow create" value="25"/>
 		<action description="着地点を無視する" longdescription="この能力を持つ役割のメンバーは、。「土地情報」＞「オプション」タブで着地点が設定されている場合でもグループ所有の区画に直接テレポートできます。" name="land allow direct teleport" value="26"/>
-		<action description="グループの土地への「ホーム設定」を許可" longdescription="この「役割」を持つメンバーは、このグループに譲渡された区画上で「ワールド」＞「ランドマーク」＞「現在地をホームに設定」を使用して、ホームの設定を行うことができます。" name="land allow set home" value="28"/>
+		<action description="グループの土地への「ホーム設定」を許可" longdescription="この「役割」を持つメンバーは、このグループに寄贈された区画上で「ワールド」＞「ランドマーク」＞「現在地をホームに設定」を使用して、ホームの設定を行うことができます。" name="land allow set home" value="28"/>
 		<action description="グループ所有地での「イベント主催」を許可" longdescription="この「能力」を持つ「役割」のメンバーは、グループ所有区画を利用してイベントを開催することができます。" name="land allow host event" value="41"/>
 	</action_set>
 	<action_set description="これらの能力には、住人の凍結や追放を含む、グループ所有の区画へのアクセスを許可、制限する権限が含まれます。" name="Parcel Access">
@@ -56,7 +56,7 @@
 		<action description="リンデン製の植物を使用して景観作成" longdescription="リンデン製の樹木、植物、草を植える、景観づくりの能力です。これらの植物はあなたのインベントリ内の「ライブラリ」＞「オブジェクト」フォルダにあります。「ビルド」メニューで作成することもできます。" name="land gardening" value="35"/>
 	</action_set>
 	<action_set description="これらの「能力」には、グループ所有のオブジェクトを譲渡、修正、販売する権限が含まれます。変更は「ビルドツール」＞「一般」タブで行います。オブジェクトを右クリックして「編集」を開くと設定内容を確認できます。" name="Object Management">
-		<action description="グループにオブジェクトを譲渡" longdescription="「ビルドツール」＞「一般」タブで、オブジェクトをグループに譲渡します。" name="object deed" value="36"/>
+		<action description="グループにオブジェクトを寄贈" longdescription="「ビルドツール」＞「一般」タブで、オブジェクトをグループに寄贈します。" name="object deed" value="36"/>
 		<action description="グループ所有オブジェクトの操作（移動、コピー、修正）" longdescription="「ビルドツール」＞「一般」タブで、グループ所有のオブジェクトを操作（移動、コピー、修正）します。" name="object manipulate" value="38"/>
 		<action description="グループ所有オブジェクトを販売可能に設定" longdescription="「ビルドツール」＞「一般」タブで、グループ所有のオブジェクトを販売対象に設定します。" name="object set sale" value="39"/>
 	</action_set>

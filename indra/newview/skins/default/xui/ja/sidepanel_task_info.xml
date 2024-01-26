@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="オブジェクトのプロフィール">
 	<panel.string name="text deed continued">
-		再譲渡
+		寄贈を続行
 	</panel.string>
 	<panel.string name="text deed">
-		譲渡
+		寄贈
 	</panel.string>
 	<panel.string name="text modify info 1">
 		このオブジェクトは、修正することができます。
@@ -64,7 +64,7 @@
 		</text>
 		<button name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します。"/>
 		<name_box initial_value="読み込んでいます…" name="Group Name Proxy"/>
-		<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
+		<button label="寄贈" label_selected="寄贈" name="button deed" tool_tip="このアイテムを寄贈すると「次の所有者」の権限が適用されます。グループ共有オブジェクトは、グループのオフィサーが寄贈できます。"/>
 		<text name="label click action">
 			クリックで：
 		</text>
@@ -104,7 +104,7 @@
 			<combo_box.item label="中身" name="Contents"/>
 			<combo_box.item label="オリジナル" name="Original"/>
 		</combo_box>
-		<spinner label="価格： L$" name="Edit Cost" tool_tip="オブジェクトの価格を指定します。"/>
+		<spinner label="価格：L$" name="Edit Cost" tool_tip="オブジェクトの価格を指定します。"/>
 		<check_box label="検索に表示" name="search_check" tool_tip="このオブジェクトを検索結果に表示します。"/>
 		<text name="pathfinding_attributes_label">
 			経路探索属性：

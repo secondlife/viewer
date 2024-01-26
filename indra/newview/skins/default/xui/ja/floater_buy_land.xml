@@ -38,7 +38,7 @@
 		選択された区画は、他の人への販売が決まっています。
 	</floater.string>
 	<floater.string name="no_public_land">
-		選択されたリージョンに公共の土地はありません。
+		選択されたリージョンに、公共の土地はありません。
 	</floater.string>
 	<floater.string name="not_owned_by_you">
 		他の住人が所有する土地を選択しています。
@@ -142,7 +142,7 @@
 		（不明）
 	</text>
 	<text name="estate_owner_label">
-		不動産オーナー：
+		不動産の所有者：
 	</text>
 	<text name="estate_owner_text">
 		（不明）

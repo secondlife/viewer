@@ -490,16 +490,16 @@ L$が不足しているので、このグループに参加することができ
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		注意：「誰にでも販売」をクリックすることで、あなたの土地はこのリージョンにいる人に限らず、[SECOND_LIFE]コミュニティ全体で利用可能となります。
+		注意：「誰にでも販売」をクリックすることで、あなたの土地はこのリージョンにいる人に限らず、[CURRENT_GRID]コミュニティ全体で利用可能となります。
 選択した[LAND_SIZE]㎡の土地は、販売対象に設定されました。
 販売価格L$ [SALE_PRICE]で、[NAME]が販売対象者となります。
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		グループ「&lt;nolink&gt;[NAME]&lt;/nolink&gt;」と共有するこのにある区画のすべてのオブジェクトを前のオーナーのインベントリに返却しますか？
+		グループ「&lt;nolink&gt;[NAME]&lt;/nolink&gt;」と共有するこのにある区画のすべてのオブジェクトを前の所有者のインベントリに返却しますか？
 *警告*
-この操作をすると、グループに譲渡された譲渡禁止のオブジェクトを削除することになります。
+この操作をすると、グループに寄贈された譲渡禁止のオブジェクトを削除することになります。
 オブジェクト：[N]
 		<tag>confirm</tag>
 		<tag>group</tag>
@@ -519,22 +519,22 @@ L$が不足しているので、このグループに参加することができ
 	</notification>
 	<notification name="ReturnObjectsNotOwnedBySelf">
 		この土地区画内にある、あなた以外が所有するすべてのオブジェクトを、それぞれの所有者のインベントリに戻そうとしています。このまま操作を続行してもよろしいですか？
-グループに譲渡された「再販・譲渡可」のオブジェクトは、以前の所有者に返却されます。
+		グループに寄贈された「再販・譲渡可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告*
 
-これにより、グループに譲渡された「再販・譲渡不可」のオブジェクトは削除されます！
+これにより、グループに寄贈された「再販・譲渡不可」のオブジェクトは削除されます！
 オブジェクト：[N]
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByUser">
 		この土地区画内にある、[NAME]以外による所有のオブジェクトをすべてそれぞれの所有者のインベントリに返却しようとしています。このまま操作を続行してもよろしいですか？
-グループに譲渡された「再販・譲渡可」のオブジェクトは、以前の所有者に返却されます。
+グループに寄贈された「再販・譲渡可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告*
 
-これにより、グループに譲渡された「再販・譲渡不可」のオブジェクトは削除されます！
+これにより、グループに寄贈された「再販・譲渡不可」のオブジェクトは削除されます！
 オブジェクト：[N]
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
@@ -1303,37 +1303,37 @@ L$が不足しているので、このグループに参加することができ
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
-		土地を譲渡できません：
+		土地を寄贈できません：
 区画が選定されていません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotDeedLandNoGroup">
-		土地を譲渡できません：
+		土地を寄贈できません：
 グループが選択されていません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotDeedLandNoRegion">
-		土地を譲渡できません：
+		土地を寄贈できません：
 この土地があるリージョンが見つかりません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
-		土地を譲渡できません：
+		土地を寄贈できません：
 複数の区画が選択されています。
 
 区画を１つ選択してください。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
-		土地を譲渡できません：
+		土地を寄贈できません：
 サーバーからの所有権情報を待っています。
 
 お手数ですが、もう一度やり直してください。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotDeedLandNoTransfer">
-		土地を譲渡できません：
-[REGION]では、土地の譲渡が許可されていません。
+		土地を寄贈できません：
+[REGION]では、土地の寄贈が許可されていません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotReleaseLandWatingForServer">
@@ -1363,7 +1363,7 @@ L$が不足しているので、このグループに参加することができ
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		土地を破棄できません：
-[REGION]では土地の譲渡が許可されていません。
+[REGION]では土地の寄贈が許可されていません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="CannotReleaseLandPartialSelection">
@@ -1729,19 +1729,19 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<tag>fail</tag>
 	</notification>
 	<notification name="DeedLandToGroup">
-		この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。
-土地の購入価格は所有者に返金されません。譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
+		この区画を寄贈した場合、グループはその土地利用料として十分なTierを維持している必要があります。
+土地の購入価格は所有者に返金されません。寄贈された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
 
-この[AREA]㎡の土地をグループ「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」に譲渡してもよろしいですか？
+この[AREA]㎡の土地をグループ「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」に寄贈してもよろしいですか？
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
-		この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。
-譲渡には同時に [NAME]からグループへの土地の貢献が含まれます。土地の購入価格は所有者に返金されません。
-譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
+		この区画を寄贈した場合、グループはその土地利用料として十分なTierを維持している必要があります。
+寄贈には同時に[NAME]からグループへの土地の貢献が含まれます。土地の購入価格は所有者に返金されません。
+寄贈された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
 
-この[AREA]㎡の土地をグループ「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」に譲渡してもよろしいですか？
+この[AREA]㎡の土地をグループ「&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;」に寄贈してもよろしいですか？
 		<tag>group</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
@@ -2052,18 +2052,19 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<usetemplate name="okbutton" yestext="終了"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
-		このオブジェクトを譲渡するとグループは以下のことが可能です：
+		このオブジェクトを寄贈するとグループは以下のことが可能です：
 ・オブジェクトに支払われたL$を受領します。
 		<tag>group</tag>
 		<tag>confirm</tag>
-		<usetemplate ignoretext="オブジェクトをグループに譲渡する前の確認" name="okcancelignore" notext="キャンセル" yestext="譲渡する"/>
+		<usetemplate ignoretext="オブジェクトをグループに寄贈する前の確認" name="okcancelignore" notext="キャンセル" yestext="寄贈する"/>
 	</notification>
 	<notification name="WebLaunchExternalTarget">
 		Webブラウザを開いてこのコンテンツを表示しますか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、Webページを閲覧するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<notification name="WebLaunchJoinNow"> [https://secondlife.com/my/account/?lang=ja-JP マイアカウント]ページに移動してアカウントを管理しますか？
+	<notification name="WebLaunchJoinNow">
+		[https://secondlife.com/my/account/?lang=ja-JP マイアカウント]ページに移動してアカウントを管理しますか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、アカウントを管理するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
@@ -2098,9 +2099,9 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<usetemplate ignoretext="ブラウザを起動してＬＳＬポータルを見るとき" name="okcancelignore" notext="キャンセル" yestext="ページに移動"/>
 	</notification>
 	<notification name="ReturnToOwner">
-		選択したオブジェクトを、所有者に返却しますか？「再販・譲渡可」の譲渡されたオブジェクトは、以前の所有者に返却されます。
-
-*警告*「再販・譲渡不可」の譲渡されたオブジェクトは、削除されます！
+		選択したオブジェクトを、所有者に返却しますか？「再販・譲渡可」の寄贈されたオブジェクトは、以前の所有者に返却されます。
+		
+*警告*寄贈された「再販・譲渡不可」のオブジェクトは削除されます！
 		<tag>confirm</tag>
 		<usetemplate ignoretext="オブジェクトを所有者に返却するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
@@ -2174,12 +2175,14 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
-	<notification name="GroupLimitInfo"> ベーシック会員の住民は、最大[MAX_BASIC]個のグループまで参加することができます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
+	<notification name="GroupLimitInfo">
+		ベーシック会員の住民は、最大[MAX_BASIC]個のグループまで参加することができます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
 		<tag>group</tag>
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
-	<notification name="GroupLimitInfoPlus"> ベーシック会員の住人は、最大[MAX_BASIC]個までグループに参加できます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。プレミアム・プラス会員は最大[MAX_PREMIUM_PLUS]個です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
+	<notification name="GroupLimitInfoPlus">
+		ベーシック会員の住人は、最大[MAX_BASIC]個までグループに参加できます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。プレミアム・プラス会員は最大[MAX_PREMIUM_PLUS]個です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
 		<tag>group</tag>
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="閉じる"/>
@@ -2528,7 +2531,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</form>
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_Change">
-		訪問しようとしているリージョンには、 [REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は[REGIONMATURITY]コンテンツを除外するように設定されています。
+		訪問しようとしているリージョンには、[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は[REGIONMATURITY]コンテンツを除外するように設定されています。
 初期設定を変更するか、テレポートを取り消すことができます。初期設定を変更した後、もう一度テレポートを実行する必要があります。
 		<unique>
 			<context>REGIONMATURITY</context>
@@ -2563,7 +2566,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		取得しようとしている土地には現在の初期設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
+		取得しようとしている土地には、現在の初期設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
@@ -2850,7 +2853,8 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		このオブジェクトには、あなたがコピーできるアイテムはありません。
 		<tag>fail</tag>
 	</notification>
-	<notification name="WebLaunchAccountHistory"> [https://secondlife.com/my/account/?lang=ja-JP マイアカウント]
+	<notification name="WebLaunchAccountHistory">
+		[https://secondlife.com/my/account/?lang=ja-JP マイアカウント]
 ページに移動してアカウント履歴を確認しますか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動してアカウント履歴を見るとき" name="okcancelignore" notext="キャンセル" yestext="ページに移動"/>
@@ -3429,8 +3433,8 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="GroupObjectsReturned">
 		グループ&lt;nolink&gt;[GROUPNAME]&lt;/nolink&gt;と共有する、選択した区画にあるオブジェクトは、オブジェクトのオーナーのインベントリに返却されました。
-譲渡済みの譲渡可能なオブジェクトが前のオーナーに返却されました。
-グループに譲渡された譲渡禁止のオブジェクトは削除されました。
+寄贈された譲渡可能なオブジェクトは以前の所有者に返却されました。
+グループに寄贈された譲渡禁止のオブジェクトは削除されました。
 		<tag>group</tag>
 	</notification>
 	<notification name="UnOwnedObjectsReturned">
@@ -3611,7 +3615,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Discard" text="処分する"/>
 		</form>
 	</notification>
-	<notification name="UserGiveItem">
+	<notification name="UserGiveItem" label="[NAME_LABEL]からのインベントリのオファー">
 		[NAME_SLURL] が、あなたに[OBJECTTYPE]を渡しました：
 [ITEM_SLURL]
 		<form name="form">
@@ -3634,7 +3638,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Info" text="情報"/>
 		</form>
 	</notification>
-	<notification name="TeleportOffered">
+	<notification name="TeleportOffered" label="[NAME_LABEL]からのテレポートのオファー">
 		[NAME_SLURL] は、テレポートであなたを呼んでいます。
 [MESSAGE]
 
@@ -3689,7 +3693,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="GoNow..." text="今すぐ行く…"/>
 		</form>
 	</notification>
-	<notification name="OfferFriendship">
+	<notification name="OfferFriendship" label="[NAME_LABEL]からのフレンド登録のオファー">
 		[NAME_SLURL] は、あなたにフレンド登録を申し込んでいます。
 
 [MESSAGE]
@@ -3706,7 +3710,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		[TO_NAME]にフレンド登録依頼を送りました。
 		<tag>friendship</tag>
 	</notification>
-	<notification name="OfferFriendshipNoMessage">
+	<notification name="OfferFriendshipNoMessage" label="[NAME_LABEL]からのフレンドシップの申し込み">
 		[NAME_SLURL] は、フレンド登録を申し込んでいます。（デフォルト設定では、お互いのオンライン状態を見ることができます。）
 		<tag>friendship</tag>
 		<form name="form">
@@ -3741,10 +3745,12 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="RegionRestartMinutes">
 		このリージョン「[NAME]」は、[SECONDS]分後に再起動されます。
-このまま、このリージョンに留まっているとログアウトされます。</notification>
+このまま、このリージョンに留まっているとログアウトされます。
+	</notification>
 	<notification name="RegionRestartSeconds">
 		このリージョン「[NAME]」は、[SECONDS]秒後に再起動されます。
-このまま、このリージョンに留まっているとログアウトされます。</notification>
+このまま、このリージョンに留まっているとログアウトされます。
+	</notification>
 	<notification name="LoadWebPage">Webページ[URL] を開きますか？
 
 [MESSAGE]
@@ -3877,7 +3883,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
-		お支払いいただきありがとうございます。
+		お支払いただき、ありがとうございます。
 
 あなたのL$残高は、処理が完了するとアップデートされます。処理に２０分以上かかった場合、お取り引きがキャンセルされることがあります。その場合は、購入金額はあなたの US$残高に追加されます。 [https://secondlife.com/my/account/?lang=ja-JP マイアカウント]の取引履歴ページで、支払状況を確認できます。
 		<tag>funds</tag>
@@ -4074,7 +4080,8 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="ThrottledSLURL">
 		短期間のあいだに、信用できないブラウザから複数のSLurlが送られてきました。
-安全のために数秒間ブロックされます。</notification>
+安全のために数秒間ブロックされます。
+	</notification>
 	<notification name="IMToast">[MESSAGE]
 		<tag>security</tag>
 		<form name="form">
@@ -4210,7 +4217,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		アイテムが共有されました。
 	</notification>
 	<notification name="DeedToGroupFail">
-		グループへの譲渡に失敗しました。
+		グループへの寄贈に失敗しました。
 		<tag>group</tag>
 		<tag>fail</tag>
 	</notification>
@@ -4673,19 +4680,19 @@ Intelドライバーのウェブサイトを確認しますか？
 	</global>
 	<global name="UnsupportedGPU">
 		‐あなたのグラフィックカードは、必須動作環境の条件を満たしていません。
-
 	</global>
 	<global name="UnsupportedRAM">
 		‐あなたのシステムメモリは、必須動作環境の条件を満たしていません。
-
 	</global>
 	<global name="LLLeapUpdaterFailure">
 		アップデーターサービス[UPDATER_APP]の起動に失敗しました。ビューアが正しくインストールされ、実行に必要な権限があることを確認してください。引き続き問題が発生する場合は、[SUPPORT_SITE]をご覧ください。
-  </global>
+	</global>
 	<global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">
 		自分の土地を持っている場合、そこを「ホーム」に設定できます。持っていない場合は、マップから「情報ハブ」をお探しください。
 	</global>
-	<global name="You died and have been teleported to your home location">死んでしまったので、ホームにテレポートされました。</global>
+	<global name="You died and have been teleported to your home location">
+		死んでしまったので、ホームにテレポートされました。
+	</global>
 	<notification name="LocalBitmapsUpdateFileNotFound">
 		[FNAME]が見つからなかったため、更新できませんでした。
 このファイルに対する今後の更新を無効にします。
@@ -4759,11 +4766,11 @@ Intelドライバーのウェブサイトを確認しますか？
 		<tag>fail</tag>
 	</notification>
 	<notification name="SitFailCantMove">
-		今回移動できなかったため、座ることができません。
+		その場所へ移動できなかったため、座ることができません。
 		<tag>fail</tag>
 	</notification>
-	<notification name="SitFailNotAllowedOnLand">そ
-		の土地に対して許可を受けていないため、座ることができません。
+	<notification name="SitFailNotAllowedOnLand">
+		その土地では座る許可がないため、座ることができません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="SitFailNotSameRegion">
@@ -5250,7 +5257,7 @@ Intelドライバーのウェブサイトを確認しますか？
 		<tag>fail</tag>
 	</notification>
 	<notification name="DeedFailedNoPermToDeedForGroup">
-		あなたには、グループにオブジェクトを譲渡する権限がないため、譲渡に失敗しました。
+		あなたには、グループにオブジェクトを寄贈する権限がないため、寄贈に失敗しました。
 		<tag>fail</tag>
 	</notification>
 	<notification name="NoPrivsToBuyObject">
@@ -5455,7 +5462,7 @@ Intelドライバーのウェブサイトを確認しますか？
 		<tag>fail</tag>
 	</notification>
 	<notification name="CantDeedGroupLand">
-		グループ所有の土地は、譲渡できません。
+		グループ所有の土地は寄贈できません。
 		<tag>fail</tag>
 	</notification>
 	<notification name="BuyObjectFailedNoMoney">

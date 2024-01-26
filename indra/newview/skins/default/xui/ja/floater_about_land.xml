@@ -100,9 +100,9 @@
 				グループ：
 			</text>
 			<button label="設定" name="Set..."/>
-			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに譲渡できます。グループの土地割り当てによってサポートされます。"/>
-			<button label="譲渡" name="Deed..." tool_tip="選択したグループのオフィサーのみ、土地を譲渡できます。"/>
-			<check_box label="所有者が譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
+			<check_box label="グループへの寄贈を許可" name="check deed" tool_tip="グループのオフィサーはこの土地をグループに寄贈できます。グループの土地割り当てによってサポートされます。"/>
+			<button label="寄贈…" name="Deed..." tool_tip="選択したグループのオフィサーのみ、土地を寄贈できます。"/>
+			<check_box label="所有者が譲渡と共に寄贈" name="check contrib" tool_tip="土地がグループに寄贈されるとき、前の所有者は譲渡が成立するよう、十分な面積の土地を寄付します。"/>
 			<text name="For Sale:">
 				販売の有無：
 			</text>
