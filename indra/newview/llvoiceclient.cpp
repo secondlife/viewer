@@ -486,6 +486,13 @@ std::string LLVoiceClient::getCurrentChannel()
 //---------------------------------------
 // invitations
 
+bool LLVoiceClient::hasP2PInterface()
+{
+    if (mVoiceModule)
+        return mVoiceModule->hasP2PInterface();
+    return false;
+}
+
 void LLVoiceClient::callUser(const LLUUID &uuid)
 {
 	if (mVoiceModule) mVoiceModule->callUser(uuid);

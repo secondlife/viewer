@@ -144,10 +144,8 @@ public:
 	// Note that gestures should only fire if this returns true.
 	bool inProximalChannel() override;
 	
-	void setNonSpatialChannel(const std::string& uri,
-		const std::string& credentials) override
-	{
-
+	void setNonSpatialChannel(const std::string& uri, const std::string& credentials) override {
+		startAdHocSession(uri, credentials);
 	}
 	
 	bool setSpatialChannel(const std::string &uri, const std::string &credentials) override 
@@ -172,6 +170,7 @@ public:
 	/// @name invitations
 	//@{
 	// start a voice channel with the specified user
+    bool hasP2PInterface() override { return false; }
 	void callUser(const LLUUID &uuid) override;
 	bool isValidChannel(std::string &channelID) override;
     bool answerInvite(std::string &channelID) override;
@@ -247,6 +246,7 @@ public:
 
 
 	void OnConnectionEstablished(const std::string& channelID, const LLUUID& regionID);
+    void OnConnectionShutDown(const std::string &channelID, const LLUUID &regionID);
     void OnConnectionFailure(const std::string &channelID, const LLUUID& regionID);
     void sendPositionUpdate(bool force);
     void updateOwnVolume();
@@ -338,7 +338,7 @@ public:
 
         virtual bool processConnectionStates();
 
-		void sendData(const std::string &data);
+		virtual void sendData(const std::string &data);
         
         void setMuteMic(bool muted);
         void setMicGain(F32 volume);
@@ -427,11 +427,17 @@ public:
 
     class adhocSessionState : public sessionState
     {
-      public:
-        adhocSessionState(const std::string &channelID);
+    public:
+        adhocSessionState(const std::string &channelID, const std::string& credentials);
 
         bool isSpatial() override { return false; }
         bool isEstate() override { return false; }
+
+		// don't send spatial data to adhoc sessions.
+		void sendData(const std::string &data) override { }
+
+	protected:
+        std::string mCredentials;
     };
 
 
@@ -510,26 +516,6 @@ public:
 	// This is called in several places where the session _may_ need to be deleted.
 	// It contains logic for whether to delete the session or keep it around.
     void reapSession(const sessionStatePtr_t &session);	
-	
-	//////////////////////////////////////
-	// buddy list stuff, needed for SLIM later
-	struct buddyListEntry
-	{
-		buddyListEntry(const std::string &uri);
-		std::string mURI;
-		std::string mDisplayName;
-		LLUUID	mUUID;
-		bool mOnlineSL;
-		bool mOnlineSLim;
-		bool mCanSeeMeOnline;
-		bool mHasBlockListEntry;
-		bool mHasAutoAcceptListEntry;
-		bool mNameResolved;
-		bool mInSLFriends;
-		bool mInWebRTCBuddies;
-	};
-
-	typedef std::map<std::string, buddyListEntry*> buddyListMap;
 	
 	// Pokes the state machine to leave the audio session next time around.
 	void sessionTerminate();	
@@ -612,7 +598,6 @@ private:
 	bool mBuddyListMapPopulated;
 	bool mBlockRulesListReceived;
 	bool mAutoAcceptRulesListReceived;
-	buddyListMap mBuddyListMap;
 	
 	llwebrtc::LLWebRTCDeviceInterface *mWebRTCDeviceInterface;
 
@@ -624,8 +609,7 @@ private:
 
 	bool startEstateSession();
     bool startParcelSession(const std::string& channelID, S32 parcelID);
-    bool startAdHocSession(const std::string& channelID);
-
+    bool startAdHocSession(const std::string& channelID, const std::string& credentials);
 
     void joinSession(const sessionStatePtr_t &session);
 	
@@ -749,147 +733,126 @@ class LLVoiceWebRTCStats : public LLSingleton<LLVoiceWebRTCStats>
     LLSD read();
 };
 
-class LLVoiceWebRTCConnection
-{
-  public:
-    LLVoiceWebRTCConnection();
-
-    virtual ~LLVoiceWebRTCConnection() = 0;
-
-    virtual bool connectionStateMachine() = 0;
-
-	virtual void sendData(const std::string &data) {};
-    virtual void setMuteMic(bool muted);
-    virtual void setMicGain(F32 volume);
-    virtual void setSpeakerVolume(F32 volume);
-
-    virtual void shutDown() = 0;
-
-protected:
-
-	bool mMuted;
-	F32  mMicGain;
-	F32  mSpeakerVolume;
-
-    llwebrtc::LLWebRTCPeerConnection *mWebRTCPeerConnection;
-    llwebrtc::LLWebRTCAudioInterface *mWebRTCAudioInterface;
-};
-
-
-class LLVoiceWebRTCSpatialConnection :
-	public LLVoiceWebRTCConnection,
-	public llwebrtc::LLWebRTCSignalingObserver, 
+class LLVoiceWebRTCConnection : 
+	public llwebrtc::LLWebRTCSignalingObserver,
 	public llwebrtc::LLWebRTCDataObserver
 {
   public:
-    LLVoiceWebRTCSpatialConnection(const LLUUID &regionID, S32 parcelLocalID, const std::string &channelID);
+    LLVoiceWebRTCConnection(const LLUUID &regionID, const std::string &channelID);
 
-    virtual ~LLVoiceWebRTCSpatialConnection();
+    virtual ~LLVoiceWebRTCConnection() = 0;
 
 	//////////////////////////////
     /// @name Signaling notification
     //  LLWebRTCSignalingObserver
     //@{
-    void OnIceGatheringState(IceGatheringState state) override;
-    void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate) override;
-    void OnOfferAvailable(const std::string &sdp) override;
-    void OnRenegotiationNeeded() override;
-    void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
-    void OnPeerShutDown() override;
+    virtual void OnIceGatheringState(IceGatheringState state);
+    virtual void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate);
+    virtual void OnOfferAvailable(const std::string &sdp);
+    virtual void OnRenegotiationNeeded() override;
+    virtual void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface);
+    virtual void OnPeerShutDown();
     //@}
 
     /////////////////////////
     /// @name Data Notification
     /// LLWebRTCDataObserver
     //@{
-    void OnDataReceived(const std::string &data, bool binary) override;
-    void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface) override;
+    virtual void OnDataReceived(const std::string &data, bool binary);
+    virtual void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface);
     //@}
 
-	void processIceUpdates();
-    void onIceUpdateComplete(bool ice_completed, const LLSD &result);
-    void onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result);
+    void sendData(const std::string &data);
 
-    bool requestVoiceConnection();
-    void OnVoiceConnectionRequestSuccess(const LLSD &body);
-    void OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result);
+	virtual void processIceUpdates();
+    virtual void onIceUpdateComplete(bool ice_completed, const LLSD &result);
+    virtual void onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result);
 
-	bool connectionStateMachine() override;
+    virtual void setMuteMic(bool muted);
+    virtual void setMicGain(F32 volume);
+    virtual void setSpeakerVolume(F32 volume);
 
-	void sendData(const std::string &data) override;
-    void setMuteMic(bool muted) override;
+
+    bool connectionStateMachine();
 
 	LLUUID getRegionID() { return mRegionID; }
 
-	void shutDown() override
-	{ 
-		LLMutexLock lock(&mVoiceStateMutex);
-		mShutDown = true;
-	}
+    void shutDown()
+    {
+        LLMutexLock lock(&mVoiceStateMutex);
+        mShutDown = true;
+    }
 
-protected:
+    void OnVoiceConnectionRequestSuccess(const LLSD &body);
+    void OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result);
+
+  protected:
     typedef enum e_voice_connection_state
     {
-        VOICE_STATE_ERROR   = 0x0,
-		VOICE_STATE_START_SESSION = 0x1,
-		VOICE_STATE_WAIT_FOR_SESSION_START = 0x2,
-		VOICE_STATE_REQUEST_CONNECTION = 0x4,
-		VOICE_STATE_CONNECTION_WAIT = 0x8,
-        VOICE_STATE_SESSION_ESTABLISHED = 0x10,
-        VOICE_STATE_SESSION_UP = 0x20,
-        VOICE_STATE_SESSION_RETRY = 0x40,
-        VOICE_STATE_DISCONNECT = 0x80,
-        VOICE_STATE_WAIT_FOR_EXIT = 0x100,
-		VOICE_STATE_SESSION_EXIT = 0x200,
-		VOICE_STATE_SESSION_STOPPING = 0x3c0,
-		VOICE_STATE_SESSION_WAITING = 0x10a
+        VOICE_STATE_ERROR                  = 0x0,
+        VOICE_STATE_START_SESSION          = 0x1,
+        VOICE_STATE_WAIT_FOR_SESSION_START = 0x2,
+        VOICE_STATE_REQUEST_CONNECTION     = 0x4,
+        VOICE_STATE_CONNECTION_WAIT        = 0x8,
+        VOICE_STATE_SESSION_ESTABLISHED    = 0x10,
+        VOICE_STATE_SESSION_UP             = 0x20,
+        VOICE_STATE_SESSION_RETRY          = 0x40,
+        VOICE_STATE_DISCONNECT             = 0x80,
+        VOICE_STATE_WAIT_FOR_EXIT          = 0x100,
+        VOICE_STATE_SESSION_EXIT           = 0x200,
+        VOICE_STATE_SESSION_STOPPING       = 0x3c0,
+        VOICE_STATE_SESSION_WAITING        = 0x10a
     } EVoiceConnectionState;
 
     EVoiceConnectionState mVoiceConnectionState;
-    LLMutex mVoiceStateMutex;
-    void setVoiceConnectionState(EVoiceConnectionState new_voice_connection_state)
+    LLMutex               mVoiceStateMutex;
+    void                  setVoiceConnectionState(EVoiceConnectionState new_voice_connection_state)
     {
         LLMutexLock lock(&mVoiceStateMutex);
 
-		if (new_voice_connection_state & VOICE_STATE_SESSION_STOPPING)
-		{
-			// the new state is shutdown or restart.
+        if (new_voice_connection_state & VOICE_STATE_SESSION_STOPPING)
+        {
+            // the new state is shutdown or restart.
             mVoiceConnectionState = new_voice_connection_state;
             return;
-		}
+        }
         if (mVoiceConnectionState & VOICE_STATE_SESSION_STOPPING)
-		{
-			// we're currently shutting down or restarting, so ignore any
-			// state changes.
+        {
+            // we're currently shutting down or restarting, so ignore any
+            // state changes.
             return;
-		}
+        }
 
         mVoiceConnectionState = new_voice_connection_state;
     }
     EVoiceConnectionState getVoiceConnectionState()
     {
-		if (mVoiceStateMutex.isLocked())
-		{
+        if (mVoiceStateMutex.isLocked())
+        {
             LL_WARNS("Voice") << "LOCKED." << LL_ENDL;
-		}
+        }
         LLMutexLock lock(&mVoiceStateMutex);
         return mVoiceConnectionState;
     }
+
+    virtual bool requestVoiceConnection() = 0;
 
     bool breakVoiceConnection(bool wait);
     void OnVoiceDisconnectionRequestSuccess(const LLSD &body);
     void OnVoiceDisconnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result);
 
+	LLUUID mRegionID;
+    LLUUID mViewerSession;
+    std::string mChannelID;
+
     std::string mChannelSDP;
     std::string mRemoteChannelSDP;
 
-    LLUUID mViewerSession;
+	bool mMuted;
+	F32  mMicGain;
+	F32  mSpeakerVolume;
 
-    std::string mChannelID;
-    LLUUID mRegionID;
-    S32    mParcelLocalID;
-
-    bool   mShutDown;
+    bool mShutDown;
     S32  mOutstandingRequests;
 
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
@@ -899,6 +862,38 @@ protected:
     llwebrtc::LLWebRTCPeerConnection *mWebRTCPeerConnection;
     llwebrtc::LLWebRTCAudioInterface *mWebRTCAudioInterface;
     llwebrtc::LLWebRTCDataInterface  *mWebRTCDataInterface;
+};
+
+
+class LLVoiceWebRTCSpatialConnection :
+	public LLVoiceWebRTCConnection
+{
+  public:
+    LLVoiceWebRTCSpatialConnection(const LLUUID &regionID, S32 parcelLocalID, const std::string &channelID);
+
+    virtual ~LLVoiceWebRTCSpatialConnection();
+
+    void setMuteMic(bool muted) override;
+
+
+protected:
+
+	bool requestVoiceConnection() override;
+
+    S32    mParcelLocalID;
+};
+
+class LLVoiceWebRTCAdHocConnection : public LLVoiceWebRTCConnection
+{
+  public:
+    LLVoiceWebRTCAdHocConnection(const LLUUID &regionID, const std::string &channelID, const std::string& credentials);
+
+    virtual ~LLVoiceWebRTCAdHocConnection();
+
+  protected:
+    bool requestVoiceConnection() override;
+
+	std::string mCredentials;
 };
 
 #define VOICE_ELAPSED LLVoiceTimer(__FUNCTION__);

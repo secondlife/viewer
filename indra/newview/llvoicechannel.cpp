@@ -654,6 +654,7 @@ void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
         LL_DEBUGS("Voice") << "LLVoiceCallCapResponder::result got "
             << iter->first << LL_ENDL;
     }
+    LL_INFOS("Voice") << "LLVoiceCallCapResponder::result got " << result << LL_ENDL;
 
     channelp->setChannelInfo(
         result["voice_credentials"]["channel_uri"].asString(),
