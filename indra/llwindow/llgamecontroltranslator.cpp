@@ -84,11 +84,13 @@ LLGameControl::InputChannel LLGameControlTranslator::getChannelByActionName(cons
 void LLGameControlTranslator::clearActionMap()
 {
     mMaskToChannel.clear();
+    mMappedFlags = 0;
+    mPrevActiveFlags = 0;
 }
 
 void LLGameControlTranslator::loadDefaults()
 {
-    // TODO?: load these defaults from XML config file
+    // TODO?: load these defaults from XML config file?
     clearActionMap();
 
     // axes
@@ -144,7 +146,7 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
             LLGameControl::InputChannel old_channel = channel_itr->second;
             if (old_channel.mType != channel.mType || old_channel.mIndex != channel.mIndex)
             {
-                if (channel.mType == LLGameControl::InputChannel::TYPE_UNKNOWN)
+                if (channel.mType == LLGameControl::InputChannel::TYPE_NONE)
                 {
                     // remove old mapping
                     mMaskToChannel.erase(channel_itr);
@@ -157,7 +159,7 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
                 something_changed = true;
             }
         }
-        else if (channel.mType != LLGameControl::InputChannel::TYPE_UNKNOWN)
+        else if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
         {
             // create new mapping
             mMaskToChannel[mask] = channel;
@@ -168,36 +170,54 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
     {
         LL_WARNS("game_control") << "unknown translation action '" << name << "'" << LL_ENDL;
     }
+
+    // recompute mMappedFlags
+    mMappedFlags = 0;
+    for (auto& pair : mMaskToChannel)
+    {
+        mMappedFlags |= pair.first;
+    }
+    mPrevActiveFlags = 0;
+
     return something_changed;
 }
 
-void LLGameControlTranslator::translateActionFlags(U32 action_flags, LLGameControl::State& state_out) const
+const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags(U32 action_flags)
 {
     // translate action_flag bits to equivalent game controller state
     // according to data in mMaskToChannel
-    for (auto& pair : mMaskToChannel)
+
+    // only bother to update mCachedState if active_flags have changed
+    U32 active_flags = action_flags & mMappedFlags;
+    if (active_flags != mPrevActiveFlags)
     {
-        U32 mask = pair.first;
-        if (mask == (mask & action_flags))
+        mCachedState.clear();
+        for (const auto& pair : mMaskToChannel)
         {
-            LLGameControl::InputChannel channel = pair.second;
-            if (channel.mType == LLGameControl::InputChannel::TYPE_AXIS)
+            U32 mask = pair.first;
+            if (mask == (mask & action_flags))
             {
-                U8 axis_index = channel.mIndex / 2;
-                if (channel.mIndex - (axis_index * 2) > 0)
+                LLGameControl::InputChannel channel = pair.second;
+                if (channel.mType == LLGameControl::InputChannel::TYPE_AXIS)
                 {
-                    state_out.mAxes[axis_index] = std::numeric_limits<S16>::min();
+                    U8 axis_index = channel.mIndex / 2;
+                    if (channel.mIndex - (axis_index * 2) > 0)
+                    {
+                        mCachedState.mAxes[axis_index] = std::numeric_limits<S16>::min();
+                    }
+                    else
+                    {
+                        mCachedState.mAxes[axis_index] = std::numeric_limits<S16>::max();
+                    }
                 }
-                else
+                else if (channel.mType == LLGameControl::InputChannel::TYPE_BUTTON)
                 {
-                    state_out.mAxes[axis_index] = std::numeric_limits<S16>::max();
+                    mCachedState.mButtons |= (0x01U << channel.mIndex);
                 }
-            }
-            else if (channel.mType == LLGameControl::InputChannel::TYPE_BUTTON)
-            {
-                state_out.mButtons |= (0x01U << channel.mIndex);
             }
         }
+        mPrevActiveFlags = active_flags;
     }
+    return mCachedState;
 }
 

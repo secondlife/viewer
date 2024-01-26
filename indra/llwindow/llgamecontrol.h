@@ -102,15 +102,17 @@ public:
         {
             TYPE_AXIS,
             TYPE_BUTTON,
-            TYPE_UNKNOWN
+            TYPE_NONE
         };
+
+        static void initChannelMap();
 
         InputChannel() {}
         InputChannel(Type type, U8 index) : mType(type), mIndex(index) {}
         std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, etc
         std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
 
-        Type mType { TYPE_UNKNOWN };
+        Type mType { TYPE_NONE };
         U8 mIndex { 255 };
     };
 
@@ -119,6 +121,7 @@ public:
     {
     public:
         State();
+        void clear();
         bool onButton(U8 button, bool pressed);
         std::vector<S16> mAxes; // [ -32768, 32767 ]
         std::vector<S16> mPrevAxes; // value in last outgoing packet
@@ -146,6 +149,7 @@ public:
 
     // "Action" refers to avatar motion actions (e.g. push_forward, slide_left, etc)
     // this is a roundabout way to convert keystrokes to GameControl input.
+    static LLGameControl::InputChannel getChannelByName(const std::string& name);
     static LLGameControl::InputChannel getChannelByActionName(const std::string& name);
     static void addActionMapping(const std::string& name,  LLGameControl::InputChannel channel);
     static void setActionFlags(U32 action_flags);

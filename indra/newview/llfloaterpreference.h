@@ -369,7 +369,7 @@ public:
     {
         TYPE_AXIS,
         TYPE_BUTTON,
-        TYPE_UNKNOWN
+        TYPE_NONE
     };
 
     LLPanelPreferenceGameControl();
@@ -384,8 +384,8 @@ public:
     void onClickEnable(LLUICtrl* ctrl);
     void onClickActionsAsGameControl(LLUICtrl* ctrl);
     void onActionSelect();
+    void onCommitInputChannel();
 
-    //static void translateActionsToGameControl(U32 control_flags);
     static bool isWaitingForInputChannel();
     static void applyGameControlInput(const LLGameControl::InputChannel& channel);
 protected:
@@ -396,6 +396,7 @@ protected:
     void populateRows();
 
 private:
+    void clearSelectionState();
     void addTableSeparator(LLScrollListCtrl* table);
     void updateTable();
     LOG_CLASS(LLPanelPreferenceGameControl);
@@ -403,6 +404,7 @@ private:
     LLCheckBoxCtrl  *mCheckEnableGameControl;
     LLCheckBoxCtrl  *mCheckInterpretActions;
     LLScrollListCtrl* mActionTable;
+    LLComboBox* mChannelSelector;
     LLGameControlTranslator mActionTranslator;
 };
 
