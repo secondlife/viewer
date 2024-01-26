@@ -43,10 +43,13 @@ public:
     void clearActionMap();
     void loadDefaults();
     bool addActionMapping(const std::string& name, const LLGameControl::InputChannel& channel);
-    // Note: to remove mapping: call addMapping() with a TYPE_UNKNOWN channel
-    void translateActionFlags(U32 action_flags, LLGameControl::State& state_out) const;
+    // Note: to remove mapping: call addMapping() with a TYPE_NONE channel
+    const LLGameControl::State& computeStateFromActionFlags(U32 action_flags);
 
 private:
     NameToMaskMap mNameToMask; // invariant map after init
     MaskToChannelMap mMaskToChannel; // dynamic map, per preference changes
+    LLGameControl::State mCachedState;
+    U32 mMappedFlags { 0 };
+    U32 mPrevActiveFlags { 0 };
 };
