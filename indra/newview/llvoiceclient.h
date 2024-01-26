@@ -186,6 +186,7 @@ public:
 	/// @name invitations
 	//@{
 	// start a voice channel with the specified user
+    virtual bool hasP2PInterface()=0;
 	virtual void callUser(const LLUUID &uuid)=0;
 	virtual bool isValidChannel(std::string& channelHandle)=0;
 	virtual bool answerInvite(std::string &channelHandle)=0;
@@ -382,6 +383,7 @@ public:
 	// NOTE that it will return an empty string if it's in the process of joining a channel.
 	std::string getCurrentChannel();
 	// start a voice channel with the specified user
+    bool hasP2PInterface(); // true - can use the following.  false - use conference/ad-hoc instead
 	void callUser(const LLUUID &uuid);
 	bool isValidChannel(std::string& channelHandle);
 	bool answerInvite(std::string &channelHandle);

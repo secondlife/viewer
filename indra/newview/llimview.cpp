@@ -665,8 +665,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// set P2P type by default
 	mSessionType = P2P_SESSION;
 
-	if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
+	if ((IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType) && LLVoiceClient::getInstance()->hasP2PInterface())
 	{
+		// only use LLVoiceChannelP2P if the provider can handle the special P2P interface,
+		// which uses the voice server to relay calls and invites.  Otherwise,
+		// we use the group voice provider.
 		mVoiceChannel  = new LLVoiceChannelP2P(session_id, name, other_participant_id);
 	}
 	else
@@ -2034,7 +2037,8 @@ bool LLIMModel::sendStartSession(
 
 		return true;
 	}
-	else if ( dialog == IM_SESSION_CONFERENCE_START )
+    else if (( dialog == IM_SESSION_CONFERENCE_START ) || 
+		     (((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL)) && !LLVoiceClient::getInstance()->hasP2PInterface()))
 	{
 		LLSD agents;
 		for (int i = 0; i < (S32) ids.size(); i++)
