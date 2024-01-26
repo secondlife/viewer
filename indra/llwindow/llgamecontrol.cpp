@@ -38,6 +38,58 @@
 
 constexpr size_t NUM_AXES = 6;
 
+std::unordered_map<std::string, LLGameControl::InputChannel> gChannelMap;
+
+// static
+void LLGameControl::InputChannel::initChannelMap()
+{
+    using type = LLGameControl::InputChannel::Type;
+    gChannelMap["AXIS_0-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 0);
+    gChannelMap["AXIS_0+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 1);
+    gChannelMap["AXIS_1-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 2);
+    gChannelMap["AXIS_1+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 3);
+    gChannelMap["AXIS_2-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 4);
+    gChannelMap["AXIS_2+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 5);
+    gChannelMap["AXIS_3-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 6);
+    gChannelMap["AXIS_3+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 7);
+    gChannelMap["AXIS_4-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 8);
+    gChannelMap["AXIS_4+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 9);
+    gChannelMap["AXIS_5-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 10);
+    gChannelMap["AXIS_5+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 11);
+
+    gChannelMap["BUTTON_0"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 0);
+    gChannelMap["BUTTON_1"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 1);
+    gChannelMap["BUTTON_2"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 2);
+    gChannelMap["BUTTON_3"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 3);
+    gChannelMap["BUTTON_4"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 4);
+    gChannelMap["BUTTON_5"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 5);
+    gChannelMap["BUTTON_6"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 6);
+    gChannelMap["BUTTON_7"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 7);
+    gChannelMap["BUTTON_8"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 8);
+    gChannelMap["BUTTON_9"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 9);
+    gChannelMap["BUTTON_10"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 10);
+    gChannelMap["BUTTON_11"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 11);
+    gChannelMap["BUTTON_12"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 12);
+    gChannelMap["BUTTON_13"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 13);
+    gChannelMap["BUTTON_14"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 14);
+    gChannelMap["BUTTON_15"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 15);
+    gChannelMap["BUTTON_16"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 16);
+    gChannelMap["BUTTON_17"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 17);
+    gChannelMap["BUTTON_18"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 18);
+    gChannelMap["BUTTON_19"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 19);
+    gChannelMap["BUTTON_20"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 20);
+    gChannelMap["BUTTON_21"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 21);
+    gChannelMap["BUTTON_22"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 22);
+    gChannelMap["BUTTON_23"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 23);
+    gChannelMap["BUTTON_24"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 24);
+    gChannelMap["BUTTON_25"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 25);
+    gChannelMap["BUTTON_26"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 26);
+    gChannelMap["BUTTON_27"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 27);
+    gChannelMap["BUTTON_28"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 28);
+    gChannelMap["BUTTON_29"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 29);
+    gChannelMap["BUTTON_30"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 30);
+    gChannelMap["BUTTON_31"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 31);
+}
 
 std::string LLGameControl::InputChannel::getLocalName() const
 {
@@ -255,6 +307,16 @@ LLGameControl::State::State() : mButtons(0)
     mPrevAxes.resize(NUM_AXES, 0);
 }
 
+void LLGameControl::State::clear()
+{
+    std::fill(mAxes.begin(), mAxes.end(), 0);
+
+    // DO NOT clear mPrevAxes because those are managed by external logic.
+    //std::fill(mPrevAxes.begin(), mPrevAxes.end(), 0);
+
+    mButtons = 0;
+}
+
 bool LLGameControl::State::onButton(U8 button, bool pressed)
 {
     U32 old_buttons = mButtons;
@@ -389,11 +451,9 @@ void LLGameControllerManager::clearAllState()
 {
     for (auto& state : mStates)
     {
-        state.mButtons = 0;
-        std::fill(state.mAxes.begin(), state.mAxes.end(), 0);
+        state.clear();
     }
-    mActionState.mButtons = 0;
-    std::fill(mActionState.mAxes.begin(), mActionState.mAxes.end(), 0);
+    mActionState.clear();
     mLastActionFlags = 0;
 }
 
@@ -467,9 +527,7 @@ void LLGameControllerManager::setActionFlags(U32 action_flags)
     if (action_flags != mLastActionFlags)
     {
         mLastActionFlags = action_flags;
-        LLGameControl::State state;
-        mTranslator.translateActionFlags(action_flags, state);
-        mActionState = state;
+        mActionState = mTranslator.computeStateFromActionFlags(action_flags);
     }
 }
 
@@ -575,6 +633,7 @@ void LLGameControl::init()
         SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
         SDL_LogSetOutputFunction(&sdl_logger, nullptr);
     }
+    LLGameControl::InputChannel::initChannelMap();
 }
 
 // static
@@ -663,6 +722,19 @@ void LLGameControl::setInterpretControlActionsAsGameControl(bool include)
 bool LLGameControl::getInterpretControlActionsAsGameControl()
 {
     return g_interpretActions;
+}
+
+// static
+LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& name)
+{
+    std::unordered_map<std::string, LLGameControl::InputChannel>::const_iterator itr;
+    itr = gChannelMap.find(name);
+    LLGameControl::InputChannel channel;
+    if (itr != gChannelMap.end())
+    {
+        channel = itr->second;
+    }
+    return channel;
 }
 
 // static

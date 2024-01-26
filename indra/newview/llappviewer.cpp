@@ -1388,9 +1388,10 @@ LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State&
             if (abs(state.mAxes[i]) > threshold)
             {
                 input.mType = LLGameControl::InputChannel::TYPE_AXIS;
-                // input.mIndex is a LLGameControl::KeyboardAxis which distinguishes
-                // between negative and positive directions so we must translate to
-                // axis index "i" according to the sign of the axis value.
+                // input.mIndex ultimately translates to a LLGameControl::KeyboardAxis
+                // which distinguishes between negative and positive directions
+                // so we must translate to axis index "i" according to the sign
+                // of the axis value.
                 input.mIndex = i * 2 + (U8)(state.mAxes[i] > 0);
                 break;
             }
@@ -1406,6 +1407,8 @@ bool packGameControlInput(LLMessageSystem* msg)
 
     if (! LLGameControl::computeFinalStateAndCheckForChanges())
     {
+        // Note: LLGameControl manages some re-send logic
+        // so if we get here: nothing changed AND there is no need for a re-send
         return false;
     }
     if (!gSavedSettings.getBOOL("EnableGameControl"))
@@ -1419,7 +1422,7 @@ bool packGameControlInput(LLMessageSystem* msg)
     if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
     {
         LLGameControl::InputChannel channel = get_active_input_channel(state);
-        if (channel.mType != LLGameControl::InputChannel::TYPE_UNKNOWN)
+        if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
         {
             LLPanelPreferenceGameControl::applyGameControlInput(channel);
         }

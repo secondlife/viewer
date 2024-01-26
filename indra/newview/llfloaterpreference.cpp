@@ -3098,6 +3098,7 @@ void LLPanelPreferenceGameControl::updateEnabledState()
 }
 
 static LLScrollListItem* gSelectedItem { nullptr };
+static LLScrollListCell* gSelectedCell { nullptr };
 
 void LLPanelPreferenceGameControl::onClickEnable(LLUICtrl* ctrl)
 {
@@ -3105,6 +3106,7 @@ void LLPanelPreferenceGameControl::onClickEnable(LLUICtrl* ctrl)
     gSavedSettings.setBOOL( "EnableGameControl", checked );
     mCheckInterpretActions->setEnabled(checked);
     mActionTable->setEnabled(checked && mCheckInterpretActions->get());
+    mChannelSelector->setEnabled(checked && mCheckInterpretActions->get());
 }
 
 void LLPanelPreferenceGameControl::onClickActionsAsGameControl(LLUICtrl* ctrl)
@@ -3113,12 +3115,14 @@ void LLPanelPreferenceGameControl::onClickActionsAsGameControl(LLUICtrl* ctrl)
     gSavedSettings.setBOOL( "InterpretControlActionsAsGameControl", checked );
     mActionTable->deselectAllItems();
     mActionTable->setEnabled(checked);
+    mChannelSelector->setEnabled(checked);
 }
 
 void LLPanelPreferenceGameControl::onActionSelect()
 {
+    clearSelectionState();
+
     LLScrollListItem* item = mActionTable->getFirstSelected();
-    gSelectedItem = nullptr;
     if (item == NULL)
     {
         return;
@@ -3133,16 +3137,38 @@ void LLPanelPreferenceGameControl::onActionSelect()
     }
 
     S32 cell_index = item->getSelectedCell();
-    if (cell_index <= 0)
+    if (cell_index != 1)
     {
         mActionTable->deselectAllItems();
         return;
     }
 
-    LLScrollListCell* cell = item->getColumn(cell_index);
+    LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(cell_index));
     if (cell)
     {
         gSelectedItem = item;
+        gSelectedCell = cell;
+
+        // compute new rect for mChannelSelector
+        S32 row = mActionTable->getFirstSelectedIndex();
+        S32 column = item->getSelectedCell();
+        LLRect cell_rect = mActionTable->getCellRect(row, column);
+
+        LLRect combo_rect = mChannelSelector->getRect();
+        S32 width = combo_rect.getWidth();
+        S32 height = combo_rect.getHeight();
+        S32 left = cell_rect.mLeft + cell->getTextWidth();
+        combo_rect.set(left, cell_rect.mTop, left + width, cell_rect.mTop - height);
+        mChannelSelector->setRect(combo_rect);
+
+        std::string value = gSelectedCell->getValue();
+        if (value == " ")
+        {
+             value = "NONE";
+        }
+        mChannelSelector->setValue(value);
+        mChannelSelector->setVisible(TRUE);
+        mChannelSelector->showList();
     }
     else
     {
@@ -3150,7 +3176,27 @@ void LLPanelPreferenceGameControl::onActionSelect()
     }
 }
 
-// static
+void LLPanelPreferenceGameControl::onCommitInputChannel()
+{
+    if (gSelectedCell)
+    {
+        std::string value = mChannelSelector->getSelectedItemLabel();
+        if (value == "NONE")
+        {
+            gSelectedCell->setValue(" ");
+        }
+        else
+        {
+            gSelectedCell->setValue(value);
+        }
+        LLGameControl::InputChannel channel = LLGameControl::getChannelByName(value);
+        LLGameControl::addActionMapping(gSelectedItem->getValue(), channel);
+        gGameControlPanel->updateTable();
+
+        clearSelectionState();
+    }
+}
+
 bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 {
     return gSelectedItem != nullptr;
@@ -3159,7 +3205,7 @@ bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 // static
 void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::InputChannel& channel)
 {
-    if (gSelectedItem && channel.mType != (U8)(LLPanelPreferenceGameControl::TYPE_UNKNOWN))
+    if (gSelectedItem && channel.mType != (U8)(LLPanelPreferenceGameControl::TYPE_NONE))
     {
         S32 cell_index = gSelectedItem->getSelectedCell();
         if (cell_index > 0)
@@ -3171,10 +3217,10 @@ void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::In
                 LLGameControl::addActionMapping(gSelectedItem->getValue(), channel);
                 gGameControlPanel->updateTable();
 
-                // TODO?: also update the cell to the right with more human readable name
+                // TODO?: also update the cell to the right with script-relevant name
             }
         }
-        gSelectedItem = nullptr;
+        gGameControlPanel->clearSelectionState();
     }
 }
 
@@ -3192,6 +3238,11 @@ BOOL LLPanelPreferenceGameControl::postBuild()
     populateActionTable();
 
     mActionTable->setEnabled(mCheckEnableGameControl->get() && mCheckInterpretActions->get());
+
+    mChannelSelector = getChild<LLComboBox>("input_channel_combo");
+    mChannelSelector->setVisible(FALSE);
+    mChannelSelector->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onCommitInputChannel, this));
+
     return TRUE;
 }
 
@@ -3217,6 +3268,7 @@ void LLPanelPreferenceGameControl::populateColumns()
     parser.readXUI(xmlNode, contents, filename);
     if (!contents.validateBlock())
     {
+        LL_WARNS("Preferences") << "Failed to parse columns from '" << filename << "'" << LL_ENDL;
         return;
     }
     for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator col_it = contents.columns.begin();
@@ -3242,6 +3294,7 @@ void LLPanelPreferenceGameControl::populateRows()
     parser.readXUI(xmlNode, contents, filename);
     if (!contents.validateBlock())
     {
+        LL_WARNS("Preferences") << "Failed to parse rows from '" << filename << "'" << LL_ENDL;
         return;
     }
 
@@ -3274,7 +3327,6 @@ void LLPanelPreferenceGameControl::populateRows()
             // in XUI config file, and now we want to add two more
             if (num_columns > 0)
             {
-                //LLGameControl::InputChannel channel = mActionTranslator.getChannelByName(action);
                 LLGameControl::InputChannel channel = LLGameControl::getChannelByActionName(action);
 
                 cell_params.column = local_channel_column->mName;
@@ -3304,6 +3356,16 @@ void LLPanelPreferenceGameControl::populateRows()
             mActionTable->addRow(*row_it, EAddPosition::ADD_BOTTOM);
         }
     }
+}
+
+void LLPanelPreferenceGameControl::clearSelectionState()
+{
+    if (gSelectedCell)
+    {
+        mChannelSelector->setVisible(FALSE);
+        gSelectedCell = nullptr;
+    }
+    gSelectedItem = nullptr;
 }
 
 void LLPanelPreferenceGameControl::addTableSeparator(LLScrollListCtrl* table)
