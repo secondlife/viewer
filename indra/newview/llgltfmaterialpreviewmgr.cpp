@@ -96,7 +96,7 @@ namespace
 {
     void fetch_texture_for_ui(LLPointer<LLViewerFetchedTexture>& img, const LLUUID& id)
     {
-        if (id.notNull())
+        if (!img && id.notNull())
         {
             if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
             {
