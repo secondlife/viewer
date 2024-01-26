@@ -31,9 +31,10 @@
 
 extern "C"
 {
-#include "lua/lua.h"
-#include "lua/lauxlib.h"
-#include "lua/lualib.h"
+#include "luau/luacode.h"
+#include "luau/lua.h"
+#include "luau/luaconf.h"
+#include "luau/lualib.h"
 }
 
 class LLLineEditor;

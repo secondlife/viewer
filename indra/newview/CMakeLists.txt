@@ -1729,7 +1729,6 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/uriparser.dll
-      ${SHARED_LIB_STAGING_DIR}/lua54.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll

@@ -64,9 +64,21 @@ extern LLUIListener sUIListener;
 
 #include <boost/algorithm/string/replace.hpp>
 
-#include "lua/lua.h"
-#include "lua/lauxlib.h"
-#include "lua/lualib.h"
+#include "luau/luacode.h"
+#include "luau/lua.h"
+#include "luau/luaconf.h"
+#include "luau/lualib.h"
+
+#if LL_WINDOWS
+#pragma comment(lib, "Luau.Compiler.lib")
+#pragma comment(lib, "Luau.Ast.lib")
+#pragma comment(lib, "Luau.CodeGen.lib")
+#pragma comment(lib, "Luau.Config.lib")
+#pragma comment(lib, "Luau.VM.lib")
+#endif
+
+#define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
+#define lua_rawlen lua_objlen
 
 #include <algorithm>
 #include <cstdlib>                  // std::rand()
@@ -289,9 +301,10 @@ int name##_::call(lua_State* L)
 //     ... supply method body here, referencing 'L' ...
 // }
 
+/*
 // This function consumes ALL Lua stack arguments and returns concatenated
 // message string
-std::string lua_print_msg(lua_State* L, const std::string_view& level)
+std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
 {
     // On top of existing Lua arguments, push 'where' info
     luaL_checkstack(L, 1, nullptr);
@@ -326,6 +339,20 @@ std::string lua_print_msg(lua_State* L, const std::string_view& level)
     // capture message string
     std::string msg{ out.str() };
     // put message out there for any interested party (*koff* LLFloaterLUADebug *koff*)
+    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
+    return msg;
+}
+*/
+
+std::string lua_print_msg(lua_State *L, const std::string_view &level)
+{
+    lua_getglobal(L, "tostring");
+    
+    lua_pushvalue(L, -1); /* function to be called */
+    lua_pushvalue(L, 1);  /* value to print */
+    lua_call(L, 1, 1);
+    std::string msg = lua_tostring(L, -1);
+
     LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
     return msg;
 }
@@ -819,7 +846,8 @@ lua_function(listen_events)
 {
     if (! lua_isfunction(L, 1))
     {
-        return luaL_typeerror(L, 1, "function");
+        luaL_typeerror(L, 1, "function");
+        return 0;
     }
     luaL_checkstack(L, 2, nullptr);
 
@@ -829,7 +857,7 @@ lua_function(listen_events)
     // suspended) coroutine thread.
     // Registry table is at pseudo-index LUA_REGISTRYINDEX
     // Main thread is at registry key LUA_RIDX_MAINTHREAD
-    auto regtype{ lua_geti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD) };
+    auto regtype {lua_rawgeti(L, LUA_REGISTRYINDEX, 1 /*LUA_RIDX_MAINTHREAD*/)};
     // Not finding the main thread at the documented place isn't a user error,
     // it's a Problem
     llassert_always(regtype == LUA_TTHREAD);
@@ -996,15 +1024,25 @@ void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn
 
         lua_register(L, "sleep", LUA_sleep_func);
 
-        if (L.checkLua(luaL_dofile(L, filename.c_str())))
+        llifstream in_file;
+        in_file.open(filename.c_str());
+
+        if (in_file.is_open()) 
         {
-            lua_getglobal(L, "call_once_func");
-            if (lua_isfunction(L, -1))
-            {
-                // call call_once_func(), setting internal error message if
-                // error
-                L.checkLua(lua_pcall(L, 0, 0, 0));
-            }
+            std::string text((std::istreambuf_iterator<char>(in_file)), std::istreambuf_iterator<char>());
+
+            size_t bytecodeSize = 0;
+            char *bytecode = luau_compile(text.c_str(), text.length(), NULL, &bytecodeSize);
+            L.checkLua(luau_load(L, desc.c_str(), bytecode, bytecodeSize, 0));
+            free(bytecode);
+
+            L.checkLua(lua_pcall(L, 0, 0, 0));
+
+            in_file.close();
+        }
+        else
+        {
+            LL_WARNS("Lua") << "unable to open script file '" << filename << "'" << LL_ENDL;
         }
     });
 }
@@ -1024,7 +1062,12 @@ void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
     LLCoros::instance().launch(desc, [desc, cmd, cb]()
     {
         LuaState L(desc, cb);
-        L.checkLua(luaL_dostring(L, cmd.c_str()));
+
+        size_t bytecodeSize = 0;
+        char *bytecode = luau_compile(cmd.c_str(), cmd.length(), NULL, &bytecodeSize);
+        L.checkLua(luau_load(L, desc.c_str(), bytecode, bytecodeSize, 0));
+        free(bytecode);
+        L.checkLua(lua_pcall(L, 0, 0, 0));
     });
 }
 
@@ -1104,8 +1147,8 @@ public:
 
         case LUA_TUSERDATA:
         {
-            const size_t maxlen = 20;
-            size_t binlen{ lua_rawlen(self.L, self.index) };
+            const S32 maxlen = 20;
+            S32 binlen{ lua_rawlen(self.L, self.index) };
             LLSD::Binary binary(std::min(maxlen, binlen));
             std::memcpy(binary.data(), lua_touserdata(self.L, self.index), binary.size());
             out << LL::hexdump(binary);
@@ -1333,7 +1376,7 @@ LLSD lua_tollsd(lua_State* L, int index)
             // operator is truthful, avoid allocations while we grow the keys
             // vector. Even if it's not, we can still grow the vector, albeit
             // a little less efficiently.
-            keys.reserve(luaL_len(L, index));
+            keys.reserve(lua_objlen(L, index));
             do
             {
                 auto arraykeytype{ lua_type(L, -2) };
@@ -1347,12 +1390,13 @@ LLSD lua_tollsd(lua_State* L, int index)
                     {
                         // key isn't an integer - this doesn't fit our LLSD
                         // array constraints
-                        return luaL_error(L, "Expected integer array key, got %f instead",
-                                          lua_tonumber(L, -2));
+                        luaL_error(L, "Expected integer array key, got %f instead", lua_tonumber(L, -2));
+                        return 0;
                     }
                     if (intkey < 1)
                     {
-                        return luaL_error(L, "array key %d out of bounds", int(intkey));
+                        luaL_error(L, "array key %d out of bounds", int(intkey));
+                        return 0;
                     }
 
                     keys.push_back(LLSD::Integer(intkey));
@@ -1361,12 +1405,12 @@ LLSD lua_tollsd(lua_State* L, int index)
 
                 case LUA_TSTRING:
                     // break out strings specially to report the value
-                    return luaL_error(L, "Cannot convert string array key '%s' to LLSD",
-                                      lua_tostring(L, -2));
+                    luaL_error(L, "Cannot convert string array key '%s' to LLSD", lua_tostring(L, -2));
+                    return 0;
 
                 default:
-                    return luaL_error(L, "Cannot convert %s array key to LLSD",
-                                      lua_typename(L, arraykeytype));
+                    luaL_error(L, "Cannot convert %s array key to LLSD", lua_typename(L, arraykeytype));
+                    return 0;
                 }
 
                 // remove value, keep key for next iteration
@@ -1378,8 +1422,8 @@ LLSD lua_tollsd(lua_State* L, int index)
             size_t array_max{ 10000 };
             if (keys.size() > array_max)
             {
-                return luaL_error(L, "Conversion from Lua to LLSD array limited to %d entries",
-                                  int(array_max));
+                luaL_error(L, "Conversion from Lua to LLSD array limited to %d entries", int(array_max));
+                return 0;
             }
             // We know the smallest key is >= 1. Check the largest. We also
             // know the vector is NOT empty, else we wouldn't have gotten here.
@@ -1389,7 +1433,8 @@ LLSD lua_tollsd(lua_State* L, int index)
             {
                 // Looks like we've gone beyond intentional array gaps into
                 // crazy key territory.
-                return luaL_error(L, "Gaps in Lua table too large for conversion to LLSD array");
+                luaL_error(L, "Gaps in Lua table too large for conversion to LLSD array");
+                return 0;
             }
             LL_DEBUGS("Lua") << "collected " << keys.size() << " keys, max " << highkey << LL_ENDL;
             // right away expand the result array to the size we'll need
@@ -1420,8 +1465,8 @@ LLSD lua_tollsd(lua_State* L, int index)
                 auto mapkeytype{ lua_type(L, -2) };
                 if (mapkeytype != LUA_TSTRING)
                 {
-                    return luaL_error(L, "Cannot convert %s map key to LLSD",
-                                      lua_typename(L, mapkeytype));
+                    luaL_error(L, "Cannot convert %s map key to LLSD", lua_typename(L, mapkeytype));
+                    return 0;
                 }
 
                 auto key{ lua_tostdstring(L, -2) };
@@ -1436,8 +1481,8 @@ LLSD lua_tollsd(lua_State* L, int index)
 
         default:
             // First Lua key isn't number or string: sorry
-            return luaL_error(L, "Cannot convert %s table key to LLSD",
-                              lua_typename(L, firstkeytype));
+            luaL_error(L, "Cannot convert %s table key to LLSD", lua_typename(L, firstkeytype));
+            return 0;
         }
     }
 
@@ -1445,7 +1490,8 @@ LLSD lua_tollsd(lua_State* L, int index)
         // Other Lua entities (e.g. function, C function, light userdata,
         // thread, userdata) are not convertible to LLSD, indicating a coding
         // error in the caller.
-        return luaL_error(L, "Cannot convert type %s to LLSD", luaL_typename(L, index));
+        luaL_error(L, "Cannot convert type %s to LLSD", luaL_typename(L, index));
+        return 0;
     }
 }
 
@@ -1505,7 +1551,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
             // push new array value: table at -2, value at -1
             lua_pushllsd(L, item);
             // pop value, assign table[key] = value
-            lua_seti(L, -2, ++key);
+            lua_rawseti(L, -2, ++key);
         }
         break;
     }

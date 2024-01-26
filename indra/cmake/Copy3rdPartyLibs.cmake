@@ -60,7 +60,6 @@ if(WINDOWS)
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
-        lua54.dll
         )
 
     # OpenSSL

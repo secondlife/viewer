@@ -1658,42 +1658,10 @@
         <key>name</key>
         <string>llphysicsextensions_tpv</string>
       </map>
-      <key>lua</key>
+      <key>luau</key>
       <map>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>50cf091adb3e145b1b9f783415e897dc0a6dc570</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133676222</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>5f4607c388bd9ed91bc85719696dbc1f4777e7d4</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133676226</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
@@ -1701,11 +1669,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>efde67ff252f9dbe0c4b806389da4318a619f9ac</string>
+              <string>eb21a1feaf86e14d6a5068ba90b78b7b6b0c4b3c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-lua/releases/assets/133676232</string>
+              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/147845711</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1716,13 +1684,13 @@
         <key>license_file</key>
         <string>LICENSES/lua.txt</string>
         <key>copyright</key>
-        <string>Copyright (c) 1994–2023 Lua.org, PUC-Rio.</string>
+        <string>Copyright (c) 2019-2023 Roblox Corporation, Copyright (c) 1994–2019 Lua.org, PUC-Rio.</string>
         <key>version</key>
-        <string>5.4.6</string>
+        <string>0.609</string>
         <key>name</key>
-        <string>lua</string>
+        <string>luau</string>
         <key>description</key>
-        <string>Lua is a powerful, efficient, lightweight, embeddable scripting language developed by a team at PUC-Rio, the Pontifical Catholic University of Rio de Janeiro in Brazil.</string>
+        <string>Luau is a fast, small, safe, gradually typed embeddable scripting language derived from Lua.</string>
       </map>
       <key>mesa</key>
       <map>
