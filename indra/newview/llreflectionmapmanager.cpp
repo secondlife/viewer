@@ -463,17 +463,22 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
 
 LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* group)
 {
-    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+    if (!group)
     {
-        OctreeNode* node = group->getOctreeNode();
-        F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 15.f && size <= 17.f)
-        {
-            return addProbe(group);
-        }
+        return nullptr;
     }
-
-    return nullptr;
+    LLSpatialPartition* part = group->getSpatialPartition();
+    if (!part || part->mPartitionType != LLViewerRegion::PARTITION_VOLUME)
+    {
+        return nullptr;
+    }
+    OctreeNode* node = group->getOctreeNode();
+    F32 size = node->getSize().getF32ptr()[0];
+    if (size < 15.f || size > 17.f)
+    {
+        return nullptr;
+    }
+    return addProbe(group);
 }
 
 LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
