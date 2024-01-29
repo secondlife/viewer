@@ -67,7 +67,7 @@ public:
 	};
 
 
-	virtual ~LLSplitButton() {};
+	virtual ~LLSplitButton();
 
 	//Overridden
 	virtual void	onFocusLost();
@@ -98,6 +98,8 @@ protected:
 	LLButton* mArrowBtn;
 	LLButton* mShownItem;
 	EArrowPosition mArrowPosition;
+
+    boost::signals2::connection mTopLostSignalConnection;
 
 	commit_callback_t mSelectionCallback;
 };

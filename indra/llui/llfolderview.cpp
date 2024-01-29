@@ -256,7 +256,13 @@ LLFolderView::LLFolderView(const Params& p)
 // Destroys the object
 LLFolderView::~LLFolderView( void )
 {
-	closeRenamer();
+    mRenamerTopLostSignalConnection.disconnect();
+    if (mRenamer)
+    {
+        // instead of using closeRenamer remove it directly,
+        // since it might already be hidden
+        LLUI::getInstance()->removePopup(mRenamer);
+    }
 
 	// The release focus call can potentially call the
 	// scrollcontainer, which can potentially be called with a partly
@@ -1072,7 +1078,10 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setVisible( TRUE );
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
-		mRenamer->setTopLostCallback(boost::bind(&LLFolderView::onRenamerLost, this));
+        if (!mRenamerTopLostSignalConnection.connected())
+        {
+            mRenamerTopLostSignalConnection = mRenamer->setTopLostCallback(boost::bind(&LLFolderView::onRenamerLost, this));
+        }
 		LLUI::getInstance()->addPopup(mRenamer);
 	}
 }
@@ -1598,7 +1607,11 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderView::deleteAllChildren()
 {
-	closeRenamer();
+    mRenamerTopLostSignalConnection.disconnect();
+    if (mRenamer)
+    {
+        LLUI::getInstance()->removePopup(mRenamer);
+    }
 	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 	mPopupMenuHandle.markDead();
 	mScrollContainer = NULL;

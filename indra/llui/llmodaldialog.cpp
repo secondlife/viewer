@@ -67,6 +67,8 @@ LLModalDialog::~LLModalDialog()
 	{
 		LL_ERRS() << "Attempt to delete dialog while still in sModalStack!" << LL_ENDL;
 	}
+
+    LLUI::getInstance()->removePopup(this);
 }
 
 // virtual
