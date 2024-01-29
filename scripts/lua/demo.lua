@@ -139,9 +139,7 @@ function demo_ui()
 
 end
 
-function call_once_func()
+demo_environment()
+demo_avatar()
+demo_ui()
 
-    demo_environment()
-    demo_avatar()
-    demo_ui()
-end

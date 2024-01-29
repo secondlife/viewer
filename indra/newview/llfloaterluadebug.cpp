@@ -63,11 +63,6 @@ BOOL LLFloaterLUADebug::postBuild()
     getChild<LLButton>("browse_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnBrowse, this));
     getChild<LLButton>("run_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnRun, this));
 
-#if !LL_WINDOWS
-    getChild<LLButton>("execute_btn")->setEnabled(false);
-    getChild<LLButton>("browse_btn")->setEnabled(false);
-#endif
-
     return TRUE;
 }
 

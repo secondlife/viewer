@@ -69,14 +69,6 @@ extern LLUIListener sUIListener;
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
 
-#if LL_WINDOWS
-#pragma comment(lib, "Luau.Compiler.lib")
-#pragma comment(lib, "Luau.Ast.lib")
-#pragma comment(lib, "Luau.CodeGen.lib")
-#pragma comment(lib, "Luau.Config.lib")
-#pragma comment(lib, "Luau.VM.lib")
-#endif
-
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
 

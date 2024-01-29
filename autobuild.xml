@@ -1685,11 +1685,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>eb21a1feaf86e14d6a5068ba90b78b7b6b0c4b3c</string>
+              <string>4649604bca29eb697f8a6edb72f8cc1dc8343038</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/147845711</string>
+              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/148505585</string>
             </map>
             <key>name</key>
             <string>windows64</string>

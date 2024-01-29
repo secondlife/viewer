@@ -1,4 +1,3 @@
-function call_once_func()
   run_ui_command("World.EnvSettings", "midnight")
   sleep(1)
   run_ui_command("World.EnvSettings", "noon")
@@ -11,4 +10,3 @@ function call_once_func()
   play_animation("Elephant_Fly");
   sleep(5)
   play_animation("Elephant_Fly",1);
-end
