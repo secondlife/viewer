@@ -154,6 +154,8 @@ public:
 	 */
 	/*virtual*/ void draw();
 
+    virtual ~LLExpandableTextBox();
+
 protected:
 
 	LLExpandableTextBox(const Params& p);

@@ -188,6 +188,8 @@ LLComboBox::~LLComboBox()
 	// explicitly disconect this signal, since base class destructor might fire top lost
 	mTopLostSignalConnection.disconnect();
     mImageLoadedConnection.disconnect();
+
+    LLUI::getInstance()->removePopup(this);
 }
 
 

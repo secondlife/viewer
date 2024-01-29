@@ -243,6 +243,12 @@ LLExpandableTextBox::LLExpandableTextBox(const Params& p)
 	mTextBox->setCommitCallback(boost::bind(&LLExpandableTextBox::onExpandClicked, this));
 }
 
+
+LLExpandableTextBox::~LLExpandableTextBox()
+{
+    gViewerWindow->removePopup(this);
+}
+
 void LLExpandableTextBox::draw()
 {
 	if(mBGVisible && !mExpanded)

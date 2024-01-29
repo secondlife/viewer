@@ -260,12 +260,12 @@ void LLPopupView::clearPopups()
 		popup_it != mPopups.end();)
 	{
 		LLView* popup = popup_it->get();
+        if (popup)
+        {
+            popup->onTopLost();
+        }
 
-		popup_list_t::iterator cur_popup_it = popup_it;
-		++popup_it;
-
-		mPopups.erase(cur_popup_it);
-		popup->onTopLost();
+		popup_it = mPopups.erase(popup_it);
 	}
 }
 
