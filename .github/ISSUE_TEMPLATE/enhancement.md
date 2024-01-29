@@ -2,7 +2,7 @@
 name: Enhancement
 about: New feature or enhancement
 title: New Feature
-labels: enhancement
+labels: enhancement, triage
 ---
 
 _What does this feature/enhancement do? Why is it needed?_
