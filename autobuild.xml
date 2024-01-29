@@ -1662,6 +1662,22 @@
       <map>
         <key>platforms</key>
         <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>4759492eeeff895c93fd4b1fda93d28219a1675a</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/148505584</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
