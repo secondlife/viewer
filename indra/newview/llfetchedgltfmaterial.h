@@ -40,6 +40,8 @@ public:
     virtual ~LLFetchedGLTFMaterial();
 
     LLFetchedGLTFMaterial& operator=(const LLFetchedGLTFMaterial& rhs);
+    // LLGLTFMaterial::operator== is defined, but LLFetchedGLTFMaterial::operator== is not.
+    bool operator==(const LLGLTFMaterial& rhs) const = delete;
 
     // If this material is loaded, fire the given function
     void onMaterialComplete(std::function<void()> material_complete);
