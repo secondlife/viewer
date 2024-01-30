@@ -747,20 +747,20 @@ class LLVoiceWebRTCConnection :
     /// @name Signaling notification
     //  LLWebRTCSignalingObserver
     //@{
-    virtual void OnIceGatheringState(IceGatheringState state);
-    virtual void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate);
-    virtual void OnOfferAvailable(const std::string &sdp);
-    virtual void OnRenegotiationNeeded() override;
-    virtual void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface);
-    virtual void OnPeerShutDown();
+    void OnIceGatheringState(IceGatheringState state) override;
+    void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate) override;
+    void OnOfferAvailable(const std::string &sdp) override;
+    void OnRenegotiationNeeded() override;
+    void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
+    void OnPeerShutDown() override;
     //@}
 
     /////////////////////////
     /// @name Data Notification
     /// LLWebRTCDataObserver
     //@{
-    virtual void OnDataReceived(const std::string &data, bool binary);
-    virtual void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface);
+    void OnDataReceived(const std::string &data, bool binary) override;
+    void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface) override;
     //@}
 
     void sendData(const std::string &data);
