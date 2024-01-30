@@ -2853,7 +2853,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
             }
 
             new_participant |= joined;
-            if (!participant && joined && primary)
+            if (!participant && joined && (primary || !isSpatial()))
             {
                 participant = LLWebRTCVoiceClient::getInstance()->addParticipantByID(mChannelID, agent_id);
             }
@@ -2861,19 +2861,19 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
             {
                 if (voice_data[participant_id].get("l", Json::Value(false)).asBool())
                 {
-                if (agent_id != gAgentID)
-                {
+                    if (agent_id != gAgentID)
+                    {
                         LLWebRTCVoiceClient::getInstance()->removeParticipantByID(mChannelID, agent_id);
-                }
+                    }
                 }
                 else
                 {
-                F32 level = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mLevel)).asInt()) / 128;
-                // convert to decibles
-                participant->mLevel = level;
-                /* WebRTC appears to have deprecated VAD, but it's still in the Audio Processing Module so maybe we
-                   can use it at some point when we actually process frames. */
-                participant->mIsSpeaking = participant->mLevel > SPEAKING_AUDIO_LEVEL;
+                    F32 level = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mLevel)).asInt()) / 128;
+                    // convert to decibles
+                    participant->mLevel = level;
+                    /* WebRTC appears to have deprecated VAD, but it's still in the Audio Processing Module so maybe we
+                       can use it at some point when we actually process frames. */
+                    participant->mIsSpeaking = participant->mLevel > SPEAKING_AUDIO_LEVEL;
                 }
             }
         }
