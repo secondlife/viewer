@@ -154,17 +154,18 @@ public:
 	/// @name invitations
 	//@{
 	// start a voice channel with the specified user
-	virtual void callUser(const LLUUID &uuid);	
-	virtual bool isValidChannel(std::string &channelHandle);
-	virtual bool answerInvite(std::string &channelHandle);
-	virtual void declineInvite(std::string &channelHandle);
+    bool hasP2PInterface() override { return true; }
+	void callUser(const LLUUID &uuid);	
+	bool isValidChannel(std::string &channelHandle) override;
+    bool answerInvite(std::string &channelHandle) override;
+    void declineInvite(std::string &channelHandle) override;
 	//@}
 	
 	/////////////////////////
 	/// @name Volume/gain
 	//@{
-	virtual void setVoiceVolume(F32 volume);
-	virtual void setMicGain(F32 volume);
+    void setVoiceVolume(F32 volume) override;
+    void setMicGain(F32 volume) override;
 	//@}
 	
 	/////////////////////////

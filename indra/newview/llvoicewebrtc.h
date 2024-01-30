@@ -150,8 +150,9 @@ public:
 	
 	bool setSpatialChannel(const std::string &uri, const std::string &credentials) override 
 	{
+        leaveNonSpatialChannel();
 		// this is a vivox-related call
-        return false;
+        return true;
 	}
 	
 	void leaveNonSpatialChannel() override;
@@ -775,6 +776,8 @@ class LLVoiceWebRTCConnection :
 
     bool connectionStateMachine();
 
+	virtual bool isSpatial() = 0;
+
 	LLUUID getRegionID() { return mRegionID; }
 
     void shutDown()
@@ -875,6 +878,8 @@ class LLVoiceWebRTCSpatialConnection :
 
     void setMuteMic(bool muted) override;
 
+	bool isSpatial() override { return true; }
+
 
 protected:
 
@@ -889,6 +894,8 @@ class LLVoiceWebRTCAdHocConnection : public LLVoiceWebRTCConnection
     LLVoiceWebRTCAdHocConnection(const LLUUID &regionID, const std::string &channelID, const std::string& credentials);
 
     virtual ~LLVoiceWebRTCAdHocConnection();
+
+	bool isSpatial() override { return false; }
 
   protected:
     bool requestVoiceConnection() override;
