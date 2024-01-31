@@ -5262,8 +5262,9 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	//drawable->getVObj()->setDebugText(llformat("%d", drawable->isState(LLDrawable::ANIMATED_CHILD)));
 
-	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? facep->getTextureEntry()->getBumpmap() : 0;
-	U8 shiny = facep->getTextureEntry()->getShiny();
+    const LLTextureEntry* te = facep->getTextureEntry();
+	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? te->getBumpmap() : 0;
+	U8 shiny = te->getShiny();
 	
 	LLViewerTexture* tex = facep->getTexture();
 
@@ -5273,22 +5274,22 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     
     LLUUID mat_id;
 
-    auto* gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
-    llassert(gltf_mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(facep->getTextureEntry()->getGLTFRenderMaterial()) != nullptr);
+    auto* gltf_mat = (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial();
+    llassert(gltf_mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
     if (gltf_mat != nullptr)
     {
         mat_id = gltf_mat->getHash(); // TODO: cache this hash
-        if (!facep->hasMedia())
+        if (!facep->hasMedia() || (tex && tex->getType() != LLViewerTexture::MEDIA_TEXTURE))
         { // no media texture, face texture will be unused
             tex = nullptr;
         }
     }
     else
     {
-        mat = facep->getTextureEntry()->getMaterialParams().get();
+        mat = te->getMaterialParams().get();
         if (mat)
         {
-            mat_id = facep->getTextureEntry()->getMaterialParams()->getHash();
+            mat_id = te->getMaterialParams()->getHash();
         }
     }
 
@@ -5298,7 +5299,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	if (mat)
 	{
-		BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) || (facep->getTextureEntry()->getColor().mV[3] < 0.999f) ? TRUE : FALSE;
+		BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) || (te->getColor().mV[3] < 0.999f) ? TRUE : FALSE;
 		if (type == LLRenderPass::PASS_ALPHA)
 		{
 			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND, is_alpha);
