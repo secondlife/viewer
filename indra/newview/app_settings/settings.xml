@@ -17361,6 +17361,17 @@
     <key>Value</key>
     <integer>3</integer>
   </map>
+  <key>AutorunLuaScriptName</key>
+  <map>
+    <key>Comment</key>
+    <string>Script name to autorun after login.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>default.lua</string>
+  </map>
   <key>ResetUIScaleOnFirstRun</key>
   <map>
     <key>Comment</key>

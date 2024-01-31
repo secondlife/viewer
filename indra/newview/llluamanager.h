@@ -1,12 +1,10 @@
-/**
- * @file   lluilistener.h
- * @author Nat Goodspeed
- * @date   2009-08-18
- * @brief  Engage named functions as specified by XUI
- * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+/** 
+ * @file llluamanager.h
+ * @brief classes and functions for interfacing with LUA. 
+ *
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,23 +24,22 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLUILISTENER_H)
-#define LL_LLUILISTENER_H
+#ifndef LL_LLLUAMANAGER_H
+#define LL_LLLUAMANAGER_H
 
-#include "lleventapi.h"
+#include <functional>
 #include <string>
 
-class LLSD;
-
-class LLUIListener: public LLEventAPI
+class LLLUAmanager
 {
 public:
-    LLUIListener();
+    typedef std::function<void(std::string msg)> script_finished_fn;
 
-// FIXME These fields are intended to be private, changed here to support very hacky code in llluamanager.cpp 
-public:
-    void call(const LLSD& event) const;
-    void getValue(const LLSD&event) const;
+    static void runScriptFile(const std::string &filename, script_finished_fn cb = script_finished_fn());
+    static void runScriptLine(const std::string &cmd, script_finished_fn cb = script_finished_fn());
+
+    static void runScriptOnLogin();
 };
 
-#endif /* ! defined(LL_LLUILISTENER_H) */
+
+#endif

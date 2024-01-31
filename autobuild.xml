@@ -1658,6 +1658,56 @@
         <key>name</key>
         <string>llphysicsextensions_tpv</string>
       </map>
+      <key>luau</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>4759492eeeff895c93fd4b1fda93d28219a1675a</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/148505584</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>4649604bca29eb697f8a6edb72f8cc1dc8343038</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/148505585</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/lua.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2019-2023 Roblox Corporation, Copyright (c) 1994–2019 Lua.org, PUC-Rio.</string>
+        <key>version</key>
+        <string>0.609</string>
+        <key>name</key>
+        <string>luau</string>
+        <key>description</key>
+        <string>Luau is a fast, small, safe, gradually typed embeddable scripting language derived from Lua.</string>
+      </map>
       <key>mesa</key>
       <map>
         <key>platforms</key>

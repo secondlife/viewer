@@ -52,11 +52,11 @@ typedef U32 uint32_t;
 #include "llformat.h"
 #include "llmemorystream.h"
 
-#include "../test/hexdump.h"
+#include "hexdump.h"
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
-#include "StringVec.h"
 #include <functional>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
@@ -1921,12 +1921,12 @@ namespace tut
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
             LL_DEBUGS() << "Wrote length: "
-                        << hexdump(reinterpret_cast<const char*>(&bufflen),
-                                   sizeof(bufflen))
+                        << LL::hexdump(reinterpret_cast<const char*>(&bufflen),
+                                       sizeof(bufflen))
                         << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
             LL_DEBUGS() << "Wrote data:   "
-                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL::hexmix(buffstr.c_str(), buffstr.length())
                         << LL_ENDL;
         }
     }

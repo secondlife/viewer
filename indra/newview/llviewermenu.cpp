@@ -172,6 +172,8 @@ extern BOOL gShaderProfileFrame;
 // Globals
 //
 
+LLUIListener sUIListener;
+
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
 LLMenuGL		*gPopupMenuView = NULL;
@@ -347,8 +349,6 @@ public:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
-
-static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -8905,80 +8905,89 @@ class LLToolsSelectTool : public view_listener_t
 };
 
 /// WINDLIGHT callbacks
-class LLWorldEnvSettings : public view_listener_t
-{	
-    void defocusEnvFloaters()
+void defocusEnvFloaters()
+{
+    // currently there is only one instance of each floater
+    std::vector<std::string> env_floaters_names = {"env_edit_extdaycycle", "env_fixed_environmentent_water",
+                                                   "env_fixed_environmentent_sky"};
+    for (std::vector<std::string>::const_iterator it = env_floaters_names.begin(); it != env_floaters_names.end(); ++it)
     {
-        //currently there is only one instance of each floater
-        std::vector<std::string> env_floaters_names = { "env_edit_extdaycycle", "env_fixed_environmentent_water", "env_fixed_environmentent_sky" };
-        for (std::vector<std::string>::const_iterator it = env_floaters_names.begin(); it != env_floaters_names.end(); ++it)
+        LLFloater *env_floater = LLFloaterReg::findTypedInstance<LLFloater>(*it);
+        if (env_floater)
         {
-            LLFloater* env_floater = LLFloaterReg::findTypedInstance<LLFloater>(*it);
-            if (env_floater)
-            {
-                env_floater->setFocus(FALSE);
-            }
+            env_floater->setFocus(FALSE);
         }
     }
+}
 
+bool handle_env_setting_event(std::string event_name) 
+{
+    if (event_name == "sunrise")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "noon")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDDAY,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "legacy noon")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "sunset")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "midnight")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "region")
+    {
+        // reset probe data when reverting back to region sky setting
+        gPipeline.mReflectionMapManager.reset();
+
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "pause_clouds")
+    {
+        if (LLEnvironment::instance().isCloudScrollPaused())
+            LLEnvironment::instance().resumeCloudScroll();
+        else
+            LLEnvironment::instance().pauseCloudScroll();
+    }
+    else if (event_name == "adjust_tool")
+    {
+        LLFloaterReg::showInstance("env_adjust_snapshot");
+    }
+    else if (event_name == "my_environs")
+    {
+        LLFloaterReg::showInstance("my_environments");
+    }
+    return true;
+}
+
+class LLWorldEnvSettings : public view_listener_t
+{	
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string event_name = userdata.asString();
-		
-		if (event_name == "sunrise")
-		{
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-		}
-		else if (event_name == "noon")
-		{
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-		}
-        else if (event_name == "legacy noon")
-        {
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-		else if (event_name == "sunset")
-		{
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-		}
-		else if (event_name == "midnight")
-		{
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-		}
-        else if (event_name == "region")
-		{
-            // reset probe data when reverting back to region sky setting
-            gPipeline.mReflectionMapManager.reset();
-
-            LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-		}
-        else if (event_name == "pause_clouds")
-        {
-            if (LLEnvironment::instance().isCloudScrollPaused())
-                LLEnvironment::instance().resumeCloudScroll();
-		else
-                LLEnvironment::instance().pauseCloudScroll();
-        }
-        else if (event_name == "adjust_tool")
-		{
-            LLFloaterReg::showInstance("env_adjust_snapshot");
-        }
-        else if (event_name == "my_environs")
-        {
-            LLFloaterReg::showInstance("my_environments");
-		}
+        handle_env_setting_event(userdata.asString());
 
 		return true;
 	}

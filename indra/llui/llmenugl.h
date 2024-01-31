@@ -562,14 +562,15 @@ public:
 	// add a context menu branch
 	BOOL appendContextSubMenu(LLMenuGL *menu);
 
+    // Add the menu item to this menu.
+    virtual BOOL append( LLMenuItemGL* item );
+
+    // add a menu - this will create a cascading menu
+    virtual BOOL appendMenu(LLMenuGL *menu);
+
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
-	// Add the menu item to this menu.
-	virtual BOOL append( LLMenuItemGL* item );
-
-	// add a menu - this will create a cascading menu
-	virtual BOOL appendMenu( LLMenuGL* menu );
 
 	// Used in LLContextMenu and in LLTogleableMenu
 	// to add an item of context menu branch
@@ -805,9 +806,10 @@ public:
 
 	void resetMenuTrigger() { mAltKeyTrigger = FALSE; }
 
+    // add a menu - this will create a drop down menu.
+    virtual BOOL appendMenu(LLMenuGL *menu);
+
 private:
-	// add a menu - this will create a drop down menu.
-	virtual BOOL appendMenu( LLMenuGL* menu );
 	// rearrange the child rects so they fit the shape of the menu
 	// bar.
 	virtual void arrange( void );
