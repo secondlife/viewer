@@ -201,7 +201,6 @@ void main()
         #ifdef HERO_PROBES
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-        if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_MIRROR))
             color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - gloss) * 11).xyz * specularColor;
         #endif
     }

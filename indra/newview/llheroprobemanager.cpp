@@ -165,20 +165,10 @@ void LLHeroProbeManager::update()
             LLVector3 reject  = offset - project;
             LLVector3 point   = (reject - project) + hero_pos;
 
-            glh::matrix4f mat     = copy_matrix(gGLModelView);
-            glh::vec4f    tc(face_normal.mV);
-            mat.mult_matrix_vec(tc);
-
-            LLVector3 mirror_normal;
-            mirror_normal.set(tc.v);
-
-            LLVector3 hero_pos_render;
-            tc = glh::vec4f(hero_pos.mV);
-
-            mat.mult_matrix_vec(tc);
-            hero_pos_render.set(tc.v);
-
-            mCurrentClipPlane.setVec(hero_pos_render, mirror_normal);
+            mCurrentClipPlane.setVec(hero_pos, face_normal);
+            mMirrorPosition = hero_pos;
+            mMirrorNormal   = LLVector3(0, 0, 1);
+        
 
             probe_pos.load3(point.mV);
         }

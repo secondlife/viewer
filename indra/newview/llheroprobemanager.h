@@ -75,7 +75,9 @@ public:
 
     bool isMirrorPass() const { return mRenderingMirror; }
 
-    LLPlane currentMirrorClip() const { return mCurrentClipPlane; }
+    LLPlane   currentMirrorClip() const { return mCurrentClipPlane; }
+    LLVector3 mMirrorPosition;
+    LLVector3 mMirrorNormal;
     
 private:
     friend class LLPipeline;
@@ -101,6 +103,7 @@ private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
 
     LLPlane mCurrentClipPlane;
+
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip);

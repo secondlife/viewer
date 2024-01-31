@@ -1017,10 +1017,20 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLVector4 waterPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
 
+        norm = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorNormal.mV[0], gPipeline.mHeroProbeManager.mMirrorNormal.mV[1],
+                          gPipeline.mHeroProbeManager.mMirrorNormal.mV[2]);
+        p    = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorPosition.mV[0], gPipeline.mHeroProbeManager.mMirrorPosition.mV[1],
+                          gPipeline.mHeroProbeManager.mMirrorPosition.mV[2]);
+        invtrans.mult_matrix_vec(norm, enorm);
+        enorm.normalize();
+        mat.mult_matrix_vec(p, ep);
+
+        LLVector4 mirrorPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
+
         LLDrawPoolAlpha::sWaterPlane = waterPlane;
 
         shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, waterPlane.mV);
-
+        shader->uniform4fv(LLShaderMgr::CLIP_PLANE, mirrorPlane.mV);
         LLVector4 light_direction = env.getClampedLightNorm();
 
         F32 waterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);

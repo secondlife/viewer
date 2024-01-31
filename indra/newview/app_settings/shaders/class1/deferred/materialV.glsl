@@ -127,7 +127,7 @@ void main()
 	vertex_color = diffuse_color;
 
 #if !defined(HAS_SKIN)
-	vary_position = (projection_matrix*vec4(position.xyz, 1.0)).xyz;
+	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 #endif
 }
 

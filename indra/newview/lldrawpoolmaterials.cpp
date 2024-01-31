@@ -192,10 +192,10 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         mShader->uniform1f(LLShaderMgr::MIRROR_FLAG, 0);
     }
 
-    LLVector4 clipPlane = LLVector4(gPipeline.mHeroProbeManager.currentMirrorClip()[0],
-                                    gPipeline.mHeroProbeManager.currentMirrorClip()[1],
-                                    gPipeline.mHeroProbeManager.currentMirrorClip()[2],
-                                    gPipeline.mHeroProbeManager.currentMirrorClip()[3]);
+    LLVector4 clipPlane = LLVector4(gPipeline.mHeroProbeManager.mMirrorPosition[0],
+                                    gPipeline.mHeroProbeManager.mMirrorPosition[1],
+                                    gPipeline.mHeroProbeManager.mMirrorPosition[2],
+                                    1);
 
     mShader->uniform4fv(LLShaderMgr::CLIP_PLANE,
                  1, clipPlane.mV);

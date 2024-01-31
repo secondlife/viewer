@@ -48,15 +48,18 @@ vec3 linear_to_srgb(vec3 cs);
 uniform vec4 clipPlane;
 uniform float clipSign;
 uniform float mirror_flag;
+uniform mat4 modelview_matrix;
+uniform mat3 normal_matrix;
 void applyClip(vec3 pos)
 {
-    float funnyClip = 0;
+
     if (mirror_flag > 0)
     {
-            if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) > 0.0)
-            {
+        if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) < 0.0)
+        {
                 discard;
-            }
+        }
+       
     }
 }
 
@@ -308,7 +311,6 @@ void main()
     // diffcol == diffuse map combined with vertex color
     vec4 diffcol = texture(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
-
     alphaMask(diffcol.a);
 
     // spec == specular map combined with specular color
