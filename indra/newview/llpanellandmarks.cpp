@@ -1047,6 +1047,85 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 	return true;
 }
 
+class LLLandmarkCopiedCallback : public LLInventoryCallback
+{
+public:
+    LLLandmarkCopiedCallback() {}
+
+    virtual void fire(const LLUUID& inv_item)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+
+        if (item)
+        {
+            item->setComplete(TRUE);
+            item->updateServer(FALSE);
+
+            gInventory.updateItem(item);
+            gInventory.notifyObservers();
+        }
+
+        LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
+    }
+};
+
+// virtual
+BOOL LLLandmarksPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+    void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
+{
+    *accept = ACCEPT_NO;
+
+    if (cargo_type != DAD_LANDMARK || !cargo_data)
+        return FALSE;
+    LLToolDragAndDrop* tool_dad = LLToolDragAndDrop::getInstance();
+    if (tool_dad->getSource() != LLToolDragAndDrop::SOURCE_LIBRARY)
+        return FALSE;
+    if (tool_dad->getCargoCount() != 1)
+        return FALSE;
+
+    // Accept only items from Favorites
+    const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+    LLInventoryItem* dragging_item = static_cast<LLInventoryItem*>(cargo_data);
+    if (dragging_item->getParentUUID() != favorites_id)
+        return FALSE;
+
+    // Indicate the hovered folder item
+    childrenHandleHover(x, y, mask);
+
+    // Find destination folder
+    if (!mCurrentSelectedList)
+        return FALSE;
+    LLFolderView* root_view = mCurrentSelectedList->getRootFolder();
+    if (!root_view)
+        return FALSE;
+    LLFolderViewItem* hovered_item = root_view->getHoveredItem();
+    LLFolderViewFolder* target_item = hovered_item ? NULL : root_view;
+    if (!target_item)
+        target_item = dynamic_cast<LLFolderViewFolder*>(hovered_item);
+    if (!target_item)
+        target_item = hovered_item->getParentFolder();
+    if (!target_item)
+        return FALSE;
+    LLFolderViewModelItemInventory* target_viewmodel_item =
+        dynamic_cast<LLFolderViewModelItemInventory*>(target_item->getViewModelItem());
+    if (!target_viewmodel_item)
+        return FALSE;
+
+    if (drop)
+    {
+        copy_inventory_item(
+            gAgent.getID(),
+            dragging_item->getPermissions().getOwner(),
+            dragging_item->getUUID(),
+            target_viewmodel_item->getUUID(),
+            LLStringUtil::null,
+            new LLLandmarkCopiedCallback());
+    }
+
+    *accept = ACCEPT_YES_SINGLE;
+    return TRUE;
+}
+
 void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
 {
 	LLVector3d landmark_global_pos;

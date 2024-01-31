@@ -70,6 +70,9 @@ public:
      */
     bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override;
 
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+        void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
+
 	void setCurrentSelectedList(LLPlacesInventoryPanel* inventory_list)
 	{
 		mCurrentSelectedList = inventory_list;
