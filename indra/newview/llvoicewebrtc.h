@@ -380,7 +380,6 @@ public:
 		bool		mVolumeDirty;
 		bool		mMuteDirty;
 
-		bool		mParticipantsChanged;
 		participantMap mParticipantsByURI;
 		participantUUIDMap mParticipantsByUUID;
 
@@ -516,13 +515,7 @@ public:
 
 	// This is called in several places where the session _may_ need to be deleted.
 	// It contains logic for whether to delete the session or keep it around.
-    void reapSession(const sessionStatePtr_t &session);	
-	
-	// Pokes the state machine to leave the audio session next time around.
-	void sessionTerminate();	
-	
-	// Pokes the state machine to shut down the connector and restart it.
-	void requestRelog();
+    void reapSession(const sessionStatePtr_t &session);
 	
 	// Does the actual work to get out of the audio session
 	void leaveAudioSession();
@@ -567,7 +560,6 @@ private:
     /// Clean up objects created during a voice session.
 	void cleanUp();
 
-	bool mSessionTerminateRequested;
 	bool mRelogRequested;
 	// Number of times (in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine().
 	// The larger it is the greater is possibility there is a problem with connection to voice server.
@@ -589,7 +581,6 @@ private:
 	std::string mChannelName;			// Name of the channel to be looked up 
 	bool mAreaVoiceDisabled;
     sessionStatePtr_t mSession;    // Session state for the current session
-	bool mSessionChanged;			// set to true when the above pointer gets changed, so observers can be notified.
 
     sessionStatePtr_t mNextSession;	// Session state for the session we're trying to join
 

@@ -681,9 +681,14 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		{
 			mSessionType = GROUP_SESSION;
 		}
-		else
+        else if (LLVoiceClient::getInstance()->hasP2PInterface())
 		{
 			mSessionType = ADHOC_SESSION;
+		}
+		else
+		{
+			// webrtc uses adhoc channels for p2p
+            mSessionType = P2P_SESSION;
 		}
 	}
 
