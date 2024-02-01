@@ -183,7 +183,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// Attach Fragment Shader Features Next
 	///////////////////////////////////////
 
-// NOTE order of shader object attaching is VERY IMPORTANT!!!
+    // NOTE order of shader object attaching is VERY IMPORTANT!!!
+    
+    if (!shader->attachFragmentObject("deferred/globalF.glsl"))
+    {
+        return FALSE;
+    }
+
     if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("environment/srgbF.glsl"))

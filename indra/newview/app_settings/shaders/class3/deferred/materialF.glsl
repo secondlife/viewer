@@ -45,25 +45,12 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
 
-uniform vec4 clipPlane;
-uniform float clipSign;
-uniform float mirror_flag;
 uniform mat4 modelview_matrix;
 uniform mat3 normal_matrix;
-void applyClip(vec3 pos)
-{
-
-    if (mirror_flag > 0)
-    {
-        if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) < 0.0)
-        {
-                discard;
-        }
-       
-    }
-}
 
 in vec3 vary_position;
+
+void mirrorClip(vec3 pos);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
@@ -305,7 +292,7 @@ float getShadow(vec3 pos, vec3 norm)
 
 void main()
 {
-    applyClip(vary_position);
+    mirrorClip(vary_position);
     waterClip();
 
     // diffcol == diffuse map combined with vertex color
@@ -429,9 +416,6 @@ void main()
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
 
     float flag = GBUFFER_FLAG_HAS_ATMOS;
-
-    if (mirror_flag > 0)
-        flag = 1;
 
     frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.

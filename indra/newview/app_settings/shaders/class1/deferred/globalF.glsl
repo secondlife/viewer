@@ -1,9 +1,9 @@
 /** 
- * @file bumpF.glsl
+ * @file class1/deferred/globalF.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,22 +23,23 @@
  * $/LicenseInfo$
  */
 
-out vec4 frag_color;
 
-uniform sampler2D texture0;
-uniform sampler2D texture1;
+ // Global helper functions included in every fragment shader
+ // DO NOT declare sampler uniforms here as OS X doesn't compile
+ // them out
 
-in vec2 vary_texcoord0;
-in vec2 vary_texcoord1;
-in vec3 vary_position;
+uniform float mirror_flag;
+uniform vec4 clipPlane;
+uniform float clipSign;
 
-void mirrorClip(vec3 pos);
-
-void main() 
+void mirrorClip(vec3 pos)
 {
-    mirrorClip(vary_position);
-	float tex0 = texture(texture0, vary_texcoord0.xy).a;
-	float tex1 = texture(texture1, vary_texcoord1.xy).a;
-
-	frag_color = max(vec4(tex0+(1.0-tex1)-0.5), vec4(0));
+    if (mirror_flag > 0)
+    {
+        if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) < 0.0)
+        {
+                discard;
+        }
+    }
 }
+
