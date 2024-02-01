@@ -785,6 +785,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
+
+		res = mHeroProbeManager.mProbeResolution; // We also scale the hero probe RT to the probe res since we don't super sample it.
+        mRT = &mHeroProbeRT;
+        allocateScreenBuffer(res, res, samples);
+
         mRT = &mMainRT;
         gCubeSnapshot = FALSE;
     }
