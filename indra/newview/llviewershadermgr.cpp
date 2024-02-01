@@ -295,7 +295,9 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredDiffuseProgram);
     mShaderList.push_back(&gObjectBumpProgram);
     mShaderList.push_back(&gDeferredBumpProgram);
-
+    mShaderList.push_back(&gDeferredPBROpaqueProgram);
+    mShaderList.push_back(&gDeferredPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredAvatarProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
