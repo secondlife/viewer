@@ -128,7 +128,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
-        shader->uniform1f(LLShaderMgr::MIRROR_FLAG, 0);
 
         F32 normal_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
