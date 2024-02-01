@@ -548,11 +548,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>fb6797ff93b6e881b060d2a8b396d8d7477834ee</string>
+              <string>a2074b67de7ad4c04b5ca8f8f161506add9697b2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908444</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/149207589</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -564,11 +564,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>a378bd1604aa97ca763140911f9f4e463ced85c0</string>
+              <string>8c1b701648c077220dbc576c3d9aefbef47f8324</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908446</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/149207592</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -580,11 +580,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>72304491d86bd797b840999b255358f195b06609</string>
+              <string>7e0c3d50e8b99d8735c6c9596a72ded9ee2bc1c8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908456</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/149207594</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -597,7 +597,7 @@
         <key>copyright</key>
         <string>FMOD Studio by Firelight Technologies Pty Ltd.</string>
         <key>version</key>
-        <string>2.02.13.578928</string>
+        <string>2.02.20.c78ef55</string>
         <key>name</key>
         <string>fmodstudio</string>
         <key>description</key>
