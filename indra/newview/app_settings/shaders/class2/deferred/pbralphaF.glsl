@@ -90,6 +90,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, 
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
 
+void mirrorClip(vec3 pos);
 void waterClip(vec3 pos);
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
@@ -156,6 +157,8 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
 void main()
 {
+    mirrorClip(vary_position);
+
     vec3 color = vec3(0,0,0);
 
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;

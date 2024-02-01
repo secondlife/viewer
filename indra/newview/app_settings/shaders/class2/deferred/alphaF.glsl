@@ -78,6 +78,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 
 float getAmbientClamp();
 
+void mirrorClip(vec3 pos);
+
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
@@ -167,6 +169,8 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
 void main() 
 {
+    mirrorClip(vary_position);
+
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
     
     vec4 pos = vec4(vary_position, 1.0);
