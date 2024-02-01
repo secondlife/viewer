@@ -235,7 +235,6 @@ bool LLWebRTCVoiceClient::sConnected = false;
 LLPumpIO *LLWebRTCVoiceClient::sPump = nullptr;
 
 LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
-    mSessionTerminateRequested(false),
     mRelogRequested(false),
     mSpatialJoiningNum(0),
 
@@ -247,7 +246,6 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 
     mAreaVoiceDisabled(false),
     mSession(),  // TBD - should be NULL
-    mSessionChanged(false),
     mNextSession(),
 
     mCurrentParcelLocalID(0),
@@ -419,12 +417,13 @@ void LLWebRTCVoiceClient::OnConnectionEstablished(const std::string& channelID, 
             }
             mSession = mNextSession;
             mNextSession.reset();
+            mSession->addParticipant(gAgentID);
         }
         
         if (mSession && mSession->mChannelID == channelID)
         {
-            LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
+            LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
         }
     }
 }
@@ -435,7 +434,7 @@ void LLWebRTCVoiceClient::OnConnectionShutDown(const std::string &channelID, con
     {
         if (mSession && mSession->mChannelID == channelID)
         {
-            LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+            //LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
         }
     }
 }
@@ -651,29 +650,17 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
 
 //=========================================================================
 
-void LLWebRTCVoiceClient::sessionTerminate()
-{
-	mSessionTerminateRequested = true;
-}
-
-void LLWebRTCVoiceClient::requestRelog()
-{
-	mSessionTerminateRequested = true;
-	mRelogRequested = true;
-}
-
-
 void LLWebRTCVoiceClient::leaveAudioSession()
 {
 	if(mSession)
 	{
 		LL_DEBUGS("Voice") << "leaving session: " << mSession->mChannelID << LL_ENDL;
+        mSession->shutdownAllConnections();
 	}
 	else
 	{
 		LL_WARNS("Voice") << "called with no active session" << LL_ENDL;
 	}
-    sessionTerminate();
 }
 
 void LLWebRTCVoiceClient::clearCaptureDevices()
@@ -1018,7 +1005,6 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::ad
 		result.reset(new participantState(agent_id));
         mParticipantsByURI.insert(participantMap::value_type(agent_id.asString(), result));
         mParticipantsByUUID.insert(participantUUIDMap::value_type(agent_id, result));
-		mParticipantsChanged = true;
 
 		result->mAvatarIDValid = true;
         result->mAvatarID      = agent_id;
@@ -1033,6 +1019,10 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::ad
 			result->mVolumeDirty = true;
 			mVolumeDirty = true;
 		}
+        if (!LLWebRTCVoiceClient::sShuttingDown)
+        {
+            LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
+        }
 		
 		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
@@ -1084,8 +1074,10 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
 		{
 			mParticipantsByURI.erase(iter);
 			mParticipantsByUUID.erase(iter2);
-
-            mParticipantsChanged = true;
+            if (!LLWebRTCVoiceClient::sShuttingDown)
+            {
+                LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
+            }
 		}
 	}
 }
@@ -1222,7 +1214,7 @@ void LLWebRTCVoiceClient::joinSession(const sessionStatePtr_t &session)
     {
         // If we're already in a channel, or if we're joining one, terminate
         // so we can rejoin with the new session data.
-        sessionTerminate();
+        mSession->shutdownAllConnections();
     }
 }
 
@@ -1308,7 +1300,7 @@ void LLWebRTCVoiceClient::leaveNonSpatialChannel()
 	// Most likely this will still be the current session at this point, but check it anyway.
 	reapSession(oldNextSession);
 	
-	sessionTerminate();
+	leaveChannel(true);
 }
 
 std::string LLWebRTCVoiceClient::getCurrentChannel()
@@ -1612,9 +1604,12 @@ void LLWebRTCVoiceClient::leaveChannel(bool stopTalking)
     {
         // If we're already in a channel, or if we're joining one, terminate
         // so we can rejoin with the new session data.
-        sessionTerminate();
-        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+        bool wasShuttingDown = mSession->mShuttingDown;
         deleteSession(mSession);
+        if (!wasShuttingDown)
+        {
+            notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+        }
     }
 
     if (mNextSession)
@@ -1949,7 +1944,6 @@ LLWebRTCVoiceClient::sessionState::sessionState() :
     mErrorStatusCode(0),
     mVolumeDirty(false),
     mMuteDirty(false),
-    mParticipantsChanged(false),
     mShuttingDown(false)
 {
 }
@@ -1959,7 +1953,6 @@ void LLWebRTCVoiceClient::sessionState::addSession(
     const std::string                       &channelID,
     LLWebRTCVoiceClient::sessionState::ptr_t& session)
 {
-    session->addParticipant(gAgentID);
     mSessions[channelID] = session;
 }
 
@@ -2114,7 +2107,6 @@ void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
     if (deleteAudioSession)
 	{
 		mSession.reset();
-		mSessionChanged = true;
 	}
 
 	// ditto for the next audio session
@@ -2210,7 +2202,8 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 		<< ", proximal is " << inSpatialChannel()
         << LL_ENDL;
 
-    mIsProcessingChannels = status == LLVoiceClientStatusObserver::STATUS_LOGGED_IN;
+    mIsProcessingChannels =
+        (status == LLVoiceClientStatusObserver::STATUS_LOGGED_IN || status == LLVoiceClientStatusObserver::STATUS_JOINED);
 
 	for (status_observer_set_t::iterator it = mStatusObservers.begin();
 		it != mStatusObservers.end();
@@ -2285,7 +2278,7 @@ void LLWebRTCVoiceClient::predAvatarNameResolution(const LLWebRTCVoiceClient::se
     {
         // Found -- fill in the name
         // and post a "participants updated" message to listeners later.
-        session->mParticipantsChanged = true;
+        LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
     }
 
     // Check whether this is a p2p session whose caller name just resolved
