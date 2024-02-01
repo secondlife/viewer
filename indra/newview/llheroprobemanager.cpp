@@ -217,7 +217,7 @@ void LLHeroProbeManager::update()
 void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip)
 {
     // hacky hot-swap of camera specific render targets
-    gPipeline.mRT = &gPipeline.mAuxillaryRT;
+    gPipeline.mRT = &gPipeline.mHeroProbeRT;
 
     probe->update(mRenderTarget.getWidth(), face, true, near_clip);
     
@@ -252,9 +252,10 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
         static LLStaticHashedString znear("znear");
         static LLStaticHashedString zfar("zfar");
 
-        LLRenderTarget *screen_rt = &gPipeline.mAuxillaryRT.screen;
-        LLRenderTarget *depth_rt  = &gPipeline.mAuxillaryRT.deferredScreen;
+        LLRenderTarget *screen_rt = &gPipeline.mHeroProbeRT.screen;
+        LLRenderTarget *depth_rt  = &gPipeline.mHeroProbeRT.deferredScreen;
 
+        /*
         // perform a gaussian blur on the super sampled render before downsampling
         {
             gGaussianProgram.bind();
@@ -277,7 +278,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
             gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
             screen_rt->flush();
         }
-
+        */
 
         S32 mips = log2((F32)mProbeResolution) + 0.5f;
 
@@ -338,14 +339,14 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
 
         {
             //generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
-            gRadianceGenProgram.bind();
+            gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
 
-            S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            S32 channel = gHeroRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
-            gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
-            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
-            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
+            gHeroRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
+            gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
+            gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
             
             U32 res = mMipChain[0].getWidth();
 
@@ -357,10 +358,10 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
                 static LLStaticHashedString sWidth("u_width");
                 static LLStaticHashedString sStrength("probe_strength");
 
-                gRadianceGenProgram.uniform1f(sRoughness, (F32)i / (F32)(mMipChain.size() - 1));
-                gRadianceGenProgram.uniform1f(sMipLevel, i);
-                gRadianceGenProgram.uniform1i(sWidth, mProbeResolution);
-                gRadianceGenProgram.uniform1f(sStrength, 1);
+                gHeroRadianceGenProgram.uniform1f(sRoughness, (F32) i / (F32) (mMipChain.size() - 1));
+                gHeroRadianceGenProgram.uniform1f(sMipLevel, i);
+                gHeroRadianceGenProgram.uniform1i(sWidth, mProbeResolution);
+                gHeroRadianceGenProgram.uniform1f(sStrength, 1);
 
                 for (int cf = 0; cf < 6; ++cf)
                 { // for each cube face
@@ -383,7 +384,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
                 }
             }
 
-            gRadianceGenProgram.unbind();
+            gHeroRadianceGenProgram.unbind();
         }
 
         mMipChain[0].flush();

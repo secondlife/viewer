@@ -84,7 +84,8 @@ LLGLSLShader	gOcclusionCubeProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gReflectionMipProgram;
 LLGLSLShader    gGaussianProgram;
-LLGLSLShader	gRadianceGenProgram;
+LLGLSLShader    gRadianceGenProgram;
+LLGLSLShader    gHeroRadianceGenProgram;
 LLGLSLShader	gIrradianceGenProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureCompareProgram;
@@ -2799,7 +2800,20 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
         gRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenV.glsl", GL_VERTEX_SHADER));
         gRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenF.glsl", GL_FRAGMENT_SHADER));
         gRadianceGenProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        gRadianceGenProgram.addPermutation("PROBE_FILTER_SAMPLES", "32");
         success = gRadianceGenProgram.createShader(NULL, NULL);
+    }
+	
+    if (success && gGLManager.mHasCubeMapArray)
+    {
+        gHeroRadianceGenProgram.mName = "Hero Radiance Gen Shader";
+        gHeroRadianceGenProgram.mShaderFiles.clear();
+        gHeroRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenV.glsl", GL_VERTEX_SHADER));
+        gHeroRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenF.glsl", GL_FRAGMENT_SHADER));
+        gHeroRadianceGenProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        gHeroRadianceGenProgram.addPermutation("HERO_PROBES", "1");
+        gHeroRadianceGenProgram.addPermutation("PROBE_FILTER_SAMPLES", "4");
+        success                              = gHeroRadianceGenProgram.createShader(NULL, NULL);
     }
 
     if (success && gGLManager.mHasCubeMapArray)
