@@ -183,23 +183,6 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         glUniform4fv(specular, 1, lastSpecular.mV);
     }
 
-    if (gPipeline.mHeroProbeManager.isMirrorPass())
-    {
-        mShader->uniform1f(LLShaderMgr::MIRROR_FLAG, 1);
-    }
-    else
-    {
-        mShader->uniform1f(LLShaderMgr::MIRROR_FLAG, 0);
-    }
-
-    LLVector4 clipPlane = LLVector4(gPipeline.mHeroProbeManager.mMirrorPosition[0],
-                                    gPipeline.mHeroProbeManager.mMirrorPosition[1],
-                                    gPipeline.mHeroProbeManager.mMirrorPosition[2],
-                                    1);
-
-    mShader->uniform4fv(LLShaderMgr::CLIP_PLANE,
-                 1, clipPlane.mV);
-
     LLVOAvatar* lastAvatar = nullptr;
 
 	for (LLCullResult::drawinfo_iterator i = begin; i != end; )

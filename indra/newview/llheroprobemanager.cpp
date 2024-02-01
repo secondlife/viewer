@@ -166,7 +166,7 @@ void LLHeroProbeManager::update()
             LLVector3 point   = (reject - project) + hero_pos;
 
             mCurrentClipPlane.setVec(hero_pos, face_normal);
-            mMirrorPosition = hero_pos;
+            mMirrorPosition = mNearestHero->getPositionAgent();
             mMirrorNormal   = LLVector3(0, 0, 1);
         
 
