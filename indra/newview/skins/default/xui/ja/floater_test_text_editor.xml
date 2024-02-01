@@ -3,7 +3,7 @@
 	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
 		テキストエディタ
 	</text_editor>
-	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
+	<text_editor name="test_text_editor2" tool_tip="テキストエディタ" _orgname="test_text_editor">
 		これには長いテキストが含まれており、右に水平にスクロールする必要があります。
 	</text_editor>
 	<text_editor name="numeric_text_editor" tool_tip="数値のみ入力可能なテキストエディタ">

@@ -6,13 +6,13 @@
 	<combo_box name="start_location_combo">
 		<combo_box.item label="最後に訪れた場所" name="MyLastLocation" value="last"/>
 		<combo_box.item label="マイホーム" name="MyHome" value="ﾏｲﾎｰﾑ"/>
-		<combo_box.item label="&lt;リージョン(地域)名を入力&gt;" name="Typeregionname" value=""/>
+		<combo_box.item label="&lt;地域(リージョン)名を入力&gt;" name="Typeregionname" value=""/>
 	</combo_box>
 	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
 		最小のコンボボックス:
 	</text>
 	<combo_box name="minimal_combo">
-		<combo_box.item label="最初" name="item1" value="first"/>
+		<combo_box.item label="最初の項目" name="item1" value="first"/>
 		<combo_box.item label="2つ目の項目" name="item2" value="second"/>
 	</combo_box>
 	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
@@ -33,8 +33,8 @@
 		2文字まで入力可能:
 	</text>
 	<combo_box name="state_combo">
-		<combo_box.item label="CA" name="item1" value="ca"/>
-		<combo_box.item label="NY" name="item2" value="ny"/>
-		<combo_box.item label="TX" name="item3" value="tx"/>
+		<combo_box.item label="CA" name="item1" value="CA"/>
+		<combo_box.item label="NY" name="item2" value="NY"/>
+		<combo_box.item label="TX" name="item3" value="TX"/>
 	</combo_box>
 </floater>

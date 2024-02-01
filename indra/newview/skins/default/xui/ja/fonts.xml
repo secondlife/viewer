@@ -4,11 +4,8 @@
 		<file>
 			NotoSansCJKjp-Medium.otf
 		</file>
-		<file>
-			DejaVuSans.ttf
-		</file>
 		<os name="Windows">
-			<file load_collection="true">
+			<file>
 				YuGothM.ttc
 			</file>
 			<file>
@@ -29,14 +26,11 @@
 			<file>
 				msyh.ttc
 			</file>
-			<file load_collection="true">
+			<file>
 				Cambria.ttc
 			</file>
 			<file>
 				malgun.ttf
-			</file>
-			<file>
-				micross.ttf
 			</file>
 		</os>
 		<os name="Mac">
@@ -82,32 +76,20 @@
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
-		<file>
-			DejaVuSans-Bold.ttf
-		</file>
 		<os name="Windows">
-			<file load_collection="true">
-				YuGothB.ttc
-			</file>
 			<file>
-				arialbd.ttf
+				YuGothB.ttc
 			</file>
 		</os>
 		<os name="Mac">
 			<file>
 				YuGothic-Bold.otf
 			</file>
-			<file>
-				Helvetica.dfont
-			</file>
 		</os>
 	</font>
 	<font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
 		<file>
 			NotoSansCJKjp-Bold.otf
-		</file>
-		<file>
-			DejaVuSans.ttf
 		</file>
 		<os name="Windows">
 			<file>
@@ -120,17 +102,17 @@
 			</file>
 		</os>
 	</font>
-	<font name="SansSerif" comment="Name of bold sans-serif font" font_style="BOLD">
+	<font name="SansSerif">
 		<file>
-			DejaVuSans-Bold.ttf
+			NotoSansCJKjp-Bold.otf
 		</file>
 	</font>
-	<font name="SansSerif" comment="Name of italic sans-serif font" font_style="ITALIC">
+	<font name="SansSerif">
 		<file>
 			DejaVuSans-Oblique.ttf
 		</file>
 	</font>
-	<font name="SansSerif" comment="Name of bold italic sans-serif font" font_style="BOLD|ITALIC">
+	<font name="SansSerif">
 		<file>
 			DejaVuSans-BoldOblique.ttf
 		</file>
@@ -139,26 +121,23 @@
 		<file>
 			NotoSansMonoCJKjp-Regular.otf
 		</file>
-		<file>
-			DejaVuSansMono.ttf
-		</file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font">
 		<file>
 			DejaVuSans.ttf
 		</file>
 	</font>
-	<font name="DejaVu" comment="Name of DejaVu font (bold)" font_style="BOLD">
+	<font name="DejaVu">
 		<file>
-			DejaVuSans-Bold.ttf
+			NotoSansCJKjp-Bold.otf
 		</file>
 	</font>
-	<font name="DejaVu" comment="Name of DejaVu font (italic)" font_style="ITALIC">
+	<font name="DejaVu">
 		<file>
 			DejaVuSans-Oblique.ttf
 		</file>
 	</font>
-	<font name="DejaVu" comment="Name of DejaVu font (bold italic)" font_style="BOLD|ITALIC">
+	<font name="DejaVu">
 		<file>
 			DejaVuSans-BoldOblique.ttf
 		</file>
@@ -178,22 +157,22 @@
 			</file>
 		</os>
 	</font>
-	<font name="Helvetica" comment="Name of Helvetica font (bold)" font_style="BOLD">
+	<font name="Helvetica">
 		<file>
-			DejaVuSans-Bold.ttf
+			NotoSansCJKjp-Bold.otf
 		</file>
 		<os name="Windows">
 			<file>
-				arialbd.ttf
+				YuGothB.ttc
 			</file>
 		</os>
 		<os name="Mac">
 			<file>
-				arialbd.ttf
+				YuGothB.ttc
 			</file>
 		</os>
 	</font>
-	<font name="Helvetica" comment="Name of Helvetica font (italic)" font_style="ITALIC">
+	<font name="Helvetica">
 		<file>
 			DejaVuSans-Oblique.ttf
 		</file>
@@ -208,7 +187,7 @@
 			</file>
 		</os>
 	</font>
-	<font name="Helvetica" comment="Name of Helvetica font (bold italic)" font_style="BOLD|ITALIC">
+	<font name="Helvetica">
 		<file>
 			DejaVuSans-BoldOblique.ttf
 		</file>

@@ -10,6 +10,6 @@
 	<text name="import_lang">
 		言語:
 	</text>
-	<button label="インポート" name="ok_btn"/>
-	<button label="キャンセル" name="cancel_btn"/>
+	<button name="ok_btn" label="インポート"/>
+	<button name="cancel_btn" label="キャンセル"/>
 </floater>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Import Collada" title="風景のインポート">
+<floater name="Import Collada" title="シーンのインポート">
 	<text name="mesh count">
 		メッシュ: [COUNT]
 	</text>
@@ -9,15 +9,15 @@
 	<text name="status">
 		ステータス: [STATUS]
 	</text>
-	<button label="キャンセル" name="cancel"/>
-	<button label="OK" name="ok"/>
+	<button name="cancel" label="キャンセル"/>
+	<button name="ok" label="OK"/>
 	<string name="status_idle">
 		待機状態
 	</string>
 	<string name="status_uploading">
-		[NAME]をアップロード中
+		[NAME] をアップロード中
 	</string>
 	<string name="status_creating">
-		オブジェクト[NAME]を作成中
+		オブジェクト [NAME] を作成中
 	</string>
 </floater>

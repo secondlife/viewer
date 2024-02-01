@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <sun_moon_trackball name="virtualtrackball">
-	<sun_moon_trackball.border/>
 	<sun_moon_trackball.labelN name="labelN" label="北"/>
 	<sun_moon_trackball.labelS name="labelS" label="南"/>
 	<sun_moon_trackball.labelW name="labelW" label="西"/>
 	<sun_moon_trackball.labelE name="labelE" label="東"/>
-	<sun_moon_trackball.button_rotate_top name="btn_rotate_top"/>
-	<sun_moon_trackball.button_rotate_bottom name="btn_rotate_bottom"/>
-	<sun_moon_trackball.button_rotate_left name="btn_rotate_left"/>
-	<sun_moon_trackball.button_rotate_right name="btn_rotate_right"/>
 </sun_moon_trackball>

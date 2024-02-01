@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
-	<check_box initial_value="true" label="近隣チャットでジェスチャーを自動補完する" name="auto_complete_gestures"/>
+	<check_box initial_value="true" label="近隣チャットでジェスチャーを自動補完する" name="auto_complete_gestures">
+	</check_box>
 	<panel name="general_chat_settings">
-		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
-		<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
-		<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
+		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation">
+		</check_box>
+		<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check">
+		</check_box>
+		<text name="email_settings">
+			[https://accounts.secondlife.com/change_email?lang=ja オフライン時のIMのメール送信先の設定]
+		</text>
 		<text name="font_size">
 			文字の大きさ:
 		</text>
@@ -13,7 +18,8 @@
 			<item label="中" name="Medium" value="1"/>
 			<item label="大" name="Large" value="2"/>
 		</combo_box>
-		<check_box label="吹き出しチャット" name="bubble_text_chat"/>
+		<check_box label="吹き出しチャット" name="bubble_text_chat">
+		</check_box>
 	</panel>
 	<panel name="im_notification_settings">
 		<text name="friend_ims">
@@ -22,62 +28,68 @@
 		<combo_box name="FriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
 			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
-		<check_box label="サウンドを再生" name="play_sound_friend_im"/>
+		<check_box label="サウンドを再生" name="play_sound_friend_im">
+		</check_box>
 		<text name="non_friend_ims">
 			フレンドのいないIM:
 		</text>
 		<combo_box name="NonFriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
 			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
-		<check_box label="サウンドを再生" name="play_sound_non_friend_im"/>
+		<check_box label="サウンドを再生" name="play_sound_non_friend_im">
+		</check_box>
 		<text name="conference_ims">
 			会話IM:
 		</text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
 			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
-		<check_box label="サウンドを再生" name="play_sound_conference_im"/>
+		<check_box label="サウンドを再生" name="play_sound_conference_im">
+		</check_box>
 		<text name="group_chat">
 			グループチャット:
 		</text>
 		<combo_box name="GroupChatOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="フラッシュ ツールバー ボタン" name="FlashToolbarButton" value="フラッシュ"/>
+			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
 			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
-		<check_box label="サウンドを再生" name="play_sound_group_chat_im"/>
+		<check_box label="サウンドを再生" name="play_sound_group_chat_im">
+		</check_box>
 		<text name="nearby_chat">
 			近隣チャット:
 		</text>
 		<combo_box name="NearbyChatOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="フラッシュ ツールバー ボタン" name="FlashToolBarButton" value="フラッシュ"/>
+			<item label="ツールバー ボタンをフラッシュ " name="FlashToolBarButton" value="フラッシュ"/>
 			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
-		<check_box label="サウンドを再生" name="play_sound_nearby_chat_im"/>
+		<check_box label="サウンドを再生" name="play_sound_nearby_chat_im">
+		</check_box>
 		<text name="object_ims">
 			オブジェクトによるIM:
 		</text>
 		<combo_box name="ObjectIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations"/>
 			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="フラッシュ ツールバー ボタン" name="FlashToolBarButton" value="フラッシュ"/>
+			<item label="ツールバー ボタンをフラッシュ " name="FlashToolBarButton" value="フラッシュ"/>
 			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
-		<check_box label="サウンドを再生" name="play_sound_object_im"/>
+		<check_box label="サウンドを再生" name="play_sound_object_im">
+		</check_box>
 		<text name="notifications_alert">
-			一時的にすべての通知を停止するには、「コミュニケーション」&gt;「着信拒否」を使用します。
+			一時的に全ての通知を停止するには、「コミュニケーション」&gt;「着信拒否」を使用します。
 		</text>
 	</panel>
 	<panel name="play_sound_settings">
@@ -94,18 +106,24 @@
 			保存:
 		</text>
 		<combo_box name="conversation_log_combo">
-			<item label="ログおよびテキストチャット" name="log_and_transcripts" value="2"/>
-			<item label="ログのみ" name="log_only" value="1"/>
-			<item label="ログまたはテキストチャットなし" name="no_log_or_transcript" value="0"/>
+			<item name="log_and_transcripts" label="ログおよび文字チャット" value="2"/>
+			<item name="log_only" label="ログのみ" value="1"/>
+			<item name="no_log_or_transcript" label="ログまたは文字チャットなし" value="0"/>
 		</combo_box>
-		<button label="ログを消去…" name="clear_log"/>
-		<button label="テキストチャットを削除…" name="delete_transcripts"/>
+		<button label="ログを消去..." name="clear_log">
+		</button>
+		<button label="文字チャットを削除..." name="delete_transcripts">
+		</button>
 		<text name="log_location_label">
 			場所:
 		</text>
-		<button label="参照…" label_selected="参照" name="log_path_button"/>
+		<button label="参照..." label_selected="参照" name="log_path_button">
+		</button>
 	</panel>
-	<button label="他の言語…" name="ok_btn"/>
-	<button label="自動置換…" name="autoreplace_showgui"/>
-	<button label="スペルチェック中…" name="spellcheck_showgui"/>
+	<button label="他の言語..." name="ok_btn">
+	</button>
+	<button name="autoreplace_showgui" label="自動置換...">
+	</button>
+	<button name="spellcheck_showgui" label="スペルチェック中...">
+	</button>
 </panel>

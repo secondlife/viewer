@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater name="floater_places" title="場所">
-	<panel label="場所" name="main_panel"/>
+	<panel name="main_panel" label="場所"/>
 </floater>

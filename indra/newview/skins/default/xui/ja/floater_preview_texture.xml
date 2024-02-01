@@ -17,7 +17,8 @@
 			<text name="aspect_ratio">
 				縦横比のプレビュー
 			</text>
-			<combo_box name="combo_aspect_ratio" tool_tip="固定した縦横比のプレビュー"/>
+			<combo_box name="combo_aspect_ratio" tool_tip="固定した縦横比のプレビュー">
+			</combo_box>
 		</layout_panel>
 		<layout_panel name="buttons_panel">
 			<button label="OK" name="Keep"/>
