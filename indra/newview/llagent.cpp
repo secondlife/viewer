@@ -4965,28 +4965,119 @@ void LLAgent::renderAutoPilotTarget()
     }
 }
 
-void LLAgent::updateActionFlags(EKeystate s, S32 direction, U32 mask)
+void LLAgent::setExternalActionFlags(U32 outer_flags)
 {
-    if (direction < 0)
+    // save these flags for later, for when we're ready
+    // to actually send an AgentUpdate packet
+    mExternalActionFlags = outer_flags;
+	mbFlagsDirty = TRUE;
+}
+
+void LLAgent::applyExternalActionFlags()
+{
+    S32 direction = (S32)(mExternalActionFlags & AGENT_CONTROL_AT_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_AT_NEG) >> 1);
+    if (direction != 0)
     {
-        // all NEG masks are one bit more than their POS counterpart
-        mask = mask << 1;
+        moveAt(direction);
     }
-    if ( KEYSTATE_UP == s )
+
+    static S32 last_non_fly_frame = 0;
+    static F32 last_non_fly_time = 0.0f;
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_UP_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_UP_NEG) >> 1);
+    if (direction != 0)
     {
-        // clear the mask bits
-        mActionFlags &= ~mask;
+        // HACK: this auto-fly logic based on original code still extant in llviewerinput.cpp::agent_jump()
+        // TODO: DRY this logic
+        if (direction > 0)
+        {
+            if (!getFlying()
+                && !upGrabbed()
+                && gSavedSettings.getBOOL("AutomaticFly"))
+            {
+                constexpr F32 FLY_TIME = 0.5f;
+                constexpr S32 FLY_FRAMES = 4;
+                F32 time = LLFrameTimer::getElapsedSeconds() - last_non_fly_time;
+                S32 frame_count = (S32)(LLFrameTimer::getFrameCount()) - last_non_fly_frame;
+                if( time > FLY_TIME
+                    && frame_count > FLY_FRAMES)
+                {
+                    setFlying(TRUE);
+                }
+            }
+        }
+        else
+        {
+            last_non_fly_frame = (S32)(LLFrameTimer::getFrameCount());
+            last_non_fly_time = LLFrameTimer::getElapsedSeconds();
+        }
+
+        moveUp(direction);
+    }
+    else if (!getFlying())
+    {
+        last_non_fly_frame = (S32)(LLFrameTimer::getFrameCount());
+        last_non_fly_time = LLFrameTimer::getElapsedSeconds();
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_LEFT_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_LEFT_NEG) >> 1);
+    if (direction != 0)
+    {
+        moveLeft(direction);
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_YAW_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_YAW_NEG) >> 1);
+    if (direction != 0)
+    {
+        F32 sign = (direction < 0 ? -1.0f : 1.0f);
+        // HACK: hard-code 3.0 seconds for YawRate measure.  It is simpler,
+        // and the missing variable yaw rate is unnoticeable.
+        moveYaw(sign * LLFloaterMove::getYawRate(3.0f));
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_PITCH_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) >> 1);
+    if (direction != 0)
+    {
+        movePitch(direction);
+    }
+
+    static bool toggle_fly = true;
+    if ((mExternalActionFlags & AGENT_CONTROL_FLY) > 0)
+    {
+        if (toggle_fly)
+        {
+            setFlying(!getFlying());
+        }
+        toggle_fly = false;
     }
     else
     {
-        // set the mask bits
-        mActionFlags |= mask;
+        toggle_fly = true;
     }
-}
 
-U32 LLAgent::getActionFlags() const
-{
-    return mActionFlags;
+    if (mExternalActionFlags & AGENT_CONTROL_STOP)
+    {
+        setControlFlags(AGENT_CONTROL_STOP);
+    }
+    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND)
+            && !(mLastExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND))
+    {
+        if (gAgent.isSitting())
+        {
+            standUp();
+        }
+        else
+        {
+            sitDown();
+        }
+    }
+
+    // combine the two types of flags for historical purposes
+    mLastExternalActionFlags = mExternalActionFlags | mControlFlags;
 }
 
 /********************************************************************************/
