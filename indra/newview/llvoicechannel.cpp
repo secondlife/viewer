@@ -437,7 +437,8 @@ void LLVoiceChannelGroup::activate()
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(
 			mURI,
-			mCredentials);
+			mCredentials,
+			!LLVoiceClient::getInstance()->hasP2PInterface());
 
 		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
 		{
@@ -518,7 +519,8 @@ void LLVoiceChannelGroup::setChannelInfo(
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(
 			mURI,
-			mCredentials);
+			mCredentials,
+			!LLVoiceClient::getInstance()->hasP2PInterface());
 	}
 }
 
@@ -527,6 +529,30 @@ void LLVoiceChannelGroup::handleStatusChange(EStatusType type)
 	// status updates
 	switch(type)
 	{
+        case STATUS_LEFT_CHANNEL:
+        {
+            if (!LLVoiceClient::getInstance()->hasP2PInterface())
+            {
+				// we're using group/adhoc for p2p
+                if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
+                {
+                    // *TODO: use it to show DECLINE voice notification
+                    if (mState == STATE_RINGING)
+                    {
+                        // other user declined call
+                        LLNotificationsUtil::add("P2PCallDeclined", mNotifyArgs);
+                    }
+                    else
+                    {
+                        // other user hung up, so we didn't end the call
+                        mCallEndedByAgent = false;
+                    }
+                    deactivate();
+                }
+                mIgnoreNextSessionLeave = FALSE;
+                return;
+            }
+        }
 	case STATUS_JOINED:
 		mRetries = 3;
 		mIsRetrying = FALSE;

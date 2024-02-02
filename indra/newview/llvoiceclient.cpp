@@ -436,11 +436,12 @@ bool LLVoiceClient::inProximalChannel()
 
 void LLVoiceClient::setNonSpatialChannel(
 	const std::string &uri,
-	const std::string &credentials)
+	const std::string &credentials,
+	bool hangup_on_last_leave)
 {
 	if (mVoiceModule)
     {
-        mVoiceModule->setNonSpatialChannel(uri, credentials);
+        mVoiceModule->setNonSpatialChannel(uri, credentials, hangup_on_last_leave);
     }
 }
 
