@@ -109,6 +109,14 @@ public:
 
         InputChannel() {}
         InputChannel(Type type, U8 index) : mType(type), mIndex(index) {}
+
+        // these methods for readability
+        bool isAxis() const { return mType == TYPE_AXIS; }
+        bool isButton() const { return mType == TYPE_BUTTON; }
+        bool isNone() const { return mType == TYPE_NONE; }
+
+        bool isNegAxis() const;
+
         std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, etc
         std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
 
@@ -152,8 +160,18 @@ public:
     static LLGameControl::InputChannel getChannelByName(const std::string& name);
     static LLGameControl::InputChannel getChannelByActionName(const std::string& name);
     static void addActionMapping(const std::string& name,  LLGameControl::InputChannel channel);
-    static void setActionFlags(U32 action_flags);
 
+
+    static U32 computeInternalActionFlags();
+    static void setExternalActionFlags(U32 action_flags);
+
+    // Keyboard presses produce action_flags which can be translated into State
+    // and game_control devices produce State which can be translated into action_flags.
+    // This method exchanges the two varieties of action flags in one call
+    // so the twain do not touch.
+    //static U32 exchangeActionFlags(U32 action_flags);
+    //static void getActionFlags();                 // LLGameControl --> LLAgent
+    //static void setActionFlags(U32 action_flags); // LLAgent --> LLGameControl
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();

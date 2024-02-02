@@ -44,7 +44,17 @@ public:
     void loadDefaults();
     bool addActionMapping(const std::string& name, const LLGameControl::InputChannel& channel);
     // Note: to remove mapping: call addMapping() with a TYPE_NONE channel
+
+    // Given external action_flags (i.e. raw avatar input)
+    // compute the corresponding LLGameControl::State that would have produced those flags.
+    // Note: "action flags" are similar to, but not quite the same as, "control flags".
     const LLGameControl::State& computeStateFromActionFlags(U32 action_flags);
+
+    // Given LLGameControl::State (i.e. from a real controller)
+    // compute corresponding action flags (e.g. for moving the avatar around)
+    U32 computeInternalActionFlags(const std::vector<S32>& axes, U32 buttons);
+
+    U32 getMappedFlags() const { return mMappedFlags; }
 
 private:
     NameToMaskMap mNameToMask; // invariant map after init

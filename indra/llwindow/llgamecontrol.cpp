@@ -91,6 +91,12 @@ void LLGameControl::InputChannel::initChannelMap()
     gChannelMap["BUTTON_31"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 31);
 }
 
+bool LLGameControl::InputChannel::isNegAxis() const
+{
+    return mType == LLGameControl::InputChannel::TYPE_AXIS
+        && mIndex == 2 * (mIndex / 2);
+}
+
 std::string LLGameControl::InputChannel::getLocalName() const
 {
     // HACK: we hard-code English channel names, but
@@ -240,6 +246,8 @@ std::string LLGameControl::InputChannel::getRemoteName() const
 class LLGameControllerManager
 {
 public:
+    LLGameControllerManager();
+
     void addController(SDL_JoystickID id, SDL_GameController* controller);
     void removeController(SDL_JoystickID id);
 
@@ -249,21 +257,25 @@ public:
     void clearAllState();
     size_t getControllerIndex(SDL_JoystickID id) const;
 
+    void accumulateInternalState();
     void computeFinalState(LLGameControl::State& state);
 
     LLGameControl::InputChannel getChannelByActionName(const std::string& name) const;
     void addActionMapping(const std::string& name,  LLGameControl::InputChannel channel);
-    void setActionFlags(U32 action_flags);
+    U32 computeInternalActionFlags();
+    void setExternalActionFlags(U32 action_flags);
 
     void clear();
 
 private:
     std::vector<SDL_JoystickID> mControllerIDs;
     std::vector<SDL_GameController*> mControllers;
-    std::vector<LLGameControl::State> mStates;
+    std::vector<LLGameControl::State> mStates; // one state per device
 
-    LLGameControl::State mActionState;
+    LLGameControl::State mExternalState;
     LLGameControlTranslator mTranslator;
+    std::vector<S32> mAxesAccumulator;
+    U32 mButtonAccumulator { 0 };
     U32 mLastActionFlags { 0 };
 };
 
@@ -286,7 +298,9 @@ namespace
     constexpr U64 MSEC_PER_NSEC = 1e6;
     constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
     constexpr U64 RESEND_EXPANSION_RATE = 10;
-    LLGameControl::State g_gameControlState;
+    LLGameControl::State g_outerState; // from controller devices
+    LLGameControl::State g_innerState; // state from gAgent
+    LLGameControl::State g_finalState; // sum of inner and outer
     U64 g_lastSend = 0;
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
@@ -333,6 +347,11 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
     }
     bool changed = (old_buttons != mButtons);
     return changed;
+}
+
+LLGameControllerManager::LLGameControllerManager()
+{
+    mAxesAccumulator.resize(NUM_AXES, 0);
 }
 
 void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
@@ -453,56 +472,63 @@ void LLGameControllerManager::clearAllState()
     {
         state.clear();
     }
-    mActionState.clear();
+    mExternalState.clear();
     mLastActionFlags = 0;
 }
 
-void LLGameControllerManager::computeFinalState(LLGameControl::State& state)
+void LLGameControllerManager::accumulateInternalState()
 {
-    // clear the slate
-    std::vector<S32> axes_accumulator;
-    axes_accumulator.resize(NUM_AXES, 0);
-    U32 old_buttons = state.mButtons;
-    state.mButtons = 0;
+    // clear the old state
+    std::fill(mAxesAccumulator.begin(), mAxesAccumulator.end(), 0);
+    mButtonAccumulator = 0;
 
     // accumulate the controllers
-    for (const auto& s : mStates)
+    for (const auto& state : mStates)
     {
-        state.mButtons |= s.mButtons;
+        mButtonAccumulator |= state.mButtons;
         for (size_t i = 0; i < NUM_AXES; ++i)
         {
-            axes_accumulator[i] += (S32)(s.mAxes[i]);
+            // Note: we don't bother to clamp the axes yet
+            // because at this stage we haven't yet accumulated the "inner" state.
+            mAxesAccumulator[i] += (S32)(state.mAxes[i]);
         }
     }
+}
 
+void LLGameControllerManager::computeFinalState(LLGameControl::State& final_state)
+{
+    // We assume accumulateInternalState() has already been called and we will
+    // finish by accumulating "external" state (if enabled)
+    U32 old_buttons = final_state.mButtons;
+    final_state.mButtons = mButtonAccumulator;
     if (g_interpretActions)
     {
-        // accumulate the keyboard
-        state.mButtons |= mActionState.mButtons;
+        // accumulate from mExternalState
+        final_state.mButtons |= mExternalState.mButtons;
         for (size_t i = 0; i < NUM_AXES; ++i)
         {
-            axes_accumulator[i] += (S32)(mActionState.mAxes[i]);
+            mAxesAccumulator[i] += (S32)(mExternalState.mAxes[i]);
         }
     }
-    if (old_buttons != state.mButtons)
+    if (old_buttons != final_state.mButtons)
     {
         g_nextResendPeriod = 0; // packet needs to go out ASAP
     }
 
-    // clamp the axes
+    // clamp the accumulated axes
     for (size_t i = 0; i < NUM_AXES; ++i)
     {
-        S32 new_axis = (S16)(std::min(std::max(axes_accumulator[i], -32768), 32767));
+        S32 new_axis = (S16)(std::min(std::max(mAxesAccumulator[i], -32768), 32767));
         // check for change
-        if (state.mAxes[i] != new_axis)
+        if (final_state.mAxes[i] != new_axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
             // prior to storing new_axis.  The only other place where prevAxis
             // is updated in updateResendPeriod() which is explicitly called after
             // a packet is sent.  The result is: unchanged axes are included in
             // first resend but not later ones.
-            state.mPrevAxes[i] = state.mAxes[i];
-            state.mAxes[i] = new_axis;
+            final_state.mPrevAxes[i] = final_state.mAxes[i];
+            final_state.mAxes[i] = new_axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
     }
@@ -522,12 +548,22 @@ void LLGameControllerManager::addActionMapping(const std::string& name,  LLGameC
     }
 }
 
-void LLGameControllerManager::setActionFlags(U32 action_flags)
+// static
+U32 LLGameControllerManager::computeInternalActionFlags()
 {
-    if (action_flags != mLastActionFlags)
+    // add up device inputs
+    accumulateInternalState();
+    return mTranslator.computeInternalActionFlags(mAxesAccumulator, mButtonAccumulator);
+}
+
+// static
+void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
+{
+    U32 active_flags = action_flags & mTranslator.getMappedFlags();
+    if (active_flags != mLastActionFlags)
     {
-        mLastActionFlags = action_flags;
-        mActionState = mTranslator.computeStateFromActionFlags(action_flags);
+        mLastActionFlags = active_flags;
+        mExternalState = mTranslator.computeStateFromActionFlags(action_flags);
     }
 }
 
@@ -537,7 +573,6 @@ void LLGameControllerManager::clear()
     mControllers.clear();
     mStates.clear();
 }
-
 
 U64 get_now_nsec()
 {
@@ -643,7 +678,6 @@ void LLGameControl::terminate()
     SDL_Quit();
 }
 
-
 //static
 // returns 'true' if GameControlInput message needs to go out,
 // which will be the case for new data or resend. Call this right
@@ -652,7 +686,7 @@ void LLGameControl::terminate()
 bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
     // Note: LLGameControllerManager::computeFinalState() can modify g_nextResendPeriod as a side-effect
-    g_manager.computeFinalState(g_gameControlState);
+    g_manager.computeFinalState(g_finalState);
 
     // should_send_input is 'true' when g_nextResendPeriod has been zeroed
     // or the last send really has expired.
@@ -709,7 +743,7 @@ void LLGameControl::processEvents(bool app_has_focus)
 // static
 const LLGameControl::State& LLGameControl::getState()
 {
-    return g_gameControlState;
+    return g_finalState;
 }
 
 // static
@@ -750,9 +784,15 @@ void LLGameControl::addActionMapping(const std::string& name,  LLGameControl::In
 }
 
 // static
-void LLGameControl::setActionFlags(U32 action_flags)
+U32 LLGameControl::computeInternalActionFlags()
 {
-    g_manager.setActionFlags(action_flags);
+    return g_manager.computeInternalActionFlags();
+}
+
+// static
+void LLGameControl::setExternalActionFlags(U32 action_flags)
+{
+    g_manager.setExternalActionFlags(action_flags);
 }
 
 //static
@@ -774,8 +814,8 @@ void LLGameControl::updateResendPeriod()
         // (e.g. keyboard events).  TODO: figure out what to do about this.)
         //
         // In other words: we want to include changed axes in the first resend
-        // so we only overrite g_gameControlState.mPrevAxes on higher resends.
-        g_gameControlState.mPrevAxes = g_gameControlState.mAxes;
+        // so we only overrite g_finalState.mPrevAxes on higher resends.
+        g_finalState.mPrevAxes = g_finalState.mAxes;
         g_nextResendPeriod *= RESEND_EXPANSION_RATE;
     }
 }

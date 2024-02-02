@@ -500,14 +500,18 @@ private:
     // GameControls
     //--------------------------------------------------------------------
 public:
-    void updateActionFlags(EKeystate s, S32 direction, U32 mask);
-    U32 getActionFlags() const;
+    // ActionFlags are similar to, but not the same as, ControlFlags!
+    // An 'ActionFlags' bitmask stores 'simplified input' from key/button
+    // presses that are mapped to avatar/camera movement actions
+    // whereas 'mControlFlags' are a more complicated set of behavior bits
+    // computed as a function of input and state.
+    //
+    void setExternalActionFlags(U32 flags);
+    void applyExternalActionFlags();
 
 private:
-    // The "mActionFlags" bitmask stores "raw input" from key presses
-    // used for avatar/camera manipulation. It is used to translate mapped
-    // key presses to approximately equivalent input from a game controller.
-    U32 mActionFlags;
+    U32 mExternalActionFlags { 0 };
+    U32 mLastExternalActionFlags { 0 };
 
     //--------------------------------------------------------------------
     // Animations

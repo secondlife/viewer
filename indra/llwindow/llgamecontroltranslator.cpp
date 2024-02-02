@@ -41,20 +41,21 @@ LLGameControlTranslator::LLGameControlTranslator()
 
     // build the invariant list of pairs:
     // < keyboard-mapped action name : bitwise_flag >
-    mNameToMask["push_forward"] = AGENT_CONTROL_AT_POS;
-    mNameToMask["push_backward"] = AGENT_CONTROL_AT_NEG;
+    mNameToMask["push_forward"] = AGENT_CONTROL_AT_POS | AGENT_CONTROL_FAST_AT;
+    mNameToMask["push_backward"] = AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT;
     mNameToMask["turn_left"] = AGENT_CONTROL_YAW_POS;
     mNameToMask["turn_right"] = AGENT_CONTROL_YAW_NEG;
-    mNameToMask["slide_left"] = AGENT_CONTROL_LEFT_POS;
-    mNameToMask["slide_right"] = AGENT_CONTROL_LEFT_NEG;
+    // WTF?  need to swap LEFT signs
+    mNameToMask["slide_left"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
+    mNameToMask["slide_right"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
+    mNameToMask["jump"] = AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP;
+    mNameToMask["push_down"] = AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP;
 
     // HACK: we use NUDGE flags for run_*
-    mNameToMask["jump"] = AGENT_CONTROL_NUDGE_UP_POS;
-    mNameToMask["push_down"] = AGENT_CONTROL_NUDGE_UP_NEG;
-    mNameToMask["run_forward"] = AGENT_CONTROL_NUDGE_AT_POS;
-    mNameToMask["run_backward"] = AGENT_CONTROL_NUDGE_AT_NEG;
-    mNameToMask["run_left"] = AGENT_CONTROL_NUDGE_LEFT_POS;
-    mNameToMask["run_right"] = AGENT_CONTROL_NUDGE_LEFT_NEG;
+    //mNameToMask["run_forward"] = AGENT_CONTROL_NUDGE_AT_POS;
+    //mNameToMask["run_backward"] = AGENT_CONTROL_NUDGE_AT_NEG;
+    //mNameToMask["run_left"] = AGENT_CONTROL_NUDGE_LEFT_POS;
+    //mNameToMask["run_right"] = AGENT_CONTROL_NUDGE_LEFT_NEG;
 
     mNameToMask["toggle_run"] = AGENT_CONTROL_FAST_AT; // HACK
     mNameToMask["toggle_fly"] = AGENT_CONTROL_FLY; // HACK
@@ -98,10 +99,10 @@ void LLGameControlTranslator::loadDefaults()
     {
         { "push_forward",  (U8)(LLGameControl::AXIS_LEFTY_NEG)        },
         { "push_backward", (U8)(LLGameControl::AXIS_LEFTY_POS)        },
-        { "turn_left",     (U8)(LLGameControl::AXIS_LEFTX_NEG)        },
-        { "turn_right",    (U8)(LLGameControl::AXIS_LEFTX_POS)        },
-        { "slide_left",    (U8)(LLGameControl::AXIS_RIGHTX_NEG)       },
-        { "slide_right",   (U8)(LLGameControl::AXIS_RIGHTX_POS)       },
+        { "slide_left",    (U8)(LLGameControl::AXIS_LEFTX_NEG)        },
+        { "slide_right",   (U8)(LLGameControl::AXIS_LEFTX_POS)        },
+        { "turn_left",     (U8)(LLGameControl::AXIS_RIGHTX_NEG)       },
+        { "turn_right",    (U8)(LLGameControl::AXIS_RIGHTX_POS)       },
         { "jump",          (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) },
         { "push_down",     (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS)  }
     };
@@ -116,11 +117,12 @@ void LLGameControlTranslator::loadDefaults()
     // buttons
     std::vector< std::pair< std::string, U8 > > default_buttons =
     {
-        { "run_forward",  (U8)(LLGameControl::BUTTON_DPAD_UP)       },
-        { "run_backward", (U8)(LLGameControl::BUTTON_DPAD_DOWN)     },
-        { "run_left",     (U8)(LLGameControl::BUTTON_DPAD_LEFT)     },
-        { "run_right",    (U8)(LLGameControl::BUTTON_DPAD_RIGHT)    },
-        { "toggle_run",   (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) },
+        // TODO: figure out how to add these
+        //{ "run_forward",  (U8)(LLGameControl::BUTTON_DPAD_UP)       },
+        //{ "run_backward", (U8)(LLGameControl::BUTTON_DPAD_DOWN)     },
+        //{ "run_left",     (U8)(LLGameControl::BUTTON_DPAD_LEFT)     },
+        //{ "run_right",    (U8)(LLGameControl::BUTTON_DPAD_RIGHT)    },
+        //{ "toggle_run",   (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) },
         { "toggle_fly",   (U8)(LLGameControl::BUTTON_B)             },
         { "toggle_sit",   (U8)(LLGameControl::BUTTON_X)             },
         { "stop_moving",  (U8)(LLGameControl::BUTTON_LEFTSHOULDER)  }
@@ -146,7 +148,7 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
             LLGameControl::InputChannel old_channel = channel_itr->second;
             if (old_channel.mType != channel.mType || old_channel.mIndex != channel.mIndex)
             {
-                if (channel.mType == LLGameControl::InputChannel::TYPE_NONE)
+                if (channel.isNone())
                 {
                     // remove old mapping
                     mMaskToChannel.erase(channel_itr);
@@ -159,7 +161,7 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
                 something_changed = true;
             }
         }
-        else if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
+        else if (! channel.isNone())
         {
             // create new mapping
             mMaskToChannel[mask] = channel;
@@ -182,14 +184,25 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
     return something_changed;
 }
 
+// Given external action_flags (i.e. raw avatar input)
+// compute the corresponding LLGameControl::State that would have produced those flags.
+// Note: "action flags" are similar to, but not quite the same as, "control flags".
+// "Action flags" are the raw input of avatar movement intent, whereas "control flags"
+// are the consequential set of instructions that are sent to the server for moving
+// the avatar character.
 const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags(U32 action_flags)
 {
+    static U32 last_action_flags = 0;
+    if (last_action_flags != action_flags)
+    {
+        last_action_flags = action_flags;
+    }
     // translate action_flag bits to equivalent game controller state
     // according to data in mMaskToChannel
 
     // only bother to update mCachedState if active_flags have changed
     U32 active_flags = action_flags & mMappedFlags;
-    if (active_flags != mPrevActiveFlags)
+    //if (active_flags != mPrevActiveFlags)
     {
         mCachedState.clear();
         for (const auto& pair : mMaskToChannel)
@@ -198,7 +211,7 @@ const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags
             if (mask == (mask & action_flags))
             {
                 LLGameControl::InputChannel channel = pair.second;
-                if (channel.mType == LLGameControl::InputChannel::TYPE_AXIS)
+                if (channel.isAxis())
                 {
                     U8 axis_index = channel.mIndex / 2;
                     if (channel.mIndex - (axis_index * 2) > 0)
@@ -210,7 +223,7 @@ const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags
                         mCachedState.mAxes[axis_index] = std::numeric_limits<S16>::max();
                     }
                 }
-                else if (channel.mType == LLGameControl::InputChannel::TYPE_BUTTON)
+                else if (channel.isButton())
                 {
                     mCachedState.mButtons |= (0x01U << channel.mIndex);
                 }
@@ -219,5 +232,43 @@ const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags
         mPrevActiveFlags = active_flags;
     }
     return mCachedState;
+}
+
+// Given LLGameControl::State (i.e. from a real controller)
+// compute corresponding action flags (e.g. for moving the avatar around)
+U32 LLGameControlTranslator::computeInternalActionFlags(const std::vector<S32>& axes, U32 buttons)
+{
+    // HACK: supply hard-coded threshold for ON/OFF zones
+    constexpr S32 AXIS_THRESHOLD = 32768 / 8;
+    U32 action_flags = 0;
+    for (const auto& pair : mMaskToChannel)
+    {
+        // pair = { mask, channel }
+        const LLGameControl::InputChannel& channel = pair.second;
+        if (channel.isAxis())
+        {
+            U8 axis_index = channel.mIndex / 2;
+            if (channel.isNegAxis())
+            {
+                if (axes[axis_index] < -AXIS_THRESHOLD)
+                {
+                    action_flags |= pair.first;
+                }
+            }
+            else if (axes[axis_index] > AXIS_THRESHOLD)
+            {
+                action_flags |= pair.first;
+            }
+        }
+        else if (channel.isButton())
+        {
+            U32 bit_set = buttons & (0x01U << channel.mIndex);
+            if (bit_set)
+            {
+                action_flags |= pair.first;
+            }
+        }
+    }
+    return action_flags;
 }
 
