@@ -1009,6 +1009,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         glh::matrix4f mat(modelView);
         glh::matrix4f invtrans = mat.inverse().transpose();
+        invtrans.m[3] = invtrans.m[7] = invtrans.m[11] = 0.f;
         glh::vec3f enorm;
         glh::vec3f ep;
         invtrans.mult_matrix_vec(norm, enorm);
@@ -1017,10 +1018,8 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLVector4 waterPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
 
-        norm = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorNormal.mV[0], gPipeline.mHeroProbeManager.mMirrorNormal.mV[1],
-                          gPipeline.mHeroProbeManager.mMirrorNormal.mV[2]);
-        p    = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorPosition.mV[0], gPipeline.mHeroProbeManager.mMirrorPosition.mV[1],
-                          gPipeline.mHeroProbeManager.mMirrorPosition.mV[2]);
+        norm = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorNormal.mV);
+        p    = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorPosition.mV);
         invtrans.mult_matrix_vec(norm, enorm);
         enorm.normalize();
         mat.mult_matrix_vec(p, ep);
