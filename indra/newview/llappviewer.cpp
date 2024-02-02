@@ -1397,8 +1397,6 @@ LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State&
 // static
 bool packGameControlInput(LLMessageSystem* msg)
 {
-    LLGameControl::setActionFlags(gAgent.getActionFlags());
-
     if (! LLGameControl::computeFinalStateAndCheckForChanges())
     {
         // Note: LLGameControl manages some re-send logic
@@ -1569,15 +1567,6 @@ bool LLAppViewer::doFrame()
                 joystick->scanJoystick();
                 gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
-
-                LLGameControl::setInterpretControlActionsAsGameControl(gSavedSettings.getBOOL("InterpretControlActionsAsGameControl"));
-                LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
-                // to help minimize lag we send GameInput packets immediately
-                // after getting the latest GameController input
-                if (packGameControlInput(gMessageSystem))
-                {
-		            gAgent.sendMessage();
-                }
 			}
 
             // Update state based on messages, user input, object idle.
@@ -4825,29 +4814,41 @@ void LLAppViewer::idle()
 
         static LLFrameTimer agent_update_timer;
 
-        // When appropriate, update agent location to the simulator.
-        F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-        F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
-        bool force_send =
-            // if there is something to send
-            (gAgent.controlFlagsDirty() && timed_out)
-            // if something changed
-            || (mLastAgentControlFlags != gAgent.getControlFlags())
-            // keep alive
-            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-        // timing out doesn't warranty that an update will be sent,
-        // just that it will be checked.
-        if (force_send || timed_out)
+        // TODO?: move this LLGameControl feature-check to UI callback
+        LLGameControl::setInterpretControlActionsAsGameControl(gSavedSettings.getBOOL("InterpretControlActionsAsGameControl"));
+
+        // Note: we process game_control before sending AgentUpdate
+        // because it may translate to control flags that control avatar motion.
+        LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
+
+        // trade flags between gAgent and LLGameControl
+        U32 control_flags = gAgent.getControlFlags();
+        U32 action_flags = LLGameControl::computeInternalActionFlags();
+        LLGameControl::setExternalActionFlags(control_flags);
+        if (packGameControlInput(gMessageSystem))
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-            // Send avatar and camera info
-            mLastAgentControlFlags = gAgent.getControlFlags();
-            mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
-            send_agent_update(force_send);
-            agent_update_timer.reset();
+            // to help minimize lag we send GameInput packets ASAP
+           gAgent.sendMessage();
         }
-    }
+        gAgent.setExternalActionFlags(action_flags);
+
+		// When appropriate, update agent location to the simulator.
+		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
+		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
+		bool force_update = gAgent.controlFlagsDirty()
+							|| (mLastAgentControlFlags != gAgent.getControlFlags())
+							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+		{
+            gAgent.applyExternalActionFlags();
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
+			// Send avatar and camera info
+			mLastAgentControlFlags = gAgent.getControlFlags();
+			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
+			send_agent_update(force_update);
+			agent_update_timer.reset();
+		}
+	}
 
     //////////////////////////////////////
     //

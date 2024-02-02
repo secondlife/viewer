@@ -162,6 +162,7 @@ void LLKeyboard::resetKeyDownAndHandle()
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
     }
+    mCurTranslatedKey = KEY_NONE;
 }
 
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
