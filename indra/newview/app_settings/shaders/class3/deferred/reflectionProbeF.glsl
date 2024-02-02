@@ -682,6 +682,12 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
     return col[1]+col[0];
 }
 
+
+#if defined(HERO_PROBES)
+uniform vec4 clipPlane;
+uniform samplerCubeArray heroProbes;
+#endif
+
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
 {
@@ -711,6 +717,18 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 
 
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
+    }
+#endif
+
+#if defined(HERO_PROBES)
+    float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
+    if (clipDist > 0.0 && clipDist < 0.1 && glossiness > 0.8)
+    {
+        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+        if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
+        {
+            glossenv = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*10).xyz;
+        }
     }
 #endif
 }

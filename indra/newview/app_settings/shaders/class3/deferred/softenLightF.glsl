@@ -189,19 +189,6 @@ void main()
         float gloss      = 1.0 - perceptualRoughness;
         
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false, amblit_linear);
-        
-        #ifdef HERO_PROBES
-        float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
-        if (clipDist > 0.0 && clipDist < 0.1 && perceptualRoughness < 0.2)
-        {
-            vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-            if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
-            {
-                radiance = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), perceptualRoughness*11).xyz;
-            }
-        }
-        #endif
-        
 
         adjustIrradiance(irradiance, ambocc);
 
