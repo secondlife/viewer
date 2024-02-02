@@ -134,9 +134,9 @@ public:
 	// Note that gestures should only fire if this returns true.
 	virtual bool inProximalChannel();
 	
-	virtual void setNonSpatialChannel(const std::string &uri,
+	void setNonSpatialChannel(const std::string &uri,
 									  const std::string &credentials,
-		                              bool hangup_on_last_leave);
+		                              bool hangup_on_last_leave) override;
 	
 	virtual bool setSpatialChannel(const std::string &uri,
 								   const std::string &credentials);
