@@ -86,7 +86,6 @@ LLViewerInput gViewerInput;
 bool agent_jump( EKeystate s )
 {
     static bool first_fly_attempt(true);
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_UP_POS);
     if (KEYSTATE_UP == s)
     {
         first_fly_attempt = true;
@@ -113,7 +112,6 @@ bool agent_jump( EKeystate s )
 
 bool agent_push_down( EKeystate s )
 {
-    gAgent.updateActionFlags(s, -1, AGENT_CONTROL_UP_POS);
     if( KEYSTATE_UP == s  ) return true;
     gAgent.moveUp(-1);
     return true;
@@ -160,10 +158,6 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 
 static void agent_push_forwardbackward( EKeystate s, S32 direction, LLAgent::EDoubleTapRunMode mode )
 {
-    gAgent.updateActionFlags(s, direction, AGENT_CONTROL_AT_POS);
-    agent_handle_doubletap_run(s, mode);
-    if (KEYSTATE_UP == s) return;
-
     F32 time = gKeyboard->getCurKeyElapsedTime();
     S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 
@@ -237,7 +231,6 @@ static void agent_slide_leftright( EKeystate s, S32 direction, LLAgent::EDoubleT
 
 bool agent_slide_left( EKeystate s )
 {
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_LEFT_POS);
     if(gAgent.isMovementLocked()) return true;
     agent_slide_leftright(s, 1, LLAgent::DOUBLETAP_SLIDELEFT);
     return true;
@@ -246,7 +239,6 @@ bool agent_slide_left( EKeystate s )
 
 bool agent_slide_right( EKeystate s )
 {
-    gAgent.updateActionFlags(s, -1, AGENT_CONTROL_LEFT_POS);
     if(gAgent.isMovementLocked()) return true;
     agent_slide_leftright(s, -1, LLAgent::DOUBLETAP_SLIDERIGHT);
     return true;
@@ -271,7 +263,6 @@ bool agent_turn_left(EKeystate s)
     }
     else
     {
-        gAgent.updateActionFlags(s, 1, AGENT_CONTROL_YAW_POS);
         if (KEYSTATE_UP == s)
         {
             // Check temporary running. In case user released 'left' key with shift already released.
@@ -303,7 +294,6 @@ bool agent_turn_right( EKeystate s )
     }
     else
     {
-        gAgent.updateActionFlags(s, -1, AGENT_CONTROL_YAW_POS);
         if (KEYSTATE_UP == s)
         {
             // Check temporary running. In case user released 'right' key with shift already released.
@@ -318,7 +308,6 @@ bool agent_turn_right( EKeystate s )
 
 bool agent_look_up( EKeystate s )
 {
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_PITCH_POS);
     if( KEYSTATE_UP == s  ) return true;
     gAgent.movePitch(-1);
     //gAgent.rotate(-2.f * DEG_TO_RAD, gAgent.getFrame().getLeftAxis() );
@@ -328,7 +317,6 @@ bool agent_look_up( EKeystate s )
 
 bool agent_look_down( EKeystate s )
 {
-    gAgent.updateActionFlags(s, -1, AGENT_CONTROL_PITCH_POS);
     if( KEYSTATE_UP == s  ) return true;
     gAgent.movePitch(1);
     //gAgent.rotate(2.f * DEG_TO_RAD, gAgent.getFrame().getLeftAxis() );
@@ -337,7 +325,6 @@ bool agent_look_down( EKeystate s )
 
 bool agent_toggle_fly( EKeystate s )
 {
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_FLY);
     // Only catch the edge
     if (KEYSTATE_DOWN == s )
     {
@@ -634,8 +621,6 @@ bool edit_avatar_move_backward( EKeystate s )
 
 bool stop_moving( EKeystate s )
 {
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_STOP);
-
     //it's supposed that 'stop moving' key will be held down for some time
     if( KEYSTATE_UP == s  ) return true;
     // stop agent
@@ -682,7 +667,6 @@ bool start_gesture( EKeystate s )
 bool run_forward(EKeystate s)
 {
     // HACK: we use AGENT_CONTROL_NUDGE_AT_POS to signify "run forward"
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_NUDGE_AT_POS);
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_FORWARD)
@@ -709,7 +693,6 @@ bool run_forward(EKeystate s)
 bool run_backward(EKeystate s)
 {
     // HACK: we use AGENT_CONTROL_NUDGE_AT_NEG to signify "run backward"
-    gAgent.updateActionFlags(s, -1, AGENT_CONTROL_NUDGE_AT_POS);
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_BACKWARD)
@@ -736,7 +719,6 @@ bool run_backward(EKeystate s)
 bool run_left(EKeystate s)
 {
     // HACK: we use AGENT_CONTROL_NUDGE_LEFT_POS to signify "run left"
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_NUDGE_LEFT_POS);
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_SLIDELEFT)
@@ -762,7 +744,6 @@ bool run_left(EKeystate s)
 
 bool run_right(EKeystate s)
 {
-    gAgent.updateActionFlags(s, -1, AGENT_CONTROL_NUDGE_LEFT_POS);
     if (KEYSTATE_UP != s)
     {
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_SLIDERIGHT)
@@ -789,7 +770,6 @@ bool run_right(EKeystate s)
 bool toggle_run(EKeystate s)
 {
     // HACK: we use AGENT_CONTROL_FAST_AT to signify "run button"
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_FAST_AT);
     if (KEYSTATE_DOWN != s) return true;
     bool run = gAgent.getAlwaysRun();
     if (run)
@@ -809,7 +789,6 @@ bool toggle_run(EKeystate s)
 bool toggle_sit(EKeystate s)
 {
     // HACK: we use AGENT_CONTROL_SIT_ON_GROUND to signify "sit button"
-    gAgent.updateActionFlags(s, 1, AGENT_CONTROL_SIT_ON_GROUND);
     if (KEYSTATE_DOWN != s) return true;
     if (gAgent.isSitting())
     {
