@@ -25,6 +25,7 @@
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 in vec3 position;
@@ -59,7 +60,7 @@ void main()
     vec4 t_pos = modelview_projection_matrix * pre_pos;
 
     gl_Position = t_pos;
-    pos = t_pos.xyz;
+    pos = (modelview_matrix*pre_pos).xyz;
 
     vary_normal = normalize(normal_matrix * normal);
     
