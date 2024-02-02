@@ -485,11 +485,9 @@ bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
 }
 
 
-//////////////////////////
-// LLWebRTCVoiceClient::estateSessionState
-
 LLWebRTCVoiceClient::estateSessionState::estateSessionState()
 {
+    mHangupOnLastLeave = false;
     mChannelID       = "Estate";
     LLUUID region_id = gAgent.getRegion()->getRegionID();
 
@@ -498,14 +496,16 @@ LLWebRTCVoiceClient::estateSessionState::estateSessionState()
 
 LLWebRTCVoiceClient::parcelSessionState::parcelSessionState(const std::string &channelID, S32 parcel_local_id)
 {
+    mHangupOnLastLeave = false;
     LLUUID region_id = gAgent.getRegion()->getRegionID();
     mChannelID       = channelID;
     mWebRTCConnections.emplace_back(new LLVoiceWebRTCSpatialConnection(region_id, parcel_local_id, channelID));
 }
 
-LLWebRTCVoiceClient::adhocSessionState::adhocSessionState(const std::string &channelID, const std::string& credentials) :
+LLWebRTCVoiceClient::adhocSessionState::adhocSessionState(const std::string &channelID, const std::string& credentials, bool hangup_on_last_leave) :
     mCredentials(credentials)
 {
+    mHangupOnLastLeave = hangup_on_last_leave;
     LLUUID region_id = gAgent.getRegion()->getRegionID();
     mChannelID = channelID;
     mWebRTCConnections.emplace_back(new LLVoiceWebRTCAdHocConnection(region_id, channelID, credentials));
@@ -1181,6 +1181,12 @@ void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, co
         if (participant)
         {
             session->removeParticipant(participant);
+            if (session->mHangupOnLastLeave &&
+                (id != gAgentID) &&
+                (session->mParticipantsByURI.size() <= 1))
+            {
+                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+            }
         }
     }
 }
@@ -1199,10 +1205,10 @@ bool LLWebRTCVoiceClient::startParcelSession(const std::string &channelID, S32 p
     return true;
 }
 
-bool LLWebRTCVoiceClient::startAdHocSession(const std::string &channelID, const std::string &credentials)
+bool LLWebRTCVoiceClient::startAdHocSession(const std::string &channelID, const std::string &credentials, bool hangup_on_last_leave)
 {
     leaveChannel(false);
-    mNextSession = addSession(channelID, sessionState::ptr_t(new adhocSessionState(channelID, credentials)));
+    mNextSession = addSession(channelID, sessionState::ptr_t(new adhocSessionState(channelID, credentials, hangup_on_last_leave)));
     return true;
 }
 
@@ -1602,14 +1608,7 @@ void LLWebRTCVoiceClient::leaveChannel(bool stopTalking)
 
    if (mSession)
     {
-        // If we're already in a channel, or if we're joining one, terminate
-        // so we can rejoin with the new session data.
-        bool wasShuttingDown = mSession->mShuttingDown;
         deleteSession(mSession);
-        if (!wasShuttingDown)
-        {
-            notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
-        }
     }
 
     if (mNextSession)
@@ -2980,7 +2979,9 @@ void LLVoiceWebRTCSpatialConnection::setMuteMic(bool muted)
 /////////////////////////////
 // WebRTC Spatial Connection
 
-LLVoiceWebRTCAdHocConnection::LLVoiceWebRTCAdHocConnection(const LLUUID &regionID, const std::string& channelID, const std::string& credentials) :
+LLVoiceWebRTCAdHocConnection::LLVoiceWebRTCAdHocConnection(const LLUUID &regionID,
+                                                           const std::string& channelID,
+                                                           const std::string& credentials) :
     LLVoiceWebRTCConnection(regionID, channelID),
     mCredentials(credentials)
 {

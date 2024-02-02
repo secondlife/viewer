@@ -167,7 +167,8 @@ public:
 	virtual bool inProximalChannel()=0;
 	
 	virtual void setNonSpatialChannel(const std::string &uri,
-									  const std::string &credentials)=0;
+									  const std::string &credentials,
+									  bool hangup_on_last_leave = false)=0;
 	
 	virtual bool setSpatialChannel(const std::string &uri,
 								   const std::string &credentials)=0;
@@ -371,9 +372,12 @@ public:
 	// returns true iff the user is currently in a proximal (local spatial) channel.
 	// Note that gestures should only fire if this returns true.
 	bool inProximalChannel();
+
 	void setNonSpatialChannel(
-							  const std::string &uri,
-							  const std::string &credentials);
+		const std::string &uri,
+		const std::string &credentials,
+		bool hangup_on_last_leave = false);
+
 	void setSpatialChannel(
 						   const std::string &uri,
 						   const std::string &credentials);

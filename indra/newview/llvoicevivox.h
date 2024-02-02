@@ -135,7 +135,8 @@ public:
 	virtual bool inProximalChannel();
 	
 	virtual void setNonSpatialChannel(const std::string &uri,
-									  const std::string &credentials);
+									  const std::string &credentials,
+		                              bool hangup_on_last_leave);
 	
 	virtual bool setSpatialChannel(const std::string &uri,
 								   const std::string &credentials);

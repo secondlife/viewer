@@ -5025,7 +5025,8 @@ void LLVivoxVoiceClient::joinSession(const sessionStatePtr_t &session)
 
 void LLVivoxVoiceClient::setNonSpatialChannel(
 	const std::string &uri,
-	const std::string &credentials)
+	const std::string &credentials,
+	bool hangup_on_last_leave)
 {
 	switchChannel(uri, false, false, false, credentials);
 }

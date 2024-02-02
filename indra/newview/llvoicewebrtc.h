@@ -144,8 +144,8 @@ public:
 	// Note that gestures should only fire if this returns true.
 	bool inProximalChannel() override;
 	
-	void setNonSpatialChannel(const std::string& uri, const std::string& credentials) override {
-		startAdHocSession(uri, credentials);
+	void setNonSpatialChannel(const std::string& uri, const std::string& credentials, bool hangup_on_last_leave) override {
+		startAdHocSession(uri, credentials, hangup_on_last_leave);
 	}
 	
 	bool setSpatialChannel(const std::string &uri, const std::string &credentials) override 
@@ -388,6 +388,8 @@ public:
         static bool hasSession(const std::string &sessionID) 
 		{ return mSessions.find(sessionID) != mSessions.end(); }
 
+       bool mHangupOnLastLeave;
+
     protected:
         sessionState();
 	    std::list<connectionPtr_t> mWebRTCConnections;
@@ -428,7 +430,7 @@ public:
     class adhocSessionState : public sessionState
     {
     public:
-        adhocSessionState(const std::string &channelID, const std::string& credentials);
+        adhocSessionState(const std::string &channelID, const std::string& credentials, bool hangup_on_last_leave);
 
         bool isSpatial() override { return false; }
         bool isEstate() override { return false; }
@@ -601,7 +603,7 @@ private:
 
 	bool startEstateSession();
     bool startParcelSession(const std::string& channelID, S32 parcelID);
-    bool startAdHocSession(const std::string& channelID, const std::string& credentials);
+    bool startAdHocSession(const std::string& channelID, const std::string& credentials, bool hangup_on_last_leave);
 
     void joinSession(const sessionStatePtr_t &session);
 	
