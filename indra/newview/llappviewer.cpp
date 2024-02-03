@@ -1130,7 +1130,11 @@ bool LLAppViewer::init()
 	{
 		LLViewerJoystick::getInstance()->init(false);
 	}
+
 	LLGameControl::init();
+    LLGameControl::enableSendToServer(gSavedSettings.getBOOL("GameControlToServer"));
+    LLGameControl::enableControlAvatar(gSavedSettings.getBOOL("GameControlToAvatar"));
+    LLGameControl::enableReceiveControlFromAvatar(gSavedSettings.getBOOL("AvatarToGameControl"));
 
     try
     {
@@ -4820,9 +4824,6 @@ void LLAppViewer::idle()
         }
 
         static LLFrameTimer agent_update_timer;
-
-        // TODO?: move this LLGameControl feature-check to UI callback
-        LLGameControl::setInterpretControlActionsAsGameControl(gSavedSettings.getBOOL("InterpretControlActionsAsGameControl"));
 
         // Note: we process game_control before sending AgentUpdate
         // because it may translate to control flags that control avatar motion.

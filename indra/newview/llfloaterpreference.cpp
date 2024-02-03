@@ -3132,28 +3132,42 @@ void LLPanelPreferenceGameControl::saveSettings()
 
 void LLPanelPreferenceGameControl::updateEnabledState()
 {
-
+    // TODO?: implement this
 }
 
 static LLScrollListItem* gSelectedItem { nullptr };
 static LLScrollListCell* gSelectedCell { nullptr };
 
-void LLPanelPreferenceGameControl::onClickEnable(LLUICtrl* ctrl)
+void LLPanelPreferenceGameControl::onClickGameControlToServer(LLUICtrl* ctrl)
 {
-    BOOL checked = mCheckEnableGameControl->get();
-    gSavedSettings.setBOOL( "EnableGameControl", checked );
-    mCheckInterpretActions->setEnabled(checked);
-    mActionTable->setEnabled(checked && mCheckInterpretActions->get());
-    mChannelSelector->setEnabled(checked && mCheckInterpretActions->get());
+    BOOL checked = mCheckGameControlToServer->get();
+    gSavedSettings.setBOOL( "GameControlToServer", checked );
+    LLGameControl::enableSendToServer(checked);
 }
 
-void LLPanelPreferenceGameControl::onClickActionsAsGameControl(LLUICtrl* ctrl)
+void LLPanelPreferenceGameControl::onClickGameControlToAvatar(LLUICtrl* ctrl)
 {
-    BOOL checked = mCheckInterpretActions->get();
-    gSavedSettings.setBOOL( "InterpretControlActionsAsGameControl", checked );
+    BOOL checked = mCheckGameControlToAvatar->get();
+    gSavedSettings.setBOOL( "GameControlToAvatar", checked );
+
     mActionTable->deselectAllItems();
-    mActionTable->setEnabled(checked);
-    mChannelSelector->setEnabled(checked);
+    bool table_enabled = checked || mCheckAvatarToGameControl->get();
+    mActionTable->setEnabled(table_enabled);
+    mChannelSelector->setEnabled(table_enabled);
+    LLGameControl::enableControlAvatar(checked);
+}
+
+void LLPanelPreferenceGameControl::onClickAvatarToGameControl(LLUICtrl* ctrl)
+{
+    BOOL checked = mCheckAvatarToGameControl->get();
+    gSavedSettings.setBOOL( "AvatarToGameControl", checked );
+
+    mActionTable->deselectAllItems();
+    bool table_enabled = checked || mCheckGameControlToAvatar->get();
+    mActionTable->setEnabled(table_enabled);
+    mChannelSelector->setEnabled(table_enabled);
+    LLGameControl::enableReceiveControlFromAvatar(checked);
+
 }
 
 void LLPanelPreferenceGameControl::onActionSelect()
@@ -3264,18 +3278,25 @@ void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::In
 
 BOOL LLPanelPreferenceGameControl::postBuild()
 {
-    mCheckEnableGameControl = getChild<LLCheckBoxCtrl>("enable_game_control");
-    mCheckEnableGameControl->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickEnable, this, _1));
+    mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
+    mCheckGameControlToServer->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickGameControlToServer, this, _1));
+    //mCheckGameControlToServer->setEnabled(gSavedSettings.getBOOL( "GameControlToServer"));
 
-    mCheckInterpretActions = getChild<LLCheckBoxCtrl>("control_actions_as_game_control");
-    mCheckInterpretActions->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickActionsAsGameControl, this, _1));
+    mCheckGameControlToAvatar = getChild<LLCheckBoxCtrl>("game_control_to_avatar");
+    mCheckGameControlToAvatar->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickGameControlToAvatar, this, _1));
+    //mCheckGameControlToAvatar->setEnabled(gSavedSettings.getBOOL( "GameControlToAvatar"));
+
+    mCheckAvatarToGameControl= getChild<LLCheckBoxCtrl>("avatar_to_game_control");
+    mCheckAvatarToGameControl->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickAvatarToGameControl, this, _1));
+    //mCheckAvatarToGameControl->setEnabled(gSavedSettings.getBOOL( "AvatarToGameControl"));
 
     mActionTable = getChild<LLScrollListCtrl>("action_table");
     mActionTable->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onActionSelect, this));
 
     populateActionTable();
 
-    mActionTable->setEnabled(mCheckEnableGameControl->get() && mCheckInterpretActions->get());
+    // enable the table if at least one of the GameControl<-->Avatar options is enabled
+    mActionTable->setEnabled(mCheckGameControlToAvatar->get() || mCheckAvatarToGameControl->get());
 
     mChannelSelector = getChild<LLComboBox>("input_channel_combo");
     mChannelSelector->setVisible(FALSE);

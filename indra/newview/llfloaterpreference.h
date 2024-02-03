@@ -381,8 +381,9 @@ public:
     void saveSettings() override;
     void updateEnabledState();
 
-    void onClickEnable(LLUICtrl* ctrl);
-    void onClickActionsAsGameControl(LLUICtrl* ctrl);
+    void onClickGameControlToServer(LLUICtrl* ctrl);
+    void onClickGameControlToAvatar(LLUICtrl* ctrl);
+    void onClickAvatarToGameControl(LLUICtrl* ctrl);
     void onActionSelect();
     void onCommitInputChannel();
 
@@ -401,8 +402,10 @@ private:
     void updateTable();
     LOG_CLASS(LLPanelPreferenceGameControl);
 
-    LLCheckBoxCtrl  *mCheckEnableGameControl;
-    LLCheckBoxCtrl  *mCheckInterpretActions;
+    LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
+    LLCheckBoxCtrl  *mCheckGameControlToAvatar; // use game_control data to move avatar
+    LLCheckBoxCtrl  *mCheckAvatarToGameControl; // translate external avatar actions to game_control data
+
     LLScrollListCtrl* mActionTable;
     LLComboBox* mChannelSelector;
     LLGameControlTranslator mActionTranslator;
