@@ -227,6 +227,17 @@ LLRender::eTexIndex LLPanelFace::getTextureDropChannel()
     return LLRender::eTexIndex(MATTYPE_DIFFUSE);
 }
 
+LLGLTFMaterial::TextureInfo LLPanelFace::getPBRDropChannel()
+{
+    if (mComboMatMedia && mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
+    {
+        LLRadioGroup* radio_pbr_type = getChild<LLRadioGroup>("radio_pbr_type");
+        return texture_info_from_pbrtype(radio_pbr_type->getSelectedIndex());
+    }
+
+    return texture_info_from_pbrtype(PBRTYPE_BASE_COLOR);
+}
+
 // Things the UI provides...
 //
 LLUUID	LLPanelFace::getCurrentNormalMap()			{ return getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();	}
@@ -4653,7 +4664,8 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                         LLToolDragAndDrop::dropTextureAllFaces(objectp,
                             itemp_res,
                             from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
-                            LLUUID::null);
+                            LLUUID::null,
+                            false);
                     }
                     else // one face
                     {
@@ -4662,6 +4674,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                             itemp_res,
                             from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
                             LLUUID::null,
+                            false,
                             0);
                     }
                 }
