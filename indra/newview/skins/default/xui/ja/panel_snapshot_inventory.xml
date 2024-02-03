@@ -11,7 +11,6 @@
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<spinner label="横幅 x 高さ" name="inventory_snapshot_width"/>
-	<spinner label="" name="inventory_snapshot_height"/>
 	<check_box label="縦横比の固定" name="inventory_keep_aspect_check"/>
 	<text name="hint_lbl">
 		画像をテクスチャとして保存する場合は、いずれかの正方形を選択してください。

@@ -14,7 +14,6 @@
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<spinner label="横幅 x 高さ" name="local_snapshot_width"/>
-	<spinner label="" name="local_snapshot_height"/>
 	<check_box label="縦横比の固定" name="local_keep_aspect_check"/>
 	<text name="local_format_label">
 		形式:

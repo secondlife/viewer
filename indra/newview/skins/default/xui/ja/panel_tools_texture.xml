@@ -16,7 +16,7 @@
 	<text name="color label">
 		色
 	</text>
-	<color_swatch label="" name="colorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
+	<color_swatch name="colorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
 	<text name="color trans">
 		透過度(%)
 	</text>
@@ -96,7 +96,7 @@
 	<text name="label shinycolor">
 		色
 	</text>
-	<color_swatch label="" name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
+	<color_swatch name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
 	<text name="media_info">
 		選択したメディアの URLがあれば、ここに入ります
 	</text>

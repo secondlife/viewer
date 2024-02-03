@@ -68,8 +68,8 @@
 		<button name="move down btn" tool_tip="下に移動(C を押す)"/>
 	</panel>
 	<panel name="panel_modes">
-		<button label="" name="mode_walk_btn" tool_tip="歩行モード"/>
-		<button label="" name="mode_run_btn" tool_tip="走行モード"/>
-		<button label="" name="mode_fly_btn" tool_tip="飛行モード"/>
+		<button name="mode_walk_btn" tool_tip="歩行モード"/>
+		<button name="mode_run_btn" tool_tip="走行モード"/>
+		<button name="mode_fly_btn" tool_tip="飛行モード"/>
 	</panel>
 </floater>

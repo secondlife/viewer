@@ -11,7 +11,6 @@
 		<combo_box.item label="カスタム" name="Custom"/>
 	</combo_box>
 	<spinner label="横幅 x 高さ" name="profile_snapshot_width"/>
-	<spinner label="" name="profile_snapshot_height"/>
 	<check_box label="縦横比の固定" name="profile_keep_aspect_check"/>
 	<text name="caption_label">
 		キャプション:

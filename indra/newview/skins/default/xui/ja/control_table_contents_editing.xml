@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-	<rows enabled="false" name="editing_actions" value="">
+	<rows enabled="false" name="editing_actions">
 		<columns label="編集中" name="lst_action" value="Tool_Dozer"/>
 	</rows>
 	<rows name="edit_avatar_spin_ccw" value="edit_avatar_spin_ccw">

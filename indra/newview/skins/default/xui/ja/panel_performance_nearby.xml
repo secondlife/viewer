@@ -14,11 +14,6 @@
 	<text name="RenderAvatarMaxARTText">
 		無制限
 	</text>
-	<name_list name="nearby_list">
-		<name_list.columns label="" name="complex_visual"/>
-		<name_list.columns label="" name="complex_value"/>
-		<name_list.columns label="" name="name"/>
-	</name_list>
 	<text name="av_nearby_desc2">
 		インワールド内のアバターを右クリックして表示を制御できます。
 	</text>

@@ -12,9 +12,4 @@
 	<text name="huds_desc2">
 		注意: HUDの最小化ボタンを使用してもHUDを取り外したことにはなりません。
 	</text>
-	<name_list name="hud_list">
-		<name_list.columns label="" name="complex_visual"/>
-		<name_list.columns label="" name="complex_value"/>
-		<name_list.columns label="" name="name"/>
-	</name_list>
 </panel>

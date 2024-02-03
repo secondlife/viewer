@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-	<rows enabled="false" name="camera_actions" value="">
+	<rows enabled="false" name="camera_actions">
 		<columns type="icontext" label="カメラ" name="lst_action" value="Cam_FreeCam_Off"/>
 	</rows>
 	<rows name="look_up" value="look_up">

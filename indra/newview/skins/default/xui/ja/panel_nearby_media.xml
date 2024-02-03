@@ -39,7 +39,6 @@
 			<combo_box.item label="他のアバター" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
-			<scroll_list.columns label="" name="media_checkbox_ctrl"/>
 			<scroll_list.columns label="近接" name="media_proximity"/>
 			<scroll_list.columns label="表示" name="media_visibility"/>
 			<scroll_list.columns label="クラス" name="media_class"/>

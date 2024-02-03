@@ -147,7 +147,6 @@
 					<item name="MeshOptCombine" label="正確に生成" value="MeshOptCombine"/>
 					<item name="MeshOptSloppy" label="適当に生成" value="MeshOptSloppy"/>
 				</combo_box>
-				<line_editor initial_value="" name="lod_file_high" value=""/>
 				<button label="参照..." name="lod_browse_high"/>
 				<combo_box name="lod_mode_high">
 					<item name="Triangle Limit" label="三角形の限度数" value="三角形の限度数"/>
@@ -155,7 +154,6 @@
 				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
-				<text initial_value="" name="high_status" value=""/>
 				<text initial_value="中" name="medium_label" value="中"/>
 				<combo_box name="lod_source_medium">
 					<item name="Load from file" label="ファイルから読み込む" value="ファイルから読み込む"/>
@@ -164,7 +162,6 @@
 					<item name="MeshOptSloppy" label="適当に生成" value="MeshOptSloppy"/>
 					<item name="Use LoD above" label="上記のLoDを使用" value="上記のLoDを使用"/>
 				</combo_box>
-				<line_editor initial_value="" name="lod_file_medium" value=""/>
 				<button label="参照..." name="lod_browse_medium"/>
 				<combo_box name="lod_mode_medium">
 					<item name="Triangle Limit" label="三角形の限度数" value="三角形の限度数"/>
@@ -172,7 +169,6 @@
 				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
-				<text initial_value="" name="medium_status" value=""/>
 				<text initial_value="低" name="low_label" value="低"/>
 				<combo_box name="lod_source_low">
 					<item name="Load from file" label="ファイルから読み込む" value="ファイルから読み込む"/>
@@ -181,7 +177,6 @@
 					<item name="MeshOptSloppy" label="適当に生成" value="MeshOptSloppy"/>
 					<item name="Use LoD above" label="上記のLoDを使用" value="上記のLoDを使用"/>
 				</combo_box>
-				<line_editor initial_value="" name="lod_file_low" value=""/>
 				<button label="参照..." name="lod_browse_low"/>
 				<combo_box name="lod_mode_low">
 					<item name="Triangle Limit" label="三角形の限度数" value="三角形の限度数"/>
@@ -189,7 +184,6 @@
 				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
-				<text initial_value="" name="low_status" value=""/>
 				<text initial_value="最低" name="lowest_label" value="最低"/>
 				<combo_box name="lod_source_lowest">
 					<item name="Load from file" label="ファイルから読み込む" value="ファイルから読み込む"/>
@@ -198,7 +192,6 @@
 					<item name="MeshOptSloppy" label="適当に生成" value="MeshOptSloppy"/>
 					<item name="Use LoD above" label="上記のLoDを使用" value="上記のLoDを使用"/>
 				</combo_box>
-				<line_editor initial_value="" name="lod_file_lowest" value=""/>
 				<button label="参照..." name="lod_browse_lowest"/>
 				<combo_box name="lod_mode_lowest">
 					<item name="Triangle Limit" label="三角形の限度数" value="三角形の限度数"/>
@@ -206,7 +199,6 @@
 				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>
-				<text initial_value="" name="lowest_status" value=""/>
 				<check_box label="ノーマルの作成" name="gen_normals"/>
 				<text initial_value="折れ角度:" name="crease_label" value="折れ角度:"/>
 				<spinner name="crease_angle" value="75"/>
@@ -239,7 +231,6 @@
 							ファイルから
 						</combo_item>
 					</combo_box>
-					<line_editor value="" name="physics_file"/>
 					<button name="physics_browse" label="参照..."/>
 				</panel>
 				<panel name="physics analysis">
@@ -375,10 +366,10 @@
 				</text>
 				<text name="price_breakdown">
 					[STREAMING]
-										[PHYSICS]
-										[INSTANCES]
-										[TEXTURES]
-										[MODEL]
+					[PHYSICS]
+					[INSTANCES]
+					[TEXTURES]
+					[MODEL]
 				</text>
 			</panel>
 			<panel name="physics_costs_panel">
@@ -392,8 +383,8 @@
 				</text>
 				<text name="physics_breakdown">
 					[PCH]
-										[PM]
-										[PHU]
+					[PM]
+					[PHU]
 				</text>--&gt;</panel>
 			<text name="warning_title">
 				ご注意:

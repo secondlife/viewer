@@ -3,5 +3,4 @@
 	<text name="object_name">
 		無名のオブジェクト
 	</text>
-	<button name="hide_btn" label=""/>
 </panel>

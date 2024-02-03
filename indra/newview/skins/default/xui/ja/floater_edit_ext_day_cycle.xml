@@ -106,7 +106,6 @@
 		</layout_panel>
 		<layout_panel name="buttons">
 			<button label="保存" name="save_btn"/>
-			<button name="btn_flyout" label=""/>
 			<button label="キャンセル" name="cancel_btn"/>
 		</layout_panel>
 	</layout_stack>

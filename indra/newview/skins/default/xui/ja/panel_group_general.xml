@@ -2,8 +2,8 @@
 <panel label="一般" name="general_tab">
 	<panel.string name="help_text">
 		「一般」タブには、メンバー一覧、設定、メンバーのオプションなど、このグループに関する一般的な情報が記されています。
-				
-				オプションにマウスカーソルを当てると詳しい説明が表示されます。
+		
+		オプションにマウスカーソルを当てると詳しい説明が表示されます。
 	</panel.string>
 	<panel.string name="group_info_unchanged">
 		一般的なグループ情報が変更されました
@@ -12,7 +12,7 @@
 		メンバーのデータを検索
 	</panel.string>
 	<panel name="group_info_top">
-		<texture_picker label="" name="insignia" tool_tip="クリックして画像を選択"/>
+		<texture_picker name="insignia" tool_tip="クリックして画像を選択"/>
 		<text name="prepend_founded_by">
 			創設者:
 		</text>

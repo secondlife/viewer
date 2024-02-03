@@ -34,7 +34,7 @@
 		<layout_panel name="scroll_layout_panel">
 			<scroll_container name="profile_scroll">
 				<panel name="info_scroll_content_panel">
-					<icon name="edit_icon" label="" tool_tip="クリックして画像を選択"/>
+					<icon name="edit_icon" tool_tip="クリックして画像を選択"/>
 					<layout_stack name="info_panel">
 						<layout_panel name="main_info_panel">
 							<text_editor name="classified_name">
@@ -81,7 +81,6 @@
 						</text>
 						<button name="set_to_curr_location_btn" label="現在の場所に設定"/>
 						<text name="category_label" value="カテゴリ:"/>
-						<combo_box name="category_edit" label=""/>
 						<text name="content_type_label" value="内容の種類:"/>
 						<icons_combo_box name="content_type_edit" label="一般コンテンツ">
 							<icons_combo_box.item name="mature_ci" label="モデレートコンテンツ" value="Mature">

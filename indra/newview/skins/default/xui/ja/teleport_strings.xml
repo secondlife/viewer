@@ -21,7 +21,7 @@
 		</message>
 		<message name="NoHelpIslandTP">
 			ウェルカムアイランドにテレポートで戻ることはできません。
-						「Welcome Island Public」に行き再度チュートリアルを行ってください。
+			「Welcome Island Public」に行き再度チュートリアルを行ってください。
 		</message>
 		<message name="noaccess_tport">
 			残念ながら、そのテレポート目的地へのアクセス権がありません。
@@ -38,7 +38,7 @@
 		</message>
 		<message name="expired_region_handoff">
 			申し訳ございませんが、システムは地域間の移動を時間どおりに完了できませんでした。
-						お手数ですが、数分程度時間をおいてからやり直してください。
+			お手数ですが、数分程度時間をおいてからやり直してください。
 		</message>
 		<message name="preexisting_tport">
 			申し訳ございません。システムはテレポートを始めることができません。数分後にもう一度やり直してください。
@@ -54,8 +54,8 @@
 		</message>
 		<message name="RegionTPSpecialUsageBlocked">
 			リージョンに入ることができません。
-						「[REGION_NAME]」はスキルゲーミングリージョンであり、あなたはこのリージョンに入るための特定の基準を満たす必要があります。
-						詳しくは、[http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life スキルゲーミングのよくある質問]を参照してください。
+			「[REGION_NAME]」はスキルゲーミングリージョンであり、あなたはこのリージョンに入るための特定の基準を満たす必要があります。
+			詳しくは、[http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life スキルゲーミングのよくある質問]を参照してください。
 		</message>
 	</message_set>
 	<message_set name="progress">

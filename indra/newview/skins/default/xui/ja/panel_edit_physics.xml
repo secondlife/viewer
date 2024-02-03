@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_physics_panel">
-	<panel label="" name="accordion_panel">
+	<panel name="accordion_panel">
 		<accordion name="physics_accordion">
 			<accordion_tab name="physics_breasts_updown_tab" title="胸の弾み">
 			</accordion_tab>

@@ -33,7 +33,6 @@
 			</text>
 			<scroll_list name="membership_list">
 				<scroll_list.rows name="basic" value="基本(プレースホルダ)"/>
-				<scroll_list.rows name="plc2" value=""/>
 				<scroll_list.rows name="premium" value="プレミアム(プレースホルダ)"/>
 			</scroll_list>
 		</layout_panel>

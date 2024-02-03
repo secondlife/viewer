@@ -78,8 +78,6 @@
 				<button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする">
 				</button>
 				<scroll_list name="search_results">
-					<scroll_list.columns label="" name="icon"/>
-					<scroll_list.columns label="" name="sim_name"/>
 					<scroll_list.commit_callback function="WMap.SearchResult"/>
 				</scroll_list>
 				<text name="events_label">

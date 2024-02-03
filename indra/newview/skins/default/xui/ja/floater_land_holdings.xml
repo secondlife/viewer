@@ -8,7 +8,6 @@
 		<scroll_list.columns label="地域(リージョン)" name="location"/>
 		<scroll_list.columns label="タイプ" name="type"/>
 		<scroll_list.columns label="エリア" name="area"/>
-		<scroll_list.columns label="" name="hidden"/>
 	</scroll_list>
 	<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="この土地の中心にテレポート。"/>
 	<button label="マップ" label_selected="マップ" name="Show on Map" tool_tip="この土地をワールドマップに表示"/>

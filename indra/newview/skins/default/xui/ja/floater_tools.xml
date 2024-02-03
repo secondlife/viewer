@@ -90,7 +90,7 @@
 		<combo_box.item label="ローカル" name="Local"/>
 		<combo_box.item label="リファレンス" name="Reference"/>
 	</combo_box>
-	<button label="" name="Options..." tool_tip="グリッドオプションを表示します">
+	<button name="Options..." tool_tip="グリッドオプションを表示します">
 	</button>
 	<button name="ToolCube" tool_tip="キューブ"/>
 	<button name="ToolPrism" tool_tip="プリズム"/>
@@ -415,7 +415,7 @@
 			<spinner label="Z軸方向の力" name="FlexForceZ"/>
 			<check_box label="発光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します"/>
 			<color_swatch name="colorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
-			<texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択(遅延レンダリング有効時のみ)"/>
+			<texture_picker name="light texture control" tool_tip="クリックで投影画を選択(遅延レンダリング有効時のみ)"/>
 			<menu_button name="clipboard_light_params_btn" tool_tip="オプションをペースト"/>
 			<spinner label="輝度" name="Light Intensity"/>
 			<spinner label="FOV" name="Light FOV"/>

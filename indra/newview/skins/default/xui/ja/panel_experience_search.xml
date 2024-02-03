@@ -41,7 +41,6 @@
 			</icons_combo_box.item>
 		</icons_combo_box>
 		<scroll_list name="search_results">
-			<columns name="maturity" label=""/>
 			<columns name="experience_name" label="名前"/>
 			<columns name="owner" label="所有者"/>
 		</scroll_list>

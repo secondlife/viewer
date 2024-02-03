@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_web_content" title="">
+<floater name="floater_web_content">
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
 			<button tool_tip="前へ" name="back">

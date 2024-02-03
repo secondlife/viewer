@@ -21,12 +21,6 @@
 						<layout_panel name="top panel">
 							<button label="編集" name="edit_btn"/>
 						</layout_panel>
-						<layout_panel>
-							<text name="experience_title" value=""/>
-						</layout_panel>
-						<layout_panel name="description panel">
-							<expandable_text name="experience_description" value=""/>
-						</layout_panel>
 						<layout_panel name="maturity panel">
 							<text name="ContentRating">
 								レーティング:
@@ -93,7 +87,7 @@
 					<text name="edit_marketplace">
 						マーケットプレイスストア:
 					</text>
-					<check_box tool_tip="" label="体験を有効にする" name="edit_enable_btn"/>
+					<check_box label="体験を有効にする" name="edit_enable_btn"/>
 					<check_box label="検索で表示しない" name="edit_private_btn"/>
 					<text name="changes" value="体験が全てのリージョンに表示されるには数分かかる場合があります。"/>
 					<button label="戻る" name="cancel_btn"/>

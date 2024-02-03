@@ -20,7 +20,7 @@
 	</floater.string>
 	<floater.string name="multiple_parcels_selected">
 		複数の異なった区画を選択しました。
-				これより小さな範囲を選択してください。
+		これより小さな範囲を選択してください。
 	</floater.string>
 	<floater.string name="no_permission">
 		あなたはアクティブなグループ用の土地購入を許可されていません。
@@ -42,7 +42,7 @@
 	</floater.string>
 	<floater.string name="not_owned_by_you">
 		他の住人が所有する土地を選択しています。
-				もっと狭い範囲を選択してみてください。
+		もっと狭い範囲を選択してみてください。
 	</floater.string>
 	<floater.string name="processing">
 		購入処理中...

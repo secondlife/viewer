@@ -12,7 +12,6 @@
 	<scroll_list name="gesture_list">
 		<scroll_list.columns label="名前" name="name"/>
 		<scroll_list.columns label="チャット" name="trigger"/>
-		<scroll_list.columns label="" name="key"/>
 		<scroll_list.columns label="キー" name="shortcut"/>
 	</scroll_list>
 	<panel label="ボトムパネル" name="bottom_panel">

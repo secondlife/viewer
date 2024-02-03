@@ -13,7 +13,7 @@
 		<text name="currentlook_name">
 			長い名前のアウトフィット
 		</text>
-		<button label="" name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
+		<button name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
 	</panel>
 	<filter_editor label="アウトフィットをフィルタ" name="Filter"/>
 </panel>

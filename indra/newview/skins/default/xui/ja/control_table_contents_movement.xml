@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-	<rows enabled="false" name="move_actions" value="">
+	<rows enabled="false" name="move_actions">
 		<columns type="icontext" label="移動アクション" name="lst_action" value="Move_Walk_Off"/>
 	</rows>
 	<rows name="walk_to" value="walk_to">

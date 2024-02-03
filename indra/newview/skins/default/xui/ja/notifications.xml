@@ -912,7 +912,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-	<notification name="MediaFileDownloadUnsupported" label="">
+	<notification name="MediaFileDownloadUnsupported">
 		<tag>
 			confirm
 		</tag>ダウンロードをリクエストしたファイルは、[SECOND_LIFE]でサポートされていません。
@@ -1918,8 +1918,8 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 	</notification>
 	<notification name="DisplaySetToRecommendedGPUChange">
 		グラフィックの変更により、画面設定は推奨レベルに設定されました。
-				「[LAST_GPU]」から
-				「[THIS_GPU]」まで
+		「[LAST_GPU]」から
+		「[THIS_GPU]」まで
 	</notification>
 	<notification name="DisplaySetToRecommendedFeatureChange">
 		レンダリングサブシステムの変更により、画面設定は推奨レベルに設定されました。
@@ -2211,7 +2211,7 @@ SHA1フィンガープリント: [MD5_DIGEST]
 	</notification>
 	<notification name="CantSetBuyObject">
 		オブジェクトが販売対象ではないため、オブジェクトの購入ができません。
-				販売対象のオブジェクトを指定してもう一度試してください。
+		販売対象のオブジェクトを指定してもう一度試してください。
 	</notification>
 	<notification name="FinishedRawDownload">
 		未加工の地形ファイルをダウンロードしました:
@@ -3580,7 +3580,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="CapsKeyOn">
 		CapsLockキーが有効になっています。
-				パスワードに影響するかもしれません。
+		パスワードに影響するかもしれません。
 	</notification>
 	<notification name="NotecardMissing">ノートカードがデータベースにありません。
     <tag>
@@ -3806,7 +3806,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="PushRestricted">
 		このエリアでのプッシュは禁止されています。
-				土地所有者以外は他人をプッシュすることはできません。
+		土地所有者以外は他人をプッシュすることはできません。
 	</notification>
 	<notification name="NoVoice">このエリアでのボイスチャットは無効になっています。
 音声で誰かと話ことはできません。
@@ -3984,8 +3984,8 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="GodMessage">
 		[NAME]
-				
-				[MESSAGE]
+		
+		[MESSAGE]
 	</notification>
 	<notification name="JoinGroup">
 		<tag>
@@ -4105,11 +4105,11 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="RegionRestartMinutes">
 		このリージョン「[NAME]」は、[SECONDS]分後に再起動されます。
-				このまま、このリージョンに留まっているとログアウトされます。
+		このまま、このリージョンに留まっているとログアウトされます。
 	</notification>
 	<notification name="RegionRestartSeconds">
 		このリージョン「[NAME]」は、[SECONDS]秒後に再起動されます。
-				このまま、このリージョンに留まっているとログアウトされます。
+		このまま、このリージョンに留まっているとログアウトされます。
 	</notification>
 	<notification name="LoadWebPage">のWebページ[URL] を開きますか?
 
@@ -4249,13 +4249,13 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 あなたのL$残高は、処理が完了するとアップデートされます。処理に20分以上かかった場合、お取り引きがキャンセルされることがあります。その場合は、購入金額はあなたの US$残高に追加されます。[https://secondlife.com/my/account/?lang=ja-JP マイアカウント]の取引履歴ページで、支払状況を確認できます。</notification>
 	<notification name="FirstOverrideKeys">
 		あなたの移動キーをオブジェクトが操作しています。
-				矢印かAWSDのキーで動作を確認してください。
-				銃などのオブジェクトだと、一人称視点に変更する必要があります。
-				「M」キーを押して変更します。
+		矢印かAWSDのキーで動作を確認してください。
+		銃などのオブジェクトだと、一人称視点に変更する必要があります。
+		「M」キーを押して変更します。
 	</notification>
 	<notification name="FirstSandbox">
 		ここはサンドボックスエリアです。住人が制作を学ぶことができます。
-				ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、インベントリに入れてお持ち帰りするのをお忘れなく。
+		ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、インベントリに入れてお持ち帰りするのをお忘れなく。
 	</notification>
 	<notification name="MaxListSelectMessage">
 		このリストから[MAX_SELECT]個までのアイテムを選択できます。
@@ -4795,10 +4795,10 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 	</notification>
 	<notification name="HintSpeak" label="話す">
 		「スピーカー」ボタンをクリックすると、マイクのオン・オフが切り替わります。
-				
-				上矢印をクリックすると、ボイスコントロールパネルが表示されます。
-				
-				「スピーカー」ボタンを非表示にすると、ボイス機能も無効になります。
+		
+		上矢印をクリックすると、ボイスコントロールパネルが表示されます。
+		
+		「スピーカー」ボタンを非表示にすると、ボイス機能も無効になります。
 	</notification>
 	<notification name="HintDestinationGuide" label="世界を探検">
 		行き先ガイドには数多くの探索場所が含まれます。どこか行きたい場所をみつけたら、テレポートして探索に出かけましょう。
@@ -4809,7 +4809,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 	<notification name="HintMove" label="移動">
 		歩行や走行は、「移動」パネルを開き、矢印コントロールによって操作します。この操作はキーボードの矢印キーで実行することも可能です。
 	</notification>
-	<notification name="HintMoveClick" label="">1, クリックで移動
+	<notification name="HintMoveClick">1, クリックで移動
 地面をクリックすると、その場所まで歩きます。
 
 2,クリック・ドラッグで視界を回転
@@ -4909,7 +4909,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			<button name="cancel" text="キャンセル"/>
 		</form>
 	</notification>
-	<notification name="NoClassifieds" label="">
+	<notification name="NoClassifieds">
 		<tag>
 			fail
 		</tag>
@@ -4917,7 +4917,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>クラシファイド広告の作成と編集は、拡張モードでのみ利用できます。終了してモードを変更しますか?モードはログイン画面で選択できます。<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoGroupInfo" label="">
+	<notification name="NoGroupInfo">
 		<tag>
 			fail
 		</tag>
@@ -4925,7 +4925,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>グループの作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか?モードはログイン画面で選択できます。<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoPlaceInfo" label="">
+	<notification name="NoPlaceInfo">
 		<tag>
 			fail
 		</tag>
@@ -4933,7 +4933,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>場所のプロフィールの表示は拡張モードでのみ利用できます。終了してモードを変更しますか?モードはログイン画面で選択できます。<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoPicks" label="">
+	<notification name="NoPicks">
 		<tag>
 			fail
 		</tag>
@@ -4941,7 +4941,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>ピックの作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか?モードはログイン画面で選択できます。<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoWorldMap" label="">
+	<notification name="NoWorldMap">
 		<tag>
 			fail
 		</tag>
@@ -4949,7 +4949,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>ワールドマップの表示は拡張モードでのみ利用できます。終了してモードを変更しますか?モードはログイン画面で選択できます。<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoVoiceCall" label="">
+	<notification name="NoVoiceCall">
 		<tag>
 			fail
 		</tag>
@@ -4957,7 +4957,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>ボイスコールは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか?<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoAvatarShare" label="">
+	<notification name="NoAvatarShare">
 		<tag>
 			fail
 		</tag>
@@ -4965,7 +4965,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>共有は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか?<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoAvatarPay" label="">
+	<notification name="NoAvatarPay">
 		<tag>
 			fail
 		</tag>
@@ -4973,7 +4973,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>他の住人への支払いは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか?<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoInventory" label="">
+	<notification name="NoInventory">
 		<tag>
 			fail
 		</tag>
@@ -4981,7 +4981,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>インベントリの表示は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか?<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoAppearance" label="">
+	<notification name="NoAppearance">
 		<tag>
 			fail
 		</tag>
@@ -4989,7 +4989,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>容姿エディターは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか?<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="NoSearch" label="">
+	<notification name="NoSearch">
 		<tag>
 			fail
 		</tag>
@@ -4997,7 +4997,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			confirm
 		</tag>検索は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか?<usetemplate name="okcancelbuttons" yestext="終了" notext="終了しない"/>
 	</notification>
-	<notification name="ConfirmHideUI" label="">
+	<notification name="ConfirmHideUI">
 		<tag>
 			confirm
 		</tag>この操作により全てのメニュー項目とボタンが非表示になります。再び表示するには、[SHORTCUT]をもう一度クリックしてください。<usetemplate name="okcancelignore" yestext="OK" notext="キャンセル" ignoretext="UIを非表示前に確認"/>

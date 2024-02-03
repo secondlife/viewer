@@ -7,7 +7,7 @@
 		<panel name="scroll_content_panel">
 			<text name="label">
 				ベークド
-								テクスチャ
+				テクスチャ
 			</text>
 			<text name="composite_label">
 				合成テクスチャ

@@ -361,7 +361,7 @@
 				<combo_box.item label="レンタル" name="item13"/>
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
-			<check_box label="モデレートコンテンツ" name="MatureCheck" tool_tip=""/>
+			<check_box label="モデレートコンテンツ" name="MatureCheck"/>
 			<text name="Snapshot:">
 				スナップショット:
 			</text>

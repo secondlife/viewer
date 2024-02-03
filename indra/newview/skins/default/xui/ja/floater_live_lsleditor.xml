@@ -28,6 +28,5 @@
 	<check_box initial_value="true" label="実行中" name="running"/>
 	<check_box initial_value="true" label="Mono" name="mono"/>
 	<check_box label="体験を使用:" name="enable_xp"/>
-	<combo_box label="" name="Experiences..."/>
 	<button label="&gt;" name="view_profile"/>
 </floater>
