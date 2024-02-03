@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater title="テスト用ウィンドウ" name="floater_test_widgets">
+	<floater.string name="sample_string" value="サンプル文字列"/>
+	<floater.string name="other_string" value="その他の文字列"/>
+	<menu_bar tool_tip="MENU" name="test_menu_bar">
+		<menu label="メニュー" name="Menu">
+			<menu_item_call label="メニュー1" name="test_menu_item_1"/>
+			<menu_item_call label="メニュー2" name="test_menu_item_2"/>
+		</menu>
+	</menu_bar>
+	<text>
+        ウィジェットのリストについては、http://wiki.secondlife.com/wiki/XUI_Reference を参照してください。
+    </text>
+	<button label="ボタン" name="test_button" tool_tip="ボタン"/>
+	<flyout_button label="フライアウト" name="fly_btn" tool_tip="フライアウトボタン">
+		<flyout_button.item label="アイテム1" value="叫ぶ"/>
+		<flyout_button.item label="アイテム2" value="話す"/>
+		<flyout_button.item label="アイテム3" value="小声で話す"/>
+	</flyout_button>
+	<check_box label="チェックボックス" tool_tip="チェックボックス" name="test_checkbox"/>
+	<check_box label="チェックボックス(無効)" tool_tip="チェックボックス(無効)" name="test_checkbox_disabled"/>
+	<combo_box label="コンボBOX" tool_tip="コンボBOX" name="test_combo_box">
+		<combo_box.item name="item1" label="コンボBOX アイテム1"/>
+		<combo_box.item name="item2" label="コンボBOX アイテム2"/>
+	</combo_box>
+	<icon tool_tip="アイコン" name="test_icon"/>
+	<line_editor name="test_line_editor" tool_tip="ラインエディタ">
+		ラインエディタのサンプルテキスト
+	</line_editor>
+	<filter_editor label="検索語句を入力" name="search editor" tool_tip="エディタを検索"/>
+	<progress_bar name="test_progress_bar" tool_tip="進行状況バー"/>
+	<stat_view label="統計ビュー" name="axis_view" tool_tip="statビュー">
+		<stat_bar label="テスト統計" name="test_stat_bar"/>
+	</stat_view>
+	<radio_group name="size_radio_group" tool_tip="radio group">
+		<radio_item label="ラジオ1" name="small_radio_item"/>
+		<radio_item label="ラジオ2" name="large_radio_item"/>
+	</radio_group>
+	<scroll_list tool_tip="スクロール一覧">
+		<scroll_list.columns name="first_column" label="A列"/>
+		<scroll_list.columns name="second_column" label="B列"/>
+		<row>
+			<column>
+				短いテキスト
+			</column>
+			<column>
+				より短いテキスト
+			</column>
+		</row>
+		<row>
+			<column>
+				これは少し長いテキストです
+			</column>
+			<column>
+				そしてここにさらに長いテキストがあります
+			</column>
+		</row>
+	</scroll_list>
+	<slider label="スライダー" name="test_slider" tool_tip="スライダー"/>
+	<spinner label="スピナー" name="test_spinner" tool_tip="スピナー"/>
+	<text name="test_text" tool_tip="テキスト">
+        テキスト(下線)
+    </text>
+	<text name="test_text" tool_tip="テキスト">
+        ここに短縮されたテキストが表示されます
+    </text>
+	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
+        テキストエディタ
+    </text_editor>
+	<text name="test_text_box" tool_tip="テキストBOX">
+        複数行の
+        テキスト ボックス。
+        行数が
+        多すぎて
+        実際に
+        収まりません。
+    </text>
+	<tab_container name="group_tab_container" tool_tip="tab container">
+		<panel label="Tab 1 - 色" name="panel2">
+			<color_swatch label="色見本1" name="swatch1" tool_tip="色見本: クリックしてカラーピッカーを開く"/>
+			<color_swatch label="色見本2" name="swatch2" tool_tip="色見本: クリックしてカラーピッカーを開く"/>
+			<text name="test_text10" tool_tip="テキスト">
+                等幅ボタン フライアウトチェックボックス
+            </text>
+			<text name="test_text10" tool_tip="テキスト"/>
+			<text name="test_text11" tool_tip="テキスト"/>
+			<text name="test_text12" tool_tip="テキスト"/>
+			<text name="test_text13" tool_tip="テキスト"/>
+		</panel>
+		<panel label="Tab 2 - チェックボックス" name="tab2"/>
+	</tab_container>
+</floater>

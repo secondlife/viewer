@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_new_feature_notification" title="新機能">
+	<floater.string name="title_txt_inventory">
+		新規インベントリ機能
+	</floater.string>
+	<floater.string name="description_txt_inventory">
+		インベントリ アイテムにプレビュー画像を追加し、独自のウィンドウでフォルダを表示できるようになりました。
+		詳細については、こちら [https://community.secondlife.com/blogs/entry/13637-new-features-inventory-item-preview-and-single-folder-view/ ブログ投稿] をご覧ください。
+	</floater.string>
+	<text name="title_txt">
+        新機能
+    </text>
+	<text name="description_txt">
+        機能の説明
+    </text>
+	<button label="承知しました" name="close_btn"/>
+</floater>
