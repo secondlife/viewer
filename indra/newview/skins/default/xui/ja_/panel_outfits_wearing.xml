@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Wearing">
+	<panel.string name="no_attachments">
+		着用している装着物はありません。
+	</panel.string>
+	<accordion name="wearables_accordion">
+		<accordion_tab name="tab_wearables" title="着用物"/>
+		<accordion_tab name="tab_temp_attachments" title="一時的な装着物"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<menu_button name="options_gear_btn" tool_tip="追加オプションを表示"/>
+	</panel>
+</panel>

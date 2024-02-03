@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="im_header">
+	<text name="user_name" value="テスト文字列 無視してください"/>
+</panel>

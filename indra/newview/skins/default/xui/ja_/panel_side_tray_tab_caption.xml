@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="sidetray_tab_panel">
+	<text name="sidetray_tab_title" value="サイドパネル"/>
+	<button name="undock" tool_tip="切り離す"/>
+	<button name="dock" tool_tip="ドッキング"/>
+	<button name="show_help" tool_tip="ヘルプを表示"/>
+</panel>

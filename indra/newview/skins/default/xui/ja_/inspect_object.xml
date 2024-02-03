@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="inspect_object">
+	<string name="Creator">
+		制作者: [CREATOR]
+	</string>
+	<string name="CreatorAndOwner">
+		[CREATOR]によるチェック
+		[OWNER]によるチェック
+	</string>
+	<string name="PriceFree">
+		無料です!
+	</string>
+	<string name="Touch">
+		触る
+	</string>
+	<string name="Sit">
+		座る
+	</string>
+	<icon name="secure_browsing" tool_tip="セキュアブラウジング"/>
+	<button label="購入" name="buy_btn"/>
+	<button label="支払う" name="pay_btn"/>
+	<button label="コピーを取る" name="take_free_copy_btn"/>
+	<button label="触る" name="touch_btn"/>
+	<button label="座る" name="sit_btn"/>
+	<button label="開く" name="open_btn"/>
+	<button label="詳細" name="more_info_btn"/>
+</floater>

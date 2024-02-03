@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login" focus_root="true">
+	<panel.string name="forgot_password_url">
+		https://secondlife.com/my/account/request.php?lang=ja-JP
+	</panel.string>
+	<panel.string name="sign_up_url">
+		https://join.secondlife.com/?lang=ja
+	</panel.string>
+	<layout_stack name="ui_stack">
+		<layout_panel name="ui_container">
+			<combo_box label="ユーザ名" tool_tip="登録時に自分で選んだユーザ名(例: bobsmith12、Steller Sunshineなど)" name="username_combo"/>
+			<line_editor name="password_edit" label="パスワード"/>
+			<combo_box label="お気に入りの場所" name="start_location_combo">
+				<combo_box.item label="最後にいた場所" name="MyLastLocation"/>
+				<combo_box.item label="マイホーム" name="MyHome" value="ﾏｲﾎｰﾑ"/>
+			</combo_box>
+			<button label="ログイン" name="connect_btn"/>
+			<text name="sign_up_text">
+                サインアップ
+            </text>
+			<check_box label="名前を記憶" name="remember_name" tool_tip="既に記憶されているユーザは「ミー」&gt;「初期設定」&gt;「詳細設定」&gt;「記憶されたユーザ名」から削除できます。"/>
+			<check_box label="パスワードを記憶" name="remember_password"/>
+			<combo_box label="グリッドを選択" name="server_combo"/>
+			<text name="forgot_password_text">
+                パスワードに関して
+            </text>
+		</layout_panel>
+	</layout_stack>
+</panel>

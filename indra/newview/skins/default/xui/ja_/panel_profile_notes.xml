@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_notes" label="メモとプライバシー">
+	<text name="status_message" value="このアバターのプライベートメモ:"/>
+	<button name="notes_save_changes" label="save"/>
+	<button name="notes_discard_changes" label="処分する"/>
+</panel>

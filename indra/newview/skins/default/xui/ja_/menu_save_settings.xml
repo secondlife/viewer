@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="save_settings_menu">
+	<menu_item_check name="save_settings" label="保存"/>
+	<menu_item_check name="save_as_new_settings" label="名前をつけて保存"/>
+	<menu_item_check name="commit_changes" label="変更をコミット"/>
+	<menu_item_check name="apply_local" label="自分にのみ適用"/>
+	<menu_item_check name="apply_parcel" label="区画に適用"/>
+	<menu_item_check name="apply_region" label="地域(リージョン)に適用"/>
+</toggleable_menu>

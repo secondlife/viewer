@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="もの" name="objects panel">
+	<panel name="sidepanel_inventory_panel">
+		<layout_stack name="inventory_layout_stack">
+			<layout_panel name="inbox_layout_panel">
+				<panel name="marketplace_inbox">
+					<string name="InboxLabelWithArg">
+						受け取ったアイテム([NUM]個)
+					</string>
+					<string name="InboxLabelNoArg">
+						受け取ったアイテム
+					</string>
+					<button label="受け取ったアイテム" name="inbox_btn"/>
+					<text name="inbox_fresh_new_count">
+                        [NUM]個の新アイテム
+                    </text>
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
+						<text name="inbox_inventory_placeholder">
+                            マーケットプレイスから購入した商品はここに配達されます。
+                        </text>
+					</panel>
+				</panel>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

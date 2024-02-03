@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_experience_search" label="検索">
+	<string name="not_found">
+		「[TEXT]」は見つかりませんでした。
+	</string>
+	<string name="no_results">
+		検索結果: なし
+	</string>
+	<string name="searching">
+		検索中...
+	</string>
+	<string name="loading">
+		読込中...
+	</string>
+	<panel name="search_panel">
+		<text name="lbl name part">
+            名前の一部を入力してください:
+        </text>
+		<button label="進む" name="find"/>
+		<text name="lbl max content rating">
+            コンテンツの最大レーティング:
+        </text>
+		<icons_combo_box label="モデレート" name="maturity">
+			<icons_combo_box.item label="アダルト" name="Adult">
+				<item.columns value="Parcel_R_Light"/>
+			</icons_combo_box.item>
+			<icons_combo_box.item label="モデレート" name="Mature">
+				<item.columns value="Parcel_M_Light"/>
+			</icons_combo_box.item>
+			<icons_combo_box.item label="一般" name="PG">
+				<item.columns value="Parcel_PG_Light"/>
+			</icons_combo_box.item>
+		</icons_combo_box>
+		<scroll_list name="search_results">
+			<columns name="experience_name" label="名前"/>
+			<columns name="owner" label="所有者"/>
+		</scroll_list>
+		<button label="キャンセル" name="cancel_btn"/>
+		<button label="プロフィール表示" name="profile_btn"/>
+		<button label="⇦" name="left_btn"/>
+		<button label="⇨" name="right_btn"/>
+	</panel>
+</panel>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Email Popup">
+	<menu_item_call label="外部クライアントで電子メールを作成" name="email_open_external"/>
+	<menu_item_call label="電子メールをクリップボードにコピー" name="email_copy"/>
+</context_menu>

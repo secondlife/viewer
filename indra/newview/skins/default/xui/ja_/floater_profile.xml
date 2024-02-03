@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarinfo" title="プロフィール">
+	<panel name="panel_profile_view">
+		<tab_container name="panel_profile_tabs">
+			<panel name="panel_profile_secondlife" label="Second Life"/>
+			<panel name="panel_profile_web" label="Web"/>
+			<panel name="panel_profile_picks" label="選択"/>
+			<panel name="panel_profile_classifieds" label="クラシファイド広告"/>
+			<panel name="panel_profile_firstlife" label="リアルライフ(現実世界)"/>
+			<panel name="panel_profile_notes" label="メモ"/>
+		</tab_container>
+	</panel>
+</floater>

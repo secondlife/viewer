@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="avatar_list_item">
+	<string name="FormatSeconds">
+		[COUNT]秒
+	</string>
+	<string name="FormatMinutes">
+		[COUNT]分
+	</string>
+	<string name="FormatHours">
+		[COUNT]時間
+	</string>
+	<string name="FormatDays">
+		[COUNT]日
+	</string>
+	<string name="FormatWeeks">
+		[COUNT]週間
+	</string>
+	<string name="FormatMonths">
+		[COUNT]ヶ月
+	</string>
+	<string name="FormatYears">
+		[COUNT]年
+	</string>
+	<text name="avatar_name" value="(読込中)"/>
+	<text name="last_interaction" value="0秒"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集できます"/>
+	<icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトを編集・削除・取得できます"/>
+	<icon tool_tip="このフレンドはマップ上であなたのいる場所を探すことができます。" name="permission_map_icon"/>
+	<icon name="permission_online_icon" tool_tip="このフレンドは、あなたのオンライン状況を確認できます。"/>
+	<button name="info_btn" tool_tip="詳細"/>
+	<button name="profile_btn" tool_tip="プロフィールを表示"/>
+	<output_monitor name="speaking_indicator" tool_tip="ボイスのボリューム"/>
+</panel>
