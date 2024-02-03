@@ -152,8 +152,13 @@ public:
     static const State& getState();
 
     // these methods for accepting input from keyboard
-    static void setInterpretControlActionsAsGameControl(bool include);
-    static bool getInterpretControlActionsAsGameControl();
+    static void enableSendToServer(bool enable);
+    static void enableControlAvatar(bool enable);
+    static void enableReceiveControlFromAvatar(bool enable);
+
+    static bool willSendToServer();
+    static bool willControlAvatar();
+    static bool willReceiveControlFromAvatar();
 
     // "Action" refers to avatar motion actions (e.g. push_forward, slide_left, etc)
     // this is a roundabout way to convert keystrokes to GameControl input.

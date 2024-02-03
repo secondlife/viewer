@@ -2578,10 +2578,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableGameControl</key>
+    <key>GameControlToServer</key>
     <map>
       <key>Comment</key>
-      <string>Transmit game controller input to server</string>
+      <string>Transmit game controller data to server</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2589,10 +2589,21 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>InterpretControlActionsAsGameControl</key>
+    <key>GameControlToAvatar</key>
     <map>
       <key>Comment</key>
-      <string>Interpret keyboard Control Actions as GameControl Data</string>
+      <string>GameControl data moves avatar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AvatarToGameControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar movement produces GameControl data</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

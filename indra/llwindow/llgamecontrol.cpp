@@ -304,7 +304,9 @@ namespace
     U64 g_lastSend = 0;
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
-    bool g_interpretActions = false;
+    bool g_sendToServer = false;
+    bool g_controlAvatar = false;
+    bool g_controlFromAvatar = false;
 
     constexpr U8 MAX_AXIS = 5;
     constexpr U8 MAX_BUTTON = 31;
@@ -501,7 +503,7 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
     // finish by accumulating "external" state (if enabled)
     U32 old_buttons = final_state.mButtons;
     final_state.mButtons = mButtonAccumulator;
-    if (g_interpretActions)
+    if (g_controlFromAvatar)
     {
         // accumulate from mExternalState
         final_state.mButtons |= mExternalState.mButtons;
@@ -553,17 +555,24 @@ U32 LLGameControllerManager::computeInternalActionFlags()
 {
     // add up device inputs
     accumulateInternalState();
-    return mTranslator.computeInternalActionFlags(mAxesAccumulator, mButtonAccumulator);
+    if (g_controlAvatar)
+    {
+        return mTranslator.computeInternalActionFlags(mAxesAccumulator, mButtonAccumulator);
+    }
+    return 0;
 }
 
 // static
 void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
 {
-    U32 active_flags = action_flags & mTranslator.getMappedFlags();
-    if (active_flags != mLastActionFlags)
+    if (g_controlFromAvatar)
     {
-        mLastActionFlags = active_flags;
-        mExternalState = mTranslator.computeStateFromActionFlags(action_flags);
+        U32 active_flags = action_flags & mTranslator.getMappedFlags();
+        if (active_flags != mLastActionFlags)
+        {
+            mLastActionFlags = active_flags;
+            mExternalState = mTranslator.computeStateFromActionFlags(action_flags);
+        }
     }
 }
 
@@ -747,15 +756,39 @@ const LLGameControl::State& LLGameControl::getState()
 }
 
 // static
-void LLGameControl::setInterpretControlActionsAsGameControl(bool include)
+void LLGameControl::enableSendToServer(bool enable)
 {
-    g_interpretActions = include;
+    g_sendToServer = enable;
 }
 
 // static
-bool LLGameControl::getInterpretControlActionsAsGameControl()
+void LLGameControl::enableControlAvatar(bool enable)
 {
-    return g_interpretActions;
+    g_controlAvatar = enable;
+}
+
+// static
+void LLGameControl::enableReceiveControlFromAvatar(bool enable)
+{
+    g_controlFromAvatar = enable;
+}
+
+// static
+bool LLGameControl::willSendToServer()
+{
+    return g_sendToServer;
+}
+
+// static
+bool LLGameControl::willControlAvatar()
+{
+    return g_controlAvatar;
+}
+
+// static
+bool LLGameControl::willReceiveControlFromAvatar()
+{
+    return g_controlFromAvatar;
 }
 
 // static

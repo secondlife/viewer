@@ -4967,14 +4967,22 @@ void LLAgent::renderAutoPilotTarget()
 
 void LLAgent::setExternalActionFlags(U32 outer_flags)
 {
-    // save these flags for later, for when we're ready
-    // to actually send an AgentUpdate packet
-    mExternalActionFlags = outer_flags;
-	mbFlagsDirty = TRUE;
+    if (LLGameControl::willControlAvatar())
+    {
+        // save these flags for later, for when we're ready
+        // to actually send an AgentUpdate packet
+        mExternalActionFlags = outer_flags;
+	    mbFlagsDirty = TRUE;
+    }
 }
 
 void LLAgent::applyExternalActionFlags()
 {
+    if (! LLGameControl::willControlAvatar())
+    {
+        return;
+    }
+
     S32 direction = (S32)(mExternalActionFlags & AGENT_CONTROL_AT_POS)
         - (S32)((mExternalActionFlags & AGENT_CONTROL_AT_NEG) >> 1);
     if (direction != 0)
