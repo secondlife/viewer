@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="im_panel" name="im_panel">
+<panel name="im_panel">
 	<string name="message_max_lines_count">
 		6
 	</string>
 	<panel label="IMのヘッダ" name="im_header">
 		<text name="user_name" value="テスト文字列 無視してください"/>
-		<text name="time_box" value="23:30"/>
 	</panel>
 </panel>

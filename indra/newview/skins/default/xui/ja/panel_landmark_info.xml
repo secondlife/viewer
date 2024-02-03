@@ -18,25 +18,21 @@
 	<string name="acquired_date">
 		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
-	<string name="icon_PG" value="Parcel_PG_Dark"/>
-	<string name="icon_M" value="Parcel_M_Dark"/>
-	<string name="icon_R" value="Parcel_R_Dark"/>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<text name="parcel_title" value="SampleParcel, Name Long"/>
 			<text name="region_title">
-				地域(リージョン): [REGIONAMEPOS]
-			</text>
+                地域(リージョン): [REGIONAMEPOS]
+            </text>
 			<text name="parcel_owner_label" value="所有者:"/>
 			<text name="parcel_owner" value="一時的な所有者"/>
 			<expandable_text name="description" value="Du waltz die spritz"/>
 			<text name="maturity_value" value="不明"/>
 			<panel name="landmark_info_panel">
 				<text name="this_landmark">
-					ランドマーク:
-				</text>
+                    ランドマーク:
+                </text>
 				<text name="owner_label" value="所有者:"/>
 				<text name="creator_label" value="作成者:"/>
 				<text name="created_label" value="作成日:"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experience_list_item" label="体験一覧">
 	<text name="experience_name">
-		ダミー名
-	</text>
+        ダミー名
+    </text>
 </panel>

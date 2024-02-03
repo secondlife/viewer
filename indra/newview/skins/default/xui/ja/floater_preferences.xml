@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Preferences" title="初期設定">
-	<button label="OK" label_selected="OK" name="OK">
-	</button>
-	<button label="キャンセル" label_selected="キャンセル" name="Cancel">
-	</button>
+	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<panel name="search_panel">
-		<search_editor label="設定を検索" name="search_prefs_edit" tool_tip="検索したい内容をここに入力してください。設定の名前またはコメントに部分的に一致する結果が表示されます。">
-		</search_editor>
+		<search_editor label="設定を検索" name="search_prefs_edit" tool_tip="検索したい内容をここに入力してください。設定の名前またはコメントに部分的に一致する結果が表示されます。"/>
 	</panel>
 	<tab_container name="pref core">
 		<panel label="一般" name="general"/>

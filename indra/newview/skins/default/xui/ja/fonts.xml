@@ -46,30 +46,6 @@
 			<file>
 				ヒラギノ角ゴ ProN W3.otf
 			</file>
-			<file>
-				AppleGothic.dfont
-			</file>
-			<file>
-				AppleGothic.ttf
-			</file>
-			<file>
-				AppleSDGothicNeo-Regular.otf
-			</file>
-			<file>
-				AppleSDGothicNeo.ttc
-			</file>
-			<file>
-				华文细黑.ttf
-			</file>
-			<file>
-				PingFang.ttc
-			</file>
-			<file>
-				STIXGeneral.otf
-			</file>
-			<file>
-				Thonburi.ttc
-			</file>
 		</os>
 	</font>
 	<font name="SansSerifBold" comment="Name of bold sans-serif font">
@@ -91,30 +67,10 @@
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
-		<os name="Windows">
-			<file>
-				arial.ttf
-			</file>
-		</os>
-		<os name="Mac">
-			<file>
-				Helvetica.dfont
-			</file>
-		</os>
 	</font>
 	<font name="SansSerif">
 		<file>
 			NotoSansCJKjp-Bold.otf
-		</file>
-	</font>
-	<font name="SansSerif">
-		<file>
-			DejaVuSans-Oblique.ttf
-		</file>
-	</font>
-	<font name="SansSerif">
-		<file>
-			DejaVuSans-BoldOblique.ttf
 		</file>
 	</font>
 	<font name="Monospace" comment="Name of monospace font">
@@ -122,41 +78,13 @@
 			NotoSansMonoCJKjp-Regular.otf
 		</file>
 	</font>
-	<font name="DejaVu" comment="Name of DejaVu font">
-		<file>
-			DejaVuSans.ttf
-		</file>
-	</font>
+	<font name="DejaVu" comment="Name of DejaVu font"/>
 	<font name="DejaVu">
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
 	</font>
-	<font name="DejaVu">
-		<file>
-			DejaVuSans-Oblique.ttf
-		</file>
-	</font>
-	<font name="DejaVu">
-		<file>
-			DejaVuSans-BoldOblique.ttf
-		</file>
-	</font>
-	<font name="Helvetica" comment="Name of Helvetica font">
-		<file>
-			DejaVuSans.ttf
-		</file>
-		<os name="Windows">
-			<file>
-				arial.ttf
-			</file>
-		</os>
-		<os name="Mac">
-			<file>
-				arial.ttf
-			</file>
-		</os>
-	</font>
+	<font name="Helvetica" comment="Name of Helvetica font"/>
 	<font name="Helvetica">
 		<file>
 			NotoSansCJKjp-Bold.otf
@@ -172,44 +100,7 @@
 			</file>
 		</os>
 	</font>
-	<font name="Helvetica">
-		<file>
-			DejaVuSans-Oblique.ttf
-		</file>
-		<os name="Windows">
-			<file>
-				ariali.ttf
-			</file>
-		</os>
-		<os name="Mac">
-			<file>
-				ariali.ttf
-			</file>
-		</os>
-	</font>
-	<font name="Helvetica">
-		<file>
-			DejaVuSans-BoldOblique.ttf
-		</file>
-		<os name="Windows">
-			<file>
-				arialbi.ttf
-			</file>
-		</os>
-		<os name="Mac">
-			<file>
-				arialbi.ttf
-			</file>
-		</os>
-	</font>
-	<font name="OverrideTest" comment="Name of font to test overriding">
-		<file>
-			times.ttf
-		</file>
-		<file>
-			DejaVuSans.ttf
-		</file>
-	</font>
+	<font name="OverrideTest" comment="Name of font to test overriding"/>
 	<font_size name="Monospace" comment="Size for monospaced font (points, or 1/72 of an inch)" size="8.0"/>
 	<font_size name="Huge" comment="Size of huge font (points, or 1/72 of an inch)" size="16.0"/>
 	<font_size name="Large" comment="Size of large font (points, or 1/72 of an inch)" size="10.6"/>

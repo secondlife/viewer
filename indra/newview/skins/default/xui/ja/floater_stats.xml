@@ -3,9 +3,8 @@
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view name="basic" label="基本">
-				<stat_bar name="fps" label="FPS" unit_label="fps"/>
-				<stat_bar name="frame_mean" label="フレーム(平均)" unit_label="ms"/>
-				<stat_bar name="frame_median" label="フレーム(中央値)" unit_label="ms"/>
+				<stat_bar name="frame_mean" label="フレーム(平均)"/>
+				<stat_bar name="frame_median" label="フレーム(中央値)"/>
 				<stat_bar name="framet_jitter" label="ジッタ"/>
 				<stat_bar name="bandwidth" label="受信したUDPデータ"/>
 				<stat_bar name="packet_loss" label="パケットロス"/>
@@ -35,7 +34,6 @@
 				</stat_view>
 				<stat_view name="memory" label="メモリ使用量">
 					<stat_bar name="LLTrace" label="LLトレース"/>
-					<stat_bar name="LLView" label="UI"/>
 					<stat_bar name="LLFontFreetype" label="フォント"/>
 					<stat_bar name="LLInventoryObject" label="インベントリ"/>
 					<stat_bar name="LLViewerObject" label="ビュアオブジェクト"/>
@@ -77,11 +75,11 @@
 				<stat_bar name="simactiveobjects" label="アクティブなオブジェクト"/>
 				<stat_bar name="simactivescripts" label="アクティブなスクリプト"/>
 				<stat_bar name="simpctscriptsrun" label="スクリプト実行"/>
-				<stat_bar name="simscripteps" label="スクリプトイベント" unit_label="eps"/>
+				<stat_bar name="simscripteps" label="スクリプトイベント"/>
 				<stat_view name="simpathfinding" label="経路探索">
 					<stat_bar name="simsimaistepmsec" label="AIステップ時間"/>
 					<stat_bar name="simsimskippedsilhouettesteps" label="スキップされたシルエットステップ" unit_label="毎秒"/>
-					<stat_bar name="simsimpctsteppedcharacters" label="更新されたキャラクター" unit_label="%"/>
+					<stat_bar name="simsimpctsteppedcharacters" label="更新されたキャラクター"/>
 				</stat_view>
 				<stat_bar name="siminpps" label="入力パケット" unit_label="パケット毎秒"/>
 				<stat_bar name="simoutpps" label="出力パケット" unit_label="パケット毎秒"/>

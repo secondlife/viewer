@@ -3,10 +3,10 @@
 	<string name="No Outfit" value="アウトフィットなし"/>
 	<string name="unsaved_changes" value="保存されていない変更"/>
 	<string name="now_editing" value="編集中"/>
-	<string name="folder_view_off" value="Hierarchy_View_Disabled" translate="false"/>
-	<string name="folder_view_on" value="Hierarchy_View_On" translate="false"/>
-	<string name="list_view_off" value="List_View_Disabled" translate="false"/>
-	<string name="list_view_on" value="List_View_On" translate="false"/>
+	<string name="folder_view_off" translate="false"/>
+	<string name="folder_view_on" translate="false"/>
+	<string name="list_view_off" translate="false"/>
+	<string name="list_view_on" translate="false"/>
 	<panel.string name="not_available">
 		(無し)
 	</panel.string>

@@ -7,9 +7,6 @@
 		[CREATOR]によるチェック
 		[OWNER]によるチェック
 	</string>
-	<string name="Price">
-		L$[AMOUNT]
-	</string>
 	<string name="PriceFree">
 		無料です!
 	</string>
@@ -19,17 +16,7 @@
 	<string name="Sit">
 		座る
 	</string>
-	<text name="object_creator">
-		by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-		owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-	</text>
-	<text name="price_text">
-		L$30,000
-	</text>
 	<icon name="secure_browsing" tool_tip="セキュアブラウジング"/>
-	<text name="object_media_url">
-		http://www.superdupertest.com
-	</text>
 	<button label="購入" name="buy_btn"/>
 	<button label="支払う" name="pay_btn"/>
 	<button label="コピーを取る" name="take_free_copy_btn"/>

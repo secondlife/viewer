@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="floater_im_box" title="会話">
-	<string name="collapse_icon" value="Conv_toolbar_collapse"/>
-	<string name="expand_icon" value="Conv_toolbar_expand"/>
 	<layout_stack name="conversations_stack">
 		<layout_panel name="conversations_layout_panel">
 			<layout_stack name="conversations_pane_buttons_stack">
@@ -20,8 +18,8 @@
 				<panel name="stub_panel">
 					<button name="stub_collapse_btn" tool_tip="このペインを閉じる"/>
 					<text name="stub_textbox">
-						この会話は、別のウィンドウに表示されます。[secondlife:/// 戻る.]
-					</text>
+                        この会話は、別のウィンドウに表示されます。[secondlife:/// 戻る.]
+                    </text>
 				</panel>
 			</panel_container>
 		</layout_panel>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
 	<rows enabled="false" name="media_actions">
-		<columns type="icontext" label="サウンドとメディア" name="lst_action" value="Audio_Press"/>
+		<columns type="icontext" label="サウンドとメディア" name="lst_action"/>
 	</rows>
 	<rows name="toggle_pause_media" value="toggle_pause_media">
 		<columns name="lst_action" value="メディアの再生 / 一時停止"/>

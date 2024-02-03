@@ -10,12 +10,10 @@
 		<item name="2x Average" label="平均の2倍"/>
 		<item name="Max" label="最大"/>
 		<item name="Recent Max" label="最近の最大"/>
-		<item name="100ms" label="100ms"/>
 	</combo_box>
 	<combo_box name="metric_combo">
 		<item name="Time" label="時間"/>
 		<item name="Number of Calls" label="通話数"/>
-		<item name="Hz" label="Hz"/>
 	</combo_box>
 	<button name="pause_btn" label="一時停止"/>
 </floater>

@@ -13,8 +13,6 @@
 	<string name="none_text" value="(なし)"/>
 	<string name="sale_pending_text" value="(販売処理中)"/>
 	<string name="group_owned_text" value="(グループ所有)"/>
-	<string name="price_text" value="L$"/>
-	<string name="area_text" value="m²"/>
 	<string name="all_residents_text" value="全ての住人"/>
 	<string name="group_text" value="グループ"/>
 	<string name="can_resell">
@@ -41,33 +39,15 @@
 	<string name="acquired_date">
 		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
-	<string name="icon_PG" value="Parcel_PG_Dark"/>
-	<string name="icon_M" value="Parcel_M_Dark"/>
-	<string name="icon_R" value="Parcel_R_Dark"/>
-	<string name="icon_Voice" value="Parcel_Voice_Dark"/>
-	<string name="icon_VoiceNo" value="Parcel_VoiceNo_Dark"/>
-	<string name="icon_Fly" value="Parcel_Fly_Dark"/>
-	<string name="icon_FlyNo" value="Parcel_FlyNo_Dark"/>
-	<string name="icon_Push" value="Parcel_Push_Dark"/>
-	<string name="icon_PushNo" value="Parcel_PushNo_Dark"/>
-	<string name="icon_Build" value="Parcel_Build_Dark"/>
-	<string name="icon_BuildNo" value="Parcel_BuildNo_Dark"/>
-	<string name="icon_Scripts" value="Parcel_Scripts_Dark"/>
-	<string name="icon_ScriptsNo" value="Parcel_ScriptsNo_Dark"/>
-	<string name="icon_Damage" value="Parcel_Damage_Dark"/>
-	<string name="icon_DamageNo" value="Parcel_DamageNo_Dark"/>
-	<string name="icon_SeeAVs_Off" value="Parcel_SeeAVsOff_Dark"/>
-	<string name="icon_SeeAVs_On" value="Parcel_SeeAVsOn_Dark"/>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
 			<text name="region_title">
-				地域(リージョン): [REGIONAMEPOS]
-			</text>
+                地域(リージョン): [REGIONAMEPOS]
+            </text>
 			<text name="owner_label" value="所有者:"/>
-			<text name="parcel_owner" value="Alex Superduperlongenamenton"/>
 			<expandable_text name="description" value="Du waltz die spritz"/>
 			<text name="maturity_value" value="不明"/>
 			<accordion name="advanced_info_accordion">
@@ -89,26 +69,18 @@
 						<text name="damage_value" value="オフ"/>
 						<text name="see_avatars_label" value="アバターを表示:"/>
 						<text name="see_avatars_value" value="オフ"/>
-						<button label="土地情報" name="about_land_btn">
-						</button>
+						<button label="土地情報" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="地域(リージョン)">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="地域(リージョン):"/>
-						<text name="region_name" value="Mooseland"/>
 						<text name="region_type_label" value="種類:"/>
-						<text name="region_type" value="Moose"/>
 						<text name="region_rating_label" value="レーティング:"/>
 						<text name="region_rating" value="アダルト"/>
 						<text name="region_owner_label" value="所有者:"/>
-						<text name="region_owner" value="moose Van Moose extra long name moose"/>
 						<text name="region_group_label" value="グループ:"/>
-						<text name="region_group">
-							The Mighty Moose of mooseville soundvillemoose
-						</text>
-						<button label="地域(リージョン) / 不動産" name="region_info_btn">
-						</button>
+						<button label="地域(リージョン) / 不動産" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="不動産(不動産)">

@@ -6,12 +6,12 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="label">
-				ベークド
-				テクスチャ
-			</text>
+                ベークド
+                テクスチャ
+            </text>
 			<text name="composite_label">
-				合成テクスチャ
-			</text>
+                合成テクスチャ
+            </text>
 			<button label="IDをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="髪" name="hair-baked"/>

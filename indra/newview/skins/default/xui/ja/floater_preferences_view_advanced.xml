@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterpreferencesviewadvanced" title="カメラの位置">
 	<text name="camera_offset_lbl">
-		カメラのオフセット:
-	</text>
-	<spinner label="Y" name="camera_y">
-	</spinner>
-	<spinner label="Z" name="camera_z">
-	</spinner>
+        カメラのオフセット:
+    </text>
 	<text name="focus_offset_lbl">
-		焦点のオフセット:
-	</text>
-	<spinner label="Y" name="focus_y">
-	</spinner>
-	<spinner label="Z" name="focus_z">
-	</spinner>
+        焦点のオフセット:
+    </text>
 	<text name="offset_scale_lbl">
-		カメラのオフセット倍率:
-	</text>
+        カメラのオフセット倍率:
+    </text>
 </floater>

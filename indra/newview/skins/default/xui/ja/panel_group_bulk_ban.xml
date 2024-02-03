@@ -30,8 +30,8 @@
 		- グループから自分自身をバンすることはできません。
 	</panel.string>
 	<text name="help_text">
-		グループから複数の住人を一括でバンできます。「リストから住人を選択」をクリックしてください。
-	</text>
+        グループから複数の住人を一括でバンできます。「リストから住人を選択」をクリックしてください。
+    </text>
 	<button label="リストから住人を選択" name="add_button"/>
 	<name_list name="banned_agent_list" tool_tip="Ctrlキーを押しながらクリックすることで複数の住人を選択できます。"/>
 	<button label="選択した住人をリストから削除" name="remove_button" tool_tip="バンリストから、選択した住人を削除します。"/>

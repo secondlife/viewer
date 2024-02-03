@@ -13,9 +13,6 @@
 		<label name="web_label">
 			Webコンテンツ
 		</label>
-		<icon>
-			icn_media_web.tga
-		</icon>
 		<default_type>
 			text/html
 		</default_type>
@@ -39,9 +36,6 @@
 		<default_type>
 			video/*
 		</default_type>
-		<icon>
-			icn_media_movie.tga
-		</icon>
 		<tooltip name="movie_tooltip">
 			この場所にはムービーがあります
 		</tooltip>
@@ -59,9 +53,6 @@
 		<label name="image_label">
 			画像
 		</label>
-		<icon>
-			icn_media_web.tga
-		</icon>
 		<default_type>
 			image/*
 		</default_type>
@@ -82,9 +73,6 @@
 		<label name="audio_label">
 			オーディオ
 		</label>
-		<icon>
-			icn_media_web.tga
-		</icon>
 		<default_type>
 			audio/*
 		</default_type>
@@ -108,9 +96,6 @@
 		<default_type>
 			NONE/NONE
 		</default_type>
-		<icon>
-			icn_media_web.tga
-		</icon>
 		<tooltip name="none_tooltip">
 			この場所にはメディアがありません。
 		</tooltip>
@@ -430,9 +415,6 @@
 		</impl>
 	</mimetype>
 	<mimetype name="text/xml">
-		<label name="text/xml_label">
-			XML
-		</label>
 		<widgettype>
 			テキスト
 		</widgettype>

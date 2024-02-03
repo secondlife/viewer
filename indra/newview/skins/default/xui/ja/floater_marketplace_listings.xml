@@ -4,8 +4,8 @@
 		<panel>
 			<panel name="marketplace_listings_inventory_placeholder_panel">
 				<text name="marketplace_listings_inventory_placeholder_title">
-					読込中...
-				</text>
+                    読込中...
+                </text>
 			</panel>
 			<panel name="panel_marketplace_listing" filename="panel_marketplace_listings.xml" class="llpanelmarketplacelistings" top="0" follows="all"/>
 		</panel>

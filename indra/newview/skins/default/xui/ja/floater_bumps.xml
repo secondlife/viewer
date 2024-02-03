@@ -18,7 +18,4 @@
 	<floater.string name="physical_object_collide">
 		[TIME] [NAME] が物理オブジェクトであなたを叩きました。
 	</floater.string>
-	<floater.string name="timeStr">
-		[[hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt]]
-	</floater.string>
 </floater>

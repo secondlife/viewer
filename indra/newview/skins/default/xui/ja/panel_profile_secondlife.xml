@@ -43,12 +43,12 @@
 		</layout_panel>
 		<layout_panel name="settings_panel">
 			<combo_box name="show_in_search" tool_tip="検索結果から、あなたを見つけてもらいましょう。">
-				<combo_box.item name="Show" label="検索で表示" value="1"/>
-				<combo_box.item name="Hide" label="非表示" value="0"/>
+				<combo_box.item name="Show" label="検索で表示"/>
+				<combo_box.item name="Hide" label="非表示"/>
 			</combo_box>
 			<combo_box name="hide_age" tool_tip="あなたのSLの年齢を他の人に見てもらいましょう">
-				<combo_box.item name="Show" label="生年月日とSL年齢を表示" value="0"/>
-				<combo_box.item name="Hide" label="月日のみを表示" value="1"/>
+				<combo_box.item name="Show" label="生年月日とSL年齢を表示"/>
+				<combo_box.item name="Hide" label="月日のみを表示"/>
 			</combo_box>
 		</layout_panel>
 	</layout_stack>
