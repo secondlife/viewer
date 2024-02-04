@@ -2951,7 +2951,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                 F32 volume;
                 if(LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(agent_id, volume))
                 {
-                    user_gain[participant_id] = volume;
+                    user_gain[participant_id] = uint16_t(volume*200);
                 }
             }
 
@@ -2974,9 +2974,11 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                     F32 level = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mLevel)).asInt()) / 128;
                     // convert to decibles
                     participant->mLevel = level;
-                    /* WebRTC appears to have deprecated VAD, but it's still in the Audio Processing Module so maybe we
-                       can use it at some point when we actually process frames. */
-                    participant->mIsSpeaking = participant->mLevel > SPEAKING_AUDIO_LEVEL;
+                    
+                    if (voice_data["participant_id"].isMember("v"))
+                    {
+                        participant->mIsSpeaking = voice_data[participant_id].get("v", Json::Value(false)).asBool();
+                    }
                 }
             }
         }
