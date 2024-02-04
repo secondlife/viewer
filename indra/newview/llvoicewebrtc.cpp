@@ -918,6 +918,10 @@ void LLWebRTCVoiceClient::sessionState::setSpeakerVolume(F32 volume)
 
 void LLWebRTCVoiceClient::sessionState::setUserVolume(const LLUUID& id, F32 volume)
 {
+    if (mParticipantsByUUID.find(id) == mParticipantsByUUID.end())
+    {
+        return;
+    }
     for (auto& connection : mWebRTCConnections)
     {
         connection->setUserVolume(id, volume);
@@ -926,7 +930,7 @@ void LLWebRTCVoiceClient::sessionState::setUserVolume(const LLUUID& id, F32 volu
 
 void LLWebRTCVoiceClient::sessionState::setUserMute(const LLUUID& id, bool mute)
 {
-    if (mParticipantsByUUID.find(id) != mParticipantsByUUID.end())
+    if (mParticipantsByUUID.find(id) == mParticipantsByUUID.end())
     {
         return;
     }
@@ -2582,7 +2586,7 @@ void LLVoiceWebRTCConnection::setUserVolume(const LLUUID& id, F32 volume)
 {
     Json::Value root = Json::objectValue;
     Json::Value user_gain = Json::objectValue;
-    user_gain[id.asString()] = (uint32_t)volume*100;
+    user_gain[id.asString()] = (uint32_t)(volume*100);
     root["ug"] = user_gain;
     Json::FastWriter writer;
     std::string json_data = writer.write(root);
