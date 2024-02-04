@@ -291,10 +291,6 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 	mVoiceVersion.serverVersion = "";
 	mVoiceVersion.serverType = VOICE_SERVER_TYPE;
 	
-	//  gMuteListp isn't set up at this point, so we defer this until later.
-//	gMuteListp->addObserver(&mutelist_listener);
-
-	
 #if LL_DARWIN || LL_LINUX
 		// HACK: THIS DOES NOT BELONG HERE
 		// When the WebRTC daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
@@ -550,6 +546,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
     LLCoros::set_consuming(true);
     try
     {
+        LLMuteList::getInstance()->addObserver(this);
         while (!sShuttingDown)
         {
             llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
@@ -916,6 +913,26 @@ void LLWebRTCVoiceClient::sessionState::setSpeakerVolume(F32 volume)
     for (auto& connection : mWebRTCConnections)
     {
         connection->setSpeakerVolume(volume);
+    }
+}
+
+void LLWebRTCVoiceClient::sessionState::setUserVolume(const LLUUID& id, F32 volume)
+{
+    for (auto& connection : mWebRTCConnections)
+    {
+        connection->setUserVolume(id, volume);
+    }
+}
+
+void LLWebRTCVoiceClient::sessionState::setUserMute(const LLUUID& id, bool mute)
+{
+    if (mParticipantsByUUID.find(id) != mParticipantsByUUID.end())
+    {
+        return;
+    }
+    for (auto& connection : mWebRTCConnections)
+    {
+        connection->setUserMute(id, mute);
     }
 }
 
@@ -1650,6 +1667,20 @@ void LLWebRTCVoiceClient::predSetMicGain(const LLWebRTCVoiceClient::sessionState
     session->setMicGain(gain);
 }
 
+void LLWebRTCVoiceClient::predSetUserMute(const LLWebRTCVoiceClient::sessionStatePtr_t &session,
+                                          const LLUUID &id,
+                                          bool mute)
+{
+    session->setUserMute(id, mute);
+}
+
+void LLWebRTCVoiceClient::predSetUserVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session,
+                                          const LLUUID &id,
+                                          F32 volume)
+{
+    session->setUserVolume(id, volume);
+}
+
 void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 {
     LL_DEBUGS("Voice")
@@ -1793,8 +1824,6 @@ std::string LLWebRTCVoiceClient::getDisplayName(const LLUUID& id)
 	return result;
 }
 
-
-
 BOOL LLWebRTCVoiceClient::getIsSpeaking(const LLUUID& id)
 {
 	BOOL result = FALSE;
@@ -1893,6 +1922,7 @@ F32 LLWebRTCVoiceClient::getUserVolume(const LLUUID& id)
 
 void LLWebRTCVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 {
+    F32 clamped_volume = llclamp(volume, LLVoiceClient::VOLUME_MIN, LLVoiceClient::VOLUME_MAX);
 	if(mSession)
 	{
         participantStatePtr_t participant(mSession->findParticipant(id.asString()));
@@ -1910,11 +1940,12 @@ void LLWebRTCVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 				LLSpeakerVolumeStorage::getInstance()->removeSpeakerVolume(id);
 			}
 
-			participant->mVolume = llclamp(volume, LLVoiceClient::VOLUME_MIN, LLVoiceClient::VOLUME_MAX);
+			participant->mVolume = clamped_volume;
 			participant->mVolumeDirty = true;
 			mSession->mVolumeDirty = true;
 		}
 	}
+    sessionState::for_each(boost::bind(predSetUserVolume, _1, id, clamped_volume));
 }
 
 std::string LLWebRTCVoiceClient::getGroupID(const LLUUID& id)
@@ -1929,6 +1960,24 @@ std::string LLWebRTCVoiceClient::getGroupID(const LLUUID& id)
 	
 	return result;
 }
+
+////////////////////////
+///LLMuteListObserver
+///
+
+void LLWebRTCVoiceClient::onChange()
+{
+}
+
+void LLWebRTCVoiceClient::onChangeDetailed(const LLMute& mute)
+{
+    if (mute.mType == LLMute::AGENT)
+    {
+        bool muted = ((mute.mFlags & LLMute::flagVoiceChat) == 0);
+        sessionState::for_each(boost::bind(predSetUserMute, _1, mute.mID, muted));
+    }
+}
+
 
 BOOL LLWebRTCVoiceClient::getAreaVoiceDisabled()
 {
@@ -2010,7 +2059,6 @@ void LLWebRTCVoiceClient::sessionState::reapEmptySessions()
         }
     }
 }
-
 
 bool LLWebRTCVoiceClient::sessionState::testByCreatingURI(const LLWebRTCVoiceClient::sessionState::wptr_t &a, std::string uri)
 {
@@ -2153,7 +2201,6 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
     LL_DEBUGS("Voice") << "( " << LLVoiceClientStatusObserver::status2string(status) << " )"
                        << " mSession=" << mSession
                        << LL_ENDL;
-
 	if(mSession)
 	{
 		if(status == LLVoiceClientStatusObserver::ERROR_UNKNOWN)
@@ -2531,6 +2578,29 @@ void LLVoiceWebRTCConnection::setSpeakerVolume(F32 volume)
     }
 }
 
+void LLVoiceWebRTCConnection::setUserVolume(const LLUUID& id, F32 volume)
+{
+    Json::Value root = Json::objectValue;
+    Json::Value user_gain = Json::objectValue;
+    user_gain[id.asString()] = (uint32_t)volume*100;
+    root["ug"] = user_gain;
+    Json::FastWriter writer;
+    std::string json_data = writer.write(root);
+    mWebRTCDataInterface->sendData(json_data, false);
+}
+
+void LLVoiceWebRTCConnection::setUserMute(const LLUUID& id, bool mute)
+{
+    Json::Value root = Json::objectValue;
+    Json::Value muted = Json::objectValue;
+    muted[id.asString()] = mute;
+    root["m"] = muted;
+    Json::FastWriter writer;
+    std::string json_data = writer.write(root);
+    mWebRTCDataInterface->sendData(json_data, false);
+}
+
+
 void LLVoiceWebRTCConnection::sendData(const std::string &data)
 {
     if (getVoiceConnectionState() == VOICE_STATE_SESSION_UP && mWebRTCDataInterface)
@@ -2825,6 +2895,8 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
             return;
         }
         bool new_participant = false;
+        Json::Value      mute = Json::objectValue;
+        Json::Value      user_gain = Json::objectValue;
         for (auto &participant_id : voice_data.getMemberNames())
         {
             LLUUID agent_id(participant_id);
@@ -2842,6 +2914,16 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
             {
                 joined  = true;
                 primary = voice_data[participant_id]["j"].get("p", Json::Value(false)).asBool();
+                bool isMuted = LLMuteList::getInstance()->isMuted(agent_id, LLMute::flagVoiceChat);
+                if (isMuted)
+                {
+                    mute[participant_id] = true;
+                }
+                F32 volume;
+                if(LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(agent_id, volume))
+                {
+                    user_gain[participant_id] = volume;
+                }
             }
 
             new_participant |= joined;
@@ -2868,6 +2950,21 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                     participant->mIsSpeaking = participant->mLevel > SPEAKING_AUDIO_LEVEL;
                 }
             }
+        }
+        Json::FastWriter writer;
+        Json::Value      root     = Json::objectValue;
+        if (mute.size() > 0)
+        {
+            root["m"] = mute;
+        }
+        if (user_gain.size() > 0)
+        {
+            root["ug"] = user_gain;
+        }
+        if (root.size() > 0)
+        {
+            std::string json_data = writer.write(root);
+            mWebRTCDataInterface->sendData(json_data, false);
         }
     }
 }

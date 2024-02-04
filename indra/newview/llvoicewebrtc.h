@@ -40,6 +40,7 @@ class LLWebRTCProtocolParser;
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llparcel.h"
+#include "llmutelist.h"
 #include <queue>
 #include "json/reader.h"
 
@@ -60,7 +61,8 @@ typedef boost::shared_ptr<LLVoiceWebRTCConnection> connectionPtr_t;
 class LLWebRTCVoiceClient :	public LLSingleton<LLWebRTCVoiceClient>,
 							virtual public LLVoiceModuleInterface,
 							virtual public LLVoiceEffectInterface,
-                            public llwebrtc::LLWebRTCDevicesObserver
+                            public llwebrtc::LLWebRTCDevicesObserver,
+                            public LLMuteListObserver
 {
     LLSINGLETON_C11(LLWebRTCVoiceClient);
 	LOG_CLASS(LLWebRTCVoiceClient);
@@ -241,6 +243,13 @@ public:
     bool isPreviewRecording() override { return false;  }
     bool isPreviewPlaying() override { return false; }
     //@}
+    
+    //////////////////
+    /// @name LLMuteListObserver
+    //@{
+    void onChange() override;
+    void onChangeDetailed(const LLMute& ) override;
+    //@}
 
 	// authorize the user
     void userAuthorized(const std::string &user_id, const LLUUID &agentID) override {};
@@ -344,6 +353,9 @@ public:
         void setMuteMic(bool muted);
         void setMicGain(F32 volume);
         void setSpeakerVolume(F32 volume);
+        void setUserVolume(const LLUUID& id, F32 volume);
+        
+        void setUserMute(const LLUUID& id, bool mute);
 		
         static void for_each(sessionFunc_t func);
 
@@ -454,6 +466,8 @@ public:
     static void predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t &session);
+    static void predSetUserMute(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const LLUUID& id, bool mute);
+    static void predSetUserVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const LLUUID& id, F32 volume);
 
 	//////////////////////////////
 	/// @name TVC/Server management and communication
@@ -765,7 +779,9 @@ class LLVoiceWebRTCConnection :
     virtual void setMuteMic(bool muted);
     virtual void setMicGain(F32 volume);
     virtual void setSpeakerVolume(F32 volume);
-
+    
+    void setUserVolume(const LLUUID& id, F32 volume);
+    void setUserMute(const LLUUID& id, bool mute);
 
     bool connectionStateMachine();
 
