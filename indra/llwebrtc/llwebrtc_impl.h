@@ -89,7 +89,7 @@ class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
     float mMicrophoneEnergy;
 };
 
-class LLWebRTCImpl : public LLWebRTCDeviceInterface
+class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceSink
 {
   public:
     LLWebRTCImpl() : 
@@ -116,6 +116,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
     float getPeerAudioLevel() override;
+    
+    //
+    // AudioDeviceSink
+    //
+    void OnDevicesUpdated() override;
     
     //
     // Helpers

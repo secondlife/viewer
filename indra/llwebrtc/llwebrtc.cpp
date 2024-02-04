@@ -113,6 +113,7 @@ void LLWebRTCImpl::init()
                                 mTuningDeviceModule->SetStereoRecording(true);
                                 mTuningDeviceModule->SetStereoPlayout(true);
                                 mTuningDeviceModule->EnableBuiltInAEC(false);
+                                mTuningDeviceModule->SetAudioDeviceSink(this);
                                 updateDevices();
                             });
     
@@ -379,30 +380,41 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
 
 void LLWebRTCImpl::updateDevices()
 {
-    int16_t                 renderDeviceCount = mTuningDeviceModule->PlayoutDevices();
+    int16_t renderDeviceCount = mTuningDeviceModule->PlayoutDevices();
+    int16_t currentRenderDeviceIndex = mTuningDeviceModule->GetPlayoutDevice();
+    
     LLWebRTCVoiceDeviceList renderDeviceList;
     for (int16_t index = 0; index < renderDeviceCount; index++)
     {
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mTuningDeviceModule->PlayoutDeviceName(index, name, guid);
-        renderDeviceList.emplace_back(name, guid);
+        renderDeviceList.emplace_back(name, guid, index == currentRenderDeviceIndex);
     }
     
-    int16_t                 captureDeviceCount = mTuningDeviceModule->RecordingDevices();
+    int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
+    int16_t currentCaptureDeviceIndex = mTuningDeviceModule->GetRecordingDevice();
+
     LLWebRTCVoiceDeviceList captureDeviceList;
     for (int16_t index = 0; index < captureDeviceCount; index++)
     {
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mTuningDeviceModule->RecordingDeviceName(index, name, guid);
-        captureDeviceList.emplace_back(name, guid);
+        captureDeviceList.emplace_back(name, guid, index == currentCaptureDeviceIndex);
     }
     for (auto &observer : mVoiceDevicesObserverList)
     {
-        observer->OnDevicesChanged(renderDeviceList, captureDeviceList);
+        observer->OnDevicesChanged(renderDeviceList,
+                                   captureDeviceList);
     }
 }
+
+void LLWebRTCImpl::OnDevicesUpdated()
+{
+    updateDevices();
+}
+
 
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
