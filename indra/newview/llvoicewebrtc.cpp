@@ -5,7 +5,7 @@
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * ne
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation
@@ -2611,7 +2611,7 @@ void LLVoiceWebRTCConnection::setUserVolume(const LLUUID& id, F32 volume)
 {
     Json::Value root = Json::objectValue;
     Json::Value user_gain = Json::objectValue;
-    user_gain[id.asString()] = (uint32_t)(volume*100);
+    user_gain[id.asString()] = (uint32_t)(volume*200);  // give it two decimal places with a range from 0-200, where 100 is normal
     root["ug"] = user_gain;
     Json::FastWriter writer;
     std::string json_data = writer.write(root);
@@ -2951,7 +2951,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                 F32 volume;
                 if(LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(agent_id, volume))
                 {
-                    user_gain[participant_id] = uint16_t(volume*200);
+                    user_gain[participant_id] = (uint16_t)(volume*200);
                 }
             }
 
