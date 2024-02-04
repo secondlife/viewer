@@ -28,10 +28,8 @@ The viewer's source code is hosted on [GitHub](https://github.com/secondlife/vie
 
 `git clone https://github.com/secondlife/viewer.git`
 
-### Step 2 - setting build variables
-Scripts are provided to assist in this process for your convenience.  You may find these scripts in the [scripts](../scripts/building) directory in this repository.  Operating system specific instructions for these scripts are included in the above build guides.  For more advanced setups, continue reading on.
-
-For advanced setups, you will need to set some build variables prior to building.
+### Step 2 - setting build environment variables
+Scripts are provided to assist in this process for your convenience.  You may find these scripts in the [scripts](../scripts/building) directory in this repository that set environment variables for your current terminal session.  Operating system specific instructions for these scripts are included in the above build guides.  For more advanced setups, continue reading on.
 
 #### Step 2.1 - cloning the build variables repository
 In a separate directory outside this repository (preferably right next to the `viewer` repository), execute the following:

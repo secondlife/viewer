@@ -26,11 +26,7 @@ Third party maintained forks, which include Linux compatible builds, are indexed
 
 ## Build Instructions
 
-[Windows](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Windows)
-
-[Mac](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_macOS)
-
-[Linux](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Linux)
+Build instructions can be found in [building.md](doc/building.md)
 
 ## Contribute
 
