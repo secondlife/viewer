@@ -673,20 +673,24 @@ void LLWebRTCPeerConnectionImpl::AnswerAvailable(const std::string &sdp)
 void LLWebRTCPeerConnectionImpl::setMute(bool mute)
 {
     mMute = mute;
-    if (mPeerConnection)
-    {
-        auto senders = mPeerConnection->GetSenders();
-        
-        RTC_LOG(LS_INFO) << __FUNCTION__ << (mute ? "disabling" : "enabling") << " streams count " << senders.size();
-        for (auto &sender : senders)
+    mWebRTCImpl->PostSignalingTask(
+        [this]()
         {
-            auto track = sender->track();
-            if(track)
+        if (mPeerConnection)
+        {
+            auto senders = mPeerConnection->GetSenders();
+
+            RTC_LOG(LS_INFO) << __FUNCTION__ << (mMute ? "disabling" : "enabling") << " streams count " << senders.size();
+            for (auto &sender : senders)
             {
-                track->set_enabled(!mMute);
+                auto track = sender->track();
+                if (track)
+                {
+                    track->set_enabled(!mMute);
+                }
             }
         }
-    }
+    });
 }
 
 void LLWebRTCPeerConnectionImpl::resetMute()
@@ -719,13 +723,17 @@ void LLWebRTCPeerConnectionImpl::setReceiveVolume(float volume)
 
 void LLWebRTCPeerConnectionImpl::setSendVolume(float volume)
 {
-    if (mLocalStream)
-    {
-        for (auto &track : mLocalStream->GetAudioTracks())
+    mWebRTCImpl->PostSignalingTask(
+        [this, volume]()
         {
-            track->GetSource()->SetVolume(volume);
-        }
-    }
+            if (mLocalStream)
+            {
+                for (auto &track : mLocalStream->GetAudioTracks())
+                {
+                    track->GetSource()->SetVolume(volume);
+                }
+            }
+        });
 }
 
 //
