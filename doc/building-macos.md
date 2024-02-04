@@ -63,3 +63,6 @@ Do not modify the build setup script with these values.  Simply executing these 
 
 ## Generating build files
 After you've installed all pre-requisites, you can now generate build files.
+
+Refer to the Configuring section in [Build Instructions](building.md#step-3---configuring) for how to do this.
+

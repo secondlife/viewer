@@ -60,21 +60,29 @@ With that done you can just:
 
 ### Step 3 - configuring
 
-Once your environment is set, you can now configure the project with `autobuild`.  There are multiple paths to do this.  For Linden builds with proprietary dependencies, make sure you have configured a GitHub Personal Access Token with the `AUTOBUILD_GITHUB_TOKEN` environment variable that can access internal 3p packages and run:
+Once your environment is set, you can now configure the project with `autobuild`.  There are multiple paths to do this.  For Linden builds with proprietary dependencies, make sure you have configured a GitHub Personal Access Token with the `AUTOBUILD_GITHUB_TOKEN` environment variable that can access internal 3p packages.  Provided you've set everything up properly, all you need to do is run:
 
 `autobuild configure`
 
-For open source builds, you need to provide a valid open source configuration.  You may use either `ReleaseOS` or `RelWithDebInfoOS`.  In this example, we'll use `RelWithDebInfoOS` as it also generates debug symbols with the build:
+For open source builds, you need to provide a valid open source configuration.  If you've previously used any of the [build setup scripts](../scripts/building), this will automatically be set to `RelWithDebInfoOS`.  If not, you will want to set the `AUTOBUILD_CONFIGURATION` environment variable as this will ensure subsequent `autobuild configure` invocations will always use that specific build configuration.
+
+If you have not set the `AUTOBUILD_CONFIGURATION` environment variable, you may use either `ReleaseOS` or `RelWithDebInfoOS` when you've used the `-c` argument when invoking `autobuild configure`.
+
+You will also want to set the `AUTOBUILD_ADDRSIZE` environment variable - which may be either `32` for 32-bit builds, or `64` for 64-bit builds.
+
+If you have not set the `AUTOBUILD_ADDRSIZE` environment variable, you may pass in the specific architecture width with the `-A` argument to do so.
+
+In this example, we'll use `RelWithDebInfoOS` as it generates debug symbols with the build, and set the architecture width to 64-bits using `-A 64`:
 
 `autobuild configure -c RelWithDebInfoOS -A 64`
 
-The `-c` argument determines which build configuration to create, generally either `RelWithDebInfoOS` or `ReleaseOS`. You can omit the option if you set the `AUTOBUILD_CONFIGURATION` environment variable to the one you want. `-A` may be either `64` or `32`, depending on which you intend to build. You can omit that option if you set the `AUTOBUILD_ADDRSIZE` environment variable accordingly.  Note that macOS only supports 64-bit builds.
+Both of these variables are set to `RelWithDebInfoOS` and the appropriate bit-width we build for a given operating system respectively if you've used the [build setup scripts](../scripts/building).
 
 Please be patient: the `autobuild configure` command silently fetches and installs required `autobuild` packages, and some of them are large.
 
 ### Step 4 - building
 
-When configuring completes, you can either build with the specific IDE for your platform, or from the command line.
+When configuring completes, you can either build with the specific IDE for your platform, or from the terminal.
 
 #### Autobuild options
 For help on `configure` options, type:
