@@ -102,7 +102,6 @@ public:
 	/// @name Devices
 	//@{
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
-	// i.e. when the daemon is running and connected, and the device lists are populated.
 	bool deviceSettingsAvailable() override;
 	bool deviceSettingsUpdated() override;  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
 	

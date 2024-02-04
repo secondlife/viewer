@@ -56,11 +56,14 @@ class LLWebRTCVoiceDevice
 {
   public:
     std::string display_name;  // friendly value for the user
-    std::string id;     // internal value for selection
+    std::string id; // internal value for selection
+    bool current;  // current device
 
-    LLWebRTCVoiceDevice(const std::string &display_name, const std::string &id) :
+    LLWebRTCVoiceDevice(const std::string &display_name, const std::string &id, bool current) :
         display_name(display_name),
-        id(id) {};
+        id(id),
+        current(current)
+    {};
 };
 
 typedef std::vector<LLWebRTCVoiceDevice> LLWebRTCVoiceDeviceList;

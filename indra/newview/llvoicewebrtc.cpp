@@ -8,7 +8,7 @@
  * ne
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
+ * License as published by the Free Software Foundation
  * version 2.1 of the License only.
  * 
  * This library is distributed in the hope that it will be useful,
@@ -689,16 +689,41 @@ void LLWebRTCVoiceClient::setDevicesListUpdated(bool state)
 void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
                                            const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices)
 {
+    std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
+    std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
+
     clearRenderDevices();
+    bool renderDeviceSet = false;
     for (auto &device : render_devices)
     {
         addRenderDevice(LLVoiceDevice(device.display_name, device.id));
+        if (device.current && outputDevice == device.id)
+        {
+            setRenderDevice(outputDevice);
+            renderDeviceSet = true;
+        }
     }
+    if (!renderDeviceSet)
+    {
+        setRenderDevice("Default");
+    }
+
     clearCaptureDevices();
+    bool captureDeviceSet = false;
     for (auto &device : capture_devices)
     {
         addCaptureDevice(LLVoiceDevice(device.display_name, device.id));
+        if (device.current && inputDevice == device.id)
+        {
+            setCaptureDevice(outputDevice);
+            captureDeviceSet = true;
+        }
     }
+    if (!captureDeviceSet)
+    {
+        setCaptureDevice("Default");
+    }
+
     setDevicesListUpdated(true);
 }
 
