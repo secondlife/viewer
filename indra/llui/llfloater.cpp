@@ -59,7 +59,6 @@
 #include "llmultifloater.h"
 #include "llsdutil.h"
 #include "lluiusage.h"
-#include <boost/foreach.hpp>
 
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
@@ -2387,7 +2386,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			//{
 			//	floaterp->translate(translate_x, translate_y);
 			//}
-			BOOST_FOREACH(LLHandle<LLFloater> dependent_floater, floaterp->mDependents)
+			for (LLHandle<LLFloater> dependent_floater : floaterp->mDependents)
 			{
 				if (dependent_floater.get())
 				{
@@ -2402,10 +2401,9 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterView::restoreAll()
 {
 	// make sure all subwindows aren't minimized
-	child_list_t child_list = *(getChildList());
-	for (child_list_const_iter_t child_it = child_list.begin(); child_it != child_list.end(); ++child_it)
+	for (auto child : *getChildList())
 	{
-		LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(child);
 		if (floaterp)
 		{
 			floaterp->setMinimized(FALSE);

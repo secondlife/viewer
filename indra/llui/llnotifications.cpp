@@ -45,7 +45,6 @@
 
 #include <algorithm>
 #include <boost/regex.hpp>
-#include <boost/foreach.hpp>
 
 
 const std::string NOTIFICATION_PERSIST_VERSION = "0.93";
@@ -444,14 +443,14 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 		mSoundName = p.sound;
 	}
 
-	BOOST_FOREACH(const LLNotificationTemplate::UniquenessContext& context, p.unique.contexts)
+	for (const LLNotificationTemplate::UniquenessContext& context : p.unique.contexts)
 	{
 		mUniqueContext.push_back(context.value);
 	}
 	
 	LL_DEBUGS("Notifications") << "notification \"" << mName << "\": tag count is " << p.tags.size() << LL_ENDL;
 	
-	BOOST_FOREACH(const LLNotificationTemplate::Tag& tag, p.tags)
+	for (const LLNotificationTemplate::Tag& tag : p.tags)
 	{
 		LL_DEBUGS("Notifications") << "    tag \"" << std::string(tag.value) << "\"" << LL_ENDL;
 		mTags.push_back(tag.value);
@@ -1154,7 +1153,7 @@ LLNotificationChannel::LLNotificationChannel(const Params& p)
 	LLInstanceTracker<LLNotificationChannel, std::string>(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString()),
 	mName(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString())
 {
-	BOOST_FOREACH(const std::string& source, p.sources)
+	for (const std::string& source : p.sources)
     {
 		connectToChannel(source);
 	}
@@ -1527,7 +1526,7 @@ void replaceFormText(LLNotificationForm::Params& form, const std::string& patter
 		form.ignore.text = replace;
 	}
 
-	BOOST_FOREACH(LLNotificationForm::FormElement& element, form.form_elements.elements)
+	for (LLNotificationForm::FormElement& element : form.form_elements.elements)
 	{
 		if (element.button.isChosen() && element.button.text() == pattern)
 		{
@@ -1575,19 +1574,19 @@ bool LLNotifications::loadTemplates()
 
 	mTemplates.clear();
 
-	BOOST_FOREACH(LLNotificationTemplate::GlobalString& string, params.strings)
+	for (const LLNotificationTemplate::GlobalString& string : params.strings)
 	{
 		mGlobalStrings[string.name] = string.value;
 	}
 
 	std::map<std::string, LLNotificationForm::Params> form_templates;
 
-	BOOST_FOREACH(LLNotificationTemplate::Template& notification_template, params.templates)
+	for (const LLNotificationTemplate::Template& notification_template : params.templates)
 	{
 		form_templates[notification_template.name] = notification_template.form;
 	}
 
-	BOOST_FOREACH(LLNotificationTemplate::Params& notification, params.notifications)
+	for (LLNotificationTemplate::Params& notification : params.notifications)
 	{
 		if (notification.form_ref.form_template.isChosen())
 		{
@@ -1641,7 +1640,7 @@ bool LLNotifications::loadVisibilityRules()
 
 	mVisibilityRules.clear();
 
-	BOOST_FOREACH(LLNotificationVisibilityRule::Rule& rule, params.rules)
+	for (const LLNotificationVisibilityRule::Rule& rule : params.rules)
 	{
 		mVisibilityRules.push_back(LLNotificationVisibilityRulePtr(new LLNotificationVisibilityRule(rule)));
 	}

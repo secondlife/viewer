@@ -49,7 +49,7 @@ void LLCurl::Responder::failureResult(S32 status, const std::string& reason, con
 void LLCurl::Responder::successResult(const LLSD& content) { }
 void LLCurl::Responder::completeResult(S32 status, const std::string& reason, const LLSD& content) { }
 std::string LLCurl::Responder::dumpResponse() const { return "(failure)"; }
-void LLCurl::Responder::completedRaw(LLChannelDescriptors const &,boost::shared_ptr<LLBufferArray> const &) { }
+void LLCurl::Responder::completedRaw(LLChannelDescriptors const &,std::shared_ptr<LLBufferArray> const &) { }
 void LLMessageSystem::getF32(char const *,char const *,F32 &,S32) { }
 void LLMessageSystem::getU8(char const *,char const *,U8 &,S32) { }
 void LLMessageSystem::getS32(char const *,char const *,S32 &,S32) { }
@@ -110,7 +110,7 @@ namespace tut
 	{
 		set_test_name("observer pointer");
 
-		boost::scoped_ptr<TestObserver> observer(new TestObserver());
+		std::unique_ptr<TestObserver> observer(new TestObserver());
 
 		LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
 		processor.addObserver(LLUUID(TEST_PARCEL_ID), observer.get());

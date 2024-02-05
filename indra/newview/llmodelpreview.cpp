@@ -220,6 +220,16 @@ LLModelPreview::~LLModelPreview()
         mPreviewAvatar->markDead();
         mPreviewAvatar = NULL;
     }
+
+    mUploadData.clear();
+    mTextureSet.clear();
+
+    for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+    {
+        clearModel(i);
+    }
+    mBaseModel.clear();
+    mBaseScene.clear();
 }
 
 void LLModelPreview::updateDimentionsAndOffsets()
