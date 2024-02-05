@@ -4158,6 +4158,12 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 					LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.find(object_id);
 					for (;anim_it != avatarp->mAnimationSources.end(); ++anim_it)
 					{
+						if (anim_it->first != object_id)
+						{
+							// elements with the same key are always contiguous, bail if we went past the
+							// end of this object's animations
+							break;
+						}
 						if (anim_it->second == animation_id)
 						{
 							anim_found = TRUE;
