@@ -27,6 +27,7 @@
 #include "llwebrtc_impl.h"
 #include <algorithm>
 #include <format>
+#include <string.h>
 
 #include "api/audio_codecs/audio_decoder_factory.h"
 #include "api/audio_codecs/audio_encoder_factory.h"
@@ -34,30 +35,54 @@
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/media_stream_interface.h"
 #include "api/media_stream_track.h"
+#include "modules/audio_processing/audio_buffer.h"
 
 namespace llwebrtc
 {
 
-const float VOLUME_SCALE_WEBRTC = 100;
+LLCustomProcessor::LLCustomProcessor() :
+    mSampleRateHz(0), 
+    mNumChannels(0) 
+{ 
+    memset(mSumVector, sizeof(mSumVector), 0); 
+}
 
-LLAudioDeviceObserver::LLAudioDeviceObserver() : mMicrophoneEnergy(0.0), mSumVector {0} {}
+void LLCustomProcessor::Initialize(int sample_rate_hz, int num_channels)
+{ 
+    mSampleRateHz = sample_rate_hz;
+    mNumChannels = num_channels;
+    memset(mSumVector, sizeof(mSumVector), 0);
+}
 
-float LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
-
-void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
-                                          const size_t   num_samples,
-                                          const size_t   bytes_per_sample,
-                                          const size_t   num_channels,
-                                          const uint32_t samples_per_sec)
+void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
 {
-    float        energy  = 0;
-    const short *samples = (const short *) audio_samples;
-    for (size_t index = 0; index < num_samples * num_channels; index++)
+    webrtc::StreamConfig stream_config;
+    stream_config.set_sample_rate_hz(mSampleRateHz);
+    stream_config.set_num_channels(mNumChannels);
+    std::vector<float *> frame;
+    std::vector<float> frame_samples;
+
+    if (audio_in->num_channels() < 1 || audio_in->num_frames() < 480)
     {
-        float sample = (static_cast<float>(samples[index]) / (float) 32767);
+        return;
+    }
+
+    frame_samples.resize(stream_config.num_samples());
+    frame.resize(stream_config.num_channels());
+    for (size_t ch = 0; ch < stream_config.num_channels(); ++ch)
+    {
+        frame[ch] = &(frame_samples)[ch * stream_config.num_frames()];
+    }
+
+    audio_in->CopyTo(stream_config, &frame[0]);
+
+    float        energy  = 0;
+    for (size_t index = 0; index < stream_config.num_samples(); index++)
+    {
+        float sample = frame_samples[index];
         energy += sample * sample;
     }
-    
+
     // smooth it.
     size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
     float  totalSum    = 0;
@@ -69,15 +94,7 @@ void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
     }
     mSumVector[i] = energy;
     totalSum += energy;
-    mMicrophoneEnergy = std::sqrt(totalSum / (num_samples * buffer_size));
-}
-
-void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
-                                         const size_t   num_samples,
-                                         const size_t   bytes_per_sample,
-                                         const size_t   num_channels,
-                                         const uint32_t samples_per_sec)
-{
+    mMicrophoneEnergy = std::sqrt(totalSum / (stream_config.num_samples() * buffer_size));
 }
 
 void LLWebRTCImpl::init()
@@ -104,11 +121,9 @@ void LLWebRTCImpl::init()
     mWorkerThread->PostTask(
                             [this]()
                             {
-                                mTuningAudioDeviceObserver = new LLAudioDeviceObserver;
-                                mTuningDeviceModule =
-                                webrtc::CreateAudioDeviceWithDataObserver(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
-                                                                          mTaskQueueFactory.get(),
-                                                                          std::unique_ptr<webrtc::AudioDeviceDataObserver>(mTuningAudioDeviceObserver));
+                                 mTuningDeviceModule =  webrtc::CreateAudioDeviceWithDataObserver(
+                                    webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
+                                                                          mTaskQueueFactory.get(), nullptr);
                                 mTuningDeviceModule->Init();
                                 mTuningDeviceModule->SetStereoRecording(true);
                                 mTuningDeviceModule->SetStereoPlayout(true);
@@ -134,11 +149,9 @@ void LLWebRTCImpl::init()
     mWorkerThread->BlockingCall(
                                 [this]()
                                 {
-                                    mPeerAudioDeviceObserver = new LLAudioDeviceObserver;
                                     mPeerDeviceModule =
                                     webrtc::CreateAudioDeviceWithDataObserver(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
-                                                                              mTaskQueueFactory.get(),
-                                                                              std::unique_ptr<webrtc::AudioDeviceDataObserver>(mPeerAudioDeviceObserver));
+                                                                              mTaskQueueFactory.get(), nullptr);
                                     mPeerDeviceModule->Init();
                                     mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
                                     mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
@@ -151,7 +164,11 @@ void LLWebRTCImpl::init()
                                     mPeerDeviceModule->InitPlayout();
                                 });
 
-    rtc::scoped_refptr<webrtc::AudioProcessing> apm = webrtc::AudioProcessingBuilder().Create();
+    mCustomProcessor = new LLCustomProcessor;
+    webrtc::AudioProcessingBuilder apb;
+    apb.SetCapturePostProcessing(std::unique_ptr<webrtc::CustomProcessing>(mCustomProcessor));
+    rtc::scoped_refptr<webrtc::AudioProcessing> apm = apb.Create();
+
     webrtc::AudioProcessing::Config             apm_config;
     apm_config.echo_canceller.enabled         = true;
     apm_config.echo_canceller.mobile_mode     = false;
@@ -454,9 +471,9 @@ void LLWebRTCImpl::setTuningMode(bool enable)
     }
 }
 
-float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mTuningAudioDeviceObserver->getMicrophoneEnergy()); }
+float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mCustomProcessor->getMicrophoneEnergy()); }
 
-float LLWebRTCImpl::getPeerAudioLevel() { return -20 * log10f(mPeerAudioDeviceObserver->getMicrophoneEnergy()); }
+float LLWebRTCImpl::getPeerAudioLevel() { return -20 * log10f(mCustomProcessor->getMicrophoneEnergy()); }
 
 //
 // Helpers

@@ -65,27 +65,27 @@ namespace llwebrtc
 
 class LLWebRTCPeerConnectionImpl;
 
-class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
+class LLCustomProcessor : public webrtc::CustomProcessing
 {
   public:
-    LLAudioDeviceObserver();
+    LLCustomProcessor();
+    ~LLCustomProcessor() override {}
 
-    float getMicrophoneEnergy();
+    // (Re-) Initializes the submodule.
+    void Initialize(int sample_rate_hz, int num_channels) override;
+    // Analyzes the given capture or render signal.
+    void Process(webrtc::AudioBuffer *audio) override;
+    // Returns a string representation of the module state.
+    std::string ToString() const override { return ""; }
 
-    void OnCaptureData(const void    *audio_samples,
-                       const size_t   num_samples,
-                       const size_t   bytes_per_sample,
-                       const size_t   num_channels,
-                       const uint32_t samples_per_sec) override;
-
-    void OnRenderData(const void    *audio_samples,
-                      const size_t   num_samples,
-                      const size_t   bytes_per_sample,
-                      const size_t   num_channels,
-                      const uint32_t samples_per_sec) override;
+    float getMicrophoneEnergy() { return mMicrophoneEnergy; }
 
   protected:
-    float mSumVector[30];  // 300 ms of smoothing
+    static const int NUM_PACKETS_TO_FILTER = 30;  // 300 ms of smoothing
+    int              mSampleRateHz;
+    int              mNumChannels;
+
+    float mSumVector[NUM_PACKETS_TO_FILTER];
     float mMicrophoneEnergy;
 };
 
@@ -93,7 +93,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 {
   public:
     LLWebRTCImpl() : 
-        mTuningAudioDeviceObserver(nullptr), mPeerAudioDeviceObserver(nullptr), mMute(true)
+        mCustomProcessor(nullptr), mMute(true)
     {
     }
     ~LLWebRTCImpl() {}
@@ -189,9 +189,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     int32_t                                                    mPlayoutDevice;
     int32_t                                                    mRecordingDevice;
     bool                                                       mMute;
-
-    LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
-    LLAudioDeviceObserver *                                    mPeerAudioDeviceObserver;
+    
+    LLCustomProcessor *                                        mCustomProcessor;
     
     // peer connections
     std::vector<rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>     mPeerConnections;
