@@ -184,6 +184,28 @@
         function="Tools.EnableTakeCopy" />
   </menu_item_call>
   <menu_item_call
+      label="Take separate"
+      layout="topleft"
+      name="Take Separate">
+      <menu_item_call.on_click
+        function="Object.TakeSeparate"/>
+      <menu_item_call.on_enable
+        function="Object.VisibleTakeMultiple"/>
+      <menu_item_call.on_visible
+        function="Object.VisibleTakeMultiple"/>
+  </menu_item_call>
+  <menu_item_call
+      label="Take copy separate"
+      layout="topleft"
+       name="Take Copy Separate">
+       <menu_item_call.on_click
+        function="Object.TakeSeparateCopy"/>
+       <menu_item_call.on_enable
+        function="Tools.VisibleCopySeparate"/>
+       <menu_item_call.on_visible
+        function="Tools.VisibleCopySeparate"/>
+  </menu_item_call>
+  <menu_item_call
       enabled="false"
       label="Pay"
       name="Pay...">
