@@ -42,7 +42,7 @@ From there `autobuild` will be available to execute in your terminal.
 If you installed CMake from Kitware's website, by default CMake will not be available from the command line.  To remedy this, run the following command:
 
 ```Shell
-sudo "Applications/CMake.app/Contents/bin/cmake-gui" --install
+sudo "/Applications/CMake.app/Contents/bin/cmake-gui" --install
 ```
 This will make the `cmake` command available from the terminal.  This is required in order to generate build files.
 
