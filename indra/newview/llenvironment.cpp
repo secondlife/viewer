@@ -1675,8 +1675,6 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     updateSettingsUniforms();
 
-    // *TODO: potential optimization - this block may only need to be
-    // executed some of the time.  For example for water shaders only.
     {
         LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
         end_shaders = LLViewerShaderMgr::instance()->endShaders();
@@ -1687,6 +1685,10 @@ void LLEnvironment::update(const LLViewerCamera * cam)
                 || shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER))
             {
                 shaders_iter->mUniformsDirty = TRUE;
+                if (shaders_iter->mRiggedVariant)
+                {
+                    shaders_iter->mRiggedVariant->mUniformsDirty = TRUE;
+                }
             }
         }
     }

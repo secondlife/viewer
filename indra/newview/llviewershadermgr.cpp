@@ -104,7 +104,6 @@ LLGLSLShader		gObjectPreviewProgram;
 LLGLSLShader        gSkinnedObjectPreviewProgram;
 LLGLSLShader        gPhysicsPreviewProgram;
 LLGLSLShader		gObjectFullbrightAlphaMaskProgram;
-LLGLSLShader        gSkinnedObjectFullbrightAlphaMaskProgram;
 LLGLSLShader		gObjectBumpProgram;
 LLGLSLShader        gSkinnedObjectBumpProgram;
 LLGLSLShader		gObjectAlphaMaskNoColorProgram;
@@ -226,7 +225,7 @@ LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
 LLGLSLShader			gDeferredPBRTerrainProgram;
 
 //helper for making a rigged variant of a given shader
-bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
+static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
 {
     riggedShader.mName = llformat("Skinned %s", shader.mName.c_str());
     riggedShader.mFeatures = shader.mFeatures;
@@ -241,73 +240,94 @@ bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
     return riggedShader.createShader(NULL, NULL);
 }
 
+static bool no_redundant_shaders(const std::vector<LLGLSLShader*>& shaders)
+{
+    std::set<std::string> names;
+    for (LLGLSLShader* shader : shaders)
+    {
+        if (names.find(shader->mName) != names.end())
+        {
+            LL_WARNS("Shader") << "Redundant shader: " << shader->mName << LL_ENDL;
+            return false;
+        }
+        names.insert(shader->mName);
+
+        if (shader->mRiggedVariant)
+        {
+            if (names.find(shader->mRiggedVariant->mName) != names.end())
+            {
+                LL_WARNS("Shader") << "Redundant shader: " << shader->mRiggedVariant->mName << LL_ENDL;
+                return false;
+            }
+            names.insert(shader->mRiggedVariant->mName);
+        }
+    }
+    return true;
+}
+
+
 LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderLevel(SHADER_COUNT, 0),
 	mMaxAvatarShaderLevel(0)
 {   
-    //ONLY shaders that need WL Param management should be added here
-	mShaderList.push_back(&gAvatarProgram);
-	mShaderList.push_back(&gWaterProgram);
-	mShaderList.push_back(&gWaterEdgeProgram);
-	mShaderList.push_back(&gAvatarEyeballProgram); 
-	mShaderList.push_back(&gImpostorProgram);
-	mShaderList.push_back(&gObjectBumpProgram);
-    mShaderList.push_back(&gSkinnedObjectBumpProgram);
-	mShaderList.push_back(&gObjectFullbrightAlphaMaskProgram);
-    mShaderList.push_back(&gSkinnedObjectFullbrightAlphaMaskProgram);
-	mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
-	mShaderList.push_back(&gUnderWaterProgram);
-	mShaderList.push_back(&gDeferredSunProgram);
-    mShaderList.push_back(&gHazeProgram);
-    mShaderList.push_back(&gHazeWaterProgram);
-	mShaderList.push_back(&gDeferredSoftenProgram);
-	mShaderList.push_back(&gDeferredAlphaProgram);
-    mShaderList.push_back(&gHUDAlphaProgram);
-    mShaderList.push_back(&gDeferredSkinnedAlphaProgram);
-	mShaderList.push_back(&gDeferredAlphaImpostorProgram);
-    mShaderList.push_back(&gDeferredSkinnedAlphaImpostorProgram);
-	mShaderList.push_back(&gDeferredFullbrightProgram);
-    mShaderList.push_back(&gHUDFullbrightProgram);
-	mShaderList.push_back(&gDeferredFullbrightAlphaMaskProgram);
-    mShaderList.push_back(&gHUDFullbrightAlphaMaskProgram);
-    mShaderList.push_back(&gDeferredFullbrightAlphaMaskAlphaProgram);
-    mShaderList.push_back(&gHUDFullbrightAlphaMaskAlphaProgram);
-	mShaderList.push_back(&gDeferredFullbrightShinyProgram);
-    mShaderList.push_back(&gHUDFullbrightShinyProgram);
-    mShaderList.push_back(&gDeferredSkinnedFullbrightShinyProgram);
-	mShaderList.push_back(&gDeferredSkinnedFullbrightProgram);
-    mShaderList.push_back(&gDeferredSkinnedFullbrightAlphaMaskProgram);
-    mShaderList.push_back(&gDeferredSkinnedFullbrightAlphaMaskAlphaProgram);
-	mShaderList.push_back(&gDeferredEmissiveProgram);
-    mShaderList.push_back(&gDeferredSkinnedEmissiveProgram);
-	mShaderList.push_back(&gDeferredAvatarEyesProgram);
-	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
-	mShaderList.push_back(&gDeferredWLSkyProgram);
-	mShaderList.push_back(&gDeferredWLCloudProgram);
-    mShaderList.push_back(&gDeferredWLMoonProgram);
-    mShaderList.push_back(&gDeferredWLSunProgram);
-    mShaderList.push_back(&gDeferredPBRAlphaProgram);
-    mShaderList.push_back(&gHUDPBRAlphaProgram);
-    mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
-    mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
-    mShaderList.push_back(&gNoPostGammaCorrectProgram);
-    mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
-    mShaderList.push_back(&gDeferredDiffuseProgram);
-    mShaderList.push_back(&gObjectBumpProgram);
-    mShaderList.push_back(&gDeferredBumpProgram);
-    mShaderList.push_back(&gDeferredPBROpaqueProgram);
-    mShaderList.push_back(&gDeferredPBRAlphaProgram);
-    mShaderList.push_back(&gDeferredAvatarProgram);
-    mShaderList.push_back(&gDeferredTerrainProgram);
-    mShaderList.push_back(&gDeferredDiffuseAlphaMaskProgram);
-    mShaderList.push_back(&gDeferredNonIndexedDiffuseAlphaMaskProgram);
-    mShaderList.push_back(&gDeferredTreeProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
 {
 	mShaderLevel.clear();
 	mShaderList.clear();
+}
+
+void LLViewerShaderMgr::finalizeShaderList()
+{
+    //ONLY shaders that need WL Param management should be added here
+    mShaderList.push_back(&gAvatarProgram);
+    mShaderList.push_back(&gWaterProgram);
+    mShaderList.push_back(&gWaterEdgeProgram);
+    mShaderList.push_back(&gAvatarEyeballProgram);
+    mShaderList.push_back(&gImpostorProgram);
+    mShaderList.push_back(&gObjectBumpProgram);
+    mShaderList.push_back(&gObjectFullbrightAlphaMaskProgram);
+    mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
+    mShaderList.push_back(&gUnderWaterProgram);
+    mShaderList.push_back(&gDeferredSunProgram);
+    mShaderList.push_back(&gHazeProgram);
+    mShaderList.push_back(&gHazeWaterProgram);
+    mShaderList.push_back(&gDeferredSoftenProgram);
+    mShaderList.push_back(&gDeferredAlphaProgram);
+    mShaderList.push_back(&gHUDAlphaProgram);
+    mShaderList.push_back(&gDeferredAlphaImpostorProgram);
+    mShaderList.push_back(&gDeferredFullbrightProgram);
+    mShaderList.push_back(&gHUDFullbrightProgram);
+    mShaderList.push_back(&gDeferredFullbrightAlphaMaskProgram);
+    mShaderList.push_back(&gHUDFullbrightAlphaMaskProgram);
+    mShaderList.push_back(&gDeferredFullbrightAlphaMaskAlphaProgram);
+    mShaderList.push_back(&gHUDFullbrightAlphaMaskAlphaProgram);
+    mShaderList.push_back(&gDeferredFullbrightShinyProgram);
+    mShaderList.push_back(&gHUDFullbrightShinyProgram);
+    mShaderList.push_back(&gDeferredEmissiveProgram);
+    mShaderList.push_back(&gDeferredAvatarEyesProgram);
+    mShaderList.push_back(&gDeferredAvatarAlphaProgram);
+    mShaderList.push_back(&gDeferredWLSkyProgram);
+    mShaderList.push_back(&gDeferredWLCloudProgram);
+    mShaderList.push_back(&gDeferredWLMoonProgram);
+    mShaderList.push_back(&gDeferredWLSunProgram);
+    mShaderList.push_back(&gDeferredPBRAlphaProgram);
+    mShaderList.push_back(&gHUDPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
+    mShaderList.push_back(&gNoPostGammaCorrectProgram);
+    mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
+    mShaderList.push_back(&gDeferredDiffuseProgram);
+    mShaderList.push_back(&gDeferredBumpProgram);
+    mShaderList.push_back(&gDeferredPBROpaqueProgram);
+    mShaderList.push_back(&gDeferredAvatarProgram);
+    mShaderList.push_back(&gDeferredTerrainProgram);
+    mShaderList.push_back(&gDeferredDiffuseAlphaMaskProgram);
+    mShaderList.push_back(&gDeferredNonIndexedDiffuseAlphaMaskProgram);
+    mShaderList.push_back(&gDeferredTreeProgram);
+
+    // make sure there are no redundancies 
+    llassert(no_redundant_shaders(mShaderList));
 }
 
 // static
@@ -361,6 +381,8 @@ void LLViewerShaderMgr::setShaders()
     {
         return;
     }
+
+    mShaderList.clear();
 
     LLShaderMgr::sMirrorsEnabled = LLPipeline::RenderMirrors;
 
@@ -544,6 +566,8 @@ void LLViewerShaderMgr::setShaders()
         gViewerWindow->setCursor(UI_CURSOR_ARROW);
     }
     gPipeline.createGLBuffers();
+
+    finalizeShaderList();
 
     reentrance = false;
 }
@@ -1077,9 +1101,17 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		if (success)
 		{
-            mShaderList.push_back(&gDeferredMaterialProgram[i]);
+            bool has_skin = i & 0x10;
 
-			gDeferredMaterialProgram[i].mName = llformat("Deferred Material Shader %d", i);
+            if (!has_skin)
+            {
+                mShaderList.push_back(&gDeferredMaterialProgram[i]);
+                gDeferredMaterialProgram[i].mName = llformat("Material Shader %d", i);
+            }
+            else
+            {
+                gDeferredMaterialProgram[i].mName = llformat("Skinned Material Shader %d", i);
+            }
 			
 			U32 alpha_mode = i & 0x3;
 
@@ -1116,7 +1148,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
                 gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", "1");
             }
 
-            bool has_skin = i & 0x10;
+            
             gDeferredMaterialProgram[i].mFeatures.hasSrgb = true;
             gDeferredMaterialProgram[i].mFeatures.encodesNormal = true;
             gDeferredMaterialProgram[i].mFeatures.calculatesAtmospherics = true;
