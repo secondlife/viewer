@@ -188,7 +188,7 @@ public:
 
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-	typedef boost::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
+	typedef std::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
 
 private:
 

@@ -140,7 +140,9 @@ public:
     void setParcelID(const LLUUID& parcel_id) override { mParcelId = parcel_id; }
     void setErrorStatus(S32 status, const std::string& reason) override {};
 
-protected:
+    void addLocationChangedCallbacks();
+
+  protected:
 
     /**
      * Sends remote parcel info request to resolve parcel name from its ID.
@@ -237,6 +239,10 @@ protected:
     LLUUID mParcelId;
     LLUUID mPickId;
     LLUUID mRequestedId;
+    std::string mPickNameStr;
+
+    boost::signals2::connection mRegionCallbackConnection;
+    boost::signals2::connection mParcelCallbackConnection;
 
     bool mLocationChanged;
     bool mNewPick;
