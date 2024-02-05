@@ -299,6 +299,9 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredPBRAlphaProgram);
     mShaderList.push_back(&gDeferredAvatarProgram);
     mShaderList.push_back(&gDeferredTerrainProgram);
+    mShaderList.push_back(&gDeferredDiffuseAlphaMaskProgram);
+    mShaderList.push_back(&gDeferredNonIndexedDiffuseAlphaMaskProgram);
+    mShaderList.push_back(&gDeferredTreeProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
