@@ -1031,6 +1031,14 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                     "libfmod.dylib",
                                     ):
                             dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                            
+                # OpenAL dylibs
+                if self.args['openal'] == 'ON':
+                    for libfile in (
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                ):
+                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # our apps
                 executable_path = {}
