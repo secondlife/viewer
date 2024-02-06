@@ -65,6 +65,30 @@ namespace llwebrtc
 
 class LLWebRTCPeerConnectionImpl;
 
+class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
+{
+  public:
+    LLAudioDeviceObserver();
+
+    float getMicrophoneEnergy();
+
+    void OnCaptureData(const void    *audio_samples,
+                       const size_t   num_samples,
+                       const size_t   bytes_per_sample,
+                       const size_t   num_channels,
+                       const uint32_t samples_per_sec) override;
+
+    void OnRenderData(const void    *audio_samples,
+                      const size_t   num_samples,
+                      const size_t   bytes_per_sample,
+                      const size_t   num_channels,
+                      const uint32_t samples_per_sec) override;
+
+  protected:
+    float mSumVector[30];  // 300 ms of smoothing
+    float mMicrophoneEnergy;
+};
+
 class LLCustomProcessor : public webrtc::CustomProcessing
 {
   public:
@@ -93,7 +117,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 {
   public:
     LLWebRTCImpl() : 
-        mCustomProcessor(nullptr), mMute(true)
+        mPeerCustomProcessor(nullptr), mMute(true)
     {
     }
     ~LLWebRTCImpl() {}
@@ -190,7 +214,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     int32_t                                                    mRecordingDevice;
     bool                                                       mMute;
     
-    LLCustomProcessor *                                        mCustomProcessor;
+    LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
+    LLCustomProcessor *                                        mPeerCustomProcessor;
     
     // peer connections
     std::vector<rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>     mPeerConnections;
