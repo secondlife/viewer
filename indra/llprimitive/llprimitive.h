@@ -109,7 +109,6 @@ public:
         PARAMS_EXTENDED_MESH = 0x70,
         PARAMS_RENDER_MATERIAL = 0x80,
         PARAMS_REFLECTION_PROBE = 0x90,
-        PARAMS_MIRROR = 0x100,
 	};
 	
 public:
@@ -171,16 +170,6 @@ public:
 	F32 getRadius() const					{ return mRadius; }
 	F32 getFalloff() const					{ return mFalloff; }
 	F32 getCutoff() const					{ return mCutoff; }
-};
-
-class LLMirrorParams : public LLNetworkData
-{
-public:
-    LLMirrorParams();
-    /*virtual*/ BOOL pack(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker &dp);
-    /*virtual*/ bool operator==(const LLNetworkData& data) const;
-    /*virtual*/ void copy(const LLNetworkData& data);
 };
 
 extern const F32 REFLECTION_PROBE_MIN_AMBIANCE;

@@ -1825,40 +1825,6 @@ bool LLLightParams::fromLLSD(LLSD& sd)
 
 //============================================================================
 
-LLMirrorParams::LLMirrorParams()
-{
-    mType = PARAMS_MIRROR;
-}
-
-BOOL LLMirrorParams::pack(LLDataPacker &dp) const
-{
-    return TRUE;
-}
-
-BOOL LLMirrorParams::unpack(LLDataPacker &dp)
-{
-    return TRUE;
-}
-
-bool LLMirrorParams::operator==(const LLNetworkData& data) const
-{
-    if (data.mType != PARAMS_REFLECTION_PROBE)
-    {
-        return false;
-    }
-    return true;
-}
-
-void LLMirrorParams::copy(const LLNetworkData& data)
-{
-    const LLMirrorParams *param = (LLMirrorParams*)&data;
-    mType = param->mType;
-}
-
-//============================================================================
-
-//============================================================================
-
 LLReflectionProbeParams::LLReflectionProbeParams()
 {
     mType = PARAMS_REFLECTION_PROBE;

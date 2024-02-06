@@ -294,18 +294,12 @@ public:
 	F32 getLightRadius() const;
 	F32 getLightFalloff(const F32 fudge_factor = 1.f) const;
 	F32 getLightCutoff() const;
-    
-    // Mirrors
-    bool setIsMirror(BOOL is_mirror);
-    void updateMirrorDrawable();
-    U8   mirrorFace() const override;
 
     // Reflection Probes
     bool setIsReflectionProbe(BOOL is_probe);
     bool setReflectionProbeAmbiance(F32 ambiance);
     bool setReflectionProbeNearClip(F32 near_clip);
     bool setReflectionProbeIsBox(bool is_box);
-    bool setReflectionProbeIsPlane(bool is_plane);
     bool setReflectionProbeIsDynamic(bool is_dynamic);
     bool setReflectionProbeIsMirror(bool is_mirror);
 
@@ -313,11 +307,8 @@ public:
     F32 getReflectionProbeAmbiance() const;
     F32 getReflectionProbeNearClip() const;
     bool getReflectionProbeIsBox() const;
-    bool getReflectionProbeIsPlane() const;
     bool getReflectionProbeIsDynamic() const;
     bool getReflectionProbeIsMirror() const;
-    
-    BOOL isMirror() const override;
 
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;

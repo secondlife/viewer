@@ -249,9 +249,6 @@ LLVOVolume::~LLVOVolume()
 	mTextureAnimp = NULL;
 	delete mVolumeImpl;
 	mVolumeImpl = NULL;
-    
-    if (mIsMirror)
-        gPipeline.mHeroProbeManager.unregisterHeroDrawable(this);
 
 	gMeshRepo.unregisterMesh(this);
 
@@ -998,11 +995,6 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
     if (isReflectionProbe())
     {
         updateReflectionProbePtr();
-    }
-    
-    if (isMirror())
-    {
-        gPipeline.mHeroProbeManager.registerHeroDrawable(this);
     }
     
 	updateRadius();
@@ -3327,48 +3319,6 @@ F32 LLVOVolume::getLightCutoff() const
 	}
 }
 
-bool LLVOVolume::setIsMirror(BOOL is_mirror)
-{
-    BOOL was_mirror = isMirror();
-    if (is_mirror != was_mirror)
-    {
-        if (is_mirror)
-        {
-            setParameterEntryInUse(LLNetworkData::PARAMS_MIRROR, TRUE, true);
-        }
-        else
-        {
-            setParameterEntryInUse(LLNetworkData::PARAMS_MIRROR, FALSE, true);
-        }
-    }
-    
-    updateMirrorDrawable();
-    
-    return was_mirror != is_mirror;
-}
-
-void LLVOVolume::updateMirrorDrawable()
-{
-    if (isMirror())
-    {
-        gPipeline.mHeroProbeManager.registerHeroDrawable(this);
-    }
-    else
-    {
-        gPipeline.mHeroProbeManager.unregisterHeroDrawable(this);
-    }
-}
-
-BOOL LLVOVolume::isMirror() const
-{
-    return mIsMirror;
-}
-
-U8 LLVOVolume::mirrorFace() const
-{
-    return mMirrorFace;
-}
-
 BOOL LLVOVolume::isReflectionProbe() const
 {
     return getParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE);
@@ -3434,22 +3384,6 @@ bool LLVOVolume::setReflectionProbeIsBox(bool is_box)
         if (param_block->getIsBox() != is_box)
         {
             param_block->setIsBox(is_box);
-            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool LLVOVolume::setReflectionProbeIsPlane(bool is_plane)
-{
-    LLReflectionProbeParams *param_block = (LLReflectionProbeParams *) getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
-    if (param_block)
-    {
-        if (param_block->getIsBox() != is_plane)
-        {
-            param_block->setIsBox(is_plane);
             parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
             return true;
         }
@@ -4463,25 +4397,34 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
 	}
    
     updateReflectionProbePtr();
-    
-    if (isMirror())
-        gPipeline.mHeroProbeManager.registerHeroDrawable(this);
-    else
-        gPipeline.mHeroProbeManager.unregisterHeroDrawable(this);
 }
 
 void LLVOVolume::updateReflectionProbePtr()
 {
     if (isReflectionProbe())
     {
-        if (mReflectionProbe.isNull())
+        if (mReflectionProbe.isNull() && !getReflectionProbeIsMirror())
         {
             mReflectionProbe = gPipeline.mReflectionMapManager.registerViewerObject(this);
         }
+        else if (mReflectionProbe.isNull() && getReflectionProbeIsMirror())
+		{
+			// Geenz: This is a special case - what we want here is a hero probe.
+			// What we want to do here is instantiate a hero probe from the hero probe manager.
+            gPipeline.mHeroProbeManager.registerViewerObject(this);
+		}
     }
-    else if (mReflectionProbe.notNull())
+    else if (mReflectionProbe.notNull() || getReflectionProbeIsMirror())
     {
-        mReflectionProbe = nullptr;
+        if (mReflectionProbe.notNull())
+        {
+            mReflectionProbe = nullptr;
+        }
+
+		if (getReflectionProbeIsMirror())
+        {
+            gPipeline.mHeroProbeManager.unregisterViewerObject(this);
+        }
     }
 }
 
