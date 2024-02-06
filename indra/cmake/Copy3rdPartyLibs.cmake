@@ -182,6 +182,10 @@ elseif(DARWIN)
       set(release_files ${release_files} libfmod.dylib)
     endif ()
 
+    if (TARGET ll::openal)
+	  list(APPEND release_files libalut.dylib libopenal.dylib)
+    endif ()
+
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
     # and we don't seem to have any debug shared libs built yet anyways...
