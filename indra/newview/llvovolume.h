@@ -305,13 +305,17 @@ public:
     bool setReflectionProbeAmbiance(F32 ambiance);
     bool setReflectionProbeNearClip(F32 near_clip);
     bool setReflectionProbeIsBox(bool is_box);
+    bool setReflectionProbeIsPlane(bool is_plane);
     bool setReflectionProbeIsDynamic(bool is_dynamic);
+    bool setReflectionProbeIsMirror(bool is_mirror);
 
     BOOL isReflectionProbe() const override;
     F32 getReflectionProbeAmbiance() const;
     F32 getReflectionProbeNearClip() const;
     bool getReflectionProbeIsBox() const;
+    bool getReflectionProbeIsPlane() const;
     bool getReflectionProbeIsDynamic() const;
+    bool getReflectionProbeIsMirror() const;
     
     BOOL isMirror() const override;
 

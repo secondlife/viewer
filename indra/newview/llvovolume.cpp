@@ -3442,6 +3442,22 @@ bool LLVOVolume::setReflectionProbeIsBox(bool is_box)
     return false;
 }
 
+bool LLVOVolume::setReflectionProbeIsPlane(bool is_plane)
+{
+    LLReflectionProbeParams *param_block = (LLReflectionProbeParams *) getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        if (param_block->getIsBox() != is_plane)
+        {
+            param_block->setIsBox(is_plane);
+            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool LLVOVolume::setReflectionProbeIsDynamic(bool is_dynamic)
 {
     LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
@@ -3450,6 +3466,22 @@ bool LLVOVolume::setReflectionProbeIsDynamic(bool is_dynamic)
         if (param_block->getIsDynamic() != is_dynamic)
         {
             param_block->setIsDynamic(is_dynamic);
+            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool LLVOVolume::setReflectionProbeIsMirror(bool is_mirror)
+{
+    LLReflectionProbeParams *param_block = (LLReflectionProbeParams *) getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        if (param_block->getIsMirror() != is_mirror)
+        {
+            param_block->setIsMirror(is_mirror);
             parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
             return true;
         }
@@ -3501,6 +3533,18 @@ bool LLVOVolume::getReflectionProbeIsDynamic() const
     if (param_block)
     {
         return param_block->getIsDynamic();
+    }
+
+    return false;
+}
+
+bool LLVOVolume::getReflectionProbeIsMirror() const
+{
+    const LLReflectionProbeParams *param_block =
+        (const LLReflectionProbeParams *) getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        return param_block->getIsMirror();
     }
 
     return false;

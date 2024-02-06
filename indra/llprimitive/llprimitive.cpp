@@ -1968,6 +1968,19 @@ void LLReflectionProbeParams::setIsDynamic(bool is_dynamic)
     }
 }
 
+
+void LLReflectionProbeParams::setIsMirror(bool is_mirror)
+{
+    if (is_mirror)
+    {
+        mFlags |= FLAG_MIRROR;
+    }
+    else
+    {
+        mFlags &= ~FLAG_MIRROR;
+    }
+}
+
 //============================================================================
 LLFlexibleObjectData::LLFlexibleObjectData()
 {
