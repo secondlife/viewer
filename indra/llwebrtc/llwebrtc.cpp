@@ -84,14 +84,14 @@ LLCustomProcessor::LLCustomProcessor() :
     mSampleRateHz(0), 
     mNumChannels(0) 
 { 
-    memset(mSumVector, sizeof(mSumVector), 0); 
+    memset(mSumVector, 0, sizeof(mSumVector));
 }
 
 void LLCustomProcessor::Initialize(int sample_rate_hz, int num_channels)
 { 
     mSampleRateHz = sample_rate_hz;
     mNumChannels = num_channels;
-    memset(mSumVector, sizeof(mSumVector), 0);
+    memset(mSumVector, 0, sizeof(mSumVector));
 }
 
 void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
