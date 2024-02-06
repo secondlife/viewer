@@ -8509,23 +8509,8 @@ void handle_show_url(const LLSD& param)
 
 void handle_report_bug(const LLSD& param)
 {
-	LLUIString url(param.asString());
-	
-	LLStringUtil::format_map_t replace;
-	std::string environment = LLAppViewer::instance()->getViewerInfoString(true);
-	boost::regex regex;
-	regex.assign("</?nolink>");
-	std::string stripped_env = boost::regex_replace(environment, regex, "");
-
-	replace["[ENVIRONMENT]"] = LLURI::escape(stripped_env);
-	LLSLURL location_url;
-	LLAgentUI::buildSLURL(location_url);
-	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());
-
-	LLUIString file_bug_url = gSavedSettings.getString("ReportBugURL");
-	file_bug_url.setArgs(replace);
-
-	LLWeb::loadURLExternal(file_bug_url.getString());
+    std::string url = gSavedSettings.getString("ReportBugURL");
+    LLWeb::loadURLExternal(url);
 }
 
 void handle_buy_currency_test(void*)
