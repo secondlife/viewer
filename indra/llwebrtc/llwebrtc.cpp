@@ -40,6 +40,46 @@
 namespace llwebrtc
 {
 
+LLAudioDeviceObserver::LLAudioDeviceObserver() : mMicrophoneEnergy(0.0), mSumVector {0} {}
+
+float LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
+
+void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
+                                          const size_t   num_samples,
+                                          const size_t   bytes_per_sample,
+                                          const size_t   num_channels,
+                                          const uint32_t samples_per_sec)
+{
+    float        energy  = 0;
+    const short *samples = (const short *) audio_samples;
+    for (size_t index = 0; index < num_samples * num_channels; index++)
+    {
+        float sample = (static_cast<float>(samples[index]) / (float) 32767);
+        energy += sample * sample;
+    }
+
+    // smooth it.
+    size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
+    float  totalSum    = 0;
+    int    i;
+    for (i = 0; i < (buffer_size - 1); i++)
+    {
+        mSumVector[i] = mSumVector[i + 1];
+        totalSum += mSumVector[i];
+    }
+    mSumVector[i] = energy;
+    totalSum += energy;
+    mMicrophoneEnergy = std::sqrt(totalSum / (num_samples * buffer_size));
+}
+
+void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
+                                         const size_t   num_samples,
+                                         const size_t   bytes_per_sample,
+                                         const size_t   num_channels,
+                                         const uint32_t samples_per_sec)
+{
+}
+
 LLCustomProcessor::LLCustomProcessor() :
     mSampleRateHz(0), 
     mNumChannels(0) 
@@ -118,12 +158,13 @@ void LLWebRTCImpl::init()
     mSignalingThread->SetName("WebRTCSignalingThread", nullptr);
     mSignalingThread->Start();
 
+    mTuningAudioDeviceObserver = new LLAudioDeviceObserver;
     mWorkerThread->PostTask(
                             [this]()
                             {
                                  mTuningDeviceModule =  webrtc::CreateAudioDeviceWithDataObserver(
-                                    webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
-                                                                          mTaskQueueFactory.get(), nullptr);
+                                    webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio, mTaskQueueFactory.get(),
+                std::unique_ptr<webrtc::AudioDeviceDataObserver>(mTuningAudioDeviceObserver));
                                 mTuningDeviceModule->Init();
                                 mTuningDeviceModule->SetStereoRecording(true);
                                 mTuningDeviceModule->SetStereoPlayout(true);
@@ -164,9 +205,9 @@ void LLWebRTCImpl::init()
                                     mPeerDeviceModule->InitPlayout();
                                 });
 
-    mCustomProcessor = new LLCustomProcessor;
+    mPeerCustomProcessor = new LLCustomProcessor;
     webrtc::AudioProcessingBuilder apb;
-    apb.SetCapturePostProcessing(std::unique_ptr<webrtc::CustomProcessing>(mCustomProcessor));
+    apb.SetCapturePostProcessing(std::unique_ptr<webrtc::CustomProcessing>(mPeerCustomProcessor));
     rtc::scoped_refptr<webrtc::AudioProcessing> apm = apb.Create();
 
     webrtc::AudioProcessing::Config             apm_config;
@@ -471,9 +512,9 @@ void LLWebRTCImpl::setTuningMode(bool enable)
     }
 }
 
-float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mCustomProcessor->getMicrophoneEnergy()); }
+float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mTuningAudioDeviceObserver->getMicrophoneEnergy()); }
 
-float LLWebRTCImpl::getPeerAudioLevel() { return -20 * log10f(mCustomProcessor->getMicrophoneEnergy()); }
+float LLWebRTCImpl::getPeerAudioLevel() { return -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy()); }
 
 //
 // Helpers
