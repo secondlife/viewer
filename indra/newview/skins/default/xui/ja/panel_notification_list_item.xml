@@ -40,7 +40,7 @@
 									<text name="sender_or_fee_box">
 										送信者：住民 じゅうみん
 									</text>
-									<text name="notification_time" value="2014年12月24日　23：30"/>
+									<text name="notification_time" value="2014年12月24日 23:30"/>
 								</panel>
 							</panel>
 						</layout_panel>
@@ -76,7 +76,7 @@
 									<text name="sender_or_fee_box_exp">
 										送信者：住民 じゅうみん
 									</text>
-									<text name="notification_time_exp" value="2014年12月24日　23：30"/>
+									<text name="notification_time_exp" value="2014年12月24日 23:30"/>
 								</panel>
 								<panel name="notification_text_panel_exp">
 									<chat_editor name="notification_text_exp">

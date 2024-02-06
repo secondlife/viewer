@@ -9,8 +9,8 @@
 		過去の通知はありません
 	</panel.string>
 	<text name="lbl2">
-		通知は１４日間保存されます。
-１日の制限数は２００通です。
+		通知は14日間保存されます。
+1日の制限数は200通です。
 	</text>
 	<scroll_list name="notice_list">
 		<scroll_list.columns label="" name="icon"/>

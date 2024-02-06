@@ -5,7 +5,7 @@
 	</floater.string>
 	<panel label="wrapper_panel" name="wrapper_panel">
 		<text name="title_txt">
-			支払い方法を登録してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
+			支払い方法を追加してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
 		</text>
 		<button label="始めましょう" name="continue_btn"/>
 		<button label="また後で"/>

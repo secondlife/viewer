@@ -5,13 +5,13 @@
 		戻る
 	</text>
 	<text name="huds_title">
-		アクティブなＨＵＤ
+		アクティブなHUD
 	</text>
 	<text name="huds_desc1">
-		使用していないＨＵＤを取り外すとメモリが節約され、Second Lifeの処理が高速化されます。
+		使用していないHUDを取り外すとメモリが節約され、Second Lifeの処理が高速化されます。
 	</text>
 	<text name="huds_desc2">
-		注意：ＨＵＤの最小化ボタンを使用しても、ＨＵＤを取り外したことにはなりません。
+		注意：HUDの最小化ボタンを使用しても、HUDを取り外したことにはなりません。
 	</text>
 	<name_list name="hud_list">
 		<name_list.columns label="" name="complex_visual"/>
