@@ -769,6 +769,7 @@ class LLVoiceWebRTCConnection :
     void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface) override;
     //@}
 
+    void sendJoin();
     void sendData(const std::string &data);
 
 	virtual void processIceUpdates();
@@ -806,13 +807,13 @@ class LLVoiceWebRTCConnection :
         VOICE_STATE_REQUEST_CONNECTION     = 0x4,
         VOICE_STATE_CONNECTION_WAIT        = 0x8,
         VOICE_STATE_SESSION_ESTABLISHED    = 0x10,
-        VOICE_STATE_SESSION_UP             = 0x20,
-        VOICE_STATE_SESSION_RETRY          = 0x40,
-        VOICE_STATE_DISCONNECT             = 0x80,
-        VOICE_STATE_WAIT_FOR_EXIT          = 0x100,
-        VOICE_STATE_SESSION_EXIT           = 0x200,
-        VOICE_STATE_SESSION_STOPPING       = 0x3c0,
-        VOICE_STATE_SESSION_WAITING        = 0x10a
+        VOICE_STATE_WAIT_FOR_DATA_CHANNEL  = 0x20,
+        VOICE_STATE_SESSION_UP             = 0x40,
+        VOICE_STATE_SESSION_RETRY          = 0x80,
+        VOICE_STATE_DISCONNECT             = 0x100,
+        VOICE_STATE_WAIT_FOR_EXIT          = 0x200,
+        VOICE_STATE_SESSION_EXIT           = 0x400,
+        VOICE_STATE_SESSION_STOPPING       = 0x780
     } EVoiceConnectionState;
 
     EVoiceConnectionState mVoiceConnectionState;

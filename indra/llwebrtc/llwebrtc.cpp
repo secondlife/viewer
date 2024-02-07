@@ -476,40 +476,22 @@ void LLWebRTCImpl::OnDevicesUpdated()
 
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
-    mWorkerThread->BlockingCall(
-                                [this, enable]()
-                                {
-                                    if (enable)
-                                    {
-                                        
-                                        mTuningDeviceModule->StartRecording();
-                                        
-                                        if (mPeerDeviceModule)
-                                        {
-                                            mPeerDeviceModule->StopRecording();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        mTuningDeviceModule->StartRecording();
-                                        if (mPeerDeviceModule)
-                                        {
-                                            mPeerDeviceModule->StartRecording();
-                                        }
-                                    }
-                                });
-    for (auto& connection : mPeerConnections)
-    {
-        if (enable)
+    mSignalingThread->PostTask(
+        [this, enable]
         {
-            connection->enableSenderTracks(false);
-        }
-        else
-        {
-            connection->resetMute();
-        }
-        connection->enableReceiverTracks(!enable);
-    }
+            for (auto &connection : mPeerConnections)
+            {
+                if (enable)
+                {
+                    connection->enableSenderTracks(false);
+                }
+                else
+                {
+                    connection->resetMute();
+                }
+                connection->enableReceiverTracks(!enable);
+            }
+        });
 }
 
 float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mTuningAudioDeviceObserver->getMicrophoneEnergy()); }

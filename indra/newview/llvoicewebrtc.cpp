@@ -2843,9 +2843,23 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             mWebRTCAudioInterface->setReceiveVolume(mSpeakerVolume);
             mWebRTCAudioInterface->setSendVolume(mMicGain);
             LLWebRTCVoiceClient::getInstance()->OnConnectionEstablished(mChannelID, mRegionID);
-            setVoiceConnectionState(VOICE_STATE_SESSION_UP);
+            setVoiceConnectionState(VOICE_STATE_WAIT_FOR_DATA_CHANNEL);
+            break;
         }
-        break;
+        case VOICE_STATE_WAIT_FOR_DATA_CHANNEL:
+        {
+            if (mShutDown)
+            {
+                setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+                break;
+            }
+            if (mWebRTCDataInterface)
+            {
+                sendJoin();
+                setVoiceConnectionState(VOICE_STATE_SESSION_UP);
+            }
+            break;
+        }
         case VOICE_STATE_SESSION_UP:
         {
             if (mShutDown)
@@ -3006,19 +3020,22 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
     {
         mWebRTCDataInterface = data_interface;
         mWebRTCDataInterface->setDataObserver(this);
-
-        Json::FastWriter writer;
-        Json::Value      root     = Json::objectValue;
-        Json::Value      join_obj = Json::objectValue;
-        LLUUID           regionID = gAgent.getRegion()->getRegionID();
-        if (regionID == mRegionID)
-        {
-            join_obj["p"] = true;
-        }
-        root["j"]             = join_obj;
-        std::string json_data = writer.write(root);
-        mWebRTCDataInterface->sendData(json_data, false);
     }
+}
+
+void LLVoiceWebRTCConnection::sendJoin()
+{
+    Json::FastWriter writer;
+    Json::Value      root     = Json::objectValue;
+    Json::Value      join_obj = Json::objectValue;
+    LLUUID           regionID = gAgent.getRegion()->getRegionID();
+    if (regionID == mRegionID)
+    {
+        join_obj["p"] = true;
+    }
+    root["j"]             = join_obj;
+    std::string json_data = writer.write(root);
+    mWebRTCDataInterface->sendData(json_data, false);
 }
 
 /////////////////////////////
