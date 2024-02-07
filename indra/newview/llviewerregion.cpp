@@ -1105,6 +1105,11 @@ void LLViewerRegion::dirtyHeights()
 	}
 }
 
+void LLViewerRegion::dirtyAllPatches()
+{
+    getLand().dirtyAllPatches();
+}
+
 //physically delete the cache entry
 void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 {	
@@ -1605,7 +1610,19 @@ void LLViewerRegion::idleUpdate(F32 max_update_time)
 
 	mLastUpdate = LLViewerOctreeEntryData::getCurrentFrame();
 
-	mImpl->mLandp->idleUpdate(max_update_time);
+    static bool pbr_terrain_enabled = gSavedSettings.get<bool>("RenderTerrainPBREnabled");
+    static LLCachedControl<bool> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", FALSE);
+    bool pbr_material = mImpl->mCompositionp && (mImpl->mCompositionp->getMaterialType() == LLTerrainMaterials::Type::PBR);
+    bool pbr_land = pbr_material && pbr_terrain_enabled && pbr_terrain_experimental_normals;
+
+    if (!pbr_land)
+    {
+        mImpl->mLandp->idleUpdate</*PBR=*/false>(max_update_time);
+    }
+    else
+    {
+        mImpl->mLandp->idleUpdate</*PBR=*/true>(max_update_time);
+    }
 	
 	if (mParcelOverlay)
 	{
@@ -1906,7 +1923,21 @@ LLViewerObject* LLViewerRegion::updateCacheEntry(U32 local_id, LLViewerObject* o
 // As above, but forcibly do the update.
 void LLViewerRegion::forceUpdate()
 {
-	mImpl->mLandp->idleUpdate(0.f);
+	constexpr F32 max_update_time = 0.f;
+
+	static bool pbr_terrain_enabled = gSavedSettings.get<BOOL>("RenderTerrainPBREnabled");
+	static LLCachedControl<BOOL> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", FALSE);
+	bool pbr_material = mImpl->mCompositionp && (mImpl->mCompositionp->getMaterialType() == LLTerrainMaterials::Type::PBR);
+	bool pbr_land = pbr_material && pbr_terrain_enabled && pbr_terrain_experimental_normals;
+
+	if (!pbr_land)
+	{
+		mImpl->mLandp->idleUpdate</*PBR=*/false>(max_update_time);
+	}
+	else
+	{
+		mImpl->mLandp->idleUpdate</*PBR=*/true>(max_update_time);
+	}
 
 	if (mParcelOverlay)
 	{
