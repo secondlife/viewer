@@ -1739,6 +1739,20 @@ void LLLineEditor::drawBackground()
 	}
 }
 
+//virtual 
+const std::string LLLineEditor::getToolTip() const
+{
+    if (sDebugUnicode)
+    {
+        std::string text = getText();
+        std::string tooltip = utf8str_showBytesUTF8(text);
+        return tooltip;
+    }
+
+    return LLUICtrl::getToolTip();
+}
+
+//virtual 
 void LLLineEditor::draw()
 {
 	F32 alpha = getDrawContext().mAlpha;

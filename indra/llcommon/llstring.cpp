@@ -623,6 +623,7 @@ std::string mbcsstring_makeASCII(const std::string& wstr)
 	}
 	return out_str;
 }
+
 std::string utf8str_removeCRLF(const std::string& utf8str)
 {
 	if (0 == utf8str.length())
@@ -642,6 +643,54 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 		}
 	}
 	return out;
+}
+
+std::string utf8str_showBytesUTF8(const std::string& utf8str)
+{
+    std::string result;
+
+    bool in_sequence = false;
+    for (U8 byte : utf8str)
+    {
+        if (byte >= 0x80) // Part of an UTF-8 sequence
+        {
+            if (!in_sequence) // Start new UTF-8 sequence
+            {
+                if (!result.empty() && result.back() != ' ')
+                    result += ' '; // Use space as separator between ASCII and UTF-8
+                result += '[';
+            }
+            else if (byte >= 0xC0) // Start another UTF-8 sequence
+            {
+                result += "] ["; // Use space as separator between UTF-8 and UTF-8
+            }
+            else // Continue the same UTF-8 sequence
+            {
+                result += '.';
+            }
+            result += llformat("%02X", byte); // The byte is represented in hexadecimal form
+            in_sequence = true;
+        }
+        else // ASCII symbol is represented as a character
+        {
+            if (in_sequence) // End of UTF-8 sequence
+            {
+                result += ']';
+                if (byte != ' ')
+                {
+                    result += ' '; // Use space as separator between UTF-8 and ASCII
+                }
+            }
+            result += byte;
+            in_sequence = false;
+        }
+    }
+    if (in_sequence) // End of UTF-8 sequence
+    {
+        result += ']';
+    }
+
+    return result;
 }
 
 #if LL_WINDOWS

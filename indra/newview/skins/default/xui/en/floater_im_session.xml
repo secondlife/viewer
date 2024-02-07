@@ -288,7 +288,7 @@
                          expand_lines_count="5"
                          follows="left|right|bottom"
                          font="SansSerifSmall"
-                         height="20"    
+                         height="20"
                          is_expandable="true"
                          text_tentative_color="TextFgTentativeColor"
                          bg_writeable_color="ScriptBackground"
