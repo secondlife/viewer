@@ -10377,7 +10377,7 @@
         <key>Type</key>
         <string>S32</string>
         <key>Value</key>
-        <integer>2048</integer>
+        <integer>1024</integer>
     </map>
 	<key>RenderHeroProbeDistance</key>
 	<map>

@@ -68,10 +68,8 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
-    void registerHeroDrawable(LLVOVolume* drawablep);
-    void unregisterHeroDrawable(LLVOVolume* drawablep);
-
-    bool isViableMirror(LLFace* face) const;
+    void registerViewerObject(LLVOVolume *drawablep);
+    void unregisterViewerObject(LLVOVolume* drawablep);
 
     bool isMirrorPass() const { return mRenderingMirror; }
 
@@ -140,6 +138,5 @@ private:
     
     std::set<LLVOVolume*>               mHeroVOList;
     LLVOVolume*                         mNearestHero;
-    LLFace*                             mCurrentFace;
 };
 
