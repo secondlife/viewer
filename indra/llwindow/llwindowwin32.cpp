@@ -352,6 +352,9 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
+    // closes queue, wakes thread, waits until thread closes
+    void wakeAndClose();
+
     void glReady()
     {
         mGLReady = true;
@@ -1022,12 +1025,8 @@ void LLWindowWin32::close()
 
     mhDC = NULL;
     mWindowHandle = NULL;
-
-    // Window thread might be waiting for a getMessage(), give it
-    // a push to enshure it will process destroy_window_handler
-    kickWindowThread();
     
-    mWindowThread->close();
+    mWindowThread->wakeAndClose();
 }
 
 BOOL LLWindowWin32::isValid()
@@ -4938,6 +4937,39 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         mD3D = nullptr;
     }
 
+}
+
+void LLWindowWin32::LLWindowWin32Thread::wakeAndClose()
+{
+    if (!mQueue->isClosed())
+    {
+        LL_DEBUGS("Window") << "closing pool queue" << LL_ENDL;
+        mQueue->close();
+
+        // Post a nonsense user message to wake up the thred in
+        // case it is waiting for a getMessage()
+        // 
+        // Note that mWindowHandleThrd can change at any moment and isn't thread safe
+        // but since we aren't writing it, should be safe to use even if value is obsolete
+        // worst case dead handle gets reused and some new window ignores the message
+        HWND old_handle = mWindowHandleThrd;
+        if (old_handle)
+        {
+            WPARAM wparam{ 0xB0B0 };
+            LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
+                << ", " << WM_DUMMY_
+                << ", " << wparam << ")" << std::dec << LL_ENDL;
+            PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
+        }
+
+        // now wait for our one thread to die.
+        for (auto& pair : mThreads)
+        {
+            LL_DEBUGS("Window") << "waiting on pool's thread " << pair.first << LL_ENDL;
+            pair.second.join();
+        }
+        LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
+    }
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)
