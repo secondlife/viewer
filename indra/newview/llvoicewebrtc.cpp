@@ -3029,7 +3029,7 @@ void LLVoiceWebRTCConnection::sendJoin()
     Json::Value      root     = Json::objectValue;
     Json::Value      join_obj = Json::objectValue;
     LLUUID           regionID = gAgent.getRegion()->getRegionID();
-    if (regionID == mRegionID)
+    if ((regionID == mRegionID) || !isSpatial())
     {
         join_obj["p"] = true;
     }

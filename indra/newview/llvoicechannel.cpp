@@ -410,8 +410,9 @@ boost::signals2::connection LLVoiceChannel::setCurrentVoiceChannelChangedCallbac
 // LLVoiceChannelGroup
 //
 
-LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name) : 
-	LLVoiceChannel(session_id, session_name)
+LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name, BOOL hangup_on_last_leave) : 
+	LLVoiceChannel(session_id, session_name),
+    mHangupOnLastLeave(hangup_on_last_leave)
 {
 	mRetries = DEFAULT_RETRIES_COUNT;
 	mIsRetrying = FALSE;
@@ -438,7 +439,7 @@ void LLVoiceChannelGroup::activate()
 		LLVoiceClient::getInstance()->setNonSpatialChannel(
 			mURI,
 			mCredentials,
-			!LLVoiceClient::getInstance()->hasP2PInterface());
+			mHangupOnLastLeave);
 
 		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
 		{
@@ -520,7 +521,7 @@ void LLVoiceChannelGroup::setChannelInfo(
 		LLVoiceClient::getInstance()->setNonSpatialChannel(
 			mURI,
 			mCredentials,
-			!LLVoiceClient::getInstance()->hasP2PInterface());
+			mHangupOnLastLeave);
 	}
 }
 
@@ -792,7 +793,7 @@ void LLVoiceChannelProximal::deactivate()
 // LLVoiceChannelP2P
 //
 LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string& session_name, const LLUUID& other_user_id) : 
-		LLVoiceChannelGroup(session_id, session_name), 
+		LLVoiceChannelGroup(session_id, session_name, true), 
 		mOtherUserID(other_user_id),
 		mReceivedCall(FALSE)
 {
