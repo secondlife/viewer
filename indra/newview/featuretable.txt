@@ -1,4 +1,4 @@
-version 59
+version 60
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -96,6 +96,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
+RenderTerrainPBRDetail      1   -4
 RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
@@ -126,6 +127,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
+RenderTerrainPBRDetail      1   -1
 RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
@@ -154,6 +156,7 @@ RenderLocalLightCount		1	512
 RenderTransparentWater      1   0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.25
@@ -184,6 +187,7 @@ RenderLocalLightCount		1	1024
 RenderTransparentWater      1   1
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.375
@@ -214,6 +218,7 @@ RenderLocalLightCount		1	2048
 RenderTransparentWater      1   1
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.5
@@ -243,6 +248,7 @@ RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	4096
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
@@ -272,6 +278,7 @@ RenderLocalLightCount		1	8192
 RenderMaxPartCount			1	8192
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0

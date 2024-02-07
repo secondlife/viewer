@@ -640,6 +640,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
         const F32 triplanar_factor = gSavedSettings.getF32("RenderTerrainPBRTriplanarBlendFactor");
         attribs["TERRAIN_TRIPLANAR_BLEND_FACTOR"] = llformat("%.2f", triplanar_factor);
         S32 detail = gSavedSettings.getS32("RenderTerrainPBRDetail");
+        detail = llclamp(detail, TERRAIN_PBR_DETAIL_MIN, TERRAIN_PBR_DETAIL_MAX);
         attribs["TERRAIN_PBR_DETAIL"] = llformat("%d", detail);
     }
 
