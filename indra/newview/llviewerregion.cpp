@@ -2407,7 +2407,19 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	mSimulatorFeatures = sim_features;
 
 	setSimulatorFeaturesReceived(true);
-	
+
+    // if region has MaxTextureResolution, set max_texture_dimension settings, otherwise use default
+    if (mSimulatorFeatures.has("MaxTextureResolution"))
+    {
+        S32 max_texture_resolution = mSimulatorFeatures["MaxTextureResolution"].asInteger();
+        gSavedSettings.setS32("max_texture_dimension_X", max_texture_resolution);
+        gSavedSettings.setS32("max_texture_dimension_Y", max_texture_resolution);
+    }
+    else
+    {
+        gSavedSettings.setS32("max_texture_dimension_X", 1024);
+        gSavedSettings.setS32("max_texture_dimension_Y", 1024);
+    }
 }
 
 //this is called when the parent is not cacheable.
