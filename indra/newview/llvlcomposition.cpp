@@ -142,6 +142,27 @@ BOOL LLTerrainMaterials::texturesReady(BOOL boost)
 
 BOOL LLTerrainMaterials::materialsReady(BOOL boost)
 {
+#if 1
+    static bool sRenderTerrainPBREnabled = gSavedSettings.get<bool>("RenderTerrainPBREnabled");
+    static LLCachedControl<bool> sRenderTerrainPBRForce(gSavedSettings, "RenderTerrainPBRForce", false);
+    if (sRenderTerrainPBREnabled && sRenderTerrainPBRForce)
+    {
+        bool defined = true;
+        for (S32 i = 0; i < ASSET_COUNT; i++)
+        {
+            if (!mDetailMaterials[i])
+            {
+                defined = false;
+                break;
+            }
+        }
+        if (defined)
+        {
+            return TRUE;
+        }
+    }
+#endif
+
     BOOL ready = TRUE;
 	for (S32 i = 0; i < ASSET_COUNT; i++)
 	{
