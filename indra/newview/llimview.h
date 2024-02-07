@@ -417,7 +417,8 @@ public:
 		EInstantMessage type,
 		EInvitationType inv_type, 
 		const std::string& session_handle = LLStringUtil::null,
-		const std::string& session_uri = LLStringUtil::null);
+		const std::string& session_uri = LLStringUtil::null,
+		const std::string& voice_server_type = LLStringUtil::null);
 
 	void processIMTypingStart(const LLUUID& from_id, const EInstantMessage im_type);
 	void processIMTypingStop(const LLUUID& from_id, const EInstantMessage im_type);

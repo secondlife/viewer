@@ -674,8 +674,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	}
 	else
 	{
-		mVoiceChannel = new LLVoiceChannelGroup(session_id, name);
-
 		// determine whether it is group or conference session
 		if (gAgent.isInGroup(mSessionID))
 		{
@@ -690,6 +688,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 			// webrtc uses adhoc channels for p2p
             mSessionType = P2P_SESSION;
 		}
+        mVoiceChannel = new LLVoiceChannelGroup(session_id, name, mSessionType == P2P_SESSION);
 	}
 
 	if(mVoiceChannel)
@@ -3432,7 +3431,8 @@ void LLIMMgr::inviteToSession(
 	EInstantMessage type,
 	EInvitationType inv_type,
 	const std::string& session_handle,
-	const std::string& session_uri)
+	const std::string& session_uri,
+	const std::string& voice_server_type)
 {
 	std::string notify_box_type;
 	// voice invite question is different from default only for group call (EXT-7118)
@@ -4153,12 +4153,15 @@ public:
 				return;
 			}
 
+			std::string voice_server_type = input["body"]["voice"].get("voice_server_type").asString();
+            BOOL        session_type_p2p  = input["body"]["voice"].get("p2p").asBoolean();
+
 			gIMMgr->inviteToSession(
 				input["body"]["session_id"].asUUID(),
 				input["body"]["session_name"].asString(),
 				input["body"]["from_id"].asUUID(),
 				input["body"]["from_name"].asString(),
-				IM_SESSION_INVITE,
+				session_type_p2p ? IM_SESSION_P2P_INVITE : IM_SESSION_INVITE,
 				LLIMMgr::INVITATION_TYPE_VOICE);
 		}
 		else if ( input["body"].has("immediate") )
