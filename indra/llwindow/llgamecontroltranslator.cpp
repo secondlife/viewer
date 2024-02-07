@@ -45,9 +45,8 @@ LLGameControlTranslator::LLGameControlTranslator()
     mNameToMask["push_backward"] = AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT;
     mNameToMask["turn_left"] = AGENT_CONTROL_YAW_POS;
     mNameToMask["turn_right"] = AGENT_CONTROL_YAW_NEG;
-    // WTF?  need to swap LEFT signs
-    mNameToMask["slide_left"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
-    mNameToMask["slide_right"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
+    mNameToMask["slide_left"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
+    mNameToMask["slide_right"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
     mNameToMask["jump"] = AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP;
     mNameToMask["push_down"] = AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP;
 
@@ -97,12 +96,12 @@ void LLGameControlTranslator::loadDefaults()
     // axes
     std::vector< std::pair< std::string, U8 > > default_axes =
     {
-        { "push_forward",  (U8)(LLGameControl::AXIS_LEFTY_NEG)        },
-        { "push_backward", (U8)(LLGameControl::AXIS_LEFTY_POS)        },
-        { "slide_left",    (U8)(LLGameControl::AXIS_LEFTX_NEG)        },
-        { "slide_right",   (U8)(LLGameControl::AXIS_LEFTX_POS)        },
-        { "turn_left",     (U8)(LLGameControl::AXIS_RIGHTX_NEG)       },
-        { "turn_right",    (U8)(LLGameControl::AXIS_RIGHTX_POS)       },
+        { "push_forward",  (U8)(LLGameControl::AXIS_LEFTY_POS)        },
+        { "push_backward", (U8)(LLGameControl::AXIS_LEFTY_NEG)        },
+        { "turn_left",     (U8)(LLGameControl::AXIS_LEFTX_POS)        },
+        { "turn_right",    (U8)(LLGameControl::AXIS_LEFTX_NEG)        },
+        { "slide_left",    (U8)(LLGameControl::AXIS_RIGHTX_POS)       },
+        { "slide_right",   (U8)(LLGameControl::AXIS_RIGHTX_NEG)       },
         { "jump",          (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) },
         { "push_down",     (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS)  }
     };

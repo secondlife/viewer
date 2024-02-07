@@ -33,6 +33,36 @@
 #include "llsingleton.h"
 #include "stdtypes.h"
 
+// For reference, here are the RAW indices of the various input channels
+// of a standard XBox controller.  Button (N) is numbered in parentheses,
+// whereas axisN has N+ and N- labels.
+//
+//                 leftpaddle                          rightpaddle
+//                 _______                               _______
+//                /   4+  '-.                         .-'  5+   \
+// leftshoulder _(9)_________'-.____           ____.-'_________(10) rightshoulder
+//             /  _________         \_________/                   \
+//            /  /    1-   \                               (3)     \
+//            | |           |     (4)   (5)   (6)           Y      |
+//            | |0-  (7)  0+|               _________  (2)X   B(1) |
+//            | |           |              /    3-   \      A      |
+//            | |     1+    |             |           |    (0)     |
+//            |  \_________/              |2-  (8)  2+|            |
+//            |  leftstick     (11)       |           |            |
+//            |             (13)  (14)    |     3+    |            |
+//            |                (12)        \_________/             |
+//            |               d-pad         rightstick             |
+//            |                ____________________                |
+//            |              /                      \              |
+//            |             /                        \             |
+//            |            /                          \            |
+//             \__________/                            \__________/
+//
+// Note: the analog joystics provide NEGATIVE X,Y values for LEFT,FORWARD
+// whereas those directions are actually POSITIVE in SL's local right-handed
+// reference frame.  This is why we implicitly negate those axes the moment
+// they are extracted from SDL, before being used anywhere.  See the
+// implementation in LLGameControllerManager::onAxis().
 
 // LLGameControl is a singleton with pure static public interface
 class LLGameControl : public LLSingleton<LLGameControl>
@@ -42,6 +72,7 @@ class LLGameControl : public LLSingleton<LLGameControl>
     LOG_CLASS(LLGameControl);
 
 public:
+
     enum KeyboardAxis
     {
         AXIS_LEFTX_NEG = 0,
@@ -71,7 +102,7 @@ public:
         BUTTON_LEFTSTICK,
         BUTTON_RIGHTSTICK,
         BUTTON_LEFTSHOULDER,
-        BUTTON_RIGHTSHOULDER,
+        BUTTON_RIGHTSHOULDER, // 10
         BUTTON_DPAD_UP,
         BUTTON_DPAD_DOWN,
         BUTTON_DPAD_LEFT,
@@ -81,7 +112,7 @@ public:
         BUTTON_PADDLE2,
         BUTTON_PADDLE3,
         BUTTON_PADDLE4,
-        BUTTON_TOUCHPAD,
+        BUTTON_TOUCHPAD, // 20
         BUTTON_21,
         BUTTON_22,
         BUTTON_23,
