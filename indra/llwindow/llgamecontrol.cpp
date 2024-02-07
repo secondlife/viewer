@@ -93,6 +93,7 @@ void LLGameControl::InputChannel::initChannelMap()
 
 bool LLGameControl::InputChannel::isNegAxis() const
 {
+    // The organization of negative axis is odd
     return mType == LLGameControl::InputChannel::TYPE_AXIS
         && mIndex == 2 * (mIndex / 2);
 }
@@ -428,11 +429,11 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
     size_t index = getControllerIndex(id);
     if (index < mControllers.size())
     {
-        // Due to the odd XYZ coordinate frame of SL (X-forward, Y-left, Z-up)
-        // the LEFT direction is positive on the Y-axis, rather than negative.
-        // Meanwhile, SDL considers positive X to be RIGHT.  Therefore, by default
-        // we negate the X-component of the two controller joysticks:
-        if (axis == SDL_CONTROLLER_AXIS_LEFTX || axis == SDL_CONTROLLER_AXIS_RIGHTX)
+        // Note: the RAW analog joystics provide NEGATIVE X,Y values for LEFT,FORWARD
+        // whereas those directions are actually POSITIVE in SL's local right-handed
+        // reference frame.  Therefore we implicitly negate those axes here where
+        // they are extracted from SDL, before being used anywhere.
+        if (axis < SDL_CONTROLLER_AXIS_TRIGGERLEFT)
         {
             // danger: S16 value is in range [-32768, 32767] which means
             // the negative range has an extra possible value.  We need
