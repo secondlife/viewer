@@ -10844,6 +10844,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderTerrainPBRForce</key>
+    <map>
+      <key>Comment</key>
+      <string>Force-load PBR terrain if enabled</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderTerrainPBRDetail</key>
     <map>
       <key>Comment</key>
