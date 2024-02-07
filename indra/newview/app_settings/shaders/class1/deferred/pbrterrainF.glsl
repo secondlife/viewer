@@ -41,7 +41,6 @@
 #define MIX_Z    1 << 5
 #define MIX_W    1 << 6
 
-// TODO: Decide if this struct needs to be declared
 struct TerrainMix
 {
     vec4 weight;
@@ -50,7 +49,6 @@ struct TerrainMix
 
 TerrainMix get_terrain_mix_weights(float alpha1, float alpha2, float alphaFinal);
 
-// TODO: Decide if this struct needs to be declared
 struct PBRMix
 {
     vec4 col;       // RGB color with alpha, linear space
