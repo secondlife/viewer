@@ -240,6 +240,9 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
     return riggedShader.createShader(NULL, NULL);
 }
 
+#ifdef SHOW_ASSERT
+// return true if there are no redundant shaders in the given vector
+// also checks for redundant variants
 static bool no_redundant_shaders(const std::vector<LLGLSLShader*>& shaders)
 {
     std::set<std::string> names;
@@ -264,6 +267,7 @@ static bool no_redundant_shaders(const std::vector<LLGLSLShader*>& shaders)
     }
     return true;
 }
+#endif
 
 
 LLViewerShaderMgr::LLViewerShaderMgr() :
