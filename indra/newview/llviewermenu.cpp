@@ -1437,6 +1437,30 @@ class LLAdvancedCheckDebugViews : public view_listener_t
 
 
 
+///////////////////
+// DEBUG UNICODE //
+///////////////////
+
+
+class LLAdvancedToggleDebugUnicode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLView::sDebugUnicode = !(LLView::sDebugUnicode);
+		return true;
+	}
+};
+
+class LLAdvancedCheckDebugUnicode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLView::sDebugUnicode;
+	}
+};
+
+
+
 ///////////////////////
 // XUI NAME TOOLTIPS //
 ///////////////////////
@@ -9524,6 +9548,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugViews(), "Advanced.ToggleDebugViews");
+	view_listener_t::addMenu(new LLAdvancedCheckDebugUnicode(), "Advanced.CheckDebugUnicode");
+	view_listener_t::addMenu(new LLAdvancedToggleDebugUnicode(), "Advanced.ToggleDebugUnicode");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINameTooltips(), "Advanced.ToggleXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINameTooltips(), "Advanced.CheckXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugMouseEvents(), "Advanced.ToggleDebugMouseEvents");

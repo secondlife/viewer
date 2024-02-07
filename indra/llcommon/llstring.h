@@ -743,6 +743,7 @@ LL_COMMON_API std::string mbcsstring_makeASCII(const std::string& str);
 
 LL_COMMON_API std::string utf8str_removeCRLF(const std::string& utf8str);
 
+LL_COMMON_API std::string utf8str_showBytesUTF8(const std::string& utf8str);
 
 #if LL_WINDOWS
 /* @name Windows string helpers

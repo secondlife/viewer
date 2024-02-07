@@ -659,6 +659,9 @@ public:
 	// Draw debug rectangles around widgets to help with alignment and spacing
 	static bool	sDebugRects;
 
+	// Show hexadecimal byte values of unicode symbols in a tooltip
+	static bool	sDebugUnicode;
+
 	static bool sIsRectDirty;
 	static LLRect sDirtyRect;
 
