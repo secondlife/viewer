@@ -109,7 +109,6 @@ public:
         PARAMS_EXTENDED_MESH = 0x70,
         PARAMS_RENDER_MATERIAL = 0x80,
         PARAMS_REFLECTION_PROBE = 0x90,
-        PARAMS_MIRROR = 0x100,
 	};
 	
 public:
@@ -173,16 +172,6 @@ public:
 	F32 getCutoff() const					{ return mCutoff; }
 };
 
-class LLMirrorParams : public LLNetworkData
-{
-public:
-    LLMirrorParams();
-    /*virtual*/ BOOL pack(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker &dp);
-    /*virtual*/ bool operator==(const LLNetworkData& data) const;
-    /*virtual*/ void copy(const LLNetworkData& data);
-};
-
 extern const F32 REFLECTION_PROBE_MIN_AMBIANCE;
 extern const F32 REFLECTION_PROBE_MAX_AMBIANCE;
 extern const F32 REFLECTION_PROBE_DEFAULT_AMBIANCE;
@@ -197,6 +186,7 @@ public:
     {
         FLAG_BOX_VOLUME     = 0x01, // use a box influence volume
         FLAG_DYNAMIC        = 0x02, // render dynamic objects (avatars) into this Reflection Probe
+		FLAG_MIRROR			= 0x04, // This probe is used for reflections on realtime mirrors.
     };
 
 protected:
@@ -220,11 +210,13 @@ public:
     void setClipDistance(F32 distance) { mClipDistance = llclamp(distance, REFLECTION_PROBE_MIN_CLIP_DISTANCE, REFLECTION_PROBE_MAX_CLIP_DISTANCE); }
     void setIsBox(bool is_box);
     void setIsDynamic(bool is_dynamic);
+    void setIsMirror(bool is_mirror);
 
     F32 getAmbiance() const { return mAmbiance; }
     F32 getClipDistance() const { return mClipDistance; }
     bool getIsBox() const { return (mFlags & FLAG_BOX_VOLUME) != 0; }
     bool getIsDynamic() const { return (mFlags & FLAG_DYNAMIC) != 0; }
+    bool getIsMirror() const { return (mFlags & FLAG_MIRROR) != 0; }
 };
 
 //-------------------------------------------------
