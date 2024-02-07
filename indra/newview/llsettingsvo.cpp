@@ -718,11 +718,11 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     // TODO -- make these getters return vec3s
-    LLVector3 sunDiffuse = LLVector3(psky->getSunlightColor().mV);
-    LLVector3 moonDiffuse = LLVector3(psky->getMoonlightColor().mV);
+    LLVector3 sun_light_color = LLVector3(psky->getSunlightColor().mV);
+    LLVector3 moon_light_color = LLVector3(psky->getMoonlightColor().mV);
 
-    shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sunDiffuse);
-    shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, moonDiffuse);
+    shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color);
+    shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, moon_light_color);
 
     shader->uniform3fv(LLShaderMgr::CLOUD_COLOR, LLVector3(psky->getCloudColor().mV));
 
@@ -766,9 +766,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
             LLColor3 blue_horizon = getBlueHorizon() * auto_adjust_blue_horizon_scale;
             LLColor3 blue_density = getBlueDensity() * auto_adjust_blue_density_scale;
-            LLColor3 sun_diffuse = getSunDiffuse() * auto_adjust_sun_color_scale;
+            sun_light_color = sun_light_color * auto_adjust_sun_color_scale;
             
-            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_diffuse.mV);
+            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color.mV);
             shader->uniform3fv(LLShaderMgr::BLUE_DENSITY, blue_density.mV);
             shader->uniform3fv(LLShaderMgr::BLUE_HORIZON, blue_horizon.mV);
 
