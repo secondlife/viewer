@@ -407,8 +407,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     }
 }
 
-LuaState::LuaState(const std::string_view& desc, script_finished_fn cb):
-    mDesc(desc),
+LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
     mState(luaL_newstate())
 {
@@ -450,17 +449,47 @@ LuaState::~LuaState()
     }    
 }
 
-bool LuaState::checkLua(int r)
+bool LuaState::checkLua(const std::string& desc, int r)
 {
     if (r != LUA_OK)
     {
         mError = lua_tostring(mState, -1);
         lua_pop(mState, 1);
 
-        LL_WARNS() << mDesc << ": " << mError << LL_ENDL;
+        LL_WARNS() << desc << ": " << mError << LL_ENDL;
         return false;
     }
     return true;
+}
+
+std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text)
+{
+    if (! checkLua(desc, lluau::dostring(mState, desc, text)))
+        return { -1, mError };
+
+    // here we believe there was no error -- did the Lua fragment leave
+    // anything on the stack?
+    std::pair<int, LLSD> result{ lua_gettop(mState), {} };
+    if (! result.first)
+        return result;
+
+    // aha, at least one entry on the stack!
+    if (result.first == 1)
+    {
+        result.second = lua_tollsd(mState, 1);
+        // pop the result we claimed
+        lua_settop(mState, 0);
+        return result;
+    }
+
+    // multiple entries on the stack
+    for (int index = 1; index <= result.first; ++index)
+    {
+        result.second.append(lua_tollsd(mState, index));
+    }
+    // pop everything
+    lua_settop(mState, 0);
+    return result;
 }
 
 

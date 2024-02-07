@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
+#include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
 #include "lua_function.h"
@@ -54,6 +55,14 @@ extern LLUIListener sUIListener;
 #include <sstream>
 #include <string_view>
 #include <vector>
+
+lua_function(sleep)
+{
+    F32 seconds = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    llcoro::suspendUntilTimeout(seconds);
+    return 0;
+};
 
 /*
 // This function consumes ALL Lua stack arguments and returns concatenated
@@ -262,21 +271,34 @@ lua_function(await_event)
 
 void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn cb)
 {
+    // A script_finished_fn is used to initialize the LuaState.
+    // It will be called when the LuaState is destroyed.
+    LuaState L(cb);
+    runScriptFile(L, filename);
+}
+
+void LLLUAmanager::runScriptFile(const std::string& filename, script_result_fn cb)
+{
+    LuaState L;
+    // A script_result_fn will be called when LuaState::expr() completes.
+    runScriptFile(L, filename, cb);
+}
+
+std::pair<int, LLSD> LLLUAmanager::waitScriptFile(LuaState& L, const std::string& filename)
+{
+    LLCoros::Promise<std::pair<int, LLSD>> promise;
+    auto future{ LLCoros::getFuture(promise) };
+    runScriptFile(L, filename,
+                  [&promise](int count, LLSD result)
+                  { promise.set_value({ count, result }); });
+    return future.get();
+}
+
+void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, script_result_fn cb)
+{
     std::string desc{ stringize("runScriptFile('", filename, "')") };
-    LLCoros::instance().launch(desc, [desc, filename, cb]()
+    LLCoros::instance().launch(desc, [&L, desc, filename, cb]()
     {
-        LuaState L(desc, cb);
-
-        auto LUA_sleep_func = [](lua_State *L)
-        {
-            F32 seconds = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-            llcoro::suspendUntilTimeout(seconds);
-            return 0;
-        };
-
-        lua_register(L, "sleep", LUA_sleep_func);
-
         llifstream in_file;
         in_file.open(filename.c_str());
 
@@ -284,16 +306,50 @@ void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn
         {
             std::string text{std::istreambuf_iterator<char>(in_file),
                              std::istreambuf_iterator<char>()};
-            L.checkLua(lluau::dostring(L, desc, text));
+            auto [count, result] = L.expr(desc, text);
+            if (cb)
+            {
+                cb(count, result);
+            }
         }
         else
         {
-            LL_WARNS("Lua") << "unable to open script file '" << filename << "'" << LL_ENDL;
+            auto msg{ stringize("unable to open script file '", filename, "'") };
+            LL_WARNS("Lua") << msg << LL_ENDL;
+            if (cb)
+            {
+                cb(-1, msg);
+            }
         }
     });
 }
 
 void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
+{
+    // A script_finished_fn is used to initialize the LuaState.
+    // It will be called when the LuaState is destroyed.
+    LuaState L(cb);
+    runScriptLine(L, cmd);
+}
+
+void LLLUAmanager::runScriptLine(const std::string& cmd, script_result_fn cb)
+{
+    LuaState L;
+    // A script_result_fn will be called when LuaState::expr() completes.
+    runScriptLine(L, cmd, cb);
+}
+
+std::pair<int, LLSD> LLLUAmanager::waitScriptLine(LuaState& L, const std::string& cmd)
+{
+    LLCoros::Promise<std::pair<int, LLSD>> promise;
+    auto future{ LLCoros::getFuture(promise) };
+    runScriptLine(L, cmd,
+                  [&promise](int count, LLSD result)
+                  { promise.set_value({ count, result }); });
+    return future.get();
+}
+
+void LLLUAmanager::runScriptLine(LuaState& L, const std::string& cmd, script_result_fn cb)
 {
     // find a suitable abbreviation for the cmd string
     std::string_view shortcmd{ cmd };
@@ -305,10 +361,13 @@ void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
         shortcmd = stringize(shortcmd.substr(0, shortlen), "...");
 
     std::string desc{ stringize("runScriptLine('", shortcmd, "')") };
-    LLCoros::instance().launch(desc, [desc, cmd, cb]()
+    LLCoros::instance().launch(desc, [&L, desc, cmd, cb]()
     {
-        LuaState L(desc, cb);
-        L.checkLua(lluau::dostring(L, desc, cmd));
+        auto [count, result] = L.expr(desc, cmd);
+        if (cb)
+        {
+            cb(count, result);
+        }
     });
 }
 

@@ -17,6 +17,7 @@
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
 #include "stringize.h"
+#include <utility>                  // std::pair
 
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
@@ -55,19 +56,28 @@ class LuaState
 public:
     typedef std::function<void(std::string msg)> script_finished_fn;
 
-    LuaState(const std::string_view& desc, script_finished_fn cb);
+    LuaState(script_finished_fn cb={});
 
     LuaState(const LuaState&) = delete;
     LuaState& operator=(const LuaState&) = delete;
 
     ~LuaState();
 
-    bool checkLua(int r);
+    bool checkLua(const std::string& desc, int r);
+
+    // expr() is for when we want to capture any results left on the stack
+    // by a Lua expression, possibly including multiple return values.
+    // int <  0 means error, and LLSD::asString() is the error message.
+    // int == 0 with LLSD::isUndefined() means the Lua expression returned no
+    //          results.
+    // int == 1 means the Lua expression returned one result.
+    // int >  1 with LLSD::isArray() means the Lua expression returned
+    //          multiple results, represented as the entries of the array.
+    std::pair<int, LLSD> expr(const std::string& desc, const std::string& text);
 
     operator lua_State*() const { return mState; }
 
 private:
-    std::string mDesc;
     script_finished_fn mCallback;
     lua_State* mState;
     std::string mError;
@@ -129,13 +139,13 @@ private:
  * call() method definition header, to be followed by a method body enclosed
  * in curly braces as usual.
  */
-#define lua_function(name)                      \
-static struct name##_ : public LuaFunction      \
-{                                               \
-    name##_(): LuaFunction(#name, &call) {}     \
-    static int call(lua_State* L);              \
-} name;                                         \
-int name##_::call(lua_State* L)
+#define lua_function(name)                          \
+static struct name##_luadecl : public LuaFunction   \
+{                                                   \
+    name##_luadecl(): LuaFunction(#name, &call) {}  \
+    static int call(lua_State* L);                  \
+} name##_luadef;                                    \
+int name##_luadecl::call(lua_State* L)
 // {
 //     ... supply method body here, referencing 'L' ...
 // }
