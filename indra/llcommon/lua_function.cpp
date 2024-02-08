@@ -47,7 +47,10 @@ int lluau::dostring(lua_State* L, const std::string& desc, const std::string& te
             return r;
     } // free bytecode
 
-    return lua_pcall(L, 0, 0, 0);
+    // It's important to pass LUA_MULTRET as the expected number of return
+    // values: if we pass any fixed number, we discard any returned values
+    // beyond that number.
+    return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
 std::string lua_tostdstring(lua_State* L, int index)
@@ -95,16 +98,20 @@ LLSD lua_tollsd(lua_State* L, int index)
 
     case LUA_TNUMBER:
     {
-        // check if integer truncation leaves the number intact
-        int isint;
-        lua_Integer intval{ lua_tointegerx(L, index, &isint) };
-        if (isint)
+        // Vanilla Lua supports lua_tointegerx(), which tells the caller
+        // whether the number at the specified stack index is or is not an
+        // integer. Apparently the function exists but does not work right in
+        // Luau: it reports even non-integer numbers as integers.
+        // Instead, check if integer truncation leaves the number intact.
+        lua_Number  numval{ lua_tonumber(L, index) };
+        lua_Integer intval{ narrow(numval) };
+        if (lua_Number(intval) == numval)
         {
             return LLSD::Integer(intval);
         }
         else
         {
-            return lua_tonumber(L, index);
+            return numval;
         }
     }
 
