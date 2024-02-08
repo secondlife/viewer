@@ -366,9 +366,11 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 	LLVLComposition *compp = regionp->getComposition();
 	LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
 
-	constexpr U32 shader_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
 	constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
+#ifdef SHOW_ASSERT
+	constexpr U32 shader_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
 	llassert(shader_material_count == terrain_material_count);
+#endif
 
     if (local_materials)
     {
