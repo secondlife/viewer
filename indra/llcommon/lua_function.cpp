@@ -508,16 +508,18 @@ LuaPopper::~LuaPopper()
     }
 }
 
-LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function)
+LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
+                         const std::string_view& helptext)
 {
-    getRegistry().emplace(name, function);
+    getRegistry().emplace(name, Registry::mapped_type{ function, helptext });
 }
 
 void LuaFunction::init(lua_State* L)
 {
-    for (const auto& pair: getRegistry())
+    for (const auto& [name, pair]: getRegistry())
     {
-        lua_register(L, pair.first.c_str(), pair.second);
+        const auto& [funcptr, helptext] = pair;
+        lua_register(L, name.c_str(), funcptr);
     }
 }
 
@@ -527,7 +529,7 @@ lua_CFunction LuaFunction::get(const std::string& key)
     // unknown key
     const auto& registry{ getRegistry() };
     auto found{ registry.find(key) };
-    return (found == registry.end())? nullptr : found->second;
+    return (found == registry.end())? nullptr : found->second.first;
 }
 
 LuaFunction::Registry& LuaFunction::getRegistry()

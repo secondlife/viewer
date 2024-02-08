@@ -56,7 +56,7 @@ extern LLUIListener sUIListener;
 #include <string_view>
 #include <vector>
 
-lua_function(sleep)
+lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
     F32 seconds = lua_tonumber(L, -1);
     lua_pop(L, 1);
@@ -106,20 +106,20 @@ std::string lua_print_msg(lua_State* L, const std::string_view& level)
     return msg;
 }
 
-lua_function(print_debug)
+lua_function(print_debug, "print_debug(args...): DEBUG level logging")
 {
     LL_DEBUGS("Lua") << lua_print_msg(L, "DEBUG") << LL_ENDL;
     return 0;
 }
 
 // also used for print(); see LuaState constructor
-lua_function(print_info)
+lua_function(print_info, "print_info(args...): INFO level logging")
 {
     LL_INFOS("Lua") << lua_print_msg(L, "INFO") << LL_ENDL;
     return 0;
 }
 
-lua_function(print_warning)
+lua_function(print_warning, "print_warning(args...): WARNING level logging")
 {
     LL_WARNS("Lua") << lua_print_msg(L, "WARN") << LL_ENDL;
     return 0;
@@ -127,7 +127,9 @@ lua_function(print_warning)
 
 #ifndef LL_TEST
 
-lua_function(run_ui_command)
+lua_function(run_ui_command,
+             "run_ui_command(name [, parameter]): "
+             "call specified UI command with specified parameter")
 {
 	int top = lua_gettop(L);
 	std::string func_name;
@@ -154,7 +156,7 @@ lua_function(run_ui_command)
 }
 #endif // ! LL_TEST
 
-lua_function(post_on)
+lua_function(post_on, "post_on(pumpname, data): post specified data to specified LLEventPump")
 {
     std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
@@ -164,7 +166,10 @@ lua_function(post_on)
     return 0;
 }
 
-lua_function(listen_events)
+lua_function(listen_events,
+             "listen_events(callback): call callback(pumpname, data) with events received\n"
+             "on this Lua chunk's replypump.\n"
+             "Returns replypump, commandpump: names of LLEventPumps specific to this chunk.")
 {
     if (! lua_isfunction(L, 1))
     {
@@ -237,9 +242,10 @@ lua_function(listen_events)
     return 2;
 }
 
-lua_function(await_event)
+lua_function(await_event,
+             "await_event(pumpname [, timeout [, value to return if timeout (default nil)]]):\n"
+             "pause the running Lua chunk until the next event on the named LLEventPump")
 {
-    // await_event(pumpname [, timeout [, value to return if timeout (default nil)]])
     auto pumpname{ lua_tostdstring(L, 1) };
     LLSD result;
     if (lua_gettop(L) > 1)

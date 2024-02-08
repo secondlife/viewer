@@ -124,19 +124,20 @@ struct LuaPopper
 class LuaFunction
 {
 public:
-    LuaFunction(const std::string_view& name, lua_CFunction function);
+    LuaFunction(const std::string_view& name, lua_CFunction function,
+                const std::string_view& helptext);
 
     static void init(lua_State* L);
 
     static lua_CFunction get(const std::string& key);
 
 private:
-    using Registry = std::map<std::string, lua_CFunction>;
+    using Registry = std::map<std::string, std::pair<lua_CFunction, std::string>>;
     static Registry& getRegistry();
 };
 
 /**
- * lua_function(name) is a macro to facilitate defining C++ functions
+ * lua_function(name, helptext) is a macro to facilitate defining C++ functions
  * available to Lua. It defines a subclass of LuaFunction and declares a
  * static instance of that subclass, thereby forcing the compiler to call its
  * constructor at module initialization time. The constructor passes the
@@ -145,13 +146,13 @@ private:
  * call() method definition header, to be followed by a method body enclosed
  * in curly braces as usual.
  */
-#define lua_function(name)                          \
-static struct name##_luadecl : public LuaFunction   \
-{                                                   \
-    name##_luadecl(): LuaFunction(#name, &call) {}  \
-    static int call(lua_State* L);                  \
-} name##_luadef;                                    \
-int name##_luadecl::call(lua_State* L)
+#define lua_function(name, helptext)                        \
+static struct name##_luasub : public LuaFunction            \
+{                                                           \
+    name##_luasub(): LuaFunction(#name, &call, helptext) {} \
+    static int call(lua_State* L);                          \
+} name##_luadecl;                                           \
+int name##_luasub::call(lua_State* L)
 // {
 //     ... supply method body here, referencing 'L' ...
 // }
