@@ -38,6 +38,7 @@
 #include <vector>
 #include <map>
 #include "llformat.h"
+#include "stdtypes.h"
 
 #if LL_LINUX
 #include <wctype.h>
