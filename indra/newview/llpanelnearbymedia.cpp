@@ -30,6 +30,7 @@
 
 #include "llaudioengine.h"
 #include "llcheckboxctrl.h"
+#include "llclipboard.h"
 #include "llcombobox.h"
 #include "llresizebar.h"
 #include "llresizehandle.h"
@@ -53,7 +54,9 @@
 #include "llvovolume.h"
 #include "llstatusbar.h"
 #include "llsdutil.h"
+#include "lltoggleablemenu.h"
 #include "llvieweraudio.h"
+#include "llviewermenu.h"
 
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h" // for the gear icon
@@ -77,7 +80,8 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	  mAllMediaDisabled(false),
 	  mDebugInfoVisible(false),
 	  mParcelMediaItem(NULL),
-	  mParcelAudioItem(NULL)
+	  mParcelAudioItem(NULL),
+      mMoreLessBtn(NULL)
 {
     // This is just an initial value, mParcelAudioAutoStart does not affect ParcelMediaAutoPlayEnable
     mParcelAudioAutoStart = gSavedSettings.getS32("ParcelMediaAutoPlayEnable") != 0
@@ -96,7 +100,14 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Volume",	boost::bind(&LLPanelNearByMedia::onCommitSelectedMediaVolume, this));
 	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Zoom",		boost::bind(&LLPanelNearByMedia::onClickSelectedMediaZoom, this));
 	mCommitCallbackRegistrar.add("SelectedMediaCtrl.Unzoom",	boost::bind(&LLPanelNearByMedia::onClickSelectedMediaUnzoom, this));
-	
+
+    // Context menu handler.
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Action",
+                                 [this](LLUICtrl* ctrl, const LLSD& data)
+                                 {
+                                     onMenuAction(data);
+                                 });
+
 	buildFromFile( "panel_nearby_media.xml");
 }
 
@@ -147,7 +158,8 @@ BOOL LLPanelNearByMedia::postBuild()
 	mUnzoomCtrl = getChild<LLUICtrl>("unzoom");
 	mVolumeSlider = getChild<LLSlider>("volume_slider");
 	mMuteBtn = getChild<LLButton>("mute_btn");
-	
+    mMoreLessBtn = getChild<LLButton>("more_btn");
+
 	mEmptyNameString = getString("empty_item_text");
 	mParcelMediaName = getString("parcel_media_name");
 	mParcelAudioName = getString("parcel_audio_name");
@@ -166,8 +178,13 @@ BOOL LLPanelNearByMedia::postBuild()
 	mLessRect = getRect();
 	mLessRect.mBottom = minimized_controls->getRect().mBottom;
 
-	getChild<LLUICtrl>("more_btn")->setVisible(false);
+    mMoreLessBtn->setVisible(false);
 	onMoreLess();
+
+    mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
+        "menu_nearby_media.xml",
+        gMenuHolder,
+        LLViewerMenuHolderGL::child_registry_t::instance());
 	
 	return TRUE;
 }
@@ -193,8 +210,7 @@ void LLPanelNearByMedia::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLPanelPulldown::reshape(width, height, called_from_parent);
 
-	LLButton* more_btn = findChild<LLButton>("more_btn");
-	if (more_btn && more_btn->getValue().asBoolean())
+	if (mMoreLessBtn && mMoreLessBtn->getValue().asBoolean())
 	{
 		mMoreRect = getRect();
 	}
@@ -232,6 +248,26 @@ BOOL LLPanelNearByMedia::handleHover(S32 x, S32 y, MASK mask)
 		
 	// Always handle
 	return true;
+}
+
+BOOL LLPanelNearByMedia::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+    S32 x_list, y_list;
+    localPointToOtherView(x, y, &x_list, &y_list, mMediaList);
+    if (mMoreLessBtn->getToggleState()
+        && mMediaList->pointInView(x_list, y_list)
+        && mMediaList->selectItemAt(x_list, y_list, mask))
+    {
+        if (mContextMenu)
+        {
+            mContextMenu->buildDrawLabels();
+            mContextMenu->updateParent(LLMenuGL::sMenuContainer);
+            LLMenuGL::showPopup(this, mContextMenu, x, y);
+            return TRUE;
+        }
+    }
+
+    return LLPanelPulldown::handleRightMouseDown(x, y, mask);
 }
 
 bool LLPanelNearByMedia::getParcelAudioAutoStart()
@@ -923,7 +959,7 @@ void LLPanelNearByMedia::onAdvancedButtonClick()
 
 void LLPanelNearByMedia::onMoreLess()
 {
-	bool is_more = getChild<LLButton>("more_btn")->getToggleState();
+	bool is_more = mMoreLessBtn->getToggleState();
 	mNearbyMediaPanel->setVisible(is_more);
 
 	// enable resizing when expanded
@@ -934,7 +970,7 @@ void LLPanelNearByMedia::onMoreLess()
 
 	setShape(new_rect);
 
-	getChild<LLUICtrl>("more_btn")->setVisible(true);
+    mMoreLessBtn->setVisible(true);
 }
 
 void LLPanelNearByMedia::updateControls()
@@ -1174,6 +1210,38 @@ void LLPanelNearByMedia::onClickSelectedMediaUnzoom()
 	LLViewerMediaFocus::getInstance()->unZoom();
 }
 
+void LLPanelNearByMedia::onMenuAction(const LLSD& userdata)
+{
+    const std::string command_name = userdata.asString();
+    if ("copy" == command_name)
+    {
+        LLClipboard::instance().reset();
+        LLUUID selected_media_id = mMediaList->getValue().asUUID();
+        std::string url;
+
+        if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
+        {
+            url = LLViewerMedia::getInstance()->getParcelAudioURL();
+        }
+        else if (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID)
+        {
+            url = LLViewerParcelMedia::getInstance()->getURL();
+        }
+        else
+        {
+            LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(selected_media_id);
+            if (NULL != impl)
+            {
+                url = impl->getCurrentMediaURL();
+            }
+        }
+
+        if (!url.empty())
+        {
+            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, url.size());
+        }
+    }
+}
 
 // static
 void LLPanelNearByMedia::getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName)
