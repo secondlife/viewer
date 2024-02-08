@@ -137,7 +137,7 @@ private:
     bool mRenderingMirror = false;
     bool mHasMirrors      = false;
     
-    std::set<LLVOVolume*>               mHeroVOList;
-    LLVOVolume*                         mNearestHero;
+    std::set<LLPointer<LLVOVolume>>               mHeroVOList;
+    LLPointer<LLVOVolume>                         mNearestHero;
 };
 

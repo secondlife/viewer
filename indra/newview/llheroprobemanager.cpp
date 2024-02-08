@@ -126,7 +126,7 @@ void LLHeroProbeManager::update()
 
         for (auto vo : mHeroVOList)
         {
-            if (vo)
+            if (vo && !vo->isDead())
             {
                 if (vo->mDrawable.notNull())
                 {
@@ -148,7 +148,7 @@ void LLHeroProbeManager::update()
             }
         }
 
-        if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
+        if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
             LLVector3 face_normal = LLVector3(0, 0, 1);
@@ -167,6 +167,10 @@ void LLHeroProbeManager::update()
         
 
             probe_pos.load3(point.mV);
+        }
+        else
+        { 
+            mNearestHero = nullptr;
         }
             
         mHeroProbeStrength = 1;
