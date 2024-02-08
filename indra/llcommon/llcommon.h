@@ -36,7 +36,7 @@ public:
 	static void initClass();
 	static void cleanupClass();
 private:
-	static BOOL sAprInitialized;
+	static bool sAprInitialized;
 };
 
 #endif
