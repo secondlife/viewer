@@ -36,6 +36,7 @@ class LLSlider;
 class LLSliderCtrl;
 class LLCheckBoxCtrl;
 class LLTextBox;
+class LLToggleableMenu;
 class LLComboBox;
 class LLViewerMediaImpl;
 
@@ -43,10 +44,11 @@ class LLPanelNearByMedia : public LLPanelPulldown
 {
 public:
 	
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	BOOL postBuild() override;
+	void draw() override;
+	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
+    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 
 	// this is part of the nearby media *dialog* so we can track whether
 	// the user *implicitly* wants audio on or off via their *explicit*
@@ -104,15 +106,12 @@ private:
 	void onClickDisableAll();
 	void onClickEnableParcelMedia();
 	void onClickDisableParcelMedia();
-	void onClickMuteParcelMedia();
-	void onParcelMediaVolumeSlider();
 	void onClickParcelMediaPlay();
 	void onClickParcelMediaStop();
 	void onClickParcelMediaPause();
 	void onClickParcelAudioPlay();
 	void onClickParcelAudioStop();
 	void onClickParcelAudioPause();
-	void onCheckAutoPlay();
 	void onAdvancedButtonClick();	
 	void onMoreLess();	
 	
@@ -141,6 +140,7 @@ private:
 	void onCommitSelectedMediaVolume();
 	void onClickSelectedMediaZoom();
 	void onClickSelectedMediaUnzoom();
+    void onMenuAction(const LLSD& userdata);
 	
 	LLUICtrl*			mNearbyMediaPanel;
 	LLScrollListCtrl*		mMediaList;
@@ -158,6 +158,7 @@ private:
 	LLUICtrl*			mUnzoomCtrl;
 	LLSlider*			mVolumeSlider;
 	LLButton*			mMuteBtn;
+	LLButton*			mMoreLessBtn;
 	
 	bool				mAllMediaDisabled;
 	bool				mDebugInfoVisible;
@@ -171,6 +172,7 @@ private:
 	LLRect				mLessRect;
 	LLScrollListItem*	mParcelMediaItem;
 	LLScrollListItem*	mParcelAudioItem;
+	LLToggleableMenu*	mContextMenu;
 };
 
 
