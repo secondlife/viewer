@@ -10833,10 +10833,21 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderTerrainPBRForce</key>
+    <map>
+      <key>Comment</key>
+      <string>Force-load PBR terrain if enabled</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderTerrainPBRDetail</key>
     <map>
       <key>Comment</key>
-      <string>Detail level for PBR terrain. 0 is full detail. Negative values drop rendering features in accordance with the GLTF specification, which reduces the number of texture binds. Some Intel and Mac graphics drivers do not support more than 16 texture binds. Because PBR terrain exceeds this limit at the highest detail level, reducing texture binds is necessary for compatibility.</string>
+      <string>Detail level for PBR terrain. 0 is full detail. Negative values drop rendering features, in accordance with the GLTF specification when possible, which reduces the number of texture binds.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
