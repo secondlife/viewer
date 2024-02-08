@@ -27,6 +27,7 @@
 #ifndef LL_LLLUAMANAGER_H
 #define LL_LLLUAMANAGER_H
 
+#include "llcoros.h"
 #include "llsd.h"
 #include <functional>
 #include <string>
@@ -52,16 +53,30 @@ public:
     static void runScriptFile(const std::string &filename, script_finished_fn cb = {});
     static void runScriptFile(const std::string &filename, script_result_fn cb);
     static void runScriptFile(LuaState& L, const std::string &filename, script_result_fn cb = {});
+    // Start running a Lua script file, returning an LLCoros::Future whose
+    // get() method will pause the calling coroutine until it can deliver the
+    // (count, result) pair described above. Between startScriptFile() and
+    // Future::get(), the caller and the Lua script coroutine will run
+    // concurrently.
+    static LLCoros::Future<std::pair<int, LLSD>>
+        startScriptFile(LuaState& L, const std::string& filename);
     // Run a Lua script file, and pause the calling coroutine until it completes.
     // The return value is the (count, result) pair described above.
     static std::pair<int, LLSD> waitScriptFile(LuaState& L, const std::string& filename);
 
-    static void runScriptLine(const std::string &cmd, script_finished_fn cb = {});
-    static void runScriptLine(const std::string &cmd, script_result_fn cb);
-    static void runScriptLine(LuaState& L, const std::string &cmd, script_result_fn cb = {});
-    // Run a Lua expression string, and pause the calling coroutine until it completes.
+    static void runScriptLine(const std::string &chunk, script_finished_fn cb = {});
+    static void runScriptLine(const std::string &chunk, script_result_fn cb);
+    static void runScriptLine(LuaState& L, const std::string &chunk, script_result_fn cb = {});
+    // Start running a Lua chunk, returning an LLCoros::Future whose
+    // get() method will pause the calling coroutine until it can deliver the
+    // (count, result) pair described above. Between startScriptLine() and
+    // Future::get(), the caller and the Lua script coroutine will run
+    // concurrently.
+    static LLCoros::Future<std::pair<int, LLSD>>
+        startScriptLine(LuaState& L, const std::string& chunk);
+    // Run a Lua chunk, and pause the calling coroutine until it completes.
     // The return value is the (count, result) pair described above.
-    static std::pair<int, LLSD> waitScriptLine(LuaState& L, const std::string& cmd);
+    static std::pair<int, LLSD> waitScriptLine(LuaState& L, const std::string& chunk);
 
     static void runScriptOnLogin();
 };

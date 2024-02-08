@@ -64,13 +64,13 @@ lua_function(sleep)
     return 0;
 };
 
-/*
 // This function consumes ALL Lua stack arguments and returns concatenated
 // message string
-std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
+std::string lua_print_msg(lua_State* L, const std::string_view& level)
 {
-    // On top of existing Lua arguments, push 'where' info
-    luaL_checkstack(L, 1, nullptr);
+    // On top of existing Lua arguments, we're going to push tostring() and
+    // duplicate each existing stack entry so we can stringize each one.
+    luaL_checkstack(L, 2, nullptr);
     luaL_where(L, 1);
     // start with the 'where' info at the top of the stack
     std::ostringstream out;
@@ -79,7 +79,7 @@ std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
     const char* sep = "";           // 'where' info ends with ": "
     // now iterate over arbitrary args, calling Lua tostring() on each and
     // concatenating with separators
-    for (int p = 1; p <= lua_gettop(L); ++p)
+    for (int p = 1, top = lua_gettop(L); p <= top; ++p)
     {
         out << sep;
         sep = " ";
@@ -87,35 +87,21 @@ std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
         // lua_tostring()!
         lua_getglobal(L, "tostring");
         // Now the stack is arguments 1 .. N, plus tostring().
-        // Rotate downwards, producing stack args 2 .. N, tostring(), arg1.
-        lua_rotate(L, 1, -1);
-        // pop tostring() and arg1, pushing tostring(arg1)
+        // Push a copy of the argument at index p.
+        lua_pushvalue(L, p);
+        // pop tostring() and arg-p, pushing tostring(arg-p)
         // (ignore potential error code from lua_pcall() because, if there was
         // an error, we expect the stack top to be an error message -- which
         // we'll print)
         lua_pcall(L, 1, 1, 0);
-        // stack now holds args 2 .. N, tostring(arg1)
         out << lua_tostring(L, -1);
+        lua_pop(L, 1);
     }
     // pop everything
     lua_settop(L, 0);
     // capture message string
     std::string msg{ out.str() };
     // put message out there for any interested party (*koff* LLFloaterLUADebug *koff*)
-    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
-    return msg;
-}
-*/
-
-std::string lua_print_msg(lua_State *L, const std::string_view &level)
-{
-    lua_getglobal(L, "tostring");
-    
-    lua_pushvalue(L, -1); /* function to be called */
-    lua_pushvalue(L, 1);  /* value to print */
-    lua_call(L, 1, 1);
-    std::string msg = lua_tostring(L, -1);
-
     LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
     return msg;
 }
@@ -187,19 +173,24 @@ lua_function(listen_events)
     }
     luaL_checkstack(L, 2, nullptr);
 
+/*==========================================================================*|
     // Get the lua_State* for the main thread of this state, in case we were
     // called from a coroutine thread. We're going to make callbacks into Lua
     // code, and we want to do it on the main thread rather than a (possibly
     // suspended) coroutine thread.
     // Registry table is at pseudo-index LUA_REGISTRYINDEX
     // Main thread is at registry key LUA_RIDX_MAINTHREAD
-    auto regtype {lua_rawgeti(L, LUA_REGISTRYINDEX, 1 /*LUA_RIDX_MAINTHREAD*/)};
+    auto regtype {lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD)};
     // Not finding the main thread at the documented place isn't a user error,
     // it's a Problem
     llassert_always(regtype == LUA_TTHREAD);
     lua_State* mainthread{ lua_tothread(L, -1) };
     // pop the main thread
     lua_pop(L, 1);
+|*==========================================================================*/
+    // Luau is based on Lua 5.1, and Lua 5.1 apparently provides no way to get
+    // back to the main thread from a coroutine thread?
+    lua_State* mainthread{ L };
 
     luaL_checkstack(mainthread, 1, nullptr);
     LuaListener::ptr_t listener;
@@ -284,14 +275,21 @@ void LLLUAmanager::runScriptFile(const std::string& filename, script_result_fn c
     runScriptFile(L, filename, cb);
 }
 
+LLCoros::Future<std::pair<int, LLSD>>
+LLLUAmanager::startScriptFile(LuaState& L, const std::string& filename)
+{
+    // Despite returning from startScriptFile(), we need this Promise to
+    // remain alive until the callback has fired.
+    auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
+    runScriptFile(L, filename,
+                  [promise](int count, LLSD result)
+                  { promise->set_value({ count, result }); });
+    return LLCoros::getFuture(*promise);
+}
+
 std::pair<int, LLSD> LLLUAmanager::waitScriptFile(LuaState& L, const std::string& filename)
 {
-    LLCoros::Promise<std::pair<int, LLSD>> promise;
-    auto future{ LLCoros::getFuture(promise) };
-    runScriptFile(L, filename,
-                  [&promise](int count, LLSD result)
-                  { promise.set_value({ count, result }); });
-    return future.get();
+    return startScriptFile(L, filename).get();
 }
 
 void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, script_result_fn cb)
@@ -324,46 +322,53 @@ void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, scrip
     });
 }
 
-void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
+void LLLUAmanager::runScriptLine(const std::string& chunk, script_finished_fn cb)
 {
     // A script_finished_fn is used to initialize the LuaState.
     // It will be called when the LuaState is destroyed.
     LuaState L(cb);
-    runScriptLine(L, cmd);
+    runScriptLine(L, chunk);
 }
 
-void LLLUAmanager::runScriptLine(const std::string& cmd, script_result_fn cb)
+void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn cb)
 {
     LuaState L;
     // A script_result_fn will be called when LuaState::expr() completes.
-    runScriptLine(L, cmd, cb);
+    runScriptLine(L, chunk, cb);
 }
 
-std::pair<int, LLSD> LLLUAmanager::waitScriptLine(LuaState& L, const std::string& cmd)
+LLCoros::Future<std::pair<int, LLSD>>
+LLLUAmanager::startScriptLine(LuaState& L, const std::string& chunk)
 {
-    LLCoros::Promise<std::pair<int, LLSD>> promise;
-    auto future{ LLCoros::getFuture(promise) };
-    runScriptLine(L, cmd,
-                  [&promise](int count, LLSD result)
-                  { promise.set_value({ count, result }); });
-    return future.get();
+    // Despite returning from startScriptLine(), we need this Promise to
+    // remain alive until the callback has fired.
+    auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
+    runScriptLine(L, chunk,
+                  [promise](int count, LLSD result)
+                  { promise->set_value({ count, result }); });
+    return LLCoros::getFuture(*promise);
 }
 
-void LLLUAmanager::runScriptLine(LuaState& L, const std::string& cmd, script_result_fn cb)
+std::pair<int, LLSD> LLLUAmanager::waitScriptLine(LuaState& L, const std::string& chunk)
 {
-    // find a suitable abbreviation for the cmd string
-    std::string_view shortcmd{ cmd };
+    return startScriptLine(L, chunk).get();
+}
+
+void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_result_fn cb)
+{
+    // find a suitable abbreviation for the chunk string
+    std::string shortchunk{ chunk };
     const size_t shortlen = 40;
-    std::string::size_type eol = shortcmd.find_first_of("\r\n");
+    std::string::size_type eol = shortchunk.find_first_of("\r\n");
     if (eol != std::string::npos)
-        shortcmd = shortcmd.substr(0, eol);
-    if (shortcmd.length() > shortlen)
-        shortcmd = stringize(shortcmd.substr(0, shortlen), "...");
+        shortchunk = shortchunk.substr(0, eol);
+    if (shortchunk.length() > shortlen)
+        shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
-    std::string desc{ stringize("runScriptLine('", shortcmd, "')") };
-    LLCoros::instance().launch(desc, [&L, desc, cmd, cb]()
+    std::string desc{ stringize("runScriptLine('", shortchunk, "')") };
+    LLCoros::instance().launch(desc, [&L, desc, chunk, cb]()
     {
-        auto [count, result] = L.expr(desc, cmd);
+        auto [count, result] = L.expr(desc, chunk);
         if (cb)
         {
             cb(count, result);
