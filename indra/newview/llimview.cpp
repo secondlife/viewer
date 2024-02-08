@@ -87,7 +87,10 @@ const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
-void startConfrenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
+void startConferenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
+
+void startP2PCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
+
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
 void start_deprecated_conference_chat(const LLUUID& temp_session_id, const LLUUID& creator_id, const LLUUID& other_participant_id, const LLSD& agents_to_invite);
@@ -396,7 +399,7 @@ void on_new_message(const LLSD& msg)
 	notify_of_message(msg, false);
 }
 
-void startConfrenceCoro(std::string url,
+void startConferenceCoro(std::string url,
     LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -434,6 +437,35 @@ void startConfrenceCoro(std::string url,
         //but the error string were unneeded here previously
         //and it is not worth the effort switching over all
         //the possible different language translations
+    }
+}
+
+void startP2PCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID otherParticipantId)
+{
+    LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ConferenceChatStart", httpPolicy));
+    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData;
+    postData["method"]     = "start p2p";
+    postData["session-id"] = sessionID;
+    postData["params"]     = otherParticipantId;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("LLIMModel") << "Failed to start conference" << LL_ENDL;
+        // try an "old school" way.
+        //  *TODO: What about other error status codes?  4xx 5xx?
+        if (status == LLCore::HttpStatus(HTTP_BAD_REQUEST))
+        {
+            static const std::string error_string("session_does_not_exist_error");
+            gIMMgr->showSessionStartError(error_string, sessionID);
+        }
     }
 }
 
@@ -2041,8 +2073,7 @@ bool LLIMModel::sendStartSession(
 
 		return true;
 	}
-    else if (( dialog == IM_SESSION_CONFERENCE_START ) || 
-		     (((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL)) && !LLVoiceClient::getInstance()->hasP2PInterface()))
+    else if (dialog == IM_SESSION_CONFERENCE_START ) 
 	{
 		LLSD agents;
 		for (int i = 0; i < (S32) ids.size(); i++)
@@ -2057,8 +2088,8 @@ bool LLIMModel::sendStartSession(
 			std::string url = region->getCapability(
 				"ChatSessionRequest");
 
-            LLCoros::instance().launch("startConfrenceCoro",
-                boost::bind(&startConfrenceCoro, url,
+            LLCoros::instance().launch("startConferenceCoro",
+                boost::bind(&startConferenceCoro, url,
                 temp_session_id, gAgent.getID(), other_participant_id, agents));
 		}
 		else
@@ -2072,6 +2103,26 @@ bool LLIMModel::sendStartSession(
 
 		//we also need to wait for reply from the server in case of ad-hoc chat (we'll get new session id)
 		return true;
+	}
+	else if (((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL)) && !LLVoiceClient::getInstance()->hasP2PInterface())
+	{
+        LLSD agents;
+        for (int i = 0; i < (S32) ids.size(); i++)
+        {
+            agents.append(ids[i]);
+        }
+
+        // we have a new way of starting conference calls now
+        LLViewerRegion *region = gAgent.getRegion();
+        if (region)
+        {
+            std::string url = region->getCapability("ChatSessionRequest");
+
+            LLCoros::instance().launch(
+                "startP2P",
+                boost::bind(&startP2PCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
+        }
+        return true;
 	}
 
 	return false;
