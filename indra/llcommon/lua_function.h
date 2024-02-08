@@ -26,15 +26,21 @@ namespace lluau
 {
     // luau defines luaL_error() as void, but we want to use the Lua idiom of
     // 'return error(...)'. Wrap luaL_error() in an int function.
+#if __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-security"
+#endif // __clang__
     template<typename... Args>
     int error(lua_State* L, const char* format, Args&&... args)
     {
         luaL_error(L, format, std::forward<Args>(args)...);
+#ifndef LL_MSVC
         return 0;
+#endif
     }
+#if __clang__
 #pragma clang diagnostic pop
+#endif // __clang__
 
     // luau removed lua_dostring(), but since we perform the equivalent luau
     // sequence in multiple places, encapsulate it. desc and text are strings
