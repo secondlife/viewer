@@ -198,12 +198,6 @@ void main()
 
         vec3 v = -normalize(pos.xyz);
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
-        
-        /*#ifdef HERO_PROBES
-        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-
-            color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - gloss) * 11).xyz * specularColor;
-        #endif*/
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -226,18 +220,6 @@ void main()
         vec3 legacyenv = vec3(0);
 
         sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity, false, amblit_linear);
-        
-        #ifdef HERO_PROBES
-        float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
-        if (clipDist > 0.0 && clipDist < 0.1 && spec.a > 0.8)
-        {
-            vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-            if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
-            {
-                radiance = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-spec.a)*11).xyz;
-            }
-        }
-        #endif
 
         adjustIrradiance(irradiance, ambocc);
 
@@ -273,10 +255,6 @@ void main()
 
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
-
-            /*#ifdef HERO_PROBES
-            color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - spec.a) * 11).xyz * spec.rgb;
-            #endif*/
 
         }
 
