@@ -2559,7 +2559,19 @@ even though the user gets a free copy.
              name="Box"
              value="Box"/>
           </combo_box>
+
+          <check_box
+           height="16"
+           label="Dynamic"
+           layout="topleft"
+           left="10"
+           name="Probe Dynamic"
+           tool_tip="When enabled, Avatars will appear in reflections within this probe's influence volume."
+           bottom_delta="19"
+           width="60" />
+          
           <text
+            bottom_delta="-8"
              type="string"
              length="1"
              follows="left|top"
@@ -2592,7 +2604,7 @@ even though the user gets a free copy.
              name="Mirror"
              value="Mirror"/>
           </combo_box>
-          <spinner bottom_delta="19"
+          <spinner bottom_delta="17"
                    decimal_digits="3"
                    follows="left|top"
                    height="16"

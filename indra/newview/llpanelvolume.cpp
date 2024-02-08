@@ -392,6 +392,11 @@ void LLPanelVolume::getState( )
 
     bool probe_enabled = is_probe && editable && single_volume;
 
+	getChildView("Probe Update Type")->setVisible(LLPipeline::RenderMirrors);
+    getChildView("Probe Update Label")->setVisible(LLPipeline::RenderMirrors);
+    getChildView("Probe Dynamic")->setVisible(!LLPipeline::RenderMirrors);
+
+    getChildView("Probe Dynamic")->setEnabled(probe_enabled);
     getChildView("Probe Update Type")->setEnabled(probe_enabled);
     getChildView("Probe Volume Type")->setEnabled(probe_enabled);
     getChildView("Probe Ambiance")->setEnabled(probe_enabled);
