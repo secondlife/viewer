@@ -21,7 +21,7 @@
 #include "lleventfilter.h"
 #endif
 
-class lua_State;
+struct lua_State;
 class LLLeapListener;
 
 /**
