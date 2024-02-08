@@ -114,7 +114,7 @@ void LLHeroProbeManager::update()
 
         for (auto vo : mHeroVOList)
         {
-            if (vo)
+            if (vo && !vo->isDead())
             {
                 if (vo->mDrawable.notNull())
                 {
@@ -127,60 +127,38 @@ void LLHeroProbeManager::update()
                 else
                 {
                     // Valid drawables only please.  Unregister this one.
-                    unregisterHeroDrawable(vo);
+                    unregisterViewerObject(vo);
                 }
             }
             else
             {
-                unregisterHeroDrawable(vo);
+                unregisterViewerObject(vo);
             }
         }
 
-        if (mNearestHero != nullptr && mNearestHero->mDrawable.notNull())
+        if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
-            U8        mode     = mNearestHero->mirrorFace();
-            mode    = llmin(mNearestHero->mDrawable->getNumFaces() - 1, mode);
+            LLVector3 hero_pos = mNearestHero->getPositionAgent();
+            LLVector3 face_normal = LLVector3(0, 0, 1);
 
-            mCurrentFace       = mNearestHero->mDrawable->getFace(mode);
-            LLVector3 hero_pos = mCurrentFace->getPositionAgent();
-
-
-            // Calculate the average normal.
-            LLVector4a *posp = mCurrentFace->getViewerObject()->getVolume()->getVolumeFace(mCurrentFace->getTEOffset()).mPositions;
-            U16        *indp = mCurrentFace->getViewerObject()->getVolume()->getVolumeFace(mCurrentFace->getTEOffset()).mIndices;
-            // get first three vertices (first triangle)
-            LLVector4a v0 = posp[indp[0]];
-            LLVector4a   v1 = posp[indp[1]];
-            LLVector4a   v2 = posp[indp[2]];
-
-            v1.sub(v0);
-            v2.sub(v0);
-            LLVector3 face_normal = LLVector3(v1[0], v1[1], v1[2]) % LLVector3(v2[0], v2[1], v2[2]);
-
+            face_normal *= mNearestHero->mDrawable->getXform()->getWorldRotation();
             face_normal.normalize();
-            face_normal *= mCurrentFace->getXform()->getWorldRotation();
 
             LLVector3 offset = camera_pos - hero_pos;
             LLVector3 project = face_normal * (offset * face_normal);
             LLVector3 reject  = offset - project;
             LLVector3 point   = (reject - project) + hero_pos;
 
-            glh::matrix4f mat     = copy_matrix(gGLModelView);
-            glh::vec4f    tc(face_normal.mV);
-            mat.mult_matrix_vec(tc);
-
-            LLVector3 mirror_normal;
-            mirror_normal.set(tc.v);
-
-            LLVector3 hero_pos_render;
-            tc = glh::vec4f(hero_pos.mV);
-
-            mat.mult_matrix_vec(tc);
-            hero_pos_render.set(tc.v);
-
-            mCurrentClipPlane.setVec(hero_pos_render, mirror_normal);
+            mCurrentClipPlane.setVec(hero_pos, face_normal);
+            mMirrorPosition = hero_pos;
+            mMirrorNormal   = face_normal;
+        
 
             probe_pos.load3(point.mV);
+        }
+        else
+        { 
+            mNearestHero = nullptr;
         }
             
         mHeroProbeStrength = 1;
@@ -227,7 +205,7 @@ void LLHeroProbeManager::update()
 void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip)
 {
     // hacky hot-swap of camera specific render targets
-    gPipeline.mRT = &gPipeline.mAuxillaryRT;
+    gPipeline.mRT = &gPipeline.mHeroProbeRT;
 
     probe->update(mRenderTarget.getWidth(), face, true, near_clip);
     
@@ -262,13 +240,13 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
         static LLStaticHashedString znear("znear");
         static LLStaticHashedString zfar("zfar");
 
-        LLRenderTarget *screen_rt = &gPipeline.mAuxillaryRT.screen;
-        LLRenderTarget *depth_rt  = &gPipeline.mAuxillaryRT.deferredScreen;
-
+        LLRenderTarget *screen_rt = &gPipeline.mHeroProbeRT.screen;
+        LLRenderTarget *depth_rt  = &gPipeline.mHeroProbeRT.deferredScreen;
+        
         // perform a gaussian blur on the super sampled render before downsampling
         {
             gGaussianProgram.bind();
-            gGaussianProgram.uniform1f(resScale, 1.f / mProbeResolution);
+            gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
             S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
 
             // horizontal
@@ -286,8 +264,8 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
             gPipeline.mScreenTriangleVB->setBuffer();
             gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
             screen_rt->flush();
+            gGaussianProgram.unbind();
         }
-
 
         S32 mips = log2((F32)mProbeResolution) + 0.5f;
 
@@ -348,14 +326,14 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
 
         {
             //generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
-            gRadianceGenProgram.bind();
+            gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
 
-            S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            S32 channel = gHeroRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
-            gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
-            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
-            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
+            gHeroRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
+            gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
+            gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
             
             U32 res = mMipChain[0].getWidth();
 
@@ -367,10 +345,10 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
                 static LLStaticHashedString sWidth("u_width");
                 static LLStaticHashedString sStrength("probe_strength");
 
-                gRadianceGenProgram.uniform1f(sRoughness, (F32)i / (F32)(mMipChain.size() - 1));
-                gRadianceGenProgram.uniform1f(sMipLevel, i);
-                gRadianceGenProgram.uniform1i(sWidth, mProbeResolution);
-                gRadianceGenProgram.uniform1f(sStrength, 1);
+                gHeroRadianceGenProgram.uniform1f(sRoughness, (F32) i / (F32) (mMipChain.size() - 1));
+                gHeroRadianceGenProgram.uniform1f(sMipLevel, i);
+                gHeroRadianceGenProgram.uniform1i(sWidth, mProbeResolution);
+                gHeroRadianceGenProgram.uniform1f(sStrength, 1);
 
                 for (int cf = 0; cf < 6; ++cf)
                 { // for each cube face
@@ -393,7 +371,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
                 }
             }
 
-            gRadianceGenProgram.unbind();
+            gHeroRadianceGenProgram.unbind();
         }
 
         mMipChain[0].flush();
@@ -561,24 +539,21 @@ void LLHeroProbeManager::doOcclusion()
     }
 }
 
-void LLHeroProbeManager::registerHeroDrawable(LLVOVolume* drawablep)
+void LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 {
+    llassert(drawablep != nullptr);
+
     if (mHeroVOList.find(drawablep) == mHeroVOList.end())
     {
+        // Probe isn't in our list for consideration.  Add it.
         mHeroVOList.insert(drawablep);
-        LL_INFOS() << "Mirror drawable registered." << LL_ENDL;
     }
 }
 
-void LLHeroProbeManager::unregisterHeroDrawable(LLVOVolume* drawablep)
+void LLHeroProbeManager::unregisterViewerObject(LLVOVolume* drawablep)
 {
     if (mHeroVOList.find(drawablep) != mHeroVOList.end())
     {
         mHeroVOList.erase(drawablep);
     }
-}
-
-bool LLHeroProbeManager::isViableMirror(LLFace* face) const
-{
-    return face == mCurrentFace;
 }

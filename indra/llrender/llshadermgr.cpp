@@ -44,6 +44,7 @@ using std::make_pair;
 using std::string;
 
 LLShaderMgr * LLShaderMgr::sInstance = NULL;
+bool LLShaderMgr::sMirrorsEnabled = false;
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -183,7 +184,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// Attach Fragment Shader Features Next
 	///////////////////////////////////////
 
-// NOTE order of shader object attaching is VERY IMPORTANT!!!
+    // NOTE order of shader object attaching is VERY IMPORTANT!!!
+    
+    if (!shader->attachFragmentObject("deferred/globalF.glsl"))
+    {
+        return FALSE;
+    }
+
     if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("environment/srgbF.glsl"))
@@ -224,14 +231,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
             return FALSE;
         }
 	}
-    
-    if (features->hasHeroProbes)
-    {
-        if (!shader->attachFragmentObject("deferred/heroProbesUtil.glsl"))
-        {
-            return FALSE;
-        }
-    }
 
     if (features->hasShadows)
 	{
@@ -608,6 +607,11 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 		extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
 	}
+
+    if (sMirrorsEnabled)
+    {
+        extra_code_text[extra_code_count++] = strdup("#define HERO_PROBES 1\n");
+    }
 
     // Use alpha float to store bit flags
     // See: C++: addDeferredAttachment(), shader: frag_data[2]

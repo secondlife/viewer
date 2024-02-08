@@ -682,6 +682,35 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
     return col[1]+col[0];
 }
 
+
+#if defined(HERO_PROBES)
+
+uniform vec4 clipPlane;
+uniform samplerCubeArray heroProbes;
+
+void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+{
+    float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
+    if (clipDist > 0.0 && clipDist < 0.1 && glossiness > 0.8)
+    {
+        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+        if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
+        {
+            glossenv = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*10).xyz;
+        }
+    }
+}
+
+#else
+
+void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+{
+}
+
+#endif
+
+
+
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
 {
@@ -713,6 +742,8 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
     }
 #endif
+
+    tapHeroProbe(glossenv, pos, norm, glossiness);
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -800,6 +831,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
+        
     }
     
     if (envIntensity > 0.0)
@@ -826,6 +858,9 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
     }
 #endif
+
+    tapHeroProbe(glossenv, pos, norm, glossiness);
+    tapHeroProbe(legacyenv, pos, norm, 1.0);
 
     glossenv = clamp(glossenv, vec3(0), vec3(10));
 }

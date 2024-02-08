@@ -2451,6 +2451,14 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
         gSavedSettings.setS32("max_texture_dimension_X", 1024);
         gSavedSettings.setS32("max_texture_dimension_Y", 1024);
     }
+
+    bool mirrors_enabled = false;
+    if (mSimulatorFeatures.has("MirrorsEnabled"))
+    {
+        mirrors_enabled = mSimulatorFeatures["MirrorsEnabled"].asBoolean();
+    }
+
+    gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
 }
 
 //this is called when the parent is not cacheable.

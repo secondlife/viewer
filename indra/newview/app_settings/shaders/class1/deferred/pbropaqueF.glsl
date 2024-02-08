@@ -60,34 +60,14 @@ vec3 srgb_to_linear(vec3 c);
 
 uniform vec4 clipPlane;
 uniform float clipSign;
-uniform float mirror_flag;
-void applyClip(vec3 pos)
-{
-    if (mirror_flag > 0)
-    {
-        // TODO: make this less branchy
-        if (clipSign > 0)
-        {
-            if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) < 0.0)
-            {
-                discard;
-            }
-        }
-        else
-        {
-            if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) > 0.0)
-            {
-                discard;
-            }
-        }
-    }
-}
+
+void mirrorClip(vec3 pos);
 
 uniform mat3 normal_matrix;
 
 void main()
 {
-    applyClip(vary_position);
+    mirrorClip(vary_position);
 
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     if (basecolor.a < minimum_alpha)

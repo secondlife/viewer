@@ -33,11 +33,15 @@ uniform float minimum_alpha;
 
 in vec3 vary_normal;
 in vec2 vary_texcoord0;
+in vec3 vary_position;
 
 vec2 encode_normal(vec3 n);
+void mirrorClip(vec3 pos);
 
 void main() 
 {
+    mirrorClip(vary_position);
+
 	vec4 diff = texture(diffuseMap, vary_texcoord0.xy);
 	
 	if (diff.a < minimum_alpha)

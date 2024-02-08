@@ -701,6 +701,9 @@ public:
     // used by reflection probes and dynamic texture bakes
     RenderTargetPack mAuxillaryRT;
 
+	// Auxillary render target pack scaled to the hero probe's per-face size.
+    RenderTargetPack mHeroProbeRT;
+
     // currently used render target pack
     RenderTargetPack* mRT;
 

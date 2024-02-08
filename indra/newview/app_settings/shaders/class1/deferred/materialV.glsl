@@ -78,9 +78,7 @@ void main()
 
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vary_position = pos;
-#endif
 
 	gl_Position = projection_matrix*vec4(pos,1.0);
 
@@ -127,7 +125,7 @@ void main()
 	vertex_color = diffuse_color;
 
 #if !defined(HAS_SKIN)
-	vary_position = (projection_matrix*vec4(position.xyz, 1.0)).xyz;
+	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 #endif
 }
 

@@ -32,11 +32,14 @@ uniform sampler2D diffuseMap;
 in vec3 vary_normal;
 in vec4 vertex_color;
 in vec2 vary_texcoord0;
+in vec3 vary_position;
 
 vec2 encode_normal(vec3 n);
+void mirrorClip(vec3 pos);
 
 void main() 
 {
+    mirrorClip(vary_position);
 	vec3 col = vertex_color.rgb * texture(diffuseMap, vary_texcoord0.xy).rgb;
 	frag_data[0] = vec4(col, 0.0);
 	frag_data[1] = vertex_color.aaaa; // spec

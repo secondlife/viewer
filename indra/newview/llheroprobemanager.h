@@ -68,14 +68,13 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
-    void registerHeroDrawable(LLVOVolume* drawablep);
-    void unregisterHeroDrawable(LLVOVolume* drawablep);
-
-    bool isViableMirror(LLFace* face) const;
+    void registerViewerObject(LLVOVolume *drawablep);
+    void unregisterViewerObject(LLVOVolume* drawablep);
 
     bool isMirrorPass() const { return mRenderingMirror; }
 
-    LLPlane currentMirrorClip() const { return mCurrentClipPlane; }
+    LLVector3 mMirrorPosition;
+    LLVector3 mMirrorNormal;
     
 private:
     friend class LLPipeline;
@@ -101,6 +100,7 @@ private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
 
     LLPlane mCurrentClipPlane;
+
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip);
@@ -135,8 +135,7 @@ private:
 
     bool mRenderingMirror = false;
     
-    std::set<LLVOVolume*>               mHeroVOList;
-    LLVOVolume*                         mNearestHero;
-    LLFace*                             mCurrentFace;
+    std::set<LLPointer<LLVOVolume>>               mHeroVOList;
+    LLPointer<LLVOVolume>                         mNearestHero;
 };
 

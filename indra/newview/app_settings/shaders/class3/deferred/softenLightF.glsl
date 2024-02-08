@@ -60,6 +60,7 @@ uniform float ssao_irradiance_max;
 #endif
 
 // Inputs
+uniform vec4 clipPlane;
 uniform mat3 env_mat;
 uniform mat3  ssao_effect_mat;
 uniform vec3 sun_dir;
@@ -188,7 +189,7 @@ void main()
         float gloss      = 1.0 - perceptualRoughness;
         
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false, amblit_linear);
-        
+
         adjustIrradiance(irradiance, ambocc);
 
         vec3 diffuseColor;
@@ -197,13 +198,6 @@ void main()
 
         vec3 v = -normalize(pos.xyz);
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
-        
-        #ifdef HERO_PROBES
-        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-
-        if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_MIRROR))
-            color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - gloss) * 11).xyz * specularColor;
-        #endif
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -226,7 +220,7 @@ void main()
         vec3 legacyenv = vec3(0);
 
         sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity, false, amblit_linear);
-        
+
         adjustIrradiance(irradiance, ambocc);
 
         // apply lambertian IBL only (see pbrIbl)
@@ -261,10 +255,6 @@ void main()
 
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
-
-            #ifdef HERO_PROBES
-            color = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0 - spec.a) * 11).xyz * spec.rgb;
-            #endif
 
         }
 

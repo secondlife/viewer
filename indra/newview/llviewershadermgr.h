@@ -41,6 +41,10 @@ public:
 	LLViewerShaderMgr();
 	/* virtual */ ~LLViewerShaderMgr();
 
+    // Add shaders to mShaderList for later uniform propagation
+    // Will assert on redundant shader entries in debug builds
+    void finalizeShaderList();
+
 	// singleton pattern implementation
 	static LLViewerShaderMgr * instance();
 	static void releaseInstance();
@@ -153,6 +157,7 @@ extern LLGLSLShader			gGlowCombineProgram;
 extern LLGLSLShader			gReflectionMipProgram;
 extern LLGLSLShader         gGaussianProgram;
 extern LLGLSLShader         gRadianceGenProgram;
+extern LLGLSLShader         gHeroRadianceGenProgram;
 extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
@@ -179,7 +184,6 @@ extern LLGLSLShader			gOneTextureFilterProgram;
 //object shaders
 extern LLGLSLShader		gObjectPreviewProgram;
 extern LLGLSLShader        gPhysicsPreviewProgram;
-extern LLGLSLShader        gSkinnedObjectFullbrightAlphaMaskProgram;
 extern LLGLSLShader		gObjectBumpProgram;
 extern LLGLSLShader        gSkinnedObjectBumpProgram;
 extern LLGLSLShader		gObjectAlphaMaskNoColorProgram;
