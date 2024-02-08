@@ -645,49 +645,114 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 	return out;
 }
 
+llwchar utf8str_to_wchar(const std::string& utf8str, size_t offset, size_t length)
+{
+    switch (length)
+    {
+    case 2:
+        return ((utf8str[offset] & 0x1F) << 6) +
+                (utf8str[offset + 1] & 0x3F);
+    case 3:
+        return ((utf8str[offset] & 0x0F) << 12) +
+                ((utf8str[offset + 1] & 0x3F) << 6) +
+                (utf8str[offset + 2] & 0x3F);
+    case 4:
+        return ((utf8str[offset] & 0x07) << 18) +
+                ((utf8str[offset + 1] & 0x3F) << 12) +
+                ((utf8str[offset + 2] & 0x3F) << 6) +
+                (utf8str[offset + 3] & 0x3F);
+    case 5:
+        return ((utf8str[offset] & 0x03) << 24) +
+                ((utf8str[offset + 1] & 0x3F) << 18) +
+                ((utf8str[offset + 2] & 0x3F) << 12) +
+                ((utf8str[offset + 3] & 0x3F) << 6) +
+                (utf8str[offset + 4] & 0x3F);
+    case 6:
+        return ((utf8str[offset] & 0x01) << 30) +
+                ((utf8str[offset + 1] & 0x3F) << 24) +
+                ((utf8str[offset + 2] & 0x3F) << 18) +
+                ((utf8str[offset + 3] & 0x3F) << 12) +
+                ((utf8str[offset + 4] & 0x3F) << 6) +
+                (utf8str[offset + 5] & 0x3F);
+    case 7:
+        return ((utf8str[offset + 1] & 0x03) << 30) +
+                ((utf8str[offset + 2] & 0x3F) << 24) +
+                ((utf8str[offset + 3] & 0x3F) << 18) +
+                ((utf8str[offset + 4] & 0x3F) << 12) +
+                ((utf8str[offset + 5] & 0x3F) << 6) +
+                (utf8str[offset + 6] & 0x3F);
+    }
+    return LL_UNKNOWN_CHAR;
+}
+
 std::string utf8str_showBytesUTF8(const std::string& utf8str)
 {
     std::string result;
 
     bool in_sequence = false;
-    for (U8 byte : utf8str)
+    size_t sequence_size = 0;
+    size_t byte_index = 0;
+    size_t source_length = utf8str.size();
+
+    auto open_sequence = [&]()
+        {
+            if (!result.empty() && result.back() != '\n')
+                result += '\n'; // Use LF as a separator before new UTF-8 sequence
+            result += '[';
+            in_sequence = true;
+        };
+
+    auto close_sequence = [&]()
+        {
+            llwchar unicode = utf8str_to_wchar(utf8str, byte_index - sequence_size, sequence_size);
+            if (unicode != LL_UNKNOWN_CHAR)
+            {
+                result += llformat("+%04X", unicode);
+            }
+            result += ']';
+            in_sequence = false;
+            sequence_size = 0;
+        };
+
+    while (byte_index < source_length)
     {
+        U8 byte = utf8str[byte_index];
         if (byte >= 0x80) // Part of an UTF-8 sequence
         {
             if (!in_sequence) // Start new UTF-8 sequence
             {
-                if (!result.empty() && result.back() != ' ')
-                    result += ' '; // Use space as separator between ASCII and UTF-8
-                result += '[';
+                open_sequence();
             }
             else if (byte >= 0xC0) // Start another UTF-8 sequence
             {
-                result += "] ["; // Use space as separator between UTF-8 and UTF-8
+                close_sequence();
+                open_sequence();
             }
             else // Continue the same UTF-8 sequence
             {
                 result += '.';
             }
             result += llformat("%02X", byte); // The byte is represented in hexadecimal form
-            in_sequence = true;
+            ++sequence_size;
         }
         else // ASCII symbol is represented as a character
         {
             if (in_sequence) // End of UTF-8 sequence
             {
-                result += ']';
-                if (byte != ' ')
+                close_sequence();
+                if (byte != '\n')
                 {
-                    result += ' '; // Use space as separator between UTF-8 and ASCII
+                    result += '\n'; // Use LF as a separator between UTF-8 and ASCII
                 }
             }
             result += byte;
-            in_sequence = false;
         }
+        ++byte_index;
     }
+
     if (in_sequence) // End of UTF-8 sequence
     {
-        result += ']';
+        close_sequence();
     }
 
     return result;
