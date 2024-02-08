@@ -1065,6 +1065,7 @@ void LLPipeline::refreshCachedSettings()
     if (gSavedSettings.getBOOL("RenderMirrors") != (BOOL)RenderMirrors)
     {
         RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
+        LLViewerShaderMgr::instance()->clearShaderCache();
         LLViewerShaderMgr::instance()->setShaders();
     }
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");

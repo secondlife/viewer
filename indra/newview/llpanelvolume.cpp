@@ -392,7 +392,7 @@ void LLPanelVolume::getState( )
 
     bool probe_enabled = is_probe && editable && single_volume;
 
-	bool mirrors_enabled = LLPipeline::RenderMirrors && gPipeline.mHeroProbeManager.hasMirrors();
+    bool mirrors_enabled = LLPipeline::RenderMirrors;
 
 	getChildView("Probe Update Type")->setVisible(mirrors_enabled);
     getChildView("Probe Update Label")->setVisible(mirrors_enabled);

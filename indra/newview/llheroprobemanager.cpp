@@ -72,18 +72,6 @@ void LLHeroProbeManager::update()
         return;
     }
 
-    // This should be moved elsewhere.
-    LLSD features;
-    gAgent.getRegion()->getSimulatorFeatures(features);
-    if (mHasMirrors != features.has("MirrorsEnabled"))
-    {
-        mHasMirrors = features.has("MirrorsEnabled");
-        LLViewerShaderMgr::instance()->setShaders();
-    }
-
-    if (!mHasMirrors)
-        return;
-
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(!gCubeSnapshot); // assert a snapshot is not in progress
     if (LLAppViewer::instance()->logoutRequestSent())

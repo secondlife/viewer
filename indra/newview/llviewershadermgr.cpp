@@ -390,7 +390,7 @@ void LLViewerShaderMgr::setShaders()
 
     mShaderList.clear();
 
-    LLShaderMgr::sMirrorsEnabled = LLPipeline::RenderMirrors && gPipeline.mHeroProbeManager.hasMirrors();
+    LLShaderMgr::sMirrorsEnabled = LLPipeline::RenderMirrors;
 
     if (!gGLManager.mHasRequirements)
     {

@@ -72,7 +72,6 @@ public:
     void unregisterViewerObject(LLVOVolume* drawablep);
 
     bool isMirrorPass() const { return mRenderingMirror; }
-    bool hasMirrors() const { return mHasMirrors; }
 
     LLVector3 mMirrorPosition;
     LLVector3 mMirrorNormal;
@@ -135,7 +134,6 @@ private:
     bool mReset = false;
 
     bool mRenderingMirror = false;
-    bool mHasMirrors      = false;
     
     std::set<LLPointer<LLVOVolume>>               mHeroVOList;
     LLPointer<LLVOVolume>                         mNearestHero;
