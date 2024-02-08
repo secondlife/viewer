@@ -392,9 +392,11 @@ void LLPanelVolume::getState( )
 
     bool probe_enabled = is_probe && editable && single_volume;
 
-	getChildView("Probe Update Type")->setVisible(LLPipeline::RenderMirrors);
-    getChildView("Probe Update Label")->setVisible(LLPipeline::RenderMirrors);
-    getChildView("Probe Dynamic")->setVisible(!LLPipeline::RenderMirrors);
+	bool mirrors_enabled = LLPipeline::RenderMirrors && gPipeline.mHeroProbeManager.hasMirrors();
+
+	getChildView("Probe Update Type")->setVisible(mirrors_enabled);
+    getChildView("Probe Update Label")->setVisible(mirrors_enabled);
+    getChildView("Probe Dynamic")->setVisible(!mirrors_enabled);
 
     getChildView("Probe Dynamic")->setEnabled(probe_enabled);
     getChildView("Probe Update Type")->setEnabled(probe_enabled);

@@ -1062,7 +1062,11 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
 	RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
-    RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
+    if (gSavedSettings.getBOOL("RenderMirrors") != (BOOL)RenderMirrors)
+    {
+        RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
+        LLViewerShaderMgr::instance()->setShaders();
+    }
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
 

@@ -231,14 +231,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
             return FALSE;
         }
 	}
-    
-    if (features->hasHeroProbes)
-    {
-        if (!shader->attachFragmentObject("deferred/heroProbesUtil.glsl"))
-        {
-            return FALSE;
-        }
-    }
 
     if (features->hasShadows)
 	{
