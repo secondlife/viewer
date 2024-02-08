@@ -107,6 +107,8 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
+    lua_function.cpp
+    lualistener.cpp
     hbxxh.cpp
     u64.cpp
     threadpool.cpp
@@ -249,6 +251,8 @@ set(llcommon_HEADER_FILES
     llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
+    lua_function.h
+    lualistener.h
     hbxxh.h
     lockstatic.h
     stdtypes.h

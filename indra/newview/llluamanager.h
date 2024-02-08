@@ -27,19 +27,58 @@
 #ifndef LL_LLLUAMANAGER_H
 #define LL_LLLUAMANAGER_H
 
+#include "llcoros.h"
+#include "llsd.h"
 #include <functional>
 #include <string>
+#include <utility>                  // std::pair
+
+class LuaState;
 
 class LLLUAmanager
 {
 public:
+    // Pass a callback with this signature to obtain the error message, if
+    // any, from running a script or source string. Empty msg means success.
     typedef std::function<void(std::string msg)> script_finished_fn;
+    // Pass a callback with this signature to obtain the result, if any, of
+    // running a script or source string.
+    // count <  0 means error, and result.asString() is the error message.
+    // count == 0 with result.isUndefined() means the script returned no results.
+    // count == 1 means the script returned one result.
+    // count >  1 with result.isArray() means the script returned multiple
+    //            results, represented as the entries of the result array.
+    typedef std::function<void(int count, const LLSD& result)> script_result_fn;
 
-    static void runScriptFile(const std::string &filename, script_finished_fn cb = script_finished_fn());
-    static void runScriptLine(const std::string &cmd, script_finished_fn cb = script_finished_fn());
+    static void runScriptFile(const std::string &filename, script_finished_fn cb = {});
+    static void runScriptFile(const std::string &filename, script_result_fn cb);
+    static void runScriptFile(LuaState& L, const std::string &filename, script_result_fn cb = {});
+    // Start running a Lua script file, returning an LLCoros::Future whose
+    // get() method will pause the calling coroutine until it can deliver the
+    // (count, result) pair described above. Between startScriptFile() and
+    // Future::get(), the caller and the Lua script coroutine will run
+    // concurrently.
+    static LLCoros::Future<std::pair<int, LLSD>>
+        startScriptFile(LuaState& L, const std::string& filename);
+    // Run a Lua script file, and pause the calling coroutine until it completes.
+    // The return value is the (count, result) pair described above.
+    static std::pair<int, LLSD> waitScriptFile(LuaState& L, const std::string& filename);
+
+    static void runScriptLine(const std::string &chunk, script_finished_fn cb = {});
+    static void runScriptLine(const std::string &chunk, script_result_fn cb);
+    static void runScriptLine(LuaState& L, const std::string &chunk, script_result_fn cb = {});
+    // Start running a Lua chunk, returning an LLCoros::Future whose
+    // get() method will pause the calling coroutine until it can deliver the
+    // (count, result) pair described above. Between startScriptLine() and
+    // Future::get(), the caller and the Lua script coroutine will run
+    // concurrently.
+    static LLCoros::Future<std::pair<int, LLSD>>
+        startScriptLine(LuaState& L, const std::string& chunk);
+    // Run a Lua chunk, and pause the calling coroutine until it completes.
+    // The return value is the (count, result) pair described above.
+    static std::pair<int, LLSD> waitScriptLine(LuaState& L, const std::string& chunk);
 
     static void runScriptOnLogin();
 };
-
 
 #endif

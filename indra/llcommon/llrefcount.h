@@ -29,6 +29,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "llatomic.h"
+#include "llerror.h"
 
 class LLMutex;
 

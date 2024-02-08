@@ -27,6 +27,7 @@
 #include "llsdutil.h"
 #include "lluri.h"
 #include "lluuid.h"
+#include "lua_function.h"
 #include "stringize.h"
 
 class LLTestApp : public LLApp
@@ -64,14 +65,80 @@ namespace tut
     typedef llluamanager_group::object object;
     llluamanager_group llluamanagergrp("llluamanager");
 
+    static struct LuaExpr
+    {
+        std::string desc, expr;
+        LLSD expect;
+    } lua_expressions[] = {
+        { "nil", "nil", LLSD() },
+        { "true", "true", true },
+        { "false", "false", false },
+        { "int", "17", 17 },
+        { "real", "3.14", 3.14 },
+        { "string", "'string'", "string" },
+        // can't synthesize Lua userdata in Lua code: that can only be
+        // constructed by a C function
+        { "empty table", "{}", LLSD() },
+        { "nested empty table", "{ 1, 2, 3, {}, 5 }",
+                 llsd::array(1, 2, 3, LLSD(), 5) },
+        { "nested non-empty table", "{ 1, 2, 3, {a=0, b=1}, 5 }",
+                 llsd::array(1, 2, 3, llsd::map("a", 0, "b", 1), 5) },
+    };
+
     template<> template<>
     void object::test<1>()
+    {
+        set_test_name("test Lua results");
+        LuaState L;
+        for (auto& luax : lua_expressions)
+        {
+            auto [count, result] =
+                LLLUAmanager::waitScriptLine(L, "return " + luax.expr);
+            auto desc{ stringize("waitScriptLine(", luax.desc, ")") };
+            ensure_equals(desc + ".count", count, 1);
+            ensure_equals(desc + ".result", result, luax.expect);
+        }
+    }
+
+    void from_lua(const std::string& desc, const std::string_view& construct, const LLSD& expect)
+    {
+        LLSD fromlua;
+        LLEventStream replypump("testpump");
+        LLTempBoundListener conn(
+            replypump.listen("llluamanager_test",
+                             listener([&fromlua](const LLSD& data){ fromlua = data; })));
+        const std::string lua(stringize(
+            "-- test LLSD synthesized by Lua\n",
+            "data = ", construct, "\n"
+            "post_on('testpump', data)\n"
+        ));
+        LuaState L;
+        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        // We woke up again ourselves because the coroutine running Lua has
+        // finished. But our Lua chunk didn't actually return anything, so we
+        // expect count to be 0 and result to be undefined.
+        ensure_equals(desc + " count", count, 0);
+        ensure_equals(desc, fromlua, expect);
+    }
+
+    template<> template<>
+    void object::test<2>()
+    {
+        set_test_name("LLSD from post_on()");
+        for (auto& luax : lua_expressions)
+        {
+            from_lua(luax.desc, luax.expr, luax.expect);
+        }
+    }
+
+    template<> template<>
+    void object::test<3>()
     {
         set_test_name("test post_on(), listen_events(), await_event()");
         StringVec posts;
         LLEventStream replypump("testpump");
         LLTempBoundListener conn(
-            replypump.listen("test<1>",
+            replypump.listen("test<3>",
                              listener([&posts](const LLSD& data)
                              { posts.push_back(data.asString()); })));
         const std::string lua(
@@ -88,7 +155,11 @@ namespace tut
             "await_event(replypump)\n"
             "post_on('testpump', 'exit')\n"
         );
-        LLLUAmanager::runScriptLine(lua);
+        LuaState L;
+        // It's important to let the startScriptLine() coroutine run
+        // concurrently with ours until we've had a chance to post() our
+        // reply.
+        auto future = LLLUAmanager::startScriptLine(L, lua);
         StringVec expected{
             "entry",
             "listen_events()",
@@ -97,10 +168,6 @@ namespace tut
             "message",
             "exit"
         };
-        for (int i = 0; i < 10 && posts.size() <= 2 && posts[2].empty(); ++i)
-        {
-            llcoro::suspend();
-        }
         expected[2] = posts.at(2);
         LL_DEBUGS() << "Found pumpname '" << expected[2] << "'" << LL_ENDL;
         LLEventPump& luapump{ LLEventPumps::instance().obtain(expected[2]) };
@@ -108,55 +175,8 @@ namespace tut
                     << LLError::Log::classname(luapump)
                     << "': post('" << expected[4] << "')" << LL_ENDL;
         luapump.post(expected[4]);
-        llcoro::suspend();
+        auto [count, result] = future.get();
         ensure_equals("post_on() sequence", posts, expected);
-    }
-
-    void from_lua(const std::string& desc, const std::string_view& construct, const LLSD& expect)
-    {
-        LLSD fromlua;
-        LLEventStream replypump("testpump");
-        LLTempBoundListener conn(
-            replypump.listen("llluamanager_test",
-                             listener([&fromlua](const LLSD& data){ fromlua = data; })));
-        const std::string lua(stringize(
-            "-- test LLSD synthesized by Lua\n",
-            // we expect the caller's Lua snippet to construct a Lua object
-            // called 'data'
-            construct, "\n"
-            "post_on('testpump', data)\n"
-        ));
-        LLLUAmanager::runScriptLine(lua);
-        // At this point LLLUAmanager::runScriptLine() has launched a new C++
-        // coroutine to run the passed Lua snippet, but that coroutine hasn't
-        // yet had a chance to run. Poke the coroutine scheduler until the Lua
-        // script has sent its data.
-        for (int i = 0; i < 10 && fromlua.isUndefined(); ++i)
-        {
-            llcoro::suspend();
-        }
-        // We woke up again ourselves because the coroutine running Lua has
-        // finished.
-        ensure_equals(desc, fromlua, expect);
-    }
-
-    template<> template<>
-    void object::test<2>()
-    {
-        set_test_name("LLSD from Lua");
-        from_lua("nil", "data = nil", LLSD());
-        from_lua("true", "data = true", true);
-        from_lua("false", "data = false", false);
-        from_lua("int", "data = 17", 17);
-        from_lua("real", "data = 3.14", 3.14);
-        from_lua("string", "data = 'string'", "string");
-        // can't synthesize Lua userdata in Lua code: that can only be
-        // constructed by a C function
-        from_lua("empty table", "data = {}", LLSD());
-        from_lua("nested empty table", "data = { 1, 2, 3, {}, 5 }",
-                 llsd::array(1, 2, 3, LLSD(), 5));
-        from_lua("nested non-empty table", "data = { 1, 2, 3, {a=0, b=1}, 5 }",
-                 llsd::array(1, 2, 3, llsd::map("a", 0, "b", 1), 5));
     }
 
     void round_trip(const std::string& desc, const LLSD& send, const LLSD& expect)
@@ -176,15 +196,8 @@ namespace tut
             "post_on('testpump', replypump)\n"
             "await_event(replypump)\n"
         );
-        LLLUAmanager::runScriptLine(lua);
-        // At this point LLLUAmanager::runScriptLine() has launched a new C++
-        // coroutine to run the passed Lua snippet, but that coroutine hasn't
-        // yet had a chance to run. Poke the coroutine scheduler until the Lua
-        // script has sent its reply pump name.
-        for (int i = 0; i < 10 && reply.isUndefined(); ++i)
-        {
-            llcoro::suspend();
-        }
+        LuaState L;
+        auto future = LLLUAmanager::startScriptLine(L, lua);
         // We woke up again ourselves because the coroutine running Lua has
         // reached the await_event() call, which suspends the calling C++
         // coroutine (including the Lua code running on it) until we post
@@ -194,7 +207,7 @@ namespace tut
         LLEventPumps::instance().post(luapump, send);
         // The C++ coroutine running the Lua script is now ready to run. Run
         // it so it will echo the LLSD back to us.
-        llcoro::suspend();
+        auto [count, result] = future.get();
         ensure_equals(desc, reply, expect);
     }
 
@@ -219,7 +232,7 @@ namespace tut
     };
 
     template<> template<>
-    void object::test<3>()
+    void object::test<4>()
     {
         set_test_name("LLSD round trip");
         LLSD::Binary binary{ 3, 1, 4, 1, 5, 9, 2, 6, 5 };

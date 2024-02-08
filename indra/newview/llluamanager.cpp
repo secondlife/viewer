@@ -28,14 +28,11 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
-#include "hexdump.h"
+#include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
-#include "lleventfilter.h"
-#include "llevents.h"
-#include "llinstancetracker.h"
-#include "llleaplistener.h"
-#include "lluuid.h"
+#include "lua_function.h"
+#include "lualistener.h"
 #include "stringize.h"
 
 // skip all these link dependencies for integration testing
@@ -55,237 +52,25 @@ extern LLUIListener sUIListener;
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
 
-#define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
-#define lua_rawlen lua_objlen
-
-#include <algorithm>
-#include <cstdlib>                  // std::rand()
-#include <cstring>                  // std::memcpy()
-#include <map>
-#include <memory>                   // std::unique_ptr
 #include <sstream>
 #include <string_view>
 #include <vector>
 
-std::string lua_tostdstring(lua_State* L, int index);
-void lua_pushstdstring(lua_State* L, const std::string& str);
-LLSD lua_tollsd(lua_State* L, int index);
-void lua_pushllsd(lua_State* L, const LLSD& data);
-
-/**
- * LuaListener is based on LLLeap. It serves an analogous function.
- *
- * Each LuaListener instance has an int key, generated randomly to
- * inconvenience malicious Lua scripts wanting to mess with others. The idea
- * is that a given lua_State stores in its Registry:
- * - "event.listener": the int key of the corresponding LuaListener, if any
- * - "event.function": the Lua function to be called with incoming events
- * The original thought was that LuaListener would itself store the Lua
- * function -- but surprisingly, there is no C/C++ type in the API that stores
- * a Lua function.
- *
- * (We considered storing in "event.listener" the LuaListener pointer itself
- * as a light userdata, but the problem would be if Lua code overwrote that.
- * We want to prevent any Lua script from crashing the viewer, intentionally
- * or otherwise. Safer to use a key lookup.)
- *
- * Like LLLeap, each LuaListener instance also has an associated
- * LLLeapListener to respond to LLEventPump management commands.
- */
-class LuaListener: public LLInstanceTracker<LuaListener, int>
+lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
-    using super = LLInstanceTracker<LuaListener, int>;
-public:
-    LuaListener(lua_State* L):
-        super(getUniqueKey()),
-        mListener(
-            new LLLeapListener(
-                [L](LLEventPump& pump, const std::string& listener)
-                { return connect(L, pump, listener); }))
-    {
-        mReplyConnection = connect(L, mReplyPump, "LuaListener");
-    }
-
-    LuaListener(const LuaListener&) = delete;
-    LuaListener& operator=(const LuaListener&) = delete;
-
-    ~LuaListener()
-    {
-        LL_DEBUGS("Lua") << "~LuaListener('" << mReplyPump.getName() << "')" << LL_ENDL;
-    }
-
-    std::string getReplyName() const { return mReplyPump.getName(); }
-    std::string getCommandName() const { return mListener->getPumpName(); }
-
-private:
-    static int getUniqueKey()
-    {
-        // Find a random key that does NOT already correspond to a LuaListener
-        // instance. Passing a duplicate key to LLInstanceTracker would do Bad
-        // Things.
-        int key;
-        do
-        {
-            key = std::rand();
-        } while (LuaListener::getInstance(key));
-        // This is theoretically racy, if we were instantiating new
-        // LuaListeners on multiple threads. Don't.
-        return key;
-    }
-
-    static LLBoundListener connect(lua_State* L, LLEventPump& pump, const std::string& listener)
-    {
-        return pump.listen(
-            listener,
-            [L, pumpname=pump.getName()](const LLSD& data)
-            { return call_lua(L, pumpname, data); });
-    }
-
-    static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data)
-    {
-        LL_INFOS("Lua") << "LuaListener::call_lua('" << pump << "', " << data << ")" << LL_ENDL;
-        if (! lua_checkstack(L, 3))
-        {
-            LL_WARNS("Lua") << "Cannot extend Lua stack to call listen_events() callback"
-                            << LL_ENDL;
-            return false;
-        }
-        // push the registered Lua callback function stored in our registry as
-        // "event.function"
-        lua_getfield(L, LUA_REGISTRYINDEX, "event.function");
-        llassert(lua_isfunction(L, -1));
-        // pass pump name
-        lua_pushstdstring(L, pump);
-        // then the data blob
-        lua_pushllsd(L, data);
-        // call the registered Lua listener function; allow it to return bool;
-        // no message handler
-        auto status = lua_pcall(L, 2, 1, 0);
-        bool result{ false };
-        if (status != LUA_OK)
-        {
-            LL_WARNS("Lua") << "Error in listen_events() callback: "
-                            << lua_tostdstring(L, -1) << LL_ENDL;
-        }
-        else
-        {
-            result = lua_toboolean(L, -1);
-        }
-        // discard either the error message or the bool return value
-        lua_pop(L, 1);
-        return result;
-    }
-
-#ifndef LL_TEST
-    LLEventStream mReplyPump{ LLUUID::generateNewID().asString() };
-#else
-    LLEventLogProxyFor<LLEventStream> mReplyPump{ "luapump", false };
-#endif
-    LLTempBoundListener mReplyConnection;
-    std::unique_ptr<LLLeapListener> mListener;
+    F32 seconds = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    llcoro::suspendUntilTimeout(seconds);
+    return 0;
 };
 
-/**
- * LuaPopper is an RAII struct whose role is to pop some number of entries
- * from the Lua stack if the calling function exits early.
- */
-struct LuaPopper
-{
-    LuaPopper(lua_State* L, int count):
-        mState(L),
-        mCount(count)
-    {}
-
-    LuaPopper(const LuaPopper&) = delete;
-    LuaPopper& operator=(const LuaPopper&) = delete;
-
-    ~LuaPopper()
-    {
-        if (mCount)
-        {
-            lua_pop(mState, mCount);
-        }
-    }
-
-    void disarm() { set(0); }
-    void set(int count) { mCount = count; }
-
-    lua_State* mState;
-    int mCount;
-};
-
-/**
- * LuaFunction is a base class containing a static registry of its static
- * subclass call() methods. call() is NOT virtual: instead, each subclass
- * constructor passes a pointer to its distinct call() method to the base-
- * class constructor, along with a name by which to register that method.
- *
- * The init() method walks the registry and registers each such name with the
- * passed lua_State.
- */
-class LuaFunction
-{
-public:
-    LuaFunction(const std::string_view& name, lua_CFunction function)
-    {
-        getRegistry().emplace(name, function);
-    }
-
-    static void init(lua_State* L)
-    {
-        for (const auto& pair: getRegistry())
-        {
-            lua_register(L, pair.first.c_str(), pair.second);
-        }
-    }
-
-    static lua_CFunction get(const std::string& key)
-    {
-        // use find() instead of subscripting to avoid creating an entry for
-        // unknown key
-        const auto& registry{ getRegistry() };
-        auto found{ registry.find(key) };
-        return (found == registry.end())? nullptr : found->second;
-    }
-
-private:
-    using Registry = std::map<std::string, lua_CFunction>;
-    static Registry& getRegistry()
-    {
-        // use a function-local static to ensure it's initialized
-        static Registry registry;
-        return registry;
-    }
-};
-
-/**
- * lua_function(name) is a macro to facilitate defining C++ functions
- * available to Lua. It defines a subclass of LuaFunction and declares a
- * static instance of that subclass, thereby forcing the compiler to call its
- * constructor at module initialization time. The constructor passes the
- * stringized instance name to its LuaFunction base-class constructor, along
- * with a pointer to the static subclass call() method. It then emits the
- * call() method definition header, to be followed by a method body enclosed
- * in curly braces as usual.
- */
-#define lua_function(name)                      \
-static struct name##_ : public LuaFunction      \
-{                                               \
-    name##_(): LuaFunction(#name, &call) {}     \
-    static int call(lua_State* L);              \
-} name;                                         \
-int name##_::call(lua_State* L)
-// {
-//     ... supply method body here, referencing 'L' ...
-// }
-
-/*
 // This function consumes ALL Lua stack arguments and returns concatenated
 // message string
-std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
+std::string lua_print_msg(lua_State* L, const std::string_view& level)
 {
-    // On top of existing Lua arguments, push 'where' info
-    luaL_checkstack(L, 1, nullptr);
+    // On top of existing Lua arguments, we're going to push tostring() and
+    // duplicate each existing stack entry so we can stringize each one.
+    luaL_checkstack(L, 2, nullptr);
     luaL_where(L, 1);
     // start with the 'where' info at the top of the stack
     std::ostringstream out;
@@ -294,7 +79,7 @@ std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
     const char* sep = "";           // 'where' info ends with ": "
     // now iterate over arbitrary args, calling Lua tostring() on each and
     // concatenating with separators
-    for (int p = 1; p <= lua_gettop(L); ++p)
+    for (int p = 1, top = lua_gettop(L); p <= top; ++p)
     {
         out << sep;
         sep = " ";
@@ -302,15 +87,15 @@ std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
         // lua_tostring()!
         lua_getglobal(L, "tostring");
         // Now the stack is arguments 1 .. N, plus tostring().
-        // Rotate downwards, producing stack args 2 .. N, tostring(), arg1.
-        lua_rotate(L, 1, -1);
-        // pop tostring() and arg1, pushing tostring(arg1)
+        // Push a copy of the argument at index p.
+        lua_pushvalue(L, p);
+        // pop tostring() and arg-p, pushing tostring(arg-p)
         // (ignore potential error code from lua_pcall() because, if there was
         // an error, we expect the stack top to be an error message -- which
         // we'll print)
         lua_pcall(L, 1, 1, 0);
-        // stack now holds args 2 .. N, tostring(arg1)
         out << lua_tostring(L, -1);
+        lua_pop(L, 1);
     }
     // pop everything
     lua_settop(L, 0);
@@ -320,35 +105,21 @@ std::string lua_print_msg_args(lua_State* L, const std::string_view& level)
     LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
     return msg;
 }
-*/
 
-std::string lua_print_msg(lua_State *L, const std::string_view &level)
-{
-    lua_getglobal(L, "tostring");
-    
-    lua_pushvalue(L, -1); /* function to be called */
-    lua_pushvalue(L, 1);  /* value to print */
-    lua_call(L, 1, 1);
-    std::string msg = lua_tostring(L, -1);
-
-    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
-    return msg;
-}
-
-lua_function(print_debug)
+lua_function(print_debug, "print_debug(args...): DEBUG level logging")
 {
     LL_DEBUGS("Lua") << lua_print_msg(L, "DEBUG") << LL_ENDL;
     return 0;
 }
 
 // also used for print(); see LuaState constructor
-lua_function(print_info)
+lua_function(print_info, "print_info(args...): INFO level logging")
 {
     LL_INFOS("Lua") << lua_print_msg(L, "INFO") << LL_ENDL;
     return 0;
 }
 
-lua_function(print_warning)
+lua_function(print_warning, "print_warning(args...): WARNING level logging")
 {
     LL_WARNS("Lua") << lua_print_msg(L, "WARN") << LL_ENDL;
     return 0;
@@ -356,7 +127,9 @@ lua_function(print_warning)
 
 #ifndef LL_TEST
 
-lua_function(run_ui_command)
+lua_function(run_ui_command,
+             "run_ui_command(name [, parameter]): "
+             "call specified UI command with specified parameter")
 {
 	int top = lua_gettop(L);
 	std::string func_name;
@@ -383,7 +156,7 @@ lua_function(run_ui_command)
 }
 #endif // ! LL_TEST
 
-lua_function(post_on)
+lua_function(post_on, "post_on(pumpname, data): post specified data to specified LLEventPump")
 {
     std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
@@ -393,7 +166,10 @@ lua_function(post_on)
     return 0;
 }
 
-lua_function(listen_events)
+lua_function(listen_events,
+             "listen_events(callback): call callback(pumpname, data) with events received\n"
+             "on this Lua chunk's replypump.\n"
+             "Returns replypump, commandpump: names of LLEventPumps specific to this chunk.")
 {
     if (! lua_isfunction(L, 1))
     {
@@ -402,19 +178,24 @@ lua_function(listen_events)
     }
     luaL_checkstack(L, 2, nullptr);
 
+/*==========================================================================*|
     // Get the lua_State* for the main thread of this state, in case we were
     // called from a coroutine thread. We're going to make callbacks into Lua
     // code, and we want to do it on the main thread rather than a (possibly
     // suspended) coroutine thread.
     // Registry table is at pseudo-index LUA_REGISTRYINDEX
     // Main thread is at registry key LUA_RIDX_MAINTHREAD
-    auto regtype {lua_rawgeti(L, LUA_REGISTRYINDEX, 1 /*LUA_RIDX_MAINTHREAD*/)};
+    auto regtype {lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD)};
     // Not finding the main thread at the documented place isn't a user error,
     // it's a Problem
     llassert_always(regtype == LUA_TTHREAD);
     lua_State* mainthread{ lua_tothread(L, -1) };
     // pop the main thread
     lua_pop(L, 1);
+|*==========================================================================*/
+    // Luau is based on Lua 5.1, and Lua 5.1 apparently provides no way to get
+    // back to the main thread from a coroutine thread?
+    lua_State* mainthread{ L };
 
     luaL_checkstack(mainthread, 1, nullptr);
     LuaListener::ptr_t listener;
@@ -461,9 +242,10 @@ lua_function(listen_events)
     return 2;
 }
 
-lua_function(await_event)
+lua_function(await_event,
+             "await_event(pumpname [, timeout [, value to return if timeout (default nil)]]):\n"
+             "pause the running Lua chunk until the next event on the named LLEventPump")
 {
-    // await_event(pumpname [, timeout [, value to return if timeout (default nil)]])
     auto pumpname{ lua_tostdstring(L, 1) };
     LLSD result;
     if (lua_gettop(L) > 1)
@@ -484,141 +266,119 @@ lua_function(await_event)
     return 1;
 }
 
-/**
- * RAII class to manage the lifespan of a lua_State
- */
-class LuaState
-{
-public:
-    LuaState(const std::string_view& desc, LLLUAmanager::script_finished_fn cb):
-        mDesc(desc),
-        mCallback(cb),
-        mState(luaL_newstate())
-    {
-        luaL_openlibs(mState);
-        LuaFunction::init(mState);
-        // Try to make print() write to our log.
-        lua_register(mState, "print", LuaFunction::get("print_info"));
-    }
-
-    LuaState(const LuaState&) = delete;
-    LuaState& operator=(const LuaState&) = delete;
-
-    ~LuaState()
-    {
-        // Did somebody call listen_events() on this LuaState?
-        // That is, is there a LuaListener key in its registry?
-        auto keytype{ lua_getfield(mState, LUA_REGISTRYINDEX, "event.listener") };
-        if (keytype == LUA_TNUMBER)
-        {
-            // We do have a LuaListener. Retrieve it.
-            int isint;
-            auto listener{ LuaListener::getInstance(lua_tointegerx(mState, -1, &isint)) };
-            // pop the int "event.listener" key
-            lua_pop(mState, 1);
-            // if we got a LuaListener instance, destroy it
-            // (if (! isint), lua_tointegerx() returned 0, but key 0 might
-            // validly designate someone ELSE's LuaListener)
-            if (isint && listener)
-            {
-                auto lptr{ listener.get() };
-                listener.reset();
-                delete lptr;
-            }
-        }
-
-        lua_close(mState);
-
-        if (mCallback)
-        {
-            // mError potentially set by previous checkLua() call(s)
-            mCallback(mError);
-        }    
-    }
-
-    bool checkLua(int r)
-    {
-        if (r != LUA_OK)
-        {
-            mError = lua_tostring(mState, -1);
-            lua_pop(mState, 1);
-
-            LL_WARNS() << mDesc << ": " << mError << LL_ENDL;
-            return false;
-        }
-        return true;
-    }
-
-    operator lua_State*() const { return mState; }
-
-private:
-    std::string mDesc;
-    LLLUAmanager::script_finished_fn mCallback;
-    lua_State* mState;
-    std::string mError;
-};
-
 void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn cb)
 {
+    // A script_finished_fn is used to initialize the LuaState.
+    // It will be called when the LuaState is destroyed.
+    LuaState L(cb);
+    runScriptFile(L, filename);
+}
+
+void LLLUAmanager::runScriptFile(const std::string& filename, script_result_fn cb)
+{
+    LuaState L;
+    // A script_result_fn will be called when LuaState::expr() completes.
+    runScriptFile(L, filename, cb);
+}
+
+LLCoros::Future<std::pair<int, LLSD>>
+LLLUAmanager::startScriptFile(LuaState& L, const std::string& filename)
+{
+    // Despite returning from startScriptFile(), we need this Promise to
+    // remain alive until the callback has fired.
+    auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
+    runScriptFile(L, filename,
+                  [promise](int count, LLSD result)
+                  { promise->set_value({ count, result }); });
+    return LLCoros::getFuture(*promise);
+}
+
+std::pair<int, LLSD> LLLUAmanager::waitScriptFile(LuaState& L, const std::string& filename)
+{
+    return startScriptFile(L, filename).get();
+}
+
+void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, script_result_fn cb)
+{
     std::string desc{ stringize("runScriptFile('", filename, "')") };
-    LLCoros::instance().launch(desc, [desc, filename, cb]()
+    LLCoros::instance().launch(desc, [&L, desc, filename, cb]()
     {
-        LuaState L(desc, cb);
-
-        auto LUA_sleep_func = [](lua_State *L)
-        {
-            F32 seconds = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-            llcoro::suspendUntilTimeout(seconds);
-            return 0;
-        };
-
-        lua_register(L, "sleep", LUA_sleep_func);
-
         llifstream in_file;
         in_file.open(filename.c_str());
 
         if (in_file.is_open()) 
         {
-            std::string text((std::istreambuf_iterator<char>(in_file)), std::istreambuf_iterator<char>());
-
-            size_t bytecodeSize = 0;
-            char *bytecode = luau_compile(text.c_str(), text.length(), NULL, &bytecodeSize);
-            L.checkLua(luau_load(L, desc.c_str(), bytecode, bytecodeSize, 0));
-            free(bytecode);
-
-            L.checkLua(lua_pcall(L, 0, 0, 0));
-
-            in_file.close();
+            std::string text{std::istreambuf_iterator<char>(in_file),
+                             std::istreambuf_iterator<char>()};
+            auto [count, result] = L.expr(desc, text);
+            if (cb)
+            {
+                cb(count, result);
+            }
         }
         else
         {
-            LL_WARNS("Lua") << "unable to open script file '" << filename << "'" << LL_ENDL;
+            auto msg{ stringize("unable to open script file '", filename, "'") };
+            LL_WARNS("Lua") << msg << LL_ENDL;
+            if (cb)
+            {
+                cb(-1, msg);
+            }
         }
     });
 }
 
-void LLLUAmanager::runScriptLine(const std::string& cmd, script_finished_fn cb)
+void LLLUAmanager::runScriptLine(const std::string& chunk, script_finished_fn cb)
 {
-    // find a suitable abbreviation for the cmd string
-    std::string_view shortcmd{ cmd };
+    // A script_finished_fn is used to initialize the LuaState.
+    // It will be called when the LuaState is destroyed.
+    LuaState L(cb);
+    runScriptLine(L, chunk);
+}
+
+void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn cb)
+{
+    LuaState L;
+    // A script_result_fn will be called when LuaState::expr() completes.
+    runScriptLine(L, chunk, cb);
+}
+
+LLCoros::Future<std::pair<int, LLSD>>
+LLLUAmanager::startScriptLine(LuaState& L, const std::string& chunk)
+{
+    // Despite returning from startScriptLine(), we need this Promise to
+    // remain alive until the callback has fired.
+    auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
+    runScriptLine(L, chunk,
+                  [promise](int count, LLSD result)
+                  { promise->set_value({ count, result }); });
+    return LLCoros::getFuture(*promise);
+}
+
+std::pair<int, LLSD> LLLUAmanager::waitScriptLine(LuaState& L, const std::string& chunk)
+{
+    return startScriptLine(L, chunk).get();
+}
+
+void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_result_fn cb)
+{
+    // find a suitable abbreviation for the chunk string
+    std::string shortchunk{ chunk };
     const size_t shortlen = 40;
-    std::string::size_type eol = shortcmd.find_first_of("\r\n");
+    std::string::size_type eol = shortchunk.find_first_of("\r\n");
     if (eol != std::string::npos)
-        shortcmd = shortcmd.substr(0, eol);
-    if (shortcmd.length() > shortlen)
-        shortcmd = stringize(shortcmd.substr(0, shortlen), "...");
+        shortchunk = shortchunk.substr(0, eol);
+    if (shortchunk.length() > shortlen)
+        shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
-    std::string desc{ stringize("runScriptLine('", shortcmd, "')") };
-    LLCoros::instance().launch(desc, [desc, cmd, cb]()
+    std::string desc{ stringize("runScriptLine('", shortchunk, "')") };
+    LLCoros::instance().launch(desc, [&L, desc, chunk, cb]()
     {
-        LuaState L(desc, cb);
-
-        size_t bytecodeSize = 0;
-        char *bytecode = luau_compile(cmd.c_str(), cmd.length(), NULL, &bytecodeSize);
-        L.checkLua(luau_load(L, desc.c_str(), bytecode, bytecodeSize, 0));
-        free(bytecode);
-        L.checkLua(lua_pcall(L, 0, 0, 0));
+        auto [count, result] = L.expr(desc, chunk);
+        if (cb)
+        {
+            cb(count, result);
+        }
     });
 }
 
@@ -641,480 +401,4 @@ void LLLUAmanager::runScriptOnLogin()
 
     runScriptFile(filename);
 #endif // ! LL_TEST
-}
-
-std::string lua_tostdstring(lua_State* L, int index)
-{
-    size_t len;
-    const char* strval{ lua_tolstring(L, index, &len) };
-    return { strval, len };
-}
-
-void lua_pushstdstring(lua_State* L, const std::string& str)
-{
-    luaL_checkstack(L, 1, nullptr);
-    lua_pushlstring(L, str.c_str(), str.length());
-}
-
-// Usage:  std::cout << lua_what(L, stackindex) << ...;
-// Reports on the Lua value found at the passed stackindex.
-// If cast to std::string, returns the corresponding string value.
-class lua_what
-{
-public:
-    lua_what(lua_State* state, int idx):
-        L(state),
-        index(idx)
-    {}
-
-    friend std::ostream& operator<<(std::ostream& out, const lua_what& self)
-    {
-        switch (lua_type(self.L, self.index))
-        {
-        case LUA_TNONE:
-            // distinguish acceptable but non-valid index
-            out << "none";
-            break;
-
-        case LUA_TNIL:
-            out << "nil";
-            break;
-
-        case LUA_TBOOLEAN:
-        {
-            auto oldflags { out.flags() };
-            out << std::boolalpha << lua_toboolean(self.L, self.index);
-            out.flags(oldflags);
-            break;
-        }
-
-        case LUA_TNUMBER:
-            out << lua_tonumber(self.L, self.index);
-            break;
-
-        case LUA_TSTRING:
-            out << std::quoted(lua_tostdstring(self.L, self.index));
-            break;
-
-        case LUA_TUSERDATA:
-        {
-            const S32 maxlen = 20;
-            S32 binlen{ lua_rawlen(self.L, self.index) };
-            LLSD::Binary binary(std::min(maxlen, binlen));
-            std::memcpy(binary.data(), lua_touserdata(self.L, self.index), binary.size());
-            out << LL::hexdump(binary);
-            if (binlen > maxlen)
-            {
-                out << "...(" << (binlen - maxlen) << " more)";
-            }
-            break;
-        }
-
-        case LUA_TLIGHTUSERDATA:
-            out << lua_touserdata(self.L, self.index);
-            break;
-
-        default:
-            // anything else, don't bother trying to report value, just type
-            out << lua_typename(self.L, lua_type(self.L, self.index));
-            break;
-        }
-        return out;
-    }
-
-    operator std::string() const { return stringize(*this); }
-
-private:
-    lua_State* L;
-    int index;
-};
-
-// Usage:  std::cout << lua_stack(L) << ...;
-// Reports on the contents of the Lua stack.
-// If cast to std::string, returns the corresponding string value.
-class lua_stack
-{
-public:
-    lua_stack(lua_State* state):
-        L(state)
-    {}
-
-    friend std::ostream& operator<<(std::ostream& out, const lua_stack& self)
-    {
-        const char* sep = "stack: [";
-        for (int index = 1; index <= lua_gettop(self.L); ++index)
-        {
-            out << sep << lua_what(self.L, index);
-            sep = ", ";
-        }
-        out << ']';
-        return out;
-    }
-
-    operator std::string() const { return stringize(*this); }
-
-private:
-    lua_State* L;
-};
-
-// log exit from any block declaring an instance of DebugExit, regardless of
-// how control leaves that block
-struct DebugExit
-{
-    DebugExit(const std::string& name): mName(name) {}
-    DebugExit(const DebugExit&) = delete;
-    DebugExit& operator=(const DebugExit&) = delete;
-    ~DebugExit()
-    {
-        LL_DEBUGS("Lua") << "exit " << mName << LL_ENDL;
-    }
-
-    std::string mName;
-};
-
-// By analogy with existing lua_tomumble() functions, return an LLSD object
-// corresponding to the Lua object at stack index 'index' in state L.
-// This function assumes that a Lua caller is fully aware that they're trying
-// to call a viewer function. In other words, the caller must specifically
-// construct Lua data convertible to LLSD.
-//
-// For proper error handling, we REQUIRE that the Lua runtime be compiled as
-// C++ so errors are raised as C++ exceptions rather than as longjmp() calls:
-// http://www.lua.org/manual/5.4/manual.html#4.4
-// "Internally, Lua uses the C longjmp facility to handle errors. (Lua will
-// use exceptions if you compile it as C++; search for LUAI_THROW in the
-// source code for details.)"
-// Some blocks within this function construct temporary C++ objects in the
-// expectation that these objects will be properly destroyed even if code
-// reached by that block raises a Lua error.
-LLSD lua_tollsd(lua_State* L, int index)
-{
-    LL_DEBUGS("Lua") << "lua_tollsd(" << index << ") of " << lua_gettop(L) << " stack entries: "
-                     << lua_what(L, index) << LL_ENDL;
-    DebugExit log_exit("lua_tollsd()");
-    switch (lua_type(L, index))
-    {
-    case LUA_TNONE:
-        // Should LUA_TNONE be an error instead of returning isUndefined()?
-    case LUA_TNIL:
-        return {};
-
-    case LUA_TBOOLEAN:
-        return bool(lua_toboolean(L, index));
-
-    case LUA_TNUMBER:
-    {
-        // check if integer truncation leaves the number intact
-        int isint;
-        lua_Integer intval{ lua_tointegerx(L, index, &isint) };
-        if (isint)
-        {
-            return LLSD::Integer(intval);
-        }
-        else
-        {
-            return lua_tonumber(L, index);
-        }
-    }
-
-    case LUA_TSTRING:
-        return lua_tostdstring(L, index);
-
-    case LUA_TUSERDATA:
-    {
-        LLSD::Binary binary(lua_rawlen(L, index));
-        std::memcpy(binary.data(), lua_touserdata(L, index), binary.size());
-        return binary;
-    }
-
-    case LUA_TTABLE:
-    {
-        // A Lua table correctly constructed to convert to LLSD will have
-        // either consecutive integer keys starting at 1, which we represent
-        // as an LLSD array (with Lua key 1 at C++ index 0), or will have
-        // all string keys.
-        //
-        // In the belief that Lua table traversal skips "holes," that is, it
-        // doesn't report any key/value pair whose value is nil, we allow a
-        // table with integer keys >= 1 but with "holes." This produces an
-        // LLSD array with isUndefined() entries at unspecified keys. There
-        // would be no other way for a Lua caller to construct an
-        // isUndefined() LLSD array entry. However, to guard against crazy int
-        // keys, we forbid gaps larger than a certain size: crazy int keys
-        // could result in a crazy large contiguous LLSD array.
-        //
-        // Possible looseness could include:
-        // - A mix of integer and string keys could produce an LLSD map in
-        //   which the integer keys are converted to string. (Key conversion
-        //   must be performed in C++, not Lua, to avoid confusing
-        //   lua_next().)
-        // - However, since in Lua t[0] and t["0"] are distinct table entries,
-        //   do not consider converting numeric string keys to int to return
-        //   an LLSD array.
-        // But until we get more experience with actual Lua scripts in
-        // practice, let's say that any deviation is a Lua coding error.
-        // An important property of the strict definition above is that most
-        // conforming data blobs can make a round trip across the language
-        // boundary and still compare equal. A non-conforming data blob would
-        // lose that property.
-        // Known exceptions to round trip identity:
-        // - Empty LLSD map and empty LLSD array convert to empty Lua table.
-        //   But empty Lua table converts to isUndefined() LLSD object.
-        // - LLSD::Real with integer value returns as LLSD::Integer.
-        // - LLSD::UUID, LLSD::Date and LLSD::URI all convert to Lua string,
-        //   and so return as LLSD::String.
-        // - Lua does not store any table key whose value is nil. An LLSD
-        //   array with isUndefined() entries produces a Lua table with
-        //   "holes" in the int key sequence; this converts back to an LLSD
-        //   array containing corresponding isUndefined() entries -- except
-        //   when one or more of the final entries isUndefined(). These are
-        //   simply dropped, producing a shorter LLSD array than the original.
-        // - For the same reason, any keys in an LLSD map whose value
-        //   isUndefined() are simply discarded in the converted Lua table.
-        //   This converts back to an LLSD map lacking those keys.
-        // - If it's important to preserve the original length of an LLSD
-        //   array whose final entries are undefined, or the full set of keys
-        //   for an LLSD map some of whose values are undefined, store an
-        //   LLSD::emptyArray() or emptyMap() instead. These will be
-        //   represented in Lua as empty table, which should convert back to
-        //   undefined LLSD. Naturally, though, those won't survive a second
-        //   round trip.
-
-        // This is the most important of the luaL_checkstack() calls because a
-        // deeply nested Lua structure will enter this case at each level, and
-        // we'll need another 2 stack slots to traverse each nested table.
-        luaL_checkstack(L, 2, nullptr);
-        // BEFORE we push nil to initialize the lua_next() traversal, convert
-        // 'index' to absolute! Our caller might have passed a relative index;
-        // we do, below: lua_tollsd(L, -1). If 'index' is -1, then when we
-        // push nil, what we find at index -1 is nil, not the table!
-        index = lua_absindex(L, index);
-        LL_DEBUGS("Lua") << "checking for empty table" << LL_ENDL;
-        lua_pushnil(L);             // first key
-        LL_DEBUGS("Lua") << lua_stack(L) << LL_ENDL;
-        if (! lua_next(L, index))
-        {
-            // it's a table, but the table is empty -- no idea if it should be
-            // modeled as empty array or empty map -- return isUndefined(),
-            // which can be consumed as either
-            LL_DEBUGS("Lua") << "empty table" << LL_ENDL;
-            return {};
-        }
-        // key is at stack index -2, value at index -1
-        // from here until lua_next() returns 0, have to lua_pop(2) if we
-        // return early
-        LuaPopper popper(L, 2);
-        // Remember the type of the first key
-        auto firstkeytype{ lua_type(L, -2) };
-        LL_DEBUGS("Lua") << "table not empty, first key type " << lua_typename(L, firstkeytype)
-                         << LL_ENDL;
-        switch (firstkeytype)
-        {
-        case LUA_TNUMBER:
-        {
-            // First Lua key is a number: try to convert table to LLSD array.
-            // This is tricky because we don't know in advance the size of the
-            // array. The Lua reference manual says that lua_rawlen() is the
-            // same as the length operator '#'; but the length operator states
-            // that it might stop at any "hole" in the subject table.
-            // Moreover, the Lua next() function (and presumably lua_next())
-            // traverses a table in unspecified order, even for numeric keys
-            // (emphasized in the doc).
-            // Make a preliminary pass over the whole table to validate and to
-            // collect keys.
-            std::vector<LLSD::Integer> keys;
-            // Try to determine the length of the table. If the length
-            // operator is truthful, avoid allocations while we grow the keys
-            // vector. Even if it's not, we can still grow the vector, albeit
-            // a little less efficiently.
-            keys.reserve(lua_objlen(L, index));
-            do
-            {
-                auto arraykeytype{ lua_type(L, -2) };
-                switch (arraykeytype)
-                {
-                case LUA_TNUMBER:
-                {
-                    int isint;
-                    lua_Integer intkey{ lua_tointegerx(L, -2, &isint) };
-                    if (! isint)
-                    {
-                        // key isn't an integer - this doesn't fit our LLSD
-                        // array constraints
-                        luaL_error(L, "Expected integer array key, got %f instead", lua_tonumber(L, -2));
-                        return 0;
-                    }
-                    if (intkey < 1)
-                    {
-                        luaL_error(L, "array key %d out of bounds", int(intkey));
-                        return 0;
-                    }
-
-                    keys.push_back(LLSD::Integer(intkey));
-                    break;
-                }
-
-                case LUA_TSTRING:
-                    // break out strings specially to report the value
-                    luaL_error(L, "Cannot convert string array key '%s' to LLSD", lua_tostring(L, -2));
-                    return 0;
-
-                default:
-                    luaL_error(L, "Cannot convert %s array key to LLSD", lua_typename(L, arraykeytype));
-                    return 0;
-                }
-
-                // remove value, keep key for next iteration
-                lua_pop(L, 1);
-            } while (lua_next(L, index) != 0);
-            popper.disarm();
-            // Table keys are all integers: are they reasonable integers?
-            // Arbitrary max: may bite us, but more likely to protect us
-            size_t array_max{ 10000 };
-            if (keys.size() > array_max)
-            {
-                luaL_error(L, "Conversion from Lua to LLSD array limited to %d entries", int(array_max));
-                return 0;
-            }
-            // We know the smallest key is >= 1. Check the largest. We also
-            // know the vector is NOT empty, else we wouldn't have gotten here.
-            std::sort(keys.begin(), keys.end());
-            LLSD::Integer highkey = *keys.rbegin();
-            if ((highkey - LLSD::Integer(keys.size())) > 100)
-            {
-                // Looks like we've gone beyond intentional array gaps into
-                // crazy key territory.
-                luaL_error(L, "Gaps in Lua table too large for conversion to LLSD array");
-                return 0;
-            }
-            LL_DEBUGS("Lua") << "collected " << keys.size() << " keys, max " << highkey << LL_ENDL;
-            // right away expand the result array to the size we'll need
-            LLSD result{ LLSD::emptyArray() };
-            result[highkey - 1] = LLSD();
-            // Traverse the table again, and this time populate result array.
-            lua_pushnil(L);         // first key
-            while (lua_next(L, index))
-            {
-                // key at stack index -2, value at index -1
-                // We've already validated lua_tointegerx() for each key.
-                auto key{ lua_tointeger(L, -2) };
-                LL_DEBUGS("Lua") << "key " << key << ':' << LL_ENDL;
-                // Don't forget to subtract 1 from Lua key for LLSD subscript!
-                result[LLSD::Integer(key) - 1] = lua_tollsd(L, -1);
-                // remove value, keep key for next iteration
-                lua_pop(L, 1);
-            }
-            return result;
-        }
-
-        case LUA_TSTRING:
-        {
-            // First Lua key is a string: try to convert table to LLSD map
-            LLSD result{ LLSD::emptyMap() };
-            do
-            {
-                auto mapkeytype{ lua_type(L, -2) };
-                if (mapkeytype != LUA_TSTRING)
-                {
-                    luaL_error(L, "Cannot convert %s map key to LLSD", lua_typename(L, mapkeytype));
-                    return 0;
-                }
-
-                auto key{ lua_tostdstring(L, -2) };
-                LL_DEBUGS("Lua") << "map key " << std::quoted(key) << ':' << LL_ENDL;
-                result[key] = lua_tollsd(L, -1);
-                // remove value, keep key for next iteration
-                lua_pop(L, 1);
-            } while (lua_next(L, index) != 0);
-            popper.disarm();
-            return result;
-        }
-
-        default:
-            // First Lua key isn't number or string: sorry
-            luaL_error(L, "Cannot convert %s table key to LLSD", lua_typename(L, firstkeytype));
-            return 0;
-        }
-    }
-
-    default:
-        // Other Lua entities (e.g. function, C function, light userdata,
-        // thread, userdata) are not convertible to LLSD, indicating a coding
-        // error in the caller.
-        luaL_error(L, "Cannot convert type %s to LLSD", luaL_typename(L, index));
-        return 0;
-    }
-}
-
-// By analogy with existing lua_pushmumble() functions, push onto state L's
-// stack a Lua object corresponding to the passed LLSD object.
-void lua_pushllsd(lua_State* L, const LLSD& data)
-{
-    // might need 2 slots for array or map
-    luaL_checkstack(L, 2, nullptr);
-    switch (data.type())
-    {
-    case LLSD::TypeUndefined:
-        lua_pushnil(L);
-        break;
-
-    case LLSD::TypeBoolean:
-        lua_pushboolean(L, data.asBoolean());
-        break;
-
-    case LLSD::TypeInteger:
-        lua_pushinteger(L, data.asInteger());
-        break;
-
-    case LLSD::TypeReal:
-        lua_pushnumber(L, data.asReal());
-        break;
-
-    case LLSD::TypeBinary:
-    {
-        auto binary{ data.asBinary() };
-        std::memcpy(lua_newuserdata(L, binary.size()),
-                    binary.data(), binary.size());
-        break;
-    }
-
-    case LLSD::TypeMap:
-    {
-        // push a new table with space for our non-array keys
-        lua_createtable(L, 0, data.size());
-        for (const auto& pair: llsd::inMap(data))
-        {
-            // push value -- so now table is at -2, value at -1
-            lua_pushllsd(L, pair.second);
-            // pop value, assign to table[key]
-            lua_setfield(L, -2, pair.first.c_str());
-        }
-        break;
-    }
-
-    case LLSD::TypeArray:
-    {
-        // push a new table with space for array entries
-        lua_createtable(L, data.size(), 0);
-        lua_Integer key{ 0 };
-        for (const auto& item: llsd::inArray(data))
-        {
-            // push new array value: table at -2, value at -1
-            lua_pushllsd(L, item);
-            // pop value, assign table[key] = value
-            lua_rawseti(L, -2, ++key);
-        }
-        break;
-    }
-
-    case LLSD::TypeString:
-    case LLSD::TypeUUID:
-    case LLSD::TypeDate:
-    case LLSD::TypeURI:
-    default:
-    {
-        lua_pushstdstring(L, data.asString());
-        break;
-    }
-    }
 }
