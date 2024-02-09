@@ -60,6 +60,7 @@
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llfocusmgr.h"
+#include "llluamanager.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
 #include "llallocator.h"
@@ -385,6 +386,9 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+
+void processComposeSwitch(const std::string&, const std::string&,
+                          const std::function<void(const LLSD&)>&);
 
 //----------------------------------------------------------------------------
 
@@ -1194,22 +1198,10 @@ bool LLAppViewer::init()
     }
 #endif //LL_RELEASE_FOR_DOWNLOAD
 
-    {
-        // Iterate over --leap command-line options. But this is a bit tricky: if
-        // there's only one, it won't be an array at all.
-        LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
-        LL_DEBUGS("InitInfo") << "LeapCommand: " << LeapCommand << LL_ENDL;
-        if (LeapCommand.isDefined() && !LeapCommand.isArray())
+    processComposeSwitch(
+        "--leap", "LeapCommand",
+        [](const LLSD& leap)
         {
-            // If LeapCommand is actually a scalar value, make an array of it.
-            // Have to do it in two steps because LeapCommand.append(LeapCommand)
-            // trashes content! :-P
-            LLSD item(LeapCommand);
-            LeapCommand.append(item);
-        }
-        BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
-        {
-            LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
             // We don't have any better description of this plugin than the
             // user-specified command line. Passing "" causes LLLeap to derive a
             // description from the command line itself.
@@ -1217,8 +1209,21 @@ bool LLAppViewer::init()
             // don't consider any one --leap command mission-critical, so if one
             // fails, log it, shrug and carry on.
             LLLeap::create("", leap, false); // exception=false
-        }
-    }
+        });
+    processComposeSwitch(
+        "--lua", "LuaChunk",
+        [](const LLSD& chunk)
+        {
+            // no completion callback: we don't need to know
+            LLLUAmanager::runScriptLine(chunk);
+        });
+    processComposeSwitch(
+        "--luafile", "LuaScript",
+        [](const LLSD& script)
+        {
+            // no completion callback: we don't need to know
+            LLLUAmanager::runScriptFile(script);
+        });
 
     if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
     {
@@ -1289,6 +1294,27 @@ bool LLAppViewer::init()
 #endif
 
 	return true;
+}
+
+void processComposeSwitch(const std::string& option,
+                          const std::string& setting,
+                          const std::function<void(const LLSD&)>& action)
+{
+    // Iterate over 'option' command-line options. But this is a bit tricky:
+    // if there's only one, it won't be an array at all.
+    LLSD args(gSavedSettings.getLLSD(setting));
+    LL_DEBUGS("InitInfo") << option << ": " << args << LL_ENDL;
+    if (args.isDefined() && ! args.isArray())
+    {
+        // If args is actually a scalar value, make an array of it. Have to do
+        // it in two steps because args.append(args) trashes content! :-P
+        args.append(LLSD(args));
+    }
+    for (const auto& arg : llsd::inArray(args))
+    {
+        LL_INFOS("InitInfo") << "processing " << option << ' ' << arg << LL_ENDL;
+        action(arg);
+    }
 }
 
 void LLAppViewer::initMaxHeapSize()

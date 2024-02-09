@@ -68,7 +68,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>CrashHostUrl</key>
+    <key>CrashHostUrl</key>
     <map>
       <key>Comment</key>
       <string>A URL pointing to a crash report handler; overrides cluster negotiation to locate crash handler.</string>
@@ -5430,6 +5430,28 @@
       <string>String</string>
       <key>Value</key>
       <string>http://wiki.secondlife.com/wiki/[LSL_STRING]</string>
+    </map>
+    <key>LuaChunk</key>
+    <map>
+      <key>Comment</key>
+      <string>Zero or more Lua chunks to run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array />
+    </map>
+    <key>LuaScript</key>
+    <map>
+      <key>Comment</key>
+      <string>Zero or more Lua script files to run</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array />
     </map>
     <key>GridStatusRSS</key>
     <map>
