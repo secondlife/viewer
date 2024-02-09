@@ -49,6 +49,7 @@ public:
 	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 	BOOL handleHover(S32 x, S32 y, MASK mask) override;
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    void onVisibilityChange(BOOL new_visibility) override;
 
 	// this is part of the nearby media *dialog* so we can track whether
 	// the user *implicitly* wants audio on or off via their *explicit*
@@ -123,6 +124,7 @@ private:
 	bool setDisabled(const LLUUID &id, bool disabled);
 
 	static void getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName);
+    std::string getSelectedUrl();
 	
 	void updateColumns();
 	
@@ -141,6 +143,7 @@ private:
 	void onClickSelectedMediaZoom();
 	void onClickSelectedMediaUnzoom();
     void onMenuAction(const LLSD& userdata);
+    bool onMenuVisible(const LLSD& userdata);
 	
 	LLUICtrl*			mNearbyMediaPanel;
 	LLScrollListCtrl*		mMediaList;

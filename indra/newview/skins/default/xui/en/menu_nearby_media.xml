@@ -7,9 +7,19 @@
      mouse_opaque="false">
     <menu_item_call
      label="Copy Url"
-     name="copy">
+     name="copy_url">
         <menu_item_call.on_click
          function="SelectedMediaCtrl.Action"
-         parameter="copy" />
+         parameter="copy_url" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy Data"
+     name="copy_data">
+        <menu_item_call.on_click
+         function="SelectedMediaCtrl.Action"
+         parameter="copy_data" />
+        <menu_item_call.on_visible
+         function="SelectedMediaCtrl.Visible"
+         parameter="copy_data" />
     </menu_item_call>
 </toggleable_menu>

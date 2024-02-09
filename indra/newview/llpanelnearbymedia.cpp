@@ -29,6 +29,7 @@
 #include "llpanelnearbymedia.h"
 
 #include "llaudioengine.h"
+#include "llbase64.h"
 #include "llcheckboxctrl.h"
 #include "llclipboard.h"
 #include "llcombobox.h"
@@ -106,6 +107,11 @@ LLPanelNearByMedia::LLPanelNearByMedia()
                                  [this](LLUICtrl* ctrl, const LLSD& data)
                                  {
                                      onMenuAction(data);
+                                 });
+    mEnableCallbackRegistrar.add("SelectedMediaCtrl.Visible",
+                                 [this](LLUICtrl* ctrl, const LLSD& data)
+                                 {
+                                     return onMenuVisible(data);
                                  });
 
 	buildFromFile( "panel_nearby_media.xml");
@@ -268,6 +274,16 @@ BOOL LLPanelNearByMedia::handleRightMouseDown(S32 x, S32 y, MASK mask)
     }
 
     return LLPanelPulldown::handleRightMouseDown(x, y, mask);
+}
+
+
+void LLPanelNearByMedia::onVisibilityChange(BOOL new_visibility)
+{
+    if (!new_visibility && mContextMenu->getVisible())
+    {
+        gMenuHolder->hideMenus();
+    }
+    LLPanelPulldown::onVisibilityChange(new_visibility);
 }
 
 bool LLPanelNearByMedia::getParcelAudioAutoStart()
@@ -1213,34 +1229,49 @@ void LLPanelNearByMedia::onClickSelectedMediaUnzoom()
 void LLPanelNearByMedia::onMenuAction(const LLSD& userdata)
 {
     const std::string command_name = userdata.asString();
-    if ("copy" == command_name)
+    if ("copy_url" == command_name)
     {
         LLClipboard::instance().reset();
-        LLUUID selected_media_id = mMediaList->getValue().asUUID();
-        std::string url;
-
-        if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
-        {
-            url = LLViewerMedia::getInstance()->getParcelAudioURL();
-        }
-        else if (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID)
-        {
-            url = LLViewerParcelMedia::getInstance()->getURL();
-        }
-        else
-        {
-            LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(selected_media_id);
-            if (NULL != impl)
-            {
-                url = impl->getCurrentMediaURL();
-            }
-        }
+        std::string url = getSelectedUrl();
 
         if (!url.empty())
         {
             LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, url.size());
         }
     }
+    else if ("copy_data" == command_name)
+    {
+        LLClipboard::instance().reset();
+        std::string url = getSelectedUrl();
+        static const std::string encoding_specifier = "base64,";
+        size_t pos = url.find(encoding_specifier);
+        if (pos != std::string::npos)
+        {
+            pos += encoding_specifier.size();
+            std::string res = LLBase64::decodeAsString(url.substr(pos));
+            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(res), 0, res.size());
+        }
+        else
+        {
+            url = LLURI::unescape(url);
+            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, url.size());
+        }
+    }
+}
+
+bool LLPanelNearByMedia::onMenuVisible(const LLSD& userdata)
+{
+    const std::string command_name = userdata.asString();
+    if ("copy_data" == command_name)
+    {
+        std::string url = getSelectedUrl();
+        if (url.rfind("data:", 0) == 0)
+        {
+            // might be a a good idea to permit text/html only
+            return true;
+        }
+    }
+    return false;
 }
 
 // static
@@ -1266,5 +1297,29 @@ void LLPanelNearByMedia::getNameAndUrlHelper(LLViewerMediaImpl* impl, std::strin
 	{
 		name = defaultName;
 	}
+}
+
+std::string LLPanelNearByMedia::getSelectedUrl()
+{
+    std::string url;
+    LLUUID selected_media_id = mMediaList->getValue().asUUID();
+    if (selected_media_id == PARCEL_AUDIO_LIST_ITEM_UUID)
+    {
+        url = LLViewerMedia::getInstance()->getParcelAudioURL();
+    }
+    else if (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID)
+    {
+        url = LLViewerParcelMedia::getInstance()->getURL();
+    }
+    else
+    {
+        LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(selected_media_id);
+        if (NULL != impl)
+        {
+            std::string name;
+            getNameAndUrlHelper(impl, name, url, mEmptyNameString);
+        }
+    }
+    return url;
 }
 
