@@ -415,7 +415,7 @@ public:
     GetUserNameA(szUserName, &dwSize);
     this->m_parent->OnSymInit(buf, symOptions, szUserName);
 
-    return false;
+    return true;
   }
 
   StackWalker *m_parent;
