@@ -2459,6 +2459,16 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
     }
 
     gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
+
+    if (mSimulatorFeatures.has("PBRMaterialSwatchEnabled"))
+    {
+        bool enabled = mSimulatorFeatures["PBRMaterialSwatchEnabled"];
+        gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
+    }
+    else
+    {
+        gSavedSettings.setBOOL("UIPreviewMaterial", false);
+    }
 }
 
 //this is called when the parent is not cacheable.

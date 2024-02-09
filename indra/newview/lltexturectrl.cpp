@@ -680,6 +680,10 @@ void LLFloaterTexturePicker::draw()
                         mGLTFPreview = gGLTFMaterialPreviewMgr.getPreview(mGLTFMaterial);
                     }
                 }
+                if (mGLTFPreview)
+                {
+                    mGLTFPreview->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+                }
             }
             else
             {
@@ -735,7 +739,7 @@ void LLFloaterTexturePicker::draw()
 
 		// If the floater is focused, don't apply its alpha to the texture (STORM-677).
 		const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
-        LLViewerTexture* preview = nullptr;
+        LLViewerTexture* preview;
         if (mGLTFMaterial)
         {
             preview = mGLTFPreview.get();
@@ -743,15 +747,11 @@ void LLFloaterTexturePicker::draw()
         else
         {
             preview = mTexturep.get();
-            if (mTexturep)
-            {
-                // Pump the priority
-				mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
-            }
         }
 
 		if( preview )
 		{
+            preview->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 			if( preview->getComponents() == 4 )
 			{
 				gl_rect_2d_checkerboard( interior, alpha );
@@ -2219,6 +2219,10 @@ void LLTextureCtrl::draw()
                         mGLTFPreview = gGLTFMaterialPreviewMgr.getPreview(mGLTFMaterial);
                     }
                 }
+                if (mGLTFPreview)
+                {
+                    mGLTFPreview->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+                }
 
                 preview = mGLTFPreview;
             }
@@ -2257,10 +2261,7 @@ void LLTextureCtrl::draw()
 		}
 		
 		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), preview, UI_VERTEX_COLOR % alpha);
-        if (mTexturep)
-        {
-            mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
-        }
+        preview->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 	}
 	else if (!mFallbackImage.isNull())
 	{
