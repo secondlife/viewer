@@ -173,20 +173,6 @@ void LLWebRTCImpl::init()
                                 updateDevices();
                             });
     
-    rtc::scoped_refptr<webrtc::AudioProcessing> apm = webrtc::AudioProcessingBuilder().Create();
-    webrtc::AudioProcessing::Config             apm_config;
-    apm_config.echo_canceller.enabled         = true;
-    apm_config.echo_canceller.mobile_mode     = false;
-    apm_config.gain_controller1.enabled       = true;
-    apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = true;
-    apm_config.high_pass_filter.enabled       = true;
-    apm_config.noise_suppression.enabled      = true;
-    apm_config.noise_suppression.level        = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
-    apm_config.transient_suppression.enabled  = true;
-    apm_config.pipeline.multi_channel_render  = true;
-    apm_config.pipeline.multi_channel_capture = true;
-    
     mWorkerThread->BlockingCall(
                                 [this]()
                                 {
