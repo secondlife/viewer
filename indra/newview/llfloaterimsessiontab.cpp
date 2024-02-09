@@ -465,6 +465,7 @@ void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked()
 
 void LLFloaterIMSessionTab::onEmojiPickerShowBtnClicked()
 {
+    mInputEditor->setFocus(TRUE);
     mInputEditor->showEmojiHelper();
 }
 
