@@ -163,7 +163,6 @@ private:
 	LLButton*			mMuteBtn;
 	LLButton*			mMoreLessBtn;
 	
-	bool				mAllMediaDisabled;
 	bool				mDebugInfoVisible;
 	bool				mParcelAudioAutoStart;
 	std::string			mEmptyNameString;
