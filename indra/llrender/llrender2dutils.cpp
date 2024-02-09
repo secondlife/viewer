@@ -51,11 +51,11 @@ const LLColor4 UI_VERTEX_COLOR(1.f, 1.f, 1.f, 1.f);
 // Functions
 //
 
-BOOL ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom)
+bool ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom)
 {
-	if (x < left || right < x) return FALSE;
-	if (y < bottom || top < y) return FALSE;
-	return TRUE;
+	if (x < left || right < x) return false;
+	if (y < bottom || top < y) return false;
+	return true;
 }
 
 
