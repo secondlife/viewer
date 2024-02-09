@@ -1441,6 +1441,11 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	mAskedTextureHeights = false;
 	mConfirmedTextureHeights = false;
 
+    if (!mRegionChangedSlot.connected())
+    {
+        mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLPanelRegionTerrainInfo::onRegionChanged,this));
+    }
+
     refresh();
 
 	return LLPanelRegionInfo::postBuild();
@@ -1449,8 +1454,7 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 // virtual
 void LLPanelRegionTerrainInfo::refresh()
 {
-    // For simplicity, require restart
-    static BOOL feature_pbr_terrain_enabled = gSavedSettings.getBOOL("RenderTerrainPBREnabled");
+    static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
 
     LLTextBox* texture_text = getChild<LLTextBox>("detail_texture_text");
     if (texture_text) { texture_text->setVisible(!feature_pbr_terrain_enabled); }
@@ -1512,6 +1516,27 @@ void LLPanelRegionTerrainInfo::onSelectMaterialType()
     }
 }
 
+void LLPanelRegionTerrainInfo::onRegionChanged()
+{
+    LLViewerRegion *region = gAgent.getRegion();
+    if (!region) { return; }
+
+    if (region->simulatorFeaturesReceived())
+    {
+        onSimulatorFeaturesReceived(region->getRegionID(), region);
+    }
+    else
+    {
+        // See "RenderTerrainPBREnabled" in LLViewerRegion::setSimulatorFeatures
+        region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLPanelRegionTerrainInfo::onSimulatorFeaturesReceived,this,_1, _2));
+    }
+}
+
+void LLPanelRegionTerrainInfo::onSimulatorFeaturesReceived(const LLUUID& region_id, LLViewerRegion* regionp)
+{
+    refresh();
+}
+
 // virtual
 bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 {
@@ -1568,6 +1593,9 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 		LL_DEBUGS() << "no region set" << LL_ENDL;
 		getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
 	}
+    
+    // Update visibility of terrain swatches, etc
+    refresh();
 
 	getChildView("download_raw_btn")->setEnabled(owner_or_god);
 	getChildView("upload_raw_btn")->setEnabled(owner_or_god);

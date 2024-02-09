@@ -159,7 +159,7 @@ bool LLTerrainMaterials::materialsReady(bool boost, bool strict)
     }
 
 #if 1
-    static bool sRenderTerrainPBREnabled = gSavedSettings.get<bool>("RenderTerrainPBREnabled");
+    static LLCachedControl<bool> sRenderTerrainPBREnabled(gSavedSettings, "RenderTerrainPBREnabled", false);
     static LLCachedControl<bool> sRenderTerrainPBRForce(gSavedSettings, "RenderTerrainPBRForce", false);
     if (sRenderTerrainPBREnabled && sRenderTerrainPBRForce)
     {
