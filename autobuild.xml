@@ -1669,11 +1669,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>4759492eeeff895c93fd4b1fda93d28219a1675a</string>
+              <string>c326445818c4e2e2177d5efde1dd59e7af0d6c9a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/148505584</string>
+              <string>https://api.github.com/repos/secondlife/3p-luau/releases/assets/150694132</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1685,11 +1685,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>4649604bca29eb697f8a6edb72f8cc1dc8343038</string>
+              <string>f3bd40eb043f2f36636d847747db20d0168f42dc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-luau-proto/releases/assets/148505585</string>
+              <string>https://api.github.com/repos/secondlife/3p-luau/releases/assets/150694133</string>
             </map>
             <key>name</key>
             <string>windows64</string>
