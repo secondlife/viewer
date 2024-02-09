@@ -269,13 +269,13 @@ bool LLInventoryObject::exportLegacyStream(std::ostream& output_stream, bool) co
 	return true;
 }
 
-void LLInventoryObject::updateParentOnServer(BOOL) const
+void LLInventoryObject::updateParentOnServer(bool) const
 {
 	// don't do nothin'
 	LL_WARNS() << "LLInventoryObject::updateParentOnServer() called.  Doesn't do anything." << LL_ENDL;
 }
 
-void LLInventoryObject::updateServer(BOOL) const
+void LLInventoryObject::updateServer(bool) const
 {
 	// don't do nothin'
 	LL_WARNS() << "LLInventoryObject::updateServer() called.  Doesn't do anything." << LL_ENDL;
@@ -562,7 +562,7 @@ void LLInventoryItem::packMessage(LLMessageSystem* msg) const
 }
 
 // virtual
-BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
+bool LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	msg->getUUIDFast(block, _PREHASH_ItemID, mUUID, block_num);
 	msg->getUUIDFast(block, _PREHASH_FolderID, mParentUUID, block_num);
@@ -598,13 +598,13 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 	if(local_crc == remote_crc)
 	{
 		LL_DEBUGS() << "crc matches" << LL_ENDL;
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		LL_WARNS() << "inventory crc mismatch: local=" << std::hex << local_crc
 				<< " remote=" << remote_crc << std::dec << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 #else
 	return (local_crc == remote_crc);
@@ -620,7 +620,7 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
 	char keyword[MAX_STRING];	/* Flawfinder: ignore */
 	char valuestr[MAX_STRING];	/* Flawfinder: ignore */
 	char junk[MAX_STRING];	/* Flawfinder: ignore */
-	BOOL success = TRUE;
+	bool success = true;
 
 	keyword[0] = '\0';
 	valuestr[0] = '\0';
@@ -660,7 +660,7 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
 			// the permissions. Thus, we read that out, and fix legacy
 			// objects. It's possible this op would fail, but it
 			// should pick up the vast majority of the tasks.
-			BOOL has_perm_mask = FALSE;
+			bool has_perm_mask = false;
 			U32 perm_mask = 0;
 			success = mSaleInfo.importLegacyStream(input_stream, has_perm_mask, perm_mask);
 			if(has_perm_mask)
@@ -844,7 +844,7 @@ bool LLInventoryItem::exportLegacyStream(std::ostream& output_stream, bool inclu
 	output_stream << "\t\tdesc\t" << mDescription.c_str() << "|\n";
 	output_stream << "\t\tcreation_date\t" << mCreationDate << "\n";
 	output_stream << "\t}\n";
-	return TRUE;
+	return true;
 }
 
 LLSD LLInventoryItem::asLLSD() const
@@ -964,7 +964,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             // the permissions. Thus, we read that out, and fix legacy
             // objects. It's possible this op would fail, but it
             // should pick up the vast majority of the tasks.
-            BOOL has_perm_mask = FALSE;
+            bool has_perm_mask = false;
             U32  perm_mask     = 0;
             if (!mSaleInfo.fromLLSD(i->second, has_perm_mask, perm_mask))
             {
@@ -1327,7 +1327,7 @@ bool LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 					<< "' in inventory import category "  << mUUID << LL_ENDL;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 bool LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, bool) const
@@ -1348,7 +1348,7 @@ bool LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, bool) 
         output_stream << "\t\tmetadata\t" << metadata << "|\n";
     }
 	output_stream << "\t}\n";
-	return TRUE;
+	return true;
 }
 
 LLSD LLInventoryCategory::exportLLSD() const

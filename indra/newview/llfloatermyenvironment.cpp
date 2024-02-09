@@ -247,7 +247,7 @@ void LLFloaterMyEnvironment::onDeleteSelected()
 
             LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
             new_item->setParent(trash_id);
-            new_item->updateParentOnServer(FALSE);
+            new_item->updateParentOnServer(false);
             gInventory.updateItem(new_item);
         }
     }

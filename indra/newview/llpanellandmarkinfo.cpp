@@ -545,7 +545,7 @@ void LLPanelLandmarkInfo::collectLandmarkFolders(LLInventoryModel::cat_array_t& 
 	gInventory.accountForUpdate(update);
 
 	mItem->setParent(mNewParentId);
-	mItem->updateParentOnServer(FALSE);
+	mItem->updateParentOnServer(false);
 
 	gInventory.updateItem(mItem);
 	gInventory.notifyObservers();

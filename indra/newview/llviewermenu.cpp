@@ -8341,7 +8341,7 @@ void handle_grab_baked_texture(void* data)
 										LLInventoryItemFlags::II_FLAGS_NONE,
 										creation_date_now);
 
-		item->updateServer(TRUE);
+		item->updateServer(true);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 
@@ -8372,7 +8372,7 @@ BOOL enable_grab_baked_texture(void* data)
 	{
 		return gAgentAvatarp->canGrabBakedTexture(index);
 	}
-	return FALSE;
+	return false;
 }
 
 // Returns a pointer to the avatar give the UUID of the avatar OR of an attachment the avatar is wearing.

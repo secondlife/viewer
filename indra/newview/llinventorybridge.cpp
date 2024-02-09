@@ -2114,14 +2114,14 @@ BOOL LLItemBridge::isItemRenameable() const
 	return FALSE;
 }
 
-BOOL LLItemBridge::renameItem(const std::string& new_name)
+bool LLItemBridge::renameItem(const std::string& new_name)
 {
 	if(!isItemRenameable())
-		return FALSE;
+		return false;
 	LLPreview::dirty(mUUID);
 	LLInventoryModel* model = getInventoryModel();
 	if(!model)
-		return FALSE;
+		return false;
 	LLViewerInventoryItem* item = getItem();
 	if(item && (item->getName() != new_name))
 	{
@@ -2129,9 +2129,9 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 		updates["name"] = new_name;
 		update_inventory_item(item->getUUID(),updates, NULL);
 	}
-	// return FALSE because we either notified observers (& therefore
+	// return false because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
-	return FALSE;
+	return false;
 }
 
 BOOL LLItemBridge::removeItem()
@@ -3767,7 +3767,7 @@ LLUIImagePtr LLFolderBridge::getIconOverlay() const
 	return NULL;
 }
 
-BOOL LLFolderBridge::renameItem(const std::string& new_name)
+bool LLFolderBridge::renameItem(const std::string& new_name)
 {
 
 	LLScrollOnRenameObserver *observer = new LLScrollOnRenameObserver(mUUID, mRoot);
@@ -3775,9 +3775,9 @@ BOOL LLFolderBridge::renameItem(const std::string& new_name)
 
 	rename_category(getInventoryModel(), mUUID, new_name);
 
-	// return FALSE because we either notified observers (& therefore
+	// return false because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
-	return FALSE;
+	return false;
 }
 
 BOOL LLFolderBridge::removeItem()
@@ -6907,20 +6907,20 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
-BOOL LLObjectBridge::renameItem(const std::string& new_name)
+bool LLObjectBridge::renameItem(const std::string& new_name)
 {
 	if(!isItemRenameable())
-		return FALSE;
+		return false;
 	LLPreview::dirty(mUUID);
 	LLInventoryModel* model = getInventoryModel();
 	if(!model)
-		return FALSE;
+		return false;
 	LLViewerInventoryItem* item = getItem();
 	if(item && (item->getName() != new_name))
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->rename(new_name);
-		new_item->updateServer(FALSE);
+		new_item->updateServer(false);
 		model->updateItem(new_item);
 		model->notifyObservers();
 		buildDisplayName();
@@ -6939,7 +6939,7 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 	}
 	// return FALSE because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
-	return FALSE;
+	return false;
 }
 
 // +=================================================+
@@ -6973,7 +6973,7 @@ LLWearableBridge::LLWearableBridge(LLInventoryPanel* inventory,
 	mInvType = inv_type;
 }
 
-BOOL LLWearableBridge::renameItem(const std::string& new_name)
+bool LLWearableBridge::renameItem(const std::string& new_name)
 {
 	if (get_is_item_worn(mUUID))
 	{
@@ -7427,7 +7427,7 @@ void LLSettingsBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     hide_context_entries(menu, items, disabled_items);
 }
 
-BOOL LLSettingsBridge::renameItem(const std::string& new_name)
+bool LLSettingsBridge::renameItem(const std::string& new_name)
 {
     /*TODO: change internal settings name? */
     return LLItemBridge::renameItem(new_name);

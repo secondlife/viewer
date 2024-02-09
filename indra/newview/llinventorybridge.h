@@ -113,7 +113,7 @@ public:
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	virtual BOOL isMultiPreviewAllowed() { return TRUE; }
-	//virtual BOOL renameItem(const std::string& new_name) {}
+	//virtual bool renameItem(const std::string& new_name) {}
 	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const;
 	virtual BOOL isItemInTrash() const;
@@ -247,7 +247,7 @@ public:
 	virtual PermissionMask getPermissionMask() const;
 	virtual time_t getCreationDate() const;
 	virtual BOOL isItemRenameable() const;
-	virtual BOOL renameItem(const std::string& new_name);
+	virtual bool renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
     virtual bool isItemCopyable(bool can_copy_as_link = true) const;
 	virtual bool hasChildren() const { return FALSE; }
@@ -305,7 +305,7 @@ public:
 
 	void setShowDescendantsCount(bool show_count) {mShowDescendantsCount = show_count;}
 
-	virtual BOOL renameItem(const std::string& new_name);
+	virtual bool renameItem(const std::string& new_name);
 
 	virtual BOOL removeItem();
 	BOOL removeSystemFolder();
@@ -522,7 +522,7 @@ public:
     virtual BOOL isItemWearable() const { return TRUE; }
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL renameItem(const std::string& new_name);
+	virtual bool renameItem(const std::string& new_name);
 	LLInventoryObject* getObject() const;
 protected:
 	static LLUUID sContextMenuItemID;  // Only valid while the context menu is open.
@@ -555,7 +555,7 @@ public:
     virtual BOOL isItemWearable() const { return TRUE; }
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
-	virtual BOOL renameItem(const std::string& new_name);
+	virtual bool renameItem(const std::string& new_name);
 	virtual LLWearableType::EType getWearableType() const { return mWearableType; }
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu
@@ -632,7 +632,7 @@ public:
     virtual void	openItem();
     virtual BOOL	isMultiPreviewAllowed() { return FALSE; }
     virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
-    virtual BOOL    renameItem(const std::string& new_name);
+    virtual bool    renameItem(const std::string& new_name);
     virtual BOOL    isItemRenameable() const;
     virtual LLSettingsType::type_e getSettingsType() const { return mSettingsType; }
 

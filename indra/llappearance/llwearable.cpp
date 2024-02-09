@@ -307,7 +307,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
 	// permissions. Thus, we read that out, and fix legacy
 	// objects. It's possible this op would fail, but it should pick
 	// up the vast majority of the tasks.
-	BOOL has_perm_mask = FALSE;
+	bool has_perm_mask = false;
 	U32 perm_mask = 0;
 	if( !mSaleInfo.importLegacyStream(input_stream, has_perm_mask, perm_mask) )
 	{

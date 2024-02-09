@@ -4185,14 +4185,14 @@ void LLSelectMgr::selectGetAggregateSaleInfo(U32 &num_for_sale,
 		return;
 	
 	LLSelectNode *node = *(getSelection()->root_begin());
-	const BOOL first_node_for_sale = node->mSaleInfo.isForSale();
+	const bool first_node_for_sale = node->mSaleInfo.isForSale();
 	const S32 first_node_sale_price = node->mSaleInfo.getSalePrice();
 	
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
 		 iter != getSelection()->root_end(); iter++)
 	{
 		LLSelectNode* node = *iter;
-		const BOOL node_for_sale = node->mSaleInfo.isForSale();
+		const bool node_for_sale = node->mSaleInfo.isForSale();
 		const S32 node_sale_price = node->mSaleInfo.getSalePrice();
 		
 		// Set mixed if the fields don't match the first node's fields.
