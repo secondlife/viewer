@@ -13829,6 +13829,17 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>UIPreviewMaterial</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not PBR material swatch is enabled</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
     <key>UIResizeBarHeight</key>
     <map>
       <key>Comment</key>
