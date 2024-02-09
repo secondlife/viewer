@@ -35,7 +35,7 @@ class ImageRequest
 {
 public:
 	ImageRequest(const LLPointer<LLImageFormatted>& image,
-				 S32 discard, BOOL needs_aux,
+				 S32 discard, bool needs_aux,
 				 const LLPointer<LLImageDecodeThread::Responder>& responder);
 	virtual ~ImageRequest();
 
@@ -48,12 +48,12 @@ private:
 	// input
 	LLPointer<LLImageFormatted> mFormattedImage;
 	S32 mDiscardLevel;
-	BOOL mNeedsAux;
+	bool mNeedsAux;
 	// output
 	LLPointer<LLImageRaw> mDecodedImageRaw;
 	LLPointer<LLImageRaw> mDecodedImageAux;
-	BOOL mDecodedRaw;
-	BOOL mDecodedAux;
+    bool mDecodedRaw;
+    bool mDecodedAux;
 	LLPointer<LLImageDecodeThread::Responder> mResponder;
 };
 
@@ -87,7 +87,7 @@ size_t LLImageDecodeThread::getPending()
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     const LLPointer<LLImageFormatted>& image, 
     S32 discard,
-    BOOL needs_aux,
+    bool needs_aux,
     const LLPointer<LLImageDecodeThread::Responder>& responder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -124,13 +124,13 @@ LLImageDecodeThread::Responder::~Responder()
 //----------------------------------------------------------------------------
 
 ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image, 
-							S32 discard, BOOL needs_aux,
+							S32 discard, bool needs_aux,
 							const LLPointer<LLImageDecodeThread::Responder>& responder)
 	: mFormattedImage(image),
 	  mDiscardLevel(discard),
 	  mNeedsAux(needs_aux),
-	  mDecodedRaw(FALSE),
-	  mDecodedAux(FALSE),
+	  mDecodedRaw(false),
+	  mDecodedAux(false),
 	  mResponder(responder)
 {
 }
