@@ -5307,7 +5307,7 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
 void display_cube_face();
 
-BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render)
+BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render, bool useCustomClipPlane, LLPlane clipPlane)
 {
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
@@ -5337,6 +5337,14 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     camera->yaw(0.0);
     camera->setOrigin(origin);
     camera->setNear(near_clip);
+
+	LLPlane previousClipPlane;
+
+	if (useCustomClipPlane)
+	{
+        previousClipPlane = camera->getUserClipPlane();
+        camera->setUserClipPlane(clipPlane);
+	}
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
     
@@ -5444,6 +5452,11 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 
     gPipeline.resetDrawOrders();
     mWorldViewRectRaw = window_rect;
+
+	if (useCustomClipPlane)
+	{
+        camera->setUserClipPlane(previousClipPlane);
+	}
     
     // restore original view/camera/avatar settings settings
     *camera = saved_camera;

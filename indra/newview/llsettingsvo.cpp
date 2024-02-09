@@ -718,11 +718,11 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     // TODO -- make these getters return vec3s
-    LLVector3 sunDiffuse = LLVector3(psky->getSunlightColor().mV);
-    LLVector3 moonDiffuse = LLVector3(psky->getMoonlightColor().mV);
+    LLVector3 sun_light_color = LLVector3(psky->getSunlightColor().mV);
+    LLVector3 moon_light_color = LLVector3(psky->getMoonlightColor().mV);
 
-    shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sunDiffuse);
-    shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, moonDiffuse);
+    shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color);
+    shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, moon_light_color);
 
     shader->uniform3fv(LLShaderMgr::CLOUD_COLOR, LLVector3(psky->getCloudColor().mV));
 
@@ -765,9 +765,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
             LLColor3 blue_horizon = getBlueHorizon() * auto_adjust_blue_horizon_scale;
             LLColor3 blue_density = getBlueDensity() * auto_adjust_blue_density_scale;
-            LLColor3 sun_diffuse = getSunDiffuse() * auto_adjust_sun_color_scale;
+            sun_light_color = sun_light_color * auto_adjust_sun_color_scale;
             
-            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_diffuse.mV);
+            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color.mV);
             shader->uniform3fv(LLShaderMgr::BLUE_DENSITY, blue_density.mV);
             shader->uniform3fv(LLShaderMgr::BLUE_HORIZON, blue_horizon.mV);
 
@@ -1009,6 +1009,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         glh::matrix4f mat(modelView);
         glh::matrix4f invtrans = mat.inverse().transpose();
+        invtrans.m[3] = invtrans.m[7] = invtrans.m[11] = 0.f;
         glh::vec3f enorm;
         glh::vec3f ep;
         invtrans.mult_matrix_vec(norm, enorm);
@@ -1017,11 +1018,28 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLVector4 waterPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
 
+        norm = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorNormal.mV);
+        p    = glh::vec3f(gPipeline.mHeroProbeManager.mMirrorPosition.mV);
+        invtrans.mult_matrix_vec(norm, enorm);
+        enorm.normalize();
+        mat.mult_matrix_vec(p, ep);
+
+        LLVector4 mirrorPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
+
         LLDrawPoolAlpha::sWaterPlane = waterPlane;
 
         shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, waterPlane.mV);
-
+        shader->uniform4fv(LLShaderMgr::CLIP_PLANE, mirrorPlane.mV);
         LLVector4 light_direction = env.getClampedLightNorm();
+
+        if (gPipeline.mHeroProbeManager.isMirrorPass())
+        {
+            shader->uniform1f(LLShaderMgr::MIRROR_FLAG, 1);
+        }
+        else
+        {
+            shader->uniform1f(LLShaderMgr::MIRROR_FLAG, 0);
+        }
 
         F32 waterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
 

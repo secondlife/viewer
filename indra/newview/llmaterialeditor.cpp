@@ -1870,7 +1870,7 @@ static void pack_textures(
     if (normal_img)
     {
         // create a losslessly compressed version of the normal map
-        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img, 1024, false, true);
+        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img, 2048, false, true);
         LL_DEBUGS("MaterialEditor") << "Normal: " << normal_j2c->getDataSize() << LL_ENDL;
     }
 

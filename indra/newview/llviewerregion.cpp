@@ -1105,6 +1105,11 @@ void LLViewerRegion::dirtyHeights()
 	}
 }
 
+void LLViewerRegion::dirtyAllPatches()
+{
+    getLand().dirtyAllPatches();
+}
+
 //physically delete the cache entry
 void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 {	
@@ -1605,7 +1610,19 @@ void LLViewerRegion::idleUpdate(F32 max_update_time)
 
 	mLastUpdate = LLViewerOctreeEntryData::getCurrentFrame();
 
-	mImpl->mLandp->idleUpdate(max_update_time);
+    static bool pbr_terrain_enabled = gSavedSettings.get<bool>("RenderTerrainPBREnabled");
+    static LLCachedControl<bool> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", FALSE);
+    bool pbr_material = mImpl->mCompositionp && (mImpl->mCompositionp->getMaterialType() == LLTerrainMaterials::Type::PBR);
+    bool pbr_land = pbr_material && pbr_terrain_enabled && pbr_terrain_experimental_normals;
+
+    if (!pbr_land)
+    {
+        mImpl->mLandp->idleUpdate</*PBR=*/false>(max_update_time);
+    }
+    else
+    {
+        mImpl->mLandp->idleUpdate</*PBR=*/true>(max_update_time);
+    }
 	
 	if (mParcelOverlay)
 	{
@@ -1906,7 +1923,21 @@ LLViewerObject* LLViewerRegion::updateCacheEntry(U32 local_id, LLViewerObject* o
 // As above, but forcibly do the update.
 void LLViewerRegion::forceUpdate()
 {
-	mImpl->mLandp->idleUpdate(0.f);
+	constexpr F32 max_update_time = 0.f;
+
+	static bool pbr_terrain_enabled = gSavedSettings.get<BOOL>("RenderTerrainPBREnabled");
+	static LLCachedControl<BOOL> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", FALSE);
+	bool pbr_material = mImpl->mCompositionp && (mImpl->mCompositionp->getMaterialType() == LLTerrainMaterials::Type::PBR);
+	bool pbr_land = pbr_material && pbr_terrain_enabled && pbr_terrain_experimental_normals;
+
+	if (!pbr_land)
+	{
+		mImpl->mLandp->idleUpdate</*PBR=*/false>(max_update_time);
+	}
+	else
+	{
+		mImpl->mLandp->idleUpdate</*PBR=*/true>(max_update_time);
+	}
 
 	if (mParcelOverlay)
 	{
@@ -2407,7 +2438,37 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	mSimulatorFeatures = sim_features;
 
 	setSimulatorFeaturesReceived(true);
-	
+
+    // if region has MaxTextureResolution, set max_texture_dimension settings, otherwise use default
+    if (mSimulatorFeatures.has("MaxTextureResolution"))
+    {
+        S32 max_texture_resolution = mSimulatorFeatures["MaxTextureResolution"].asInteger();
+        gSavedSettings.setS32("max_texture_dimension_X", max_texture_resolution);
+        gSavedSettings.setS32("max_texture_dimension_Y", max_texture_resolution);
+    }
+    else
+    {
+        gSavedSettings.setS32("max_texture_dimension_X", 1024);
+        gSavedSettings.setS32("max_texture_dimension_Y", 1024);
+    }
+
+    bool mirrors_enabled = false;
+    if (mSimulatorFeatures.has("MirrorsEnabled"))
+    {
+        mirrors_enabled = mSimulatorFeatures["MirrorsEnabled"].asBoolean();
+    }
+
+    gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
+
+    if (mSimulatorFeatures.has("PBRMaterialSwatchEnabled"))
+    {
+        bool enabled = mSimulatorFeatures["PBRMaterialSwatchEnabled"];
+        gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
+    }
+    else
+    {
+        gSavedSettings.setBOOL("UIPreviewMaterial", false);
+    }
 }
 
 //this is called when the parent is not cacheable.
@@ -2963,20 +3024,20 @@ void LLViewerRegion::unpackRegionHandshake()
 
 		// Get the 4 textures for land
 		msg->getUUID("RegionInfo", "TerrainDetail0", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(0));		
-		compp->setDetailTextureID(0, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(0));		
+		compp->setDetailAssetID(0, tmp_id);
 
 		msg->getUUID("RegionInfo", "TerrainDetail1", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(1));		
-		compp->setDetailTextureID(1, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(1));		
+		compp->setDetailAssetID(1, tmp_id);
 
 		msg->getUUID("RegionInfo", "TerrainDetail2", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(2));		
-		compp->setDetailTextureID(2, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(2));		
+		compp->setDetailAssetID(2, tmp_id);
 
 		msg->getUUID("RegionInfo", "TerrainDetail3", tmp_id);
-		changed |= (tmp_id != compp->getDetailTextureID(3));		
-		compp->setDetailTextureID(3, tmp_id);
+		changed |= (tmp_id != compp->getDetailAssetID(3));		
+		compp->setDetailAssetID(3, tmp_id);
 
 		// Get the start altitude and range values for land textures
 		F32 tmp_f32;
