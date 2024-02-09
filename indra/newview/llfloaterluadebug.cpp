@@ -37,6 +37,9 @@
 #include "llfloaterimnearbychat.h"
 
 #include "llluamanager.h"
+#include "llsdutil.h"
+#include "lua_function.h"
+#include "stringize.h"
 
 
 LLFloaterLUADebug::LLFloaterLUADebug(const LLSD &key)
@@ -74,9 +77,9 @@ void LLFloaterLUADebug::onExecuteClicked()
     mResultOutput->setValue("");
 
     std::string cmd = mLineInput->getText();
-    LLLUAmanager::runScriptLine(cmd, [this](std::string msg)
-        { 
-            mResultOutput->insertText(msg);
+    LLLUAmanager::runScriptLine(cmd, [this](int count, const LLSD& result)
+        {
+            completion(count, result);
         });
 }
 
@@ -104,10 +107,34 @@ void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filena
     if (!filepath.empty())
     {
         mScriptPath->setText(filepath);
-        LLLUAmanager::runScriptFile(filepath, [this](std::string msg) 
-            { 
-                mResultOutput->insertText(msg); 
-            });
+        LLLUAmanager::runScriptFile(filepath, [this](int count, const LLSD& result)
+        {
+            completion(count, result);
+        });
     }
 }
 
+void LLFloaterLUADebug::completion(int count, const LLSD& result)
+{
+    if (count < 0)
+    {
+        // error: show error message
+        mResultOutput->insertText("*** ");
+        mResultOutput->insertText(result.asString());
+        return;
+    }
+    if (count == 1)
+    {
+        // single result
+        mResultOutput->insertText(stringize(result));
+        return;
+    }
+    // 0 or multiple results
+    const char* sep = "";
+    for (const auto& item : llsd::inArray(result))
+    {
+        mResultOutput->insertText(sep);
+        mResultOutput->insertText(stringize(item));
+        sep = ", ";
+    }
+}
