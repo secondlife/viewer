@@ -28,6 +28,7 @@
 
 #include "llevents.h"
 #include "llfloater.h"
+#include "lua_function.h"
 
 extern "C"
 {
@@ -63,6 +64,7 @@ private:
     LLTextEditor* mResultOutput;
     LLLineEditor* mLineInput;
     LLLineEditor* mScriptPath;
+    LuaState mState;
 };
 
 #endif  // LL_LLFLOATERLUADEBUG_H
