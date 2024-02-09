@@ -302,7 +302,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post Windows symbols
-        uses: secondlife/viewer-build-util/post-bugsplat-windows@v1
+        uses: secondlife/viewer-build-util/post-bugsplat-windows@bugsplat-fix
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
@@ -315,7 +315,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post Mac symbols
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@v1
+        uses: secondlife/viewer-build-util/post-bugsplat-mac@bugsplat-fix
         with:
           username: ${{ secrets.BUGSPLAT_USER }}
           password: ${{ secrets.BUGSPLAT_PASS }}
