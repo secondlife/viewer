@@ -70,11 +70,11 @@ bool LLCallbackList::containsFunction( callback_t func, void *data)
 	callback_list_t::iterator iter = find(func,data);
 	if (iter != mCallbackList.end())
 	{
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -85,11 +85,11 @@ bool LLCallbackList::deleteFunction( callback_t func, void *data)
 	if (iter != mCallbackList.end())
 	{
 		mCallbackList.erase(iter);
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
