@@ -56,6 +56,8 @@ class LLFloaterLUADebug :
     void runSelectedScript(const std::vector<std::string> &filenames);
 
 private:
+    void completion(int count, const LLSD& result);
+
     LLTempBoundListener mOutConnection;
 
     LLTextEditor* mResultOutput;
