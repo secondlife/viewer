@@ -8699,7 +8699,7 @@
   <key>OctreeAlphaDistanceFactor</key>
   <map>
     <key>Comment</key>
-    <string>Multiplier on alpha object distance for determining octree node size </string>
+    <string>Multiplier on alpha object distance for determining octree node size.  First two parameters are currently unused.  Third parameter is distance at which to perform detailed alpha sorting.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8708,7 +8708,7 @@
     <array>
       <real>0.1</real>
       <real>0.0</real>
-      <real>0.0</real>
+      <real>64.0</real>
     </array>
   </map>
 
