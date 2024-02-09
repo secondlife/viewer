@@ -1887,7 +1887,7 @@ BOOL LLWebRTCVoiceClient::getIsModeratorMuted(const LLUUID& id)
 
 F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
 {
-    F32 result = 0;
+    F32 result = 0.0;
     if (!mSession)
     {
         return result;
@@ -1895,7 +1895,10 @@ F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
     participantStatePtr_t participant(mSession->findParticipant(id.asString()));
 	if (participant)
 	{
-		result = participant->mLevel;
+        if (participant->mIsSpeaking)
+        {
+            result = participant->mLevel;
+        }
 	}
 	return result;
 }
@@ -2965,7 +2968,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                 F32 volume;
                 if(LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(agent_id, volume))
                 {
-                    user_gain[participant_id] = (uint16_t)(volume*200);
+                    user_gain[participant_id] = (uint32_t)(volume * 200);
                 }
             }
 
@@ -2989,7 +2992,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                     // convert to decibles
                     participant->mLevel = level;
                     
-                    if (voice_data["participant_id"].isMember("v"))
+                    if (voice_data[participant_id].isMember("v"))
                     {
                         participant->mIsSpeaking = voice_data[participant_id].get("v", Json::Value(false)).asBool();
                     }
