@@ -81,7 +81,7 @@ const std::string gShaderConstsVal[LLGLSLShader::NUM_SHADER_CONSTS] =
 };
 
 
-BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
+bool shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
     return v1 != v2;
 }
@@ -381,7 +381,7 @@ void LLGLSLShader::unloadInternal()
     stop_glerror();
 }
 
-BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
+bool LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
     std::vector<LLStaticHashedString>* uniforms,
     U32 varying_count,
     const char** varyings)
@@ -415,10 +415,10 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
         // Shouldn't happen if shader related extensions, like ARB_vertex_shader, exist.
         LL_SHADER_LOADING_WARNS() << "Failed to create handle for shader: " << mName << LL_ENDL;
         unloadInternal();
-        return FALSE;
+        return false;
     }
 
-    BOOL success = TRUE;
+    bool success = true;
 
     mUsingBinaryProgram =  LLShaderMgr::instance()->loadCachedProgramBinary(this);
 
@@ -440,7 +440,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
 			}
 			else
 			{
-				success = FALSE;
+				success = false;
 			}
 		}
     }
@@ -449,7 +449,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
     if (!LLShaderMgr::instance()->attachShaderFeatures(this))
     {
         unloadInternal();
-        return FALSE;
+        return false;
     }
     // Map attributes and uniforms
     if (success)
@@ -529,7 +529,7 @@ void dumpAttachObject(const char* func_name, GLuint program_object, const std::s
 }
 #endif // DEBUG_SHADER_INCLUDES
 
-BOOL LLGLSLShader::attachVertexObject(std::string object_path)
+bool LLGLSLShader::attachVertexObject(std::string object_path)
 {
     if (LLShaderMgr::instance()->mVertexShaderObjects.count(object_path) > 0)
     {
@@ -539,19 +539,19 @@ BOOL LLGLSLShader::attachVertexObject(std::string object_path)
         dumpAttachObject("attachVertexObject", mProgramObject, object_path);
 #endif // DEBUG_SHADER_INCLUDES
         stop_glerror();
-        return TRUE;
+        return true;
     }
     else
     {
         LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object: '" << object_path << "' that hasn't been compiled." << LL_ENDL;
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLGLSLShader::attachFragmentObject(std::string object_path)
+bool LLGLSLShader::attachFragmentObject(std::string object_path)
 {
     if(mUsingBinaryProgram)
-        return TRUE;
+        return true;
 
     if (LLShaderMgr::instance()->mFragmentShaderObjects.count(object_path) > 0)
     {
@@ -561,12 +561,12 @@ BOOL LLGLSLShader::attachFragmentObject(std::string object_path)
         dumpAttachObject("attachFragmentObject", mProgramObject, object_path);
 #endif // DEBUG_SHADER_INCLUDES
         stop_glerror();
-        return TRUE;
+        return true;
     }
     else
     {
         LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object: '" << object_path << "' that hasn't been compiled." << LL_ENDL;
-        return FALSE;
+        return false;
     }
 }
 

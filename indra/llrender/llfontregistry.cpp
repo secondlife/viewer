@@ -457,7 +457,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	// Snarf all fonts we can into fontlist.  First will get pulled
 	// off the list and become the "head" font, set to non-fallback.
 	// Rest will consitute the fallback list.
-	BOOL is_first_found = TRUE;
+	bool is_first_found = true;
 	
 	std::string local_path = LLFontGL::getFontPathLocal();
 	std::string sys_path = LLFontGL::getFontPathSystem();
@@ -481,7 +481,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		bool is_ft_collection = (std::find(ft_collection_list.begin(), ft_collection_list.end(), *file_name_it) != ft_collection_list.end());
 		// *HACK: Fallback fonts don't render, so we can use that to suppress
 		// creation of OpenGL textures for test apps. JC
-		BOOL is_fallback = !is_first_found || !mCreateGLTextures;
+		bool is_fallback = !is_first_found || !mCreateGLTextures;
 		F32 extra_scale = (is_fallback)?fallback_scale:1.0;
 		F32 point_size_scale = extra_scale * point_size;
 		bool is_font_loaded = false;

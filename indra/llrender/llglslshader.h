@@ -174,12 +174,12 @@ public:
     // If force_read is true, will force an immediate readback (severe performance penalty)
     bool readProfileQuery(bool for_runtime = false, bool force_read = false);
 
-    BOOL createShader(std::vector<LLStaticHashedString>* attributes,
+    bool createShader(std::vector<LLStaticHashedString>* attributes,
         std::vector<LLStaticHashedString>* uniforms,
         U32 varying_count = 0,
         const char** varyings = NULL);
-    BOOL attachFragmentObject(std::string object);
-    BOOL attachVertexObject(std::string object);
+    bool attachFragmentObject(std::string object);
+    bool attachVertexObject(std::string object);
     void attachObject(GLuint object);
     void attachObjects(GLuint* objects = NULL, S32 count = 0);
     BOOL mapAttributes(const std::vector<LLStaticHashedString>* attributes);
