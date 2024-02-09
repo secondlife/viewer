@@ -103,7 +103,7 @@ using namespace LLAvatarAppearanceDefines;
 
 extern LLMenuBarGL* gMenuBarView;
 
-const BOOL ANIMATE = TRUE;
+const bool ANIMATE = true;
 const U8 AGENT_STATE_TYPING =	0x04;
 const U8 AGENT_STATE_EDITING =  0x10;
 
@@ -373,7 +373,7 @@ bool LLAgent::isMicrophoneOn(const LLSD& sdname)
 //-----------------------------------------------------------------------------
 LLAgent::LLAgent() :
 	mGroupPowers(0),
-	mHideGroupTitle(FALSE),
+	mHideGroupTitle(false),
 	mGroupID(),
 
 	mInitialized(false),
@@ -417,24 +417,24 @@ LLAgent::LLAgent() :
 	mRenderState(0),
 	mTypingTimer(),
 
-	mViewsPushed(FALSE),
+	mViewsPushed(false),
 
-	mCustomAnim(FALSE),
-	mShowAvatar(TRUE),
+	mCustomAnim(false),
+	mShowAvatar(true),
 	mFrameAgent(),
 
 	mIsDoNotDisturb(false),
 
 	mControlFlags(0x00000000),
-	mbFlagsDirty(FALSE),
-	mbFlagsNeedReset(FALSE),
+	mbFlagsDirty(false),
+	mbFlagsNeedReset(false),
 
-	mAutoPilot(FALSE),
-	mAutoPilotFlyOnStop(FALSE),
-	mAutoPilotAllowFlying(TRUE),
+	mAutoPilot(false),
+	mAutoPilotFlyOnStop(false),
+	mAutoPilotAllowFlying(true),
 	mAutoPilotTargetGlobal(),
 	mAutoPilotStopDistance(1.f),
-	mAutoPilotUseRotation(FALSE),
+	mAutoPilotUseRotation(false),
 	mAutoPilotTargetFacing(LLVector3::zero),
 	mAutoPilotTargetDist(0.f),
 	mAutoPilotNoProgressFrameCount(0),
@@ -442,18 +442,18 @@ LLAgent::LLAgent() :
 	mAutoPilotFinishedCallback(NULL),
 	mAutoPilotCallbackData(NULL),
 	
-	mMovementKeysLocked(FALSE),
+	mMovementKeysLocked(false),
 
 	mEffectColor(new LLUIColor(LLColor4(0.f, 1.f, 1.f, 1.f))),
 
-	mHaveHomePosition(FALSE),
+	mHaveHomePosition(false),
 	mHomeRegionHandle( 0 ),
 	mNearChatRadius(CHAT_NORMAL_RADIUS / 2.f),
 
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
 	mFirstLogin(false),
-	mOutfitChosen(FALSE),
+	mOutfitChosen(false),
 
 	mVoiceConnected(false),
 
@@ -481,7 +481,7 @@ void LLAgent::init()
 {
 	mMoveTimer.start();
 
-	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", LLControlVariable::PERSIST_NO);
+	gSavedSettings.declareBOOL("SlowMotionAnimation", false, "Declared in code", LLControlVariable::PERSIST_NO);
 	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
 	
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
@@ -847,20 +847,20 @@ void LLAgent::movePitch(F32 mag)
 
 
 // Does this parcel allow you to fly?
-BOOL LLAgent::canFly()
+bool LLAgent::canFly()
 {
-	if (isGodlike()) return TRUE;
+	if (isGodlike()) return true;
 
 	LLViewerRegion* regionp = getRegion();
-	if (regionp && regionp->getBlockFly()) return FALSE;
+	if (regionp && regionp->getBlockFly()) return false;
 	
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if (!parcel) return FALSE;
+	if (!parcel) return false;
 
 	// Allow owners to fly on their own land.
 	if (LLViewerParcelMgr::isParcelOwnedByAgent(parcel, GP_LAND_ALLOW_FLY))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return parcel->getAllowFly();
@@ -952,7 +952,7 @@ void LLAgent::toggleFlying()
 // static
 bool LLAgent::enableFlying()
 {
-	BOOL sitting = FALSE;
+	bool sitting = false;
 	if (isAgentAvatarValid())
 	{
 		sitting = gAgentAvatarp->isSitting();
@@ -963,7 +963,7 @@ bool LLAgent::enableFlying()
 // static
 bool LLAgent::isSitting()
 {
-    BOOL sitting = FALSE;
+    bool sitting = false;
     if (isAgentAvatarValid())
     {
         sitting = gAgentAvatarp->isSitting();

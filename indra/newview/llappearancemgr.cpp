@@ -1336,7 +1336,7 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 					wearable_item->setAssetUUID(new_wearable->getAssetID());
 					wearable_item->setTransactionID(new_wearable->getTransactionID());
 					gInventory.updateItem(wearable_item, LLInventoryObserver::INTERNAL);
-					wearable_item->updateServer(FALSE);
+					wearable_item->updateServer(false);
 
 					use_count++;
 				}
@@ -4231,12 +4231,12 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 
 	// FIXME switch to use AISv3 where supported.
 	//items need to be updated on a dataserver
-	item->setComplete(TRUE);
-	item->updateServer(FALSE);
+	item->setComplete(true);
+	item->updateServer(false);
 	gInventory.updateItem(item);
 
-	swap_item->setComplete(TRUE);
-	swap_item->updateServer(FALSE);
+	swap_item->setComplete(true);
+	swap_item->updateServer(false);
 	gInventory.updateItem(swap_item);
 
 	//to cause appearance of the agent to be updated

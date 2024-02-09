@@ -1678,7 +1678,7 @@ void AISUpdate::doUpdate()
                 LLPointer<LLViewerInventoryItem> new_item = lost_it->second;
 
                 new_item->setParent(lost_uuid);
-                new_item->updateParentOnServer(FALSE);
+                new_item->updateParentOnServer(false);
             }
         }
     }

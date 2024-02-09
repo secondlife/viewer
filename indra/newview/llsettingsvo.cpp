@@ -181,7 +181,7 @@ void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSetti
         {
             perm.setMaskEveryone(PERM_COPY);
             pitem->setPermissions(perm);
-            pitem->updateServer(FALSE);
+            pitem->updateServer(false);
         }
     }
     if (!settings)
@@ -240,7 +240,7 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         }
         if (need_update)
         {
-            new_item->updateServer(FALSE);
+            new_item->updateServer(false);
             gInventory.updateItem(new_item);
             gInventory.notifyObservers();
         }

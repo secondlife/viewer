@@ -1175,7 +1175,7 @@ void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
 		{
 			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 			new_item->rename(tb->getText());
-			new_item->updateServer(FALSE);
+			new_item->updateServer(false);
 			gInventory.updateItem(new_item);
 			gInventory.notifyObservers();
 		}
@@ -1202,7 +1202,7 @@ void LLPanelPermissions::onCommitDesc(LLUICtrl*, void* data)
 		{
 			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 			new_item->setDescription(le->getText());
-			new_item->updateServer(FALSE);
+			new_item->updateServer(false);
 			gInventory.updateItem(new_item);
 			gInventory.notifyObservers();
 		}

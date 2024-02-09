@@ -659,7 +659,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 				LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 				new_item->setAssetUUID(asset_uuid);
 				new_item->setTransactionID(info->mTransactionID);
-				new_item->updateServer(FALSE);
+				new_item->updateServer(false);
 				gInventory.updateItem(new_item);
 				gInventory.notifyObservers();
 			}

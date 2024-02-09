@@ -1474,7 +1474,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		{
 			// Parent id at server is null, so update server even if item already is in the same folder
 			old_item->setParent(new_parent_id);
-			new_item->updateParentOnServer(FALSE);
+			new_item->updateParentOnServer(false);
 		}
 		mask |= LLInventoryObserver::INTERNAL;
 	}
@@ -1495,7 +1495,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 				gInventory.accountForUpdate(update);
 
 				// *FIX: bit of a hack to call update server from here...
-				new_item->updateParentOnServer(FALSE);
+				new_item->updateParentOnServer(false);
 				item_array->push_back(new_item);
 			}
 			else
@@ -1540,7 +1540,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 					gInventory.accountForUpdate(update);
 					// *FIX: bit of a hack to call update server from
 					// here...
-					new_item->updateParentOnServer(FALSE);
+					new_item->updateParentOnServer(false);
 					item_array->push_back(new_item);
 				}
 				else
@@ -3040,10 +3040,10 @@ void LLInventoryModel::buildParentChildMap()
 		// FIXME note that updateServer() fails with protected
 		// types, so this will not work as intended in that case.
 		// UpdateServer uses AIS, AIS cat move is not implemented yet
-		// cat->updateServer(TRUE);
+		// cat->updateServer(true);
 
 		// MoveInventoryFolder message, intentionally per item
-		cat->updateParentOnServer(FALSE);
+		cat->updateParentOnServer(false);
 		catsp = getUnlockedCatArray(cat->getParentUUID());
 		if(catsp)
 		{
