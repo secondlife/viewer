@@ -687,9 +687,9 @@ class LLProfile
 
 public:
 	LLProfile()
-		: mOpen(FALSE),
-		  mConcave(FALSE),
-		  mDirty(TRUE),
+		: mOpen(false),
+		  mConcave(false),
+		  mDirty(true),
 		  mTotalOut(0),
 		  mTotal(2)
 	{
@@ -779,9 +779,9 @@ public:
 
 public:
 	LLPath()
-		: mOpen(FALSE),
+		: mOpen(false),
 		  mTotal(0),
-		  mDirty(TRUE),
+		  mDirty(true),
 		  mStep(1)
 	{
 	}
