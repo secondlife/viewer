@@ -151,7 +151,7 @@ static struct name##_luasub : public LuaFunction            \
 {                                                           \
     name##_luasub(): LuaFunction(#name, &call, helptext) {} \
     static int call(lua_State* L);                          \
-} name##_luadecl;                                           \
+} name##_lua;                                               \
 int name##_luasub::call(lua_State* L)
 // {
 //     ... supply method body here, referencing 'L' ...
