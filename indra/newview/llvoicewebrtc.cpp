@@ -531,7 +531,9 @@ bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
     // add new connections for new neighbors
     for (auto &neighbor : neighbor_ids)
     {
-        connectionPtr_t connection = mWebRTCConnections.emplace_back(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+        connectionPtr_t  connection(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+
+        mWebRTCConnections.push_back(connection);
         connection->setMicGain(mMicGain);
         connection->setMuteMic(mMuted);
         connection->setSpeakerVolume(mSpeakerVolume);

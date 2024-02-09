@@ -697,12 +697,19 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// set P2P type by default
 	mSessionType = P2P_SESSION;
 
-	if ((IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType) && LLVoiceClient::getInstance()->hasP2PInterface())
-	{
-		// only use LLVoiceChannelP2P if the provider can handle the special P2P interface,
-		// which uses the voice server to relay calls and invites.  Otherwise,
-		// we use the group voice provider.
-		mVoiceChannel  = new LLVoiceChannelP2P(session_id, name, other_participant_id);
+	if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
+    {
+        if (LLVoiceClient::getInstance()->hasP2PInterface())
+        {
+            // only use LLVoiceChannelP2P if the provider can handle the special P2P interface,
+            // which uses the voice server to relay calls and invites.  Otherwise,
+            // we use the group voice provider.
+            mVoiceChannel = new LLVoiceChannelP2P(session_id, name, other_participant_id);
+        }
+		else
+		{
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, true);
+		}
 	}
 	else
 	{
@@ -710,17 +717,13 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		if (gAgent.isInGroup(mSessionID))
 		{
 			mSessionType = GROUP_SESSION;
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false);
 		}
-        else if (LLVoiceClient::getInstance()->hasP2PInterface())
+        else
 		{
 			mSessionType = ADHOC_SESSION;
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, true);
 		}
-		else
-		{
-			// webrtc uses adhoc channels for p2p
-            mSessionType = P2P_SESSION;
-		}
-        mVoiceChannel = new LLVoiceChannelGroup(session_id, name, mSessionType == P2P_SESSION);
 	}
 
 	if(mVoiceChannel)
