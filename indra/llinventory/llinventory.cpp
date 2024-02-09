@@ -132,7 +132,7 @@ LLAssetType::EType LLInventoryObject::getActualType() const
 	return mType;
 }
 
-BOOL LLInventoryObject::getIsLinkType() const
+bool LLInventoryObject::getIsLinkType() const
 {
 	return LLAssetType::lookupIsLinkType(mType);
 }
@@ -181,7 +181,7 @@ void LLInventoryObject::setType(LLAssetType::EType type)
 
 
 // virtual
-BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
+bool LLInventoryObject::importLegacyStream(std::istream& input_stream)
 {
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
@@ -252,10 +252,10 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 					<< "' in LLInventoryObject::importLegacyStream() for object " << mUUID << LL_ENDL;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLInventoryObject::exportLegacyStream(std::ostream& output_stream, BOOL) const
+bool LLInventoryObject::exportLegacyStream(std::ostream& output_stream, bool) const
 {
 	std::string uuid_str;
 	output_stream <<  "\tinv_object\t0\n\t{\n";
@@ -266,7 +266,7 @@ BOOL LLInventoryObject::exportLegacyStream(std::ostream& output_stream, BOOL) co
 	output_stream << "\t\ttype\t" << LLAssetType::lookup(mType) << "\n";
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
 	output_stream << "\t}\n";
-	return TRUE;
+	return true;
 }
 
 void LLInventoryObject::updateParentOnServer(BOOL) const
@@ -612,7 +612,7 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 }
 
 // virtual
-BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
+bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
 {
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
@@ -790,7 +790,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 	return success;
 }
 
-BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key) const
+bool LLInventoryItem::exportLegacyStream(std::ostream& output_stream, bool include_asset_key) const
 {
 	std::string uuid_str;
 	output_stream << "\tinv_item\t0\n\t{\n";
@@ -1248,7 +1248,7 @@ void LLInventoryCategory::unpackMessage(LLMessageSystem* msg,
 }
 
 // virtual
-BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
+bool LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 {
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
@@ -1330,7 +1330,7 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 	return TRUE;
 }
 
-BOOL LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, BOOL) const
+bool LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, bool) const
 {
 	std::string uuid_str;
 	output_stream << "\tinv_category\t0\n\t{\n";
