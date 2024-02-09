@@ -77,7 +77,7 @@ void LLFloaterLUADebug::onExecuteClicked()
     mResultOutput->setValue("");
 
     std::string cmd = mLineInput->getText();
-    LLLUAmanager::runScriptLine(cmd, [this](int count, const LLSD& result)
+    LLLUAmanager::runScriptLine(mState, cmd, [this](int count, const LLSD& result)
         {
             completion(count, result);
         });
@@ -107,7 +107,7 @@ void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filena
     if (!filepath.empty())
     {
         mScriptPath->setText(filepath);
-        LLLUAmanager::runScriptFile(filepath, [this](int count, const LLSD& result)
+        LLLUAmanager::runScriptFile(mState, filepath, [this](int count, const LLSD& result)
         {
             completion(count, result);
         });
