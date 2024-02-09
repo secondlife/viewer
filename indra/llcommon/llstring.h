@@ -1598,12 +1598,12 @@ template<class T>
 BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 {
 	const char MIN = 32;
-	BOOL rv = FALSE;
+	BOOL rv = false;
 	for (size_type i = 0; i < string.size(); i++)
 	{
 		if(string[i] < MIN)
 		{
-			rv = TRUE;
+			rv = true;
 			break;
 		}
 	}
