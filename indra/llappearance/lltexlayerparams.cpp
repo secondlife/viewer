@@ -79,7 +79,7 @@ BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appeara
 		this->setParamLocation(mAvatarAppearance->isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -235,7 +235,7 @@ BOOL LLTexLayerParamAlpha::getSkip() const
 {
 	if (!mTexLayer)
 	{
-		return TRUE;
+		return true;
 	}
 
 	const LLAvatarAppearance *appearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
@@ -245,24 +245,24 @@ BOOL LLTexLayerParamAlpha::getSkip() const
 		F32 effective_weight = (appearance->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
 		if (is_approx_zero(effective_weight)) 
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
 	LLWearableType::EType type = (LLWearableType::EType)getWearableType();
 	if ((type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type))
 	{
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
 BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 {
     LL_PROFILE_ZONE_SCOPED;
-	BOOL success = TRUE;
+	BOOL success = true;
 
 	if (!mTexLayer)
 	{
@@ -300,7 +300,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 			{
 				LL_WARNS() << "Unable to load static file: " << info->mStaticImageFileName << LL_ENDL;
 				mStaticImageInvalid = TRUE; // don't try again.
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -383,12 +383,12 @@ BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 	llassert(node->hasName("param") && node->getChildByName("param_alpha"));
 
 	if (!LLViewerVisualParamInfo::parseXml(node))
-		return FALSE;
+		return false;
 
 	LLXmlTreeNode* param_alpha_node = node->getChildByName("param_alpha");
 	if (!param_alpha_node)
 	{
-		return FALSE;
+		return false;
 	}
 
 	static LLStdStringHandle tga_file_string = LLXmlTree::addAttributeString("tga_file");
@@ -410,7 +410,7 @@ BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 	static LLStdStringHandle domain_string = LLXmlTree::addAttributeString("domain");
 	param_alpha_node->getFastAttributeF32(domain_string, mDomain);
 
-	return TRUE;
+	return true;
 }
 
 
@@ -543,12 +543,12 @@ BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
 	llassert(node->hasName("param") && node->getChildByName("param_color"));
 
 	if (!LLViewerVisualParamInfo::parseXml(node))
-		return FALSE;
+		return false;
 
 	LLXmlTreeNode* param_color_node = node->getChildByName("param_color");
 	if (!param_color_node)
 	{
-		return FALSE;
+		return false;
 	}
 
 	std::string op_string;
@@ -581,14 +581,14 @@ BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
 	if (!mNumColors)
 	{
 		LL_WARNS() << "<param_color> is missing <value> sub-elements" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	if ((mOperation == LLTexLayerParamColor::OP_BLEND) && (mNumColors != 1))
 	{
 		LL_WARNS() << "<param_color> with operation\"blend\" must have exactly one <value>" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 	
-	return TRUE;
+	return true;
 }

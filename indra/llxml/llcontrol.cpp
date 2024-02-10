@@ -179,7 +179,7 @@ LLSD LLControlVariable::getComparableValue(const LLSD& value)
 	if(TYPE_BOOLEAN == type() && value.isString())
 	{
 		BOOL temp;
-		if(LLStringUtil::convertToBOOL(value.asString(), temp)) 
+		if(LLStringUtil::convertToBOOL(value.asString(), temp))
 		{
 			storable_value = (bool)temp;
 		}

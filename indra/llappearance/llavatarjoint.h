@@ -62,7 +62,7 @@ public:
 	virtual BOOL isTransparent() { return mIsTransparent; }
 
 	// Returns true if this object should inherit scale modifiers from its immediate parent
-	virtual BOOL inheritScale() { return FALSE; }
+	virtual BOOL inheritScale() { return false; }
 
 	enum Components
 	{
@@ -127,7 +127,7 @@ public:
 	LLAvatarJointCollisionVolume();
 	virtual ~LLAvatarJointCollisionVolume() {};
 
-	/*virtual*/ BOOL inheritScale() { return TRUE; }
+	/*virtual*/ BOOL inheritScale() { return true; }
 	/*virtual*/ U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
 
 	void renderCollision();

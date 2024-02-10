@@ -244,7 +244,7 @@ public:
 	// Given a texture entry, determine which wearable type owns it.
 	LLWearableType::EType 		getTEWearableType(ETextureIndex index) const;
 
-	static BOOL							isBakedImageId(const LLUUID& id);
+	static bool							isBakedImageId(const LLUUID& id);
 	static EBakedTextureIndex			assetIdToBakedTextureIndex(const LLUUID& id);
 	static LLUUID						localTextureIndexToMagicId(ETextureIndex t);
 

@@ -1226,7 +1226,7 @@ BOOL linesegment_prism(const LLVector3 &point_a, const LLVector3 &point_b,
 	{
 		if (segment_length >= (point_a - intersection).magVec())
 		{
-			return TRUE;
+			return true;
 		}
 	}
 	return FALSE;

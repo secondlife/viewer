@@ -653,7 +653,7 @@ BOOL LLKeyframeMotion::setupPose()
 	setLoopIn(mJointMotionList->mLoopInPoint);
 	setLoopOut(mJointMotionList->mLoopOutPoint);
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -674,7 +674,7 @@ BOOL LLKeyframeMotion::onActivate()
 
 	mLastLoopedTime = 0.f;
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1992,7 +1992,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
 	setupPose();
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -2000,7 +2000,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 {
-	BOOL success = TRUE;
+	BOOL success = true;
 
 	LL_DEBUGS("BVH") << "serializing" << LL_ENDL;
 

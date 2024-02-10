@@ -68,7 +68,7 @@ public:
 
 	// motions must specify whether or not they loop
 	virtual BOOL getLoop() {
-		return TRUE;
+		return true;
 	}
 
 	// motions must report their total duration

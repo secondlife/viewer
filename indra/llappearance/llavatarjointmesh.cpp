@@ -119,7 +119,7 @@ BOOL LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 	mRootToParentJointSkinOffset = totalSkinOffset(getBaseSkeletonAncestor(joint));
 	mRootToParentJointSkinOffset = -mRootToParentJointSkinOffset;
 
-	return TRUE;
+	return true;
 }
 
 
@@ -186,7 +186,7 @@ BOOL LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
 {
 	mSkinJoints = new LLSkinJoint[ numSkinJoints ];
 	mNumSkinJoints = numSkinJoints;
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
