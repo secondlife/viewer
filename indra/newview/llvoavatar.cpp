@@ -6904,17 +6904,17 @@ void LLVOAvatar::requestStopMotion( LLMotion* motion )
 // loadSkeletonNode(): loads <skeleton> node from XML tree
 //-----------------------------------------------------------------------------
 //virtual
-BOOL LLVOAvatar::loadSkeletonNode ()
+bool LLVOAvatar::loadSkeletonNode ()
 {
 	if (!LLAvatarAppearance::loadSkeletonNode())
 	{
-		return FALSE;
+		return false;
 	}
 	
     bool ignore_hud_joints = false;
     initAttachmentPoints(ignore_hud_joints);
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -7883,9 +7883,9 @@ S32 LLVOAvatar::getAttachmentCount()
 	return count;
 }
 
-BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
+bool LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 {
-	if (mIsDummy) return TRUE;
+	if (mIsDummy) return true;
 
 	if (isSelf())
 	{
@@ -7898,7 +7898,7 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 		case LLWearableType::WT_SKIN:
 		case LLWearableType::WT_HAIR:
 		case LLWearableType::WT_EYES:
-			return TRUE;  // everyone has all bodyparts
+			return true;  // everyone has all bodyparts
 		default:
 			break; // Do nothing
 	}
@@ -7919,10 +7919,10 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 				return isTextureDefined(LLAvatarAppearance::getDictionary()->getBakedTexture(baked_index)->mTextureIndex);
 			}
-			return FALSE;
+			return false;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) const
@@ -11462,17 +11462,17 @@ F32 calc_bouncy_animation(F32 x)
 }
 
 //virtual
-BOOL LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index ) const
+bool LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index ) const
 {
 	if (isIndexLocalTexture(te)) 
 	{
-		return FALSE;
+		return false;
 	}
 	
 	if( !getImage( te, index ) )
 	{
 		LL_WARNS() << "getImage( " << te << ", " << index << " ) returned 0" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 

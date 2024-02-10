@@ -572,7 +572,7 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
             
                 // There's a token. check the string for true/false/1/0 etc.
                 BOOL result = false;
-                BOOL gotSet = LLStringUtil::convertToBOOL(token, result);
+                bool gotSet = LLStringUtil::convertToBOOL(token, result);
                 if (gotSet)
                 {
                     ctrl->setValue(LLSD(result), false);

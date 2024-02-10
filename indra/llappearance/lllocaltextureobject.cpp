@@ -136,7 +136,7 @@ BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 {
 	if (index >= getNumTexLayers() )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (new_tex_layer == NULL)
@@ -153,47 +153,47 @@ BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 	}
 	mTexLayers[index] = layer;
 
-	return TRUE;
+	return true;
 }
 
 BOOL LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
 {
 	if (new_tex_layer == NULL)
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLTexLayer *layer = new LLTexLayer(*new_tex_layer, wearable);
 	layer->setLTO(this);
 	mTexLayers.push_back(layer);
-	return TRUE;
+	return true;
 }
 
 BOOL LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
 {
 	if (new_tex_layer == NULL)
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLTexLayer *layer = new LLTexLayer(*new_tex_layer, this, wearable);
 	layer->setLTO(this);
 	mTexLayers.push_back(layer);
-	return TRUE;
+	return true;
 }
 
 BOOL LLLocalTextureObject::removeTexLayer(U32 index)
 {
 	if (index >= getNumTexLayers())
 	{
-		return FALSE;
+		return false;
 	}
 	tex_layer_vec_t::iterator iter = mTexLayers.begin();
 	iter += index;
 
 	delete *iter;
 	mTexLayers.erase(iter);
-	return TRUE;
+	return true;
 }
 
 void LLLocalTextureObject::setID(LLUUID new_id)

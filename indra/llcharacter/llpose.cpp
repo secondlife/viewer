@@ -87,7 +87,7 @@ BOOL LLPose::addJointState(const LLPointer<LLJointState>& jointState)
 	{
 		mJointMap[jointState->getJoint()->getName()] = jointState;
 	}
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ BOOL LLPose::addJointState(const LLPointer<LLJointState>& jointState)
 BOOL LLPose::removeJointState(const LLPointer<LLJointState>& jointState)
 {
 	mJointMap.erase(jointState->getJoint()->getName());
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -105,7 +105,7 @@ BOOL LLPose::removeJointState(const LLPointer<LLJointState>& jointState)
 BOOL LLPose::removeAllJointStates()
 {
 	mJointMap.clear();
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_sta
 
 	if (!joint_state->getJoint())
 		// this joint state doesn't point to an actual joint, so we don't care about applying it
-		return FALSE;
+		return false;
 
 	for(S32 i = 0; i < JSB_NUM_JOINT_STATES; i++)
 	{
@@ -208,7 +208,7 @@ BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_sta
 			mJointStates[i] = joint_state;
 			mPriorities[i] = priority;
 			mAdditiveBlends[i] = additive_blend;
-			return TRUE;
+			return true;
 		} 
 		else if (priority > mPriorities[i])
 		{
@@ -225,11 +225,11 @@ BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_sta
 			mJointStates[i] = joint_state;
 			mPriorities[i] = priority;
 			mAdditiveBlends[i] = additive_blend;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -503,7 +503,7 @@ BOOL LLPoseBlender::addMotion(LLMotion* motion)
 			mActiveBlenders.push_front(joint_blender);
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------

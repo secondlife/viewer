@@ -166,7 +166,7 @@ LLMotion::LLMotionInitStatus LLHeadRotMotion::onInitialize(LLCharacter *characte
 //-----------------------------------------------------------------------------
 BOOL LLHeadRotMotion::onActivate()
 {
-	return TRUE;
+	return true;
 }
 
 
@@ -251,7 +251,7 @@ BOOL LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
 		mHeadState->setRotation( nlerp(1.f - NECK_LAG, LLQuaternion::DEFAULT, head_rot_local));
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -364,7 +364,7 @@ LLMotion::LLMotionInitStatus LLEyeMotion::onInitialize(LLCharacter *character)
 //-----------------------------------------------------------------------------
 BOOL LLEyeMotion::onActivate()
 {
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -537,7 +537,7 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
     adjustEyeTarget(targetPos, *mLeftEyeState, *mRightEyeState); 
     adjustEyeTarget(targetPos, *mAltLeftEyeState, *mAltRightEyeState); 
 
-	return TRUE;
+	return true;
 }
 
 

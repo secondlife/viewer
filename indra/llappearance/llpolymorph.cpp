@@ -114,7 +114,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 	if (numRead != 1)
 	{
 		LL_WARNS() << "Can't read number of morph target vertices" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	//-------------------------------------------------------------------------
@@ -151,14 +151,14 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		if (numRead != 1)
 		{
 			LL_WARNS() << "Can't read morph target vertex number" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 		if (mVertexIndices[v] > 10000)
 		{
             // Bad install? These are usually .llm files from 'character' fodler
 			LL_WARNS() << "Bad morph index " << v << ": " << mVertexIndices[v] << LL_ENDL;
-            return FALSE;
+            return false;
 		}
 
 
@@ -167,7 +167,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		if (numRead != 3)
 		{
 			LL_WARNS() << "Can't read morph target vertex coordinates" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 		F32 magnitude = mCoords[v].getLength3().getF32();
@@ -187,7 +187,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		if (numRead != 3)
 		{
 			LL_WARNS() << "Can't read morph target normal" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 		numRead = fread(&mBinormals[v], sizeof(F32), 3, fp);
@@ -195,7 +195,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		if (numRead != 3)
 		{
 			LL_WARNS() << "Can't read morph target binormal" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 
@@ -204,7 +204,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 		if (numRead != 2)
 		{
 			LL_WARNS() << "Can't read morph target uv" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 		mNumIndices++;
@@ -213,7 +213,7 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 	mAvgDistortion.mul(1.f/(F32)mNumIndices);
 	mAvgDistortion.normalize3fast();
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -265,14 +265,14 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 	llassert( node->hasName( "param" ) && node->getChildByName( "param_morph" ) );
 
 	if (!LLViewerVisualParamInfo::parseXml(node))
-		return FALSE;
+		return false;
 
 	// Get mixed-case name
 	static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 	if( !node->getFastAttributeString( name_string, mMorphName ) )
 	{
 		LL_WARNS() << "Avatar file: <param> is missing name attribute" << LL_ENDL;
-		return FALSE;  // Continue, ignoring this tag
+		return false;  // Continue, ignoring this tag
 	}
 
 	static LLStdStringHandle clothing_morph_string = LLXmlTree::addAttributeString("clothing_morph");
@@ -284,7 +284,7 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
         {
                 LL_WARNS() << "Failed to getChildByName(\"param_morph\")"
                         << LL_ENDL;
-                return FALSE;
+                return false;
         }
 
 	for (LLXmlTreeNode* child_node = paramNode->getFirstChild();
@@ -310,7 +310,7 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 		}
 	}
 	
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -357,7 +357,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
-		return FALSE;
+		return false;
 	mInfo = info;
 	mID = info->mID;
 	setWeight(getDefaultWeight());
@@ -394,9 +394,9 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 	if (!mMorphData)
 	{
 		LL_WARNS() << "No morph target named " << morph_param_name << " found in mesh." << LL_ENDL;
-		return FALSE;  // Continue, ignoring this tag
+		return false;  // Continue, ignoring this tag
 	}
-	return TRUE;
+	return true;
 }
 
 /*virtual*/ LLViewerVisualParam* LLPolyMorphTarget::cloneParam(LLWearable* wearable) const
@@ -416,9 +416,9 @@ BOOL LLPolyMorphTarget::parseData(LLXmlTreeNode* node)
 	if (!setInfo(info))
 	{
 		delete info;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 #endif
 

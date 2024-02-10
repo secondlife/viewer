@@ -461,7 +461,7 @@ public:
     void				debugBodySize() const;
 	void				postPelvisSetRecalc( void );
 
-	/*virtual*/ BOOL	loadSkeletonNode();
+	/*virtual*/ bool	loadSkeletonNode();
     void                initAttachmentPoints(bool ignore_hud_joints = false);
 	/*virtual*/ void	buildCharacter();
     void                resetVisualParams();
@@ -701,7 +701,7 @@ public:
 	// Loading status
 	//--------------------------------------------------------------------
 public:
-	virtual BOOL    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+	virtual bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
 	virtual BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
 	virtual BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 
@@ -875,11 +875,11 @@ public:
 	// True if we are computing our appearance via local compositing
 	// instead of baked textures, as for example during wearable
 	// editing or when waiting for a subsequent server rebake.
-	/*virtual*/ BOOL	isUsingLocalAppearance() const { return mUseLocalAppearance; }
+	/*virtual*/ bool	isUsingLocalAppearance() const { return mUseLocalAppearance; }
 
 	// True if we are currently in appearance editing mode. Often but
 	// not always the same as isUsingLocalAppearance().
-	/*virtual*/ BOOL	isEditingAppearance() const { return mIsEditingAppearance; }
+	/*virtual*/ bool	isEditingAppearance() const { return mIsEditingAppearance; }
 
 	// FIXME review isUsingLocalAppearance uses, some should be isEditing instead.
 
@@ -887,7 +887,7 @@ private:
 	BOOL			mAppearanceAnimating;
 	LLFrameTimer	mAppearanceMorphTimer;
 	F32				mLastAppearanceBlendTime;
-	BOOL			mIsEditingAppearance; // flag for if we're actively in appearance editing mode
+	bool			mIsEditingAppearance; // flag for if we're actively in appearance editing mode
 	BOOL			mUseLocalAppearance; // flag for if we're using a local composite
 
 	//--------------------------------------------------------------------
@@ -919,7 +919,7 @@ public:
 	void				cleanupAttachedMesh( LLViewerObject* pVO );
     bool                hasPendingAttachedMeshes();
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
-	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;
+	/*virtual*/ bool	isWearingWearableType(LLWearableType::EType type ) const;
 	LLViewerObject *	findAttachmentByID( const LLUUID & target_id ) const;
 	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 

@@ -138,7 +138,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 		mMaxName = "More";
 	}
 
-	return TRUE;
+	return true;
 }
 
 //virtual
@@ -215,7 +215,7 @@ BOOL LLVisualParam::setInfo(LLVisualParamInfo *info)
 	mInfo = info;
 	mID = info->mID;
 	setWeight(getDefaultWeight(), FALSE );
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -229,7 +229,7 @@ BOOL LLVisualParam::parseData(LLXmlTreeNode *node)
 	if (!setInfo(info))
 		return FALSE;
 	
-	return TRUE;
+	return true;
 }
 */
 
@@ -336,7 +336,7 @@ void LLVisualParam::stopAnimating()
 BOOL LLVisualParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params)
 {
 	// nothing to do for non-driver parameters
-	return TRUE;
+	return true;
 }
 
 //virtual 

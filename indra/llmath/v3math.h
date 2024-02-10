@@ -119,7 +119,7 @@ class LLVector3
 		const LLVector3&	scaleVec(const LLVector3& vec);				// scales per component by vec
 		LLVector3			scaledVec(const LLVector3& vec) const;			// get a copy of this vector scaled by vec
 
-		BOOL isNull() const;			// Returns TRUE if vector has a _very_small_ length
+		bool isNull() const;			// Returns TRUE if vector has a _very_small_ length
 		BOOL isExactlyZero() const		{ return !mV[VX] && !mV[VY] && !mV[VZ]; }
 
 		F32 operator[](int idx) const { return mV[idx]; }
@@ -539,13 +539,13 @@ inline LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u)
 }
 
 
-inline BOOL	LLVector3::isNull() const
+inline bool	LLVector3::isNull() const
 {
 	if ( F_APPROXIMATELY_ZERO > mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ] )
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 inline void update_min_max(LLVector3& min, LLVector3& max, const LLVector3& pos)
@@ -598,9 +598,9 @@ inline BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon)
 	F32 dot = an * bn;
 	if ( (1.0f - fabs(dot)) < epsilon)
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a) 

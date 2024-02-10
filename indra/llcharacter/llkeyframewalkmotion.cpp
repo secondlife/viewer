@@ -191,7 +191,7 @@ BOOL LLWalkAdjustMotion::onActivate()
 	F32 rightAnkleOffset = (mRightAnkleJoint->getWorldPosition() - mCharacter->getCharacterPosition()).magVec();
 	mAnkleOffset = llmax(leftAnkleOffset, rightAnkleOffset);
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -315,7 +315,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	// need to update *some* joint to keep this animation active
 	mPelvisState->setPosition(mPelvisOffset);
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -367,7 +367,7 @@ BOOL LLFlyAdjustMotion::onActivate()
 	mPelvisState->setPosition(LLVector3::zero);
 	mPelvisState->setRotation(LLQuaternion::DEFAULT);
 	mRoll = 0.f;
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -388,6 +388,6 @@ BOOL LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	LLQuaternion roll(mRoll, LLVector3(0.f, 0.f, 1.f));
 	mPelvisState->setRotation(roll);
 
-	return TRUE;
+	return true;
 }
 

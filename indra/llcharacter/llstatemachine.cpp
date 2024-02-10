@@ -61,7 +61,7 @@ LLStateDiagram::~LLStateDiagram()
 BOOL LLStateDiagram::addState(LLFSMState *state)
 {
 	mStates[state] = Transitions();
-	return TRUE;
+	return true;
 }
 
 // add a directed transition between 2 states
@@ -93,7 +93,7 @@ BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
 	}
 
 	(*state_transitions)[&transition] = &end_state;
-	return TRUE;
+	return true;
 }
 
 // add an undirected transition between 2 states
@@ -183,7 +183,7 @@ BOOL LLStateDiagram::stateIsValid(LLFSMState& state)
 {
 	if (mStates.find(&state) != mStates.end())
 	{
-		return TRUE;
+		return true;
 	}
 	return FALSE;
 }
@@ -248,7 +248,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 
 	apr_file_printf(dot_file, "}\n");
 
-	return TRUE;
+	return true;
 }
 
 std::ostream& operator<<(std::ostream &s, LLStateDiagram &FSM)
@@ -319,7 +319,7 @@ BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data,
 		{
 			initial_state->onEntry(user_data);
 		}
-		return TRUE;
+		return true;
 	}
 
 	return FALSE;
@@ -338,7 +338,7 @@ BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_en
 		{
 			state->onEntry(user_data);
 		}
-		return TRUE;
+		return true;
 	}
 
 	return FALSE;

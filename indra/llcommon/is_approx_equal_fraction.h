@@ -45,7 +45,7 @@
 template <typename FTYPE>
 inline BOOL is_approx_equal_fraction_impl(FTYPE x, FTYPE y, U32 frac_bits)
 {
-    BOOL ret = TRUE;
+    BOOL ret = true;
     FTYPE diff = (FTYPE) fabs(x - y);
 
     S32 diffInt = (S32) diff;
@@ -58,7 +58,7 @@ inline BOOL is_approx_equal_fraction_impl(FTYPE x, FTYPE y, U32 frac_bits)
     // based on the number of bits used for packing decimal portion.
     if (diffInt != 0 || diffFracTolerance > 1)
     {
-        ret = FALSE;
+        ret = false;
     }
 
     return ret;

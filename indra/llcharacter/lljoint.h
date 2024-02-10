@@ -280,7 +280,7 @@ public:
 
 	void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
 
-	virtual BOOL isAnimatable() const { return TRUE; }
+	virtual BOOL isAnimatable() const { return true; }
 
 	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
 	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );

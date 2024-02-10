@@ -1266,15 +1266,15 @@ BOOL LLBVHLoader::getLine(apr_file_t* fp)
 {
 	if (apr_file_eof(fp) == APR_EOF)
 	{
-		return FALSE;
+		return false;
 	}
 	if ( apr_file_gets(mLine, BVH_PARSER_LINE_SIZE, fp) == APR_SUCCESS)
 	{
 		mLineNumber++;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // returns required size of output buffer
@@ -1496,5 +1496,5 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		}
 
 	
-	return TRUE;
+	return true;
 }
