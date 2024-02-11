@@ -67,7 +67,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() {
+	virtual bool getLoop() {
 		return true;
 	}
 

@@ -102,7 +102,7 @@ LLSkinJoint::~LLSkinJoint()
 //-----------------------------------------------------------------------------
 // LLSkinJoint::setupSkinJoint()
 //-----------------------------------------------------------------------------
-BOOL LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
+bool LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 {
 	// find the named joint
 	mJoint = joint;
@@ -182,7 +182,7 @@ LLAvatarJointMesh::~LLAvatarJointMesh()
 //-----------------------------------------------------------------------------
 // LLAvatarJointMesh::allocateSkinData()
 //-----------------------------------------------------------------------------
-BOOL LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
+bool LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
 {
 	mSkinJoints = new LLSkinJoint[ numSkinJoints ];
 	mNumSkinJoints = numSkinJoints;

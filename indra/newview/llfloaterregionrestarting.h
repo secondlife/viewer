@@ -43,7 +43,7 @@ private:
 	LLFloaterRegionRestarting(const LLSD& key);
 	virtual ~LLFloaterRegionRestarting();
 	virtual BOOL postBuild();
-	virtual BOOL tick();
+	virtual bool tick();
 	virtual void refresh();
 	virtual void draw();
 	virtual void regionChange();

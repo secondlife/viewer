@@ -254,7 +254,7 @@ class LLFadeEventTimer : public LLEventTimer
 {
 public:
 	LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent);
-	BOOL tick();
+	bool tick();
 	LLGUIPreviewLiveFile* mParent;
 private:
 	BOOL mFadingOut;			// fades in then out; this is toggled in between
@@ -355,17 +355,17 @@ LLFadeEventTimer::LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent)
 }
 
 // Single tick of fade event timer: increment the color
-BOOL LLFadeEventTimer::tick()
+bool LLFadeEventTimer::tick()
 {
 	float diff = 0.04f;
-	if(TRUE == mFadingOut)	// set fade for in/out color direction
+	if(true == mFadingOut)	// set fade for in/out color direction
 	{
 		diff = -diff;
 	}
 
 	if(NULL == mParent)	// no more need to tick, so suicide
 	{
-		return TRUE;
+		return true;
 	}
 
 	// Set up colors
@@ -385,10 +385,10 @@ BOOL LLFadeEventTimer::tick()
 
 	if(bg_color[2] <= 0.0f)	// end of fade out, start fading in
 	{
-		mFadingOut = FALSE;
+		mFadingOut = false;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // Constructor

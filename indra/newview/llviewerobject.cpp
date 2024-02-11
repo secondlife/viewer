@@ -3656,14 +3656,14 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 	}
 }
 
-BOOL LLViewerObject::updateLOD()
+bool LLViewerObject::updateLOD()
 {
-	return FALSE;
+	return false;
 }
 
 BOOL LLViewerObject::updateGeometry(LLDrawable *drawable)
 {
-	return TRUE;
+	return false;
 }
 
 void LLViewerObject::updateGL()

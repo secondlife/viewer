@@ -115,7 +115,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() = 0;
+	virtual bool getLoop() = 0;
 
 	// motions must report their total duration
 	virtual F32 getDuration() = 0;
@@ -154,7 +154,7 @@ public:
 	// can we crossfade this motion with a new instance when restarted?
 	// should ultimately always be TRUE, but lack of emote blending, etc
 	// requires this
-	virtual BOOL canDeprecate();
+	virtual bool canDeprecate();
 
 	// optional callback routine called when animation deactivated.
 	void	setDeactivateCallback( void (*cb)(void *), void* userdata );
@@ -199,7 +199,7 @@ public:
 	LLTestMotion(const LLUUID &id) : LLMotion(id){}
 	~LLTestMotion() {}
 	static LLMotion *create(const LLUUID& id) { return new LLTestMotion(id); }
-	BOOL getLoop() { return FALSE; }
+	bool getLoop() { return false; }
 	F32 getDuration() { return 0.0f; }
 	F32 getEaseInDuration() { return 0.0f; }
 	F32 getEaseOutDuration() { return 0.0f; }
@@ -225,7 +225,7 @@ public:
 	static LLMotion *create(const LLUUID &id) { return new LLNullMotion(id); }
 
 	// motions must specify whether or not they loop
-	/*virtual*/ BOOL getLoop() { return true; }
+	/*virtual*/ bool getLoop() { return true; }
 
 	// motions must report their total duration
 	/*virtual*/ F32 getDuration() { return 1.f; }

@@ -74,7 +74,7 @@ public:
 	LLVisualParamInfo();
 	virtual ~LLVisualParamInfo() {};
 
-	virtual BOOL parseXml(LLXmlTreeNode *node);
+	virtual bool parseXml(LLXmlTreeNode *node);
 
 	S32 getID() const { return mID; }
 

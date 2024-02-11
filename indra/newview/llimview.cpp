@@ -99,16 +99,16 @@ const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-141
 LLIMMgr* gIMMgr = NULL;
 
 
-BOOL LLSessionTimeoutTimer::tick()
+bool LLSessionTimeoutTimer::tick()
 {
-	if (mSessionId.isNull()) return TRUE;
+	if (mSessionId.isNull()) return true;
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
 	if (session && !session->mSessionInitialized)
 	{
 		gIMMgr->showSessionStartError("session_initialization_timed_out_error", mSessionId);
 	}
-	return TRUE;
+	return true;
 }
 
 

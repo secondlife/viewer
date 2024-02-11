@@ -418,9 +418,9 @@ LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
 }
 
 // virtual
-BOOL LLMediaDataClient::QueueTimer::tick()
+bool LLMediaDataClient::QueueTimer::tick()
 {
-	BOOL result = TRUE;
+	BOOL result = true;
 	
 	if (!mMDC.isNull())
 	{
@@ -451,7 +451,7 @@ LLMediaDataClient::RetryTimer::RetryTimer(F32 time, Request::ptr_t request)
 }
 
 // virtual
-BOOL LLMediaDataClient::RetryTimer::tick()
+bool LLMediaDataClient::RetryTimer::tick()
 {
 	mRequest->stopTracking();
 
@@ -469,7 +469,7 @@ BOOL LLMediaDataClient::RetryTimer::tick()
     mRequest.reset();
 
 	// Don't fire again
-	return TRUE;
+	return true;
 }
 
 

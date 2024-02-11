@@ -167,10 +167,10 @@ void LLAvatarJoint::updateJointGeometry()
 }
 
 
-BOOL LLAvatarJoint::updateLOD(F32 pixel_area, BOOL activate)
+bool LLAvatarJoint::updateLOD(F32 pixel_area, bool activate)
 {
-	BOOL lod_changed = FALSE;
-	BOOL found_lod = FALSE;
+	bool lod_changed = FALSE;
+	bool found_lod = FALSE;
 
 	for (LLJoint* child : mChildren)
 	{

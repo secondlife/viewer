@@ -135,7 +135,7 @@ LLTexGlobalColorInfo::~LLTexGlobalColorInfo()
 	mParamColorInfoList.clear();
 }
 
-BOOL LLTexGlobalColorInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexGlobalColorInfo::parseXml(LLXmlTreeNode* node)
 {
 	// name attribute
 	static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");

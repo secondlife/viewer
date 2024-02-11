@@ -65,7 +65,7 @@ public:
 	LLDriverParamInfo();
 	/*virtual*/ ~LLDriverParamInfo() {};
 	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+	/*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 	/*virtual*/ void toStream(std::ostream &out);	
 

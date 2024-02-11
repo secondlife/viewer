@@ -129,7 +129,7 @@ public:
 	LLPolyMorphTargetInfo();
 	/*virtual*/ ~LLPolyMorphTargetInfo() {};
 	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+	/*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 protected:
 	std::string		mMorphName;

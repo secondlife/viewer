@@ -89,7 +89,7 @@ BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
 	if (transition_it != state_transitions->end())
 	{
 		LL_ERRS() << "LLStateTable::addDirectedTransition() : transition already exists" << LL_ENDL;
-		return FALSE; // transition already exists
+		return false; // transition already exists
 	}
 
 	(*state_transitions)[&transition] = &end_state;
@@ -185,7 +185,7 @@ BOOL LLStateDiagram::stateIsValid(LLFSMState& state)
 	{
 		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 LLFSMState* LLStateDiagram::getState(U32 state_id)
@@ -209,7 +209,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 	if (!dot_file)
 	{
 		LL_WARNS() << "LLStateDiagram::saveDotFile() : Couldn't open " << filename << " to save state diagram." << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 	apr_file_printf(dot_file, "digraph StateMachine {\n\tsize=\"100,100\";\n\tfontsize=40;\n\tlabel=\"Finite State Machine\";\n\torientation=landscape\n\tratio=.77\n");
 	
@@ -322,7 +322,7 @@ BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data,
 		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_entry)
@@ -341,7 +341,7 @@ BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_en
 		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_data)

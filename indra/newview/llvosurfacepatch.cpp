@@ -236,9 +236,9 @@ void LLVOSurfacePatch::updateFaceSize(S32 idx)
 	}
 }
 
-BOOL LLVOSurfacePatch::updateLOD()
+bool LLVOSurfacePatch::updateLOD()
 {
-	return TRUE;
+	return true;
 }
 
 void LLVOSurfacePatch::getGeometry(LLStrider<LLVector3> &verticesp,

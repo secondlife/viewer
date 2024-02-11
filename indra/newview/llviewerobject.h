@@ -221,7 +221,7 @@ public:
 	virtual BOOL		updateGeometry(LLDrawable *drawable);
 	virtual void		updateGL();
 	virtual void		updateFaceSize(S32 idx);
-	virtual BOOL		updateLOD();
+	virtual bool		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
 	F32					getRotTime() { return mRotTime; }
 private:
