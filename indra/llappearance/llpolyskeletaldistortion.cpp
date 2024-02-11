@@ -133,7 +133,7 @@ LLPolySkeletalDistortion::~LLPolySkeletalDistortion()
 {
 }
 
-BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
+bool LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 {
     if (info->mID < 0)
     {

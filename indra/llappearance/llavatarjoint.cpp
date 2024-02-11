@@ -169,8 +169,8 @@ void LLAvatarJoint::updateJointGeometry()
 
 bool LLAvatarJoint::updateLOD(F32 pixel_area, bool activate)
 {
-	bool lod_changed = FALSE;
-	bool found_lod = FALSE;
+	bool lod_changed = false;
+	bool found_lod = false;
 
 	for (LLJoint* child : mChildren)
 	{
@@ -187,7 +187,7 @@ bool LLAvatarJoint::updateLOD(F32 pixel_area, bool activate)
 			if (pixel_area >= jointLOD || sDisableLOD)
 			{
 				lod_changed |= joint->updateLOD(pixel_area, TRUE);
-				found_lod = TRUE;
+				found_lod = true;
 			}
 			else
 			{

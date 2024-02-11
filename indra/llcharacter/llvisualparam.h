@@ -125,7 +125,7 @@ public:
 	virtual void			animate(F32 delta);
 	virtual void			stopAnimating();
 
-	virtual BOOL			linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
+	virtual bool			linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
 	virtual void			resetDrivenParams();
 
 	// Interface methods

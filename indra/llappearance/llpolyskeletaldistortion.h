@@ -92,7 +92,7 @@ public:
 	// Special: These functions are overridden by child classes
 	LLPolySkeletalDistortionInfo*	getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
-	BOOL							setInfo(LLPolySkeletalDistortionInfo *info);
+	bool							setInfo(LLPolySkeletalDistortionInfo *info);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 

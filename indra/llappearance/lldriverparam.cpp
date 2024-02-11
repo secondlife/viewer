@@ -187,7 +187,7 @@ LLDriverParam::~LLDriverParam()
 {
 }
 
-BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
+bool LLDriverParam::setInfo(LLDriverParamInfo *info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
@@ -466,20 +466,20 @@ void LLDriverParam::stopAnimating()
 }
 
 /*virtual*/ 
-BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params)
+bool LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
 {
-	BOOL success = TRUE;
+	BOOL success = true;
 	for (LLDrivenEntryInfo& driven_info : getInfo()->mDrivenInfoList)
 	{
 		S32 driven_id = driven_info.mDrivenID;
 
 		// check for already existing links. Do not overwrite.
-		BOOL found = FALSE;
+		bool found = false;
 		for (auto& driven : mDriven)
 		{
 			if (driven.mInfo->mDrivenID == driven_id)
 			{
-				found = TRUE;
+				found = true;
 			}
 		}
 
@@ -494,7 +494,7 @@ BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross
 			}
 			else
 			{
-				success = FALSE;
+				success = false;
 			}
 		}
 	}

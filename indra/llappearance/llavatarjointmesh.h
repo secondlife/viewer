@@ -79,7 +79,7 @@ protected:
 	S32							mMeshID;
 
 public:
-	static BOOL					sPipelineRender;
+	static bool					sPipelineRender;
 	//RN: this is here for testing purposes
 	static U32					sClothingMaskImageName;
 	static LLColor4				sClothingInnerColor;
@@ -104,14 +104,14 @@ public:
 	// Sets the shape texture
 	void setTexture( LLGLTexture *texture );
 
-	BOOL hasGLTexture() const;
+	bool hasGLTexture() const;
 
 	void setTestTexture( U32 name ) { mTestImageName = name; }
 
 	// Sets layer set responsible for a dynamic shape texture (takes precedence over normal texture)
 	void setLayerSet( LLTexLayerSet* layer_set );
 
-	BOOL hasComposite() const;
+	bool hasComposite() const;
 
 	// Gets the poly mesh
 	LLPolyMesh *getMesh();

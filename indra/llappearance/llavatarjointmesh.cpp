@@ -129,7 +129,7 @@ bool LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-BOOL LLAvatarJointMesh::sPipelineRender = FALSE;
+bool LLAvatarJointMesh::sPipelineRender = false;
 U32 LLAvatarJointMesh::sClothingMaskImageName = 0;
 LLColor4 LLAvatarJointMesh::sClothingInnerColor;
 
@@ -149,7 +149,7 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 	mColor[2] = 1.0f;
 	mColor[3] = 1.0f;
 	mShiny = 0.0f;
-	mCullBackFaces = TRUE;
+	mCullBackFaces = true;
 
 	mMesh = NULL;
 
@@ -159,11 +159,11 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 	mFace = NULL;
 
 	mMeshID = 0;
-	mUpdateXform = FALSE;
+	mUpdateXform = false;
 
-	mValid = FALSE;
+	mValid = false;
 
-	mIsTransparent = FALSE;
+	mIsTransparent = false;
 }
 
 
@@ -252,7 +252,7 @@ void LLAvatarJointMesh::setTexture( LLGLTexture *texture )
 }
 
 
-BOOL LLAvatarJointMesh::hasGLTexture() const
+bool LLAvatarJointMesh::hasGLTexture() const
 {
 	return mTexture.notNull() && mTexture->hasGLTexture();
 }
@@ -272,7 +272,7 @@ void LLAvatarJointMesh::setLayerSet( LLTexLayerSet* layer_set )
 	}
 }
 
-BOOL LLAvatarJointMesh::hasComposite() const
+bool LLAvatarJointMesh::hasComposite() const
 {
 	return (mLayerSet && mLayerSet->hasComposite());
 }
