@@ -91,12 +91,12 @@ BOOL LLConversationLogList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
 	LLToggleableMenu* context_menu = mContextMenu.get();
-	{
-		context_menu->buildDrawLabels();
-	if (context_menu && size())
-		context_menu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, context_menu, x, y);
-	}
+    if (context_menu && size())
+    {
+        context_menu->buildDrawLabels();
+        context_menu->updateParent(LLMenuGL::sMenuContainer);
+        LLMenuGL::showPopup(this, context_menu, x, y);
+    }
 
 	return handled;
 }
