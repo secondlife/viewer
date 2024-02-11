@@ -225,7 +225,7 @@ U32 LLPolyMeshSharedData::getNumKB()
 //-----------------------------------------------------------------------------
 // LLPolyMeshSharedData::allocateVertexData()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
+bool LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 {
         U32 i;
         mBaseCoords = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
@@ -249,7 +249,7 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 //-----------------------------------------------------------------------------
 // LLPolyMeshSharedData::allocateFaceData()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
+bool LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
 {
         mFaces = new LLPolyFace[ numFaces ];
         mNumFaces = numFaces;
@@ -260,7 +260,7 @@ BOOL LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
 //-----------------------------------------------------------------------------
 // LLPolyMeshSharedData::allocateJointNames()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
+bool LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
 {
         mJointNames = new std::string[ numJointNames ];
         mNumJointNames = numJointNames;
@@ -270,7 +270,7 @@ BOOL LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
 //--------------------------------------------------------------------
 // LLPolyMeshSharedData::loadMesh()
 //--------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
+bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 {
         //-------------------------------------------------------------------------
         // Open the file
@@ -299,7 +299,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         //-------------------------------------------------------------------------
         // Check for proper binary header
         //-------------------------------------------------------------------------
-        BOOL status = FALSE;
+        bool status = false;
         if ( strncmp(header, HEADER_BINARY, strlen(HEADER_BINARY)) == 0 )       /*Flawfinder: ignore*/
         {
                 LL_DEBUGS() << "Loading " << fileName << LL_ENDL;
@@ -321,7 +321,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 }
                 if (!isLOD())
                 {
-                        mHasWeights = (hasWeights==0) ? FALSE : TRUE;
+                        mHasWeights = (hasWeights==0) ? false : true;
                 }
 
                 //----------------------------------------------------------------

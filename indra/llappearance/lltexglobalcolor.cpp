@@ -48,7 +48,7 @@ LLTexGlobalColor::~LLTexGlobalColor()
 	//std::for_each(mParamColorList.begin(), mParamColorList.end(), DeletePointer());
 }
 
-BOOL LLTexGlobalColor::setInfo(LLTexGlobalColorInfo *info)
+bool LLTexGlobalColor::setInfo(LLTexGlobalColorInfo *info)
 {
 	llassert(mInfo == NULL);
 	mInfo = info;

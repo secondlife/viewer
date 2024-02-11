@@ -122,7 +122,7 @@ S32 LLLocalTextureObject::getDiscard() const
 	return mDiscard;
 }
 
-BOOL LLLocalTextureObject::getBakedReady() const
+bool LLLocalTextureObject::getBakedReady() const
 {
 	return mIsBakedReady;
 }
@@ -132,7 +132,7 @@ void LLLocalTextureObject::setImage(LLGLTexture* new_image)
 	mImage = new_image;
 }
 
-BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
+bool LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 {
 	if (index >= getNumTexLayers() )
 	{
@@ -156,7 +156,7 @@ BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 	return true;
 }
 
-BOOL LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
+bool LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
 {
 	if (new_tex_layer == NULL)
 	{
@@ -169,7 +169,7 @@ BOOL LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *we
 	return true;
 }
 
-BOOL LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
+bool LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
 {
 	if (new_tex_layer == NULL)
 	{
@@ -182,7 +182,7 @@ BOOL LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWear
 	return true;
 }
 
-BOOL LLLocalTextureObject::removeTexLayer(U32 index)
+bool LLLocalTextureObject::removeTexLayer(U32 index)
 {
 	if (index >= getNumTexLayers())
 	{

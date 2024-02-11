@@ -49,7 +49,7 @@ public:
 	~LLPolyMorphData();
 	LLPolyMorphData(const LLPolyMorphData &rhs);
 
-	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
+	bool			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	const std::string& getName() { return mName; }
 
 public:
@@ -154,7 +154,7 @@ public:
 	// Special: These functions are overridden by child classes
 	LLPolyMorphTargetInfo*	getInfo() const { return (LLPolyMorphTargetInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
-	BOOL					setInfo(LLPolyMorphTargetInfo *info);
+	bool					setInfo(LLPolyMorphTargetInfo *info);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 

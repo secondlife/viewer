@@ -104,7 +104,7 @@ LLPolyMorphData::~LLPolyMorphData()
 //-----------------------------------------------------------------------------
 // loadBinary()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
+bool LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 {
 	S32 numVertices;
 	S32 numRead;
@@ -353,7 +353,7 @@ LLPolyMorphTarget::~LLPolyMorphTarget()
 //-----------------------------------------------------------------------------
 // setInfo()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
+bool LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
@@ -408,7 +408,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 //-----------------------------------------------------------------------------
 // parseData()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMorphTarget::parseData(LLXmlTreeNode* node)
+bool LLPolyMorphTarget::parseData(LLXmlTreeNode* node)
 {
 	LLPolyMorphTargetInfo* info = new LLPolyMorphTargetInfo;
 
