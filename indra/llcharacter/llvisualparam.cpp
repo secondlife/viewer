@@ -48,7 +48,7 @@ LLVisualParamInfo::LLVisualParamInfo()
 //-----------------------------------------------------------------------------
 // parseXml()
 //-----------------------------------------------------------------------------
-BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
+bool LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 {
 	// attribute: id
 	static LLStdStringHandle id_string = LLXmlTree::addAttributeString("id");
@@ -102,7 +102,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	else
 	{
 		LL_WARNS() << "Avatar file: <param> has invalid sex attribute: " << sex << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 	
 	// attribute: name
@@ -110,7 +110,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	if( !node->getFastAttributeString( name_string, mName ) )
 	{
 		LL_WARNS() << "Avatar file: <param> is missing name attribute" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	// attribute: label
@@ -211,7 +211,7 @@ BOOL LLVisualParam::setInfo(LLVisualParamInfo *info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
-		return FALSE;
+		return false;
 	mInfo = info;
 	mID = info->mID;
 	setWeight(getDefaultWeight(), FALSE );
@@ -227,7 +227,7 @@ BOOL LLVisualParam::parseData(LLXmlTreeNode *node)
 
 	info->parseXml(node);
 	if (!setInfo(info))
-		return FALSE;
+		return false;
 	
 	return true;
 }

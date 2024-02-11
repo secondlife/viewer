@@ -49,7 +49,7 @@ class LLSkinJoint
 public:
 	LLSkinJoint();
 	~LLSkinJoint();
-	BOOL setupSkinJoint( LLAvatarJoint *joint);
+	bool setupSkinJoint( LLAvatarJoint *joint);
 
 	LLAvatarJoint	*mJoint;
 	LLVector3		mRootToJointSkinOffset;
@@ -135,7 +135,7 @@ public:
 
 private:
 	// Allocate skin data
-	BOOL allocateSkinData( U32 numSkinJoints );
+	bool allocateSkinData( U32 numSkinJoints );
 
 	// Free skin data
 	void freeSkinData();

@@ -45,7 +45,7 @@ LLPolySkeletalDistortionInfo::LLPolySkeletalDistortionInfo()
 {
 }
 
-BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
+bool LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 {
         llassert( node->hasName( "param" ) && node->getChildByName( "param_skeleton" ) );
         
@@ -68,7 +68,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         std::string name;
                         LLVector3 scale;
                         LLVector3 pos;
-                        BOOL haspos = FALSE;
+                        BOOL haspos = false;
                         
                         static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
                         if (!bone->getFastAttributeString(name_string, name))
@@ -88,7 +88,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         static LLStdStringHandle offset_string = LLXmlTree::addAttributeString("offset");
                         if (bone->getFastAttributeVector3(offset_string, pos))
                         {
-                                haspos = TRUE;
+                                haspos = true;
                         }
                         mBoneInfoList.push_back(LLPolySkeletalBoneInfo(name, scale, pos, haspos));
                 }

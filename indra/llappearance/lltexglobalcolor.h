@@ -62,7 +62,7 @@ public:
 	LLTexGlobalColorInfo();
 	~LLTexGlobalColorInfo();
 
-	BOOL parseXml(LLXmlTreeNode* node);
+	bool parseXml(LLXmlTreeNode* node);
 
 private:
 	param_color_info_list_t		mParamColorInfoList;

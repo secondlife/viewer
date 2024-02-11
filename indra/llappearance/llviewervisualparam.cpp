@@ -57,7 +57,7 @@ LLViewerVisualParamInfo::~LLViewerVisualParamInfo()
 //-----------------------------------------------------------------------------
 // parseXml()
 //-----------------------------------------------------------------------------
-BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
+bool LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 {
 	llassert( node->hasName( "param" ) );
 

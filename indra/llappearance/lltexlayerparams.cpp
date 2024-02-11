@@ -378,7 +378,7 @@ LLTexLayerParamAlphaInfo::LLTexLayerParamAlphaInfo() :
 {
 }
 
-BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert(node->hasName("param") && node->getChildByName("param_alpha"));
 
@@ -538,7 +538,7 @@ LLTexLayerParamColorInfo::LLTexLayerParamColorInfo() :
 {
 }
 
-BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
+bool LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
 {
 	llassert(node->hasName("param") && node->getChildByName("param_color"));
 

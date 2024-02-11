@@ -243,7 +243,7 @@ class LLTexLayerSetInfo
 public:
 	LLTexLayerSetInfo();
 	~LLTexLayerSetInfo();
-	BOOL parseXml(LLXmlTreeNode* node);
+	bool parseXml(LLXmlTreeNode* node);
 	void createVisualParams(LLAvatarAppearance *appearance);
 	S32 getWidth() const { return mWidth; }
 	S32 getHeight() const { return mHeight; }

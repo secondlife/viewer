@@ -333,11 +333,11 @@ void LLVOGrass::updateTextures()
 	}
 }
 
-BOOL LLVOGrass::updateLOD()
+bool LLVOGrass::updateLOD()
 {
 	if (mDrawable->getNumFaces() <= 0)
 	{
-		return FALSE;
+		return false;
 	}
 
     LLFace* face = mDrawable->getFace(0);
@@ -350,7 +350,7 @@ BOOL LLVOGrass::updateLOD()
             face->setSize(0, 0);
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 		}
-		return TRUE ;
+		return true ;
 	}
 	if(!mNumBlades)
 	{
@@ -387,10 +387,10 @@ BOOL LLVOGrass::updateLOD()
 			face->setSize(mNumBlades*8, mNumBlades*12);
 		}
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)

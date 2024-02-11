@@ -41,7 +41,7 @@ LLDriverParamInfo::LLDriverParamInfo() :
 {
 }
 
-BOOL LLDriverParamInfo::parseXml(LLXmlTreeNode* node)
+bool LLDriverParamInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert( node->hasName( "param" ) && node->getChildByName( "param_driver" ) );
 

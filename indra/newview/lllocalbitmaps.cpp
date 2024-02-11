@@ -1009,10 +1009,10 @@ bool LLLocalBitmapTimer::isRunning()
 	return mEventTimer.getStarted();
 }
 
-BOOL LLLocalBitmapTimer::tick()
+bool LLLocalBitmapTimer::tick()
 {
 	LLLocalBitmapMgr::getInstance()->doUpdates();
-	return FALSE;
+	return false;
 }
 
 /*=======================================*/

@@ -191,7 +191,7 @@ public:
 	}
 
 private:
-	BOOL tick()
+	bool tick()
 	{
 		mCallable();
 		return true;
@@ -215,7 +215,7 @@ public:
 	{
 	}
 private:
-	BOOL tick()
+	bool tick()
 	{
 		return mCallable();
 	}

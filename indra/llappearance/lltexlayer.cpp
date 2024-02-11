@@ -59,7 +59,7 @@ public:
 	LLTexLayerInfo();
 	~LLTexLayerInfo();
 
-	BOOL parseXml(LLXmlTreeNode* node);
+	bool parseXml(LLXmlTreeNode* node);
 	BOOL createVisualParams(LLAvatarAppearance *appearance);
 	BOOL isUserSettable() { return mLocalTexture != -1;	}
 	S32  getLocalTexture() const { return mLocalTexture; }
@@ -185,7 +185,7 @@ LLTexLayerSetInfo::~LLTexLayerSetInfo( )
 	mLayerInfoList.clear();
 }
 
-BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert( node->hasName( "layer_set" ) );
 	if( !node->hasName( "layer_set" ) )
@@ -579,7 +579,7 @@ LLTexLayerInfo::~LLTexLayerInfo( )
 	mParamAlphaInfoList.clear();
 }
 
-BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert( node->hasName( "layer" ) );
 

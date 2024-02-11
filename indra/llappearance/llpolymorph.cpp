@@ -260,7 +260,7 @@ LLPolyMorphTargetInfo::LLPolyMorphTargetInfo()
 {
 }
 
-BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
+bool LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert( node->hasName( "param" ) && node->getChildByName( "param_morph" ) );
 

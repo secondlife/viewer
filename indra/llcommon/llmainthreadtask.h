@@ -79,7 +79,7 @@ private:
             LLEventTimer(0),
             mTask(std::forward<CALLABLE>(callable))
         {}
-        BOOL tick() override
+        bool tick() override
         {
             // run the task on the main thread, will populate the future
             // obtained by get_future()
