@@ -638,8 +638,13 @@ void handlePerformanceStatsEnabledChanged(const LLSD& newValue)
 }
 void handleUserImpostorByDistEnabledChanged(const LLSD& newValue)
 {
-    const auto newval = gSavedSettings.getBOOL("AutoTuneImpostorByDistEnabled");
-    LLPerfStats::tunables.userImpostorDistanceTuningEnabled = newval;
+    bool auto_tune_newval = false;
+    S32 mode = gSavedSettings.getS32("RenderAvatarComplexityMode");
+    if (mode != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS)
+    {
+        auto_tune_newval = gSavedSettings.getBOOL("AutoTuneImpostorByDistEnabled");
+    }
+    LLPerfStats::tunables.userImpostorDistanceTuningEnabled = auto_tune_newval;
 }
 void handleUserImpostorDistanceChanged(const LLSD& newValue)
 {
@@ -708,6 +713,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderGlowNoise", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGammaFull", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderVolumeLODFactor", handleVolumeLODChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderAvatarComplexityMode", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarLODFactor", handleAvatarLODChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarPhysicsLODFactor", handleAvatarPhysicsLODChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainLODFactor", handleTerrainLODChanged);

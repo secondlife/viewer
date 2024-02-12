@@ -8817,17 +8817,6 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-  <key>AlwaysRenderFriends</key>
-    <map>
-      <key>Comment</key>
-      <string>Always render friends regardless of max complexity</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
   <key>RenderAvatar</key>
     <map>
       <key>Comment</key>
@@ -10921,16 +10910,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderUseImpostors</key>
+    <key>RenderAvatarComplexityMode</key>
     <map>
-      <key>Comment</key>
-    <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors and RenderAvatarMaxComplexity.</string>
-      <key>Persist</key>
-    <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-    <integer>0</integer>
+        <key>Comment</key>
+        <string>0 - complexity limit applies to everyone, 1 - always show friends, 2 - only show friends</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <real>0</real>
     </map>
   <key>RenderAvatarMaxNonImpostors</key>
   <map>

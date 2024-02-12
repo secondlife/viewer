@@ -487,7 +487,14 @@ public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	bool		isVisuallyMuted();
 	bool 		isInMuteList() const;
-	void		forceUpdateVisualMuteSettings();
+
+    // states for RenderAvatarComplexityMode
+    enum ERenderComplexityMode
+    {
+        AV_RENDER_LIMIT_BY_COMPLEXITY = 0,
+        AV_RENDER_ALWAYS_SHOW_FRIENDS = 1,
+        AV_RENDER_ONLY_SHOW_FRIENDS   = 2
+    };
 
 	// Visual Mute Setting is an input. Does not necessarily determine
 	// what the avatar looks like, because it interacts with other

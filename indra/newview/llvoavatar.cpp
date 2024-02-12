@@ -8344,13 +8344,17 @@ bool LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-    static LLCachedControl<bool> always_render_friends(gSavedSettings, "AlwaysRenderFriends");
-	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && always_render_friends);
+    static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
+	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
 
 	if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
 		too_complex = false;
 	}
+    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar)
+    {
+        too_complex = true;
+    }
 	else
 	{
 		// Determine if visually muted or not
@@ -8370,12 +8374,16 @@ bool LLVOAvatar::isTooComplex() const
 
 bool LLVOAvatar::isTooSlow() const
 {
-    static LLCachedControl<bool> always_render_friends(gSavedSettings, "AlwaysRenderFriends");
-    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && always_render_friends);
+    static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
+    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
 
     if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
     {
         return false;
+    }
+    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar)
+    {
+        return true;
     }
     return mTooSlow;
 }
@@ -8384,7 +8392,7 @@ bool LLVOAvatar::isTooSlow() const
 void LLVOAvatar::updateTooSlow()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-    static LLCachedControl<bool> alwaysRenderFriends(gSavedSettings, "AlwaysRenderFriends");
+    static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
     static LLCachedControl<bool> allowSelfImpostor(gSavedSettings, "AllowSelfImpostor");
     const auto id = getID();
 
@@ -8417,12 +8425,14 @@ void LLVOAvatar::updateTooSlow()
         
         if(!mTooSlowWithoutShadows) // if we were not previously above the full impostor cap
         {
-            bool render_friend_or_exception =  	( alwaysRenderFriends && LLAvatarTracker::instance().isBuddy( id ) ) ||
+            bool always_render_friends = compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
+            bool render_friend_or_exception =  	(always_render_friends && LLAvatarTracker::instance().isBuddy( id ) ) ||
                 ( getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER ); 
-            if( (!isSelf() || allowSelfImpostor) && !render_friend_or_exception  )
+            if( (!isSelf() || allowSelfImpostor) && !render_friend_or_exception)
             {
                 // Note: slow rendering Friends still get their shadows zapped.
-                mTooSlowWithoutShadows = getGPURenderTime()*2.f >= max_art_ms;  // NOTE: assumes shadow rendering doubles render time
+                mTooSlowWithoutShadows = (getGPURenderTime()*2.f >= max_art_ms)  // NOTE: assumes shadow rendering doubles render time
+                    || (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar);
             }
         }
     }
