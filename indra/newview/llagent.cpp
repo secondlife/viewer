@@ -5053,39 +5053,66 @@ void LLAgent::applyExternalActionFlags()
         movePitch(direction);
     }
 
-    static bool toggle_fly = true;
     if ((mExternalActionFlags & AGENT_CONTROL_FLY) > 0)
     {
-        if (toggle_fly)
+        if (mToggleFly)
         {
             setFlying(!getFlying());
         }
-        toggle_fly = false;
+        mToggleFly = false;
     }
     else
     {
-        toggle_fly = true;
+        mToggleFly = true;
     }
 
     if (mExternalActionFlags & AGENT_CONTROL_STOP)
     {
         setControlFlags(AGENT_CONTROL_STOP);
     }
-    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND)
-            && !(mLastExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND))
+
+    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND) > 0)
     {
-        if (gAgent.isSitting())
+        if (mToggleSit)
         {
-            standUp();
+            if (isSitting())
+            {
+                standUp();
+            }
+            else
+            {
+                sitDown();
+            }
         }
-        else
-        {
-            sitDown();
-        }
+        mToggleSit = false;
+    }
+    else
+    {
+        mToggleSit = true;
     }
 
-    // combine the two types of flags for historical purposes
-    mLastExternalActionFlags = mExternalActionFlags | mControlFlags;
+    // HACK: AGENT_CONTROL_NUDGE_AT_POS is used to toggle running
+    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_POS) > 0)
+    {
+        if (mToggleRun)
+        {
+            if (getRunning())
+            {
+                clearRunning();
+                sendWalkRun(false);
+            }
+            else
+            {
+                setRunning();
+                sendWalkRun(true);
+            }
+        }
+        mToggleRun = false;
+    }
+    else
+    {
+        mToggleRun = true;
+    }
 }
 
 /********************************************************************************/
