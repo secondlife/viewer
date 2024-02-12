@@ -166,6 +166,7 @@ public:
     void deleteSelection();
     bool canDeleteSelection();
     void pasteAsLink();
+    void doCreate(const LLUUID& dest, const LLSD& userdata);
 
     void setSortOrder(U32 order, bool update = false);
     U32 getSortOrder() { return mSortOrder; };

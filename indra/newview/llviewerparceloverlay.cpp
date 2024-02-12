@@ -344,6 +344,8 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	const LLColor4U for_sale  = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
 	const LLColor4U auction  = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
+	LLImageDataLock lock(mImageRaw);
+
 	// Create the base texture.
 	U8 *raw = mImageRaw->getData();
 	const S32 COUNT = mParcelGridsPerEdge * mParcelGridsPerEdge;

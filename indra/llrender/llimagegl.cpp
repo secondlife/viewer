@@ -56,7 +56,7 @@ const F32 MIN_TEXTURE_LIFETIME = 10.f;
 U32 wpo2(U32 i);
 
 
-// texture memory accounting (for OS X)
+// texture memory accounting (for macOS)
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
 static U64 sTextureBytes = 0;
@@ -1886,6 +1886,8 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		LL_WARNS() << "GL Error happens before reading back texture. Error code: " << error << LL_ENDL ;
 	}
 	//-----------------------------------------------------------------------------------------------
+
+	LLImageDataLock lock(imageraw);
 
 	if (is_compressed)
 	{

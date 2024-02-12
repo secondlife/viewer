@@ -233,6 +233,7 @@ BOOL enable_take();
 void handle_object_show_inspector();
 void handle_avatar_show_inspector();
 bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection_handle);
+bool confirm_take_separate(const LLSD &notification, const LLSD &response, LLObjectSelectionHandle selection_handle);
 
 void handle_buy_object(LLSaleInfo sale_info);
 void handle_buy_contents(LLSaleInfo sale_info);
@@ -4866,12 +4867,39 @@ static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	derez_objects(dest, dest_id, first_region, error, NULL);
 }
 
+static void derez_objects_separate(EDeRezDestination dest, const LLUUID &dest_id)
+{
+    std::vector<LLViewerObjectPtr> derez_object_list;
+    std::string error;
+    LLViewerRegion* first_region = NULL;
+    if (!get_derezzable_objects(dest, error, first_region, &derez_object_list, false)) 
+    {
+        LL_WARNS() << "No objects to derez" << LL_ENDL;
+        return;
+    }
+    for (LLViewerObject *opjectp : derez_object_list) 
+    {
+        std::vector<LLViewerObjectPtr> buf_list;
+        buf_list.push_back(opjectp);
+        derez_objects(dest, dest_id, first_region, error, &buf_list);
+    }
+}
+
 void handle_take_copy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
 
 	const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
+}
+
+void handle_take_separate_copy()
+{
+    if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+        return;
+
+    const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
+    derez_objects_separate(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
 }
 
 void handle_link_objects()
@@ -4967,7 +4995,7 @@ void force_take_copy(void*)
 	derez_objects(DRD_FORCE_TO_GOD_INVENTORY, category_id);
 }
 
-void handle_take()
+void handle_take(bool take_separate)
 {
 	// we want to use the folder this was derezzed from if it's
 	// available. Otherwise, derez to the normal place.
@@ -5056,7 +5084,17 @@ void handle_take()
 	// MAINT-290
 	// Reason: Showing the confirmation dialog resets object selection,	thus there is nothing to derez.
 	// Fix: pass selection to the confirm_take, so that selection doesn't "die" after confirmation dialog is opened
-	params.functor.function(boost::bind(confirm_take, _1, _2, LLSelectMgr::instance().getSelection()));
+    params.functor.function([take_separate](const LLSD &notification, const LLSD &response)
+    { 
+        if (take_separate) 
+        {
+            confirm_take_separate(notification, response, LLSelectMgr::instance().getSelection());
+        }
+        else 
+        {
+            confirm_take(notification, response, LLSelectMgr::instance().getSelection());
+        }
+    });
 
 	if(locked_but_takeable_object ||
 	   !you_own_everything)
@@ -5117,6 +5155,16 @@ bool confirm_take(const LLSD& notification, const LLSD& response, LLObjectSelect
 		derez_objects(DRD_TAKE_INTO_AGENT_INVENTORY, notification["payload"]["folder_id"].asUUID());
 	}
 	return false;
+}
+
+bool confirm_take_separate(const LLSD &notification, const LLSD &response, LLObjectSelectionHandle selection_handle)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (enable_take() && (option == 0))
+    {
+        derez_objects_separate(DRD_TAKE_INTO_AGENT_INVENTORY, notification["payload"]["folder_id"].asUUID());
+    }
+    return false;
 }
 
 // You can take an item when it is public and transferrable, or when
@@ -5199,6 +5247,21 @@ bool visible_buy_object()
 bool visible_take_object()
 {
 	return !is_selection_buy_not_take() && enable_take();
+}
+
+bool is_multiple_selection() 
+{
+    return (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() > 1);
+}
+
+bool is_single_selection() 
+{ 
+    return !is_multiple_selection();
+}
+
+bool enable_take_objects() 
+{ 
+    return visible_take_object() && is_multiple_selection(); 
 }
 
 bool tools_visible_buy_object()
@@ -7968,6 +8031,10 @@ bool enable_object_take_copy()
 	return all_valid;
 }
 
+bool enable_take_copy_objects() 
+{ 
+    return enable_object_take_copy() && is_multiple_selection();
+}
 
 class LLHasAsset : public LLInventoryCollectFunctor
 {
@@ -9438,6 +9505,7 @@ void initialize_menus()
 	enable.add("Tools.EnableUnlink", boost::bind(&LLSelectMgr::enableUnlinkObjects, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
+    enable.add("Tools.EnableCopySeparate", boost::bind(&enable_take_copy_objects));
 	enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
 	enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
@@ -9698,6 +9766,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
 	enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
+    enable.add("Object.VisibleTakeMultiple", boost::bind(&is_multiple_selection));
+    enable.add("Object.VisibleTakeSingle", boost::bind(&is_single_selection));
+    enable.add("Object.EnableTakeMultiple", boost::bind(&enable_take_objects));
 	enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
@@ -9706,7 +9777,9 @@ void initialize_menus()
     commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
-	commit.add("Object.Take", boost::bind(&handle_take));
+	commit.add("Object.Take", boost::bind(&handle_take, false));
+    commit.add("Object.TakeSeparate", boost::bind(&handle_take, true));
+    commit.add("Object.TakeSeparateCopy", boost::bind(&handle_take_separate_copy));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
     enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
     enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));

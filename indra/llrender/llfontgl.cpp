@@ -1110,7 +1110,7 @@ LLFontGL* LLFontGL::getFontDefault()
 std::string LLFontGL::getFontPathSystem()
 {
 #if LL_DARWIN
-    // HACK for Mac OS X
+    // HACK for macOS
     return "/System/Library/Fonts/";
 
 #elif LL_WINDOWS
