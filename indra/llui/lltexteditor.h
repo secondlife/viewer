@@ -289,6 +289,8 @@ protected:
 	void				updateLinkSegments();
 	void				keepSelectionOnReturn(bool keep) { mKeepSelectionOnReturn = keep; }
 	class LLViewBorder*	mBorder;
+	void			pasteTextWithLinebreaks(const LLWString & clean_string);
+//	void			pasteTextWithLinebreaks(const std::string & clean_string);
 
 private:
 	//
@@ -296,7 +298,6 @@ private:
 	//
 	void	        pasteHelper(bool is_primary);
 	void			cleanStringForPaste(LLWString & clean_string);
-	void			pasteTextWithLinebreaks(LLWString & clean_string);
 
 	void			onKeyStroke();
 

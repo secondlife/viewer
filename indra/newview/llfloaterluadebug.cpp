@@ -57,7 +57,7 @@ BOOL LLFloaterLUADebug::postBuild()
         .listen("LLFloaterLUADebug",
                 [mResultOutput=mResultOutput](const LLSD& data)
                 {
-                    mResultOutput->insertText(data.asString());
+                    mResultOutput->pasteTextWithLinebreaks(data.asString());
                     mResultOutput->addLineBreakChar(true);
                     return false;
                 });
@@ -120,13 +120,13 @@ void LLFloaterLUADebug::completion(int count, const LLSD& result)
     {
         // error: show error message
         mResultOutput->insertText("*** ");
-        mResultOutput->insertText(result.asString());
+        mResultOutput->pasteTextWithLinebreaks(result.asString());
         return;
     }
     if (count == 1)
     {
         // single result
-        mResultOutput->insertText(stringize(result));
+        mResultOutput->pasteTextWithLinebreaks(stringize(result));
         return;
     }
     // 0 or multiple results
@@ -134,7 +134,7 @@ void LLFloaterLUADebug::completion(int count, const LLSD& result)
     for (const auto& item : llsd::inArray(result))
     {
         mResultOutput->insertText(sep);
-        mResultOutput->insertText(stringize(item));
+        mResultOutput->pasteTextWithLinebreaks(stringize(item));
         sep = ", ";
     }
 }

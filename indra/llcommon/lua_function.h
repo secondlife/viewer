@@ -131,8 +131,10 @@ public:
 
     static lua_CFunction get(const std::string& key);
 
-private:
     using Registry = std::map<std::string, std::pair<lua_CFunction, std::string>>;
+    static const Registry& getRegistered() { return getRegistry(); }
+
+private:
     static Registry& getRegistry();
 };
 

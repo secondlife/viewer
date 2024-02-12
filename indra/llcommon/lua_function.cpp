@@ -25,6 +25,9 @@
 #include "llsdutil.h"
 #include "lualistener.h"
 
+/*****************************************************************************
+*   luau namespace
+*****************************************************************************/
 namespace
 {
     // can't specify free function free() as a unique_ptr deleter
@@ -53,6 +56,9 @@ int lluau::dostring(lua_State* L, const std::string& desc, const std::string& te
     return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
+/*****************************************************************************
+*   Lua <=> C++ conversions
+*****************************************************************************/
 std::string lua_tostdstring(lua_State* L, int index)
 {
     size_t len;
@@ -414,6 +420,9 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     }
 }
 
+/*****************************************************************************
+*   LuaState class
+*****************************************************************************/
 LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
     mState(luaL_newstate())
@@ -499,7 +508,9 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     return result;
 }
 
-
+/*****************************************************************************
+*   LuaPopper class
+*****************************************************************************/
 LuaPopper::~LuaPopper()
 {
     if (mCount)
@@ -508,6 +519,9 @@ LuaPopper::~LuaPopper()
     }
 }
 
+/*****************************************************************************
+*   LuaFunction class
+*****************************************************************************/
 LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
                          const std::string_view& helptext)
 {
@@ -539,7 +553,9 @@ LuaFunction::Registry& LuaFunction::getRegistry()
     return registry;
 }
 
-
+/*****************************************************************************
+*   lua_what
+*****************************************************************************/
 std::ostream& operator<<(std::ostream& out, const lua_what& self)
 {
     switch (lua_type(self.L, self.index))
@@ -595,6 +611,9 @@ std::ostream& operator<<(std::ostream& out, const lua_what& self)
     return out;
 }
 
+/*****************************************************************************
+*   lua_stack
+*****************************************************************************/
 std::ostream& operator<<(std::ostream& out, const lua_stack& self)
 {
     const char* sep = "stack: [";
@@ -607,7 +626,49 @@ std::ostream& operator<<(std::ostream& out, const lua_stack& self)
     return out;
 }
 
+/*****************************************************************************
+*   DebugExit
+*****************************************************************************/
 DebugExit::~DebugExit()
 {
     LL_DEBUGS("Lua") << "exit " << mName << LL_ENDL;
+}
+
+/*****************************************************************************
+*   help()
+*****************************************************************************/
+lua_function(help,
+             "help(): list viewer's Lua functions\n"
+             "help(function): show help string for specific function")
+{
+    auto& luapump{ LLEventPumps::instance().obtain("lua output") };
+    const auto& registered{ LuaFunction::getRegistered() };
+    if (! lua_gettop(L))
+    {
+        // no arguments passed: list all lua_functions
+        for (const auto& [name, pair] : registered)
+        {
+            const auto& [fptr, helptext] = pair;
+            luapump.post(helptext);
+        }
+    }
+    else
+    {
+        // arguments passed: list each of the specified lua_functions
+        for (int idx = 1, top = lua_gettop(L); idx <= top; ++idx)
+        {
+            auto arg{ lua_tostdstring(L, idx) };
+            if (auto found = registered.find(arg); found != registered.end())
+            {
+                luapump.post(found->second.second);
+            }
+            else
+            {
+                luapump.post(arg + ": NOT FOUND");
+            }
+        }
+        // pop all arguments
+        lua_settop(L, 0);
+    }
+    return 0;                       // void return
 }
