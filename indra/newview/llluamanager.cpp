@@ -300,8 +300,7 @@ std::pair<int, LLSD> LLLUAmanager::waitScriptFile(LuaState& L, const std::string
 
 void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, script_result_fn cb)
 {
-    std::string desc{ stringize("runScriptFile('", filename, "')") };
-    LLCoros::instance().launch(desc, [&L, desc, filename, cb]()
+    LLCoros::instance().launch(filename, [&L, filename, cb]()
     {
         llifstream in_file;
         in_file.open(filename.c_str());
@@ -310,7 +309,7 @@ void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, scrip
         {
             std::string text{std::istreambuf_iterator<char>(in_file),
                              std::istreambuf_iterator<char>()};
-            auto [count, result] = L.expr(desc, text);
+            auto [count, result] = L.expr(filename, text);
             if (cb)
             {
                 cb(count, result);
