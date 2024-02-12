@@ -1924,7 +1924,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMeshNodes(LLXmlTreeNode* root)
 			{
 				delete morphinfo;
 				delete info;
-				return -1;
+				return false;
 			}
 			BOOL shared = false;
 			static LLStdStringHandle shared_string = LLXmlTree::addAttributeString("shared");

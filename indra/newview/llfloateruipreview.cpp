@@ -243,7 +243,7 @@ public:
 	virtual ~LLGUIPreviewLiveFile();
 	LLFloaterUIPreview* mParent;
 	LLFadeEventTimer* mFadeTimer;	// timer for fade-to-yellow-and-back effect to warn that file has been reloaded
-	BOOL mFirstFade;				// setting this avoids showing the fade reload warning on first load
+	bool mFirstFade;				// setting this avoids showing the fade reload warning on first load
 	std::string mFileName;
 protected:
 	bool loadFile();
@@ -257,7 +257,7 @@ public:
 	bool tick();
 	LLGUIPreviewLiveFile* mParent;
 private:
-	BOOL mFadingOut;			// fades in then out; this is toggled in between
+	bool mFadingOut;			// fades in then out; this is toggled in between
 	LLColor4 mOriginalColor;	// original color; color is reset to this after fade is coimplete
 };
 
@@ -311,7 +311,7 @@ LLLocalizationResetForcer::~LLLocalizationResetForcer()
 LLGUIPreviewLiveFile::LLGUIPreviewLiveFile(std::string path, std::string name, LLFloaterUIPreview* parent)
         : mFileName(name),
 		mParent(parent),
-		mFirstFade(TRUE),
+		mFirstFade(true),
 		mFadeTimer(NULL),
 		LLLiveFile(path, 1.0)
 {}
@@ -332,7 +332,7 @@ bool LLGUIPreviewLiveFile::loadFile()
 	mParent->displayFloater(FALSE,1);	// redisplay the floater
 	if(mFirstFade)	// only fade if it wasn't just clicked on; can't use "clicked" BOOL below because of an oddity with setting LLLiveFile initial state
 	{
-		mFirstFade = FALSE;
+		mFirstFade = false;
 	}
 	else
 	{
@@ -348,7 +348,7 @@ bool LLGUIPreviewLiveFile::loadFile()
 // Initialize fade event timer
 LLFadeEventTimer::LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent)
 	: mParent(parent),
-	mFadingOut(TRUE),
+	mFadingOut(true),
 	LLEventTimer(refresh)
 {
 	mOriginalColor = mParent->mParent->mDisplayedFloater->getBackgroundColor();
