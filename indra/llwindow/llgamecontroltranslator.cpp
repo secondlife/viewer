@@ -50,13 +50,7 @@ LLGameControlTranslator::LLGameControlTranslator()
     mNameToMask["jump"] = AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP;
     mNameToMask["push_down"] = AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP;
 
-    // HACK: we use NUDGE flags for run_*
-    //mNameToMask["run_forward"] = AGENT_CONTROL_NUDGE_AT_POS;
-    //mNameToMask["run_backward"] = AGENT_CONTROL_NUDGE_AT_NEG;
-    //mNameToMask["run_left"] = AGENT_CONTROL_NUDGE_LEFT_POS;
-    //mNameToMask["run_right"] = AGENT_CONTROL_NUDGE_LEFT_NEG;
-
-    mNameToMask["toggle_run"] = AGENT_CONTROL_FAST_AT; // HACK
+    mNameToMask["toggle_run"] = AGENT_CONTROL_NUDGE_AT_POS; // HACK
     mNameToMask["toggle_fly"] = AGENT_CONTROL_FLY; // HACK
     mNameToMask["toggle_sit"] = AGENT_CONTROL_SIT_ON_GROUND; // HACK
 
@@ -116,15 +110,10 @@ void LLGameControlTranslator::loadDefaults()
     // buttons
     std::vector< std::pair< std::string, U8 > > default_buttons =
     {
-        // TODO: figure out how to add these
-        //{ "run_forward",  (U8)(LLGameControl::BUTTON_DPAD_UP)       },
-        //{ "run_backward", (U8)(LLGameControl::BUTTON_DPAD_DOWN)     },
-        //{ "run_left",     (U8)(LLGameControl::BUTTON_DPAD_LEFT)     },
-        //{ "run_right",    (U8)(LLGameControl::BUTTON_DPAD_RIGHT)    },
-        //{ "toggle_run",   (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) },
-        { "toggle_fly",   (U8)(LLGameControl::BUTTON_B)             },
-        { "toggle_sit",   (U8)(LLGameControl::BUTTON_X)             },
-        { "stop_moving",  (U8)(LLGameControl::BUTTON_LEFTSHOULDER)  }
+        { "toggle_run",   (U8)(LLGameControl::BUTTON_LEFTSHOULDER) },
+        { "toggle_fly",   (U8)(LLGameControl::BUTTON_DPAD_UP)      },
+        { "toggle_sit",   (U8)(LLGameControl::BUTTON_DPAD_DOWN)    },
+        { "stop_moving",  (U8)(LLGameControl::BUTTON_LEFTSTICK)    }
     };
     channel.mType = LLGameControl::InputChannel::TYPE_BUTTON;
     for (auto item : default_buttons)

@@ -511,7 +511,9 @@ public:
 
 private:
     U32 mExternalActionFlags { 0 };
-    U32 mLastExternalActionFlags { 0 };
+    bool mToggleFly { true };
+    bool mToggleSit { true };
+    bool mToggleRun { true };
 
     //--------------------------------------------------------------------
     // Animations
