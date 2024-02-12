@@ -146,24 +146,24 @@ protected:
     // We shouldn't ever need to set this directly
     //virtual void    setViewModel(const LLViewModelPtr&);
 
-	virtual BOOL	postBuild();
+	/*virtual*/ BOOL	postBuild() override;
 	
 public:
 	// LLView interface
-	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
-	/*virtual*/ BOOL	isCtrl() const;
-	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
-	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	canFocusChildren() const;
-	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text ) override;
+	/*virtual*/ BOOL	isCtrl() const override;
+	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	canFocusChildren() const override;
+	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
 	// From LLFocusableElement
-	/*virtual*/ void	setFocus( BOOL b );
-	/*virtual*/ BOOL	hasFocus() const;
+	/*virtual*/ void	setFocus( BOOL b ) override;
+	/*virtual*/ BOOL	hasFocus() const override;
 	
 	// New virtuals
 
@@ -318,7 +318,7 @@ protected:
 	static F32 sActiveControlTransparency;
 	static F32 sInactiveControlTransparency;
 	
-	virtual void addInfo(LLSD & info);
+	/*virtual*/ void addInfo(LLSD & info) override;
 	
 private:
 

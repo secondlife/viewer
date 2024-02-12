@@ -450,6 +450,7 @@ static bool handleLogFileChanged(const LLSD& newvalue)
 	std::string log_filename = newvalue.asString();
 	LLFile::remove(log_filename);
 	LLError::logToFile(log_filename);
+    LL_INFOS() << "Logging switched to " << log_filename << LL_ENDL;
 	return true;
 }
 

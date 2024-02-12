@@ -173,6 +173,8 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 		// data space
 		if (rawImage != NULL)
 		{
+			LLImageDataLock lock(rawImage);
+
 			if (!rawImage->resize(static_cast<U16>(mWidth),
 				static_cast<U16>(mHeight), mChannels))
 			{

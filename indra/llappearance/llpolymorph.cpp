@@ -659,7 +659,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 //-----------------------------------------------------------------------------
 // applyMask()
 //-----------------------------------------------------------------------------
-void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert)
+void	LLPolyMorphTarget::applyMask(const U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert)
 {
 	LLVector4a *clothing_weights = getInfo()->mIsClothingMorph ? mMesh->getWritableClothingWeights() : NULL;
 
@@ -780,7 +780,7 @@ LLPolyVertexMask::~LLPolyVertexMask()
 //-----------------------------------------------------------------------------
 // generateMask()
 //-----------------------------------------------------------------------------
-void LLPolyVertexMask::generateMask(U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights)
+void LLPolyVertexMask::generateMask(const U8 *maskTextureData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights)
 {
 // RN debug output that uses Image Debugger (http://www.cs.unc.edu/~baxter/projects/imdebug/)
 //	BOOL debugImg = FALSE; 

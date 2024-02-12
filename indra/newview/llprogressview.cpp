@@ -399,21 +399,6 @@ void LLProgressView::initLogos()
 
     temp_str += gDirUtilp->getDirDelimiter();
 
-#ifdef LL_FMODSTUDIO
-    // original image size is 264x96, it is on longer side but
-    // with no internal paddings so it gets additional padding
-    icon_width = 77;
-    icon_height = 21;
-    S32 pad_fmod_y = 4;
-    texture_start_x++;
-    loadLogo(temp_str + "fmod_logo.png",
-        image_codec,
-        LLRect(texture_start_x, texture_start_y + pad_fmod_y + icon_height, texture_start_x + icon_width, texture_start_y + pad_fmod_y),
-        default_clip,
-        default_clip);
-
-    texture_start_x += icon_width + default_pad + 1;
-#endif //LL_FMODSTUDIO
 #ifdef LL_HAVOK
     // original image size is 342x113, central element is on a larger side
     // plus internal padding, so it gets slightly more height than desired 32

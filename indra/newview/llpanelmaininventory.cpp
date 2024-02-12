@@ -56,6 +56,7 @@
 #include "lltrans.h"
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
+#include "llviewerinventory.h"
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"

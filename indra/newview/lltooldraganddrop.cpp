@@ -47,6 +47,7 @@
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llpreviewnotecard.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
@@ -320,6 +321,16 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 		LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 		return;
 	}
+
+    if (type != DAD_CATEGORY)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(cargo_id);
+        if (item && !item->isFinished())
+        {
+            LLInventoryModelBackgroundFetch::instance().start(item->getUUID(), false);
+        }
+    }
+
 	mCargoTypes.clear();
 	mCargoTypes.push_back(type);
 	mCargoIDs.clear();

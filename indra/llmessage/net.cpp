@@ -77,7 +77,7 @@ const char* LOOPBACK_ADDRESS_STRING = "127.0.0.1";
 const char* BROADCAST_ADDRESS_STRING = "255.255.255.255";
 
 #if LL_DARWIN
-	// Mac OS X returns an error when trying to set these to 400000.  Smaller values succeed.
+	// macOS returns an error when trying to set these to 400000.  Smaller values succeed.
 	const int	SEND_BUFFER_SIZE	= 200000;
 	const int	RECEIVE_BUFFER_SIZE	= 200000;
 #else // LL_DARWIN

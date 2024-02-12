@@ -2022,6 +2022,39 @@ void LLInventoryGallery::pasteAsLink(const LLUUID& dest,
     }
 }
 
+void LLInventoryGallery::doCreate(const LLUUID& dest, const LLSD& userdata)
+{
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(dest);
+    if (cat && mFolderID != dest)
+    {
+        menu_create_inventory_item(NULL, dest, userdata, LLUUID::null);
+    }
+    else
+    {
+        // todo: needs to reset current floater's filter,
+        // like reset_inventory_filter()
+
+        LLHandle<LLPanel> handle = getHandle();
+        std::function<void(const LLUUID&)> callback_cat_created =
+            [handle](const LLUUID& new_id)
+            {
+                gInventory.notifyObservers();
+                LLInventoryGallery* panel = static_cast<LLInventoryGallery*>(handle.get());
+                if (panel && new_id.notNull())
+                {
+                    panel->clearSelection();
+                    if (panel->mItemMap.count(new_id) != 0)
+                    {
+                        panel->addItemSelection(new_id, true);
+                    }
+                }
+            };
+
+        menu_create_inventory_item(NULL, mFolderID, userdata, LLUUID::null, callback_cat_created);
+    }
+}
+
 void LLInventoryGallery::claimEditHandler()
 {
     gEditMenuHandler = this;

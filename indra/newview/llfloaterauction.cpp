@@ -190,6 +190,8 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 
 	if (success)
 	{
+		LLImageDataLock lock(raw);
+
 		self->mTransactionID.generate();
 		self->mImageID = self->mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 

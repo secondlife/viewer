@@ -849,11 +849,14 @@ void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerFetchedTextu
 
 void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image)
 {
+	LLImageDataSharedLock lockIn(src);
+	LLImageDataLock lockOut(nrm_image);
+
 	U8* nrm_data = nrm_image->getData();
 	S32 resX = src->getWidth();
 	S32 resY = src->getHeight();
 
-	U8* src_data = src->getData();
+	const U8* src_data = src->getData();
 
 	S32 src_cmp = src->getComponents();
 
@@ -911,6 +914,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
+		LLImageDataSharedLock lock(src);
 
 		bump_image_map_t& entries_list(bump_code == BE_BRIGHTNESS ? gBumpImageList.mBrightnessEntries : gBumpImageList.mDarknessEntries );
 		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
@@ -933,7 +937,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			U8* dst_data = dst_image->getData();
 			S32 dst_data_size = dst_image->getDataSize();
 
-			U8* src_data = src->getData();
+			const U8* src_data = src->getData();
 			S32 src_data_size = src->getDataSize();
 
 			S32 src_components = src->getComponents();

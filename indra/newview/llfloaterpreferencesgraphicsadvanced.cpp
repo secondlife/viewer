@@ -93,7 +93,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
     LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
     if (instance)
     {
-        instance->cancel();
+        instance->cancel({"RenderQualityPerformance"});
     }
     updateMaxComplexity();
 }

@@ -176,6 +176,8 @@ bool LLImageDXT::updateData()
 {
 	resetLastError();
 
+	LLImageDataLock lock(this);
+
 	U8* data = getData();
 	S32 data_size = getDataSize();
 	
@@ -268,7 +270,10 @@ bool LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 		LL_WARNS() << "Attempt to decode compressed LLImageDXT to Raw (unsupported)" << LL_ENDL;
 		return false;
 	}
-	
+
+	LLImageDataSharedLock lockIn(this);
+	LLImageDataLock lockOut(raw_image);
+
 	S32 width = getWidth(), height = getHeight();
 	S32 ncomponents = getComponents();
 	U8* data = NULL;
@@ -309,6 +314,9 @@ bool LLImageDXT::getMipData(LLPointer<LLImageRaw>& raw, S32 discard)
 	{
 		LL_ERRS() << "Request for invalid discard level" << LL_ENDL;
 	}
+
+	LLImageDataSharedLock lock(this);
+
 	U8* data = getData() + getMipOffset(discard);
 	S32 width = 0;
 	S32 height = 0;
@@ -338,6 +346,8 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 		LL_ERRS() << "LLImageDXT::encode: Unhandled channel number: " << ncomponents << LL_ENDL;
 		return 0;
 	}
+
+	LLImageDataLock lock(this);
 
 	S32 width = raw_image->getWidth();
 	S32 height = raw_image->getHeight();
@@ -430,6 +440,9 @@ bool LLImageDXT::convertToDXR()
 		return false;
 	}
 	mFileFormat = newformat;
+
+	LLImageDataLock lock(this);
+
 	S32 width = getWidth(), height = getHeight();
 	S32 nmips = calcNumMips(width,height);
 	S32 total_bytes = getDataSize();
