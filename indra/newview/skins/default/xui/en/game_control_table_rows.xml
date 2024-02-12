@@ -95,46 +95,6 @@
     </rows>
 
     <rows
-     name="run_forward"
-     value="run_forward">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Run Forward" />
-    </rows>
-    <rows
-     name="run_backward"
-     value="run_backward">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Run Backward" />
-    </rows>
-    <rows
-     name="run_left"
-     value="run_left">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Run Left" />
-    </rows>
-    <rows
-     name="run_right"
-     value="run_right">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Run Right" />
-    </rows>
-    <rows
      name="toggle_run"
      value="toggle_run">
         <columns
