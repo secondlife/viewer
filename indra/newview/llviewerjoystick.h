@@ -77,6 +77,8 @@ public:
 	std::string getDeviceUUIDString(); // converted readable value for settings
 	std::string getDescription();
 
+    static bool is3DConnexionDevice(const std::string& device_name);
+
 protected:
 	void updateEnabled(bool autoenable);
 	void handleRun(F32 inc);
