@@ -81,6 +81,8 @@ public:
     std::string getDescription();
     void saveDeviceIdToSettings();
 
+    static bool is3DConnexionDevice(const std::string& device_name);
+
 protected:
     void updateEnabled(bool autoenable);
     void handleRun(F32 inc);
