@@ -164,7 +164,6 @@ public:
 	void onClickLogPath();
 	void changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name);
 	bool moveTranscriptsAndLog();
-	void enableHistory();
 	void setPersonalInfo(const std::string& visibility);
 	void refreshEnabledState();
 	void onCommitWindowedMode();
@@ -174,10 +173,8 @@ public:
 	
 	void refreshUI();
 
-	void onCommitMediaEnabled();
-	void onCommitMusicEnabled();
-	void applyResolution();
 	void onChangeMaturity();
+    void onChangeComplexityMode(const LLSD& newvalue);
 	void onChangeModelFolder();
     void onChangePBRFolder();
 	void onChangeTextureFolder();
@@ -199,7 +196,6 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	void selectPanel(const LLSD& name);
-	void saveCameraPreset(std::string& preset);
 	void saveGraphicsPreset(std::string& preset);
 
     void setRecommendedSettings();

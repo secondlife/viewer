@@ -437,6 +437,12 @@ bool LLFloaterPreference::postBuild()
 
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 
+    gSavedSettings.getControl("RenderAvatarComplexityMode")->getSignal()->connect(
+        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            onChangeComplexityMode(new_val);
+        });
+
 	gSavedPerAccountSettings.getControl("ModelUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeModelFolder, this));
     gSavedPerAccountSettings.getControl("PBRUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangePBRFolder, this));
 	gSavedPerAccountSettings.getControl("TextureUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeTextureFolder, this));
@@ -476,6 +482,9 @@ bool LLFloaterPreference::postBuild()
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+
+    bool enable_complexity = gSavedSettings.getS32("RenderAvatarComplexityMode") != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
+    getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
 	
 	// Hook up and init for filtering
 	mFilterEdit = getChild<LLSearchEditor>("search_prefs_edit");
@@ -1627,6 +1636,12 @@ void LLFloaterPreference::onChangeMaturity()
 															|| sim_access == SIM_ACCESS_ADULT);
 
 	getChild<LLIconCtrl>("rating_icon_adult")->setVisible(sim_access == SIM_ACCESS_ADULT);
+}
+
+void LLFloaterPreference::onChangeComplexityMode(const LLSD& newvalue)
+{
+    bool enable_complexity = newvalue.asInteger() != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
+    getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
 }
 
 std::string get_category_path(LLUUID cat_id)

@@ -51,14 +51,14 @@ LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const L
 
     mCommitCallbackRegistrar.add("Pref.Cancel", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2));
     mCommitCallbackRegistrar.add("Pref.OK",     boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2));
-
-    gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateIndirectMaxNonImpostors, this, _2));
 }
 
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
 {
     mComplexityChangedSignal.disconnect();
+    mComplexityModeChangedSignal.disconnect();
     mLODFactorChangedSignal.disconnect();
+    mNumImpostorsChangedSignal.disconnect();
 }
 
 bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
@@ -78,8 +78,26 @@ bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
     use_HiDPI->setVisible(false);
 #endif
 
-    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateComplexityText, this)); 
-    mLODFactorChangedSignal = gSavedSettings.getControl("RenderVolumeLODFactor")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateObjectMeshDetailText, this));
+    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(
+        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            updateComplexityText();
+        });
+    mComplexityModeChangedSignal = gSavedSettings.getControl("RenderAvatarComplexityMode")->getSignal()->connect(
+        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            updateComplexityMode(new_val);
+        });
+    mLODFactorChangedSignal = gSavedSettings.getControl("RenderVolumeLODFactor")->getCommitSignal()->connect(
+        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            updateObjectMeshDetailText();
+        });
+    mNumImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(
+        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            updateIndirectMaxNonImpostors(new_val);
+        });
     return true;
 }
 
@@ -144,6 +162,10 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
         gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
     refreshEnabledState();
+
+    bool enable_complexity = gSavedSettings.getS32("RenderAvatarComplexityMode") != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
+    getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
+    getChild<LLSliderCtrl>("IndirectMaxNonImpostors")->setEnabled(enable_complexity);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
@@ -157,6 +179,13 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::updateComplexityMode(const LLSD& newvalue)
+{
+    bool enable_complexity = newvalue.asInteger() != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
+    getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
+    getChild<LLSliderCtrl>("IndirectMaxNonImpostors")->setEnabled(enable_complexity);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::updateComplexityText()
