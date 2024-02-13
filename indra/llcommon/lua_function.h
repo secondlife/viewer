@@ -17,7 +17,10 @@
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
 #include "stringize.h"
+#include <memory>                   // std::shared_ptr
 #include <utility>                  // std::pair
+
+class LuaListener;
 
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
@@ -82,6 +85,17 @@ public:
     std::pair<int, LLSD> expr(const std::string& desc, const std::string& text);
 
     operator lua_State*() const { return mState; }
+
+    // Return LuaListener for this LuaState if we already have one, else empty
+    // shared_ptr.
+    std::shared_ptr<LuaListener> getListener() { return getListener(mState); }
+    // Find or create LuaListener for this LuaState, returning its ptr_t.
+    std::shared_ptr<LuaListener> obtainListener() { return obtainListener(mState); }
+    // Return LuaListener for passed lua_State if we already have one, else
+    // empty shared_ptr.
+    static std::shared_ptr<LuaListener> getListener(lua_State* L);
+    // Find or create LuaListener for passed lua_State, returning its ptr_t.
+    static std::shared_ptr<LuaListener> obtainListener(lua_State* L);
 
 private:
     script_finished_fn mCallback;

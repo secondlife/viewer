@@ -21,6 +21,7 @@
 // external library headers
 // other Linden headers
 #include "hexdump.h"
+#include "lleventcoro.h"
 #include "llsd.h"
 #include "llsdutil.h"
 #include "lualistener.h"
@@ -435,25 +436,15 @@ LuaState::LuaState(script_finished_fn cb):
 
 LuaState::~LuaState()
 {
-    // Did somebody call listen_events() on this LuaState?
+    // Did somebody call obtainListener() on this LuaState?
     // That is, is there a LuaListener key in its registry?
-    auto keytype{ lua_getfield(mState, LUA_REGISTRYINDEX, "event.listener") };
-    if (keytype == LUA_TNUMBER)
+    auto listener{ getListener() };
+    if (listener)
     {
-        // We do have a LuaListener. Retrieve it.
-        int isint;
-        auto listener{ LuaListener::getInstance(lua_tointegerx(mState, -1, &isint)) };
-        // pop the int "event.listener" key
-        lua_pop(mState, 1);
         // if we got a LuaListener instance, destroy it
-        // (if (! isint), lua_tointegerx() returned 0, but key 0 might
-        // validly designate someone ELSE's LuaListener)
-        if (isint && listener)
-        {
-            auto lptr{ listener.get() };
-            listener.reset();
-            delete lptr;
-        }
+        auto lptr{ listener.get() };
+        listener.reset();
+        delete lptr;
     }
 
     lua_close(mState);
@@ -506,6 +497,45 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     // pop everything
     lua_settop(mState, 0);
     return result;
+}
+
+LuaListener::ptr_t LuaState::getListener(lua_State* L)
+{
+    // have to use one more stack slot
+    luaL_checkstack(L, 1, nullptr);
+    LuaListener::ptr_t listener;
+    // Does this lua_State already have a LuaListener stored in the registry?
+    auto keytype{ lua_getfield(L, LUA_REGISTRYINDEX, "event.listener") };
+    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
+    if (keytype == LUA_TNUMBER)
+    {
+        // We do already have a LuaListener. Retrieve it.
+        int isint;
+        listener = LuaListener::getInstance(lua_tointegerx(L, -1, &isint));
+        // Nobody should have destroyed this LuaListener instance!
+        llassert(isint && listener);
+    }
+    // pop the int "event.listener" key
+    lua_pop(L, 1);
+    return listener;
+}
+
+LuaListener::ptr_t LuaState::obtainListener(lua_State* L)
+{
+    auto listener{ getListener(L) };
+    if (! listener)
+    {
+        // have to use one more stack slot
+        luaL_checkstack(L, 1, nullptr);
+        // instantiate a new LuaListener, binding the L state -- but use a
+        // no-op deleter: we do NOT want this ptr_t to manage the lifespan of
+        // this new LuaListener!
+        listener.reset(new LuaListener(L), [](LuaListener*){});
+        // set its key in the field where we'll look for it later
+        lua_pushinteger(L, listener->getKey());
+        lua_setfield(L, LUA_REGISTRYINDEX, "event.listener");
+    }
+    return listener;
 }
 
 /*****************************************************************************
@@ -611,6 +641,74 @@ lua_function(help,
         }
         // pop all arguments
         lua_settop(L, 0);
+    }
+    return 0;                       // void return
+}
+
+/*****************************************************************************
+*   leaphelp()
+*****************************************************************************/
+lua_function(
+    leaphelp,
+    "leaphelp(): list viewer's LEAP APIs\n"
+    "leaphelp(api): show help for specific api string name")
+{
+    LLSD request;
+    int top{ lua_gettop(L) };
+    if (top)
+    {
+        request = llsd::map("op", "getAPI", "api", lua_tostdstring(L, 1));
+    }
+    else
+    {
+        request = llsd::map("op", "getAPIs");
+    }
+    // pop all args
+    lua_settop(L, 0);
+
+    auto& outpump{ LLEventPumps::instance().obtain("lua output") };
+    auto listener{ LuaState::obtainListener(L) };
+    LLEventStream replyPump("leaphelp", true);
+    // ask the LuaListener's LeapListener and suspend calling coroutine until reply
+    auto reply{ llcoro::postAndSuspend(request, listener->getCommandName(), replyPump, "reply") };
+    reply.erase("reqid");
+
+    if (auto error = reply["error"]; error.isString())
+    {
+        outpump.post(error.asString());
+        return 0;
+    }
+
+    if (top)
+    {
+        // caller wants a specific API
+        outpump.post(stringize(reply["name"].asString(), ":\n", reply["desc"].asString()));
+        for (const auto& opmap : llsd::inArray(reply["ops"]))
+        {
+            std::ostringstream reqstr;
+            auto req{ opmap["required"] };
+            if (req.isArray())
+            {
+                const char* sep = " (requires ";
+                for (const auto& [reqkey, reqval] : llsd::inMap(req))
+                {
+                    reqstr << sep << reqkey;
+                    sep = ", ";
+                }
+                reqstr << ")";
+            }
+            outpump.post(stringize("---- ", reply["key"].asString(), " == '",
+                                   opmap["name"].asString(), "'", reqstr.str(), ":\n",
+                                   opmap["desc"].asString()));
+        }
+    }
+    else
+    {
+        // caller wants a list of APIs
+        for (const auto& [name, data] : llsd::inMap(reply))
+        {
+            outpump.post(stringize("==== ", name, ":\n", data["desc"].asString()));
+        }
     }
     return 0;                       // void return
 }

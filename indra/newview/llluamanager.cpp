@@ -197,34 +197,7 @@ lua_function(listen_events,
     // back to the main thread from a coroutine thread?
     lua_State* mainthread{ L };
 
-    luaL_checkstack(mainthread, 1, nullptr);
-    LuaListener::ptr_t listener;
-    // Does the main thread already have a LuaListener stored in the registry?
-    // That is, has this Lua chunk already called listen_events()?
-    auto keytype{ lua_getfield(mainthread, LUA_REGISTRYINDEX, "event.listener") };
-    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
-    if (keytype == LUA_TNUMBER)
-    {
-        // We do already have a LuaListener. Retrieve it.
-        int isint;
-        listener = LuaListener::getInstance(lua_tointegerx(mainthread, -1, &isint));
-        // pop the int "event.listener" key
-        lua_pop(mainthread, 1);
-        // Nobody should have destroyed this LuaListener instance!
-        llassert(isint && listener);
-    }
-    else
-    {
-        // pop the nil "event.listener" key
-        lua_pop(mainthread, 1);
-        // instantiate a new LuaListener, binding the mainthread state -- but
-        // use a no-op deleter: we do NOT want to delete this new LuaListener
-        // on return from listen_events()!
-        listener.reset(new LuaListener(mainthread), [](LuaListener*){});
-        // set its key in the field where we'll look for it later
-        lua_pushinteger(mainthread, listener->getKey());
-        lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.listener");
-    }
+    auto listener{ LuaState::obtainListener(mainthread) };
 
     // Now that we've found or created our LuaListener, store the passed Lua
     // function as the callback. Beware: our caller passed the function on L's
