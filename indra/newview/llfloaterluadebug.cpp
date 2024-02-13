@@ -65,6 +65,8 @@ BOOL LLFloaterLUADebug::postBuild()
     getChild<LLButton>("execute_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onExecuteClicked, this));
     getChild<LLButton>("browse_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnBrowse, this));
     getChild<LLButton>("run_btn")->setClickedCallback(boost::bind(&LLFloaterLUADebug::onBtnRun, this));
+    mLineInput->setCommitCallback(boost::bind(&LLFloaterLUADebug::onExecuteClicked, this));
+    mLineInput->setSelectAllonCommit(false);
 
     return TRUE;
 }
