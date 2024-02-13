@@ -1093,7 +1093,7 @@ void LLFloaterTexturePicker::onBtnRemove(void* userdata)
 			LLScrollListItem* list_item = *iter;
 			if (list_item)
 			{
-                LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+                LLSD data = list_item->getValue();
                 LLUUID tracking_id = data["id"];
                 S32 asset_type = data["type"].asInteger();
 
