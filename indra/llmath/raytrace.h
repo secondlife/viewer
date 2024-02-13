@@ -61,26 +61,26 @@ class LLQuaternion;
 // frame.
 
 
-// returns TRUE iff line is not parallel to plane.
-BOOL line_plane(const LLVector3 &line_point, const LLVector3 &line_direction, 
-				const LLVector3 &plane_point, const LLVector3 plane_normal, 
+// returns true if line is not parallel to plane.
+bool line_plane(const LLVector3 &line_point, const LLVector3 &line_direction,
+				const LLVector3 &plane_point, const LLVector3 plane_normal,
 				LLVector3 &intersection);
 
 
-// returns TRUE iff line is not parallel to plane.
-BOOL ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction, 
-			   const LLVector3 &plane_point, const LLVector3 plane_normal, 
+// returns true if line is not parallel to plane.
+bool ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+			   const LLVector3 &plane_point, const LLVector3 plane_normal,
 			   LLVector3 &intersection);
 
 
-BOOL ray_circle(const LLVector3 &ray_point, const LLVector3 &ray_direction, 
+bool ray_circle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				const LLVector3 &circle_center, const LLVector3 plane_normal, F32 circle_radius,
 				LLVector3 &intersection);
 
 // point_0 through point_2 define the plane_normal via the right-hand rule:
 // circle from point_0 to point_2 with fingers ==> thumb points in direction of normal
-BOOL ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction, 
-				  const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2, 
+bool ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+				  const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2,
 				  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
@@ -88,19 +88,19 @@ BOOL ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 // right-hand-rule... curl fingers from lower-left toward lower-right then toward upper-right
 // ==> thumb points in direction of normal
 // assumes a parallelogram, so point_3 is determined by the other points
-BOOL ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction, 
-					const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2, 
+bool ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+					const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2,
 					LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				const LLVector3 &sphere_center, F32 sphere_radius,
 				LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
 // finite right cylinder is defined by end centers: "cyl_top", "cyl_bottom", 
 // and by the cylinder radius "cyl_radius"
-BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 		          const LLVector3 &cyl_center, const LLVector3 &cyl_scale, const LLQuaternion &cyl_rotation,
 				  LLVector3 &intersection, LLVector3 &intersection_normal);
 

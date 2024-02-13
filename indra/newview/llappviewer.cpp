@@ -2342,6 +2342,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
         // Set the log file to SecondLife.log
         LLError::logToFile(log_file);
+        LL_INFOS() << "Started logging to " << log_file << LL_ENDL;
         if (!duration_log_msg.empty())
         {
             LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;

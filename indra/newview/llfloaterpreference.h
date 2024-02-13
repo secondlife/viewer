@@ -79,7 +79,7 @@ public:
 	~LLFloaterPreference();
 
 	void apply();
-	void cancel();
+	void cancel(const std::vector<std::string> settings_to_skip = {});
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
@@ -251,7 +251,7 @@ public:
 	virtual ~LLPanelPreference();
 
 	virtual void apply();
-	virtual void cancel();
+    virtual void cancel(const std::vector<std::string> settings_to_skip = {});
 	void setControlFalse(const LLSD& user_data);
 	virtual void setHardwareDefaults();
 
@@ -294,13 +294,11 @@ class LLPanelPreferenceGraphics : public LLPanelPreference
 public:
 	BOOL postBuild();
 	void draw();
-	void cancel();
+    void cancel(const std::vector<std::string> settings_to_skip = {});
 	void saveSettings();
 	void resetDirtyChilds();
 	void setHardwareDefaults();
 	void setPresetText();
-
-	static const std::string getPresetsPath();
 
 protected:
 	bool hasDirtyChilds();
@@ -320,7 +318,7 @@ public:
 	BOOL postBuild();
 
 	void apply();
-	void cancel();
+    void cancel(const std::vector<std::string> settings_to_skip = {});
 	void saveSettings();
 	void resetDirtyChilds();
 

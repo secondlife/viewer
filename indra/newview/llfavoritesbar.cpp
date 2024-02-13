@@ -79,7 +79,7 @@ public:
 	}
 
 	void setLandmarkID(const LLUUID& id) { mLandmarkID = id; }
-	const LLUUID& getLandmarkId() const { return mLandmarkID; }
+	const LLUUID& getLandmarkID() const { return mLandmarkID; }
 
 	const std::string& getName()
 	{
@@ -192,7 +192,7 @@ public:
 	}
 	
 	void setLandmarkID(const LLUUID& id){ mLandmarkInfoGetter.setLandmarkID(id); }
-	const LLUUID& getLandmarkId() const { return mLandmarkInfoGetter.getLandmarkId(); }
+	const LLUUID& getLandmarkID() const { return mLandmarkInfoGetter.getLandmarkID(); }
 
 	void onMouseEnter(S32 x, S32 y, MASK mask)
 	{
@@ -237,7 +237,8 @@ public:
 		return TRUE;
 	}
 	
-	void setLandmarkID(const LLUUID& id){ mLandmarkInfoGetter.setLandmarkID(id); }
+	const LLUUID& getLandmarkID() const { return mLandmarkInfoGetter.getLandmarkID(); }
+	void setLandmarkID(const LLUUID& id) { mLandmarkInfoGetter.setLandmarkID(id); }
 
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask)
 	{
@@ -285,21 +286,54 @@ private:
 class LLFavoriteLandmarkToggleableMenu : public LLToggleableMenu
 {
 public:
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-								   EDragAndDropType cargo_type,
-								   void* cargo_data,
-								   EAcceptance* accept,
-								   std::string& tooltip_msg)
-	{
-		*accept = ACCEPT_NO;
-		return TRUE;
-	}
+    // virtual
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+        void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override
+    {
+        mToolbar->handleDragAndDropToMenu(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+        return TRUE;
+    }
+
+    // virtual
+    BOOL handleHover(S32 x, S32 y, MASK mask) override
+    {
+        mIsHovering = true;
+        LLToggleableMenu::handleHover(x, y, mask);
+        mIsHovering = false;
+        return TRUE;
+    }
+
+    // virtual
+    void setVisible(BOOL visible) override
+    {
+        // Avoid of hiding the menu during hovering
+        if (visible || !mIsHovering)
+        {
+            LLToggleableMenu::setVisible(visible);
+        }
+    }
+
+    void setToolbar(LLFavoritesBarCtrl* toolbar)
+    {
+        mToolbar = toolbar;
+    }
+
+    ~LLFavoriteLandmarkToggleableMenu()
+    {
+        // Enable subsequent setVisible(FALSE)
+        mIsHovering = false;
+        setVisible(FALSE);
+    }
 
 protected:
 	LLFavoriteLandmarkToggleableMenu(const LLToggleableMenu::Params& p):
 		LLToggleableMenu(p)
 	{
 	}
+
+private:
+    LLFavoritesBarCtrl* mToolbar { nullptr };
+    bool mIsHovering { false };
 
 	friend class LLUICtrlFactory;
 };
@@ -322,8 +356,8 @@ public:
 		{
 			LLFavoritesOrderStorage::instance().setSortIndex(item, mSortField);
 
-			item->setComplete(TRUE);
-			item->updateServer(FALSE);
+			item->setComplete(true);
+			item->updateServer(false);
 
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
@@ -378,12 +412,12 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mOverflowMenuHandle(),
 	mContextMenuHandle(),
 	mImageDragIndication(p.image_drag_indication),
-	mShowDragMarker(FALSE),
+	mShowDragMarker(false),
 	mLandingTab(NULL),
 	mLastTab(NULL),
-	mTabsHighlightEnabled(TRUE),
 	mUpdateDropDownItems(true),
 	mRestoreOverflowMenu(false),
+	mDragToOverflowMenu(false),
 	mGetPrevItems(true),
 	mMouseX(0),
 	mMouseY(0),
@@ -416,17 +450,16 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 
 LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
 {
-	gInventory.removeObserver(this);
+    gInventory.removeObserver(this);
 
-	if (mOverflowMenuHandle.get()) mOverflowMenuHandle.get()->die();
-	if (mContextMenuHandle.get()) mContextMenuHandle.get()->die();
+    if (mOverflowMenuHandle.get())
+        mOverflowMenuHandle.get()->die();
+    if (mContextMenuHandle.get())
+        mContextMenuHandle.get()->die();
 }
 
 BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-								   EDragAndDropType cargo_type,
-								   void* cargo_data,
-								   EAcceptance* accept,
-								   std::string& tooltip_msg)
+    EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
 {
 	*accept = ACCEPT_NO;
 
@@ -452,26 +485,52 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			// Copy the item into the favorites folder (if it's not already there).
 			LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 
-			if (LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y)))
+			if (mDragToOverflowMenu)
 			{
-				setLandingTab(dest);
+				LLView* overflow_menu = mOverflowMenuHandle.get();
+				if (overflow_menu && !overflow_menu->isDead() && overflow_menu->getVisible())
+				{
+					overflow_menu->handleHover(x, y, mask);
+				}
 			}
-			else if (mLastTab && (x >= mLastTab->getRect().mRight))
+			else // Drag to the toolbar itself
 			{
-				/*
-				 * the condition dest == NULL can be satisfied not only in the case
-				 * of dragging to the right from the last tab of the favbar. there is a
-				 * small gap between each tab. if the user drags something exactly there
-				 * then mLandingTab will be set to NULL and the dragged item will be pushed
-				 * to the end of the favorites bar. this is incorrect behavior. that's why
-				 * we need an additional check which excludes the case described previously
-				 * making sure that the mouse pointer is beyond the last tab.
-				 */
-				setLandingTab(NULL);
+				// Drag to a landmark button?
+				if (LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y)))
+				{
+					setLandingTab(dest);
+				}
+				else
+				{
+					// Drag to the "More" button?
+					if (mMoreTextBox && mMoreTextBox->getVisible() && mMoreTextBox->getRect().pointInRect(x, y))
+					{
+						LLView* overflow_menu = mOverflowMenuHandle.get();
+						if (!overflow_menu || overflow_menu->isDead() || !overflow_menu->getVisible())
+						{
+							showDropDownMenu();
+						}
+					}
+
+					// Drag to the right of the last landmark button?
+					if (mLastTab && (x >= mLastTab->getRect().mRight))
+					{
+						/*
+						 * the condition dest == NULL can be satisfied not only in the case
+						 * of dragging to the right from the last tab of the favbar. there is a
+						 * small gap between each tab. if the user drags something exactly there
+						 * then mLandingTab will be set to NULL and the dragged item will be pushed
+						 * to the end of the favorites bar. this is incorrect behavior. that's why
+						 * we need an additional check which excludes the case described previously
+						 * making sure that the mouse pointer is beyond the last tab.
+						 */
+						setLandingTab(NULL);
+					}
+				}
 			}
 
-			// check if we are dragging an existing item from the favorites bar
-            bool existing_drop = false;
+			// Check whether we are dragging an existing item from the favorites bar
+            bool existing_item = false;
             if (item && mDragItemId == item->getUUID())
             {
                 // There is a chance of mDragItemId being obsolete
@@ -479,21 +538,19 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
                 // results in viewer not geting a 'mouse up' signal
                 for (LLInventoryModel::item_array_t::iterator i = mItems.begin(); i != mItems.end(); ++i)
                 {
-                    LLViewerInventoryItem* currItem = *i;
-
-                    if (currItem->getUUID() == mDragItemId)
+                    if ((*i)->getUUID() == mDragItemId)
                     {
-                        existing_drop = true;
+                        existing_item = true;
                         break;
                     }
                 }
             }
 
-            if (existing_drop)
+            if (existing_item)
 			{
 				*accept = ACCEPT_YES_SINGLE;
 
-				showDragMarker(TRUE);
+				showDragMarker(true);
 
 				if (drop)
 				{
@@ -511,14 +568,14 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 				*accept = ACCEPT_YES_COPY_MULTI;
 
-				showDragMarker(TRUE);
+				showDragMarker(true);
 
 				if (drop)
 				{
 					if (mItems.empty())
 					{
 						setLandingTab(NULL);
-                        mLastTab = NULL;
+						mLastTab = NULL;
 					}
 					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
 				}
@@ -532,82 +589,56 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return TRUE;
 }
 
+bool LLFavoritesBarCtrl::handleDragAndDropToMenu(S32 x, S32 y, MASK mask, BOOL drop,
+    EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
+{
+    mDragToOverflowMenu = true;
+    BOOL handled = handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+    mDragToOverflowMenu = false;
+    return handled;
+}
+
 void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 {
-    if (mItems.empty())
-    {
-        // Isn't supposed to be empty
+    if (LL_UNLIKELY(mItems.empty()))
         return;
+
+    LLUUID target_id;
+    bool insert_before = false;
+    if (!findDragAndDropTarget(target_id, insert_before, x, y))
+        return;
+
+    // There is no need to handle if an item was dragged onto itself
+    if (target_id == mDragItemId)
+        return;
+
+    // Move the dragged item to the right place in the array
+    LLInventoryModel::updateItemsOrder(mItems, mDragItemId, target_id, insert_before);
+    LLFavoritesOrderStorage::instance().saveItemsOrder(mItems);
+
+    LLView* menu = mOverflowMenuHandle.get();
+    if (menu && !menu->isDead() && menu->getVisible())
+    {
+        updateOverflowMenuItems();
+        positionAndShowOverflowMenu();
     }
-
-	// Identify the button hovered and the side to drop
-	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
-	bool insert_before = true;	
-	if (!dest)
-	{
-		insert_before = false;
-		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
-	}
-
-	// There is no need to handle if an item was dragged onto itself
-	if (dest && dest->getLandmarkId() == mDragItemId)
-	{
-		return;
-	}
-
-	// Insert the dragged item in the right place
-	if (dest)
-	{
-		LLInventoryModel::updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId(), insert_before);
-	}
-	else
-	{
-		// This can happen when the item list is empty
-		mItems.push_back(gInventory.getItem(mDragItemId));
-	}
-
-	LLFavoritesOrderStorage::instance().saveItemsOrder(mItems);
-
-	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
-
-	if (menu && menu->getVisible())
-	{
-		menu->setVisible(FALSE);
-		showDropDownMenu();
-	}
 }
 
 void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y)
 {
 	// Identify the button hovered and the side to drop
-	LLFavoriteLandmarkButton* dest = NULL;
-	bool insert_before = true;
-	if (!mItems.empty())
-	{
-		// [MAINT-2386] When multiple landmarks are selected and dragged onto an empty favorites bar,
-		//		the viewer would crash when casting mLastTab below, as mLastTab is still null when the
-		//		second landmark is being added.
-		//		To ensure mLastTab is valid, we need to call updateButtons() at the end of this function
-		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
-		if (!dest)
-		{
-			insert_before = false;
-			dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
-		}
-	}
-	
-	// There is no need to handle if an item was dragged onto itself
-	if (dest && dest->getLandmarkId() == mDragItemId)
-	{
-		return;
-	}
-	
+	LLUUID target_id;
+	bool insert_before = false;
+    // There is no need to handle if an item was dragged onto itself
+    if (findDragAndDropTarget(target_id, insert_before, x, y) && (target_id == mDragItemId))
+        return;
+
 	LLPointer<LLViewerInventoryItem> viewer_item = new LLViewerInventoryItem(item);
 
-	// Insert the dragged item in the right place
-	if (dest)
+	// Insert the dragged item to the right place
+	if (target_id.notNull())
 	{
-		insertItem(mItems, dest->getLandmarkId(), viewer_item, insert_before);
+		insertItem(mItems, target_id, viewer_item, insert_before);
 	}
 	else
 	{
@@ -631,8 +662,8 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 		{
 			LLFavoritesOrderStorage::instance().setSortIndex(currItem, ++sortField);
 
-			currItem->setComplete(TRUE);
-			currItem->updateServer(FALSE);
+			currItem->setComplete(true);
+			currItem->updateServer(false);
 
 			gInventory.updateItem(currItem);
 		}
@@ -663,8 +694,73 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	//		This also ensures that mLastTab will be valid when dropping multiple
 	//		landmarks to an empty favorites bar.
 	updateButtons();
-	
+
+    LLView* overflow_menu = mOverflowMenuHandle.get();
+    if (overflow_menu && !overflow_menu->isDead() && overflow_menu->getVisible())
+    {
+        updateOverflowMenuItems();
+        positionAndShowOverflowMenu();
+    }
+
 	LL_INFOS("FavoritesBar") << "Copied inventory item #" << item->getUUID() << " to favorites." << LL_ENDL;
+}
+
+bool LLFavoritesBarCtrl::findDragAndDropTarget(LLUUID& target_id, bool& insert_before, S32 x, S32 y)
+{
+    if (mItems.empty())
+        return false;
+
+    if (mDragToOverflowMenu)
+    {
+        LLView* overflow_menu = mOverflowMenuHandle.get();
+        if (LL_UNLIKELY(!overflow_menu || overflow_menu->isDead() || !overflow_menu->getVisible()))
+            return false;
+
+        // Identify the menu item hovered and the side to drop
+        LLFavoriteLandmarkMenuItem* target_item = dynamic_cast<LLFavoriteLandmarkMenuItem*>(overflow_menu->childFromPoint(x, y));
+        if (target_item)
+        {
+            insert_before = true;
+        }
+        else
+        {
+            // Choose the bottom landmark menu item
+            auto begin = overflow_menu->getChildList()->begin();
+            auto end = overflow_menu->getChildList()->end();
+            auto check = [](const LLView* child) -> bool
+                {
+                    return dynamic_cast<const LLFavoriteLandmarkMenuItem*>(child);
+                };
+            // Menu items are placed in the backward order, so the bottom goes first
+            auto it = std::find_if(begin, end, check);
+            if (LL_UNLIKELY(it == end))
+                return false;
+            target_item = (LLFavoriteLandmarkMenuItem*)*it;
+            insert_before = false;
+        }
+        target_id = target_item->getLandmarkID();
+    }
+    else
+    {
+        // Identify the button hovered and the side to drop
+        LLFavoriteLandmarkButton* hovered_button = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+        if (hovered_button)
+        {
+            insert_before = true;
+        }
+        else
+        {
+            // Choose the right landmark button
+            hovered_button = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+            if (LL_UNLIKELY(!hovered_button))
+                return false;
+
+            insert_before = false;
+        }
+        target_id = hovered_button->getLandmarkID();
+    }
+
+    return true;
 }
 
 //virtual
@@ -737,7 +833,7 @@ void LLFavoritesBarCtrl::draw()
 			mImageDragIndication->draw(rect.mRight, rect.getHeight(), w, h);
 		}
 		// Once drawn, mark this false so we won't draw it again (unless we hit the favorite bar again)
-		mShowDragMarker = FALSE;
+		mShowDragMarker = false;
 	}
 	if (mItemsChangedTimer.getStarted())
 	{
@@ -833,7 +929,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
                 if (item)
                 {
                     // an child's order  and mItems  should be same
-                    if (button->getLandmarkId() != item->getUUID() // sort order has been changed
+                    if (button->getLandmarkID() != item->getUUID() // sort order has been changed
                         || button->getLabelSelected() != item->getName()) // favorite's name has been changed
                     {
                         break;
@@ -907,11 +1003,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
         {
             // mMoreTextBox was removed, so LLFavoriteLandmarkButtons
             // should be the only ones in the list
-            LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (childs->back());
-            if (button)
-            {
-                mLastTab = button;
-            }
+            mLastTab = dynamic_cast<LLFavoriteLandmarkButton*>(childs->back());
         }
 
 		mFirstDropDownItem = j;
@@ -919,15 +1011,13 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
 		if (mFirstDropDownItem < mItems.size())
 		{
 			// if updateButton had been called it means:
-			//or there are some new favorites, or width had been changed
+			// or there are some new favorites, or width had been changed
 			// so if we need to display chevron button,  we must update dropdown items too. 
 			mUpdateDropDownItems = true;
 			S32 buttonHGap = button_params.rect.left; // default value
-			LLRect rect;
 			// Chevron button should stay right aligned
-			rect.setOriginAndSize(getRect().mRight - mMoreTextBox->getRect().getWidth() - buttonHGap, 0,
-					mMoreTextBox->getRect().getWidth(),
-					mMoreTextBox->getRect().getHeight());
+			LLRect rect(mMoreTextBox->getRect());
+			rect.translate(getRect().mRight - rect.mRight - buttonHGap, 0);
 
 			addChild(mMoreTextBox);
 			mMoreTextBox->setRect(rect);
@@ -1060,14 +1150,16 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 	{
 		if (mUpdateDropDownItems)
 		{
-			updateMenuItems(menu);
+			updateOverflowMenuItems();
+		}
+		else
+		{
+			menu->buildDrawLabels();
 		}
 
-		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		menu->setButtonRect(mMoreTextBox->getRect(), this);
-		positionAndShowMenu(menu);
-		mDropDownItemsCount = menu->getItemCount();
+		positionAndShowOverflowMenu();
 	}
 }
 
@@ -1081,12 +1173,14 @@ void LLFavoritesBarCtrl::createOverflowMenu()
 	menu_p.max_scrollable_items = 10;
 	menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
 
-	LLToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
+    LLFavoriteLandmarkToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
+    menu->setToolbar(this);
 	mOverflowMenuHandle = menu->getHandle();
 }
 
-void LLFavoritesBarCtrl::updateMenuItems(LLToggleableMenu* menu)
+void LLFavoritesBarCtrl::updateOverflowMenuItems()
 {
+	LLToggleableMenu* menu = (LLToggleableMenu*)mOverflowMenuHandle.get();
 	menu->empty();
 
 	U32 widest_item = 0;
@@ -1115,6 +1209,8 @@ void LLFavoritesBarCtrl::updateMenuItems(LLToggleableMenu* menu)
 		menu->addChild(menu_item);
 	}
 
+	menu->buildDrawLabels();
+	mDropDownItemsCount = menu->getItemCount();
 	addOpenLandmarksMenuItem(menu);
 	mUpdateDropDownItems = false;
 }
@@ -1171,8 +1267,9 @@ void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
 	menu->addChild(menu_item);
 }
 
-void LLFavoritesBarCtrl::positionAndShowMenu(LLToggleableMenu* menu)
+void LLFavoritesBarCtrl::positionAndShowOverflowMenu()
 {
+	LLToggleableMenu* menu = (LLToggleableMenu*)mOverflowMenuHandle.get();
 	U32 max_width = llmin(DROP_DOWN_MENU_WIDTH, getRect().getWidth());
 
 	S32 menu_x = getRect().getWidth() - max_width;
@@ -1381,7 +1478,7 @@ bool LLFavoritesBarCtrl::onRenameCommit(const LLSD& notification, const LLSD& re
         {
             LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
             new_item->rename(landmark_name);
-            new_item->updateServer(FALSE);
+            new_item->updateServer(false);
             gInventory.updateItem(new_item);
         }
     }
@@ -1460,7 +1557,7 @@ void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32
 	}
 
 	mDragItemId = id;
-	mStartDrag = TRUE;
+	mStartDrag = true;
 
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
@@ -1470,7 +1567,7 @@ void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32
 
 void LLFavoritesBarCtrl::onButtonMouseUp(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
-	mStartDrag = FALSE;
+	mStartDrag = false;
 	mDragItemId = LLUUID::null;
 }
 
@@ -1478,7 +1575,7 @@ void LLFavoritesBarCtrl::onEndDrag()
 {
 	mEndDragConnection.disconnect();
 
-	showDragMarker(FALSE);
+	showDragMarker(false);
 	mDragItemId = LLUUID::null;
 	LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
 }
@@ -1496,7 +1593,7 @@ BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 				DAD_LANDMARK, mDragItemId,
 				LLToolDragAndDrop::SOURCE_LIBRARY);
 
-			mStartDrag = FALSE;
+			mStartDrag = false;
 
 			return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask);
 		}
@@ -1525,6 +1622,7 @@ LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
 			}
 		}
 	}
+
 	return ctrl;
 }
 
@@ -1941,8 +2039,8 @@ void LLFavoritesOrderStorage::saveItemsOrder( const LLInventoryModel::item_array
 
 		setSortIndex(item, ++sortField);
 
-		item->setComplete(TRUE);
-		item->updateServer(FALSE);
+		item->setComplete(true);
+		item->updateServer(false);
 
 		gInventory.updateItem(item);
 
@@ -2134,8 +2232,10 @@ bool LLFavoritesOrderStorage::isStorageUpdateNeeded()
 
 void AddFavoriteLandmarkCallback::fire(const LLUUID& inv_item_id)
 {
-	if (mTargetLandmarkId.isNull()) return;
-
-	LLFavoritesOrderStorage::instance().rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);
+	if (!mTargetLandmarkId.isNull())
+	{
+		LLFavoritesOrderStorage::instance().rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);
+	}
 }
+
 // EOF

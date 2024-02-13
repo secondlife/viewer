@@ -1332,7 +1332,7 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
                         gInventory.accountForUpdate(update);
 
                         titem->setParent(lost_uuid);
-                        titem->updateParentOnServer(FALSE);
+                        titem->updateParentOnServer(false);
                         gInventory.updateItem(titem);
                     }
                 }

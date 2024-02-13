@@ -53,7 +53,7 @@ public:
 	LLToastLifeTimer(LLToast* toast, F32 period);
 
 	/*virtual*/
-	BOOL tick();
+	bool tick();
 	void stop();
 	void start();
 	void restart();

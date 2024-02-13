@@ -729,7 +729,6 @@ class LLControlAVBridge : public LLVolumeBridge
 	using super = LLVolumeBridge;
 public:
 	LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regionp);
-	virtual void updateSpatialExtents();
 };
 
 class LLHUDBridge : public LLVolumeBridge

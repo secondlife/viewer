@@ -172,7 +172,7 @@ BOOL LLCharacter::isMotionActive(const LLUUID& id)
 		return mMotionController.isMotionActive(motionp);
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -286,9 +286,9 @@ BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 wei
 	if (index_iter != mVisualParamIndexMap.end())
 	{
 		index_iter->second->setWeight(weight);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -303,10 +303,10 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
 	if (name_iter != mVisualParamNameMap.end())
 	{
 		name_iter->second->setWeight(weight);
-		return TRUE;
+		return true;
 	}
 	LL_WARNS() << "LLCharacter::setVisualParamWeight() Invalid visual parameter: " << param_name << LL_ENDL;
-	return FALSE;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -318,10 +318,10 @@ BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight)
 	if (index_iter != mVisualParamIndexMap.end())
 	{
 		index_iter->second->setWeight(weight);
-		return TRUE;
+		return true;
 	}
 	LL_WARNS() << "LLCharacter::setVisualParamWeight() Invalid visual parameter index: " << index << LL_ENDL;
-	return FALSE;
+	return false;
 }
 
 //-----------------------------------------------------------------------------

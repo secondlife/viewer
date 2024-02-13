@@ -34,8 +34,8 @@
 #include "raytrace.h"
 
 
-BOOL line_plane(const LLVector3 &line_point, const LLVector3 &line_direction,
-				const LLVector3 &plane_point, const LLVector3 plane_normal, 
+bool line_plane(const LLVector3 &line_point, const LLVector3 &line_direction,
+				const LLVector3 &plane_point, const LLVector3 plane_normal,
 				LLVector3 &intersection)
 {
 	F32 N = line_direction * plane_normal;
@@ -43,19 +43,19 @@ BOOL line_plane(const LLVector3 &line_point, const LLVector3 &line_direction,
 	{
 		// line is perpendicular to plane normal
 		// so it is either entirely on plane, or not on plane at all
-		return FALSE;
+		return false;
 	}
 	// Ax + By, + Cz + D = 0
 	// D = - (plane_point * plane_normal)
 	// N = line_direction * plane_normal
 	// intersection = line_point - ((D + plane_normal * line_point) / N) * line_direction
 	intersection = line_point - ((plane_normal * line_point - plane_point * plane_normal) / N) * line_direction;
-	return TRUE;
+	return true;
 }
 
 
-BOOL ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
-			   const LLVector3 &plane_point, const LLVector3 plane_normal, 
+bool ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+			   const LLVector3 &plane_point, const LLVector3 plane_normal,
 			   LLVector3 &intersection)
 {
 	F32 N = ray_direction * plane_normal;
@@ -63,7 +63,7 @@ BOOL ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 	{
 		// ray is perpendicular to plane normal
 		// so it is either entirely on plane, or not on plane at all
-		return FALSE;
+		return false;
 	}
 	// Ax + By, + Cz + D = 0
 	// D = - (plane_point * plane_normal)
@@ -73,14 +73,14 @@ BOOL ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 	if (alpha < 0.0f)
 	{
 		// ray points away from plane
-		return FALSE;
+		return false;
 	}
 	intersection = ray_point + alpha * ray_direction;
-	return TRUE;
+	return true;
 }
 
 
-BOOL ray_circle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_circle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				const LLVector3 &circle_center, const LLVector3 plane_normal, F32 circle_radius,
 				LLVector3 &intersection)
 {
@@ -88,15 +88,15 @@ BOOL ray_circle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 	{
 		if (circle_radius >= (intersection - circle_center).magVec())
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 
-BOOL ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
-				  const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2, 
+bool ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+				  const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2,
 				  LLVector3 &intersection, LLVector3 &intersection_normal)
 {
 	LLVector3 side_01 = point_1 - point_0;
@@ -112,15 +112,15 @@ BOOL ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			intersection_normal * (side_12 % (intersection - point_1)) >= 0.0f  &&
 			intersection_normal * (side_20 % (intersection - point_2)) >= 0.0f)
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 
 // assumes a parallelogram
-BOOL ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2,
 					LLVector3 &intersection, LLVector3 &intersection_normal)
 {
@@ -140,14 +140,14 @@ BOOL ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			intersection_normal * (side_23 % (intersection - point_2)) >= 0.0f  &&
 			intersection_normal * (side_30 % (intersection - point_3)) >= 0.0f)
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 
-BOOL ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				const LLVector3 &sphere_center, F32 sphere_radius,
 				LLVector3 &intersection, LLVector3 &intersection_normal)
 {
@@ -160,7 +160,7 @@ BOOL ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 	F32 radius_squared = sphere_radius * sphere_radius;
 	if (shortest_distance > radius_squared)
 	{
-		return FALSE;
+		return false;
 	}
 
 	F32 half_chord = (F32) sqrt(radius_squared - shortest_distance);
@@ -170,7 +170,7 @@ BOOL ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 	if (dot < 0.0f)
 	{
 		// ray shoots away from sphere and is not inside it
-		return FALSE;
+		return false;
 	}
 
 	shortest_distance = ray_direction * ((closest_approach - half_chord * ray_direction) - ray_point);
@@ -195,11 +195,11 @@ BOOL ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 		intersection_normal.setVec(0.0f, 0.0f, 0.0f);
 	}
 	
-	return TRUE;
+	return true;
 }
 
 
-BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				  const LLVector3 &cyl_center, const LLVector3 &cyl_scale, const LLQuaternion &cyl_rotation,
 				  LLVector3 &intersection, LLVector3 &intersection_normal)
 {
@@ -270,15 +270,15 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				if (dot < 0.0f)
 				{
 					// ray points away from cylinder bottom
-					return FALSE;
+					return false;
 				}
 				// ray hit top from outside
 				intersection = ray_point - (shortest_distance + cyl_length) * cyl_axis;
 				intersection_normal = -cyl_axis;
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 
 	// check for intersection with infinite cylinder
@@ -299,7 +299,7 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 		if (out < 0.0f)
 		{
 			// cylinder is behind the ray, so we return FALSE
-			return FALSE;
+			return false;
 		}
 
 		in = dist_to_closest_point - half_chord_length;		// dist to entering point
@@ -341,14 +341,14 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				if (shortest_distance > out)
 				{
 					// ray missed the finite cylinder
-					return FALSE;
+					return false;
 				}
 				if (shortest_distance > in)
 				{
 					// ray intersects cylinder at top plane
 					intersection = temp_vector;
 					intersection_normal = -cyl_axis;
-					return TRUE;
+					return true;
 				}
 			}
 			else
@@ -357,7 +357,7 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				if (shortest_distance < in)
 				{
 					// missed the finite cylinder
-					return FALSE;
+					return false;
 				}
 			}
 
@@ -370,14 +370,14 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				if (shortest_distance > out)
 				{
 					// ray missed the finite cylinder
-					return FALSE;
+					return false;
 				}
 				if (shortest_distance > in)
 				{
 					// ray intersects cylinder at bottom plane
 					intersection = temp_vector;
 					intersection_normal = cyl_axis;
-					return TRUE;
+					return true;
 				}
 			}
 			else
@@ -386,7 +386,7 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				if (shortest_distance < in)
 				{
 					// ray missed the finite cylinder
-					return FALSE;
+					return false;
 				}
 			}
 
@@ -399,14 +399,14 @@ BOOL ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			if (shortest_distance < 0.0f  ||  shortest_distance > cyl_length)
 			{
 				// ray missed finite cylinder
-				return FALSE;
+				return false;
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -1226,7 +1226,7 @@ BOOL linesegment_prism(const LLVector3 &point_a, const LLVector3 &point_b,
 	{
 		if (segment_length >= (point_a - intersection).magVec())
 		{
-			return TRUE;
+			return true;
 		}
 	}
 	return FALSE;

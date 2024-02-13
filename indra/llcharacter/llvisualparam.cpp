@@ -48,7 +48,7 @@ LLVisualParamInfo::LLVisualParamInfo()
 //-----------------------------------------------------------------------------
 // parseXml()
 //-----------------------------------------------------------------------------
-BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
+bool LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 {
 	// attribute: id
 	static LLStdStringHandle id_string = LLXmlTree::addAttributeString("id");
@@ -102,7 +102,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	else
 	{
 		LL_WARNS() << "Avatar file: <param> has invalid sex attribute: " << sex << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 	
 	// attribute: name
@@ -110,7 +110,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	if( !node->getFastAttributeString( name_string, mName ) )
 	{
 		LL_WARNS() << "Avatar file: <param> is missing name attribute" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	// attribute: label
@@ -138,7 +138,7 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 		mMaxName = "More";
 	}
 
-	return TRUE;
+	return true;
 }
 
 //virtual
@@ -211,11 +211,11 @@ BOOL LLVisualParam::setInfo(LLVisualParamInfo *info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
-		return FALSE;
+		return false;
 	mInfo = info;
 	mID = info->mID;
 	setWeight(getDefaultWeight(), FALSE );
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -227,9 +227,9 @@ BOOL LLVisualParam::parseData(LLXmlTreeNode *node)
 
 	info->parseXml(node);
 	if (!setInfo(info))
-		return FALSE;
+		return false;
 	
-	return TRUE;
+	return true;
 }
 */
 
@@ -333,10 +333,10 @@ void LLVisualParam::stopAnimating()
 }
 
 //virtual
-BOOL LLVisualParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params)
+bool LLVisualParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
 {
 	// nothing to do for non-driver parameters
-	return TRUE;
+	return true;
 }
 
 //virtual 

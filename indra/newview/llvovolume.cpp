@@ -1311,11 +1311,13 @@ void LLVOVolume::sculpt()
 			}
 		}
 		else
-		{					
+		{
+			LLImageDataSharedLock lock(raw_image);
+
 			sculpt_height = raw_image->getHeight();
 			sculpt_width = raw_image->getWidth();
 			sculpt_components = raw_image->getComponents();		
-					   
+
 			sculpt_data = raw_image->getData();
 
 			if(LLViewerTextureManager::sTesterp)
@@ -1547,16 +1549,16 @@ BOOL LLVOVolume::calcLOD()
 	return FALSE;
 }
 
-BOOL LLVOVolume::updateLOD()
+bool LLVOVolume::updateLOD()
 {
 	if (mDrawable.isNull())
 	{
-		return FALSE;
+		return false;
 	}
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-	BOOL lod_changed = FALSE;
+	bool lod_changed = false;
 
 	if (!LLSculptIDSize::instance().isUnloaded(getVolume()->getParams().getSculptID())) 
 	{
@@ -1564,13 +1566,13 @@ BOOL LLVOVolume::updateLOD()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (lod_changed)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
-		mLODChanged = TRUE;
+		mLODChanged = true;
 	}
 	else
 	{
@@ -5052,30 +5054,6 @@ LLControlAVBridge::LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regi
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_CONTROL_AV;
 	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
-}
-
-void LLControlAVBridge::updateSpatialExtents()
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
-
-	LLSpatialGroup* root = (LLSpatialGroup*)mOctree->getListener(0);
-
-	bool rootWasDirty = root->isDirty();
-
-	super::updateSpatialExtents(); // root becomes non-dirty here
-
-	// SL-18251 "On-screen animesh characters using pelvis offset animations
-	// disappear when root goes off-screen"
-	//
-	// Expand extents to include Control Avatar placed outside of the bounds
-    LLControlAvatar* controlAvatar = getVObj() ? getVObj()->getControlAvatar() : NULL;
-    if (controlAvatar
-        && controlAvatar->mDrawable
-        && controlAvatar->mDrawable->getEntry()
-        && (rootWasDirty || controlAvatar->mPlaying))
-	{
-		root->expandExtents(controlAvatar->mDrawable->getSpatialExtents(), *mDrawable->getXform());
-	}
 }
 
 bool can_batch_texture(LLFace* facep)

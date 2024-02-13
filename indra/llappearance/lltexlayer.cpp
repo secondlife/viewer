@@ -59,7 +59,7 @@ public:
 	LLTexLayerInfo();
 	~LLTexLayerInfo();
 
-	BOOL parseXml(LLXmlTreeNode* node);
+	bool parseXml(LLXmlTreeNode* node);
 	BOOL createVisualParams(LLAvatarAppearance *appearance);
 	BOOL isUserSettable() { return mLocalTexture != -1;	}
 	S32  getLocalTexture() const { return mLocalTexture; }
@@ -185,12 +185,12 @@ LLTexLayerSetInfo::~LLTexLayerSetInfo( )
 	mLayerInfoList.clear();
 }
 
-BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert( node->hasName( "layer_set" ) );
 	if( !node->hasName( "layer_set" ) )
 	{
-		return FALSE;
+		return false;
 	}
 
 	// body_region
@@ -198,20 +198,20 @@ BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
 	if( !node->getFastAttributeString( body_region_string, mBodyRegion ) )
 	{
 		LL_WARNS() << "<layer_set> is missing body_region attribute" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	// width, height
 	static LLStdStringHandle width_string = LLXmlTree::addAttributeString("width");
 	if( !node->getFastAttributeS32( width_string, mWidth ) )
 	{
-		return FALSE;
+		return false;
 	}
 
 	static LLStdStringHandle height_string = LLXmlTree::addAttributeString("height");
 	if( !node->getFastAttributeS32( height_string, mHeight ) )
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Optional alpha component to apply after all compositing is complete.
@@ -230,11 +230,11 @@ BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
 		if( !info->parseXml( child ))
 		{
 			delete info;
-			return FALSE;
+			return false;
 		}
 		mLayerInfoList.push_back( info );		
 	}
-	return TRUE;
+	return true;
 }
 
 // creates visual params without generating layersets or layers
@@ -299,7 +299,7 @@ BOOL LLTexLayerSet::setInfo(const LLTexLayerSetInfo *info)
 		if (!layer->setInfo(layer_info, NULL))
 		{
 			mInfo = NULL;
-			return FALSE;
+			return false;
 		}
 		if (!layer->isVisibilityMask())
 		{
@@ -315,7 +315,7 @@ BOOL LLTexLayerSet::setInfo(const LLTexLayerSetInfo *info)
 
 	stop_glerror();
 
-	return TRUE;
+	return true;
 }
 
 #if 0 // obsolete
@@ -330,14 +330,14 @@ BOOL LLTexLayerSet::parseData(LLXmlTreeNode* node)
 	if (!info->parseXml(node))
 	{
 		delete info;
-		return FALSE;
+		return false;
 	}
 	if (!setInfo(info))
 	{
 		delete info;
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 #endif
 
@@ -528,7 +528,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
-void LLTexLayerSet::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components)
+void LLTexLayerSet::applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components)
 {
 	mAvatarAppearance->applyMorphMask(tex_data, width, height, num_components, mBakedTexIndex);
 }
@@ -539,10 +539,10 @@ BOOL LLTexLayerSet::isMorphValid() const
 	{
 		if (layer && !layer->isMorphValid())
 		{
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 void LLTexLayerSet::invalidateMorphMasks()
@@ -579,7 +579,7 @@ LLTexLayerInfo::~LLTexLayerInfo( )
 	mParamAlphaInfoList.clear();
 }
 
-BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 {
 	llassert( node->hasName( "layer" ) );
 
@@ -587,7 +587,7 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 	static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 	if( !node->getFastAttributeString( name_string, mName ) )
 	{
-		return FALSE;
+		return false;
 	}
 	
 	static LLStdStringHandle write_all_channels_string = LLXmlTree::addAttributeString("write_all_channels");
@@ -657,13 +657,13 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			if (mLocalTexture == TEX_NUM_INDICES)
 			{
 				LL_WARNS() << "<texture> element has invalid local_texture attribute: " << mName << " " << local_texture_name << LL_ENDL;
-				return FALSE;
+				return false;
 			}
 		}
 		else	
 		{
 			LL_WARNS() << "<texture> element is missing a required attribute. " << mName << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -694,7 +694,7 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			if (!info->parseXml(child))
 			{
 				delete info;
-				return FALSE;
+				return false;
 			}
 			mParamColorInfoList.push_back(info);
 		}
@@ -705,18 +705,18 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			if (!info->parseXml(child))
 			{
 				delete info;
-				return FALSE;
+				return false;
 			}
  			mParamAlphaInfoList.push_back(info);
 		}
 	}
 	
-	return TRUE;
+	return true;
 }
 
 BOOL LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 {
-	BOOL success = TRUE;
+	BOOL success = true;
 	for (LLTexLayerParamColorInfo* color_info : mParamColorInfoList)
 	{
 		LLTexLayerParamColor* param_color = new LLTexLayerParamColor(appearance);
@@ -781,7 +781,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 				if (!param_color->setInfo(color_info, TRUE))
 				{
 					mInfo = NULL;
-					return FALSE;
+					return false;
 				}
 			}
 			else
@@ -790,7 +790,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 				if (!param_color)
 				{
 					mInfo = NULL;
-					return FALSE;
+					return false;
 				}
 			}
 			mParamColorList.push_back( param_color );
@@ -806,7 +806,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 				if (!param_alpha->setInfo(alpha_info, TRUE))
 				{
 					mInfo = NULL;
-					return FALSE;
+					return false;
 				}
 			}
 			else
@@ -815,13 +815,13 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 				if (!param_alpha)
 				{
 					mInfo = NULL;
-					return FALSE;
+					return false;
 				}
 			}
 			mParamAlphaList.push_back( param_alpha );
 		}
 
-	return TRUE;
+	return true;
 }
 
 /*virtual*/ void LLTexLayerInterface::requestUpdate()
@@ -1223,29 +1223,29 @@ BOOL LLTexLayer::findNetColor(LLColor4* net_color) const
 		}
 		
 		calculateTexLayerColor(mParamColorList, *net_color);
-		return TRUE;
+		return true;
 	}
 
 	if( !getGlobalColor().empty() )
 	{
 		net_color->setVec( mTexLayerSet->getAvatarAppearance()->getGlobalColor( getGlobalColor() ) );
-		return TRUE;
+		return true;
 	}
 
 	if( getInfo()->mFixedColor.mV[VW] )
 	{
 		net_color->setVec( getInfo()->mFixedColor );
-		return TRUE;
+		return true;
 	}
 
 	net_color->setToWhite();
 
-	return FALSE; // No need to draw a separate colored polygon
+	return false; // No need to draw a separate colored polygon
 }
 
 BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 {
-	BOOL success = TRUE;
+	BOOL success = true;
 
 	gGL.flush();
 	
@@ -1519,11 +1519,11 @@ void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32
 	{
 		if (mLocalTextureObject->getID() == IMG_INVISIBLE)
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 LLUUID LLTexLayer::getUUID() const
@@ -1726,12 +1726,12 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 		{
 			 if (layer->isInvisibleAlphaMask())
 			 {
-				 return TRUE;
+				 return true;
 			 }
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 

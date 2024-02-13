@@ -310,7 +310,7 @@ void LLFloaterLinkReplace::decreaseOpenItemCount()
 	}
 }
 
-BOOL LLFloaterLinkReplace::tick()
+bool LLFloaterLinkReplace::tick()
 {
 	LL_DEBUGS() << "Calling tick - remaining items = " << mRemainingInventoryItems.size() << LL_ENDL;
 
@@ -329,7 +329,7 @@ BOOL LLFloaterLinkReplace::tick()
 	}
 	processBatch(current_batch);
 
-	return FALSE;
+	return false;
 }
 
 void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)

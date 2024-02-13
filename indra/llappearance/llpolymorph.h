@@ -49,7 +49,7 @@ public:
 	~LLPolyMorphData();
 	LLPolyMorphData(const LLPolyMorphData &rhs);
 
-	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
+	bool			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	const std::string& getName() { return mName; }
 
 public:
@@ -84,7 +84,7 @@ public:
 	LLPolyVertexMask(const LLPolyVertexMask& pOther);
 	~LLPolyVertexMask();
 
-	void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
+	void generateMask(const U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
 	F32* getMorphMaskWeights();
 
 
@@ -129,7 +129,7 @@ public:
 	LLPolyMorphTargetInfo();
 	/*virtual*/ ~LLPolyMorphTargetInfo() {};
 	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+	/*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 protected:
 	std::string		mMorphName;
@@ -154,7 +154,7 @@ public:
 	// Special: These functions are overridden by child classes
 	LLPolyMorphTargetInfo*	getInfo() const { return (LLPolyMorphTargetInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
-	BOOL					setInfo(LLPolyMorphTargetInfo *info);
+	bool					setInfo(LLPolyMorphTargetInfo *info);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
@@ -170,7 +170,7 @@ public:
 	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
 	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 
-	void	applyMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
+	void	applyMask(const U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
 	void	addPendingMorphMask() { mNumMorphMasksPending++; }
 
     void    applyVolumeChanges(F32 delta_weight); // SL-315 - for resetSkeleton()

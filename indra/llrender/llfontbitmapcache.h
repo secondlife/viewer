@@ -45,7 +45,7 @@ public:
 
 	void reset();
 
-	BOOL nextOpenPos(S32 width, S32 &posX, S32 &posY, S32 &bitmapNum);
+	bool nextOpenPos(S32 width, S32 &posX, S32 &posY, S32 &bitmapNum);
 	
 	void destroyGL();
 	

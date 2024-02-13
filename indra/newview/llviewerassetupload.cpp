@@ -654,6 +654,8 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LL
 {
     setItemId(itemId);
 
+    LLImageDataSharedLock lock(image);
+
     EImageCodec codec = static_cast<EImageCodec>(image->getCodec());
 
     switch (codec)

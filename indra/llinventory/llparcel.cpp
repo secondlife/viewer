@@ -370,20 +370,20 @@ BOOL LLParcel::allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) con
     if (agent_id == LLUUID::null)
     {
         // system always can enter
-        return TRUE;
+        return true;
     }
     else if (isPublic())
     {
-        return TRUE;
+        return true;
     }
     else if (agent_id == mOwnerID)
     {
         // owner can always perform operations
-        return TRUE;
+        return true;
     }
     else if (mParcelFlags & PF_CREATE_OBJECTS)
     {
-        return TRUE;
+        return true;
     }
     else if ((mParcelFlags & PF_CREATE_GROUP_OBJECTS)
              && group_id.notNull() )
@@ -391,7 +391,7 @@ BOOL LLParcel::allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) con
         return (getGroupID() == group_id);
     }
     
-    return FALSE;
+    return false;
 }
 
 BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
@@ -399,14 +399,14 @@ BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
     if (agent_id == LLUUID::null)
     {
         // system always can enter
-        return TRUE;
+        return true;
     }
     else if(OS_LEASED == mStatus)
     {
         if(agent_id == mOwnerID)
         {
             // owner can modify leased land
-            return TRUE;
+            return true;
         }
         else
         {
@@ -416,7 +416,7 @@ BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
@@ -728,21 +728,21 @@ void LLParcel::expirePasses(S32 now)
 bool LLParcel::operator==(const LLParcel &rhs) const
 {
     if (mOwnerID != rhs.mOwnerID)
-        return FALSE;
+        return false;
     
     if (mParcelFlags != rhs.mParcelFlags)
-        return FALSE;
+        return false;
     
     if (mClaimDate != rhs.mClaimDate)
-        return FALSE;
+        return false;
     
     if (mClaimPricePerMeter != rhs.mClaimPricePerMeter)
-        return FALSE;
+        return false;
     
     if (mRentPricePerMeter != rhs.mRentPricePerMeter)
-        return FALSE;
+        return false;
     
-    return TRUE;
+    return true;
 }
 
 // Calculate rent
@@ -791,12 +791,12 @@ BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 {
 	if (mAccessList.size() >= (U32) PARCEL_MAX_ACCESS_LIST)
 	{
-		return FALSE;
+		return false;
 	}
 	if (agent_id == getOwnerID())
 	{
 		// Can't add owner to these lists
-		return FALSE;
+		return false;
 	}
 	LLAccessEntry::map::iterator itor = mAccessList.begin();
 	while (itor != mAccessList.end())
@@ -811,7 +811,7 @@ BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 			else
 			{
 				// existing one expires later
-				return FALSE;
+				return false;
 			}
 		}
 		else
@@ -825,7 +825,7 @@ BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
     new_entry.mTime	 = time;
     new_entry.mFlags = 0x0;
     mAccessList[new_entry.mID] = new_entry;
-    return TRUE;
+    return true;
 }
 
 BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
@@ -833,12 +833,12 @@ BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
 	if (mBanList.size() >= (U32) PARCEL_MAX_ACCESS_LIST)
 	{
 		// Not using ban list, so not a rational thing to do
-		return FALSE;
+		return false;
 	}
 	if (agent_id == getOwnerID())
 	{
 		// Can't add owner to these lists
-		return FALSE;
+		return false;
 	}
     
     LLAccessEntry::map::iterator itor = mBanList.begin();
@@ -854,7 +854,7 @@ BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
             else
             {
                 // existing one expires later
-                return FALSE;
+                return false;
             }
         }
         else
@@ -868,7 +868,7 @@ BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
     new_entry.mTime	 = time;
     new_entry.mFlags = 0x0;
     mBanList[new_entry.mID] = new_entry;
-    return TRUE;
+    return true;
 }
 
 BOOL remove_from_access_array(std::map<LLUUID,LLAccessEntry>* list,
@@ -951,7 +951,7 @@ BOOL LLParcel::isSaleTimerExpired(const U64& time)
 {
     if (mSaleTimerExpires.getStarted() == FALSE)
     {
-        return FALSE;
+        return false;
     }
     BOOL expired = mSaleTimerExpires.checkExpirationAndReset(0.0);
     if (expired)
@@ -965,7 +965,7 @@ BOOL LLParcel::isMediaResetTimerExpired(const U64& time)
 {
     if (mMediaResetTimer.getStarted() == FALSE)
     {
-        return FALSE;
+        return false;
     }
     BOOL expired = mMediaResetTimer.checkExpirationAndReset(0.0);
     if (expired)
@@ -1078,7 +1078,7 @@ BOOL LLParcel::isBuyerAuthorized(const LLUUID& buyer_id) const
 {
     if(mAuthBuyerID.isNull())
     {
-        return TRUE;
+        return true;
     }
     return (mAuthBuyerID == buyer_id);
 }

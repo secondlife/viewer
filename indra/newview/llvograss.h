@@ -67,7 +67,7 @@ public:
 
 	void updateFaceSize(S32 idx) { }
 	/*virtual*/ void updateTextures();											
-	/*virtual*/ BOOL updateLOD();
+	/*virtual*/ bool updateLOD();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
 	void plantBlades();

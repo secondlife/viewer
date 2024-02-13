@@ -71,9 +71,9 @@ public:
 	static void			cleanupClass();	// Cleanup data that's only init'd once per class.
 	virtual void 		initInstance(); // Called after construction to initialize the instance.
     S32					mInitFlags;
-	virtual BOOL		loadSkeletonNode();
-	BOOL				loadMeshNodes();
-	BOOL				loadLayersets();
+	virtual bool		loadSkeletonNode();
+	bool				loadMeshNodes();
+	bool				loadLayersets();
 
 
 /**                    Initialization
@@ -108,9 +108,9 @@ public:
  **/
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
-	virtual BOOL	isValid() const;
-	virtual BOOL	isUsingLocalAppearance() const = 0;
-	virtual BOOL	isEditingAppearance() const = 0;
+	virtual bool	isValid() const;
+	virtual bool	isUsingLocalAppearance() const = 0;
+	virtual bool	isEditingAppearance() const = 0;
 
 	bool isBuilt() const { return mIsBuilt; }
 
@@ -156,16 +156,16 @@ public:
 
 
 protected:
-	static BOOL			parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree);
+	static bool			parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree);
 	virtual void		buildCharacter();
-	virtual BOOL		loadAvatar();
+	virtual bool		loadAvatar();
 
-	BOOL				setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
-	BOOL				allocateCharacterJoints(U32 num);
-	BOOL				buildSkeleton(const LLAvatarSkeletonInfo *info);
+	bool				setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
+	bool				allocateCharacterJoints(U32 num);
+	bool				buildSkeleton(const LLAvatarSkeletonInfo *info);
 
 	void				clearSkeleton();
-	BOOL				mIsBuilt; // state of deferred character building
+	bool				mIsBuilt; // state of deferred character building
 	avatar_joint_list_t	mSkeleton;
 	LLVector3OverrideMap	mPelvisFixups;
     joint_alias_map_t   mJointAliasMap;
@@ -225,14 +225,14 @@ protected:
  **                    RENDERING
  **/
 public:
-	BOOL		mIsDummy; // for special views and animated object controllers; local to viewer
+	bool		mIsDummy; // for special views and animated object controllers; local to viewer
 
 	//--------------------------------------------------------------------
 	// Morph masks
 	//--------------------------------------------------------------------
 public:
-	void 	addMaskedMorph(LLAvatarAppearanceDefines::EBakedTextureIndex index, LLVisualParam* morph_target, BOOL invert, std::string layer);
-	virtual void	applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES) = 0;
+	void 	addMaskedMorph(LLAvatarAppearanceDefines::EBakedTextureIndex index, LLVisualParam* morph_target, bool invert, std::string layer);
+	virtual void	applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES) = 0;
 
 /**                    Rendering
  **                                                                            **
@@ -279,7 +279,7 @@ protected:
 public:
 	void			setClothesColor(LLAvatarAppearanceDefines::ETextureIndex te, const LLColor4& new_color);
 	LLColor4		getClothesColor(LLAvatarAppearanceDefines::ETextureIndex te);
-	static BOOL		teToColorParams(LLAvatarAppearanceDefines::ETextureIndex te, U32 *param_name);
+	static bool		teToColorParams(LLAvatarAppearanceDefines::ETextureIndex te, U32 *param_name);
 
 	//--------------------------------------------------------------------
 	// Global colors
@@ -309,8 +309,8 @@ public:
 public:
 	LLWearableData*			getWearableData() { return mWearableData; }
 	const LLWearableData*	getWearableData() const { return mWearableData; }
-	virtual BOOL isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index = 0 ) const = 0;
-	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const;
+	virtual bool isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index = 0 ) const = 0;
+	virtual bool			isWearingWearableType(LLWearableType::EType type ) const;
 
 private:
 	LLWearableData* mWearableData;
@@ -356,7 +356,7 @@ public:
   	S32			mNumCollisionVolumes;
 	LLAvatarJointCollisionVolume* mCollisionVolumes;
 protected:
-	BOOL		allocateCollisionVolumes(U32 num);
+	bool		allocateCollisionVolumes(U32 num);
 
 /**                    Physics
  **                                                                            **
@@ -372,12 +372,12 @@ protected:
 		LLAvatarXmlInfo();
 		~LLAvatarXmlInfo();
 
-		BOOL 	parseXmlSkeletonNode(LLXmlTreeNode* root);
-		BOOL 	parseXmlMeshNodes(LLXmlTreeNode* root);
-		BOOL 	parseXmlColorNodes(LLXmlTreeNode* root);
-		BOOL 	parseXmlLayerNodes(LLXmlTreeNode* root);
-		BOOL 	parseXmlDriverNodes(LLXmlTreeNode* root);
-		BOOL	parseXmlMorphNodes(LLXmlTreeNode* root);
+		bool 	parseXmlSkeletonNode(LLXmlTreeNode* root);
+		bool 	parseXmlMeshNodes(LLXmlTreeNode* root);
+		bool 	parseXmlColorNodes(LLXmlTreeNode* root);
+		bool 	parseXmlLayerNodes(LLXmlTreeNode* root);
+		bool 	parseXmlDriverNodes(LLXmlTreeNode* root);
+		bool	parseXmlMorphNodes(LLXmlTreeNode* root);
 
 		struct LLAvatarMeshInfo
 		{
@@ -421,8 +421,8 @@ protected:
 			S32 mPieMenuSlice;
 			BOOL mVisibleFirstPerson;
 			BOOL mIsHUDAttachment;
-			BOOL mHasPosition;
-			BOOL mHasRotation;
+			bool mHasPosition;
+			bool mHasRotation;
 		};
 		typedef std::vector<LLAvatarAttachmentInfo*> attachment_info_list_t;
 		attachment_info_list_t mAttachmentInfoList;
@@ -458,7 +458,7 @@ protected:
 		LLMaskedMorph(LLVisualParam *morph_target, BOOL invert, std::string layer);
 
 		LLVisualParam	*mMorphTarget;
-		BOOL				mInvert;
+		bool				mInvert;
 		std::string			mLayer;
 	};
 /**                    Support Classes

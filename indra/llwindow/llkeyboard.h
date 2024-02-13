@@ -77,7 +77,7 @@ public:
 	virtual BOOL	handleKeyDown(const U16 key, MASK mask) = 0;
 	
 #ifdef LL_DARWIN
-	// We only actually use this for OS X.
+	// We only actually use this for macOS.
 	virtual void	handleModifier(MASK mask) = 0;
 #endif // LL_DARWIN
 

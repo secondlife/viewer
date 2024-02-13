@@ -57,12 +57,12 @@ LLViewerVisualParamInfo::~LLViewerVisualParamInfo()
 //-----------------------------------------------------------------------------
 // parseXml()
 //-----------------------------------------------------------------------------
-BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
+bool LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 {
 	llassert( node->hasName( "param" ) );
 
 	if (!LLVisualParamInfo::parseXml(node))
-		return FALSE;
+		return false;
 	
 	// VIEWER SPECIFIC PARAMS
 	
@@ -107,7 +107,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 
 	params_loaded++;
 	
-	return TRUE;
+	return true;
 }
 
 /*virtual*/ void LLViewerVisualParamInfo::toStream(std::ostream &out)
@@ -150,11 +150,11 @@ BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
-		return FALSE;
+		return false;
 	mInfo = info;
 	mID = info->mID;
 	setWeight(getDefaultWeight());
-	return TRUE;
+	return true;
 }
 
 /*
@@ -166,14 +166,14 @@ BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 //-----------------------------------------------------------------------------
 // parseData()
 //-----------------------------------------------------------------------------
-BOOL LLViewerVisualParam::parseData(LLXmlTreeNode *node)
+bool LLViewerVisualParam::parseData(LLXmlTreeNode *node)
 {
 	LLViewerVisualParamInfo* info = new LLViewerVisualParamInfo;
 
 	info->parseXml(node);
 	if (!setInfo(info))
-		return FALSE;
+		return false;
 	
-	return TRUE;
+	return true;
 }
 */

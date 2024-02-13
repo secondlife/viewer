@@ -221,7 +221,7 @@ public:
 	virtual BOOL		updateGeometry(LLDrawable *drawable);
 	virtual void		updateGL();
 	virtual void		updateFaceSize(S32 idx);
-	virtual BOOL		updateLOD();
+	virtual bool		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
 	F32					getRotTime() { return mRotTime; }
 private:
@@ -778,8 +778,6 @@ protected:
 	void doUpdateInventory(LLPointer<LLViewerInventoryItem>& item, U8 key, bool is_new);
 
 	static LLViewerObject *createObject(const LLUUID &id, LLPCode pcode, LLViewerRegion *regionp, S32 flags = 0);
-
-	BOOL setData(const U8 *datap, const U32 data_size);
 
 	// Hide or show HUD, icon and particles
 	void	hideExtraDisplayItems( BOOL hidden );

@@ -60,7 +60,7 @@ void LLViewerParcelMediaAutoPlay::playStarted()
     LLSingleton<LLViewerParcelMediaAutoPlay>::getInstance()->mPlayed = TRUE;
 }
 
-BOOL LLViewerParcelMediaAutoPlay::tick()
+bool LLViewerParcelMediaAutoPlay::tick()
 {
 	LLParcel *this_parcel = NULL;
 	LLViewerRegion *this_region = NULL;
@@ -94,7 +94,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	    this_region_id != mLastRegionID)
 	{
 		// we've entered a new parcel
-		mPlayed    = FALSE;                   // we haven't autoplayed yet
+		mPlayed    = false;                   // we haven't autoplayed yet
 		mTimeInParcel = 0;                    // reset our timer
 		mLastParcelID = this_parcel_id;
 		mLastRegionID = this_region_id;
@@ -156,7 +156,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	}
 
 
-	return FALSE; // continue ticking forever please.
+	return false; // continue ticking forever please.
 }
 
 //static

@@ -169,9 +169,9 @@ void LLMotion::deactivate()
 	onDeactivate();
 }
 
-BOOL LLMotion::canDeprecate()
+bool LLMotion::canDeprecate()
 {
-	return TRUE;
+	return true;
 }
 
 // End

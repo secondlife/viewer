@@ -238,7 +238,7 @@ public:
 				void	updateRelativeXform(bool force_identity = false);
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable) override;
 	/*virtual*/ void	updateFaceSize(S32 idx) override;
-	/*virtual*/ BOOL	updateLOD() override;
+	/*virtual*/ bool	updateLOD() override;
 				void	updateRadius() override;
 	/*virtual*/ void	updateTextures() override;
 				void	updateTextureVirtualSize(bool forced = false);

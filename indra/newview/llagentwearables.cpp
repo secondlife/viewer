@@ -76,7 +76,7 @@ void set_default_permissions(LLViewerInventoryItem* item)
 
 		item->setPermissions(perm);
 
-		item->updateServer(FALSE);
+		item->updateServer(false);
 	}
 }
 
@@ -304,7 +304,7 @@ void LLAgentWearables::addWearabletoAgentInventoryDone(const LLWearableType::ETy
 		item->setAssetUUID(wearable->getAssetID());
 		item->setTransactionID(wearable->getTransactionID());
 		gInventory.addChangedMask(LLInventoryObserver::INTERNAL, item_id);
-		item->updateServer(FALSE);
+		item->updateServer(false);
 	}
 	gInventory.notifyObservers();
 }

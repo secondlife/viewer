@@ -62,7 +62,7 @@ public:
 	virtual BOOL isTransparent() { return mIsTransparent; }
 
 	// Returns true if this object should inherit scale modifiers from its immediate parent
-	virtual BOOL inheritScale() { return FALSE; }
+	virtual bool inheritScale() { return false; }
 
 	enum Components
 	{
@@ -99,7 +99,7 @@ public:
 	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE ) = 0;
 	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
 	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
-	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
+	virtual bool updateLOD(F32 pixel_area, bool activate);
 	virtual void updateJointGeometry();
 	virtual void dump();
 	
@@ -127,7 +127,7 @@ public:
 	LLAvatarJointCollisionVolume();
 	virtual ~LLAvatarJointCollisionVolume() {};
 
-	/*virtual*/ BOOL inheritScale() { return TRUE; }
+	/*virtual*/ bool inheritScale() { return true; }
 	/*virtual*/ U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
 
 	void renderCollision();

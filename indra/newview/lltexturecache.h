@@ -125,7 +125,7 @@ public:
 	handle_t readFromCache(const LLUUID& id, S32 offset, S32 size,
 						   ReadResponder* responder);
 	bool readComplete(handle_t handle, bool abort);
-	handle_t writeToCache(const LLUUID& id, U8* data, S32 datasize, S32 imagesize, LLPointer<LLImageRaw> rawimage, S32 discardlevel,
+	handle_t writeToCache(const LLUUID& id, const U8* data, S32 datasize, S32 imagesize, LLPointer<LLImageRaw> rawimage, S32 discardlevel,
 						  WriteResponder* responder);
 	LLPointer<LLImageRaw> readFromFastCache(const LLUUID& id, S32& discardlevel);
 	bool writeComplete(handle_t handle, bool abort = false);

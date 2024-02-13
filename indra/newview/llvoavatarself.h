@@ -59,7 +59,7 @@ public:
 	virtual void 			initInstance(); // Called after construction to initialize the class.
 	void					cleanup();
 protected:
-	/*virtual*/ BOOL		loadAvatar();
+	/*virtual*/ bool		loadAvatar();
 	BOOL					loadAvatarSelf();
 	BOOL					buildSkeletonSelf(const LLAvatarSkeletonInfo *info);
 	BOOL					buildMenus();
@@ -110,7 +110,7 @@ private:
 
 public:
 	/*virtual*/ bool 	isSelf() const { return true; }
-	/*virtual*/ BOOL	isValid() const;
+	/*virtual*/ bool	isValid() const;
 
 	//--------------------------------------------------------------------
 	// Updates
@@ -180,7 +180,7 @@ public:
 	BOOL				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
 	BOOL				isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
-	/*virtual*/ BOOL    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
+	/*virtual*/ bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
 	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 

@@ -291,8 +291,8 @@ protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
 	static LLScalarCond<EAppStatus> sStatus; // Reflects current application status
-	static BOOL sErrorThreadRunning; // Set while the error thread is running
-	static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
+	static bool sErrorThreadRunning; // Set while the error thread is running
+	static bool sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
     std::string mDumpPath;  //output path for google breakpad.  Dependency workaround.
@@ -337,7 +337,7 @@ private:
 #endif
 
 public:
-	static BOOL sLogInSignal;
+	static bool sLogInSignal;
 };
 
 #endif // LL_LLAPP_H
