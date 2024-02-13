@@ -131,11 +131,13 @@ public:
 
     static lua_CFunction get(const std::string& key);
 
+protected:
     using Registry = std::map<std::string, std::pair<lua_CFunction, std::string>>;
-    static const Registry& getRegistered() { return getRegistry(); }
+    using Lookup = std::map<lua_CFunction, std::string>;
+    static std::pair<const Registry&, const Lookup&> getRState() { return getState(); }
 
 private:
-    static Registry& getRegistry();
+    static std::pair<Registry&, Lookup&> getState();
 };
 
 /**

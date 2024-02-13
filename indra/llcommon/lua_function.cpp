@@ -525,12 +525,15 @@ LuaPopper::~LuaPopper()
 LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
                          const std::string_view& helptext)
 {
-    getRegistry().emplace(name, Registry::mapped_type{ function, helptext });
+    const auto& [registry, lookup] = getState();
+    registry.emplace(name, Registry::mapped_type{ function, helptext });
+    lookup.emplace(function, name);
 }
 
 void LuaFunction::init(lua_State* L)
 {
-    for (const auto& [name, pair]: getRegistry())
+    const auto& [registry, lookup] = getRState();
+    for (const auto& [name, pair]: registry)
     {
         const auto& [funcptr, helptext] = pair;
         lua_register(L, name.c_str(), funcptr);
@@ -541,16 +544,75 @@ lua_CFunction LuaFunction::get(const std::string& key)
 {
     // use find() instead of subscripting to avoid creating an entry for
     // unknown key
-    const auto& registry{ getRegistry() };
+    const auto& [registry, lookup] = getState();
     auto found{ registry.find(key) };
     return (found == registry.end())? nullptr : found->second.first;
 }
 
-LuaFunction::Registry& LuaFunction::getRegistry()
+std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 {
-    // use a function-local static to ensure it's initialized
+    // use function-local statics to ensure they're initialized
     static Registry registry;
-    return registry;
+    static Lookup lookup;
+    return { registry, lookup };
+}
+
+/*****************************************************************************
+*   help()
+*****************************************************************************/
+lua_function(help,
+             "help(): list viewer's Lua functions\n"
+             "help(function): show help string for specific function")
+{
+    auto& luapump{ LLEventPumps::instance().obtain("lua output") };
+    const auto& [registry, lookup]{ LuaFunction::getRState() };
+    if (! lua_gettop(L))
+    {
+        // no arguments passed: list all lua_functions
+        for (const auto& [name, pair] : registry)
+        {
+            const auto& [fptr, helptext] = pair;
+            luapump.post(helptext);
+        }
+    }
+    else
+    {
+        // arguments passed: list each of the specified lua_functions
+        for (int idx = 1, top = lua_gettop(L); idx <= top; ++idx)
+        {
+            std::string arg{ stringize("<unknown ", lua_typename(L, lua_type(L, idx)), ">") };
+            if (lua_type(L, idx) == LUA_TSTRING)
+            {
+                arg = lua_tostdstring(L, idx);
+            }
+            else if (lua_type(L, idx) == LUA_TFUNCTION)
+            {
+                // Caller passed the actual function instead of its string
+                // name. A Lua function is an anonymous callable object; it
+                // has a name only by assigment. You can't ask Lua for a
+                // function's name, which is why our constructor maintains a
+                // reverse Lookup map.
+                auto function{ lua_tocfunction(L, idx) };
+                if (auto found = lookup.find(function); found != lookup.end())
+                {
+                    // okay, pass found name to lookup below
+                    arg = found->second;
+                }
+            }
+
+            if (auto found = registry.find(arg); found != registry.end())
+            {
+                luapump.post(found->second.second);
+            }
+            else
+            {
+                luapump.post(arg + ": NOT FOUND");
+            }
+        }
+        // pop all arguments
+        lua_settop(L, 0);
+    }
+    return 0;                       // void return
 }
 
 /*****************************************************************************
@@ -632,43 +694,4 @@ std::ostream& operator<<(std::ostream& out, const lua_stack& self)
 DebugExit::~DebugExit()
 {
     LL_DEBUGS("Lua") << "exit " << mName << LL_ENDL;
-}
-
-/*****************************************************************************
-*   help()
-*****************************************************************************/
-lua_function(help,
-             "help(): list viewer's Lua functions\n"
-             "help(function): show help string for specific function")
-{
-    auto& luapump{ LLEventPumps::instance().obtain("lua output") };
-    const auto& registered{ LuaFunction::getRegistered() };
-    if (! lua_gettop(L))
-    {
-        // no arguments passed: list all lua_functions
-        for (const auto& [name, pair] : registered)
-        {
-            const auto& [fptr, helptext] = pair;
-            luapump.post(helptext);
-        }
-    }
-    else
-    {
-        // arguments passed: list each of the specified lua_functions
-        for (int idx = 1, top = lua_gettop(L); idx <= top; ++idx)
-        {
-            auto arg{ lua_tostdstring(L, idx) };
-            if (auto found = registered.find(arg); found != registered.end())
-            {
-                luapump.post(found->second.second);
-            }
-            else
-            {
-                luapump.post(arg + ": NOT FOUND");
-            }
-        }
-        // pop all arguments
-        lua_settop(L, 0);
-    }
-    return 0;                       // void return
 }

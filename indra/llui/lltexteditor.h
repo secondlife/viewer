@@ -34,6 +34,7 @@
 #include "llstyle.h"
 #include "lleditmenuhandler.h"
 #include "llviewborder.h" // for params
+#include "llstring.h"
 #include "lltextbase.h"
 #include "lltextvalidate.h"
 
@@ -289,16 +290,24 @@ protected:
 	void				updateLinkSegments();
 	void				keepSelectionOnReturn(bool keep) { mKeepSelectionOnReturn = keep; }
 	class LLViewBorder*	mBorder;
-	void			pasteTextWithLinebreaks(const LLWString & clean_string);
-//	void			pasteTextWithLinebreaks(const std::string & clean_string);
 
 private:
 	//
 	// Methods
 	//
-	void	        pasteHelper(bool is_primary);
+	void			pasteHelper(bool is_primary);
 	void			cleanStringForPaste(LLWString & clean_string);
 
+public:
+	template <typename STRINGTYPE>
+	void			pasteTextWithLinebreaks(const STRINGTYPE& clean_string)
+	{
+		pasteTextWithLinebreaks<LLWString>(ll_convert(clean_string));
+	}
+	template <>
+	void			pasteTextWithLinebreaks<LLWString>(const LLWString & clean_string);
+
+private:
 	void			onKeyStroke();
 
 	// Concrete TextCmd sub-classes used by the LLTextEditor base class
