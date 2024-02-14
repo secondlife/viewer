@@ -61,7 +61,7 @@ LLStateDiagram::~LLStateDiagram()
 BOOL LLStateDiagram::addState(LLFSMState *state)
 {
 	mStates[state] = Transitions();
-	return TRUE;
+	return true;
 }
 
 // add a directed transition between 2 states
@@ -89,11 +89,11 @@ BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
 	if (transition_it != state_transitions->end())
 	{
 		LL_ERRS() << "LLStateTable::addDirectedTransition() : transition already exists" << LL_ENDL;
-		return FALSE; // transition already exists
+		return false; // transition already exists
 	}
 
 	(*state_transitions)[&transition] = &end_state;
-	return TRUE;
+	return true;
 }
 
 // add an undirected transition between 2 states
@@ -183,9 +183,9 @@ BOOL LLStateDiagram::stateIsValid(LLFSMState& state)
 {
 	if (mStates.find(&state) != mStates.end())
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 LLFSMState* LLStateDiagram::getState(U32 state_id)
@@ -209,7 +209,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 	if (!dot_file)
 	{
 		LL_WARNS() << "LLStateDiagram::saveDotFile() : Couldn't open " << filename << " to save state diagram." << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 	apr_file_printf(dot_file, "digraph StateMachine {\n\tsize=\"100,100\";\n\tfontsize=40;\n\tlabel=\"Finite State Machine\";\n\torientation=landscape\n\tratio=.77\n");
 	
@@ -248,7 +248,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 
 	apr_file_printf(dot_file, "}\n");
 
-	return TRUE;
+	return true;
 }
 
 std::ostream& operator<<(std::ostream &s, LLStateDiagram &FSM)
@@ -319,10 +319,10 @@ BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data,
 		{
 			initial_state->onEntry(user_data);
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_entry)
@@ -338,10 +338,10 @@ BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_en
 		{
 			state->onEntry(user_data);
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_data)

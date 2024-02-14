@@ -112,7 +112,7 @@ BOOL LLHandMotion::onActivate()
 		mCharacter->setVisualParamWeight(gHandPoseNames[mCurrentPose], 1.f);
 		mCharacter->updateVisualParams();
 	}
-	return TRUE;
+	return true;
 }
 
 
@@ -233,7 +233,7 @@ BOOL LLHandMotion::onUpdate(F32 time, U8* joint_mask)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 

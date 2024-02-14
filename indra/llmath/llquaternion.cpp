@@ -963,7 +963,7 @@ BOOL LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
 {
 	if( buf.empty() || value == NULL)
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLQuaternion quat;
@@ -971,10 +971,10 @@ BOOL LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
 	if( 4 == count )
 	{
 		value->set( quat );
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 

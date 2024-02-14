@@ -155,7 +155,7 @@ BOOL LLEditingMotion::onActivate()
 	mShoulderJoint.setRotation(	mShoulderState->getJoint()->getRotation() );
 	mElbowJoint.setRotation(	mElbowState->getJoint()->getRotation() );
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -168,12 +168,12 @@ BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 	LLVector3* pointAtPt = (LLVector3*)mCharacter->getAnimationData("PointAtPoint");
 
 
-	BOOL result = TRUE;
+	BOOL result = true;
 
 	if (!pointAtPt)
 	{
 		focus_pt = mLastSelectPt;
-		result = FALSE;
+		result = false;
 	}
 	else
 	{

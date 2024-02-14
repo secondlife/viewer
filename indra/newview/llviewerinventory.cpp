@@ -406,7 +406,7 @@ void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& ne
 	}
 }
 
-void LLViewerInventoryItem::updateServer(BOOL is_new) const
+void LLViewerInventoryItem::updateServer(bool is_new) const
 {
 	if(!mIsComplete)
 	{
@@ -494,24 +494,24 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(const LLSD& item)
+bool LLViewerInventoryItem::unpackMessage(const LLSD& item)
 {
 	BOOL rv = LLInventoryItem::fromLLSD(item);
 
 	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
-	mIsComplete = TRUE;
+	mIsComplete = true;
 	return rv;
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
+bool LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 
 	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
-	mIsComplete = TRUE;
+	mIsComplete = true;
 	return rv;
 }
 
@@ -540,14 +540,14 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
+bool LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
 {
-	BOOL rv = LLInventoryItem::importLegacyStream(input_stream);
-	mIsComplete = TRUE;
+	bool rv = LLInventoryItem::importLegacyStream(input_stream);
+	mIsComplete = true;
 	return rv;
 }
 
-void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
+void LLViewerInventoryItem::updateParentOnServer(bool restamp) const
 {
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoveInventoryItem);
@@ -628,7 +628,7 @@ void LLViewerInventoryCategory::packMessage(LLMessageSystem* msg) const
 	msg->addStringFast(_PREHASH_Name, mName);
 }
 
-void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
+void LLViewerInventoryCategory::updateParentOnServer(bool restamp) const
 {
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoveInventoryFolder);
@@ -643,7 +643,7 @@ void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
 	gAgent.sendReliableMessage();
 }
 
-void LLViewerInventoryCategory::updateServer(BOOL is_new) const
+void LLViewerInventoryCategory::updateServer(bool is_new) const
 {
 	// communicate that change with the server.
 
@@ -877,9 +877,9 @@ void LLViewerInventoryCategory::localizeName()
 }
 
 // virtual
-BOOL LLViewerInventoryCategory::unpackMessage(const LLSD& category)
+bool LLViewerInventoryCategory::unpackMessage(const LLSD& category)
 {
-	BOOL rv = LLInventoryCategory::fromLLSD(category);
+	bool rv = LLInventoryCategory::fromLLSD(category);
 	localizeName();
 	return rv;
 }
@@ -998,7 +998,7 @@ void set_default_permissions(LLViewerInventoryItem* item, std::string perm_type)
 
 		item->setPermissions(perm);
 
-		item->updateServer(FALSE);
+		item->updateServer(false);
 	}
 }
 
@@ -2141,7 +2141,7 @@ U32 LLViewerInventoryItem::getCRC32() const
 
 // *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985
 static char getSeparator() { return '@'; }
-BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
+bool LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
 {
 	using std::string;
 	using std::stringstream;
@@ -2149,7 +2149,7 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
 	const char separator = getSeparator();
 	const string::size_type separatorPos = name.find(separator, 0);
 
-	BOOL result = FALSE;
+	BOOL result = false;
 
 	if (separatorPos < string::npos)
 	{
@@ -2170,7 +2170,7 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
 			*displayName = name.substr(separatorPos + 1, string::npos);
 		}
 
-		result = TRUE;
+		result = true;
 	}
 
 	return result;
@@ -2319,9 +2319,9 @@ BOOL LLViewerInventoryItem::regenerateLink()
 	{
 	    LLViewerInventoryItem *item = (*item_iter);
 		item->setAssetUUID(target_item_id);
-		item->updateServer(FALSE);
+		item->updateServer(false);
 		gInventory.addChangedMask(LLInventoryObserver::REBUILD, item->getUUID());
 	}
 	gInventory.notifyObservers();
-	return TRUE;
+	return true;
 }

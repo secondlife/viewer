@@ -44,13 +44,13 @@ LLToastLifeTimer::LLToastLifeTimer(LLToast* toast, F32 period)
 }
 
 /*virtual*/
-BOOL LLToastLifeTimer::tick()
+bool LLToastLifeTimer::tick()
 {
 	if (mEventTimer.hasExpired())
 	{
 		mToast->expire();
 	}
-	return FALSE;
+	return false;
 }
 
 void LLToastLifeTimer::stop()

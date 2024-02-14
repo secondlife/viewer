@@ -7099,17 +7099,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>UseMediaPluginsForStreamingAudio</key>
-    <map>
-      <key>Comment</key>
-      <string>Use media plugins (VLC) for streaming audio.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>NoHardwareProbe</key>
     <map>
       <key>Comment</key>
@@ -9022,7 +9011,7 @@
    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
-    <string>Enable support for HiDPI displays, like Retina (MacOS X ONLY, requires restart)</string>
+    <string>Enable support for HiDPI displays, like Retina (macOS ONLY, requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

@@ -57,7 +57,7 @@ public:
 	// Called by render().
 	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy );
 	
-	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
+	/*virtual*/ bool updateLOD(F32 pixel_area, bool activate);
 
 	//
 	// accessors

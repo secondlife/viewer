@@ -4789,10 +4789,10 @@ LLVolumeFace::LLVolumeFace() :
     mJustWeights(NULL),
     mJointIndices(NULL),
 #endif
-    mWeightsScrubbed(FALSE),
+    mWeightsScrubbed(false),
 	mOctree(NULL),
     mOctreeTriangles(NULL),
-	mOptimized(FALSE)
+	mOptimized(false)
 {
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
 	mExtents[0].splat(-0.5f);

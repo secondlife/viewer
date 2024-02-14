@@ -165,7 +165,7 @@ public:
     virtual BOOL isItemWearable() const { return FALSE; }
 
 	virtual BOOL isItemRenameable() const = 0;
-	virtual BOOL renameItem(const std::string& new_name) = 0;
+	virtual bool renameItem(const std::string& new_name) = 0;
 
 	virtual BOOL isItemMovable( void ) const = 0;		// Can be moved to another folder
 	virtual void move( LLFolderViewModelItem* parent_listener ) = 0;

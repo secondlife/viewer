@@ -307,12 +307,15 @@ void LLMessageSystem::loadTemplateFile(const std::string& filename, bool failure
 	LLTemplateTokenizer tokens(template_body);
 	LLTemplateParser parsed(tokens);
 	mMessageFileVersionNumber = parsed.getVersion();
+    S32 count                 = 0;
 	for(LLTemplateParser::message_iterator iter = parsed.getMessagesBegin();
 		iter != parsed.getMessagesEnd();
 		iter++)
 	{
 		addTemplate(*iter);
+        count++;
 	}
+    LL_INFOS("Messaging") << "Read " << count << " messages from " << filename << LL_ENDL;
 }
 
 

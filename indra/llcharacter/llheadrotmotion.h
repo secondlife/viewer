@@ -64,7 +64,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { return TRUE; }
+	virtual bool getLoop() { return true; }
 
 	// motions must report their total duration
 	virtual F32 getDuration() { return 0.0; }
@@ -147,7 +147,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { return TRUE; }
+	virtual bool getLoop() { return true; }
 
 	// motions must report their total duration
 	virtual F32 getDuration() { return 0.0; }

@@ -95,7 +95,7 @@ LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *charac
 //-----------------------------------------------------------------------------
 BOOL LLTargetingMotion::onActivate()
 {
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ BOOL LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 
 	if (!lookAtPoint)
 	{
-		return TRUE;
+		return true;
 	}
 	else
 	{

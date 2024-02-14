@@ -620,7 +620,7 @@ void LLFloaterPreference::apply()
 	saveAvatarProperties();
 }
 
-void LLFloaterPreference::cancel()
+void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip)
 {
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	// Call cancel() on all panels that derive from LLPanelPreference
@@ -630,7 +630,7 @@ void LLFloaterPreference::cancel()
 		LLView* view = *iter;
 		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
 		if (panel)
-			panel->cancel();
+            panel->cancel(settings_to_skip);
 	}
 	// hide joystick pref floater
 	LLFloaterReg::hideInstance("pref_joystick");
@@ -1011,15 +1011,16 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 		}
 		refresh();
 	}
-	cancel();
-
+	
 	if (userdata.asString() == "closeadvanced")
 	{
+        cancel({"RenderQualityPerformance"});
 		LLFloaterReg::hideInstance("prefs_graphics_advanced");
 		updateMaxComplexity();
 	}
 	else
 	{
+        cancel();
 		closeFloater();
 	}
 }
@@ -1979,12 +1980,12 @@ public:
 
 protected:
 
-	BOOL tick()
+	bool tick()
 	{
 		mCallback(mNewValue);
 		mEventTimer.stop();
 
-		return FALSE;
+		return false;
 	}
 
 private:
@@ -2206,7 +2207,7 @@ void LLPanelPreference::toggleMuteWhenMinimized()
 	}
 }
 
-void LLPanelPreference::cancel()
+void LLPanelPreference::cancel(const std::vector<std::string> settings_to_skip)
 {
 	for (control_values_map_t::iterator iter =  mSavedValues.begin();
 		 iter !=  mSavedValues.end(); ++iter)
@@ -2218,6 +2219,12 @@ void LLPanelPreference::cancel()
 		{
 			continue;
 		}
+
+        auto found = std::find(settings_to_skip.begin(), settings_to_skip.end(), control->getName());
+        if (found != settings_to_skip.end())
+        {
+            continue;
+        }
 
 		control->set(ctrl_value);
 	}
@@ -2461,9 +2468,9 @@ void LLPanelPreferenceGraphics::resetDirtyChilds()
 	}	
 }
 
-void LLPanelPreferenceGraphics::cancel()
+void LLPanelPreferenceGraphics::cancel(const std::vector<std::string> settings_to_skip)
 {
-	LLPanelPreference::cancel();
+	LLPanelPreference::cancel(settings_to_skip);
 }
 void LLPanelPreferenceGraphics::saveSettings()
 {
@@ -2751,7 +2758,7 @@ void LLPanelPreferenceControls::apply()
     }
 }
 
-void LLPanelPreferenceControls::cancel()
+void LLPanelPreferenceControls::cancel(const std::vector<std::string> settings_to_skip)
 {
     for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {

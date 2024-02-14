@@ -119,17 +119,17 @@ private:
 	void setRotation( const LLQuaternion &rot ) { mRotation = rot; }
 	void setScale( const LLVector3 &scale ) { mScale = scale; }
 
-	BOOL allocateVertexData( U32 numVertices );
+	bool allocateVertexData( U32 numVertices );
 
-	BOOL allocateFaceData( U32 numFaces );
+	bool allocateFaceData( U32 numFaces );
 
-	BOOL allocateJointNames( U32 numJointNames );
+	bool allocateJointNames( U32 numJointNames );
 
 	// Retrieve the number of KB of memory used by this instance
 	U32 getNumKB();
 
 	// Load mesh data from file
-	BOOL loadMesh( const std::string& fileName );
+	bool loadMesh( const std::string& fileName );
 
 public:
 	void genIndices(S32 offset);

@@ -40,10 +40,6 @@
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
 
-#ifdef LL_FMODSTUDIO
-# include "llaudioengine_fmodstudio.h"
-#endif
-
 #ifdef LL_OPENAL
 #include "llaudioengine_openal.h"
 #endif
@@ -649,15 +645,6 @@ bool idle_startup()
 			delete gAudiop;
 			gAudiop = NULL;
 
-#ifdef LL_FMODSTUDIO
-#if !LL_WINDOWS
-            if (NULL == getenv("LL_BAD_FMODSTUDIO_DRIVER"))
-#endif // !LL_WINDOWS
-            {
-                gAudiop = (LLAudioEngine *) new LLAudioEngine_FMODSTUDIO(gSavedSettings.getBOOL("FMODExProfilerEnable"));
-            }
-#endif
-
 #ifdef LL_OPENAL
 #if !LL_WINDOWS
 			if (NULL == getenv("LL_BAD_OPENAL_DRIVER"))
@@ -678,19 +665,8 @@ bool idle_startup()
 #endif
 				if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
 				{
-					if (FALSE == gSavedSettings.getBOOL("UseMediaPluginsForStreamingAudio"))
-					{
-						LL_INFOS("AppInit") << "Using default impl to render streaming audio" << LL_ENDL;
-						gAudiop->setStreamingAudioImpl(gAudiop->createDefaultStreamingAudioImpl());
-					}
-
-					// if the audio engine hasn't set up its own preferred handler for streaming audio
-					// then set up the generic streaming audio implementation which uses media plugins
-					if (NULL == gAudiop->getStreamingAudioImpl())
-					{
-						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
-						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
-					}
+					LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
+					gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
 
 					gAudiop->setMuted(TRUE);
 				}
@@ -3015,6 +2991,11 @@ void reset_login()
 
 	// Hide any other stuff
 	LLFloaterReg::hideVisibleInstances();
+
+    if (LLStartUp::getStartupState() > STATE_WORLD_INIT)
+    {
+        gViewerWindow->resetStatusBarContainer();
+    }
     LLStartUp::setStartupState( STATE_BROWSER_INIT );
 
     if (LLVoiceClient::instanceExists())

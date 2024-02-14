@@ -5314,7 +5314,7 @@ std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid)
 	LLStringUtil::replaceChar(result, '+', '-');
 	LLStringUtil::replaceChar(result, '/', '_');
 	
-	// If you need to transform a GUID to this form on the Mac OS X command line, this will do so:
+	// If you need to transform a GUID to this form on the macOS command line, this will do so:
 	// echo -n x && (echo e669132a-6c43-4ee1-a78d-6c82fff59f32 |xxd -r -p |openssl base64|tr '/+' '_-')
 	
 	// The reverse transform can be done with:

@@ -673,7 +673,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	///////////////
 
 	const LLSaleInfo& sale_info = item->getSaleInfo();
-	BOOL is_for_sale = sale_info.isForSale();
+	bool is_for_sale = sale_info.isForSale();
 	LLComboBox* combo_sale_type = getChild<LLComboBox>("ComboBoxSaleType");
 	LLUICtrl* edit_cost = getChild<LLUICtrl>("Edit Cost");
 
@@ -1144,7 +1144,7 @@ void LLSidepanelItemInfo::onCommitChanges(LLPointer<LLViewerInventoryItem> item)
         mUpdatePendingId++;
         LLPointer<LLInventoryCallback> callback = new PropertiesChangedCallback(getHandle(), mItemID, mUpdatePendingId);
         update_inventory_item(item.get(), callback);
-        //item->updateServer(FALSE);
+        //item->updateServer(false);
         gInventory.updateItem(item);
         gInventory.notifyObservers();
     }

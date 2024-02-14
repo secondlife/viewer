@@ -115,7 +115,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() = 0;
+	virtual bool getLoop() = 0;
 
 	// motions must report their total duration
 	virtual F32 getDuration() = 0;
@@ -154,7 +154,7 @@ public:
 	// can we crossfade this motion with a new instance when restarted?
 	// should ultimately always be TRUE, but lack of emote blending, etc
 	// requires this
-	virtual BOOL canDeprecate();
+	virtual bool canDeprecate();
 
 	// optional callback routine called when animation deactivated.
 	void	setDeactivateCallback( void (*cb)(void *), void* userdata );
@@ -199,7 +199,7 @@ public:
 	LLTestMotion(const LLUUID &id) : LLMotion(id){}
 	~LLTestMotion() {}
 	static LLMotion *create(const LLUUID& id) { return new LLTestMotion(id); }
-	BOOL getLoop() { return FALSE; }
+	bool getLoop() { return false; }
 	F32 getDuration() { return 0.0f; }
 	F32 getEaseInDuration() { return 0.0f; }
 	F32 getEaseOutDuration() { return 0.0f; }
@@ -208,8 +208,8 @@ public:
 	F32 getMinPixelArea() { return 0.f; }
 	
 	LLMotionInitStatus onInitialize(LLCharacter*) { LL_INFOS() << "LLTestMotion::onInitialize()" << LL_ENDL; return STATUS_SUCCESS; }
-	BOOL onActivate() { LL_INFOS() << "LLTestMotion::onActivate()" << LL_ENDL; return TRUE; }
-	BOOL onUpdate(F32 time, U8* joint_mask) { LL_INFOS() << "LLTestMotion::onUpdate(" << time << ")" << LL_ENDL; return TRUE; }
+	BOOL onActivate() { LL_INFOS() << "LLTestMotion::onActivate()" << LL_ENDL; return true; }
+	BOOL onUpdate(F32 time, U8* joint_mask) { LL_INFOS() << "LLTestMotion::onUpdate(" << time << ")" << LL_ENDL; return true; }
 	void onDeactivate() { LL_INFOS() << "LLTestMotion::onDeactivate()" << LL_ENDL; }
 };
 
@@ -225,7 +225,7 @@ public:
 	static LLMotion *create(const LLUUID &id) { return new LLNullMotion(id); }
 
 	// motions must specify whether or not they loop
-	/*virtual*/ BOOL getLoop() { return TRUE; }
+	/*virtual*/ bool getLoop() { return true; }
 
 	// motions must report their total duration
 	/*virtual*/ F32 getDuration() { return 1.f; }
@@ -253,12 +253,12 @@ public:
 	// called when a motion is activated
 	// must return TRUE to indicate success, or else
 	// it will be deactivated
-	/*virtual*/ BOOL onActivate() { return TRUE; }
+	/*virtual*/ BOOL onActivate() { return true; }
 
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
-	/*virtual*/ BOOL onUpdate(F32 activeTime, U8* joint_mask) { return TRUE; }
+	/*virtual*/ BOOL onUpdate(F32 activeTime, U8* joint_mask) { return true; }
 
 	// called when a motion is deactivated
 	/*virtual*/ void onDeactivate() {}

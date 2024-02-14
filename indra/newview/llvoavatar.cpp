@@ -292,7 +292,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { return TRUE; }
+	virtual bool getLoop() { return true; }
 
 	// motions must report their total duration
 	virtual F32 getDuration() { return 0.0; }
@@ -400,7 +400,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { return TRUE; }
+	virtual bool getLoop() { return true; }
 
 	// motions must report their total duration
 	virtual F32 getDuration() { return 0.0; }
@@ -513,7 +513,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { return TRUE; }
+	virtual bool getLoop() { return true; }
 
 	// motions must report their total duration
 	virtual F32 getDuration() { return 0.0; }
@@ -6904,17 +6904,17 @@ void LLVOAvatar::requestStopMotion( LLMotion* motion )
 // loadSkeletonNode(): loads <skeleton> node from XML tree
 //-----------------------------------------------------------------------------
 //virtual
-BOOL LLVOAvatar::loadSkeletonNode ()
+bool LLVOAvatar::loadSkeletonNode ()
 {
 	if (!LLAvatarAppearance::loadSkeletonNode())
 	{
-		return FALSE;
+		return false;
 	}
 	
     bool ignore_hud_joints = false;
     initAttachmentPoints(ignore_hud_joints);
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -7883,9 +7883,9 @@ S32 LLVOAvatar::getAttachmentCount()
 	return count;
 }
 
-BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
+bool LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 {
-	if (mIsDummy) return TRUE;
+	if (mIsDummy) return true;
 
 	if (isSelf())
 	{
@@ -7898,7 +7898,7 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 		case LLWearableType::WT_SKIN:
 		case LLWearableType::WT_HAIR:
 		case LLWearableType::WT_EYES:
-			return TRUE;  // everyone has all bodyparts
+			return true;  // everyone has all bodyparts
 		default:
 			break; // Do nothing
 	}
@@ -7919,10 +7919,10 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 				return isTextureDefined(LLAvatarAppearance::getDictionary()->getBakedTexture(baked_index)->mTextureIndex);
 			}
-			return FALSE;
+			return false;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) const
@@ -8894,7 +8894,7 @@ void LLVOAvatar::clearChat()
 }
 
 
-void LLVOAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index)
+void LLVOAvatar::applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index)
 {
 	if (index >= BAKED_NUM_INDICES)
 	{
@@ -9269,7 +9269,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
 
-	// Parse the AppearanceData field, if any.
+	// Parse the AppearanceHover field, if any.
 	contents.mHoverOffsetWasSet = false;
 	if (mesgsys->has(_PREHASH_AppearanceHover))
 	{
@@ -9279,7 +9279,24 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		contents.mHoverOffset = hover;
 		contents.mHoverOffsetWasSet = true;
 	}
-	
+
+    // Get attachment info, if sent
+    LLUUID attachment_id;
+    U8     attach_point;
+    S32    attach_count = mesgsys->getNumberOfBlocksFast(_PREHASH_AttachmentBlock);
+    LL_DEBUGS("AVAppearanceAttachments") << "Agent " << getID() << " has "
+                                         << attach_count << " attachments" << LL_ENDL;
+
+    for (S32 attach_i = 0; attach_i < attach_count; attach_i++)
+    {
+        mesgsys->getUUIDFast(_PREHASH_AttachmentBlock, _PREHASH_ID, attachment_id, attach_i);
+        mesgsys->getU8Fast(_PREHASH_AttachmentBlock, _PREHASH_AttachmentPoint, attach_point, attach_i);
+        LL_DEBUGS("AVAppearanceAttachments") << "AV " << getID() << " has attachment " << attach_i << " "
+            << (attachment_id.isNull() ? "pending" : attachment_id.asString())
+            << " on point " << (S32)attach_point << LL_ENDL;
+        // To do - store and use this information as needed
+	}
+
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
     static LLCachedControl<bool> block_some_avatars(gSavedSettings, "BlockSomeAvatarAppearanceVisualParams");
@@ -9770,6 +9787,8 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 	{
 		if(aux_src && aux_src->getComponents() == 1)
 		{
+			LLImageDataSharedLock lock(aux_src);
+
 			if (!aux_src->getData())
 			{
 				LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
@@ -10408,7 +10427,7 @@ LLHost LLVOAvatar::getObjectHost() const
 	}
 }
 
-BOOL LLVOAvatar::updateLOD()
+bool LLVOAvatar::updateLOD()
 {
     if (mDrawable.isNull())
     {
@@ -11443,17 +11462,17 @@ F32 calc_bouncy_animation(F32 x)
 }
 
 //virtual
-BOOL LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index ) const
+bool LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U32 index ) const
 {
 	if (isIndexLocalTexture(te)) 
 	{
-		return FALSE;
+		return false;
 	}
 	
 	if( !getImage( te, index ) )
 	{
 		LL_WARNS() << "getImage( " << te << ", " << index << " ) returned 0" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 

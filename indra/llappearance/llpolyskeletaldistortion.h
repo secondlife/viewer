@@ -71,7 +71,7 @@ public:
 	LLPolySkeletalDistortionInfo();
 	/*virtual*/ ~LLPolySkeletalDistortionInfo() {};
 	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+	/*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 protected:
 	typedef std::vector<LLPolySkeletalBoneInfo> bone_info_list_t;
@@ -92,7 +92,7 @@ public:
 	// Special: These functions are overridden by child classes
 	LLPolySkeletalDistortionInfo*	getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
-	BOOL							setInfo(LLPolySkeletalDistortionInfo *info);
+	bool							setInfo(LLPolySkeletalDistortionInfo *info);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
