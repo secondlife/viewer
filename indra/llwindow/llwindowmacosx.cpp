@@ -115,8 +115,10 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 							   BOOL fullscreen, BOOL clearBg,
 							   BOOL enable_vsync, BOOL use_gl,
 							   BOOL ignore_pixel_depth,
-							   U32 fsaa_samples)
+							   U32 fsaa_samples,
+                               U32 max_vram)
 	: LLWindow(NULL, fullscreen, flags)
+    , mMaxVRAM(max_vram)
 {
 	// *HACK: During window construction we get lots of OS events for window
 	// reshape, activate, etc. that the viewer isn't ready to handle.
@@ -1260,7 +1262,12 @@ U32 LLWindowMacOSX::getAvailableVRAMMegabytes() {
     static const U32 mb = 1024*1024;
     // We're asked for total available gpu memory, but we only have allocation info on texture usage. So estimate by doubling that.
     static const U32 total_factor = 2; // estimated total/textures
-    return gGLManager.mVRAM - (LLImageGL::getTextureBytesAllocated() * total_factor/mb);
+    U32 total_vram = gGLManager.mVRAM;
+    if (mMaxVRAM)
+    {
+        total_vram = llmin(mMaxVRAM, total_vram);
+    }
+    return total_vram - (LLImageGL::getTextureBytesAllocated() * total_factor/mb);
 }
 
 //static SInt32 oldWindowLevel;

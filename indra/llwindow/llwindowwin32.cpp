@@ -4586,6 +4586,14 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
     return mWindowThread ? mWindowThread->getAvailableVRAMMegabytes() : 0;
 }
 
+void LLWindowWin32::setMaxVRAMMegabytes(U32 max_vram)
+{
+    if (mWindowThread)
+    {
+        mWindowThread->mMaxVRAM = max_vram;
+    }
+}
+
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
