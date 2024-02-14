@@ -100,6 +100,9 @@ U32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 bool LLViewerTexture::sFreezeImageUpdates = false;
 F32 LLViewerTexture::sCurrentTime = 0.0f;
 
+constexpr F32 MIN_VRAM_BUDGET = 768.f;
+F32 LLViewerTexture::sFreeVRAMMegabytes = MIN_VRAM_BUDGET;
+
 LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
 const F64 log_2 = log(2.0);
@@ -509,7 +512,10 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
     timer.reset();
 
     {
-        gpu_res = (S32Megabytes)gViewerWindow->getWindow()->getAvailableVRAMMegabytes();
+        // For purposes of texture memory need to check both, actual free
+        // memory and estimated free texture memory from bias calculations
+        U32 free_memory = llmin(gViewerWindow->getWindow()->getAvailableVRAMMegabytes(), (U32)sFreeVRAMMegabytes);
+        gpu_res = (S32Megabytes)free_memory;
         
         //check main memory, only works for windows and macos.
         LLMemory::updateMemoryInfo();
@@ -546,7 +552,8 @@ void LLViewerTexture::updateClass()
     F32 budget = max_vram_budget == 0 ? gGLManager.mVRAM : max_vram_budget;
 
     // try to leave half a GB for everyone else, but keep at least 768MB for ourselves
-    F32 target = llmax(budget - 512.f, 768.f);
+    F32 target = llmax(budget - 512.f, MIN_VRAM_BUDGET);
+    sFreeVRAMMegabytes = target - used;
 
     F32 over_pct = llmax((used-target) / target, 0.f);
     sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
