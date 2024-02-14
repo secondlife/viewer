@@ -529,11 +529,12 @@ void LLGLTexMemBar::draw()
     U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
 
-    text = llformat("GL Free: %d MB Sys Free: %d MB FBO: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
+    text = llformat("GL Free: %d MB Sys Free: %d MB FBO: %d MB Bias: %.2f(%d MB) Cache: %.1f/%.1f MB",
                     gViewerWindow->getWindow()->getAvailableVRAMMegabytes(),
                     LLMemory::getAvailableMemKB()/1024,
 					LLRenderTarget::sBytesAllocated/(1024*1024),
 					discard_bias,
+                    (S32)LLViewerTexture::sFreeVRAMMegabytes,
 					cache_usage,
 					cache_max_usage);
 	//, cache_entries, cache_max_entries
