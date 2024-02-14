@@ -102,6 +102,7 @@ public:
 
 	// query VRAM usage
     /*virtual*/ U32 getAvailableVRAMMegabytes() override;
+    virtual void setMaxVRAMMegabytes(U32 max_vram) override { mMaxVRAM = max_vram; }
 
 	void beforeDialog() override;
 	void afterDialog() override;
@@ -150,7 +151,8 @@ protected:
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth,
-		U32 fsaa_samples);
+		U32 fsaa_samples,
+        U32 max_vram);
 		~LLWindowMacOSX();
 
 	void	initCursors();
@@ -224,6 +226,7 @@ protected:
 	BOOL		mMinimized;
 	U32			mFSAASamples;
 	BOOL		mForceRebuild;
+    U32			mMaxVRAM;
 	
 	S32	mDragOverrideCursor;
 

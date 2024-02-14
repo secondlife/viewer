@@ -431,7 +431,7 @@ LLWindow* LLWindowManager::createWindow(
 #elif LL_DARWIN
 		new_window = new LLWindowMacOSX(callbacks,
 			title, name, x, y, width, height, flags, 
-			fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
+			fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples, max_vram);
 #endif
 	}
 	else
