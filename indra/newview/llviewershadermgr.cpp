@@ -33,6 +33,7 @@
 #include "llviewershadermgr.h"
 #include "llviewercontrol.h"
 #include "llversioninfo.h"
+#include "lltrans.h"
 
 #include "llrender.h"
 #include "llenvironment.h"
@@ -442,8 +443,15 @@ void LLViewerShaderMgr::setShaders()
         LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
         loadBasicShaders();
         LLError::setDefaultLevel(lvl);
-        LL_ERRS() << "Unable to load basic shader " << shader_name << ", verify graphics driver installed and current." << LL_ENDL;
-        reentrance = false; // For hygiene only, re-try probably helps nothing 
+        LL_WARNS() << "Unable to load basic shader " << shader_name << LL_ENDL;
+
+        LLStringUtil::format_map_t args;
+        args["[SHADER_NAME]"] = shader_name;
+        std::string message = LLTrans::getString("MBShaderLoadErr", args);
+        std::string caption = LLTrans::getString("MBError");
+        OSMessageBox(message, caption, OSMB_OK);
+
+        LLApp::setQuitting();
         return;
     }
 

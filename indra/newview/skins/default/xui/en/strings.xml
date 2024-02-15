@@ -3020,6 +3020,7 @@ Running in window.
 
 If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
+	<string name="MBShaderLoadErr">Unable to load basic shader [SHADER_NAME], verify graphics driver installed and current.</string>
 
 	<!-- Avatar Shape Information -->
 <string name="5 O'Clock Shadow">5 O'Clock Shadow</string>
