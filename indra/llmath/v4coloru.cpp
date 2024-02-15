@@ -88,11 +88,11 @@ std::ostream& operator<<(std::ostream& s, const LLColor4U &a)
 }
 
 // static
-BOOL LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
+bool LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
 {
-	if( buf.empty() || value == NULL)
+	if( buf.empty() || value == nullptr)
 	{
-		return FALSE;
+		return false;
 	}
 
 	U32 v[4];
@@ -104,17 +104,17 @@ BOOL LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
 	}
 	if( 4 != count )
 	{
-		return FALSE;
+		return false;
 	}
 
 	for( S32 i = 0; i < 4; i++ )
 	{
 		if( v[i] > U8_MAX )
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
 	value->set( U8(v[0]), U8(v[1]), U8(v[2]), U8(v[3]) );
-	return TRUE;
+	return true;
 }

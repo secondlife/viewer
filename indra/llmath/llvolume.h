@@ -1098,9 +1098,7 @@ private:
 	F32 sculptGetSurfaceArea();
 	void sculptGenerateEmptyPlaceholder();
 	void sculptGenerateSpherePlaceholder();
-	void sculptCalcMeshResolution(U16 width, U16 height, U8 type, S32& s, S32& t);
 
-	
 protected:
 	BOOL generate();
 	void createVolumeFaces();
@@ -1142,18 +1140,13 @@ public:
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
-BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
-BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
-BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
+bool LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
+bool LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
+bool LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
 
-//BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-//							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided);
-
-BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+bool LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
 							F32& intersection_a, F32& intersection_b, F32& intersection_t);
-BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
 							F32& intersection_a, F32& intersection_b, F32& intersection_t);
-	
-	
 
 #endif

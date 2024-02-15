@@ -1476,10 +1476,10 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		}
 	}
 
-    BOOL item_clicked = FALSE;
-    for (selected_items_t::iterator item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+	bool item_clicked{ false };
+    for (const auto item : mSelectedItems)
     {
-        item_clicked |= (*item_it)->getRect().pointInRect(x, y);
+        item_clicked |= item->getRect().pointInRect(x, y);
     }
     if(!item_clicked && mSingleFolderMode)
     {

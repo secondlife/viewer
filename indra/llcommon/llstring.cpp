@@ -308,10 +308,10 @@ S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wle
 // Given a wstring and an offset in it, returns the length as wstring (i.e.,
 // number of llwchars) of the longest substring that starts at the offset
 // and whose equivalent utf-16 string does not exceeds the given utf16_length.
-S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, BOOL *unaligned)
+S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, bool *unaligned)
 {
 	const auto end = wstr.length();
-	BOOL u = FALSE;
+	bool u = FALSE;
 	S32 n = woffset + utf16_length;
 	S32 i = woffset;
 	while (i < end)
