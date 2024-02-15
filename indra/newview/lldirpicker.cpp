@@ -41,12 +41,6 @@
 # include "llfilepicker.h"
 #endif
 
-//
-// Globals
-//
-
-LLDirPicker LLDirPicker::sInstance;
-
 #if LL_WINDOWS
 #include <shlobj.h>
 #endif
@@ -75,21 +69,24 @@ bool LLDirPicker::check_local_file_access_enabled()
 
 LLDirPicker::LLDirPicker() :
 	mFileName(NULL),
-	mLocked(false)
+	mLocked(false),
+    pDialog(NULL)
 {
-	bi.hwndOwner = NULL;
-	bi.pidlRoot = NULL;
-	bi.pszDisplayName = NULL;
-	bi.lpszTitle = NULL;
-	bi.ulFlags = BIF_USENEWUI;
-	bi.lpfn = NULL;
-	bi.lParam = NULL;
-	bi.iImage = 0;
 }
 
 LLDirPicker::~LLDirPicker()
 {
-	// nothing
+    mEventListener.disconnect();
+}
+
+void LLDirPicker::reset()
+{
+    if (pDialog)
+    {
+        IFileDialog* p_file_dialog = (IFileDialog*)pDialog;
+        p_file_dialog->Close(S_FALSE);
+        pDialog = NULL;
+    }
 }
 
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
@@ -113,26 +110,51 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 		// Modal, so pause agent
 		send_agent_pause();
 	}
-
-	bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
+    else if (!mEventListener.connected())
+    {
+        mEventListener = LLEventPumps::instance().obtain("LLApp").listen(
+            "DirPicker",
+            [this](const LLSD& stat)
+            {
+                std::string status(stat["status"]);
+                if (status != "running")
+                {
+                    reset();
+                }
+                return false;
+            });
+    }
 
 	::OleInitialize(NULL);
-	LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
 
-	if(pIDL != NULL)
-	{
-		WCHAR buffer[_MAX_PATH] = {'\0'};
-
-		if(::SHGetPathFromIDList(pIDL, buffer) != 0)
-		{
-			// Set the string value.
-
-			mDir = utf16str_to_utf8str(llutf16string(buffer));
-			success = TRUE;
-		}
-		// free the item id list
-		CoTaskMemFree(pIDL);
-	}
+    IFileDialog* p_file_dialog;
+    if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&p_file_dialog))))
+    {
+        DWORD dwOptions;
+        if (SUCCEEDED(p_file_dialog->GetOptions(&dwOptions)))
+        {
+            p_file_dialog->SetOptions(dwOptions | FOS_PICKFOLDERS);
+        }
+        HWND owner = (HWND)gViewerWindow->getPlatformWindow();
+        pDialog = p_file_dialog;
+        if (SUCCEEDED(p_file_dialog->Show(owner)))
+        {
+            IShellItem* psi;
+            if (SUCCEEDED(p_file_dialog->GetResult(&psi)))
+            {
+                wchar_t* pwstr = NULL;
+                if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pwstr)))
+                {
+                    mDir = ll_convert_wide_to_string(pwstr);
+                    CoTaskMemFree(pwstr);
+                    success = TRUE;
+                }
+                psi->Release();
+            }
+        }
+        pDialog = NULL;
+        p_file_dialog->Release();
+    }
 
 	::OleUninitialize();
 
