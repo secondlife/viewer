@@ -134,6 +134,7 @@ private:
     bool mReset = false;
 
     bool mRenderingMirror = false;
+    std::map<int, bool> mFaceUpdateList;
     
     std::set<LLPointer<LLVOVolume>>               mHeroVOList;
     LLPointer<LLVOVolume>                         mNearestHero;

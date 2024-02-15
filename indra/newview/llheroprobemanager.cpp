@@ -155,6 +155,25 @@ void LLHeroProbeManager::update()
         
 
             probe_pos.load3(point.mV);
+
+            // Collect the list of faces that need updating based upon the camera's rotation.
+            LLVector3 cam_direction = LLVector3(0, 0, -1) * LLViewerCamera::instance().getQuaternion();
+
+            static LLVector3 cubeFaces[6] = { 
+                LLVector3(1, 0, 0), 
+                LLVector3(-1, 0, 0),
+                LLVector3(0, 1, 0),
+                LLVector3(0, -1, 0),
+                LLVector3(0, 0, 1),
+                LLVector3(0, 0, -1)
+            };
+
+            for (int i = 0; i < 6; i++)
+            {
+                bool shouldUpdate = (cam_direction * cubeFaces[i]) > 0;
+
+                mFaceUpdateList[i] = shouldUpdate;
+            }
         }
         else
         { 
@@ -185,7 +204,8 @@ void LLHeroProbeManager::update()
         {
             for (U32 i = 0; i < 6; ++i)
             {
-                updateProbeFace(mProbes[j], i, near_clip);
+                if (mFaceUpdateList[i])
+                    updateProbeFace(mProbes[j], i, near_clip);
             }
         }
         mRenderingMirror = false;
