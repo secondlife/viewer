@@ -959,7 +959,7 @@ void LLQuaternion::unpackFromVector3( const LLVector3& vec )
 	}
 }
 
-BOOL LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
+bool LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
 {
 	if( buf.empty() || value == NULL)
 	{

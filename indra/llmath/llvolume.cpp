@@ -97,31 +97,31 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 BOOL gDebugGL = FALSE; // See settings.xml "RenderDebugGL"
 
-BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
-{    
+bool check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
+{
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
 
 	//answer
 	if(test * norm < 0) 
 	{
-		return FALSE;
+		return false;
 	}
 	else 
 	{
-		return TRUE;
+		return true;
 	}
 } 
 
-BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
+bool LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
 {
 	return LLLineSegmentBoxIntersect(start.mV, end.mV, center.mV, size.mV);
 }
 
-BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size)
+bool LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size)
 {
-	F32 fAWdU[3];
-	F32 dir[3];
-	F32 diff[3];
+	F32 fAWdU[3]{};
+	F32 dir[3]{};
+	F32 diff[3]{};
 
 	for (U32 i = 0; i < 3; i++)
 	{
@@ -223,7 +223,7 @@ void calc_tangent_from_triangle(
 // and returns the intersection point along dir in intersection_t.
 
 // Moller-Trumbore algorithm
-BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+bool LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
 							F32& intersection_a, F32& intersection_b, F32& intersection_t)
 {
 	
@@ -285,15 +285,15 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 				intersection_a = u[0];
 				intersection_b = v[0];
 				intersection_t = t[0];
-				return TRUE;
+				return true;
 			}
 		}
 	}
 		
-	return FALSE;
+	return false;
 } 
 
-BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
 							F32& intersection_a, F32& intersection_b, F32& intersection_t)
 {
 	F32 u, v, t;
@@ -316,7 +316,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	
 	if (det > -F_APPROXIMATELY_ZERO && det < F_APPROXIMATELY_ZERO)
 	{
-		return FALSE;
+		return false;
 	}
 
 	F32 inv_det = 1.f / det;
@@ -329,7 +329,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	u = (tvec.dot3(pvec).getF32()) * inv_det;
 	if (u < 0.f || u > 1.f)
 	{
-		return FALSE;
+		return false;
 	}
 
 	/* prepare to test V parameter */
@@ -340,7 +340,7 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	
 	if (v < 0.f || u + v > 1.f)
 	{
-		return FALSE;
+		return false;
 	}
 
 	/* calculate t, ray intersects triangle */
@@ -351,31 +351,8 @@ BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	intersection_t = t;
 	
 	
-	return TRUE;
+	return true;
 } 
-
-//helper for non-aligned vectors
-BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided)
-{
-	LLVector4a vert0a, vert1a, vert2a, origa, dira;
-	vert0a.load3(vert0.mV);
-	vert1a.load3(vert1.mV);
-	vert2a.load3(vert2.mV);
-	origa.load3(orig.mV);
-	dira.load3(dir.mV);
-
-	if (two_sided)
-	{
-		return LLTriangleRayIntersectTwoSided(vert0a, vert1a, vert2a, origa, dira, 
-				intersection_a, intersection_b, intersection_t);
-	}
-	else
-	{
-		return LLTriangleRayIntersect(vert0a, vert1a, vert2a, origa, dira, 
-				intersection_a, intersection_b, intersection_t);
-	}
-}
 
 class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle, LLVolumeTriangle*>
 {

@@ -129,17 +129,17 @@ BOOL ray_cone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 */
 
 
-BOOL ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			   const LLVector3 &prism_center, const LLVector3 &prism_scale, const LLQuaternion &prism_rotation,
 			   LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_tetrahedron(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_tetrahedron(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					 const LLVector3 &t_center, const LLVector3 &t_scale, const LLQuaternion &t_rotation,
 					 LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				 const LLVector3 &p_center, const LLVector3 &p_scale, const LLQuaternion &p_rotation,
 				 LLVector3 &intersection, LLVector3 &intersection_normal);
 
@@ -170,13 +170,13 @@ BOOL ray_hemicone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 */
 
 
-BOOL linesegment_circle(const LLVector3 &point_a, const LLVector3 &point_b, 
+bool linesegment_circle(const LLVector3 &point_a, const LLVector3 &point_b,
 						const LLVector3 &circle_center, const LLVector3 plane_normal, F32 circle_radius,
 						LLVector3 &intersection);
 
 // point_0 through point_2 define the plane_normal via the right-hand rule:
 // circle from point_0 to point_2 with fingers ==> thumb points in direction of normal
-BOOL linesegment_triangle(const LLVector3 &point_a, const LLVector3 &point_b, 
+bool linesegment_triangle(const LLVector3 &point_a, const LLVector3 &point_b,
 						  const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2, 
 						  LLVector3 &intersection, LLVector3 &intersection_normal);
 
@@ -185,19 +185,19 @@ BOOL linesegment_triangle(const LLVector3 &point_a, const LLVector3 &point_b,
 // right-hand-rule... curl fingers from lower-left toward lower-right then toward upper-right
 // ==> thumb points in direction of normal
 // assumes a parallelogram, so point_3 is determined by the other points
-BOOL linesegment_quadrangle(const LLVector3 &point_a, const LLVector3 &point_b, 
+bool linesegment_quadrangle(const LLVector3 &point_a, const LLVector3 &point_b,
 							const LLVector3 &point_0, const LLVector3 &point_1, const LLVector3 &point_2, 
 							LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL linesegment_sphere(const LLVector3 &point_a, const LLVector3 &point_b,
+bool linesegment_sphere(const LLVector3 &point_a, const LLVector3 &point_b,
 				const LLVector3 &sphere_center, F32 sphere_radius,
 				LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
 // finite right cylinder is defined by end centers: "cyl_top", "cyl_bottom", 
 // and by the cylinder radius "cyl_radius"
-BOOL linesegment_cylinder(const LLVector3 &point_a, const LLVector3 &point_b,
+bool linesegment_cylinder(const LLVector3 &point_a, const LLVector3 &point_b,
 						  const LLVector3 &cyl_center, const LLVector3 &cyl_scale, const LLQuaternion &cyl_rotation,
 						  LLVector3 &intersection, LLVector3 &intersection_normal);
 
@@ -213,20 +213,17 @@ U32 linesegment_box(const LLVector3 &point_a, const LLVector3 &point_b,
 					LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL linesegment_prism(const LLVector3 &point_a, const LLVector3 &point_b,
+bool linesegment_prism(const LLVector3 &point_a, const LLVector3 &point_b,
 					   const LLVector3 &prism_center, const LLVector3 &prism_scale, const LLQuaternion &prism_rotation,
 					   LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL linesegment_tetrahedron(const LLVector3 &point_a, const LLVector3 &point_b,
+bool linesegment_tetrahedron(const LLVector3 &point_a, const LLVector3 &point_b,
 							 const LLVector3 &t_center, const LLVector3 &t_scale, const LLQuaternion &t_rotation,
 							 LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL linesegment_pyramid(const LLVector3 &point_a, const LLVector3 &point_b,
+bool linesegment_pyramid(const LLVector3 &point_a, const LLVector3 &point_b,
 						 const LLVector3 &p_center, const LLVector3 &p_scale, const LLQuaternion &p_rotation,
 						 LLVector3 &intersection, LLVector3 &intersection_normal);
-
-
 #endif
-
