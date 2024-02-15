@@ -311,7 +311,7 @@ S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wle
 S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, bool *unaligned)
 {
 	const auto end = wstr.length();
-	bool u = FALSE;
+	bool u{ false };
 	S32 n = woffset + utf16_length;
 	S32 i = woffset;
 	while (i < end)
