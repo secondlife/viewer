@@ -1504,7 +1504,8 @@ void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
 }
 
 
-void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
+template <>
+void LLTextEditor::pasteTextWithLinebreaks<LLWString>(const LLWString & clean_string)
 {
 	std::basic_string<llwchar>::size_type start = 0;
 	std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
