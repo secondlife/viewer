@@ -57,9 +57,6 @@ class LLFilePicker;
 class LLDirPicker
 {
 public:
-	// calling this before main() is undefined
-	static LLDirPicker& instance( void ) { return sInstance; }
-
 	BOOL getDir(std::string* filename, bool blocking = true);
 	std::string getDirName();
 
@@ -87,12 +84,9 @@ private:
 	std::string* mFileName;
 	std::string  mDir;
 	bool mLocked;
+    void *pDialog;
+    boost::signals2::connection mEventListener;
 
-	static LLDirPicker sInstance;
-#if LL_WINDOWS
-	BROWSEINFO bi;
-#endif
-	
 public:
 	// don't call these directly please.
 	LLDirPicker();
