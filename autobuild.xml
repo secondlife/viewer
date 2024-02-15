@@ -1704,20 +1704,6 @@
             <key>name</key>
             <string>windows64</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>549516ada483ddf276183f66b0a7c3d01e4ef1aa</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-luau/releases/download/v0.609-9567db9/luau-0.609-9567db9-linux64-9567db9.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
         </map>
         <key>license</key>
         <string>MIT</string>
