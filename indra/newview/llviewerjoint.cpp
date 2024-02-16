@@ -38,7 +38,7 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 
-static const S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
+static constexpr S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
 
 //-----------------------------------------------------------------------------
 // LLViewerJoint()

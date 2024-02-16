@@ -183,7 +183,7 @@ protected:
 	LLPolyVertexMask *				mVertMask;
 	ESex							mLastSex;
 	// number of morph masks that haven't been generated, must be 0 before this morph is applied
-	BOOL							mNumMorphMasksPending;
+	S32								mNumMorphMasksPending;
 
 	typedef std::vector<LLPolyVolumeMorph> volume_list_t;
 	volume_list_t 					mVolumeMorphs;

@@ -47,17 +47,15 @@ public:
 	LLViewerJointAttachment();
 	virtual ~LLViewerJointAttachment();
 
-	//virtual U32 render( F32 pixelArea );	// Returns triangle count
-
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
-	/*virtual*/ bool isTransparent();
+	bool isTransparent() override;
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	/*virtual*/ U32 drawShape( F32 pixelArea, bool first_pass, bool is_dummy );
+	U32 drawShape( F32 pixelArea, bool first_pass, bool is_dummy ) override;
 	
-	/*virtual*/ bool updateLOD(F32 pixel_area, bool activate);
+	bool updateLOD(F32 pixel_area, bool activate) override;
 
 	//
 	// accessors
@@ -65,7 +63,7 @@ public:
 
 	void setPieSlice(S32 pie_slice) { mPieSlice = pie_slice; }	
 	void setVisibleInFirstPerson(bool visibility) { mVisibleInFirst = visibility; }
-	BOOL getVisibleInFirstPerson() const { return mVisibleInFirst; }
+	bool getVisibleInFirstPerson() const { return mVisibleInFirst; }
 	void setGroup(S32 group) { mGroup = group; }
 	void setOriginalPosition(LLVector3 &position);
 	void setAttachmentVisibility(bool visible);

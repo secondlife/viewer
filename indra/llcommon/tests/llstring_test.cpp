@@ -231,7 +231,7 @@ namespace tut
 	template<> template<>
 	void string_index_object_t::test<17>()
 	{
-		BOOL value;
+		bool value;
 		std::string str_val("1");
 		ensure("convertToBOOL 1 failed", LLStringUtil::convertToBOOL(str_val, value) && value);
 		str_val = "T";

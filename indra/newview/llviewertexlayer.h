@@ -124,7 +124,7 @@ protected:
 	void					doUpdate();
 	void					restartUpdateTimer();
 private:
-	BOOL					mNeedsUpdate; 					// Whether we need to locally update our baked textures
+	bool					mNeedsUpdate; 					// Whether we need to locally update our baked textures
 	U32						mNumLowresUpdates; 				// Number of times we've locally updated with lowres version of our baked textures
 	LLFrameTimer    		mNeedsUpdateTimer; 				// Tracks time since update was requested and performed.
 };

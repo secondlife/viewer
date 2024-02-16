@@ -47,7 +47,9 @@ DWORD GetDllVersion(LPCTSTR lpszDllName);
 
 namespace
 { // anonymous
-    enum class prst { INIT, OPEN, SKIP } state = prst::INIT;
+    enum class prst { INIT, OPEN, SKIP };
+    prst state{ prst::INIT };
+
     // This is called so early that we can't count on static objects being
     // properly constructed yet, so declare a pointer instead of an instance.
     std::ofstream* prelogf = nullptr;
@@ -75,6 +77,7 @@ namespace
             (*prelogf) << "========================================================================"
                        << std::endl;
             // fall through, don't break
+            [[fallthrough]];
 
         case prst::OPEN:
             (*prelogf) << message << std::endl;
@@ -253,7 +256,7 @@ LLDir_Win32::LLDir_Win32()
 
 	// Determine the location of the App-Read-Only-Data
 	// Try the working directory then the exe's dir.
-	mAppRODataDir = mWorkingDir;	
+	mAppRODataDir = mWorkingDir;
 
 
 //	if (mExecutableDir.find("indra") == std::string::npos)
@@ -379,11 +382,11 @@ bool LLDir_Win32::fileExists(const std::string &filename) const
 	int res = LLFile::stat(filename, &stat_data);
 	if (!res)
 	{
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
