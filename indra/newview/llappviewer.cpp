@@ -1407,7 +1407,7 @@ bool packGameControlInput(LLMessageSystem* msg)
         // so if we get here: nothing changed AND there is no need for a re-send
         return false;
     }
-    if (!gSavedSettings.getBOOL("EnableGameControl"))
+    if (!gSavedSettings.getBOOL("GameControlToServer"))
     {
         LLGameControl::clearAllState();
         return false;
