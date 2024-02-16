@@ -186,12 +186,6 @@ jobs:
           if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
           then viewer_channel="${GITHUB_REF_NAME%#*}"
                export viewer_channel="${viewer_channel//_/ }"
-               # Since GITHUB_REF_NAME is a tag rather than a branch, we need
-               # to discover to what branch this tag corresponds. Get the tip
-               # commit (for the tag) and then ask for branches containing it.
-               # Assume GitHub cloned only this tag and its containing branch.
-               viewer_branch="$(git branch --contains "$(git log -n 1 --format=%h)" |
-                                grep -v '(HEAD')"
           else export viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
