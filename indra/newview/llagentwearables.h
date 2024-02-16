@@ -101,7 +101,7 @@ public:
 	// Setters
 	//--------------------------------------------------------------------
 private:
-	/*virtual*/void	wearableUpdated(LLWearable *wearable, BOOL removed);
+	/*virtual*/void	wearableUpdated(LLWearable *wearable, bool removed);
 public:
 	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const std::vector< LLViewerWearable* >& wearables);

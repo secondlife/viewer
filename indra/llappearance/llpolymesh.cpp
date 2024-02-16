@@ -72,8 +72,8 @@ LLPolyMeshSharedData::LLPolyMeshSharedData()
         mTexCoords = NULL;
         mDetailTexCoords = NULL;
         mWeights = NULL;
-        mHasWeights = FALSE;
-        mHasDetailTexCoords = FALSE;
+        mHasWeights = false;
+        mHasDetailTexCoords = false;
 
         mNumFaces = 0;
         mFaces = NULL;
@@ -615,7 +615,7 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 std::string morph_name(morphName);
                                 LLPolyMorphData* morph_data = new LLPolyMorphData(morph_name);
 
-                                BOOL result = morph_data->loadBinary(fp, this);
+                                bool result = morph_data->loadBinary(fp, this);
 
                                 if (!result)
                                 {
@@ -705,12 +705,12 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         }
                 }
 
-                status = TRUE;
+                status = true;
         }
         else
         {
                 LL_ERRS() << "invalid mesh file header: " << fileName << LL_ENDL;
-                status = FALSE;
+                status = false;
         }
 
         if (0 == mNumJointNames)

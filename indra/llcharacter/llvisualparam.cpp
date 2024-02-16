@@ -164,8 +164,8 @@ LLVisualParam::LLVisualParam()
 	mLastWeight( 0.f ),
 	mNext( NULL ),
 	mTargetWeight( 0.f ),
-	mIsAnimating( FALSE ),
-	mIsDummy(FALSE),
+	mIsAnimating( false ),
+	mIsDummy(false),
 	mID( -1 ),
 	mInfo( 0 ),
 	mParamLocation(LOC_UNKNOWN)
@@ -207,21 +207,21 @@ LLVisualParam::~LLVisualParam()
 // setInfo()
 //-----------------------------------------------------------------------------
 
-BOOL LLVisualParam::setInfo(LLVisualParamInfo *info)
+bool LLVisualParam::setInfo(LLVisualParamInfo *info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)
 		return false;
 	mInfo = info;
 	mID = info->mID;
-	setWeight(getDefaultWeight(), FALSE );
+	setWeight(getDefaultWeight(), false );
 	return true;
 }
 
 //-----------------------------------------------------------------------------
 // parseData()
 //-----------------------------------------------------------------------------
-BOOL LLVisualParam::parseData(LLXmlTreeNode *node)
+bool LLVisualParam::parseData(LLXmlTreeNode *node)
 {
 	LLVisualParamInfo *info = new LLVisualParamInfo;
 
@@ -282,7 +282,7 @@ void LLVisualParam::setAnimationTarget(F32 target_value)
 	{
 		mTargetWeight = target_value;
 	}
-	mIsAnimating = TRUE;
+	mIsAnimating = true;
 
 	if (mNext)
 	{
@@ -327,7 +327,7 @@ void LLVisualParam::stopAnimating()
 { 
 	if (mIsAnimating && isTweakable())
 	{
-		mIsAnimating = FALSE; 
+		mIsAnimating = false; 
 		setWeight(mTargetWeight);
 	}
 }

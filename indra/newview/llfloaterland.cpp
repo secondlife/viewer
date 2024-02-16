@@ -1649,12 +1649,12 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 	S32 rows = msg->getNumberOfBlocksFast(_PREHASH_Data);
 	//uuid_list_t return_ids;
 	LLUUID	owner_id;
-	BOOL	is_group_owned;
+	bool	is_group_owned;
 	S32		object_count;
 	U32		most_recent_time = 0;
-	BOOL	is_online;
+	bool	is_online;
 	std::string object_count_str;
-	//BOOL b_need_refresh = FALSE;
+	//bool b_need_refresh = false;
 
 	// If we were waiting for the first reply, clear the "Searching..." text.
 	if (self->mFirstReply)

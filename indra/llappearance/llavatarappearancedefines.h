@@ -167,10 +167,10 @@ public:
 		const std::string 	mDefaultImageName;
 		const LLWearableType::EType mWearableType;
 		// It's either a local texture xor baked
-		BOOL 				mIsLocalTexture;
-		BOOL 				mIsBakedTexture;
+		bool 				mIsLocalTexture;
+		bool 				mIsBakedTexture;
 		// If it's a local texture, it may be used by a baked texture
-		BOOL 				mIsUsedByBakedTexture;
+		bool 				mIsUsedByBakedTexture;
 		EBakedTextureIndex 	mBakedTextureIndex;
 	};
 

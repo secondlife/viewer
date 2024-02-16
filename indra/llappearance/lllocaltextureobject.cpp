@@ -36,14 +36,14 @@
 
 
 LLLocalTextureObject::LLLocalTextureObject() :
-	mIsBakedReady(FALSE),
+	mIsBakedReady(false),
 	mDiscard(MAX_DISCARD_LEVEL+1)
 {
 	mImage = NULL;
 }
 
 LLLocalTextureObject::LLLocalTextureObject(LLGLTexture* image, const LLUUID& id) :
-	mIsBakedReady(FALSE),
+	mIsBakedReady(false),
 	mDiscard(MAX_DISCARD_LEVEL+1)
 {
 	mImage = image;
@@ -206,7 +206,7 @@ void LLLocalTextureObject::setDiscard(S32 new_discard)
 	mDiscard = new_discard;
 }
 
-void LLLocalTextureObject::setBakedReady(BOOL ready)
+void LLLocalTextureObject::setBakedReady(bool ready)
 {
 	mIsBakedReady = ready;
 }

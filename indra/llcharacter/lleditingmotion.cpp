@@ -141,7 +141,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
 //-----------------------------------------------------------------------------
 // LLEditingMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLEditingMotion::onActivate()
+bool LLEditingMotion::onActivate()
 {
 	// propagate joint positions to kinematic chain
     // SL-315
@@ -161,14 +161,14 @@ BOOL LLEditingMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLEditingMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
 	LLVector3 focus_pt;
 	LLVector3* pointAtPt = (LLVector3*)mCharacter->getAnimationData("PointAtPoint");
 
 
-	BOOL result = true;
+	bool result = true;
 
 	if (!pointAtPt)
 	{

@@ -65,9 +65,9 @@ public:
 	// animation callbacks to be implemented by subclasses
 	//-------------------------------------------------------------------------
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-	virtual BOOL onActivate();
+	virtual bool onActivate();
 	virtual void onDeactivate();
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+	virtual bool onUpdate(F32 time, U8* joint_mask);
 
 public:
 	//-------------------------------------------------------------------------
@@ -100,9 +100,9 @@ public:
 	// animation callbacks to be implemented by subclasses
 	//-------------------------------------------------------------------------
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-	virtual BOOL onActivate();
+	virtual bool onActivate();
 	virtual void onDeactivate();
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+	virtual bool onUpdate(F32 time, U8* joint_mask);
 	virtual LLJoint::JointPriority getPriority(){return LLJoint::HIGH_PRIORITY;}
 	virtual bool getLoop() { return true; }
 	virtual F32 getDuration() { return 0.f; }
@@ -150,9 +150,9 @@ public:
 	// animation callbacks to be implemented by subclasses
 	//-------------------------------------------------------------------------
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-	virtual BOOL onActivate();
+	virtual bool onActivate();
 	virtual void onDeactivate() {};
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+	virtual bool onUpdate(F32 time, U8* joint_mask);
 	virtual LLJoint::JointPriority getPriority(){return LLJoint::HIGHER_PRIORITY;}
 	virtual bool getLoop() { return true; }
 	virtual F32 getDuration() { return 0.f; }

@@ -124,10 +124,10 @@ LLParcel::LLParcel()
 
 
 LLParcel::LLParcel(const LLUUID &owner_id,
-                   BOOL modify, BOOL terraform, BOOL damage,
+                   bool modify, bool terraform, bool damage,
                    time_t claim_date, S32 claim_price_per_meter,
                    S32 rent_price_per_meter, S32 area, S32 sim_object_limit, F32 parcel_object_bonus,
-                   BOOL is_group_owned)
+                   bool is_group_owned)
 {
     init( owner_id, modify, terraform, damage, claim_date,
           claim_price_per_meter, rent_price_per_meter, area, sim_object_limit, parcel_object_bonus,
@@ -142,10 +142,10 @@ LLParcel::~LLParcel()
 }
 
 void LLParcel::init(const LLUUID &owner_id,
-                    BOOL modify, BOOL terraform, BOOL damage,
+                    bool modify, bool terraform, bool damage,
                     time_t claim_date, S32 claim_price_per_meter,
                     S32 rent_price_per_meter, S32 area, S32 sim_object_limit, F32 parcel_object_bonus,
-                    BOOL is_group_owned)
+                    bool is_group_owned)
 {
 	mID.setNull();
 	mOwnerID			= owner_id;
@@ -172,7 +172,7 @@ void LLParcel::init(const LLUUID &owner_id,
 	mSaleTimerExpires.stop();
 	mGraceExtension = 0;
 	//mExpireAction = STEA_REVERT;
-	//mRecordTransaction = FALSE;
+	//mRecordTransaction = false;
 
 	mAuctionID = 0;
 	mInEscrow = false;
@@ -238,7 +238,7 @@ void LLParcel::init(const LLUUID &owner_id,
     setObscureMOAP(false);
 }
 
-void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
+void LLParcel::overrideOwner(const LLUUID& owner_id, bool is_group_owned)
 {
     // Override with system permission (LLUUID::null)
     // Overridden parcels have no group
@@ -352,7 +352,7 @@ void LLParcel::setAllParcelFlags(U32 flags)
     mParcelFlags = flags;
 }
 
-void LLParcel::setParcelFlag(U32 flag, BOOL b)
+void LLParcel::setParcelFlag(U32 flag, bool b)
 {
     if (b)
     {
@@ -365,7 +365,7 @@ void LLParcel::setParcelFlag(U32 flag, BOOL b)
 }
 
 
-BOOL LLParcel::allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const
+bool LLParcel::allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const
 {
     if (agent_id == LLUUID::null)
     {
@@ -394,7 +394,7 @@ BOOL LLParcel::allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) con
     return false;
 }
 
-BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
+bool LLParcel::allowTerraformBy(const LLUUID &agent_id) const
 {
     if (agent_id == LLUUID::null)
     {
@@ -441,7 +441,7 @@ void LLParcel::setDiscountRate(F32 rate)
 // File input and output
 //-----------------------------------------------------------
 
-BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entry)
+bool LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entry)
 {
     skip_to_end_of_next_keyword("{", input_stream);
     while (input_stream.good())
@@ -561,9 +561,9 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
     msg->getStringFast( _PREHASH_ParcelData,_PREHASH_MediaURL, buffer );
     setMediaURL(buffer);
     
-	BOOL see_avs = TRUE;			// All default to true for legacy server behavior
-	BOOL any_av_sounds = TRUE;
-	BOOL group_av_sounds = TRUE;
+	bool see_avs = true;			// All default to true for legacy server behavior
+	bool any_av_sounds = true;
+	bool group_av_sounds = true;
 	bool have_new_parcel_limit_data = (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_SeeAVs) > 0);		// New version of server should send all 3 of these values
 	have_new_parcel_limit_data &= (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_AnyAVSounds) > 0);
 	have_new_parcel_limit_data &= (msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_GroupAVSounds) > 0);
@@ -787,7 +787,7 @@ void LLParcel::extendAABB(const LLVector3& box_min, const LLVector3& box_max)
     }
 }
 
-BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
+bool LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 {
 	if (mAccessList.size() >= (U32) PARCEL_MAX_ACCESS_LIST)
 	{
@@ -828,7 +828,7 @@ BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
     return true;
 }
 
-BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
+bool LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
 {
 	if (mBanList.size() >= (U32) PARCEL_MAX_ACCESS_LIST)
 	{
@@ -871,10 +871,10 @@ BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
     return true;
 }
 
-BOOL remove_from_access_array(std::map<LLUUID,LLAccessEntry>* list,
+bool remove_from_access_array(std::map<LLUUID,LLAccessEntry>* list,
                               const LLUUID& agent_id)
 {
-    BOOL removed = FALSE;
+    bool removed = false;
     LLAccessEntry::map::iterator itor = list->begin();
     while (itor != list->end())
     {
@@ -882,7 +882,7 @@ BOOL remove_from_access_array(std::map<LLUUID,LLAccessEntry>* list,
         if (entry.mID == agent_id)
         {
             list->erase(itor++);
-            removed = TRUE;
+            removed = true;
         }
         else
         {
@@ -892,12 +892,12 @@ BOOL remove_from_access_array(std::map<LLUUID,LLAccessEntry>* list,
     return removed;
 }
 
-BOOL LLParcel::removeFromAccessList(const LLUUID& agent_id)
+bool LLParcel::removeFromAccessList(const LLUUID& agent_id)
 {
     return remove_from_access_array(&mAccessList, agent_id);
 }
 
-BOOL LLParcel::removeFromBanList(const LLUUID& agent_id)
+bool LLParcel::removeFromBanList(const LLUUID& agent_id)
 {
     return remove_from_access_array(&mBanList, agent_id);
 }
@@ -947,13 +947,13 @@ const std::string& LLParcel::getActionString(LLParcel::EAction action)
     return PARCEL_ACTION_STRING[index];
 }
 
-BOOL LLParcel::isSaleTimerExpired(const U64& time)
+bool LLParcel::isSaleTimerExpired(const U64& time)
 {
     if (mSaleTimerExpires.getStarted() == FALSE)
     {
         return false;
     }
-    BOOL expired = mSaleTimerExpires.checkExpirationAndReset(0.0);
+    bool expired = mSaleTimerExpires.checkExpirationAndReset(0.0);
     if (expired)
     {
         mSaleTimerExpires.stop();
@@ -961,13 +961,13 @@ BOOL LLParcel::isSaleTimerExpired(const U64& time)
     return expired;
 }
 
-BOOL LLParcel::isMediaResetTimerExpired(const U64& time)
+bool LLParcel::isMediaResetTimerExpired(const U64& time)
 {
-    if (mMediaResetTimer.getStarted() == FALSE)
+    if (mMediaResetTimer.getStarted() == false)
     {
         return false;
     }
-    BOOL expired = mMediaResetTimer.checkExpirationAndReset(0.0);
+    bool expired = mMediaResetTimer.checkExpirationAndReset(0.0);
     if (expired)
     {
         mMediaResetTimer.stop();
@@ -976,7 +976,7 @@ BOOL LLParcel::isMediaResetTimerExpired(const U64& time)
 }
 
 
-void LLParcel::startSale(const LLUUID& buyer_id, BOOL is_buyer_group)
+void LLParcel::startSale(const LLUUID& buyer_id, bool is_buyer_group)
 {
 	// TODO -- this and all Sale related methods need to move out of the LLParcel 
 	// base class and into server-side-only LLSimParcel class
@@ -1042,7 +1042,7 @@ void LLParcel::completeSale(
 
 	// Turn off show directory, since it's a recurring fee that
 	// the buyer may not want.
-	setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
+	setParcelFlag(PF_SHOW_DIRECTORY, false);
 
 	//should be cleared on sale.
 	mAccessList.clear();
@@ -1069,12 +1069,12 @@ void LLParcel::clearSale()
 	setSellWithObjects(FALSE);
 }
 
-BOOL LLParcel::isPublic() const
+bool LLParcel::isPublic() const
 {
     return (mOwnerID.isNull());
 }
 
-BOOL LLParcel::isBuyerAuthorized(const LLUUID& buyer_id) const
+bool LLParcel::isBuyerAuthorized(const LLUUID& buyer_id) const
 {
     if(mAuthBuyerID.isNull())
     {

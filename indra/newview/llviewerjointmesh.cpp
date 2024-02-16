@@ -216,7 +216,7 @@ int compare_int(const void *a, const void *b)
 //--------------------------------------------------------------------
 // LLViewerJointMesh::drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
+U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
 {
 	if (!mValid || !mMesh || !mFace || !mVisible || 
 		!mFace->getVertexBuffer() ||
@@ -346,7 +346,7 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 // updateFaceData()
 //-----------------------------------------------------------------------------
 
-void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
+void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_wind, bool terse_update)
 {
 	//IF THIS FUNCTION BREAKS, SEE LLPOLYMESH CONSTRUCTOR AND CHECK ALIGNMENT OF INPUT ARRAYS
 

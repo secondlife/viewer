@@ -803,16 +803,16 @@ S32 LLProfile::getNumPoints(const LLProfileParams& params, BOOL path_open,F32 de
 }
 
 
-BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
-						 BOOL is_sculpted, S32 sculpt_size)
+bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detail, S32 split,
+						 bool is_sculpted, S32 sculpt_size)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
 	if ((!mDirty) && (!is_sculpted))
 	{
-		return FALSE;
+		return false;
 	}
-	mDirty = FALSE;
+	mDirty = false;
 
 	if (detail < MIN_LOD)
 	{
@@ -833,7 +833,7 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 	if (begin > end - 0.01f)
 	{
 		LL_WARNS() << "LLProfile::generate() assertion failed (begin >= end)" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	S32 face_num = 0;
@@ -1014,11 +1014,11 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 			}
 			if (mOpen && !params.getHollow())
 			{
-				addFace(0,mTotal-1,0,LL_FACE_OUTER_SIDE_0, FALSE);
+				addFace(0,mTotal-1,0,LL_FACE_OUTER_SIDE_0, false);
 			}
 			else
 			{
-				addFace(0,mTotal,0,LL_FACE_OUTER_SIDE_0, FALSE);
+				addFace(0,mTotal,0,LL_FACE_OUTER_SIDE_0, false);
 			}
 
 			if (hollow)
@@ -1026,15 +1026,15 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 				switch (hole_type)
 				{
 				case LL_PCODE_HOLE_SQUARE:
-					addHole(params, TRUE, 2, 0.5f, hollow, 0.5f, split);
+					addHole(params, true, 2, 0.5f, hollow, 0.5f, split);
 					break;
 				case LL_PCODE_HOLE_TRIANGLE:
-					addHole(params, TRUE, 3,  0.5f, hollow, 0.5f, split);
+					addHole(params, true, 3,  0.5f, hollow, 0.5f, split);
 					break;
 				case LL_PCODE_HOLE_CIRCLE:
 				case LL_PCODE_HOLE_SAME:
 				default:
-					addHole(params, FALSE, circle_detail,  0.5f, hollow, 0.5f);
+					addHole(params, false, circle_detail,  0.5f, hollow, 0.5f);
 					break;
 				}
 			}
@@ -1042,11 +1042,11 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 			// Special case for openness of sphere
 			if ((params.getEnd() - params.getBegin()) < 1.f)
 			{
-				mOpen = TRUE;
+				mOpen = true;
 			}
 			else if (!hollow)
 			{
-				mOpen = FALSE;
+				mOpen = false;
 				mProfile.push_back(mProfile[0]);
 				mTotal++;
 			}
@@ -1064,19 +1064,19 @@ BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detai
 	
 	if ( mOpen) // interior edge caps
 	{
-		addFace(mTotal-1, 2,0.5,LL_FACE_PROFILE_BEGIN, TRUE); 
+		addFace(mTotal-1, 2,0.5,LL_FACE_PROFILE_BEGIN, true);
 
 		if (hollow)
 		{
-			addFace(mTotalOut-1, 2,0.5,LL_FACE_PROFILE_END, TRUE);
+			addFace(mTotalOut-1, 2,0.5,LL_FACE_PROFILE_END, true);
 		}
 		else
 		{
-			addFace(mTotal-2, 2,0.5,LL_FACE_PROFILE_END, TRUE);
+			addFace(mTotal-2, 2,0.5,LL_FACE_PROFILE_END, true);
 		}
 	}
 	
-	return TRUE;
+	return true;
 }
 
 
@@ -1521,14 +1521,14 @@ S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
 	return np;
 }
 
-BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
-					  BOOL is_sculpted, S32 sculpt_size)
+bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
+					  bool is_sculpted, S32 sculpt_size)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
 	if ((!mDirty) && (!is_sculpted))
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (detail < MIN_LOD)
@@ -1537,11 +1537,11 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 		detail = MIN_LOD;
 	}
 
-	mDirty = FALSE;
+	mDirty = false;
 	S32 np = 2; // hardcode for line
 
 	mPath.resize(0);
-	mOpen = TRUE;
+	mOpen = true;
 
 	// Is this 0xf0 mask really necessary?  DK 03/02/05
 	switch (params.getCurveType() & 0xf0)
@@ -1601,7 +1601,7 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			if (params.getEnd() - params.getBegin() >= 0.99f &&
 				params.getScaleX() >= .99f)
 			{
-				mOpen = FALSE;
+				mOpen = false;
 			}
 
 			//genNGon(params, llfloor(MIN_DETAIL_FACES * detail), 4.f, 0.f);
@@ -1645,19 +1645,19 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 		break;
 	};
 
-	if (params.getTwist() != params.getTwistBegin()) mOpen = TRUE;
+	if (params.getTwist() != params.getTwistBegin()) mOpen = true;
 
 	//if ((int(fabsf(params.getTwist() - params.getTwistBegin())*100))%100 != 0) {
-	//	mOpen = TRUE;
+	//	mOpen = true;
 	//}
 	
-	return TRUE;
+	return true;
 }
 
-BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
-							 BOOL is_sculpted, S32 sculpt_size)
+bool LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
+							 bool is_sculpted, S32 sculpt_size)
 {
-	mOpen = TRUE; // Draw end caps
+	mOpen = true; // Draw end caps
 	if (getPathLength() == 0)
 	{
 		// Path hasn't been generated yet.
@@ -1676,7 +1676,7 @@ BOOL LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 

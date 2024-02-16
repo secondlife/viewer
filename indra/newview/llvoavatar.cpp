@@ -330,12 +330,12 @@ public:
 	// called when a motion is activated
 	// must return TRUE to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate() { return TRUE; }
+	virtual bool onActivate() { return true; }
 
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask)
+	virtual bool onUpdate(F32 time, U8* joint_mask)
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 		F32 nx[2];
@@ -353,7 +353,7 @@ public:
 		tQn.setQuat( rx, ry, 0.0f );
 		mTorsoState->setRotation( tQn );
 
-		return TRUE;
+		return true;
 	}
 
 	// called when a motion is deactivated
@@ -451,12 +451,12 @@ public:
 	// called when a motion is activated
 	// must return TRUE to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate() { return TRUE; }
+	virtual bool onActivate() { return true; }
 
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask)
+	virtual bool onUpdate(F32 time, U8* joint_mask)
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 		mBreatheRate = 1.f;
@@ -465,7 +465,7 @@ public:
 
 		mChestState->setRotation(LLQuaternion(breathe_amt, LLVector3(0.f, 1.f, 0.f)));
 
-		return TRUE;
+		return true;
 	}
 
 	// called when a motion is deactivated
@@ -553,17 +553,17 @@ public:
 	// called when a motion is activated
 	// must return TRUE to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate() { return TRUE; }
+	virtual bool onActivate() { return true; }
 
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask)
+	virtual bool onUpdate(F32 time, U8* joint_mask)
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 		mPelvisState->setPosition(LLVector3::zero);
 
-		return TRUE;
+		return true;
 	}
 
 	// called when a motion is deactivated
@@ -6075,7 +6075,7 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 // id is the asset if of the animation to start
 // time_offset is the offset into the animation at which to start playing
 //-----------------------------------------------------------------------------
-BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
+bool LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
 	LL_DEBUGS("Motion") << "motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << LL_ENDL;
 
@@ -6097,7 +6097,7 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 //-----------------------------------------------------------------------------
 // stopMotion()
 //-----------------------------------------------------------------------------
-BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
+bool LLVOAvatar::stopMotion(const LLUUID& id, bool stop_immediate)
 {
 	LL_DEBUGS("Motion") << "Motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << LL_ENDL;
 

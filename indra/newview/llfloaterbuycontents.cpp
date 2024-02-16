@@ -170,7 +170,7 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 	buy_btn->setEnabled(FALSE);
 
 	LLUUID owner_id;
-	BOOL is_group_owned;
+	bool is_group_owned;
 	LLAssetType::EType asset_type;
 	LLInventoryType::EType inv_type;
 	S32 wearable_count = 0;

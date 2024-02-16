@@ -47,7 +47,7 @@ public:
 	virtual void getBinaryData(const char *blockname, const char *varname, 
 							   void *datap, S32 size, S32 blocknum = 0, 
 							   S32 max_size = S32_MAX);
-	virtual void getBOOL(const char *block, const char *var, BOOL &data, 
+	virtual void getBOOL(const char *block, const char *var, bool &data,
 						 S32 blocknum = 0);
 	virtual void getS8(const char *block, const char *var, S8 &data, 
 					   S32 blocknum = 0);

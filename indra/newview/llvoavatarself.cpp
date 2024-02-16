@@ -727,29 +727,29 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 }
 
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight)
+bool LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight)
 {
 	if (!which_param)
 	{
-		return FALSE;
+		return false;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(which_param->getID());
 	return setParamWeight(param,weight);
 }
 
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight)
+bool LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight)
 {
 	if (!param_name)
 	{
-		return FALSE;
+		return false;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(param_name);
 	return setParamWeight(param,weight);
 }
 
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight)
+bool LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight)
 {
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(index);
 	return setParamWeight(param,weight);

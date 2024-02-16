@@ -461,14 +461,14 @@ void LLDriverParam::stopAnimating()
 
 	for(LLDrivenEntry& driven : mDriven)
 	{
-		driven.mParam->setAnimating(FALSE);
+		driven.mParam->setAnimating(false);
 	}
 }
 
 /*virtual*/ 
 bool LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
 {
-	BOOL success = true;
+	bool success = true;
 	for (LLDrivenEntryInfo& driven_info : getInfo()->mDrivenInfoList)
 	{
 		S32 driven_id = driven_info.mDrivenID;

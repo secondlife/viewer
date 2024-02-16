@@ -58,7 +58,7 @@ bool LLTexGlobalColor::setInfo(LLTexGlobalColorInfo *info)
 	for (LLTexLayerParamColorInfo* color_info : mInfo->mParamColorInfoList)
 	{
 		LLTexParamGlobalColor* param_color = new LLTexParamGlobalColor(this);
-		if (!param_color->setInfo(color_info, TRUE))
+		if (!param_color->setInfo(color_info, true))
 		{
 			mInfo = NULL;
 			return false;

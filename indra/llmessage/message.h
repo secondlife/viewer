@@ -599,8 +599,8 @@ public:
 	*/
 	void	getBinaryDataFast(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
 	void	getBinaryData(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
-	void	getBOOLFast(	const char *block, const char *var, BOOL &data, S32 blocknum = 0);
-	void	getBOOL(	const char *block, const char *var, BOOL &data, S32 blocknum = 0);
+	void	getBOOLFast(	const char *block, const char *var, bool &data, S32 blocknum = 0);
+	void	getBOOL(	const char *block, const char *var, bool &data, S32 blocknum = 0);
 	void	getS8Fast(		const char *block, const char *var, S8 &data, S32 blocknum = 0);
 	void	getS8(		const char *block, const char *var, S8 &data, S32 blocknum = 0);
 	void	getU8Fast(		const char *block, const char *var, U8 &data, S32 blocknum = 0);

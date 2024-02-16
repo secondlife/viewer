@@ -388,7 +388,7 @@ void LLFloaterPay::payViaObject(money_callback callback, LLSafeHandle<LLObjectSe
 	msg->setHandlerFuncFast(_PREHASH_PayPriceReply, processPayPriceReply,(void **)floater);
 	
 	LLUUID owner_id;
-	BOOL is_group = FALSE;
+	bool is_group = false;
 	node->mPermissions->getOwnership(owner_id, is_group);
 	
 	floater->getChild<LLUICtrl>("object_name_text")->setValue(node->mName);
@@ -505,7 +505,7 @@ void LLFloaterPay::onGive(give_money_ptr info)
     if (amount > PAY_AMOUNT_NOTIFICATION && gStatusBar && gStatusBar->getBalance() > amount)
     {
         LLUUID payee_id = LLUUID::null;
-        BOOL is_group = false;
+        bool is_group = false;
         if (floater->mObjectSelection.notNull())
         {
             LLSelectNode* node = floater->mObjectSelection->getFirstRootNode();

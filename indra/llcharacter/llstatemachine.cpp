@@ -49,7 +49,7 @@ bool	operator!=(const LLUniqueID &a, const LLUniqueID &b)
 LLStateDiagram::LLStateDiagram()
 {
 	mDefaultState = NULL;
-	mUseDefaultState = FALSE;
+	mUseDefaultState = false;
 }
 
 LLStateDiagram::~LLStateDiagram()
@@ -58,14 +58,14 @@ LLStateDiagram::~LLStateDiagram()
 }
 
 // add a state to the state graph
-BOOL LLStateDiagram::addState(LLFSMState *state)
+bool LLStateDiagram::addState(LLFSMState *state)
 {
 	mStates[state] = Transitions();
 	return true;
 }
 
 // add a directed transition between 2 states
-BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
+bool LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
 {
 	StateMap::iterator state_it;
 	state_it = mStates.find(&start_state);
@@ -97,9 +97,9 @@ BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
 }
 
 // add an undirected transition between 2 states
-BOOL LLStateDiagram::addUndirectedTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
+bool LLStateDiagram::addUndirectedTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
 {
-	BOOL result;
+	bool result;
 	result = addTransition(start_state, end_state, transition);
 	if (result)
 	{
@@ -162,7 +162,7 @@ LLFSMState* LLStateDiagram::processTransition(LLFSMState& start_state, LLFSMTran
 
 void LLStateDiagram::setDefaultState(LLFSMState& default_state)
 {
-	mUseDefaultState = TRUE;
+	mUseDefaultState = true;
 	mDefaultState = &default_state;
 }
 
@@ -179,7 +179,7 @@ S32 LLStateDiagram::numDeadendStates()
 	return numDeadends;
 }
 
-BOOL LLStateDiagram::stateIsValid(LLFSMState& state)
+bool LLStateDiagram::stateIsValid(LLFSMState& state)
 {
 	if (mStates.find(&state) != mStates.end())
 	{
@@ -200,7 +200,7 @@ LLFSMState* LLStateDiagram::getState(U32 state_id)
 	return NULL;
 }
 
-BOOL LLStateDiagram::saveDotFile(const std::string& filename)
+bool LLStateDiagram::saveDotFile(const std::string& filename)
 {
 	LLAPRFile outfile ;
 	outfile.open(filename, LL_APR_W);
@@ -308,7 +308,7 @@ void LLStateMachine::runCurrentState(void *data)
 }
 
 // set current state
-BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data, BOOL skip_entry)
+bool LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data, bool skip_entry)
 {
 	llassert(mStateDiagram);
 
@@ -325,7 +325,7 @@ BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data,
 	return false;
 }
 
-BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_entry)
+bool LLStateMachine::setCurrentState(U32 state_id, void* user_data, bool skip_entry)
 {
 	llassert(mStateDiagram);
 
