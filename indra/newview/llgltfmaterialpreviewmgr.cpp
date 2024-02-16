@@ -58,6 +58,15 @@ LLGLTFPreviewTexture::MaterialLoadLevels::MaterialLoadLevels()
     }
 }
 
+bool LLGLTFPreviewTexture::MaterialLoadLevels::isFullyLoaded()
+{
+    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (levels[i] != FULLY_LOADED) { return false; }
+    }
+    return true;
+}
+
 S32& LLGLTFPreviewTexture::MaterialLoadLevels::operator[](size_t i)
 {
     llassert(i >= 0 && i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT);
@@ -187,17 +196,26 @@ LLPointer<LLGLTFPreviewTexture> LLGLTFPreviewTexture::create(LLPointer<LLFetched
     return new LLGLTFPreviewTexture(material, LLPipeline::MAX_BAKE_WIDTH);
 }
 
-void LLGLTFPreviewTexture::preRender(BOOL clear_depth)
+BOOL LLGLTFPreviewTexture::needsRender()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
+    if (!mShouldRender && mBestLoad.isFullyLoaded()) { return false; }
     MaterialLoadLevels current_load = get_material_load_levels(*mGLTFMaterial.get());
     if (current_load < mBestLoad)
     {
         mShouldRender = true;
         mBestLoad = current_load;
+        return true;
     }
+    return false;
+}
 
+void LLGLTFPreviewTexture::preRender(BOOL clear_depth)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
+    llassert(mShouldRender);
     if (!mShouldRender) { return; }
 
     LLViewerDynamicTexture::preRender(clear_depth);

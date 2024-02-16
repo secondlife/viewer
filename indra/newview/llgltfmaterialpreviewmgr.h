@@ -40,7 +40,7 @@ public:
     // Width scales with size of material's textures
     static LLPointer<LLGLTFPreviewTexture> create(LLPointer<LLFetchedGLTFMaterial> material);
 
-    BOOL needsRender() override { return mNeedsRender; }
+    BOOL needsRender() override;
     void preRender(BOOL clear_depth = TRUE) override;
     BOOL render() override;
     void postRender(BOOL success) override;
@@ -50,15 +50,12 @@ public:
         S32 levels[LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT];
 
         MaterialLoadLevels();
-
+        bool isFullyLoaded();
         S32& operator[](size_t i);
-
         const S32& operator[](size_t i) const;
-
         // Less is better
         // Returns false if lhs is not strictly less or equal for all levels
         bool operator<(const MaterialLoadLevels& other) const;
-
         // Less is better
         // Returns false if lhs is not strictly greater or equal for all levels
         bool operator>(const MaterialLoadLevels& other) const;
@@ -66,7 +63,6 @@ public:
 
 private:
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
-    bool mNeedsRender = true;
     bool mShouldRender = true;
     MaterialLoadLevels mBestLoad;
 };

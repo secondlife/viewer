@@ -118,6 +118,8 @@ BOOL LLViewerDynamicTexture::render()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
      //use the bottom left corner
 	mOrigin.set(0, 0);
 
