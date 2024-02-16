@@ -221,7 +221,6 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
                 llassert(dynamicTexture->getFullHeight() <= LLPipeline::MAX_BAKE_WIDTH);
 
 				glClear(GL_DEPTH_BUFFER_BIT);
-				gDepthDirty = TRUE;
 								
 				gGL.color4f(1,1,1,1);
                 dynamicTexture->setBoundTarget(&bake_target);
