@@ -100,10 +100,11 @@ private:
 
     void showTexturePicker(const LLUUID &thumbnail_id);
     void onTexturePickerCommit();
+    static void onUploadComplete(const LLUUID& asset_id, const LLUUID& task_id, const uuid_set_t& inventory_ids);
 
     void setThumbnailId(const LLUUID &new_thumbnail_id);
-    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id);
-    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id, LLInventoryObject* obj);
+    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& task_id, const LLUUID& inv_obj_id);
+    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& inv_obj_id, LLInventoryObject* obj);
 
     enum EToolTipState
     {
@@ -121,7 +122,7 @@ private:
 
     bool mObserverInitialized;
     EToolTipState mTooltipState;
-    LLUUID mItemId;
+    uuid_set_t mItemList;
     LLUUID mTaskId;
     LLUUID mExpectingAssetId;
 

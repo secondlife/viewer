@@ -197,7 +197,11 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     }
     else if ("thumbnail" == action)
     {
-        LLSD data(mUUIDs.front());
+        LLSD data;
+        for (const LLUUID& id : mUUIDs)
+        {
+            data.append(id);
+        }
         LLFloaterReg::showInstance("change_item_thumbnail", data);
     }
     else if ("cut" == action)
