@@ -3264,6 +3264,23 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
             ungroup_folder_items(*ids.begin());
         }
     }
+    else if ("thumbnail" == action)
+    {
+        if (selected_items.size() > 0)
+        {
+            LLSD data;
+            std::set<LLFolderViewItem*>::iterator set_iter;
+            for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+            {
+                LLFolderViewItem* folder_item = *set_iter;
+                if (!folder_item) continue;
+                LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+                if (!bridge) continue;
+                data.append(bridge->getUUID());
+            }
+            LLFloaterReg::showInstance("change_item_thumbnail", data);
+        }
+    }
     else
     {
         std::set<LLFolderViewItem*>::iterator set_iter;

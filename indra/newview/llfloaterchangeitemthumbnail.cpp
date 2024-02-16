@@ -52,26 +52,32 @@
 class LLThumbnailImagePicker : public LLFilePickerThread
 {
 public:
-    LLThumbnailImagePicker(const LLUUID &item_id);
-    LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id);
+    LLThumbnailImagePicker(const LLUUID &item_id, LLFloaterSimpleSnapshot::completion_t callback);
+    LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id, LLFloaterSimpleSnapshot::completion_t callback);
     ~LLThumbnailImagePicker();
     void notify(const std::vector<std::string>& filenames) override;
 
 private:
     LLUUID mInventoryId;
     LLUUID mTaskId;
+    LLFloaterSimpleSnapshot::completion_t mCallback;
 };
 
-LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id)
+LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id,
+                                               LLFloaterSimpleSnapshot::completion_t callback)
     : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE)
     , mInventoryId(item_id)
+    , mCallback(callback)
 {
 }
 
-LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id)
+LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id,
+                                               const LLUUID &task_id,
+                                               LLFloaterSimpleSnapshot::completion_t callback)
     : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE)
     , mInventoryId(item_id)
     , mTaskId(task_id)
+    , mCallback(callback)
 {
 }
 
@@ -91,7 +97,7 @@ void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
         return;
     }
     
-    LLFloaterSimpleSnapshot::uploadThumbnail(file_path, mInventoryId, mTaskId);
+    LLFloaterSimpleSnapshot::uploadThumbnail(file_path, mInventoryId, mTaskId, mCallback);
 }
 
 LLFloaterChangeItemThumbnail::LLFloaterChangeItemThumbnail(const LLSD& key)
@@ -152,18 +158,34 @@ BOOL LLFloaterChangeItemThumbnail::postBuild()
 
 void LLFloaterChangeItemThumbnail::onOpen(const LLSD& key)
 {
-    if (!key.has("item_id") && !key.isUUID())
+    if (!key.has("item_id") && !key.isUUID() && !key.isArray())
     {
         closeFloater();
     }
 
-    if (key.isUUID())
+
+    mItemList.clear();
+    if (key.isArray())
     {
-        mItemId = key.asUUID();
+        if (key.size() > 30)
+        {
+            // incident avoidance
+            // Todo: Show notification
+            closeFloater();
+        }
+
+        for (LLSD::array_const_iterator it = key.beginArray(); it != key.endArray(); ++it)
+        {
+            mItemList.insert(it->asUUID());
+        }
+    }
+    else if (key.isUUID())
+    {
+        mItemList.insert(key.asUUID());
     }
     else
     {
-        mItemId = key["item_id"].asUUID();
+        mItemList.insert(key["item_id"].asUUID());
         mTaskId = key["task_id"].asUUID();
     }
 
@@ -221,7 +243,7 @@ void LLFloaterChangeItemThumbnail::changed(U32 mask)
 {
     //LLInventoryObserver
 
-    if (mTaskId.notNull() || mItemId.isNull())
+    if (mTaskId.notNull() || mItemList.size() == 0)
     {
         // Task inventory or not set up yet
         return;
@@ -229,13 +251,13 @@ void LLFloaterChangeItemThumbnail::changed(U32 mask)
 
     const std::set<LLUUID>& mChangedItemIDs = gInventory.getChangedIDs();
     std::set<LLUUID>::const_iterator it;
+    const LLUUID expected_id = *mItemList.begin();
 
     for (it = mChangedItemIDs.begin(); it != mChangedItemIDs.end(); it++)
     {
-        // set dirty for 'item profile panel' only if changed item is the item for which 'item profile panel' is shown (STORM-288)
-        if (*it == mItemId)
+        // check if there's a change we're interested in.
+        if (*it == expected_id)
         {
-            // if there's a change we're interested in.
             if ((mask & (LLInventoryObserver::LABEL | LLInventoryObserver::INTERNAL | LLInventoryObserver::REMOVE)) != 0)
             {
                 refreshFromInventory();
@@ -255,6 +277,12 @@ void LLFloaterChangeItemThumbnail::inventoryChanged(LLViewerObject* object,
 
 LLInventoryObject* LLFloaterChangeItemThumbnail::getInventoryObject()
 {
+    if (mItemList.size() == 0)
+    {
+        return NULL;
+    }
+
+    const LLUUID item_id = *mItemList.begin();
     LLInventoryObject* obj = NULL;
     if (mTaskId.isNull())
     {
@@ -265,7 +293,7 @@ LLInventoryObject* LLFloaterChangeItemThumbnail::getInventoryObject()
             mObserverInitialized = true;
         }
 
-        obj = gInventory.getObject(mItemId);
+        obj = gInventory.getObject(item_id);
     }
     else
     {
@@ -278,7 +306,7 @@ LLInventoryObject* LLFloaterChangeItemThumbnail::getInventoryObject()
                 mObserverInitialized = false;
             }
 
-            obj = object->getInventoryObject(mItemId);
+            obj = object->getInventoryObject(item_id);
         }
     }
     return obj;
@@ -357,7 +385,7 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
                 LLInventoryModel::item_array_t items;
                 // Not LLIsOfAssetType, because we allow links
                 LLIsOutfitTextureType f;
-                gInventory.getDirectDescendentsOf(mItemId, cats, items, f);
+                gInventory.getDirectDescendentsOf(*mItemList.begin(), cats, items, f);
 
                 if (1 == items.size())
                 {
@@ -401,7 +429,16 @@ void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
 
-    (new LLThumbnailImagePicker(self->mItemId, self->mTaskId))->getFile();
+    LLUUID task_id = self->mTaskId;
+    uuid_set_t inventory_ids = self->mItemList;
+    (new LLThumbnailImagePicker(
+        *self->mItemList.begin(),
+        self->mTaskId,
+        [inventory_ids, task_id](const LLUUID& asset_id)
+        {
+            onUploadComplete(asset_id, task_id, inventory_ids);
+        }
+    ))->getFile();
 
     LLFloater* floaterp = self->mPickerHandle.get();
     if (floaterp)
@@ -428,7 +465,7 @@ void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)
     else
     {
         LLSD key;
-        key["item_id"] = self->mItemId;
+        key["item_id"] = *self->mItemList.begin();
         key["task_id"] = self->mTaskId;
         LLFloaterSimpleSnapshot* snapshot_floater = (LLFloaterSimpleSnapshot*)LLFloaterReg::showInstance("simple_snapshot", key, true);
         if (snapshot_floater)
@@ -436,6 +473,13 @@ void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)
             self->addDependentFloater(snapshot_floater);
             self->mSnapshotHandle = snapshot_floater->getHandle();
             snapshot_floater->setOwner(self);
+            LLUUID task_id = self->mTaskId;
+            uuid_set_t inventory_ids = self->mItemList;
+            snapshot_floater->setComplectionCallback(
+                [inventory_ids, task_id](const LLUUID& asset_id)
+                {
+                    onUploadComplete(asset_id, task_id, inventory_ids);
+                });
         }
     }
 
@@ -532,7 +576,7 @@ void LLFloaterChangeItemThumbnail::onRemove(void *userdata)
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
 
     LLSD payload;
-    payload["item_id"] = self->mItemId;
+    payload["item_id"] = *self->mItemList.begin();
     payload["object_id"] = self->mTaskId;
     LLNotificationsUtil::add("DeleteThumbnail", LLSD(), payload, boost::bind(&LLFloaterChangeItemThumbnail::onRemovalConfirmation, _1, _2, self->getHandle()));
 }
@@ -551,7 +595,8 @@ void LLFloaterChangeItemThumbnail::onRemovalConfirmation(const LLSD& notificatio
 struct ImageLoadedData
 {
     LLUUID mThumbnailId;
-    LLUUID mObjectId;
+    LLUUID mTaskId;
+    uuid_set_t mItemIds;
     LLHandle<LLFloater> mFloaterHandle;
     bool mSilent;
     // Keep image reference to prevent deletion on timeout
@@ -581,7 +626,8 @@ void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id
             mExpectingAssetId = asset_id;
         }
         ImageLoadedData *data = new ImageLoadedData();
-        data->mObjectId = mItemId;
+        data->mTaskId = mTaskId;
+        data->mItemIds = mItemList;
         data->mThumbnailId = asset_id;
         data->mFloaterHandle = getHandle();
         data->mSilent = silent;
@@ -663,10 +709,13 @@ void LLFloaterChangeItemThumbnail::onImageDataLoaded(
 
     if (success)
     {
-        // Update the item, set it even if floater is dead
+        // Update items, set thumnails even if floater is dead
         if (validateAsset(data->mThumbnailId))
         {
-            setThumbnailId(data->mThumbnailId, data->mObjectId);
+            for (const LLUUID& id : data->mItemIds)
+            {
+                setThumbnailId(data->mThumbnailId, data->mTaskId, id);
+            }
         }
         else if (!data->mSilent)
         {
@@ -716,11 +765,22 @@ void LLFloaterChangeItemThumbnail::onFullImageLoaded(
         }
         else if (src_vi->getFullWidth() > LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX)
         {
-            LLFloaterSimpleSnapshot::uploadThumbnail(src, data->mObjectId, LLUUID::null);
+            LLUUID task_id = data->mTaskId;
+            uuid_set_t inventory_ids = data->mItemIds;
+            LLFloaterSimpleSnapshot::uploadThumbnail(src,
+                                                     *data->mItemIds.begin(),
+                                                     task_id,
+                                                     [inventory_ids, task_id](const LLUUID& asset_id)
+                                                     {
+                                                         onUploadComplete(asset_id, task_id, inventory_ids);
+                                                     });
         }
         else
         {
-            setThumbnailId(data->mThumbnailId, data->mObjectId);
+            for (const LLUUID& id : data->mItemIds)
+            {
+                setThumbnailId(data->mThumbnailId, data->mTaskId, id);
+            }
         }
     }
 
@@ -837,19 +897,33 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
                 && (texturep->getCachedRawImageLevel() == 0 || texturep->getRawImageLevel() == 0)
                 && (texturep->isCachedRawImageReady() || texturep->isRawImageValid()))
             {
+                LLUUID task_id = mTaskId;
+                uuid_set_t inventory_ids = mItemList;
+                LLFloaterSimpleSnapshot::completion_t callback =
+                    [inventory_ids, task_id](const LLUUID& asset_id)
+                    {
+                        onUploadComplete(asset_id, task_id, inventory_ids);
+                    };
                 if (texturep->isRawImageValid())
                 {
-                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(), mItemId, mTaskId);
+                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
+                                                             *mItemList.begin(),
+                                                             mTaskId,
+                                                             callback);
                 }
                 else
                 {
-                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getCachedRawImage(), mItemId, mTaskId);
+                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getCachedRawImage(),
+                                                             *mItemList.begin(),
+                                                             mTaskId,
+                                                             callback);
                 }
             }
             else
             {
                 ImageLoadedData* data = new ImageLoadedData();
-                data->mObjectId = mItemId;
+                data->mTaskId = mTaskId;
+                data->mItemIds = mItemList;
                 data->mThumbnailId = asset_id;
                 data->mFloaterHandle = getHandle();
                 data->mSilent = false;
@@ -873,6 +947,29 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
     }
 }
 
+//static
+void LLFloaterChangeItemThumbnail::onUploadComplete(const LLUUID& asset_id, const LLUUID& task_id, const uuid_set_t& inventory_ids)
+{
+    if (asset_id.isNull())
+    {
+        // failure
+        return;
+    }
+    uuid_set_t::iterator iter = inventory_ids.begin();
+    uuid_set_t::iterator end = inventory_ids.end();
+    if (iter == end)
+    {
+        LL_WARNS() << "Received empty item list!" << LL_ENDL;
+    }
+    else
+    {
+        iter++; // first element was set by upload
+        for (; iter != end; iter++)
+        {
+            setThumbnailId(asset_id, task_id, *iter);
+        }
+    }
+}
 
 void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID &new_thumbnail_id)
 {
@@ -888,20 +985,28 @@ void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID &new_thumbnail_id
         return;
     }
 
-    setThumbnailId(new_thumbnail_id, mItemId, obj);
+    for (const LLUUID &id : mItemList)
+    {
+        setThumbnailId(new_thumbnail_id, id, obj);
+    }
 }
 
-void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id)
+void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& task_id, const LLUUID& inv_obj_id)
 {
-    LLInventoryObject* obj = gInventory.getObject(object_id);
+    if (task_id.notNull())
+    {
+        LL_WARNS() << "Not supported" << LL_ENDL;
+        return;
+    }
+    LLInventoryObject* obj = gInventory.getObject(inv_obj_id);
     if (!obj)
     {
         return;
     }
 
-    setThumbnailId(new_thumbnail_id, object_id, obj);
+    setThumbnailId(new_thumbnail_id, inv_obj_id, obj);
 }
-void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id, LLInventoryObject* obj)
+void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& inv_obj_id, LLInventoryObject* obj)
 {
     if (obj->getThumbnailUUID() != new_thumbnail_id)
     {
@@ -919,12 +1024,12 @@ void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id
         LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
         if (view_folder)
         {
-            update_inventory_category(object_id, updates, NULL);
+            update_inventory_category(inv_obj_id, updates, NULL);
         }
         LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
         if (view_item)
         {
-            update_inventory_item(object_id, updates, NULL);
+            update_inventory_item(inv_obj_id, updates, NULL);
         }
     }
 }
