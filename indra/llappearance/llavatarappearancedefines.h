@@ -40,7 +40,7 @@ namespace LLAvatarAppearanceDefines
 extern const S32 SCRATCH_TEX_WIDTH;
 extern const S32 SCRATCH_TEX_HEIGHT;
 
-static const U32 AVATAR_HOVER = 11001;
+static constexpr U32 AVATAR_HOVER = 11001;
 
 //--------------------------------------------------------------------
 // Enums

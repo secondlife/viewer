@@ -930,10 +930,10 @@ bool LLXUIParser::writeFlag(Parser& parser, const void* val_ptr, name_stack_t& s
 
 bool LLXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
-	S32 value;
+	bool value;
 	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	bool success = self.mCurReadNode->getBoolValue(1, &value);
-	*((bool*)val_ptr) = (value != FALSE);
+	*((bool*)val_ptr) = (value != false);
 	return success;
 }
 

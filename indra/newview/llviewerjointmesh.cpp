@@ -108,7 +108,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	S32 joint_num;
 	LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
 	LLDrawPool *poolp = mFace ? mFace->getPool() : NULL;
-	BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
+	bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
 	//calculate joint matrices
 	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
@@ -123,7 +123,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 		gJointRotUnaligned[joint_num] = joint_mat.getMat3();
 	}
 
-	BOOL last_pivot_uploaded = FALSE;
+	bool last_pivot_uploaded{ false };
 	S32 j = 0;
 
 	//upload joint pivots
@@ -144,11 +144,11 @@ void LLViewerJointMesh::uploadJointMatrices()
 
 			gJointPivot[j++] = child_pivot;
 
-			last_pivot_uploaded = TRUE;
+			last_pivot_uploaded = true;
 		}
 		else
 		{
-			last_pivot_uploaded = FALSE;
+			last_pivot_uploaded = false;
 		}
 	}
 
@@ -358,7 +358,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
 	}
 
 	LLDrawPool *poolp = mFace->getPool();
-	BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
+	bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
 	if (!hardware_skinning && terse_update)
 	{ //no need to do terse updates if we're doing software vertex skinning

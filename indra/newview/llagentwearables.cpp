@@ -56,7 +56,7 @@
 
 LLAgentWearables gAgentWearables;
 
-BOOL LLAgentWearables::mInitialWearablesUpdateReceived = FALSE;
+bool LLAgentWearables::mInitialWearablesUpdateReceived = false;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -194,7 +194,7 @@ struct LLAgentDumper
 
 LLAgentWearables::LLAgentWearables() :
 	LLWearableData(),
-	mWearablesLoaded(FALSE)
+	mWearablesLoaded(false)
 ,	mCOFChangeInProgress(false)
 {
 }
@@ -375,7 +375,7 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 									  const U32 index,
 									  const std::string& new_name,
 									  const std::string& description,
-									  BOOL save_in_lost_and_found)
+									  bool save_in_lost_and_found)
 {
 	if (!isWearableCopyable(type, index))
 	{
@@ -493,13 +493,13 @@ void LLAgentWearables::setWearableName(const LLUUID& item_id, const std::string&
 }
 
 
-BOOL LLAgentWearables::isWearableModifiable(LLWearableType::EType type, U32 index) const
+bool LLAgentWearables::isWearableModifiable(LLWearableType::EType type, U32 index) const
 {
 	LLUUID item_id = getWearableItemID(type, index);
-	return item_id.notNull() ? isWearableModifiable(item_id) : FALSE;
+	return item_id.notNull() ? isWearableModifiable(item_id) : false;
 }
 
-BOOL LLAgentWearables::isWearableModifiable(const LLUUID& item_id) const
+bool LLAgentWearables::isWearableModifiable(const LLUUID& item_id) const
 {
 	const LLUUID& linked_id = gInventory.getLinkedItemID(item_id);
 	if (linked_id.notNull())
@@ -508,13 +508,13 @@ BOOL LLAgentWearables::isWearableModifiable(const LLUUID& item_id) const
 		if (item && item->getPermissions().allowModifyBy(gAgent.getID(),
 														 gAgent.getGroupID()))
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLAgentWearables::isWearableCopyable(LLWearableType::EType type, U32 index) const
+bool LLAgentWearables::isWearableCopyable(LLWearableType::EType type, U32 index) const
 {
 	LLUUID item_id = getWearableItemID(type, index);
 	if (!item_id.isNull())
@@ -523,27 +523,11 @@ BOOL LLAgentWearables::isWearableCopyable(LLWearableType::EType type, U32 index)
 		if (item && item->getPermissions().allowCopyBy(gAgent.getID(),
 													   gAgent.getGroupID()))
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
-
-/*
-  U32 LLAgentWearables::getWearablePermMask(LLWearableType::EType type)
-  {
-  LLUUID item_id = getWearableItemID(type);
-  if (!item_id.isNull())
-  {
-  LLInventoryItem* item = gInventory.getItem(item_id);
-  if (item)
-  {
-  return item->getPermissions().getMaskOwner();
-  }
-  }
-  return PERM_NONE;
-  }
-*/
 
 LLInventoryItem* LLAgentWearables::getWearableInventoryItem(LLWearableType::EType type, U32 index)
 {
@@ -617,7 +601,7 @@ const LLViewerWearable* LLAgentWearables::getViewerWearable(const LLWearableType
 }
 
 // static
-BOOL LLAgentWearables::selfHasWearable(LLWearableType::EType type)
+bool LLAgentWearables::selfHasWearable(LLWearableType::EType type)
 {
 	return (gAgentWearables.getWearableCount(type) > 0);
 }
@@ -675,9 +659,9 @@ const LLUUID LLAgentWearables::getWearableAssetID(LLWearableType::EType type, U3
 		return LLUUID();
 }
 
-BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
+bool LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 {
-	return getWearableFromItemID(item_id) != NULL;
+	return getWearableFromItemID(item_id) != nullptr;
 }
 
 void LLAgentWearables::addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index)
@@ -772,21 +756,21 @@ void LLAgentWearables::createStandardWearables()
 
 	if (!isAgentAvatarValid()) return;
 
-	const BOOL create[LLWearableType::WT_COUNT] = 
+	constexpr bool create[LLWearableType::WT_COUNT] = 
 		{
-			TRUE,  //LLWearableType::WT_SHAPE
-			TRUE,  //LLWearableType::WT_SKIN
-			TRUE,  //LLWearableType::WT_HAIR
-			TRUE,  //LLWearableType::WT_EYES
-			TRUE,  //LLWearableType::WT_SHIRT
-			TRUE,  //LLWearableType::WT_PANTS
-			TRUE,  //LLWearableType::WT_SHOES
-			TRUE,  //LLWearableType::WT_SOCKS
-			FALSE, //LLWearableType::WT_JACKET
-			FALSE, //LLWearableType::WT_GLOVES
-			TRUE,  //LLWearableType::WT_UNDERSHIRT
-			TRUE,  //LLWearableType::WT_UNDERPANTS
-			FALSE  //LLWearableType::WT_SKIRT
+			true,  //LLWearableType::WT_SHAPE
+			true,  //LLWearableType::WT_SKIN
+			true,  //LLWearableType::WT_HAIR
+			true,  //LLWearableType::WT_EYES
+			true,  //LLWearableType::WT_SHIRT
+			true,  //LLWearableType::WT_PANTS
+			true,  //LLWearableType::WT_SHOES
+			true,  //LLWearableType::WT_SOCKS
+			false, //LLWearableType::WT_JACKET
+			false, //LLWearableType::WT_GLOVES
+			true,  //LLWearableType::WT_UNDERSHIRT
+			true,  //LLWearableType::WT_UNDERPANTS
+			false  //LLWearableType::WT_SKIRT
 		};
 
 	LLPointer<LLInventoryCallback> cb = new OnWearableItemCreatedCB;
@@ -865,7 +849,7 @@ void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 void LLAgentWearables::addWearableToAgentInventory(LLPointer<LLInventoryCallback> cb,
 												   LLViewerWearable* wearable,
 												   const LLUUID& category_id,
-												   BOOL notify)
+												   bool notify)
 {
     create_inventory_wearable(gAgent.getID(),
 						  gAgent.getSessionID(),
@@ -987,7 +971,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	S32 matched = 0, mismatched = 0;
 	const S32 arr_size = LLWearableType::WT_COUNT;
 	S32 type_counts[arr_size];
-	BOOL update_inventory = FALSE;
+	bool update_inventory{ false };
 	std::fill(type_counts,type_counts+arr_size,0);
 	for (S32 i = 0; i < count; i++)
 	{
@@ -1025,7 +1009,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 								<< curr_wearable->getName() << " vs " << new_item->getName()
 								<< " item ids " << curr_wearable->getItemID() << " vs " << new_item->getUUID()
 								<< LL_ENDL;
-			update_inventory = TRUE;
+			update_inventory = true;
 			continue;
 		}
 		// If we got here, everything matches.
@@ -1092,7 +1076,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 				pushWearable(type,new_wearable);
 			}
 
-			const BOOL removed = FALSE;
+			constexpr bool removed = false;
 			wearableUpdated(new_wearable, removed);
 		}
 	}
@@ -1110,7 +1094,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
+		gAgentAvatarp->setCompositeUpdatesEnabled(true);
 
 		// If we have not yet declouded, we may want to use
 		// baked texture UUIDs sent from the first objectUpdate message
@@ -1124,7 +1108,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	}
 
 	// Start rendering & update the server
-	mWearablesLoaded = TRUE; 
+	mWearablesLoaded = true; 
 
 	notifyLoadingFinished();
 
@@ -1434,7 +1418,7 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
         ++it)
     {
 		const LLInventoryItem* item = *it;
-        LLAttachmentsMgr::instance().addAttachmentRequest(item->getLinkedUUID(), 0, TRUE);
+        LLAttachmentsMgr::instance().addAttachmentRequest(item->getLinkedUUID(), 0, true);
     }
 }
 
@@ -1452,7 +1436,7 @@ bool LLAgentWearables::canMoveWearable(const LLUUID& item_id, bool closer_to_bod
 	return wearable != marginal_wearable;
 }
 
-BOOL LLAgentWearables::areWearablesLoaded() const
+bool LLAgentWearables::areWearablesLoaded() const
 {
 	return mWearablesLoaded;
 }
@@ -1620,7 +1604,7 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
         return;
     }
 
-	const BOOL disable_camera_switch = LLWearableType::getInstance()->getDisableCameraSwitch(wearable->getType());
+	const bool disable_camera_switch = LLWearableType::getInstance()->getDisableCameraSwitch(wearable->getType());
 	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("appearance");
 	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }

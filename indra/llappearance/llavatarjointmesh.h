@@ -122,9 +122,6 @@ public:
 	// Sets up joint matrix data for rendering
 	void setupJoint(LLAvatarJoint* current_joint);
 
-	// Render time method to upload batches of joint matrices
-	void uploadJointMatrices();
-
 	// Sets ID for picking
 	void setMeshID( S32 id ) {mMeshID = id;}
 

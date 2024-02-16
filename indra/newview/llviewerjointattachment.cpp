@@ -45,19 +45,19 @@
 #include "llglheaders.h"
 
 extern LLPipeline gPipeline;
-const F32 MAX_ATTACHMENT_DIST = 3.5f; // meters
+constexpr F32 MAX_ATTACHMENT_DIST = 3.5f; // meters
 
 //-----------------------------------------------------------------------------
 // LLViewerJointAttachment()
 //-----------------------------------------------------------------------------
 LLViewerJointAttachment::LLViewerJointAttachment() :
-	mVisibleInFirst(FALSE),
+	mVisibleInFirst(false),
 	mGroup(0),
-	mIsHUDAttachment(FALSE),
+	mIsHUDAttachment(false),
 	mPieSlice(-1)
 {
-	mValid = FALSE;
-	mUpdateXform = FALSE;
+	mValid = false;
+	mUpdateXform = false;
 	mAttachedObjects.clear();
 }
 
@@ -236,7 +236,7 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 	}
 
 	// force object visibile
-	setAttachmentVisibility(TRUE);
+	setAttachmentVisibility(true);
 
 	mAttachedObjects.erase(iter);
 	if (object->mDrawable.notNull())
@@ -309,7 +309,7 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 	}
 	if (mAttachedObjects.size() == 0)
 	{
-		mUpdateXform = FALSE;
+		mUpdateXform = false;
 	}
 	object->setAttachmentItemID(LLUUID::null);
 }
@@ -426,11 +426,11 @@ void LLViewerJointAttachment::calcLOD()
 //-----------------------------------------------------------------------------
 bool LLViewerJointAttachment::updateLOD(F32 pixel_area, bool activate)
 {
-	BOOL res = FALSE;
+	bool res{ false };
 	if (!mValid)
 	{
-		setValid(TRUE, TRUE);
-		res = TRUE;
+		setValid(true, true);
+		res = true;
 	}
 	return res;
 }
@@ -462,7 +462,7 @@ const LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &o
 			return attached_object;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &object_id)
@@ -477,5 +477,5 @@ LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &object_
 			return attached_object;
 		}
 	}
-	return NULL;
+	return nullptr;
 }

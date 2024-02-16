@@ -277,7 +277,7 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
 			
 			if (child->hasAttribute("load_collection"))
 			{
-				BOOL col = FALSE;
+				bool col = false;
 				child->getAttributeBOOL("load_collection", col);
 				if (col)
 				{
