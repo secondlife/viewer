@@ -3430,7 +3430,7 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 	if (!perm.isOwned()) return FALSE;
 
 	// A group member with group_proxy_power can act as owner.
-	BOOL is_group_owned;
+	bool is_group_owned;
 	LLUUID owner_id;
 	perm.getOwnership(owner_id, is_group_owned);
 	LLUUID group_id(perm.getGroup());
@@ -3812,9 +3812,9 @@ void LLAgent::processScriptControlChange(LLMessageSystem *msg, void **)
 	S32 block_count = msg->getNumberOfBlocks("Data");
 	for (S32 block_index = 0; block_index < block_count; block_index++)
 	{
-		BOOL take_controls;
+		bool take_controls;
 		U32	controls;
-		BOOL passon;
+		bool passon;
 		U32 i;
 		msg->getBOOL("Data", "TakeControls", take_controls, block_index);
 		if (take_controls)

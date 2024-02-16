@@ -71,15 +71,15 @@ LLViewerJointAttachment::~LLViewerJointAttachment()
 //-----------------------------------------------------------------------------
 // isTransparent()
 //-----------------------------------------------------------------------------
-BOOL LLViewerJointAttachment::isTransparent()
+bool LLViewerJointAttachment::isTransparent()
 {
-	return FALSE;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 // drawShape()
 //-----------------------------------------------------------------------------
-U32 LLViewerJointAttachment::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLViewerJointAttachment::drawShape( F32 pixelArea, bool first_pass, bool is_dummy )
 {
 	if (LLVOAvatar::sShowAttachmentPoints)
 	{
@@ -103,7 +103,7 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 		return;
 	if (object->mDrawable->isActive())
 	{
-		object->mDrawable->makeStatic(FALSE);
+		object->mDrawable->makeStatic(false);
 	}
 
 	object->mDrawable->mXform.setParent(getXform()); // LLViewerJointAttachment::lazyAttach
@@ -162,7 +162,7 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 //-----------------------------------------------------------------------------
 // addObject()
 //-----------------------------------------------------------------------------
-BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
+bool LLViewerJointAttachment::addObject(LLViewerObject* object)
 {
 	object->extractAttachmentItemID();
 
@@ -184,7 +184,7 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 
 		// If this happens to be attached to self, then detach.
 		LLVOAvatarSelf::detachAttachmentIntoInventory(object->getAttachmentItemID());
-		return FALSE;
+		return false;
 	}
 
 	mAttachedObjects.push_back(object);
@@ -194,7 +194,7 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 	{
 		if (object->mText.notNull())
 		{
-			object->mText->setOnHUDAttachment(TRUE);
+			object->mText->setOnHUDAttachment(true);
 		}
 		LLViewerObject::const_child_list_t& child_list = object->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -203,14 +203,14 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 			LLViewerObject* childp = *iter;
 			if (childp && childp->mText.notNull())
 			{
-				childp->mText->setOnHUDAttachment(TRUE);
+				childp->mText->setOnHUDAttachment(true);
 			}
 		}
 	}
 	calcLOD();
-	mUpdateXform = TRUE;
+	mUpdateXform = true;
 	
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -317,7 +317,7 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 //-----------------------------------------------------------------------------
 // setAttachmentVisibility()
 //-----------------------------------------------------------------------------
-void LLViewerJointAttachment::setAttachmentVisibility(BOOL visible)
+void LLViewerJointAttachment::setAttachmentVisibility(bool visible)
 {
 	for (attachedobjs_vec_t::const_iterator iter = mAttachedObjects.begin();
 		 iter != mAttachedObjects.end();
@@ -435,7 +435,7 @@ bool LLViewerJointAttachment::updateLOD(F32 pixel_area, bool activate)
 	return res;
 }
 
-BOOL LLViewerJointAttachment::isObjectAttached(const LLViewerObject *viewer_object) const
+bool LLViewerJointAttachment::isObjectAttached(const LLViewerObject *viewer_object) const
 {
 	for (attachedobjs_vec_t::const_iterator iter = mAttachedObjects.begin();
 		 iter != mAttachedObjects.end();
@@ -444,10 +444,10 @@ BOOL LLViewerJointAttachment::isObjectAttached(const LLViewerObject *viewer_obje
 		const LLViewerObject* attached_object = iter->get();
 		if (attached_object == viewer_object)
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 const LLViewerObject *LLViewerJointAttachment::getAttachedObject(const LLUUID &object_id) const

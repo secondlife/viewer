@@ -150,7 +150,7 @@ void LLViewerTexLayerSetBuffer::preRenderTexLayerSet()
 }
 
 // virtual
-void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
+void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(bool success)
 {
 
 	LLTexLayerSetBuffer::postRenderTexLayerSet(success);
@@ -158,9 +158,9 @@ void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
 }
 
 // virtual
-void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
+void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(bool success)
 {
-	const BOOL update_now = mNeedsUpdate && isReadyToUpdate();
+	const bool update_now = mNeedsUpdate && isReadyToUpdate();
 	if (update_now)
 	{
 		doUpdate();

@@ -1020,7 +1020,7 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
     LLUUID          uuid;
     S8              asset_type_s8;
     LLAssetType::EType asset_type;
-    BOOL            success = FALSE;
+    bool            success = false;
 
     msg->getUUIDFast(_PREHASH_AssetBlock, _PREHASH_UUID, uuid);
     msg->getS8Fast(_PREHASH_AssetBlock, _PREHASH_Type, asset_type_s8);

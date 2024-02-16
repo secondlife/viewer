@@ -91,21 +91,21 @@ public:
 
 	virtual void setStopTime(F32 time);
 
-	BOOL isStopped() const { return mStopped; }
+	bool isStopped() const { return mStopped; }
 
-	void setStopped(BOOL stopped) { mStopped = stopped; }
+	void setStopped(bool stopped) { mStopped = stopped; }
 
-	BOOL isBlending();
+	bool isBlending();
 
 	// Activation functions.
 	// It is OK for other classes to activate a motion,
 	// but only the controller can deactivate it.
-	// Thus, if mActive == TRUE, the motion *may* be on the controllers active list,
-	// but if mActive == FALSE, the motion is gauranteed not to be on the active list.
+	// Thus, if mActive == true, the motion *may* be on the controllers active list,
+	// but if mActive == false, the motion is gauranteed not to be on the active list.
 protected:
 	// Used by LLMotionController only
 	void deactivate();
-	BOOL isActive() { return mActive; }
+	bool isActive() { return mActive; }
 public:
 	void activate(F32 time);
 	
@@ -144,15 +144,15 @@ public:
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character) = 0;
 
 	// called per time step
-	// must return TRUE while it is active, and
-	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 activeTime, U8* joint_mask) = 0;
+	// must return true while it is active, and
+	// must return false when the motion is completed.
+	virtual bool onUpdate(F32 activeTime, U8* joint_mask) = 0;
 
 	// called when a motion is deactivated
 	virtual void onDeactivate() = 0;
 
 	// can we crossfade this motion with a new instance when restarted?
-	// should ultimately always be TRUE, but lack of emote blending, etc
+	// should ultimately always be true, but lack of emote blending, etc
 	// requires this
 	virtual bool canDeprecate();
 
@@ -161,16 +161,16 @@ public:
 
 protected:
 	// called when a motion is activated
-	// must return TRUE to indicate success, or else
+	// must return true to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate() = 0;
+	virtual bool onActivate() = 0;
 
 	void addJointState(const LLPointer<LLJointState>& jointState);
 
 protected:
 	LLPose		mPose;
-	BOOL		mStopped;		// motion has been stopped;
-	BOOL		mActive;		// motion is on active list (can be stopped or not stopped)
+	bool		mStopped;		// motion has been stopped;
+	bool		mActive;		// motion is on active list (can be stopped or not stopped)
 
 	//-------------------------------------------------------------------------
 	// these are set implicitly by the motion controller and
@@ -208,8 +208,8 @@ public:
 	F32 getMinPixelArea() { return 0.f; }
 	
 	LLMotionInitStatus onInitialize(LLCharacter*) { LL_INFOS() << "LLTestMotion::onInitialize()" << LL_ENDL; return STATUS_SUCCESS; }
-	BOOL onActivate() { LL_INFOS() << "LLTestMotion::onActivate()" << LL_ENDL; return true; }
-	BOOL onUpdate(F32 time, U8* joint_mask) { LL_INFOS() << "LLTestMotion::onUpdate(" << time << ")" << LL_ENDL; return true; }
+	bool onActivate() { LL_INFOS() << "LLTestMotion::onActivate()" << LL_ENDL; return true; }
+	bool onUpdate(F32 time, U8* joint_mask) { LL_INFOS() << "LLTestMotion::onUpdate(" << time << ")" << LL_ENDL; return true; }
 	void onDeactivate() { LL_INFOS() << "LLTestMotion::onDeactivate()" << LL_ENDL; }
 };
 
@@ -251,14 +251,14 @@ public:
 	/*virtual*/ LLMotionInitStatus onInitialize(LLCharacter *character) { return STATUS_SUCCESS; }
 
 	// called when a motion is activated
-	// must return TRUE to indicate success, or else
+	// must return true to indicate success, or else
 	// it will be deactivated
-	/*virtual*/ BOOL onActivate() { return true; }
+	/*virtual*/ bool onActivate() { return true; }
 
 	// called per time step
-	// must return TRUE while it is active, and
-	// must return FALSE when the motion is completed.
-	/*virtual*/ BOOL onUpdate(F32 activeTime, U8* joint_mask) { return true; }
+	// must return true while it is active, and
+	// must return false when the motion is completed.
+	/*virtual*/ bool onUpdate(F32 activeTime, U8* joint_mask) { return true; }
 
 	// called when a motion is deactivated
 	/*virtual*/ void onDeactivate() {}

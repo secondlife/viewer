@@ -1528,13 +1528,13 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 {
     S32		request_result;
     S32		sequence_id;
-    BOOL	snap_selection = FALSE;
+    bool	snap_selection = false;
     S32		self_count = 0;
     S32		other_count = 0;
     S32		public_count = 0;
     S32		local_id;
     LLUUID	owner_id;
-    BOOL	is_group_owned;
+    bool	is_group_owned;
     U32 auction_id = 0;
     S32		claim_price_per_meter = 0;
     S32		rent_price_per_meter = 0;
@@ -1553,15 +1553,15 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     S32		other_prims = 0;
     S32		selected_prims = 0;
     F32		parcel_prim_bonus = 1.f;
-    BOOL	region_push_override = false;
-    BOOL	region_deny_anonymous_override = false;
-    BOOL	region_deny_identified_override = false; // Deprecated
-    BOOL	region_deny_transacted_override = false; // Deprecated
-    BOOL	region_deny_age_unverified_override = false;
-    BOOL    region_allow_access_override = true;
-    BOOL    region_allow_environment_override = true;
+    bool	region_push_override = false;
+    bool	region_deny_anonymous_override = false;
+    bool	region_deny_identified_override = false; // Deprecated
+    bool	region_deny_transacted_override = false; // Deprecated
+    bool	region_deny_age_unverified_override = false;
+    bool    region_allow_access_override = true;
+    bool    region_allow_environment_override = true;
     S32     parcel_environment_version = 0;
-    BOOL	agent_parcel_update = false; // updating previous(existing) agent parcel
+    bool	agent_parcel_update = false; // updating previous(existing) agent parcel
     U32     extended_flags = 0; //obscure MOAP
 
     S32		other_clean_time = 0;

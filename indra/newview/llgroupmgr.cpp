@@ -980,7 +980,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 		std::string online_status;
 		std::string title;
 		U64 agent_powers = 0;
-		BOOL is_owner = FALSE;
+		bool is_owner = false;
 
 		S32 num_members = msg->getNumberOfBlocksFast(_PREHASH_MemberData);
 		for (S32 i = 0; i < num_members; i++)
@@ -1075,7 +1075,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	LLUUID group_id;
 	std::string	name;
 	std::string	charter;
-	BOOL	show_in_list = FALSE;
+	bool	show_in_list = false;
 	LLUUID	founder_id;
 	U64		powers_mask = GP_NO_POWERS;
 	S32		money = 0;
@@ -1083,11 +1083,11 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	LLUUID	insignia_id;
 	LLUUID	owner_role;
 	U32		membership_fee = 0;
-	BOOL	open_enrollment = FALSE;
+	bool	open_enrollment = false;
 	S32		num_group_members = 0;
 	S32		num_group_roles = 0;
-	BOOL	allow_publish = FALSE;
-	BOOL	mature = FALSE;
+	bool	allow_publish = false;
+	bool	mature = false;
 
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id );
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_FounderID, founder_id);	
@@ -1389,7 +1389,7 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
 	LL_DEBUGS("GrpMgr") << "processEjectGroupMemberReply" << LL_ENDL;
 	LLUUID group_id;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
-	BOOL success;
+	bool success;
 	msg->getBOOLFast(_PREHASH_EjectData, _PREHASH_Success, success);
 
 	// If we had a failure, the group panel needs to be updated.
@@ -1404,7 +1404,7 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 {
 	LL_DEBUGS("GrpMgr") << "processJoinGroupReply" << LL_ENDL;
 	LLUUID group_id;
-	BOOL success;
+	bool success;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
 	msg->getBOOLFast(_PREHASH_GroupData, _PREHASH_Success, success);
 
@@ -1424,7 +1424,7 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 {
 	LL_DEBUGS("GrpMgr") << "processLeaveGroupReply" << LL_ENDL;
 	LLUUID group_id;
-	BOOL success;
+	bool success;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
 	msg->getBOOLFast(_PREHASH_GroupData, _PREHASH_Success, success);
 
@@ -1443,7 +1443,7 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 {
 	LLUUID group_id;
-	BOOL success;
+	bool success;
 	std::string message;
 
 	msg->getUUIDFast(_PREHASH_ReplyData, _PREHASH_GroupID, group_id );

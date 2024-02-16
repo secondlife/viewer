@@ -757,7 +757,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	LLUUID	uuid;
 	LLAssetType::EType type;
 	S16 type_s16;
-	BOOL b_use_big_packets;
+	bool b_use_big_packets;
 
 	mesgsys->getBOOL("XferID", "UseBigPackets", b_use_big_packets);
 	
@@ -853,7 +853,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 		}
 		LL_INFOS("Xfer") << "starting file transfer: " <<  expanded_filename << " to " << mesgsys->getSender() << LL_ENDL;
 
-		BOOL delete_local_on_completion = FALSE;
+		bool delete_local_on_completion = false;
 		mesgsys->getBOOL("XferID", "DeleteOnCompletion", delete_local_on_completion);
 
 		// -1 chunk_size causes it to use the default

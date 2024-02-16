@@ -178,10 +178,10 @@ LLSD LLControlVariable::getComparableValue(const LLSD& value)
 	LLSD storable_value;
 	if(TYPE_BOOLEAN == type() && value.isString())
 	{
-		BOOL temp;
+		bool temp;
 		if(LLStringUtil::convertToBOOL(value.asString(), temp))
 		{
-			storable_value = (bool)temp;
+			storable_value = temp;
 		}
 		else
 		{
@@ -859,7 +859,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 			break;
 		case TYPE_BOOLEAN:
 			{
-				BOOL initial = FALSE;
+				bool initial = false;
 
 				child_nodep->getAttributeBOOL("value", initial);
 				control->set(initial);

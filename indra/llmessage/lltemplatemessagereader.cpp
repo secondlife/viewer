@@ -284,7 +284,7 @@ void LLTemplateMessageReader::getU8(const char *block, const char *var,
 }
 
 void LLTemplateMessageReader::getBOOL(const char *block, const char *var, 
-										  BOOL &b, S32 blocknum )
+										  bool &b, S32 blocknum )
 {
 	U8 value;
 	getData(block, var, &value, sizeof(U8), blocknum);

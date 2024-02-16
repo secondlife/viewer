@@ -95,8 +95,8 @@ private:
 	// Tex Layer Render
 	//--------------------------------------------------------------------
 	virtual void			preRenderTexLayerSet();
-	virtual void			midRenderTexLayerSet(BOOL success);
-	virtual void			postRenderTexLayerSet(BOOL success);
+	virtual void			midRenderTexLayerSet(bool success);
+	virtual void			postRenderTexLayerSet(bool success);
 	virtual S32				getCompositeOriginX() const { return getOriginX(); }
 	virtual S32				getCompositeOriginY() const { return getOriginY(); }
 	virtual S32				getCompositeWidth() const { return getFullWidth(); }

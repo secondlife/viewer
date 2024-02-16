@@ -133,7 +133,7 @@ protected:
     
 public:
 	U32				mDirtyFlags;
-	BOOL			mUpdateXform;
+	bool			mUpdateXform;
 
 	// describes the skin binding pose
 	LLVector3		mSkinOffset;
@@ -280,7 +280,7 @@ public:
 
 	void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
 
-	virtual BOOL isAnimatable() const { return true; }
+	virtual bool isAnimatable() const { return true; }
 
 	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
 	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );

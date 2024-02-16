@@ -227,8 +227,8 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         if (settings->getFlag(LLSettingsBase::FLAG_NOTRANS) && new_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
         {
             LLPermissions perm(inv_item->getPermissions());
-            perm.setBaseBits(LLUUID::null, FALSE, PERM_TRANSFER);
-            perm.setOwnerBits(LLUUID::null, FALSE, PERM_TRANSFER);
+            perm.setBaseBits(LLUUID::null, false, PERM_TRANSFER);
+            perm.setOwnerBits(LLUUID::null, false, PERM_TRANSFER);
             new_item->setPermissions(perm);
             need_update |= true;
         }

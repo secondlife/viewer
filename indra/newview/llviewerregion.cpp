@@ -2890,7 +2890,7 @@ void LLViewerRegion::unpackRegionHandshake()
 	U8 sim_access;
 	std::string sim_name;
 	LLUUID sim_owner;
-	BOOL is_estate_manager;
+	bool is_estate_manager;
 	F32 water_height;
 	F32 billable_factor;
 	LLUUID cache_id;

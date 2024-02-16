@@ -83,7 +83,7 @@ LLMotion::LLMotionInitStatus LLKeyframeWalkMotion::onInitialize(LLCharacter *cha
 //-----------------------------------------------------------------------------
 // LLKeyframeWalkMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeWalkMotion::onActivate()
+bool LLKeyframeWalkMotion::onActivate()
 {
 	mRealTimeLast = 0.0f;
 	mAdjTimeLast = 0.0f;
@@ -103,7 +103,7 @@ void LLKeyframeWalkMotion::onDeactivate()
 //-----------------------------------------------------------------------------
 // LLKeyframeWalkMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeWalkMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLKeyframeWalkMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
 	// compute time since last update
@@ -174,7 +174,7 @@ LLMotion::LLMotionInitStatus LLWalkAdjustMotion::onInitialize(LLCharacter *chara
 //-----------------------------------------------------------------------------
 // LLWalkAdjustMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLWalkAdjustMotion::onActivate()
+bool LLWalkAdjustMotion::onActivate()
 {
 	mAnimSpeed = 0.f;
 	mAdjustedSpeed = 0.f;
@@ -197,7 +197,7 @@ BOOL LLWalkAdjustMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLWalkAdjustMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
 	// delta_time is guaranteed to be non zero
@@ -362,7 +362,7 @@ LLMotion::LLMotionInitStatus LLFlyAdjustMotion::onInitialize(LLCharacter *charac
 //-----------------------------------------------------------------------------
 // LLFlyAdjustMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLFlyAdjustMotion::onActivate()
+bool LLFlyAdjustMotion::onActivate()
 {
 	mPelvisState->setPosition(LLVector3::zero);
 	mPelvisState->setRotation(LLQuaternion::DEFAULT);
@@ -373,7 +373,7 @@ BOOL LLFlyAdjustMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLFlyAdjustMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
 	LLVector3 ang_vel = mCharacter->getCharacterAngularVelocity() * mCharacter->getTimeDilation();

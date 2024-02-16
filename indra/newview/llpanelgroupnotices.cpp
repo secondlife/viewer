@@ -501,7 +501,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 	std::string subj;
 	std::string name;
 	U32 timestamp;
-	BOOL has_attachment;
+	bool has_attachment;
 	U8 asset_type;
 
 	S32 i=0;

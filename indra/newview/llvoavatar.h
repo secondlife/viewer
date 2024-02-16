@@ -192,8 +192,8 @@ public:
 	/*virtual*/ LLVector3    	getCharacterAngularVelocity();
 
 	/*virtual*/ LLUUID			remapMotionID(const LLUUID& id);
-	/*virtual*/ BOOL			startMotion(const LLUUID& id, F32 time_offset = 0.f);
-	/*virtual*/ BOOL			stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
+	/*virtual*/ bool			startMotion(const LLUUID& id, F32 time_offset = 0.f);
+	/*virtual*/ bool			stopMotion(const LLUUID& id, bool stop_immediate = FALSE);
 	virtual bool			hasMotionFromSource(const LLUUID& source_id);
 	virtual void			stopMotionFromSource(const LLUUID& source_id);
 	virtual void			requestStopMotion(LLMotion* motion);

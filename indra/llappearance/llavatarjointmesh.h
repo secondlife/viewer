@@ -69,7 +69,7 @@ protected:
 	LLTexLayerSet*				mLayerSet;		// ptr to a layer set owned by the avatar
 	U32 						mTestImageName;		// handle to a temporary texture for previewing uploads
 	LLPolyMesh*					mMesh;			// ptr to a global polymesh
-	BOOL						mCullBackFaces;	// true by default
+	bool						mCullBackFaces;	// true by default
 	LLFace*						mFace;			// ptr to a face w/ AGP copy of mesh
 
 	U32							mFaceIndexCount;
@@ -131,7 +131,7 @@ public:
 	// Gets ID for picking
 	S32 getMeshID() { return mMeshID; }	
 
-	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
+	void setIsTransparent(bool is_transparent) { mIsTransparent = is_transparent; }
 
 private:
 	// Allocate skin data

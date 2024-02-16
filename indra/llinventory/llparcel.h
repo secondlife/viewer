@@ -209,37 +209,37 @@ public:
 	LLParcel();
 	LLParcel(
 		const LLUUID &owner_id,
-		BOOL modify,
-		BOOL terraform,
-		BOOL damage,
+		bool modify,
+		bool terraform,
+		bool damage,
 		time_t claim_date,
 		S32 claim_price,
 		S32 rent_price,
 		S32 area,
 		S32 sim_object_limit,
 		F32 parcel_object_bonus,
-		BOOL is_group_owned = FALSE);
+		bool is_group_owned = false);
 	virtual ~LLParcel();
 
 	void init(
 		const LLUUID &owner_id,
-		BOOL modify,
-		BOOL terraform,
-		BOOL damage,
+		bool modify,
+		bool terraform,
+		bool damage,
 		time_t claim_date,
 		S32 claim_price,
 		S32 rent_price,
 		S32 area,
 		S32 sim_object_limit,
 		F32 parcel_object_bonus,
-		BOOL is_group_owned = FALSE);
+		bool is_group_owned = false);
 
 	// TODO: make an actual copy constructor for this
 	void overrideParcelFlags(U32 flags);
 	// if you specify an agent id here, the group id will be zeroed
 	void overrideOwner(
 		const LLUUID& owner_id,
-		BOOL is_group_owned = FALSE);
+		bool is_group_owned = false);
 	void overrideSaleTimerExpires(F32 secs_left) { mSaleTimerExpires.setTimerExpirySec(secs_left); }
 
 	// MANIPULATORS
@@ -283,7 +283,7 @@ public:
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
 	void	setAllParcelFlags(U32 flags);
-	void	setParcelFlag(U32 flag, BOOL b);
+	void	setParcelFlag(U32 flag, bool b);
 
 	virtual void setArea(S32 area, S32 sim_object_limit);
 	void	setDiscountRate(F32 rate);
@@ -316,7 +316,7 @@ public:
 	void	setPassHours(F32 hours)				{ mPassHours = hours; }
 
 //	BOOL	importStream(std::istream& input_stream);
-	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
+	bool	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
 	// BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
@@ -344,10 +344,10 @@ public:
 	void expirePasses(S32 now);
 
 	// Add to list, suppressing duplicates.  Returns TRUE if added.
-	BOOL addToAccessList(const LLUUID& agent_id, S32 time);
-	BOOL addToBanList(const LLUUID& agent_id, S32 time);
-	BOOL removeFromAccessList(const LLUUID& agent_id);
-	BOOL removeFromBanList(const LLUUID& agent_id);
+	bool addToAccessList(const LLUUID& agent_id, S32 time);
+	bool addToBanList(const LLUUID& agent_id, S32 time);
+	bool removeFromAccessList(const LLUUID& agent_id);
+	bool removeFromBanList(const LLUUID& agent_id);
 
 	// ACCESSORS
 	const LLUUID&	getID() const				{ return mID; }
@@ -377,14 +377,14 @@ public:
 	U32 getAuctionID() const	{ return mAuctionID; }
 	bool isInEscrow() const		{ return mInEscrow; }
 
-	BOOL isPublic() const;
+	bool isPublic() const;
 
 	// Region-local user-specified position
 	const LLVector3& getUserLocation() const	{ return mUserLocation; }
 	const LLVector3& getUserLookAt() const	{ return mUserLookAt; }
 	ELandingType getLandingType() const	{ return mLandingType; }
-	BOOL getSeeAVs() const			{ return mSeeAVs;		}
-	BOOL getHaveNewParcelLimitData() const		{ return mHaveNewParcelLimitData;	}
+	bool getSeeAVs() const			{ return mSeeAVs;		}
+	bool getHaveNewParcelLimitData() const		{ return mHaveNewParcelLimitData;	}
 
 	// User-specified snapshot
 	const LLUUID&	getSnapshotID() const		{ return mSnapshotID; }
@@ -395,7 +395,7 @@ public:
 	const LLUUID& getAuthorizedBuyerID() const { return mAuthBuyerID; }
 
 	// helper function
-	BOOL isBuyerAuthorized(const LLUUID& buyer_id) const;
+	bool isBuyerAuthorized(const LLUUID& buyer_id) const;
 
 	// The buyer of a plot is set when someone indicates they want to
 	// buy the plot, and the system is simply waiting for tier-up
@@ -422,7 +422,7 @@ public:
 	// the isSaleTimerExpired will trivially return FALSE if there is
 	// no sale going on. Pass in the current time in usec which will
 	// be used for comparison.
-	BOOL isSaleTimerExpired(const U64& time);
+	bool isSaleTimerExpired(const U64& time);
 
 	F32 getSaleTimerExpires() { return mSaleTimerExpires.getRemainingTimeF32(); }
 
@@ -431,7 +431,7 @@ public:
 
 	// need to record a few things with the parcel when a sale
 	// starts.
-	void startSale(const LLUUID& buyer_id, BOOL is_buyer_group);
+	void startSale(const LLUUID& buyer_id, bool is_buyer_group);
 
 	// do the expiration logic, which needs to return values usable in
 	// a L$ transaction.
@@ -440,26 +440,26 @@ public:
 	void clearSale();
 
 
-	BOOL isMediaResetTimerExpired(const U64& time);
+	bool isMediaResetTimerExpired(const U64& time);
 
 
 	// more accessors
 	U32		getParcelFlags() const			{ return mParcelFlags; }
 
-	BOOL	getParcelFlag(U32 flag) const
-					{ return (mParcelFlags & flag) ? TRUE : FALSE; }
+	bool	getParcelFlag(U32 flag) const
+					{ return (mParcelFlags & flag) ? true : false; }
 
 	// objects can be added or modified by anyone (only parcel owner if disabled)
-	BOOL	getAllowModify() const
-					{ return (mParcelFlags & PF_CREATE_OBJECTS) ? TRUE : FALSE; }
+	bool	getAllowModify() const
+					{ return (mParcelFlags & PF_CREATE_OBJECTS) ? true : false; }
 
 	// objects can be added or modified by group members
-	BOOL	getAllowGroupModify() const
-					{ return (mParcelFlags & PF_CREATE_GROUP_OBJECTS) ? TRUE : FALSE; }
+	bool	getAllowGroupModify() const
+					{ return (mParcelFlags & PF_CREATE_GROUP_OBJECTS) ? true : false; }
 
 	// the parcel can be deeded to the group
-	BOOL	getAllowDeedToGroup() const
-					{ return (mParcelFlags & PF_ALLOW_DEED_TO_GROUP) ? TRUE : FALSE; }
+	bool	getAllowDeedToGroup() const
+					{ return (mParcelFlags & PF_ALLOW_DEED_TO_GROUP) ? true : false; }
 
 	// Does the owner want to make a contribution along with the deed.
 	BOOL getContributeWithDeed() const
@@ -537,10 +537,10 @@ public:
 	S32		getClaimPrice() const			{ return mClaimPricePerMeter * mArea; }
 
 	// Can this agent create objects here?
-	BOOL	allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const;
+	bool	allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const;
 
 	// Can this agent change the shape of the land?
-	BOOL	allowTerraformBy(const LLUUID &agent_id) const;
+	bool	allowTerraformBy(const LLUUID &agent_id) const;
 
 	bool	operator==(const LLParcel &rhs) const;
 

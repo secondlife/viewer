@@ -39,12 +39,12 @@
 LLViewerVisualParamInfo::LLViewerVisualParamInfo()
 	:
 	mWearableType( LLWearableType::WT_INVALID ),
-	mCrossWearable(FALSE),
+	mCrossWearable(false),
 	mCamDist( 0.5f ),
 	mCamAngle( 0.f ),
 	mCamElevation( 0.f ),
 	mEditGroupDisplayOrder( 0 ),
-	mShowSimple(FALSE),
+	mShowSimple(false),
 	mSimpleMin(0.f),
 	mSimpleMax(100.f)
 {
@@ -82,7 +82,7 @@ bool LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	static LLStdStringHandle cross_wearable_string = LLXmlTree::addAttributeString("cross_wearable");
 	if (!node->getFastAttributeBOOL(cross_wearable_string, mCrossWearable))
 	{
-		mCrossWearable = FALSE;
+		mCrossWearable = false;
 	}
 
 	// Optional camera offsets from the current joint center.  Used for generating "hints" (thumbnails).
@@ -146,7 +146,7 @@ LLViewerVisualParam::~LLViewerVisualParam()
 // setInfo()
 //-----------------------------------------------------------------------------
 
-BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
+bool LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 {
 	llassert(mInfo == NULL);
 	if (info->mID < 0)

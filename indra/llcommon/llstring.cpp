@@ -1359,7 +1359,7 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
 			if (iter != substitutions.end())
 			{
 				S32 secFromEpoch = 0;
-				BOOL r = LLStringUtil::convertToS32(iter->second, secFromEpoch);
+				bool r = LLStringUtil::convertToS32(iter->second, secFromEpoch);
 				if (r)
 				{
 					found_replacement = formatDatetime(replacement, tokens[0], param, secFromEpoch);

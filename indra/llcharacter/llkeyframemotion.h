@@ -135,14 +135,14 @@ public:
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
 	// called when a motion is activated
-	// must return TRUE to indicate success, or else
+	// must return true to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate();
+	virtual bool onActivate();
 
 	// called per time step
-	// must return TRUE while it is active, and
-	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+	// must return true while it is active, and
+	// must return false when the motion is completed.
+	virtual bool onUpdate(F32 time, U8* joint_mask);
 
 	// called when a motion is deactivated
 	virtual void onDeactivate();
@@ -155,14 +155,14 @@ public:
 
 public:
 	U32		getFileSize();
-	BOOL	serialize(LLDataPacker& dp) const;
-	BOOL	deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints = true);
-	BOOL	isLoaded() { return mJointMotionList != NULL; }
+	bool	serialize(LLDataPacker& dp) const;
+	bool	deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints = true);
+	bool	isLoaded() { return mJointMotionList != NULL; }
     bool	dumpToFile(const std::string& name);
 
 
 	// setters for modifying a keyframe animation
-	void setLoop(BOOL loop);
+	void setLoop(bool loop);
 
 	F32 getLoopIn() {
 		return (mJointMotionList) ? mJointMotionList->mLoopInPoint : 0.f;
@@ -211,7 +211,7 @@ protected:
 			mEaseInStopTime(0.f),
 			mEaseOutStartTime(0.f),
 			mEaseOutStopTime(0.f), 
-			mUseTargetOffset(FALSE),
+			mUseTargetOffset(false),
 			mConstraintType(CONSTRAINT_TYPE_POINT),
 			mConstraintTargetType(CONSTRAINT_TARGET_TYPE_BODY),
 			mSourceConstraintVolume(0),
@@ -231,7 +231,7 @@ protected:
 		F32						mEaseInStopTime;
 		F32						mEaseOutStartTime;
 		F32						mEaseOutStopTime;
-		BOOL					mUseTargetOffset;
+		bool					mUseTargetOffset;
 		EConstraintType			mConstraintType;
 		EConstraintTargetType	mConstraintTargetType;
 	};
@@ -251,7 +251,7 @@ protected:
 		LLVector3					mPositions[MAX_CHAIN_LENGTH];
 		F32							mJointLengths[MAX_CHAIN_LENGTH];
 		F32							mJointLengthFractions[MAX_CHAIN_LENGTH];
-		BOOL						mActive;
+		bool						mActive;
 		LLVector3d					mGroundPos;
 		LLVector3					mGroundNorm;
 		LLJoint*					mSourceVolume;
@@ -271,7 +271,7 @@ protected:
 
 	void applyConstraint(JointConstraint* constraintp, F32 time, U8* joint_mask);
 
-	BOOL	setupPose();
+	bool	setupPose();
 
 public:
 	enum AssetStatus { ASSET_LOADED, ASSET_FETCHED, ASSET_NEEDS_FETCH, ASSET_FETCH_FAILED, ASSET_UNDEFINED };

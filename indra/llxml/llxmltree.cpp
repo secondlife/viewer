@@ -199,7 +199,7 @@ void LLXmlTreeNode::addChild(LLXmlTreeNode* child)
 
 // These functions assume that name is already in mAttritrubteKeys
 
-BOOL LLXmlTreeNode::getFastAttributeBOOL(LLStdStringHandle canonical_name, BOOL& value)
+bool LLXmlTreeNode::getFastAttributeBOOL(LLStdStringHandle canonical_name, bool& value)
 {
 	const std::string *s = getAttribute( canonical_name );
 	return s && LLStringUtil::convertToBOOL( *s, value );
@@ -310,7 +310,7 @@ BOOL LLXmlTreeNode::getFastAttributeString(LLStdStringHandle canonical_name, std
 
 //////////////////////////////////////////////////////////////
 
-BOOL LLXmlTreeNode::getAttributeBOOL(const std::string& name, BOOL& value)
+bool LLXmlTreeNode::getAttributeBOOL(const std::string& name, bool& value)
 {
 	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString( name );
 	return getFastAttributeBOOL(canonical_name, value);

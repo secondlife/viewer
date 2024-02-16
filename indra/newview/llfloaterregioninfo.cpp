@@ -437,7 +437,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	F32 water_height;
 	F32 terrain_raise_limit;
 	F32 terrain_lower_limit;
-	BOOL use_estate_sun;
+	bool use_estate_sun;
 	F32 sun_hour;
 	msg->getString("RegionInfo", "SimName", sim_name);
 	msg->getU8("RegionInfo", "MaxAgents", agent_limit);

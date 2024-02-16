@@ -2276,7 +2276,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     LL_PROFILE_ZONE_SCOPED;
 
     LLUUID from_id;
-    BOOL from_group;
+    bool from_group;
     LLUUID to_id;
     U8 offline;
     U8 d = 0;
@@ -4305,7 +4305,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	LLVector3 sitPosition;
 	LLQuaternion sitRotation;
 	LLUUID sitObjectID;
-	BOOL use_autopilot;
+	bool use_autopilot;
 	mesgsys->getUUIDFast(_PREHASH_SitObject, _PREHASH_ID, sitObjectID);
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_AutoPilot, use_autopilot);
 	mesgsys->getVector3Fast(_PREHASH_SitTransform, _PREHASH_SitPosition, sitPosition);
@@ -4314,7 +4314,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	mesgsys->getVector3Fast(_PREHASH_SitTransform, _PREHASH_CameraEyeOffset, camera_eye);
 	LLVector3 camera_at;
 	mesgsys->getVector3Fast(_PREHASH_SitTransform, _PREHASH_CameraAtOffset, camera_at);
-	BOOL force_mouselook;
+	bool force_mouselook;
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_ForceMouselook, force_mouselook);
 
 	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > CAMERA_POSITION_THRESHOLD_SQUARED)
@@ -4739,12 +4739,12 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
     // and agent ids for name lookup.
     S32 transaction_type = 0;
     LLUUID source_id;
-	BOOL is_source_group = FALSE;
+	bool is_source_group = false;
     LLUUID dest_id;
-	BOOL is_dest_group = FALSE;
+	bool is_dest_group = false;
     S32 amount = 0;
     std::string item_description;
-	BOOL success = FALSE;
+	bool success = false;
 
     msg->getS32("TransactionInfo", "TransactionType", transaction_type);
     msg->getUUID("TransactionInfo", "SourceID", source_id);
@@ -5334,7 +5334,7 @@ void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 
 	if (!attempt_standard_notification(msgsystem))
 	{
-		BOOL modal = FALSE;
+		bool modal = false;
 		msgsystem->getBOOL("AlertData", "Modal", modal);
 		process_alert_core(message, modal);
 	}
@@ -5550,7 +5550,7 @@ void process_frozen_message(LLMessageSystem *msgsystem, void **user_data)
 	// make sure the cursor is back to the usual default since the
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
-	BOOL b_frozen;
+	bool b_frozen;
 	
 	msgsystem->getBOOL("FrozenData", "Data", b_frozen);
 
@@ -6727,7 +6727,7 @@ void process_load_url(LLMessageSystem* msg, void**)
 {
 	LLUUID object_id;
 	LLUUID owner_id;
-	BOOL owner_is_group;
+	bool owner_is_group;
 	char object_name[256];		/* Flawfinder: ignore */
 	char message[256];		/* Flawfinder: ignore */
 	char url[256];		/* Flawfinder: ignore */

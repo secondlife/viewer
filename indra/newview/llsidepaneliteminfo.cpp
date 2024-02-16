@@ -957,7 +957,7 @@ void LLSidepanelItemInfo::updatePermissions()
 	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 
-	BOOL is_group_owned;
+	bool is_group_owned;
 	LLUUID owner_id;
 	LLUUID group_id;
 	LLPermissions perm(item->getPermissions());

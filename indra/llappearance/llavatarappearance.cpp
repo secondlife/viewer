@@ -78,7 +78,7 @@ class LLAvatarBoneInfo
 	friend class LLAvatarAppearance;
 	friend class LLAvatarSkeletonInfo;
 public:
-	LLAvatarBoneInfo() : mIsJoint(FALSE) {}
+	LLAvatarBoneInfo() : mIsJoint(false) {}
 	~LLAvatarBoneInfo()
 	{
 		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
@@ -178,7 +178,7 @@ LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAv
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	LLCharacter(),
-	mIsDummy(FALSE),
+	mIsDummy(false),
 	mTexSkinColor( NULL ),
 	mTexHairColor( NULL ),
 	mTexEyeColor( NULL ),
@@ -189,7 +189,7 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
     mNumBones(0),
     mNumCollisionVolumes(0),
     mCollisionVolumes(NULL),
-    mIsBuilt(FALSE),
+    mIsBuilt(false),
     mInitFlags(0)
 {
 	llassert_always(mWearableData);
@@ -236,14 +236,14 @@ void LLAvatarAppearance::initInstance()
 			mesh->setName(mesh_name);
 			mesh->setMeshID(mesh_index);
 			mesh->setPickName(mesh_dict->mPickName);
-			mesh->setIsTransparent(FALSE);
+			mesh->setIsTransparent(false);
 			switch((S32)mesh_index)
 			{
 				case MESH_ID_HAIR:
-					mesh->setIsTransparent(TRUE);
+					mesh->setIsTransparent(true);
 					break;
 				case MESH_ID_SKIRT:
-					mesh->setIsTransparent(TRUE);
+					mesh->setIsTransparent(true);
 					break;
 				case MESH_ID_EYEBALL_LEFT:
 				case MESH_ID_EYEBALL_RIGHT:
@@ -345,7 +345,7 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
         avatar_file_name = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR + "_lad.xml");
     }
 	LLXmlTree xml_tree;
-	bool success = xml_tree.parseFile( avatar_file_name, FALSE );
+	bool success = xml_tree.parseFile( avatar_file_name, false );
 	if (!success)
 	{
 		LL_ERRS() << "Problem reading avatar configuration file:" << avatar_file_name << LL_ENDL;
@@ -580,7 +580,7 @@ bool LLAvatarAppearance::parseSkeletonFile(const std::string& filename, LLXmlTre
 	//-------------------------------------------------------------------------
 	// parse the file
 	//-------------------------------------------------------------------------
-	bool parsesuccess = skeleton_xml_tree.parseFile( filename, FALSE );
+	bool parsesuccess = skeleton_xml_tree.parseFile( filename, false );
 
 	if (!parsesuccess)
 	{
@@ -804,7 +804,7 @@ void LLAvatarAppearance::buildCharacter()
 	//-------------------------------------------------------------------------
 	mRoot->removeAllChildren();
 	mJointMap.clear();
-	mIsBuilt = FALSE;
+	mIsBuilt = false;
 
 	//-------------------------------------------------------------------------
 	// clear mesh data
@@ -825,7 +825,7 @@ void LLAvatarAppearance::buildCharacter()
 	bool status = loadAvatar();
 	stop_glerror();
 
-// 	gPrintMessagesThisFrame = TRUE;
+// 	gPrintMessagesThisFrame = true;
 	LL_DEBUGS() << "Avatar load took " << timer.getElapsedTimeF32() << " seconds." << LL_ENDL;
 
 	if (!status)
@@ -895,7 +895,7 @@ void LLAvatarAppearance::buildCharacter()
 	// SL-315
 	mPelvisp->setPosition( LLVector3(0.0f, 0.0f, 0.0f) );
 
-	mIsBuilt = TRUE;
+	mIsBuilt = true;
 	stop_glerror();
 
 }
@@ -1041,7 +1041,7 @@ bool LLAvatarAppearance::loadSkeletonNode ()
 	// make meshes children before calling parent version of the function
 	for (LLAvatarJoint* joint : mMeshLOD)
 	{
-		joint->mUpdateXform = FALSE;
+		joint->mUpdateXform = false;
 		joint->setMeshesToChildren();
 	}
 
@@ -1104,7 +1104,7 @@ bool LLAvatarAppearance::loadMeshNodes()
 
 		LLAvatarJointMesh* mesh = NULL;
 		U8 mesh_id = 0;
-		bool found_mesh_id = FALSE;
+		bool found_mesh_id = false;
 
 		/* if (type == "hairMesh")
 			switch(lod)
@@ -1117,7 +1117,7 @@ bool LLAvatarAppearance::loadMeshNodes()
 			if (type.compare(mesh_dict->mName) == 0)
 			{
 				mesh_id = mesh_index;
-				found_mesh_id = TRUE;
+				found_mesh_id = true;
 				break;
 			}
 		}
@@ -1257,12 +1257,12 @@ bool LLAvatarAppearance::loadLayersets()
 				LLTexLayerInterface* layer = layer_set->findLayerByName(morph->mLayer);
 				if (layer)
 				{
-					layer->setHasMorph(TRUE);
+					layer->setHasMorph(true);
 				}
 				else
 				{
 					LL_WARNS() << "Could not find layer named " << morph->mLayer << " to set morph flag" << LL_ENDL;
-					success = FALSE;
+					success = false;
 				}
 			}
 		}
@@ -1564,7 +1564,7 @@ bool LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
 {
 	if (node->hasName("bone"))
 	{
-		mIsJoint = TRUE;
+		mIsJoint = true;
 		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 		if (!node->getFastAttributeString(name_string, mName))
 		{
@@ -1577,7 +1577,7 @@ bool LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
 	}
 	else if (node->hasName("collision_volume"))
 	{
-		mIsJoint = FALSE;
+		mIsJoint = false;
 		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
 		if (!node->getFastAttributeString(name_string, mName))
 		{
@@ -1810,13 +1810,13 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlSkeletonNode(LLXmlTreeNode* ro
 		static LLStdStringHandle position_string = LLXmlTree::addAttributeString("position");
 		if (child->getFastAttributeVector3(position_string, info->mPosition))
 		{
-			info->mHasPosition = TRUE;
+			info->mHasPosition = true;
 		}
 
 		static LLStdStringHandle rotation_string = LLXmlTree::addAttributeString("rotation");
 		if (child->getFastAttributeVector3(rotation_string, info->mRotationEuler))
 		{
-			info->mHasRotation = TRUE;
+			info->mHasRotation = true;
 		}
 		 static LLStdStringHandle group_string = LLXmlTree::addAttributeString("group");
 		if (child->getFastAttributeS32(group_string, info->mGroup))
@@ -1926,7 +1926,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMeshNodes(LLXmlTreeNode* root)
 				delete info;
 				return false;
 			}
-			BOOL shared = false;
+			bool shared = false;
 			static LLStdStringHandle shared_string = LLXmlTree::addAttributeString("shared");
 			child->getFastAttributeBOOL(shared_string, shared);
 
@@ -2107,7 +2107,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root
 }
 
 //virtual 
-LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, BOOL invert, std::string layer) :
+LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, bool invert, std::string layer) :
 			mMorphTarget(morph_target),
 			mInvert(invert),
 			mLayer(layer)

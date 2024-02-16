@@ -2367,11 +2367,11 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
 	if(instance)
 	{
 		instance->mHaveRunningInfo = TRUE;
-		BOOL running;
+		bool running;
 		msg->getBOOLFast(_PREHASH_Script, _PREHASH_Running, running);
 		LLCheckBoxCtrl* runningCheckbox = instance->getChild<LLCheckBoxCtrl>("running");
 		runningCheckbox->set(running);
-		BOOL mono;
+		bool mono;
 		msg->getBOOLFast(_PREHASH_Script, "Mono", mono);
 		LLCheckBoxCtrl* monoCheckbox = instance->getChild<LLCheckBoxCtrl>("mono");
 		monoCheckbox->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));

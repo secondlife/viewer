@@ -124,7 +124,7 @@ public:
 
         ~LLPhysicsMotion() {}
 
-        BOOL onUpdate(F32 time);
+        bool onUpdate(F32 time);
 
         LLPointer<LLJointState> getJointState() 
         {
@@ -250,9 +250,9 @@ LLPhysicsMotionController::~LLPhysicsMotionController()
         }
 }
 
-BOOL LLPhysicsMotionController::onActivate() 
-{ 
-        return TRUE; 
+bool LLPhysicsMotionController::onActivate()
+{
+        return true;
 }
 
 void LLPhysicsMotionController::onDeactivate() 
@@ -451,16 +451,16 @@ F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local, const
         return smoothed_acceleration_local;
 }
 
-BOOL LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
+bool LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
         // Skip if disabled globally.
         if (!gSavedSettings.getBOOL("AvatarPhysics"))
         {
-                return TRUE;
+                return true;
         }
         
-        BOOL update_visuals = FALSE;
+        BOOL update_visuals = false;
         for (motion_vec_t::iterator iter = mMotions.begin();
              iter != mMotions.end();
              ++iter)
@@ -472,21 +472,21 @@ BOOL LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
         if (update_visuals)
                 mCharacter->updateVisualParams();
         
-        return TRUE;
+        return true;
 }
 
 // Return TRUE if character has to update visual params.
-BOOL LLPhysicsMotion::onUpdate(F32 time)
+bool LLPhysicsMotion::onUpdate(F32 time)
 {
         // static FILE *mFileWrite = fopen("c:\\temp\\avatar_data.txt","w");
         
         if (!mParamDriver)
-                return FALSE;
+                return false;
 
         if (!mLastTime || mLastTime >= time)
         {
                 mLastTime = time;
-                return FALSE;
+                return false;
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -499,7 +499,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         if (time_delta > 1.0)
         {
                 mLastTime = time;
-                return FALSE;
+                return false;
         }
 
         // Higher LOD is better.  This controls the granularity
@@ -507,7 +507,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 lod_factor = LLVOAvatar::sPhysicsLODFactor;
         if (lod_factor == 0)
         {
-                return TRUE;
+                return true;
         }
 
         LLJoint *joint = mJointState->getJoint();
@@ -520,7 +520,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		const F32 behavior_drag = getParamValue(DRAG);
 		F32 behavior_maxeffect = getParamValue(MAX_EFFECT);
 		
-		const BOOL physics_test = FALSE; // Enable this to simulate bouncing on all parts.
+		const BOOL physics_test = false; // Enable this to simulate bouncing on all parts.
         
         if (physics_test)
                 behavior_maxeffect = 1.0f;
@@ -548,7 +548,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 	// End velocity and acceleration
 	////////////////////////////////////////////////////////////////////////////////
 	
-	BOOL update_visuals = FALSE;
+	bool update_visuals = false;
 	
 	// Break up the physics into a bunch of iterations so that differing framerates will show
 	// roughly the same behavior.

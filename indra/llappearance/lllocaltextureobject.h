@@ -63,7 +63,7 @@ public:
 
 	void setID(LLUUID new_id);
 	void setDiscard(S32 new_discard);
-	void setBakedReady(BOOL ready);
+	void setBakedReady(bool ready);
 
 protected:
 
@@ -78,7 +78,7 @@ private:
 
 	LLUUID			mID;
 
-	BOOL mIsBakedReady;
+	bool mIsBakedReady;
 	S32 mDiscard;
 };
 

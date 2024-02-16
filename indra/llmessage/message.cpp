@@ -3673,13 +3673,13 @@ void LLMessageSystem::getU8(const char *block, const char *var, U8 &u,
 				LLMessageStringTable::getInstance()->getString(var), u, blocknum);
 }
 
-void LLMessageSystem::getBOOLFast(const char *block, const char *var, BOOL &b,
+void LLMessageSystem::getBOOLFast(const char *block, const char *var, bool &b,
 								  S32 blocknum)
 {
 	mMessageReader->getBOOL(block, var, b, blocknum);
 }
 
-void LLMessageSystem::getBOOL(const char *block, const char *var, BOOL &b, 
+void LLMessageSystem::getBOOL(const char *block, const char *var, bool &b,
 							  S32 blocknum)
 {
 	getBOOLFast(LLMessageStringTable::getInstance()->getString(block), 
