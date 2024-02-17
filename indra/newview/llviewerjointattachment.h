@@ -70,7 +70,7 @@ public:
 	void setIsHUDAttachment(bool is_hud) { mIsHUDAttachment = is_hud; }
 	bool getIsHUDAttachment() const { return mIsHUDAttachment; }
 
-	bool isAnimatable() const { return false; }
+	bool isAnimatable() const override { return false; }
 
 	S32 getGroup() const { return mGroup; }
 	S32 getPieSlice() const { return mPieSlice; }
