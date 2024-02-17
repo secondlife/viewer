@@ -460,7 +460,7 @@ bool LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
                 return true;
         }
         
-        BOOL update_visuals = false;
+        bool update_visuals = false;
         for (motion_vec_t::iterator iter = mMotions.begin();
              iter != mMotions.end();
              ++iter)
@@ -707,7 +707,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
 			const F32 min_delta = (1.0001f-lod_factor)*0.4f;
 			if (llabs(position_diff_local) > min_delta)
 			{
-				update_visuals = TRUE;
+				update_visuals = true;
 				mPositionLastUpdate_local = position_new_local;
 			}
 		}
