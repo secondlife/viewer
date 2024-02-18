@@ -70,15 +70,15 @@ protected:
 						   LLAssetType::EType type,
                            LLGetAssetCallback callback,
 						   void *user_data,
-						   BOOL duplicate,
-						   BOOL is_priority) override;
+						   bool duplicate,
+						   bool is_priority) override;
 
     void queueRequestHttp(const LLUUID& uuid,
                           LLAssetType::EType type,
                           LLGetAssetCallback callback,
                           void *user_data,
-                          BOOL duplicate,
-                          BOOL is_priority);
+                          bool duplicate,
+                          bool is_priority);
 
     void capsRecvForRegion(const LLUUID& region_id, std::string pumpname);
     

@@ -86,7 +86,7 @@ public:
 
 	void getLocalMat4(LLMatrix4 &mat) const { mat.initAll(mScale, mRotation, mPosition); }
 
-	inline BOOL setParent(LLXform *parent);
+	inline bool setParent(LLXform *parent);
 
 	inline void setPosition(const LLVector3& pos);
 	inline void setPosition(const F32 x, const F32 y, const F32 z);
@@ -119,8 +119,8 @@ public:
 
 	LLXform* getParent() const { return mParent; }
 	LLXform* getRoot() const;
-	virtual BOOL isRoot() const;
-	virtual BOOL isRootEdit() const;
+	virtual bool isRoot() const;
+	virtual bool isRootEdit() const;
 
 	const LLVector3&	getPosition()  const	    { return mPosition; }
 	const LLVector3&	getScale() const			{ return mScale; }
@@ -159,12 +159,12 @@ protected:
 
 };
 
-BOOL LLXform::setParent(LLXform* parent)
+bool LLXform::setParent(LLXform* parent)
 {
 	// Validate and make sure we're not creating a loop
 	if (parent == mParent)
 	{
-		return TRUE;
+		return true;
 	}
 	if (parent)
 	{
@@ -174,13 +174,13 @@ BOOL LLXform::setParent(LLXform* parent)
 			if (cur_par == this)
 			{
 				//warn("LLXform::setParent Creating loop when setting parent!");
-				return FALSE;
+				return false;
 			}
 			cur_par = cur_par->mParent;
 		}
 	}
 	mParent = parent;
-	return TRUE;
+	return true;
 }
 
 void LLXform::setPosition(const LLVector3& pos)			

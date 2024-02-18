@@ -41,8 +41,8 @@ public:
 	~LLThrottle() { }
 
 	void setRate(const F32 rate);
-	BOOL checkOverflow(const F32 amount); // I'm about to add an amount, TRUE if would overflow throttle
-	BOOL throttleOverflow(const F32 amount); // I just sent amount, TRUE if that overflowed the throttle
+	bool checkOverflow(const F32 amount); // I'm about to add an amount, TRUE if would overflow throttle
+	bool throttleOverflow(const F32 amount); // I just sent amount, TRUE if that overflowed the throttle
 
 	F32 getAvailable();	// Return the available bits
 	F32 getRate() const				{ return mRate; }
@@ -73,10 +73,10 @@ public:
 	~LLThrottleGroup() { }
 
 	void	resetDynamicAdjust();
-	BOOL	checkOverflow(S32 throttle_cat, F32 bits);		// I'm about to send bits, TRUE if would overflow channel
-	BOOL	throttleOverflow(S32 throttle_cat, F32 bits);	// I just sent bits, TRUE if that overflowed the channel
-	BOOL	dynamicAdjust();		// Shift bandwidth from idle channels to busy channels, TRUE if adjustment occurred
-	BOOL	setNominalBPS(F32* throttle_vec);				// TRUE if any value was different, resets adjustment system if was different
+	bool	checkOverflow(S32 throttle_cat, F32 bits);		// I'm about to send bits, TRUE if would overflow channel
+	bool	throttleOverflow(S32 throttle_cat, F32 bits);	// I just sent bits, TRUE if that overflowed the channel
+	bool	dynamicAdjust();		// Shift bandwidth from idle channels to busy channels, TRUE if adjustment occurred
+	bool	setNominalBPS(F32* throttle_vec);				// TRUE if any value was different, resets adjustment system if was different
 
 	S32		getAvailable(S32 throttle_cat);					// Return bits available in the channel
 

@@ -148,7 +148,7 @@ public:
 	S64  getBytes(S32 discard_level = -1) const;
 	S64  getMipBytes(S32 discard_level = -1) const;
 	BOOL getBoundRecently() const;
-	BOOL isJustBound() const;
+	bool isJustBound() const;
 	BOOL getHasExplicitFormat() const { return mHasExplicitFormat; }
 	LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
 	LLGLenum getFormatType() const { return mFormatType; }

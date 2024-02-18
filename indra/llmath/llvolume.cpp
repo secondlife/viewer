@@ -95,7 +95,7 @@ const F32 SKEW_MAX	=  0.95f;
 const F32 SCULPT_MIN_AREA = 0.002f;
 const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
-BOOL gDebugGL = FALSE; // See settings.xml "RenderDebugGL"
+bool gDebugGL = FALSE; // See settings.xml "RenderDebugGL"
 
 bool check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {
@@ -1081,7 +1081,7 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
 
 
 
-BOOL LLProfileParams::importFile(LLFILE *fp)
+bool LLProfileParams::importFile(LLFILE *fp)
 {
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
@@ -1139,11 +1139,11 @@ BOOL LLProfileParams::importFile(LLFILE *fp)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLProfileParams::exportFile(LLFILE *fp) const
+bool LLProfileParams::exportFile(LLFILE *fp) const
 {
 	fprintf(fp,"\t\tprofile 0\n");
 	fprintf(fp,"\t\t{\n");
@@ -1152,11 +1152,11 @@ BOOL LLProfileParams::exportFile(LLFILE *fp) const
 	fprintf(fp,"\t\t\tend\t%g\n", getEnd());
 	fprintf(fp,"\t\t\thollow\t%g\n", getHollow());
 	fprintf(fp, "\t\t}\n");
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
+bool LLProfileParams::importLegacyStream(std::istream& input_stream)
 {
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
@@ -1211,11 +1211,11 @@ BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLProfileParams::exportLegacyStream(std::ostream& output_stream) const
+bool LLProfileParams::exportLegacyStream(std::ostream& output_stream) const
 {
 	output_stream <<"\t\tprofile 0\n";
 	output_stream <<"\t\t{\n";
@@ -1224,7 +1224,7 @@ BOOL LLProfileParams::exportLegacyStream(std::ostream& output_stream) const
 	output_stream <<"\t\t\tend\t" << getEnd() << "\n";
 	output_stream <<"\t\t\thollow\t" << getHollow() << "\n";
 	output_stream << "\t\t}\n";
-	return TRUE;
+	return true;
 }
 
 LLSD LLProfileParams::asLLSD() const
@@ -1680,7 +1680,7 @@ bool LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
 }
 
 
-BOOL LLPathParams::importFile(LLFILE *fp)
+bool LLPathParams::importFile(LLFILE *fp)
 {
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
@@ -1795,11 +1795,11 @@ BOOL LLPathParams::importFile(LLFILE *fp)
 			LL_WARNS() << "unknown keyword " << " in path import" << LL_ENDL;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLPathParams::exportFile(LLFILE *fp) const
+bool LLPathParams::exportFile(LLFILE *fp) const
 {
 	fprintf(fp, "\t\tpath 0\n");
 	fprintf(fp, "\t\t{\n");
@@ -1820,11 +1820,11 @@ BOOL LLPathParams::exportFile(LLFILE *fp) const
 	fprintf(fp,"\t\t\tskew\t%g\n", getSkew());
 
 	fprintf(fp, "\t\t}\n");
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
+bool LLPathParams::importLegacyStream(std::istream& input_stream)
 {
 	const S32 BUFSIZE = 16384;
 	char buffer[BUFSIZE];	/* Flawfinder: ignore */
@@ -1935,11 +1935,11 @@ BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
 			LL_WARNS() << "unknown keyword " << " in path import" << LL_ENDL;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLPathParams::exportLegacyStream(std::ostream& output_stream) const
+bool LLPathParams::exportLegacyStream(std::ostream& output_stream) const
 {
 	output_stream << "\t\tpath 0\n";
 	output_stream << "\t\t{\n";
@@ -1960,7 +1960,7 @@ BOOL LLPathParams::exportLegacyStream(std::ostream& output_stream) const
 	output_stream <<"\t\t\tskew\t" << getSkew() << "\n";
 
 	output_stream << "\t\t}\n";
-	return TRUE;
+	return true;
 }
 
 LLSD LLPathParams::asLLSD() const
@@ -2099,7 +2099,7 @@ LLVolume::~LLVolume()
 	mHullIndices = NULL;
 }
 
-BOOL LLVolume::generate()
+bool LLVolume::generate()
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
@@ -2143,8 +2143,8 @@ BOOL LLVolume::generate()
 		}
 	}
 
-	BOOL regenPath = mPathp->generate(mParams.getPathParams(), path_detail, split);
-	BOOL regenProf = mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(),profile_detail, split);
+	bool regenPath = mPathp->generate(mParams.getPathParams(), path_detail, split);
+	bool regenProf = mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(),profile_detail, split);
 
 	if (regenPath || regenProf ) 
 	{
@@ -2207,11 +2207,11 @@ BOOL LLVolume::generate()
 			mFaceMask |= id;
 		}
 		LL_CHECK_MEMORY
-		return TRUE;
+		return true;
 	}
 
 	LL_CHECK_MEMORY
-	return FALSE;
+	return false;
 }
 
 void LLVolumeFace::VertexData::init()
@@ -3334,12 +3334,12 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 
 
-BOOL LLVolume::isCap(S32 face)
+bool LLVolume::isCap(S32 face)
 {
 	return mProfilep->mFaces[face].mCap; 
 }
 
-BOOL LLVolume::isFlat(S32 face)
+bool LLVolume::isFlat(S32 face)
 {
 	return mProfilep->mFaces[face].mFlat;
 }
@@ -4324,7 +4324,7 @@ BOOL equalTriangle(const S32 *a, const S32 *b)
 	return FALSE;
 }
 
-BOOL LLVolumeParams::importFile(LLFILE *fp)
+bool LLVolumeParams::importFile(LLFILE *fp)
 {
 	//LL_INFOS() << "importing volume" << LL_ENDL;
 	const S32 BUFSIZE = 16384;
@@ -4364,21 +4364,21 @@ BOOL LLVolumeParams::importFile(LLFILE *fp)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLVolumeParams::exportFile(LLFILE *fp) const
+bool LLVolumeParams::exportFile(LLFILE *fp) const
 {
 	fprintf(fp,"\tshape 0\n");
 	fprintf(fp,"\t{\n");
 	mPathParams.exportFile(fp);
 	mProfileParams.exportFile(fp);
 	fprintf(fp, "\t}\n");
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
+bool LLVolumeParams::importLegacyStream(std::istream& input_stream)
 {
 	//LL_INFOS() << "importing volume" << LL_ENDL;
 	const S32 BUFSIZE = 16384;
@@ -4414,17 +4414,17 @@ BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLVolumeParams::exportLegacyStream(std::ostream& output_stream) const
+bool LLVolumeParams::exportLegacyStream(std::ostream& output_stream) const
 {
 	output_stream <<"\tshape 0\n";
 	output_stream <<"\t{\n";
 	mPathParams.exportLegacyStream(output_stream);
 	mProfileParams.exportLegacyStream(output_stream);
 	output_stream << "\t}\n";
-	return TRUE;
+	return true;
 }
 
 LLSD LLVolumeParams::sculptAsLLSD() const
@@ -4498,12 +4498,12 @@ const F32 MIN_CONCAVE_PATH_WEDGE = 0.111111f;	// 1/9 unity
 
 // returns TRUE if the shape can be approximated with a convex shape 
 // for collison purposes
-BOOL LLVolumeParams::isConvex() const
+bool LLVolumeParams::isConvex() const
 {
 	if (!getSculptID().isNull())
 	{
 		// can't determine, be safe and say no:
-		return FALSE;
+		return false;
 	}
 	
 	F32 path_length = mPathParams.getEnd() - mPathParams.getBegin();
@@ -4516,7 +4516,7 @@ BOOL LLVolumeParams::isConvex() const
 				 && LL_PCODE_PATH_LINE != path_type) ) )
 	{
 		// twist along a "not too short" path is concave
-		return FALSE;
+		return false;
 	}
 
 	F32 profile_length = mProfileParams.getEnd() - mProfileParams.getBegin();
@@ -4540,36 +4540,36 @@ BOOL LLVolumeParams::isConvex() const
 	if (!convex_profile)
 	{
 		// profile is concave
-		return FALSE;
+		return false;
 	}
 
 	if ( LL_PCODE_PATH_LINE == path_type )
 	{
 		// straight paths with convex profile
-		return TRUE;
+		return true;
 	}
 
-	BOOL concave_path = (path_length < 1.0f) && (path_length > 0.5f);
+	bool concave_path = (path_length < 1.0f) && (path_length > 0.5f);
 	if (concave_path)
 	{
-		return FALSE;
+		return false;
 	}
 
 	// we're left with spheres, toroids and tubes
 	if ( LL_PCODE_PROFILE_CIRCLE_HALF == profile_type )
 	{
 		// at this stage all spheres must be convex
-		return TRUE;
+		return true;
 	}
 
 	// it's a toroid or tube		
 	if ( path_length <= MIN_CONCAVE_PATH_WEDGE )
 	{
 		// effectively convex
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // debug
@@ -4647,7 +4647,7 @@ LLFaceID LLVolume::generateFaceMask()
 	return new_mask;
 }
 
-BOOL LLVolume::isFaceMaskValid(LLFaceID face_mask)
+bool LLVolume::isFaceMaskValid(LLFaceID face_mask)
 {
 	LLFaceID test_mask = 0;
 	for(S32 i = 0; i < getNumFaces(); i++)
@@ -4658,7 +4658,7 @@ BOOL LLVolume::isFaceMaskValid(LLFaceID face_mask)
 	return test_mask == face_mask;
 }
 
-BOOL LLVolume::isConvex() const
+bool LLVolume::isConvex() const
 {
 	// mParams.isConvex() may return FALSE even though the final
 	// geometry is actually convex due to LOD approximations.
@@ -4944,7 +4944,7 @@ void LLVolumeFace::freeData()
     destroyOctree();
 }
 
-BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
+bool LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
@@ -4952,7 +4952,7 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
     destroyOctree();
 
 	LL_CHECK_MEMORY
-	BOOL ret = FALSE ;
+	bool ret = false ;
 	if (mTypeMask & CAP_MASK)
 	{
 		ret = createCap(volume, partial_build);
@@ -5768,7 +5768,7 @@ void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,
 	vout.setNormal(v0.getNormal());
 }
 
-BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
+bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
 {
 	LL_CHECK_MEMORY		
 
@@ -6000,11 +6000,11 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	}
 		
 	LL_CHECK_MEMORY
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
+bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
 {
 	if (!(mTypeMask & HOLLOW_MASK) && 
 		!(mTypeMask & OPEN_MASK) && 
@@ -6210,36 +6210,36 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 							(paV[0]*pbV[1] - pbV[0]*paV[1]) +
 							(pbV[0]*p2V[1] - p2V[0]*pbV[1]);
 
-				BOOL use_tri1a2 = TRUE;
-				BOOL tri_1a2 = TRUE;
-				BOOL tri_21b = TRUE;
+				bool use_tri1a2 = true;
+				bool tri_1a2 = true;
+				bool tri_21b = true;
 
 				if (area_1a2 < 0)
 				{
-					tri_1a2 = FALSE;
+					tri_1a2 = false;
 				}
 				if (area_2ab < 0)
 				{
 					// Can't use, because it contains point b
-					tri_1a2 = FALSE;
+					tri_1a2 = false;
 				}
 				if (area_21b < 0)
 				{
-					tri_21b = FALSE;
+					tri_21b = false;
 				}
 				if (area_1ba < 0)
 				{
 					// Can't use, because it contains point b
-					tri_21b = FALSE;
+					tri_21b = false;
 				}
 
 				if (!tri_1a2)
 				{
-					use_tri1a2 = FALSE;
+					use_tri1a2 = false;
 				}
 				else if (!tri_21b)
 				{
-					use_tri1a2 = TRUE;
+					use_tri1a2 = true;
 				}
 				else
 				{
@@ -6251,11 +6251,11 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 					if (d1.dot3(d1) < d2.dot3(d2))
 					{
-						use_tri1a2 = TRUE;
+						use_tri1a2 = true;
 					}
 					else
 					{
-						use_tri1a2 = FALSE;
+						use_tri1a2 = false;
 					}
 				}
 
@@ -6316,36 +6316,36 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 							(paV[0]*pbV[1] - pbV[0]*paV[1]) +
 							(pbV[0]*p2V[1] - p2V[0]*pbV[1]);
 
-				BOOL use_tri1a2 = TRUE;
-				BOOL tri_1a2 = TRUE;
-				BOOL tri_21b = TRUE;
+				bool use_tri1a2 = true;
+				bool tri_1a2 = true;
+				bool tri_21b = true;
 
 				if (area_1a2 < 0)
 				{
-					tri_1a2 = FALSE;
+					tri_1a2 = false;
 				}
 				if (area_2ab < 0)
 				{
 					// Can't use, because it contains point b
-					tri_1a2 = FALSE;
+					tri_1a2 = false;
 				}
 				if (area_21b < 0)
 				{
-					tri_21b = FALSE;
+					tri_21b = false;
 				}
 				if (area_1ba < 0)
 				{
 					// Can't use, because it contains point b
-					tri_21b = FALSE;
+					tri_21b = false;
 				}
 
 				if (!tri_1a2)
 				{
-					use_tri1a2 = FALSE;
+					use_tri1a2 = false;
 				}
 				else if (!tri_21b)
 				{
-					use_tri1a2 = TRUE;
+					use_tri1a2 = true;
 				}
 				else
 				{
@@ -6356,11 +6356,11 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 
 					if (d1.dot3(d1) < d2.dot3(d2))
 					{
-						use_tri1a2 = TRUE;
+						use_tri1a2 = true;
 					}
 					else
 					{
-						use_tri1a2 = FALSE;
+						use_tri1a2 = false;
 					}
 				}
 
@@ -6439,7 +6439,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		norm[i].load4a(normal.getF32ptr());
 	}
 
-	return TRUE;
+	return true;
 }
 
 void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
@@ -6657,18 +6657,18 @@ void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, 
 	}
 }
 
-BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
+bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
 	LL_CHECK_MEMORY
-	BOOL flat = mTypeMask & FLAT_MASK;
+	bool flat = mTypeMask & FLAT_MASK;
 
 	U8 sculpt_type = volume->getParams().getSculptType();
 	U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
-	BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
-	BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
-	BOOL sculpt_reverse_horizontal = (sculpt_invert ? !sculpt_mirror : sculpt_mirror);  // XOR
+	bool sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
+	bool sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
+	bool sculpt_reverse_horizontal = (sculpt_invert ? !sculpt_mirror : sculpt_mirror);  // XOR
 	
 	S32 num_vertices, num_indices;
 
@@ -7039,10 +7039,10 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	
 	LLVector4a top;
 	top.setSub(pos[0], pos[mNumS*(mNumT-2)]);
-	BOOL s_bottom_converges = (top.dot3(top) < 0.000001f);
+	bool s_bottom_converges = (top.dot3(top) < 0.000001f);
 
 	top.setSub(pos[mNumS-1], pos[mNumS*(mNumT-2)+mNumS-1]);
-	BOOL s_top_converges = (top.dot3(top) < 0.000001f);
+	bool s_top_converges = (top.dot3(top) < 0.000001f);
 
 	if (sculpt_stitching == LL_SCULPT_TYPE_NONE)  // logic for non-sculpt volumes
 	{
@@ -7090,20 +7090,20 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	}
 	else  // logic for sculpt volumes
 	{
-		BOOL average_poles = FALSE;
-		BOOL wrap_s = FALSE;
-		BOOL wrap_t = FALSE;
+		bool average_poles = false;
+		bool wrap_s = false;
+		bool wrap_t = false;
 
 		if (sculpt_stitching == LL_SCULPT_TYPE_SPHERE)
-			average_poles = TRUE;
+			average_poles = true;
 
 		if ((sculpt_stitching == LL_SCULPT_TYPE_SPHERE) ||
 			(sculpt_stitching == LL_SCULPT_TYPE_TORUS) ||
 			(sculpt_stitching == LL_SCULPT_TYPE_CYLINDER))
-			wrap_s = TRUE;
+			wrap_s = true;
 
 		if (sculpt_stitching == LL_SCULPT_TYPE_TORUS)
-			wrap_t = TRUE;
+			wrap_t = true;
 			
 		
 		if (average_poles)
@@ -7168,7 +7168,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 	LL_CHECK_MEMORY
 
-	return TRUE;
+	return true;
 }
 
 //adapted from Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh". Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html

@@ -254,7 +254,7 @@ void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 	msgp->getBinaryData("TransferInfo", "Params", tmp, size);
 
 	LLDataPackerBinaryBuffer dpb(tmp, MAX_PARAMS_SIZE);
-	BOOL unpack_ok = tsp->unpackParams(dpb);
+	bool unpack_ok = tsp->unpackParams(dpb);
 	if (!unpack_ok)
 	{
 		// This should only happen if the data is corrupt or
@@ -505,7 +505,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 	// NOTE: THERE IS A CUT AND PASTE OF THIS CODE IN THE TRANSFERINFO HANDLER
 	// SO WE CAN PLAY BACK DELAYED PACKETS THERE!!!!!!!!!!!!!!!!!!!!!!!!!
 	//
-	BOOL done = FALSE;
+	bool done = false;
 	while (!done)
 	{
 		LLTSCode ret_code = ttp->dataCallback(packet_id, tmp_data, size);
@@ -780,7 +780,7 @@ void LLTransferSourceChannel::updateTransfers()
 
 	LLPriQueueMap<LLTransferSource *>::pqm_iter iter, next;
 
-	BOOL done = FALSE;
+	bool done = false;
 	for (iter = mTransferSources.mMap.begin(); (iter != mTransferSources.mMap.end()) && !done;)
 	{
 		//LL_INFOS() << "LLTransferSourceChannel::updateTransfers()" << LL_ENDL;
@@ -791,7 +791,7 @@ void LLTransferSourceChannel::updateTransfers()
 		LLTransferSource *tsp = iter->second;
 		U8 *datap = NULL;
 		S32 data_size = 0;
-		BOOL delete_data = FALSE;
+		bool delete_data = false;
 		S32 packet_id = 0;
 		S32 sent_bytes = 0;
 		LLTSCode status = LLTS_OK;
@@ -1335,7 +1335,7 @@ void LLTransferSourceParamsInvItem::packParams(LLDataPacker &dp) const
 }
 
 
-BOOL LLTransferSourceParamsInvItem::unpackParams(LLDataPacker &dp)
+bool LLTransferSourceParamsInvItem::unpackParams(LLDataPacker &dp)
 {
 	S32 tmp_at;
 
@@ -1349,7 +1349,7 @@ BOOL LLTransferSourceParamsInvItem::unpackParams(LLDataPacker &dp)
 
 	mAssetType = (LLAssetType::EType)tmp_at;
 
-	return TRUE;
+	return true;
 }
 
 LLTransferSourceParamsEstate::LLTransferSourceParamsEstate() :
@@ -1387,7 +1387,7 @@ void LLTransferSourceParamsEstate::packParams(LLDataPacker &dp) const
 }
 
 
-BOOL LLTransferSourceParamsEstate::unpackParams(LLDataPacker &dp)
+bool LLTransferSourceParamsEstate::unpackParams(LLDataPacker &dp)
 {
 	S32 tmp_et;
 
@@ -1397,5 +1397,5 @@ BOOL LLTransferSourceParamsEstate::unpackParams(LLDataPacker &dp)
 
 	mEstateAssetType = (EstateAssetType)tmp_et;
 
-	return TRUE;
+	return true;
 }

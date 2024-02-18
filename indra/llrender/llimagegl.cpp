@@ -2072,9 +2072,9 @@ S64 LLImageGL::getMipBytes(S32 discard_level) const
 	return res;
 }
 
-BOOL LLImageGL::isJustBound() const
+bool LLImageGL::isJustBound() const
 {
-	return (BOOL)(sLastFrameTime - mLastBindTime < 0.5f);
+	return sLastFrameTime - mLastBindTime < 0.5f;
 }
 
 BOOL LLImageGL::getBoundRecently() const

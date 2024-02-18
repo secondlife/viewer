@@ -263,7 +263,7 @@ public:
 	virtual ~LLTransferSourceParams();
 
 	virtual void packParams(LLDataPacker &dp) const	= 0;
-	virtual BOOL unpackParams(LLDataPacker &dp) = 0;
+	virtual bool unpackParams(LLDataPacker &dp) = 0;
 
 	LLTransferSourceType getType() const			{ return mType; }
 	
@@ -300,13 +300,13 @@ protected:
 										 const S32 max_bytes,
 										 U8 **datap,
 										 S32 &returned_bytes,
-										 BOOL &delete_returned) = 0;
+										 bool &delete_returned) = 0;
 
 	// The completionCallback is GUARANTEED to be called before the destructor.
 	virtual void			completionCallback(const LLTSCode status) = 0;
 
 	virtual void packParams(LLDataPacker& dp) const = 0;
-	virtual BOOL unpackParams(LLDataPacker& dp) = 0;
+	virtual bool unpackParams(LLDataPacker& dp) = 0;
 
 	virtual S32				getNextPacketID()						{ return mLastPacketID + 1; }
 	virtual void			setLastPacketID(const S32 packet_id)	{ mLastPacketID = packet_id; }
@@ -440,7 +440,7 @@ public:
 	LLTransferSourceParamsInvItem();
 	virtual ~LLTransferSourceParamsInvItem() {}
 	/*virtual*/ void packParams(LLDataPacker &dp) const;
-	/*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+	/*virtual*/ bool unpackParams(LLDataPacker &dp);
 
 	void setAgentSession(const LLUUID &agent_id, const LLUUID &session_id);
 	void setInvItem(const LLUUID &owner_id, const LLUUID &task_id, const LLUUID &item_id);
@@ -472,7 +472,7 @@ public:
 	LLTransferSourceParamsEstate();
 	virtual ~LLTransferSourceParamsEstate() {}
 	/*virtual*/ void packParams(LLDataPacker &dp) const;
-	/*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+	/*virtual*/ bool unpackParams(LLDataPacker &dp);
 
 	void setAgentSession(const LLUUID &agent_id, const LLUUID &session_id);
 	void setEstateAssetType(const EstateAssetType etype);

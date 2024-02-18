@@ -6805,7 +6805,7 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 		sim_filename,
 		LL_PATH_NONE,
 		msg->getSender(),
-		FALSE,	// don't delete remote
+		false,	// don't delete remote
 		callback_download_complete,
 		(void**)new std::string(viewer_filename));
 }

@@ -327,7 +327,7 @@ S32 LLXfer::processEOF()
 
 ///////////////////////////////////////////////////////////
 
-S32 LLXfer::encodePacketNum(S32 packet_num, BOOL is_EOF)
+S32 LLXfer::encodePacketNum(S32 packet_num, bool is_EOF)
 {
 	if (is_EOF)
 	{

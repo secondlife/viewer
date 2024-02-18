@@ -1344,7 +1344,7 @@ void LLPanelRequestTools::sendRequest(const LLHost& host)
 	{
 		gXferManager->requestFile(std::string("terrain.raw"), std::string("terrain.raw"), LL_PATH_NONE,
 								  host,
-								  FALSE,
+								  false,
 								  terrain_download_done,
 								  NULL);
 	}

@@ -35,7 +35,7 @@ public:
 	LLTransferSourceParamsFile();
 	virtual ~LLTransferSourceParamsFile() {}
 	/*virtual*/ void packParams(LLDataPacker &dp) const;
-	/*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+	/*virtual*/ bool unpackParams(LLDataPacker &dp);
 
 	void setFilename(const std::string &filename)		{ mFilename = filename; }
 	std::string getFilename() const					{ return mFilename; }
@@ -61,11 +61,11 @@ protected:
 									  const S32 max_bytes,
 									  U8 **datap,
 									  S32 &returned_bytes,
-									  BOOL &delete_returned);
+									  bool &delete_returned);
 	/*virtual*/ void completionCallback(const LLTSCode status);
 
 	virtual void packParams(LLDataPacker& dp) const;
-	/*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+	/*virtual*/ bool unpackParams(LLDataPacker &dp);
 
 protected:
 	LLTransferSourceParamsFile mParams;

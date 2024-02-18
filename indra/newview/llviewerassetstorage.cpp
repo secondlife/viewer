@@ -361,8 +361,8 @@ void LLViewerAssetStorage::_queueDataRequest(
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    bool duplicate,
+    bool is_priority)
 {
     mCountRequests++;
     queueRequestHttp(uuid, atype, callback, user_data, duplicate, is_priority);
@@ -373,8 +373,8 @@ void LLViewerAssetStorage::queueRequestHttp(
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    bool duplicate,
+    bool is_priority)
 {
     LL_DEBUGS("ViewerAsset") << "Request asset via HTTP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
 

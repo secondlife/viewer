@@ -412,14 +412,14 @@ S32 LLXfer_File::processEOF()
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXfer_File::matchesLocalFilename(const std::string& filename) 
+bool LLXfer_File::matchesLocalFilename(const std::string& filename)
 {
 	return (filename == mLocalFilename);
 }
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXfer_File::matchesRemoteFilename(const std::string& filename, ELLPath remote_path) 
+bool LLXfer_File::matchesRemoteFilename(const std::string& filename, ELLPath remote_path)
 {
 	return ((filename == mRemoteFilename) && (remote_path == mRemotePath));
 }

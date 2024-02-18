@@ -390,7 +390,7 @@ public:
 	void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = NULL);
 	// Call the specified exception func, and return TRUE if a
 	// function was found and called. Otherwise return FALSE.
-	BOOL callExceptionFunc(EMessageException exception);
+	bool callExceptionFunc(EMessageException exception);
 
 	// Set a function that will be called once per packet processed with the 
 	// hashed message name and the time spent in the processing handler function
@@ -407,18 +407,18 @@ public:
 	}
 
 	// This method returns true if the code is in the circuit codes map.
-	BOOL isCircuitCodeKnown(U32 code) const;
+	bool isCircuitCodeKnown(U32 code) const;
 
 	// usually called in response to an AddCircuitCode message, but
 	// may also be called by the login process.
 	bool addCircuitCode(U32 code, const LLUUID& session_id);
 
-	BOOL	poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
-	BOOL	checkMessages(LockMessageChecker&, S64 frame_count = 0 );
+	bool	poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
+	bool	checkMessages(LockMessageChecker&, S64 frame_count = 0 );
 	void	processAcks(LockMessageChecker&, F32 collect_time = 0.f);
 
-	BOOL	isMessageFast(const char *msg);
-	BOOL	isMessage(const char *msg)
+	bool	isMessageFast(const char *msg);
+	bool	isMessage(const char *msg)
 	{
 		return isMessageFast(LLMessageStringTable::getInstance()->getString(msg));
 	}
@@ -482,8 +482,8 @@ public:
 	void addBinaryDataFast(const char *varname, const void *data, S32 size);
 	void addBinaryData(const char *varname, const void *data, S32 size);
 
-	void	addBOOLFast( const char* varname, BOOL b);						// typed, checks storage space
-	void	addBOOL( const char* varname, BOOL b);						// typed, checks storage space
+	void	addBOOLFast( const char* varname, bool b);						// typed, checks storage space
+	void	addBOOL( const char* varname, bool b);						// typed, checks storage space
 	void	addS8Fast(	const char *varname, S8 s);							// typed, checks storage space
 	void	addS8(	const char *varname, S8 s);							// typed, checks storage space
 	void	addU8Fast(	const char *varname, U8 u);							// typed, checks storage space
@@ -528,10 +528,10 @@ public:
 	// you need to go to the next block type or need to start a new
 	// message. Specify the current blockname to check block counts,
 	// otherwise the method only checks against MTU.
-	BOOL isSendFull(const char* blockname = NULL);
-	BOOL isSendFullFast(const char* blockname = NULL);
+	bool isSendFull(const char* blockname = NULL);
+	bool isSendFullFast(const char* blockname = NULL);
 
-	BOOL removeLastBlock();
+	bool removeLastBlock();
 
 	//void	buildMessage();
 
@@ -717,9 +717,9 @@ public:
 	void	setCircuitAllowTimeout(const LLHost &host, BOOL allow);
 	void	setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost &host, void *user_data), void *user_data);
 
-	BOOL	checkCircuitBlocked(const U32 circuit);
-	BOOL	checkCircuitAlive(const U32 circuit);
-	BOOL	checkCircuitAlive(const LLHost &host);
+	bool	checkCircuitBlocked(const U32 circuit);
+	bool	checkCircuitAlive(const U32 circuit);
+	bool	checkCircuitAlive(const LLHost &host);
 	void	setCircuitProtection(BOOL b_protect);
 	U32		findCircuitCode(const LLHost &host);
 	LLHost	findHost(const U32 circuit_code);
@@ -738,7 +738,7 @@ public:
 	void	dumpReceiveCounts();				// dumps receive count for each message type to LL_INFOS()
 	void	dumpCircuitInfo();					// Circuit information to LL_INFOS()
 
-	BOOL	isClear() const;					// returns mbSClear;
+	bool	isClear() const;					// returns mbSClear;
 	S32 	flush(const LLHost &host);
 
 	U32		getListenPort( void ) const;
@@ -765,8 +765,8 @@ public:
 	static U64Microseconds getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
 	static F64Seconds getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
 
-	static void setTimeDecodes(BOOL b);
-	static void setTimeDecodesSpamThreshold(F32 seconds); 
+	static void setTimeDecodes(bool b);
+	static void setTimeDecodesSpamThreshold(F32 seconds);
 
 	// message handlers internal to the message systesm
 	//static void processAssignCircuitCode(LLMessageSystem* msg, void**);
