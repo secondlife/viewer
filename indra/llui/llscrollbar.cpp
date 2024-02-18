@@ -238,10 +238,10 @@ void LLScrollbar::updateThumbRect()
 	}
 }
 
-BOOL LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Check children first
-	BOOL handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+	bool handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
 	if( !handled_by_child )
 	{
 		if( mThumbRect.pointInRect(x,y) )
@@ -279,16 +279,16 @@ BOOL LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 {
 	// Note: we don't bother sending the event to the children (the arrow buttons)
 	// because they'll capture the mouse whenever they need hover events.
 	
-	BOOL handled = FALSE;
+	bool handled = false;
 	if( hasMouseCapture() )
 	{
 		S32 height = getRect().getHeight();
@@ -382,7 +382,7 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;		
-		handled = TRUE;
+		handled = true;
 	}
 	else
 	{
@@ -394,26 +394,26 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)"  << LL_ENDL;		
-		handled = TRUE;
+		handled = true;
 	}
 
-	mDocChanged = FALSE;
+	mDocChanged = false;
 	return handled;
 } // end handleHover
 
 
-BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	BOOL handled = changeLine( clicks * mStepSize, TRUE );
+	bool handled = changeLine( clicks * mStepSize, true );
 	return handled;
 }
 
-BOOL LLScrollbar::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollbar::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
-	BOOL handled = FALSE;
+	bool handled = FALSE;
 	if (LLScrollbar::HORIZONTAL == mOrientation)
 	{
-		handled = changeLine(clicks * mStepSize, TRUE);
+		handled = changeLine(clicks * mStepSize, true);
 	}
 	return handled;
 }
@@ -440,13 +440,13 @@ BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return FALSE;
 }
 
-BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if( hasMouseCapture() )
 	{
 		gFocusMgr.setMouseCapture( NULL );
-		handled = TRUE;
+		handled = true;
 	}
 	else
 	{
@@ -457,7 +457,7 @@ BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-BOOL LLScrollbar::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	// just treat a double click as a second click
 	return handleMouseDown(x, y, mask);

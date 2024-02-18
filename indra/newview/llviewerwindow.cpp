@@ -224,7 +224,7 @@
 void render_ui(F32 zoom_factor = 1.f, int subfield = 0);
 void swap();
 
-extern BOOL gDebugClicks;
+extern bool gDebugClicks;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDepthDirty;
 extern BOOL gResizeScreenTexture;
@@ -1162,9 +1162,9 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
 	return default_rtn;
 }
 
-BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-    mAllowMouseDragging = FALSE;
+    mAllowMouseDragging = false;
     if (!mMouseDownTimer.getStarted())
     {
         mMouseDownTimer.start();
@@ -1173,51 +1173,51 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
     {
         mMouseDownTimer.reset();
     }    
-    BOOL down = TRUE;
+    bool down = true;
     //handleMouse() loops back to LLViewerWindow::handleAnyMouseClick
     return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
 
-BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	// try handling as a double-click first, then a single-click if that
 	// wasn't handled.
-	BOOL down = TRUE;
+	bool down = true;
 	if (gViewerInput.handleMouse(window, pos, mask, CLICK_DOUBLELEFT, down))
 	{
-		return TRUE;
+		return true;
 	}
 	return handleMouseDown(window, pos, mask);
 }
 
-BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
     if (mMouseDownTimer.getStarted())
     {
         mMouseDownTimer.stop();
     }
-    BOOL down = FALSE;
+    bool down = false;
     return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
-BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = TRUE;
+	bool down = true;
 	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
 }
 
-BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = FALSE;
+	bool down = false;
  	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
 }
 
-BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = TRUE;
+	bool down = true;
  	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
-	return TRUE;
+	return true;
 }
 
 LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data)
@@ -1365,13 +1365,13 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 	return result;
 }
 
-BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = FALSE;
+	bool down = false;
  	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
-	return TRUE;
+	return true;
 }
 
 BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down)
@@ -1392,14 +1392,14 @@ BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask
     return TRUE;
 }
 
-BOOL LLViewerWindow::handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
+bool LLViewerWindow::handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
 {
-    return handleOtherMouse(window, pos, mask, button, TRUE);
+    return handleOtherMouse(window, pos, mask, button, true);
 }
 
-BOOL LLViewerWindow::handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
+bool LLViewerWindow::handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
 {
-    return handleOtherMouse(window, pos, mask, button, FALSE);
+    return handleOtherMouse(window, pos, mask, button, false);
 }
 
 // WARNING: this is potentially called multiple times per frame
@@ -1457,13 +1457,13 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
 	LLToolTipMgr::instance().blockToolTips();
 }
 
-BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
+bool LLViewerWindow::handleCloseRequest(LLWindow *window)
 {
 	// User has indicated they want to close, but we may need to ask
 	// about modified documents.
 	LLAppViewer::instance()->userQuit();
 	// Don't quit immediately
-	return FALSE;
+	return false;
 }
 
 void LLViewerWindow::handleQuit(LLWindow *window)
@@ -1536,7 +1536,7 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 }
 
 
-BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
+bool LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated)
 {
     // Handle non-consuming global keybindings, like voice 
     // Never affects event processing.
@@ -1557,14 +1557,14 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
         // would like to know about the KEYDOWN for an enter key... so ask and pass it along.
         LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
         if (keyboard_focus && !keyboard_focus->wantsReturnKey())
-    		return FALSE;
+    		return false;
 	}
 
     // remaps, handles ignored cases and returns back to viewer window.
     return gViewerInput.handleKey(key, mask, repeated);
 }
 
-BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
+bool LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
     // Handle non-consuming global keybindings, like voice 
     // Never affects event processing.
@@ -1580,7 +1580,7 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 	return gViewerInput.handleKeyUp(key, mask);
 }
 
-void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
+void LLViewerWindow::handleScanKey(KEY key, bool key_down, bool key_up, bool key_level)
 {
 	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
 	gViewerInput.scanKey(key, key_down, key_up, key_level);
@@ -1590,7 +1590,7 @@ void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key
 
 
 
-BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
+bool LLViewerWindow::handleActivate(LLWindow *window, bool activated)
 {
 	if (activated)
 	{
@@ -1622,15 +1622,15 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		// Mute audio
 		audio_update_volume();
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLViewerWindow::handleActivateApp(LLWindow *window, BOOL activating)
+bool LLViewerWindow::handleActivateApp(LLWindow *window, bool activating)
 {
 	//if (!activating) gAgentCamera.changeCameraToDefault();
 
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
-	return FALSE;
+	return false;
 }
 
 
@@ -1639,7 +1639,7 @@ void LLViewerWindow::handleMenuSelect(LLWindow *window,  S32 menu_item)
 }
 
 
-BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S32 height)
+bool LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S32 height)
 {
 	// *TODO: Enable similar information output for other platforms?  DK 2011-02-18
 #if LL_WINDOWS
@@ -1676,10 +1676,10 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 
 		TextOutA(hdc, 0, 50, "Set \"HeadlessClient FALSE\" in settings.ini file to reenable", 61);
 		EndPaint(window_handle, &ps); 
-		return TRUE;
+		return true;
 	}
 #endif
-	return FALSE;
+	return false;
 }
 
 
@@ -1723,49 +1723,49 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 	}
 }
 
-BOOL LLViewerWindow::handleTimerEvent(LLWindow *window)
+bool LLViewerWindow::handleTimerEvent(LLWindow *window)
 {
     //TODO: just call this every frame from gatherInput instead of using a convoluted 30fps timer callback
 	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		LLViewerJoystick::getInstance()->updateStatus();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
+bool LLViewerWindow::handleDeviceChange(LLWindow *window)
 {
 	// give a chance to use a joystick after startup (hot-plugging)
 	if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
 	{
 		LLViewerJoystick::getInstance()->init(true);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
+bool LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
 {
     if (ui_scale_factor >= MIN_UI_SCALE && ui_scale_factor <= MAX_UI_SCALE)
     {
         LLViewerWindow::reshape(window_width, window_height);
         mResDirty = true;
-        return TRUE;
+        return true;
     }
     else
     {
         LL_WARNS() << "DPI change caused UI scale to go out of bounds: " << ui_scale_factor << LL_ENDL;
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLViewerWindow::handleWindowDidChangeScreen(LLWindow *window)
+bool LLViewerWindow::handleWindowDidChangeScreen(LLWindow *window)
 {
 	LLCoordScreen window_rect;
 	mWindow->getSize(&window_rect);
 	reshape(window_rect.mX, window_rect.mY);
-	return TRUE;
+	return true;
 }
 
 void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
@@ -3110,7 +3110,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 }
 
 
-BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
+bool LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 {
 	// HACK:  We delay processing of return keys until they arrive as a Unicode char,
 	// so that if you're typing chat text at low frame rate, we don't send the chat
@@ -3128,24 +3128,24 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 	}
 
 	// let menus handle navigation (jump) keys
-	if (gMenuBarView && gMenuBarView->handleUnicodeChar(uni_char, TRUE))
+	if (gMenuBarView && gMenuBarView->handleUnicodeChar(uni_char, true))
 	{
-		return TRUE;
+		return true;
 	}
 
 	// Traverses up the hierarchy
 	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
-		if (keyboard_focus->handleUnicodeChar(uni_char, FALSE))
+		if (keyboard_focus->handleUnicodeChar(uni_char, false))
 		{
-			return TRUE;
+			return true;
 		}
 
-        return TRUE;
+        return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 

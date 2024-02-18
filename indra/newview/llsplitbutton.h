@@ -80,7 +80,7 @@ public:
 	void	onItemSelected(LLUICtrl* ctrl);
 	void	setSelectionCallback(commit_callback_t cb) { mSelectionCallback = cb; }
 
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
 
 	virtual void	showButtons();
 	virtual void	hideButtons();

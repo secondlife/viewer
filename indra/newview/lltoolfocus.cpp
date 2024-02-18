@@ -112,7 +112,7 @@ void LLToolCamera::handleDeselect()
 	}
 }
 
-BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Ensure a mouseup
 	setMouseCapture(TRUE);
@@ -143,7 +143,7 @@ BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	gViewerWindow->pickAsync(x, y, mask, pickCallback, /*BOOL pick_transparent*/ FALSE, /*BOOL pick_rigged*/ FALSE, /*BOOL pick_unselectable*/ TRUE);
 
-	return TRUE;
+	return true;
 }
 
 void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
@@ -283,7 +283,7 @@ void LLToolCamera::releaseMouse()
 }
 
 
-BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// Claim that we're mousing up somewhere
 	mMouseUpX = x;
@@ -331,11 +331,11 @@ BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
 		releaseMouse();
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 {
 	S32 dx = gViewerWindow->getCurrentMouseDX();
 	S32 dy = gViewerWindow->getCurrentMouseDY();
@@ -468,7 +468,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 		gViewerWindow->setCursor(UI_CURSOR_TOOLZOOMIN);
 	}
 	
-	return TRUE;
+	return true;
 }
 
 

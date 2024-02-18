@@ -660,9 +660,9 @@ void LLLineEditor::onSpellCheckSettingsChange()
 	mSpellCheckStart = mSpellCheckEnd = -1;
 }
 
-BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	setFocus( TRUE );
+	setFocus( true );
 	mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
 
 	if (mSelectionEnd == 0 && mSelectionStart == mText.length())
@@ -674,7 +674,7 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		const LLWString& wtext = mText.getWString();
 
-		BOOL doSelectAll = TRUE;
+		bool doSelectAll = true;
 
 		// Select the word we're on
 		if( LLWStringUtil::isPartOfWord( wtext[mCursorPos] ) )
@@ -709,7 +709,7 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 	// We don't want handleMouseUp() to "finish" the selection (and thereby
 	// set mSelectionEnd to where the mouse is), so we finish the selection 
 	// here.
-	mIsSelecting = FALSE;  
+	mIsSelecting = false;
 
 	// delay cursor flashing
 	mKeystrokeTimer.reset();
@@ -717,15 +717,15 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 	// take selection to 'primary' clipboard
 	updatePrimary();
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Check first whether the "clear search" button wants to deal with this.
 	if(childrenHandleMouseDown(x, y, mask) != NULL) 
 	{
-		return TRUE;
+		return true;
 	}
 	
 	if (!mSelectAllonFocusReceived
@@ -737,7 +737,7 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 		if (mask & MASK_SHIFT)
 		{
 			// assume we're starting a drag select
-			mIsSelecting = TRUE;
+			mIsSelecting = true;
 
 			// Handle selection extension
 			S32 old_cursor_pos = getCursor();
@@ -793,14 +793,14 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				// We don't want handleMouseUp() to "finish" the selection (and thereby
 				// set mSelectionEnd to where the mouse is), so we finish the selection 
 				// here.
-				mIsSelecting = FALSE;
+				mIsSelecting = false;
 			}
 		}
 
 		gFocusMgr.setMouseCapture( this );
 	}
 
-	setFocus(TRUE);
+	setFocus(true);
 
 	// delay cursor flashing
 	mKeystrokeTimer.reset();
@@ -808,40 +808,40 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (mMouseDownSignal)
 		(*mMouseDownSignal)(this,x,y,mask);
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLLineEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+bool LLLineEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
         // LL_INFOS() << "MiddleMouseDown" << LL_ENDL;
-	setFocus( TRUE );
+	setFocus( true );
 	if( canPastePrimary() )
 	{
 		setCursorAtLocalPos(x);
 		pastePrimary();
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLLineEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLLineEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	setFocus(TRUE);
+	setFocus(true);
     if (!LLUICtrl::handleRightMouseDown(x, y, mask) && getShowContextMenu())
 	{
 		showContextMenu(x, y);
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
+bool LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	// Check first whether the "clear search" button wants to deal with this.
 	if(!hasMouseCapture())
 	{
 		if(childrenHandleHover(x, y, mask) != NULL) 
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -884,34 +884,34 @@ BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;		
-		handled = TRUE;
+		handled = true;
 	}
 
 	if( !handled  )
 	{
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;		
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
 
-BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	if( hasMouseCapture() )
 	{
 		gFocusMgr.setMouseCapture( NULL );
-		handled = TRUE;
+		handled = true;
 	}
 
 	// Check first whether the "clear search" button wants to deal with this.
 	if(!handled && childrenHandleMouseUp(x, y, mask) != NULL) 
 	{
-		return TRUE;
+		return true;
 	}
 
 	if( mIsSelecting )
@@ -919,7 +919,7 @@ BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		setCursorAtLocalPos( x );
 		mSelectionEnd = getCursor();
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	if( handled )
@@ -1597,18 +1597,18 @@ BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask )
 }
 
 
-BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
+bool LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
-		return FALSE;
+		return false;
 	}
 
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	if ( (gFocusMgr.getKeyboardFocus() == this) && getVisible() && !mReadOnly)
 	{
-		handled = TRUE;
+		handled = true;
 
 		LLLineEditorRollback rollback( this );
 
@@ -2489,7 +2489,7 @@ void LLLineEditor::updatePreedit(const LLWString &preedit_string,
 	mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
 }
 
-BOOL LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
+bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
 {
 	if (control)
 	{
@@ -2511,13 +2511,13 @@ BOOL LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 	if (preedit_right_column < mScrollHPos)
 	{
 		// This should not occure...
-		return FALSE;
+		return false;
 	}
 
 	const S32 query = (query_offset >= 0 ? preedit_left_column + query_offset : getCursor());
 	if (query < mScrollHPos || query < preedit_left_column || query > preedit_right_column)
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (coord)
@@ -2544,7 +2544,7 @@ BOOL LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 		LLUI::getInstance()->screenRectToGL(preedit_rect_screen, bounds);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLLineEditor::getPreeditRange(S32 *position, S32 *length) const

@@ -136,13 +136,13 @@ public:
 
 	// LLView interface
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 						BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 						EAcceptance *accept,
 						std::string& tooltip_msg);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+	virtual bool	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual void	draw();
 	virtual void	setVisible( BOOL visible );

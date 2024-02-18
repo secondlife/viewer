@@ -113,9 +113,9 @@ void LLBlockList::onChangeDetailed(const LLMute &mute)
 	refresh();
 }
 
-BOOL LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+	bool handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
 	LLToggleableMenu* context_menu = mContextMenu.get();
 	if (context_menu && size())

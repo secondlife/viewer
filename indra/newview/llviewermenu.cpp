@@ -161,8 +161,8 @@ void handle_test_load_url(void*);
 //extern BOOL	gHideSelectedObjects;
 //extern BOOL gAllowSelectAvatar;
 //extern BOOL gDebugAvatarRotation;
-extern BOOL gDebugClicks;
-extern BOOL gDebugWindowProc;
+extern bool gDebugClicks;
+extern bool gDebugWindowProc;
 extern BOOL gShaderProfileFrame;
 
 //extern BOOL gDebugTextEditorTips;

@@ -86,12 +86,12 @@ void LLIconCtrl::draw()
 	LLUICtrl::draw();
 }
 
-BOOL LLIconCtrl::handleHover(S32 x, S32 y, MASK mask)
+bool LLIconCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
     if (mInteractable && getEnabled())
     {
         getWindow()->setCursor(UI_CURSOR_HAND);
-        return TRUE;
+        return true;
     }
     return LLUICtrl::handleHover(x, y, mask);
 }

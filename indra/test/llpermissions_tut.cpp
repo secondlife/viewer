@@ -199,7 +199,7 @@ namespace tut
 	{
 		LLPermissions perm1;
 		LLUUID uuid;
-		BOOL is_group_owned = FALSE;
+		bool is_group_owned = false;
 		ensure("1:getOwnership:failed ", ! perm1.getOwnership(uuid,is_group_owned));
 		
 		LLPermissions perm;

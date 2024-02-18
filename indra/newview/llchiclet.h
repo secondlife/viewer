@@ -214,7 +214,7 @@ protected:
 	/**
 	 * Notifies subscribers about click on chiclet.
 	 */
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
 
 	/**
 	 * Notifies subscribers about chiclet size changed event.
@@ -303,7 +303,7 @@ public:
 	/**
 	 * Displays popup menu.
 	 */
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	void hidePopupMenu();
 
@@ -507,7 +507,7 @@ protected:
 	/**
 	 * Displays menu.
 	 */
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	virtual void createMenu() = 0;
 
@@ -775,7 +775,7 @@ protected:
 	/**
 	 * Callback for mouse wheel scrolled, calls scrollRight() or scrollLeft()
 	 */
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+	bool handleScrollWheel(S32 x, S32 y, S32 clicks);
 
 	/**
 	 * Notifies subscribers about click on chiclet.

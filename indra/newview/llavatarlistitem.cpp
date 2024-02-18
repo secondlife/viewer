@@ -356,17 +356,17 @@ void LLAvatarListItem::onProfileBtnClick()
 	LLAvatarActions::showProfile(mAvatarId);
 }
 
-BOOL LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	if(mInfoBtn->getRect().pointInRect(x, y))
 	{
 		onInfoBtnClick();
-		return TRUE;
+		return true;
 	}
 	if(mProfileBtn->getRect().pointInRect(x, y))
 	{
 		onProfileBtnClick();
-		return TRUE;
+		return true;
 	}
 	return LLPanel::handleDoubleClick(x, y, mask);
 }

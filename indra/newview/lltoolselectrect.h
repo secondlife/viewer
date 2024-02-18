@@ -36,9 +36,9 @@ class LLToolSelectRect
 public:
 	LLToolSelectRect( LLToolComposite* composite );
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	draw();							// draw the select rectangle
 
 	void handlePick(const LLPickInfo& pick);

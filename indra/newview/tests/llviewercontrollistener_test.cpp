@@ -167,7 +167,7 @@ namespace tut
                 "boolvar",
                 llsd::map("name", "boolvar",
                           "type", "Boolean",
-                          "value", TRUE,
+                          "value", true,
                           "comment", "bool variable")));
     }
 } // namespace tut

@@ -216,9 +216,9 @@ void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
 }
 
 //virtual
-BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
 	LLFloater* floater = gFloaterView->getParentFloater(this);
@@ -268,7 +268,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 					params.sticky_rect(sticky_rect);
 
 					LLToolTipMgr::getInstance()->show(params);
-					handled = TRUE;
+					handled = true;
 				}
 			}
 		}
@@ -281,7 +281,7 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 }
 
 // virtual
-BOOL LLNameListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLNameListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
     LLFloater* floater = gFloaterView->getParentFloater(this);
@@ -291,7 +291,7 @@ BOOL LLNameListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
         {
             ContextMenuType prev_menu = getContextMenuType();
             setContextMenu(MENU_GROUP);
-            BOOL handled = LLScrollListCtrl::handleRightMouseDown(x, y, mask);
+            bool handled = LLScrollListCtrl::handleRightMouseDown(x, y, mask);
             setContextMenu(prev_menu);
             return handled;
         }

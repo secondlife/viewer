@@ -320,10 +320,10 @@ void LLConversationViewSession::draw()
 	LLView::draw();
 }
 
-BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	//Will try to select a child node and then itself (if a child was not selected)
-    BOOL result = LLFolderViewFolder::handleMouseDown(x, y, mask);
+    bool result = LLFolderViewFolder::handleMouseDown(x, y, mask);
 
     //This node (conversation) was selected and a child (participant) was not
     if(result && getRoot())
@@ -349,9 +349,9 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 	return result;
 }
 
-BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
+bool LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
 {
-	BOOL result = LLFolderViewFolder::handleMouseUp(x, y, mask);
+	bool result = LLFolderViewFolder::handleMouseUp(x, y, mask);
 
 	LLFloater* volume_floater = LLFloaterReg::findInstance("floater_voice_volume");
 	LLFloater* chat_volume_floater = LLFloaterReg::findInstance("chat_voice");
@@ -372,9 +372,9 @@ BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
 	return result;
 }
 
-BOOL LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
+bool LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
-    BOOL result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
+    bool result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
 
     if(result)
     {
@@ -763,9 +763,9 @@ void LLConversationViewParticipant::onInfoBtnClick()
 	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mUUID));
 }
 
-BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
+	bool result = LLFolderViewItem::handleMouseDown(x, y, mask);
 
     if(result && getRoot())
     {

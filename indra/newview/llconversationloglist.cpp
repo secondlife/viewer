@@ -86,9 +86,9 @@ void LLConversationLogList::draw()
 	LLFlatListViewEx::draw();
 }
 
-BOOL LLConversationLogList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLConversationLogList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+	bool handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
 	LLToggleableMenu* context_menu = mContextMenu.get();
     if (context_menu && size())

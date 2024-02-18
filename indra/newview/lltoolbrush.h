@@ -49,9 +49,9 @@ class LLToolBrushLand : public LLTool, public LLEditMenuHandler, public LLSingle
 public:
 	
 	// x,y in window coords, 0,0 = left,bot
-	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );		
-	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
+	virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
+	virtual bool handleMouseUp( S32 x, S32 y, MASK mask );
+	virtual bool handleHover( S32 x, S32 y, MASK mask );
 	virtual void handleSelect();
 	virtual void handleDeselect();
 

@@ -1352,9 +1352,9 @@ void LLInventoryPanel::unSelectAll()
 }
 
 
-BOOL LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
+bool LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLView::handleHover(x, y, mask);
+	bool handled = LLView::handleHover(x, y, mask);
 	if(handled)
     {
         // getCursor gets current cursor, setCursor sets next cursor
@@ -1370,10 +1370,10 @@ BOOL LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if (const LLFolderViewItem* hover_item_p = (!mFolderRoot.isDead()) ? mFolderRoot.get()->getHoveredItem() : nullptr)
 	{
@@ -1398,7 +1398,7 @@ BOOL LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
 					.delay_time(LLView::getTooltipTimeout())
 					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
 					.create_params(params));
-			return TRUE;
+			return true;
 		}
 	}
 	return LLPanel::handleToolTip(x, y, mask);

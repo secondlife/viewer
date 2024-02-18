@@ -782,7 +782,7 @@ BOOL LLFloaterColorPicker::updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
+bool LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 {
 	// make it the frontmost
 	gFloaterView->bringToFront(this);
@@ -803,7 +803,7 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 		updateRgbHslFromPoint ( x, y );
 
 		// required by base class
-		return TRUE;
+		return true;
 	}
 
 	// rect containing RGB area
@@ -819,7 +819,7 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 		setMouseDownInLumRegion ( TRUE );
 
 		// required by base class
-		return TRUE;
+		return true;
 	}
 
 	// rect containing swatch area
@@ -834,7 +834,7 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 		setMouseDownInSwatch( TRUE );
 
 		// required - dont drag windows here.
-		return TRUE;
+		return true;
 	}
 
 	// rect containing palette area
@@ -871,7 +871,7 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 			updateTextEntry ();
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	// dispatch to base class for the rest of things
@@ -881,7 +881,7 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLFloaterColorPicker::handleHover ( S32 x, S32 y, MASK mask )
+bool LLFloaterColorPicker::handleHover ( S32 x, S32 y, MASK mask )
 {
 	// if we're the front most window
 	if ( isFrontmost () )
@@ -939,7 +939,7 @@ BOOL LLFloaterColorPicker::handleHover ( S32 x, S32 y, MASK mask )
 				highlightEntry = xOffset + yOffset * numPaletteColumns;
 			}
 
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -949,7 +949,7 @@ BOOL LLFloaterColorPicker::handleHover ( S32 x, S32 y, MASK mask )
 
 //////////////////////////////////////////////////////////////////////////////
 // reverts state once mouse button is released
-BOOL LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
+bool LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
 {
 	getWindow()->setCursor ( UI_CURSOR_ARROW );
 

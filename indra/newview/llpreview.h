@@ -79,9 +79,9 @@ public:
 	static void hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
 	static void	dirty(const LLUUID& item_uuid);
 	
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool handleHover(S32 x, S32 y, MASK mask);
 	virtual void onOpen(const LLSD& key);
 	
 	virtual void setAuxItem( const LLInventoryItem* item );

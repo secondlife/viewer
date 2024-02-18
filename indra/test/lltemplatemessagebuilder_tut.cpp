@@ -139,7 +139,7 @@ namespace tut
 	{
 		LLMessageTemplate messageTemplate = defaultTemplate();
 		messageTemplate.addBlock(defaultBlock(MVT_BOOL, 1));
-		BOOL outValue, inValue = TRUE;
+		bool outValue, inValue = true;
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addBOOL(_PREHASH_Test0, inValue);
 		LLTemplateMessageReader* reader = setReader(messageTemplate, builder);
@@ -595,7 +595,7 @@ namespace tut
 	{
 		LLMessageTemplate messageTemplate = defaultTemplate();
 		messageTemplate.addBlock(defaultBlock(MVT_BOOL, 1));
-		BOOL outValue, inValue = TRUE;
+		bool outValue, inValue = true;
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addBOOL(_PREHASH_Test0, inValue);
 		LLTemplateMessageReader* reader = setReader(

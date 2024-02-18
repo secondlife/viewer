@@ -60,9 +60,9 @@ public:
 		}
 	};
 	
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
 
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
@@ -93,7 +93,7 @@ class LLNavigationBar
 public:
 	
 	/*virtual*/ void	draw();
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	postBuild();
 	/*virtual*/ void	setVisible(BOOL visible);
 

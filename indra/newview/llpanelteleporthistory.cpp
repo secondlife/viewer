@@ -78,7 +78,7 @@ public:
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	static void showPlaceInfoPanel(S32 index);
 
@@ -265,11 +265,11 @@ void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 // virtual
-BOOL LLTeleportHistoryFlatItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLTeleportHistoryFlatItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLPanel::handleRightMouseDown(x, y, mask);
 	showMenu(x, y);
-    return TRUE;
+    return true;
 }
 
 void LLTeleportHistoryFlatItem::showPlaceInfoPanel(S32 index)

@@ -457,7 +457,7 @@ void LLSpinCtrl::reportInvalidData()
 	make_ui_sound("UISndBadKeystroke");
 }
 
-BOOL LLSpinCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLSpinCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if( clicks > 0 )
 	{
@@ -472,7 +472,7 @@ BOOL LLSpinCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 		onUpBtn(getValue());
 	}
 
-	return TRUE;
+	return true;
 }
 
 BOOL LLSpinCtrl::handleKeyHere(KEY key, MASK mask)

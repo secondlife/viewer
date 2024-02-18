@@ -293,13 +293,13 @@ public:
 	S32				getMinHeight() const{ return mMinHeight; }
 	S32				getHeaderHeight() const { return mHeaderHeight; }
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual bool	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
 	
-	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 mask);
+	virtual bool	handleScrollWheel(S32 x, S32 y, S32 mask);
 	
 	virtual void	draw();
 	virtual void	drawShadow(LLPanel* panel);

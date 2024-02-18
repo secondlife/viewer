@@ -337,16 +337,16 @@ public:
 
 	// Overridden from LLView
 	/*virtual*/ void    draw();
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
-	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
-	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleUnicodeCharHere(llwchar uni_char);
+	/*virtual*/ bool	handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool	handleScrollHWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool	handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	setEnabled(BOOL enabled);
 	/*virtual*/ void	setFocus( BOOL b );
 	/*virtual*/ void	onFocusReceived();

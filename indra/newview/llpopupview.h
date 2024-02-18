@@ -36,16 +36,16 @@ public:
 	~LLPopupView();
 
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMiddleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleRightMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool handleToolTip(S32 x, S32 y, MASK mask);
 
 	void addPopup(LLView* popup);
 	void removePopup(LLView* popup);

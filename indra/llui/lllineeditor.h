@@ -122,14 +122,14 @@ public:
 	virtual ~LLLineEditor();
 
 	// mousehandler overrides
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x,S32 y,MASK mask);
-	/*virtual*/ BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleDoubleClick(S32 x,S32 y,MASK mask);
+	/*virtual*/ bool	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
+	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
-	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
+	/*virtual*/ bool	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	onMouseCaptureLost();
 
 	// LLEditMenuHandler overrides
@@ -319,7 +319,7 @@ public:
 						const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position);
 	virtual void	markAsPreedit(S32 position, S32 length);
 	virtual void	getPreeditRange(S32 *position, S32 *length) const;
-	virtual BOOL	getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
+	virtual bool	getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
 	virtual S32		getPreeditFontSize() const;
 	virtual LLWString getPreeditString() const { return getWText(); }
 

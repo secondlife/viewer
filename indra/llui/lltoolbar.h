@@ -62,8 +62,8 @@ public:
 	LLToolBarButton(const Params& p);
 	~LLToolBarButton();
 
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleHover(S32 x, S32 y, MASK mask);
+	bool handleMouseDown(S32 x, S32 y, MASK mask);
+	bool handleHover(S32 x, S32 y, MASK mask);
 
 	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
 	void setEnabled(BOOL enabled);
@@ -215,7 +215,7 @@ public:
 	// virtuals
 	void draw();
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,

@@ -215,7 +215,7 @@ LLObjectSelectionHandle LLManip::getSelection()
 	return mObjectSelection;
 }
 
-BOOL LLManip::handleHover(S32 x, S32 y, MASK mask)
+bool LLManip::handleHover(S32 x, S32 y, MASK mask)
 {
 	// We only handle the event if mousedown started with us
 	if( hasMouseCapture() )
@@ -234,16 +234,16 @@ BOOL LLManip::handleHover(S32 x, S32 y, MASK mask)
 		LL_DEBUGS("UserInput") << "hover handled by LLManip (inactive)" << LL_ENDL;
 	}
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLManip::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLManip::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 	if( hasMouseCapture() )
 	{
-		handled = TRUE;
+		handled = true;
 		setMouseCapture( FALSE );
 	}
 	return handled;

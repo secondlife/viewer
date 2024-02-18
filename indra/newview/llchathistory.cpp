@@ -155,7 +155,7 @@ public:
 		}
 	}
 
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
+	bool handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		return LLPanel::handleMouseUp(x,y,mask);
 	}
@@ -619,12 +619,12 @@ public:
 		return 	child->pointInView(local_x, local_y);
 	}
 
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask)
+	bool handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		if(pointInChild("avatar_icon",x,y) || pointInChild("user_name",x,y))
 		{
 			showContextMenu(x,y);
-			return TRUE;
+			return true;
 		}
 
 		return LLPanel::handleRightMouseDown(x,y,mask);

@@ -94,22 +94,22 @@ public:
 	virtual void				dump() const;
 
 	// LLMouseHandler interface
-	/*virtual*/ BOOL			handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleMiddleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleRightMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL			handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL			handleScrollHWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL			handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleMiddleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleRightMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool			handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool			handleScrollHWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool			handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ const std::string&	getName() const;
 	/*virtual*/ void			onMouseCaptureLost();
 	/*virtual*/ void			screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void			localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
-	/*virtual*/ BOOL			hasMouseCapture();
+	/*virtual*/ bool			hasMouseCapture();
 
 	S32						getStart() const 					{ return mStart; }
 	void					setStart(S32 start)					{ mStart = start; }
@@ -142,11 +142,11 @@ public:
 	/*virtual*/ void				setToolTip(const std::string& tooltip);
 	/*virtual*/ void				dump() const;
 
-	/*virtual*/ BOOL				handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL				handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL				handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL				handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL				handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool				handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool				handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool				handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool				handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool				handleToolTip(S32 x, S32 y, MASK mask);
 
 protected:
 	F32					drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect);
@@ -184,7 +184,7 @@ class LLOnHoverChangeableTextSegment : public LLNormalTextSegment
 public:
 	LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor );
 	/*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
 protected:
 	// Style used for text when mouse pointer is over segment
 	LLStyleConstSP		mHoveredStyle;
@@ -255,7 +255,7 @@ public:
 	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 char_offset, S32 max_chars, S32 line_ind) const;
 	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	setToolTip(const std::string& tooltip);
 
 private:
@@ -339,16 +339,16 @@ public:
 	};
 
 	// LLMouseHandler interface
-	/*virtual*/ BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleMiddleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleRightMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL		handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleMiddleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleRightMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool		handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool		handleToolTip(S32 x, S32 y, MASK mask);
 
 	// LLView interface
 	/*virtual*/ void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);

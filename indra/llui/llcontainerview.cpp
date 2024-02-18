@@ -74,14 +74,14 @@ bool LLContainerView::addChild(LLView* child, S32 tab_group)
 	return res;
 }
 
-BOOL LLContainerView::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLContainerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	return handleMouseDown(x, y, mask);
 }
 
-BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if (mDisplayChildren)
 	{
 		handled = (LLView::childrenHandleMouseDown(x, y, mask) != NULL);
@@ -92,15 +92,15 @@ BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 		{
 			setDisplayChildren(!mDisplayChildren);
 			reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
-			handled = TRUE;
+			handled = true;
 		}
 	}
 	return handled;
 }
 
-BOOL LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if (mDisplayChildren)
 	{
 		handled = (LLView::childrenHandleMouseUp(x, y, mask) != NULL);
