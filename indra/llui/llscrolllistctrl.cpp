@@ -1743,29 +1743,29 @@ void LLScrollListCtrl::setEnabled(BOOL enabled)
 	mScrollbar->setTabStop(!enabled && mScrollbar->getPageSize() < mScrollbar->getDocSize());
 }
 
-BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	// Pretend the mouse is over the scrollbar
 	handled = mScrollbar->handleScrollWheel( 0, 0, clicks );
 
 	if (mMouseWheelOpaque)
 	{
-		return TRUE;
+		return true;
 	}
 
 	return handled;
 }
 
-BOOL LLScrollListCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollListCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	// Pretend the mouse is over the scrollbar
 	handled = mScrollbar->handleScrollHWheel( 0, 0, clicks );
 
 	if (mMouseWheelOpaque)
 	{
-		return TRUE;
+		return true;
 	}
 
 	return handled;
@@ -1783,20 +1783,20 @@ LLRect LLScrollListCtrl::getCellRect(S32 row_index, S32 column_index)
 	return cell_rect;
 }
 
-BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLScrollListColumn* columnp = getColumn(column_index);
 
-	if (columnp == NULL) return FALSE;
+	if (columnp == NULL) return false;
 
-	BOOL handled = FALSE;
+	bool handled = false;
 	// show tooltip for full name of hovered item if it has been truncated
 	LLScrollListItem* hit_item = hitItem(x, y);
 	if (hit_item)
 	{
 		LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
-		if (!hit_cell) return FALSE;
+		if (!hit_cell) return false;
 		if (hit_cell 
 			&& hit_cell->isText()
 			&& hit_cell->needsToolTip())
@@ -1815,7 +1815,7 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 										.delay_time(0.2f)
 										.sticky_rect(sticky_rect));		
 		}
-		handled = TRUE;
+		handled = true;
 	}
 
 	// otherwise, look for a tooltip associated with this column
@@ -1934,14 +1934,14 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleMouseDown(x, y, mask) != NULL;
+	bool handled = childrenHandleMouseDown(x, y, mask) != NULL;
 
 	if( !handled )
 	{
 		// set keyboard focus first, in case click action wants to move focus elsewhere
-		setFocus(TRUE);
+		setFocus(true);
 
 		// clear selection changed flag because user is starting a selection operation
 		mSelectionChanged = false;
@@ -1952,7 +1952,7 @@ BOOL LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {	
 	if (hasMouseCapture())
 	{
@@ -1978,7 +1978,7 @@ BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 // virtual
-BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLScrollListItem *item = hitItem(x, y);
 	if (item)
@@ -2035,7 +2035,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		}
 		return LLUICtrl::handleRightMouseDown(x, y, mask);
 	}
-	return FALSE;
+	return false;
 }
 
 void LLScrollListCtrl::showProfile(std::string id, bool is_group)
@@ -2108,10 +2108,10 @@ void LLScrollListCtrl::copySLURLToClipboard(std::string id, bool is_group)
 	LLUrlAction::copyURLToClipboard(slurl);
 }
 
-BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	//BOOL handled = FALSE;
-	BOOL handled = handleClick(x, y, mask);
+	bool handled = handleClick(x, y, mask);
 
 	if (!handled)
 	{
@@ -2127,7 +2127,7 @@ BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
@@ -2279,9 +2279,9 @@ S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index)
 }
 
 
-BOOL LLScrollListCtrl::handleHover(S32 x,S32 y,MASK mask)
+bool LLScrollListCtrl::handleHover(S32 x,S32 y,MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	if (hasMouseCapture())
 	{
@@ -2521,11 +2521,11 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask )
 	return handled;
 }
 
-BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
+bool LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
-		return FALSE;
+		return false;
 	}
 
 	// perform incremental search based on keyboard input
@@ -2538,7 +2538,7 @@ BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
 	// type ahead search is case insensitive
 	uni_char = LLStringOps::toLower((llwchar)uni_char);
 
-	if (selectItemByPrefix(wstring_to_utf8str(mSearchString + (llwchar)uni_char), FALSE))
+	if (selectItemByPrefix(wstring_to_utf8str(mSearchString + (llwchar)uni_char), false))
 	{
 		// update search string only on successful match
 		mNeedsScroll = true;
@@ -2609,7 +2609,7 @@ BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 

@@ -393,9 +393,9 @@ BOOL LLButton::postBuild()
 	return LLUICtrl::postBuild();
 }
 
-BOOL LLButton::handleUnicodeCharHere(llwchar uni_char)
+bool LLButton::handleUnicodeCharHere(llwchar uni_char)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if(' ' == uni_char 
 		&& !gKeyboard->getKeyRepeated(' '))
 	{
@@ -406,9 +406,9 @@ BOOL LLButton::handleUnicodeCharHere(llwchar uni_char)
 
 		LLUICtrl::onCommit();
 		
-		handled = TRUE;		
+		handled = true;
 	}
-	return handled;	
+	return handled;
 }
 
 BOOL LLButton::handleKeyHere(KEY key, MASK mask )
@@ -429,7 +429,7 @@ BOOL LLButton::handleKeyHere(KEY key, MASK mask )
 }
 
 
-BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (!childrenHandleMouseDown(x, y, mask))
 	{
@@ -438,7 +438,7 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 
 		if (hasTabStop() && !getIsChrome())
 		{
-			setFocus(TRUE);
+			setFocus(true);
 		}
 
 		if (!mFunctionName.empty())
@@ -469,11 +469,11 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 			make_ui_sound("UISndClick");
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// We only handle the click if the click both started and ended within us
 	if( hasMouseCapture() )
@@ -518,10 +518,10 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 		childrenHandleMouseUp(x, y, mask);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mHandleRightMouse && !childrenHandleRightMouseDown(x, y, mask))
 	{
@@ -530,7 +530,7 @@ BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 		if (hasTabStop() && !getIsChrome())
 		{
-			setFocus(TRUE);
+			setFocus(true);
 		}
 
 //		if (pointInView(x, y))
@@ -543,10 +543,10 @@ BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		// if they are not mouse opaque.
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (mHandleRightMouse)
 	{
@@ -572,7 +572,7 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 		// but this might change the mouse handling of existing buttons in a bad way.
 		// if they are not mouse opaque.
 	}
-	return TRUE;
+	return true;
 }
 
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -587,11 +587,11 @@ void LLButton::setHighlight(bool b)
 	mNeedsHighlight = b;
 }
 
-BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
+bool LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (isInEnabledChain() 
 		&& (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this))
-		mNeedsHighlight = TRUE;
+		mNeedsHighlight = true;
 
 	if (!childrenHandleHover(x, y, mask))
 	{
@@ -610,7 +610,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << LL_ENDL;
 	}
-	return TRUE;
+	return true;
 }
 
 void LLButton::getOverlayImageSize(S32& overlay_width, S32& overlay_height)
@@ -1308,7 +1308,7 @@ void LLButton::resetMouseDownTimer()
 	mMouseDownTimer.reset();
 }
 
-BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	// just treat a double click as a second click
 	return handleMouseDown(x, y, mask);

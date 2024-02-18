@@ -163,9 +163,9 @@ void LLGroupList::draw()
 }
 
 // virtual
-BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+	bool handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
     if (mForAgent)
     {
@@ -182,9 +182,9 @@ BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 // virtual
-BOOL LLGroupList::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLGroupList::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLView::handleDoubleClick(x, y, mask);
+	bool handled = LLView::handleDoubleClick(x, y, mask);
 	// Handle double click only for the selected item in the list, skip clicks on empty space.
 	if (handled)
 	{

@@ -135,7 +135,7 @@ BOOL LLFastTimerView::postBuild()
 	return TRUE;
 }
 
-BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mHoverTimer )
 	{
@@ -148,14 +148,14 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		{
 			mHoverTimer->getParent()->getTreeNode().mCollapsed = true;
 		}
-		return TRUE;
+		return true;
 	}
 	else if (mBarRect.pointInRect(x, y))
 	{
 		S32 bar_idx = MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight());
 		bar_idx = llclamp(bar_idx, 0, MAX_VISIBLE_HISTORY);
 		mStatsIndex = mScrollIndex + bar_idx;
-		return TRUE;
+		return true;
 	}
 	return LLFloater::handleRightMouseDown(x, y, mask);
 }
@@ -172,7 +172,7 @@ BlockTimerStatHandle* LLFastTimerView::getLegendID(S32 y)
 	return NULL;
 }
 
-BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	for(LLTrace::block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
 		it != LLTrace::end_block_timer_tree_df();
@@ -180,10 +180,10 @@ BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		(*it)->getTreeNode().mCollapsed = false;
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (x < mScrollBar->getRect().mLeft)
 	{
@@ -201,13 +201,13 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 	else if (mGraphRect.pointInRect(x, y))
 	{
 		gFocusMgr.setMouseCapture(this);
-		return TRUE;
+		return true;
 	}
 
 	return LLFloater::handleMouseDown(x, y, mask);
 }
 
-BOOL LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (hasMouseCapture())
 	{
@@ -216,14 +216,14 @@ BOOL LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
 	return LLFloater::handleMouseUp(x, y, mask);;
 }
 
-BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
+bool LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (hasMouseCapture())
 	{
 		F32 lerp = llclamp(1.f - (F32) (x - mGraphRect.mLeft) / (F32) mGraphRect.getWidth(), 0.f, 1.f);
 		mScrollIndex = ll_round( lerp * (F32)(mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
 		mScrollIndex = llclamp(	mScrollIndex, 0, (S32)mRecording.getNumRecordedPeriods());
-		return TRUE;
+		return true;
 	}
 	mHoverTimer = NULL;
 	mHoverID = NULL;
@@ -314,7 +314,7 @@ static std::string get_tooltip(BlockTimerStatHandle& timer, S32 history_index, P
 	return tooltip;
 }
 
-BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if(mPauseHistory && mBarRect.pointInRect(x, y))
 	{
@@ -331,7 +331,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 				.sticky_rect(screen_rect)
 				.delay_time(0.f));
 
-			return TRUE;
+			return true;
 		}
 	}
 	else
@@ -344,7 +344,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 			{
 				LLToolTipMgr::instance().show(get_tooltip(*idp, 0, mRecording));
 
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -352,7 +352,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 	return LLFloater::handleToolTip(x, y, mask);
 }
 
-BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if (x < mBarRect.mLeft)
     {
@@ -366,7 +366,7 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 							0,
 							llmin((S32)mRecording.getNumRecordedPeriods(), (S32)mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
     }
-	return TRUE;
+	return true;
 }
 
 static BlockTimerStatHandle FTM_RENDER_TIMER("Timers");

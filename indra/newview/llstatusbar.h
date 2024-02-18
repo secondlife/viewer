@@ -64,7 +64,7 @@ public:
 	
 	/*virtual*/ void draw();
 
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL postBuild();
 
 	// MANIPULATORS

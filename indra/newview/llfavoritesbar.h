@@ -63,8 +63,8 @@ public:
 	bool handleDragAndDropToMenu(S32 x, S32 y, MASK mask, BOOL drop,
 		EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 	// LLInventoryObserver observer trigger
     /*virtual*/ void changed(U32 mask) override;
     /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;

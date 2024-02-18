@@ -1020,7 +1020,7 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
     }
 }
 
-BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (mSelectedItemIDs.size() > 0)
     {
@@ -1029,7 +1029,7 @@ BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
     mLastInteractedUUID = LLUUID::null;
 
     // Scroll is going to always return true
-    BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
+    bool res = LLPanel::handleRightMouseDown(x, y, mask);
 
     if (mLastInteractedUUID.isNull()) // no child were hit
     {
@@ -1039,7 +1039,7 @@ BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
             uuid_vec_t selected_uuids;
             selected_uuids.push_back(mFolderID);
             mRootGalleryMenu->show(this, selected_uuids, x, y);
-            return TRUE;
+            return true;
         }
     }
     return res;
@@ -2733,7 +2733,7 @@ void LLInventoryGalleryItem::setSelected(bool value)
     }
 }
 
-BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // call changeItemSelection directly, before setFocus
     // to avoid autoscroll from LLInventoryGallery::onFocusReceived()
@@ -2757,10 +2757,10 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
     S32 screen_y;
     localPointToScreen(x, y, &screen_x, &screen_y );
     LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
-    return TRUE;
+    return true;
 }
 
-BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (!isSelected())
     {
@@ -2776,20 +2776,20 @@ BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
     mGallery->showContextMenu(this, x, y, mUUID);
 
     LLUICtrl::handleRightMouseDown(x, y, mask);
-    return TRUE;
+    return true;
 }
 
-BOOL LLInventoryGalleryItem::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if(hasMouseCapture())
     {
         gFocusMgr.setMouseCapture(NULL);
-        return TRUE;
+        return true;
     }
     return LLPanel::handleMouseUp(x, y, mask);
 }
 
-BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
 {
     if(hasMouseCapture())
     {
@@ -2806,7 +2806,7 @@ BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
     return LLUICtrl::handleHover(x,y,mask);
 }
 
-BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if (mIsFolder && mGallery)
     {
@@ -2829,7 +2829,7 @@ BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
         LLInvFVBridgeAction::doAction(mUUID, &gInventory);
     }
 
-    return TRUE;
+    return true;
 }
 
 BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

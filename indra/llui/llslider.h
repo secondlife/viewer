@@ -72,11 +72,11 @@ public:
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb );
 
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
+	virtual bool	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void	draw();
 
 private:

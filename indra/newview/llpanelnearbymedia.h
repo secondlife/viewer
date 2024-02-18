@@ -47,8 +47,8 @@ public:
 	BOOL postBuild() override;
 	void draw() override;
 	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
-	BOOL handleHover(S32 x, S32 y, MASK mask) override;
-    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	bool handleHover(S32 x, S32 y, MASK mask) override;
+	bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
     void onVisibilityChange(BOOL new_visibility) override;
 
 	// this is part of the nearby media *dialog* so we can track whether

@@ -199,7 +199,7 @@ void LLAccordionCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //---------------------------------------------------------------------------------
-BOOL LLAccordionCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLAccordionCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return LLPanel::handleRightMouseDown(x, y, mask);
 }
@@ -552,13 +552,13 @@ void LLAccordionCtrl::arrange()
 
 //---------------------------------------------------------------------------------
 
-BOOL LLAccordionCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLAccordionCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if (LLPanel::handleScrollWheel(x, y, clicks))
-		return TRUE;
+		return true;
 	if (mScrollbar->getVisible() && mScrollbar->handleScrollWheel(0, 0, clicks))
-		return TRUE;
-	return FALSE;
+		return true;
+	return false;
 }
 
 BOOL LLAccordionCtrl::handleKeyHere(KEY key, MASK mask)

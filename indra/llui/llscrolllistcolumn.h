@@ -50,7 +50,7 @@ public:
 	~LLScrollColumnHeader();
 
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding);
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);

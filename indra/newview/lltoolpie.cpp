@@ -73,7 +73,7 @@
 #include "pipeline.h"	// setHighlightObject
 #include "lluiusage.h"
 
-extern BOOL gDebugClicks;
+extern bool gDebugClicks;
 
 static void handle_click_action_play();
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp);
@@ -92,9 +92,9 @@ LLToolPie::LLToolPie()
 {
 }
 
-BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
+bool LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down)
 {
-	BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+	bool result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
 	
 	// This override DISABLES the keyboard focus reset that LLTool::handleAnyMouseClick adds.
 	// LLToolPie will do the right thing in its pick callback.
@@ -102,7 +102,7 @@ BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType cli
 	return result;
 }
 
-BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if (mDoubleClickTimer.getStarted())
     {
@@ -179,7 +179,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 
 // Spawn context menus on right mouse down so you can drag over and select
 // an item.
-BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     BOOL pick_reflection_probe = gSavedSettings.getBOOL("SelectReflectionProbes");
 
@@ -197,10 +197,10 @@ BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		handleRightClickPick();
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLToolMgr::getInstance()->clearTransientTool();
 	return LLTool::handleRightMouseUp(x, y, mask);
@@ -223,12 +223,12 @@ BOOL LLToolPie::handleScrollWheelAny(S32 x, S32 y, S32 clicks_x, S32 clicks_y)
     return res;
 }
 
-BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     return handleScrollWheelAny(x, y, 0, clicks);
 }
 
-BOOL LLToolPie::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLToolPie::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     return handleScrollWheelAny(x, y, clicks, 0);
 }
@@ -736,9 +736,9 @@ void LLToolPie::selectionPropertiesReceived()
 	LLToolPie::getInstance()->resetSelection();
 }
 
-BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+    bool pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
@@ -815,7 +815,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (!mDoubleClickTimer.getStarted())
     {
@@ -852,7 +852,7 @@ void LLToolPie::stopClickToWalk()
 	}
 }
 
-BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	if (gDebugClicks)
 	{
@@ -861,17 +861,17 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	if (handleMediaDblClick(mPick))
 	{
-		return TRUE;
+		return true;
 	}
     
 	if (!mDoubleClickTimer.getStarted() || (mDoubleClickTimer.getElapsedTimeF32() > 0.3f))
 	{
 		mDoubleClickTimer.stop();
-		return FALSE;
+		return false;
 	}
 	mDoubleClickTimer.stop();
 
-	return FALSE;
+	return false;
 }
 
 static bool needs_tooltip(LLSelectNode* nodep)
@@ -1223,11 +1223,11 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 	return TRUE;
 }
 
-BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
+bool LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 {
 	static LLCachedControl<bool> show_hover_tips(*LLUI::getInstance()->mSettingGroups["config"], "ShowHoverTips", true);
-	if (!show_hover_tips) return TRUE;
-	if (!mHoverPick.isValid()) return TRUE;
+	if (!show_hover_tips) return true;
+	if (!mHoverPick.isValid()) return true;
 
 	LLViewerObject* hover_object = mHoverPick.getObject();
 	
@@ -1247,7 +1247,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 		handleTooltipLand(line, tooltip_msg);
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void show_inspector(const char* inspector, const char* param, const LLUUID& source_id)

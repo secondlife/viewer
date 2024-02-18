@@ -111,9 +111,9 @@ public:
 	// LLView interface
 	virtual void	onFocusLost();
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+	virtual bool	handleToolTip(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+	virtual bool	handleUnicodeCharHere(llwchar uni_char);
 
 	// LLUICtrl interface
 	virtual void	clear();					// select nothing

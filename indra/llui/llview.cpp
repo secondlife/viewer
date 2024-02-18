@@ -683,7 +683,7 @@ void LLView::setSnappedTo(const LLView* snap_view)
 {
 }
 
-BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
+bool LLView::handleHover(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleHover( x, y, mask ) != NULL;
 }
@@ -897,9 +897,9 @@ F32 LLView::getTooltipTimeout()
     : tooltip_delay);
 }
 
-BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLView::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	// parents provide tooltips first, which are optionally
 	// overridden by children, in case child is mouse_opaque
@@ -916,14 +916,14 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 			                              .sticky_rect(calcScreenRect())
 			                              .delay_time(getTooltipTimeout()));
 		}
-		handled = TRUE;
+		handled = true;
 	}
 
 	// child tooltips will override our own
 	LLView* child_handler = childrenHandleToolTip(x, y, mask);
 	if (child_handler)
 	{
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
@@ -1044,9 +1044,9 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 }
 
 
-BOOL LLView::handleUnicodeCharHere(llwchar uni_char )
+bool LLView::handleUnicodeCharHere(llwchar uni_char )
 {
-	return FALSE;
+	return false;
 }
 
 
@@ -1062,56 +1062,56 @@ void LLView::onMouseCaptureLost()
 {
 }
 
-BOOL LLView::hasMouseCapture()
+bool LLView::hasMouseCapture()
 { 
 	return gFocusMgr.getMouseCapture() == this; 
 }
 
-BOOL LLView::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLView* r = childrenHandleMouseUp( x, y, mask );
 
 	return (r!=NULL);
 }
 
-BOOL LLView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLView* r= childrenHandleMouseDown(x, y, mask );
 
 	return (r!=NULL);
 }
 
-BOOL LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleDoubleClick( x, y, mask ) != NULL;
 }
 
-BOOL LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	return childrenHandleScrollWheel( x, y, clicks ) != NULL;
 }
 
-BOOL LLView::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLView::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
 	return childrenHandleScrollHWheel( x, y, clicks ) != NULL;
 }
 
-BOOL LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleRightMouseDown( x, y, mask ) != NULL;
 }
 
-BOOL LLView::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLView::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleRightMouseUp( x, y, mask ) != NULL;
 }
  
-BOOL LLView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+bool LLView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleMiddleMouseDown( x, y, mask ) != NULL;
 }
 
-BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
+bool LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleMiddleMouseUp( x, y, mask ) != NULL;
 }

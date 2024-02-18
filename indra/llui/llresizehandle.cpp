@@ -76,12 +76,12 @@ LLResizeHandle::~LLResizeHandle()
 }
 
 
-BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if( pointInHandle(x, y) )
 	{
-		handled = TRUE;
+		handled = true;
 		// Route future Mouse messages here preemptively.  (Release on mouse up.)
 		// No handler needed for focus lost since this clas has no state that depends on it.
 		gFocusMgr.setMouseCapture( this );
@@ -95,28 +95,28 @@ BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLResizeHandle::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLResizeHandle::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	if( hasMouseCapture() )
 	{
 		// Release the mouse
 		gFocusMgr.setMouseCapture( NULL );
-		handled = TRUE;
+		handled = true;
 	}
 	else if( pointInHandle(x, y) )
 	{
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
 
-BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
+bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// We only handle the click if the click both started and ended within us
 	if( hasMouseCapture() )
@@ -327,13 +327,13 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		handled = TRUE;
+		handled = true;
 	}
 	else // don't have mouse capture
 	{
 		if( pointInHandle( x, y ) )
 		{
-			handled = TRUE;
+			handled = true;
 		}
 	}
 

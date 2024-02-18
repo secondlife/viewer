@@ -213,9 +213,9 @@ void LLPullButton::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 /*virtual*/
-BOOL LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLButton::handleMouseDown(x, y, mask);
+	bool handled = LLButton::handleMouseDown(x, y, mask);
 	if (handled)
 	{
 		//if mouse down was handled by button, 
@@ -226,7 +226,7 @@ BOOL LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 /*virtual*/
-BOOL LLPullButton::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLPullButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// reset data to get ready for next circle 
 	mLastMouseDown.clear();
@@ -361,9 +361,9 @@ void LLNavigationBar::draw()
 	LLPanel::draw();
 }
 
-BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	bool handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
 	if(!handled && !gMenuHolder->hasVisibleMenu())
 	{
 		show_navbar_context_menu(this,x,y);

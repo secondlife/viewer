@@ -89,11 +89,11 @@ public:
 
 	void			showPicker(BOOL take_focus);
 
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x,S32 y,MASK mask);
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
+	/*virtual*/ bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleDoubleClick(S32 x,S32 y,MASK mask);
+	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	draw();
 	/*virtual*/ void	setEnabled( BOOL enabled );
 

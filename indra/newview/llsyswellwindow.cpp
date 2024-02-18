@@ -277,20 +277,20 @@ void LLIMWellWindow::ObjectRowPanel::onMouseLeave(S32 x, S32 y, MASK mask)
 
 //---------------------------------------------------------------------------------
 // virtual
-BOOL LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Pass the mouse down event to the chiclet (EXT-596).
 	if (!mChiclet->pointInView(x, y) && !mCloseBtn->getRect().pointInRect(x, y)) // prevent double call of LLIMChiclet::onMouseDown()
 	{
 		mChiclet->onMouseDown();
-		return TRUE;
+		return true;
 	}
 
 	return LLPanel::handleMouseDown(x, y, mask);
 }
 
 // virtual
-BOOL LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return mChiclet->handleRightMouseDown(x, y, mask);
 }

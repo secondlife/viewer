@@ -360,9 +360,9 @@ void LLToolBrushLand::brush( void )
 	}
 }
 
-BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	// Find the z value of the initial click. 
 	LLVector3d spot;
@@ -378,7 +378,7 @@ BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 		if (!canTerraformRegion(regionp))
 		{
 			alertNoTerraformRegion(regionp);
-			return TRUE;
+			return true;
 		}
 
 		if (!canTerraformParcel(regionp))
@@ -397,13 +397,13 @@ BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 		setMouseCapture( TRUE );
 
 		LLViewerParcelMgr::getInstance()->setSelectionVisible(FALSE);
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
-BOOL LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
+bool LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
 {
 	LL_DEBUGS("UserInput") << "hover handled by LLToolBrushLand ("
 								<< (hasMouseCapture() ? "active":"inactive")
@@ -422,12 +422,12 @@ BOOL LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
 
 		LLViewerParcelMgr::getInstance()->setHoverParcel(spot);
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLToolBrushLand::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolBrushLand::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	mLastAffectedRegions.clear();
 	if( hasMouseCapture() )
 	{
@@ -437,7 +437,7 @@ BOOL LLToolBrushLand::handleMouseUp(S32 x, S32 y, MASK mask)
 		LLViewerParcelMgr::getInstance()->setSelectionVisible(TRUE);
 
 		gIdleCallbacks.deleteFunction( &LLToolBrushLand::onIdle, (void*)this );
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;

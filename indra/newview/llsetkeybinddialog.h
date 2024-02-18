@@ -70,7 +70,7 @@ public:
     // It does not record, it handles, but handleKey function is already in use
     static bool recordKey(KEY key, MASK mask, BOOL down);
 
-    BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
+    bool handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down);
     static void onCancel(void* user_data);
     static void onBlank(void* user_data);
     static void onDefault(void* user_data);

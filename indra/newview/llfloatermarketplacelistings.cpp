@@ -728,7 +728,7 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 	return handled;
 }
 
-BOOL LLFloaterMarketplaceListings::handleHover(S32 x, S32 y, MASK mask)
+bool LLFloaterMarketplaceListings::handleHover(S32 x, S32 y, MASK mask)
 {
 	return LLFloater::handleHover(x, y, mask);
 }

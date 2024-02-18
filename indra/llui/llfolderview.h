@@ -202,11 +202,11 @@ public:
 	// LLView functionality
 	///*virtual*/ BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
 	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );
-	/*virtual*/ BOOL handleUnicodeCharHere(llwchar uni_char);
-	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleHover( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleUnicodeCharHere(llwchar uni_char);
+	/*virtual*/ bool handleMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleDoubleClick( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleRightMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleHover( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,

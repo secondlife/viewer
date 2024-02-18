@@ -834,10 +834,10 @@ void LLPanelPrimMediaControls::draw()
 	}
 }
 
-BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     mInactivityTimer.start();
-    BOOL res = FALSE;
+    bool res = false;
 
     // Unlike other mouse events, we need to handle scroll here otherwise
     // it will be intercepted by camera and won't reach toolpie
@@ -850,10 +850,10 @@ BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
     return res;
 }
 
-BOOL LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     mInactivityTimer.start();
-    BOOL res = FALSE;
+    bool res = false;
 
     if (LLViewerMediaFocus::getInstance()->isHoveringOverFocused())
     {
@@ -864,13 +864,13 @@ BOOL LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
     return res;
 }
 
-BOOL LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mInactivityTimer.start();
 	return LLPanel::handleMouseDown(x, y, mask);
 }
 
-BOOL LLPanelPrimMediaControls::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLPanelPrimMediaControls::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	mInactivityTimer.start();
 	return LLPanel::handleMouseUp(x, y, mask);

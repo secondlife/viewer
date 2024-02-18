@@ -1875,16 +1875,16 @@ public:
 	}
 };
 
-BOOL LLTextureCtrl::handleHover(S32 x, S32 y, MASK mask)
+bool LLTextureCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
 	getWindow()->setCursor(mBorder->parentPointInView(x,y) ? UI_CURSOR_HAND : UI_CURSOR_ARROW);
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
+	bool handled = LLUICtrl::handleMouseDown( x, y , mask );
 
 	if (!handled && mBorder->parentPointInView(x, y))
 	{
@@ -1906,7 +1906,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
             {
                 LLInventoryModelBackgroundFetch::instance().start();
             }
-			handled = TRUE;
+			handled = true;
 		}
 		else
 		{
@@ -2324,12 +2324,12 @@ BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
 	return TRUE;
 }
 
-BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char)
+bool LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
 	if( ' ' == uni_char )
 	{
 		showPicker(TRUE);
-		return TRUE;
+		return true;
 	}
 	return LLUICtrl::handleUnicodeCharHere(uni_char);
 }

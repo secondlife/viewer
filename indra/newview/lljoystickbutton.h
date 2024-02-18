@@ -63,9 +63,9 @@ public:
 	};
 	LLJoystick(const Params&);
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 
 	virtual void	onMouseUp() {}
 	virtual void	onHeldDown() = 0;
@@ -147,9 +147,9 @@ public:
 
 	virtual void	setToggleState( BOOL left, BOOL top, BOOL right, BOOL bottom );
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	onHeldDown();
 	virtual void	resetJoystickCamera();
 	virtual void	draw();
@@ -201,8 +201,8 @@ public:
 
     virtual void	setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom);
 
-    virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
     virtual void	onHeldDown();
     virtual void	draw();
 

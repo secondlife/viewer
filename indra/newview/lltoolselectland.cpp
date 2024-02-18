@@ -62,9 +62,9 @@ LLToolSelectLand::~LLToolSelectLand()
 }
 
 
-BOOL LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &mDragStartGlobal);
+	bool hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &mDragStartGlobal);
 	if (hit_land)
 	{
 		setMouseCapture( TRUE );
@@ -94,21 +94,21 @@ BOOL LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLToolSelectLand::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	LLVector3d pos_global;
-	BOOL hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &pos_global);
+	bool hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &pos_global);
 	if (hit_land)
 	{
 		// Auto-select this parcel
 		LLViewerParcelMgr::getInstance()->selectParcelAt( pos_global );
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
-BOOL LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if(	hasMouseCapture() )
 	{
@@ -135,13 +135,13 @@ BOOL LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
 		mMouseOutsideSlop = FALSE;
 		mDragEndValid = FALSE;
 		
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
-BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
 {
 	if(	hasMouseCapture() )
 	{
@@ -193,7 +193,7 @@ BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	}
 
-	return TRUE;
+	return true;
 }
 
 

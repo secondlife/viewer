@@ -319,9 +319,9 @@ void LLManipScale::render()
 	}
 }
 
-BOOL LLManipScale::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLManipScale::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	if(mHighlightedPart != LL_NO_PART)
 	{
@@ -373,7 +373,7 @@ BOOL LLManipScale::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 }
 
 
-BOOL LLManipScale::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLManipScale::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// first, perform normal processing in case this was a quick-click
 	handleHover(x, y, mask);
@@ -408,7 +408,7 @@ BOOL LLManipScale::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLManipScale::handleHover(S32 x, S32 y, MASK mask)
+bool LLManipScale::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( hasMouseCapture() )
 	{
@@ -442,7 +442,7 @@ BOOL LLManipScale::handleHover(S32 x, S32 y, MASK mask)
 	LLSelectMgr::getInstance()->adjustTexturesByScale(FALSE, getStretchTextures());
 
 	gViewerWindow->setCursor(UI_CURSOR_TOOLSCALE);
-	return TRUE;
+	return true;
 }
 
 void LLManipScale::highlightManipulators(S32 x, S32 y)

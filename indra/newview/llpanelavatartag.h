@@ -62,7 +62,7 @@ public:
 	
 	virtual boost::signals2::connection setLeftButtonClickCallback(
 																   const commit_callback_t& cb);
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
 
 	void onClick();
 private:

@@ -57,41 +57,41 @@ LLToolPipette::~LLToolPipette()
 { }
 
 
-BOOL LLToolPipette::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolPipette::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mSuccess = TRUE;
 	mTooltipMsg.clear();
 	setMouseCapture(TRUE);
 	gViewerWindow->pickAsync(x, y, mask, pickCallback);
-	return TRUE;
+	return true;
 }
 
-BOOL LLToolPipette::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolPipette::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	mSuccess = TRUE;
 	LLSelectMgr::getInstance()->unhighlightAll();
 	// *NOTE: This assumes the pipette tool is a transient tool.
 	LLToolMgr::getInstance()->clearTransientTool();
 	setMouseCapture(FALSE);
-	return TRUE;
+	return true;
 }
 
-BOOL LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
 {
 	gViewerWindow->setCursor(mSuccess ? UI_CURSOR_PIPETTE : UI_CURSOR_NO);
 	if (hasMouseCapture()) // mouse button is down
 	{
 		gViewerWindow->pickAsync(x, y, mask, pickCallback);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLToolPipette::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLToolPipette::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if (mTooltipMsg.empty())
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLRect sticky_rect;
@@ -100,7 +100,7 @@ BOOL LLToolPipette::handleToolTip(S32 x, S32 y, MASK mask)
 		.message(mTooltipMsg)
 		.sticky_rect(sticky_rect));
 
-	return TRUE;
+	return true;
 }
 
 void LLToolPipette::setTextureEntry(const LLTextureEntry* entry)

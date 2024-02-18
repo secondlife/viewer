@@ -229,14 +229,14 @@ BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
+bool LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
 {
 	getWindow()->setCursor(UI_CURSOR_ARROW);
-	return TRUE;
+	return true;
 }
 
 //virtual
-BOOL LLMenuItemGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLMenuItemGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return LLUICtrl::handleRightMouseDown(x,y,mask);
 }
@@ -254,14 +254,14 @@ void LLMenuItemGL::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	// If this event came from a right-click context menu spawn,
 	// process as a left-click to allow menu items to be hit
 	if (LLMenuHolderGL::sContextMenuSpawnPos.mX != S32_MAX
 		|| LLMenuHolderGL::sContextMenuSpawnPos.mY != S32_MAX)
 	{
-		BOOL handled = handleMouseUp(x, y, mask);
+		bool handled = handleMouseUp(x, y, mask);
 		return handled;
 	}
 	return LLUICtrl::handleRightMouseUp(x,y,mask);
@@ -453,26 +453,26 @@ BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask )
 	return FALSE;
 }
 
-BOOL LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK mask)
+bool LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK mask)
 {
 	// switch to mouse navigation mode
-	LLMenuGL::setKeyboardMode(FALSE);
+	LLMenuGL::setKeyboardMode(false);
 
 	onCommit();
 	make_ui_sound("UISndClickRelease");
 	return LLView::handleMouseUp(x, y, mask);
 }
 
-BOOL LLMenuItemGL::handleMouseDown( S32 x, S32 y, MASK mask)
+bool LLMenuItemGL::handleMouseDown( S32 x, S32 y, MASK mask)
 {
 	// switch to mouse navigation mode
-	LLMenuGL::setKeyboardMode(FALSE);
+	LLMenuGL::setKeyboardMode(false);
 
-	setHighlight(TRUE);
+	setHighlight(true);
 	return LLView::handleMouseDown(x, y, mask);
 }
 
-BOOL LLMenuItemGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
+bool LLMenuItemGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
 	// If the menu is scrollable let it handle the wheel event.
 	return !getMenu()->isScrollable();
@@ -605,49 +605,49 @@ void LLMenuItemSeparatorGL::buildDrawLabel( void )
     }
 }
 
-BOOL LLMenuItemSeparatorGL::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLMenuItemSeparatorGL::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLMenuGL* parent_menu = getMenu();
 	if (y > getRect().getHeight() / 2)
 	{
 		// the menu items are in the child list in bottom up order
 		LLView* prev_menu_item = parent_menu->findNextSibling(this);
-		return (prev_menu_item && prev_menu_item->getVisible() && prev_menu_item->getEnabled()) ? prev_menu_item->handleMouseDown(x, prev_menu_item->getRect().getHeight(), mask) : FALSE;
+		return (prev_menu_item && prev_menu_item->getVisible() && prev_menu_item->getEnabled()) ? prev_menu_item->handleMouseDown(x, prev_menu_item->getRect().getHeight(), mask) : false;
 	}
 	else
 	{
 		LLView* next_menu_item = parent_menu->findPrevSibling(this);
-		return (next_menu_item && next_menu_item->getVisible() && next_menu_item->getEnabled()) ? next_menu_item->handleMouseDown(x, 0, mask) : FALSE;
+		return (next_menu_item && next_menu_item->getVisible() && next_menu_item->getEnabled()) ? next_menu_item->handleMouseDown(x, 0, mask) : false;
 	}
 }
 
-BOOL LLMenuItemSeparatorGL::handleMouseUp(S32 x, S32 y, MASK mask) 
+bool LLMenuItemSeparatorGL::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLMenuGL* parent_menu = getMenu();
 	if (y > getRect().getHeight() / 2)
 	{
 		LLView* prev_menu_item = parent_menu->findNextSibling(this);
-		return (prev_menu_item && prev_menu_item->getVisible() && prev_menu_item->getEnabled()) ? prev_menu_item->handleMouseUp(x, prev_menu_item->getRect().getHeight(), mask) : FALSE;
+		return (prev_menu_item && prev_menu_item->getVisible() && prev_menu_item->getEnabled()) ? prev_menu_item->handleMouseUp(x, prev_menu_item->getRect().getHeight(), mask) : false;
 	}
 	else
 	{
 		LLView* next_menu_item = parent_menu->findPrevSibling(this);
-		return (next_menu_item && next_menu_item->getVisible() && next_menu_item->getEnabled()) ? next_menu_item->handleMouseUp(x, 0, mask) : FALSE;
+		return (next_menu_item && next_menu_item->getVisible() && next_menu_item->getEnabled()) ? next_menu_item->handleMouseUp(x, 0, mask) : false;
 	}
 }
 
-BOOL LLMenuItemSeparatorGL::handleHover(S32 x, S32 y, MASK mask) 
+bool LLMenuItemSeparatorGL::handleHover(S32 x, S32 y, MASK mask)
 {
 	LLMenuGL* parent_menu = getMenu();
 	if (y > getRect().getHeight() / 2)
 	{
-		parent_menu->highlightPrevItem(this, FALSE);
-		return FALSE;
+		parent_menu->highlightPrevItem(this, false);
+		return false;
 	}
 	else
 	{
-		parent_menu->highlightNextItem(this, FALSE);
-		return FALSE;
+		parent_menu->highlightNextItem(this, false);
+		return false;
 	}
 }
 
@@ -663,7 +663,7 @@ class LLMenuItemVerticalSeparatorGL
 public:
 	LLMenuItemVerticalSeparatorGL( void );
 
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask) { return false; }
 };
 
 LLMenuItemVerticalSeparatorGL::LLMenuItemVerticalSeparatorGL( void )
@@ -1019,14 +1019,14 @@ LLView* LLMenuItemBranchGL::findChildView(const std::string& name, BOOL recurse)
 }
 
 // virtual
-BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// switch to mouse navigation mode
 	LLMenuGL::setKeyboardMode(FALSE);
 
 	onCommit();
 	make_ui_sound("UISndClickRelease");
-	return TRUE;
+	return true;
 }
 
 bool LLMenuItemBranchGL::hasAccelerator(const KEY &key, const MASK &mask) const
@@ -1363,8 +1363,8 @@ public:
 	virtual BOOL isActive( void ) const;
 
 	// LLView functionality
-	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask ); 
+	virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
+	virtual bool handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	
@@ -1490,10 +1490,10 @@ BOOL LLMenuItemBranchDownGL::isActive() const
 	return isOpen();
 }
 
-BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	// switch to mouse control mode
-	LLMenuGL::setKeyboardMode(FALSE);
+	LLMenuGL::setKeyboardMode(false);
 
 	if (getVisible() && isOpen())
 	{
@@ -1505,12 +1505,12 @@ BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 
 	make_ui_sound("UISndClick");
-	return TRUE;
+	return true;
 }
 
-BOOL LLMenuItemBranchDownGL::handleMouseUp( S32 x, S32 y, MASK mask )
+bool LLMenuItemBranchDownGL::handleMouseUp( S32 x, S32 y, MASK mask )
 {
-	return TRUE;
+	return true;
 }
 
 
@@ -3118,19 +3118,19 @@ BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLMenuGL::handleUnicodeCharHere( llwchar uni_char )
+bool LLMenuGL::handleUnicodeCharHere( llwchar uni_char )
 {
 	if (jumpKeysActive())
 	{
 		return handleJumpKey((KEY)uni_char);
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
+bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 {
 	// leave submenu in place if slope of mouse < MAX_MOUSE_SLOPE_SUB_MENU
-	BOOL no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
+	bool no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
 	S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
 	S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
 	LLVector2 mouse_dir((F32)mouse_delta_x, (F32)mouse_delta_y);
@@ -3161,7 +3161,7 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 				// moving mouse always highlights new item
 				if (mouse_delta_x != 0 || mouse_delta_y != 0)
 				{
-					((LLMenuItemGL*)viewp)->setHighlight(FALSE);
+					((LLMenuItemGL*)viewp)->setHighlight(false);
 				}
 			}
 		}
@@ -3183,8 +3183,8 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 				// moving mouse always highlights new item
 				if (mouse_delta_x != 0 || mouse_delta_y != 0)
 				{
-					((LLMenuItemGL*)viewp)->setHighlight(TRUE);
-					LLMenuGL::setKeyboardMode(FALSE);
+					((LLMenuItemGL*)viewp)->setHighlight(true);
+					LLMenuGL::setKeyboardMode(false);
 				}
 				mHasSelection = true;
 			}
@@ -3197,10 +3197,10 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 	// drop-down menu is shown. Otherwise any other view won't be able to handle mouse events
 	// until the user chooses one of the drop-down menu items.
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLMenuGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
+bool LLMenuGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
 	if (!mScrollable)
 		return blockMouseEvent(x, y);
@@ -3216,7 +3216,7 @@ BOOL LLMenuGL::handleScrollWheel( S32 x, S32 y, S32 clicks )
 			scrollItems(SD_UP);
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -3503,7 +3503,7 @@ BOOL LLMenuBarGL::handleJumpKey(KEY key)
 	return TRUE;
 }
 
-BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// clicks on menu bar closes existing menus from other contexts but leave
 	// own menu open so that we get toggle behavior
@@ -3515,7 +3515,7 @@ BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
 
-BOOL LLMenuBarGL::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLMenuBarGL::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
@@ -3652,9 +3652,9 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 	return success;
 }
 
-BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
+bool LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	LLView* active_menu = NULL;
 
 	BOOL no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
@@ -3690,14 +3690,14 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 				viewp->pointInView(local_x, local_y) && 
 				viewp->handleHover(local_x, local_y, mask))
 			{
-				((LLMenuItemGL*)viewp)->setHighlight(TRUE);
+				((LLMenuItemGL*)viewp)->setHighlight(true);
 				handled = TRUE;
 				if (active_menu && active_menu != viewp)
 				{
 					((LLMenuItemGL*)viewp)->onCommit();
-					LLMenuGL::setKeyboardMode(FALSE);
+					LLMenuGL::setKeyboardMode(false);
 				}
-				LLMenuGL::setKeyboardMode(FALSE);
+				LLMenuGL::setKeyboardMode(false);
 			}
 		}
 
@@ -3711,7 +3711,7 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 				S32 local_y = y - viewp->getRect().mBottom;
 				if (!viewp->pointInView(local_x, local_y) && ((LLMenuItemGL*)viewp)->getHighlight())
 				{
-					((LLMenuItemGL*)viewp)->setHighlight(FALSE);
+					((LLMenuItemGL*)viewp)->setHighlight(false);
 				}
 			}
 		}
@@ -3719,7 +3719,7 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 
 	getWindow()->setCursor(UI_CURSOR_ARROW);
 	
-	return TRUE;
+	return true;
 }
 
 ///============================================================================
@@ -3759,9 +3759,9 @@ void LLMenuHolderGL::draw()
 	}
 }
 
-BOOL LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	BOOL handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+	bool handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
 	if (!handled)
 	{
 		LLMenuGL* visible_menu = (LLMenuGL*)getVisibleMenu();
@@ -3786,9 +3786,9 @@ BOOL LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
-BOOL LLMenuHolderGL::handleRightMouseDown( S32 x, S32 y, MASK mask )
+bool LLMenuHolderGL::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
-	BOOL handled = LLView::childrenHandleRightMouseDown(x, y, mask) != NULL;
+	bool handled = LLView::childrenHandleRightMouseDown(x, y, mask) != NULL;
 	if (!handled)
 	{
 		// clicked off of menu, hide them all
@@ -3799,7 +3799,7 @@ BOOL LLMenuHolderGL::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 // This occurs when you mouse-down to spawn a context menu, hold the button 
 // down, move off the menu, then mouse-up.  We want this to close the menu.
-BOOL LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
+bool LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
 	const S32 SLOP = 2;
 	S32 spawn_dx = (x - sContextMenuSpawnPos.mX);
@@ -3811,10 +3811,10 @@ BOOL LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
 		// so interpret the mouse-up as a single-click to show and leave on
 		// screen
 		sContextMenuSpawnPos.set(S32_MAX, S32_MAX);
-		return TRUE;
+		return true;
 	}
 
-	BOOL handled = LLView::childrenHandleRightMouseUp(x, y, mask) != NULL;
+	bool handled = LLView::childrenHandleRightMouseUp(x, y, mask) != NULL;
 	if (!handled)
 	{
 		// clicked off of menu, hide them all
@@ -4296,36 +4296,36 @@ void LLContextMenu::hide()
 }
 
 
-BOOL LLContextMenu::handleHover( S32 x, S32 y, MASK mask )
+bool LLContextMenu::handleHover( S32 x, S32 y, MASK mask )
 {
 	LLMenuGL::handleHover(x,y,mask);
 
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	LLMenuItemGL *item = getHighlightedItem();
 
 	if (item && item->getEnabled())
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		handled = TRUE;
+		handled = true;
 
 		if (item != mHoverItem)
 		{
 			if (mHoverItem)
 			{
-				mHoverItem->setHighlight( FALSE );
+				mHoverItem->setHighlight( false );
 			}
 			mHoverItem = item;
-			mHoverItem->setHighlight( TRUE );
+			mHoverItem->setHighlight( true );
 		}
-		mHoveredAnyItem = TRUE;
+		mHoveredAnyItem = true;
 	}
 	else
 	{
 		// clear out our selection
 		if (mHoverItem)
 		{
-			mHoverItem->setHighlight(FALSE);
+			mHoverItem->setHighlight(false);
 			mHoverItem = NULL;
 		}
 	}
@@ -4333,7 +4333,7 @@ BOOL LLContextMenu::handleHover( S32 x, S32 y, MASK mask )
 	if( !handled && pointInView( x, y ) )
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
@@ -4342,9 +4342,9 @@ BOOL LLContextMenu::handleHover( S32 x, S32 y, MASK mask )
 // handleMouseDown and handleMouseUp are handled by LLMenuGL
 
 
-BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	// The click was somewhere within our rectangle
 	LLMenuItemGL *item = getHighlightedItem();
@@ -4352,13 +4352,13 @@ BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	S32 local_x = x - getRect().mLeft;
 	S32 local_y = y - getRect().mBottom;
 
-	BOOL clicked_in_menu = pointInView(local_x, local_y) ;
+	bool clicked_in_menu = pointInView(local_x, local_y) ;
 
 	// grab mouse if right clicking anywhere within pie (even deadzone in middle), to detect drag outside of pie
 	if (clicked_in_menu)
 	{
 		// capture mouse cursor as if on initial menu show
-		handled = TRUE;
+		handled = true;
 	}
 	
 	if (item)
@@ -4367,14 +4367,14 @@ BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		// to make sure it's within the item's rectangle
 		if (item->handleMouseDown( 0, 0, mask ))
 		{
-			handled = TRUE;
+			handled = true;
 		}
 	}
 
 	return handled;
 }
 
-BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
+bool LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
 	S32 local_x = x - getRect().mLeft;
 	S32 local_y = y - getRect().mBottom;
@@ -4382,12 +4382,12 @@ BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 	if (!mHoveredAnyItem && !pointInView(local_x, local_y))
 	{
 		sMenuContainer->hideMenus();
-		return TRUE;
+		return true;
 	}
 
 
 	BOOL result = handleMouseUp( x, y, mask );
-	mHoveredAnyItem = FALSE;
+	mHoveredAnyItem = false;
 	
 	return result;
 }

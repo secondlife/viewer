@@ -55,10 +55,10 @@ LLToolObjPicker::LLToolObjPicker()
 
 
 // returns TRUE if an object was selected 
-BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLRootView* viewp = gViewerWindow->getRootView();
-	BOOL handled = viewp->handleMouseDown(x, y, mask);
+	bool handled = viewp->handleMouseDown(x, y, mask);
 
 	mHitObjectID.setNull();
 
@@ -93,10 +93,10 @@ void LLToolObjPicker::pickCallback(const LLPickInfo& pick_info)
 }
 
 
-BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLView* viewp = gViewerWindow->getRootView();
-	BOOL handled = viewp->handleHover(x, y, mask);
+	bool handled = viewp->handleHover(x, y, mask);
 	if (handled)
 	{
 		// let UI handle this
@@ -115,7 +115,7 @@ BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLToolObjPicker::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolObjPicker::handleHover(S32 x, S32 y, MASK mask)
 {
 	LLView *viewp = gViewerWindow->getRootView();
 	BOOL handled = viewp->handleHover(x, y, mask);
