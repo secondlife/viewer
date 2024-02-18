@@ -52,12 +52,12 @@ LLXform* LLXform::getRoot() const
 	return (LLXform*)root;
 }
 
-BOOL LLXform::isRoot() const
+bool LLXform::isRoot() const
 {
 	return (!mParent);
 }
 
-BOOL LLXform::isRootEdit() const
+bool LLXform::isRootEdit() const
 {
 	return (!mParent);
 }

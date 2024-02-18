@@ -367,14 +367,14 @@ S32 LLXfer_VFile::processEOF()
 
 ////////////////////////////////////////////////////////////
 
-BOOL LLXfer_VFile::matchesLocalFile(const LLUUID &id, LLAssetType::EType type)
+bool LLXfer_VFile::matchesLocalFile(const LLUUID &id, LLAssetType::EType type)
 {
 	return (id == mLocalID && type == mType);
 }
 
 //////////////////////////////////////////////////////////
 
-BOOL LLXfer_VFile::matchesRemoteFile(const LLUUID &id, LLAssetType::EType type)
+bool LLXfer_VFile::matchesRemoteFile(const LLUUID &id, LLAssetType::EType type)
 {
 	return (id == mRemoteID && type == mType);
 }

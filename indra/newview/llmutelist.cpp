@@ -782,7 +782,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 							  filename,
 							  LL_PATH_CACHE,
 							  msg->getSender(),
-							  TRUE, // make the remote file temporary.
+							  true, // make the remote file temporary.
 							  onFileMuteList,
 							  (void**)local_filename_and_path,
 							  LLXferManager::HIGH_PRIORITY);

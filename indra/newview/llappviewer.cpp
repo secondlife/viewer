@@ -286,7 +286,7 @@ extern void init_apple_menu(const char* product);
 
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
-extern BOOL gDebugGL;
+extern bool gDebugGL;
 
 #if LL_DARWIN
 extern BOOL gHiDPISupport;

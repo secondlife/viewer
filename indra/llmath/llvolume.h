@@ -201,7 +201,7 @@ const U8 LL_SCULPT_FLAG_MASK = LL_SCULPT_FLAG_INVERT | LL_SCULPT_FLAG_MIRROR;
 
 const S32 LL_SCULPT_MESH_MAX_FACES = 8;
 
-extern BOOL gDebugGL;
+extern bool gDebugGL;
 
 class LLProfileParams
 {
@@ -254,11 +254,11 @@ public:
 	
 	void copyParams(const LLProfileParams &params);
 
-	BOOL importFile(LLFILE *fp);
-	BOOL exportFile(LLFILE *fp) const;
+	bool importFile(LLFILE *fp);
+	bool exportFile(LLFILE *fp) const;
 
-	BOOL importLegacyStream(std::istream& input_stream);
-	BOOL exportLegacyStream(std::ostream& output_stream) const;
+	bool importLegacyStream(std::istream& input_stream);
+	bool exportLegacyStream(std::ostream& output_stream) const;
 
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }
@@ -390,11 +390,11 @@ public:
 
 	void copyParams(const LLPathParams &params);
 
-	BOOL importFile(LLFILE *fp);
-	BOOL exportFile(LLFILE *fp) const;
+	bool importFile(LLFILE *fp);
+	bool exportFile(LLFILE *fp) const;
 
-	BOOL importLegacyStream(std::istream& input_stream);
-	BOOL exportLegacyStream(std::ostream& output_stream) const;
+	bool importLegacyStream(std::istream& input_stream);
+	bool exportLegacyStream(std::ostream& output_stream) const;
 
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }
@@ -582,11 +582,11 @@ public:
 	const LLPathParams &getPathParams() const {return mPathParams;}
 	LLPathParams &getPathParams() {return mPathParams;}
 
-	BOOL importFile(LLFILE *fp);
-	BOOL exportFile(LLFILE *fp) const;
+	bool importFile(LLFILE *fp);
+	bool exportFile(LLFILE *fp) const;
 
-	BOOL importLegacyStream(std::istream& input_stream);
-	BOOL exportLegacyStream(std::ostream& output_stream) const;
+	bool importLegacyStream(std::istream& input_stream);
+	bool exportLegacyStream(std::ostream& output_stream) const;
 
 	LLSD sculptAsLLSD() const;
 	bool sculptFromLLSD(LLSD& sd);
@@ -652,7 +652,7 @@ public:
 	const U8& getSculptType() const     { return mSculptType;                   }
 	bool isSculpt() const;
 	bool isMeshSculpt() const;
-	BOOL isConvex() const;
+	bool isConvex() const;
 
 	// 'begin' and 'end' should be in range [0, 1] (they will be clamped)
 	// (begin, end) = (0, 1) will not change the volume
@@ -870,7 +870,7 @@ private:
 	void freeData();
 public:
 
-	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
+	bool create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createTangents();
 	
 	void resizeVertices(S32 num_verts);
@@ -990,9 +990,9 @@ private:
     LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
     LLVolumeTriangle* mOctreeTriangles;
 
-	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
-	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
-	BOOL createSide(LLVolume* volume, BOOL partial_build = FALSE);
+	bool createUnCutCubeCap(LLVolume* volume, bool partial_build = false);
+	bool createCap(LLVolume* volume, bool partial_build = false);
+	bool createSide(LLVolume* volume, bool partial_build = false);
 };
 
 class LLVolume : public LLRefCount
@@ -1036,10 +1036,10 @@ public:
 	void regen();
     void genTangents(S32 face);
 
-	BOOL isConvex() const;
-	BOOL isCap(S32 face);
-	BOOL isFlat(S32 face);
-	BOOL isUnique() const									{ return mUnique; }
+	bool isConvex() const;
+	bool isCap(S32 face);
+	bool isFlat(S32 face);
+	bool isUnique() const									{ return mUnique; }
 
 	S32 getSculptLevel() const                              { return mSculptLevel; }
 	void setSculptLevel(S32 level)							{ mSculptLevel = level; }
@@ -1069,7 +1069,7 @@ public:
 
 	LLFaceID generateFaceMask();
 
-	BOOL isFaceMaskValid(LLFaceID face_mask);
+	bool isFaceMaskValid(LLFaceID face_mask);
 	static S32 sNumMeshPoints;
 
 	friend std::ostream& operator<<(std::ostream &s, const LLVolume &volume);
@@ -1100,7 +1100,7 @@ private:
 	void sculptGenerateSpherePlaceholder();
 
 protected:
-	BOOL generate();
+	bool generate();
 	void createVolumeFaces();
 public:
 	bool unpackVolumeFaces(std::istream& is, S32 size);
@@ -1128,7 +1128,7 @@ public:
 	LLAlignedArray<LLVector4a,64> mMesh;
 	
 	
-	BOOL mGenerateSingleFace;
+	bool mGenerateSingleFace;
 	face_list_t mVolumeFaces;
 
 public:

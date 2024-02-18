@@ -3186,7 +3186,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
         U64 new_id = gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename),
             ft->mFilename, LL_PATH_CACHE,
             object->mRegionp->getHost(),
-            TRUE,
+            true,
             &LLViewerObject::processTaskInvFile,
             (void**)ft, // This takes ownership of ft
             LLXferManager::HIGH_PRIORITY);

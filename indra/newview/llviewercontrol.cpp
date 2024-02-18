@@ -95,7 +95,7 @@ std::string gLastRunVersion;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gResizeShadowTexture;
-extern BOOL gDebugGL;
+extern bool gDebugGL;
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
 

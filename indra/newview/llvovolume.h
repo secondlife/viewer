@@ -134,7 +134,7 @@ public:
 	            BOOL    isVisible() const ;
 	BOOL isActive() const override;
 	BOOL isAttachment() const override;
-	BOOL isRootEdit() const override; // overridden for sake of attachments treating themselves as a root object
+	bool isRootEdit() const override; // overridden for sake of attachments treating themselves as a root object
 	BOOL isHUDAttachment() const override;
 
 				void	generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);

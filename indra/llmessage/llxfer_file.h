@@ -69,8 +69,8 @@ class LLXfer_File : public LLXfer
 	virtual S32 suck(S32 start_position);
 	virtual S32 flush();
 
-	virtual BOOL matchesLocalFilename(const std::string& filename);
-	virtual BOOL matchesRemoteFilename(const std::string& filename, ELLPath remote_path);
+	virtual bool matchesLocalFilename(const std::string& filename);
+	virtual bool matchesRemoteFilename(const std::string& filename, ELLPath remote_path);
 
 	virtual S32  getMaxBufferSize();
 
