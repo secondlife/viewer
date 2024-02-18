@@ -37,7 +37,7 @@
 typedef std::vector<std::pair<int, bool> > segment_t;
 
 typedef std::vector<int> segment_lengths;
-typedef std::vector<int> segment_standouts;
+typedef std::vector<bool> segment_standouts;
 
 struct attributedStringInfo {
 	segment_lengths seg_lengths;

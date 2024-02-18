@@ -2345,7 +2345,7 @@ bool LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 	if(hasMouseCapture())
 	{
 		// Release the mouse -- this will also send a mouseup to the media
-		gFocusMgr.setMouseCapture( false );
+		gFocusMgr.setMouseCapture( nullptr );
 	}
 
 	return true;
