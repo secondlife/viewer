@@ -40,7 +40,7 @@ namespace tut
         {
             Global.declareString("strvar", "woof", "string variable");
             // together we will stroll the boolvar, ma cherie
-            Global.declareBOOL("boolvar",  TRUE, "bool variable");
+            Global.declareBOOL("boolvar",  true, "bool variable");
         }
     };
     typedef test_group<llviewercontrollistener_data> llviewercontrollistener_group;

@@ -47,16 +47,16 @@ void LLMessageSystem::clearReceiveState(void)
 
 char gUdpDispatchedData[MAX_BUFFER_SIZE];
 bool gUdpDispatchWasCalled = false;
-BOOL LLTemplateMessageReader::readMessage(const U8* data,class LLHost const &) 
-{ 
+bool LLTemplateMessageReader::readMessage(const U8* data,class LLHost const &)
+{
 	gUdpDispatchWasCalled = true;
 	strcpy(gUdpDispatchedData, reinterpret_cast<const char*>(data));
 	return  true;
 }
 
-BOOL gValidateMessage = FALSE;
-BOOL LLTemplateMessageReader::validateMessage(const U8*, S32 buffer_size, LLHost const &sender, bool trusted) 
-{ 
+bool gValidateMessage = false;
+bool LLTemplateMessageReader::validateMessage(const U8*, S32 buffer_size, LLHost const &sender, bool trusted)
+{
 	return gValidateMessage;
 }
 

@@ -262,7 +262,7 @@ namespace tut
 	{
 		LLPermissions perm;
 		LLUUID agent;
-		BOOL set = 1;
+		bool set = true;
 		U32 bits = PERM_TRANSFER | PERM_MODIFY;
 		ensure("setBaseBits():failed ", perm.setBaseBits(agent, set, bits));
 		ensure("setOwnerBits():failed ", perm.setOwnerBits(agent, set, bits));
