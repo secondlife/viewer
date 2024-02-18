@@ -199,7 +199,7 @@ namespace tut
 	{
 		LLPermissions perm1;
 		LLUUID uuid;
-		BOOL is_group_owned = FALSE;
+		bool is_group_owned = false;
 		ensure("1:getOwnership:failed ", ! perm1.getOwnership(uuid,is_group_owned));
 		
 		LLPermissions perm;
@@ -262,7 +262,7 @@ namespace tut
 	{
 		LLPermissions perm;
 		LLUUID agent;
-		BOOL set = 1;
+		bool set = true;
 		U32 bits = PERM_TRANSFER | PERM_MODIFY;
 		ensure("setBaseBits():failed ", perm.setBaseBits(agent, set, bits));
 		ensure("setOwnerBits():failed ", perm.setOwnerBits(agent, set, bits));

@@ -77,7 +77,7 @@ namespace tut
 		{
 			LLSDMessageReader msg;
 			msg.setMessage("fakename", msg_data);
-			BOOL test_data;
+			bool test_data;
 			msg.getBOOL(block.c_str(), var.c_str(), test_data, blocknum);
  			ensure_equals(	"Ensure bool field", test_data, expected);
  		}
