@@ -2343,7 +2343,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp));
                 
-                return true;
+                return 1;
             }
             break;
         }
@@ -2502,6 +2502,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // allow system keys, such as ALT-F4 to be processed by Windows
             eat_keystroke = false;
             // intentional fall-through here
+            [[fallthrough]];
         }
         case WM_KEYDOWN:
         {
@@ -2523,6 +2524,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_SYSKEYUP:
             eat_keystroke = false;
             // intentional fall-through here
+            [[fallthrough]];
         case WM_KEYUP:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
@@ -3029,8 +3031,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     });
             };
             return 0;
-
-            break;
         }
         case WM_SETTINGCHANGE:
         {
@@ -3115,6 +3115,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 }
             }
         }
+        break;
 
         //list of messages we get often that we don't care to log about
         case WM_NCHITTEST:
