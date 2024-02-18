@@ -69,9 +69,9 @@ LLToolSelectRect::LLToolSelectRect( LLToolComposite* composite )
 
 void dialog_refresh_all(void);
 
-BOOL LLToolSelectRect::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolSelectRect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+    bool pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	handlePick(gViewerWindow->pickImmediate(x, y, TRUE /* pick_transparent */, pick_rigged));
 
 	LLTool::handleMouseDown(x, y, mask);
@@ -95,7 +95,7 @@ void LLToolSelectRect::handlePick(const LLPickInfo& pick)
 }
 
 
-BOOL LLToolSelectRect::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolSelectRect::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	setMouseCapture( FALSE );
 
@@ -114,7 +114,7 @@ BOOL LLToolSelectRect::handleMouseUp(S32 x, S32 y, MASK mask)
 		{
 			LLSelectMgr::getInstance()->selectHighlightedObjects();
 		}
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -123,7 +123,7 @@ BOOL LLToolSelectRect::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLToolSelectRect::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolSelectRect::handleHover(S32 x, S32 y, MASK mask)
 {
 	if(	hasMouseCapture() )
 	{
@@ -153,7 +153,7 @@ BOOL LLToolSelectRect::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	return TRUE;
+	return true;
 }
 
 

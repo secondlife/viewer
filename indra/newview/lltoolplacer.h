@@ -43,7 +43,7 @@ public:
 	LLToolPlacer();
 
 	virtual BOOL	placeObject(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	handleSelect();	// do stuff when your tool is selected
 	virtual void	handleDeselect();	// clean up when your tool is deselected
 

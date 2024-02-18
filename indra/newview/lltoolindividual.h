@@ -43,8 +43,8 @@ class LLToolIndividual : public LLTool, public LLSingleton<LLToolIndividual>
 	virtual ~LLToolIndividual();
 public:
 
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual void handleSelect();
 	//virtual void handleDeselect();
 	//virtual void render();

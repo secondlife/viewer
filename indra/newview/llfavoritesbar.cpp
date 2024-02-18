@@ -160,7 +160,7 @@ class LLFavoriteLandmarkButton : public LLButton
 {
 public:
 
-	BOOL handleToolTip(S32 x, S32 y, MASK mask)
+	bool handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		std::string region_name = mLandmarkInfoGetter.getName();
 		
@@ -176,10 +176,10 @@ public:
 
 			LLToolTipMgr::instance().show(params);
 		}
-		return TRUE;
+		return true;
 	}
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask)
+	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask)
 	{
 		LLFavoritesBarCtrl* fb = dynamic_cast<LLFavoritesBarCtrl*>(getParent());
 
@@ -224,7 +224,7 @@ private:
 class LLFavoriteLandmarkMenuItem : public LLMenuItemCallGL
 {
 public:
-	BOOL handleToolTip(S32 x, S32 y, MASK mask)
+	bool handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		std::string region_name = mLandmarkInfoGetter.getName();
 		if (!region_name.empty())
@@ -234,34 +234,34 @@ public:
 			params.sticky_rect = calcScreenRect();
 			LLToolTipMgr::instance().show(params);
 		}
-		return TRUE;
+		return true;
 	}
 	
 	const LLUUID& getLandmarkID() const { return mLandmarkInfoGetter.getLandmarkID(); }
 	void setLandmarkID(const LLUUID& id) { mLandmarkInfoGetter.setLandmarkID(id); }
 
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask)
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		if (mMouseDownSignal)
 			(*mMouseDownSignal)(this, x, y, mask);
 		return LLMenuItemCallGL::handleMouseDown(x, y, mask);
 	}
 
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask)
+	virtual bool handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		if (mMouseUpSignal)
 			(*mMouseUpSignal)(this, x, y, mask);
 		return LLMenuItemCallGL::handleMouseUp(x, y, mask);
 	}
 
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask)
+	virtual bool handleHover(S32 x, S32 y, MASK mask)
 	{
 		if (fb)
 		{
 			fb->handleHover(x, y, mask);
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	void initFavoritesBarPointer(LLFavoritesBarCtrl* fb) { this->fb = fb; }
@@ -295,12 +295,12 @@ public:
     }
 
     // virtual
-    BOOL handleHover(S32 x, S32 y, MASK mask) override
+    bool handleHover(S32 x, S32 y, MASK mask) override
     {
         mIsHovering = true;
         LLToggleableMenu::handleHover(x, y, mask);
         mIsHovering = false;
-        return TRUE;
+        return true;
     }
 
     // virtual
@@ -1335,9 +1335,9 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 	LLMenuGL::showPopup(fav_button, menu, x, y);
 }
 
-BOOL LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	bool handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
 	if(!handled && !gMenuHolder->hasVisibleMenu())
 	{
 		show_navbar_context_menu(this,x,y);
@@ -1580,7 +1580,7 @@ void LLFavoritesBarCtrl::onEndDrag()
 	LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
 }
 
-BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
+bool LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (mDragItemId != LLUUID::null && mStartDrag)
 	{
@@ -1599,7 +1599,7 @@ BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)

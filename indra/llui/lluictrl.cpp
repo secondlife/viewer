@@ -342,12 +342,12 @@ void LLUICtrl::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 //virtual 
-BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 
 	LL_DEBUGS() << "LLUICtrl::handleMouseDown calling	LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
   
-	BOOL handled  = LLView::handleMouseDown(x,y,mask);
+	bool handled  = LLView::handleMouseDown(x,y,mask);
 	
 	if (mMouseDownSignal)
 	{
@@ -362,12 +362,12 @@ BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 
 	LL_DEBUGS() << "LLUICtrl::handleMouseUp calling LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
 
-	BOOL handled  = LLView::handleMouseUp(x,y,mask);
+	bool handled  = LLView::handleMouseUp(x,y,mask);
 	if (handled) {
 		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname()); 
 	}
@@ -382,9 +382,9 @@ BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled  = LLView::handleRightMouseDown(x,y,mask);
+	bool handled  = LLView::handleRightMouseDown(x,y,mask);
 	if (mRightMouseDownSignal)
 	{
 		(*mRightMouseDownSignal)(this,x,y,mask);
@@ -393,9 +393,9 @@ BOOL LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled  = LLView::handleRightMouseUp(x,y,mask);
+	bool handled  = LLView::handleRightMouseUp(x,y,mask);
 	if(mRightMouseUpSignal)
 	{
 		(*mRightMouseUpSignal)(this,x,y,mask);
@@ -403,9 +403,9 @@ BOOL LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-BOOL LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLView::handleDoubleClick(x, y, mask);
+	bool handled = LLView::handleDoubleClick(x, y, mask);
 	if (mDoubleClickSignal)
 	{
 		(*mDoubleClickSignal)(this, x, y, mask);

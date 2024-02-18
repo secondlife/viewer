@@ -227,21 +227,21 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLScrollContainer::handleUnicodeCharHere(llwchar uni_char)
+bool LLScrollContainer::handleUnicodeCharHere(llwchar uni_char)
 {
 	if (mScrolledView && mScrolledView->handleUnicodeCharHere(uni_char))
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
+bool LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
 	// Give event to my child views - they may have scroll bars
 	// (Bad UI design, but technically possible.)
 	if (LLUICtrl::handleScrollWheel(x,y,clicks))
-		return TRUE;
+		return true;
 
 	// When the vertical scrollbar is visible, scroll wheel
 	// only affects vertical scrolling.  It's confusing to have
@@ -257,7 +257,7 @@ BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 			updateScroll();
 		}
 		// Always eat the event
-		return TRUE;
+		return true;
 	}
 
 	LLScrollbar* horizontal = mScrollbar[HORIZONTAL];
@@ -268,16 +268,16 @@ BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 		&& horizontal->handleScrollWheel( 0, 0, clicks ) )
 	{
 		updateScroll();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
 	if (LLUICtrl::handleScrollHWheel(x,y,clicks))
 	{
-		return TRUE;
+		return true;
 	}
 
 	LLScrollbar* horizontal = mScrollbar[HORIZONTAL];
@@ -286,10 +286,10 @@ BOOL LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 		&& horizontal->handleScrollHWheel( 0, 0, clicks ) )
 	{
 		updateScroll();
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,

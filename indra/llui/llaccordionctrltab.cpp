@@ -482,7 +482,7 @@ void LLAccordionCtrlTab::onUpdateScrollToChild(const LLUICtrl *cntrl)
     LLUICtrl::onUpdateScrollToChild(cntrl);
 }
 
-BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mCollapsible && mHeaderVisible && mCanOpenClose)
 	{
@@ -493,13 +493,13 @@ BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 
 			// Reset stored state
 			mWasStateStored = false;
-			return TRUE;
+			return true;
 		}
 	}
 	return LLUICtrl::handleMouseDown(x,y,mask);
 }
 
-BOOL LLAccordionCtrlTab::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLAccordionCtrlTab::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	return LLUICtrl::handleMouseUp(x,y,mask);
 }
@@ -820,7 +820,7 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	if ((key == KEY_RETURN) && mask == MASK_NONE)
 	{
 		changeOpenClose(getDisplayChildren());
-		return TRUE;
+		return true;
 	}
 
 	if ((key == KEY_ADD || key == KEY_RIGHT) && mask == MASK_NONE)
@@ -828,7 +828,7 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		if (!getDisplayChildren())
 		{
 			changeOpenClose(getDisplayChildren());
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -837,7 +837,7 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		if (getDisplayChildren())
 		{
 			changeOpenClose(getDisplayChildren());
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -853,7 +853,7 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		{
 			getAccordionView()->notify(LLSD().with("action", "select_first"));
 		}
-		return TRUE;
+		return true;
 	}
 
 	if (key == KEY_UP && mask == MASK_NONE)
@@ -862,7 +862,7 @@ BOOL LLAccordionCtrlTab::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 
 		// we're processing notifyParent so let call parent directly
 		getParent()->notifyParent(LLSD().with("action", "select_prev"));
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleKey(key, mask, called_from_parent);
@@ -1097,7 +1097,7 @@ void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top,
 	panel->setRect(panel_rect);
 }
 
-BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	//header may be not the first child but we need to process it first
 	if (y >= (getRect().getHeight() - HEADER_HEIGHT - HEADER_HEIGHT / 2))
@@ -1105,22 +1105,22 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 		//inside tab header
 		//fix for EXT-6619
 		mHeader->handleToolTip(x, y, mask);
-		return TRUE;
+		return true;
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
 
-BOOL LLAccordionCtrlTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLAccordionCtrlTab::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if (LLUICtrl::handleScrollWheel(x, y, clicks))
 	{
-		return TRUE;
+		return true;
 	}
 
 	if (mScrollbar && mScrollbar->getVisible() && mScrollbar->handleScrollWheel(0, 0, clicks))
 	{
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }

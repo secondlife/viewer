@@ -550,21 +550,21 @@ const std::string& LLFolderViewItem::getName( void ) const
 }
 
 // LLView functionality
-BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
+bool LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	if(!mIsSelected)
 	{
-		getRoot()->setSelection(this, FALSE);
+		getRoot()->setSelection(this, false);
 	}
 	make_ui_sound("UISndClick");
-	return TRUE;
+	return true;
 }
 
-BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	if (LLView::childrenHandleMouseDown(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 	
 	// No handler needed for focus lost since this class has no
@@ -583,7 +583,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			getRoot()->setSelection(this, FALSE);
+			getRoot()->setSelection(this, false);
 		}
 		make_ui_sound("UISndClick");
 	}
@@ -591,15 +591,15 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 	{
 		// If selected, we reserve the decision of deselecting/reselecting to the mouse up moment.
 		// This is necessary so we maintain selection consistent when starting a drag.
-		mSelectPending = TRUE;
+		mSelectPending = true;
 	}
 
 	mDragStartX = x;
 	mDragStartY = y;
-	return TRUE;
+	return true;
 }
 
-BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
+bool LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 {
 	static LLCachedControl<S32> drag_and_drop_threshold(*LLUI::getInstance()->mSettingGroups["config"],"DragAndDropDistanceThreshold", 3);
 
@@ -616,7 +616,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 		{
 					// RN: when starting drag and drop, clear out last auto-open
 					root->autoOpenTest(NULL);
-					root->setShowSelectionContext(TRUE);
+					root->setShowSelectionContext(true);
 
 					// Release keyboard focus, so that if stuff is dropped into the
 					// world, pressing the delete key won't blow away the inventory
@@ -631,31 +631,31 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 		}
 
 		root->clearHoveredItem();
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		LLFolderView* pRoot = getRoot();
 		pRoot->setHoveredItem(this);
-		pRoot->setShowSelectionContext(FALSE);
+		pRoot->setShowSelectionContext(false);
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		// let parent handle this then...
-		return FALSE;
+		return false;
 	}
 }
 
 
-BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
+bool LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
 	openItem();
-	return TRUE;
+	return true;
 }
 
-BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
+bool LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 {
 	if (LLView::childrenHandleMouseUp(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 	
 	// if mouse hasn't moved since mouse down...
@@ -672,21 +672,21 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			getRoot()->setSelection(this, FALSE);
+			getRoot()->setSelection(this, false);
 		}
 	}
 
-	mSelectPending = FALSE;
+	mSelectPending = false;
 
 	if( hasMouseCapture() )
 	{
 		if (getRoot())
 		{
-		getRoot()->setShowSelectionContext(FALSE);
+		getRoot()->setShowSelectionContext(false);
 		}
 		gFocusMgr.setMouseCapture( NULL );
 	}
-	return TRUE;
+	return true;
 }
 
 void LLFolderViewItem::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -2019,9 +2019,9 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 }
 
 
-BOOL LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
+bool LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if( isOpen() )
 	{
@@ -2035,11 +2035,11 @@ BOOL LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
 }
 
 
-BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
+bool LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 {
 	mIsMouseOverTitle = (y > (getRect().getHeight() - mItemHeight));
 
-	BOOL handled = LLView::handleHover(x, y, mask);
+	bool handled = LLView::handleHover(x, y, mask);
 
 	if (!handled)
 	{
@@ -2050,9 +2050,9 @@ BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if( isOpen() )
 	{
 		handled = childrenHandleMouseDown(x,y,mask) != NULL;
@@ -2063,7 +2063,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
            && !mSingleFolderMode)
 		{
 			toggleOpen();
-			handled = TRUE;
+			handled = true;
 		}
 		else
 		{
@@ -2075,9 +2075,9 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
-BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
+bool LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
     if(mSingleFolderMode)
     {
         static LLUICachedControl<bool> double_click_new_window("SingleModeDoubleClickOpenWindow", false);
@@ -2094,7 +2094,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
                                 getViewModelItem()->navigateToFolder(false);
                             });
         }
-        return TRUE;
+        return true;
     }
 
 	if( isOpen() )
@@ -2109,12 +2109,12 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
             if (double_click_action == 1)
             {
                 getViewModelItem()->navigateToFolder(true);
-                return TRUE;
+                return true;
             }
             if (double_click_action == 2)
             {
                 getViewModelItem()->navigateToFolder(false, true);
-                return TRUE;
+                return true;
             }
         }
 		if(mIndentation < x && x < mIndentation + (isCollapsed() ? 0 : mArrowSize) + mTextPad)
@@ -2125,10 +2125,10 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			getRoot()->setSelection(this, FALSE);
+			getRoot()->setSelection(this, false);
 			toggleOpen();
 		}
-		handled = TRUE;
+		handled = true;
 	}
 	return handled;
 }

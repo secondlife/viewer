@@ -126,14 +126,14 @@ void LLSplitButton::onItemSelected(LLUICtrl* ctrl)
 	gFocusMgr.setKeyboardFocus(NULL);
 }
 
-BOOL LLSplitButton::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLSplitButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	gFocusMgr.setMouseCapture(NULL);
 
 	if (mShownItem->parentPointInView(x, y))
 	{
 		onItemSelected(mShownItem);
-		return TRUE;
+		return true;
 	}
 
 	for (std::list<LLButton*>::const_iterator it = mHidenItems.begin(); it != mHidenItems.end(); ++it)
@@ -147,10 +147,10 @@ BOOL LLSplitButton::handleMouseUp(S32 x, S32 y, MASK mask)
 		if (item->parentPointInView(panel_x, panel_y))
 		{
 			onItemSelected(item);
-			return TRUE;
+			return true;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 void LLSplitButton::showButtons()

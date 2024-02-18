@@ -71,9 +71,9 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleMouseUp( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleRightMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ bool handleMouseUp( S32 x, S32 y, MASK mask );
 
 	/*virtual*/ S32 arrange(S32* width, S32* height);
 
@@ -151,7 +151,7 @@ public:
     void onMouseLeave(S32 x, S32 y, MASK mask);
 
     /*virtual*/ S32 getLabelXPos();
-    /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
+    /*virtual*/ bool handleMouseDown( S32 x, S32 y, MASK mask );
 	void allowSpeakingIndicator(bool val);
 
 protected:

@@ -1079,14 +1079,14 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 	needsReflow(reflow_start_index);
 }
 
-BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// handle triple click
 	if (!mTripleClickTimer.hasExpired())
 	{
 		if (mSkipTripleClick)
 		{
-			return TRUE;
+			return true;
 		}
 		
 		S32 real_line = getLineNumFromDocIndex(mCursorPos, false);
@@ -1114,26 +1114,26 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 
 		if (line_start == -1)
 		{
-			return TRUE;
+			return true;
 		}
 
 		mSelectionEnd = line_start;
 		mSelectionStart = line_end;
 		setCursorPos(line_start);
 
-		return TRUE;
+		return true;
 	}
 
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMouseDown(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleMouseDown(x, y, mask);
 }
 
-BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (hasMouseCapture() && cur_segment && cur_segment->handleMouseUp(x, y, mask))
@@ -1146,57 +1146,57 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 			// *TODO: send URL here?
 			(*mURLClickSignal)(this, LLSD() );
 		}
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleMouseUp(x, y, mask);
 }
 
-BOOL LLTextBase::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMiddleMouseDown(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleMiddleMouseDown(x, y, mask);
 }
 
-BOOL LLTextBase::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMiddleMouseUp(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleMiddleMouseUp(x, y, mask);
 }
 
-BOOL LLTextBase::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleRightMouseDown(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleRightMouseDown(x, y, mask);
 }
 
-BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleRightMouseUp(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleRightMouseUp(x, y, mask);
 }
 
-BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	//Don't start triple click timer if user have clicked on scrollbar
 	mVisibleTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
@@ -1209,40 +1209,40 @@ BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleDoubleClick(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleDoubleClick(x, y, mask);
 }
 
-BOOL LLTextBase::handleHover(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleHover(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleHover(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleHover(x, y, mask);
 }
 
-BOOL LLTextBase::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLTextBase::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleScrollWheel(x, y, clicks))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleScrollWheel(x, y, clicks);
 }
 
-BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleToolTip(x, y, mask))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLUICtrl::handleToolTip(x, y, mask);
@@ -3228,17 +3228,17 @@ void LLTextSegment::setToken( LLKeywordToken* token ) {}
 LLKeywordToken*	LLTextSegment::getToken() const { return NULL; }
 void LLTextSegment::setToolTip( const std::string &msg ) {}
 void LLTextSegment::dump() const {}
-BOOL LLTextSegment::handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleMouseUp(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleMiddleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleMiddleMouseUp(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleRightMouseUp(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleDoubleClick(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleHover(S32 x, S32 y, MASK mask) { return FALSE; }
-BOOL LLTextSegment::handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; }
-BOOL LLTextSegment::handleScrollHWheel(S32 x, S32 y, S32 clicks) { return FALSE; }
-BOOL LLTextSegment::handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; }
+bool LLTextSegment::handleMouseDown(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleMouseUp(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleMiddleMouseDown(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleMiddleMouseUp(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleRightMouseUp(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleDoubleClick(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleHover(S32 x, S32 y, MASK mask) { return false; }
+bool LLTextSegment::handleScrollWheel(S32 x, S32 y, S32 clicks) { return false; }
+bool LLTextSegment::handleScrollHWheel(S32 x, S32 y, S32 clicks) { return false; }
+bool LLTextSegment::handleToolTip(S32 x, S32 y, MASK mask) { return false; }
 const std::string&	LLTextSegment::getName() const 
 {
 	return LLStringUtil::null;
@@ -3246,7 +3246,7 @@ const std::string&	LLTextSegment::getName() const
 void LLTextSegment::onMouseCaptureLost() {}
 void LLTextSegment::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {}
 void LLTextSegment::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const {}
-BOOL LLTextSegment::hasMouseCapture() { return FALSE; }
+bool LLTextSegment::hasMouseCapture() { return false; }
 
 //
 // LLNormalTextSegment
@@ -3364,7 +3364,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
     return right_x;
 }
 
-BOOL LLNormalTextSegment::handleHover(S32 x, S32 y, MASK mask)
+bool LLNormalTextSegment::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
@@ -3372,13 +3372,13 @@ BOOL LLNormalTextSegment::handleHover(S32 x, S32 y, MASK mask)
 		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
 		{
 			LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLNormalTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLNormalTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
@@ -3386,13 +3386,13 @@ BOOL LLNormalTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
 		{
 			mEditor.createUrlContextMenu(x, y, getStyle()->getLinkHREF());
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLNormalTextSegment::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLNormalTextSegment::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
@@ -3400,14 +3400,14 @@ BOOL LLNormalTextSegment::handleMouseDown(S32 x, S32 y, MASK mask)
 		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
 		{
 			// eat mouse down event on hyperlinks, so we get the mouse up
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
 	{
@@ -3423,14 +3423,14 @@ BOOL LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
             {
                 LLUrlAction::openURLExternal(url);
             }
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLNormalTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLNormalTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	std::string msg;
 	// do we have a tooltip for a loaded keyword (for script editor)?
@@ -3438,16 +3438,16 @@ BOOL LLNormalTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		const LLWString& wmsg = mToken->getToolTip();
 		LLToolTipMgr::instance().show(wstring_to_utf8str(wmsg));
-		return TRUE;
+		return true;
 	}
 	// or do we have an explicitly set tooltip (e.g., for Urls)
 	if (!mTooltip.empty())
 	{
 		LLToolTipMgr::instance().show(mTooltip);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLNormalTextSegment::setToolTip(const std::string& tooltip)
@@ -3611,7 +3611,7 @@ F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start
 }
 
 /*virtual*/
-BOOL LLOnHoverChangeableTextSegment::handleHover(S32 x, S32 y, MASK mask)
+bool LLOnHoverChangeableTextSegment::handleHover(S32 x, S32 y, MASK mask)
 {
 	mStyle = mEditor.getSkipLinkUnderline() ? mNormalStyle : mHoveredStyle;
 	return LLNormalTextSegment::handleHover(x, y, mask);
@@ -3786,15 +3786,15 @@ S32	 LLImageTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	return 0;
 }
 
-BOOL LLImageTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLImageTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if (!mTooltip.empty())
 	{
 		LLToolTipMgr::instance().show(mTooltip);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLImageTextSegment::setToolTip(const std::string& tooltip)

@@ -668,15 +668,15 @@ void LLTextEditor::selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_p
 	endSelection();
 }
 
-BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// set focus first, in case click callbacks want to change it
 	// RN: do we really need to have a tab stop?
 	if (hasTabStop())
 	{
-		setFocus( TRUE );
+		setFocus( true );
 	}
 
 	// Let scrollbar have first dibs
@@ -689,7 +689,7 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 			deselect();
 		}
 
-		BOOL start_select = TRUE;
+		bool start_select = true;
 		if( start_select )
 		{
 			// If we're not scrolling (handled by child), then we're selecting
@@ -717,7 +717,7 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	// Delay cursor flashing
@@ -730,11 +730,11 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (hasTabStop())
 	{
-		setFocus(TRUE);
+		setFocus(true);
 	}
 
 	bool show_menu = false;
@@ -742,7 +742,7 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	// Prefer editor menu if it has selection. See EXT-6806.
 	if (hasSelection())
 	{
-		S32 click_pos = getDocIndexFromLocalCoord(x, y, FALSE);
+		S32 click_pos = getDocIndexFromLocalCoord(x, y, false);
 		if (click_pos > mSelectionStart && click_pos < mSelectionEnd)
 		{
 			show_menu = true;
@@ -760,16 +760,16 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		showContextMenu(x, y);
 	}
 
-	return TRUE;
+	return true;
 }
 
 
 
-BOOL LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (hasTabStop())
 	{
-		setFocus(TRUE);
+		setFocus(true);
 	}
 
 	if (!LLTextBase::handleMouseDown(x, y, mask))
@@ -781,13 +781,13 @@ BOOL LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 			pastePrimary();
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
+bool LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if(hasMouseCapture() )
 	{
@@ -804,7 +804,7 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		}
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;		
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
-		handled = TRUE;
+		handled = true;
 	}
 
 	if( !handled )
@@ -822,16 +822,16 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 	if( !handled )
 	{
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
 
-BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// if I'm not currently selecting text
 	if (!(mIsSelecting && hasMouseCapture()))
@@ -857,7 +857,7 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		// take selection to 'primary' clipboard
 		updatePrimary();
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	// Delay cursor flashing
@@ -867,16 +867,16 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		gFocusMgr.setMouseCapture( NULL );
 		
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
 
-BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// let scrollbar and text segments have first dibs
 	handled = LLTextBase::handleDoubleClick(x, y, mask);
@@ -914,7 +914,7 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 		// We don't want handleMouseUp() to "finish" the selection (and thereby
 		// set mSelectionEnd to where the mouse is), so we finish the selection here.
-		mIsSelecting = FALSE;  
+		mIsSelecting = false;  
 
 		// delay cursor flashing
 		resetCursorBlink();
@@ -922,7 +922,7 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// take selection to 'primary' clipboard
 		updatePrimary();
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
@@ -1825,14 +1825,14 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 }
 
 
-BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
+bool LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
-		return FALSE;
+		return false;
 	}
 
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// Handle most keys only if the text editor is writeable.
 	if( !mReadOnly )
@@ -1848,7 +1848,7 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 		// Keys that add characters temporarily hide the cursor
 		getWindow()->hideCursorUntilMouseMove();
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	if( handled )
@@ -2755,7 +2755,7 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
 	onKeyStroke();
 }
 
-BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
+bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
 {
 	if (control)
 	{
@@ -2778,13 +2778,13 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 	const S32 query = (query_offset >= 0 ? preedit_left_position + query_offset : mCursorPos);
 	if (query < preedit_left_position || query > preedit_right_position)
 	{
-		return FALSE;
+		return false;
 	}
 
 	const S32 first_visible_line = getFirstVisibleLine();
 	if (query < getLineStart(first_visible_line))
 	{
-		return FALSE;
+		return false;
 	}
 
 	S32 current_line = first_visible_line;
@@ -2845,7 +2845,7 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 		LLUI::getInstance()->screenRectToGL(preedit_rect_screen, bounds);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLTextEditor::getSelectionRange(S32 *position, S32 *length) const
@@ -2891,7 +2891,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 		mPreeditPositions[0] = position;
 		mPreeditPositions[1] = position + length;
 		mPreeditStandouts.resize(1);
-		mPreeditStandouts[0] = FALSE;
+		mPreeditStandouts[0] = false;
 	}
 	else
 	{

@@ -162,13 +162,13 @@ public:
 	virtual void onUpdateScrollToChild(const LLUICtrl * cntrl);
 
 	// Changes expand/collapse state and triggers expand/collapse callbacks
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
 
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 
-	virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
-	virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+	virtual bool handleToolTip(S32 x, S32 y, MASK mask);
+	virtual bool handleScrollWheel( S32 x, S32 y, S32 clicks );
 
 
 	virtual bool addChild(LLView* child, S32 tab_group = 0 );

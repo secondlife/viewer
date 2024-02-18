@@ -115,13 +115,13 @@ LLProgressView::~LLProgressView()
 	sInstance = NULL;
 }
 
-BOOL LLProgressView::handleHover(S32 x, S32 y, MASK mask)
+bool LLProgressView::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( childrenHandleHover( x, y, mask ) == NULL )
 	{
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
 	}
-	return TRUE;
+	return true;
 }
 
 

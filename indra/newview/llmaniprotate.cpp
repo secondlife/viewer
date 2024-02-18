@@ -362,9 +362,9 @@ void LLManipRotate::render()
 	renderXYZ(euler_angles);
 }
 
-BOOL LLManipRotate::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLManipRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	LLViewerObject* first_object = mObjectSelection->getFirstMoveableObject(TRUE);
 	if( first_object )
@@ -459,7 +459,7 @@ LLVector3 LLManipRotate::findNearestPointOnRing( S32 x, S32 y, const LLVector3& 
 	return center + proj_onto_ring * mRadiusMeters;
 }
 
-BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// first, perform normal processing in case this was a quick-click
 	handleHover(x, y, mask);
@@ -497,7 +497,7 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLManipRotate::handleHover(S32 x, S32 y, MASK mask)
+bool LLManipRotate::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( hasMouseCapture() )
 	{
@@ -520,7 +520,7 @@ BOOL LLManipRotate::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	gViewerWindow->setCursor(UI_CURSOR_TOOLROTATE);
-	return TRUE;
+	return true;
 }
 
 

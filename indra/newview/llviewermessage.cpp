@@ -141,7 +141,7 @@ const F32 CAMERA_POSITION_THRESHOLD_SQUARED = 0.001f * 0.001f;
 static const U32 LLREQUEST_PERMISSION_THROTTLE_LIMIT	= 5;     // requests
 static const F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL	= 10.0f; // seconds
 
-extern BOOL gDebugClicks;
+extern bool gDebugClicks;
 extern bool gShiftFrame;
 
 // function prototypes

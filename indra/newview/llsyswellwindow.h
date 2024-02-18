@@ -133,8 +133,8 @@ private:
 		virtual ~ObjectRowPanel();
 		/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
 		/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-		/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-		/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+		/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+		/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	private:
 		void onClosePanel();

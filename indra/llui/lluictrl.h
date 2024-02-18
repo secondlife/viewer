@@ -155,11 +155,11 @@ public:
 	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask) override;
 	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask) override;
 	/*virtual*/ BOOL	canFocusChildren() const override;
-	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool 	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool 	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool	handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ bool	handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b ) override;

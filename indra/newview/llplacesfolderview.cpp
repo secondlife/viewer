@@ -42,7 +42,7 @@ LLPlacesFolderView::LLPlacesFolderView(const LLFolderView::Params& p)
     mAutoSelectOverride = TRUE;
 }
 
-BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     // let children to change selection first
     childrenHandleRightMouseDown(x, y, mask);

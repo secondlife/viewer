@@ -142,13 +142,13 @@ BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 	return FALSE;
 }
 
-BOOL LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLButton::handleMouseDown(x, y, mask);
 
 	toggleMenu();
 	
-	return TRUE;
+	return true;
 }
 
 void LLMenuButton::toggleMenu()

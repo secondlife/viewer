@@ -93,7 +93,7 @@ void LLScrollColumnHeader::draw()
 	LLButton::draw();
 }
 
-BOOL LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	if (canResize() && mResizeBar->getRect().pointInRect(x, y))
 	{
@@ -107,7 +107,7 @@ BOOL LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		onClick(LLSD());
 	}
-	return TRUE;
+	return true;
 }
 
 void LLScrollColumnHeader::onClick(const LLSD& data)

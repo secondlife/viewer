@@ -273,8 +273,8 @@ public:
 	}
 
 	virtual void draw();
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleToolTip(S32 x, S32 y, MASK mask);
+	bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+	bool handleToolTip(S32 x, S32 y, MASK mask);
 	BOOL selectElement(LLView* parent, int x, int y, int depth);	// select element to display its overlappers
 
 	LLFloaterUIPreview* mFloaterUIPreview;
@@ -1369,7 +1369,7 @@ void append_view_tooltip(LLView* tooltip_view, std::string *tooltip_msg)
 	tooltip_msg->append( msg );
 }
 
-BOOL LLPreviewedFloater::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLPreviewedFloater::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if (!sShowRectangles)
 	{
@@ -1413,13 +1413,13 @@ BOOL LLPreviewedFloater::handleToolTip(S32 x, S32 y, MASK mask)
 	LLToolTipMgr::instance().show(LLToolTip::Params()
 		.message(tooltip_msg)
 		.max_width(400));
-	return TRUE;
+	return true;
 }
 
-BOOL LLPreviewedFloater::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLPreviewedFloater::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	selectElement(this,x,y,0);
-	return TRUE;
+	return true;
 }
 
 // *NOTE: In order to hide all of the overlapping elements of the selected element so as to see it in context, here is what you would need to do:

@@ -68,7 +68,7 @@ void LLToolGun::handleDeselect()
 	mIsSelected = FALSE;
 }
 
-BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	gGrabTransientTool = this;
 	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
@@ -76,7 +76,7 @@ BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLToolGrab::getInstance()->handleMouseDown(x, y, mask);
 }
 
-BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask) 
+bool LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( gAgentCamera.cameraMouselook() && mIsSelected )
 	{
@@ -133,7 +133,7 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 	// HACK to avoid assert: error checking system makes sure that the cursor is set during every handleHover.  This is actually a no-op since the cursor is hidden.
 	gViewerWindow->setCursor(UI_CURSOR_ARROW);  
 
-	return TRUE;
+	return true;
 }
 
 void LLToolGun::draw()

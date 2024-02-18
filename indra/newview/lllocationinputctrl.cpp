@@ -468,7 +468,7 @@ void LLLocationInputCtrl::hideList()
 		focusTextEntry();
 }
 
-BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 
 	if(mAddLandmarkBtn->parentPointInView(x,y))
@@ -496,10 +496,10 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)

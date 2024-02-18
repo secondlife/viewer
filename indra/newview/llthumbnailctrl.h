@@ -70,7 +70,7 @@ public:
     void setInitImmediately(bool val) { mInitImmediately = val; }
     void clearTexture();
     
-    virtual BOOL handleHover(S32 x, S32 y, MASK mask) override;
+    virtual bool handleHover(S32 x, S32 y, MASK mask) override;
 
 protected:
     void initImage();

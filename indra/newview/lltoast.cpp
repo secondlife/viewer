@@ -583,7 +583,7 @@ void LLNotificationsUI::LLToast::startTimer()
 
 //--------------------------------------------------------------------------
 
-BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mHideBtn && mHideBtn->getEnabled())
 	{

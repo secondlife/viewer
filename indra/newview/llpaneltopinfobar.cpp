@@ -128,7 +128,7 @@ void LLPanelTopInfoBar::handleLoginComplete()
 	update();
 }
 
-BOOL LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(!LLUICtrl::CommitCallbackRegistry::getValue("TopInfoBar.Action"))
 	{
@@ -136,7 +136,7 @@ BOOL LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 				.add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
 	}
 	show_topinfobar_context_menu(this, x, y);
-	return TRUE;
+	return true;
 }
 
 BOOL LLPanelTopInfoBar::postBuild()

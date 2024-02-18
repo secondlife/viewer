@@ -849,7 +849,7 @@ void LLFloaterModelPreview::draw()
 //-----------------------------------------------------------------------------
 // handleMouseDown()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterModelPreview::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLFloaterModelPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mPreviewRect.pointInRect(x, y))
 	{
@@ -858,7 +858,7 @@ BOOL LLFloaterModelPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 		gViewerWindow->hideCursor();
 		mLastMouseX = x;
 		mLastMouseY = y;
-		return TRUE;
+		return true;
 	}
 
 	return LLFloater::handleMouseDown(x, y, mask);
@@ -867,7 +867,7 @@ BOOL LLFloaterModelPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 // handleMouseUp()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterModelPreview::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLFloaterModelPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	gFocusMgr.setMouseCapture(FALSE);
 	gViewerWindow->showCursor();
@@ -877,7 +877,7 @@ BOOL LLFloaterModelPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 // handleHover()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterModelPreview::handleHover	(S32 x, S32 y, MASK mask)
+bool LLFloaterModelPreview::handleHover	(S32 x, S32 y, MASK mask)
 {
 	MASK local_mask = mask & ~MASK_ALT;
 
@@ -928,13 +928,13 @@ BOOL LLFloaterModelPreview::handleHover	(S32 x, S32 y, MASK mask)
 		gViewerWindow->setCursor(UI_CURSOR_TOOLZOOMIN);
 	}
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // handleScrollWheel()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if (mPreviewRect.pointInRect(x, y) && mModelPreview)
 	{
@@ -945,7 +945,7 @@ BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
     {
         LLFloaterModelUploadBase::handleScrollWheel(x, y, clicks);
     }
-	return TRUE;
+	return true;
 }
 
 /*virtual*/

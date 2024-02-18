@@ -54,7 +54,7 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
 
 	LLSD getPayload() { return mPayload; }
 
@@ -470,12 +470,12 @@ BOOL LLRadioCtrl::postBuild()
 	return TRUE;
 }
 
-BOOL LLRadioCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLRadioCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Grab focus preemptively, before button takes mousecapture
     if (hasTabStop() && getEnabled())
     {
-        focusFirstItem(FALSE, FALSE);
+        focusFirstItem(false, false);
     }
     else
     {

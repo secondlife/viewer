@@ -89,10 +89,10 @@ boost::signals2::connection LLPanelAvatarTag::setLeftButtonClickCallback(
 	return setCommitCallback(cb);
 }
 
-BOOL LLPanelAvatarTag::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLPanelAvatarTag::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	onCommit();
-	return TRUE;
+	return true;
 }
 
 void LLPanelAvatarTag::onClick()

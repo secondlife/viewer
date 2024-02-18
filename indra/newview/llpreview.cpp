@@ -306,7 +306,7 @@ void LLPreview::dirty(const LLUUID& item_uuid)
 	}
 }
 
-BOOL LLPreview::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mClientRect.pointInRect(x, y))
 	{
@@ -318,22 +318,22 @@ BOOL LLPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 		S32 screen_y;
 		localPointToScreen(x, y, &screen_x, &screen_y );
 		LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
-		return TRUE;
+		return true;
 	}
 	return LLFloater::handleMouseDown(x, y, mask);
 }
 
-BOOL LLPreview::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if(hasMouseCapture())
 	{
 		gFocusMgr.setMouseCapture(NULL);
-		return TRUE;
+		return true;
 	}
 	return LLFloater::handleMouseUp(x, y, mask);
 }
 
-BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
+bool LLPreview::handleHover(S32 x, S32 y, MASK mask)
 {
 	if(hasMouseCapture())
 	{

@@ -359,9 +359,9 @@ void LLFloaterSettingsPicker::onButtonSelect()
     closeFloater();
 }
 
-BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (mSettingItemID.notNull()
         && mInventoryPanel)
     {
@@ -387,7 +387,7 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                     }
                     closeFloater();
                     // hit inside panel on selected item, double click should do nothing
-                    result = TRUE;
+                    result = true;
                 }
             }
         }

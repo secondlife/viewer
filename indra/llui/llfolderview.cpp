@@ -1310,20 +1310,20 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 }
 
 
-BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
+bool LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (uni_char > 0x7f)
 	{
 		LL_WARNS() << "LLFolderView::handleUnicodeCharHere - Don't handle non-ascii yet, aborting" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
-	BOOL handled = FALSE;
+	bool handled = false;
 	if (mParentPanel.get()->hasFocus())
 	{
 		// SL-51858: Key presses are not being passed to the Popup menu.
@@ -1344,21 +1344,21 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 		{
 			mSearchString += uni_char;
 		}
-		search(getCurSelectedItem(), mSearchString, FALSE);
+		search(getCurSelectedItem(), mSearchString, false);
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
 
-BOOL LLFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	mKeyboardSelection = FALSE;
+	mKeyboardSelection = false;
 	mSearchString.clear();
 
-	mParentPanel.get()->setFocus(TRUE);
+	mParentPanel.get()->setFocus(true);
 
 	LLEditMenuHandler::gEditMenuHandler = this;
 
@@ -1432,19 +1432,19 @@ BOOL LLFolderView::search(LLFolderViewItem* first_item, const std::string &searc
 	return found;
 }
 
-BOOL LLFolderView::handleDoubleClick( S32 x, S32 y, MASK mask )
+bool LLFolderView::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
 	// skip LLFolderViewFolder::handleDoubleClick()
 	return LLView::handleDoubleClick( x, y, mask );
 }
 
-BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
+bool LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	// all user operations move keyboard focus to inventory
 	// this way, we know when to stop auto-updating a search
-	mParentPanel.get()->setFocus(TRUE);
+	mParentPanel.get()->setFocus(true);
 
-	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
+	bool handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
 	S32 count = mSelectedItems.size();
 
 	LLMenuGL* menu = static_cast<LLMenuGL*>(mPopupMenuHandle.get());
@@ -1516,9 +1516,9 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	{
 		if (menu && menu->getVisible())
 		{
-			menu->setVisible(FALSE);
+			menu->setVisible(false);
 		}
-		setSelection(NULL, FALSE, TRUE);
+		setSelection(NULL, false, true);
 	}
 	return handled;
 }
@@ -1554,7 +1554,7 @@ BOOL LLFolderView::addNoOptions(LLMenuGL* menu) const
 	return FALSE;
 }
 
-BOOL LLFolderView::handleHover( S32 x, S32 y, MASK mask )
+bool LLFolderView::handleHover( S32 x, S32 y, MASK mask )
 {
 	return LLView::handleHover( x, y, mask );
 }

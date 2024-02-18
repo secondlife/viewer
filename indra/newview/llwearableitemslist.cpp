@@ -118,7 +118,7 @@ BOOL LLPanelWearableOutfitItem::postBuild()
     return TRUE;
 }
 
-BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if(!mShowWidgets)
     {
@@ -133,7 +133,7 @@ BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
     {
         onAddWearable();
     }
-    return TRUE;
+    return true;
 }
 
 void LLPanelWearableOutfitItem::onAddWearable()

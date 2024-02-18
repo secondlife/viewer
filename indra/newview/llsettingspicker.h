@@ -107,7 +107,7 @@ private:
     void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings);
     void                    onButtonCancel();
     void                    onButtonSelect();
-    virtual BOOL            handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    virtual bool            handleDoubleClick(S32 x, S32 y, MASK mask) override;
     BOOL                    handleKeyHere(KEY key, MASK mask) override;
     void                    onFocusLost() override;
 

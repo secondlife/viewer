@@ -1019,19 +1019,19 @@ void LLOutfitGalleryItem::setSelected(bool value)
     setOutfitWorn(mWorn);
 }
 
-BOOL LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
     return LLUICtrl::handleMouseDown(x, y, mask);
 }
 
-BOOL LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
     return LLUICtrl::handleRightMouseDown(x, y, mask);
 }
 
-BOOL LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     return openOutfitsContent() || LLPanel::handleDoubleClick(x, y, mask);
 }

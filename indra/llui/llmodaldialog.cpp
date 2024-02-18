@@ -169,7 +169,7 @@ void LLModalDialog::setVisible( BOOL visible )
 	LLFloater::setVisible( visible );
 }
 
-BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
 	if (popup_menu != NULL)
@@ -197,10 +197,10 @@ BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)		
+bool LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 { 
 	if( childrenHandleHover(x, y, mask) == NULL )
 	{
@@ -223,36 +223,36 @@ BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLModalDialog::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLModalDialog::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	childrenHandleMouseUp(x, y, mask);
-	return TRUE;
+	return true;
 }
 
-BOOL LLModalDialog::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLModalDialog::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	childrenHandleScrollWheel(x, y, clicks);
-	return TRUE;
+	return true;
 }
 
-BOOL LLModalDialog::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLModalDialog::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	if (!LLFloater::handleDoubleClick(x, y, mask))
 	{
 		// Click outside the panel
 		make_ui_sound("UISndInvalidOp");
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLModalDialog::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLModalDialog::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLMenuGL::sMenuContainer->hideMenus();
 	childrenHandleRightMouseDown(x, y, mask);
-	return TRUE;
+	return true;
 }
 
 

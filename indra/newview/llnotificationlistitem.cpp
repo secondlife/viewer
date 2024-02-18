@@ -151,9 +151,9 @@ void LLNotificationListItem::onClickCloseBtn()
     close();
 }
 
-BOOL LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL res = LLPanel::handleMouseUp(x, y, mask);
+    bool res = LLPanel::handleMouseUp(x, y, mask);
     mOnItemClick(this);
     return res;
 }

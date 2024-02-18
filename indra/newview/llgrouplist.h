@@ -60,8 +60,8 @@ public:
     void enableForAgent(bool show_icons);
 
 	virtual void draw(); // from LLView
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask); // from LLView
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask); // from LLView
+	/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask); // from LLView
+	/*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask); // from LLView
 
 	void setNameFilter(const std::string& filter);
 	void toggleIcons();

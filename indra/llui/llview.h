@@ -421,21 +421,21 @@ public:
 
 	// LLMouseHandler functions
 	//  Default behavior is to pass events to children
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMiddleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMiddleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool	handleScrollHWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleRightMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleToolTip(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ const std::string& getName() const;
 	/*virtual*/ void	onMouseCaptureLost();
-	/*virtual*/ BOOL	hasMouseCapture();
+	/*virtual*/ bool	hasMouseCapture();
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
@@ -514,7 +514,7 @@ public:
 	//virtual BOOL	addChildFromParam(const LLInitParam::BaseBlock& params) { return TRUE; }
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleKeyUpHere(KEY key, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+	virtual bool	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual void	handleReshape(const LLRect& rect, bool by_user);
 	virtual void	dirtyRect();

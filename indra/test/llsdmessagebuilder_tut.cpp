@@ -128,7 +128,7 @@ namespace tut
 	void LLSDMessageBuilderTestObject::test<2>()
 		 // BOOL
 	{
-	  BOOL outValue, inValue = TRUE;
+	  bool outValue, inValue = true;
 	  LLSDMessageBuilder builder = defaultBuilder();
 	  builder.addBOOL("var", inValue);
 	  LLSDMessageReader reader = setReader(builder);

@@ -42,17 +42,17 @@ class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 public:
 
 	// Virtual functions inherited from LLMouseHandler
-	virtual BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
-	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleRightMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual bool		handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down);
+	virtual bool		handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool		handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool		handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool		handleRightMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool		handleHover(S32 x, S32 y, MASK mask);
+	virtual bool		handleDoubleClick(S32 x, S32 y, MASK mask);
 	BOOL				handleScrollWheelAny(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
-	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual BOOL		handleScrollHWheel(S32 x, S32 y, S32 clicks);
-	virtual BOOL		handleToolTip(S32 x, S32 y, MASK mask);
+	virtual bool		handleScrollWheel(S32 x, S32 y, S32 clicks);
+	virtual bool		handleScrollHWheel(S32 x, S32 y, S32 clicks);
+	virtual bool		handleToolTip(S32 x, S32 y, MASK mask);
 
 	virtual void		render();
 

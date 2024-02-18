@@ -240,12 +240,12 @@ public:
 	/*virtual*/ bool			canEdit() const { return false; }
 
 
-	/*virtual*/ BOOL			handleHover(S32 x, S32 y, MASK mask)
+	/*virtual*/ bool			handleHover(S32 x, S32 y, MASK mask)
 	{
 		LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
-		return TRUE;
+		return true;
 	}
-	virtual BOOL				handleToolTip(S32 x, S32 y, MASK mask )
+	virtual bool				handleToolTip(S32 x, S32 y, MASK mask )
 	{ 
 		if (mItem->getThumbnailUUID().notNull())
 		{
@@ -259,15 +259,15 @@ public:
 					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
 					.create_params(params));
 
-			return TRUE;
+			return true;
 		}
 
 		if (!mToolTip.empty())
 		{
 			LLToolTipMgr::instance().show(mToolTip);
-			return TRUE;
+			return true;
 		}
-		return FALSE; 
+		return false; 
 	}
 
 	/*virtual*/ LLStyleConstSP		getStyle() const { return mStyle; }
@@ -712,9 +712,9 @@ void LLViewerTextEditor::onVisibilityChange( BOOL new_visibility )
 	LLUICtrl::onVisibilityChange(new_visibility);
 }
 
-BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// Let scrollbar have first dibs
 	handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
@@ -748,7 +748,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 					setFocus( TRUE );
 				}
 
-				handled = TRUE;
+				handled = true;
 			}
 			else
 			{
@@ -766,9 +766,9 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
+bool LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLTextEditor::handleHover(x, y, mask);
+	bool handled = LLTextEditor::handleHover(x, y, mask);
 
 	if(hasMouseCapture() && mDragItem)
 	{
@@ -788,16 +788,16 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 		}
 		getWindow()->setCursor(UI_CURSOR_HAND);
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;
 }
 
 
-BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if( hasMouseCapture() )
 	{
@@ -826,9 +826,9 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	bool	handled = false;
 
 	// let scrollbar have first dibs
 	handled = LLView::childrenHandleDoubleClick(x, y, mask) != NULL;
@@ -845,7 +845,7 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 				{
 					deselect();
 					setFocus( FALSE );
-					return TRUE;
+					return true;
 				}
 			}
 		}

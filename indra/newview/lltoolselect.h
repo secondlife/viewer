@@ -39,8 +39,8 @@ class LLToolSelect : public LLTool
 public:
 	LLToolSelect( LLToolComposite* composite );
 
-	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual bool		handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool		handleMouseUp(S32 x, S32 y, MASK mask);
 
 	virtual void		stopEditing();
 
