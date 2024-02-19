@@ -82,20 +82,14 @@ public:
     void lockShared();
     void lockExclusive();
     template<bool SHARED> void lock();
-    template<> void lock<true>() { lockShared(); }
-    template<> void lock<false>() { lockExclusive(); }
 
     bool trylockShared();
     bool trylockExclusive();
     template<bool SHARED> bool trylock();
-    template<> bool trylock<true>() { return trylockShared(); }
-    template<> bool trylock<false>() { return trylockExclusive(); }
 
     void unlockShared();
     void unlockExclusive();
     template<bool SHARED> void unlock();
-    template<> void unlock<true>() { unlockShared(); }
-    template<> void unlock<false>() { unlockExclusive(); }
 
 private:
     std::shared_mutex mSharedMutex;
@@ -106,6 +100,42 @@ private:
     using iterator = std::unordered_map<LLThread::id_t, U32>::iterator;
     using const_iterator = std::unordered_map<LLThread::id_t, U32>::const_iterator;
 };
+
+template<>
+inline void LLSharedMutex::lock<true>()
+{
+    lockShared();
+}
+
+template<>
+inline void LLSharedMutex::lock<false>()
+{
+    lockExclusive();
+}
+
+template<>
+inline bool LLSharedMutex::trylock<true>()
+{
+    return trylockShared();
+}
+
+template<>
+inline bool LLSharedMutex::trylock<false>()
+{
+    return trylockExclusive();
+}
+
+template<>
+inline void LLSharedMutex::unlock<true>()
+{
+    unlockShared();
+}
+
+template<>
+inline void LLSharedMutex::unlock<false>()
+{
+    unlockExclusive();
+}
 
 // Actually a condition/mutex pair (since each condition needs to be associated with a mutex).
 class LL_COMMON_API LLCondition : public LLMutex
