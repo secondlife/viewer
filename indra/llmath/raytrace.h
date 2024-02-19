@@ -117,12 +117,12 @@ U32 ray_box(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 
 
 /* TODO
-BOOL ray_ellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_ellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				   const LLVector3 &e_center, const LLVector3 &e_scale, const LLQuaternion &e_rotation,
 				   LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_cone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_cone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			  const LLVector3 &cone_tip, const LLVector3 &cone_bottom, 
 			  const LLVector3 &cone_scale, const LLQuaternion &cone_rotation,
 			  LLVector3 &intersection, LLVector3 &intersection_normal);
@@ -146,24 +146,24 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 
 
 /* TODO
-BOOL ray_hemiellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemiellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					   const LLVector3 &e_center, const LLVector3 &e_scale, const LLQuaternion &e_rotation,
 					   const LLVector3 &e_cut_normal,
 					   LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_hemisphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemisphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					const LLVector3 &sphere_center, F32 sphere_radius, const LLVector3 &sphere_cut_normal, 
 					LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_hemicylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemicylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					  const LLVector3 &cyl_top, const LLVector3 &cyl_bottom, F32 cyl_radius, 
 					  const LLVector3 &cyl_cut_normal,
 					  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_hemicone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemicone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				  const LLVector3 &cone_tip, const LLVector3 &cone_bottom, 
 				  const LLVector3 &cone_scale, const LLVector3 &cyl_cut_normal,
 				  LLVector3 &intersection, LLVector3 &intersection_normal);

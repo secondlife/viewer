@@ -37,13 +37,13 @@
 class LLBBox
 {
 public:
-	LLBBox() {mEmpty = TRUE;}
+	LLBBox() {mEmpty = true;}
 	LLBBox( const LLVector3& pos_agent,
 		const LLQuaternion& rot,
 		const LLVector3& min_local,
 		const LLVector3& max_local )
 		:
-		mMinLocal( min_local ), mMaxLocal( max_local ), mPosAgent(pos_agent), mRotation( rot), mEmpty( TRUE )
+		mMinLocal( min_local ), mMaxLocal( max_local ), mPosAgent(pos_agent), mRotation( rot), mEmpty( true )
 		{}
 
 	// Default copy constructor is OK.

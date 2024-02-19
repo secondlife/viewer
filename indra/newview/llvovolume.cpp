@@ -917,9 +917,9 @@ BOOL LLVOVolume::isActive() const
 	return !mStatic;
 }
 
-BOOL LLVOVolume::setMaterial(const U8 material)
+bool LLVOVolume::setMaterial(const U8 material)
 {
-	BOOL res = LLViewerObject::setMaterial(material);
+	bool res = LLViewerObject::setMaterial(material);
 	
 	return res;
 }
@@ -1004,7 +1004,7 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
+bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	LLVolumeParams volume_params = params_in;
@@ -1012,7 +1012,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	S32 last_lod = mVolumep.notNull() ? LLVolumeLODGroup::getVolumeDetailFromScale(mVolumep->getDetail()) : -1;
 	S32 lod = mLOD;
 
-	BOOL is404 = FALSE;
+	bool is404 = false;
 	
 	if (isSculpted())
 	{
@@ -1024,7 +1024,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				lod = gMeshRepo.getActualMeshLOD(volume_params, lod);
 				if (lod == -1)
 				{
-					is404 = TRUE;
+					is404 = true;
 					lod = 0;
 				}
 			}
@@ -1128,14 +1128,14 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
-        return TRUE;
+        return true;
 	}
 	else if (NO_LOD == lod) 
 	{
 		LLSculptIDSize::instance().resetSizeSum(volume_params.getSculptID());
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLVOVolume::updateSculptTexture()

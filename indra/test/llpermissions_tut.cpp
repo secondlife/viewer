@@ -278,7 +278,7 @@ namespace tut
 		LLPermissions perm;
 		LLUUID agent;
 		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
-		BOOL set = 1;
+		bool set = true;
 		U32 bits = 10;
 		ensure("setGroupBits():failed ", perm.setGroupBits(agent,group, set, bits));
 		ensure("setEveryoneBits():failed ", perm.setEveryoneBits(agent,group, set, bits));

@@ -653,14 +653,14 @@ LLQuaternion slerp( F32 u, const LLQuaternion &a, const LLQuaternion &b )
 	F32 cos_t = a.mQ[0]*b.mQ[0] + a.mQ[1]*b.mQ[1] + a.mQ[2]*b.mQ[2] + a.mQ[3]*b.mQ[3];
 	
 	// if b is on opposite hemisphere from a, use -a instead
-	int bflip;
+	bool bflip;
  	if (cos_t < 0.0f)
 	{
 		cos_t = -cos_t;
-		bflip = TRUE;
+		bflip = true;
 	}
 	else
-		bflip = FALSE;
+		bflip = false;
 
 	// if B is (within precision limits) the same as A,
 	// just linear interpolate between A and B.
