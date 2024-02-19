@@ -207,7 +207,7 @@ void LLSkyTex::create()
 void LLSkyTex::createGLImage(S32 which)
 {
 	mTexture[which]->setExplicitFormat(GL_RGBA8, GL_RGBA);
-	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);
+	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, true, LLGLTexture::LOCAL);
 	mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 

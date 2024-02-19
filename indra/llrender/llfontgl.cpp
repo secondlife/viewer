@@ -58,7 +58,7 @@ F32 LLFontGL::sVertDPI = 96.f;
 F32 LLFontGL::sHorizDPI = 96.f;
 F32 LLFontGL::sScaleX = 1.f;
 F32 LLFontGL::sScaleY = 1.f;
-BOOL LLFontGL::sDisplayFont = TRUE ;
+bool LLFontGL::sDisplayFont = true ;
 std::string LLFontGL::sAppDir;
 
 LLColor4 LLFontGL::sShadowColor(0.f, 0.f, 0.f, 1.f);
@@ -89,7 +89,7 @@ void LLFontGL::destroyGL()
 	mFontFreetype->destroyGL();
 }
 
-BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback, S32 face_n)
+bool LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, bool is_fallback, S32 face_n)
 {
 	if(mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
 	{
@@ -110,14 +110,14 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
 }
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
-    ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
+    ShadowType shadow, S32 max_chars, F32* right_x, bool use_ellipses) const
 {
     LLRectf rect_float(rect.mLeft, rect.mTop, rect.mRight, rect.mBottom);
     return render(wstr, begin_offset, rect_float, color, halign, valign, style, shadow, max_chars, right_x, use_ellipses);
 }
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
-					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
+					 ShadowType shadow, S32 max_chars, F32* right_x, bool use_ellipses) const
 {
 	F32 x = rect.mLeft;
 	F32 y = 0.f;
@@ -143,7 +143,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rec
 
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
-					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const
+					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, bool use_ellipses) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -255,7 +255,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
 
-	BOOL draw_ellipses = FALSE;
+	bool draw_ellipses = false;
 	if (use_ellipses)
 	{
 		// check for too long of a string
@@ -265,7 +265,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 			// use four dots for ellipsis width to generate padding
 			const LLWString dots(utf8str_to_wstring(std::string("....")));
 			scaled_max_pixels = llmax(0, scaled_max_pixels - ll_round(getWidthF32(dots.c_str())));
-			draw_ellipses = TRUE;
+			draw_ellipses = true;
 		}
 	}
 
@@ -409,7 +409,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				shadow,
 				S32_MAX, max_pixels,
 				right_x,
-				FALSE); 
+				false); 
 		gGL.popUIMatrix();
 	}
 
@@ -420,22 +420,22 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 S32 LLFontGL::render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const
 {
-	return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+	return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, false);
 }
 
-S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses) const
+S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, bool use_ellipses) const
 {
 	return render(utf8str_to_wstring(text), begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, use_ellipses);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const
 {
-	return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+	return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, false);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, ShadowType shadow) const
 {
-	return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, halign, valign, style, shadow, S32_MAX, S32_MAX, NULL, FALSE);
+	return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, halign, valign, style, shadow, S32_MAX, S32_MAX, NULL, false);
 }
 
 // font metrics - override for LLFontFreetype that returns units of virtual pixels
@@ -572,11 +572,11 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 	llassert(max_pixels >= 0.f);
 	llassert(max_chars >= 0);
 	
-	BOOL clip = FALSE;
+	bool clip = false;
 	F32 cur_x = 0;
 
 	S32 start_of_last_word = 0;
-	BOOL in_word = FALSE;
+	bool in_word = false;
 
 	// avoid S32 overflow when max_pixels == S32_MAX by staying in floating point
 	F32 scaled_max_pixels =	max_pixels * sScaleX;
@@ -601,18 +601,18 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 			{
 				if(wch !=(0x00A0))
 				{
-					in_word = FALSE;
+					in_word = false;
 				}
 			}
 			if (iswindividual(wch))
 			{
 				if (iswpunct(wchars[i+1]))
 				{
-					in_word=TRUE;
+					in_word=true;
 				}
 				else
 				{
-					in_word=FALSE;
+					in_word=false;
 					start_of_last_word = i;
 				}
 			}
@@ -622,7 +622,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 			start_of_last_word = i;
 			if (!iswspace(wch)||!iswindividual(wch))
 			{
-				in_word = TRUE;
+				in_word = true;
 			}
 		}
 		
@@ -648,7 +648,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		// clip if current character runs past scaled_max_pixels (using width_padding)
 		if (scaled_max_pixels < cur_x + width_padding)
 		{
-			clip = TRUE;
+			clip = true;
 			break;
 		}
 
@@ -746,7 +746,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 	
 }
 
-S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, BOOL round) const
+S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, bool round) const
 {
 	if (!wchars || !wchars[0] || max_chars == 0)
 	{

@@ -2980,7 +2980,7 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
     LLGLuint tex_name = 0;
-    media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);
+    media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true, &tex_name);
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);

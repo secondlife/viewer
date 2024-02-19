@@ -1079,7 +1079,7 @@ void LLRender::syncMatrices()
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
             {
 	            glh::matrix4f inv_proj = mat.inverse();
-	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, false, inv_proj.m);
             }
 
 			// Used by some full screen effects - such as full screen lights, glow, etc.

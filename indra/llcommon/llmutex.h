@@ -64,7 +64,7 @@ protected:
 	mutable LLThread::id_t	mLockingThread;
 	
 #if MUTEX_DEBUG
-	std::unordered_map<LLThread::id_t, BOOL> mIsLocked;
+	std::unordered_map<LLThread::id_t, bool> mIsLocked;
 #endif
 };
 

@@ -84,7 +84,7 @@ public:
 
 	// is_fallback should be true for fallback fonts that aren't used
 	// to render directly (Unicode backup, primarily)
-	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback, S32 face_n = 0);
+	bool loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, bool is_fallback, S32 face_n = 0);
 
 	S32 getNumFaces(const std::string& filename);
 
@@ -151,7 +151,7 @@ public:
 private:
 	void resetBitmapCache();
 	void setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride = 0) const;
-	BOOL hasGlyph(llwchar wch) const;		// Has a glyph for this character
+	bool hasGlyph(llwchar wch) const;		// Has a glyph for this character
 	LLFontGlyphInfo* addGlyph(llwchar wch) const;		// Add a new character to the font if necessary
 	LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index) const;	// Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
 	void renderGlyph(U32 glyph_index) const;
@@ -173,7 +173,7 @@ private:
 	LLFT_Stream *pFtStream;
 #endif
 
-	BOOL mIsFallback;
+	bool mIsFallback;
 	font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
 
 	typedef boost::unordered_map<llwchar, LLFontGlyphInfo*> char_glyph_info_map_t;
