@@ -1104,7 +1104,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
                     //  Note: bump will still point at GPU copy of dst_image
                     bump_ptr->setExplicitFormat(GL_RGBA, GL_RGBA);
                     LLGLuint tex_name;
-                    img->createGLTexture(0, nullptr, 0, 0, true, &tex_name);
+                    img->createGLTexture(0, nullptr, false, 0, true, &tex_name);
 
                     // point render target at empty buffer
                     sRenderTarget.setColorAttachment(img, tex_name);

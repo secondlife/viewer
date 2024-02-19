@@ -105,7 +105,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-// this function doesn't just return a BOOL because the return is currently
+// this function doesn't just return a bool because the return is currently
 // used to decide how to break up boxes that have been hit by shots... 
 // a hack that will probably be changed later
 //
@@ -202,7 +202,7 @@ bool linesegment_cylinder(const LLVector3 &point_a, const LLVector3 &point_b,
 						  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-// this function doesn't just return a BOOL because the return is currently
+// this function doesn't just return a bool because the return is currently
 // used to decide how to break up boxes that have been hit by shots... 
 // a hack that will probably be changed later
 //

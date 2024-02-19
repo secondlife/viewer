@@ -121,7 +121,7 @@ namespace tut
 		// Is that the expected behavior?
 	}
 
-	// test cases for inline BOOL setParent(LLXform *parent) and getParent() fn.
+	// test cases for inline bool setParent(LLXform *parent) and getParent() fn.
 	template<> template<>
 	void xform_test_object_t::test<3>()	
 	{		

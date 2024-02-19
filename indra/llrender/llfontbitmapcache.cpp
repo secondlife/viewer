@@ -87,7 +87,7 @@ bool LLFontBitmapCache::nextOpenPos(S32 width, S32 &pos_x, S32 &pos_y, S32& bitm
 			LLImageRaw *image_raw = getImageRaw(mBitmapNum);
 
 			// Make corresponding GL image.
-			mImageGLVec.push_back(new LLImageGL(FALSE));
+			mImageGLVec.push_back(new LLImageGL(false));
 			LLImageGL *image_gl = getImageGL(mBitmapNum);
 			
 			S32 image_width = mMaxCharWidth * 20;
@@ -122,7 +122,7 @@ bool LLFontBitmapCache::nextOpenPos(S32 width, S32 &pos_x, S32 &pos_y, S32& bitm
 			// Attach corresponding GL texture.
 			image_gl->createGLTexture(0, image_raw);
 			gGL.getTexUnit(0)->bind(image_gl);
-			image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(TRUE, TRUE);
+			image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(true, true);
 		}
 		else
 		{

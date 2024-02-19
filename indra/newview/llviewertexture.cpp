@@ -342,12 +342,12 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const 
 // Create a bridge to the viewer texture manager.
 class LLViewerTextureManagerBridge : public LLTextureManagerBridge
 {
-	/*virtual*/ LLPointer<LLGLTexture> getLocalTexture(BOOL usemipmaps = TRUE, BOOL generate_gl_tex = TRUE)
+	/*virtual*/ LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true)
 	{
 		return LLViewerTextureManager::getLocalTexture(usemipmaps, generate_gl_tex);
 	}
 
-	/*virtual*/ LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex = TRUE)
+	/*virtual*/ LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true)
 	{
 		return LLViewerTextureManager::getLocalTexture(width, height, components, usemipmaps, generate_gl_tex);
 	}
@@ -1355,7 +1355,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	if(isForSculptOnly())
 	{
 		//just update some variables, not to create a real GL texture.
-		createGLTexture(mRawDiscardLevel, mRawImage, 0, FALSE);
+		createGLTexture(mRawDiscardLevel, mRawImage, 0, false);
 		mNeedsCreateTexture = false;
 		destroyRawImage();
 	}
@@ -1540,7 +1540,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
         return FALSE;
     }
 
-	BOOL res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
+	BOOL res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, true, mBoostLevel);
     
 	return res;
 }
