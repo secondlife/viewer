@@ -325,7 +325,7 @@ bool LLPermissions::deedToGroup(const LLUUID& agent, const LLUUID& group)
 
 bool LLPermissions::setBaseBits(const LLUUID& agent, bool set, PermissionMask bits)
 {
-	bool ownership = true;
+	bool ownership = false;
 	if(agent.isNull())
 	{
 		// only the system is always allowed to change base bits
