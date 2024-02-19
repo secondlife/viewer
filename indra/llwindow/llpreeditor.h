@@ -34,7 +34,7 @@ class LLPreeditor
 public:
 
 	typedef std::vector<S32> segment_lengths_t;
-	typedef std::vector<bool> standouts_t;
+	typedef std::deque<bool> standouts_t;
 	
 	// We don't delete against LLPreeditor, but compilers complain without this...
 	

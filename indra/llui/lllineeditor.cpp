@@ -2590,7 +2590,7 @@ void LLLineEditor::markAsPreedit(S32 position, S32 length)
 		mPreeditPositions[0] = position;
 		mPreeditPositions[1] = position + length;
 		mPreeditStandouts.resize(1);
-		mPreeditStandouts[0] = FALSE;
+		mPreeditStandouts[0] = false;
 	}
 	else
 	{
