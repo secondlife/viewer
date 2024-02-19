@@ -100,7 +100,7 @@ private:
 
     void showTexturePicker(const LLUUID &thumbnail_id);
     void onTexturePickerCommit();
-    static void onUploadComplete(const LLUUID& asset_id, const LLUUID& task_id, const uuid_set_t& inventory_ids);
+    static void onUploadComplete(const LLUUID& asset_id, const LLUUID& task_id, const uuid_set_t& inventory_ids, LLHandle<LLFloater> handle);
 
     void setThumbnailId(const LLUUID &new_thumbnail_id);
     static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& task_id, const LLUUID& inv_obj_id);
@@ -121,6 +121,7 @@ private:
     void onButtonMouseLeave(LLUICtrl* button, const LLSD& param, EToolTipState state);
 
     bool mObserverInitialized;
+    bool mMultipleThumbnails; // for multiselection
     EToolTipState mTooltipState;
     uuid_set_t mItemList;
     LLUUID mTaskId;
@@ -130,6 +131,7 @@ private:
     LLUICtrl *mItemNameText;
     LLThumbnailCtrl *mThumbnailCtrl;
     LLTextBox *mToolTipTextBox;
+    LLTextBox *mMultipleTextBox;
     LLButton *mCopyToClipboardBtn;
     LLButton *mPasteFromClipboardBtn;
     LLButton *mRemoveImageBtn;
