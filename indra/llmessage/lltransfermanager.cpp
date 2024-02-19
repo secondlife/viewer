@@ -49,7 +49,7 @@ LLTransferSource::stype_scfunc_map LLTransferSource::sSourceCreateMap;
 //
 
 LLTransferManager::LLTransferManager() :
-	mValid(FALSE)
+	mValid(false)
 {
 	S32 i;
 	for (i = 0; i < LLTTT_NUM_TYPES; i++)
@@ -78,7 +78,7 @@ void LLTransferManager::init()
 	{
 		LL_ERRS() << "Double initializing LLTransferManager!" << LL_ENDL;
 	}
-	mValid = TRUE;
+	mValid = true;
 
 	// Register message system handlers
 	gMessageSystem->setHandlerFunc("TransferRequest", processTransferRequest, NULL);
@@ -90,7 +90,7 @@ void LLTransferManager::init()
 
 void LLTransferManager::cleanup()
 {
-	mValid = FALSE;
+	mValid = false;
 
 	host_tc_map::iterator iter;
 	for (iter = mTransferConnections.begin(); iter != mTransferConnections.end(); iter++)
@@ -342,7 +342,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 
 	//LL_INFOS() << "Receiving " << transfer_id << ", size " << size << " bytes" << LL_ENDL;
 	ttp->setSize(size);
-	ttp->setGotInfo(TRUE);
+	ttp->setGotInfo(true);
 
 	// OK, at this point we to handle any delayed transfer packets (which could happen
 	// if this packet was lost)
@@ -557,7 +557,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 		else
 		{
 			// No matching delayed packet, abort it.
-			done = TRUE;
+			done = true;
 		}
 	}
 }
@@ -822,7 +822,7 @@ void LLTransferSourceChannel::updateTransfers()
 		gMessageSystem->addS32("Status", status);
 		gMessageSystem->addBinaryData("Data", datap, data_size);
 		sent_bytes = gMessageSystem->getCurrentSendTotal();
-		gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, TRUE, F32Seconds(0.f),
+		gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, true, F32Seconds(0.f),
 									 LLTransferManager::reliablePacketCallback, (void**)cb_uuid);
 
 		// Do bookkeeping for the throttle
@@ -1207,7 +1207,7 @@ LLTransferTarget::LLTransferTarget(
 	mSourceType(source_type),
 	mID(transfer_id),
 	mChannelp(NULL),
-	mGotInfo(FALSE),
+	mGotInfo(false),
 	mSize(0),
 	mLastPacketID(-1)
 {

@@ -37,7 +37,7 @@ LLThrottle::LLThrottle(const F32 rate)
 	mRate = rate;
 	mAvailable = 0.f;
 	mLookaheadSecs = 0.25f;
-	mLastSendTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
+	mLastSendTime = LLMessageSystem::getMessageTimeSeconds(true);
 }
 
 

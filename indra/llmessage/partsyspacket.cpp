@@ -89,7 +89,7 @@ void gSetInitDataDefaults(LLPartInitData *setMe)
 		setMe->mFlags[i] = 0x00;
 	}
 
-	setMe->createMe = TRUE;
+	setMe->createMe = true;
 
 	setMe->maxParticles = 25;
 	setMe->initialParticles = 25;
@@ -1168,7 +1168,7 @@ bool LLPartSysCompressedPacket::fromLLPartInitData(LLPartInitData *in, U32 &byte
 	
 //	llprintline("returning from \"fromLLPartInitData\" with %d bytes\n", bytesUsed);
 	
-	return TRUE;
+	return true;
 }
 
 bool LLPartSysCompressedPacket::toLLPartInitData(LLPartInitData *out, U32 *bytesUsed)

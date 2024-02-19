@@ -36,7 +36,7 @@
 
 LLTransferSourceAsset::LLTransferSourceAsset(const LLUUID &request_id, const F32 priority) :
 	LLTransferSource(LLTST_ASSET, request_id, priority),
-	mGotResponse(FALSE),
+	mGotResponse(false),
 	mCurPos(0)
 {
 }
@@ -120,7 +120,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 		return LLTS_ERROR;
 	}
 	
-	delete_returned = TRUE;
+	delete_returned = true;
 	U8 *tmpp = new U8[max_bytes];
 	*data_handle = tmpp;
 	if (!vf.read(tmpp, max_bytes))		/* Flawfinder: Ignore */
@@ -129,7 +129,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 		delete[] tmpp;
 		*data_handle = NULL;
 		returned_bytes = 0;
-		delete_returned = FALSE;
+		delete_returned = false;
 		return LLTS_ERROR;
 	}
 
@@ -144,7 +144,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 			delete[] tmpp;
 			*data_handle = NULL;
 			returned_bytes = 0;
-			delete_returned = FALSE;
+			delete_returned = false;
 		}
 		return LLTS_DONE;
 	}
@@ -194,7 +194,7 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
 
 	LLTSCode status;
 
-	tsap->mGotResponse = TRUE;
+	tsap->mGotResponse = true;
 	if (LL_ERR_NOERR == result)
 	{
 		// Everything's OK.

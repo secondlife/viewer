@@ -63,11 +63,11 @@ class LLXfer
 	char *mBuffer;
 	U32 mBufferLength;			// Size of valid data, not actual allocated buffer size
 	U32 mBufferStartOffset;
-	BOOL mBufferContainsEOF;
+	bool mBufferContainsEOF;
 
 	ELLXferStatus mStatus;
 
-	BOOL mWaitingForACK;
+	bool mWaitingForACK;
 
 	void (*mCallback)(void **,S32,LLExtStat);	
 	void **mCallbackDataHandle;

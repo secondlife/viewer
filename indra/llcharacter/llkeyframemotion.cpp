@@ -1339,12 +1339,14 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 		return false;
 	}
 
-	if (!dp.unpackS32(joint_motion_list->mLoop, "loop"))
+	S32 loop{ 0 };
+	if (!dp.unpackS32(loop, "loop"))
 	{
 		LL_WARNS() << "can't read loop"
                    << " for animation " << asset_id << LL_ENDL;
 		return false;
 	}
+	joint_motion_list->mLoop = static_cast<bool>(loop);
 
 	//SL-17206 hack to alter Female_land loop setting, while current behavior won't be changed serverside
 	LLUUID const female_land_anim("ca1baf4d-0a18-5a1f-0330-e4bd1e71f09e");

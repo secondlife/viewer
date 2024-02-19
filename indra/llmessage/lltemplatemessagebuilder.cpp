@@ -42,8 +42,8 @@ LLTemplateMessageBuilder::LLTemplateMessageBuilder(const message_template_name_m
 	mCurrentSDataBlock(NULL),
 	mCurrentSMessageName(NULL),
 	mCurrentSBlockName(NULL),
-	mbSBuilt(FALSE),
-	mbSClear(TRUE),
+	mbSBuilt(false),
+	mbSClear(true),
 	mCurrentSendTotal(0),
 	mMessageTemplates(name_template_map)
 {
@@ -59,8 +59,8 @@ LLTemplateMessageBuilder::~LLTemplateMessageBuilder()
 // virtual
 void LLTemplateMessageBuilder::newMessage(const char *name)
 {
-	mbSBuilt = FALSE;
-	mbSClear = FALSE;
+	mbSBuilt = false;
+	mbSClear = false;
 
 	mCurrentSendTotal = 0;
 
@@ -103,8 +103,8 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
 // virtual
 void LLTemplateMessageBuilder::clearMessage()
 {
-	mbSBuilt = FALSE;
-	mbSClear = TRUE;
+	mbSBuilt = false;
+	mbSClear = true;
 
 	mCurrentSendTotal = 0;
 
@@ -447,8 +447,6 @@ void LLTemplateMessageBuilder::addIPPort(const char *varname, U16 u)
 
 void LLTemplateMessageBuilder::addBOOL(const char* varname, bool b)
 {
-	// Can't just cast a BOOL (actually a U32) to a U8.
-	// In some cases the low order bits will be zero.
 	U8 temp = (b != 0);
 	addData(varname, &temp, MVT_BOOL, sizeof(temp));
 }
@@ -823,7 +821,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
 	{
 		result += buildBlock(buffer + result, buffer_size - result, *iter, mCurrentSMessageData);
 	}
-	mbSBuilt = TRUE;
+	mbSBuilt = true;
 
 	return result;
 }

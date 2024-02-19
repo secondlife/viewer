@@ -79,7 +79,7 @@ void LLXferManager::init()
 	setMaxIncomingXfers(LL_DEFAULT_MAX_REQUEST_FIFO_XFERS);
 
 	// Turn on or off ack throttling
-	mUseAckThrottling = FALSE;
+	mUseAckThrottling = false;
 	setAckThrottleBPS(100000);
 }
 	
@@ -116,7 +116,7 @@ void LLXferManager::setHardLimitOutgoingXfersPerCircuit(S32 max_num)
 	mHardLimitOutgoingXfersPerCircuit = max_num;
 }
 
-void LLXferManager::setUseAckThrottling(const BOOL use)
+void LLXferManager::setUseAckThrottling(const bool use)
 {
 	mUseAckThrottling = use;
 }
@@ -1005,7 +1005,7 @@ void LLXferManager::processConfirmation (LLMessageSystem *mesgsys, void ** /*use
 	if (xferp)
 	{
 //		cout << "confirmed packet #" << packetNum << " ping: "<< xferp->ACKTimer.getElapsedTimeF32() <<  endl;
-		xferp->mWaitingForACK = FALSE;
+		xferp->mWaitingForACK = false;
 		if (xferp->mStatus == e_LL_XFER_IN_PROGRESS)
 		{
 			xferp->sendNextPacket();

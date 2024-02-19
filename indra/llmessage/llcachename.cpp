@@ -99,7 +99,7 @@ public:
 	}
 	
 	void done()			{ mID.setNull(); }
-	bool isDone() const	{ return mID.isNull() != FALSE; }
+	bool isDone() const	{ return mID.isNull() != false; }
 };
 
 class ReplySender

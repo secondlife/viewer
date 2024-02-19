@@ -163,7 +163,7 @@ bool LLSaleInfo::importLegacyStream(std::istream& input_stream, bool& has_perm_m
 		else if (!strcmp("perm_mask", keyword))
 		{
 			//LL_INFOS() << "found deprecated keyword perm_mask" << LL_ENDL;
-			has_perm_mask = TRUE;
+			has_perm_mask = true;
 			sscanf(valuestr, "%x", &perm_mask);
 		}
 		else

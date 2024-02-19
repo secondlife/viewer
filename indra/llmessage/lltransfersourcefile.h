@@ -40,12 +40,12 @@ public:
 	void setFilename(const std::string &filename)		{ mFilename = filename; }
 	std::string getFilename() const					{ return mFilename; }
 
-	void setDeleteOnCompletion(BOOL enabled)		{ mDeleteOnCompletion = enabled; }
-	BOOL getDeleteOnCompletion()					{ return mDeleteOnCompletion; }
+	void setDeleteOnCompletion(bool enabled)		{ mDeleteOnCompletion = enabled; }
+	bool getDeleteOnCompletion()					{ return mDeleteOnCompletion; }
 protected:
 	std::string mFilename;
 	// ONLY DELETE THINGS OFF THE SIM IF THE FILENAME BEGINS IN 'TEMP'
-	BOOL mDeleteOnCompletion;
+	bool mDeleteOnCompletion;
 };
 
 class LLTransferSourceFile : public LLTransferSource

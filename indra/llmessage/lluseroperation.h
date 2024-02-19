@@ -47,14 +47,14 @@ public:
 	virtual bool isExpired();
 
 	// ability to mark this operation as never expiring.
-	void SetNoExpireFlag(const BOOL flag);
+	void SetNoExpireFlag(const bool flag);
 
 	// Send request to the dataserver
 	virtual void sendRequest() = 0;
 
 	// Run the operation. This will only be called in the case of an
 	// actual success or failure of the operation.
-	virtual bool execute(BOOL transaction_success) = 0;
+	virtual bool execute(bool transaction_success) = 0;
 
 	// This method is called when the user op has expired, and is
 	// about to be deleted by the manager. This gives the user op the
