@@ -276,7 +276,7 @@ protected:
 	LLWString			mPreeditWString;
 	LLWString			mPreeditOverwrittenWString;
 	std::vector<S32> 	mPreeditPositions;
-	std::vector<bool> 	mPreeditStandouts;
+	LLPreeditor::standouts_t mPreeditStandouts;
 
 protected:
 	LLUIColor			mDefaultColor;
