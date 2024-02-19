@@ -688,13 +688,13 @@ namespace tut
 	template<> template<>
 	void LLSDMessageBuilderTestObject::test<39>()
 	{
-	  BOOL valueTrue = true;
-	  BOOL valueFalse = false;
+	  bool valueTrue = true;
+	  bool valueFalse = false;
 
 	  LLMsgData* md = new LLMsgData("testMessage");
 	  LLMsgBlkData* mbd = new LLMsgBlkData("testBlock", 0);
-	  addValue(mbd, (char *)"testBoolFalse", &valueFalse, MVT_BOOL, sizeof(BOOL));
-	  addValue(mbd, (char *)"testBoolTrue", &valueTrue, MVT_BOOL, sizeof(BOOL));
+	  addValue(mbd, (char *)"testBoolFalse", &valueFalse, MVT_BOOL, sizeof(bool));
+	  addValue(mbd, (char *)"testBoolTrue", &valueTrue, MVT_BOOL, sizeof(bool));
 	  md->addBlock(mbd);
 	  LLSDMessageBuilder builder = defaultBuilder();
 	  

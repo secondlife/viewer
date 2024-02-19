@@ -370,7 +370,7 @@ public:
 	//
 	void refreshMaterials();
 
-	/*virtual*/	BOOL	setMaterial(const U8 material);
+	/*virtual*/	bool	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
 	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
 	virtual     void    changeTENormalMap(S32 index, LLViewerTexture* new_image)  ;

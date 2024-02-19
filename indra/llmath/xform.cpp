@@ -86,7 +86,7 @@ void LLXformMatrix::update()
 	}
 }
 
-void LLXformMatrix::updateMatrix(BOOL update_bounds)
+void LLXformMatrix::updateMatrix(bool update_bounds)
 {
 	update();
 
