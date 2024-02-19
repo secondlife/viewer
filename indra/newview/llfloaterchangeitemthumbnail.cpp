@@ -103,6 +103,7 @@ void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
 LLFloaterChangeItemThumbnail::LLFloaterChangeItemThumbnail(const LLSD& key)
     : LLFloater(key)
     , mObserverInitialized(false)
+    , mMultipleThumbnails(false)
     , mTooltipState(TOOLTIP_NONE)
 {
 }
@@ -119,9 +120,11 @@ BOOL LLFloaterChangeItemThumbnail::postBuild()
     mItemTypeIcon = getChild<LLIconCtrl>("item_type_icon");
     mThumbnailCtrl = getChild<LLThumbnailCtrl>("item_thumbnail");
     mToolTipTextBox = getChild<LLTextBox>("tooltip_text");
+    mMultipleTextBox = getChild<LLTextBox>("multiple_lbl");
 
     LLSD tooltip_text;
     mToolTipTextBox->setValue(tooltip_text);
+    mMultipleTextBox->setVisible(FALSE);
 
     LLButton *upload_local = getChild<LLButton>("upload_local");
     upload_local->setClickedCallback(onUploadLocal, (void*)this);
@@ -163,20 +166,33 @@ void LLFloaterChangeItemThumbnail::onOpen(const LLSD& key)
         closeFloater();
     }
 
-
     mItemList.clear();
+    mMultipleThumbnails = false;
     if (key.isArray())
     {
-        if (key.size() > 30)
+        if (key.size() > 50)
         {
             // incident avoidance
-            // Todo: Show notification
+            LLNotificationsUtil::add("ThumbnailSelectionTooLarge");
             closeFloater();
         }
 
+        LLUUID image_id;
         for (LLSD::array_const_iterator it = key.beginArray(); it != key.endArray(); ++it)
         {
-            mItemList.insert(it->asUUID());
+            LLInventoryObject* obj = gInventory.getObject(it->asUUID());
+            if (obj)
+            {
+                if (mItemList.empty())
+                {
+                    image_id = obj->getThumbnailUUID();
+                }
+                mItemList.insert(it->asUUID());
+                if (image_id != obj->getThumbnailUUID())
+                {
+                    mMultipleThumbnails = true;
+                }
+            }
         }
     }
     else if (key.isUUID())
@@ -187,6 +203,11 @@ void LLFloaterChangeItemThumbnail::onOpen(const LLSD& key)
     {
         mItemList.insert(key["item_id"].asUUID());
         mTaskId = key["task_id"].asUUID();
+    }
+
+    if (mItemList.size() == 0)
+    {
+        closeFloater();
     }
 
     refreshFromInventory();
@@ -412,12 +433,44 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
             mRemoveImageBtn->setEnabled(thumbnail_id.notNull());
         }
     }
-    mItemTypeIcon->setImage(icon_img);
-    mItemNameText->setValue(obj->getName());
+    if (mItemList.size() == 1)
+    {
+        mItemTypeIcon->setImage(icon_img);
+        mItemTypeIcon->setVisible(TRUE);
+        mMultipleTextBox->setVisible(FALSE);
+        mItemNameText->setValue(obj->getName());
+        mItemNameText->setToolTip(std::string());
+    }
+    else
+    {
+        mItemTypeIcon->setVisible(FALSE);
+        mMultipleTextBox->setVisible(mMultipleThumbnails);
+        mItemNameText->setValue(getString("multiple_item_names"));
+
+        // Display first five names as a tooltip
+        const S32 ITEMS_TO_SHOW = 5;
+        std::string items_str;
+        uuid_set_t::iterator iter = mItemList.begin();
+        uuid_set_t::iterator end = mItemList.end();
+        for (S32 i = 0; (iter != end) && (i < ITEMS_TO_SHOW); iter++, i++)
+        {
+            LLInventoryObject* pobj = gInventory.getObject(*iter);
+            if (pobj)
+            {
+                items_str += pobj->getName();
+                items_str += '\n';
+            }
+        }
+        if (mItemList.size() > ITEMS_TO_SHOW)
+        {
+            items_str += "...";
+        }
+        mItemNameText->setToolTip(items_str);
+    }
 
     mThumbnailCtrl->setValue(thumbnail_id);
 
-    mCopyToClipboardBtn->setEnabled(thumbnail_id.notNull());
+    mCopyToClipboardBtn->setEnabled(thumbnail_id.notNull() && !mMultipleThumbnails);
     mPasteFromClipboardBtn->setEnabled(LLClipboard::instance().hasContents());
 
     // todo: some elements might not support setting thumbnails
@@ -431,12 +484,13 @@ void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
 
     LLUUID task_id = self->mTaskId;
     uuid_set_t inventory_ids = self->mItemList;
+    LLHandle<LLFloater> handle = self->getHandle();
     (new LLThumbnailImagePicker(
         *self->mItemList.begin(),
         self->mTaskId,
-        [inventory_ids, task_id](const LLUUID& asset_id)
+        [inventory_ids, task_id, handle](const LLUUID& asset_id)
         {
-            onUploadComplete(asset_id, task_id, inventory_ids);
+            onUploadComplete(asset_id, task_id, inventory_ids, handle);
         }
     ))->getFile();
 
@@ -475,10 +529,11 @@ void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)
             snapshot_floater->setOwner(self);
             LLUUID task_id = self->mTaskId;
             uuid_set_t inventory_ids = self->mItemList;
+            LLHandle<LLFloater> handle = self->getHandle();
             snapshot_floater->setComplectionCallback(
-                [inventory_ids, task_id](const LLUUID& asset_id)
+                [inventory_ids, task_id, handle](const LLUUID& asset_id)
                 {
-                    onUploadComplete(asset_id, task_id, inventory_ids);
+                    onUploadComplete(asset_id, task_id, inventory_ids, handle);
                 });
         }
     }
@@ -767,12 +822,13 @@ void LLFloaterChangeItemThumbnail::onFullImageLoaded(
         {
             LLUUID task_id = data->mTaskId;
             uuid_set_t inventory_ids = data->mItemIds;
+            LLHandle<LLFloater> handle = data->mFloaterHandle;
             LLFloaterSimpleSnapshot::uploadThumbnail(src,
                                                      *data->mItemIds.begin(),
                                                      task_id,
-                                                     [inventory_ids, task_id](const LLUUID& asset_id)
+                                                     [inventory_ids, task_id, handle](const LLUUID& asset_id)
                                                      {
-                                                         onUploadComplete(asset_id, task_id, inventory_ids);
+                                                         onUploadComplete(asset_id, task_id, inventory_ids, handle);
                                                      });
         }
         else
@@ -899,10 +955,11 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
             {
                 LLUUID task_id = mTaskId;
                 uuid_set_t inventory_ids = mItemList;
+                LLHandle<LLFloater> handle = getHandle();
                 LLFloaterSimpleSnapshot::completion_t callback =
-                    [inventory_ids, task_id](const LLUUID& asset_id)
+                    [inventory_ids, task_id, handle](const LLUUID& asset_id)
                     {
-                        onUploadComplete(asset_id, task_id, inventory_ids);
+                        onUploadComplete(asset_id, task_id, inventory_ids, handle);
                     };
                 if (texturep->isRawImageValid())
                 {
@@ -948,7 +1005,10 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
 }
 
 //static
-void LLFloaterChangeItemThumbnail::onUploadComplete(const LLUUID& asset_id, const LLUUID& task_id, const uuid_set_t& inventory_ids)
+void LLFloaterChangeItemThumbnail::onUploadComplete(const LLUUID& asset_id,
+                                                    const LLUUID& task_id,
+                                                    const uuid_set_t& inventory_ids,
+                                                    LLHandle<LLFloater> handle)
 {
     if (asset_id.isNull())
     {
@@ -967,6 +1027,15 @@ void LLFloaterChangeItemThumbnail::onUploadComplete(const LLUUID& asset_id, cons
         for (; iter != end; iter++)
         {
             setThumbnailId(asset_id, task_id, *iter);
+        }
+    }
+    if (!handle.isDead())
+    {
+        LLFloaterChangeItemThumbnail* floater = (LLFloaterChangeItemThumbnail*)handle.get();
+        if (floater)
+        {
+            floater->mMultipleThumbnails = false;
+            floater->mMultipleTextBox->setVisible(FALSE);
         }
     }
 }
