@@ -398,7 +398,7 @@ public:
 	public:
 		std::vector<JointMotion*> mJointMotionArray;
 		F32						mDuration;
-		BOOL					mLoop;
+		bool					mLoop;
 		F32						mLoopInPoint;
 		F32						mLoopOutPoint;
 		F32						mEaseInDuration;

@@ -44,8 +44,8 @@ LLSDMessageBuilder::LLSDMessageBuilder() :
 	mCurrentBlock(NULL),
 	mCurrentMessageName(""),
 	mCurrentBlockName(""),
-	mbSBuilt(FALSE),
-	mbSClear(TRUE)
+	mbSBuilt(false),
+	mbSClear(true)
 {
 }
 
@@ -58,8 +58,8 @@ LLSDMessageBuilder::~LLSDMessageBuilder()
 // virtual
 void LLSDMessageBuilder::newMessage(const char* name)
 {
-	mbSBuilt = FALSE;
-	mbSClear = FALSE;
+	mbSBuilt = false;
+	mbSClear = false;
 
 	mCurrentMessage = LLSD::emptyMap();
 	mCurrentMessageName = (char*)name;
@@ -170,7 +170,7 @@ void LLSDMessageBuilder::addIPPort(const char* varname, U16 v)
 
 void LLSDMessageBuilder::addBOOL(const char* varname, bool v)
 {
-	(*mCurrentBlock)[varname] = (v == true);
+	(*mCurrentBlock)[varname] = v;
 }
 
 void LLSDMessageBuilder::addString(const char* varname, const char* v)
@@ -354,7 +354,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 				break;	
 
 			case MVT_BOOL:
-				addBOOL(varname, *(BOOL*)mvci.getData());
+				addBOOL(varname, *(bool*)mvci.getData());
 				break;
 
 			case MVT_IP_ADDR:

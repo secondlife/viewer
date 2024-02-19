@@ -102,7 +102,7 @@ LLTSCode LLTransferSourceFile::dataCallback(const S32 packet_id,
 	}
 
 	// Grab up until the max number of bytes from the file.
-	delete_returned = TRUE;
+	delete_returned = true;
 	U8 *tmpp = new U8[max_bytes];
 	*data_handle = tmpp;
 	returned_bytes = (S32)fread(tmpp, 1, max_bytes, mFP);
@@ -111,7 +111,7 @@ LLTSCode LLTransferSourceFile::dataCallback(const S32 packet_id,
 		delete[] tmpp;
 		*data_handle = NULL;
 		returned_bytes = 0;
-		delete_returned = FALSE;
+		delete_returned = false;
 		return LLTS_DONE;
 	}
 

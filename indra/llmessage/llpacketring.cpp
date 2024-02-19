@@ -45,8 +45,8 @@
 
 ///////////////////////////////////////////////////////////
 LLPacketRing::LLPacketRing () :
-	mUseInThrottle(FALSE),
-	mUseOutThrottle(FALSE),
+	mUseInThrottle(false),
+	mUseOutThrottle(false),
 	mInThrottle(256000.f),
 	mOutThrottle(64000.f),
 	mActualBitsIn(0),

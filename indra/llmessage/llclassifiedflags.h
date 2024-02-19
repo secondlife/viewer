@@ -53,7 +53,7 @@ const S32 MAX_CLASSIFIEDS = 100;
 // we can revert back to ClassifiedFlags pack_classified_flags and get rider of this one.
 ClassifiedFlags pack_classified_flags_request(bool auto_renew, bool is_pg, bool is_mature, bool is_adult);
 
-ClassifiedFlags pack_classified_flags(BOOL auto_renew, BOOL is_pg, BOOL is_mature, BOOL is_adult);
+ClassifiedFlags pack_classified_flags(bool auto_renew, bool is_pg, bool is_mature, bool is_adult);
 bool is_cf_mature(ClassifiedFlags flags);
 //bool is_cf_enabled(ClassifiedFlags flags);
 bool is_cf_update_time(ClassifiedFlags flags);

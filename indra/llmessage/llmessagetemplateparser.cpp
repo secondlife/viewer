@@ -180,12 +180,12 @@ bool	b_check_token(const char *token, const char *regexp)
 		if (current_checker == -1)
 		{
 			LL_ERRS() << "Input exceeds regular expression!\nDid you forget a *?" << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 		if (!gParseCheckCharacters[current_checker](token[tptr]))
 		{
-			return FALSE;
+			return false;
 		}
 		if (next_checker != 9999)
 		{

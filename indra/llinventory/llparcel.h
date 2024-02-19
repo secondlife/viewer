@@ -277,7 +277,7 @@ public:
 	void setUserLocation(const LLVector3& pos)	{ mUserLocation = pos; }
 	void setUserLookAt(const LLVector3& rot)	{ mUserLookAt = rot; }
 	void setLandingType(const ELandingType type) { mLandingType = type; }
-	void setSeeAVs(BOOL see_avs)	{ mSeeAVs = see_avs;	}
+	void setSeeAVs(bool see_avs)	{ mSeeAVs = see_avs;	}
 	void setHaveNewParcelLimitData(bool have_new_parcel_data)		{ mHaveNewParcelLimitData = have_new_parcel_data;		}		// Remove this once hidden AV feature is fully available grid-wide
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
@@ -288,24 +288,24 @@ public:
 	virtual void setArea(S32 area, S32 sim_object_limit);
 	void	setDiscountRate(F32 rate);
 
-	void	setAllowModify(BOOL b)	{ setParcelFlag(PF_CREATE_OBJECTS, b); }
-	void	setAllowGroupModify(BOOL b)	{ setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
-	void	setAllowAllObjectEntry(BOOL b)	{ setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
-	void	setAllowGroupObjectEntry(BOOL b)	{ setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
-	void	setAllowTerraform(BOOL b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
-	void	setAllowDamage(BOOL b)	{ setParcelFlag(PF_ALLOW_DAMAGE, b); }
-	void	setAllowFly(BOOL b)		{ setParcelFlag(PF_ALLOW_FLY, b); }
-	void	setAllowGroupScripts(BOOL b)	{ setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
-	void	setAllowOtherScripts(BOOL b)	{ setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
-	void	setAllowDeedToGroup(BOOL b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
-	void    setContributeWithDeed(BOOL b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
-	void	setForSale(BOOL b)		{ setParcelFlag(PF_FOR_SALE, b); }
-	void	setSoundOnly(BOOL b)	{ setParcelFlag(PF_SOUND_LOCAL, b); }
-	void	setDenyAnonymous(BOOL b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
-	void	setDenyAgeUnverified(BOOL b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
-	void	setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
-	void	setAllowGroupAVSounds(BOOL b)	{ mAllowGroupAVSounds = b;		}
-	void	setAllowAnyAVSounds(BOOL b)		{ mAllowAnyAVSounds = b;		}
+	void	setAllowModify(bool b)	{ setParcelFlag(PF_CREATE_OBJECTS, b); }
+	void	setAllowGroupModify(bool b)	{ setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
+	void	setAllowAllObjectEntry(bool b)	{ setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
+	void	setAllowGroupObjectEntry(bool b)	{ setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
+	void	setAllowTerraform(bool b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
+	void	setAllowDamage(bool b)	{ setParcelFlag(PF_ALLOW_DAMAGE, b); }
+	void	setAllowFly(bool b)		{ setParcelFlag(PF_ALLOW_FLY, b); }
+	void	setAllowGroupScripts(bool b)	{ setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
+	void	setAllowOtherScripts(bool b)	{ setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
+	void	setAllowDeedToGroup(bool b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
+	void    setContributeWithDeed(bool b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
+	void	setForSale(bool b)		{ setParcelFlag(PF_FOR_SALE, b); }
+	void	setSoundOnly(bool b)	{ setParcelFlag(PF_SOUND_LOCAL, b); }
+	void	setDenyAnonymous(bool b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
+	void	setDenyAgeUnverified(bool b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
+	void	setRestrictPushObject(bool b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
+	void	setAllowGroupAVSounds(bool b)	{ mAllowGroupAVSounds = b;		}
+	void	setAllowAnyAVSounds(bool b)		{ mAllowAnyAVSounds = b;		}
     void    setObscureMOAP(bool b)  { mObscureMOAP = b; }
 
 	void	setDrawDistance(F32 dist)	{ mDrawDistance = dist; }
@@ -315,9 +315,9 @@ public:
 	void	setPassPrice(S32 price)				{ mPassPrice = price; }
 	void	setPassHours(F32 hours)				{ mPassHours = hours; }
 
-//	BOOL	importStream(std::istream& input_stream);
+//	bool	importStream(std::istream& input_stream);
 	bool	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-	// BOOL	exportStream(std::ostream& output_stream);
+	// bool	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
 	void	packMessage(LLSD& msg);
@@ -372,7 +372,7 @@ public:
 	const LLUUID&	getGroupID() const			{ return mGroupID; }
 	S32				getPassPrice() const		{ return mPassPrice; }
 	F32				getPassHours() const		{ return mPassHours; }
-	BOOL			getIsGroupOwned() const		{ return mGroupOwned; }
+	bool			getIsGroupOwned() const		{ return mGroupOwned; }
 
 	U32 getAuctionID() const	{ return mAuctionID; }
 	bool isInEscrow() const		{ return mInEscrow; }
@@ -462,62 +462,62 @@ public:
 					{ return (mParcelFlags & PF_ALLOW_DEED_TO_GROUP) ? true : false; }
 
 	// Does the owner want to make a contribution along with the deed.
-	BOOL getContributeWithDeed() const
-	{ return (mParcelFlags & PF_CONTRIBUTE_WITH_DEED) ? TRUE : FALSE; }
+	bool getContributeWithDeed() const
+	{ return (mParcelFlags & PF_CONTRIBUTE_WITH_DEED) ? true : false; }
 
 	// heightfield can be modified
-	BOOL	getAllowTerraform() const
-					{ return (mParcelFlags & PF_ALLOW_TERRAFORM) ? TRUE : FALSE; }
+	bool	getAllowTerraform() const
+					{ return (mParcelFlags & PF_ALLOW_TERRAFORM) ? true : false; }
 
 	// avatars can be hurt here
-	BOOL	getAllowDamage() const
-					{ return (mParcelFlags & PF_ALLOW_DAMAGE) ? TRUE : FALSE; }
+	bool	getAllowDamage() const
+					{ return (mParcelFlags & PF_ALLOW_DAMAGE) ? true : false; }
 
-	BOOL	getAllowFly() const
-					{ return (mParcelFlags & PF_ALLOW_FLY) ? TRUE : FALSE; }
+	bool	getAllowFly() const
+					{ return (mParcelFlags & PF_ALLOW_FLY) ? true : false; }
 
-	BOOL	getAllowGroupScripts() const
-					{ return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? TRUE : FALSE; }
+	bool	getAllowGroupScripts() const
+					{ return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? true : false; }
 
-	BOOL	getAllowOtherScripts() const
-					{ return (mParcelFlags & PF_ALLOW_OTHER_SCRIPTS) ? TRUE : FALSE; }
+	bool	getAllowOtherScripts() const
+					{ return (mParcelFlags & PF_ALLOW_OTHER_SCRIPTS) ? true : false; }
 
-	BOOL	getAllowAllObjectEntry() const
-					{ return (mParcelFlags & PF_ALLOW_ALL_OBJECT_ENTRY) ? TRUE : FALSE; }
+	bool	getAllowAllObjectEntry() const
+					{ return (mParcelFlags & PF_ALLOW_ALL_OBJECT_ENTRY) ? true : false; }
 
-	BOOL	getAllowGroupObjectEntry() const
-					{ return (mParcelFlags & PF_ALLOW_GROUP_OBJECT_ENTRY) ? TRUE : FALSE; }
+	bool	getAllowGroupObjectEntry() const
+					{ return (mParcelFlags & PF_ALLOW_GROUP_OBJECT_ENTRY) ? true : false; }
 
-	BOOL	getForSale() const
-					{ return (mParcelFlags & PF_FOR_SALE) ? TRUE : FALSE; }
-	BOOL	getSoundLocal() const
-					{ return (mParcelFlags & PF_SOUND_LOCAL) ? TRUE : FALSE; }
-	BOOL	getParcelFlagAllowVoice() const
-					{ return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? TRUE : FALSE; }
-	BOOL	getParcelFlagUseEstateVoiceChannel() const
-					{ return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? TRUE : FALSE; }
-	BOOL	getAllowPublish() const
-					{ return (mParcelFlags & PF_ALLOW_PUBLISH) ? TRUE : FALSE; }
-	BOOL	getMaturePublish() const
-					{ return (mParcelFlags & PF_MATURE_PUBLISH) ? TRUE : FALSE; }
-	BOOL	getRestrictPushObject() const
-					{ return (mParcelFlags & PF_RESTRICT_PUSHOBJECT) ? TRUE : FALSE; }
-	BOOL	getRegionPushOverride() const
+	bool	getForSale() const
+					{ return (mParcelFlags & PF_FOR_SALE) ? true : false; }
+	bool	getSoundLocal() const
+					{ return (mParcelFlags & PF_SOUND_LOCAL) ? true : false; }
+	bool	getParcelFlagAllowVoice() const
+					{ return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? true : false; }
+	bool	getParcelFlagUseEstateVoiceChannel() const
+					{ return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? true : false; }
+	bool	getAllowPublish() const
+					{ return (mParcelFlags & PF_ALLOW_PUBLISH) ? true : false; }
+	bool	getMaturePublish() const
+					{ return (mParcelFlags & PF_MATURE_PUBLISH) ? true : false; }
+	bool	getRestrictPushObject() const
+					{ return (mParcelFlags & PF_RESTRICT_PUSHOBJECT) ? true : false; }
+	bool	getRegionPushOverride() const
 					{ return mRegionPushOverride; }
-	BOOL	getRegionDenyAnonymousOverride() const
+	bool	getRegionDenyAnonymousOverride() const
 					{ return mRegionDenyAnonymousOverride; }
-	BOOL	getRegionDenyAgeUnverifiedOverride() const
+	bool	getRegionDenyAgeUnverifiedOverride() const
 					{ return mRegionDenyAgeUnverifiedOverride; }
-    BOOL    getRegionAllowAccessOverride() const
+    bool    getRegionAllowAccessOverride() const
                     { return mRegionAllowAccessoverride; }
-    BOOL    getRegionAllowEnvironmentOverride() const
+    bool    getRegionAllowEnvironmentOverride() const
                     { return mRegionAllowEnvironmentOverride; }
     S32     getParcelEnvironmentVersion() const 
                     { return mCurrentEnvironmentVersion; }
 
 
-	BOOL	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	} 
-	BOOL	getAllowAnyAVSounds()	const	{ return mAllowAnyAVSounds;		}
+	bool	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	}
+	bool	getAllowAnyAVSounds()	const	{ return mAllowAnyAVSounds;		}
  
     bool    getObscureMOAP() const { return mObscureMOAP; }
 
@@ -582,30 +582,30 @@ public:
 	void	setParcelPrimBonus(F32 bonus) 	{ mParcelPrimBonus = bonus; }
 
 	void	setCleanOtherTime(S32 time)					{ mCleanOtherTime = time; }
-	void	setRegionPushOverride(BOOL override) {mRegionPushOverride = override; }
-	void	setRegionDenyAnonymousOverride(BOOL override)	{ mRegionDenyAnonymousOverride = override; }
-	void	setRegionDenyAgeUnverifiedOverride(BOOL override)	{ mRegionDenyAgeUnverifiedOverride = override; }
-    void    setRegionAllowAccessOverride(BOOL override) { mRegionAllowAccessoverride = override; }
-    void    setRegionAllowEnvironmentOverride(BOOL override) { mRegionAllowEnvironmentOverride = override; }
+	void	setRegionPushOverride(bool override) {mRegionPushOverride = override; }
+	void	setRegionDenyAnonymousOverride(bool override)	{ mRegionDenyAnonymousOverride = override; }
+	void	setRegionDenyAgeUnverifiedOverride(bool override)	{ mRegionDenyAgeUnverifiedOverride = override; }
+    void    setRegionAllowAccessOverride(bool override) { mRegionAllowAccessoverride = override; }
+    void    setRegionAllowEnvironmentOverride(bool override) { mRegionAllowEnvironmentOverride = override; }
 
     void    setParcelEnvironmentVersion(S32 version) { mCurrentEnvironmentVersion = version; }
 
 	// Accessors for parcel sellWithObjects
 	void	setPreviousOwnerID(LLUUID prev_owner)	{ mPreviousOwnerID = prev_owner; }
-	void	setPreviouslyGroupOwned(BOOL b)			{ mPreviouslyGroupOwned = b; }
-	void	setSellWithObjects(BOOL b)				{ setParcelFlag(PF_SELL_PARCEL_OBJECTS, b); }
+	void	setPreviouslyGroupOwned(bool b)			{ mPreviouslyGroupOwned = b; }
+	void	setSellWithObjects(bool b)				{ setParcelFlag(PF_SELL_PARCEL_OBJECTS, b); }
 
 	LLUUID	getPreviousOwnerID() const		{ return mPreviousOwnerID; }
-	BOOL	getPreviouslyGroupOwned() const	{ return mPreviouslyGroupOwned; }
-	BOOL	getSellWithObjects() const		{ return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? TRUE : FALSE; }
+	bool	getPreviouslyGroupOwned() const	{ return mPreviouslyGroupOwned; }
+	bool	getSellWithObjects() const		{ return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? true : false; }
 
 protected:
 	LLUUID mID;
 	LLUUID				mOwnerID;
 	LLUUID				mGroupID;
-	BOOL				mGroupOwned; // TRUE if mOwnerID is a group_id
+	bool				mGroupOwned; // true if mOwnerID is a group_id
 	LLUUID				mPreviousOwnerID;
-	BOOL				mPreviouslyGroupOwned;
+	bool				mPreviouslyGroupOwned;
 
 	EOwnershipStatus mStatus;
 	ECategory mCategory;
@@ -614,8 +614,8 @@ protected:
 	LLVector3 mUserLocation;
 	LLVector3 mUserLookAt;
 	ELandingType mLandingType;
-	BOOL mSeeAVs;							// Avatars on this parcel are visible from outside it
-	BOOL mHaveNewParcelLimitData;			// Remove once hidden AV feature is grid-wide
+	bool mSeeAVs;							// Avatars on this parcel are visible from outside it
+	bool mHaveNewParcelLimitData;			// Remove once hidden AV feature is grid-wide
 	LLTimer mSaleTimerExpires;
 	LLTimer mMediaResetTimer;
 
@@ -666,13 +666,13 @@ protected:
 	S32					mTempPrimCount;
 	F32					mParcelPrimBonus;
 	S32					mCleanOtherTime;
-	BOOL				mRegionPushOverride;
-	BOOL				mRegionDenyAnonymousOverride;
-	BOOL				mRegionDenyAgeUnverifiedOverride;
-    BOOL                mRegionAllowAccessoverride;
-    BOOL                mRegionAllowEnvironmentOverride;
-	BOOL				mAllowGroupAVSounds;
-	BOOL				mAllowAnyAVSounds;
+	bool				mRegionPushOverride;
+	bool				mRegionDenyAnonymousOverride;
+	bool				mRegionDenyAgeUnverifiedOverride;
+    bool                mRegionAllowAccessoverride;
+    bool                mRegionAllowEnvironmentOverride;
+	bool				mAllowGroupAVSounds;
+	bool				mAllowAnyAVSounds;
     bool                mObscureMOAP;
     S32                 mCurrentEnvironmentVersion;
 	
@@ -692,13 +692,11 @@ public:
 
 	void setExperienceKeyType(const LLUUID& experience_key, U32 type);
 	U32 countExperienceKeyType(U32 type);
-	U32 getExperienceKeyType(const LLUUID& experience_key)const;
 	LLAccessEntry::map getExperienceKeysByType(U32 type)const;
 	void clearExperienceKeysByType(U32 type);
 
 private:
 	xp_type_map_t mExperienceKeys;
-
 };
 
 

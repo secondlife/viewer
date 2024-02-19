@@ -285,20 +285,20 @@ public:
 	// They also return true if the object isn't owned, or the
 	// requesting agent is a system agent.  See llpermissionsflags.h
 	// for bits.
-	//BOOL	allowDeleteBy(const LLUUID& agent_id) 	const		{ return allowModifyBy(agent_id); }
-	//BOOL	allowEditBy(const LLUUID& agent_id) 	const		{ return allowModifyBy(agent_id); }
+	//bool	allowDeleteBy(const LLUUID& agent_id) 	const		{ return allowModifyBy(agent_id); }
+	//bool	allowEditBy(const LLUUID& agent_id) 	const		{ return allowModifyBy(agent_id); }
 	// saves last owner and sets current owner
-	//BOOL setOwner(const LLUUID& agent, const LLUUID& owner);	
+	//bool setOwner(const LLUUID& agent, const LLUUID& owner);	
 	// This method saves the last owner, sets the current owner to the
 	// one provided, and sets the base mask as indicated.
-	//BOOL setOwner(const LLUUID& agent, const LLUUID& owner, U32 new_base_mask);
+	//bool setOwner(const LLUUID& agent, const LLUUID& owner, U32 new_base_mask);
 
 	// Attempt to set or clear the given bitmask.  Returns TRUE if you
 	// are allowed to modify the permissions.  If you attempt to turn
 	// on bits not allowed by the base bits, the function will return
 	// TRUE, but those bits will not be set.
-	//BOOL setGroupBits( const LLUUID& agent, BOOL set, PermissionMask bits);
-	//BOOL setEveryoneBits(const LLUUID& agent, BOOL set, PermissionMask bits);
+	//bool setGroupBits( const LLUUID& agent, bool set, PermissionMask bits);
+	//bool setEveryoneBits(const LLUUID& agent, bool set, PermissionMask bits);
 
 	//
 	// MISC METHODS and OPERATORS
@@ -361,7 +361,7 @@ bool LLPermissions::allowTransferTo(const LLUUID &agent_id) const
 	}
 	else
 	{
-		return ((mOwner == agent_id) ? TRUE : allowOperationBy(PERM_TRANSFER, mOwner));
+		return ((mOwner == agent_id) ? true : allowOperationBy(PERM_TRANSFER, mOwner));
 	}
 }
 

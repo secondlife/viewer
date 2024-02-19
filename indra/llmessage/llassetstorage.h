@@ -122,11 +122,11 @@ public:
 
     void	*mUserData;
     LLHost  mHost;
-    BOOL	mIsTemp;
+    bool	mIsTemp;
     F64Seconds		mTime;				// Message system time
-    BOOL    mIsPriority;
-    BOOL	mDataSentInFirstPacket;
-    BOOL	mDataIsInCache;
+    bool    mIsPriority;
+    bool	mDataSentInFirstPacket;
+    bool	mDataIsInCache;
 };
 
 class LLAssetRequest : public LLBaseDownloadRequest
@@ -143,8 +143,8 @@ public:
 //	void	(*mUpCallback)(const LLUUID&, void *, S32, LLExtStat);
 	void	(*mInfoCallback)(LLAssetInfo *, void *, S32);
 
-	BOOL	mIsLocal;
-	BOOL	mIsUserWaiting;		// We don't want to try forever if a user is waiting for a result.
+	bool	mIsLocal;
+	bool	mIsUserWaiting;		// We don't want to try forever if a user is waiting for a result.
 	F64Seconds		mTimeout;			// Amount of time before timing out.
 	LLUUID	mRequestingAgentID;	// Only valid for uploads from an agent
     F64	mBytesFetched;
@@ -209,7 +209,7 @@ public:
 	};
 
 protected:
-	BOOL mShutDown;
+	bool mShutDown;
 	LLHost mUpstreamHost;
 	
 	LLMessageSystem *mMessageSys;

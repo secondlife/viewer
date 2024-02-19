@@ -119,7 +119,7 @@ LLParcel::ECategory category_ui_string_to_category(const std::string& s);
 
 LLParcel::LLParcel()
 {
-    init(LLUUID::null, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, 1.f, 0);
+    init(LLUUID::null, true, false, false, 0, 0, 0, 0, 0, 1.f, 0);
 }
 
 
@@ -191,13 +191,13 @@ void LLParcel::init(const LLUUID &owner_id,
 	setMediaType(LLStringUtil::null);
 	mMediaID.setNull();
 	mMediaAutoScale = 0;
-	mMediaLoop = TRUE;
+	mMediaLoop = 1;
 	mMediaWidth = 0;
 	mMediaHeight = 0;
 	setMediaCurrentURL(LLStringUtil::null);
-	mMediaAllowNavigate = TRUE;
+	mMediaAllowNavigate = 1;
 	mMediaURLTimeout = 0.0f;
-	mMediaPreventCameraZoom = FALSE;
+	mMediaPreventCameraZoom = 0;
 
 	mGroupID.setNull();
 
@@ -219,20 +219,20 @@ void LLParcel::init(const LLUUID &owner_id,
 	setSelectedPrimCount(0);
 	setTempPrimCount(0);
 	setCleanOtherTime(0);
-    setRegionPushOverride(FALSE);
-    setRegionDenyAnonymousOverride(FALSE);
-    setRegionDenyAgeUnverifiedOverride(FALSE);
+    setRegionPushOverride(false);
+    setRegionDenyAnonymousOverride(false);
+    setRegionDenyAgeUnverifiedOverride(false);
 	setParcelPrimBonus(parcel_object_bonus);
 
 	setPreviousOwnerID(LLUUID::null);
-	setPreviouslyGroupOwned(FALSE);
+	setPreviouslyGroupOwned(false);
 
-	setSeeAVs(TRUE);
-	setAllowGroupAVSounds(TRUE);
-	setAllowAnyAVSounds(TRUE);
-	setHaveNewParcelLimitData(FALSE);
+	setSeeAVs(true);
+	setAllowGroupAVSounds(true);
+	setAllowAnyAVSounds(true);
+	setHaveNewParcelLimitData(false);
 
-    setRegionAllowEnvironmentOverride(FALSE);
+    setRegionAllowEnvironmentOverride(false);
     setParcelEnvironmentVersion(INVALID_PARCEL_ENVIRONMENT_VERSION);
 
     setObscureMOAP(false);
@@ -949,7 +949,7 @@ const std::string& LLParcel::getActionString(LLParcel::EAction action)
 
 bool LLParcel::isSaleTimerExpired(const U64& time)
 {
-    if (mSaleTimerExpires.getStarted() == FALSE)
+    if (mSaleTimerExpires.getStarted() == false)
     {
         return false;
     }
@@ -1011,11 +1011,11 @@ void LLParcel::expireSale(
     mSaleTimerExpires.setTimerExpirySec(0.0);
     mSaleTimerExpires.stop();
     setPreviousOwnerID(LLUUID::null);
-    setPreviouslyGroupOwned(FALSE);
-    setSellWithObjects(FALSE);
+    setPreviouslyGroupOwned(false);
+    setSellWithObjects(false);
     type = TRANS_LAND_RELEASE;
     mStatus = OS_NONE;
-    flags = pack_transaction_flags(mGroupOwned, FALSE);
+    flags = pack_transaction_flags(mGroupOwned, false);
     mAuthBuyerID.setNull();
     from_id = mOwnerID;
     mOwnerID.setNull();
@@ -1037,7 +1037,7 @@ void LLParcel::completeSale(
 
 	// Purchased parcels are assumed to no longer be for sale.
 	// Otherwise someone can snipe the sale.
-	setForSale(FALSE);
+	setForSale(false);
 	setAuctionID(0);
 
 	// Turn off show directory, since it's a recurring fee that
@@ -1062,11 +1062,11 @@ void LLParcel::clearSale()
 		mStatus = OS_LEASED;
 	}
 	mAuthBuyerID.setNull();
-	setForSale(FALSE);
+	setForSale(false);
 	setAuctionID(0);
 	setPreviousOwnerID(LLUUID::null);
-	setPreviouslyGroupOwned(FALSE);
-	setSellWithObjects(FALSE);
+	setPreviouslyGroupOwned(false);
+	setSellWithObjects(false);
 }
 
 bool LLParcel::isPublic() const
@@ -1093,15 +1093,15 @@ void LLParcel::clearParcel()
 	setMediaID(LLUUID::null);
     setMediaDesc(LLStringUtil::null);
 	setMediaAutoScale(0);
-	setMediaLoop(TRUE);
+	setMediaLoop(1);
 	mMediaWidth = 0;
 	mMediaHeight = 0;
 	setMediaCurrentURL(LLStringUtil::null);
-	setMediaAllowNavigate(TRUE);
-	setMediaPreventCameraZoom(FALSE);
+	setMediaAllowNavigate(1);
+	setMediaPreventCameraZoom(0);
 	setMediaURLTimeout(0.0f);
 	setMusicURL(LLStringUtil::null);
-	setInEscrow(FALSE);
+	setInEscrow(false);
 	setAuthorizedBuyerID(LLUUID::null);
 	setCategory(C_NONE);
 	setSnapshotID(LLUUID::null);

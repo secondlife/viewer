@@ -198,14 +198,14 @@ LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetTy
       mDownCallback(),
       mUserData(NULL),
       mHost(),
-      mIsTemp(FALSE),
-      mIsPriority(FALSE),
-      mDataSentInFirstPacket(FALSE),
-      mDataIsInCache(FALSE)
+      mIsTemp(false),
+      mIsPriority(false),
+      mDataSentInFirstPacket(false),
+      mDataIsInCache(false)
 {
     // Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
     //  running a message system loop.
-    mTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
+    mTime = LLMessageSystem::getMessageTimeSeconds(true);
 }
 
 // virtual
@@ -228,8 +228,8 @@ LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type
     :   LLBaseDownloadRequest(uuid, type),
         mUpCallback(),
         mInfoCallback( NULL ),
-        mIsLocal(FALSE),
-        mIsUserWaiting(FALSE),
+        mIsLocal(false),
+        mIsUserWaiting(false),
         mTimeout(LL_ASSET_STORAGE_TIMEOUT),
         mBytesFetched(0)
 {
@@ -344,7 +344,7 @@ void LLAssetStorage::_init(LLMessageSystem *msg,
                            LLXferManager *xfer,
                            const LLHost &upstream_host)
 {
-    mShutDown = FALSE;
+    mShutDown = false;
     mMessageSys = msg;
     mXferManager = xfer;
 

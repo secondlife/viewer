@@ -268,7 +268,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	virtual bool importLegacyStream(std::istream& input_stream);
-	virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = TRUE) const;
+	virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
 	LLSD exportLLSD() const;
 	bool importLLSD(const LLSD& cat_data);

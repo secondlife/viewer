@@ -119,8 +119,8 @@ private:
 	LLSD* mCurrentBlock;
 	std::string mCurrentMessageName;
 	std::string mCurrentBlockName;
-	BOOL mbSBuilt;
-	BOOL mbSClear;
+	bool mbSBuilt;
+	bool mbSClear;
 };
 
 #endif // LL_LLSDMESSAGEBUILDER_H

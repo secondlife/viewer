@@ -149,14 +149,14 @@ void LLPanelLandMedia::refresh()
 		mMediaTypeCombo->setEnabled( can_change_media );
 		getChild<LLUICtrl>("mime_type")->setValue(mime_type);
 
-		mMediaAutoScaleCheck->set( parcel->getMediaAutoScale () );
+		mMediaAutoScaleCheck->set( static_cast<bool>(parcel->getMediaAutoScale()) );
 		mMediaAutoScaleCheck->setEnabled ( can_change_media );
 
 		// Special code to disable looping checkbox for HTML MIME type
 		// (DEV-10042 -- Parcel Media: "Loop Media" should be disabled for static media types)
 		bool allow_looping = LLMIMETypes::findAllowLooping( mime_type );
 		if ( allow_looping )
-			mMediaLoopCheck->set( parcel->getMediaLoop () );
+			mMediaLoopCheck->set( static_cast<bool>(parcel->getMediaLoop()) );
 		else
 			mMediaLoopCheck->set( false );
 		mMediaLoopCheck->setEnabled ( can_change_media && allow_looping );
@@ -275,8 +275,8 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
 	std::string media_url	= self->mMediaURLEdit->getText();
 	std::string media_desc	= self->mMediaDescEdit->getText();
 	std::string mime_type	= self->getChild<LLUICtrl>("mime_type")->getValue().asString();
-	U8 media_auto_scale		= self->mMediaAutoScaleCheck->get();
-	U8 media_loop           = self->mMediaLoopCheck->get();
+	U8 media_auto_scale		= static_cast<U8>(self->mMediaAutoScaleCheck->get());
+	U8 media_loop           = static_cast<U8>(self->mMediaLoopCheck->get());
 	S32 media_width			= (S32)self->mMediaWidthCtrl->get();
 	S32 media_height		= (S32)self->mMediaHeightCtrl->get();
 	LLUUID media_id			= self->mMediaTextureCtrl->getImageAssetID();

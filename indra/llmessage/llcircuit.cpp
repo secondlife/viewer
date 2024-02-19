@@ -73,10 +73,10 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mHighestPacketID(in_id),
 	mTimeoutCallback(NULL),
 	mTimeoutUserData(NULL),
-	mTrusted(FALSE),
-	mbAllowTimeout(TRUE),
-	mbAlive(TRUE),
-	mBlocked(FALSE),
+	mTrusted(false),
+	mbAllowTimeout(true),
+	mbAlive(true),
+	mBlocked(false),
 	mPingTime(0.0),
 	mLastPingSendTime(0.0),
 	mLastPingReceivedTime(0.0),
@@ -111,7 +111,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 {
 	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
 	//  running a message system loop.
-	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
+	F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds(true);
 	F32 distribution_offset = ll_frand();
 	
 	mPingTime = mt_sec;
@@ -1273,7 +1273,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 	{
 		// Ack, we got our ping response on the same frame! Sigh, let's get a real time otherwise
 		// all of our ping calculations will be skewed.
-		mt_secs = LLMessageSystem::getMessageTimeSeconds(TRUE);
+		mt_secs = LLMessageSystem::getMessageTimeSeconds(true);
 	}
 	mLastPingReceivedTime = mt_secs;
 
@@ -1291,7 +1291,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 	mPingsInTransit = delta_ping;
 	if (mBlocked && (mPingsInTransit <= PING_RELEASE_BLOCK))
 	{
-		mBlocked = FALSE;
+		mBlocked = false;
 	}
 }
 

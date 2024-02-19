@@ -125,7 +125,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 
 		if(mMediaControls.get())
 		{
-			if(face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
+			if(face_auto_zoom && !static_cast<bool>(parcel->getMediaPreventCameraZoom()))
 			{
 				// Zoom in on this face
 				mMediaControls.get()->resetZoomLevel(false);

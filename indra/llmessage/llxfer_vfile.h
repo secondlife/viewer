@@ -44,7 +44,7 @@ class LLXfer_VFile : public LLXfer
 
 	std::string mName;
 
-	BOOL	mDeleteTempFile;
+	bool	mDeleteTempFile;
 
  public:
 	LLXfer_VFile ();

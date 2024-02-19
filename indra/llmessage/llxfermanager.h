@@ -76,7 +76,7 @@ class LLXferManager
 	S32    mHardLimitOutgoingXfersPerCircuit;	// At this limit, kill off the connection
 	S32    mMaxIncomingXfers;
 
-	BOOL	mUseAckThrottling; // Use ack throttling to cap file xfer bandwidth
+	bool	mUseAckThrottling; // Use ack throttling to cap file xfer bandwidth
 	std::deque<LLXferAckInfo> mXferAckQueue;
 	LLThrottle mAckThrottle;
  public:
@@ -85,8 +85,8 @@ class LLXferManager
 	// an xfer must happen asap.
 	enum
 	{
-		LOW_PRIORITY = FALSE,
-		HIGH_PRIORITY = TRUE,
+		LOW_PRIORITY = false,
+		HIGH_PRIORITY = true,
 	};
 
 	// Linked FIFO list, add to the front and pull from back
@@ -113,7 +113,7 @@ class LLXferManager
 	virtual void init();
 	virtual void cleanup();
 
-	void setUseAckThrottling(const BOOL use);
+	void setUseAckThrottling(const bool use);
 	void setAckThrottleBPS(const F32 bps);
 
 // list management routines

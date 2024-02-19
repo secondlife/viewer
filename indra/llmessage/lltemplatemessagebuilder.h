@@ -106,8 +106,8 @@ private:
 	LLMsgBlkData* mCurrentSDataBlock;
 	char* mCurrentSMessageName;
 	char* mCurrentSBlockName;
-	BOOL mbSBuilt;
-	BOOL mbSClear;
+	bool mbSBuilt;
+	bool mbSClear;
 	S32	 mCurrentSendTotal;
 	const message_template_name_map_t& mMessageTemplates;
 };

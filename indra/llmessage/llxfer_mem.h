@@ -39,7 +39,7 @@ class LLXfer_Mem : public LLXfer
 	void (*mCallback)(void *, S32, void **, S32, LLExtStat);	
 	std::string mRemoteFilename;
 	ELLPath mRemotePath;
-	BOOL mDeleteRemoteOnCompletion;
+	bool mDeleteRemoteOnCompletion;
 
  public:
 
@@ -59,7 +59,7 @@ class LLXfer_Mem : public LLXfer
 								  const std::string& remote_filename,
 								  ELLPath remote_path,
 								  const LLHost& remote_host,
-								  BOOL delete_remote_on_completion,
+								  bool delete_remote_on_completion,
 								  void (*callback)(void*,S32,void**,S32,LLExtStat),
 								  void** user_data);
 	virtual S32 startDownload();
