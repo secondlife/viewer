@@ -76,8 +76,10 @@ namespace
             state = prst::OPEN;
             (*prelogf) << "========================================================================"
                        << std::endl;
+#if (_MSC_VER >= 1700) && defined(_HAS_CXX17) && (_HAS_CXX17 > 0)
             // fall through, don't break
             [[fallthrough]];
+#endif
 
         case prst::OPEN:
             (*prelogf) << message << std::endl;

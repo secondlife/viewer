@@ -2501,8 +2501,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SYSKEYDOWN");
             // allow system keys, such as ALT-F4 to be processed by Windows
             eat_keystroke = false;
+#if (_MSC_VER >= 1700) && defined(_HAS_CXX17) && (_HAS_CXX17 > 0)
             // intentional fall-through here
             [[fallthrough]];
+#endif
         }
         case WM_KEYDOWN:
         {
@@ -2523,8 +2525,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_SYSKEYUP:
             eat_keystroke = false;
+#if (_MSC_VER >= 1700) && defined(_HAS_CXX17) && (_HAS_CXX17 > 0)
             // intentional fall-through here
             [[fallthrough]];
+#endif
         case WM_KEYUP:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
