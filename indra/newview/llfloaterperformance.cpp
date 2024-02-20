@@ -732,7 +732,7 @@ void LLFloaterPerformance::enableAutotuneWarning()
 {
     if (!gSavedPerAccountSettings.getBOOL("HadEnabledAutoFPS") && LLPerfStats::tunables.userAutoTuneEnabled)
     {
-        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", TRUE);
+        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", true);
 
         LLNotificationsUtil::add("EnableAutoFPSWarning", LLSD(), LLSD(),
             [](const LLSD& notif, const LLSD& resp)

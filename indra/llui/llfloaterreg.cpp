@@ -310,7 +310,7 @@ void LLFloaterReg::showInitialVisibleInstances()
 		std::string controlname = getVisibilityControlName(name);
 		if (LLFloater::getControlGroup()->controlExists(controlname))
 		{
-			BOOL isvis = LLFloater::getControlGroup()->getBOOL(controlname);
+			bool isvis = LLFloater::getControlGroup()->getBOOL(controlname);
 			if (isvis)
 			{
 				showInstance(name, LLSD()); // keyed floaters shouldn't set save_vis to true

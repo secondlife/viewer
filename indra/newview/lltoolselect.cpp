@@ -91,8 +91,8 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
     // *NOTE: These settings must be cleaned up at bottom of function.
 	if (temp_select || LLSelectMgr::getInstance()->mAllowSelectAvatar)
 	{
-		gSavedSettings.setBOOL("SelectOwnedOnly", FALSE);
-		gSavedSettings.setBOOL("SelectMovableOnly", FALSE);
+		gSavedSettings.setBOOL("SelectOwnedOnly", false);
+		gSavedSettings.setBOOL("SelectMovableOnly", false);
     	LLSelectMgr::getInstance()->setForceSelection(TRUE);
 	}
 

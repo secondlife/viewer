@@ -417,7 +417,7 @@ void LLChatBar::startChat(const char* line)
 
 // 	gChatBar->setVisible(TRUE);
 // 	gChatBar->setKeyboardFocus(TRUE);
-// 	gSavedSettings.setBOOL("ChatVisible", TRUE);
+// 	gSavedSettings.setBOOL("ChatVisible", true);
 // 
 // 	if (line && gChatBar->mInputEditor)
 // 	{
@@ -455,7 +455,7 @@ void LLChatBar::stopChat()
 // 
 // 	// hide chat bar so it doesn't grab focus back
 // 	gChatBar->setVisible(FALSE);
-// 	gSavedSettings.setBOOL("ChatVisible", FALSE);
+// 	gSavedSettings.setBOOL("ChatVisible", false);
 }
 
 // static
@@ -566,7 +566,7 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL 
 {
 	// as soon as we say something, we no longer care about teaching the user
 	// how to chat
-	gWarningSettings.setBOOL("FirstOtherChatBeforeUser", FALSE);
+	gWarningSettings.setBOOL("FirstOtherChatBeforeUser", false);
 
 	// Look for "/20 foo" channel chats.
 	S32 channel = 0;

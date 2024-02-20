@@ -220,7 +220,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 		}
 
 		// freeze everything else
-		gSavedSettings.setBOOL("FreezeTime", TRUE);
+		gSavedSettings.setBOOL("FreezeTime", true);
 
 		if (LLToolMgr::getInstance()->getCurrentToolset() != gCameraToolset)
 		{
@@ -243,7 +243,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 		floaterp->impl->mAvatarPauseHandles.clear();
 
 		// thaw everything else
-		gSavedSettings.setBOOL("FreezeTime", FALSE);
+		gSavedSettings.setBOOL("FreezeTime", false);
 
 		// restore last tool (e.g. pie menu, etc)
 		if (floaterp->impl->mLastToolset)
@@ -956,7 +956,7 @@ LLFloaterSnapshotBase::~LLFloaterSnapshotBase()
 	if (impl->mPreviewHandle.get()) impl->mPreviewHandle.get()->die();
 
 	//unfreeze everything else
-	gSavedSettings.setBOOL("FreezeTime", FALSE);
+	gSavedSettings.setBOOL("FreezeTime", false);
 
 	if (impl->mLastToolset)
 	{
@@ -1164,7 +1164,7 @@ void LLFloaterSnapshotBase::onClose(bool app_quitting)
 		previewp->setEnabled(FALSE);
 	}
 
-	gSavedSettings.setBOOL("FreezeTime", FALSE);
+	gSavedSettings.setBOOL("FreezeTime", false);
 	impl->mAvatarPauseHandles.clear();
 
 	if (impl->mLastToolset)

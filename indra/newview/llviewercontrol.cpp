@@ -471,7 +471,7 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
 	// High Res Snapshot active, must uncheck RenderUIInSnapshot
 	if (newvalue.asBoolean())
 	{
-		gSavedSettings.setBOOL( "RenderUIInSnapshot", FALSE );
+		gSavedSettings.setBOOL( "RenderUIInSnapshot", false);
 	}
 	return true;
 }

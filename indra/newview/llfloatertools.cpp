@@ -904,7 +904,7 @@ void LLFloaterTools::onClose(bool app_quitting)
 	
 	// exit component selection mode
 	LLSelectMgr::getInstance()->promoteSelectionToRoot();
-	gSavedSettings.setBOOL("EditLinkedParts", FALSE);
+	gSavedSettings.setBOOL("EditLinkedParts", false);
 
 	gViewerWindow->showCursor();
 
@@ -1092,7 +1092,7 @@ void commit_select_component(void *data)
 void LLFloaterTools::setObjectType( LLPCode pcode )
 {
 	LLToolPlacer::setObjectType( pcode );
-	gSavedSettings.setBOOL("CreateToolCopySelection", FALSE);
+	gSavedSettings.setBOOL("CreateToolCopySelection", false);
 	gFocusMgr.setMouseCapture(NULL);
 }
 

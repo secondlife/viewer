@@ -90,7 +90,7 @@ std::string LLControlGroup::getString(const std::string& name)
 }
 
 // Stub for --no-verify-ssl-cert
-BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }
+bool LLControlGroup::getBOOL(const std::string& name) { return false; }
 
 LLSD LLCredential::getLoginParams()
 {

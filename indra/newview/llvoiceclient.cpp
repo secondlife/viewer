@@ -874,7 +874,7 @@ class LLViewerRequiredVoiceVersion : public LLHTTPNode
 				{
 					//sAlertedUser = TRUE;
 					LLNotificationsUtil::add("VoiceVersionMismatch");
-					gSavedSettings.setBOOL("EnableVoiceChat", FALSE); // toggles listener
+					gSavedSettings.setBOOL("EnableVoiceChat", false); // toggles listener
 				}
 			}
 		}

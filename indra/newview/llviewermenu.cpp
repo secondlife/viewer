@@ -4467,7 +4467,7 @@ class LLViewDefaultUISize : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gSavedSettings.setF32("UIScaleFactor", 1.0f);
-		gSavedSettings.setBOOL("UIAutoScale", FALSE);	
+		gSavedSettings.setBOOL("UIAutoScale", false);
 		gViewerWindow->reshape(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		return true;
 	}

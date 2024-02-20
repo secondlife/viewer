@@ -878,12 +878,12 @@ bool LLAppViewerWin32::initHardwareTest()
 				LLWeb::loadURLExternal("http://secondlife.com/support/", false);
 				return false;
 			}
-			gWarningSettings.setBOOL("AboutDirectX9", FALSE);
+			gWarningSettings.setBOOL("AboutDirectX9", false);
 		}
 		LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
 
 		// Only probe once after installation
-		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+		gSavedSettings.setBOOL("ProbeHardwareOnStartup", false);
 
 		// Disable so debugger can work
 		std::string splash_msg;
