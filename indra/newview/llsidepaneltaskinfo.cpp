@@ -97,7 +97,7 @@ LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
 }
 
 // virtual
-BOOL LLSidepanelTaskInfo::postBuild()
+bool LLSidepanelTaskInfo::postBuild()
 {
 	mOpenBtn = getChild<LLButton>("open_btn");
 	mOpenBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onOpenButtonClicked, this));
@@ -160,10 +160,10 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mDAN = getChild<LLUICtrl>("N:");
 	mDAF = getChild<LLUICtrl>("F:");
 	
-	return TRUE;
+	return true;
 }
 
-/*virtual*/ void LLSidepanelTaskInfo::onVisibilityChange ( BOOL visible )
+/*virtual*/ void LLSidepanelTaskInfo::onVisibilityChange(bool visible)
 {
 	if (visible)
 	{

@@ -44,7 +44,7 @@ F32 LLUICtrl::sInactiveControlTransparency = 1.0f;
 
 // Compiler optimization, generate extern template
 template class LLUICtrl* LLView::getChild<class LLUICtrl>(
-	const std::string& name, BOOL recurse) const;
+	const std::string& name, bool recurse) const;
 
 LLUICtrl::CallbackParam::CallbackParam()
 :	name("name"),
@@ -100,10 +100,10 @@ const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 
 LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel) 
 :	LLView(p),
-	mIsChrome(FALSE),
+	mIsChrome(false),
 	mRequestsFront(p.requests_front),
-	mTabStop(FALSE),
-	mTentative(FALSE),
+	mTabStop(false),
+	mTentative(false),
     mViewModel(viewmodel),
 	mControlVariable(NULL),
 	mEnabledControlVariable(NULL),
@@ -414,7 +414,7 @@ bool LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 }
 
 // can't tab to children of a non-tab-stop widget
-BOOL LLUICtrl::canFocusChildren() const
+bool LLUICtrl::canFocusChildren() const
 {
 	return hasTabStop();
 }
@@ -439,9 +439,9 @@ void LLUICtrl::onCommit()
 }
 
 //virtual
-BOOL LLUICtrl::isCtrl() const
+bool LLUICtrl::isCtrl() const
 {
-	return TRUE;
+	return true;
 }
 
 //virtual 
@@ -473,7 +473,7 @@ LLViewModel* LLUICtrl::getViewModel() const
 }
 
 //virtual
-BOOL LLUICtrl::postBuild()
+bool LLUICtrl::postBuild()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	//
@@ -662,15 +662,15 @@ bool LLUICtrl::controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, 
 }
 
 // virtual
-BOOL LLUICtrl::setTextArg( const std::string& key, const LLStringExplicit& text ) 
+bool LLUICtrl::setTextArg( const std::string& key, const LLStringExplicit& text ) 
 { 
-	return FALSE; 
+	return false; 
 }
 
 // virtual
-BOOL LLUICtrl::setLabelArg( const std::string& key, const LLStringExplicit& text ) 
+bool LLUICtrl::setLabelArg( const std::string& key, const LLStringExplicit& text ) 
 { 
-	return FALSE; 
+	return false; 
 }
 
 // virtual
@@ -691,12 +691,12 @@ LLCtrlScrollInterface* LLUICtrl::getScrollInterface()
 	return NULL; 
 }
 
-BOOL LLUICtrl::hasFocus() const
+bool LLUICtrl::hasFocus() const
 {
 	return (gFocusMgr.childHasKeyboardFocus(this));
 }
 
-void LLUICtrl::setFocus(BOOL b)
+void LLUICtrl::setFocus(bool b)
 {
 	// focus NEVER goes to ui ctrls that are disabled!
 	if (!getEnabled())
@@ -720,25 +720,25 @@ void LLUICtrl::setFocus(BOOL b)
 }
 
 // virtual
-void LLUICtrl::setTabStop( BOOL b )	
+void LLUICtrl::setTabStop( bool b )	
 { 
 	mTabStop = b;
 }
 
 // virtual
-BOOL LLUICtrl::hasTabStop() const		
+bool LLUICtrl::hasTabStop() const		
 { 
 	return mTabStop;
 }
 
 // virtual
-BOOL LLUICtrl::acceptsTextInput() const
+bool LLUICtrl::acceptsTextInput() const
 { 
-	return FALSE; 
+	return false; 
 }
 
 //virtual
-BOOL LLUICtrl::isDirty() const
+bool LLUICtrl::isDirty() const
 {
 	return mViewModel->isDirty();
 };
@@ -761,13 +761,13 @@ void LLUICtrl::clear()
 }
 
 // virtual
-void LLUICtrl::setIsChrome(BOOL is_chrome)
+void LLUICtrl::setIsChrome(bool is_chrome)
 {
 	mIsChrome = is_chrome; 
 }
 
 // virtual
-BOOL LLUICtrl::getIsChrome() const
+bool LLUICtrl::getIsChrome() const
 { 
 	LLView* parent_ctrl = getParent();
 	while(parent_ctrl)
@@ -790,7 +790,7 @@ BOOL LLUICtrl::getIsChrome() const
 }
 
 
-BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
+bool LLUICtrl::focusFirstItem(bool prefer_text_fields, bool focus_flash)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	// try to select default tab group child
@@ -801,14 +801,14 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
 		if(!ctrl->hasFocus())
 		{
-			ctrl->setFocus(TRUE);
+			ctrl->setFocus(true);
 			ctrl->onTabInto();  
 			if(focus_flash)
 			{
 				gFocusMgr.triggerFocusFlash();
 			}
 		}
-		return TRUE;
+		return true;
 	}	
 	// search for text field first
 	if(prefer_text_fields)
@@ -821,14 +821,14 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
 			if(!ctrl->hasFocus())
 			{
-				ctrl->setFocus(TRUE);
+				ctrl->setFocus(true);
 				ctrl->onTabInto();  
 				if(focus_flash)
 				{
 					gFocusMgr.triggerFocusFlash();
 				}
 			}
-			return TRUE;
+			return true;
 		}
 	}
 	// no text field found, or we don't care about text fields
@@ -838,20 +838,20 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
 		if(!ctrl->hasFocus())
 		{
-			ctrl->setFocus(TRUE);
+			ctrl->setFocus(true);
 			ctrl->onTabInto();  
 			if(focus_flash)
 			{
 				gFocusMgr.triggerFocusFlash();
 			}
 		}
-		return TRUE;
+		return true;
 	}	
-	return FALSE;
+	return false;
 }
 
 
-BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
+bool LLUICtrl::focusNextItem(bool text_fields_only)
 {
 	// this assumes that this method is called on the focus root.
 	LLViewQuery query = getTabOrderQuery();
@@ -864,7 +864,7 @@ BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
 	return focusNext(result);
 }
 
-BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
+bool LLUICtrl::focusPrevItem(bool text_fields_only)
 {
 	// this assumes that this method is called on the focus root.
 	LLViewQuery query = getTabOrderQuery();
@@ -1016,13 +1016,13 @@ boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<b
 }
 
 // virtual
-void LLUICtrl::setTentative(BOOL b)									
+void LLUICtrl::setTentative(bool b)									
 { 
 	mTentative = b; 
 }
 
 // virtual
-BOOL LLUICtrl::getTentative() const									
+bool LLUICtrl::getTentative() const									
 { 
 	return mTentative; 
 }

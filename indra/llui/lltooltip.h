@@ -99,7 +99,7 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setVisible(bool visible);
 
 	bool isFading();
 	F32 getVisibleTime();

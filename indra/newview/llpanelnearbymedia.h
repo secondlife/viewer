@@ -44,12 +44,12 @@ class LLPanelNearByMedia : public LLPanelPulldown
 {
 public:
 	
-	BOOL postBuild() override;
+	bool postBuild() override;
 	void draw() override;
-	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
+	void reshape(S32 width, S32 height, bool called_from_parent) override;
 	bool handleHover(S32 x, S32 y, MASK mask) override;
 	bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
-    void onVisibilityChange(BOOL new_visibility) override;
+    void onVisibilityChange(bool new_visibility) override;
 
 	// this is part of the nearby media *dialog* so we can track whether
 	// the user *implicitly* wants audio on or off via their *explicit*

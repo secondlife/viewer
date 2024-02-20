@@ -50,11 +50,11 @@ public:
 
 	static LLFloaterIMNearbyChat* buildFloater(const LLSD& key);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
+	/*virtual*/ void setVisible(bool visible);
+	/*virtual*/ void setVisibleAndFrontmost(bool take_focus=true, const LLSD& key = LLSD());
 	/*virtual*/ void closeHostedFloater();
 
 	void loadHistory();
@@ -72,7 +72,7 @@ public:
 	std::string getCurrentChat();
 	S32 getMessageArchiveLength() {return mMessageArchive.size();}
 
-	virtual BOOL handleKeyHere( KEY key, MASK mask );
+	virtual bool handleKeyHere( KEY key, MASK mask );
 
 	static void startChat(const char* line);
 	static void stopChat();

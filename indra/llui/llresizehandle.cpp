@@ -366,7 +366,7 @@ void LLResizeHandle::draw()
 }
 
 
-BOOL LLResizeHandle::pointInHandle( S32 x, S32 y )
+bool LLResizeHandle::pointInHandle( S32 x, S32 y )
 {
 	if( pointInView(x, y) )
 	{
@@ -378,8 +378,8 @@ BOOL LLResizeHandle::pointInHandle( S32 x, S32 y )
 		case LEFT_TOP:		return (x <= RESIZE_BORDER_WIDTH) || (y >= TOP_BORDER);
 		case LEFT_BOTTOM:	return (x <= RESIZE_BORDER_WIDTH) || (y <= RESIZE_BORDER_WIDTH);
 		case RIGHT_TOP:		return (x >= RIGHT_BORDER) || (y >= TOP_BORDER);
-		case RIGHT_BOTTOM:	return TRUE;
+		case RIGHT_BOTTOM:	return true;
 		}
 	}
-	return FALSE;
+	return false;
 }

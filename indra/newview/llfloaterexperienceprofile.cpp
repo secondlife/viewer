@@ -140,7 +140,7 @@ LLFloaterExperienceProfile::~LLFloaterExperienceProfile()
 
 }
 
-BOOL LLFloaterExperienceProfile::postBuild()
+bool LLFloaterExperienceProfile::postBuild()
 {
 
     if (mExperienceId.notNull())
@@ -190,7 +190,7 @@ BOOL LLFloaterExperienceProfile::postBuild()
         changeToEdit();
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterExperienceProfile::experienceCallback(LLHandle<LLFloaterExperienceProfile> handle,  const LLSD& experience )
@@ -533,17 +533,17 @@ void LLFloaterExperienceProfile::onFieldChanged()
 }
 
 
-BOOL LLFloaterExperienceProfile::canClose()
+bool LLFloaterExperienceProfile::canClose()
 {
     if(mForceClose || !mDirty)
     {
-        return TRUE;
+        return true;
     }
     else
     {
         // Bring up view-modal dialog: Save changes? Yes, No, Cancel
         LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, CLOSE));
-        return FALSE;
+        return false;
     }
 }
 

@@ -62,7 +62,7 @@ LLConversationLogListItem::~LLConversationLogListItem()
 	mIMFloaterShowedConnection.disconnect();
 }
 
-BOOL LLConversationLogListItem::postBuild()
+bool LLConversationLogListItem::postBuild()
 {
 	initIcons();
 
@@ -77,7 +77,7 @@ BOOL LLConversationLogListItem::postBuild()
 	getChild<LLButton>("delete_btn")->setClickedCallback(boost::bind(&LLConversationLogListItem::onRemoveBtnClicked, this));
 	setDoubleClickCallback(boost::bind(&LLConversationLogListItem::onDoubleClick, this));
 
-	return TRUE;
+	return true;
 }
 
 void LLConversationLogListItem::initIcons()

@@ -75,15 +75,15 @@ public:
     LLInventoryGallery(const LLInventoryGallery::Params& params = getDefaultParams());
     ~LLInventoryGallery();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void initGallery();
     void draw() override;
-    void onVisibilityChange(BOOL new_visibility) override;
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+    void onVisibilityChange(bool new_visibility) override;
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type,
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
     void startDrag();
     bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
-    BOOL handleKeyHere(KEY key, MASK mask) override;
+    bool handleKeyHere(KEY key, MASK mask) override;
     void moveUp(MASK mask);
     void moveDown(MASK mask);
     void moveLeft(MASK mask);
@@ -153,13 +153,13 @@ public:
 
     // Copy & paste (LLEditMenuHandler)
     void	copy() override;
-    BOOL	canCopy() const override;
+    bool	canCopy() const override;
 
     void	cut() override;
-    BOOL	canCut() const override;
+    bool	canCut() const override;
 
     void paste() override;
-    BOOL canPaste() const override;
+    bool canPaste() const override;
 
     // Copy & paste & delete
     static void onDelete(const LLSD& notification, const LLSD& response, const selection_deque selected_ids);
@@ -299,19 +299,19 @@ public:
     LLInventoryGalleryItem(const Params& p);
     virtual ~LLInventoryGalleryItem();
 
-    BOOL postBuild();
+    bool postBuild();
     void draw();
     bool handleMouseDown(S32 x, S32 y, MASK mask);
     bool handleRightMouseDown(S32 x, S32 y, MASK mask);
     bool handleDoubleClick(S32 x, S32 y, MASK mask);
     bool handleMouseUp(S32 x, S32 y, MASK mask);
     bool handleHover(S32 x, S32 y, MASK mask);
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                    EDragAndDropType cargo_type,
                                    void* cargo_data,
                                    EAcceptance* accept,
                                    std::string& tooltip_msg);
-    BOOL handleKeyHere(KEY key, MASK mask);
+    bool handleKeyHere(KEY key, MASK mask);
 
     void onFocusLost();
     void onFocusReceived();

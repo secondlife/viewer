@@ -69,7 +69,7 @@ public:
 
 	/*virtual*/ void destroyView();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ bool handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ bool handleRightMouseDown( S32 x, S32 y, MASK mask );
@@ -158,7 +158,7 @@ protected:
 	friend class LLUICtrlFactory;
 	LLConversationViewParticipant( const Params& p );
 	void initFromParams(const Params& params);
-	BOOL postBuild();
+	bool postBuild();
     /*virtual*/ void draw();
     /*virtual*/ S32 arrange(S32* width, S32* height);
 	

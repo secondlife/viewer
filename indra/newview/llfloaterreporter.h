@@ -80,7 +80,7 @@ class LLFloaterReporter
 public:
 	LLFloaterReporter(const LLSD& key);
 	/*virtual*/ ~LLFloaterReporter();
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 

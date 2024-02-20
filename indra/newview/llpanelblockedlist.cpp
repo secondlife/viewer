@@ -74,7 +74,7 @@ void LLPanelBlockedList::removePicker()
     }
 }
 
-BOOL LLPanelBlockedList::postBuild()
+bool LLPanelBlockedList::postBuild()
 {
 	mBlockedList = getChild<LLBlockList>("blocked");
 	mBlockedList->setCommitOnSelectionChange(TRUE);
@@ -267,7 +267,7 @@ LLFloaterGetBlockedObjectName::~LLFloaterGetBlockedObjectName()
 	gFocusMgr.releaseFocusIfNeeded( this );
 }
 
-BOOL LLFloaterGetBlockedObjectName::postBuild()
+bool LLFloaterGetBlockedObjectName::postBuild()
 {
 	getChild<LLButton>("OK")->		setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::applyBlocking, this));
 	getChild<LLButton>("Cancel")->	setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::cancelBlocking, this));
@@ -276,17 +276,17 @@ BOOL LLFloaterGetBlockedObjectName::postBuild()
 	return LLFloater::postBuild();
 }
 
-BOOL LLFloaterGetBlockedObjectName::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterGetBlockedObjectName::handleKeyHere(KEY key, MASK mask)
 {
 	if (key == KEY_RETURN && mask == MASK_NONE)
 	{
 		applyBlocking();
-		return TRUE;
+		return true;
 	}
 	else if (key == KEY_ESCAPE && mask == MASK_NONE)
 	{
 		cancelBlocking();
-		return TRUE;
+		return true;
 	}
 
 	return LLFloater::handleKeyHere(key, mask);

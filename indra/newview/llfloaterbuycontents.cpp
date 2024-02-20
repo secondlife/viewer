@@ -57,15 +57,15 @@ LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
 {
 }
 
-BOOL LLFloaterBuyContents::postBuild()
+bool LLFloaterBuyContents::postBuild()
 {
 
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickCancel, this));
 	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
 
-	getChildView("item_list")->setEnabled(FALSE);
-	getChildView("buy_btn")->setEnabled(FALSE);
-	getChildView("wear_check")->setEnabled(FALSE);
+	getChildView("item_list")->setEnabled(false);
+	getChildView("buy_btn")->setEnabled(false);
+	getChildView("wear_check")->setEnabled(false);
 
 	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
 
@@ -75,7 +75,7 @@ BOOL LLFloaterBuyContents::postBuild()
 	// mid-session and the saved rect is off-center.
 	center();
 	
-	return TRUE;
+	return true;
 }
 
 LLFloaterBuyContents::~LLFloaterBuyContents()

@@ -88,14 +88,14 @@ LLFloaterScriptLimits::LLFloaterScriptLimits(const LLSD& seed)
 {
 }
 
-BOOL LLFloaterScriptLimits::postBuild()
+bool LLFloaterScriptLimits::postBuild()
 {
 	mTab = getChild<LLTabContainer>("scriptlimits_panels");
 	
 	if(!mTab)
 	{
 		LL_WARNS() << "Error! couldn't get scriptlimits_panels, aborting Script Information setup" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	// contruct the panel
@@ -104,7 +104,7 @@ BOOL LLFloaterScriptLimits::postBuild()
 	panel_memory->buildFromFile( "panel_script_limits_region_memory.xml");
 	mTab->addTabPanel(panel_memory);
 	mTab->selectTab(0);
-	return TRUE;
+	return true;
 }
 
 LLFloaterScriptLimits::~LLFloaterScriptLimits()
@@ -132,10 +132,10 @@ LLPanelScriptLimitsInfo::LLPanelScriptLimitsInfo()
 
 
 // virtual
-BOOL LLPanelScriptLimitsInfo::postBuild()
+bool LLPanelScriptLimitsInfo::postBuild()
 {
 	refresh();
-	return TRUE;
+	return true;
 }
 
 // virtual 
@@ -640,7 +640,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	}
 }
 
-BOOL LLPanelScriptLimitsRegionMemory::postBuild()
+bool LLPanelScriptLimitsRegionMemory::postBuild()
 {
 	childSetAction("refresh_list_btn", onClickRefresh, this);
 	childSetAction("highlight_btn", onClickHighlight, this);
@@ -652,7 +652,7 @@ BOOL LLPanelScriptLimitsRegionMemory::postBuild()
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");
 	if(!list)
 	{
-		return FALSE;
+		return false;
 	}
 	list->setCommitCallback(boost::bind(&LLPanelScriptLimitsRegionMemory::checkButtonsEnabled, this));
 	checkButtonsEnabled();
@@ -661,7 +661,7 @@ BOOL LLPanelScriptLimitsRegionMemory::postBuild()
 	for(S32 column = 0; column < list->getNumColumns(); column++)
 	{
 		LLScrollListColumn* columnp = list->getColumn(column);
-		columnp->mHeader->setHasResizableElement(TRUE);
+		columnp->mHeader->setHasResizableElement(true);
 	}
 
 	return StartRequestChain();

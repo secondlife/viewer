@@ -74,7 +74,7 @@ public:
     virtual bool handleHover(S32 x, S32 y, MASK mask);
 
 	// lluictrl overrides
-	void onVisibilityChange(BOOL new_visibility);
+	void onVisibilityChange(bool new_visibility);
 	virtual void	setValue(const LLSD& value );
 
 	std::string	getImageName() const;

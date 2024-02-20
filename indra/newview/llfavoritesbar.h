@@ -56,9 +56,9 @@ protected:
 public:
 	virtual ~LLFavoritesBarCtrl();
 
-	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ bool postBuild() override;
 
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	/*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 		EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
 	bool handleDragAndDropToMenu(S32 x, S32 y, MASK mask, BOOL drop,
 		EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
@@ -67,7 +67,7 @@ public:
 	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 	// LLInventoryObserver observer trigger
     /*virtual*/ void changed(U32 mask) override;
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true) override;
     /*virtual*/ void draw() override;
 
 	void showDragMarker(bool show) { mShowDragMarker = show; }
@@ -83,7 +83,6 @@ protected:
 	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
 	
 	void onButtonMouseDown(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
-	void onOverflowMenuItemMouseDown(LLUUID id, LLUICtrl* item, S32 x, S32 y, MASK mask);
 	void onButtonMouseUp(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
 
 	void onEndDrag();

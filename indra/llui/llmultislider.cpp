@@ -161,7 +161,7 @@ F32 LLMultiSlider::getNearestIncrement(F32 value) const
     return mMinValue + value;
 }
 
-void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from_event)
+void LLMultiSlider::setSliderValue(const std::string& name, F32 value, bool from_event)
 {
 	// exit if not there
 	if(!mValue.has(name)) {
@@ -263,7 +263,7 @@ void LLMultiSlider::setValue(const LLSD& value)
 		mCurSlider = mIt->first;
 
 		for(; mIt != value.endMap(); mIt++) {
-			setSliderValue(mIt->first, (F32)mIt->second.asReal(), TRUE);
+			setSliderValue(mIt->first, (F32)mIt->second.asReal(), true);
 		}
 	}
 }
@@ -378,7 +378,7 @@ const std::string& LLMultiSlider::addSlider(F32 val)
 	mCurSlider = newName.str();
 
 	// move the slider
-	setSliderValue(mCurSlider, initVal, TRUE);
+	setSliderValue(mCurSlider, initVal, true);
 
 	return mCurSlider;
 }
@@ -411,7 +411,7 @@ bool LLMultiSlider::addSlider(F32 val, const std::string& name)
 	mCurSlider = name;
 
 	// move the slider
-	setSliderValue(mCurSlider, initVal, TRUE);
+	setSliderValue(mCurSlider, initVal, true);
 
 	return true;
 }
@@ -614,25 +614,25 @@ bool LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	return true;
 }
 
-BOOL	LLMultiSlider::handleKeyHere(KEY key, MASK mask)
+bool	LLMultiSlider::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	switch(key)
 	{
 	case KEY_UP:
 	case KEY_DOWN:
 		// eat up and down keys to be consistent
-		handled = TRUE;
+		handled = true;
 		break;
 	case KEY_LEFT:
 		setCurSliderValue(getCurSliderValue() - getIncrement());
 		onCommit();
-		handled = TRUE;
+		handled = true;
 		break;
 	case KEY_RIGHT:
 		setCurSliderValue(getCurSliderValue() + getIncrement());
 		onCommit();
-		handled = TRUE;
+		handled = true;
 		break;
 	default:
 		break;
@@ -700,7 +700,7 @@ void LLMultiSlider::draw()
 				mIt->second.mTop + extra_triangle_height,
 				mIt->second.mLeft + mIt->second.getWidth() / 2, 
 				mIt->second.mBottom - extra_triangle_height,
-				mTriangleColor.get() % opacity, TRUE);
+				mTriangleColor.get() % opacity, true);
 		}
 	}
 	else if (!mRoundedSquareImgp && !mThumbImagep)
@@ -725,23 +725,23 @@ void LLMultiSlider::draw()
 			}
 
 			// the draw command
-			gl_rect_2d(mIt->second, curThumbColor, TRUE);
+			gl_rect_2d(mIt->second, curThumbColor, true);
 		}
 
 		// now draw the current and hover sliders
 		if(curSldrIt != mThumbRects.end())
 		{
-			gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor.get(), TRUE);
+			gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor.get(), true);
 		}
 
 		// and draw the drag start
 		if (gFocusMgr.getMouseCapture() == this)
 		{
-			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor.get() % opacity, FALSE);
+			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor.get() % opacity, false);
 		}
 		else if (hoverSldrIt != mThumbRects.end())
 		{
-			gl_rect_2d(hoverSldrIt->second, mThumbCenterSelectedColor.get(), TRUE);
+			gl_rect_2d(hoverSldrIt->second, mThumbCenterSelectedColor.get(), true);
 		}
 	}
 	else

@@ -57,11 +57,11 @@ LLContainerView::~LLContainerView()
 	// Children all cleaned up by default view destructor.
 }
 
-BOOL LLContainerView::postBuild()
+bool LLContainerView::postBuild()
 {
 	setDisplayChildren(mDisplayChildren);
-	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
-	return TRUE;
+	reshape(getRect().getWidth(), getRect().getHeight(), false);
+	return true;
 }
 
 bool LLContainerView::addChild(LLView* child, S32 tab_group)
@@ -91,7 +91,7 @@ bool LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 		if( mShowLabel && (y >= getRect().getHeight() - 10) )
 		{
 			setDisplayChildren(!mDisplayChildren);
-			reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
+			reshape(getRect().getWidth(), getRect().getHeight(), false);
 			handled = true;
 		}
 	}
@@ -128,7 +128,7 @@ void LLContainerView::draw()
 }
 
 
-void LLContainerView::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLContainerView::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLRect scroller_rect;
 	scroller_rect.setOriginAndSize(0, 0, width, height);
@@ -159,7 +159,7 @@ void LLContainerView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 }
 
-void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
+void LLContainerView::arrange(S32 width, S32 height, bool called_from_parent)
 {
 	// Determine the sizes and locations of all contained views
 	S32 total_height = 0;
@@ -242,7 +242,7 @@ void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
 	{
 		if (getParent())
 		{
-			getParent()->reshape(getParent()->getRect().getWidth(), getParent()->getRect().getHeight(), FALSE);
+			getParent()->reshape(getParent()->getRect().getWidth(), getParent()->getRect().getHeight(), false);
 		}
 	}
 
@@ -288,7 +288,7 @@ void LLContainerView::setLabel(const std::string& label)
 	mLabel = label;
 }
 
-void LLContainerView::setDisplayChildren(const BOOL displayChildren)
+void LLContainerView::setDisplayChildren(const bool displayChildren)
 {
 	mDisplayChildren = displayChildren;
 	for (child_list_const_iter_t child_iter = getChildList()->begin();

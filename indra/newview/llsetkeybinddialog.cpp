@@ -88,19 +88,19 @@ LLSetKeyBindDialog::~LLSetKeyBindDialog()
 }
 
 //virtual
-BOOL LLSetKeyBindDialog::postBuild()
+bool LLSetKeyBindDialog::postBuild()
 {
     childSetAction("SetEmpty", onBlank, this);
     childSetAction("Default", onDefault, this);
     childSetAction("Cancel", onCancel, this);
-    getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
+    getChild<LLUICtrl>("Cancel")->setFocus(true);
 
     pCheckBox = getChild<LLCheckBoxCtrl>("apply_all");
     pDescription = getChild<LLTextBase>("description");
 
-    gFocusMgr.setKeystrokesOnly(TRUE);
+    gFocusMgr.setKeystrokesOnly(true);
 
-    return TRUE;
+    return true;
 }
 
 //virtual

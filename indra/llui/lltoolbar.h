@@ -40,8 +40,8 @@ class LLToolBarButton;
 class LLIconCtrl;
 
 typedef boost::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
-typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
-typedef boost::function<BOOL (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
+typedef boost::function<bool (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
+typedef boost::function<bool (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
 
 class LLToolBarButton : public LLButton
 {
@@ -65,8 +65,8 @@ public:
 	bool handleMouseDown(S32 x, S32 y, MASK mask);
 	bool handleHover(S32 x, S32 y, MASK mask);
 
-	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
-	void setEnabled(BOOL enabled);
+	void reshape(S32 width, S32 height, bool called_from_parent = true);
+	void setEnabled(bool enabled);
 	void setCommandId(const LLCommandId& id) { mId = id; }
 	LLCommandId getCommandId() { return mId; }
 
@@ -214,9 +214,9 @@ public:
 
 	// virtuals
 	void draw();
-	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	void reshape(S32 width, S32 height, bool called_from_parent = true);
 	bool handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
@@ -270,7 +270,7 @@ private:
 	void updateLayoutAsNeeded();
 	void createButtons();
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
-	BOOL isSettingChecked(const LLSD& userdata);
+	bool isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);
 	void onRemoveSelectedCommand();
 

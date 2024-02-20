@@ -50,7 +50,7 @@ public:
 	//virtual bool apply(std::string& mesg);
 	//virtual void update();
 	
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
 	void setItem(LLPointer<LLInventoryItem> inv_item);

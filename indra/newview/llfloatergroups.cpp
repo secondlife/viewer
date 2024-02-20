@@ -75,7 +75,7 @@ void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
 }
 
 
-BOOL LLFloaterGroupPicker::postBuild()
+bool LLFloaterGroupPicker::postBuild()
 {
 	LLScrollListCtrl* list_ctrl = getChild<LLScrollListCtrl>("group list");
 	if (list_ctrl)
@@ -91,9 +91,9 @@ BOOL LLFloaterGroupPicker::postBuild()
 
 	setDefaultBtn("OK");
 
-	getChildView("OK")->setEnabled(TRUE);
+	getChildView("OK")->setEnabled(true);
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterGroupPicker::removeNoneOption()
@@ -179,7 +179,7 @@ void LLPanelGroups::reset()
 	enableButtons();
 }
 
-BOOL LLPanelGroups::postBuild()
+bool LLPanelGroups::postBuild()
 {
 	childSetCommitCallback("group list", onGroupList, this);
 
@@ -210,7 +210,7 @@ BOOL LLPanelGroups::postBuild()
 
 	reset();
 
-	return TRUE;
+	return true;
 }
 
 void LLPanelGroups::enableButtons()
@@ -224,23 +224,23 @@ void LLPanelGroups::enableButtons()
 
 	if(group_id != gAgent.getGroupID())
 	{
-		getChildView("Activate")->setEnabled(TRUE);
+		getChildView("Activate")->setEnabled(true);
 	}
 	else
 	{
-		getChildView("Activate")->setEnabled(FALSE);
+		getChildView("Activate")->setEnabled(false);
 	}
 	if (group_id.notNull())
 	{
-		getChildView("Info")->setEnabled(TRUE);
-		getChildView("IM")->setEnabled(TRUE);
-		getChildView("Leave")->setEnabled(TRUE);
+		getChildView("Info")->setEnabled(true);
+		getChildView("IM")->setEnabled(true);
+		getChildView("Leave")->setEnabled(true);
 	}
 	else
 	{
-		getChildView("Info")->setEnabled(FALSE);
-		getChildView("IM")->setEnabled(FALSE);
-		getChildView("Leave")->setEnabled(FALSE);
+		getChildView("Info")->setEnabled(false);
+		getChildView("IM")->setEnabled(false);
+		getChildView("Leave")->setEnabled(false);
 	}
 	getChildView("Create")->setEnabled(gAgent.canJoinGroups());
 }

@@ -257,7 +257,7 @@ public:
 	/**
 	 * It is used for default setting up of chicklet:click handler, etc.  
 	 */
-	BOOL postBuild();
+	bool postBuild();
 
 	/**
 	 * Sets IM session name. This name will be displayed in chiclet tooltip.
@@ -660,7 +660,7 @@ public:
 	boost::signals2::connection setChicletClickedCallback(
 		const commit_callback_t& cb);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 	/**
 	 * Handler for the Voice Client's signal. Finds a corresponding chiclet and toggles its SpeakerControl
@@ -670,7 +670,7 @@ public:
 	/**
 	 * Reshapes controls and rearranges chiclets if needed.
 	 */
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE );
+	/*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true );
 
 	/*virtual*/ void draw();
 

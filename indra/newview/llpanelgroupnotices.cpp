@@ -91,7 +91,7 @@ public:
 
 	//
 	// LLView functionality
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
@@ -112,18 +112,18 @@ LLGroupDropTarget::LLGroupDropTarget(const LLGroupDropTarget::Params& p)
 	mGroupID(p.group_id)
 {}
 
-BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 EAcceptance* accept,
 									 std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if (!gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_SEND))
 	{
 		*accept = ACCEPT_NO;
-		return TRUE;
+		return true;
 	}
 
 	if(getParent())
@@ -131,7 +131,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		// check if inside
 		//LLRect parent_rect = mParentView->getRect();
 		//getRect().set(0, parent_rect.getHeight(), parent_rect.getWidth(), 0);
-		handled = TRUE;
+		handled = true;
 
 		// check the type
 		switch(cargo_type)
@@ -236,9 +236,9 @@ BOOL LLPanelGroupNotices::isVisibleByAgent(LLAgent* agentp)
 		agentp->hasPowerInGroup(mGroupID, GP_NOTICES_SEND | GP_NOTICES_RECEIVE);
 }
 
-BOOL LLPanelGroupNotices::postBuild()
+bool LLPanelGroupNotices::postBuild()
 {
-	bool recurse = true;
+	constexpr bool recurse = true;
 
 	mNoticesList = getChild<LLScrollListCtrl>("notice_list",recurse);
 	mNoticesList->setCommitOnSelectionChange(TRUE);
@@ -256,29 +256,29 @@ BOOL LLPanelGroupNotices::postBuild()
 	mCreateMessage = getChild<LLTextEditor>("create_message",recurse);
 
 	mCreateInventoryName =  getChild<LLLineEditor>("create_inventory_name",recurse);
-	mCreateInventoryName->setTabStop(FALSE);
-	mCreateInventoryName->setEnabled(FALSE);
+	mCreateInventoryName->setTabStop(false);
+	mCreateInventoryName->setEnabled(false);
 
 	mCreateInventoryIcon = getChild<LLIconCtrl>("create_inv_icon",recurse);
-	mCreateInventoryIcon->setVisible(FALSE);
+	mCreateInventoryIcon->setVisible(false);
 
 	mBtnSendMessage = getChild<LLButton>("send_notice",recurse);
 	mBtnSendMessage->setClickedCallback(onClickSendMessage, this);
 
 	mBtnRemoveAttachment = getChild<LLButton>("remove_attachment",recurse);
 	mBtnRemoveAttachment->setClickedCallback(onClickRemoveAttachment, this);
-	mBtnRemoveAttachment->setEnabled(FALSE);
+	mBtnRemoveAttachment->setEnabled(false);
 
 	// View
 	mViewSubject = getChild<LLLineEditor>("view_subject",recurse);
 	mViewMessage = getChild<LLTextEditor>("view_message",recurse);
 
 	mViewInventoryName =  getChild<LLLineEditor>("view_inventory_name",recurse);
-	mViewInventoryName->setTabStop(FALSE);
-	mViewInventoryName->setEnabled(FALSE);
+	mViewInventoryName->setTabStop(false);
+	mViewInventoryName->setEnabled(false);
 
 	mViewInventoryIcon = getChild<LLIconCtrl>("view_inv_icon",recurse);
-	mViewInventoryIcon->setVisible(FALSE);
+	mViewInventoryIcon->setVisible(false);
 
 	mBtnOpenAttachment = getChild<LLButton>("open_attachment",recurse);
 	mBtnOpenAttachment->setClickedCallback(onClickOpenAttachment, this);

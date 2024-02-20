@@ -127,13 +127,13 @@ LLPanelGroupRoles::~LLPanelGroupRoles()
 {
 }
 
-BOOL LLPanelGroupRoles::postBuild()
+bool LLPanelGroupRoles::postBuild()
 {
 	LL_DEBUGS() << "LLPanelGroupRoles::postBuild()" << LL_ENDL;
 
 	mSubTabContainer = getChild<LLTabContainer>("roles_tab_container");
 
-	if (!mSubTabContainer) return FALSE;
+	if (!mSubTabContainer) return false;
 
 	// Hook up each sub-tabs callback and widgets.
 	for (S32 i = 0; i < mSubTabContainer->getTabCount(); ++i)
@@ -143,13 +143,13 @@ BOOL LLPanelGroupRoles::postBuild()
 		if (!subtabp)
 		{
 			LL_WARNS() << "Invalid subtab panel: " << panel->getName() << LL_ENDL;
-			return FALSE;
+			return false;
 		}
 
 		// Hand the subtab a pointer to this LLPanelGroupRoles, so that it can
 		// look around for the widgets it is interested in.
 		if (!subtabp->postBuildSubTab(this))
-			return FALSE;
+			return false;
 
 		//subtabp->addObserver(this);
 	}
@@ -165,7 +165,7 @@ BOOL LLPanelGroupRoles::postBuild()
 		mCurrentTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
 	}
 
-	if (!mCurrentTab) return FALSE;
+	if (!mCurrentTab) return false;
 
 	// Act as though this tab was just activated.
 	mCurrentTab->activate();
@@ -461,10 +461,10 @@ BOOL LLPanelGroupSubTab::postBuildSubTab(LLView* root)
 	return TRUE; 
 }
 
-BOOL LLPanelGroupSubTab::postBuild()
+bool LLPanelGroupSubTab::postBuild()
 {
 	// Hook up the search widgets.
-	bool recurse = true;
+	constexpr bool recurse = true;
 
 	mSearchEditor = findChild<LLFilterEditor>("filter_input", recurse);
 	if (mSearchEditor) // SubTab doesn't implement this, only some of derived classes

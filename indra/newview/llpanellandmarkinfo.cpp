@@ -69,7 +69,7 @@ LLPanelLandmarkInfo::~LLPanelLandmarkInfo()
 {}
 
 // virtual
-BOOL LLPanelLandmarkInfo::postBuild()
+bool LLPanelLandmarkInfo::postBuild()
 {
 	LLPanelPlaceInfo::postBuild();
 
@@ -86,7 +86,7 @@ BOOL LLPanelLandmarkInfo::postBuild()
 	icon_m = getString("icon_M");
 	icon_r = getString("icon_R");
 
-	return TRUE;
+	return true;
 }
 
 // virtual

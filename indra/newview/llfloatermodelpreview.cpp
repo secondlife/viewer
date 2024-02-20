@@ -75,15 +75,15 @@ LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
 // should be represented by Retain spinner with values from 1 to 100 by 1.
 // To achieve this, RETAIN_COEFFICIENT is used while creating spinner
 // and when value is requested from spinner.
-const double RETAIN_COEFFICIENT = 100;
+constexpr double RETAIN_COEFFICIENT = 100;
 
 // "Cosine%" decomp parameter has values from 0.9 to 1 by 0.001
 // But according to the UI spec for upload model floater, this parameter
 // should be represented by Smooth combobox with only 10 values.
 // So this const is used as a size of Smooth combobox list.
-const S32 SMOOTH_VALUES_NUMBER = 10;
-const S32 PREVIEW_RENDER_SIZE = 1024;
-const F32 PREVIEW_CAMERA_DISTANCE = 16.f;
+constexpr S32 SMOOTH_VALUES_NUMBER = 10;
+constexpr S32 PREVIEW_RENDER_SIZE = 1024;
+constexpr F32 PREVIEW_CAMERA_DISTANCE = 16.f;
 
 class LLMeshFilePicker : public LLFilePickerThread
 {
@@ -148,11 +148,11 @@ mAvatarTabIndex(0)
 //-----------------------------------------------------------------------------
 // postBuild()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterModelPreview::postBuild()
+bool LLFloaterModelPreview::postBuild()
 {
 	if (!LLFloater::postBuild())
 	{
-		return FALSE;
+		return false;
 	}
 
 	childSetCommitCallback("cancel_btn", onCancel, this);
@@ -283,14 +283,14 @@ BOOL LLFloaterModelPreview::postBuild()
 		mCalculateBtn->setEnabled(false);
 	}
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // reshape()
 //-----------------------------------------------------------------------------
 
-void LLFloaterModelPreview::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLFloaterModelPreview::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLFloaterModelUploadBase::reshape(width, height, called_from_parent);
 

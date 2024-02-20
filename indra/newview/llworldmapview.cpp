@@ -60,21 +60,21 @@
 #include "llglheaders.h"
 
 // # Constants
-static const F32 MAP_DEFAULT_SCALE = 128.f;
-static const F32 MAP_ITERP_TIME_CONSTANT = 0.75f;
-static const F32 MAP_ZOOM_ACCELERATION_TIME = 0.3f;
-static const F32 MAP_ZOOM_MAX_INTERP = 0.5f;
-static const F32 MAP_SCALE_SNAP_THRESHOLD = 0.005f;
+static constexpr F32 MAP_DEFAULT_SCALE = 128.f;
+static constexpr F32 MAP_ITERP_TIME_CONSTANT = 0.75f;
+static constexpr F32 MAP_ZOOM_ACCELERATION_TIME = 0.3f;
+static constexpr F32 MAP_ZOOM_MAX_INTERP = 0.5f;
+static constexpr F32 MAP_SCALE_SNAP_THRESHOLD = 0.005f;
 
 // Basically a C++ implementation of the OCEAN_COLOR defined in mapstitcher.py 
 // Please ensure consistency between those 2 files (TODO: would be better to get that color from an asset source...)
 // OCEAN_COLOR = "#1D475F"
-const F32 OCEAN_RED   = (F32)(0x1D)/255.f;
-const F32 OCEAN_GREEN = (F32)(0x47)/255.f;
-const F32 OCEAN_BLUE  = (F32)(0x5F)/255.f;
+constexpr F32 OCEAN_RED   = (F32)(0x1D)/255.f;
+constexpr F32 OCEAN_GREEN = (F32)(0x47)/255.f;
+constexpr F32 OCEAN_BLUE  = (F32)(0x5F)/255.f;
 
-const F32 GODLY_TELEPORT_HEIGHT = 200.f;
-const F32 BIG_DOT_RADIUS = 5.f;
+constexpr F32 GODLY_TELEPORT_HEIGHT = 200.f;
+constexpr F32 BIG_DOT_RADIUS = 5.f;
 BOOL LLWorldMapView::sHandledLastClick = FALSE;
 
 LLUIImagePtr LLWorldMapView::sAvatarSmallImage = NULL;
@@ -194,7 +194,7 @@ LLWorldMapView::LLWorldMapView() :
     clearLastClick();
 }
 
-BOOL LLWorldMapView::postBuild()
+bool LLWorldMapView::postBuild()
 {
 	mTextBoxNorth = getChild<LLTextBox> ("floater_map_north");
 	mTextBoxEast = getChild<LLTextBox> ("floater_map_east");
@@ -617,7 +617,7 @@ void LLWorldMapView::draw()
 
 
 //virtual
-void LLWorldMapView::setVisible(BOOL visible)
+void LLWorldMapView::setVisible(bool visible)
 {
 	LLPanel::setVisible(visible);
 	if (!visible)
@@ -1461,7 +1461,7 @@ void LLWorldMapView::updateDirections()
 }
 
 
-void LLWorldMapView::reshape( S32 width, S32 height, BOOL called_from_parent )
+void LLWorldMapView::reshape( S32 width, S32 height, bool called_from_parent )
 {
 	LLView::reshape( width, height, called_from_parent );
 }

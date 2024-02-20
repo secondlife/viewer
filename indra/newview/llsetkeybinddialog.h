@@ -59,7 +59,7 @@ public:
     LLSetKeyBindDialog(const LLSD& key);
     ~LLSetKeyBindDialog();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& data);
     /*virtual*/ void onClose(bool app_quiting);
     /*virtual*/ void draw();

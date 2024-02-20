@@ -92,7 +92,7 @@ LLPanelPlaceProfile::~LLPanelPlaceProfile()
 }
 
 // virtual
-BOOL LLPanelPlaceProfile::postBuild()
+bool LLPanelPlaceProfile::postBuild()
 {
 	LLPanelPlaceInfo::postBuild();
 
@@ -166,7 +166,7 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mLastSelectedRegionID = LLUUID::null;
 	mNextCovenantUpdateTime = 0;
 
-	return TRUE;
+	return true;
 }
 
 // virtual
@@ -312,7 +312,7 @@ void LLPanelPlaceProfile::processParcelInfo(const LLParcelData& parcel_data)
 }
 
 // virtual
-void LLPanelPlaceProfile::onVisibilityChange(BOOL new_visibility)
+void LLPanelPlaceProfile::onVisibilityChange(bool new_visibility)
 {
 	LLPanel::onVisibilityChange(new_visibility);
 

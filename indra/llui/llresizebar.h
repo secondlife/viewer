@@ -59,8 +59,8 @@ public:
 	virtual bool	handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void			setResizeLimits( S32 min_size, S32 max_size ) { mMinSize = min_size; mMaxSize = max_size; }
-	void			setEnableSnapping(BOOL enable) { mSnappingEnabled = enable; }
-	void			setAllowDoubleClickSnapping(BOOL allow) { mAllowDoubleClickSnapping = allow; }
+	void			setEnableSnapping(bool enable) { mSnappingEnabled = enable; }
+	void			setAllowDoubleClickSnapping(bool allow) { mAllowDoubleClickSnapping = allow; }
 	bool			canResize() { return getEnabled() && mMaxSize > mMinSize; }
 	void            setResizeListener(boost::function<void(void*)> listener) {mResizeListener = listener;}
 	void			setImagePanel(LLPanel * panelp);

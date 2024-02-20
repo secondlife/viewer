@@ -642,9 +642,9 @@ void LLPanelGroupInvite::updateLists()
 	}
 }
 
-BOOL LLPanelGroupInvite::postBuild()
+bool LLPanelGroupInvite::postBuild()
 {
-	BOOL recurse = TRUE;
+	constexpr bool recurse = true;
 
 	mImplementation->mLoadingText = getString("loading");
 	mImplementation->mRoleNames = getChild<LLComboBox>("role_name",
@@ -654,7 +654,7 @@ BOOL LLPanelGroupInvite::postBuild()
 		getChild<LLNameListCtrl>("invitee_list", recurse);
 	if ( mImplementation->mInvitees )
 	{
-		mImplementation->mInvitees->setCommitOnSelectionChange(TRUE);
+		mImplementation->mInvitees->setCommitOnSelectionChange(true);
 		mImplementation->mInvitees->setCommitCallback(impl::callbackSelect, mImplementation);
 	}
 
@@ -671,7 +671,7 @@ BOOL LLPanelGroupInvite::postBuild()
 	if ( mImplementation->mRemoveButton )
 	{
 		mImplementation->mRemoveButton->setClickedCallback(impl::callbackClickRemove, mImplementation);
-		mImplementation->mRemoveButton->setEnabled(FALSE);
+		mImplementation->mRemoveButton->setEnabled(false);
 	}
 
 	mImplementation->mOKButton = 
@@ -679,7 +679,7 @@ BOOL LLPanelGroupInvite::postBuild()
 	if ( mImplementation->mOKButton )
  	{
 		mImplementation->mOKButton->setClickedCallback(impl::callbackClickOK, mImplementation);
-		mImplementation->mOKButton->setEnabled(FALSE);
+		mImplementation->mOKButton->setEnabled(false);
  	}
 
 	button = getChild<LLButton>("cancel_button", recurse);

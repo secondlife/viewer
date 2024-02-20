@@ -128,31 +128,31 @@ public:
 	/*virtual*/ bool	handleDoubleClick(S32 x,S32 y,MASK mask);
 	/*virtual*/ bool	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
 	/*virtual*/ bool	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
+	/*virtual*/ bool	handleKeyHere(KEY key, MASK mask );
 	/*virtual*/ bool	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	onMouseCaptureLost();
 
 	// LLEditMenuHandler overrides
 	virtual void	cut();
-	virtual BOOL	canCut() const;
+	virtual bool	canCut() const;
 	virtual void	copy();
-	virtual BOOL	canCopy() const;
+	virtual bool	canCopy() const;
 	virtual void	paste();
-	virtual BOOL	canPaste() const;
+	virtual bool	canPaste() const;
 
 	virtual void	updatePrimary();
 	virtual void	copyPrimary();
  	virtual void	pastePrimary();
-	virtual BOOL	canPastePrimary() const;
+	virtual bool	canPastePrimary() const;
 
 	virtual void	doDelete();
-	virtual BOOL	canDoDelete() const;
+	virtual bool	canDoDelete() const;
 
 	virtual void	selectAll();
-	virtual BOOL	canSelectAll() const;
+	virtual bool	canSelectAll() const;
 
 	virtual void	deselect();
-	virtual BOOL	canDeselect() const;
+	virtual bool	canDeselect() const;
 
 	// LLSpellCheckMenuHandler overrides
 	/*virtual*/ bool	getSpellCheck() const;
@@ -174,26 +174,26 @@ public:
 
 	// view overrides
 	virtual void	draw();
-	virtual void	reshape(S32 width,S32 height,BOOL called_from_parent=TRUE);
+	virtual void	reshape(S32 width,S32 height,bool called_from_parent=true);
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
-	virtual void	setEnabled(BOOL enabled);
+	virtual void	setEnabled(bool enabled);
 
 	// UI control overrides
 	virtual void	clear();
 	virtual void	onTabInto();
-	virtual void	setFocus( BOOL b );
+	virtual void	setFocus( bool b );
 	virtual void 	setRect(const LLRect& rect);
-	virtual BOOL	acceptsTextInput() const;
+	virtual bool	acceptsTextInput() const;
 	virtual void	onCommit();
-	virtual BOOL	isDirty() const;	// Returns TRUE if user changed value at all
+	virtual bool	isDirty() const;	// Returns true if user changed value at all
 	virtual void	resetDirty();		// Clear dirty state
 
 	// assumes UTF8 text
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
-	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
+	virtual bool	setTextArg( const std::string& key, const LLStringExplicit& text );
+	virtual bool	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
 	const std::string& 	getLabel()	{ return mLabel.getString(); }
@@ -217,9 +217,9 @@ public:
 	void			setSelection(S32 start, S32 end);
 	virtual void	getSelectionRange(S32 *position, S32 *length) const;
 	
-	void			setCommitOnFocusLost( BOOL b )	{ mCommitOnFocusLost = b; }
-	void			setRevertOnEsc( BOOL b )		{ mRevertOnEsc = b; }
-	void			setKeystrokeOnEsc(BOOL b)		{ mKeystrokeOnEsc = b; }
+	void			setCommitOnFocusLost( bool b )	{ mCommitOnFocusLost = b; }
+	void			setRevertOnEsc( bool b )		{ mRevertOnEsc = b; }
+	void			setKeystrokeOnEsc(bool b)		{ mKeystrokeOnEsc = b; }
 
 	void setCursorColor(const LLColor4& c)			{ mCursorColor = c; }
 	const LLColor4& getCursorColor() const			{ return mCursorColor.get(); }
@@ -235,23 +235,23 @@ public:
 	const LLFontGL* getFont() const { return mGLFont; }
 	void setFont(const LLFontGL* font);
 
-	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
-	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
-	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
-	void			setDrawAsterixes(BOOL b);
+	void			setIgnoreArrowKeys(bool b)		{ mIgnoreArrowKeys = b; }
+	void			setIgnoreTab(bool b)			{ mIgnoreTab = b; }
+	void			setPassDelete(bool b)			{ mPassDelete = b; }
+	void			setDrawAsterixes(bool b);
 
 	// get the cursor position of the beginning/end of the prev/next word in the text
 	S32				prevWordPos(S32 cursorPos) const;
 	S32				nextWordPos(S32 cursorPos) const;
 
-	BOOL			hasSelection() const { return (mSelectionStart != mSelectionEnd); }
+	bool			hasSelection() const { return (mSelectionStart != mSelectionEnd); }
 	void			startSelection();
 	void			endSelection();
 	void			extendSelection(S32 new_cursor_pos);
 	void			deleteSelection();
 
-	void			setSelectAllonFocusReceived(BOOL b);
-	void			setSelectAllonCommit(BOOL b) { mSelectAllonCommit = b; }
+	void			setSelectAllonFocusReceived(bool b);
+	void			setSelectAllonCommit(bool b) { mSelectAllonCommit = b; }
 	
 	void			onKeystroke();
 	typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
@@ -270,16 +270,16 @@ public:
 	// Also callback that this method sets differs from setPrevalidate in a way that it validates just inputed
 	// symbols, before existing text is modified, but setPrevalidate validates line after it was modified.
 	void			setPrevalidateInput(LLTextValidate::validate_func_t func);
-	static BOOL		postvalidateFloat(const std::string &str);
+	static bool		postvalidateFloat(const std::string &str);
 
 	bool			prevalidateInput(const LLWString& wstr);
-	BOOL			evaluateFloat();
+	bool			evaluateFloat();
 
 	// line history support:
-	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
+	void			setEnableLineHistory( bool enabled ) { mHaveHistory = enabled; } // switches line history on or off 
 	void			updateHistory(); // stores current line in history
 
-	void			setReplaceNewlinesWithSpaces(BOOL replace);
+	void			setReplaceNewlinesWithSpaces(bool replace);
 
 	void			resetContextMenu() { setContextMenu(NULL); };
 
@@ -299,9 +299,9 @@ public:
 	void			setCursorAtLocalPos(S32 local_mouse_x);
 	S32				findPixelNearestPos(S32 cursor_offset = 0) const;
 	S32				calcCursorPos(S32 mouse_x);
-	BOOL			handleSpecialKey(KEY key, MASK mask);
-	BOOL			handleSelectionKey(KEY key, MASK mask);
-	BOOL			handleControlKey(KEY key, MASK mask);
+	bool			handleSpecialKey(KEY key, MASK mask);
+	bool			handleSelectionKey(KEY key, MASK mask);
+	bool			handleControlKey(KEY key, MASK mask);
 	S32				handleCommitKey(KEY key, MASK mask);
 	void			updateTextPadding();
 	
@@ -312,7 +312,7 @@ public:
 	// private data members
 	//
 	void			updateAllowingLanguageInput();
-	BOOL			hasPreeditString() const;
+	bool			hasPreeditString() const;
 	// Implementation (overrides) of LLPreeditor
 	virtual void	resetPreedit();
 	virtual void	updatePreedit(const LLWString &preedit_string,
@@ -333,7 +333,7 @@ protected:
 	LLUIString		mLabel;					// text label that is visible when no user text provided
 
 	// line history support:
-	BOOL		mHaveHistory;				// flag for enabled line history
+	bool		mHaveHistory;				// flag for enabled line history
 	typedef std::vector<std::string>	line_history_t;
 	line_history_t	mLineHistory;			// line history storage
 	line_history_t::iterator	mCurrentHistoryLine;	// currently browsed history line
@@ -350,13 +350,13 @@ protected:
 	S32			mTextLeftEdge;				// Pixels, cached left edge of text based on left padding and width
 	S32			mTextRightEdge;				// Pixels, cached right edge of text based on right padding and width
 
-	BOOL		mCommitOnFocusLost;
-	BOOL		mRevertOnEsc;
-	BOOL		mKeystrokeOnEsc;
+	bool		mCommitOnFocusLost;
+	bool		mRevertOnEsc;
+	bool		mKeystrokeOnEsc;
 
 	keystroke_callback_t mKeystrokeCallback;
 
-	BOOL		mIsSelecting;				// Selection for clipboard operations
+	bool		mIsSelecting;				// Selection for clipboard operations
 	S32			mSelectionStart;
 	S32			mSelectionEnd;
 	S32			mLastSelectionX;
@@ -387,17 +387,17 @@ protected:
 
 	S32			mBorderThickness;
 
-	BOOL		mIgnoreArrowKeys;
-	BOOL		mIgnoreTab;
-	BOOL		mDrawAsterixes;
+	bool		mIgnoreArrowKeys;
+	bool		mIgnoreTab;
+	bool		mDrawAsterixes;
 
-	BOOL		mSelectAllonFocusReceived;
-	BOOL		mSelectAllonCommit;
-	BOOL		mPassDelete;
+	bool		mSelectAllonFocusReceived;
+	bool		mSelectAllonCommit;
+	bool		mPassDelete;
 
-	BOOL		mReadOnly;
+	bool		mReadOnly;
 
-	BOOL 		mShowImageFocused;
+	bool 		mShowImageFocused;
 
 	bool		mUseBgColor;
 
@@ -416,7 +416,7 @@ private:
 	LLPointer<LLUIImage> mBgImageDisabled;
 	LLPointer<LLUIImage> mBgImageFocused;
 
-	BOOL        mReplaceNewlinesWithSpaces; // if false, will replace pasted newlines with paragraph symbol.
+	bool        mReplaceNewlinesWithSpaces; // if false, will replace pasted newlines with paragraph symbol.
 
 	// private helper class
 	class LLLineEditorRollback
@@ -450,7 +450,7 @@ private:
 		std::string mText;
 		S32		mCursorPos;
 		S32		mScrollHPos;
-		BOOL	mIsSelecting;
+		bool	mIsSelecting;
 		S32		mSelectionStart;
 		S32		mSelectionEnd;
 	}; // end class LLLineEditorRollback
@@ -460,7 +460,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLLINEEDITOR_CPP
 extern template class LLLineEditor* LLView::getChild<class LLLineEditor>(
-	const std::string& name, BOOL recurse) const;
+	const std::string& name, bool recurse) const;
 #endif
 
 #endif  // LL_LINEEDITOR_

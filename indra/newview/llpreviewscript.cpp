@@ -153,7 +153,7 @@ public:
 	LLFloaterScriptSearch(LLScriptEdCore* editor_core);
 	~LLFloaterScriptSearch();
 
-	/*virtual*/	BOOL	postBuild();
+	/*virtual*/	bool	postBuild();
 	static void show(LLScriptEdCore* editor_core);
 	static void onBtnSearch(void* userdata);
 	void handleBtnSearch();
@@ -168,7 +168,7 @@ public:
 	static LLFloaterScriptSearch* getInstance() { return sInstance; }
 
 	virtual bool hasAccelerators() const;
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool handleKeyHere(KEY key, MASK mask);
 
 private:
 
@@ -207,19 +207,19 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
 	}
 }
 
-BOOL LLFloaterScriptSearch::postBuild()
+bool LLFloaterScriptSearch::postBuild()
 {
 	mReplaceBox = getChild<LLLineEditor>("replace_text");
 	mSearchBox = getChild<LLLineEditor>("search_text");
 	mSearchBox->setCommitCallback(boost::bind(&LLFloaterScriptSearch::onSearchBoxCommit, this));
-	mSearchBox->setCommitOnFocusLost(FALSE);
+	mSearchBox->setCommitOnFocusLost(false);
 	childSetAction("search_btn", onBtnSearch,this);
 	childSetAction("replace_btn", onBtnReplace,this);
 	childSetAction("replace_all_btn", onBtnReplaceAll,this);
 
 	setDefaultBtn("search_btn");
 
-	return TRUE;
+	return true;
 }
 
 //static 
@@ -296,21 +296,21 @@ bool LLFloaterScriptSearch::hasAccelerators() const
 	{
 		return mEditorCore->hasAccelerators();
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
 {
 	if (mEditorCore)
 	{
-		BOOL handled = mEditorCore->handleKeyHere(key, mask);
+		bool handled = mEditorCore->handleKeyHere(key, mask);
 		if (!handled)
 		{
 			LLFloater::handleKeyHere(key, mask);
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLFloaterScriptSearch::onSearchBoxCommit()
@@ -438,7 +438,7 @@ void LLLiveLSLEditor::onToggleExperience( LLUICtrl *ui, void* userdata )
 	self->updateExperiencePanel();
 }
 
-BOOL LLScriptEdCore::postBuild()
+bool LLScriptEdCore::postBuild()
 {
 	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
@@ -460,7 +460,7 @@ BOOL LLScriptEdCore::postBuild()
 	LLSyntaxIdLSL::getInstance()->initialize();
 	processKeywords();
 
-	return TRUE;
+	return true;
 }
 
 void LLScriptEdCore::processKeywords()
@@ -1173,7 +1173,7 @@ void LLScriptEdCore::deleteBridges()
 }
 
 // virtual
-BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
+bool LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 {
 	bool just_control = MASK_CONTROL == (mask & MASK_MODIFIERS);
 
@@ -1185,7 +1185,7 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 			mSaveCallback(mUserdata, FALSE);
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if(('F' == key) && just_control)
@@ -1195,10 +1195,10 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 			mSearchReplaceCallback(mUserdata);
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLScriptEdCore::onBtnLoadFromFile( void* data )
@@ -1520,7 +1520,7 @@ LLPreviewLSL::LLPreviewLSL(const LLSD& key )
 }
 
 // virtual
-BOOL LLPreviewLSL::postBuild()
+bool LLPreviewLSL::postBuild()
 {
 	const LLInventoryItem* item = getItem();
 
@@ -1630,7 +1630,7 @@ void LLPreviewLSL::loadAsset()
 }
 
 
-BOOL LLPreviewLSL::canClose()
+bool LLPreviewLSL::canClose()
 {
 	return mScriptEd->canClose();
 }
@@ -1861,20 +1861,20 @@ LLLiveLSLEditor::LLLiveLSLEditor(const LLSD& key) :
 	mFactoryMap["script ed panel"] = LLCallbackMap(LLLiveLSLEditor::createScriptEdPanel, this);
 }
 
-BOOL LLLiveLSLEditor::postBuild()
+bool LLLiveLSLEditor::postBuild()
 {
 	childSetCommitCallback("running", LLLiveLSLEditor::onRunningCheckboxClicked, this);
-	getChildView("running")->setEnabled(FALSE);
+	getChildView("running")->setEnabled(false);
 
 	childSetAction("Reset",&LLLiveLSLEditor::onReset,this);
-	getChildView("Reset")->setEnabled(TRUE);
+	getChildView("Reset")->setEnabled(true);
 
 	mMonoCheckbox =	getChild<LLCheckBoxCtrl>("mono");
 	childSetCommitCallback("mono", &LLLiveLSLEditor::onMonoCheckboxClicked, this);
-	getChildView("mono")->setEnabled(FALSE);
+	getChildView("mono")->setEnabled(true);
 
 	mScriptEd->mEditor->makePristine();
-	mScriptEd->mEditor->setFocus(TRUE);
+	mScriptEd->mEditor->setFocus(true);
 
 
 	mExperiences = getChild<LLComboBox>("Experiences...");
@@ -2317,7 +2317,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
     }
 }
 
-BOOL LLLiveLSLEditor::canClose()
+bool LLLiveLSLEditor::canClose()
 {
 	return (mScriptEd->canClose());
 }

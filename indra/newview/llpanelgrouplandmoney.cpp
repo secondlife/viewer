@@ -674,7 +674,7 @@ void LLPanelGroupLandMoney::cancel()
 }
 
 
-BOOL LLPanelGroupLandMoney::postBuild()
+bool LLPanelGroupLandMoney::postBuild()
 {
 	/* This power was removed to make group roles simpler
 	bool has_parcel_view     = gAgent.hasPowerInGroup(mGroupID,
@@ -722,12 +722,12 @@ BOOL LLPanelGroupLandMoney::postBuild()
 
 	if ( mImplementationp->mGroupOverLimitTextp )
 	{
-		mImplementationp->mGroupOverLimitTextp->setVisible(FALSE);
+		mImplementationp->mGroupOverLimitTextp->setVisible(false);
 	}
 
 	if ( mImplementationp->mGroupOverLimitIconp )
 	{
-		mImplementationp->mGroupOverLimitIconp->setVisible(FALSE);
+		mImplementationp->mGroupOverLimitIconp->setVisible(false);
 	}
 
 	if ( !can_view )

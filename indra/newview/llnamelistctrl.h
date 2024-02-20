@@ -166,8 +166,8 @@ public:
     LLUUID getSelectedSpecialId();
 
 	// LLView interface
-	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
-									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+	/*virtual*/ bool	handleDragAndDrop(S32 x, S32 y, MASK mask,
+									  bool drop, EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept,
 									  std::string& tooltip_msg);
 	/*virtual*/ bool handleToolTip(S32 x, S32 y, MASK mask);

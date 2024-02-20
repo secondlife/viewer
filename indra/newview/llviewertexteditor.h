@@ -47,7 +47,7 @@ public:
 
 	virtual void makePristine();
 
-	/*virtual*/ void onVisibilityChange( BOOL new_visibility );
+	/*virtual*/ void onVisibilityChange( bool new_visibility );
 	
 	// mousehandler overrides
 	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -55,14 +55,14 @@ public:
 	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 	virtual bool	handleDoubleClick(S32 x, S32 y, MASK mask );
 
-	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
-										BOOL drop, EDragAndDropType cargo_type, 
+	virtual bool	handleDragAndDrop(S32 x, S32 y, MASK mask,
+										bool drop, EDragAndDropType cargo_type, 
 										void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 
   	const class LLInventoryItem* getDragItem() const { return mDragItem; }
-	virtual BOOL 	importBuffer(const char* buffer, S32 length);
+	virtual bool 	importBuffer(const char* buffer, S32 length);
 	virtual bool	importStream(std::istream& str);
-	virtual BOOL 	exportBuffer(std::string& buffer);
+	virtual bool 	exportBuffer(std::string& buffer);
 	virtual void	onValueChange(S32 start, S32 end);
 
 	void setNotecardInfo(const LLUUID& notecard_item_id, const LLUUID& object_id, const LLUUID& preview_id)

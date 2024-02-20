@@ -53,7 +53,7 @@ public:
 	LLFloaterScriptQueue(const LLSD& key);
 	virtual ~LLFloaterScriptQueue();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	
 	void setMono(bool mono) { mMono = mono; }
 	

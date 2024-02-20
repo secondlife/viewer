@@ -69,7 +69,7 @@ public:
     LLOutfitListBase();
     virtual ~LLOutfitListBase();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
 
     void refreshList(const LLUUID& category_id);
@@ -209,7 +209,7 @@ public:
 	LLOutfitsList();
 	virtual ~LLOutfitsList();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& info);
 

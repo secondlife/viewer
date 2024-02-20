@@ -81,7 +81,7 @@ void LLSideTrayPanelContainer::openPreviousPanel()
 	}
 }
 
-BOOL LLSideTrayPanelContainer::handleKeyHere(KEY key, MASK mask)
+bool LLSideTrayPanelContainer::handleKeyHere(KEY key, MASK mask)
 {
 	// No key press handling code for Panel Container - this disables
 	// Tab Container's Alt + Left/Right Button tab switching.

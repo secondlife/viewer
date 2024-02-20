@@ -45,16 +45,16 @@ public:
     LLFloaterChangeItemThumbnail(const LLSD& key);
 	~LLFloaterChangeItemThumbnail();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
     void onFocusReceived() override;
     void onMouseEnter(S32 x, S32 y, MASK mask) override;
 
-    BOOL handleDragAndDrop(
+    bool handleDragAndDrop(
         S32 x,
         S32 y,
         MASK mask,
-        BOOL drop,
+        bool drop,
         EDragAndDropType cargo_type,
         void *cargo_data,
         EAcceptance *accept,

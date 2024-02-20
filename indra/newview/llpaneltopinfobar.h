@@ -46,8 +46,8 @@ class LLPanelTopInfoBar : public LLPanel, public LLSingleton<LLPanelTopInfoBar>,
 public:
 	typedef boost::signals2::signal<void ()> resize_signal_t;
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
+	bool postBuild() override;
+	void draw() override;
 
 	/**
 	 * Updates location and parcel icons on login complete

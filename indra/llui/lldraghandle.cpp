@@ -57,7 +57,7 @@ LLDragHandle::LLDragHandle(const LLDragHandle::Params& p)
 	mLastMouseScreenY( 0 ),
 	mTitleBox( NULL ),
 	mMaxTitleWidth( 0 ),
-	mForeground( TRUE ),
+	mForeground( true ),
 	mDragHighlightColor(p.drag_highlight_color()),
 	mDragShadowColor(p.drag_shadow_color())
 
@@ -79,7 +79,7 @@ void LLDragHandle::initFromParams(const LLDragHandle::Params& p)
 	setTitle( p.label );
 }
 
-void LLDragHandle::setTitleVisible(BOOL visible) 
+void LLDragHandle::setTitleVisible(bool visible) 
 { 
 	if(mTitleBox)
 	{
@@ -160,7 +160,7 @@ void LLDragHandleTop::draw()
 
 		LLRect title_rect = mTitleBox->getRect();
 		S32 title_right = title_rect.mLeft + mTitleWidth;
-		BOOL show_right_side = title_right < getRect().getWidth();
+		bool show_right_side = title_right < getRect().getWidth();
 
 		for( S32 i=0; i<4; i++ )
 		{
@@ -211,7 +211,7 @@ void LLDragHandleLeft::draw()
 		// no titles yet
 		//LLRect title_rect = mTitleBox->getRect();
 		//S32 title_right = title_rect.mLeft + mTitleWidth;
-		//BOOL show_right_side = title_right < getRect().getWidth();
+		//bool show_right_side = title_right < getRect().getWidth();
 
 		S32 line = left;
 		for( S32 i=0; i<4; i++ )
@@ -256,13 +256,13 @@ void LLDragHandleTop::reshapeTitleBox()
 	mTitleBox->setShape( title_rect );
 }
 
-void LLDragHandleTop::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLDragHandleTop::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLView::reshape(width, height, called_from_parent);
 	reshapeTitleBox();
 }
 
-void LLDragHandleLeft::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLDragHandleLeft::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLView::reshape(width, height, called_from_parent);
 }

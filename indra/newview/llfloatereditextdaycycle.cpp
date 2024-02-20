@@ -203,7 +203,7 @@ LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
 }
 
 // virtual
-BOOL LLFloaterEditExtDayCycle::postBuild()
+bool LLFloaterEditExtDayCycle::postBuild()
 {
     getChild<LLLineEditor>(TXT_DAY_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterEditExtDayCycle::onCommitName, this, _1, _2), NULL);
 
@@ -264,7 +264,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
     }
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
@@ -423,7 +423,7 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 }
 
 
-void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
+void LLFloaterEditExtDayCycle::onVisibilityChange(bool new_visibility)
 {
 }
 
@@ -534,7 +534,7 @@ void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
 }
 
 /* virtual */
-BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+bool LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, bool called_from_parent)
 {
     if (!mEditDay)
     {

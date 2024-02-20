@@ -176,7 +176,7 @@ void LLThumbnailCtrl::draw()
     LLUICtrl::draw();
 }
 
-void LLThumbnailCtrl::setVisible(BOOL visible)
+void LLThumbnailCtrl::setVisible(bool visible)
 {
     if (!visible && mInited)
     {

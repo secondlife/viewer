@@ -235,7 +235,7 @@ static LLEventPump * gTOSReplyPump = NULL;
 LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 //static
-LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, BOOL focus)
+LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, bool focus)
 {
 	gTOSType = name;
 	gTOSReplyPump = &LLEventPumps::instance().obtain(key["reply_pump"]);

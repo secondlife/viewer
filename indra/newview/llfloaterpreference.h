@@ -81,7 +81,7 @@ public:
 	void apply();
 	void cancel(const std::vector<std::string> settings_to_skip = {});
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/	void onClose(bool app_quitting);
 	/*virtual*/ void changed();
@@ -246,7 +246,7 @@ class LLPanelPreference : public LLPanel
 {
 public:
 	LLPanelPreference();
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	
 	virtual ~LLPanelPreference();
 
@@ -292,7 +292,7 @@ private:
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
-	BOOL postBuild();
+	bool postBuild();
 	void draw();
     void cancel(const std::vector<std::string> settings_to_skip = {});
 	void saveSettings();
@@ -315,7 +315,7 @@ public:
 	LLPanelPreferenceControls();
 	virtual ~LLPanelPreferenceControls();
 
-	BOOL postBuild();
+	bool postBuild();
 
 	void apply();
     void cancel(const std::vector<std::string> settings_to_skip = {});
@@ -386,7 +386,7 @@ public:
 	void cancel();
 	
 protected:
-	BOOL postBuild();
+	bool postBuild();
 	void onOpen(const LLSD& key);
 	void onClose(bool app_quitting);
 	void saveSettings();

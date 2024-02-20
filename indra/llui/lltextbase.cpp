@@ -202,7 +202,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mSelectedBGColor(p.bg_selected_color),
 	mReflowIndex(S32_MAX),
 	mCursorPos( 0 ),
-	mScrollNeeded(FALSE),
+	mScrollNeeded(false),
 	mDesiredXPixel(-1),
 	mHPad(p.h_pad),
 	mVPad(p.v_pad),
@@ -218,7 +218,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
-	mIsSelecting( FALSE ),
+	mIsSelecting( false ),
 	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
@@ -301,7 +301,7 @@ void LLTextBase::initFromParams(const LLTextBase::Params& p)
 
 bool LLTextBase::truncate()
 {
-	BOOL did_truncate = FALSE;
+	bool did_truncate = false;
 
 	// First rough check - if we're less than 1/4th the size, we're OK
 	if (getLength() >= S32(mMaxTextByteLength / 4))
@@ -328,7 +328,7 @@ bool LLTextBase::truncate()
 			LLWString text = utf8str_to_wstring( temp_utf8_text );
 			// remove extra bit of current string, to preserve formatting, etc.
 			removeStringNoUndo(text.size(), getWText().size() - text.size());
-			did_truncate = TRUE;
+			did_truncate = true;
 		}
 	}
 
@@ -1249,7 +1249,7 @@ bool LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 }
 
 
-void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLTextBase::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight() || LLView::sForceReshape)
 	{
@@ -1324,7 +1324,7 @@ void LLTextBase::draw()
 							: hasFocus() 
 								? mFocusBgColor.get() 
 								: mWriteableBgColor.get();
-		gl_rect_2d(text_rect, bg_color % alpha, TRUE);
+		gl_rect_2d(text_rect, bg_color % alpha, true);
 	}
 
 	// Draw highlighted if needed
@@ -1335,7 +1335,7 @@ void LLTextBase::draw()
 		if( mScroller )
 			bg_rect.intersectWith( text_rect );
 
-		gl_rect_2d( text_rect, bg_color, TRUE );
+		gl_rect_2d( text_rect, bg_color, true );
 	}
 	
 	bool should_clip = mClip || mScroller != NULL;
@@ -1356,9 +1356,9 @@ void LLTextBase::draw()
 		drawCursor();
 	}
  
-	mDocumentView->setVisibleDirect(FALSE);
+	mDocumentView->setVisibleDirect(false);
 	LLUICtrl::draw();
-	mDocumentView->setVisibleDirect(TRUE);
+	mDocumentView->setVisibleDirect(true);
 }
 
 
@@ -1377,7 +1377,7 @@ void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 }
 
 //virtual
-void LLTextBase::onVisibilityChange( BOOL new_visibility )
+void LLTextBase::onVisibilityChange( bool new_visibility )
 {
 	LLContextMenu* menu = static_cast<LLContextMenu*>(mPopupMenuHandle.get());
 	if(!new_visibility && menu)
@@ -1394,7 +1394,7 @@ void LLTextBase::setValue(const LLSD& value )
 }
 
 //virtual
-BOOL LLTextBase::canDeselect() const 
+bool LLTextBase::canDeselect() const 
 { 
 	return hasSelection(); 
 }
@@ -1405,7 +1405,7 @@ void LLTextBase::deselect()
 {
 	mSelectionStart = 0;
 	mSelectionEnd = 0;
-	mIsSelecting = FALSE;
+	mIsSelecting = false;
 }
 
 bool LLTextBase::getSpellCheck() const
@@ -1533,7 +1533,7 @@ void LLTextBase::updateScrollFromCursor()
 	{
 		return;
 	}
-	mScrollNeeded = FALSE; 
+	mScrollNeeded = false; 
 
 	// scroll so that the cursor is at the top of the page
 	LLRect scroller_doc_window = getVisibleDocumentRect();
@@ -2038,7 +2038,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_end_of_line)
 {
 	// Find the cursor position at the requested local screen position
-	S32 offset = getDocIndexFromLocalCoord( x, y, FALSE, hit_past_end_of_line);
+	S32 offset = getDocIndexFromLocalCoord( x, y, false, hit_past_end_of_line);
 	segment_set_t::iterator seg_iter = getSegIterContaining(offset);
 	if (seg_iter != mSegments.end())
 	{
@@ -2295,10 +2295,10 @@ void LLTextBase::setLabel(const LLStringExplicit& label)
 	resetLabel();
 }
 
-BOOL LLTextBase::setLabelArg(const std::string& key, const LLStringExplicit& text )
+bool LLTextBase::setLabelArg(const std::string& key, const LLStringExplicit& text )
 {
 	mLabel.setArg(key, text);
-	return TRUE;
+	return true;
 }
 
 void LLTextBase::resetLabel()
@@ -2381,10 +2381,10 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	// Save old state
 	S32 selection_start = mSelectionStart;
 	S32 selection_end = mSelectionEnd;
-	BOOL was_selecting = mIsSelecting;
+	bool was_selecting = mIsSelecting;
 	S32 cursor_pos = mCursorPos;
 	S32 old_length = getLength();
-	BOOL cursor_was_at_end = (mCursorPos == old_length);
+	bool cursor_was_at_end = (mCursorPos == old_length);
 
 	deselect();
 
@@ -2566,7 +2566,7 @@ const LLWString& LLTextBase::getWText() const
 // will be put to its right.  If round is false, the cursor will always be put to the
 // character's left.
 
-S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line) const
+S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round, bool hit_past_end_of_line) const
 {
 	// Figure out which line we're nearest to.
 	LLRect doc_rect = mDocumentView->getRect();
@@ -2846,7 +2846,7 @@ void LLTextBase::changeLine( S32 delta )
     {
         LLRect visible_region = getVisibleDocumentRect();
         S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel,
-                                                       mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
+                                                       mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, true);
 		S32 actual_line = getLineNumFromDocIndex(new_cursor_pos);
 		if (actual_line != new_line)
 		{
@@ -3109,7 +3109,7 @@ void LLTextBase::startSelection()
 {
 	if( !mIsSelecting )
 	{
-		mIsSelecting = TRUE;
+		mIsSelecting = true;
 		mSelectionStart = mCursorPos;
 		mSelectionEnd = mCursorPos;
 	}
@@ -3119,7 +3119,7 @@ void LLTextBase::endSelection()
 {
 	if( mIsSelecting )
 	{
-		mIsSelecting = FALSE;
+		mIsSelecting = false;
 		mSelectionEnd = mCursorPos;
 	}
 }
@@ -3267,7 +3267,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 	}
 }
 
-LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible) 
+LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible) 
 :	LLTextSegment(start, end),
 	mToken(NULL),
 	mEditor(editor)
@@ -3574,7 +3574,7 @@ LLLabelTextSegment::LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end
 {
 }
 
-LLLabelTextSegment::LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible)
+LLLabelTextSegment::LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :	LLNormalTextSegment(color, start, end, editor, is_visible)
 {
 }

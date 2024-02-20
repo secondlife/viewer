@@ -40,7 +40,7 @@ LLToastPanel(notification)
 	buildFromFile("panel_script_question_toast.xml");
 }
 
-BOOL LLToastScriptQuestion::postBuild()
+bool LLToastScriptQuestion::postBuild()
 {
 	createButtons();
 
@@ -52,11 +52,11 @@ BOOL LLToastScriptQuestion::postBuild()
 
 	snapToMessageHeight();
 
-	return TRUE;
+	return true;
 }
 
 // virtual
-void LLToastScriptQuestion::setFocus(BOOL b)
+void LLToastScriptQuestion::setFocus(bool b)
 {
     LLToastPanel::setFocus(b);
     // toast can fade out and disappear with focus ON, so reset to default anyway

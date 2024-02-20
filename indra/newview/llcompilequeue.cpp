@@ -194,12 +194,12 @@ LLFloaterScriptQueue::~LLFloaterScriptQueue()
 {
 }
 
-BOOL LLFloaterScriptQueue::postBuild()
+bool LLFloaterScriptQueue::postBuild()
 {
 	childSetAction("close",onCloseBtn,this);
-	getChildView("close")->setEnabled(FALSE);
+	getChildView("close")->setEnabled(false);
 	setVisible(true);
-	return TRUE;
+	return true;
 }
 
 // static

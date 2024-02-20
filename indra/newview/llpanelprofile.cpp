@@ -534,7 +534,7 @@ public:
 	{
 		if (params.size() < 2) return false;
 		LLUUID avatar_id;
-		if (!avatar_id.set(params[0], FALSE))
+		if (!avatar_id.set(params[0], false))
 		{
 			return false;
 		}
@@ -661,7 +661,7 @@ class LLFloaterProfilePermissions
 public:
     LLFloaterProfilePermissions(LLView * owner, const LLUUID &avatar_id);
     ~LLFloaterProfilePermissions();
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
     void draw() override;
     void changed(U32 mask) override; // LLFriendObserver
@@ -713,7 +713,7 @@ LLFloaterProfilePermissions::~LLFloaterProfilePermissions()
     }
 }
 
-BOOL LLFloaterProfilePermissions::postBuild()
+bool LLFloaterProfilePermissions::postBuild()
 {
     mDescription = getChild<LLTextBase>("perm_description");
     mOnlineStatus = getChild<LLCheckBoxCtrl>("online_check");
@@ -728,7 +728,7 @@ BOOL LLFloaterProfilePermissions::postBuild()
     mOkBtn->setCommitCallback([this](LLUICtrl*, void*) { onApplyRights(); }, nullptr);
     mCancelBtn->setCommitCallback([this](LLUICtrl*, void*) { onCancel(); }, nullptr);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterProfilePermissions::onOpen(const LLSD& key)
@@ -925,7 +925,7 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
     }
 }
 
-BOOL LLPanelProfileSecondLife::postBuild()
+bool LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
@@ -957,7 +957,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mCantEditObjectsIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
     mSecondLifePic->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentProfileTexture(); });
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileSecondLife::onOpen(const LLSD& key)
@@ -1014,7 +1014,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 }
 
 
-BOOL LLPanelProfileSecondLife::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLPanelProfileSecondLife::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                           EDragAndDropType cargo_type,
                                           void* cargo_data,
                                           EAcceptance* accept,
@@ -1024,13 +1024,13 @@ BOOL LLPanelProfileSecondLife::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL d
     if (LLPanelProfileTab::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg)
         && *accept != ACCEPT_NO)
     {
-        return TRUE;
+        return true;
     }
 
     // No point sharing with own profile
     if (getSelfProfile())
     {
-        return FALSE;
+        return false;
     }
 
     // Exclude fields that look like they are editable.
@@ -2124,13 +2124,13 @@ void LLPanelProfileWeb::onOpen(const LLSD& key)
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileWeb::onAvatarNameCache, this, _1, _2));
 }
 
-BOOL LLPanelProfileWeb::postBuild()
+bool LLPanelProfileWeb::postBuild()
 {
     mWebBrowser = getChild<LLMediaCtrl>("profile_html");
     mWebBrowser->addObserver(this);
     mWebBrowser->setHomePageUrl("about:blank");
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileWeb::resetData()
@@ -2249,7 +2249,7 @@ LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
 {
 }
 
-BOOL LLPanelProfileFirstLife::postBuild()
+bool LLPanelProfileFirstLife::postBuild()
 {
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
     mPicture = getChild<LLThumbnailCtrl>("real_world_pic");
@@ -2267,7 +2267,7 @@ BOOL LLPanelProfileFirstLife::postBuild()
     mDiscardChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardDescriptionChanges(); }, nullptr);
     mDescriptionEdit->setKeystrokeCallback([this](LLTextEditor* caller) { onSetDescriptionDirty(); });
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileFirstLife::onOpen(const LLSD& key)
@@ -2544,7 +2544,7 @@ void LLPanelProfileNotes::commitUnsavedChanges()
     }
 }
 
-BOOL LLPanelProfileNotes::postBuild()
+bool LLPanelProfileNotes::postBuild()
 {
     mNotesEditor = getChild<LLTextEditor>("notes_edit");
     mSaveChanges = getChild<LLButton>("notes_save_changes");
@@ -2554,7 +2554,7 @@ BOOL LLPanelProfileNotes::postBuild()
     mDiscardChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardNotesChanges(); }, nullptr);
     mNotesEditor->setKeystrokeCallback([this](LLTextEditor* caller) { onSetNotesDirty(); });
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileNotes::onOpen(const LLSD& key)
@@ -2639,9 +2639,9 @@ LLPanelProfile::~LLPanelProfile()
 {
 }
 
-BOOL LLPanelProfile::postBuild()
+bool LLPanelProfile::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfile::onTabChange()

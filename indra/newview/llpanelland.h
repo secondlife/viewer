@@ -56,7 +56,7 @@ protected:
 	static void onClickAbout();
 
 protected:
-	virtual BOOL	postBuild();
+	bool postBuild() override;
 
 	static LLPanelLandSelectObserver* sObserver;
 	static LLPanelLandInfo* sInstance;

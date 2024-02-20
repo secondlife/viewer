@@ -61,18 +61,18 @@ LLFloaterProfileTexture::~LLFloaterProfileTexture()
 }
 
 // virtual
-BOOL LLFloaterProfileTexture::postBuild()
+bool LLFloaterProfileTexture::postBuild()
 {
     mProfileIcon = getChild<LLIconCtrl>("profile_pic");
 
     mCloseButton = getChild<LLButton>("close_btn");
     mCloseButton->setCommitCallback([this](LLUICtrl*, void*) { closeFloater(); }, nullptr);
 
-	return TRUE;
+	return true;
 }
 
 // virtual
-void LLFloaterProfileTexture::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLFloaterProfileTexture::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLFloater::reshape(width, height, called_from_parent);
 }

@@ -6153,7 +6153,7 @@ void show_debug_menus()
 
 void toggle_debug_menus(void*)
 {
-	BOOL visible = ! gSavedSettings.getBOOL("UseDebugMenus");
+	bool visible = ! gSavedSettings.getBOOL("UseDebugMenus");
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
 	show_debug_menus();
 }
@@ -8489,18 +8489,18 @@ LLViewerMenuHolderGL::LLViewerMenuHolderGL(const LLViewerMenuHolderGL::Params& p
 : LLMenuHolderGL(p)
 {}
 
-BOOL LLViewerMenuHolderGL::hideMenus()
+bool LLViewerMenuHolderGL::hideMenus()
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	
 	if (LLMenuHolderGL::hideMenus())
 	{
-		handled = TRUE;
+		handled = true;
 	}
 
 	// drop pie menu selection
-	mParcelSelection = NULL;
-	mObjectSelection = NULL;
+	mParcelSelection = nullptr;
+	mObjectSelection = nullptr;
 
 	if (gMenuBarView)
 	{

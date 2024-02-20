@@ -55,7 +55,7 @@ public:
 
 protected:
 
-	/*virtual*/	BOOL	postBuild();
+	/*virtual*/	bool	postBuild();
 	void refresh();
 	void draw();
 	virtual void onOpen(const LLSD& key);

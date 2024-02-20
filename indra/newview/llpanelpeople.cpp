@@ -609,7 +609,7 @@ void LLPanelPeople::removePicker()
     }
 }
 
-BOOL LLPanelPeople::postBuild()
+bool LLPanelPeople::postBuild()
 {
 	S32 max_premium = LLAgentBenefitsMgr::get("Premium").getGroupMembershipLimit();
 
@@ -729,7 +729,7 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
 	mAllFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
 
-	return TRUE;
+	return true;
 }
 
 // virtual

@@ -186,7 +186,7 @@ void LLSearchComboBox::clearHistory()
 	setTextEntry(LLStringUtil::null);
 }
 
-BOOL LLSearchComboBox::handleKeyHere(KEY key,MASK mask )
+bool LLSearchComboBox::handleKeyHere(KEY key,MASK mask )
 {
 	if(mTextEntry->hasFocus() && MASK_NONE == mask && KEY_DOWN == key)
 	{

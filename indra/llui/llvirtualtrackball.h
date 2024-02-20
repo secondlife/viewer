@@ -79,13 +79,13 @@ public:
 
 
     virtual ~LLVirtualTrackball();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     virtual bool    handleHover(S32 x, S32 y, MASK mask);
     virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
     virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
     virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleKeyHere(KEY key, MASK mask);
+    virtual bool    handleKeyHere(KEY key, MASK mask);
 
     virtual void    draw();
 

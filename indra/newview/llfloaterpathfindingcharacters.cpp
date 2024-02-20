@@ -117,7 +117,7 @@ LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
 }
 
-BOOL LLFloaterPathfindingCharacters::postBuild()
+bool LLFloaterPathfindingCharacters::postBuild()
 {
 	mBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingCharacterBeaconColor");
 

@@ -64,7 +64,7 @@ LLPanelMediaSettingsPermissions::LLPanelMediaSettingsPermissions() :
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLPanelMediaSettingsPermissions::postBuild()
+bool LLPanelMediaSettingsPermissions::postBuild()
 {
     // connect member vars with UI widgets
 	mControls = getChild< LLComboBox >( LLMediaEntry::CONTROLS_KEY );

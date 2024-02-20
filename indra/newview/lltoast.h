@@ -113,9 +113,9 @@ public:
 
 	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();
-	BOOL postBuild();
+	bool postBuild();
 
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
 	// Toast handlers
 	virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
@@ -147,13 +147,13 @@ public:
 	//
 	virtual void draw();
 	//
-	virtual void setVisible(BOOL show);
+	virtual void setVisible(bool show);
 
 	/*virtual*/ void setBackgroundOpaque(BOOL b);
 	//
 	virtual void hide();
 
-	/*virtual*/ void setFocus(BOOL b);
+	/*virtual*/ void setFocus(bool b);
 
 	/*virtual*/ void onFocusLost();
 

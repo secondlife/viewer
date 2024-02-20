@@ -47,12 +47,12 @@ LLFloaterGridStatus::LLFloaterGridStatus(const Params& key) :
 {
 }
 
-BOOL LLFloaterGridStatus::postBuild()
+bool LLFloaterGridStatus::postBuild()
 {
     LLFloaterWebContent::postBuild();
     mWebBrowser->addObserver(this);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterGridStatus::onOpen(const LLSD& key)

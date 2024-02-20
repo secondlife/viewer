@@ -52,8 +52,8 @@ class LLPanelMarketplaceListings : public LLPanel
 {
 public:
     LLPanelMarketplaceListings();
-	BOOL postBuild();
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	bool postBuild();
+	bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 						   EDragAndDropType cargo_type,
 						   void* cargo_data,
 						   EAcceptance* accept,
@@ -99,8 +99,8 @@ public:
 	void initializeMarketPlace();
     
 	// virtuals
-	BOOL postBuild();
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	bool postBuild();
+	bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 						   EDragAndDropType cargo_type,
 						   void* cargo_data,
 						   EAcceptance* accept,
@@ -152,8 +152,8 @@ class LLFloaterAssociateListing : public LLFloater
 {
 	friend class LLFloaterReg;
 public:
-	virtual BOOL postBuild();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool postBuild();
+	virtual bool handleKeyHere(KEY key, MASK mask);
     
 	static LLFloaterAssociateListing* show(const LLUUID& folder_id);
     
@@ -184,7 +184,7 @@ public:
 	LLFloaterMarketplaceValidation(const LLSD& key);
 	virtual ~LLFloaterMarketplaceValidation();
     
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	virtual void draw();
 	virtual void onOpen(const LLSD& key);
     
@@ -219,7 +219,7 @@ public:
 	LLFloaterItemProperties(const LLSD& key);
 	virtual ~LLFloaterItemProperties();
     
-	BOOL postBuild();
+	bool postBuild();
 	virtual void onOpen(const LLSD& key);
     
 private:

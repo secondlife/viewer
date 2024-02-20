@@ -342,13 +342,13 @@ public:
 
 	// LLEditMenuHandler overrides
 	/*virtual*/ void	cut();
-	/*virtual*/ BOOL	canCut() const;
+	/*virtual*/ bool	canCut() const;
 
 	/*virtual*/ void	copy();
-	/*virtual*/ BOOL	canCopy() const;
+	/*virtual*/ bool	canCopy() const;
 
 	/*virtual*/ void	paste();
-	/*virtual*/ BOOL	canPaste() const;
+	/*virtual*/ bool	canPaste() const;
 	
 	void addObject(LLVOVolume* obj) ;
 	void removeObject(LLVOVolume* obj) ;

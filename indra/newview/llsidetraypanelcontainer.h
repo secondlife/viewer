@@ -70,7 +70,7 @@ public:
 	* Overrides LLTabContainer::handleKeyHere to disable panel switch on 
 	* Alt + Left/Right button press.
 	*/
-	BOOL handleKeyHere(KEY key, MASK mask);
+	bool handleKeyHere(KEY key, MASK mask);
 
 	/**
 	* Name of parameter that stores panel name to open.

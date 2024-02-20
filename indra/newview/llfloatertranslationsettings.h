@@ -39,8 +39,8 @@ class LLFloaterTranslationSettings : public LLFloater
 {
 public:
 	LLFloaterTranslationSettings(const LLSD& key);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	bool postBuild() override;
+	void onOpen(const LLSD& key) override;
 
 	void setAzureVerified(bool ok, bool alert, S32 status);
 	void setGoogleVerified(bool ok, bool alert, S32 status);

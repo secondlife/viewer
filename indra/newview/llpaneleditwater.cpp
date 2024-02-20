@@ -76,7 +76,7 @@ LLPanelSettingsWaterMainTab::LLPanelSettingsWaterMainTab():
 }
 
 
-BOOL LLPanelSettingsWaterMainTab::postBuild()
+bool LLPanelSettingsWaterMainTab::postBuild()
 {
     mClrFogColor = getChild<LLColorSwatchCtrl>(FIELD_WATER_FOG_COLOR);
     mTxtNormalMap = getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP);
@@ -106,11 +106,11 @@ BOOL LLPanelSettingsWaterMainTab::postBuild()
 
     refresh();
 
-    return TRUE;
+    return true;
 }
 
 //virtual
-void LLPanelSettingsWaterMainTab::setEnabled(BOOL enabled)
+void LLPanelSettingsWaterMainTab::setEnabled(bool enabled)
 {
     LLPanelSettingsWater::setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setEnabled(enabled);
@@ -132,8 +132,8 @@ void LLPanelSettingsWaterMainTab::refresh()
 {
     if (!mWaterSettings)
     {
-        setAllChildrenEnabled(FALSE);
-        setEnabled(FALSE);
+        setAllChildrenEnabled(false);
+        setEnabled(false);
         return;
     }
 

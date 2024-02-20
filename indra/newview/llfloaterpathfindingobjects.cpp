@@ -194,7 +194,7 @@ LLFloaterPathfindingObjects::~LLFloaterPathfindingObjects()
 	clearAllObjects();
 }
 
-BOOL LLFloaterPathfindingObjects::postBuild()
+bool LLFloaterPathfindingObjects::postBuild()
 {
 	mDefaultBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingDefaultBeaconColor");
 	mDefaultBeaconTextColor = LLUIColorTable::getInstance()->getColor("PathfindingDefaultBeaconTextColor");
@@ -204,7 +204,7 @@ BOOL LLFloaterPathfindingObjects::postBuild()
 	mObjectsScrollList = findChild<LLScrollListCtrl>("objects_scroll_list");
 	llassert(mObjectsScrollList != NULL);
 	mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onScrollListSelectionChanged, this));
-	mObjectsScrollList->sortByColumnIndex(static_cast<U32>(getNameColumnIndex()), TRUE);
+	mObjectsScrollList->sortByColumnIndex(static_cast<U32>(getNameColumnIndex()), true);
 
 	mMessagingStatus = findChild<LLTextBase>("messaging_status");
 	llassert(mMessagingStatus != NULL);

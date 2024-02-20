@@ -37,7 +37,7 @@ class LLFloaterLagMeter : public LLFloater
 	
 public:
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();	
+	/*virtual*/ bool postBuild();
 private:
 	
 	LLFloaterLagMeter(const LLSD& key);

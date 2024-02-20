@@ -54,7 +54,7 @@ LLPanelPresetsCameraPulldown::LLPanelPresetsCameraPulldown()
 	buildFromFile( "panel_presets_camera_pulldown.xml");
 }
 
-BOOL LLPanelPresetsCameraPulldown::postBuild()
+bool LLPanelPresetsCameraPulldown::postBuild()
 {
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
 	if (presetsMgr)

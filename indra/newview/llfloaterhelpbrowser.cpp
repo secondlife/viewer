@@ -47,7 +47,7 @@ LLFloaterHelpBrowser::LLFloaterHelpBrowser(const LLSD& key)
 {
 }
 
-BOOL LLFloaterHelpBrowser::postBuild()
+bool LLFloaterHelpBrowser::postBuild()
 {
 	mBrowser = getChild<LLMediaCtrl>("browser");
 	mBrowser->addObserver(this);
@@ -56,7 +56,7 @@ BOOL LLFloaterHelpBrowser::postBuild()
 	childSetAction("open_browser", onClickOpenWebBrowser, this);
 
 	buildURLHistory();
-	return TRUE;
+	return true;
 }
 
 void LLFloaterHelpBrowser::buildURLHistory()

@@ -93,7 +93,7 @@ LLSlider::~LLSlider()
 	delete mMouseUpSignal;
 }
 
-void LLSlider::setValue(F32 value, BOOL from_event)
+void LLSlider::setValue(F32 value, bool from_event)
 {
 	value = llclamp( value, mMinValue, mMaxValue );
 
@@ -256,20 +256,20 @@ bool LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	return true;
 }
 
-BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
+bool LLSlider::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	switch(key)
 	{
 	case KEY_DOWN:
 	case KEY_LEFT:
 		setValueAndCommit(getValueF32() - getIncrement());
-		handled = TRUE;
+		handled = true;
 		break;
 	case KEY_UP:
 	case KEY_RIGHT:
 		setValueAndCommit(getValueF32() + getIncrement());
-		handled = TRUE;
+		handled = true;
 		break;
 	default:
 		break;

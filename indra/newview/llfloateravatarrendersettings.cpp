@@ -84,13 +84,13 @@ LLFloaterAvatarRenderSettings::~LLFloaterAvatarRenderSettings()
     LLRenderMuteList::getInstance()->removeObserver(&sAvatarRenderMuteListObserver);
 }
 
-BOOL LLFloaterAvatarRenderSettings::postBuild()
+bool LLFloaterAvatarRenderSettings::postBuild()
 {
     LLFloater::postBuild();
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterAvatarRenderSettings::draw()
@@ -259,14 +259,14 @@ void LLFloaterAvatarRenderSettings::setAvatarRenderSetting(const LLUUID& av_id, 
     }
 }
 
-BOOL LLFloaterAvatarRenderSettings::handleKeyHere(KEY key, MASK mask )
+bool LLFloaterAvatarRenderSettings::handleKeyHere(KEY key, MASK mask )
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     if (KEY_DELETE == key)
     {
         setAvatarRenderSetting(mAvatarSettingsList->getCurrentID(), (S32)LLVOAvatar::AV_RENDER_NORMALLY);
-        handled = TRUE;
+        handled = true;
     }
     return handled;
 }

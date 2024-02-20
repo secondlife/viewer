@@ -88,10 +88,10 @@ LLFloaterSettingsPicker::~LLFloaterSettingsPicker()
 }
 
 //-------------------------------------------------------------------------
-BOOL LLFloaterSettingsPicker::postBuild()
+bool LLFloaterSettingsPicker::postBuild()
 {
     if (!LLFloater::postBuild())
-        return FALSE;
+        return false;
 
     std::string prefix = getString(STR_TITLE_PREFIX);
     std::string label = getString(STR_TITLE_SETTINGS);
@@ -137,7 +137,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
     // update permission filter once UI is fully initialized
     mSavedFolderState.setApply(FALSE);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterSettingsPicker::onClose(bool app_quitting)
@@ -400,7 +400,7 @@ bool LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
     return result;
 }
 
-BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
 {
     if ((key == KEY_RETURN) && (mask == MASK_NONE))
     {
@@ -416,7 +416,7 @@ BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
                 (*mCommitSignal)(this, res);
             }
             closeFloater();
-            return TRUE;
+            return true;
         }
     }
 

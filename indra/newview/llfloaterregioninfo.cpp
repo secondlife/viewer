@@ -196,7 +196,7 @@ public:
 
     bool                refreshFromRegion(LLViewerRegion* region);
 
-    virtual BOOL        postBuild() override;
+    virtual bool        postBuild() override;
     virtual void        onOpen(const LLSD& key) override {};
 
     virtual S32         getParcelId() override { return INVALID_PARCEL_ID; }
@@ -234,7 +234,7 @@ LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
     mRegionChangedCallback()
 {}
 
-BOOL LLFloaterRegionInfo::postBuild()
+bool LLFloaterRegionInfo::postBuild()
 {
 	mTab = getChild<LLTabContainer>("region_panels");
 	mTab->setCommitCallback(boost::bind(&LLFloaterRegionInfo::onTabSelected, this, _2));
@@ -279,7 +279,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 
 	if(gDisconnected)
 	{
-		return TRUE;
+		return true;
 	}
 
 	if(!gAgent.getRegionCapability("RegionExperiences").empty())
@@ -297,7 +297,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 	// Request region info when agent region changes.
 	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionInfo::onRegionChanged, this));
 
-	return TRUE;
+	return true;
 }
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
@@ -742,7 +742,7 @@ void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
 
 
 // virtual
-BOOL LLPanelRegionInfo::postBuild()
+bool LLPanelRegionInfo::postBuild()
 {
 	// If the panel has an Apply button, set a callback for it.
 	LLUICtrl* apply_btn = findChild<LLUICtrl>("apply_btn");
@@ -752,7 +752,7 @@ BOOL LLPanelRegionInfo::postBuild()
 	}
 
 	refresh();
-	return TRUE;
+	return true;
 }
 
 // virtual 
@@ -844,7 +844,7 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 	return LLPanelRegionInfo::refreshFromRegion(region);
 }
 
-BOOL LLPanelRegionGeneralInfo::postBuild()
+bool LLPanelRegionGeneralInfo::postBuild()
 {
 	// Enable the "Apply" button if something is changed. JC
 	initCtrl("block_terraform_check");
@@ -871,7 +871,7 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	}
 
 	refresh();
-	return TRUE;
+	return true;
 }
 
 void LLPanelRegionGeneralInfo::onBtnSet()
@@ -1091,7 +1091,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionDebugInfo
 /////////////////////////////////////////////////////////////////////////////
-BOOL LLPanelRegionDebugInfo::postBuild()
+bool LLPanelRegionDebugInfo::postBuild()
 {
 	LLPanelRegionInfo::postBuild();
 	initCtrl("disable_scripts_check");
@@ -1106,7 +1106,7 @@ BOOL LLPanelRegionDebugInfo::postBuild()
 	childSetAction("cancel_restart_btn", onClickCancelRestart, this);
 	childSetAction("region_debug_console_btn", onClickDebugConsole, this);
 
-	return TRUE;
+	return true;
 }
 
 // virtual
@@ -1372,7 +1372,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureHeights()
 /////////////////////////////////////////////////////////////////////////////
 // Initialize statics
 
-BOOL LLPanelRegionTerrainInfo::postBuild()
+bool LLPanelRegionTerrainInfo::postBuild()
 {
 	LLPanelRegionInfo::postBuild();
 	
@@ -1859,7 +1859,7 @@ bool LLPanelEstateInfo::estateUpdate(LLMessageSystem* msg)
 }
 
 
-BOOL LLPanelEstateInfo::postBuild()
+bool LLPanelEstateInfo::postBuild()
 {
 	// set up the callbacks for the generic controls
 	initCtrl("externally_visible_radio");
@@ -2125,7 +2125,7 @@ bool LLPanelEstateCovenant::estateUpdate(LLMessageSystem* msg)
 }
 	
 // virtual 
-BOOL LLPanelEstateCovenant::postBuild()
+bool LLPanelEstateCovenant::postBuild()
 {
 	mEstateNameText = getChild<LLTextBox>("estate_name_text");
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
@@ -2145,7 +2145,7 @@ void LLPanelEstateCovenant::updateChild(LLUICtrl* child_ctrl)
 }
 
 // virtual
-BOOL LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 								  EDragAndDropType cargo_type,
 								  void* cargo_data,
 								  EAcceptance* accept,
@@ -2176,7 +2176,7 @@ BOOL LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop
 		break;
 	}
 
-	return TRUE;
+	return true;
 } 
 
 // static 
@@ -2498,7 +2498,7 @@ bool LLDispatchSetEstateExperience::operator()(
 	return true;
 }
 
-BOOL LLPanelRegionExperiences::postBuild()
+bool LLPanelRegionExperiences::postBuild()
 {
 	mAllowed = setupList("panel_allowed", ESTATE_EXPERIENCE_ALLOWED_ADD, ESTATE_EXPERIENCE_ALLOWED_REMOVE);
 	mTrusted = setupList("panel_trusted", ESTATE_EXPERIENCE_TRUSTED_ADD, ESTATE_EXPERIENCE_TRUSTED_REMOVE);
@@ -2762,13 +2762,13 @@ LLPanelEstateAccess::LLPanelEstateAccess()
 : LLPanelRegionInfo(), mPendingUpdate(false)
 {}
 
-BOOL LLPanelEstateAccess::postBuild()
+bool LLPanelEstateAccess::postBuild()
 {
 	getChild<LLUICtrl>("allowed_avatar_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl *avatar_name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
 	if (avatar_name_list)
 	{
-		avatar_name_list->setCommitOnSelectionChange(TRUE); 
+		avatar_name_list->setCommitOnSelectionChange(true); 
 		avatar_name_list->setMaxItemCount(ESTATE_MAX_ACCESS_IDS);
 	}
 
@@ -2781,7 +2781,7 @@ BOOL LLPanelEstateAccess::postBuild()
 	LLNameListCtrl* group_name_list = getChild<LLNameListCtrl>("allowed_group_name_list");
 	if (group_name_list)
 	{
-		group_name_list->setCommitOnSelectionChange(TRUE);
+		group_name_list->setCommitOnSelectionChange(true);
 		group_name_list->setMaxItemCount(ESTATE_MAX_ACCESS_IDS);
 	}
 
@@ -2794,7 +2794,7 @@ BOOL LLPanelEstateAccess::postBuild()
 	LLNameListCtrl* banned_name_list = getChild<LLNameListCtrl>("banned_avatar_name_list");
 	if (banned_name_list)
 	{
-		banned_name_list->setCommitOnSelectionChange(TRUE);
+		banned_name_list->setCommitOnSelectionChange(true);
 		banned_name_list->setMaxItemCount(ESTATE_MAX_BANNED_IDS);
 	}
 
@@ -2807,14 +2807,14 @@ BOOL LLPanelEstateAccess::postBuild()
 	LLNameListCtrl* manager_name_list = getChild<LLNameListCtrl>("estate_manager_name_list");
 	if (manager_name_list)
 	{
-		manager_name_list->setCommitOnSelectionChange(TRUE);
+		manager_name_list->setCommitOnSelectionChange(true);
 		manager_name_list->setMaxItemCount(ESTATE_MAX_MANAGERS * 4);	// Allow extras for dupe issue
 	}
 
 	childSetAction("add_estate_manager_btn", boost::bind(&LLPanelEstateAccess::onClickAddEstateManager, this));
 	childSetAction("remove_estate_manager_btn", boost::bind(&LLPanelEstateAccess::onClickRemoveEstateManager, this));
 
-	return TRUE;
+	return true;
 }
 
 void LLPanelEstateAccess::updateControls(LLViewerRegion* region)
@@ -3737,12 +3737,12 @@ LLPanelRegionEnvironment::~LLPanelRegionEnvironment()
         mCommitConnect.disconnect();
 }
 
-BOOL LLPanelRegionEnvironment::postBuild()
+bool LLPanelRegionEnvironment::postBuild()
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
 
     if (!LLPanelEnvironmentInfo::postBuild())
-        return FALSE;
+        return false;
 
     getChild<LLUICtrl>(BTN_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEDEFAULT));
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(TRUE);
@@ -3751,7 +3751,7 @@ BOOL LLPanelRegionEnvironment::postBuild()
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setCommitCallback([this](LLUICtrl *, const LLSD &value){ onChkAllowOverride(value.asBoolean()); });
 
     mCommitConnect = estate_info.setCommitCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
-    return TRUE;
+    return true;
 }
 
 

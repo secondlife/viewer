@@ -118,19 +118,19 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
     mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
-BOOL LLFloaterAvatarPicker::postBuild()
+bool LLFloaterAvatarPicker::postBuild()
 {
 	getChild<LLLineEditor>("Edit")->setKeystrokeCallback( boost::bind(&LLFloaterAvatarPicker::editKeystroke, this, _1, _2),NULL);
 
 	childSetAction("Find", boost::bind(&LLFloaterAvatarPicker::onBtnFind, this));
-	getChildView("Find")->setEnabled(FALSE);
+	getChildView("Find")->setEnabled(false);
 	childSetAction("Refresh", boost::bind(&LLFloaterAvatarPicker::onBtnRefresh, this));
 	getChild<LLUICtrl>("near_me_range")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onRangeAdjust, this));
 	
 	LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>("SearchResults");
 	searchresults->setDoubleClickCallback( boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
 	searchresults->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
-	getChildView("SearchResults")->setEnabled(FALSE);
+	getChildView("SearchResults")->setEnabled(false);
 	
 	LLScrollListCtrl* nearme = getChild<LLScrollListCtrl>("NearMe");
 	nearme->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
@@ -141,10 +141,10 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	getChild<LLUICtrl>("Friends")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
 
 	childSetAction("ok_btn", boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
-	getChildView("ok_btn")->setEnabled(FALSE);
+	getChildView("ok_btn")->setEnabled(false);
 	childSetAction("cancel_btn", boost::bind(&LLFloaterAvatarPicker::onBtnClose, this));
 
-	getChild<LLUICtrl>("Edit")->setFocus(TRUE);
+	getChild<LLUICtrl>("Edit")->setFocus(true);
 
 	LLPanel* search_panel = getChild<LLPanel>("SearchPanel");
 	if (search_panel)
@@ -164,7 +164,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	
 	populateFriend();
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterAvatarPicker::setOkBtnEnableCb(validate_callback_t cb)
@@ -540,8 +540,8 @@ LLScrollListCtrl* LLFloaterAvatarPicker::getActiveList()
 	return list;
 }
 
-BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
-											  BOOL drop, EDragAndDropType cargo_type,
+bool LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
+											  bool drop, EDragAndDropType cargo_type,
 											  void *cargo_data, EAcceptance *accept,
 											  std::string& tooltip_msg)
 {
@@ -553,7 +553,7 @@ BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		if (localRectToOtherView(rc_point, &rc_list, list))
 		{
 			// Keep selected only one item
-			list->deselectAllItems(TRUE);
+			list->deselectAllItems(true);
 			list->selectItemAt(rc_list.mLeft, rc_list.mBottom, mask);
 			LLScrollListItem* selection = list->getFirstSelected();
 			if (selection)
@@ -575,7 +575,7 @@ BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		}
 	}
 	*accept = ACCEPT_NO;
-	return TRUE;
+	return true;
 }
 
 
@@ -748,7 +748,7 @@ void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 }
 
 // virtual
-BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 {
 	if (key == KEY_RETURN && mask == MASK_NONE)
 	{
@@ -760,12 +760,12 @@ BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 		{
 			onBtnSelect();
 		}
-		return TRUE;
+		return true;
 	}
 	else if (key == KEY_ESCAPE && mask == MASK_NONE)
 	{
 		closeFloater();
-		return TRUE;
+		return true;
 	}
 
 	return LLFloater::handleKeyHere(key, mask);

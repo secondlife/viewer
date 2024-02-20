@@ -55,9 +55,9 @@ public:
 	void clearHover();
 	
 	/*virtual*/ bool	getFocus();
-	/*virtual*/ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+	/*virtual*/ bool	handleKey(KEY key, MASK mask, bool called_from_parent);
+	/*virtual*/ bool	handleKeyUp(KEY key, MASK mask, bool called_from_parent);
+	/*virtual*/ bool	handleUnicodeChar(llwchar uni_char, bool called_from_parent);
 	BOOL handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
 

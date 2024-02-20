@@ -95,13 +95,11 @@ protected:
 public:
 	~LLScriptEdCore();
 	
-	void			initializeKeywords();
 	void			initMenu();
 	void			processKeywords();
-	void			processLoaded();
 
 	virtual void	draw();
-	/*virtual*/	BOOL	postBuild();
+	/*virtual*/	bool	postBuild();
 	BOOL			canClose();
 	void			setEnableEditing(bool enable);
 	bool			canLoadOrSaveToFile( void* userdata );
@@ -153,7 +151,7 @@ private:
 
 	void selectFirstError();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool handleKeyHere(KEY key, MASK mask);
 	
 	void enableSave(BOOL b) {mEnableSave = b;}
 
@@ -223,11 +221,11 @@ public:
 	virtual void callbackLSLCompileSucceeded();
 	virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 protected:
 	virtual void draw();
-	virtual BOOL canClose();
+	virtual bool canClose();
 	void closeIfNeeded();
 
 	virtual void loadAsset();
@@ -269,7 +267,7 @@ public:
 											bool is_script_running);
 	virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	
     void setIsNew() { mIsNew = TRUE; }
 
@@ -282,15 +280,13 @@ public:
 	void updateExperiencePanel();
 	void requestExperiences();
 	void experienceChanged();
-	void addAssociatedExperience(const LLSD& experience);
 	
 private:
-	virtual BOOL canClose();
+	virtual bool canClose();
 	void closeIfNeeded();
 	virtual void draw();
 
 	virtual void loadAsset();
-	void loadAsset(BOOL is_new);
 	/*virtual*/ void saveIfNeeded(bool sync = true);
 	BOOL monoChecked() const;
 
@@ -306,8 +302,6 @@ private:
 	static void onReset(void* userdata);
 
 	void loadScriptText(const LLUUID &uuid, LLAssetType::EType type);
-
-	static void onErrorList(LLUICtrl*, void* user_data);
 
 	static void* createScriptEdPanel(void* userdata);
 

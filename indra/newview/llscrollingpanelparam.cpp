@@ -99,7 +99,7 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 LLScrollingPanelParam::~LLScrollingPanelParam()
 {
 }
-void LLScrollingPanelParam::updatePanel(BOOL allow_modify)
+void LLScrollingPanelParam::updatePanel(bool allow_modify)
 {
 	if (!mWearable)
 	{
@@ -114,7 +114,7 @@ void LLScrollingPanelParam::updatePanel(BOOL allow_modify)
 	getChildView("more")->setEnabled(mAllowModify);
 }
 
-void LLScrollingPanelParam::setVisible( BOOL visible )
+void LLScrollingPanelParam::setVisible( bool visible )
 {
 	if( getVisible() != visible )
 	{

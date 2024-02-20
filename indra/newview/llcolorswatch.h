@@ -95,7 +95,7 @@ public:
 	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ bool	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	draw();
-	/*virtual*/ void	setEnabled( BOOL enabled );
+	/*virtual*/ void	setEnabled( bool enabled );
 
 	static void		onColorChanged ( void* data, EColorPickOp pick_op = COLOR_CHANGE );
 	void			closeFloaterColorPicker();

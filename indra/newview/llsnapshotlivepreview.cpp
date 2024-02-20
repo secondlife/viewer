@@ -56,16 +56,16 @@
 #include "llworld.h"
 #include <boost/filesystem.hpp>
 
-const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
+constexpr F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
-F32 SHINE_TIME = 0.5f;
-F32 SHINE_WIDTH = 0.6f;
-F32 SHINE_OPACITY = 0.3f;
-F32 FALL_TIME = 0.6f;
-S32 BORDER_WIDTH = 6;
-S32 TOP_PANEL_HEIGHT = 30;
+constexpr F32 SHINE_TIME = 0.5f;
+constexpr F32 SHINE_WIDTH = 0.6f;
+constexpr F32 SHINE_OPACITY = 0.3f;
+constexpr F32 FALL_TIME = 0.6f;
+constexpr S32 BORDER_WIDTH = 6;
+constexpr S32 TOP_PANEL_HEIGHT = 30;
 
-const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+constexpr S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;
 LLPointer<LLImageFormatted> LLSnapshotLivePreview::sSaveLocalImage = NULL;
@@ -428,7 +428,7 @@ void LLSnapshotLivePreview::draw()
 }
 
 /*virtual*/ 
-void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLSnapshotLivePreview::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLRect old_rect = getRect();
 	LLView::reshape(width, height, called_from_parent);

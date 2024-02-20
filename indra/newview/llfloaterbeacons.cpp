@@ -52,9 +52,9 @@ LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
 	mCommitCallbackRegistrar.add("Beacons.UICheck",	boost::bind(&LLFloaterBeacons::onClickUICheck, this,_1));
 }
 
-BOOL LLFloaterBeacons::postBuild()
+bool LLFloaterBeacons::postBuild()
 {
-	return TRUE;
+	return true;
 }
 
 // Callback attached to each check box control to both affect their main purpose

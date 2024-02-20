@@ -48,8 +48,8 @@ public:
 
 	void setCloseCallback(void (*close_callback)(void*), void* data);
 
-	virtual void draw();
-	virtual BOOL postBuild();
+	void draw() override;
+	bool postBuild() override;
 protected:
 	class impl;
 	impl* mImplementation;

@@ -35,8 +35,8 @@ class LLFloaterMemLeak : public LLFloater
 public:
 	/// initialize all the callbacks for the menu
 
-	virtual BOOL postBuild() ;
-	virtual void draw() ;
+	bool postBuild() override;
+	void draw() override;
 	
 	void onChangeLeakingSpeed();
 	void onChangeMaxMemLeaking();

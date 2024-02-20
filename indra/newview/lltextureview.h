@@ -45,18 +45,17 @@ protected:
 public:
 	~LLTextureView();
 
-	/*virtual*/ void draw();
-	/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	void draw() override;
+	bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+	bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+	bool handleKey(KEY key, MASK mask, bool called_from_parent) override;
 
 	static void addDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
 	static void removeDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
 	static void clearDebugImages() { sDebugImages.clear(); }
 
 private:
-	BOOL addBar(LLViewerFetchedTexture *image, BOOL hilight = FALSE);
-	void removeAllBars();
+	bool addBar(LLViewerFetchedTexture *image, S32 hilight = 0);
 
 private:
 	BOOL mFreezeView;

@@ -124,11 +124,11 @@ LLFloaterGodTools::LLFloaterGodTools(const LLSD& key)
 	mFactoryMap["request"] = LLCallbackMap(createPanelRequest, this);
 }
 
-BOOL LLFloaterGodTools::postBuild()
+bool LLFloaterGodTools::postBuild()
 {
 	sendRegionInfoRequest();
 	getChild<LLTabContainer>("GodTools Tabs")->selectTabByName("region");
-	return TRUE;
+	return true;
 }
 // static
 void* LLFloaterGodTools::createPanelGrid(void *userdata)
@@ -442,22 +442,22 @@ LLPanelRegionTools::LLPanelRegionTools()
 	mCommitCallbackRegistrar.add("RegionTools.SaveState",		boost::bind(&LLPanelRegionTools::onSaveState, this));	
 }
 
-BOOL LLPanelRegionTools::postBuild()
+bool LLPanelRegionTools::postBuild()
 {
 	getChild<LLLineEditor>("region name")->setKeystrokeCallback(onChangeSimName, this);
 	getChild<LLLineEditor>("region name")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLLineEditor>("estate")->setPrevalidate(&LLTextValidate::validatePositiveS32);
 	getChild<LLLineEditor>("parentestate")->setPrevalidate(&LLTextValidate::validatePositiveS32);
-	getChildView("parentestate")->setEnabled(FALSE);
+	getChildView("parentestate")->setEnabled(false);
 	getChild<LLLineEditor>("gridposx")->setPrevalidate(&LLTextValidate::validatePositiveS32);
-	getChildView("gridposx")->setEnabled(FALSE);
+	getChildView("gridposx")->setEnabled(false);
 	getChild<LLLineEditor>("gridposy")->setPrevalidate(&LLTextValidate::validatePositiveS32);
-	getChildView("gridposy")->setEnabled(FALSE);
+	getChildView("gridposy")->setEnabled(false);
 	
 	getChild<LLLineEditor>("redirectx")->setPrevalidate(&LLTextValidate::validatePositiveS32);
 	getChild<LLLineEditor>("redirecty")->setPrevalidate(&LLTextValidate::validatePositiveS32);
 			 
-	return TRUE;
+	return true;
 }
 
 // Destroys the object
@@ -862,9 +862,9 @@ LLPanelGridTools::~LLPanelGridTools()
 {
 }
 
-BOOL LLPanelGridTools::postBuild()
+bool LLPanelGridTools::postBuild()
 {
-	return TRUE;
+	return true;
 }
 
 void LLPanelGridTools::refresh()
@@ -946,10 +946,10 @@ LLPanelObjectTools::~LLPanelObjectTools()
 	// base class will take care of everything
 }
 
-BOOL LLPanelObjectTools::postBuild()
+bool LLPanelObjectTools::postBuild()
 {
 	refresh();
-	return TRUE;
+	return true;
 }
 
 void LLPanelObjectTools::setTargetAvatar(const LLUUID &target_id)
@@ -1231,11 +1231,11 @@ LLPanelRequestTools::~LLPanelRequestTools()
 {
 }
 
-BOOL LLPanelRequestTools::postBuild()
+bool LLPanelRequestTools::postBuild()
 {
 	refresh();
 
-	return TRUE;
+	return true;
 }
 
 void LLPanelRequestTools::refresh()

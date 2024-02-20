@@ -43,13 +43,13 @@ public:
 
 	virtual void		draw();
 
-	virtual BOOL		canSaveAs() const;
+	virtual bool		canSaveAs() const;
 	virtual void		saveAs();
 
 	virtual void		loadAsset();
 	virtual EAssetStatus	getAssetStatus();
 	
-	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	virtual void		reshape(S32 width, S32 height, bool called_from_parent = true);
 	virtual void 		onFocusReceived();
 	
 	static void			onFileLoadedForSave( 
@@ -73,7 +73,7 @@ public:
 protected:
 	void				init();
 	void				populateRatioList();
-	/* virtual */ BOOL	postBuild();
+	/* virtual */ bool	postBuild();
 	bool				setAspectRatio(const F32 width, const F32 height);
 	static void			onAspectRatioCommit(LLUICtrl*,void* userdata);
 	void				adjustAspectRatio();

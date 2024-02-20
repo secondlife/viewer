@@ -87,9 +87,9 @@ LLFloaterAuction::~LLFloaterAuction()
 {
 }
 
-BOOL LLFloaterAuction::postBuild()
+bool LLFloaterAuction::postBuild()
 {
-	return TRUE;
+	return true;
 }
 
 void LLFloaterAuction::onOpen(const LLSD& key)

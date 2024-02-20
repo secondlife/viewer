@@ -50,7 +50,7 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(N
 }
 
 //---------------------------------------------------------------------------------
-BOOL LLSysWellWindow::postBuild()
+bool LLSysWellWindow::postBuild()
 {
 	mMessageList = getChild<LLFlatListView>("notification_list");
 
@@ -61,7 +61,7 @@ BOOL LLSysWellWindow::postBuild()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::setMinimized(BOOL minimize)
+void LLSysWellWindow::setMinimized(bool minimize)
 {
 	LLTransientDockableFloater::setMinimized(minimize);
 }
@@ -137,7 +137,7 @@ void LLSysWellWindow::initChannel()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::setVisible(BOOL visible)
+void LLSysWellWindow::setVisible(bool visible)
 {
 	if (visible)
 	{
@@ -150,7 +150,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	}
 
 	// do not show empty window
-	if (NULL == mMessageList || isWindowEmpty()) visible = FALSE;
+	if (NULL == mMessageList || isWindowEmpty()) visible = false;
 
 	LLTransientDockableFloater::setVisible(visible);
 
@@ -323,9 +323,9 @@ LLIMWellWindow* LLIMWellWindow::findInstance(const LLSD& key /*= LLSD()*/)
 	return LLFloaterReg::findTypedInstance<LLIMWellWindow>("im_well_window", key);
 }
 
-BOOL LLIMWellWindow::postBuild()
+bool LLIMWellWindow::postBuild()
 {
-	BOOL rv = LLSysWellWindow::postBuild();
+	bool rv = LLSysWellWindow::postBuild();
 	setTitle(getString("title_im_well_window"));
 
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findObjectChiclet, this, _1));

@@ -99,7 +99,7 @@ private:
 	void onBuyerNameCache(const LLAvatarName& av_name);
 
 public:
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	
 	bool setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
 	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
@@ -165,7 +165,7 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 	}
 }
 
-BOOL LLFloaterSellLandUI::postBuild()
+bool LLFloaterSellLandUI::postBuild()
 {
 	childSetCommitCallback("sell_to", onChangeValue, this);
 	childSetCommitCallback("price", onChangeValue, this);
@@ -177,7 +177,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 	childSetAction("show_objects", doShowObjects, this);
 	center();
 	getChild<LLUICtrl>("profile_scroll")->setTabStop(true);
-	return TRUE;
+	return true;
 }
 
 bool LLFloaterSellLandUI::setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel)

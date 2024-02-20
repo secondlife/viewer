@@ -72,7 +72,7 @@ LLPanelPlaceInfo::~LLPanelPlaceInfo()
 }
 
 //virtual
-BOOL LLPanelPlaceInfo::postBuild()
+bool LLPanelPlaceInfo::postBuild()
 {
 	mTitle = getChild<LLTextBox>("title");
 	mCurrentTitle = mTitle->getText();
@@ -92,7 +92,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
 	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
 
-	return TRUE;
+	return true;
 }
 
 //virtual
@@ -194,7 +194,7 @@ void LLPanelPlaceInfo::setErrorStatus(S32 status, const std::string& reason)
 	mRegionTitle.clear();
 
 	// Enable "Back" button that was disabled when parcel request was sent.
-	getChild<LLButton>("back_btn")->setEnabled(TRUE);
+	getChild<LLButton>("back_btn")->setEnabled(true);
 }
 
 // virtual
@@ -258,7 +258,7 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 }
 
 // virtual
-void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLPanelPlaceInfo::reshape(S32 width, S32 height, bool called_from_parent)
 {
 
 	// This if was added to force collapsing description textbox on Windows at the beginning of reshape

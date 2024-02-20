@@ -287,7 +287,7 @@ class LLFavoriteLandmarkToggleableMenu : public LLToggleableMenu
 {
 public:
     // virtual
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type,
         void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override
     {
         mToolbar->handleDragAndDropToMenu(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
@@ -304,7 +304,7 @@ public:
     }
 
     // virtual
-    void setVisible(BOOL visible) override
+    void setVisible(bool visible) override
     {
         // Avoid of hiding the menu during hovering
         if (visible || !mIsHovering)
@@ -320,9 +320,9 @@ public:
 
     ~LLFavoriteLandmarkToggleableMenu()
     {
-        // Enable subsequent setVisible(FALSE)
+        // Enable subsequent setVisible(false)
         mIsHovering = false;
-        setVisible(FALSE);
+        setVisible(false);
     }
 
 protected:
@@ -458,7 +458,7 @@ LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
         mContextMenuHandle.get()->die();
 }
 
-BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
     EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
 {
 	*accept = ACCEPT_NO;
@@ -586,7 +586,7 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool LLFavoritesBarCtrl::handleDragAndDropToMenu(S32 x, S32 y, MASK mask, BOOL drop,
@@ -801,7 +801,7 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 }
 
 //virtual
-void LLFavoritesBarCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLFavoritesBarCtrl::reshape(S32 width, S32 height, bool called_from_parent)
 {
     S32 delta_width = width - getRect().getWidth();
     S32 delta_height = height - getRect().getHeight();
@@ -1091,7 +1091,7 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 }
 
 
-BOOL LLFavoritesBarCtrl::postBuild()
+bool LLFavoritesBarCtrl::postBuild()
 {
 	// make the popup menu available
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_favorites.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1102,7 +1102,7 @@ BOOL LLFavoritesBarCtrl::postBuild()
 	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
 	mContextMenuHandle = menu->getHandle();
 
-	return TRUE;
+	return true;
 }
 
 BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &items)

@@ -46,7 +46,7 @@ public:
 	LLTeleportHistoryPanel();
 	virtual ~LLTeleportHistoryPanel();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void draw() override;
 
     void onSearchEdit(const std::string& string) override;

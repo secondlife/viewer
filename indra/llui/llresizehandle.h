@@ -58,7 +58,7 @@ public:
 	void			setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
 	
 private:
-	BOOL			pointInHandle( S32 x, S32 y );
+	bool			pointInHandle( S32 x, S32 y );
 
 	S32				mDragLastScreenX;
 	S32				mDragLastScreenY;

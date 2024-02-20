@@ -45,7 +45,7 @@ class LLFloaterDisplayName : public LLFloater
 public:
 	LLFloaterDisplayName(const LLSD& key);
 	virtual ~LLFloaterDisplayName() { }
-	/*virtual*/	BOOL	postBuild();
+	/*virtual*/	bool	postBuild();
 	void onSave();
 	void onReset();
 	void onCancel();
@@ -100,7 +100,7 @@ void LLFloaterDisplayName::onOpen(const LLSD& key)
 	}
 }
 
-BOOL LLFloaterDisplayName::postBuild()
+bool LLFloaterDisplayName::postBuild()
 {
 	getChild<LLUICtrl>("reset_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onReset, this));	
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onCancel, this));	
@@ -108,7 +108,7 @@ BOOL LLFloaterDisplayName::postBuild()
 	
 	center();
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterDisplayName::onCacheSetName(bool success,

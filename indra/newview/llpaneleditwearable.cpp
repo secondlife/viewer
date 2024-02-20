@@ -707,7 +707,7 @@ void LLPanelEditWearable::setWearablePanelVisibilityChangeCallback(LLPanel* body
 }
 
 // virtual 
-BOOL LLPanelEditWearable::postBuild()
+bool LLPanelEditWearable::postBuild()
 {
         // buttons
         mBtnRevert = getChild<LLButton>("revert_button");
@@ -824,20 +824,20 @@ BOOL LLPanelEditWearable::postBuild()
         gSavedSettings.getControl("HeightUnits")->getSignal()->connect(boost::bind(&LLPanelEditWearable::changeHeightUnits, this, _2));
         updateMetricLayout(gSavedSettings.getBOOL("HeightUnits"));
 
-        return TRUE;
+        return true;
 }
 
 // virtual 
 // LLUICtrl
-BOOL LLPanelEditWearable::isDirty() const
+bool LLPanelEditWearable::isDirty() const
 {
-        BOOL isDirty = FALSE;
+        bool isDirty = false;
         if (mWearablePtr)
         {
 			if (mWearablePtr->isDirty() ||
 				( mWearableItem && mNameEditor && mWearableItem->getName().compare(mNameEditor->getText()) != 0 ))
 			{
-				isDirty = TRUE;
+				isDirty = true;
 			}
         }
         return isDirty;
@@ -861,7 +861,7 @@ void LLPanelEditWearable::onClose()
 	revertChanges();
 }
 
-void LLPanelEditWearable::setVisible(BOOL visible)
+void LLPanelEditWearable::setVisible(bool visible)
 {
         if (!visible)
         {
@@ -1539,7 +1539,7 @@ void LLPanelEditWearable::updateVerbs()
                 can_copy = mWearableItem->getPermissions().allowCopyBy(gAgentID);
         }
 
-        BOOL is_dirty = isDirty();
+        bool is_dirty = isDirty();
 
         mBtnRevert->setEnabled(is_dirty);
         getChildView("save_as_button")->setEnabled(is_dirty && can_copy);
@@ -1552,7 +1552,7 @@ void LLPanelEditWearable::updateVerbs()
         }
 
         // update back button and title according to dirty state.
-        static BOOL was_dirty = FALSE;
+        static bool was_dirty = false;
         if (was_dirty != is_dirty) // to avoid redundant changes because this method is called from draw
         {
                 static S32 label_width = mBtnBack->getFont()->getWidth(mBackBtnLabel);

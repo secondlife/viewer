@@ -91,7 +91,7 @@ LLFloater360Capture::~LLFloater360Capture()
     }
 }
 
-BOOL LLFloater360Capture::postBuild()
+bool LLFloater360Capture::postBuild()
 {
     mCaptureBtn = getChild<LLUICtrl>("capture_button");
     mCaptureBtn->setCommitCallback(boost::bind(&LLFloater360Capture::onCapture360ImagesBtn, this));
