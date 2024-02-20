@@ -22,6 +22,15 @@
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
 
+namespace
+{
+    // can't specify free function free() as a unique_ptr deleter
+    struct freer
+    {
+        void operator()(void *ptr) { free(ptr); }
+    };
+}
+
 namespace lluau
 {
     // luau defines luaL_error() as void, but we want to use the Lua idiom of

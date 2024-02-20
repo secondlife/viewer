@@ -25,15 +25,6 @@
 #include "llsdutil.h"
 #include "lualistener.h"
 
-namespace
-{
-    // can't specify free function free() as a unique_ptr deleter
-    struct freer
-    {
-        void operator()(void* ptr){ free(ptr); }
-    };
-} // anonymous namespace
-
 int lluau::dostring(lua_State* L, const std::string& desc, const std::string& text)
 {
     {
