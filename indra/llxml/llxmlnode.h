@@ -296,7 +296,7 @@ public:
 
 	XML_Parser *mParser;		// Temporary pointer while loading
 
-	BOOL mIsAttribute;			// Flag is only used for output formatting
+	bool mIsAttribute;			// Flag is only used for output formatting
 	U32 mVersionMajor;			// Version of this tag to use
 	U32 mVersionMinor;
 	U32 mLength;				// If the length is nonzero, then only return arrays of this length

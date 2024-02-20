@@ -1552,7 +1552,7 @@ bool LLPanelRegionTerrainInfo::callbackTextureHeights(const LLSD& notification, 
 	}
 	else if (option == 2) // don't ask
 	{
-		gSavedSettings.setBOOL("RegionCheckTextureHeights", FALSE);
+		gSavedSettings.setBOOL("RegionCheckTextureHeights", false);
 		mConfirmedTextureHeights = true;
 	}
 

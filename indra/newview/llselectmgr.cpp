@@ -582,7 +582,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 	// leave component mode
 	if (gSavedSettings.getBOOL("EditLinkedParts"))
 	{
-		gSavedSettings.setBOOL("EditLinkedParts", FALSE);
+		gSavedSettings.setBOOL("EditLinkedParts", false);
 		promoteSelectionToRoot();
 	}
 
@@ -652,7 +652,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(const std::vector<LLV
 	// leave component mode
 	if (gSavedSettings.getBOOL("EditLinkedParts"))
 	{		
-		gSavedSettings.setBOOL("EditLinkedParts", FALSE);
+		gSavedSettings.setBOOL("EditLinkedParts", false);
 		promoteSelectionToRoot();
 	}
 

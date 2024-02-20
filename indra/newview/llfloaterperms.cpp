@@ -162,10 +162,10 @@ void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
 	// Implements fair use
 	std::string prefix = user_data.asString();
 
-	BOOL copyable = gSavedSettings.getBOOL(prefix+"NextOwnerCopy");
+	bool copyable = gSavedSettings.getBOOL(prefix+"NextOwnerCopy");
 	if(!copyable)
 	{
-		gSavedSettings.setBOOL(prefix+"NextOwnerTransfer", TRUE);
+		gSavedSettings.setBOOL(prefix+"NextOwnerTransfer", true);
 	}
 	LLCheckBoxCtrl* xfer = getChild<LLCheckBoxCtrl>(prefix+"_transfer");
 	xfer->setEnabled(copyable);

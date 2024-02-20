@@ -59,8 +59,6 @@ template <> eControlType get_control_type<U32>();
 template <> eControlType get_control_type<S32>();
 template <> eControlType get_control_type<F32>();
 template <> eControlType get_control_type<bool>();
-// Yay BOOL, its really an S32.
-//template <> eControlType get_control_type<BOOL> () ;
 template <> eControlType get_control_type<std::string>();
 
 template <> eControlType get_control_type<LLVector3>();
@@ -465,7 +463,7 @@ std::string LLControlGroup::typeEnumToString(eControlType typeenum)
 	return mTypeString[typeenum];
 }
 
-LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor)
+LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, bool hidefromsettingseditor)
 {
 	LLControlVariable* existing_control = getControl(name);
 	if (existing_control)
@@ -562,9 +560,9 @@ void LLControlGroup::incrCount(const std::string& name)
 	getCount[name] = getCount[name].asInteger() + 1;
 }
 
-BOOL LLControlGroup::getBOOL(const std::string& name)
+bool LLControlGroup::getBOOL(const std::string& name)
 {
-	return (BOOL)get<bool>(name);
+	return get<bool>(name);
 }
 
 S32 LLControlGroup::getS32(const std::string& name)
@@ -659,7 +657,7 @@ LLSD LLControlGroup::asLLSD(bool diffs_only)
 	return result;
 }
 
-BOOL LLControlGroup::controlExists(const std::string& name)
+bool LLControlGroup::controlExists(const std::string& name)
 {
 	ctrl_name_table_t::iterator iter = mNameTable.find(name);
 	return iter != mNameTable.end();
@@ -670,7 +668,7 @@ BOOL LLControlGroup::controlExists(const std::string& name)
 // Set functions
 //-------------------------------------------------------------------
 
-void LLControlGroup::setBOOL(const std::string& name, BOOL val)
+void LLControlGroup::setBOOL(const std::string& name, bool val)
 {
 	set<bool>(name, val);
 }
@@ -755,7 +753,7 @@ void LLControlGroup::setUntypedValue(const std::string& name, const LLSD& val)
 //---------------------------------------------------------------
 
 // Returns number of controls loaded, so 0 if failure
-U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require_declaration, eControlType declare_as)
+U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, bool require_declaration, eControlType declare_as)
 {
 	std::string name;
 
@@ -791,7 +789,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 	{
 		name = child_nodep->getName();		
 		
-		BOOL declared = controlExists(name);
+		bool declared = controlExists(name);
 
 		if (require_declaration && !declared)
 		{
@@ -952,7 +950,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 	return validitems;
 }
 
-U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only)
+U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only)
 {
 	LLSD settings;
 	int num_saved = 0;
@@ -1162,7 +1160,7 @@ void main()
 	bar = new LLControlVariable<S32>("gBar", 10, 2, 22);
 	gGlobals.addEntry("gBar", bar);
 
-	baz = new LLControlVariable<BOOL>("gBaz", FALSE);
+	baz = new LLControlVariable<bool>("gBaz", false);
 	gGlobals.addEntry("gBaz", baz);
 
 	// test retrieval
@@ -1224,13 +1222,7 @@ template <> eControlType get_control_type<bool> ()
 { 
 	return TYPE_BOOLEAN; 
 }
-/*
-// Yay BOOL, its really an S32.
-template <> eControlType get_control_type<BOOL> () 
-{ 
-	return TYPE_BOOLEAN; 
-}
-*/
+
 template <> eControlType get_control_type<std::string>() 
 { 
 	return TYPE_STRING; 
@@ -1485,7 +1477,6 @@ DECL_LLCC(U32, (U32)666);
 DECL_LLCC(S32, (S32)-666);
 DECL_LLCC(F32, (F32)-666.666);
 DECL_LLCC(bool, true);
-DECL_LLCC(BOOL, FALSE);
 static LLCachedControl<std::string> mySetting_string("TestCachedControlstring", "Default String Value");
 DECL_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
 DECL_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));
@@ -1506,7 +1497,6 @@ void test_cached_control()
 	TEST_LLCC(S32, (S32)-666);
 	TEST_LLCC(F32, (F32)-666.666);
 	TEST_LLCC(bool, true);
-	TEST_LLCC(BOOL, FALSE);
 	if((std::string)mySetting_string != "Default String Value") LL_ERRS() << "Fail string" << LL_ENDL;
 	TEST_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
 	TEST_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));

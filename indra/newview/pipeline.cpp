@@ -433,8 +433,8 @@ void LLPipeline::init()
 	// disables non-object rendering (UI, sky, water, etc)
 	if (gSavedSettings.getBOOL("RenderPerformanceTest"))
 	{
-		gSavedSettings.setBOOL("RenderPerformanceTest", FALSE);
-		gSavedSettings.setBOOL("RenderPerformanceTest", TRUE);
+		gSavedSettings.setBOOL("RenderPerformanceTest", false);
+		gSavedSettings.setBOOL("RenderPerformanceTest", true);
 	}
 
 	mOldRenderDebugMask = mRenderDebugMask;

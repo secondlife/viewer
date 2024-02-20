@@ -1930,7 +1930,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         {
             gSavedSettings.setF32("UIScaleFactor", 1.f);
         }
-        gSavedSettings.setBOOL("ResetUIScaleOnFirstRun", FALSE);
+        gSavedSettings.setBOOL("ResetUIScaleOnFirstRun", false);
     }
 
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
@@ -1974,7 +1974,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		|| (gSavedSettings.getBOOL("ProbeHardwareOnStartup")))
 	{
 		LLFeatureManager::getInstance()->applyRecommendedSettings();
-		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+		gSavedSettings.setBOOL("ProbeHardwareOnStartup", false);
 	}
 
 	// If we crashed while initializng GL stuff last time, disable certain features

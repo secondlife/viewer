@@ -180,7 +180,7 @@ bool callback_clear_cache(const LLSD& notification, const LLSD& response)
 	if ( option == 0 ) // YES
 	{
 		// flag client texture cache for clearing next time the client runs
-		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", true);
 		LLNotificationsUtil::add("CacheWillClear");
 	}
 
@@ -200,7 +200,7 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 		LLNavigationBar::getInstance()->clearHistoryCache();
 		
 		// flag client texture cache for clearing next time the client runs
-		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", true);
 		LLNotificationsUtil::add("CacheWillClear");
 
 		LLSearchHistory::getInstance()->clearHistory();
@@ -861,7 +861,7 @@ void LLFloaterPreference::setRecommendedSettings()
 
 void LLFloaterPreference::resetAutotuneSettings()
 {
-    gSavedSettings.setBOOL("AutoTuneFPS", FALSE);
+    gSavedSettings.setBOOL("AutoTuneFPS", false);
 
     const std::string autotune_settings[] = {
         "AutoTuneLock",
@@ -1327,7 +1327,7 @@ void LLFloaterPreference::onClickEnablePopup()
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
 		//gSavedSettings.setWarning(templatep->mName, TRUE);
 		std::string notification_name = templatep->mName;
-		LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
+		LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(notification_name, true);
 	}
 	
 	buildPopupLists();

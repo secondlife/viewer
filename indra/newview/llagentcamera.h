@@ -231,7 +231,7 @@ private:
 	LLPointer<LLViewerObject> mFocusObject;
 	F32				mFocusObjectDist;
 	LLVector3		mFocusObjectOffset;
-	BOOL			mTrackFocusObject;
+	bool			mTrackFocusObject;
 	
 	//--------------------------------------------------------------------
 	// Lookat / Pointat

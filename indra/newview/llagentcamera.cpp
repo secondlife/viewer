@@ -160,7 +160,7 @@ LLAgentCamera::LLAgentCamera() :
 	mFocusObject(NULL),
 	mFocusObjectDist(0.f),
 	mFocusObjectOffset(),
-	mTrackFocusObject(TRUE),
+	mTrackFocusObject(true),
 
 	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
 	mWalkKey(0), // like AtKey, but causes less forward thrust

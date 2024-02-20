@@ -1691,11 +1691,11 @@ void LLFloaterWorldMap::onChangeMaturity()
 	// disable mature / adult events.
 	if (!can_access_mature)
 	{
-		gSavedSettings.setBOOL("ShowMatureEvents", FALSE);
+		gSavedSettings.setBOOL("ShowMatureEvents", false);
 	}
 	if (!can_access_adult)
 	{
-		gSavedSettings.setBOOL("ShowAdultEvents", FALSE);
+		gSavedSettings.setBOOL("ShowAdultEvents", false);
 	}
 }
 

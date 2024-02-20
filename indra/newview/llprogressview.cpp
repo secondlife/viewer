@@ -152,7 +152,7 @@ void LLProgressView::revealIntroPanel()
 
 
 		// flag as having seen the new user post login intro
-		gSavedSettings.setBOOL("PostFirstLoginIntroViewed", TRUE );
+		gSavedSettings.setBOOL("PostFirstLoginIntroViewed", true );
 
 		mMediaCtrl->setFocus(TRUE);
 	}

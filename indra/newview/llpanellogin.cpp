@@ -428,7 +428,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 		}
         if (update_password_setting)
         {
-            gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
+            gSavedSettings.setBOOL("UpdateRememberPasswordSetting", true);
         }
 		break;
 	}
@@ -1101,7 +1101,7 @@ void LLPanelLogin::onRememberPasswordCheck(void*)
 {
     if (sInstance)
     {
-        gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
+        gSavedSettings.setBOOL("UpdateRememberPasswordSetting", true);
 
         LLPointer<LLCredential> cred;
         bool remember_user, remember_password;

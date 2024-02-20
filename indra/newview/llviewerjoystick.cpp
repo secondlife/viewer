@@ -234,14 +234,14 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 {
 	if (mDriverState == JDS_UNINITIALIZED)
 	{
-		gSavedSettings.setBOOL("JoystickEnabled", FALSE );
+		gSavedSettings.setBOOL("JoystickEnabled", false);
 	}
 	else
 	{
 		// autoenable if user specifically chose this device
 		if (autoenable && (isLikeSpaceNavigator() || isDeviceUUIDSet())) 
 		{
-			gSavedSettings.setBOOL("JoystickEnabled", TRUE );
+			gSavedSettings.setBOOL("JoystickEnabled", true );
 		}
 	}
 	if (!gSavedSettings.getBOOL("JoystickEnabled"))

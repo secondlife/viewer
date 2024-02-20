@@ -568,7 +568,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		// handle all the different types
 		if(ctrl->isType(TYPE_BOOLEAN))
 		{
-			gSavedSettings.setBOOL(mIt->first, (BOOL)getRecommendedValue(mIt->first));
+			gSavedSettings.setBOOL(mIt->first, (bool)getRecommendedValue(mIt->first));
 		}
 		else if (ctrl->isType(TYPE_S32))
 		{
