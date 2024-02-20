@@ -1530,6 +1530,56 @@ if (WINDOWS)
     configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
                     ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
                     )
+
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
+         "\n"
+         "/////////////////////////////////////////////////////////////////////////////\n"
+         "//\n"
+         "// Embed XML files into the resource\n"
+         "//\n"
+         "\n"
+         )
+
+    file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/res/listXML.rc)
+
+    # Collect relative names of all XML files
+    # to a semicolon-separated list XML_FILES
+    file(GLOB_RECURSE XML_FILES
+         RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+         ${CMAKE_CURRENT_SOURCE_DIR}/*.xml
+         )
+
+    # Process each XML file name in a loop
+    foreach(XML_FILE IN LISTS XML_FILES)
+
+        # Make resource id from XML file name
+        string(TOUPPER ${XML_FILE} RESOURCE_ID)
+        string(REPLACE "/" "_" RESOURCE_ID ${RESOURCE_ID})
+        string(REPLACE "%" "_" RESOURCE_ID ${RESOURCE_ID})
+        string(REPLACE "." "_" RESOURCE_ID ${RESOURCE_ID})
+
+        # Write resource id, resource type and file name
+        # to the output resource file viewerRes.rc
+        # to embed XML into the executable binary
+        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
+             "IDR_${RESOURCE_ID}\tXML\t\"../${XML_FILE}\"\n"
+             )
+
+        # Write resource id and file name to the list
+        file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/res/listXML.rc
+             "IDR_${RESOURCE_ID}\t${XML_FILE}\n"
+             )
+
+    endforeach()
+
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
+         "\n"
+         "IDR_LIST_XML\tTEXT\t\"listXML.rc\"\n"
+         "\n"
+         "/////////////////////////////////////////////////////////////////////////////\n"
+         "\n"
+         )
+
     set(viewer_RESOURCE_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
         ${viewer_RESOURCE_FILES}
