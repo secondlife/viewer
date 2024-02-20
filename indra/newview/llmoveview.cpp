@@ -88,7 +88,7 @@ LLFloaterMove::~LLFloaterMove()
 }
 
 // virtual
-BOOL LLFloaterMove::postBuild()
+bool LLFloaterMove::postBuild()
 {
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
@@ -142,12 +142,12 @@ BOOL LLFloaterMove::postBuild()
 
 	gAgent.addParcelChangedCallback(LLFloaterMove::sUpdateFlyingStatus);
 
-	return TRUE;
+	return true;
 }
 
 // *NOTE: we assume that setVisible() is called on floater close.
 // virtual
-void LLFloaterMove::setVisible(BOOL visible)
+void LLFloaterMove::setVisible(bool visible)
 {
 	// Do nothing with Stand/Stop Flying panel in excessive calls of this method.
 	if (getVisible() == visible)
@@ -451,7 +451,7 @@ void LLFloaterMove::sUpdateFlyingStatus()
 	
 }
 
-void LLFloaterMove::showModeButtons(BOOL bShow)
+void LLFloaterMove::showModeButtons(bool bShow)
 {
 	if (mModeActionsPanel->getVisible() == bShow)
 		return;
@@ -562,26 +562,26 @@ void LLPanelStandStopFlying::clearStandStopFlyingMode(EStandStopFlyingMode mode)
 
 }
 
-BOOL LLPanelStandStopFlying::postBuild()
+bool LLPanelStandStopFlying::postBuild()
 {
 	mStandButton = getChild<LLButton>("stand_btn");
 	mStandButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
 	mStandButton->setCommitCallback(boost::bind(&LLFloaterMove::enableInstance));
-	mStandButton->setVisible(FALSE);
+	mStandButton->setVisible(false);
 	LLHints::getInstance()->registerHintTarget("stand_btn", mStandButton->getHandle());
 	
 	mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
 	//mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));
 	mStopFlyingButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStopFlyingButtonClick, this));
-	mStopFlyingButton->setVisible(FALSE);
+	mStopFlyingButton->setVisible(false);
 
 	gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelStandStopFlying::updatePosition, this));
 	
-	return TRUE;
+	return true;
 }
 
 //virtual
-void LLPanelStandStopFlying::setVisible(BOOL visible)
+void LLPanelStandStopFlying::setVisible(bool visible)
 {
 	//we dont need to show the panel if these buttons are not activated
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;

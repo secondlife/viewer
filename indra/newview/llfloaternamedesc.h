@@ -41,7 +41,7 @@ class LLFloaterNameDesc : public LLFloater
 public:
 	LLFloaterNameDesc(const LLSD& filename);
 	virtual ~LLFloaterNameDesc();
-	virtual BOOL postBuild();
+	bool postBuild() override;
 	
 	void		onBtnOK();
 	void		onBtnCancel();
@@ -53,7 +53,7 @@ protected:
 	virtual void		onCommit();
 
 protected:
-	BOOL        mIsAudio;
+	bool        mIsAudio;
 	bool		mIsText;
 
 	std::string		mFilenameAndPath;
@@ -64,21 +64,21 @@ class LLFloaterSoundPreview : public LLFloaterNameDesc
 {
 public:
 	LLFloaterSoundPreview(const LLSD& filename );
-	virtual BOOL postBuild();
+	bool postBuild() override;
 };
 
 class LLFloaterAnimPreview : public LLFloaterNameDesc
 {
 public:
 	LLFloaterAnimPreview(const LLSD& filename );
-	virtual BOOL postBuild();
+	bool postBuild() override;
 };
 
 class LLFloaterScriptPreview : public LLFloaterNameDesc
 {
 public:
 	LLFloaterScriptPreview(const LLSD& filename );
-	virtual BOOL postBuild();
+	bool postBuild() override;
 };
 
 #endif  // LL_LLFLOATERNAMEDESC_H

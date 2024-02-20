@@ -125,7 +125,7 @@ class LLNormalTextSegment : public LLTextSegment
 {
 public:
 	LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
-	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
 	virtual ~LLNormalTextSegment();
 
 	/*virtual*/ bool				getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
@@ -138,7 +138,7 @@ public:
 	/*virtual*/ void 				setStyle(LLStyleConstSP style)	{ mStyle = style; }
 	/*virtual*/ void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	/*virtual*/ LLKeywordToken*		getToken() const					{ return mToken; }
-	/*virtual*/ BOOL				getToolTip( std::string& msg ) const;
+	/*virtual*/ bool				getToolTip( std::string& msg ) const;
 	/*virtual*/ void				setToolTip(const std::string& tooltip);
 	/*virtual*/ void				dump() const;
 
@@ -170,7 +170,7 @@ class LLLabelTextSegment : public LLNormalTextSegment
 {
 public:
 	LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
-	LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+	LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
 
 protected:
 
@@ -351,20 +351,20 @@ public:
 	/*virtual*/ bool		handleToolTip(S32 x, S32 y, MASK mask);
 
 	// LLView interface
-	/*virtual*/ void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void		reshape(S32 width, S32 height, bool called_from_parent = true);
 	/*virtual*/ void		draw();
 
 	// LLUICtrl interface
-	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
+	/*virtual*/ bool		acceptsTextInput() const { return !mReadOnly; }
 	/*virtual*/ void		setColor( const LLColor4& c );
 	virtual     void 		setReadOnlyColor(const LLColor4 &c);
-	virtual	    void		onVisibilityChange( BOOL new_visibility );
+	virtual	    void		onVisibilityChange( bool new_visibility );
 
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
 
 	// LLEditMenuHandler interface
-	/*virtual*/ BOOL		canDeselect() const;
+	/*virtual*/ bool		canDeselect() const;
 	/*virtual*/ void		deselect();
 
 	virtual void	onFocusReceived();
@@ -416,7 +416,7 @@ public:
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 
 	void					setLabel(const LLStringExplicit& label);
-	virtual BOOL			setLabelArg(const std::string& key, const LLStringExplicit& text );
+	virtual bool			setLabelArg(const std::string& key, const LLStringExplicit& text );
 
 	const	std::string& 	getLabel()	{ return mLabel.getString(); }
 	const	LLWString&		getWlabel() { return mLabel.getWString();}
@@ -450,7 +450,7 @@ public:
 	F32						getLineSpacingMult() { return mLineSpacingMult; }
 	S32						getLineSpacingPixels() { return mLineSpacingPixels; } // only for multiline
 
-	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line = true) const;
+	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round, bool hit_past_end_of_line = true) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
 	LLRect					getDocRectFromDocIndex(S32 pos) const;
 
@@ -525,7 +525,7 @@ protected:
 	class TextCmd
 	{
 	public:
-		TextCmd( S32 pos, BOOL group_with_next, LLTextSegmentPtr segment = LLTextSegmentPtr() ) 
+		TextCmd( S32 pos, bool group_with_next, LLTextSegmentPtr segment = LLTextSegmentPtr() ) 
 		:	mPos(pos), 
 			mGroupWithNext(group_with_next)
 		{
@@ -535,13 +535,13 @@ protected:
 			}
 		}
 		virtual			~TextCmd() {}
-		virtual BOOL	execute(LLTextBase* editor, S32* delta) = 0;
+		virtual bool	execute(LLTextBase* editor, S32* delta) = 0;
 		virtual S32		undo(LLTextBase* editor) = 0;
 		virtual S32		redo(LLTextBase* editor) = 0;
-		virtual BOOL	canExtend(S32 pos) const { return FALSE; }
+		virtual bool	canExtend(S32 pos) const { return false; }
 		virtual void	blockExtensions() {}
-		virtual BOOL	extendAndExecute( LLTextBase* editor, S32 pos, llwchar c, S32* delta ) { llassert(0); return 0; }
-		virtual BOOL	hasExtCharValue( llwchar value ) const { return FALSE; }
+		virtual bool	extendAndExecute( LLTextBase* editor, S32 pos, llwchar c, S32* delta ) { llassert(0); return 0; }
+		virtual bool	hasExtCharValue( llwchar value ) const { return false; }
 
 		// Defined here so they can access protected LLTextEditor editing methods
 		S32				insert(LLTextBase* editor, S32 pos, const LLWString &wstr) { return editor->insertStringNoUndo( pos, wstr, &mSegments ); }
@@ -549,11 +549,11 @@ protected:
 		S32				overwrite(LLTextBase* editor, S32 pos, llwchar wc) { return editor->overwriteCharNoUndo(pos, wc); }
 		
 		S32				getPosition() const { return mPos; }
-		BOOL			groupWithNext() const { return mGroupWithNext; }
+		bool			groupWithNext() const { return mGroupWithNext; }
 		
 	protected:
 		const S32			mPos;
-		BOOL				mGroupWithNext;
+		bool				mGroupWithNext;
 		segment_vec_t		mSegments;
 	};
 
@@ -621,7 +621,7 @@ protected:
 
 	// misc
 	void							updateRects();
-	void							needsScroll() { mScrollNeeded = TRUE; }
+	void							needsScroll() { mScrollNeeded = true; }
 
 	struct URLLabelCallback;
 	// Replace a URL with a new icon and label, for example, when
@@ -674,7 +674,7 @@ protected:
 	S32							mSelectionEnd;
 	LLTimer		                mTripleClickTimer;
 	
-	BOOL						mIsSelecting;		// Are we in the middle of a drag-select? 
+	bool						mIsSelecting;		// Are we in the middle of a drag-select? 
 
 	// spell checking
 	bool						mSpellCheck;

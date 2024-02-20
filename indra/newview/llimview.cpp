@@ -2351,14 +2351,14 @@ LLCallDialog::~LLCallDialog()
 	LLUI::getInstance()->removePopup(this);
 }
 
-BOOL LLCallDialog::postBuild()
+bool LLCallDialog::postBuild()
 {
 	if (!LLDockableFloater::postBuild() || !gToolBarView)
-		return FALSE;
+		return false;
 
 	dockToToolbarButton("speak");
 
-	return TRUE;
+	return true;
 }
 
 void LLCallDialog::dockToToolbarButton(const std::string& toolbarButtonName)
@@ -2621,13 +2621,13 @@ void LLOutgoingCallDialog::onCancel(void* user_data)
 }
 
 
-BOOL LLOutgoingCallDialog::postBuild()
+bool LLOutgoingCallDialog::postBuild()
 {
-	BOOL success = LLCallDialog::postBuild();
+	bool success = LLCallDialog::postBuild();
 
 	childSetAction("Cancel", onCancel, this);
 
-	setCanDrag(FALSE);
+	setCanDrag(false);
 
 	return success;
 }
@@ -2675,14 +2675,14 @@ void LLIncomingCallDialog::onLifetimeExpired()
 	}
 }
 
-BOOL LLIncomingCallDialog::postBuild()
+bool LLIncomingCallDialog::postBuild()
 {
 	LLCallDialog::postBuild();
 
     if (!mPayload.isMap() || mPayload.size() == 0)
     {
         LL_INFOS("IMVIEW") << "IncomingCall: invalid argument" << LL_ENDL;
-        return TRUE;
+        return true;
     }
 
 	LLUUID session_id = mPayload["session_id"].asUUID();
@@ -2692,14 +2692,14 @@ BOOL LLIncomingCallDialog::postBuild()
     if (session_id.isNull() && caller_id.asUUID().isNull())
     {
         LL_INFOS("IMVIEW") << "IncomingCall: invalid ids" << LL_ENDL;
-        return TRUE;
+        return true;
     }
 
     std::string notify_box_type = mPayload["notify_box_type"].asString();
     if (!is_voice_call_type(notify_box_type))
     {
         LL_INFOS("IMVIEW") << "IncomingCall: notify_box_type was not provided" << LL_ENDL;
-        return TRUE;
+        return true;
     }
 
 	// init notification's lifetime
@@ -2761,8 +2761,8 @@ BOOL LLIncomingCallDialog::postBuild()
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 	getChildView("Start IM")->setVisible( is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
-	setCanDrag(FALSE);
-	return TRUE;
+	setCanDrag(false);
+	return true;
 }
 
 void LLIncomingCallDialog::setCallerName(const std::string& ui_title,

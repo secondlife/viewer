@@ -101,7 +101,7 @@ const std::string LLMenuGL::ARROW_DOWN("vvvvvvv");
 
 const F32 MAX_MOUSE_SLOPE_SUB_MENU = 0.9f;
 
-BOOL LLMenuGL::sKeyboardMode = FALSE;
+bool LLMenuGL::sKeyboardMode = false;
 
 LLHandle<LLView> LLMenuHolderGL::sItemLastSelectedHandle;
 LLFrameTimer LLMenuHolderGL::sItemActivationTimer;
@@ -151,10 +151,10 @@ LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 :	LLUICtrl(p),
 	mJumpKey(p.jump_key),
 	mAllowKeyRepeat(p.allow_key_repeat),
-	mHighlight( FALSE ),
-	mGotHover( FALSE ),
-	mBriefItem( FALSE ),
-	mDrawTextDisabled( FALSE ),
+	mHighlight( false ),
+	mGotHover( false ),
+	mBriefItem( false ),
+	mDrawTextDisabled( false ),
 	mFont(p.font),
 	mAcceleratorKey(KEY_NONE),
 	mAcceleratorMask(MASK_NONE),
@@ -166,7 +166,7 @@ LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 {
 #ifdef LL_DARWIN
 	// See if this Mac accelerator should really use the ctrl key and not get mapped to cmd
-	BOOL useMacCtrl = p.use_mac_ctrl;
+	bool useMacCtrl = p.use_mac_ctrl;
 #endif // LL_DARWIN
 	
 	std::string shortcut = p.shortcut;
@@ -219,14 +219,14 @@ bool LLMenuItemGL::hasAccelerator(const KEY &key, const MASK &mask) const
 }
 
 //virtual
-BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
+bool LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
 	{
 		onCommit();
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 bool LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
@@ -243,13 +243,13 @@ bool LLMenuItemGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLMenuItemGL::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	setHover(TRUE);
+	setHover(true);
 	LLUICtrl::onMouseEnter(x,y,mask);
 }
 
 void LLMenuItemGL::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	setHover(FALSE);
+	setHover(false);
 	LLUICtrl::onMouseLeave(x,y,mask);
 }
 
@@ -269,7 +269,7 @@ bool LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp)
+bool LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp)
 {
 	LLMenuKeyboardBinding *accelerator = NULL;
 
@@ -294,7 +294,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *list
 
 			//	LL_WARNS() << warning << LL_ENDL;
 			//	LLAlertDialog::modalAlert(warning);
-				return FALSE;
+				return false;
 			}
 		}
 		if (!accelerator)
@@ -309,7 +309,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *list
 			listp->push_back(accelerator);//addData(accelerator);
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 // This function appends the character string representation of
@@ -333,13 +333,13 @@ U32 LLMenuItemGL::getNominalHeight( void ) const
 }
 
 //virtual
-void LLMenuItemGL::setBriefItem(BOOL brief)
+void LLMenuItemGL::setBriefItem(bool brief)
 {
 	mBriefItem = brief;
 }
 
 //virtual
-BOOL LLMenuItemGL::isBriefItem() const
+bool LLMenuItemGL::isBriefItem() const
 {
 	return mBriefItem;
 }
@@ -403,7 +403,7 @@ void LLMenuItemGL::onCommit( void )
 }
 
 // set the hover status (called by it's menu)
- void LLMenuItemGL::setHighlight( BOOL highlight )
+ void LLMenuItemGL::setHighlight( bool highlight )
 {
 	if (highlight)
 	{
@@ -419,7 +419,7 @@ void LLMenuItemGL::onCommit( void )
 }
 
 
-BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask )
+bool LLMenuItemGL::handleKeyHere( KEY key, MASK mask )
 {
 	if (getHighlight() && 
 		getMenu()->isOpen())
@@ -427,30 +427,30 @@ BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask )
 		if (key == KEY_UP)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			getMenu()->highlightPrevItem(this);
-			return TRUE;
+			return true;
 		}
 		else if (key == KEY_DOWN)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			getMenu()->highlightNextItem(this);
-			return TRUE;
+			return true;
 		}
 		else if (key == KEY_RETURN && mask == MASK_NONE)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			onCommit();
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK mask)
@@ -522,19 +522,19 @@ void LLMenuItemGL::draw( void )
 		if( !mDrawBoolLabel.empty() )
 		{
 			mFont->render( mDrawBoolLabel.getWString(), 0, (F32)LEFT_PAD_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
-						   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+						   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
 		}
 		mFont->render( mLabel.getWString(), 0, (F32)LEFT_PLAIN_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
-					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
 		if( !mDrawAccelLabel.empty() )
 		{
 			mFont->render( mDrawAccelLabel.getWString(), 0, (F32)getRect().mRight - (F32)RIGHT_PLAIN_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
-						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
 		}
 		if( !mDrawBranchLabel.empty() )
 		{
 			mFont->render( mDrawBranchLabel.getWString(), 0, (F32)getRect().mRight - (F32)RIGHT_PAD_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
-						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
 		}
 	}
 
@@ -553,13 +553,13 @@ void LLMenuItemGL::draw( void )
 	}
 }
 
-BOOL LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& text )
+bool LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	mLabel.setArg(key, text);
-	return TRUE;
+	return true;
 }
 
-void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
+void LLMenuItemGL::onVisibilityChange(bool new_visibility)
 {
 	if (getMenu())
 	{
@@ -735,12 +735,12 @@ void LLMenuItemTearOffGL::onCommit()
 		{
 			if (parent_floater)
 			{
-				parent_floater->addDependentFloater(tear_off_menu, FALSE);
+				parent_floater->addDependentFloater(tear_off_menu, false);
 			}
 
 			// give focus to torn off menu because it will have
 			// been taken away when parent menu closes
-			tear_off_menu->setFocus(TRUE);
+			tear_off_menu->setFocus(true);
 		}
 	}
 	LLMenuItemGL::onCommit();
@@ -860,12 +860,12 @@ void LLMenuItemCallGL::buildDrawLabel( void )
 	LLMenuItemGL::buildDrawLabel();
 }
 
-BOOL LLMenuItemCallGL::handleKeyHere( KEY key, MASK mask )
+bool LLMenuItemCallGL::handleKeyHere( KEY key, MASK mask )
 {
 	return LLMenuItemGL::handleKeyHere(key, mask);
 }
 
-BOOL LLMenuItemCallGL::handleAcceleratorKey( KEY key, MASK mask )
+bool LLMenuItemCallGL::handleAcceleratorKey( KEY key, MASK mask )
 {
 	if( (!gKeyboard->getKeyRepeated(key) || getAllowKeyRepeat()) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
 	{
@@ -873,10 +873,10 @@ BOOL LLMenuItemCallGL::handleAcceleratorKey( KEY key, MASK mask )
 		if (getEnabled())
 		{
 			onCommit();
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 // handleRightMouseUp moved into base class LLMenuItemGL so clicks are
@@ -968,7 +968,7 @@ LLMenuItemBranchGL::LLMenuItemBranchGL(const LLMenuItemBranchGL::Params& p)
 	if (branch)
 	{
 		mBranchHandle = branch->getHandle();
-		branch->setVisible(FALSE);
+		branch->setVisible(false);
 		branch->setParentMenuItem(this);
 	}
 }
@@ -984,7 +984,7 @@ LLMenuItemBranchGL::~LLMenuItemBranchGL()
 
 
 // virtual
-LLView* LLMenuItemBranchGL::getChildView(const std::string& name, BOOL recurse) const
+LLView* LLMenuItemBranchGL::getChildView(const std::string& name, bool recurse) const
 {
 	LLMenuGL* branch = getBranch();
 	if (branch)
@@ -1001,7 +1001,7 @@ LLView* LLMenuItemBranchGL::getChildView(const std::string& name, BOOL recurse) 
 	return LLView::getChildView(name, recurse);
 }
 
-LLView* LLMenuItemBranchGL::findChildView(const std::string& name, BOOL recurse) const
+LLView* LLMenuItemBranchGL::findChildView(const std::string& name, bool recurse) const
 {
 	LLMenuGL* branch = getBranch();
 	if (branch)
@@ -1022,7 +1022,7 @@ LLView* LLMenuItemBranchGL::findChildView(const std::string& name, BOOL recurse)
 bool LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// switch to mouse navigation mode
-	LLMenuGL::setKeyboardMode(FALSE);
+	LLMenuGL::setKeyboardMode(false);
 
 	onCommit();
 	make_ui_sound("UISndClickRelease");
@@ -1034,18 +1034,18 @@ bool LLMenuItemBranchGL::hasAccelerator(const KEY &key, const MASK &mask) const
 	return getBranch() && getBranch()->hasAccelerator(key, mask);
 }
 
-BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
+bool LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	return getBranch() && getBranch()->handleAcceleratorKey(key, mask);
 }
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp)
+bool LLMenuItemBranchGL::addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp)
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)
-		return FALSE;
+		return false;
 
 	U32 item_count = branch->getItemCount();
 	LLMenuItemGL *item;
@@ -1058,7 +1058,7 @@ BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLMenuKeyboardBinding*> 
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -1086,9 +1086,9 @@ void LLMenuItemBranchGL::onCommit( void )
 	LLUICtrl::onCommit();
 }
 
-BOOL LLMenuItemBranchGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+bool LLMenuItemBranchGL::handleKey(KEY key, MASK mask, bool called_from_parent)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if (getBranch() && called_from_parent)
 	{
 		handled = getBranch()->handleKey(key, mask, called_from_parent);
@@ -1102,12 +1102,12 @@ BOOL LLMenuItemBranchGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	return handled;
 }
 
-BOOL LLMenuItemBranchGL::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
+bool LLMenuItemBranchGL::handleUnicodeChar(llwchar uni_char, bool called_from_parent)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if (getBranch() && called_from_parent)
 	{
-		handled = getBranch()->handleUnicodeChar(uni_char, TRUE);
+		handled = getBranch()->handleUnicodeChar(uni_char, true);
 	}
 
 	if (!handled)
@@ -1119,7 +1119,7 @@ BOOL LLMenuItemBranchGL::handleUnicodeChar(llwchar uni_char, BOOL called_from_pa
 }
 
 
-void LLMenuItemBranchGL::setHighlight( BOOL highlight )
+void LLMenuItemBranchGL::setHighlight( bool highlight )
 {
 	if (highlight == getHighlight())
 		return;
@@ -1128,17 +1128,17 @@ void LLMenuItemBranchGL::setHighlight( BOOL highlight )
 	if (!branch)
 		return;
 
-	BOOL auto_open = getEnabled() && (!branch->getVisible() || branch->getTornOff());
+	bool auto_open = getEnabled() && (!branch->getVisible() || branch->getTornOff());
 	// torn off menus don't open sub menus on hover unless they have focus
 	LLFloater * menu_parent = dynamic_cast<LLFloater *>(getMenu()->getParent());
 	if (getMenu()->getTornOff() && menu_parent && !menu_parent->hasFocus())
 	{
-		auto_open = FALSE;
+		auto_open = false;
 	}
 	// don't auto open torn off sub-menus (need to explicitly active menu item to give them focus)
 	if (branch->getTornOff())
 	{
-		auto_open = FALSE;
+		auto_open = false;
 	}
 	LLMenuItemGL::setHighlight(highlight);
 	if( highlight )
@@ -1155,13 +1155,13 @@ void LLMenuItemBranchGL::setHighlight( BOOL highlight )
 			LLFloater * branch_parent = dynamic_cast<LLFloater *>(branch->getParent());
 			if (branch_parent)
 			{
-				branch_parent->setFocus(FALSE);
+				branch_parent->setFocus(false);
 			}
 			branch->clearHoverItem();
 		}
 		else
 		{
-			branch->setVisible( FALSE );
+			branch->setVisible( false );
 		}
 	}
 }
@@ -1171,7 +1171,7 @@ void LLMenuItemBranchGL::draw()
 	LLMenuItemGL::draw();
 	if (getBranch() && getBranch()->getVisible() && !getBranch()->getTornOff())
 	{
-		setHighlight(TRUE);
+		setHighlight(true);
 	}
 }
 
@@ -1184,16 +1184,16 @@ void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 	}
 }
 
-void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
+void LLMenuItemBranchGL::onVisibilityChange( bool new_visibility )
 {
-	if (new_visibility == FALSE && getBranch() && !getBranch()->getTornOff())
+	if (new_visibility == false && getBranch() && !getBranch()->getTornOff())
 	{
-		getBranch()->setVisible(FALSE);
+		getBranch()->setVisible(false);
 	}
 	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
-BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
+bool LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)
@@ -1208,15 +1208,15 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 		if (branch->getVisible() && key == KEY_LEFT)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
-			BOOL handled = branch->clearHoverItem();
+			bool handled = branch->clearHoverItem();
 			if (branch->getTornOff())
 			{
 				LLFloater * branch_parent = dynamic_cast<LLFloater *>(branch->getParent());
 				if (branch_parent)
 				{
-					branch_parent->setFocus(FALSE);
+					branch_parent->setFocus(false);
 				}
 			}
 			if (handled && getMenu()->getTornOff())
@@ -1224,7 +1224,7 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 				LLFloater * menu_parent = dynamic_cast<LLFloater *>(getMenu()->getParent());
 				if (menu_parent)
 				{
-					menu_parent->setFocus(TRUE);
+					menu_parent->setFocus(true);
 				}
 			}
 			return handled;
@@ -1233,12 +1233,12 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 		if (key == KEY_RIGHT && !branch->getHighlightedItem())
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
 			if (itemp)
 			{
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -1246,13 +1246,13 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 }
 
 //virtual
-BOOL LLMenuItemBranchGL::isActive() const
+bool LLMenuItemBranchGL::isActive() const
 {
 	return isOpen() && getBranch() && getBranch()->getHighlightedItem();
 }
 
 //virtual
-BOOL LLMenuItemBranchGL::isOpen() const
+bool LLMenuItemBranchGL::isOpen() const
 {
 	return getBranch() && getBranch()->isOpen();
 }
@@ -1323,7 +1323,7 @@ void LLMenuItemBranchGL::openMenu()
 		}
 		branch->translate( delta_x, delta_y );
 
-		branch->setVisible( TRUE );
+		branch->setVisible( true );
 		branch->getParent()->sendChildToFront(branch);
 
 		dirtyRect();
@@ -1358,20 +1358,20 @@ public:
 
 	// set the hover status (called by it's menu) and if the object is
 	// active. This is used for behavior transfer.
-	virtual void setHighlight( BOOL highlight );
+	virtual void setHighlight( bool highlight );
 
-	virtual BOOL isActive( void ) const;
+	virtual bool isActive( void ) const;
 
 	// LLView functionality
 	virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual bool handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool handleKeyHere(KEY key, MASK mask);
 	
-	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
+	virtual bool handleAcceleratorKey(KEY key, MASK mask);
     
     virtual void onFocusLost();
-    virtual void setFocus(BOOL b);
+    virtual void setFocus(bool b);
 };
 
 LLMenuItemBranchDownGL::LLMenuItemBranchDownGL( const Params& p) :
@@ -1403,7 +1403,7 @@ void LLMenuItemBranchDownGL::openMenu( void )
 	LLMenuGL* branch = getBranch();
 	if( branch->getVisible() && !branch->getTornOff() )
 	{
-		branch->setVisible( FALSE );
+		branch->setVisible( false );
 	}
 	else
 	{
@@ -1444,15 +1444,15 @@ void LLMenuItemBranchDownGL::openMenu( void )
 			}
 			branch->translate( delta_x, 0 );
 
-			setHighlight(TRUE);
-			branch->setVisible( TRUE );
+			setHighlight(true);
+			branch->setVisible( true );
 			branch->getParent()->sendChildToFront(branch);
 		}
 	}
 }
 
 // set the hover status (called by it's menu)
-void LLMenuItemBranchDownGL::setHighlight( BOOL highlight )
+void LLMenuItemBranchDownGL::setHighlight( bool highlight )
 {
  	if (highlight == getHighlight())
 		return;
@@ -1471,18 +1471,18 @@ void LLMenuItemBranchDownGL::setHighlight( BOOL highlight )
 			LLFloater * branch_parent = dynamic_cast<LLFloater *>(branch->getParent());
 			if (branch_parent)
 			{
-				branch_parent->setFocus(FALSE);
+				branch_parent->setFocus(false);
 			}
 			branch->clearHoverItem();
 		}
 		else
 		{
-			branch->setVisible( FALSE );
+			branch->setVisible( false );
 		}
 	}
 }
 
-BOOL LLMenuItemBranchDownGL::isActive() const
+bool LLMenuItemBranchDownGL::isActive() const
 {
 	// for top level menus, being open is sufficient to be considered 
 	// active, because clicking on them with the mouse will open
@@ -1514,10 +1514,10 @@ bool LLMenuItemBranchDownGL::handleMouseUp( S32 x, S32 y, MASK mask )
 }
 
 
-BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
+bool LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 {
-	BOOL branch_visible = getBranch()->getVisible();
-	BOOL handled = getBranch()->handleAcceleratorKey(key, mask);
+	bool branch_visible = getBranch()->getVisible();
+	bool handled = getBranch()->handleAcceleratorKey(key, mask);
 	if (handled && !branch_visible && isInVisibleChain())
 	{
 		// flash this menu entry because we triggered an invisible menu item
@@ -1530,11 +1530,11 @@ void LLMenuItemBranchDownGL::onFocusLost()
 {
     // needed for tab-based selection
     LLMenuItemBranchGL::onFocusLost();
-    LLMenuGL::setKeyboardMode(FALSE);
-    setHighlight(FALSE);
+    LLMenuGL::setKeyboardMode(false);
+    setHighlight(false);
 }
 
-void LLMenuItemBranchDownGL::setFocus(BOOL b)
+void LLMenuItemBranchDownGL::setFocus(bool b)
 {
     // needed for tab-based selection
     LLMenuItemBranchGL::setFocus(b);
@@ -1542,16 +1542,16 @@ void LLMenuItemBranchDownGL::setFocus(BOOL b)
     setHighlight(b);
 }
 
-BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
+bool LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL menu_open = getBranch()->getVisible();
+	bool menu_open = getBranch()->getVisible();
 	// don't do keyboard navigation of top-level menus unless in keyboard mode, or menu expanded
 	if (getHighlight() && getMenu()->isOpen() && (isActive() || LLMenuGL::getKeyboardMode()))
 	{
 		if (key == KEY_LEFT)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			LLMenuItemGL* itemp = getMenu()->highlightPrevItem(this);
 			// open new menu only if previous menu was open
@@ -1560,12 +1560,12 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
 				itemp->onCommit();
 			}
 
-			return TRUE;
+			return true;
 		}
 		else if (key == KEY_RIGHT)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			LLMenuItemGL* itemp = getMenu()->highlightNextItem(this);
 			// open new menu only if previous menu was open
@@ -1574,35 +1574,35 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
 				itemp->onCommit();
 			}
 
-			return TRUE;
+			return true;
 		}
 		else if (key == KEY_DOWN)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			if (!isActive())
 			{
 				onCommit();
 			}
 			getBranch()->highlightNextItem(NULL);
-			return TRUE;
+			return true;
 		}
 		else if (key == KEY_UP)
 		{
 			// switch to keyboard navigation mode
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 
 			if (!isActive())
 			{
 				onCommit();
 			}
 			getBranch()->highlightPrevItem(NULL);
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void LLMenuItemBranchDownGL::draw( void )
@@ -1610,7 +1610,7 @@ void LLMenuItemBranchDownGL::draw( void )
 	//FIXME: try removing this
 	if (getBranch()->getVisible() && !getBranch()->getTornOff())
 	{
-		setHighlight(TRUE);
+		setHighlight(true);
 	}
 
 	if( getHighlight() )
@@ -1682,8 +1682,8 @@ protected:
 
 public:
 	/*virtual*/ void draw();
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
-	/*virtual*/ void setEnabled(BOOL enabled);
+	/*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent);
+	/*virtual*/ void setEnabled(bool enabled);
 	virtual void onCommit( void );
 
 private:
@@ -1733,14 +1733,14 @@ void LLMenuScrollItem::draw()
 }
 
 /*virtual*/
-void LLMenuScrollItem::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLMenuScrollItem::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	mArrowBtn->reshape(width, height, called_from_parent);
 	LLView::reshape(width, height, called_from_parent);
 }
 
 /*virtual*/
-void LLMenuScrollItem::setEnabled(BOOL enabled)
+void LLMenuScrollItem::setEnabled(bool enabled)
 {
 	mArrowBtn->setEnabled(enabled);
 	LLView::setEnabled(enabled);
@@ -1762,7 +1762,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mDropShadowed( p.drop_shadow ),
 	mHasSelection(false),
 	mHorizontalLayout( p.horizontal_layout ),
-	mScrollable(mHorizontalLayout ? FALSE : p.scrollable), // Scrolling is supported only for vertical layout
+	mScrollable(mHorizontalLayout ? false : p.scrollable), // Scrolling is supported only for vertical layout
 	mMaxScrollableItems(p.max_scrollable_items),
 	mPreferredWidth(p.preferred_width),
 	mKeepFixedSize( p.keep_fixed_size ),
@@ -1771,7 +1771,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mLastMouseY(0),
 	mMouseVelX(0),
 	mMouseVelY(0),
-	mTornOff(FALSE),
+	mTornOff(false),
 	mTearOffItem(NULL),
 	mSpilloverBranch(NULL),
 	mFirstVisibleItem(NULL),
@@ -1780,8 +1780,8 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mSpilloverMenu(NULL),
 	mJumpKey(p.jump_key),
 	mCreateJumpKeys(p.create_jump_keys),
-	mNeedsArrange(FALSE),
-	mAlwaysShowMenu(FALSE),
+	mNeedsArrange(false),
+	mAlwaysShowMenu(false),
 	mResetScrollPositionOnShow(true),
 	mShortcutPad(p.shortcut_pad)
 {
@@ -1821,7 +1821,7 @@ LLMenuGL::~LLMenuGL( void )
 	mJumpKeys.clear();
 }
 
-void LLMenuGL::setCanTearOff(BOOL tear_off)
+void LLMenuGL::setCanTearOff(bool tear_off)
 {
 	if (tear_off && mTearOffItem == NULL)
 	{
@@ -1911,7 +1911,7 @@ void LLMenuGL::removeChild( LLView* ctrl)
 	return LLUICtrl::removeChild(ctrl);
 }
 
-BOOL LLMenuGL::postBuild()
+bool LLMenuGL::postBuild()
 {
 	createJumpKeys();
 	return LLUICtrl::postBuild();
@@ -1919,10 +1919,10 @@ BOOL LLMenuGL::postBuild()
 
 // are we the childmost active menu and hence our jump keys should be enabled?
 // or are we a free-standing torn-off menu (which uses jump keys too)
-BOOL LLMenuGL::jumpKeysActive()
+bool LLMenuGL::jumpKeysActive()
 {
 	LLMenuItemGL* highlighted_item = getHighlightedItem();
-	BOOL active = getVisible() && getEnabled();
+	bool active = getVisible() && getEnabled();
 
 	if (active)
 	{
@@ -1948,7 +1948,7 @@ BOOL LLMenuGL::jumpKeysActive()
 	return active;
 }
 
-BOOL LLMenuGL::isOpen()
+bool LLMenuGL::isOpen()
 {
 	if (getTornOff())
 	{
@@ -1957,7 +1957,7 @@ BOOL LLMenuGL::isOpen()
 		// the open menu chain even if we don't have focus
 		if (itemp && itemp->isOpen())
 		{
-			return TRUE;
+			return true;
 		}
 		// otherwise we are only active if we have keyboard focus
 		LLFloater * parent = dynamic_cast<LLFloater *>(getParent());
@@ -1965,7 +1965,7 @@ BOOL LLMenuGL::isOpen()
 		{
 			return parent->hasFocus();
 		}
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -2075,7 +2075,7 @@ bool LLMenuGL::scrollItems(EScrollingDirection direction)
 		LL_WARNS() << "Unknown scrolling direction: " << direction << LL_ENDL;
 	}
 
-	mNeedsArrange = TRUE;
+	mNeedsArrange = true;
 	arrangeAndClear();
 
 	return true;
@@ -2332,11 +2332,11 @@ void LLMenuGL::arrange( void )
 
 				LLRect rect;
 				mArrowUpItem->setRect(rect.setLeftTopAndSize( 0, cur_height, width, mArrowUpItem->getNominalHeight()));
-				mArrowUpItem->setVisible(TRUE);
+				mArrowUpItem->setVisible(true);
 				mArrowUpItem->setEnabled(height_before_first_visible_item > MENU_ITEM_PADDING);
 				mArrowUpItem->reshape(width, mArrowUpItem->getNominalHeight());
 				mArrowDownItem->setRect(rect.setLeftTopAndSize( 0, mArrowDownItem->getNominalHeight(), width, mArrowDownItem->getNominalHeight()));
-				mArrowDownItem->setVisible(TRUE);
+				mArrowDownItem->setVisible(true);
 				mArrowDownItem->setEnabled(height_before_first_visible_item + visible_items_height < (S32)height);
 				mArrowDownItem->reshape(width, mArrowDownItem->getNominalHeight());
 
@@ -2348,11 +2348,11 @@ void LLMenuGL::arrange( void )
 			{
 				if (NULL != mArrowUpItem)
 				{
-					mArrowUpItem->setVisible(FALSE);
+					mArrowUpItem->setVisible(false);
 				}
 				if (NULL != mArrowDownItem)
 				{
-					mArrowDownItem->setVisible(FALSE);
+					mArrowDownItem->setVisible(false);
 				}
 			}
 
@@ -2415,7 +2415,7 @@ void LLMenuGL::arrangeAndClear( void )
 	if (mNeedsArrange)
 	{
 		arrange();
-		mNeedsArrange = FALSE;
+		mNeedsArrange = false;
 	}
 }
 
@@ -2477,7 +2477,7 @@ void LLMenuGL::cleanupSpilloverBranch()
 void LLMenuGL::createJumpKeys()
 {
 	if (!mCreateJumpKeys) return;
-	mCreateJumpKeys = FALSE;
+	mCreateJumpKeys = false;
 
 	mJumpKeys.clear();
 
@@ -2542,7 +2542,7 @@ void LLMenuGL::createJumpKeys()
 		tokenizer tokens(uppercase_label, sep);
 		tokenizer::iterator token_iter;
 
-		BOOL found_key = FALSE;
+		bool found_key = false;
 		for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 		{
 			std::string uppercase_word = *token_iter;
@@ -2560,7 +2560,7 @@ void LLMenuGL::createJumpKeys()
 					{
 						mJumpKeys.insert(std::pair<KEY, LLMenuItemGL*>(jump_key, (*item_it)));
 						(*item_it)->setJumpKey(jump_key);
-						found_key = TRUE;
+						found_key = true;
 						break;
 					}
 				}
@@ -2643,7 +2643,7 @@ void LLMenuGL::setLeftAndBottom(S32 left, S32 bottom)
 	needsArrange();
 }
 
-BOOL LLMenuGL::handleJumpKey(KEY key)
+bool LLMenuGL::handleJumpKey(KEY key)
 {
 	// must perform case-insensitive comparison, so just switch to uppercase input key
 	key = toupper(key);
@@ -2651,31 +2651,31 @@ BOOL LLMenuGL::handleJumpKey(KEY key)
 	if(found_it != mJumpKeys.end() && found_it->second->getEnabled())
 	{
 		// switch to keyboard navigation mode
-		LLMenuGL::setKeyboardMode(TRUE);
+		LLMenuGL::setKeyboardMode(true);
 
 		// force highlight to close old menus and open and sub-menus
-		found_it->second->setHighlight(TRUE);
+		found_it->second->setHighlight(true);
 		found_it->second->onCommit();
 
 	}
 	// if we are navigating the menus, we need to eat the keystroke
 	// so rest of UI doesn't handle it
-	return TRUE;
+	return true;
 }
 
 
 // Add the menu item to this menu.
-BOOL LLMenuGL::append( LLMenuItemGL* item )
+bool LLMenuGL::append( LLMenuItemGL* item )
 {
-	if (!item) return FALSE;
+	if (!item) return false;
 	mItems.push_back( item );
 	LLUICtrl::addChild(item);
 	needsArrange();
-	return TRUE;
+	return true;
 }
 
 // add a separator to this menu
-BOOL LLMenuGL::addSeparator()
+bool LLMenuGL::addSeparator()
 {
 	LLMenuItemSeparatorGL::Params p;
 	LLMenuItemGL* separator = LLUICtrlFactory::create<LLMenuItemSeparatorGL>(p);
@@ -2683,14 +2683,14 @@ BOOL LLMenuGL::addSeparator()
 }
 
 // add a menu - this will create a cascading menu
-BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
+bool LLMenuGL::appendMenu( LLMenuGL* menu )
 {
 	if( menu == this )
 	{
 		LL_ERRS() << "** Attempt to attach menu to itself. This is certainly "
 			   << "a logic error." << LL_ENDL;
 	}
-	BOOL success = TRUE;
+	bool success = true;
 
 	LLMenuItemBranchGL::Params p;
 	p.name = menu->getName();
@@ -2712,7 +2712,7 @@ BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
 }
 
 // add a context menu branch
-BOOL LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
+bool LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
 {
 	if (menu == this)
 	{
@@ -2735,7 +2735,7 @@ BOOL LLMenuGL::appendContextSubMenu(LLMenuGL *menu)
 	return append( item );
 }
 
-void LLMenuGL::setEnabledSubMenus(BOOL enable)
+void LLMenuGL::setEnabledSubMenus(bool enable)
 {
 	setEnabled(enable);
 	item_list_t::iterator item_iter;
@@ -2746,8 +2746,8 @@ void LLMenuGL::setEnabledSubMenus(BOOL enable)
 }
 
 // setItemEnabled() - pass the label and the enable flag for a menu
-// item. TRUE will make sure it's enabled, FALSE will disable it.
-void LLMenuGL::setItemEnabled( const std::string& name, BOOL enable )
+// item. true will make sure it's enabled, false will disable it.
+void LLMenuGL::setItemEnabled( const std::string& name, bool enable )
 {
 	item_list_t::iterator item_iter;
 	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2761,7 +2761,7 @@ void LLMenuGL::setItemEnabled( const std::string& name, BOOL enable )
 	}
 }
 
-void LLMenuGL::setItemVisible( const std::string& name, BOOL visible )
+void LLMenuGL::setItemVisible( const std::string& name, bool visible )
 {
 	item_list_t::iterator item_iter;
 	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2796,12 +2796,12 @@ void LLMenuGL::setItemLastSelected(LLMenuItemGL* item)
 }
 
 //  Set whether drop shadowed 
-void LLMenuGL::setDropShadowed( const BOOL shadowed )
+void LLMenuGL::setDropShadowed( const bool shadowed )
 {
 	mDropShadowed = shadowed;
 }
 
-void LLMenuGL::setTornOff(BOOL torn_off)
+void LLMenuGL::setTornOff(bool torn_off)
 { 
 	mTornOff = torn_off;
 }
@@ -2854,7 +2854,7 @@ LLMenuItemGL* LLMenuGL::getHighlightedItem()
 	return NULL;
 }
 
-LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disabled)
+LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, bool skip_disabled)
 {
 	if (mItems.empty()) return NULL;
 	// highlighting first item on a torn off menu is the
@@ -2864,7 +2864,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		LLFloater * parent = dynamic_cast<LLFloater *>(getParent());
 		if (parent)
 		{
-			parent->setFocus(TRUE);
+			parent->setFocus(true);
 		}
 	}
 
@@ -2933,9 +2933,9 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		{
 			if (cur_item)
 			{
-				cur_item->setHighlight(FALSE);
+				cur_item->setHighlight(false);
 			}
-			(*next_item_iter)->setHighlight(TRUE);
+			(*next_item_iter)->setHighlight(true);
 			return (*next_item_iter);
 		}
 
@@ -2959,7 +2959,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	return NULL;
 }
 
-LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disabled)
+LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, bool skip_disabled)
 {
 	if (mItems.empty()) return NULL;
 
@@ -2970,7 +2970,7 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		LLFloater * parent = dynamic_cast<LLFloater *>(getParent());
 		if (parent)
 		{
-			parent->setFocus(TRUE);
+			parent->setFocus(true);
 		}
 	}
 
@@ -3025,7 +3025,7 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		// skip separators and disabled/invisible items
 		if ((*prev_item_iter)->getEnabled() && (*prev_item_iter)->getVisible() && (*prev_item_iter)->getName() != SEPARATOR_NAME)
 		{
-			(*prev_item_iter)->setHighlight(TRUE);
+			(*prev_item_iter)->setHighlight(true);
 			return (*prev_item_iter);
 		}
 
@@ -3096,12 +3096,12 @@ bool LLMenuGL::hasAccelerator(const KEY &key, const MASK &mask) const
 	return false;
 }
 
-BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
+bool LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	// don't handle if not enabled
 	if(!getEnabled())
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Pass down even if not visible
@@ -3111,11 +3111,11 @@ BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 		LLMenuItemGL* itemp = *item_iter;
 		if (itemp->handleAcceleratorKey(key, mask))
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool LLMenuGL::handleUnicodeCharHere( llwchar uni_char )
@@ -3225,7 +3225,7 @@ void LLMenuGL::draw( void )
 	if (mNeedsArrange)
 	{
 		arrange();
-		mNeedsArrange = FALSE;
+		mNeedsArrange = false;
 	}
 	if (mDropShadowed && !mTornOff)
 	{
@@ -3250,7 +3250,7 @@ void LLMenuGL::drawBackground(LLMenuItemGL* itemp, F32 alpha)
 	gl_rect_2d( 0, item_rect.getHeight(), item_rect.getWidth(), 0);
 }
 
-void LLMenuGL::setVisible(BOOL visible)
+void LLMenuGL::setVisible(bool visible)
 {
 	if (visible != getVisible())
 	{
@@ -3273,7 +3273,7 @@ void LLMenuGL::setVisible(BOOL visible)
 	}
 }
 
-LLMenuGL* LLMenuGL::findChildMenuByName(const std::string& name, BOOL recurse) const
+LLMenuGL* LLMenuGL::findChildMenuByName(const std::string& name, bool recurse) const
 {
 	LLView* view = findChildView(name, recurse);
 	if (view)
@@ -3294,23 +3294,23 @@ LLMenuGL* LLMenuGL::findChildMenuByName(const std::string& name, BOOL recurse) c
 	return NULL;
 }
 
-BOOL LLMenuGL::clearHoverItem()
+bool LLMenuGL::clearHoverItem()
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLMenuItemGL* itemp = (LLMenuItemGL*)*child_it;
 		if (itemp->getHighlight())
 		{
-			itemp->setHighlight(FALSE);
-			return TRUE;
+			itemp->setHighlight(false);
+			return true;
 		}
 	}		
-	return FALSE;
+	return false;
 }
 
 void hide_top_view( LLView* view )
 {
-	if( view ) view->setVisible( FALSE );
+	if( view ) view->setVisible( false );
 }
 
 
@@ -3327,12 +3327,12 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S3
 		return;
 	}
 
-	menu->setVisible( TRUE );
+	menu->setVisible( true );
 
 	if(!menu->getAlwaysShowMenu())
 	{
 		//Do not show menu if all menu items are disabled
-		BOOL item_enabled = false;
+		bool item_enabled = false;
 		for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
 				itor != menu->getChildList()->end();
 				++itor)
@@ -3343,7 +3343,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S3
 
 		if(!item_enabled)
 		{
-			menu->setVisible( FALSE );
+			menu->setVisible( false );
 			return;
 		}
 	}
@@ -3408,7 +3408,7 @@ static LLDefaultChildRegistry::Register<LLMenuBarGL> r2("menu_bar");
 
 LLMenuBarGL::LLMenuBarGL( const Params& p )
 :	LLMenuGL(p),
-	mAltKeyTrigger(FALSE)
+	mAltKeyTrigger(false)
 {}
 
 // Default destructor
@@ -3418,19 +3418,19 @@ LLMenuBarGL::~LLMenuBarGL()
 	mAccelerators.clear();
 }
 
-BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
+bool LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if (getHighlightedItem() && mask == MASK_NONE)
 	{
 		// unmodified key accelerators are ignored when navigating menu
 		// (but are used as jump keys so will still work when appropriate menu is up)
-		return FALSE;
+		return false;
 	}
-	BOOL result = LLMenuGL::handleAcceleratorKey(key, mask);
+	bool result = LLMenuGL::handleAcceleratorKey(key, mask);
 	if (result && mask & MASK_ALT)
 	{
 		// ALT key used to trigger hotkey, don't use as shortcut to open menu
-		mAltKeyTrigger = FALSE;
+		mAltKeyTrigger = false;
 	}
 
 	if(!result 
@@ -3441,16 +3441,16 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 		if (getHighlightedItem())
 		{
 			clearHoverItem();
-			LLMenuGL::setKeyboardMode(FALSE);
+			LLMenuGL::setKeyboardMode(false);
 		}
 		else
 		{
 			// close menus originating from other menu bars when first opening menu via keyboard
 			LLMenuGL::sMenuContainer->hideMenus();
 			highlightNextItem(NULL);
-			LLMenuGL::setKeyboardMode(TRUE);
+			LLMenuGL::setKeyboardMode(true);
 		}
-		return TRUE;
+		return true;
 	}
 
 	if (result && !getHighlightedItem() && LLMenuGL::sMenuContainer->hasVisibleMenu())
@@ -3462,22 +3462,22 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 	return result;
 }
 
-BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask)
+bool LLMenuBarGL::handleKeyHere(KEY key, MASK mask)
 {
 	static LLUICachedControl<bool> use_altkey_for_menus ("UseAltKeyForMenus", 0);
 	if(key == KEY_ALT && !gKeyboard->getKeyRepeated(key) && use_altkey_for_menus)
 	{
-		mAltKeyTrigger = TRUE;
+		mAltKeyTrigger = true;
 	}
 	else // if any key other than ALT hit, clear out waiting for Alt key mode
 	{
-		mAltKeyTrigger = FALSE;
+		mAltKeyTrigger = false;
 	}
 	
 	if (key == KEY_ESCAPE && mask == MASK_NONE)
 	{
-		LLMenuGL::setKeyboardMode(FALSE);
-		// if any menus are visible, this will return TRUE, stopping further processing of ESCAPE key
+		LLMenuGL::setKeyboardMode(false);
+		// if any menus are visible, this will return true, stopping further processing of ESCAPE key
 		return LLMenuGL::sMenuContainer->hideMenus();
 	}
 
@@ -3487,7 +3487,7 @@ BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask)
 	return LLMenuGL::handleKeyHere(key, mask);
 }
 
-BOOL LLMenuBarGL::handleJumpKey(KEY key)
+bool LLMenuBarGL::handleJumpKey(KEY key)
 {
 	// perform case-insensitive comparison
 	key = toupper(key);
@@ -3495,12 +3495,12 @@ BOOL LLMenuBarGL::handleJumpKey(KEY key)
 	if(found_it != mJumpKeys.end() && found_it->second->getEnabled())
 	{
 		// switch to keyboard navigation mode
-		LLMenuGL::setKeyboardMode(TRUE);
+		LLMenuGL::setKeyboardMode(true);
 
-		found_it->second->setHighlight(TRUE);
+		found_it->second->setHighlight(true);
 		found_it->second->onCommit();
 	}
-	return TRUE;
+	return true;
 }
 
 bool LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -3559,14 +3559,14 @@ void LLMenuBarGL::checkMenuTrigger()
 				LLMenuGL::sMenuContainer->hideMenus();
 
 				highlightNextItem(NULL);
-				LLMenuGL::setKeyboardMode(TRUE);
+				LLMenuGL::setKeyboardMode(true);
 			}
 		}
-		mAltKeyTrigger = FALSE;
+		mAltKeyTrigger = false;
 	}
 }
 
-BOOL LLMenuBarGL::jumpKeysActive()
+bool LLMenuBarGL::jumpKeysActive()
 {
 	// require user to be in keyboard navigation mode to activate key triggers
 	// as menu bars are always visible and it is easy to leave the mouse cursor over them
@@ -3615,14 +3615,14 @@ S32 LLMenuBarGL::getRightmostMenuEdge()
 }
 
 // add a vertical separator to this menu
-BOOL LLMenuBarGL::addSeparator()
+bool LLMenuBarGL::addSeparator()
 {
 	LLMenuItemGL* separator = new LLMenuItemVerticalSeparatorGL();
 	return append( separator );
 }
 
 // add a menu - this will create a drop down menu.
-BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
+bool LLMenuBarGL::appendMenu( LLMenuGL* menu )
 {
 	if( menu == this )
 	{
@@ -3630,7 +3630,7 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 			   << "a logic error." << LL_ENDL;
 	}
 
-	BOOL success = TRUE;
+	bool success = true;
 
 	// *TODO: Hack! Fix this
 	LLMenuItemBranchDownGL::Params p;
@@ -3657,7 +3657,7 @@ bool LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 	bool handled = false;
 	LLView* active_menu = NULL;
 
-	BOOL no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
+	bool no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
 	S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
 	S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
 	mMouseVelX = (mMouseVelX / 2) + (mouse_delta_x / 2);
@@ -3691,7 +3691,7 @@ bool LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 				viewp->handleHover(local_x, local_y, mask))
 			{
 				((LLMenuItemGL*)viewp)->setHighlight(true);
-				handled = TRUE;
+				handled = true;
 				if (active_menu && active_menu != viewp)
 				{
 					((LLMenuItemGL*)viewp)->onCommit();
@@ -3731,7 +3731,7 @@ LLMenuHolderGL::LLMenuHolderGL(const LLMenuHolderGL::Params& p)
 	: LLPanel(p)
 {
 	sItemActivationTimer.stop();
-	mCanHide = TRUE;
+	mCanHide = true;
 }
 
 void LLMenuHolderGL::draw()
@@ -3823,9 +3823,9 @@ bool LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
-BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+bool LLMenuHolderGL::handleKey(KEY key, MASK mask, bool called_from_parent)
 {
-	BOOL handled =  false;
+	bool handled =  false;
 	LLMenuGL* const  pMenu  = dynamic_cast<LLMenuGL*>(getVisibleMenu());
 			
 	if (pMenu)
@@ -3833,7 +3833,7 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		//eat TAB key - EXT-7000
 		if (key == KEY_TAB && mask == MASK_NONE)
 		{
-			return TRUE;
+			return true;
 		}
 
 		//handle ESCAPE and RETURN key
@@ -3842,7 +3842,7 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		{
 			if (pMenu->getHighlightedItem())
 			{
-				handled = pMenu->handleKey(key, mask, TRUE);
+				handled = pMenu->handleKey(key, mask, true);
 			}
 			else if (mask == MASK_NONE || (key >= KEY_LEFT && key <= KEY_DOWN))
 			{
@@ -3859,7 +3859,7 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	
 }
 
-void LLMenuHolderGL::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLMenuHolderGL::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
 	{
@@ -3882,14 +3882,14 @@ LLView* const LLMenuHolderGL::getVisibleMenu() const
 }
 
 
-BOOL LLMenuHolderGL::hideMenus()
+bool LLMenuHolderGL::hideMenus()
 {
 	if (!mCanHide)
 	{
-		return FALSE;
+		return false;
 	}
-	LLMenuGL::setKeyboardMode(FALSE);
-	BOOL menu_visible = hasVisibleMenu();
+	LLMenuGL::setKeyboardMode(false);
+	bool menu_visible = hasVisibleMenu();
 	if (menu_visible)
 	{
 		// clicked off of menu, hide them all
@@ -3898,7 +3898,7 @@ BOOL LLMenuHolderGL::hideMenus()
 			LLView* viewp = *child_it;
 			if (dynamic_cast<LLMenuGL*>(viewp) != NULL && viewp->getVisible())
 			{
-				viewp->setVisible(FALSE);
+				viewp->setVisible(false);
 			}
 		}
 	}
@@ -3927,9 +3927,9 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 
 	setName(menup->getName());
 	setTitle(menup->getLabel());
-	setCanMinimize(FALSE);
+	setCanMinimize(false);
 	// flag menu as being torn off
-	menup->setTornOff(TRUE);
+	menup->setTornOff(true);
 	// update menu layout as torn off menu (no spillover menus)
 	menup->needsArrange();
 
@@ -3944,12 +3944,12 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 	menup->setFollows( FOLLOWS_LEFT | FOLLOWS_BOTTOM );
 	mOldParent = menup->getParent();
 	addChild(menup);
-	menup->setVisible(TRUE);
+	menup->setVisible(true);
 	LLRect menu_rect = menup->getRect();
 	menu_rect.setOriginAndSize( 1, 1,
 		menu_rect.getWidth(), menu_rect.getHeight());
 	menup->setRect(menu_rect);
-	menup->setDropShadowed(FALSE);
+	menup->setDropShadowed(false);
 
 	mMenu = menup;
 
@@ -3997,7 +3997,7 @@ void LLTearOffMenu::onFocusReceived()
 	{
 		if (parent_menu_item->getMenu()->getVisible())
 		{
-			parent_menu_item->setHighlight(TRUE);
+			parent_menu_item->setHighlight(true);
 			parent_menu_item = parent_menu_item->getMenu()->getParentMenuItem();
 		}
 		else
@@ -4015,29 +4015,29 @@ void LLTearOffMenu::onFocusLost()
 	LLFloater::onFocusLost();
 }
 
-BOOL LLTearOffMenu::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
+bool LLTearOffMenu::handleUnicodeChar(llwchar uni_char, bool called_from_parent)
 {
 	// pass keystrokes down to menu
-	return mMenu->handleUnicodeChar(uni_char, TRUE);
+	return mMenu->handleUnicodeChar(uni_char, true);
 }
 
-BOOL LLTearOffMenu::handleKeyHere(KEY key, MASK mask)
+bool LLTearOffMenu::handleKeyHere(KEY key, MASK mask)
 {
 	if (!mMenu->getHighlightedItem())
 	{
 		if (key == KEY_UP)
 		{
 			mMenu->highlightPrevItem(NULL);		
-			return TRUE;
+			return true;
 		}
 		else if (key == KEY_DOWN)
 		{
 			mMenu->highlightNextItem(NULL);
-			return TRUE;
+			return true;
 		}
 	}
 	// pass keystrokes down to menu
-	return mMenu->handleKey(key, mask, TRUE);
+	return mMenu->handleKey(key, mask, true);
 }
 
 void LLTearOffMenu::translate(S32 x, S32 y)
@@ -4055,7 +4055,7 @@ LLTearOffMenu* LLTearOffMenu::create(LLMenuGL* menup)
 {
 	LLTearOffMenu* tearoffp = new LLTearOffMenu(menup);
 	// keep onscreen
-	gFloaterView->adjustToFitScreen(tearoffp, FALSE);
+	gFloaterView->adjustToFitScreen(tearoffp, false);
 	tearoffp->openFloater(LLSD());
 
 	return tearoffp;
@@ -4092,10 +4092,10 @@ void LLTearOffMenu::closeTearOff()
 	mOldParent->addChild(mMenu);
 	mMenu->clearHoverItem();
 	mMenu->setFollowsNone();
-	mMenu->setBackgroundVisible(TRUE);
-	mMenu->setVisible(FALSE);
-	mMenu->setTornOff(FALSE);
-	mMenu->setDropShadowed(TRUE);
+	mMenu->setBackgroundVisible(true);
+	mMenu->setVisible(false);
+	mMenu->setTornOff(false);
+	mMenu->setDropShadowed(true);
     mQuitRequested = true;
 }
 
@@ -4129,19 +4129,19 @@ void LLContextMenuBranch::buildDrawLabel( void )
 		// enabled, this item is enabled. JC
 		U32 sub_count = menu->getItemCount();
 		U32 i;
-		BOOL any_enabled = FALSE;
+		bool any_enabled = false;
 		for (i = 0; i < sub_count; i++)
 		{
 			LLMenuItemGL* item = menu->getItem(i);
 			item->buildDrawLabel();
 			if (item->getEnabled() && !item->getDrawTextDisabled() )
 			{
-				any_enabled = TRUE;
+				any_enabled = true;
 				break;
 			}
 		}
 		setDrawTextDisabled(!any_enabled);
-		setEnabled(TRUE);
+		setEnabled(true);
 	}
 
 	mDrawAccelLabel.clear();
@@ -4174,7 +4174,7 @@ void LLContextMenuBranch::onCommit( void )
 	showSubMenu();
 
 }
-void LLContextMenuBranch::setHighlight( BOOL highlight )
+void LLContextMenuBranch::setHighlight( bool highlight )
 {
 	if (highlight == getHighlight()) return;
 	LLMenuItemGL::setHighlight(highlight);
@@ -4204,13 +4204,13 @@ static MenuRegistry::Register<LLContextMenu> context_menu_register2("context_men
 
 LLContextMenu::LLContextMenu(const Params& p)
 :	LLMenuGL(p),
-	mHoveredAnyItem(FALSE),
+	mHoveredAnyItem(false),
 	mHoverItem(NULL)
 {
-	//setBackgroundVisible(TRUE);
+	//setBackgroundVisible(true);
 }
 
-void LLContextMenu::setVisible(BOOL visible)
+void LLContextMenu::setVisible(bool visible)
 {
 	if (!visible)
 		hide();
@@ -4279,18 +4279,18 @@ void LLContextMenu::show(S32 x, S32 y, LLView* spawning_view)
 	{
 		mSpawningViewHandle.markDead();
 	}
-	LLView::setVisible(TRUE);
+	LLView::setVisible(true);
 }
 
 void LLContextMenu::hide()
 {
 	if (!getVisible()) return;
 
-	LLView::setVisible(FALSE);
+	LLView::setVisible(false);
 
 	if (mHoverItem)
 	{
-		mHoverItem->setHighlight( FALSE );
+		mHoverItem->setHighlight( false );
 	}
 	mHoverItem = NULL;
 }
@@ -4386,7 +4386,7 @@ bool LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 	}
 
 
-	BOOL result = handleMouseUp( x, y, mask );
+	bool result = handleMouseUp( x, y, mask );
 	mHoveredAnyItem = false;
 	
 	return result;

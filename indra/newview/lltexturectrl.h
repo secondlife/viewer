@@ -137,16 +137,16 @@ public:
 	// LLView interface
 
 	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
-						BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+	virtual bool	handleDragAndDrop(S32 x, S32 y, MASK mask,
+						bool drop, EDragAndDropType cargo_type, void *cargo_data,
 						EAcceptance *accept,
 						std::string& tooltip_msg);
 	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 	virtual bool	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual void	draw();
-	virtual void	setVisible( BOOL visible );
-	virtual void	setEnabled( BOOL enabled );
+	virtual void	setVisible( bool visible );
+	virtual void	setEnabled( bool enabled );
 
 	void			setValid(BOOL valid);
 
@@ -306,15 +306,15 @@ public:
 	virtual ~LLFloaterTexturePicker();
 
 	// LLView overrides
-	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
-		BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+	/*virtual*/ bool	handleDragAndDrop(S32 x, S32 y, MASK mask,
+		bool drop, EDragAndDropType cargo_type, void *cargo_data,
 		EAcceptance *accept,
 		std::string& tooltip_msg);
 	/*virtual*/ void	draw();
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ bool	handleKeyHere(KEY key, MASK mask);
 
 	// LLFloater overrides
-	/*virtual*/ BOOL    postBuild();
+	/*virtual*/ bool    postBuild();
     /*virtual*/ void	onOpen(const LLSD& key);
 	/*virtual*/ void	onClose(bool app_settings);
 

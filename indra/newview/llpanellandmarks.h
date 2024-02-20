@@ -52,7 +52,7 @@ public:
 	LLLandmarksPanel(bool is_landmark_panel);
 	virtual ~LLLandmarksPanel();
 
-	BOOL postBuild() override;
+	bool postBuild() override;
 	void onSearchEdit(const std::string& string) override;
 	void onShowOnMap() override;
 	void onShowProfile() override;
@@ -162,7 +162,7 @@ class LLFavoritesPanel : public LLLandmarksPanel
 public:
 	LLFavoritesPanel();
 
-	BOOL postBuild() override;
+	bool postBuild() override;
 	void initFavoritesInventoryPanel();
 };
 

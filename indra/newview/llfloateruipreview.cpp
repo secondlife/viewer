@@ -140,7 +140,7 @@ public:
 	std::string getLocStr(S32 ID);							// fetches the localization string based on what is selected in the drop-down menu
 	void displayFloater(BOOL click, S32 ID);			// needs to be public so live file can call it when it finds an update
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
 
 	void refreshList();										// refresh list (empty it out and fill it up from scratch)
@@ -423,7 +423,7 @@ LLFloaterUIPreview::~LLFloaterUIPreview()
 }
 
 // Perform post-build setup (defined in superclass)
-BOOL LLFloaterUIPreview::postBuild()
+bool LLFloaterUIPreview::postBuild()
 {
 	LLPanel* main_panel_tmp = getChild<LLPanel>("main_panel");				// get a pointer to the main panel in order to...
 	mFileList = main_panel_tmp->getChild<LLScrollListCtrl>("name_list");	// save pointer to file list
@@ -481,8 +481,8 @@ BOOL LLFloaterUIPreview::postBuild()
 	mDelim = gDirUtilp->getDirDelimiter();	// initialize delimiter to dir sep slash
 
 	// refresh list of available languages (EN will still be default)
-	BOOL found = TRUE;
-	BOOL found_en_us = FALSE;
+	bool found = true;
+	bool found_en_us = false;
 	std::string language_directory;
 	std::string xui_dir = get_xui_dir();	// directory containing localizations -- don't forget trailing delim
 	mLanguageSelection->removeall();																				// clear out anything temporarily in list from XML
@@ -502,7 +502,7 @@ BOOL LLFloaterUIPreview::postBuild()
 			{
 				if(!strncmp("en",language_directory.c_str(),5))													// remember if we've seen en, so we can make it default
 				{
-					found_en_us = TRUE;
+					found_en_us = true;
 				}
 				else
 				{
@@ -527,7 +527,7 @@ BOOL LLFloaterUIPreview::postBuild()
 
 	refreshList();																									// refresh the list of available floaters
 
-	return TRUE;
+	return true;
 }
 
 // Callback for language combo box selection: refresh current floater when you change languages

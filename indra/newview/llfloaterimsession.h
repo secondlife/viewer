@@ -64,15 +64,15 @@ public:
 	void initIMFloater();
 
 	// LLView overrides
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void setMinimized(BOOL b);
-	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ BOOL getVisible();
-	/*virtual*/ void setFocus(BOOL focus);
+	/*virtual*/ bool postBuild();
+	/*virtual*/ void setMinimized(bool b);
+	/*virtual*/ void setVisible(bool visible);
+	/*virtual*/ bool getVisible();
+	/*virtual*/ void setFocus(bool focus);
 	// Check typing timeout timer.
 
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	/*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 		EDragAndDropType cargo_type,
 		void* cargo_data,
 		EAcceptance* accept,

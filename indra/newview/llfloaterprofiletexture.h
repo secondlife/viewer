@@ -56,9 +56,9 @@ public:
         BOOL final,
         void* userdata);
 
-    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+    void reshape(S32 width, S32 height, bool called_from_parent = true) override;
 protected:
-    BOOL postBuild() override;
+    bool postBuild() override;
 
 private:
     void updateDimensions();

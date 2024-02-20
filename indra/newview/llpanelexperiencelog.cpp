@@ -54,7 +54,7 @@ LLPanelExperienceLog::LLPanelExperienceLog(  )
 	buildFromFile("panel_experience_log.xml");
 }
 
-BOOL LLPanelExperienceLog::postBuild( void )
+bool LLPanelExperienceLog::postBuild()
 {
 	LLExperienceLog* log = LLExperienceLog::getInstance();
 	mEventList = getChild<LLScrollListCtrl>("experience_log_list");
@@ -82,7 +82,7 @@ BOOL LLPanelExperienceLog::postBuild( void )
 	mPageSize = log->getPageSize();
 	refresh();
 	mNewEvent = LLExperienceLog::instance().addUpdateSignal(boost::bind(&LLPanelExperienceLog::refresh, this));
-	return TRUE;
+	return true;
 }
 
 LLPanelExperienceLog* LLPanelExperienceLog::create()

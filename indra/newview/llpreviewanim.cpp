@@ -50,7 +50,7 @@ LLPreviewAnim::LLPreviewAnim(const LLSD& key)
 }
 
 // virtual
-BOOL LLPreviewAnim::postBuild()
+bool LLPreviewAnim::postBuild()
 {
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);

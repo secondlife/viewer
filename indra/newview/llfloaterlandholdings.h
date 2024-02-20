@@ -41,7 +41,7 @@ public:
 	LLFloaterLandHoldings(const LLSD& key);
 	virtual ~LLFloaterLandHoldings();
 	
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	virtual void onOpen(const LLSD& key);
 	virtual void draw();
 

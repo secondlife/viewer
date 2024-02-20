@@ -411,14 +411,14 @@ bool LLFloaterTexturePicker::updateImageStats()
 }
 
 // virtual
-BOOL LLFloaterTexturePicker::handleDragAndDrop( 
+bool LLFloaterTexturePicker::handleDragAndDrop(
 		S32 x, S32 y, MASK mask,
-		BOOL drop,
+		bool drop,
 		EDragAndDropType cargo_type, void *cargo_data, 
 		EAcceptance *accept,
 		std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	bool is_mesh = cargo_type == DAD_MESH;
     bool is_texture = cargo_type == DAD_TEXTURE;
@@ -442,9 +442,9 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 
-		BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
-		BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
-		BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
+		bool copy = item->getPermissions().allowCopyBy(gAgent.getID());
+		bool mod = item->getPermissions().allowModifyBy(gAgent.getID());
+		bool xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
 															gAgent.getID());
 
 		PermissionMask item_perm_mask = 0;
@@ -473,13 +473,13 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		*accept = ACCEPT_NO;
 	}
 
-	handled = TRUE;
+	handled = true;
 	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFloaterTexturePicker " << getName() << LL_ENDL;
 
 	return handled;
 }
 
-BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 {
 	LLFolderView* root_folder = mInventoryPanel->getRootFolder();
 
@@ -494,23 +494,23 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 				LLFolderViewItem* itemp =    mInventoryPanel->getItemByID(gInventory.getRootFolderID());
 				if (itemp)
 				{
-					root_folder->setSelection(itemp, FALSE, FALSE);
+					root_folder->setSelection(itemp, false, false);
 				}
 			}
 			root_folder->scrollToShowSelection();
 			
 			// move focus to inventory proper
-			mInventoryPanel->setFocus(TRUE);
+			mInventoryPanel->setFocus(true);
 			
 			// treat this as a user selection of the first filtered result
 			commitIfImmediateSet();
 			
-			return TRUE;
+			return true;
 		}
 		
 		if (mInventoryPanel->hasFocus() && key == KEY_UP)
 		{
-			mFilterEdit->focusFirstItem(TRUE);
+			mFilterEdit->focusFirstItem(true);
 		}
 	}
 
@@ -537,7 +537,7 @@ void LLFloaterTexturePicker::onClose(bool app_quitting)
 }
 
 // virtual
-BOOL LLFloaterTexturePicker::postBuild()
+bool LLFloaterTexturePicker::postBuild()
 {
 	LLFloater::postBuild();
 
@@ -635,7 +635,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 	getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
 
 	setBakeTextureEnabled(TRUE);
-	return TRUE;
+	return true;
 }
 
 // virtual
@@ -1721,7 +1721,7 @@ void LLTextureCtrl::setFilterPermissionMasks(PermissionMask mask)
     setDnDFilterPermMask(mask);
 }
 
-void LLTextureCtrl::setVisible( BOOL visible ) 
+void LLTextureCtrl::setVisible( bool visible ) 
 {
 	if( !visible )
 	{
@@ -1730,7 +1730,7 @@ void LLTextureCtrl::setVisible( BOOL visible )
 	LLUICtrl::setVisible( visible );
 }
 
-void LLTextureCtrl::setEnabled( BOOL enabled )
+void LLTextureCtrl::setEnabled( bool enabled )
 {
 	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if( floaterp )
@@ -2072,12 +2072,12 @@ void LLTextureCtrl::setInventoryPickType(EPickInventoryType type)
     }
 }
 
-BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
-					  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+bool LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
+					  bool drop, EDragAndDropType cargo_type, void *cargo_data,
 					  EAcceptance *accept,
 					  std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	// this downcast may be invalid - but if the second test below
 	// returns true, then the cast was valid, and we can perform
@@ -2125,7 +2125,7 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		*accept = ACCEPT_NO;
 	}
 
-	handled = TRUE;
+	handled = true;
 	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLTextureCtrl " << getName() << LL_ENDL;
 
 	return handled;

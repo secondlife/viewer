@@ -137,12 +137,12 @@ void LLPreviewGesture::draw()
 }
 
 // virtual
-BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
+bool LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
 {
 	if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
 	{
 		saveIfNeeded();
-		return TRUE;
+		return true;
 	}
 
 	return LLPreview::handleKeyHere(key, mask);
@@ -150,13 +150,13 @@ BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
 
 
 // virtual
-BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 										 EDragAndDropType cargo_type,
 										 void* cargo_data,
 										 EAcceptance* accept,
 										 std::string& tooltip_msg)
 {
-	BOOL handled = TRUE;
+	bool handled = true;
 	switch(cargo_type)
 	{
 	case DAD_ANIMATION:
@@ -225,12 +225,12 @@ BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 
 // virtual
-BOOL LLPreviewGesture::canClose()
+bool LLPreviewGesture::canClose()
 {
 
 	if(!mDirty || mForceClose)
 	{
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -241,7 +241,7 @@ BOOL LLPreviewGesture::canClose()
 			LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
 					boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
 		}
-		return FALSE;
+		return false;
 	}
 }
 
@@ -336,7 +336,7 @@ LLPreviewGesture::~LLPreviewGesture()
 }
 
 
-BOOL LLPreviewGesture::postBuild()
+bool LLPreviewGesture::postBuild()
 {
 	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
 	
@@ -353,20 +353,20 @@ BOOL LLPreviewGesture::postBuild()
 	edit = getChild<LLLineEditor>("trigger_editor");
 	edit->setKeystrokeCallback(onKeystrokeCommit, this);
 	edit->setCommitCallback(onCommitSetDirty, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setIgnoreTab(TRUE);
+	edit->setCommitOnFocusLost(true);
+	edit->setIgnoreTab(true);
 	mTriggerEditor = edit;
 
 	text = getChild<LLTextBox>("replace_text");
-	text->setEnabled(FALSE);
+	text->setEnabled(false);
 	mReplaceText = text;
 
 	edit = getChild<LLLineEditor>("replace_editor");
-	edit->setEnabled(FALSE);
+	edit->setEnabled(false);
 	edit->setKeystrokeCallback(onKeystrokeCommit, this);
 	edit->setCommitCallback(onCommitSetDirty, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setIgnoreTab(TRUE);
+	edit->setCommitOnFocusLost(true);
+	edit->setIgnoreTab(true);
 	mReplaceEditor = edit;
 
 	combo = getChild<LLComboBox>( "modifier_combo");
@@ -384,22 +384,22 @@ BOOL LLPreviewGesture::postBuild()
 
 	btn = getChild<LLButton>( "add_btn");
 	btn->setClickedCallback(onClickAdd, this);
-	btn->setEnabled(FALSE);
+	btn->setEnabled(false);
 	mAddBtn = btn;
 
 	btn = getChild<LLButton>( "up_btn");
 	btn->setClickedCallback(onClickUp, this);
-	btn->setEnabled(FALSE);
+	btn->setEnabled(false);
 	mUpBtn = btn;
 
 	btn = getChild<LLButton>( "down_btn");
 	btn->setClickedCallback(onClickDown, this);
-	btn->setEnabled(FALSE);
+	btn->setEnabled(false);
 	mDownBtn = btn;
 
 	btn = getChild<LLButton>( "delete_btn");
 	btn->setClickedCallback(onClickDelete, this);
-	btn->setEnabled(FALSE);
+	btn->setEnabled(false);
 	mDeleteBtn = btn;
 
 	list = getChild<LLScrollListCtrl>("step_list");
@@ -410,47 +410,47 @@ BOOL LLPreviewGesture::postBuild()
 	mOptionsText = getChild<LLTextBox>("options_text");
 
 	combo = getChild<LLComboBox>( "animation_list");
-	combo->setVisible(FALSE);
+	combo->setVisible(false);
 	combo->setCommitCallback(onCommitAnimation, this);
 	mAnimationCombo = combo;
 
 	LLRadioGroup* group;
 	group = getChild<LLRadioGroup>("animation_trigger_type");
-	group->setVisible(FALSE);
+	group->setVisible(false);
 	group->setCommitCallback(onCommitAnimationTrigger, this);
 	mAnimationRadio = group;
 
 	combo = getChild<LLComboBox>( "sound_list");
-	combo->setVisible(FALSE);
+	combo->setVisible(false);
 	combo->setCommitCallback(onCommitSound, this);
 	mSoundCombo = combo;
 
 	edit = getChild<LLLineEditor>("chat_editor");
-	edit->setVisible(FALSE);
+	edit->setVisible(false);
 	edit->setCommitCallback(onCommitChat, this);
 	//edit->setKeystrokeCallback(onKeystrokeCommit, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setIgnoreTab(TRUE);
+	edit->setCommitOnFocusLost(true);
+	edit->setIgnoreTab(true);
 	mChatEditor = edit;
 
 	check = getChild<LLCheckBoxCtrl>( "wait_anim_check");
-	check->setVisible(FALSE);
+	check->setVisible(false);
 	check->setCommitCallback(onCommitWait, this);
 	mWaitAnimCheck = check;
 
 	check = getChild<LLCheckBoxCtrl>( "wait_time_check");
-	check->setVisible(FALSE);
+	check->setVisible(false);
 	check->setCommitCallback(onCommitWait, this);
 	mWaitTimeCheck = check;
 
 	edit = getChild<LLLineEditor>("wait_time_editor");
-	edit->setEnabled(FALSE);
-	edit->setVisible(FALSE);
+	edit->setEnabled(false);
+	edit->setVisible(false);
 	edit->setPrevalidate(LLTextValidate::validateFloat);
 //	edit->setKeystrokeCallback(onKeystrokeCommit, this);
-	edit->setCommitOnFocusLost(TRUE);
+	edit->setCommitOnFocusLost(true);
 	edit->setCommitCallback(onCommitWaitTime, this);
-	edit->setIgnoreTab(TRUE);
+	edit->setIgnoreTab(true);
 	mWaitTimeEditor = edit;
 
 	// Buttons at the bottom

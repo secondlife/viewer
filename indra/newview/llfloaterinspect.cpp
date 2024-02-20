@@ -56,7 +56,7 @@ LLFloaterInspect::LLFloaterInspect(const LLSD& key)
 	mCommitCallbackRegistrar.add("Inspect.SelectObject",	boost::bind(&LLFloaterInspect::onSelectObject, this));
 }
 
-BOOL LLFloaterInspect::postBuild()
+bool LLFloaterInspect::postBuild()
 {
 	mObjectList = getChild<LLScrollListCtrl>("object_list");
 //	childSetAction("button owner",onClickOwnerProfile, this);
@@ -65,7 +65,7 @@ BOOL LLFloaterInspect::postBuild()
 	
 	refresh();
 	
-	return TRUE;
+	return true;
 }
 
 LLFloaterInspect::~LLFloaterInspect(void)

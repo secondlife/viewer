@@ -53,7 +53,7 @@ public:
 	friend class LLPanelGroupRolesSubTab;
 	friend class LLPanelGroupActionsSubTab;
 
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
 	
@@ -97,7 +97,7 @@ public:
 	LLPanelGroupSubTab();
 	virtual ~LLPanelGroupSubTab();
 
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	// This allows sub-tabs to collect child widgets from a higher level in the view hierarchy.
 	virtual BOOL postBuildSubTab(LLView* root);

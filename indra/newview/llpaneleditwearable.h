@@ -51,8 +51,8 @@ public:
 	LLPanelEditWearable( );
 	virtual ~LLPanelEditWearable();
 
-	/*virtual*/ BOOL 		postBuild();
-	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
+	/*virtual*/ bool 		postBuild();
+	/*virtual*/ bool		isDirty() const;	// LLUICtrl
 	/*virtual*/ void		draw();	
 				void		onClose();
 
@@ -76,7 +76,7 @@ public:
 	void				onSaveAsButtonClicked();
 	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
-	virtual void		setVisible(BOOL visible);
+	virtual void		setVisible(bool visible);
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;

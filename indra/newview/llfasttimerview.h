@@ -40,7 +40,7 @@ class LLFastTimerView : public LLFloater
 public:
 	LLFastTimerView(const LLSD&);
 	~LLFastTimerView();
-	BOOL postBuild();
+	bool postBuild();
 
 	static BOOL sAnalyzePerformance;
 

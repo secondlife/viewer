@@ -96,7 +96,7 @@ bool LLIconCtrl::handleHover(S32 x, S32 y, MASK mask)
     return LLUICtrl::handleHover(x, y, mask);
 }
 
-void LLIconCtrl::onVisibilityChange(BOOL new_visibility)
+void LLIconCtrl::onVisibilityChange(bool new_visibility)
 {
 	LLUICtrl::onVisibilityChange(new_visibility);
 	if (mPriority == LLGLTexture::BOOST_ICON)

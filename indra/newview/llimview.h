@@ -554,7 +554,7 @@ public:
 	LLCallDialog(const LLSD& payload);
 	virtual ~LLCallDialog();
 
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	void dockToToolbarButton(const std::string& toolbarButtonName);
 	
@@ -599,7 +599,7 @@ public:
 		}
 	}
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	static void onAccept(void* user_data);
@@ -625,7 +625,7 @@ class LLOutgoingCallDialog : public LLCallDialog
 public:
 	LLOutgoingCallDialog(const LLSD& payload);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	void show(const LLSD& key);
 
 	static void onCancel(void* user_data);

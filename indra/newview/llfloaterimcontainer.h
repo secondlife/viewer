@@ -56,19 +56,19 @@ public:
 	LLFloaterIMContainer(const LLSD& seed, const Params& params = getDefaultParams());
 	virtual ~LLFloaterIMContainer();
 	
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
-	/*virtual*/ void setMinimized(BOOL b);
-	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
+	/*virtual*/ void setMinimized(bool b);
+	/*virtual*/ void setVisible(bool visible);
+	/*virtual*/ void setVisibleAndFrontmost(bool take_focus=true, const LLSD& key = LLSD());
 	/*virtual*/ void updateResizeLimits();
 	/*virtual*/ void handleReshape(const LLRect& rect, bool by_user);
 
 	void onCloseFloater(LLUUID& id);
 
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
-								BOOL select_added_floater, 
+								bool select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 	void returnFloaterToHost();
     void showConversation(const LLUUID& session_id);
@@ -83,7 +83,6 @@ public:
 	/*virtual*/ void tabClose();
 	void showStub(bool visible);
 
-	static LLFloater* getCurrentVoiceFloater();
 	static LLFloaterIMContainer* findInstance();
 	static LLFloaterIMContainer* getInstance();
 
@@ -116,11 +115,11 @@ public:
     void doToParticipants(const std::string& item, uuid_vec_t& selectedIDS);
 
 	void assignResizeLimits();
-	virtual BOOL handleKeyHere(KEY key, MASK mask );
+	virtual bool handleKeyHere(KEY key, MASK mask );
 	/*virtual*/ void closeFloater(bool app_quitting = false);
     void closeAllConversations();
     void closeSelectedConversations(const uuid_vec_t& ids);
-	/*virtual*/ BOOL isFrontmost();
+	/*virtual*/ bool isFrontmost();
 
 
 private:

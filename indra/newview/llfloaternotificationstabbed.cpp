@@ -58,7 +58,7 @@ LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LL
 }
 
 //---------------------------------------------------------------------------------
-BOOL LLFloaterNotificationsTabbed::postBuild()
+bool LLFloaterNotificationsTabbed::postBuild()
 {
     mGroupInviteMessageList = getChild<LLNotificationListView>("group_invite_notification_list");
     mGroupNoticeMessageList = getChild<LLNotificationListView>("group_notice_notification_list");
@@ -78,14 +78,14 @@ BOOL LLFloaterNotificationsTabbed::postBuild()
 
     // get a corresponding channel
     initChannel();
-    BOOL rv = LLTransientDockableFloater::postBuild();
+    bool rv = LLTransientDockableFloater::postBuild();
     
     setTitle(getString("title_notification_tabbed_window"));
     return rv;
 }
 
 //---------------------------------------------------------------------------------
-void LLFloaterNotificationsTabbed::setMinimized(BOOL minimize)
+void LLFloaterNotificationsTabbed::setMinimized(bool minimize)
 {
     LLTransientDockableFloater::setMinimized(minimize);
 }
@@ -168,7 +168,7 @@ void LLFloaterNotificationsTabbed::initChannel()
 }
 
 //---------------------------------------------------------------------------------
-void LLFloaterNotificationsTabbed::setVisible(BOOL visible)
+void LLFloaterNotificationsTabbed::setVisible(bool visible)
 {
     if (visible)
     {

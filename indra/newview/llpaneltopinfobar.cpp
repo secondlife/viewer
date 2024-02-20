@@ -139,7 +139,7 @@ bool LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return true;
 }
 
-BOOL LLPanelTopInfoBar::postBuild()
+bool LLPanelTopInfoBar::postBuild()
 {
 	mInfoBtn = getChild<LLButton>("place_info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLPanelTopInfoBar::onInfoButtonClicked, this));
@@ -172,7 +172,7 @@ BOOL LLPanelTopInfoBar::postBuild()
 
 	setVisibleCallback(boost::bind(&LLPanelTopInfoBar::onVisibilityChanged, this, _2));
 
-	return TRUE;
+	return true;
 }
 
 void LLPanelTopInfoBar::onNavBarShowParcelPropertiesCtrlChanged()

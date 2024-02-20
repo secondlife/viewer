@@ -57,11 +57,11 @@ LLFloaterTrackPicker::~LLFloaterTrackPicker()
 {
 }
 
-BOOL LLFloaterTrackPicker::postBuild()
+bool LLFloaterTrackPicker::postBuild()
 {
     childSetAction(BTN_CANCEL, [this](LLUICtrl*, const LLSD& param){ onButtonCancel(); });
     childSetAction(BTN_SELECT, [this](LLUICtrl*, const LLSD& param){ onButtonSelect(); });
-    return TRUE;
+    return true;
 }
 
 void LLFloaterTrackPicker::onClose(bool app_quitting)

@@ -57,9 +57,9 @@ LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupB
 	buildFromFile( "panel_group_bulk_ban.xml");
 }
 
-BOOL LLPanelGroupBulkBan::postBuild()
+bool LLPanelGroupBulkBan::postBuild()
 {
-	BOOL recurse = TRUE;
+	constexpr bool recurse = true;
 
 	mImplementation->mLoadingText = getString("loading");
 	mImplementation->mGroupName = getChild<LLTextBox>("group_name_text", recurse);
@@ -83,7 +83,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mRemoveButton )
 	{
 		mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
-		mImplementation->mRemoveButton->setEnabled(FALSE);
+		mImplementation->mRemoveButton->setEnabled(false);
 	}
 
 	mImplementation->mOKButton = 
@@ -91,7 +91,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mOKButton )
 	{
 		mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
-		mImplementation->mOKButton->setEnabled(FALSE);
+		mImplementation->mOKButton->setEnabled(false);
 	}
 
 	button = getChild<LLButton>("cancel_button", recurse);
@@ -106,7 +106,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	mImplementation->mCannotBanYourself = getString("cant_ban_yourself");
 
 	update();
-	return TRUE;
+	return true;
 }
 
 // TODO: Refactor the shitty callback functions with void* -- just use boost::bind to call submit() instead.

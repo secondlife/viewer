@@ -47,9 +47,9 @@ public:
 	LLFloaterTOS(const LLSD& data);
 	virtual ~LLFloaterTOS();
 
-	BOOL postBuild();
-	
-	virtual void draw();
+	bool postBuild() override;
+
+	void draw() override;
 
 	static void		updateAgree( LLUICtrl *, void* userdata );
 	static void		onContinue( void* userdata );
@@ -70,8 +70,6 @@ private:
 	bool			mSiteAlive;
 	bool			mRealNavigateBegun;
 	std::string		mReplyPumpName;
-
-
 };
 
 #endif // LL_LLFLOATERTOS_H

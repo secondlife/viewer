@@ -56,14 +56,14 @@ public:
 	static LLFloaterWorldMap* getInstance();
 
 	static void *createWorldMapView(void* data);
-	BOOL postBuild();
+	bool postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 
 	static void reloadIcons(void*);
 
-	/*virtual*/ void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE );
+	/*virtual*/ void reshape( S32 width, S32 height, bool called_from_parent = true );
 	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ bool handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ void draw();
@@ -207,8 +207,8 @@ public:
 	static LLPanelHideBeacon* getInstance();
 
 	LLPanelHideBeacon();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ bool postBuild();
+	/*virtual*/ void setVisible(bool visible);
 	/*virtual*/ void draw();
 
 private:

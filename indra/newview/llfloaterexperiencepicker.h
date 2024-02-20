@@ -48,9 +48,9 @@ public:
 	LLFloaterExperiencePicker(const LLSD& key);
 	virtual ~LLFloaterExperiencePicker();
 
-	BOOL postBuild();
+	bool postBuild() override;
 	
-	virtual void	draw();
+	void draw() override;
 private:
 
 	LLPanelExperiencePicker* mSearchPanel;

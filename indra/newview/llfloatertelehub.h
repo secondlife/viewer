@@ -41,10 +41,10 @@ public:
 	LLFloaterTelehub(const LLSD& key);
 	~LLFloaterTelehub();
 	
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	bool postBuild() override;
+	void onOpen(const LLSD& key) override;
 
-	/*virtual*/ void draw();
+	void draw() override;
 	
 	static BOOL renderBeacons();
 	static void addBeacons();

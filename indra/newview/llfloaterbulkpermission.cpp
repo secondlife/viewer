@@ -64,7 +64,7 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
 	mCommitCallbackRegistrar.add("BulkPermission.CommitCopy",	boost::bind(&LLFloaterBulkPermission::onCommitCopy, this));
 }
 
-BOOL LLFloaterBulkPermission::postBuild()
+bool LLFloaterBulkPermission::postBuild()
 {
 	mBulkChangeIncludeAnimations = gSavedSettings.getBOOL("BulkChangeIncludeAnimations");
 	mBulkChangeIncludeBodyParts = gSavedSettings.getBOOL("BulkChangeIncludeBodyParts");
@@ -89,7 +89,7 @@ BOOL LLFloaterBulkPermission::postBuild()
 	{
 		mBulkChangeNextOwnerTransfer = true;
 	}
-	return TRUE;
+	return true;
 }
 
 void LLFloaterBulkPermission::doApply()

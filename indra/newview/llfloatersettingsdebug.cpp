@@ -47,7 +47,7 @@ LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
 {}
 
-BOOL LLFloaterSettingsDebug::postBuild()
+bool LLFloaterSettingsDebug::postBuild()
 {
     enableResizeCtrls(true, false, true);
 
@@ -56,14 +56,14 @@ BOOL LLFloaterSettingsDebug::postBuild()
     getChild<LLFilterEditor>("filter_input")->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::setSearchFilter, this, _2));
 
     mSettingList = getChild<LLScrollListCtrl>("setting_list");
-    mSettingList->setCommitOnSelectionChange(TRUE);
+    mSettingList->setCommitOnSelectionChange(true);
     mSettingList->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
 
     updateList();
 
     gSavedSettings.getControl("DebugSettingsHideDefault")->getCommitSignal()->connect(boost::bind(&LLFloaterSettingsDebug::updateList, this, false));
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterSettingsDebug::draw()

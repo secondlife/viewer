@@ -67,17 +67,17 @@ LLPreview::LLPreview(const LLSD& key)
 {
 	mAuxItem = new LLInventoryItem;
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
-	setAutoFocus(FALSE);
+	setAutoFocus(false);
 
 	gInventory.addObserver(this);
 	
 	refreshFromItem();
 }
 
-BOOL LLPreview::postBuild()
+bool LLPreview::postBuild()
 {
 	refreshFromItem();
-	return TRUE;
+	return true;
 }
 
 LLPreview::~LLPreview()

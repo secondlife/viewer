@@ -47,7 +47,7 @@ LLFloaterSaveCameraPreset::LLFloaterSaveCameraPreset(const LLSD &key)
 }
 
 // virtual
-BOOL LLFloaterSaveCameraPreset::postBuild()
+bool LLFloaterSaveCameraPreset::postBuild()
 {
 	mPresetCombo = getChild<LLComboBox>("preset_combo");
 
@@ -64,7 +64,7 @@ BOOL LLFloaterSaveCameraPreset::postBuild()
 
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterSaveCameraPreset::onPresetsListChange, this));
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterSaveCameraPreset::onPresetNameEdited()

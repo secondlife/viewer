@@ -128,18 +128,18 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mSuffixNeedsRefresh(false),
     mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
 	mParentFolder( NULL ),
-	mIsSelected( FALSE ),
-	mIsCurSelection( FALSE ),
-	mSelectPending(FALSE),
+	mIsSelected( false ),
+	mIsCurSelection( false ),
+	mSelectPending(false),
 	mIsItemCut(false),
 	mCutGeneration(0),
 	mLabelStyle( LLFontGL::NORMAL ),
-	mHasVisibleChildren(FALSE),
+	mHasVisibleChildren(false),
     mLocalIndentation(p.folder_indentation),
 	mIndentation(0),
 	mItemHeight(p.item_height),
 	mControlLabelRotation(0.f),
-	mDragAndDropTarget(FALSE),
+	mDragAndDropTarget(false),
 	mLabel(p.name),
 	mRoot(p.root),
 	mViewModelItem(p.listener),
@@ -185,7 +185,7 @@ LLFolderViewItem::~LLFolderViewItem()
     gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
-BOOL LLFolderViewItem::postBuild()
+bool LLFolderViewItem::postBuild()
 {
     LLFolderViewModelItem& vmi = *getViewModelItem();
     // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
@@ -203,7 +203,7 @@ BOOL LLFolderViewItem::postBuild()
     // while LLFolderViewItem::arrange() updates visual part
     mSuffixNeedsRefresh = true;
     mLabelWidthDirty = true;
-	return TRUE;
+	return true;
 }
 
 LLFolderView* LLFolderViewItem::getRoot()
@@ -216,21 +216,21 @@ const LLFolderView* LLFolderViewItem::getRoot() const
 	return mRoot;
 }
 // Returns true if this object is a child (or grandchild, etc.) of potential_ancestor.
-BOOL LLFolderViewItem::isDescendantOf( const LLFolderViewFolder* potential_ancestor )
+bool LLFolderViewItem::isDescendantOf( const LLFolderViewFolder* potential_ancestor )
 {
 	LLFolderViewItem* root = this;
 	while( root->mParentFolder )
 	{
 		if( root->mParentFolder == potential_ancestor )
 		{
-			return TRUE;
+			return true;
 		}
 		root = root->mParentFolder;
 	}
-	return FALSE;
+	return false;
 }
 
-LLFolderViewItem* LLFolderViewItem::getNextOpenNode(BOOL include_children)
+LLFolderViewItem* LLFolderViewItem::getNextOpenNode(bool include_children)
 {
 	if (!mParentFolder)
 	{
@@ -252,7 +252,7 @@ LLFolderViewItem* LLFolderViewItem::getNextOpenNode(BOOL include_children)
 	return itemp;
 }
 
-LLFolderViewItem* LLFolderViewItem::getPreviousOpenNode(BOOL include_children)
+LLFolderViewItem* LLFolderViewItem::getPreviousOpenNode(bool include_children)
 {
 	if (!mParentFolder)
 	{
@@ -276,19 +276,19 @@ LLFolderViewItem* LLFolderViewItem::getPreviousOpenNode(BOOL include_children)
 	return itemp;
 }
 
-BOOL LLFolderViewItem::passedFilter(S32 filter_generation) 
+bool LLFolderViewItem::passedFilter(S32 filter_generation) 
 {
 	return getViewModelItem()->passedFilter(filter_generation);
 }
 
-BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
+bool LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 {
 	if (filter_generation < 0)
 	{
 		filter_generation = getFolderViewModel()->getFilter().getFirstSuccessGeneration();
 	}
 	LLFolderViewModelItem* model = getViewModelItem();
-	BOOL visible = model->passedFilter(filter_generation);
+	bool visible = model->passedFilter(filter_generation);
 	if (model->getMarkedDirtyGeneration() >= filter_generation)
 	{
 		// unsure visibility state
@@ -348,8 +348,8 @@ void LLFolderViewItem::refreshSuffix()
 }
 
 // Utility function for LLFolderView
-void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
-									 BOOL take_keyboard_focus)
+void LLFolderViewItem::arrangeAndSet(bool set_selection,
+									 bool take_keyboard_focus)
 {
 	LLFolderView* root = getRoot();
 	if (getParentFolder())
@@ -358,7 +358,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	}
 	if(set_selection)
 	{
-		getRoot()->setSelection(this, TRUE, take_keyboard_focus);
+		getRoot()->setSelection(this, true, take_keyboard_focus);
 		if(root)
 		{
 			root->scrollToShowSelection();
@@ -373,7 +373,7 @@ std::set<LLFolderViewItem*> LLFolderViewItem::getSelectionList() const
 	return selection;
 }
 
-// addToFolder() returns TRUE if it succeeds. FALSE otherwise
+// addToFolder() returns true if it succeeds. false otherwise
 void LLFolderViewItem::addToFolder(LLFolderViewFolder* folder)
 {
 	folder->addItem(this); 
@@ -443,7 +443,7 @@ S32 LLFolderViewItem::getTextPad()
 // means 'deselect' for a leaf item. Do this optimization after
 // multiple selection is implemented to make sure it all plays nice
 // together.
-BOOL LLFolderViewItem::setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus)
+bool LLFolderViewItem::setSelection(LLFolderViewItem* selection, bool openitem, bool take_keyboard_focus)
 {
 	if (selection == this && !mIsSelected)
 	{
@@ -456,7 +456,7 @@ BOOL LLFolderViewItem::setSelection(LLFolderViewItem* selection, BOOL openitem, 
 	return mIsSelected;
 }
 
-BOOL LLFolderViewItem::changeSelection(LLFolderViewItem* selection, BOOL selected)
+bool LLFolderViewItem::changeSelection(LLFolderViewItem* selection, bool selected)
 {
 	if (selection == this)
 	{
@@ -468,31 +468,31 @@ BOOL LLFolderViewItem::changeSelection(LLFolderViewItem* selection, BOOL selecte
 		{
 			selectItem();
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void LLFolderViewItem::deselectItem(void)
 {
-	mIsSelected = FALSE;
+	mIsSelected = false;
 }
 
 void LLFolderViewItem::selectItem(void)
 {
-	if (mIsSelected == FALSE)
+	if (mIsSelected == false)
 	{
-		mIsSelected = TRUE;
+		mIsSelected = true;
 		getViewModelItem()->selectItem();
 	}
 }
 
-BOOL LLFolderViewItem::isMovable()
+bool LLFolderViewItem::isMovable()
 {
 	return getViewModelItem()->isItemMovable();
 }
 
-BOOL LLFolderViewItem::isRemovable()
+bool LLFolderViewItem::isRemovable()
 {
 	return getViewModelItem()->isItemRemovable();
 }
@@ -511,12 +511,12 @@ void LLFolderViewItem::destroyView()
 
 // Call through to the viewed object and return true if it can be
 // removed.
-//BOOL LLFolderViewItem::removeRecursively(BOOL single_item)
-BOOL LLFolderViewItem::remove()
+//bool LLFolderViewItem::removeRecursively(bool single_item)
+bool LLFolderViewItem::remove()
 {
 	if(!isRemovable())
 	{
-		return FALSE;
+		return false;
 	}
 	return getViewModelItem()->removeItem();
 }
@@ -701,18 +701,18 @@ void LLFolderViewItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	}
 }
 
-BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 										 EDragAndDropType cargo_type,
 										 void* cargo_data,
 										 EAcceptance* accept,
 										 std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
-	BOOL accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
+	bool handled = false;
+	bool accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
 		handled = accepted;
 		if (accepted)
 		{
-			mDragAndDropTarget = TRUE;
+			mDragAndDropTarget = true;
 			*accept = ACCEPT_YES_MULTI;
 		}
 		else
@@ -773,7 +773,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
     return mIsItemCut;
 }
 
-void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor,  
+void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor,  
                                                         const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
 {
     const S32 focus_top = getRect().getHeight();
@@ -787,7 +787,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
     //--------------------------------------------------------------------------------//
     // Draw highlight for selected items
 	// Note: Always render "current" item or flashing item, only render other selected 
-	// items if mShowSingleSelection is FALSE.
+	// items if mShowSingleSelection is false.
     //
     if (isHighlightAllowed())	
     							
@@ -831,7 +831,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 focus_top, 
                 getRect().getWidth() - 2,
                 focus_bottom,
-                focusOutlineColor, FALSE);
+                focusOutlineColor, false);
         }
 
         if (folder_open)
@@ -840,14 +840,14 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
                 focus_bottom + 1, // overlap with bottom edge of above rect
                 getRect().getWidth() - 2,
                 0,
-                focusOutlineColor, FALSE);
+                focusOutlineColor, false);
             if (showContent && !isFlashing())
             {
                 gl_rect_2d(FOCUS_LEFT,
                     focus_bottom + 1,
                     getRect().getWidth() - 2,
                     0,
-                    bgColor, TRUE);
+                    bgColor, true);
             }
         }
     }
@@ -857,7 +857,7 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
             focus_top, 
             getRect().getWidth() - 2,
             focus_bottom,
-            mouseOverColor, FALSE);
+            mouseOverColor, false);
     }
 
     //--------------------------------------------------------------------------------//
@@ -870,16 +870,16 @@ void LLFolderViewItem::drawHighlight(const BOOL showContent, const BOOL hasKeybo
             focus_top, 
             getRect().getWidth() - 2,
             focus_bottom,
-            bgColor, FALSE);
+            bgColor, false);
         if (folder_open)
         {
             gl_rect_2d(FOCUS_LEFT,
                 focus_bottom + 1, // overlap with bottom edge of above rect
                 getRect().getWidth() - 2,
                 0,
-                bgColor, FALSE);
+                bgColor, false);
         }
-        mDragAndDropTarget = FALSE;
+        mDragAndDropTarget = false;
     }
 }
 
@@ -890,13 +890,13 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
     //
     font->renderUTF8(mLabel, 0, x, y, color,
         LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-        S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, TRUE);
+        S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, true);
 }
 
 void LLFolderViewItem::draw()
 {
-    const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
-    const BOOL filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : FALSE); // If we have keyboard focus, draw selection filled
+    const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
+    const bool filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : false); // If we have keyboard focus, draw selection filled
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
@@ -999,7 +999,7 @@ void LLFolderViewItem::draw()
 	{
         suffix_font->renderUTF8( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : (LLColor4)sSuffixColor,
 						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-						  S32_MAX, S32_MAX, &right_x, FALSE );
+						  S32_MAX, S32_MAX, &right_x, false );
 	}
 
 	//--------------------------------------------------------------------------------//
@@ -1013,7 +1013,7 @@ void LLFolderViewItem::draw()
             F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
             font->renderUTF8( combined_string, filter_offset, match_string_left, yy,
             sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-            filter_string_length, S32_MAX, &right_x, FALSE );
+            filter_string_length, S32_MAX, &right_x, false );
         }
         else
         {
@@ -1023,7 +1023,7 @@ void LLFolderViewItem::draw()
                 F32 match_string_left = text_left + font->getWidthF32(mLabel, 0, filter_offset + label_filter_length) - font->getWidthF32(mLabel, filter_offset, label_filter_length);
                 F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
                 font->renderUTF8( mLabel, filter_offset, match_string_left, yy,
- sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, label_filter_length, S32_MAX, &right_x, FALSE );
+ sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, label_filter_length, S32_MAX, &right_x, false );
             }
             
             S32 suffix_filter_length = label_filter_length > 0 ? filter_string_length - label_filter_length : filter_string_length;
@@ -1032,7 +1032,7 @@ void LLFolderViewItem::draw()
                 S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
                 F32 match_string_left = text_left + font->getWidthF32(mLabel, 0, mLabel.size()) + suffix_font->getWidthF32(mLabelSuffix, 0, suffix_offset + suffix_filter_length) - suffix_font->getWidthF32(mLabelSuffix, suffix_offset, suffix_filter_length);
                 F32 yy = (F32)getRect().getHeight() - suffix_font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
-                suffix_font->renderUTF8( mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, suffix_filter_length, S32_MAX, &right_x, FALSE );
+                suffix_font->renderUTF8( mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, suffix_filter_length, S32_MAX, &right_x, false );
             }
         }
 
@@ -1066,8 +1066,8 @@ bool LLFolderViewItem::isInSelection() const
 
 LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ): 
 	LLFolderViewItem( p ),
-	mIsOpen(FALSE),
-	mExpanderHighlighted(FALSE),
+	mIsOpen(false),
+	mExpanderHighlighted(false),
 	mCurHeight(0.f),
 	mTargetHeight(0.f),
 	mAutoOpenCountdown(0.f),
@@ -1102,7 +1102,7 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
 }
 
-// addToFolder() returns TRUE if it succeeds. FALSE otherwise
+// addToFolder() returns true if it succeeds. false otherwise
 void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
 {
 	folder->addFolder(this);
@@ -1262,7 +1262,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 				> ll_round(mCurHeight) + mMaxFolderItemOverlap)
 			{
 				// hide if beyond current folder height
-				(*fit)->setVisible(FALSE);
+				(*fit)->setVisible(false);
 			}
 		}
 
@@ -1274,7 +1274,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			if (getRect().getHeight() - (*iit)->getRect().mBottom
 				> ll_round(mCurHeight) + mMaxFolderItemOverlap)
 			{
-				(*iit)->setVisible(FALSE);
+				(*iit)->setVisible(false);
 			}
 		}
 	}
@@ -1292,7 +1292,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	return ll_round(mTargetHeight);
 }
 
-BOOL LLFolderViewFolder::needsArrange()
+bool LLFolderViewFolder::needsArrange()
 {
 	return mLastArrangeGeneration < getRoot()->getArrangeGeneration();
 }
@@ -1304,17 +1304,17 @@ bool LLFolderViewFolder::descendantsPassedFilter(S32 filter_generation)
 
 // Passes selection information on to children and record selection
 // information if necessary.
-BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem,
-                                      BOOL take_keyboard_focus)
+bool LLFolderViewFolder::setSelection(LLFolderViewItem* selection, bool openitem,
+                                      bool take_keyboard_focus)
 {
-	BOOL rv = FALSE;
+	bool rv = false;
 	if (selection == this)
 	{
 		if (!isSelected())
 		{
 			selectItem();
 		}
-		rv = TRUE;
+		rv = true;
 	}
 	else
 	{
@@ -1322,9 +1322,9 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 		{
 			deselectItem();
 		}
-		rv = FALSE;
+		rv = false;
 	}
-	BOOL child_selected = FALSE;
+	bool child_selected = false;
 
 	for (folders_t::iterator iter = mFolders.begin();
 		iter != mFolders.end();)
@@ -1332,8 +1332,8 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 		folders_t::iterator fit = iter++;
 		if((*fit)->setSelection(selection, openitem, take_keyboard_focus))
 		{
-			rv = TRUE;
-			child_selected = TRUE;
+			rv = true;
+			child_selected = true;
 		}
 	}
 	for (items_t::iterator iter = mItems.begin();
@@ -1342,13 +1342,13 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 		items_t::iterator iit = iter++;
 		if((*iit)->setSelection(selection, openitem, take_keyboard_focus))
 		{
-			rv = TRUE;
-			child_selected = TRUE;
+			rv = true;
+			child_selected = true;
 		}
 	}
 	if(openitem && child_selected && !mSingleFolderMode)
 	{
-		setOpenArrangeRecursively(TRUE);
+		setOpenArrangeRecursively(true);
 	}
 	return rv;
 }
@@ -1356,15 +1356,15 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 // This method is used to change the selection of an item.
 // Recursively traverse all children; if 'selection' is 'this' then change
 // the select status if necessary.
-// Returns TRUE if the selection state of this folder, or of a child, was changed.
-BOOL LLFolderViewFolder::changeSelection(LLFolderViewItem* selection, BOOL selected)
+// Returns true if the selection state of this folder, or of a child, was changed.
+bool LLFolderViewFolder::changeSelection(LLFolderViewItem* selection, bool selected)
 {
-	BOOL rv = FALSE;
+	bool rv = false;
 	if(selection == this)
 	{
 		if (isSelected() != selected)
 		{
-			rv = TRUE;
+			rv = true;
 			if (selected)
 			{
 				selectItem();
@@ -1382,7 +1382,7 @@ BOOL LLFolderViewFolder::changeSelection(LLFolderViewItem* selection, BOOL selec
 		folders_t::iterator fit = iter++;
 		if((*fit)->changeSelection(selection, selected))
 		{
-			rv = TRUE;
+			rv = true;
 		}
 	}
 	for (items_t::iterator iter = mItems.begin();
@@ -1391,7 +1391,7 @@ BOOL LLFolderViewFolder::changeSelection(LLFolderViewItem* selection, BOOL selec
 		items_t::iterator iit = iter++;
 		if((*iit)->changeSelection(selection, selected))
 		{
-			rv = TRUE;
+			rv = true;
 		}
 	}
 	return rv;
@@ -1575,7 +1575,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 
 void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 {
-	if (getRoot()->getAllowMultiSelect() == FALSE) return;
+	if (getRoot()->getAllowMultiSelect() == false) return;
 
 	LLFolderViewItem* cur_selected_item = getRoot()->getCurSelectedItem();
 	if (cur_selected_item == NULL)
@@ -1624,7 +1624,7 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 	LLFolderView* root = getRoot();
 
-	BOOL selection_reverse = new_selection->isSelected(); //indication that some elements are being deselected
+	bool selection_reverse = new_selection->isSelected(); //indication that some elements are being deselected
 
 	// array always go from 'will be selected' to ' will be unselected', iterate
 	// in opposite direction to simplify identification of 'point of origin' in
@@ -1634,12 +1634,12 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 		++it)
 	{
 		LLFolderViewItem* item = *it;
-		BOOL selected = item->isSelected();
+		bool selected = item->isSelected();
 		if (!selection_reverse && selected)
 		{
 			// it is our 'point of origin' where we shift/expand from
 			// don't deselect it
-			selection_reverse = TRUE;
+			selection_reverse = true;
 		}
 		else
 		{
@@ -1650,11 +1650,11 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 	if (selection_reverse)
 	{
 		// at some point we reversed selection, first element should be deselected
-		root->changeSelection(last_selected_item_from_cur, FALSE);
+		root->changeSelection(last_selected_item_from_cur, false);
 	}
 
 	// element we expand to should always be selected
-	root->changeSelection(new_selection, TRUE);
+	root->changeSelection(new_selection, true);
 }
 
 
@@ -1712,11 +1712,11 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_mode
 	removeChild(item);
 }
 
-BOOL LLFolderViewFolder::isMovable()
+bool LLFolderViewFolder::isMovable()
 {
 	if( !(getViewModelItem()->isItemMovable()) )
 	{
-			return FALSE;
+			return false;
 		}
 
 		for (items_t::iterator iter = mItems.begin();
@@ -1725,7 +1725,7 @@ BOOL LLFolderViewFolder::isMovable()
 			items_t::iterator iit = iter++;
 			if(!(*iit)->isMovable())
 			{
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -1735,18 +1735,18 @@ BOOL LLFolderViewFolder::isMovable()
 			folders_t::iterator fit = iter++;
 			if(!(*fit)->isMovable())
 			{
-				return FALSE;
+				return false;
 			}
 		}
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLFolderViewFolder::isRemovable()
+bool LLFolderViewFolder::isRemovable()
 {
 	if( !(getViewModelItem()->isItemRemovable()) )
 	{
-			return FALSE;
+			return false;
 		}
 
 		for (items_t::iterator iter = mItems.begin();
@@ -1755,7 +1755,7 @@ BOOL LLFolderViewFolder::isRemovable()
 			items_t::iterator iit = iter++;
 			if(!(*iit)->isRemovable())
 			{
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -1765,10 +1765,10 @@ BOOL LLFolderViewFolder::isRemovable()
 			folders_t::iterator fit = iter++;
 			if(!(*fit)->isRemovable())
 			{
-				return FALSE;
+				return false;
 			}
 		}
-	return TRUE;
+	return true;
 }
 
 void LLFolderViewFolder::destroyRoot()
@@ -1788,7 +1788,7 @@ void LLFolderViewFolder::addItem(LLFolderViewItem* item)
 	mItems.push_back(item);
 	
 	item->setRect(LLRect(0, 0, getRect().getWidth(), 0));
-	item->setVisible(FALSE);
+	item->setVisible(false);
 	
 	addChild(item);
 	
@@ -1811,7 +1811,7 @@ void LLFolderViewFolder::addFolder(LLFolderViewFolder* folder)
 	mFolders.push_back(folder);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
-	folder->setVisible(FALSE);
+	folder->setVisible(false);
 	// rearrange all descendants too, as our indentation level might have changed
 	//folder->requestArrange();
 	//requestSort();
@@ -1842,7 +1842,7 @@ void LLFolderViewFolder::toggleOpen()
 }
 
 // Force a folder open or closed
-void LLFolderViewFolder::setOpen(BOOL openitem)
+void LLFolderViewFolder::setOpen(bool openitem)
 {
     if(mSingleFolderMode)
     {
@@ -1859,9 +1859,9 @@ void LLFolderViewFolder::setOpen(BOOL openitem)
     }
 }
 
-void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
+void LLFolderViewFolder::setOpenArrangeRecursively(bool openitem, ERecurseType recurse)
 {
-	BOOL was_open = isOpen();
+	bool was_open = isOpen();
 	mIsOpen = openitem;
 		if(!was_open && openitem)
 		{
@@ -1896,17 +1896,17 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType r
 	}
 }
 
-BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
-													BOOL drop,
+bool LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
+													bool drop,
 													EDragAndDropType c_type,
 													void* cargo_data,
 													EAcceptance* accept,
 													std::string& tooltip_msg)
 {
-	BOOL accepted = mViewModelItem->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
+	bool accepted = mViewModelItem->dragOrDrop(mask,drop,c_type,cargo_data, tooltip_msg);
 	if (accepted) 
 	{
-		mDragAndDropTarget = TRUE;
+		mDragAndDropTarget = true;
 		*accept = ACCEPT_YES_MULTI;
 	}
 	else 
@@ -1917,7 +1917,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 	// drag and drop to child item, so clear pending auto-opens
 	getRoot()->autoOpenTest(NULL);
 
-	return TRUE;
+	return true;
 }
 
 void LLFolderViewFolder::openItem( void )
@@ -1960,14 +1960,14 @@ void LLFolderViewFolder::applyFunctorRecursively(LLFolderViewFunctor& functor)
 }
 
 // LLView functionality
-BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
-										   BOOL drop,
+bool LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
+										   bool drop,
 										   EDragAndDropType cargo_type,
 										   void* cargo_data,
 										   EAcceptance* accept,
 										   std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if (isOpen())
 	{
@@ -1981,11 +1981,11 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFolderViewFolder" << LL_ENDL;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
-													   BOOL drop,
+bool LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
+													   bool drop,
 													   EDragAndDropType cargo_type,
 													   void* cargo_data,
 													   EAcceptance* accept,
@@ -1995,14 +1995,14 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
     {
 		*accept = ACCEPT_NO;
         tooltip_msg = LLTrans::getString("TooltipOutboxCannotDropOnRoot");
-        return TRUE;
+        return true;
     }
     
-	BOOL accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
+	bool accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
 
 	if (accepted)
 	{
-		mDragAndDropTarget = TRUE;
+		mDragAndDropTarget = true;
 		*accept = ACCEPT_YES_MULTI;
 	}
 	else 
@@ -2015,7 +2015,7 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 		getRoot()->autoOpenTest(this);
 	}
 	
-	return TRUE;
+	return true;
 }
 
 
@@ -2145,19 +2145,19 @@ void LLFolderViewFolder::draw()
 		LLView::draw();
 	}
 
-	mExpanderHighlighted = FALSE;
+	mExpanderHighlighted = false;
 }
 
 // this does prefix traversal, as folders are listed above their contents
-LLFolderViewItem* LLFolderViewFolder::getNextFromChild( LLFolderViewItem* item, BOOL include_children )
+LLFolderViewItem* LLFolderViewFolder::getNextFromChild( LLFolderViewItem* item, bool include_children )
 {
-	BOOL found_item = FALSE;
+	bool found_item = false;
 
 	LLFolderViewItem* result = NULL;
 	// when not starting from a given item, start at beginning
 	if(item == NULL)
 	{
-		found_item = TRUE;
+		found_item = true;
 	}
 
 	// find current item among children
@@ -2175,16 +2175,16 @@ LLFolderViewItem* LLFolderViewFolder::getNextFromChild( LLFolderViewItem* item, 
 		{
 			if(item == (*fit))
 			{
-				found_item = TRUE;
+				found_item = true;
 				// if we are on downwards traversal
 				if (include_children && (*fit)->isOpen())
 				{
 					// look for first descendant
-					return (*fit)->getNextFromChild(NULL, TRUE);
+					return (*fit)->getNextFromChild(NULL, true);
 				}
 				// otherwise advance to next folder
 				++fit;
-				include_children = TRUE;
+				include_children = true;
 				break;
 			}
 		}
@@ -2196,7 +2196,7 @@ LLFolderViewItem* LLFolderViewFolder::getNextFromChild( LLFolderViewItem* item, 
 			{
 				if(item == (*iit))
 				{
-					found_item = TRUE;
+					found_item = true;
 					// point to next item
 					++iit;
 					break;
@@ -2209,7 +2209,7 @@ LLFolderViewItem* LLFolderViewFolder::getNextFromChild( LLFolderViewItem* item, 
 	{
 		// you should never call this method with an item that isn't a child
 		// so we should always find something
-		llassert(FALSE);
+		llassert(false);
 		return NULL;
 	}
 
@@ -2247,22 +2247,22 @@ LLFolderViewItem* LLFolderViewFolder::getNextFromChild( LLFolderViewItem* item, 
 	{
 		// If there are no siblings or children to go to, recurse up one level in the tree
 		// and skip children for this folder, as we've already discounted them
-		result = mParentFolder->getNextFromChild(this, FALSE);
+		result = mParentFolder->getNextFromChild(this, false);
 	}
 
 	return result;
 }
 
 // this does postfix traversal, as folders are listed above their contents
-LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* item, BOOL include_children )
+LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* item, bool include_children )
 {
-	BOOL found_item = FALSE;
+	bool found_item = false;
 
 	LLFolderViewItem* result = NULL;
 	// when not starting from a given item, start at end
 	if(item == NULL)
 	{
-		found_item = TRUE;
+		found_item = true;
 	}
 
 	// find current item among children
@@ -2280,7 +2280,7 @@ LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* it
 		{
 			if(item == (*iit))
 			{
-				found_item = TRUE;
+				found_item = true;
 				// point to next item
 				++iit;
 				break;
@@ -2294,7 +2294,7 @@ LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* it
 			{
 				if(item == (*fit))
 				{
-					found_item = TRUE;
+					found_item = true;
 					// point to next folder
 					++fit;
 					break;
@@ -2307,7 +2307,7 @@ LLFolderViewItem* LLFolderViewFolder::getPreviousFromChild( LLFolderViewItem* it
 	{
 		// you should never call this method with an item that isn't a child
 		// so we should always find something
-		llassert(FALSE);
+		llassert(false);
 		return NULL;
 	}
 

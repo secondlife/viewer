@@ -44,8 +44,8 @@ public:
 	LLFloaterVoiceEffect(const LLSD& key);
 	virtual ~LLFloaterVoiceEffect();
 
-	virtual BOOL postBuild();
-	virtual void onClose(bool app_quitting);
+	bool postBuild() override;
+	void onClose(bool app_quitting) override;
 
 private:
 	enum ColumnIndex

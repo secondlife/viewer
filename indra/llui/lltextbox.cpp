@@ -39,7 +39,7 @@ static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 
 // Compiler optimization, generate extern template
 template class LLTextBox* LLView::getChild<class LLTextBox>(
-	const std::string& name, BOOL recurse) const;
+	const std::string& name, bool recurse) const;
 
 LLTextBox::LLTextBox(const LLTextBox::Params& p)
 :	LLTextBase(p),
@@ -115,7 +115,7 @@ bool LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-void LLTextBox::setEnabled(BOOL enabled)
+void LLTextBox::setEnabled(bool enabled)
 {
 	// just treat enabled as read-only flag
 	bool read_only = !enabled;
@@ -156,16 +156,16 @@ LLSD LLTextBox::getValue() const
 	return getViewModel()->getValue();
 }
 
-BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
+bool LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
 	mText.setArg(key, text);
 	LLTextBase::setText(mText.getString());
 
-	return TRUE;
+	return true;
 }
 
 
-void LLTextBox::reshapeToFitText(BOOL called_from_parent)
+void LLTextBox::reshapeToFitText(bool called_from_parent)
 {
 	reflow();
 

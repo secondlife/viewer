@@ -431,11 +431,11 @@ void LLMediaCtrl::onFocusLost()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLMediaCtrl::postBuild ()
+bool LLMediaCtrl::postBuild ()
 {
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 
-	return TRUE;
+	return true;
 }
 
 void LLMediaCtrl::onOpenWebInspector()
@@ -446,9 +446,9 @@ void LLMediaCtrl::onOpenWebInspector()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
+bool LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 {
-	BOOL result = FALSE;
+	bool result = false;
 	
 	if (mMediaSource)
 	{
@@ -463,9 +463,9 @@ BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLMediaCtrl::handleKeyUpHere(KEY key, MASK mask)
+bool LLMediaCtrl::handleKeyUpHere(KEY key, MASK mask)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
 	if (mMediaSource)
 	{
@@ -480,7 +480,7 @@ BOOL LLMediaCtrl::handleKeyUpHere(KEY key, MASK mask)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::onVisibilityChange ( BOOL new_visibility )
+void LLMediaCtrl::onVisibilityChange ( bool new_visibility )
 {
 	LL_INFOS() << "visibility changed to " << (new_visibility?"true":"false") << LL_ENDL;
 	if(mMediaSource)
@@ -523,7 +523,7 @@ void LLMediaCtrl::onVisibilityChanged ( const LLSD& new_visibility )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
+void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 {
 	if(!getDecoupleTextureSize())
 	{

@@ -95,7 +95,7 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHand
 // LLFloaterPathfindingConsole
 //---------------------------------------------------------------------------
 
-BOOL LLFloaterPathfindingConsole::postBuild()
+bool LLFloaterPathfindingConsole::postBuild()
 {
 	mViewTestTabContainer = findChild<LLTabContainer>("view_test_tab_container");
 	llassert(mViewTestTabContainer != NULL);

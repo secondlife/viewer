@@ -107,9 +107,9 @@ const LLOutfitGallery::Params& LLOutfitGallery::getDefaultParams()
     return LLUICtrlFactory::getDefaultParams<LLOutfitGallery>();
 }
 
-BOOL LLOutfitGallery::postBuild()
+bool LLOutfitGallery::postBuild()
 {
-    BOOL rv = LLOutfitListBase::postBuild();
+    bool rv = LLOutfitListBase::postBuild();
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
     LLPanel::Params params = LLPanel::getDefaultParams(); // Don't parse XML when creating dummy LLPanel
     mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
@@ -146,9 +146,9 @@ void LLOutfitGallery::draw()
     }
 }
 
-BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
+bool LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_RETURN:
@@ -158,7 +158,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
                 // Or should it wearSelectedOutfit?
                 getSelectedItem()->openOutfitsContent();
             }
-            handled = TRUE;
+            handled = true;
             break;
         case KEY_DELETE:
 #if LL_DARWIN
@@ -170,12 +170,12 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 onRemoveOutfit(mSelectedOutfitUUID);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_F2:
             LLAppearanceMgr::instance().renameOutfit(mSelectedOutfitUUID);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_UP:
@@ -183,7 +183,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageUp(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_DOWN:
@@ -191,7 +191,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageDown(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_HOME:
@@ -199,7 +199,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToTop();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_END:
@@ -207,27 +207,27 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToBottom();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_LEFT:
             moveLeft();
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_RIGHT:
             moveRight();
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_UP:
             moveUp();
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_DOWN:
             moveDown();
-            handled = TRUE;
+            handled = true;
             break;
 
         default:
@@ -943,7 +943,7 @@ LLOutfitGalleryItem::~LLOutfitGalleryItem()
 
 }
 
-BOOL LLOutfitGalleryItem::postBuild()
+bool LLOutfitGalleryItem::postBuild()
 {
     setDefaultImage();
 
@@ -952,7 +952,7 @@ BOOL LLOutfitGalleryItem::postBuild()
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     setOutfitWorn(false);
     mHidden = false;
-    return TRUE;
+    return true;
 }
 
 void LLOutfitGalleryItem::draw()
@@ -1036,14 +1036,14 @@ bool LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
     return openOutfitsContent() || LLPanel::handleDoubleClick(x, y, mask);
 }
 
-BOOL LLOutfitGalleryItem::handleKeyHere(KEY key, MASK mask)
+bool LLOutfitGalleryItem::handleKeyHere(KEY key, MASK mask)
 {
     if (!mGallery)
     {
-        return FALSE;
+        return false;
     }
 
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_LEFT:

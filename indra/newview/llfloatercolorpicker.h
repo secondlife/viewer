@@ -48,7 +48,7 @@ class LLFloaterColorPicker
 		virtual ~LLFloaterColorPicker ();
 
 		// overrides
-		virtual BOOL postBuild ();
+		virtual bool postBuild ();
 		virtual void draw ();
 		virtual bool handleMouseDown ( S32 x, S32 y, MASK mask );
 		virtual bool handleMouseUp ( S32 x, S32 y, MASK mask );

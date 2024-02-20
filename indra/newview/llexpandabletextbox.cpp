@@ -119,7 +119,7 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 	setMaxTextLength(p.max_text_length);
 }
 
-void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLTextEditor::reshape(width, height, called_from_parent);
 }
@@ -430,7 +430,7 @@ void LLExpandableTextBox::updateTextShape()
 	updateTextBoxRect();
 }
 
-void LLExpandableTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLExpandableTextBox::reshape(S32 width, S32 height, bool called_from_parent)
 {
     mExpanded = false;
     LLUICtrl::reshape(width, height, called_from_parent);

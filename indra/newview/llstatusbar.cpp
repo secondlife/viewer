@@ -159,7 +159,7 @@ bool LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return true;
 }
 
-BOOL LLStatusBar::postBuild()
+bool LLStatusBar::postBuild()
 {
 	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
@@ -235,22 +235,22 @@ BOOL LLStatusBar::postBuild()
 	mPanelPresetsCameraPulldown = new LLPanelPresetsCameraPulldown();
 	addChild(mPanelPresetsCameraPulldown);
 	mPanelPresetsCameraPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	mPanelPresetsCameraPulldown->setVisible(FALSE);
+	mPanelPresetsCameraPulldown->setVisible(false);
 
 	mPanelPresetsPulldown = new LLPanelPresetsPulldown();
 	addChild(mPanelPresetsPulldown);
 	mPanelPresetsPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	mPanelPresetsPulldown->setVisible(FALSE);
+	mPanelPresetsPulldown->setVisible(false);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(false);
 
 	mPanelNearByMedia = new LLPanelNearByMedia();
 	addChild(mPanelNearByMedia);
 	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	mPanelNearByMedia->setVisible(FALSE);
+	mPanelNearByMedia->setVisible(false);
 
 	updateBalancePanelPosition();
 
@@ -258,7 +258,7 @@ BOOL LLStatusBar::postBuild()
 	mFilterEdit = getChild<LLSearchEditor>( "search_menu_edit" );
 	mSearchPanel = getChild<LLPanel>( "menu_search_panel" );
 
-	BOOL search_panel_visible = gSavedSettings.getBOOL("MenuSearch");
+	bool search_panel_visible = gSavedSettings.getBOOL("MenuSearch");
 	mSearchPanel->setVisible(search_panel_visible);
 	mFilterEdit->setKeystrokeCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
 	mFilterEdit->setCommitCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
@@ -270,7 +270,7 @@ BOOL LLStatusBar::postBuild()
 		updateMenuSearchPosition();
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Per-frame updates of visibility

@@ -94,8 +94,8 @@ public:
 	
 	/*virtual*/ void	draw();
 	/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	postBuild();
-	/*virtual*/ void	setVisible(BOOL visible);
+	/*virtual*/ bool	postBuild();
+	/*virtual*/ void	setVisible(bool visible);
 
 	void handleLoginComplete();
 	void clearHistoryCache();

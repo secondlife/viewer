@@ -37,14 +37,14 @@ public:
 	~LLPanelVoiceDeviceSettings();
 
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	void apply();
 	void cancel();
 	void refresh();
 	void initialize();
 	void cleanup();
 
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void onVisibilityChange ( bool new_visibility );
 
 	void setUseTuningMode(bool use) { mUseTuningMode = use; };
 	

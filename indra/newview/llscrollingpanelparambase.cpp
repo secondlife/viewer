@@ -66,7 +66,7 @@ LLScrollingPanelParamBase::~LLScrollingPanelParamBase()
 {
 }
 
-void LLScrollingPanelParamBase::updatePanel(BOOL allow_modify)
+void LLScrollingPanelParamBase::updatePanel(bool allow_modify)
 {
 	LLViewerVisualParam* param = mParam;
 

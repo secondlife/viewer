@@ -60,7 +60,7 @@ public:
 	LLPanelObjectInventory(const Params&);
 	virtual ~LLPanelObjectInventory();
 	
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
@@ -76,7 +76,7 @@ public:
 
 	virtual void draw();
 	virtual void deleteAllChildren();
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
+	virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 	
 	/*virtual*/ void onFocusLost();
 	/*virtual*/ void onFocusReceived();
@@ -101,7 +101,7 @@ protected:
 	void removeItemID(const LLUUID& id);
 	void clearItemIDs();
 
-	BOOL			handleKeyHere( KEY key, MASK mask );
+	bool			handleKeyHere( KEY key, MASK mask );
 	BOOL			isSelectionRemovable();
 
 private:

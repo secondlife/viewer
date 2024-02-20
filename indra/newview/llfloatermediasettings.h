@@ -41,9 +41,9 @@ public:
 	LLFloaterMediaSettings(const LLSD& key);
 	~LLFloaterMediaSettings();
 
-	/*virtual*/ BOOL postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
+	bool postBuild() override;
+    void onOpen(const LLSD& key) override;
+	void onClose(bool app_quitting) override;
 
 	static LLFloaterMediaSettings* getInstance();
 	static bool instanceExists();

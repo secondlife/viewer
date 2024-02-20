@@ -67,7 +67,7 @@ void LLSplitButton::onFocusLost()
 	LLUICtrl::onFocusLost();
 }
 
-void LLSplitButton::setFocus(BOOL b)
+void LLSplitButton::setFocus(bool b)
 {
 	LLUICtrl::setFocus(b);
 
@@ -75,12 +75,12 @@ void LLSplitButton::setFocus(BOOL b)
 	{
 		if (mItemsPanel && mItemsPanel->getVisible())
 		{
-			mItemsPanel->setFocus(TRUE);
+			mItemsPanel->setFocus(true);
 		}
 	}
 }
 
-void LLSplitButton::setEnabled(BOOL enabled)
+void LLSplitButton::setEnabled(bool enabled)
 {
 	LLView::setEnabled(enabled);
 	mArrowBtn->setEnabled(enabled);

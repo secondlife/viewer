@@ -68,7 +68,7 @@ public:
 	LLPreview(const LLSD& key );
 	virtual ~LLPreview();
 		
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	
 	virtual void setObjectID(const LLUUID& object_id);
 	void setItem( LLInventoryItem* item );
@@ -88,7 +88,6 @@ public:
 
 	static void			onBtnCopyToInv(void* userdata);
 
-	void				addKeepDiscardButtons();
 	static void			onKeepBtn(void* data);
 	static void			onDiscardBtn(void* data);
 	/*virtual*/ void	handleReshape(const LLRect& new_rect, bool by_user = false);
@@ -97,8 +96,6 @@ public:
 
 	virtual void loadAsset() { mAssetStatus = PREVIEW_ASSET_LOADED; }
 	virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
-
-	static LLPreview* getFirstPreviewForSource(const LLUUID& source_id);
 
 	// Why is this at the LLPreview level?  JC
 	void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id);
@@ -114,8 +111,6 @@ public:
 
 protected:
 	virtual void onCommit();
-
-	void addDescriptionUI();
 
 	static void onText(LLUICtrl*, void* userdata);
 	static void onRadio(LLUICtrl*, void* userdata);

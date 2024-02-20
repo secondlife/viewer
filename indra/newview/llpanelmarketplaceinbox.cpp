@@ -63,14 +63,14 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 }
 
 // virtual
-BOOL LLPanelMarketplaceInbox::postBuild()
+bool LLPanelMarketplaceInbox::postBuild()
 {
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
 
 	mFreshCountCtrl = getChild<LLUICtrl>("inbox_fresh_new_count");
 	mInboxButton = getChild<LLButton>("inbox_btn");
 	
-	return TRUE;
+	return true;
 }
 
 void LLPanelMarketplaceInbox::onSelectionChange()
@@ -122,10 +122,10 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
-BOOL LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)
+bool LLPanelMarketplaceInbox::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg)
 {
 	*accept = ACCEPT_NO;
-	return TRUE;
+	return true;
 }
 
 U32 LLPanelMarketplaceInbox::getFreshItemCount() const

@@ -57,7 +57,7 @@ public:
 
 	const LLUUID&	getAvatarId() const	{ return mAvatarId; }
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void draw();	
 	
 	virtual boost::signals2::connection setLeftButtonClickCallback(

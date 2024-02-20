@@ -205,7 +205,7 @@ void LLScriptFloater::setDocked(bool docked, bool pop_on_undock /* = true */)
 	hideToastsIfNeeded();
 }
 
-void LLScriptFloater::setVisible(BOOL visible)
+void LLScriptFloater::setVisible(bool visible)
 {
 	LLDockableFloater::setVisible(visible);
 

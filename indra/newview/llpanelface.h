@@ -100,7 +100,7 @@ public:
 class LLPanelFace : public LLPanel
 {
 public:
-	virtual BOOL	postBuild();
+	virtual bool	postBuild();
 	LLPanelFace();
 	virtual ~LLPanelFace();
 
@@ -110,7 +110,7 @@ public:
 
     static void onMaterialOverrideReceived(const LLUUID& object_id, S32 side);
 
-    /*virtual*/ void onVisibilityChange(BOOL new_visibility);
+    /*virtual*/ void onVisibilityChange(bool new_visibility);
     /*virtual*/ void draw();
 
 	LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)

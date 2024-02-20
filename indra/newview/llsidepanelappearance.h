@@ -46,7 +46,7 @@ public:
 	LLSidepanelAppearance();
 	virtual ~LLSidepanelAppearance();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);	
 
 	void refreshCurrentOutfitName(const std::string& name = "");
@@ -73,9 +73,9 @@ private:
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 
-	void toggleMyOutfitsPanel(BOOL visible, const std::string& tab_name);
-	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
-	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void toggleMyOutfitsPanel(bool visible, const std::string& tab_name);
+	void toggleOutfitEditPanel(bool visible, bool disable_camera_switch = false);
+	void toggleWearableEditPanel(bool visible, LLViewerWearable* wearable = nullptr, bool disable_camera_switch = false);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;

@@ -69,10 +69,10 @@ class LLGalleryPanel: public LLPanel
 {
 public:
 
-    BOOL canFocusChildren() const override
+    bool canFocusChildren() const override
     {
         // Tell Tab to not focus children
-        return FALSE;
+        return false;
     }
 
 protected:
@@ -144,7 +144,7 @@ const LLInventoryGallery::Params& LLInventoryGallery::getDefaultParams()
     return LLUICtrlFactory::getDefaultParams<LLInventoryGallery>();
 }
 
-BOOL LLInventoryGallery::postBuild()
+bool LLInventoryGallery::postBuild()
 {
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
     LLPanel::Params params = LLPanel::getDefaultParams();
@@ -153,7 +153,7 @@ BOOL LLInventoryGallery::postBuild()
     mInventoryGalleryMenu = new LLInventoryGalleryContextMenu(this);
     mRootGalleryMenu = new LLInventoryGalleryContextMenu(this);
     mRootGalleryMenu->setRootFolder(true);
-    return TRUE;
+    return true;
 }
 
 LLInventoryGallery::~LLInventoryGallery()
@@ -367,7 +367,7 @@ void LLInventoryGallery::draw()
     }
 }
 
-void LLInventoryGallery::onVisibilityChange(BOOL new_visibility)
+void LLInventoryGallery::onVisibilityChange(bool new_visibility)
 {
     if (new_visibility)
     {
@@ -1046,9 +1046,9 @@ bool LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
+bool LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_RETURN:
@@ -1060,7 +1060,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                 if (category)
                 {
                     setRootFolder(*iter);
-                    handled = TRUE;
+                    handled = true;
                 }
                 else
                 {
@@ -1071,7 +1071,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                     }
                 }
             }
-            handled = TRUE;
+            handled = true;
             break;
         case KEY_DELETE:
 #if LL_DARWIN
@@ -1083,7 +1083,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 deleteSelection();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_F2:
@@ -1092,7 +1092,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mInventoryGalleryMenu->rename(mSelectedItemIDs.front());
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_UP:
@@ -1101,7 +1101,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageUp(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_DOWN:
@@ -1110,7 +1110,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageDown(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_HOME:
@@ -1119,7 +1119,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToTop();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_END:
@@ -1128,27 +1128,27 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToBottom();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_LEFT:
             moveLeft(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_RIGHT:
             moveRight(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_UP:
             moveUp(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_DOWN:
             moveDown(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         default:
@@ -1631,22 +1631,22 @@ void LLInventoryGallery::copy()
     mFilterSubString.clear();
 }
 
-BOOL LLInventoryGallery::canCopy() const
+bool LLInventoryGallery::canCopy() const
 {
     if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
     {
-        return FALSE;
+        return false;
     }
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
         if (!isItemCopyable(id))
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGallery::cut()
@@ -1668,11 +1668,11 @@ void LLInventoryGallery::cut()
     mFilterSubString.clear();
 }
 
-BOOL LLInventoryGallery::canCut() const
+bool LLInventoryGallery::canCut() const
 {
     if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
     {
-        return FALSE;
+        return false;
     }
 
     for (const LLUUID& id : mSelectedItemIDs)
@@ -1682,16 +1682,16 @@ BOOL LLInventoryGallery::canCut() const
         {
             if (!get_is_category_removable(&gInventory, id))
             {
-                return FALSE;
+                return false;
             }
         }
         else if (!get_is_item_removable(&gInventory, id))
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGallery::paste()
@@ -1828,18 +1828,18 @@ void LLInventoryGallery::paste(const LLUUID& dest,
     LLClipboard::instance().setCutMode(false);
 }
 
-BOOL LLInventoryGallery::canPaste() const
+bool LLInventoryGallery::canPaste() const
 {
     // Return FALSE on degenerated cases: empty clipboard, no inventory, no agent
     if (!LLClipboard::instance().hasContents())
     {
-        return FALSE;
+        return false;
     }
 
     // In cut mode, whatever is on the clipboard is always pastable
     if (LLClipboard::instance().isCutMode())
     {
-        return TRUE;
+        return true;
     }
 
     // In normal mode, we need to check each element of the clipboard to know if we can paste or not
@@ -1853,10 +1853,10 @@ BOOL LLInventoryGallery::canPaste() const
         // Each item must be copyable to be pastable
         if (!isItemCopyable(item_id))
         {
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response, const selection_deque selected_ids)
@@ -2414,12 +2414,12 @@ bool LLInventoryGallery::isForwardAvailable()
     return (!mForwardFolders.empty() && (mFolderID != mForwardFolders.back()));
 }
 
-BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                            EDragAndDropType cargo_type, void* cargo_data,
                                            EAcceptance* accept, std::string& tooltip_msg)
 {
     // have children handle it first
-    BOOL handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
+    bool handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
                                             accept, tooltip_msg);
 
     // when drop is not handled by child, it should be handled by the root folder .
@@ -2598,13 +2598,13 @@ LLInventoryGalleryItem::~LLInventoryGalleryItem()
 {
 }
 
-BOOL LLInventoryGalleryItem::postBuild()
+bool LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     mThumbnailCtrl = getChild<LLThumbnailCtrl>("preview_thumbnail");
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::EType inventory_type, U32 flags, bool is_link)
@@ -2832,7 +2832,7 @@ bool LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
     return true;
 }
 
-BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                        EDragAndDropType cargo_type,
                        void* cargo_data,
                        EAcceptance* accept,
@@ -2840,19 +2840,19 @@ BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 {
     if (!mIsFolder)
     {
-        return FALSE;
+        return false;
     }
     return mGallery->baseHandleDragAndDrop(mUUID, drop, cargo_type, cargo_data, accept, tooltip_msg);
 }
 
-BOOL LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
+bool LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
 {
     if (!mGallery)
     {
-        return FALSE;
+        return false;
     }
 
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_LEFT:

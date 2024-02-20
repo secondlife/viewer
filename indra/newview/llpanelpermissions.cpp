@@ -154,7 +154,7 @@ LLPanelPermissions::LLPanelPermissions() :
 	setMouseOpaque(FALSE);
 }
 
-BOOL LLPanelPermissions::postBuild()
+bool LLPanelPermissions::postBuild()
 {
 	childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
 	getChild<LLLineEditor>("Object Name")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
@@ -188,7 +188,7 @@ BOOL LLPanelPermissions::postBuild()
 	mLabelOwnerName = getChild<LLTextBox>("Owner Name");
 	mLabelCreatorName = getChild<LLTextBox>("Creator Name");
 
-	return TRUE;
+	return true;
 }
 
 

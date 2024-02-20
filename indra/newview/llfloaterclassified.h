@@ -37,7 +37,7 @@ public:
     virtual ~LLFloaterClassified();
 
     void onOpen(const LLSD& key) override;
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     bool matchesKey(const LLSD& key) override;
 };

@@ -70,7 +70,7 @@ LLPanelExperiencePicker::~LLPanelExperiencePicker()
 {
 }
 
-BOOL LLPanelExperiencePicker::postBuild()
+bool LLPanelExperiencePicker::postBuild()
 {
 	getChild<LLLineEditor>(TEXT_EDIT)->setKeystrokeCallback( boost::bind(&LLPanelExperiencePicker::editKeystroke, this, _1, _2),NULL);
 
@@ -102,7 +102,7 @@ BOOL LLPanelExperiencePicker::postBuild()
 		// Start searching when Return is pressed in the line editor.
 		search_panel->setDefaultBtn(BTN_FIND);
 	}
-	return TRUE;
+	return true;
 }
 
 void LLPanelExperiencePicker::editKeystroke( class LLLineEditor* caller, void* user_data )

@@ -38,7 +38,7 @@ LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
 {
 }
 
-BOOL LLFloaterNewFeatureNotification::postBuild()
+bool LLFloaterNewFeatureNotification::postBuild()
 {
     setCanDrag(FALSE);
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
@@ -57,7 +57,7 @@ BOOL LLFloaterNewFeatureNotification::postBuild()
         reshape(rect.getWidth() + 90, rect.getHeight() + 45);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterNewFeatureNotification::onOpen(const LLSD& key)

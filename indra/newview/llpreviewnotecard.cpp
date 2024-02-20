@@ -82,7 +82,7 @@ LLPreviewNotecard::~LLPreviewNotecard()
 	delete mLiveFile;
 }
 
-BOOL LLPreviewNotecard::postBuild()
+bool LLPreviewNotecard::postBuild()
 {
 	mEditor = getChild<LLViewerTextEditor>("Notecard Editor");
 	mEditor->setNotecardInfo(mItemUUID, mObjectID, getKey());
@@ -116,7 +116,7 @@ bool LLPreviewNotecard::saveItem()
 	return saveIfNeeded(item);
 }
 
-void LLPreviewNotecard::setEnabled( BOOL enabled )
+void LLPreviewNotecard::setEnabled(bool enabled)
 {
 
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
@@ -139,25 +139,25 @@ void LLPreviewNotecard::draw()
 }
 
 // virtual
-BOOL LLPreviewNotecard::handleKeyHere(KEY key, MASK mask)
+bool LLPreviewNotecard::handleKeyHere(KEY key, MASK mask)
 {
 	if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
 	{
 		saveIfNeeded();
-		return TRUE;
+		return true;
 	}
 
 	return LLPreview::handleKeyHere(key, mask);
 }
 
 // virtual
-BOOL LLPreviewNotecard::canClose()
+bool LLPreviewNotecard::canClose()
 {
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	if(mForceClose || editor->isPristine())
 	{
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -167,7 +167,7 @@ BOOL LLPreviewNotecard::canClose()
 			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
 			LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
 		}
-		return FALSE;
+		return false;
 	}
 }
 

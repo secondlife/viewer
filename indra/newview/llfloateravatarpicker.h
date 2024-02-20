@@ -55,15 +55,15 @@ public:
 	LLFloaterAvatarPicker(const LLSD& key);
 	virtual ~LLFloaterAvatarPicker();
 	
-	virtual	BOOL postBuild();
+	virtual	bool postBuild();
 
 	void setOkBtnEnableCb(validate_callback_t cb);
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
 	void processResponse(const LLUUID& query_id, const LLSD& content);
 
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-						   BOOL drop, EDragAndDropType cargo_type,
+	bool handleDragAndDrop(S32 x, S32 y, MASK mask,
+						   bool drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
 						   std::string& tooltip_msg);
 
@@ -93,7 +93,7 @@ private:
 
     void drawFrustum();
 	virtual void draw();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool handleKeyHere(KEY key, MASK mask);
 
 	LLUUID				mQueryID;
 	int				    mNumResultsReturned;

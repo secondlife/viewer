@@ -66,14 +66,14 @@ LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
 {
 }
 
-BOOL LLFloaterLandHoldings::postBuild()
+bool LLFloaterLandHoldings::postBuild()
 {
 	childSetAction("Teleport", onClickTeleport, this);
 	childSetAction("Show on Map", onClickMap, this);
 
 	// Grant list
 	LLScrollListCtrl* grant_list = getChild<LLScrollListCtrl>("grant list");
-	grant_list->sortByColumnIndex(0, TRUE);
+	grant_list->sortByColumnIndex(0, true);
 	grant_list->setDoubleClickCallback(onGrantList, this);
 
 	S32 count = gAgent.mGroups.size();
@@ -99,7 +99,7 @@ BOOL LLFloaterLandHoldings::postBuild()
 
 	center();
 
-	return TRUE;
+	return true;
 }
 
 

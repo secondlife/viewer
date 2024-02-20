@@ -86,11 +86,11 @@ LLFloaterImagePreview::LLFloaterImagePreview(const std::string& filename) :
 //-----------------------------------------------------------------------------
 // postBuild()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterImagePreview::postBuild()
+bool LLFloaterImagePreview::postBuild()
 {
 	if (!LLFloaterNameDesc::postBuild())
 	{
-		return FALSE;
+		return false;
 	}
 	
 	LLCtrlSelectionInterface* iface = childGetSelectionInterface("clothing_type_combo");
@@ -106,7 +106,7 @@ BOOL LLFloaterImagePreview::postBuild()
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
-	getChildView("bad_image_text")->setVisible(FALSE);
+	getChildView("bad_image_text")->setVisible(false);
 
 	if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
 	{
@@ -121,7 +121,7 @@ BOOL LLFloaterImagePreview::postBuild()
             // We want "lossless_check" to be unchecked when it is disabled, regardless of
             // LosslessJ2CUpload state, so only assign control when enabling checkbox
             LLCheckBoxCtrl* check_box = getChild<LLCheckBoxCtrl>("lossless_check");
-            check_box->setEnabled(TRUE);
+            check_box->setEnabled(true);
             check_box->setControlVariable(gSavedSettings.getControl("LosslessJ2CUpload"));
         }
 	}
@@ -129,9 +129,9 @@ BOOL LLFloaterImagePreview::postBuild()
 	{
 		mAvatarPreview = NULL;
 		mSculptedPreview = NULL;
-		getChildView("bad_image_text")->setVisible(TRUE);
-		getChildView("clothing_type_combo")->setEnabled(FALSE);
-		getChildView("ok_btn")->setEnabled(FALSE);
+		getChildView("bad_image_text")->setVisible(true);
+		getChildView("clothing_type_combo")->setEnabled(false);
+		getChildView("ok_btn")->setEnabled(false);
 
 		if(!mImageLoadError.empty())
 		{
@@ -141,7 +141,7 @@ BOOL LLFloaterImagePreview::postBuild()
 	
 	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
 	
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------

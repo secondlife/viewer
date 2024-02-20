@@ -99,9 +99,9 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 
 
 	// Note: we assume here that the currency symbol goes on the left. (Hey, it's Lindens! We can just decide.)
-	BOOL negative = (input < 0 );
-	BOOL negative_before = negative && (conv->n_sign_posn != 2);
-	BOOL negative_after = negative && (conv->n_sign_posn == 2);
+	bool negative = (input < 0 );
+	bool negative_before = negative && (conv->n_sign_posn != 2);
+	bool negative_after = negative && (conv->n_sign_posn == 2);
 
 	std::string digits = llformat("%u", abs(input));
 	if( !grouping || !grouping[0] )

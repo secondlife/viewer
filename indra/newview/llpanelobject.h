@@ -51,7 +51,7 @@ public:
 	LLPanelObject();
 	virtual ~LLPanelObject();
 
-	virtual BOOL	postBuild();
+	virtual bool	postBuild();
 	virtual void	draw();
 	virtual void 	clearCtrls();
 

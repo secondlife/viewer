@@ -60,7 +60,7 @@ public:
 
     void                    setActive(bool active);
 
-    virtual BOOL            postBuild() override;
+    virtual bool            postBuild() override;
     virtual void            onClose(bool app_quitting) override;
     virtual void            draw() override;
 
@@ -108,7 +108,7 @@ private:
     void                    onButtonCancel();
     void                    onButtonSelect();
     virtual bool            handleDoubleClick(S32 x, S32 y, MASK mask) override;
-    BOOL                    handleKeyHere(KEY key, MASK mask) override;
+    bool                    handleKeyHere(KEY key, MASK mask) override;
     void                    onFocusLost() override;
 
 

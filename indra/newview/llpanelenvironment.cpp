@@ -165,7 +165,7 @@ LLPanelEnvironmentInfo::~LLPanelEnvironmentInfo()
         mUpdateConnection.disconnect();
 }
 
-BOOL LLPanelEnvironmentInfo::postBuild()
+bool LLPanelEnvironmentInfo::postBuild()
 {
 
     getChild<LLUICtrl>(BTN_USEDEFAULT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
@@ -198,7 +198,7 @@ BOOL LLPanelEnvironmentInfo::postBuild()
     getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[3])->setPanel(this, alt_prefixes[3]);
     getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[4])->setPanel(this, alt_prefixes[4]);
 
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -208,7 +208,7 @@ void LLPanelEnvironmentInfo::onOpen(const LLSD& key)
 }
 
 // virtual
-void LLPanelEnvironmentInfo::onVisibilityChange(BOOL new_visibility)
+void LLPanelEnvironmentInfo::onVisibilityChange(bool new_visibility)
 {
     if (new_visibility)
     {
@@ -1133,17 +1133,17 @@ LLSettingsDropTarget::LLSettingsDropTarget(const LLSettingsDropTarget::Params& p
     : LLView(p), mEnvironmentInfoPanel(NULL), mDndEnabled(false)
 {}
 
-BOOL LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 	EDragAndDropType cargo_type,
 	void* cargo_data,
 	EAcceptance* accept,
 	std::string& tooltip_msg)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     if (getParent() && mDndEnabled)
     {
-        handled = TRUE;
+        handled = true;
 
         switch (cargo_type)
         {

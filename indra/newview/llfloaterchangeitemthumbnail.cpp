@@ -107,7 +107,7 @@ LLFloaterChangeItemThumbnail::~LLFloaterChangeItemThumbnail()
     removeVOInventoryListener();
 }
 
-BOOL LLFloaterChangeItemThumbnail::postBuild()
+bool LLFloaterChangeItemThumbnail::postBuild()
 {
     mItemNameText = getChild<LLUICtrl>("item_name");
     mItemTypeIcon = getChild<LLIconCtrl>("item_type_icon");
@@ -180,11 +180,11 @@ void LLFloaterChangeItemThumbnail::onMouseEnter(S32 x, S32 y, MASK mask)
     mPasteFromClipboardBtn->setEnabled(LLClipboard::instance().hasContents());
 }
 
-BOOL LLFloaterChangeItemThumbnail::handleDragAndDrop(
+bool LLFloaterChangeItemThumbnail::handleDragAndDrop(
     S32 x,
     S32 y,
     MASK mask,
-    BOOL drop,
+    bool drop,
     EDragAndDropType cargo_type,
     void *cargo_data,
     EAcceptance *accept,
@@ -214,7 +214,7 @@ BOOL LLFloaterChangeItemThumbnail::handleDragAndDrop(
 
     LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFloaterChangeItemThumbnail " << getKey() << LL_ENDL;
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterChangeItemThumbnail::changed(U32 mask)

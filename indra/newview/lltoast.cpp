@@ -151,7 +151,7 @@ LLToast::LLToast(const LLToast::Params& p)
 	}
 }
 
-void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLToast::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	// We shouldn't  use reshape from LLModalDialog since it changes toasts position.
 	// Toasts position should be controlled only by toast screen channel, see LLScreenChannelBase.
@@ -160,14 +160,14 @@ void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //--------------------------------------------------------------------------
-BOOL LLToast::postBuild()
+bool LLToast::postBuild()
 {
 	if(!mCanFade)
 	{
 		mTimer->stop();
 	}
 
-	return TRUE;
+	return true;
 }
 
 //--------------------------------------------------------------------------
@@ -218,7 +218,7 @@ void LLToast::hide()
 }
 
 /*virtual*/
-void LLToast::setFocus(BOOL b)
+void LLToast::setFocus(bool b)
 {
     if (b
         && !hasFocus()
@@ -226,9 +226,9 @@ void LLToast::setFocus(BOOL b)
         && mWrapperPanel
         && !mWrapperPanel->getChildList()->empty())
     {
-        LLModalDialog::setFocus(TRUE);
+        LLModalDialog::setFocus(true);
         // mostly for buttons
-        mPanel->setFocus(TRUE);
+        mPanel->setFocus(true);
     }
     else
     {
@@ -391,7 +391,7 @@ void LLToast::draw()
 }
 
 //--------------------------------------------------------------------------
-void LLToast::setVisible(BOOL show)
+void LLToast::setVisible(bool show)
 {
 	if(mIsHidden)
 	{

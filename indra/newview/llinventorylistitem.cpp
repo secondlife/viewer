@@ -158,7 +158,7 @@ void LLPanelInventoryListItemBase::setShowWidget(LLUICtrl* ctrl, bool show)
 	ctrl->setEnabled(show);
 }
 
-BOOL LLPanelInventoryListItemBase::postBuild()
+bool LLPanelInventoryListItemBase::postBuild()
 {
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item)
@@ -172,7 +172,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setWidgetsVisible(false);
 	reshapeWidgets();
 
-	return TRUE;
+	return true;
 }
 
 void LLPanelInventoryListItemBase::setValue(const LLSD& value)

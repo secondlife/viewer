@@ -324,7 +324,7 @@ void* LLFloaterWorldMap::createWorldMapView(void* data)
 	return new LLWorldMapView();
 }
 
-BOOL LLFloaterWorldMap::postBuild()
+bool LLFloaterWorldMap::postBuild()
 {
     mMapView = dynamic_cast<LLWorldMapView*>(getChild<LLPanel>("objects_mapview"));
 	
@@ -356,7 +356,7 @@ BOOL LLFloaterWorldMap::postBuild()
 	
 	onChangeMaturity();
 	
-	return TRUE;
+	return true;
 }
 
 // virtual
@@ -476,7 +476,7 @@ bool LLFloaterWorldMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 
 // virtual
-void LLFloaterWorldMap::reshape( S32 width, S32 height, BOOL called_from_parent )
+void LLFloaterWorldMap::reshape( S32 width, S32 height, bool called_from_parent )
 {
 	LLFloater::reshape( width, height, called_from_parent );
 }
@@ -1718,14 +1718,14 @@ LLPanelHideBeacon* LLPanelHideBeacon::getInstance()
 }
 
 
-BOOL LLPanelHideBeacon::postBuild()
+bool LLPanelHideBeacon::postBuild()
 {
 	mHideButton = getChild<LLButton>("hide_beacon_btn");
 	mHideButton->setCommitCallback(boost::bind(&LLPanelHideBeacon::onHideButtonClick, this));
 
 	gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelHideBeacon::updatePosition, this));
 
-	return TRUE;
+	return true;
 }
 
 //virtual
@@ -1742,7 +1742,7 @@ void LLPanelHideBeacon::draw()
 }
 
 //virtual
-void LLPanelHideBeacon::setVisible(BOOL visible)
+void LLPanelHideBeacon::setVisible(bool visible)
 {
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
 

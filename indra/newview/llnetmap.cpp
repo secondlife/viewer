@@ -69,20 +69,20 @@
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
-const F32 LLNetMap::MAP_SCALE_MIN = 32;
-const F32 LLNetMap::MAP_SCALE_FAR = 32;
-const F32 LLNetMap::MAP_SCALE_MEDIUM = 128;
-const F32 LLNetMap::MAP_SCALE_CLOSE = 256;
-const F32 LLNetMap::MAP_SCALE_VERY_CLOSE = 1024;
-const F32 LLNetMap::MAP_SCALE_MAX = 4096;
+constexpr F32 LLNetMap::MAP_SCALE_MIN = 32;
+constexpr F32 LLNetMap::MAP_SCALE_FAR = 32;
+constexpr F32 LLNetMap::MAP_SCALE_MEDIUM = 128;
+constexpr F32 LLNetMap::MAP_SCALE_CLOSE = 256;
+constexpr F32 LLNetMap::MAP_SCALE_VERY_CLOSE = 1024;
+constexpr F32 LLNetMap::MAP_SCALE_MAX = 4096;
 
-const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
-const F32 MIN_DOT_RADIUS = 3.5f;
-const F32 DOT_SCALE = 0.75f;
-const F32 MIN_PICK_SCALE = 2.f;
-const S32 MOUSE_DRAG_SLOP = 2;		// How far the mouse needs to move before we think it's a drag
+constexpr F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
+constexpr F32 MIN_DOT_RADIUS = 3.5f;
+constexpr F32 DOT_SCALE = 0.75f;
+constexpr F32 MIN_PICK_SCALE = 2.f;
+constexpr S32 MOUSE_DRAG_SLOP = 2;		// How far the mouse needs to move before we think it's a drag
 
-const F64 COARSEUPDATE_MAX_Z = 1020.0f;
+constexpr F64 COARSEUPDATE_MAX_Z = 1020.0f;
 
 LLNetMap::LLNetMap (const Params & p)
 :	LLUICtrl (p),
@@ -126,7 +126,7 @@ LLNetMap::~LLNetMap()
     }
 }
 
-BOOL LLNetMap::postBuild()
+bool LLNetMap::postBuild()
 {
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commitRegistrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enableRegistrar;
@@ -142,7 +142,7 @@ BOOL LLNetMap::postBuild()
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     mPopupMenuHandle = menu->getHandle();
     menu->setItemEnabled("Re-center map", false);
-	return TRUE;
+	return true;
 }
 
 void LLNetMap::setScale( F32 scale )
@@ -544,7 +544,7 @@ void LLNetMap::draw()
 	LLUICtrl::draw();
 }
 
-void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLNetMap::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLUICtrl::reshape(width, height, called_from_parent);
 	createObjectImage();
@@ -1067,14 +1067,14 @@ bool LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return true;
 }
 
-BOOL LLNetMap::handleClick(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleClick(S32 x, S32 y, MASK mask)
 {
 	// TODO: allow clicking an avatar on minimap to select avatar in the nearby avatar list
 	// if(mClosestAgentToCursor.notNull())
 	//     mNearbyList->selectUser(mClosestAgentToCursor);
 	// Needs a registered observer i guess to accomplish this without using
 	// globals to tell the mNearbyList in llpeoplepanel to select the user
-	return TRUE;
+	return true;
 }
 
 bool LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)

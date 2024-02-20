@@ -48,12 +48,12 @@ LLPanelAvatarTag::~LLPanelAvatarTag()
 	// Name callbacks will be automatically disconnected since LLPanel is trackable
 }
 
-BOOL LLPanelAvatarTag::postBuild()
+bool LLPanelAvatarTag::postBuild()
 {
 	mIcon = getChild<LLAvatarIconCtrl>("avatar_tag_icon");
 	mName = getChild<LLTextBox>("sender_tag_name");
 	mTime = getChild<LLTextBox>("tag_time");
-	return TRUE;
+	return true;
 }
 
 void LLPanelAvatarTag::draw()

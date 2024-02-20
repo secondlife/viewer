@@ -252,7 +252,7 @@ F32		LLPanelFace::getCurrentShinyOffsetV()		{ return getChild<LLUICtrl>("shinyOf
 // Methods
 //
 
-BOOL	LLPanelFace::postBuild()
+bool	LLPanelFace::postBuild()
 {
 	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
 	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
@@ -311,7 +311,7 @@ BOOL	LLPanelFace::postBuild()
 
 	LLSpinCtrl*     mCtrlGlow;
 
-	setMouseOpaque(FALSE);
+	setMouseOpaque(false);
 
     LLTextureCtrl*	pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
     if (pbr_ctrl)
@@ -471,7 +471,7 @@ BOOL	LLPanelFace::postBuild()
 
 	clearCtrls();
 
-	return TRUE;
+	return true;
 }
 
 LLPanelFace::LLPanelFace()
@@ -492,7 +492,7 @@ LLPanelFace::~LLPanelFace()
     unloadMedia();
 }
 
-void LLPanelFace::onVisibilityChange(BOOL new_visibility)
+void LLPanelFace::onVisibilityChange(bool new_visibility)
 {
     if (new_visibility)
     {

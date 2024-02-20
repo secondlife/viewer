@@ -61,7 +61,7 @@ LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
     mLODFactorChangedSignal.disconnect();
 }
 
-BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
+bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
 {
     // Don't do this on Mac as their braindead GL versioning
     // sets this when 8x and 16x are indeed available
@@ -80,7 +80,7 @@ BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
 
     mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateComplexityText, this)); 
     mLODFactorChangedSignal = gSavedSettings.getControl("RenderVolumeLODFactor")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateObjectMeshDetailText, this));
-    return TRUE;
+    return true;
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::onOpen(const LLSD& key)

@@ -65,13 +65,13 @@ LLFloaterOpenObject::~LLFloaterOpenObject()
 }
 
 // virtual
-BOOL LLFloaterOpenObject::postBuild()
+bool LLFloaterOpenObject::postBuild()
 {
 	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
 	mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
 	
 	refresh();
-	return TRUE;
+	return true;
 }
 
 void LLFloaterOpenObject::onOpen(const LLSD& key)

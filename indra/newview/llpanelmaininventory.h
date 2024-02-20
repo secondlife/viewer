@@ -65,7 +65,7 @@ public:
 	LLPanelMainInventory(const LLPanel::Params& p = getDefaultParams());
 	~LLPanelMainInventory();
 
-	BOOL postBuild();
+	bool postBuild();
 
     enum EViewModeType
     {
@@ -74,17 +74,17 @@ public:
         MODE_COMBINATION
     };
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool handleKeyHere(KEY key, MASK mask);
 
 	// Inherited functionality
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	/*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 									   EDragAndDropType cargo_type,
 									   void* cargo_data,
 									   EAcceptance* accept,
 									   std::string& tooltip_msg);
 	/*virtual*/ void changed(U32);
 	/*virtual*/ void draw();
-	/*virtual*/ void 	onVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void 	onVisibilityChange ( bool new_visibility );
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }

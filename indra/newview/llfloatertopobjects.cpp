@@ -93,7 +93,7 @@ LLFloaterTopObjects::~LLFloaterTopObjects()
 }
 
 // virtual
-BOOL LLFloaterTopObjects::postBuild()
+bool LLFloaterTopObjects::postBuild()
 {
     mObjectsScrollList = getChild<LLScrollListCtrl>("objects_list");
     mObjectsScrollList->setFocus(TRUE);
@@ -107,7 +107,7 @@ BOOL LLFloaterTopObjects::postBuild()
 	mFlags = 0;
 	mFilter.clear();
 
-	return TRUE;
+	return true;
 }
 // static
 void LLFloaterTopObjects::setMode(U32 mode)

@@ -54,10 +54,10 @@ LLFloaterBuy::LLFloaterBuy(const LLSD& key)
 {
 }
 
-BOOL LLFloaterBuy::postBuild()
+bool LLFloaterBuy::postBuild()
 {
-	getChildView("object_list")->setEnabled(FALSE);
-	getChildView("item_list")->setEnabled(FALSE);
+	getChildView("object_list")->setEnabled(false);
+	getChildView("item_list")->setEnabled(false);
 
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuy::onClickCancel, this));
 	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuy::onClickBuy, this));
@@ -70,12 +70,12 @@ BOOL LLFloaterBuy::postBuild()
 	// mid-session and the saved rect is off-center.
 	center();
 
-	return TRUE;
+	return true;
 }
 
 LLFloaterBuy::~LLFloaterBuy()
 {
-	mObjectSelection = NULL;
+	mObjectSelection = nullptr;
 }
 
 void LLFloaterBuy::reset()

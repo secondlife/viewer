@@ -57,7 +57,7 @@ public:
 
 
 private:
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     void applyPreferredRect();
 

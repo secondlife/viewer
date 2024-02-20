@@ -44,7 +44,7 @@ public:
     LLFloaterSimpleSnapshot(const LLSD& key);
     ~LLFloaterSimpleSnapshot();
 
-    BOOL postBuild();
+    bool postBuild();
     void onOpen(const LLSD& key);
     void draw();
 

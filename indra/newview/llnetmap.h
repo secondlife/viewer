@@ -75,11 +75,11 @@ public:
 	/*virtual*/ bool	handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ bool	handleHover( S32 x, S32 y, MASK mask );
 	/*virtual*/ bool	handleToolTip( S32 x, S32 y, MASK mask);
-	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void	reshape(S32 width, S32 height, bool called_from_parent = true);
 
-	/*virtual*/ BOOL 	postBuild();
+	/*virtual*/ bool 	postBuild();
 	/*virtual*/ bool	handleRightMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL	handleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool	handleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ bool	handleDoubleClick( S32 x, S32 y, MASK mask );
 
     void            setScale(F32 scale);

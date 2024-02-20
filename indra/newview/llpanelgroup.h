@@ -49,7 +49,7 @@ public:
 	LLPanelGroup();
 	virtual ~LLPanelGroup();
 
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	void setGroupID(const LLUUID& group_id);
 
@@ -77,7 +77,7 @@ public:
 	void callGroup();
 	void chatGroup();
 
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	virtual void reshape(S32 width, S32 height, bool called_from_parent = true);
 
 	static void showNotice(const std::string& subject,
 						   const std::string& message,
@@ -148,7 +148,7 @@ public:
 	virtual void update(LLGroupChange gc) { }
 
 	// This just connects the help button callback.
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 

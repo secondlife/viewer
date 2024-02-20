@@ -97,9 +97,9 @@ const F32 MAX_ATTACHMENT_DIST = 3.5f; // meters
 
 //static const std::string LEGACY_FULLBRIGHT_DESC =LLTrans::getString("Fullbright");
 
-BOOL	LLPanelObject::postBuild()
+bool	LLPanelObject::postBuild()
 {
-	setMouseOpaque(FALSE);
+	setMouseOpaque(false);
 	
 	//--------------------------------------------------------
 	// Top
@@ -280,7 +280,7 @@ BOOL	LLPanelObject::postBuild()
 	// Start with everyone disabled
 	clearCtrls();
 
-	return TRUE;
+	return true;
 }
 
 LLPanelObject::LLPanelObject()

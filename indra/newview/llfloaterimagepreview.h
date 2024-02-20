@@ -113,7 +113,7 @@ public:
 	LLFloaterImagePreview(const std::string& filename);
 	virtual ~LLFloaterImagePreview();
 
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	
 	bool handleMouseDown(S32 x, S32 y, MASK mask);
 	bool handleMouseUp(S32 x, S32 y, MASK mask);

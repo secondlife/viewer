@@ -622,7 +622,7 @@ public:
 		mItem = item;
 	}
 
-	virtual BOOL execute( LLTextBase* editor, S32* delta )
+	virtual bool execute( LLTextBase* editor, S32* delta )
 	{
 		LLViewerTextEditor* viewer_editor = (LLViewerTextEditor*)editor;
 		// Take this opportunity to remove any unused embedded items from this editor
@@ -634,7 +634,7 @@ public:
 			*delta = insert(editor, getPosition(), ws );
 			return (*delta != 0);
 		}
-		return FALSE;
+		return false;
 	}
 	
 	virtual S32 undo( LLTextBase* editor )
@@ -650,7 +650,7 @@ public:
 		insert(editor, getPosition(), ws );
 		return getPosition() + 1;
 	}
-	virtual BOOL hasExtCharValue( llwchar value ) const
+	virtual bool hasExtCharValue( llwchar value ) const
 	{
 		return (value == mExtCharValue);
 	}
@@ -707,7 +707,7 @@ void LLViewerTextEditor::makePristine()
 	LLTextEditor::makePristine();
 }
 
-void LLViewerTextEditor::onVisibilityChange( BOOL new_visibility )
+void LLViewerTextEditor::onVisibilityChange( bool new_visibility )
 {
 	LLUICtrl::onVisibilityChange(new_visibility);
 }
@@ -856,19 +856,19 @@ bool LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 
 // virtual
-BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
-					  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+bool LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
+					  bool drop, EDragAndDropType cargo_type, void *cargo_data,
 					  EAcceptance *accept,
 					  std::string& tooltip_msg)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	if (LLToolDragAndDrop::SOURCE_NOTECARD == source)
 	{
 		// We currently do not handle dragging items from one notecard to another
 		// since items in a notecard must be in Inventory to be verified. See DEV-2891.
-		return FALSE;
+		return false;
 	}
 	
 	if (getEnabled() && acceptsTextInput())
@@ -951,7 +951,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		*accept = ACCEPT_NO;
 	}
 
-	handled = TRUE;
+	handled = true;
 	LL_DEBUGS("UserInput") << "dragAndDrop handled by LLViewerTextEditor " << getName() << LL_ENDL;
 
 	return handled;
@@ -1355,13 +1355,13 @@ bool LLViewerTextEditor::hasEmbeddedInventory()
 
 ////////////////////////////////////////////////////////////////////////////
 
-BOOL LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
+bool LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
 {
 	LLMemoryStream str((U8*)buffer, length);
 	return importStream(str);
 }
 
-BOOL LLViewerTextEditor::exportBuffer( std::string& buffer )
+bool LLViewerTextEditor::exportBuffer( std::string& buffer )
 {
 	LLNotecard nc(LLNotecard::MAX_SIZE);
 
@@ -1378,6 +1378,6 @@ BOOL LLViewerTextEditor::exportBuffer( std::string& buffer )
 	
 	buffer = out_stream.str();
 	
-	return TRUE;
+	return true;
 }
 

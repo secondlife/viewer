@@ -71,9 +71,9 @@
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
-const S32 EXPANDED_HEIGHT = 266;
-const S32 COLLAPSED_HEIGHT = 60;
-const S32 EXPANDED_MIN_HEIGHT = 150;
+constexpr S32 EXPANDED_HEIGHT = 266;
+constexpr S32 COLLAPSED_HEIGHT = 60;
+constexpr S32 EXPANDED_MIN_HEIGHT = 150;
 
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
@@ -120,10 +120,10 @@ LLFloaterIMNearbyChat* LLFloaterIMNearbyChat::buildFloater(const LLSD& key)
 }
 
 //virtual
-BOOL LLFloaterIMNearbyChat::postBuild()
+bool LLFloaterIMNearbyChat::postBuild()
 {
     setIsSingleInstance(TRUE);
-    BOOL result = LLFloaterIMSessionTab::postBuild();
+    bool result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
 	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
@@ -268,7 +268,7 @@ void LLFloaterIMNearbyChat::removeScreenChat()
 }
 
 
-void LLFloaterIMNearbyChat::setVisible(BOOL visible)
+void LLFloaterIMNearbyChat::setVisible(bool visible)
 {
 	LLFloaterIMSessionTab::setVisible(visible);
 
@@ -279,7 +279,7 @@ void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 }
 
 
-void LLFloaterIMNearbyChat::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+void LLFloaterIMNearbyChat::setVisibleAndFrontmost(bool take_focus, const LLSD& key)
 {
 	LLFloaterIMSessionTab::setVisibleAndFrontmost(take_focus, key);
 
@@ -391,21 +391,21 @@ std::string LLFloaterIMNearbyChat::getCurrentChat()
 }
 
 // virtual
-BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
+bool LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if( KEY_RETURN == key && mask == MASK_CONTROL)
 	{
 		// shout
 		sendChat(CHAT_TYPE_SHOUT);
-		handled = TRUE;
+		handled = true;
 	}
 	else if (KEY_RETURN == key && mask == MASK_SHIFT)
 	{
 		// whisper
 		sendChat(CHAT_TYPE_WHISPER);
-		handled = TRUE;
+		handled = true;
 	}
 
 
@@ -415,12 +415,12 @@ BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			floater_container->selectNextorPreviousConversation(false);
-			handled = TRUE;
+			handled = true;
 		}
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			floater_container->selectNextorPreviousConversation(true);
-			handled = TRUE;
+			handled = true;
 		}
 	}
 

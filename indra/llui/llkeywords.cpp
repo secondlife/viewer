@@ -525,7 +525,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
 			// Line start tokens
 			{
-				BOOL line_done = FALSE;
+				bool line_done = false;
 				for (token_list_t::iterator iter = mLineTokenList.begin();
 					 iter != mLineTokenList.end(); ++iter)
 				{
@@ -542,7 +542,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
 						//create segments from seg_start to seg_end
 						insertSegments(wtext, *seg_list,cur_token, text_len, seg_start, seg_end, defaultColor, editor);
-						line_done = TRUE; // to break out of second loop.
+						line_done = true; // to break out of second loop.
 						break;
 					}
 				}

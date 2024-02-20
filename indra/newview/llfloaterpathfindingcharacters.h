@@ -58,7 +58,7 @@ protected:
 	LLFloaterPathfindingCharacters(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingCharacters();
 
-	virtual BOOL                       postBuild();
+	virtual bool                       postBuild();
 
 	virtual void                       requestGetObjects();
 

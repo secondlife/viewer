@@ -48,15 +48,15 @@ public:
 	LLProgressView();
 	virtual ~LLProgressView();
 	
-	BOOL postBuild();
+	bool postBuild();
 
 	/*virtual*/ void draw();
 	void drawStartTexture(F32 alpha);
 	void drawLogos(F32 alpha);
 
 	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ bool handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ void setVisible(bool visible);
 
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);

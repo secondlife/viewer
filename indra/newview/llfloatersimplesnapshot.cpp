@@ -258,7 +258,7 @@ LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot()
 {
 }
 
-BOOL LLFloaterSimpleSnapshot::postBuild()
+bool LLFloaterSimpleSnapshot::postBuild()
 {
     childSetAction("new_snapshot_btn", ImplBase::onClickNewSnapshot, this);
     childSetAction("save_btn", boost::bind(&LLFloaterSimpleSnapshot::onSend, this));
@@ -286,10 +286,10 @@ BOOL LLFloaterSimpleSnapshot::postBuild()
     previewp->setAllowRenderUI(false);
     previewp->setThumbnailSubsampled(TRUE);
 
-    return TRUE;
+    return true;
 }
 
-const S32 PREVIEW_OFFSET_Y = 70;
+constexpr S32 PREVIEW_OFFSET_Y = 70;
 
 void LLFloaterSimpleSnapshot::draw()
 {

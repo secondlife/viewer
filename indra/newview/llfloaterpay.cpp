@@ -83,7 +83,7 @@ class LLFloaterPay : public LLFloater
 public:
 	LLFloaterPay(const LLSD& key);
 	virtual ~LLFloaterPay();
-	/*virtual*/	BOOL	postBuild();
+	/*virtual*/	bool	postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
 	
 	void setCallback(money_callback callback) { mCallback = callback; }
@@ -150,7 +150,7 @@ LLFloaterPay::~LLFloaterPay()
 	gMessageSystem->setHandlerFuncFast(_PREHASH_PayPriceReply, 0, 0);
 }
 
-BOOL LLFloaterPay::postBuild()
+bool LLFloaterPay::postBuild()
 {
 	S32 i = 0;
 	
@@ -158,7 +158,7 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 1", boost::bind(LLFloaterPay::onGive, info));
-	getChildView("fastpay 1")->setVisible(FALSE);
+	getChildView("fastpay 1")->setVisible(false);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 1");
 	mQuickPayInfo[i] = info;
@@ -168,7 +168,7 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 5", boost::bind(LLFloaterPay::onGive, info));
-	getChildView("fastpay 5")->setVisible(FALSE);
+	getChildView("fastpay 5")->setVisible(false);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 5");
 	mQuickPayInfo[i] = info;
@@ -178,7 +178,7 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 10", boost::bind(LLFloaterPay::onGive, info));
-	getChildView("fastpay 10")->setVisible(FALSE);
+	getChildView("fastpay 10")->setVisible(false);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 10");
 	mQuickPayInfo[i] = info;
@@ -188,15 +188,15 @@ BOOL LLFloaterPay::postBuild()
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 20", boost::bind(LLFloaterPay::onGive, info));
-	getChildView("fastpay 20")->setVisible(FALSE);
+	getChildView("fastpay 20")->setVisible(false);
 
 	mQuickPayButton[i] = getChild<LLButton>("fastpay 20");
 	mQuickPayInfo[i] = info;
 	++i;
 
 
-	getChildView("amount text")->setVisible(FALSE);	
-	getChildView("amount")->setVisible(FALSE);
+	getChildView("amount text")->setVisible(false);
+	getChildView("amount")->setVisible(false);
 
 	getChild<LLLineEditor>("amount")->setKeystrokeCallback(&LLFloaterPay::onKeystroke, this);
 	getChild<LLLineEditor>("amount")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
@@ -206,12 +206,12 @@ BOOL LLFloaterPay::postBuild()
 
 	childSetAction("pay btn", boost::bind(LLFloaterPay::onGive, info));
 	setDefaultBtn("pay btn");
-	getChildView("pay btn")->setVisible(FALSE);
-	getChildView("pay btn")->setEnabled(FALSE);
+	getChildView("pay btn")->setVisible(false);
+	getChildView("pay btn")->setEnabled(false);
 
 	childSetAction("cancel btn",&LLFloaterPay::onCancel,this);
 
-	return TRUE;
+	return true;
 }
 
 // virtual

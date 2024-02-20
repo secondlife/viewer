@@ -106,12 +106,12 @@ LLFloaterSearch::LLFloaterSearch(const Params& key) :
     mCollectionType.insert("people");
 }
 
-BOOL LLFloaterSearch::postBuild()
+bool LLFloaterSearch::postBuild()
 {
 	LLFloaterWebContent::postBuild();
 	mWebBrowser->addObserver(this);
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterSearch::onOpen(const LLSD& key)
@@ -121,7 +121,7 @@ void LLFloaterSearch::onOpen(const LLSD& key)
 	p.allow_address_entry = false;
 
 	LLFloaterWebContent::onOpen(p);
-	mWebBrowser->setFocus(TRUE);
+	mWebBrowser->setFocus(true);
 	search(p.search);
 }
 

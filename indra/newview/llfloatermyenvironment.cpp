@@ -97,7 +97,7 @@ LLFloaterMyEnvironment::~LLFloaterMyEnvironment()
 }
 
 
-BOOL LLFloaterMyEnvironment::postBuild()
+bool LLFloaterMyEnvironment::postBuild()
 {
     mInventoryList = getChild<LLInventoryPanel>(PANEL_SETTINGS);
 
@@ -122,8 +122,8 @@ BOOL LLFloaterMyEnvironment::postBuild()
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
 
     childSetCommitCallback(BUTTON_DELETE, [this](LLUICtrl *, void*) { onDeleteSelected(); }, nullptr);
-    mSavedFolderState.setApply(FALSE);
-    return TRUE;
+    mSavedFolderState.setApply(false);
+    return true;
 }
 
 void LLFloaterMyEnvironment::refresh()

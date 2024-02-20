@@ -117,7 +117,7 @@ public:
 	/**
 	 * Inheritors need to call base implementation of postBuild()
 	 */
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 	/**
 	 * Handles item selection

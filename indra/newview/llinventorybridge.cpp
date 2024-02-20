@@ -308,15 +308,15 @@ void LLInvFVBridge::setCreationDate(time_t creation_date_utc)
 
 
 // Can be destroyed (or moved to trash)
-BOOL LLInvFVBridge::isItemRemovable() const
+bool LLInvFVBridge::isItemRemovable() const
 {
 	return get_is_item_removable(getInventoryModel(), mUUID);
 }
 
 // Can be moved to another folder
-BOOL LLInvFVBridge::isItemMovable() const
+bool LLInvFVBridge::isItemMovable() const
 {
-	return TRUE;
+	return true;
 }
 
 BOOL LLInvFVBridge::isLink() const
@@ -333,7 +333,7 @@ BOOL LLInvFVBridge::isLibraryItem() const
 /**
  * @brief Adds this item into clipboard storage
  */
-BOOL LLInvFVBridge::cutToClipboard()
+bool LLInvFVBridge::cutToClipboard()
 {
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemMovable() && isItemRemovable())
@@ -355,7 +355,7 @@ BOOL LLInvFVBridge::cutToClipboard()
             return perform_cutToClipboard();
         }
     }
-	return FALSE;
+	return false;
 }
 
 // virtual
@@ -390,14 +390,14 @@ BOOL LLInvFVBridge::perform_cutToClipboard()
 	return FALSE;
 }
 
-BOOL LLInvFVBridge::copyToClipboard() const
+bool LLInvFVBridge::copyToClipboard() const
 {
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemCopyable())
 	{
 		return LLClipboard::instance().addToClipboard(mUUID);
 	}
-	return FALSE;
+	return false;
 }
 
 void LLInvFVBridge::showProperties()
@@ -619,23 +619,23 @@ void  LLInvFVBridge::removeBatchNoCheck(std::vector<LLFolderViewModelItem*>&  ba
 	model->notifyObservers();
 }
 
-BOOL LLInvFVBridge::isClipboardPasteable() const
+bool LLInvFVBridge::isClipboardPasteable() const
 {
 	// Return FALSE on degenerated cases: empty clipboard, no inventory, no agent
 	if (!LLClipboard::instance().hasContents() || !isAgentInventory())
 	{
-		return FALSE;
+		return false;
 	}
 	LLInventoryModel* model = getInventoryModel();
 	if (!model)
 	{
-		return FALSE;
+		return false;
 	}
 
 	// In cut mode, whatever is on the clipboard is always pastable
 	if (LLClipboard::instance().isCutMode())
 	{
-		return TRUE;
+		return true;
 	}
 
 	// In normal mode, we need to check each element of the clipboard to know if we can paste or not
@@ -652,7 +652,7 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 		{
 			LLFolderBridge cat_br(mInventoryPanel.get(), mRoot, item_id);
 			if (!cat_br.isItemCopyable(false))
-			return FALSE;
+			return false;
 			// Skip to the next item in the clipboard
 			continue;
 		}
@@ -661,10 +661,10 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 		LLItemBridge item_br(mInventoryPanel.get(), mRoot, item_id);
 		if (!item_br.isItemCopyable(false))
 		{
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
@@ -2087,7 +2087,7 @@ time_t LLItemBridge::getCreationDate() const
 }
 
 
-BOOL LLItemBridge::isItemRenameable() const
+bool LLItemBridge::isItemRenameable() const
 {
 	LLViewerInventoryItem* item = getItem();
 	if(item)
@@ -2096,22 +2096,22 @@ BOOL LLItemBridge::isItemRenameable() const
 		// what the calling card points to.
 		if (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD)
 		{
-			return FALSE;
+			return false;
 		}
 
 		if (!item->isFinished()) // EXT-8662
 		{
-			return FALSE;
+			return false;
 		}
 
 		if (isInboxFolder())
 		{
-			return FALSE;
+			return false;
 		}
 
 		return (item->getPermissions().allowModifyBy(gAgent.getID()));
 	}
-	return FALSE;
+	return false;
 }
 
 bool LLItemBridge::renameItem(const std::string& new_name)
@@ -2134,25 +2134,25 @@ bool LLItemBridge::renameItem(const std::string& new_name)
 	return false;
 }
 
-BOOL LLItemBridge::removeItem()
+bool LLItemBridge::removeItem()
 {
 	if(!isItemRemovable())
 	{
-		return FALSE;
+		return false;
 	}
 
 	// move it to the trash
 	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
+	if(!model) return false;
 	const LLUUID& trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = getItem();
-	if (!item) return FALSE;
+	if (!item) return false;
 	if (item->getType() != LLAssetType::AT_LSL_TEXT)
 	{
 		LLPreview::hide(mUUID, TRUE);
 	}
 	// Already in trash
-	if (model->isObjectDescendentOf(mUUID, trash_id)) return FALSE;
+	if (model->isObjectDescendentOf(mUUID, trash_id)) return false;
 
 	LLNotification::Params params("ConfirmItemDeleteHasLinks");
 	params.functor.function(boost::bind(&LLItemBridge::confirmRemoveItem, this, _1, _2));
@@ -2172,14 +2172,14 @@ BOOL LLItemBridge::removeItem()
 			{
 				// Warn if the user is will break any links when deleting this item.
 				LLNotifications::instance().add(params);
-				return FALSE;
+				return false;
 			}
 		}
 	}
 	
 	LLNotifications::instance().forceResponse(params, 0);
 	model->checkTrashOverflow();
-	return TRUE;
+	return true;
 }
 
 BOOL LLItemBridge::confirmRemoveItem(const LLSD& notification, const LLSD& response)
@@ -2269,17 +2269,17 @@ BOOL LLItemBridge::isItemPermissive() const
 LLHandle<LLFolderBridge> LLFolderBridge::sSelf;
 
 // Can be moved to another folder
-BOOL LLFolderBridge::isItemMovable() const
+bool LLFolderBridge::isItemMovable() const
 {
 	LLInventoryObject* obj = getInventoryObject();
 	if(obj)
 	{
 		// If it's a protected type folder, we can't move it
 		if (LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)obj)->getPreferredType()))
-			return FALSE;
-		return TRUE;
+			return false;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void LLFolderBridge::selectItem()
@@ -2418,7 +2418,7 @@ void LLFolderBridge::update()
 class LLIsItemRemovable : public LLFolderViewFunctor
 {
 public:
-	LLIsItemRemovable() : mPassed(TRUE) {}
+	LLIsItemRemovable() : mPassed(true) {}
 	virtual void doFolder(LLFolderViewFolder* folder)
 	{
 		mPassed &= folder->getViewModelItem()->isItemRemovable();
@@ -2427,15 +2427,15 @@ public:
 	{
 		mPassed &= item->getViewModelItem()->isItemRemovable();
 	}
-	BOOL mPassed;
+	bool mPassed;
 };
 
 // Can be destroyed (or moved to trash)
-BOOL LLFolderBridge::isItemRemovable() const
+bool LLFolderBridge::isItemRemovable() const
 {
 	if (!get_is_category_removable(getInventoryModel(), mUUID))
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLInventoryPanel* panel = mInventoryPanel.get();
@@ -2446,16 +2446,16 @@ BOOL LLFolderBridge::isItemRemovable() const
 		folderp->applyFunctorToChildren(folder_test);
 		if (!folder_test.mPassed)
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
 	if (isMarketplaceListingsFolder() && (!LLMarketplaceData::instance().isSLMDataFetched() || LLMarketplaceData::instance().getActivationState(mUUID)))
 	{
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 BOOL LLFolderBridge::isUpToDate() const
@@ -2513,10 +2513,10 @@ bool LLFolderBridge::isItemCopyable(bool can_copy_as_link) const
     return true;
 }
 
-BOOL LLFolderBridge::isClipboardPasteable() const
+bool LLFolderBridge::isClipboardPasteable() const
 {
 	if ( ! LLInvFVBridge::isClipboardPasteable() )
-		return FALSE;
+		return false;
 
 	// Don't allow pasting duplicates to the Calling Card/Friends subfolders, see bug EXT-1599
 	if ( LLFriendCardsManager::instance().isCategoryInFriendFolder( getCategory() ) )
@@ -2524,7 +2524,7 @@ BOOL LLFolderBridge::isClipboardPasteable() const
 		LLInventoryModel* model = getInventoryModel();
 		if ( !model )
 		{
-			return FALSE;
+			return false;
 		}
 
 		std::vector<LLUUID> objects;
@@ -2538,12 +2538,12 @@ BOOL LLFolderBridge::isClipboardPasteable() const
 			const LLUUID &obj_id = objects.at(i);
 			if ( LLFriendCardsManager::instance().isObjDirectDescendentOfCategory(model->getObject(obj_id), current_cat) )
 			{
-				return FALSE;
+				return false;
 			}
 		}
 
 	}
-	return TRUE;
+	return true;
 }
 
 BOOL LLFolderBridge::isClipboardPasteableAsLink() const
@@ -3705,7 +3705,7 @@ void LLFolderBridge::determineFolderType()
 	}
 }
 
-BOOL LLFolderBridge::isItemRenameable() const
+bool LLFolderBridge::isItemRenameable() const
 {
 	return get_is_category_renameable(getInventoryModel(), mUUID);
 }
@@ -3780,11 +3780,11 @@ bool LLFolderBridge::renameItem(const std::string& new_name)
 	return false;
 }
 
-BOOL LLFolderBridge::removeItem()
+bool LLFolderBridge::removeItem()
 {
 	if(!isItemRemovable())
 	{
-		return FALSE;
+		return false;
 	}
 	const LLViewerInventoryCategory *cat = getCategory();
 	
@@ -3795,7 +3795,7 @@ BOOL LLFolderBridge::removeItem()
 	LLNotification::Params params("ConfirmDeleteProtectedCategory");
 	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
 	LLNotifications::instance().forceResponse(params, 0);
-	return TRUE;
+	return true;
 }
 
 
@@ -4661,7 +4661,7 @@ bool LLFolderBridge::hasChildren() const
 	return has_children != LLInventoryModel::CHILDREN_NO;
 }
 
-BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
+bool LLFolderBridge::dragOrDrop(MASK mask, bool drop,
 								EDragAndDropType cargo_type,
 								void* cargo_data,
 								std::string& tooltip_msg)
@@ -4681,7 +4681,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 
 
 	//LL_INFOS() << "LLFolderBridge::dragOrDrop()" << LL_ENDL;
-	BOOL accept = FALSE;
+	bool accept = false;
 	switch(cargo_type)
 	{
 		case DAD_TEXTURE:
@@ -4720,7 +4720,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_CATEGORY:
 			if (LLFriendCardsManager::instance().isAnyFriendCategory(mUUID))
 			{
-				accept = FALSE;
+				accept = false;
 			}
 			else
 			{
@@ -6238,13 +6238,13 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
-BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
+bool LLCallingCardBridge::dragOrDrop(MASK mask, bool drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 std::string& tooltip_msg)
 {
 	LLViewerInventoryItem* item = getItem();
-	BOOL rv = FALSE;
+	bool rv = false;
 	if(item)
 	{
 		// check the type
@@ -6269,7 +6269,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 				if(gInventory.getItem(inv_item->getUUID())
 				   && perm.allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 				{
-					rv = TRUE;
+					rv = true;
 					if(drop)
 					{
 						LLGiveInventory::doGiveInventoryItem(item->getCreatorUUID(),
@@ -6281,7 +6281,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 					// It's not in the user's inventory (it's probably in
 					// an object's contents), so disallow dragging it here.
 					// You can't give something you don't yet have.
-					rv = FALSE;
+					rv = false;
 				}
 				break;
 			}
@@ -6290,7 +6290,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 				LLInventoryCategory* inv_cat = (LLInventoryCategory*)cargo_data;
 				if( gInventory.getCategory( inv_cat->getUUID() ) )
 				{
-					rv = TRUE;
+					rv = true;
 					if(drop)
 					{
 						LLGiveInventory::doGiveInventoryCategory(
@@ -6303,7 +6303,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 					// It's not in the user's inventory (it's probably in
 					// an object's contents), so disallow dragging it here.
 					// You can't give something you don't yet have.
-					rv = FALSE;
+					rv = false;
 				}
 				break;
 			}
@@ -6444,14 +6444,14 @@ void LLGestureBridge::openItem()
 */
 }
 
-BOOL LLGestureBridge::removeItem()
+bool LLGestureBridge::removeItem()
 {
 	// Grab class information locally since *this may be deleted
 	// within this function.  Not a great pattern...
 	const LLInventoryModel* model = getInventoryModel();
 	if(!model)
 	{
-		return FALSE;
+		return false;
 	}
 	const LLUUID item_id = mUUID;
 	
@@ -6462,7 +6462,7 @@ BOOL LLGestureBridge::removeItem()
 	// If deactivateGesture deleted *this, then return out immediately.
 	if (!model->getObject(item_id))
 	{
-		return TRUE;
+		return true;
 	}
 
 	return LLItemBridge::removeItem();
@@ -7433,14 +7433,14 @@ bool LLSettingsBridge::renameItem(const std::string& new_name)
     return LLItemBridge::renameItem(new_name);
 }
 
-BOOL LLSettingsBridge::isItemRenameable() const
+bool LLSettingsBridge::isItemRenameable() const
 {
     LLViewerInventoryItem* item = getItem();
     if (item)
     {
         return (item->getPermissions().allowModifyBy(gAgent.getID()));
     }
-    return FALSE;
+    return false;
 }
 
 bool LLSettingsBridge::canUpdateParcel() const

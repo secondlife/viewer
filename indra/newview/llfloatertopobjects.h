@@ -62,7 +62,7 @@ public:
 	
 	void clearList();
 	void updateSelectionInfo();
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	void onRefresh();
 

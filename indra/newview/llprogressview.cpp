@@ -77,7 +77,7 @@ LLProgressView::LLProgressView()
 	mFadeFromLoginTimer.stop();
 }
 
-BOOL LLProgressView::postBuild()
+bool LLProgressView::postBuild()
 {
 	mProgressBar = getChild<LLProgressBar>("login_progress_bar");
 
@@ -96,12 +96,12 @@ BOOL LLProgressView::postBuild()
 	getChild<LLTextBox>("message_text")->setClickedCallback(onClickMessage, this);
 
 	// hidden initially, until we need it
-	setVisible(FALSE);
+	setVisible(false);
 
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLProgressView::onAlertModal, this, _1));
 
 	sInstance = this;
-	return TRUE;
+	return true;
 }
 
 
@@ -125,14 +125,14 @@ bool LLProgressView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLProgressView::handleKeyHere(KEY key, MASK mask)
+bool LLProgressView::handleKeyHere(KEY key, MASK mask)
 {
 	// Suck up all keystokes except CTRL-Q.
 	if( ('Q' == key) && (MASK_CONTROL == mask) )
 	{
 		LLAppViewer::instance()->userQuit();
 	}
-	return TRUE;
+	return true;
 }
 
 void LLProgressView::revealIntroPanel()
@@ -173,7 +173,7 @@ void LLProgressView::setStartupComplete()
 	}
 }
 
-void LLProgressView::setVisible(BOOL visible)
+void LLProgressView::setVisible(bool visible)
 {
     if (!visible && mFadeFromLoginTimer.getStarted())
     {
@@ -182,14 +182,14 @@ void LLProgressView::setVisible(BOOL visible)
 	// hiding progress view
 	if (getVisible() && !visible)
 	{
-		LLPanel::setVisible(FALSE);
+		LLPanel::setVisible(false);
 	}
 	// showing progress view
 	else if (visible && (!getVisible() || mFadeToWorldTimer.getStarted()))
 	{
 		setFocus(TRUE);
 		mFadeToWorldTimer.stop();
-		LLPanel::setVisible(TRUE);
+		LLPanel::setVisible(true);
 	} 
 }
 

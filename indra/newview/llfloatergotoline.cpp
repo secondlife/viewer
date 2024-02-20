@@ -58,16 +58,16 @@ LLFloaterGotoLine::LLFloaterGotoLine(LLScriptEdCore* editor_core)
         }
 }
 
-BOOL LLFloaterGotoLine::postBuild()
+bool LLFloaterGotoLine::postBuild()
 {
 	mGotoBox = getChild<LLLineEditor>("goto_line");
 	mGotoBox->setCommitCallback(boost::bind(&LLFloaterGotoLine::onGotoBoxCommit, this));
-	mGotoBox->setCommitOnFocusLost(FALSE);
+	mGotoBox->setCommitOnFocusLost(false);
         getChild<LLLineEditor>("goto_line")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
         childSetAction("goto_btn", onBtnGoto,this);
         setDefaultBtn("goto_btn");
 
-        return TRUE;
+        return true;
 }
 
 //static 
@@ -122,17 +122,17 @@ bool LLFloaterGotoLine::hasAccelerators() const
         {
                 return mEditorCore->hasAccelerators();
         }
-        return FALSE;
+        return false;
 }
 
-BOOL LLFloaterGotoLine::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterGotoLine::handleKeyHere(KEY key, MASK mask)
 {
         if (mEditorCore)
         {
                 return mEditorCore->handleKeyHere(key, mask);
         }
 
-        return FALSE;
+        return false;
 }
 
 void LLFloaterGotoLine::onGotoBoxCommit()

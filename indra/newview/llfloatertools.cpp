@@ -217,10 +217,10 @@ LLPCode toolData[]={
 	LL_PCODE_LEGACY_TREE,
 	LL_PCODE_LEGACY_GRASS};
 
-BOOL	LLFloaterTools::postBuild()
+bool	LLFloaterTools::postBuild()
 {	
 	// Hide until tool selected
-	setVisible(FALSE);
+	setVisible(false);
 
 	// Since we constantly show and hide this during drags, don't
 	// make sounds on visibility changes.
@@ -305,7 +305,7 @@ BOOL	LLFloaterTools::postBuild()
 
 	sShowObjectCost = gSavedSettings.getBOOL("ShowObjectRenderingCost");
 	
-	return TRUE;
+	return true;
 }
 
 // Create the popupview with a dummy center.  It will be moved into place
@@ -855,7 +855,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 
 // virtual
-BOOL LLFloaterTools::canClose()
+bool LLFloaterTools::canClose()
 {
 	// don't close when quitting, so camera will stay put
 	return !LLApp::isExiting();

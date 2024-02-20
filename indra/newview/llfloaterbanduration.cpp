@@ -35,7 +35,7 @@ LLFloaterBanDuration::LLFloaterBanDuration(const LLSD& target)
 {
 }
 
-BOOL LLFloaterBanDuration::postBuild()
+bool LLFloaterBanDuration::postBuild()
 {
     childSetAction("ok_btn", boost::bind(&LLFloaterBanDuration::onClickBan, this));
     childSetAction("cancel_btn", boost::bind(&LLFloaterBanDuration::onClickCancel, this));
@@ -44,7 +44,7 @@ BOOL LLFloaterBanDuration::postBuild()
     getChild<LLRadioGroup>("ban_duration_radio")->setSelectedIndex(0);
     getChild<LLUICtrl>("ban_hours")->setEnabled(FALSE);
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterBanDuration* LLFloaterBanDuration::show(select_callback_t callback, uuid_vec_t ids)

@@ -161,11 +161,11 @@ public:
 	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
 	// LLView methods
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility) override;
+	/*virtual*/ void onVisibilityChange(bool new_visibility) override;
 	void draw() override;
-	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask ) override;
+	/*virtual*/ bool handleKeyHere( KEY key, MASK mask ) override;
 	bool handleHover(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	/*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
@@ -471,7 +471,7 @@ protected:
 public:
     ~LLAssetFilteredInventoryPanel() {}
 
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,

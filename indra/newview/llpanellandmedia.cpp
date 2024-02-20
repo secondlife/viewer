@@ -78,7 +78,7 @@ LLPanelLandMedia::~LLPanelLandMedia()
 {
 }
 
-BOOL LLPanelLandMedia::postBuild()
+bool LLPanelLandMedia::postBuild()
 {
 
 	mMediaTextureCtrl = getChild<LLTextureCtrl>("media texture");
@@ -112,7 +112,7 @@ BOOL LLPanelLandMedia::postBuild()
 	mSetURLButton = getChild<LLButton>("set_media_url");
 	childSetAction("set_media_url", onSetBtn, this);
 
-	return TRUE;
+	return true;
 }
 
 

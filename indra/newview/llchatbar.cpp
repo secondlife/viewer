@@ -63,7 +63,7 @@
 //
 // Globals
 //
-const F32 AGENT_TYPING_TIMEOUT = 5.f;	// seconds
+constexpr F32 AGENT_TYPING_TIMEOUT = 5.f;	// seconds
 
 LLChatBar *gChatBar = NULL;
 
@@ -105,7 +105,7 @@ LLChatBar::~LLChatBar()
 	// LLView destructor cleans up children
 }
 
-BOOL LLChatBar::postBuild()
+bool LLChatBar::postBuild()
 {
 	getChild<LLUICtrl>("Say")->setCommitCallback(boost::bind(&LLChatBar::onClickSay, this, _1));
 
@@ -129,7 +129,7 @@ BOOL LLChatBar::postBuild()
 
 	mIsBuilt = TRUE;
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------
@@ -137,9 +137,9 @@ BOOL LLChatBar::postBuild()
 //-----------------------------------------------------------------------
 
 // virtual
-BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
+bool LLChatBar::handleKeyHere( KEY key, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if( KEY_RETURN == key )
 	{
@@ -147,13 +147,13 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
 		{
 			// shout
 			sendChat(CHAT_TYPE_SHOUT);
-			handled = TRUE;
+			handled = true;
 		}
 		else if (mask == MASK_NONE)
 		{
 			// say
 			sendChat( CHAT_TYPE_NORMAL );
-			handled = TRUE;
+			handled = true;
 		}
 	}
 	// only do this in main chatbar
@@ -161,7 +161,7 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
 	{
 		stopChat();
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled;

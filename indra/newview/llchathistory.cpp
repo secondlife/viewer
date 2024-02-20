@@ -577,7 +577,7 @@ public:
 		return false;
 	}
 
-	BOOL postBuild()
+	bool postBuild()
 	{
 		setDoubleClickCallback(boost::bind(&LLChatHistoryHeader::showInspector, this));
 

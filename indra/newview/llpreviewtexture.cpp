@@ -126,7 +126,7 @@ void LLPreviewTexture::populateRatioList()
 }
 
 // virtual
-BOOL LLPreviewTexture::postBuild()
+bool LLPreviewTexture::postBuild()
 {
 	if (mCopyToInv) 
 	{
@@ -283,7 +283,7 @@ void LLPreviewTexture::draw()
 
 
 // virtual
-BOOL LLPreviewTexture::canSaveAs() const
+bool LLPreviewTexture::canSaveAs() const
 {
 	return mIsFullPerm && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
 }
@@ -357,7 +357,7 @@ void LLPreviewTexture::saveMultipleToFile(const std::string& file_name)
 }
 
 // virtual
-void LLPreviewTexture::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLPreviewTexture::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	LLPreview::reshape(width, height, called_from_parent);
 
