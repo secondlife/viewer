@@ -423,7 +423,7 @@ bool LLFontFreetype::hasGlyph(llwchar wch) const
 LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
 {
 	if (mFTFace == NULL)
-		return false;
+		return NULL;
 
 	llassert(!mIsFallback);
 	//LL_DEBUGS() << "Adding new glyph for " << wch << " to font" << LL_ENDL;
