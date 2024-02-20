@@ -2732,7 +2732,7 @@ LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, G
 	{ // always disable depth writes if depth testing is disabled
 	  // GL spec defines this as a requirement, but some implementations allow depth writes with testing disabled
 	  // The proper way to write to depth buffer with testing disabled is to enable testing and use a depth_func of GL_ALWAYS
-		write_enabled = false;
+		write_enabled = GL_FALSE;
 	}
 
 	if (depth_enabled != sDepthEnabled)
@@ -2785,7 +2785,7 @@ void LLGLDepthTest::checkState()
 	if (gDebugGL)
 	{
 		GLint func = 0;
-		GLboolean mask = false;
+		GLboolean mask = GL_FALSE;
 
 		glGetIntegerv(GL_DEPTH_FUNC, &func);
 		glGetBooleanv(GL_DEPTH_WRITEMASK, &mask);
