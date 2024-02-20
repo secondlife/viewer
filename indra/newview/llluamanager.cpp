@@ -444,6 +444,9 @@ LLRequireResolver::LLRequireResolver(lua_State *L, std::string path) : mPathToRe
     lua_getinfo(L, 1, "s", &ar);
     mSourceChunkname = ar.source;
 
+    if (is_absolute_path(mPathToResolve))
+        luaL_argerrorL(L, 1, "cannot require a full path");
+
     std::replace(mPathToResolve.begin(), mPathToResolve.end(), '\\', '/');
 }
 
