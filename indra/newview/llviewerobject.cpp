@@ -392,6 +392,12 @@ LLViewerObject::~LLViewerObject()
 	sNumZombieObjects--;
 	llassert(mChildList.size() == 0);
     llassert(mControlAvatar.isNull()); // Should have been cleaned by now
+    if (mControlAvatar.notNull())
+    {
+        mControlAvatar->markForDeath();
+        mControlAvatar = NULL;
+        LL_WARNS() << "Dead object owned a live control avatar" << LL_ENDL;
+    }
 
 	clearInventoryListeners();
 }
