@@ -219,7 +219,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 		bool show_notification = true;
 		if (p.ignore.control.isProvided())
 		{
-			mIgnoreSetting = ui_inst->mSettingGroups["config"]->getControl(p.ignore.control);
+			mIgnoreSetting = ui_inst->mSettingGroups["config"]->getControl(p.ignore.control());
 			mInvertSetting = p.ignore.invert_control;
 		}
 		else if (mIgnore > IGNORE_NO)

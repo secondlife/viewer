@@ -77,19 +77,19 @@ template <> LLSD convert_to_llsd<LLColor4>(const LLColor4& in);
 template <> LLSD convert_to_llsd<LLColor3>(const LLColor3& in);
 template <> LLSD convert_to_llsd<LLColor4U>(const LLColor4U& in);
 
-template <> bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLColor4U convert_from_llsd<LLColor4U>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, const std::string& control_name);
-template <> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, const std::string& control_name);
+template <> bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLColor4U convert_from_llsd<LLColor4U>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, std::string_view control_name);
+template <> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, std::string_view control_name);
 
 //this defines the current version of the settings file
 const S32 CURRENT_VERSION = 101;
@@ -218,12 +218,12 @@ void LLControlVariable::setValue(const LLSD& new_value, bool saved_value)
 	
 	LLSD storable_value = getComparableValue(new_value);
 	LLSD original_value = getValue();
-	bool value_changed = llsd_compare(original_value, storable_value) == FALSE;
+	bool value_changed = llsd_compare(original_value, storable_value) == false;
 	if(saved_value)
 	{
     	// If we're going to save this value, return to default but don't fire
 		resetToDefault(false);
-	    if (llsd_compare(mValues.back(), storable_value) == FALSE)
+	    if (llsd_compare(mValues.back(), storable_value) == false)
 	    {
 		    mValues.push_back(storable_value);
 	    }
@@ -233,7 +233,7 @@ void LLControlVariable::setValue(const LLSD& new_value, bool saved_value)
         // This is an unsaved value. Its needs to reside at
         // mValues[2] (or greater). It must not affect 
         // the result of getSaveValue()
-	    if (llsd_compare(mValues.back(), storable_value) == FALSE)
+	    if (llsd_compare(mValues.back(), storable_value) == false)
 	    {
             while(mValues.size() > 2)
             {
@@ -267,7 +267,7 @@ void LLControlVariable::setDefaultValue(const LLSD& value)
 
 	LLSD comparable_value = getComparableValue(value);
 	LLSD original_value = getValue();
-	bool value_changed = (llsd_compare(original_value, comparable_value) == FALSE);
+	bool value_changed = (llsd_compare(original_value, comparable_value) == false);
 	resetToDefault(false);
 	mValues[0] = comparable_value;
 	if(value_changed)
@@ -341,14 +341,14 @@ LLSD LLControlVariable::getSaveValue() const
 	return mValues[0];
 }
 
-LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
+LLPointer<LLControlVariable> LLControlGroup::getControl(std::string_view name)
 {
 	if (mSettingsProfile)
 	{
 		incrCount(name);
 	}
 
-	ctrl_name_table_t::iterator iter = mNameTable.find(name);
+	ctrl_name_table_t::iterator iter = mNameTable.find(name.data());
 	return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
 }
 
@@ -551,46 +551,46 @@ LLControlVariable* LLControlGroup::declareLLSD(const std::string& name, const LL
 	return declareControl(name, TYPE_LLSD, initial_val, comment, persist);
 }
 
-void LLControlGroup::incrCount(const std::string& name)
+void LLControlGroup::incrCount(std::string_view name)
 {
 	if (0.0 == start_time)
 	{
 		start_time = LLTimer::getTotalSeconds();
 	}
-	getCount[name] = getCount[name].asInteger() + 1;
+	getCount[name.data()] = getCount[name.data()].asInteger() + 1;
 }
 
-bool LLControlGroup::getBOOL(const std::string& name)
+bool LLControlGroup::getBOOL(std::string_view name)
 {
 	return get<bool>(name);
 }
 
-S32 LLControlGroup::getS32(const std::string& name)
+S32 LLControlGroup::getS32(std::string_view name)
 {
 	return get<S32>(name);
 }
 
-U32 LLControlGroup::getU32(const std::string& name)
+U32 LLControlGroup::getU32(std::string_view name)
 {
 	return get<U32>(name);
 }
 
-F32 LLControlGroup::getF32(const std::string& name)
+F32 LLControlGroup::getF32(std::string_view name)
 {
 	return get<F32>(name);
 }
 
-std::string LLControlGroup::getString(const std::string& name)
+std::string LLControlGroup::getString(std::string_view name)
 {
 	return get<std::string>(name);
 }
 
-LLWString LLControlGroup::getWString(const std::string& name)
+LLWString LLControlGroup::getWString(std::string_view name)
 {
 	return get<LLWString>(name);
 }
 
-std::string LLControlGroup::getText(const std::string& name)
+std::string LLControlGroup::getText(std::string_view name)
 {
 	std::string utf8_string = getString(name);
 	LLStringUtil::replaceChar(utf8_string, '^', '\n');
@@ -598,43 +598,43 @@ std::string LLControlGroup::getText(const std::string& name)
 	return (utf8_string);
 }
 
-LLVector3 LLControlGroup::getVector3(const std::string& name)
+LLVector3 LLControlGroup::getVector3(std::string_view name)
 {
 	return get<LLVector3>(name);
 }
 
-LLVector3d LLControlGroup::getVector3d(const std::string& name)
+LLVector3d LLControlGroup::getVector3d(std::string_view name)
 {
 	return get<LLVector3d>(name);
 }
 
-LLQuaternion LLControlGroup::getQuaternion(const std::string& name)
+LLQuaternion LLControlGroup::getQuaternion(std::string_view name)
 {
 	return get<LLQuaternion>(name);
 }
 
-LLRect LLControlGroup::getRect(const std::string& name)
+LLRect LLControlGroup::getRect(std::string_view name)
 {
 	return get<LLRect>(name);
 }
 
 
-LLColor4 LLControlGroup::getColor(const std::string& name)
+LLColor4 LLControlGroup::getColor(std::string_view name)
 {
 	return get<LLColor4>(name);
 }
 
-LLColor4 LLControlGroup::getColor4(const std::string& name)
+LLColor4 LLControlGroup::getColor4(std::string_view name)
 {
 	return get<LLColor4>(name);
 }
 
-LLColor3 LLControlGroup::getColor3(const std::string& name)
+LLColor3 LLControlGroup::getColor3(std::string_view name)
 {
 	return get<LLColor3>(name);
 }
 
-LLSD LLControlGroup::getLLSD(const std::string& name)
+LLSD LLControlGroup::getLLSD(std::string_view name)
 {
 	return get<LLSD>(name);
 }
@@ -668,67 +668,67 @@ bool LLControlGroup::controlExists(const std::string& name)
 // Set functions
 //-------------------------------------------------------------------
 
-void LLControlGroup::setBOOL(const std::string& name, bool val)
+void LLControlGroup::setBOOL(std::string_view name, bool val)
 {
 	set<bool>(name, val);
 }
 
 
-void LLControlGroup::setS32(const std::string& name, S32 val)
+void LLControlGroup::setS32(std::string_view name, S32 val)
 {
 	set(name, val);
 }
 
 
-void LLControlGroup::setF32(const std::string& name, F32 val)
+void LLControlGroup::setF32(std::string_view name, F32 val)
 {
 	set(name, val);
 }
 
 
-void LLControlGroup::setU32(const std::string& name, U32 val)
+void LLControlGroup::setU32(std::string_view name, U32 val)
 {
 	set(name, val);
 }
 
 
-void LLControlGroup::setString(const std::string& name, const std::string &val)
+void LLControlGroup::setString(std::string_view name, const std::string &val)
 {
 	set(name, val);
 }
 
 
-void LLControlGroup::setVector3(const std::string& name, const LLVector3 &val)
+void LLControlGroup::setVector3(std::string_view name, const LLVector3 &val)
 {
 	set(name, val);
 }
 
-void LLControlGroup::setVector3d(const std::string& name, const LLVector3d &val)
+void LLControlGroup::setVector3d(std::string_view name, const LLVector3d &val)
 {
 	set(name, val);
 }
 
-void LLControlGroup::setQuaternion(const std::string& name, const LLQuaternion &val)
+void LLControlGroup::setQuaternion(std::string_view name, const LLQuaternion &val)
 {
 	set(name, val);
 }
 
-void LLControlGroup::setRect(const std::string& name, const LLRect &val)
+void LLControlGroup::setRect(std::string_view name, const LLRect &val)
 {
 	set(name, val);
 }
 
-void LLControlGroup::setColor4(const std::string& name, const LLColor4 &val)
+void LLControlGroup::setColor4(std::string_view name, const LLColor4 &val)
 {
 	set(name, val);
 }
 
-void LLControlGroup::setLLSD(const std::string& name, const LLSD& val)
+void LLControlGroup::setLLSD(std::string_view name, const LLSD& val)
 {
 	set(name, val);
 }
 
-void LLControlGroup::setUntypedValue(const std::string& name, const LLSD& val)
+void LLControlGroup::setUntypedValue(std::string_view name, const LLSD& val)
 {
 	if (name.empty())
 	{
@@ -1305,19 +1305,19 @@ template <> LLSD convert_to_llsd<LLColor4U>(const LLColor4U& in)
 
 
 template<>
-bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, const std::string& control_name)
+bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_BOOLEAN)
 		return sd.asBoolean();
 	else
 	{
 		CONTROL_ERRS << "Invalid BOOL value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 }
 
 template<>
-S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, const std::string& control_name)
+S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_S32)
 		return sd.asInteger();
@@ -1329,7 +1329,7 @@ S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, const std::string&
 }
 
 template<>
-U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, const std::string& control_name)
+U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_U32)	
 		return sd.asInteger();
@@ -1341,7 +1341,7 @@ U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, const std::string&
 }
 
 template<>
-F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, const std::string& control_name)
+F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_F32)
 		return (F32) sd.asReal();
@@ -1353,7 +1353,7 @@ F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, const std::string&
 }
 
 template<>
-std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, const std::string& control_name)
+std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_STRING)
 		return sd.asString();
@@ -1365,13 +1365,13 @@ std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, co
 }
 
 template<>
-LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	return utf8str_to_wstring(convert_from_llsd<std::string>(sd, type, control_name));
 }
 
 template<>
-LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_VEC3)
 		return (LLVector3)sd;
@@ -1383,7 +1383,7 @@ LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const 
 }
 
 template<>
-LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_VEC3D)
 		return (LLVector3d)sd;
@@ -1395,7 +1395,7 @@ LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, cons
 }
 
 template<>
-LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_QUAT)
 		return (LLQuaternion)sd;
@@ -1407,7 +1407,7 @@ LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, 
 }
 
 template<>
-LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_RECT)
 		return LLRect(sd);
@@ -1420,7 +1420,7 @@ LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::s
 
 
 template<>
-LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_COL4)
 	{
@@ -1452,7 +1452,7 @@ LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const st
 }
 
 template<>
-LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	if (type == TYPE_COL3)
 		return sd;
@@ -1464,7 +1464,7 @@ LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, const st
 }
 
 template<>
-LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, const std::string& control_name)
+LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	return sd;
 }

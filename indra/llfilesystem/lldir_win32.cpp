@@ -56,7 +56,7 @@ namespace
 
     void prelog(const std::string& message)
     {
-        boost::optional<std::string> prelog_name;
+        std::optional<std::string> prelog_name;
 
         switch (state)
         {
