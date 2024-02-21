@@ -72,6 +72,12 @@ class LLGameControl : public LLSingleton<LLGameControl>
     LOG_CLASS(LLGameControl);
 
 public:
+    enum AgentControlMode
+    {
+        CONTROL_MODE_AVATAR,
+        CONTROL_MODE_FLYCAM,
+        CONTROL_MODE_NONE
+    };
 
     enum KeyboardAxis
     {
@@ -184,12 +190,15 @@ public:
 
     // these methods for accepting input from keyboard
     static void enableSendToServer(bool enable);
-    static void enableControlAvatar(bool enable);
-    static void enableReceiveControlFromAvatar(bool enable);
+    static void enableControlAgent(bool enable);
+    static void enableTranslateAgentActions(bool enable);
+    static void setAgentControlMode(AgentControlMode mode);
 
     static bool willSendToServer();
+    static bool willTranslateAgentActions();
     static bool willControlAvatar();
-    static bool willReceiveControlFromAvatar();
+    static bool willControlFlycam();
+    //static LocalControlMode getLocalControlMode();
 
     // "Action" refers to avatar motion actions (e.g. push_forward, slide_left, etc)
     // this is a roundabout way to convert keystrokes to GameControl input.

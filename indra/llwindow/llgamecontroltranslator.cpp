@@ -32,34 +32,19 @@
 
 #include "llgamecontroltranslator.h"
 
-#include "indra_constants.h"
+//#include "indra_constants.h"
 
 
 LLGameControlTranslator::LLGameControlTranslator()
 {
-    // TODO:? generalize the API and supply defaults from XML config file
-
-    // build the invariant list of pairs:
-    // < keyboard-mapped action name : bitwise_flag >
-    mNameToMask["push_forward"] = AGENT_CONTROL_AT_POS | AGENT_CONTROL_FAST_AT;
-    mNameToMask["push_backward"] = AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT;
-    mNameToMask["turn_left"] = AGENT_CONTROL_YAW_POS;
-    mNameToMask["turn_right"] = AGENT_CONTROL_YAW_NEG;
-    mNameToMask["slide_left"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
-    mNameToMask["slide_right"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
-    mNameToMask["jump"] = AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP;
-    mNameToMask["push_down"] = AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP;
-
-    mNameToMask["toggle_run"] = AGENT_CONTROL_NUDGE_AT_POS; // HACK
-    mNameToMask["toggle_fly"] = AGENT_CONTROL_FLY; // HACK
-    mNameToMask["toggle_sit"] = AGENT_CONTROL_SIT_ON_GROUND; // HACK
-
-    mNameToMask["stop_moving"] = AGENT_CONTROL_STOP;
-
-    loadDefaults();
 }
 
-LLGameControl::InputChannel LLGameControlTranslator::getChannelByActionName(const std::string& name) const
+void LLGameControlTranslator::setNameToMaskMap(NameToMaskMap& name_to_mask)
+{
+    mNameToMask = std::move(name_to_mask);
+}
+
+LLGameControl::InputChannel LLGameControlTranslator::getChannelByName(const std::string& name) const
 {
     LLGameControl::InputChannel channel;
     LLGameControlTranslator::NameToMaskMap::const_iterator mask_itr = mNameToMask.find(name);
@@ -75,55 +60,19 @@ LLGameControl::InputChannel LLGameControlTranslator::getChannelByActionName(cons
     return channel;
 }
 
-void LLGameControlTranslator::clearActionMap()
+void LLGameControlTranslator::setMappings(LLGameControlTranslator::InputList& inputs)
 {
     mMaskToChannel.clear();
     mMappedFlags = 0;
     mPrevActiveFlags = 0;
-}
 
-void LLGameControlTranslator::loadDefaults()
-{
-    // TODO?: load these defaults from XML config file?
-    clearActionMap();
-
-    // axes
-    std::vector< std::pair< std::string, U8 > > default_axes =
+    for (auto& item : inputs)
     {
-        { "push_forward",  (U8)(LLGameControl::AXIS_LEFTY_POS)        },
-        { "push_backward", (U8)(LLGameControl::AXIS_LEFTY_NEG)        },
-        { "turn_left",     (U8)(LLGameControl::AXIS_LEFTX_POS)        },
-        { "turn_right",    (U8)(LLGameControl::AXIS_LEFTX_NEG)        },
-        { "slide_left",    (U8)(LLGameControl::AXIS_RIGHTX_POS)       },
-        { "slide_right",   (U8)(LLGameControl::AXIS_RIGHTX_NEG)       },
-        { "jump",          (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) },
-        { "push_down",     (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS)  }
-    };
-    LLGameControl::InputChannel channel;
-    channel.mType = LLGameControl::InputChannel::TYPE_AXIS;
-    for (auto item : default_axes)
-    {
-        channel.mIndex = item.second;
-        addActionMapping(item.first, channel);
-    }
-
-    // buttons
-    std::vector< std::pair< std::string, U8 > > default_buttons =
-    {
-        { "toggle_run",   (U8)(LLGameControl::BUTTON_LEFTSHOULDER) },
-        { "toggle_fly",   (U8)(LLGameControl::BUTTON_DPAD_UP)      },
-        { "toggle_sit",   (U8)(LLGameControl::BUTTON_DPAD_DOWN)    },
-        { "stop_moving",  (U8)(LLGameControl::BUTTON_LEFTSTICK)    }
-    };
-    channel.mType = LLGameControl::InputChannel::TYPE_BUTTON;
-    for (auto item : default_buttons)
-    {
-        channel.mIndex = item.second;
-        addActionMapping(item.first, channel);
+        addMapping(item.first, item.second);
     }
 }
 
-bool LLGameControlTranslator::addActionMapping(const std::string& name, const LLGameControl::InputChannel& channel)
+bool LLGameControlTranslator::addMapping(const std::string& name, const LLGameControl::InputChannel& channel)
 {
     bool something_changed = false;
     LLGameControlTranslator::NameToMaskMap::iterator mask_itr = mNameToMask.find(name);
@@ -155,21 +104,19 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
             mMaskToChannel[mask] = channel;
             something_changed = true;
         }
+        if (something_changed)
+        {
+            // recompute mMappedFlags
+            mMappedFlags = 0;
+            for (auto& pair : mMaskToChannel)
+            {
+                mMappedFlags |= pair.first;
+            }
+            mPrevActiveFlags = 0;
+        }
+        return true;
     }
-    else
-    {
-        LL_WARNS("game_control") << "unknown translation action '" << name << "'" << LL_ENDL;
-    }
-
-    // recompute mMappedFlags
-    mMappedFlags = 0;
-    for (auto& pair : mMaskToChannel)
-    {
-        mMappedFlags |= pair.first;
-    }
-    mPrevActiveFlags = 0;
-
-    return something_changed;
+    return false;
 }
 
 // Given external action_flags (i.e. raw avatar input)
@@ -178,7 +125,7 @@ bool LLGameControlTranslator::addActionMapping(const std::string& name, const LL
 // "Action flags" are the raw input of avatar movement intent, whereas "control flags"
 // are the consequential set of instructions that are sent to the server for moving
 // the avatar character.
-const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags(U32 action_flags)
+const LLGameControl::State& LLGameControlTranslator::computeStateFromFlags(U32 action_flags)
 {
     static U32 last_action_flags = 0;
     if (last_action_flags != action_flags)
@@ -224,7 +171,7 @@ const LLGameControl::State& LLGameControlTranslator::computeStateFromActionFlags
 
 // Given LLGameControl::State (i.e. from a real controller)
 // compute corresponding action flags (e.g. for moving the avatar around)
-U32 LLGameControlTranslator::computeInternalActionFlags(const std::vector<S32>& axes, U32 buttons)
+U32 LLGameControlTranslator::computeFlagsFromState(const std::vector<S32>& axes, U32 buttons)
 {
     // HACK: supply hard-coded threshold for ON/OFF zones
     constexpr S32 AXIS_THRESHOLD = 32768 / 8;
