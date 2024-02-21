@@ -101,7 +101,6 @@ public:
 	//const Type&	operator*() const			{ return *nonNull(mPointer); }
 	//Type&	operator*()							{ return *nonNull(mPointer); }
 
-	operator BOOL()  const						{ return mPointer != NULL; }
 	operator bool()  const						{ return mPointer != NULL; }
 	bool operator!() const						{ return mPointer == NULL; }
 	bool isNull() const							{ return mPointer == NULL; }

@@ -83,7 +83,6 @@ public:
 	const Type&	operator*() const				{ return *mPointer; }
 	Type&	operator*()							{ return *mPointer; }
 
-	operator BOOL()  const						{ return (mPointer != NULL); }
 	operator bool()  const						{ return (mPointer != NULL); }
 	bool operator!() const						{ return (mPointer == NULL); }
 	bool isNull() const							{ return (mPointer == NULL); }
@@ -203,7 +202,6 @@ public:
 	const Type*	operator->() const				{ return mPointer; }
 	const Type&	operator*() const				{ return *mPointer; }
 
-	operator BOOL()  const						{ return (mPointer != NULL); }
 	operator bool()  const						{ return (mPointer != NULL); }
 	bool operator!() const						{ return (mPointer == NULL); }
 	bool isNull() const							{ return (mPointer == NULL); }
