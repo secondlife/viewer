@@ -160,6 +160,8 @@ public:
 	virtual void	setVisible( BOOL visible );
 	virtual void	setEnabled( BOOL enabled );
 
+	void onVisibilityChange(BOOL new_visibility) override;
+
 	void			setValid(BOOL valid);
 
 	// LLUICtrl interface
