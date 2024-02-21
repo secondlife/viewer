@@ -144,7 +144,7 @@ public:
 	LLSD getSaveValue() const;
 
 	void set(const LLSD& val)	{ setValue(val); }
-	void setValue(const LLSD& value, bool saved_value = TRUE);
+	void setValue(const LLSD& value, bool saved_value = true);
 	void setDefaultValue(const LLSD& value);
 	void setPersist(ePersist);
 	void setHiddenFromSettingsEditor(bool hide);
@@ -177,7 +177,7 @@ LLSD convert_to_llsd(const T& in)
 }
 
 template <class T>
-T convert_from_llsd(const LLSD& sd, eControlType type, const std::string& control_name)
+T convert_from_llsd(const LLSD& sd, eControlType type, std::string_view control_name)
 {
 	// needs specialization
 	return T(sd);
@@ -201,7 +201,7 @@ public:
 	~LLControlGroup();
 	void cleanup();
 
-	LLControlVariablePtr getControl(const std::string& name);
+	LLControlVariablePtr getControl(std::string_view name);
 
 	struct ApplyFunctor
 	{
@@ -224,28 +224,28 @@ public:
 	LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 
-	std::string getString(const std::string& name);
-	std::string getText(const std::string& name);
-	bool		getBOOL(const std::string& name);
-	S32			getS32(const std::string& name);
-	F32			getF32(const std::string& name);
-	U32			getU32(const std::string& name);
+	std::string getString(std::string_view name);
+	std::string getText(std::string_view name);
+	bool		getBOOL(std::string_view name);
+	S32			getS32(std::string_view name);
+	F32			getF32(std::string_view name);
+	U32			getU32(std::string_view name);
 	
-	LLWString	getWString(const std::string& name);
-	LLVector3	getVector3(const std::string& name);
-	LLVector3d	getVector3d(const std::string& name);	
-	LLRect		getRect(const std::string& name);
-	LLSD        getLLSD(const std::string& name);
-	LLQuaternion	getQuaternion(const std::string& name);
+	LLWString	getWString(std::string_view name);
+	LLVector3	getVector3(std::string_view name);
+	LLVector3d	getVector3d(std::string_view name);
+	LLRect		getRect(std::string_view name);
+	LLSD        getLLSD(std::string_view name);
+	LLQuaternion	getQuaternion(std::string_view name);
 
-	LLColor4	getColor(const std::string& name);
-	LLColor4	getColor4(const std::string& name);
-	LLColor3	getColor3(const std::string& name);
+	LLColor4	getColor(std::string_view name);
+	LLColor4	getColor4(std::string_view name);
+	LLColor3	getColor3(std::string_view name);
 
 	LLSD		asLLSD(bool diffs_only);
 	
 	// generic getter
-	template<typename T> T get(const std::string& name)
+	template<typename T> T get(std::string_view name)
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 		LLControlVariable* control = getControl(name);
@@ -265,23 +265,23 @@ public:
 		return convert_from_llsd<T>(value, type, name);
 	}
 
-	void	setBOOL(const std::string& name, bool val);
-	void	setS32(const std::string& name, S32 val);
-	void	setF32(const std::string& name, F32 val);
-	void	setU32(const std::string& name, U32 val);
-	void	setString(const std::string&  name, const std::string& val);
-	void	setVector3(const std::string& name, const LLVector3 &val);
-	void	setVector3d(const std::string& name, const LLVector3d &val);
-	void	setQuaternion(const std::string& name, const LLQuaternion &val);
-	void	setRect(const std::string& name, const LLRect &val);
-	void	setColor4(const std::string& name, const LLColor4 &val);
-	void    setLLSD(const std::string& name, const LLSD& val);
+	void	setBOOL(std::string_view name, bool val);
+	void	setS32(std::string_view name, S32 val);
+	void	setF32(std::string_view name, F32 val);
+	void	setU32(std::string_view name, U32 val);
+	void	setString(std::string_view  name, const std::string& val);
+	void	setVector3(std::string_view name, const LLVector3 &val);
+	void	setVector3d(std::string_view name, const LLVector3d &val);
+	void	setQuaternion(std::string_view name, const LLQuaternion &val);
+	void	setRect(std::string_view name, const LLRect &val);
+	void	setColor4(std::string_view name, const LLColor4 &val);
+	void    setLLSD(std::string_view name, const LLSD& val);
 
 	// type agnostic setter that takes LLSD
-	void	setUntypedValue(const std::string& name, const LLSD& val);
+	void	setUntypedValue(std::string_view name, const LLSD& val);
 
 	// generic setter
-	template<typename T> void set(const std::string& name, const T& val)
+	template<typename T> void set(std::string_view name, const T& val)
 	{
 		LLControlVariable* control = getControl(name);
 	
@@ -304,7 +304,7 @@ public:
  	U32 saveToFile(const std::string& filename, bool nondefault_only);
  	U32	loadFromFile(const std::string& filename, bool default_values = false, bool save_values = true);
 	void	resetToDefaults();
-	void	incrCount(const std::string& name);
+	void	incrCount(std::string_view name);
 
 	bool	mSettingsProfile;
 };
@@ -452,19 +452,19 @@ template <> LLSD convert_to_llsd<LLRect>(const LLRect& in);
 template <> LLSD convert_to_llsd<LLColor4>(const LLColor4& in);
 template <> LLSD convert_to_llsd<LLColor3>(const LLColor3& in);
 
-template<> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const std::string& control_name);
-template<> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, const std::string& control_name);
+template<> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, std::string_view control_name);
+template<> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, std::string_view control_name);
 
 //#define TEST_CACHED_CONTROL 1
 #ifdef TEST_CACHED_CONTROL

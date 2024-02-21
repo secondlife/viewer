@@ -169,7 +169,7 @@ bool LLFirstUse::processNotification(const LLSD& notify)
 		if (notification)
 		{
 			// disable any future notifications
-			gWarningSettings.setBOOL(notification->getPayload()["control_var"], false);
+			gWarningSettings.setBOOL((std::string)notification->getPayload()["control_var"], false);
 		}
 	}
 	return false;

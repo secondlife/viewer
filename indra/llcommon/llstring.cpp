@@ -765,7 +765,7 @@ std::wstring windows_message<std::wstring>(DWORD error)
     return out.str();
 }
 
-boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
+std::optional<std::wstring> llstring_getoptenv(const std::string& key)
 {
     auto wkey = ll_convert_string_to_wide(key);
     // Take a wild guess as to how big the buffer should be.
@@ -783,8 +783,8 @@ boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
     // did that (ultimately) succeed?
     if (n)
     {
-        // great, return populated boost::optional
-        return boost::optional<std::wstring>(&buffer[0]);
+        // great, return populated std::optional
+        return std::make_optional<std::wstring>(&buffer[0]);
     }
 
     // not successful
@@ -795,7 +795,7 @@ boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
         LL_WARNS() << "GetEnvironmentVariableW('" << key << "') failed: "
                    << windows_message<std::string>(last_error) << LL_ENDL;
     }
-    // return empty boost::optional
+    // return empty std::optional
     return {};
 }
 
@@ -806,12 +806,12 @@ boost::optional<std::string> llstring_getoptenv(const std::string& key)
     auto found = getenv(key.c_str());
     if (found)
     {
-        // return populated boost::optional
-        return boost::optional<std::string>(found);
+        // return populated std::optional
+        return std::make_optional<std::string>(found);
     }
     else
     {
-        // return empty boost::optional
+        // return empty std::optional
         return {};
     }
 }
