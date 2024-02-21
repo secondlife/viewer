@@ -517,15 +517,21 @@ BOOL LLGLTFPreviewTexture::render()
         screen.flush();
     }
 
+    // *HACK: Hide mExposureMap from generateExposure
+    gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
+
     gPipeline.copyScreenSpaceReflections(&screen, &gPipeline.mSceneMap);
     gPipeline.generateLuminance(&screen, &gPipeline.mLuminanceMap);
-    gPipeline.generateExposure(&gPipeline.mLuminanceMap, &gPipeline.mExposureMap);
+    gPipeline.generateExposure(&gPipeline.mLuminanceMap, &gPipeline.mExposureMap, /*use_history = */ false);
     gPipeline.gammaCorrect(&screen, &gPipeline.mPostMap);
     LLVertexBuffer::unbind();
     gPipeline.generateGlow(&gPipeline.mPostMap);
     gPipeline.combineGlow(&gPipeline.mPostMap, &screen);
 	gPipeline.renderDoF(&screen, &gPipeline.mPostMap);
 	gPipeline.applyFXAA(&gPipeline.mPostMap, &screen);
+
+    // *HACK: Restore mExposureMap (it will be consumed by generateExposure next frame)
+    gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
 
     // Final render
 
