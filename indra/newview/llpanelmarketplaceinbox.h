@@ -68,7 +68,7 @@ private:
 
 	void onSelectionChange();
 
-	void onFocusReceived();
+	void onFocusReceived() override;
 
 private:
 	LLUICtrl *			mFreshCountCtrl;

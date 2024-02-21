@@ -43,7 +43,7 @@ public:
 	bool postBuild() override;
 	void draw() override;
 
-	void refresh();
+	void refresh() override;
 
 private:
 	static void onClickDump(void*);

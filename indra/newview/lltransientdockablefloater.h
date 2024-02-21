@@ -47,7 +47,7 @@ public:
 
 	void setVisible(bool visible) override;
 	void setDocked(bool docked, bool pop_on_undock = true) override;
-	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
+	virtual LLTransientFloaterMgr::ETransientGroup getGroup() override { return LLTransientFloaterMgr::GLOBAL; }
 };
 
 #endif /* LL_TRANSIENTDOCKABLEFLOATER_H */

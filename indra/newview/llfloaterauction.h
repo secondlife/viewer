@@ -47,8 +47,8 @@ class LLFloaterAuction : public LLFloater
 	friend class LLFloaterReg;
 public:
 	// LLFloater interface
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void draw();
+	void onOpen(const LLSD& key) override;
+	void draw() override;
 
 private:
 	

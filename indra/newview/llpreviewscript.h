@@ -313,10 +313,10 @@ private:
 private:
 	bool				mIsNew;
 	//LLUUID mTransmitID;
-	LLCheckBoxCtrl*		mRunningCheckbox;
+	//LLCheckBoxCtrl*		mRunningCheckbox;
 	BOOL				mAskedForRunningInfo;
 	BOOL				mHaveRunningInfo;
-	LLButton*			mResetButton;
+	//LLButton*			mResetButton;
 	LLPointer<LLViewerInventoryItem> mItem;
 	BOOL				mCloseAfterSave;
 	// need to save both text and script, so need to decide when done
