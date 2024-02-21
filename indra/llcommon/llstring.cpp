@@ -801,7 +801,7 @@ std::optional<std::wstring> llstring_getoptenv(const std::string& key)
 
 #else  // ! LL_WINDOWS
 
-boost::optional<std::string> llstring_getoptenv(const std::string& key)
+std::optional<std::string> llstring_getoptenv(const std::string& key)
 {
     auto found = getenv(key.c_str());
     if (found)
