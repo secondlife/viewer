@@ -405,7 +405,7 @@ LLAgent::LLAgent() :
 	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	mTeleportState(TELEPORT_NONE),
 	mRegionp(NULL),
-    mInterestListMode(LLViewerRegion::IL_MODE_DEFAULT),
+    mInterestListMode(IL_MODE_DEFAULT),
 
 	mAgentOriginGlobal(),
 	mPositionGlobal(),
@@ -999,9 +999,9 @@ void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion
             LLAppViewer::instance()->updateNameLookupUrl(regionp);
         }
 
-        if (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360)
+        if (gAgent.getInterestListMode() == IL_MODE_360)
         {
-            gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
+            gAgent.changeInterestListMode(IL_MODE_360);
         }
     }
 }
