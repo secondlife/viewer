@@ -107,9 +107,9 @@ public:
 	void setRegionDetails(LLSD content);
 	void setRegionSummary(LLSD content);
 
-	BOOL StartRequestChain();
+	bool StartRequestChain();
 
-	BOOL getLandScriptResources();
+	bool getLandScriptResources();
 	void clearList();
 	void showBeacon();
 	void returnObjectsFromParcel(S32 local_id);

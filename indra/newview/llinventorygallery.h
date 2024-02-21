@@ -175,7 +175,7 @@ public:
     void resetEditHandler();
     static bool isItemCopyable(const LLUUID & item_id);
 
-    BOOL baseHandleDragAndDrop(LLUUID dest_id, BOOL drop, EDragAndDropType cargo_type,
+    bool baseHandleDragAndDrop(LLUUID dest_id, bool drop, EDragAndDropType cargo_type,
                                void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);

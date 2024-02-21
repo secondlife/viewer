@@ -246,7 +246,7 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 	}
 	if (!gSavedSettings.getBOOL("JoystickEnabled"))
 	{
-		mOverrideCamera = FALSE;
+		mOverrideCamera = false;
 	}
 }
 
@@ -254,7 +254,7 @@ void LLViewerJoystick::setOverrideCamera(bool val)
 {
 	if (!gSavedSettings.getBOOL("JoystickEnabled"))
 	{
-		mOverrideCamera = FALSE;
+		mOverrideCamera = false;
 	}
 	else
 	{
@@ -882,7 +882,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 			else if (!button_held)
 			{
 				button_held = true;
-				gAgent.setFlying(FALSE);
+				gAgent.setFlying(false);
 			}
 		}
 		else if (!button_held)

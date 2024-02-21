@@ -54,7 +54,7 @@ public:
 	static void			pickCallback(const LLPickInfo& pick_info);
 
 protected:
-	BOOL				mPicked;
+	bool				mPicked;
 	LLUUID				mHitObjectID;
 	void 				(*mExitCallback)(void *callback_data);
 	void 				*mExitCallbackData;

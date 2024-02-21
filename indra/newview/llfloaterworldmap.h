@@ -94,9 +94,9 @@ public:
 	// A z_attenuation of 0.0f collapses the distance into the X-Y plane
 	F32				getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
 
-	void			clearLocationSelection(BOOL clear_ui = FALSE, BOOL dest_reached = FALSE);
-	void			clearAvatarSelection(BOOL clear_ui = FALSE);
-	void			clearLandmarkSelection(BOOL clear_ui = FALSE);
+	void			clearLocationSelection(bool clear_ui = false, bool dest_reached = false);
+	void			clearAvatarSelection(bool clear_ui = false);
+	void			clearLandmarkSelection(bool clear_ui = false);
 
 	// Adjust the maximally zoomed out limit of the zoom slider so you can
 	// see the whole world, plus a little.
@@ -133,7 +133,7 @@ protected:
 
     void            onExpandCollapseBtn();
 
-	void			centerOnTarget(BOOL animate);
+	void			centerOnTarget(bool animate);
 	void			updateLocation();
 
 	// fly to the tracked item, if there is one
@@ -180,10 +180,10 @@ private:
 	LLVector3				mCompletingRegionPos;
 
 	std::string				mLastRegionName;
-	BOOL					mWaitingForTracker;
+	bool					mWaitingForTracker;
 
-	BOOL					mIsClosing;
-	BOOL					mSetToUserPosition;
+	bool					mIsClosing;
+	bool					mSetToUserPosition;
 
 	LLVector3d				mTrackedLocation;
 	LLTracker::ETrackingStatus mTrackedStatus;

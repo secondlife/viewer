@@ -117,7 +117,7 @@ void LLNotificationChannelPanel::onClickNotification(void* user_data)
 		void* data = firstselected->getUserdata();
 		if (data)
 		{
-			gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), TRUE);
+			gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), true);
 		}
 	}
 }

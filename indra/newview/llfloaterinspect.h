@@ -58,7 +58,7 @@ public:
 	LLScrollListCtrl* mObjectList;
 protected:
 	// protected members
-	void setDirty() { mDirty = TRUE; }
+	void setDirty() { mDirty = true; }
 	bool mDirty;
 
 private:

@@ -69,7 +69,7 @@
 
 #undef  VERIFY_LEGACY_CONVERSION
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //=========================================================================
 namespace 

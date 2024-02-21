@@ -153,7 +153,7 @@ public:
 	LLViewerInventoryItem* getItem() const;
 
 	void setSeparatorVisible(bool visible) { mSeparatorVisible = visible; }
-	void resetHighlight() { mHovered = FALSE; }
+	void resetHighlight() { mHovered = false; }
 
 	virtual ~LLPanelInventoryListItemBase(){}
 

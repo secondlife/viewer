@@ -279,11 +279,11 @@ void LLOutfitListBase::performAction(std::string action)
 
 	if ("replaceoutfit" == action)
 	{
-		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, FALSE );
+		LLAppearanceMgr::instance().wearInventoryCategory( cat, false, false );
 	}
 	else if ("addtooutfit" == action)
 	{
-		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, TRUE );
+		LLAppearanceMgr::instance().wearInventoryCategory( cat, false, true );
 	}
 	else if ("rename_outfit" == action)
 	{
@@ -305,7 +305,7 @@ void LLOutfitsList::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
 			LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 			if (!list) continue;
 
-			tab->setFocus(TRUE);
+			tab->setFocus(true);
 			ChangeOutfitSelection(list, outfit_uuid);
 
 			tab->changeOpenClose(false);
@@ -451,7 +451,7 @@ void LLOutfitsList::resetItemSelection(LLWearableItemsList* list, const LLUUID& 
 
 void LLOutfitsList::onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
 {
-	MASK mask = gKeyboard->currentMask(TRUE);
+	MASK mask = gKeyboard->currentMask(true);
 
 	// Reset selection in all previously selected tabs except for the current
 	// if new selection is started.
@@ -532,7 +532,7 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 		// to compare it with updated string if it was previously hidden.
 		if (!more_restrictive)
 		{
-			tab->setVisible(TRUE);
+			tab->setVisible(true);
 		}
 
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
@@ -757,7 +757,7 @@ void LLOutfitsList::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUI
         LLUICtrl* header = tab->findChild<LLUICtrl>("dd_header");
         if (header)
         {
-            header->setFocus(TRUE);
+            header->setFocus(true);
         }
 
         uuid_vec_t selected_uuids;
@@ -1167,7 +1167,7 @@ void LLOutfitListGearMenuBase::onWear()
     if (selected_outfit)
     {
         LLAppearanceMgr::instance().wearInventoryCategory(
-            selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
+            selected_outfit, /*copy=*/ false, /*append=*/ false);
     }
 }
 
@@ -1268,11 +1268,11 @@ LLOutfitListGearMenu::~LLOutfitListGearMenu()
 void LLOutfitListGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
-    mMenu->setItemVisible("expand", TRUE);
-    mMenu->setItemVisible("collapse", TRUE);
-    mMenu->setItemVisible("thumbnail", FALSE); // Never visible?
-    mMenu->setItemVisible("sepatator3", FALSE);
-    mMenu->setItemVisible("sort_folders_by_name", FALSE);
+    mMenu->setItemVisible("expand", true);
+    mMenu->setItemVisible("collapse", true);
+    mMenu->setItemVisible("thumbnail", false); // Never visible?
+    mMenu->setItemVisible("sepatator3", false);
+    mMenu->setItemVisible("sort_folders_by_name", false);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

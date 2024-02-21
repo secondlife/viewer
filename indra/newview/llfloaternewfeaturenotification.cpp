@@ -40,7 +40,7 @@ LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
 
 bool LLFloaterNewFeatureNotification::postBuild()
 {
-    setCanDrag(FALSE);
+    setCanDrag(false);
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
 
     const std::string title_txt = "title_txt";

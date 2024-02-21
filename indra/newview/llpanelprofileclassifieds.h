@@ -193,7 +193,7 @@ public:
 
     S32 getPriceForListing() { return mPriceForListing; }
 
-    void setEditMode(BOOL edit_mode);
+    void setEditMode(bool edit_mode);
     bool getEditMode() {return mEditMode;}
 
     static void setClickThrough(

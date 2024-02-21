@@ -79,10 +79,10 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
-constexpr BOOL USE_MIPMAPS = FALSE;
+constexpr bool USE_MIPMAPS = false;
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
@@ -1661,7 +1661,7 @@ void LLViewerMediaImpl::destroyMediaSource()
 	LLViewerMediaTexture* oldImage = LLViewerTextureManager::findMediaTexture( mTextureId );
 	if (oldImage)
 	{
-		oldImage->setPlaying(FALSE) ;
+		oldImage->setPlaying(false) ;
 	}
 
 	cancelMimeTypeProbe();
@@ -2757,7 +2757,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 		{
 			LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
 
-			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE), native_key_data);
+			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
 		}
 	}
 
@@ -2767,7 +2767,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::canNavigateForward()
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (mMediaSource)
 	{
 		result = mMediaSource->getHistoryForwardAvailable();
@@ -2778,7 +2778,7 @@ bool LLViewerMediaImpl::canNavigateForward()
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::canNavigateBack()
 {
-	BOOL result = FALSE;
+	bool result = false;
 	if (mMediaSource)
 	{
 		result = mMediaSource->getHistoryBackAvailable();
@@ -2933,7 +2933,7 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
             //S32 media_depth = mMediaSource->getTextureDepth();
 
             // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-            media_tex->setPlaying(TRUE);
+            media_tex->setPlaying(true);
 
             if (mMediaSource->getDirty(&dirty_rect))
             {
@@ -3547,12 +3547,12 @@ LLViewerMediaImpl::canPaste() const
 		return false;
 }
 
-void LLViewerMediaImpl::setUpdated(BOOL updated)
+void LLViewerMediaImpl::setUpdated(bool updated)
 {
 	mIsUpdated = updated ;
 }
 
-BOOL LLViewerMediaImpl::isUpdated()
+bool LLViewerMediaImpl::isUpdated()
 {
 	return mIsUpdated ;
 }

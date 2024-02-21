@@ -279,7 +279,7 @@ private:
 /**
  * This class was introduced just for fixing the following issue:
  * EXT-836 Nav bar: Favorites overflow menu passes left-mouse click through.
- * We must explicitly handle drag and drop event by returning TRUE
+ * We must explicitly handle drag and drop event by returning true
  * because otherwise LLToolDragAndDrop will initiate drag and drop operation
  * with the world.
  */
@@ -291,7 +291,7 @@ public:
         void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override
     {
         mToolbar->handleDragAndDropToMenu(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-        return TRUE;
+        return true;
     }
 
     // virtual
@@ -464,7 +464,7 @@ bool LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 	*accept = ACCEPT_NO;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
-	if (LLToolDragAndDrop::SOURCE_AGENT != source && LLToolDragAndDrop::SOURCE_LIBRARY != source) return FALSE;
+	if (LLToolDragAndDrop::SOURCE_AGENT != source && LLToolDragAndDrop::SOURCE_LIBRARY != source) return false;
 
 	switch (cargo_type)
 	{
@@ -589,11 +589,11 @@ bool LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 	return true;
 }
 
-bool LLFavoritesBarCtrl::handleDragAndDropToMenu(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLFavoritesBarCtrl::handleDragAndDropToMenu(S32 x, S32 y, MASK mask, bool drop,
     EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
 {
     mDragToOverflowMenu = true;
-    BOOL handled = handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+    bool handled = handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
     mDragToOverflowMenu = false;
     return handled;
 }
@@ -907,12 +907,12 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
 
 	if(mItems.empty())
 	{
-		mBarLabel->setVisible(TRUE);
+		mBarLabel->setVisible(true);
         mLastTab = NULL;
 	}
 	else
 	{
-		mBarLabel->setVisible(FALSE);
+		mBarLabel->setVisible(false);
 	}
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
@@ -1021,13 +1021,13 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
 
 			addChild(mMoreTextBox);
 			mMoreTextBox->setRect(rect);
-			mMoreTextBox->setVisible(TRUE);
+			mMoreTextBox->setVisible(true);
 		}
 		// Update overflow menu
 		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mOverflowMenuHandle.get());
 		if (overflow_menu && overflow_menu->getVisible() && (overflow_menu->getItemCount() != mDropDownItemsCount))
 		{
-			overflow_menu->setVisible(FALSE);
+			overflow_menu->setVisible(false);
 			if (mUpdateDropDownItems)
 			{
 				showDropDownMenu();
@@ -1105,11 +1105,11 @@ bool LLFavoritesBarCtrl::postBuild()
 	return true;
 }
 
-BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &items)
+bool LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &items)
 {
 
 	if (mFavoriteFolderId.isNull())
-		return FALSE;
+		return false;
 	
 
 	LLInventoryModel::cat_array_t cats;
@@ -1129,7 +1129,7 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &it
 		LLFavoritesOrderStorage::instance().mSaveOnExit = true;
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLFavoritesBarCtrl::onMoreTextBoxClicked()
@@ -1486,11 +1486,11 @@ bool LLFavoritesBarCtrl::onRenameCommit(const LLSD& notification, const LLSD& re
     return false;
 }
 
-BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
+bool LLFavoritesBarCtrl::isClipboardPasteable() const
 {
 	if (!LLClipboard::instance().hasContents())
 	{
-		return FALSE;
+		return false;
 	}
 
 	std::vector<LLUUID> objects;
@@ -1504,16 +1504,16 @@ BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
 		const LLInventoryCategory *cat = gInventory.getCategory(item_id);
 		if (cat)
 		{
-			return FALSE;
+			return false;
 		}
 
 		const LLInventoryItem *item = gInventory.getItem(item_id);
 		if (item && LLAssetType::AT_LANDMARK != item->getType())
 		{
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 void LLFavoritesBarCtrl::pasteFromClipboard() const
@@ -1553,7 +1553,7 @@ void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32
 	LLMenuGL* menu = (LLMenuGL*)mContextMenuHandle.get();
 	if(menu && menu->getVisible())
 	{
-		menu->setVisible(FALSE);
+		menu->setVisible(false);
 	}
 
 	mDragItemId = id;
@@ -1626,16 +1626,16 @@ LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
 	return ctrl;
 }
 
-BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array_t& items)
+bool LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array_t& items)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
 	// if there is an item without sort order field set, we need to save items order
 	for (LLInventoryModel::item_array_t::const_iterator i = items.begin(); i != items.end(); ++i)
 	{
 		if (LLFavoritesOrderStorage::instance().getSortIndex((*i)->getUUID()) < 0)
 		{
-			result = TRUE;
+			result = true;
 			break;
 		}
 	}
@@ -2071,7 +2071,7 @@ void LLFavoritesOrderStorage::rearrangeFavoriteLandmarks(const LLUUID& source_it
 	saveItemsOrder(items);
 }
 
-BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
+bool LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 {
 	pref_changed |= mRecreateFavoriteStorage;
 	mRecreateFavoriteStorage = false;
@@ -2079,13 +2079,13 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 	// Can get called before inventory is done initializing.
 	if (!gInventory.isInventoryUsable())
 	{
-		return FALSE;
+		return false;
 	}
 	
 	LLUUID favorite_folder= gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	if (favorite_folder.isNull())
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLInventoryModel::item_array_t items;
@@ -2197,11 +2197,11 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 		mPrevFavorites = items;
 	}
 
-	return TRUE;
+	return true;
 
 }
 
-void LLFavoritesOrderStorage::showFavoritesOnLoginChanged(BOOL show)
+void LLFavoritesOrderStorage::showFavoritesOnLoginChanged(bool show)
 {
 	if (show)
 	{

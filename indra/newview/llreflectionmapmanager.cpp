@@ -36,8 +36,8 @@
 #include "llenvironment.h"
 #include "llstartup.h"
 
-extern BOOL gCubeSnapshot;
-extern BOOL gTeleportDisplay;
+extern bool gCubeSnapshot;
+extern bool gTeleportDisplay;
 
 static U32 sUpdateCount = 0;
 
@@ -1282,7 +1282,7 @@ void LLReflectionMapManager::initReflectionMaps()
             mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
 
             mIrradianceMaps = new LLCubeMapArray();
-            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, false);
         }
 
         // reset probe state

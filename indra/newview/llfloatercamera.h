@@ -121,7 +121,7 @@ private:
 	// remains true until preset camera mode is chosen, or pan button is clicked, or escape pressed
 	static bool sFreeCamera;
 	static bool sAppearanceEditing;
-	BOOL mClosed;
+	bool mClosed;
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
 	std::map<ECameraControlMode, LLButton*> mMode2Button;

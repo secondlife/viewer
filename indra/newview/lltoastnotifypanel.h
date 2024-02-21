@@ -72,7 +72,7 @@ public:
 	bool isControlPanelEnabled() const;
 
 protected:
-	LLButton* createButton(const LLSD& form_element, BOOL is_option);
+	LLButton* createButton(const LLSD& form_element, bool is_option);
 
 	// Used for callbacks
 	struct InstanceAndS32

@@ -77,7 +77,7 @@ protected:
 public:
 		virtual ~LLMediaCtrl();
 
-		void setBorderVisible( BOOL border_visible );
+		void setBorderVisible( bool border_visible );
 
 		// For the tutorial window, we don't want to take focus on clicks,
 		// as the examples include how to move around with the arrow

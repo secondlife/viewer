@@ -88,8 +88,8 @@ LLToolBrushLand::LLToolBrushLand()
 	mStartingZ( 0.0f ),
 	mMouseX( 0 ),
 	mMouseY(0),
-	mGotHover(FALSE),
-	mBrushSelected(FALSE)
+	mGotHover(false),
+	mBrushSelected(false)
 {
 	mBrushSize = gSavedSettings.getF32("LandBrushSize");
 }
@@ -122,7 +122,7 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 		iter != mLastAffectedRegions.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
-		//BOOL is_changed = FALSE;
+		//bool is_changed = false;
 		LLVector3 pos_region = regionp->getPosRegionFromGlobal(pos_global);
 		LLSurface &land = regionp->getLand();
 		char action = E_LAND_LEVEL;
@@ -249,7 +249,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		iter != mLastAffectedRegions.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
-		//BOOL is_changed = FALSE;
+		//bool is_changed = false;
 		LLVector3 min_region = regionp->getPosRegionFromGlobal(min);
 		LLVector3 max_region = regionp->getPosRegionFromGlobal(max);
 	
@@ -318,7 +318,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		msg->addF32Fast(_PREHASH_Seconds, seconds);
 		msg->addF32Fast(_PREHASH_Height, mStartingZ);
 
-		BOOL parcel_selected = LLViewerParcelMgr::getInstance()->getParcelSelection()->getWholeParcelSelected();
+		bool parcel_selected = LLViewerParcelMgr::getInstance()->getParcelSelection()->getWholeParcelSelected();
 		LLParcel* selected_parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
 
 		if (parcel_selected && selected_parcel)
@@ -356,7 +356,7 @@ void LLToolBrushLand::brush( void )
 		spot.mdV[VX] = floor( spot.mdV[VX] + 0.5 );
 		spot.mdV[VY] = floor( spot.mdV[VY] + 0.5 );
 
-		modifyLandAtPointGlobal(spot, gKeyboard->currentMask(TRUE));
+		modifyLandAtPointGlobal(spot, gKeyboard->currentMask(true));
 	}
 }
 
@@ -394,9 +394,9 @@ bool LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 		mMouseX = x;
 		mMouseY = y;
 		gIdleCallbacks.addFunction( &LLToolBrushLand::onIdle, (void*)this );
-		setMouseCapture( TRUE );
+		setMouseCapture( true );
 
-		LLViewerParcelMgr::getInstance()->setSelectionVisible(FALSE);
+		LLViewerParcelMgr::getInstance()->setSelectionVisible(false);
 		handled = true;
 	}
 
@@ -410,7 +410,7 @@ bool LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
 								<< ")" << LL_ENDL;
 	mMouseX = x;
 	mMouseY = y;
-	mGotHover = TRUE;
+	mGotHover = true;
 	gViewerWindow->setCursor(UI_CURSOR_TOOLLAND);
 
 	LLVector3d spot;
@@ -432,9 +432,9 @@ bool LLToolBrushLand::handleMouseUp(S32 x, S32 y, MASK mask)
 	if( hasMouseCapture() )
 	{
 		// Release the mouse
-		setMouseCapture( FALSE );
+		setMouseCapture( false );
 
-		LLViewerParcelMgr::getInstance()->setSelectionVisible(TRUE);
+		LLViewerParcelMgr::getInstance()->setSelectionVisible(true);
 
 		gIdleCallbacks.deleteFunction( &LLToolBrushLand::onIdle, (void*)this );
 		handled = true;
@@ -450,7 +450,7 @@ void LLToolBrushLand::handleSelect()
 	gFloaterTools->setStatusText("modifyland");
 //	if (!mBrushSelected)
 	{
-		mBrushSelected = TRUE;
+		mBrushSelected = true;
 	}
 }
 
@@ -461,8 +461,8 @@ void LLToolBrushLand::handleDeselect()
 	{
 		gEditMenuHandler = NULL;
 	}
-	LLViewerParcelMgr::getInstance()->setSelectionVisible(TRUE);
-	mBrushSelected = FALSE;
+	LLViewerParcelMgr::getInstance()->setSelectionVisible(true);
+	mBrushSelected = false;
 }
 
 // Draw the area that will be affected.
@@ -493,7 +493,7 @@ void LLToolBrushLand::render()
 							  pos_world);
 			}
 		}
-		mGotHover = FALSE;
+		mGotHover = false;
 	}
 }
 
@@ -681,7 +681,7 @@ bool LLToolBrushLand::canTerraformParcel(LLViewerRegion* regionp) const
 	bool is_terraform_allowed = false;
 	if (selected_parcel)
 	{
-		BOOL owner_release = LLViewerParcelMgr::isParcelOwnedByAgent(selected_parcel, GP_LAND_ALLOW_EDIT_LAND);
+		bool owner_release = LLViewerParcelMgr::isParcelOwnedByAgent(selected_parcel, GP_LAND_ALLOW_EDIT_LAND);
 		is_terraform_allowed = ( gAgent.canManageEstate() || (selected_parcel->getOwnerID() == regionp->getOwner()) || owner_release);
 	}
 

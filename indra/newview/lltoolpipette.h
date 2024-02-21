@@ -55,7 +55,7 @@ public:
 	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
 	typedef boost::signals2::signal<void (const LLTextureEntry& te)> signal_t;
 	void setToolSelectCallback(const signal_t::slot_type& cb) { mSignal.connect(cb); }
-	void setResult(BOOL success, const std::string& msg);
+	void setResult(bool success, const std::string& msg);
 	
 	void setTextureEntry(const LLTextureEntry* entry);
 	static void pickCallback(const LLPickInfo& pick_info);
@@ -63,7 +63,7 @@ public:
 protected:
 	LLTextureEntry	mTextureEntry;
 	signal_t		mSignal;
-	BOOL			mSuccess;
+	bool			mSuccess;
 	std::string		mTooltipMsg;
 };
 

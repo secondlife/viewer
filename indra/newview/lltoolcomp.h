@@ -56,10 +56,10 @@ public:
 
 	virtual LLViewerObject*	getEditingObject()								{ return mCur->getEditingObject(); }
 	virtual LLVector3d		getEditingPointGlobal()							{ return mCur->getEditingPointGlobal(); }
-	virtual BOOL			isEditing()										{ return mCur->isEditing(); }
+	virtual bool			isEditing()										{ return mCur->isEditing(); }
 	virtual void			stopEditing()									{ mCur->stopEditing(); mCur = mDefault; }
 
-	virtual BOOL			clipMouseWhenDown()								{ return mCur->clipMouseWhenDown(); }
+	virtual bool			clipMouseWhenDown()								{ return mCur->clipMouseWhenDown(); }
 
 	virtual void			handleSelect();
 	virtual void			handleDeselect();
@@ -67,7 +67,7 @@ public:
 	virtual void			render()										{ mCur->render(); }
 	virtual void			draw()											{ mCur->draw(); }
 
-	virtual BOOL			handleKey(KEY key, MASK mask)					{ return mCur->handleKey( key, mask ); }
+	virtual bool			handleKey(KEY key, MASK mask)					{ return mCur->handleKey( key, mask ); }
 
 	virtual void			onMouseCaptureLost();
 
@@ -77,7 +77,7 @@ public:
 	virtual void			localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 								{ mCur->localPointToScreen(local_x, local_y, screen_x, screen_y); }
 
-	BOOL					isSelecting();
+	bool					isSelecting();
 	LLTool*					getCurrentTool()								{ return mCur; }
 
 protected:
@@ -88,8 +88,8 @@ protected:
 protected:
 	LLTool*					mCur;		// The tool to which we're delegating.
 	LLTool*					mDefault;
-	BOOL					mSelected;
-	BOOL					mMouseDown;
+	bool					mSelected;
+	bool					mMouseDown;
 	LLManip*				mManip;
 	LLToolSelectRect*		mSelectRect;
 
@@ -111,16 +111,16 @@ public:
     virtual bool		handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual bool		handleMouseUp(S32 x, S32 y, MASK mask);
     virtual bool		handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleKey(KEY key, MASK mask);
+	virtual bool		handleKey(KEY key, MASK mask);
 	virtual void		onMouseCaptureLost();
 			void		keyUp(KEY key, MASK mask);
 
 	static void pickCallback(const LLPickInfo& pick_info);
 
-	BOOL isToolCameraActive() const { return mIsToolCameraActive; }
+	bool isToolCameraActive() const { return mIsToolCameraActive; }
 
 private:
-	BOOL mIsToolCameraActive;
+	bool mIsToolCameraActive;
 };
 
 //-----------------------------------------------------------------------
@@ -206,7 +206,7 @@ public:
 	static void pickCallback(const LLPickInfo& pick_info);
 protected:
 	LLToolPlacer*		mPlacer;
-	BOOL				mObjectPlacedOnMouseDown;
+	bool				mObjectPlacedOnMouseDown;
 };
 
 

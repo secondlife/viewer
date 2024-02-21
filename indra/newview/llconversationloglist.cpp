@@ -369,7 +369,7 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 
 	bool is_p2p   = LLIMModel::LLIMSession::P2P_SESSION == stype;
 	bool is_group = LLIMModel::LLIMSession::GROUP_SESSION == stype;
-	bool is_group_member = is_group && gAgent.isInGroup(selected_id, TRUE);
+	bool is_group_member = is_group && gAgent.isInGroup(selected_id, true);
 
 	if ("can_im" == command_name)
 	{

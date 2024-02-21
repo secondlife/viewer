@@ -193,15 +193,15 @@ protected:
 
 	void updateMenuItemsVisibility(LLContextMenu* menu)
 	{
-		menu->setItemVisible("touch_attach", TRUE);
+		menu->setItemVisible("touch_attach", true);
 		menu->setItemEnabled("touch_attach", 1 == mUUIDs.size());
-		menu->setItemVisible("edit_item", TRUE);
+		menu->setItemVisible("edit_item", true);
 		menu->setItemEnabled("edit_item", 1 == mUUIDs.size());
-		menu->setItemVisible("take_off", FALSE);
-		menu->setItemVisible("detach", TRUE);
-		menu->setItemVisible("edit_outfit_separator", FALSE);
-		menu->setItemVisible("show_original", FALSE);
-		menu->setItemVisible("edit_outfit", FALSE);
+		menu->setItemVisible("take_off", false);
+		menu->setItemVisible("detach", true);
+		menu->setItemVisible("edit_outfit_separator", false);
+		menu->setItemVisible("show_original", false);
+		menu->setItemVisible("edit_outfit", false);
 	}
 
 	LLPanelWearing* 		mPanelWearing;

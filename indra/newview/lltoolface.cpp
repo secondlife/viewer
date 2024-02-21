@@ -134,14 +134,14 @@ void LLToolFace::pickCallback(const LLPickInfo& pick_info)
 void LLToolFace::handleSelect()
 {
 	// From now on, draw faces
-	LLSelectMgr::getInstance()->setTEMode(TRUE);
+	LLSelectMgr::getInstance()->setTEMode(true);
 }
 
 
 void LLToolFace::handleDeselect()
 {
 	// Stop drawing faces
-	LLSelectMgr::getInstance()->setTEMode(FALSE);
+	LLSelectMgr::getInstance()->setTEMode(false);
 }
 
 

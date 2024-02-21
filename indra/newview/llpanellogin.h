@@ -60,9 +60,9 @@ public:
 	static void resetFields();
 	static void getFields(LLPointer<LLCredential>& credential, bool& remember_user, bool& remember_psswrd);
 
-	static BOOL isCredentialSet() { return sCredentialSet; }
+	static bool isCredentialSet() { return sCredentialSet; }
 
-	static BOOL areCredentialFieldsDirty();
+	static bool areCredentialFieldsDirty();
 	static void setLocation(const LLSLURL& slurl);
 	static void autologinToLocation(const LLSLURL& slurl);
 	
@@ -115,14 +115,14 @@ private:
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
-	BOOL            mPasswordModified;
+	bool            mPasswordModified;
 	bool			mShowFavorites;
 
 	static LLPanelLogin* sInstance;
-	static BOOL		sCapslockDidNotification;
+	static bool		sCapslockDidNotification;
 	bool			mFirstLoginThisInstall;
     
-    static BOOL sCredentialSet;
+    static bool sCredentialSet;
 
 	unsigned int mUsernameLength;
 	unsigned int mPasswordLength;

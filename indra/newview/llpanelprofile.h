@@ -151,13 +151,13 @@ protected:
      */
     void fillAgeData(const LLDate &born_on);
 
-    void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
-    static void onImageLoaded(BOOL success,
+    void onImageLoaded(bool success, LLViewerFetchedTexture *imagep);
+    static void onImageLoaded(bool success,
                               LLViewerFetchedTexture *src_vi,
                               LLImageRaw* src,
                               LLImageRaw* aux_src,
                               S32 discard_level,
-                              BOOL final,
+                              bool final,
                               void* userdata);
 
 	/**

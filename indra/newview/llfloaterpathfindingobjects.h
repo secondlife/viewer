@@ -96,7 +96,7 @@ protected:
 
 	void                               showFloaterWithSelectionObjects();
 
-	BOOL                               isShowBeacons() const;
+	bool                               isShowBeacons() const;
 	void                               clearAllObjects();
 	void                               selectAllObjects();
 	void                               selectNoneObjects();

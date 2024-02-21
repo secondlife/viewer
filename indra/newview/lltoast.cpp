@@ -68,7 +68,7 @@ void LLToastLifeTimer::restart()
 	mEventTimer.reset();
 }
 
-BOOL LLToastLifeTimer::getStarted()
+bool LLToastLifeTimer::getStarted()
 {
 	return mEventTimer.getStarted();
 }
@@ -121,11 +121,11 @@ LLToast::LLToast(const LLToast::Params& p)
 
 	buildFromFile("panel_toast.xml");
 
-	setCanDrag(FALSE);
+	setCanDrag(false);
 
 	mWrapperPanel = getChild<LLPanel>("wrapper_panel");
 
-	setBackgroundOpaque(TRUE); // *TODO: obsolete
+	setBackgroundOpaque(true); // *TODO: obsolete
 	updateTransparency();
 
 	if(p.panel())
@@ -209,7 +209,7 @@ void LLToast::hide()
 {
 	if (!mIsHidden)
 	{
-		setVisible(FALSE);
+		setVisible(false);
 		setFading(false);
 		mTimer->stop();
 		mIsHidden = true;
@@ -495,7 +495,7 @@ void LLToast::updateHoveredState()
 			sendChildToFront(mHideBtn);
 			if(mHideBtn && mHideBtn->getEnabled())
 			{
-				mHideBtn->setVisible(TRUE);
+				mHideBtn->setVisible(true);
 			}
 			
 			mToastMouseEnterSignal(this, getValue());
@@ -518,7 +518,7 @@ void LLToast::updateHoveredState()
 					mHideBtnPressed = false;
 					return;
 				}
-				mHideBtn->setVisible(FALSE);
+				mHideBtn->setVisible(false);
 			}
 			
 			mToastMouseLeaveSignal(this, getValue());
@@ -526,7 +526,7 @@ void LLToast::updateHoveredState()
 	}
 }
 
-void LLToast::setBackgroundOpaque(BOOL b)
+void LLToast::setBackgroundOpaque(bool b)
 {
 	if(mWrapperPanel && !isBackgroundVisible())
 	{

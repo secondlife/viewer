@@ -158,7 +158,7 @@ private:
 	{
 		if (LLPanelTopInfoBar::instanceExists())
 		{
-			LLPanelTopInfoBar::getInstance()->setEnabled(FALSE);
+			LLPanelTopInfoBar::getInstance()->setEnabled(false);
 		}
 	}
 

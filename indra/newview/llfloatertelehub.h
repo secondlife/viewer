@@ -46,7 +46,7 @@ public:
 
 	void draw() override;
 	
-	static BOOL renderBeacons();
+	static bool renderBeacons();
 	static void addBeacons();
 
 	void refresh() override;

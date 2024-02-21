@@ -54,7 +54,7 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 	, mSavedFolderState(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
-	mSavedFolderState->setApply(FALSE);
+	mSavedFolderState->setApply(false);
 }
 
 LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
@@ -106,7 +106,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 	mInventoryPanel->getFilter().setEmptyLookupMessage("InventoryInboxNoItems");
 	
 	// Hide the placeholder text
-	inbox_inventory_placeholder->setVisible(FALSE);
+	inbox_inventory_placeholder->setVisible(false);
 	
 	return mInventoryPanel;
 }
@@ -200,7 +200,7 @@ void LLPanelMarketplaceInbox::onClearSearch()
 	if (mInventoryPanel)
 	{
 		mInventoryPanel->setFilterSubString(LLStringUtil::null);
-		mSavedFolderState->setApply(TRUE);
+		mSavedFolderState->setApply(true);
 		mInventoryPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		LLOpenFoldersWithSelection opener;
 		mInventoryPanel->getRootFolder()->applyFunctorRecursively(opener);
@@ -220,7 +220,7 @@ void LLPanelMarketplaceInbox::onFilterEdit(const std::string& search_string)
 
 		if (!mInventoryPanel->getFilter().isNotDefault())
 		{
-			mSavedFolderState->setApply(FALSE);
+			mSavedFolderState->setApply(false);
 			mInventoryPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		}
 		mInventoryPanel->setFilterSubString(search_string);
@@ -274,7 +274,7 @@ void LLPanelMarketplaceInbox::draw()
 	{
 		mInboxButton->setLabel(getString("InboxLabelNoArg"));
 
-		mFreshCountCtrl->setVisible(FALSE);
+		mFreshCountCtrl->setVisible(false);
 	}
 		
 	LLPanel::draw();

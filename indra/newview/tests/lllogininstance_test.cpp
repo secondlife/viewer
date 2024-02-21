@@ -74,7 +74,7 @@ static LLSD gLoginCreds;
 static bool gDisconnectCalled = false;
 
 #include "../llviewerwindow.h"
-void LLViewerWindow::setShowProgress(BOOL show) {}
+void LLViewerWindow::setShowProgress(bool show) {}
 LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
 
 LLViewerWindow* gViewerWindow;

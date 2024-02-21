@@ -111,7 +111,7 @@ public:
 	virtual bool isParticipant(const LLUUID& speaker_id);
 
 	// Send a text message to the specified user, initiating the session if necessary.
-	// virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
+	// virtual bool sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
 	
 	// close any existing text IM session with the specified user
 	virtual void endUserIMSession(const LLUUID &uuid);
@@ -119,12 +119,12 @@ public:
 	// Returns true if calling back the session URI after the session has closed is possible.
 	// Currently this will be false only for PSTN P2P calls.		
 	// NOTE: this will return true if the session can't be found. 
-	virtual BOOL isSessionCallBackPossible(const LLUUID &session_id);
+	virtual bool isSessionCallBackPossible(const LLUUID &session_id);
 	
 	// Returns true if the session can accepte text IM's.
 	// Currently this will be false only for PSTN P2P calls.
 	// NOTE: this will return true if the session can't be found. 
-	virtual BOOL isSessionTextIMPossible(const LLUUID &session_id);
+	virtual bool isSessionTextIMPossible(const LLUUID &session_id);
 	
 	
 	////////////////////////////
@@ -172,21 +172,21 @@ public:
 	//@{
 	virtual bool voiceEnabled();
 	virtual void setVoiceEnabled(bool enabled);
-	virtual BOOL lipSyncEnabled();	
-	virtual void setLipSyncEnabled(BOOL enabled);
+	virtual bool lipSyncEnabled();	
+	virtual void setLipSyncEnabled(bool enabled);
 	virtual void setMuteMic(bool muted);		// Set the mute state of the local mic.
 	//@}
 		
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
-	virtual BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
+	virtual bool getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
 	virtual std::string getDisplayName(const LLUUID& id);
-	virtual BOOL isParticipantAvatar(const LLUUID &id);
-	virtual BOOL getIsSpeaking(const LLUUID& id);
-	virtual BOOL getIsModeratorMuted(const LLUUID& id);
+	virtual bool isParticipantAvatar(const LLUUID &id);
+	virtual bool getIsSpeaking(const LLUUID& id);
+	virtual bool getIsModeratorMuted(const LLUUID& id);
 	virtual F32 getCurrentPower(const LLUUID& id);		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	virtual BOOL getOnMuteList(const LLUUID& id);
+	virtual bool getOnMuteList(const LLUUID& id);
 	virtual F32 getUserVolume(const LLUUID& id);
 	virtual void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)	
 	//@}
@@ -490,11 +490,11 @@ protected:
 	// Accessors for data related to nearby speakers
 
 	// MBW -- XXX -- Not sure how to get this data out of the TVC
-	BOOL getUsingPTT(const LLUUID& id);
+	bool getUsingPTT(const LLUUID& id);
 	std::string getGroupID(const LLUUID& id);		// group ID if the user is in group chat (empty string if not applicable)
 
 	/////////////////////////////
-	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
+	bool getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
 										// Use this to determine whether to show a "no speech" icon in the menu bar.
 		
 	
@@ -807,7 +807,7 @@ private:
 	std::string mWriteString;
 	size_t		mWriteOffset;
 	
-	BOOL		mLipSyncEnabled;
+	bool		mLipSyncEnabled;
 
 	typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
 	observer_set_t mParticipantObservers;

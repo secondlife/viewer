@@ -453,7 +453,7 @@ void LLFloater360Capture::capture360Images()
     if (gSavedSettings.getBOOL("360CaptureHideAvatars"))
     {
         // Turn off the avatar if UI tells us to hide it.
-        // Note: the original call to gAvatar.hide(FALSE) did *not* hide
+        // Note: the original call to gAvatar.hide(false) did *not* hide
         // attachments and so for most residents, there would be some debris
         // left behind in the snapshot.
         // Note: this toggles so if it set to on, this will turn it off and
@@ -462,7 +462,7 @@ void LLFloater360Capture::capture360Images()
         // was set to off - I think this is what we need
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
-        LLPipeline::sRenderAttachedLights = FALSE;
+        LLPipeline::sRenderAttachedLights = false;
     }
 
     // these are the 6 directions we will point the camera - essentially,

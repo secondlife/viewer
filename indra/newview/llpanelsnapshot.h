@@ -56,7 +56,7 @@ public:
 	virtual S32 getTypedPreviewHeight() const;
 	virtual LLSpinCtrl* getWidthSpinner();
 	virtual LLSpinCtrl* getHeightSpinner();
-	virtual void enableAspectRatioCheckbox(BOOL enable);
+	virtual void enableAspectRatioCheckbox(bool enable);
     virtual LLSnapshotModel::ESnapshotFormat getImageFormat() const;
 	virtual LLSnapshotModel::ESnapshotType getSnapshotType();
 	virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings

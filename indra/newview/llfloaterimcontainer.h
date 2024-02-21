@@ -74,7 +74,7 @@ public:
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
 	void selectNextConversationByID(const LLUUID& session_id);
-    BOOL selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
+    bool selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
     void clearAllFlashStates();
 	bool selectAdjacentConversation(bool focus_selected);
     bool selectNextorPreviousConversation(bool select_next, bool focus_selected = true);
@@ -96,7 +96,7 @@ public:
 	static void idle(void* user_data);
 
 	// LLIMSessionObserver observe triggers
-	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg);
+	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg);
     /*virtual*/ void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	/*virtual*/ void sessionVoiceOrIMStarted(const LLUUID& session_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
@@ -146,7 +146,7 @@ private:
 	void onAddButtonClicked();
 	void onAvatarPicked(const uuid_vec_t& ids);
 
-	BOOL isActionChecked(const LLSD& userdata);
+	bool isActionChecked(const LLSD& userdata);
 	void onCustomAction (const LLSD& userdata);
 	void setSortOrderSessions(const LLConversationFilter::ESortOrderType order);
 	void setSortOrderParticipants(const LLConversationFilter::ESortOrderType order);

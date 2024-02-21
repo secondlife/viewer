@@ -89,20 +89,20 @@ void LLDirPicker::reset()
     }
 }
 
-BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
+bool LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	if( mLocked )
 	{
-		return FALSE;
+		return false;
 	}
 
 	// if local file browsing is turned off, return without opening dialog
 	if ( check_local_file_access_enabled() == false )
 	{
-		return FALSE;
+		return false;
 	}
 
-	BOOL success = FALSE;
+	bool success = false;
 
 	
 	if (blocking)
@@ -147,7 +147,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
                 {
                     mDir = ll_convert_wide_to_string(pwstr);
                     CoTaskMemFree(pwstr);
-                    success = TRUE;
+                    success = true;
                 }
                 psi->Release();
             }
@@ -197,7 +197,7 @@ void LLDirPicker::reset()
 
 
 //static
-BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
+bool LLDirPicker::getDir(std::string* filename, bool blocking)
 {
     LLFilePicker::ELoadFilter filter=LLFilePicker::FFLOAD_DIRECTORY;
     
@@ -231,14 +231,14 @@ void LLDirPicker::reset()
 		mFilePicker->reset();
 }
 
-BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
+bool LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	reset();
 
 	// if local file browsing is turned off, return without opening dialog
 	if ( check_local_file_access_enabled() == false )
 	{
-		return FALSE;
+		return false;
 	}
 
 #if !LL_MESA_HEADLESS
@@ -258,7 +258,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 	}
 #endif // !LL_MESA_HEADLESS
 
-	return FALSE;
+	return false;
 }
 
 std::string LLDirPicker::getDirName()
@@ -286,9 +286,9 @@ void LLDirPicker::reset()
 {
 }
 
-BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
+bool LLDirPicker::getDir(std::string* filename, bool blocking)
 {
-	return FALSE;
+	return false;
 }
 
 std::string LLDirPicker::getDirName()

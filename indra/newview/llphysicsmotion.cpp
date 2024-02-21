@@ -120,7 +120,7 @@ public:
 				}
         }
 
-        BOOL initialize();
+        bool initialize();
 
         ~LLPhysicsMotion() {}
 
@@ -217,20 +217,20 @@ default_controller_map_t initDefaultController()
 
 default_controller_map_t LLPhysicsMotion::sDefaultController = initDefaultController();
 
-BOOL LLPhysicsMotion::initialize()
+bool LLPhysicsMotion::initialize()
 {
         if (!mJointState->setJoint(mCharacter->getJoint(mJointName.c_str())))
-                return FALSE;
+                return false;
         mJointState->setUsage(LLJointState::ROT);
 
         mParamDriver = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDriverName.c_str());
         if (mParamDriver == NULL)
         {
                 LL_INFOS() << "Failure reading in  [ " << mParamDriverName << " ]" << LL_ENDL;
-                return FALSE;
+                return false;
         }
 
-        return TRUE;
+        return true;
 }
 
 LLPhysicsMotionController::LLPhysicsMotionController(const LLUUID &id) : 
@@ -282,7 +282,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -305,7 +305,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -328,7 +328,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -350,7 +350,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -373,7 +373,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -396,7 +396,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -475,7 +475,7 @@ bool LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
         return true;
 }
 
-// Return TRUE if character has to update visual params.
+// Return true if character has to update visual params.
 bool LLPhysicsMotion::onUpdate(F32 time)
 {
         // static FILE *mFileWrite = fopen("c:\\temp\\avatar_data.txt","w");
@@ -520,7 +520,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
 		const F32 behavior_drag = getParamValue(DRAG);
 		F32 behavior_maxeffect = getParamValue(MAX_EFFECT);
 		
-		const BOOL physics_test = false; // Enable this to simulate bouncing on all parts.
+		const bool physics_test = false; // Enable this to simulate bouncing on all parts.
         
         if (physics_test)
                 behavior_maxeffect = 1.0f;
@@ -700,7 +700,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
 		const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
 	        const F32 pixel_area = sqrtf(mCharacter->getPixelArea());
         
-		const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
+		const bool is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
 		if ((pixel_area > area_for_this_setting) || is_self)
 		{
 			const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local_clamped);

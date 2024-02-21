@@ -420,7 +420,7 @@ LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
 // virtual
 bool LLMediaDataClient::QueueTimer::tick()
 {
-	BOOL result = true;
+	bool result = true;
 	
 	if (!mMDC.isNull())
 	{

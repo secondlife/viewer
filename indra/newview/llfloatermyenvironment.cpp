@@ -108,7 +108,7 @@ bool LLFloaterMyEnvironment::postBuild()
 
         mInventoryList->setFilterTypes(filter_types);
 
-        mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, BOOL) { onSelectionChange(); });
+        mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, bool) { onSelectionChange(); });
         mInventoryList->setShowFolderState(mShowFolders);
         mInventoryList->setFilterSettingsTypes(mTypeFilter);
     }
@@ -205,7 +205,7 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
             return;
         }
 
-        mSavedFolderState.setApply(TRUE);
+        mSavedFolderState.setApply(true);
         mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         // add folder with current item to list of previously opened folders
         LLOpenFoldersWithSelection opener;
@@ -216,7 +216,7 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
     else if (mInventoryList->getFilterSubString().empty())
     {
         // first letter in search term, save existing folder open state
-        mSavedFolderState.setApply(FALSE);
+        mSavedFolderState.setApply(false);
         mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
     }
 

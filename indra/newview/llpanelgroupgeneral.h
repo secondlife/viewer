@@ -78,8 +78,8 @@ private:
 	void updateChanged();
 	bool confirmMatureApply(const LLSD& notification, const LLSD& response);
 
-	BOOL			mChanged;
-	BOOL			mFirstUse;
+	bool			mChanged;
+	bool			mFirstUse;
 	std::string		mIncompleteMemberDataStr;
 
 	// Group information (include any updates in updateChanged)

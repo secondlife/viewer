@@ -119,9 +119,9 @@ public:
 	virtual const bool getDistanceToAgent(F64& distance) const { return false; }
 	
 	// This method will be called to determine if a drop can be
-	// performed, and will set drop to TRUE if a drop is
+	// performed, and will set drop to true if a drop is
 	// requested. 
-	// Returns TRUE if a drop is possible/happened, FALSE otherwise.
+	// Returns true if a drop is possible/happened, false otherwise.
 	virtual bool dragOrDrop(MASK mask, bool drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,

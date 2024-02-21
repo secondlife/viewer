@@ -53,15 +53,15 @@ protected:
 	void setPreviewTarget(LLImageRaw *imagep, F32 distance);
 	void setTexture(U32 name) { mTextureName = name; }
 
-	BOOL render();
+	bool render();
 	void refresh();
 	void rotate(F32 yaw_radians, F32 pitch_radians);
 	void zoom(F32 zoom_amt);
 	void pan(F32 right, F32 up);
-	virtual BOOL needsRender() { return mNeedsUpdate; }
+	virtual bool needsRender() { return mNeedsUpdate; }
 
  protected:
-	BOOL        mNeedsUpdate;
+	bool        mNeedsUpdate;
 	U32         mTextureName;
 	F32			mCameraDistance;
 	F32			mCameraYaw;
@@ -83,19 +83,19 @@ public:
 
 	/*virtual*/ S8 getType() const ;
 
-	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
+	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, bool male);
 	void setTexture(U32 name) { mTextureName = name; }
 	void clearPreviewTexture(const std::string& mesh_name);
 
-	BOOL	render();
+	bool	render();
 	void	refresh();
 	void	rotate(F32 yaw_radians, F32 pitch_radians);
 	void	zoom(F32 zoom_amt);
 	void	pan(F32 right, F32 up);
-	virtual BOOL needsRender() { return mNeedsUpdate; }
+	virtual bool needsRender() { return mNeedsUpdate; }
 
 protected:
-	BOOL		mNeedsUpdate;
+	bool		mNeedsUpdate;
 	LLJoint*	mTargetJoint;
 	LLViewerJointMesh*	mTargetMesh;
 	F32			mCameraDistance;

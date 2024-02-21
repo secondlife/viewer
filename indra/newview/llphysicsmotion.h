@@ -91,13 +91,13 @@ public:
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
 	// called when a motion is activated
-	// must return TRUE to indicate success, or else
+	// must return true to indicate success, or else
 	// it will be deactivated
 	virtual bool onActivate();
 
 	// called per time step
-	// must return TRUE while it is active, and
-	// must return FALSE when the motion is completed.
+	// must return true while it is active, and
+	// must return false when the motion is completed.
 	virtual bool onUpdate(F32 time, U8* joint_mask);
 
 	// called when a motion is deactivated

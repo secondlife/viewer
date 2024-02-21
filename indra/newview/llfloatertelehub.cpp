@@ -104,7 +104,7 @@ void LLFloaterTelehub::refresh()
 	LLViewerObject* object = mObjectSelection->getFirstRootObject(children_ok);
 	
 	bool have_selection = (object != NULL);
-	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
+	bool all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 	getChildView("connect_btn")->setEnabled(have_selection && all_volume);
 
 	bool have_telehub = mTelehubObjectID.notNull();
@@ -122,7 +122,7 @@ void LLFloaterTelehub::refresh()
 }
 
 // static
-BOOL LLFloaterTelehub::renderBeacons()
+bool LLFloaterTelehub::renderBeacons()
 {
 	// only render if we've got a telehub
 	LLFloaterTelehub* floater = LLFloaterReg::findTypedInstance<LLFloaterTelehub>("telehubs");

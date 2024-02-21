@@ -353,9 +353,9 @@ void init_audio()
 
 // load up our initial set of sounds we'll want so they're in memory and ready to be played
 
-	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	bool mute_audio = gSavedSettings.getBOOL("MuteAudio");
 
-	if (!mute_audio && FALSE == gSavedSettings.getBOOL("NoPreload"))
+	if (!mute_audio && false == gSavedSettings.getBOOL("NoPreload"))
 	{
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndAlert")));
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndBadKeystroke")));
@@ -396,10 +396,10 @@ void init_audio()
 void audio_update_volume(bool force_update)
 {
 	F32 master_volume = gSavedSettings.getF32("AudioLevelMaster");
-	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	bool mute_audio = gSavedSettings.getBOOL("MuteAudio");
 
 	LLProgressView* progress = gViewerWindow->getProgressView();
-	BOOL progress_view_visible = FALSE;
+	bool progress_view_visible = false;
 
 	if (progress)
 	{
@@ -408,7 +408,7 @@ void audio_update_volume(bool force_update)
 
 	if (!gViewerWindow->getActive() && gSavedSettings.getBOOL("MuteWhenMinimized"))
 	{
-		mute_audio = TRUE;
+		mute_audio = true;
 	}
 	F32 mute_volume = mute_audio ? 0.0f : 1.0f;
 
@@ -455,7 +455,7 @@ void audio_update_volume(bool force_update)
 		}
 
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
-		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
+		bool music_muted = gSavedSettings.getBOOL("MuteMusic");
 		F32 fade_volume = LLViewerAudio::getInstance()->getFadeVolume();
 
 		music_volume = mute_volume * master_volume * music_volume * fade_volume;
@@ -464,7 +464,7 @@ void audio_update_volume(bool force_update)
 
 	// Streaming Media
 	F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
-	BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
+	bool media_muted = gSavedSettings.getBOOL("MuteMedia");
 	media_volume = mute_volume * master_volume * media_volume;
 	LLViewerMedia::getInstance()->setVolume( media_muted ? 0.0f : media_volume );
 
@@ -473,7 +473,7 @@ void audio_update_volume(bool force_update)
 	{
 		F32 voice_volume = gSavedSettings.getF32("AudioLevelVoice");
 		voice_volume = mute_volume * master_volume * voice_volume;
-		BOOL voice_mute = gSavedSettings.getBOOL("MuteVoice");
+		bool voice_mute = gSavedSettings.getBOOL("MuteVoice");
 		LLVoiceClient *voice_inst = LLVoiceClient::getInstance();
 		voice_inst->setVoiceVolume(voice_mute ? 0.f : voice_volume);
 		voice_inst->setMicGain(voice_mute ? 0.f : gSavedSettings.getF32("AudioLevelMic"));

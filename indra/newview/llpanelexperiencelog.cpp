@@ -102,7 +102,7 @@ void LLPanelExperienceLog::refresh()
 		return;
 	}
 
-	setAllChildrenEnabled(FALSE);
+	setAllChildrenEnabled(false);
 
 	LLSD item;
 	bool waiting = false;
@@ -179,9 +179,9 @@ void LLPanelExperienceLog::refresh()
 	}
 	else
 	{
-		setAllChildrenEnabled(TRUE);
+		setAllChildrenEnabled(true);
 
-		mEventList->setEnabled(TRUE);
+		mEventList->setEnabled(true);
 		getChild<LLButton>("btn_next")->setEnabled(moreItems);
 		getChild<LLButton>("btn_prev")->setEnabled(mCurrentPage>0);
 		getChild<LLButton>("btn_clear")->setEnabled(mEventList->getItemCount()>0);

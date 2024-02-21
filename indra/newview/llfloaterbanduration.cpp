@@ -42,7 +42,7 @@ bool LLFloaterBanDuration::postBuild()
 
     getChild<LLUICtrl>("ban_duration_radio")->setCommitCallback(boost::bind(&LLFloaterBanDuration::onClickRadio, this));
     getChild<LLRadioGroup>("ban_duration_radio")->setSelectedIndex(0);
-    getChild<LLUICtrl>("ban_hours")->setEnabled(FALSE);
+    getChild<LLUICtrl>("ban_hours")->setEnabled(false);
 
     return true;
 }

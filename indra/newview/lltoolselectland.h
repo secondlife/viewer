@@ -44,19 +44,19 @@ public:
 	/*virtual*/ bool		handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ bool		handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ void		render();				// draw the select rectangle
-	/*virtual*/ BOOL		isAlwaysRendered()		{ return TRUE; }
+	/*virtual*/ bool		isAlwaysRendered()		{ return true; }
 
 	/*virtual*/ void		handleSelect();
 	/*virtual*/ void		handleDeselect();
 
 protected:
-	BOOL			outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
+	bool			outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
 	void			roundXY(LLVector3d& vec);
 
 protected:
 	LLVector3d		mDragStartGlobal;		// global coords
 	LLVector3d		mDragEndGlobal;			// global coords
-	BOOL			mDragEndValid;			// is drag end a valid point in the world?
+	bool			mDragEndValid;			// is drag end a valid point in the world?
 
 	S32				mDragStartX;			// screen coords, from left
 	S32				mDragStartY;			// screen coords, from bottom
@@ -64,7 +64,7 @@ protected:
 	S32				mDragEndX;
 	S32				mDragEndY;
 
-	BOOL			mMouseOutsideSlop;		// has mouse ever gone outside slop region?
+	bool			mMouseOutsideSlop;		// has mouse ever gone outside slop region?
 
 	LLVector3d		mWestSouthBottom;		// global coords, from drag
 	LLVector3d		mEastNorthTop;			// global coords, from drag

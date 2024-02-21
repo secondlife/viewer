@@ -230,7 +230,7 @@ LLPanelGroupNotices::~LLPanelGroupNotices()
 }
 
 
-BOOL LLPanelGroupNotices::isVisibleByAgent(LLAgent* agentp)
+bool LLPanelGroupNotices::isVisibleByAgent(LLAgent* agentp)
 {
 	return mAllowEdit &&
 		agentp->hasPowerInGroup(mGroupID, GP_NOTICES_SEND | GP_NOTICES_RECEIVE);
@@ -241,7 +241,7 @@ bool LLPanelGroupNotices::postBuild()
 	constexpr bool recurse = true;
 
 	mNoticesList = getChild<LLScrollListCtrl>("notice_list",recurse);
-	mNoticesList->setCommitOnSelectionChange(TRUE);
+	mNoticesList->setCommitOnSelectionChange(true);
 	mNoticesList->setCommitCallback(onSelectNotice, this);
 
 	mBtnNewMessage = getChild<LLButton>("create_new_notice",recurse);
@@ -307,15 +307,15 @@ void LLPanelGroupNotices::activate()
 
 	mPrevSelectedNotice = LLUUID();
 	
-	BOOL can_send = gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_SEND);
-	BOOL can_receive = gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_RECEIVE);
+	bool can_send = gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_SEND);
+	bool can_receive = gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_RECEIVE);
 
 	mPanelViewNotice->setEnabled(can_receive);
 	mPanelCreateNotice->setEnabled(can_send);
 
 	// Always disabled to stop direct editing of attachment names
-	mCreateInventoryName->setEnabled(FALSE);
-	mViewInventoryName->setEnabled(FALSE);
+	mCreateInventoryName->setEnabled(false);
+	mViewInventoryName->setEnabled(false);
 
 	// If we can receive notices, grab them right away.
 	if (can_receive)
@@ -328,10 +328,10 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 {
 	mInventoryItem = inv_item;
 
-	BOOL item_is_multi = FALSE;
+	bool item_is_multi = false;
 	if ( inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
 	{
-		item_is_multi = TRUE;
+		item_is_multi = true;
 	};
 
 	std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
@@ -340,13 +340,13 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 										item_is_multi );
 
 	mCreateInventoryIcon->setValue(icon_name);
-	mCreateInventoryIcon->setVisible(TRUE);
+	mCreateInventoryIcon->setVisible(true);
 
 	std::stringstream ss;
 	ss << "        " << mInventoryItem->getName();
 
 	mCreateInventoryName->setText(ss.str());
-	mBtnRemoveAttachment->setEnabled(TRUE);
+	mBtnRemoveAttachment->setEnabled(true);
 }
 
 void LLPanelGroupNotices::onClickRemoveAttachment(void* data)
@@ -354,8 +354,8 @@ void LLPanelGroupNotices::onClickRemoveAttachment(void* data)
 	LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
 	self->mInventoryItem = NULL;
 	self->mCreateInventoryName->clear();
-	self->mCreateInventoryIcon->setVisible(FALSE);
-	self->mBtnRemoveAttachment->setEnabled(FALSE);
+	self->mCreateInventoryIcon->setVisible(false);
+	self->mBtnRemoveAttachment->setEnabled(false);
 }
 
 //static 
@@ -365,7 +365,7 @@ void LLPanelGroupNotices::onClickOpenAttachment(void* data)
 
 	self->mInventoryOffer->forceResponse(IOR_ACCEPT);
 	self->mInventoryOffer = NULL;
-	self->mBtnOpenAttachment->setEnabled(FALSE);
+	self->mBtnOpenAttachment->setEnabled(false);
 }
 
 void LLPanelGroupNotices::onClickSendMessage(void* data)
@@ -435,7 +435,7 @@ void LLPanelGroupNotices::onClickNewMessage(void* data)
 	self->mCreateSubject->clear();
 	self->mCreateMessage->clear();
 	if (self->mInventoryItem) onClickRemoveAttachment(self);
-	self->mNoticesList->deselectAllItems(TRUE); // TRUE == don't commit on chnage
+	self->mNoticesList->deselectAllItems(true); // true == don't commit on chnage
 }
 
 void LLPanelGroupNotices::refreshNotices()
@@ -507,7 +507,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 	S32 i=0;
 	S32 count = msg->getNumberOfBlocks("Data");
 
-	mNoticesList->setEnabled(TRUE);
+	mNoticesList->setEnabled(true);
 
 	//save sort state and set unsorted state to prevent unnecessary 
 	//sorting while adding notices
@@ -521,7 +521,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		{
 			// Only one entry, the dummy entry.
 			mNoticesList->setCommentText(mNoNoticesStr);
-			mNoticesList->setEnabled(FALSE);
+			mNoticesList->setEnabled(false);
 			return;
 		}
 
@@ -627,19 +627,19 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 												LLInventoryType::IT_TEXTURE);
 
 		mViewInventoryIcon->setValue(icon_name);
-		mViewInventoryIcon->setVisible(TRUE);
+		mViewInventoryIcon->setVisible(true);
 
 		std::stringstream ss;
 		ss << "        " << inventory_name;
 
 		mViewInventoryName->setText(ss.str());
-		mBtnOpenAttachment->setEnabled(TRUE);
+		mBtnOpenAttachment->setEnabled(true);
 	}
 	else
 	{
 		mViewInventoryName->clear();
-		mViewInventoryIcon->setVisible(FALSE);
-		mBtnOpenAttachment->setEnabled(FALSE);
+		mViewInventoryIcon->setVisible(false);
+		mBtnOpenAttachment->setEnabled(false);
 	}
 }
 
@@ -647,14 +647,14 @@ void LLPanelGroupNotices::arrangeNoticeView(ENoticeView view_type)
 {
 	if (CREATE_NEW_NOTICE == view_type)
 	{
-        mPanelCreateNotice->setVisible(TRUE);
-		mPanelViewNotice->setVisible(FALSE);
+        mPanelCreateNotice->setVisible(true);
+		mPanelViewNotice->setVisible(false);
 	}
 	else
 	{
-		mPanelCreateNotice->setVisible(FALSE);
-		mPanelViewNotice->setVisible(TRUE);
-		mBtnOpenAttachment->setEnabled(FALSE);
+		mPanelCreateNotice->setVisible(false);
+		mPanelViewNotice->setVisible(true);
+		mBtnOpenAttachment->setEnabled(false);
 	}
 }
 void LLPanelGroupNotices::setGroupID(const LLUUID& id)

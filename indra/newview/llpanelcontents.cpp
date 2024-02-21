@@ -78,7 +78,7 @@ const char* LLPanelContents::PERMS_ANYONE_CONTROL_KEY = "perms_anyone_control";
 
 bool LLPanelContents::postBuild()
 {
-	setMouseOpaque(FALSE);
+	setMouseOpaque(false);
 
 	childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
 	childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
@@ -105,7 +105,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 {
 	if( !objectp )
 	{
-		getChildView("button new script")->setEnabled(FALSE);
+		getChildView("button new script")->setEnabled(false);
 		return;
 	}
 
@@ -116,7 +116,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 	bool editable = gAgent.isGodlike()
 					|| (objectp->permModify() && !objectp->isPermanentEnforced()
 					       && ( objectp->permYouOwner() || ( !group_id.isNull() && gAgent.isInGroup(group_id) )));  // solves SL-23488
-	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
+	bool all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 
 	// Edit script button - ok if object is editable and there's an unambiguous destination for the object.
 	getChildView("button new script")->setEnabled(
@@ -131,7 +131,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 
 void LLPanelContents::refresh()
 {
-	const BOOL children_ok = TRUE;
+	const bool children_ok = true;
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 
 	getState(object);
@@ -157,7 +157,7 @@ void LLPanelContents::clearContents()
 // static
 void LLPanelContents::onClickNewScript(void *userdata)
 {
-	const BOOL children_ok = TRUE;
+	const bool children_ok = true;
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 	if(object)
 	{
@@ -186,7 +186,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 				LLSaleInfo::DEFAULT,
 				LLInventoryItemFlags::II_FLAGS_NONE,
 				time_corrected());
-		object->saveScript(new_item, TRUE, true);
+		object->saveScript(new_item, true, true);
 
 		std::string name = new_item->getName();
 

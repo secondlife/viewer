@@ -136,7 +136,7 @@ public:
 	void stop() { mEventTimer.stop(); }
 	void start() { mEventTimer.start(); }
 	void reset() { mEventTimer.reset(); }
-	BOOL getStarted() { return mEventTimer.getStarted(); }
+	bool getStarted() { return mEventTimer.getStarted(); }
 
 	LLTimer&  getEventTimer() { return mEventTimer;}
 };
@@ -1731,7 +1731,7 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx collector(/*is_worn=*/ true, /*include_body_parts=*/ false);
 
-	gInventory.collectDescendentsIf(cat_id, cats, items, FALSE, collector);
+	gInventory.collectDescendentsIf(cat_id, cats, items, false, collector);
 
 	LLInventoryModel::item_array_t::const_iterator it = items.begin();
 	const LLInventoryModel::item_array_t::const_iterator it_end = items.end();
@@ -1914,7 +1914,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 	}
 }
 
-BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
+bool LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
 {
 	// These are the wearable items that are required for considering this
 	// folder as containing a complete outfit.
@@ -1941,7 +1941,7 @@ BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
 		}
 	}
 
-	// If the folder contains the required wearables, return TRUE.
+	// If the folder contains the required wearables, return true.
 	return ((required_wearables & folder_wearables) == required_wearables);
 }
 
@@ -2904,7 +2904,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 	}
 
-	LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
+	LLAppearanceMgr::changeOutfit(true, category->getUUID(), append);
 }
 
 // FIXME do we really want to search entire inventory for matching name?
@@ -4390,31 +4390,31 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 	mAttachmentsChangeSignal();
 }
 
-BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
+bool LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 {
 	const LLUUID& cof = getCOF();
 	if (obj_id == cof)
-		return TRUE;
+		return true;
 	const LLInventoryObject* obj = gInventory.getObject(obj_id);
 	if (obj && obj->getParentUUID() == cof)
-		return TRUE;
-	return FALSE;
+		return true;
+	return false;
 }
 
-BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
+bool LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 {
-	if (!getIsInCOF(obj_id)) return FALSE;
+	if (!getIsInCOF(obj_id)) return false;
 
 	// If a non-link somehow ended up in COF, allow deletion.
 	const LLInventoryObject *obj = gInventory.getObject(obj_id);
 	if (obj && !obj->getIsLinkType())
 	{
-		return FALSE;
+		return false;
 	}
 
 	// For now, don't allow direct deletion from the COF.  Instead, force users
 	// to choose "Detach" or "Take Off".
-	return TRUE;
+	return true;
 }
 
 class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver
@@ -4725,7 +4725,7 @@ public:
 				LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
 				
 				// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
-				gAgent.setOutfitChosen(TRUE);
+				gAgent.setOutfitChosen(true);
 			}
 		}
 

@@ -62,7 +62,7 @@ public:
     LLToggleableMenu* getSortingMenu() override;
     LLToggleableMenu* getCreateMenu() override;
 
-    bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override { return false; }
+    bool handleDragAndDropToTrash(bool drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override { return false; }
 
 private:
 

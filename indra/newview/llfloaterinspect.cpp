@@ -47,7 +47,7 @@
 
 LLFloaterInspect::LLFloaterInspect(const LLSD& key)
   : LLFloater(key),
-	mDirty(FALSE),
+	mDirty(false),
 	mOwnerNameCacheConnection(),
 	mCreatorNameCacheConnection()
 {
@@ -89,13 +89,13 @@ LLFloaterInspect::~LLFloaterInspect(void)
 	}
 	else
 	{
-		LLFloaterReg::showInstance("build", LLSD(), TRUE);
+		LLFloaterReg::showInstance("build", LLSD(), true);
 	}
 }
 
 void LLFloaterInspect::onOpen(const LLSD& key)
 {
-	BOOL forcesel = LLSelectMgr::getInstance()->setForceSelection(TRUE);
+	bool forcesel = LLSelectMgr::getInstance()->setForceSelection(true);
 	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
 	LLSelectMgr::getInstance()->setForceSelection(forcesel);	// restore previouis value
 	mObjectSelection = LLSelectMgr::getInstance()->getSelection();
@@ -345,7 +345,7 @@ void LLFloaterInspect::draw()
 	if (mDirty)
 	{
 		refresh();
-		mDirty = FALSE;
+		mDirty = false;
 	}
 
 	LLFloater::draw();

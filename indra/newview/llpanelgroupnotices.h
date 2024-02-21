@@ -51,7 +51,7 @@ public:
 	//virtual void update();
 	
 	virtual bool postBuild();
-	virtual BOOL isVisibleByAgent(LLAgent* agentp);
+	virtual bool isVisibleByAgent(LLAgent* agentp);
 
 	void setItem(LLPointer<LLInventoryItem> inv_item);
 

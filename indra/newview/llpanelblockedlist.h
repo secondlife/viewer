@@ -72,7 +72,7 @@ private:
 
 	// List commnads
 	void onCustomAction(const LLSD& userdata);
-	BOOL isActionChecked(const LLSD& userdata);
+	bool isActionChecked(const LLSD& userdata);
 
 	void callbackBlockPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 	static void callbackBlockByName(const std::string& text);

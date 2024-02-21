@@ -105,7 +105,7 @@ public:
 protected:
 	void refresh();
 
-	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos = ADD_BOTTOM);
+	void addNewItem(const LLUUID& id, const std::string& name, bool is_online, EAddPosition pos = ADD_BOTTOM);
 	void computeDifference(
 		const uuid_vec_t& vnew,
 		uuid_vec_t& vadded,

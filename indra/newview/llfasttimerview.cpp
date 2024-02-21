@@ -67,7 +67,7 @@ static constexpr S32 NUM_FRAMES_HISTORY = 200;
 
 std::vector<BlockTimerStatHandle*> ft_display_idx; // line of table entry for display purposes (for collapse)
 
-BOOL LLFastTimerView::sAnalyzePerformance = FALSE;
+bool LLFastTimerView::sAnalyzePerformance = false;
 
 S32 get_depth(const BlockTimerStatHandle* blockp)
 {
@@ -238,7 +238,7 @@ bool LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 								MAX_VISIBLE_HISTORY);
 		if (mHoverBarIndex == 0)
 		{
-			return TRUE;
+			return true;
 		}
 		else if (mHoverBarIndex < 0)
 		{
@@ -440,7 +440,7 @@ void LLFastTimerView::onOpen(const LLSD& key)
 										
 void LLFastTimerView::onClose(bool app_quitting)
 {
-	setVisible(FALSE);
+	setVisible(false);
 }
 
 void saveChart(const std::string& label, const char* suffix, LLImageRaw* scratch)
@@ -1276,7 +1276,7 @@ void LLFastTimerView::drawLegend()
 			}
 
 			x += dx;
-			BOOL is_child_of_hover_item = (idp == mHoverID);
+			bool is_child_of_hover_item = (idp == mHoverID);
 			BlockTimerStatHandle* next_parent = idp->getParent();
 			while(!is_child_of_hover_item && next_parent)
 			{
@@ -1385,31 +1385,31 @@ void LLFastTimerView::drawBorders( S32 y, const S32 x_start, S32 bar_height, S32
 		S32 by = y + 6 + (S32)LLFontGL::getFontMonospace()->getLineHeight();	
 
 		//heading
-		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, y+5, LLColor4::grey, FALSE);
+		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, y+5, LLColor4::grey, false);
 
 		//tree view
-		gl_rect_2d(5, by, x_start-10, 5, LLColor4::grey, FALSE);
+		gl_rect_2d(5, by, x_start-10, 5, LLColor4::grey, false);
 
 		by = y + 5;
 		//average bar
-		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, by-bar_height-dy-5, LLColor4::grey, FALSE);
+		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, by-bar_height-dy-5, LLColor4::grey, false);
 
 		by -= bar_height*2+dy;
 
 		//current frame bar
-		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, by-bar_height-dy-2, LLColor4::grey, FALSE);
+		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, by-bar_height-dy-2, LLColor4::grey, false);
 
 		by -= bar_height+dy+1;
 
 		//history bars
-		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, LINE_GRAPH_HEIGHT-bar_height-dy-2, LLColor4::grey, FALSE);			
+		gl_rect_2d(x_start-5, by, getRect().getWidth()-5, LINE_GRAPH_HEIGHT-bar_height-dy-2, LLColor4::grey, false);			
 
 		by = LINE_GRAPH_HEIGHT-dy;
 
 		//line graph
 		//mGraphRect = LLRect(x_start-5, by, getRect().getWidth()-5, 5);
 
-		gl_rect_2d(mGraphRect, FALSE);
+		gl_rect_2d(mGraphRect, false);
 	}
 }
 

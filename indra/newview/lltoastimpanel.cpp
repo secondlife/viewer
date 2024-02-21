@@ -76,10 +76,10 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 		mMessage->clear();
 		
 		style_params.font.style ="ITALIC";
-		mMessage->appendText(p.from, FALSE, style_params);
+		mMessage->appendText(p.from, false, style_params);
 
 		style_params.font.style = "ITALIC";
-		mMessage->appendText(p.message.substr(3), FALSE, style_params);
+		mMessage->appendText(p.message.substr(3), false, style_params);
 	}
 	else
 	{
@@ -119,7 +119,7 @@ LLToastIMPanel::~LLToastIMPanel()
 //virtual
 bool LLToastIMPanel::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (LLPanel::handleMouseUp(x,y,mask) == FALSE)
+	if (LLPanel::handleMouseUp(x,y,mask) == false)
 	{
 		mNotification->respond(mNotification->getResponseTemplate());
 	}
@@ -162,11 +162,11 @@ void LLToastIMPanel::spawnNameToolTip()
 	params.background_visible(false);
 	if(!mIsGroupMsg)
 	{
-	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", mAvatarID), FALSE));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_avatar", LLSD().with("avatar_id", mAvatarID), false));
 	}
 	else
 	{
-		params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_group", LLSD().with("group_id", mSessionID), FALSE));
+		params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_group", LLSD().with("group_id", mSessionID), false));
 	}
 	params.delay_time(0.0f);		// spawn instantly on hover
 	params.image(LLUI::getUIImage("Info_Small"));
@@ -192,7 +192,7 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 
 	LLInspector::Params params;
 	params.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_group", LLSD().with("group_id", mSessionID), FALSE));
+	params.click_callback(boost::bind(&LLFloaterReg::showInstance, "inspect_group", LLSD().with("group_id", mSessionID), false));
 	params.delay_time(0.100f);
 	params.image(LLUI::getUIImage("Info_Small"));
 	params.message(g_data.mName);
@@ -205,9 +205,9 @@ void LLToastIMPanel::spawnGroupIconToolTip()
 
 void LLToastIMPanel::initIcon()
 {
-	mAvatarIcon->setVisible(FALSE);
-	mGroupIcon->setVisible(FALSE);
-	mAdhocIcon->setVisible(FALSE);
+	mAvatarIcon->setVisible(false);
+	mGroupIcon->setVisible(false);
+	mAdhocIcon->setVisible(false);
 
 	if(mAvatarName->getValue().asString() == SYSTEM_FROM)
 	{
@@ -227,15 +227,15 @@ void LLToastIMPanel::initIcon()
 		switch(im_session->mSessionType)
 		{
 		case LLIMModel::LLIMSession::P2P_SESSION:
-			mAvatarIcon->setVisible(TRUE);
+			mAvatarIcon->setVisible(true);
 			mAvatarIcon->setValue(mAvatarID);
 			break;
 		case LLIMModel::LLIMSession::GROUP_SESSION:
-			mGroupIcon->setVisible(TRUE);
+			mGroupIcon->setVisible(true);
 			mGroupIcon->setValue(mSessionID);
 			break;
 		case LLIMModel::LLIMSession::ADHOC_SESSION:
-			mAdhocIcon->setVisible(TRUE);
+			mAdhocIcon->setVisible(true);
 			mAdhocIcon->setValue(im_session->mOtherParticipantID);
 			mAdhocIcon->setToolTip(im_session->mName);
 			break;

@@ -305,10 +305,10 @@ public:
 	// return true if there are no embedded items.
 	bool empty();
 	
-	BOOL	insertEmbeddedItem(LLInventoryItem* item, llwchar* value, bool is_new);
-	BOOL	removeEmbeddedItem( llwchar ext_char );
+	bool	insertEmbeddedItem(LLInventoryItem* item, llwchar* value, bool is_new);
+	bool	removeEmbeddedItem( llwchar ext_char );
 
-	BOOL	hasEmbeddedItem(llwchar ext_char); // returns TRUE if /this/ editor has an entry for this item
+	bool	hasEmbeddedItem(llwchar ext_char); // returns true if /this/ editor has an entry for this item
 	LLUIImagePtr getItemImage(llwchar ext_char) const;
 
 	void	getEmbeddedItemList( std::vector<LLPointer<LLInventoryItem> >& items );
@@ -323,14 +323,14 @@ public:
 	void	markSaved();
 	
 	static LLPointer<LLInventoryItem> getEmbeddedItemPtr(llwchar ext_char); // returns pointer to item from static list
-	static BOOL getEmbeddedItemSaved(llwchar ext_char); // returns whether item from static list is saved
+	static bool getEmbeddedItemSaved(llwchar ext_char); // returns whether item from static list is saved
 
 private:
 
 	struct embedded_info_t
 	{
 		LLPointer<LLInventoryItem> mItemPtr;
-		BOOL mSaved;
+		bool mSaved;
 	};
 	typedef std::map<llwchar, embedded_info_t > item_map_t;
 	static item_map_t sEntries;
@@ -375,7 +375,7 @@ bool LLEmbeddedItems::empty()
 }
 
 // Inserts a new unique entry
-BOOL LLEmbeddedItems::insertEmbeddedItem( LLInventoryItem* item, llwchar* ext_char, bool is_new)
+bool LLEmbeddedItems::insertEmbeddedItem( LLInventoryItem* item, llwchar* ext_char, bool is_new)
 {
 	// Now insert a new one
 	llwchar wc_emb;
@@ -395,20 +395,20 @@ BOOL LLEmbeddedItems::insertEmbeddedItem( LLInventoryItem* item, llwchar* ext_ch
 		wc_emb = last->first;
 		if (wc_emb >= LLTextEditor::LAST_EMBEDDED_CHAR)
 		{
-			return FALSE;
+			return false;
 		}
 		++wc_emb;
 	}
 
 	sEntries[wc_emb].mItemPtr = item;
-	sEntries[wc_emb].mSaved = is_new ? FALSE : TRUE;
+	sEntries[wc_emb].mSaved = is_new ? false : true;
 	*ext_char = wc_emb;
 	mEmbeddedUsedChars.insert(wc_emb);
-	return TRUE;
+	return true;
 }
 
 // Removes an entry (all entries are unique)
-BOOL LLEmbeddedItems::removeEmbeddedItem( llwchar ext_char )
+bool LLEmbeddedItems::removeEmbeddedItem( llwchar ext_char )
 {
 	mEmbeddedUsedChars.erase(ext_char);
 	item_map_t::iterator iter = sEntries.find(ext_char);
@@ -416,9 +416,9 @@ BOOL LLEmbeddedItems::removeEmbeddedItem( llwchar ext_char )
 	{
 		sEntries.erase(ext_char);
 		sFreeEntries.push(ext_char);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 	
 // static
@@ -436,7 +436,7 @@ LLPointer<LLInventoryItem> LLEmbeddedItems::getEmbeddedItemPtr(llwchar ext_char)
 }
 
 // static
-BOOL LLEmbeddedItems::getEmbeddedItemSaved(llwchar ext_char)
+bool LLEmbeddedItems::getEmbeddedItemSaved(llwchar ext_char)
 {
 	if( ext_char >= LLTextEditor::FIRST_EMBEDDED_CHAR && ext_char <= LLTextEditor::LAST_EMBEDDED_CHAR )
 	{
@@ -446,7 +446,7 @@ BOOL LLEmbeddedItems::getEmbeddedItemSaved(llwchar ext_char)
 			return iter->second.mSaved;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 llwchar	LLEmbeddedItems::getEmbeddedCharFromIndex(S32 index)
@@ -514,14 +514,14 @@ S32 LLEmbeddedItems::getIndexFromEmbeddedChar(llwchar wch)
 	}
 }
 
-BOOL LLEmbeddedItems::hasEmbeddedItem(llwchar ext_char)
+bool LLEmbeddedItems::hasEmbeddedItem(llwchar ext_char)
 {
 	std::set<llwchar>::iterator iter = mEmbeddedUsedChars.find(ext_char);
 	if (iter != mEmbeddedUsedChars.end())
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
@@ -606,7 +606,7 @@ void LLEmbeddedItems::markSaved()
 	for (std::set<llwchar>::iterator iter = mEmbeddedUsedChars.begin(); iter != mEmbeddedUsedChars.end(); ++iter)
 	{
 		llwchar wc = *iter;
-		sEntries[wc].mSaved = TRUE;
+		sEntries[wc].mSaved = true;
 	}
 }
 
@@ -616,7 +616,7 @@ class LLViewerTextEditor::TextCmdInsertEmbeddedItem : public LLTextBase::TextCmd
 {
 public:
 	TextCmdInsertEmbeddedItem( S32 pos, LLInventoryItem* item )
-		: TextCmd(pos, FALSE), 
+		: TextCmd(pos, false), 
 		  mExtCharValue(0)
 	{
 		mItem = item;
@@ -682,7 +682,7 @@ struct LLNotecardCopyInfo
 LLViewerTextEditor::LLViewerTextEditor(const LLViewerTextEditor::Params& p)
 :	LLTextEditor(p),
 	mDragItemChar(0),
-	mDragItemSaved(FALSE),
+	mDragItemSaved(false),
 	mInventoryCallback(new LLEmbeddedNotecardOpener)
 {
 	mEmbeddedItemList = new LLEmbeddedItems(this);
@@ -723,7 +723,7 @@ bool LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		if( allowsEmbeddedItems() )
 		{
-			setCursorAtLocalPos( x, y, FALSE );
+			setCursorAtLocalPos( x, y, false );
 			llwchar wc = 0;
 			if (mCursorPos < getLength())
 			{
@@ -745,7 +745,7 @@ bool LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 				if (hasTabStop())
 				{
-					setFocus( TRUE );
+					setFocus( true );
 				}
 
 				handled = true;
@@ -837,14 +837,14 @@ bool LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		if( allowsEmbeddedItems() )
 		{
-			S32 doc_index = getDocIndexFromLocalCoord(x, y, FALSE);
+			S32 doc_index = getDocIndexFromLocalCoord(x, y, false);
 			llwchar doc_char = getWText()[doc_index];
 			if (mEmbeddedItemList->hasEmbeddedItem(doc_char))
 			{
 				if( openEmbeddedItemAtPos( doc_index ))
 				{
 					deselect();
-					setFocus( FALSE );
+					setFocus( false );
 					return true;
 				}
 			}
@@ -918,10 +918,10 @@ bool LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 				{
 					deselect();
 					S32 old_cursor = mCursorPos;
-					setCursorAtLocalPos( x, y, TRUE );
+					setCursorAtLocalPos( x, y, true );
 					S32 insert_pos = mCursorPos;
 					setCursorPos(old_cursor);
-					BOOL inserted = insertEmbeddedItem( insert_pos, item );
+					bool inserted = insertEmbeddedItem( insert_pos, item );
 					if( inserted && (old_cursor > mCursorPos) )
 					{
 						setCursorPos(mCursorPos + 1);
@@ -1099,7 +1099,7 @@ void LLViewerTextEditor::findEmbeddedItemSegments(S32 start, S32 end)
 	}
 }
 
-BOOL LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
+bool LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
 {
 	if( pos < getLength())
 	{
@@ -1107,7 +1107,7 @@ BOOL LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
 		LLPointer<LLInventoryItem> item = LLEmbeddedItems::getEmbeddedItemPtr( wc );
 		if( item )
 		{
-			BOOL saved = LLEmbeddedItems::getEmbeddedItemSaved( wc );
+			bool saved = LLEmbeddedItems::getEmbeddedItemSaved( wc );
 			if (saved)
 			{
 				return openEmbeddedItem(item, wc); 
@@ -1118,36 +1118,36 @@ BOOL LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 
-BOOL LLViewerTextEditor::openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc)
+bool LLViewerTextEditor::openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc)
 {
 
 	switch( item->getType() )
 	{
 		case LLAssetType::AT_TEXTURE:
 			openEmbeddedTexture( item, wc );
-			return TRUE;
+			return true;
 
 		case LLAssetType::AT_SOUND:
 			openEmbeddedSound( item, wc );
-			return TRUE;
+			return true;
 
 		case LLAssetType::AT_LANDMARK:
 			openEmbeddedLandmark( item, wc );
-			return TRUE;
+			return true;
 
 		case LLAssetType::AT_CALLINGCARD:
 			openEmbeddedCallingcard( item, wc );
-			return TRUE;
+			return true;
 		case LLAssetType::AT_SETTINGS:
 			openEmbeddedSetting(item, wc);
-			return TRUE;
+			return true;
         case LLAssetType::AT_MATERIAL:
             openEmbeddedGLTFMaterial(item, wc);
-            return TRUE;
+            return true;
 		case LLAssetType::AT_NOTECARD:
 		case LLAssetType::AT_LSL_TEXT:
 		case LLAssetType::AT_CLOTHING:
@@ -1156,9 +1156,9 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLPointer<LLInventoryItem> item, llwch
 		case LLAssetType::AT_ANIMATION:
 		case LLAssetType::AT_GESTURE:
 			showCopyToInvDialog( item, wc );
-			return TRUE;
+			return true;
 		default:
-			return FALSE;
+			return false;
 	}
 
 }
@@ -1254,7 +1254,7 @@ void LLViewerTextEditor::openEmbeddedGLTFMaterial(LLInventoryItem* item, llwchar
         preview->setAuxItem(item);
         preview->setNotecardInfo(mNotecardInventoryID, mObjectID);
         preview->openFloater(floater_key);
-        preview->setFocus(TRUE);
+        preview->setFocus(true);
     }
 }
 

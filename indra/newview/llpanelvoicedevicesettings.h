@@ -61,7 +61,7 @@ protected:
 	std::string mOutputDevice;
 	class LLComboBox		*mCtrlInputDevices;
 	class LLComboBox		*mCtrlOutputDevices;
-	BOOL mDevicesUpdated;
+	bool mDevicesUpdated;
 	bool mUseTuningMode;
 	std::map<std::string, std::string> mLocalizedDeviceNames;
 };

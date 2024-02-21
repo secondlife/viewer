@@ -95,7 +95,7 @@ void LLPanelMediaSettingsPermissions::draw()
 
 	getChild<LLUICtrl>("perms_group_name")->setValue(LLStringUtil::null);
 	LLUUID group_id;
-	BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
+	bool groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 	if (groups_identical)
 	{
 		if(mPermsGroupName)
@@ -107,7 +107,7 @@ void LLPanelMediaSettingsPermissions::draw()
 	{
 		if(mPermsGroupName)
 		{
-			mPermsGroupName->setNameID(LLUUID::null, TRUE);
+			mPermsGroupName->setNameID(LLUUID::null, true);
 			mPermsGroupName->refresh(LLUUID::null, std::string(), true);
 		}
 	}

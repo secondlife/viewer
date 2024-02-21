@@ -60,10 +60,10 @@ bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
 		   || (item->getType() == LLAssetType::AT_OBJECT)
 		   || (item->getType() == LLAssetType::AT_GESTURE))
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -490,7 +490,7 @@ bool LLPanelDummyClothingListItem::postBuild()
 {
 	addWidgetToRightSide("btn_add_panel");
 
-	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
+	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, false));
 	updateItem(wearableTypeToString(mWearableType));
 
 	// Make it look loke clothing item - reserve space for 'delete' button
@@ -1049,8 +1049,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);
 	setMenuItemVisible(menu, "object_profile",		!standalone);
 	setMenuItemEnabled(menu, "object_profile",		n_items == 1);
-	setMenuItemVisible(menu, "--no options--", 		FALSE);
-	setMenuItemEnabled(menu, "--no options--",		FALSE);
+	setMenuItemVisible(menu, "--no options--", 		false);
+	setMenuItemEnabled(menu, "--no options--",		false);
 
 	// Populate or hide the "Attach to..." / "Attach to HUD..." submenus.
 	if (mask == MASK_ATTACHMENT && n_worn == 0)
@@ -1079,7 +1079,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	}
 	if (num_visible_items == 0)
 	{
-		setMenuItemVisible(menu, "--no options--", TRUE);
+		setMenuItemVisible(menu, "--no options--", true);
 	}
 }
 
@@ -1099,8 +1099,8 @@ void LLWearableItemsList::ContextMenu::updateItemsLabels(LLContextMenu* menu)
 	menu_item->setLabel(new_label);
 }
 
-// We need this method to convert non-zero BOOL values to exactly 1 (TRUE).
-// Otherwise code relying on a BOOL value being TRUE may fail
+// We need this method to convert non-zero bool values to exactly 1 (true).
+// Otherwise code relying on a bool value being true may fail
 // (I experienced a weird assert in LLView::drawChildren() because of that.
 // static
 void LLWearableItemsList::ContextMenu::setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val)

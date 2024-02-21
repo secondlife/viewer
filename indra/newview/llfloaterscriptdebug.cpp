@@ -55,9 +55,9 @@ LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
 {
 	// avoid resizing of the window to match 
 	// the initial size of the tabbed-childs, whenever a tab is opened or closed
-	mAutoResize = FALSE;
+	mAutoResize = false;
 	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
-	setAutoFocus(FALSE);
+	setAutoFocus(false);
 }
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
@@ -140,12 +140,12 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 		{
 			if (isAgentAvatarValid())
 			{
-				((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+				((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, true, LLGLTexture::BOOST_UI));
 			}
 		}
 		else
 		{
-			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, true, LLGLTexture::BOOST_UI));
 		}
 		floater_label = llformat("%s(%.0f, %.0f, %.0f)",
 						user_name.c_str(),

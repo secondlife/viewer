@@ -89,11 +89,11 @@ LLChatBar::LLChatBar()
 	mInputEditor(NULL),
 	mGestureLabelTimer(),
 	mLastSpecialChatChannel(0),
-	mIsBuilt(FALSE),
+	mIsBuilt(false),
 	mGestureCombo(NULL),
 	mObserver(NULL)
 {
-	//setIsChrome(TRUE);
+	//setIsChrome(true);
 }
 
 
@@ -118,16 +118,16 @@ bool LLChatBar::postBuild()
 	mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke, this);
 	mInputEditor->setFocusLostCallback(boost::bind(&LLChatBar::onInputEditorFocusLost));
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLChatBar::onInputEditorGainFocus));
-	mInputEditor->setCommitOnFocusLost( FALSE );
-	mInputEditor->setRevertOnEsc( FALSE );
-	mInputEditor->setIgnoreTab(TRUE);
-	mInputEditor->setPassDelete(TRUE);
-	mInputEditor->setReplaceNewlinesWithSpaces(FALSE);
+	mInputEditor->setCommitOnFocusLost( false );
+	mInputEditor->setRevertOnEsc( false );
+	mInputEditor->setIgnoreTab(true);
+	mInputEditor->setPassDelete(true);
+	mInputEditor->setReplaceNewlinesWithSpaces(false);
 
 	mInputEditor->setMaxTextLength(DB_CHAT_MSG_STR_LEN);
-	mInputEditor->setEnableLineHistory(TRUE);
+	mInputEditor->setEnableLineHistory(true);
 
-	mIsBuilt = TRUE;
+	mIsBuilt = true;
 
 	return true;
 }
@@ -199,7 +199,7 @@ void LLChatBar::refreshGestures()
 		mGestureCombo->clearRows();
 
 		// collect list of unique gestures
-		std::map <std::string, BOOL> unique;
+		std::map <std::string, bool> unique;
 		LLGestureMgr::item_map_t::const_iterator it;
 		const LLGestureMgr::item_map_t& active_gestures = LLGestureMgr::instance().getActiveGestures();
 		for (it = active_gestures.begin(); it != active_gestures.end(); ++it)
@@ -209,13 +209,13 @@ void LLChatBar::refreshGestures()
 			{
 				if (!gesture->mTrigger.empty())
 				{
-					unique[gesture->mTrigger] = TRUE;
+					unique[gesture->mTrigger] = true;
 				}
 			}
 		}
 
 		// add unique gestures
-		std::map <std::string, BOOL>::iterator it2;
+		std::map <std::string, bool>::iterator it2;
 		for (it2 = unique.begin(); it2 != unique.end(); ++it2)
 		{
 			mGestureCombo->addSimpleElement((*it2).first);
@@ -238,13 +238,13 @@ void LLChatBar::refreshGestures()
 }
 
 // Move the cursor to the correct input field.
-void LLChatBar::setKeyboardFocus(BOOL focus)
+void LLChatBar::setKeyboardFocus(bool focus)
 {
 	if (focus)
 	{
 		if (mInputEditor)
 		{
-			mInputEditor->setFocus(TRUE);
+			mInputEditor->setFocus(true);
 			mInputEditor->selectAll();
 		}
 	}
@@ -254,13 +254,13 @@ void LLChatBar::setKeyboardFocus(BOOL focus)
 		{
 			mInputEditor->deselect();
 		}
-		setFocus(FALSE);
+		setFocus(false);
 	}
 }
 
 
 // Ignore arrow keys in chat bar
-void LLChatBar::setIgnoreArrowKeys(BOOL b)
+void LLChatBar::setIgnoreArrowKeys(bool b)
 {
 	if (mInputEditor)
 	{
@@ -268,7 +268,7 @@ void LLChatBar::setIgnoreArrowKeys(BOOL b)
 	}
 }
 
-BOOL LLChatBar::inputEditorHasFocus()
+bool LLChatBar::inputEditorHasFocus()
 {
 	return mInputEditor && mInputEditor->hasFocus();
 }
@@ -409,14 +409,14 @@ void LLChatBar::startChat(const char* line)
 	//TODO* remove DUMMY chat
 	//if(gBottomTray && gBottomTray->getChatBox())
 	//{
-	//	gBottomTray->setVisible(TRUE);
-	//	gBottomTray->getChatBox()->setFocus(TRUE);
+	//	gBottomTray->setVisible(true);
+	//	gBottomTray->getChatBox()->setFocus(true);
 	//}
 
 	// *TODO Vadim: Why was this code commented out?
 
-// 	gChatBar->setVisible(TRUE);
-// 	gChatBar->setKeyboardFocus(TRUE);
+// 	gChatBar->setVisible(true);
+// 	gChatBar->setKeyboardFocus(true);
 // 	gSavedSettings.setBOOL("ChatVisible", true);
 // 
 // 	if (line && gChatBar->mInputEditor)
@@ -436,13 +436,13 @@ void LLChatBar::stopChat()
 	//TODO* remove DUMMY chat
 	//if(gBottomTray && gBottomTray->getChatBox())
 	///{
-	//	gBottomTray->getChatBox()->setFocus(FALSE);
+	//	gBottomTray->getChatBox()->setFocus(false);
 	//}
 
 	// *TODO Vadim: Why was this code commented out?
 
 // 	// In simple UI mode, we never release focus from the chat bar
-// 	gChatBar->setKeyboardFocus(FALSE);
+// 	gChatBar->setKeyboardFocus(false);
 // 
 // 	// If we typed a movement key and pressed return during the
 // 	// same frame, the keyboard handlers will see the key as having
@@ -454,7 +454,7 @@ void LLChatBar::stopChat()
 // 	gAgent.stopTyping();
 // 
 // 	// hide chat bar so it doesn't grab focus back
-// 	gChatBar->setVisible(FALSE);
+// 	gChatBar->setVisible(false);
 // 	gSavedSettings.setBOOL("ChatVisible", false);
 }
 
@@ -557,12 +557,12 @@ void LLChatBar::onClickSay( LLUICtrl* ctrl )
 	sendChat(chat_type);
 }
 
-void LLChatBar::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
+void LLChatBar::sendChatFromViewer(const std::string &utf8text, EChatType type, bool animate)
 {
 	sendChatFromViewer(utf8str_to_wstring(utf8text), type, animate);
 }
 
-void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate)
+void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, bool animate)
 {
 	// as soon as we say something, we no longer care about teaching the user
 	// how to chat
@@ -641,13 +641,13 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
 		if (!revised_text.empty())
 		{
 			// Don't play nodding animation
-			sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, FALSE);
+			sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, false);
 		}
 	}
 	mGestureLabelTimer.start();
 	if (mGestureCombo != NULL)
 	{
 		// free focus back to chat bar
-		mGestureCombo->setFocus(FALSE);
+		mGestureCombo->setFocus(false);
 	}
 }

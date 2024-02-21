@@ -75,7 +75,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 	mInputPanels(NULL),
 	mChatLayoutPanelHeight(0)
 {
-    setAutoFocus(FALSE);
+    setAutoFocus(false);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
@@ -536,7 +536,7 @@ void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* p
 		mConversationsWidgets[uuid] = participant_view;
 		participant_view->addToFolder(mConversationsRoot);
 		participant_view->addToSession(mSessionID);
-		participant_view->setVisible(TRUE);
+		participant_view->setVisible(true);
 	}
 }
 
@@ -581,7 +581,7 @@ void LLFloaterIMSessionTab::refreshConversation()
         if (widget_it->second->getViewModelItem())
         {
             widget_it->second->refresh();
-            widget_it->second->setVisible(TRUE);
+            widget_it->second->setVisible(true);
         }
 		++widget_it;
 	}
@@ -826,7 +826,7 @@ void LLFloaterIMSessionTab::forceReshape()
 
 void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 {
-	mChatLayoutPanel->reshape(mChatLayoutPanel->getRect().getWidth(), mInputEditor->getRect().getHeight() + mInputEditorPad, FALSE);
+	mChatLayoutPanel->reshape(mChatLayoutPanel->getRect().getWidth(), mInputEditor->getRect().getHeight() + mInputEditorPad, false);
 }
 
 // static
@@ -987,7 +987,7 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 
 	mInputButtonPanel->setVisible(isTornOff());
 
-	setFocus(TRUE);
+	setFocus(true);
 }
 
 

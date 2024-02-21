@@ -71,7 +71,7 @@ bool LLPanelMarketplaceListings::postBuild()
     mFilterEditor->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onFilterEdit, this, _2));
     
     mAuditBtn = getChild<LLButton>("audit_btn");
-    mAuditBtn->setEnabled(FALSE);
+    mAuditBtn->setEnabled(false);
     
     return LLPanel::postBuild();
 }
@@ -189,7 +189,7 @@ void LLPanelMarketplaceListings::draw()
 	LLPanel::draw();
 }
 
-void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action)
+void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, bool user_action)
 {
 	panel->onSelectionChange(items, user_action);
 }
@@ -250,8 +250,8 @@ void LLPanelMarketplaceListings::onAddButtonClicked()
         if (panel)
         {
             gInventory.notifyObservers();
-            panel->setSelectionByID(new_cat_id, TRUE);
-            panel->getRootFolder()->setNeedsAutoRename(TRUE);
+            panel->setSelectionByID(new_cat_id, true);
+            panel->getRootFolder()->setNeedsAutoRename(true);
         }
     }
     );
@@ -603,7 +603,7 @@ void LLFloaterMarketplaceListings::updateView()
     {
         // Just show the loading indicator in that case and fetch the data (fetch will be skipped if it's already loading)
         mInventoryInitializationInProgress->setVisible(true);
-        mPanelListings->setVisible(FALSE);
+        mPanelListings->setVisible(false);
         fetchContents();
         return;
     }
@@ -620,13 +620,13 @@ void LLFloaterMarketplaceListings::updateView()
             // We need to rebuild the tabs cleanly the first time we make them visible
             setPanels();
         }
-		mPanelListings->setVisible(TRUE);
-		mInventoryPlaceholder->setVisible(FALSE);
+		mPanelListings->setVisible(true);
+		mInventoryPlaceholder->setVisible(false);
 	}
 	else
 	{
-        mPanelListings->setVisible(FALSE);
-		mInventoryPlaceholder->setVisible(TRUE);
+        mPanelListings->setVisible(false);
+		mInventoryPlaceholder->setVisible(true);
 		
         std::string text;
         std::string title;
@@ -711,7 +711,7 @@ bool LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, bo
     
     // Pass to the children
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	BOOL handled = (handled_view != NULL);
+	bool handled = (handled_view != NULL);
     
 	// If no one handled it or it was not accepted and we drop on an empty panel, we try to accept it at the floater level
     // as if it was dropped on the marketplace listings root folder
@@ -778,7 +778,7 @@ LLFloaterAssociateListing::~LLFloaterAssociateListing()
 
 bool LLFloaterAssociateListing::postBuild()
 {
-	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, TRUE));
+	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, true));
 	getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
 	getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLTextValidate::validateNonNegativeS32);
 	center();
@@ -818,11 +818,11 @@ void LLFloaterAssociateListing::callback_apply(const LLSD& notification, const L
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0) // YES
     {
-        apply(FALSE);
+        apply(false);
     }
 }
 
-void LLFloaterAssociateListing::apply(BOOL user_confirm)
+void LLFloaterAssociateListing::apply(bool user_confirm)
 {
 	if (mUUID.notNull())
 	{

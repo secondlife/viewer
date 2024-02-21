@@ -99,9 +99,9 @@ private:
     void onSortingMenuClick();
     void onAddMenuClick();
     void onRemoveButtonClicked();
-    bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept);
+    bool handleDragAndDropToTrash(bool drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept);
 
-	void togglePlaceInfoPanel(BOOL visible);
+	void togglePlaceInfoPanel(bool visible);
 
 	/*virtual*/ void onVisibilityChange(bool new_visibility);
 

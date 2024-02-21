@@ -284,7 +284,7 @@ void LLConversationViewSession::draw()
 	getViewModelItem()->update();
 
 	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+	const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
 
 	// Indicate that flash can start (moot operation if already started, done or not flashing)
 	startFlashing();
@@ -444,7 +444,7 @@ void LLConversationViewSession::toggleCollapsedMode(bool is_collapsed)
 	mItemPanel->translate(mCollapsedMode ? -h_pad : h_pad, 0);
 }
 
-void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
+void LLConversationViewSession::setVisibleIfDetached(bool visible)
 {
 	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
 	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
@@ -651,7 +651,7 @@ void LLConversationViewParticipant::draw()
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
-    const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+    const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
 
     const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
     F32 right_x  = 0;

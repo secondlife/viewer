@@ -54,7 +54,7 @@ protected:
 	class impl;
 	impl* mImplementation;
 
-	BOOL mPendingUpdate;
+	bool mPendingUpdate;
 	LLUUID mStoreSelected;
 	void updateLists();
 };

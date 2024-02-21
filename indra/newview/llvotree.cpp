@@ -319,7 +319,7 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	//  Load Species-Specific data 
 	//
 	static const S32 MAX_TREE_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 32 ; //frames.
-	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	mTreeImagep->setMaxVirtualSizeResetInterval(MAX_TREE_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL); //allow to wait for at most 16 frames to reset virtual size.
 
 	mBranchLength = sSpeciesTable[mSpecies]->mBranchLength;
@@ -470,7 +470,7 @@ void LLVOTree::updateTextures()
 LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 {
 	pipeline->allocDrawable(this);
-	mDrawable->setLit(FALSE);
+	mDrawable->setLit(false);
 
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_TREE);
 
@@ -490,7 +490,7 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 const S32 LEAF_INDICES = 24;
 const S32 LEAF_VERTICES = 16;
 
-BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
+bool LLVOTree::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
 
@@ -502,7 +502,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		{
 			facep->setVertexBuffer(NULL);
 		}
-		return TRUE ;
+		return true ;
 	}
 
 	if (mDrawable->getFace(0) &&
@@ -519,7 +519,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		S32 lod;
 
 		LLFace *face = drawable->getFace(0);
-		if (!face) return TRUE;
+		if (!face) return true;
 
 		face->mCenterAgent = getPositionAgent();
 		face->mCenterLocal = face->mCenterAgent;
@@ -542,7 +542,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 				<< max_vertices << " vertices and "
 				<< max_indices << " indices" << LL_ENDL;
 			mReferenceBuffer = NULL; //unref
-			return TRUE;
+			return true;
 		}
 
 		LLStrider<LLVector3> vertices;
@@ -871,7 +871,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	//generate tree mesh
 	updateMesh();
 	
-	return TRUE;
+	return true;
 }
 
 void LLVOTree::updateMesh()
@@ -1171,14 +1171,14 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	mDrawable->setPositionGroup(pos);
 }
 
-BOOL LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
+bool LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
 
 	if (!lineSegmentBoundingBox(start, end))
 	{
-		return FALSE;
+		return false;
 	}
 
 	const LLVector4a* exta = mDrawable->getSpatialExtents();
@@ -1215,10 +1215,10 @@ BOOL LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& e
 		{
 			normal->load3(norm.mV);
 		}
-		return TRUE;
+		return true;
 	}
 	
-	return FALSE;
+	return false;
 }
 
 U32 LLVOTree::getPartitionType() const
@@ -1227,7 +1227,7 @@ U32 LLVOTree::getPartitionType() const
 }
 
 LLTreePartition::LLTreePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(0, FALSE, regionp)
+: LLSpatialPartition(0, false, regionp)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_TREE;
 	mPartitionType = LLViewerRegion::PARTITION_TREE;

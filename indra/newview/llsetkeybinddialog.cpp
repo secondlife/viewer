@@ -165,7 +165,7 @@ void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* 
 }
 
 // static
-bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, BOOL down)
+bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, bool down)
 {
     if (sRecordKeys)
     {
@@ -183,7 +183,7 @@ bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, BOOL down)
     return false;
 }
 
-bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
+bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, bool down)
 {
     if ((key == 'Q' && mask == MASK_CONTROL)
         || key == KEY_ESCAPE)
@@ -217,7 +217,7 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
             // Masks by themself are not allowed
             return false;
         }
-        if (down == TRUE)
+        if (down == true)
         {
             // Most keys are handled on 'down' event because menu is handled on 'down'
             // masks are exceptions to let other keys be handled
@@ -294,8 +294,8 @@ bool LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         }
         if (result)
         {
-            setFocus(TRUE);
-            gFocusMgr.setKeystrokesOnly(TRUE);
+            setFocus(true);
+            gFocusMgr.setKeystrokesOnly(true);
         }
         // ignore selection related combinations
         else if (down && (mask & (MASK_SHIFT | MASK_CONTROL)) == 0)
@@ -317,7 +317,7 @@ bool LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         && ((mKeyFilterMask & ALLOW_MASK_MOUSE) != 0 || mask == 0)) // reserved for selection
     {
         setKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
-        result = TRUE;
+        result = true;
         if (!down)
         {
             // wait for 'up' event before closing

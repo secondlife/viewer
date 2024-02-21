@@ -51,7 +51,7 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool store_local = false,
-		bool user_waiting=FALSE,
+		bool user_waiting=false,
 		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
 
 	void storeAssetData(
@@ -62,7 +62,7 @@ public:
 		void* user_data,
 		bool temp_file = false,
 		bool is_priority = false,
-		bool user_waiting=FALSE,
+		bool user_waiting=false,
 		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
 
 protected:

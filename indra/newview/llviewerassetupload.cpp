@@ -409,7 +409,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         // Unknown extension
         errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
         errorLabel = "ErrorMessage";
-        error = TRUE;;
+        error = true;;
     }
     else if (assetType == LLAssetType::AT_TEXTURE)
     {
@@ -508,7 +508,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         // Unknown extension
         errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
         errorLabel = "ErrorMessage";
-        error = TRUE;;
+        error = true;;
     }
 
     if (error)
@@ -932,8 +932,8 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
             // Show the preview panel for textures and sounds to let
             // user know that the image (or snapshot) arrived intact.
-            LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, serverInventoryItem, FALSE, TAKE_FOCUS_NO, (panel == NULL));
+            LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(false);
+            LLInventoryPanel::openInventoryPanelAndSetSelection(true, serverInventoryItem, false, TAKE_FOCUS_NO, (panel == NULL));
 
             // restore keyboard focus
             gFocusMgr.setKeyboardFocus(focus);

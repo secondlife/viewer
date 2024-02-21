@@ -78,7 +78,7 @@ LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_
     mOwnerHandle = owner->getHandle();
 
     buildFromFile(FLOATER_DEFINITION_XML);
-    setCanMinimize(FALSE);
+    setCanMinimize(false);
 }
 
 
@@ -115,7 +115,7 @@ bool LLFloaterSettingsPicker::postBuild()
 
         // Disable auto selecting first filtered item because it takes away
         // selection from the item set by LLTextureCtrl owning this floater.
-        mInventoryPanel->getRootFolder()->setAutoSelectOverride(TRUE);
+        mInventoryPanel->getRootFolder()->setAutoSelectOverride(true);
 
         // don't put keyboard focus on selected item, because the selection callback
         // will assume that this was user input
@@ -127,7 +127,7 @@ bool LLFloaterSettingsPicker::postBuild()
         getChild<LLView>(BTN_SELECT)->setEnabled(mSettingItemID.notNull());
     }
 
-    mNoCopySettingsSelected = FALSE;
+    mNoCopySettingsSelected = false;
 
     childSetAction(BTN_CANCEL, [this](LLUICtrl*, const LLSD& param){ onButtonCancel(); });
     childSetAction(BTN_SELECT, [this](LLUICtrl*, const LLSD& param){ onButtonSelect(); });
@@ -135,7 +135,7 @@ bool LLFloaterSettingsPicker::postBuild()
     getChild<LLPanel>(PNL_COMBO)->setVisible(mTrackMode != TRACK_NONE);
 
     // update permission filter once UI is fully initialized
-    mSavedFolderState.setApply(FALSE);
+    mSavedFolderState.setApply(false);
 
     return true;
 }
@@ -149,7 +149,7 @@ void LLFloaterSettingsPicker::onClose(bool app_quitting)
     LLView *owner = mOwnerHandle.get();
     if (owner)
     {
-        owner->setFocus(TRUE);
+        owner->setFocus(true);
     }
     mSettingItemID.setNull();
     mInventoryPanel->getRootFolder()->clearSelection();
@@ -218,7 +218,7 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
             return;
         }
 
-        mSavedFolderState.setApply(TRUE);
+        mSavedFolderState.setApply(true);
         mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         // add folder with current item to list of previously opened folders
         LLOpenFoldersWithSelection opener;
@@ -231,7 +231,7 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
         // first letter in search term, save existing folder open state
         if (!mInventoryPanel->getFilter().isNotDefault())
         {
-            mSavedFolderState.setApply(FALSE);
+            mSavedFolderState.setApply(false);
             mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         }
     }

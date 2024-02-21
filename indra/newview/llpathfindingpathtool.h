@@ -76,7 +76,7 @@ public:
 
 	virtual bool      handleHover(S32 pX, S32 pY, MASK pMask);
 
-	virtual BOOL      handleKey(KEY pKey, MASK pMask);
+	virtual bool      handleKey(KEY pKey, MASK pMask);
 
 	EPathStatus       getPathStatus() const;
 

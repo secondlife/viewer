@@ -60,7 +60,7 @@ public:
 
 	/*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 		EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
-	bool handleDragAndDropToMenu(S32 x, S32 y, MASK mask, BOOL drop,
+	bool handleDragAndDropToMenu(S32 x, S32 y, MASK mask, bool drop,
 		EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
 	/*virtual*/ bool	handleHover(S32 x, S32 y, MASK mask) override;
@@ -77,7 +77,7 @@ protected:
     void updateButtons(bool force_update = false);
 	LLButton* createButton(const LLPointer<LLViewerInventoryItem> item, const LLButton::Params& button_params, S32 x_offset );
 	const LLButton::Params& getButtonParams();
-	BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);
+	bool collectFavoriteItems(LLInventoryModel::item_array_t &items);
 
 	void onButtonClick(LLUUID id);
 	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
@@ -90,7 +90,7 @@ protected:
 	bool enableSelected(const LLSD& userdata);
 	void doToSelected(const LLSD& userdata);
 	static bool onRenameCommit(const LLSD& notification, const LLSD& response);
-	BOOL isClipboardPasteable() const;
+	bool isClipboardPasteable() const;
 	void pasteFromClipboard() const;
 	
 	void showDropDownMenu();
@@ -132,7 +132,7 @@ private:
 	bool findDragAndDropTarget(LLUUID &target_id, bool &insert_before, S32 x, S32 y);
 
 	// checks if the current order of the favorites items must be saved
-	BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
+	bool needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
 
 	/**
 	 * inserts an item identified by insertedItemId BEFORE an item identified by beforeItemId.
@@ -221,8 +221,8 @@ public:
 	// Remove record of current user's favorites from file on disk.
 	static void removeFavoritesRecordOfUser();
 
-	BOOL saveFavoritesRecord(bool pref_changed = false);
-	void showFavoritesOnLoginChanged(BOOL show);
+	bool saveFavoritesRecord(bool pref_changed = false);
+	void showFavoritesOnLoginChanged(bool show);
 
 	bool isStorageUpdateNeeded();
 

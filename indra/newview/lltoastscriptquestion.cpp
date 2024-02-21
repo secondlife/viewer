@@ -134,7 +134,7 @@ void LLToastScriptQuestion::createButtons()
 
 			if (form_element.has("default") && form_element["default"].asBoolean())
 			{
-				button->setFocus(TRUE);
+				button->setFocus(true);
 				setDefaultBtn(button);
 			}
 		}

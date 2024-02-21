@@ -90,7 +90,7 @@ public:
 		}
 
 		LLUUID object_id;
-		if (!object_id.set(params[0], FALSE))
+		if (!object_id.set(params[0], false))
 		{
 			return false;
 		}
@@ -591,7 +591,7 @@ public:
         if (mInfoCtrl)
         {
             mInfoCtrl->setCommitCallback(boost::bind(&LLChatHistoryHeader::onClickInfoCtrl, mInfoCtrl));
-            mInfoCtrl->setVisible(FALSE);
+            mInfoCtrl->setVisible(false);
         }
         else
         {
@@ -695,7 +695,7 @@ public:
             updateMinUserNameWidth();
             LLColor4 sep_color = LLUIColorTable::instance().getColor("ChatTeleportSeparatorColor");
             setTransparentColor(sep_color);
-            mTimeBoxTextBox->setVisible(FALSE);
+            mTimeBoxTextBox->setVisible(false);
         }
         else if (chat.mFromName.empty()
                  || mSourceType == CHAT_SOURCE_SYSTEM)
@@ -744,7 +744,7 @@ public:
 					style_params_name.font.name("SansSerifSmall");
 					style_params_name.font.style("NORMAL");
 					style_params_name.readonly_color(userNameColor);
-					user_name->appendText("  - " + username, FALSE, style_params_name);
+					user_name->appendText("  - " + username, false, style_params_name);
 				}
 			}
 			else
@@ -830,7 +830,7 @@ public:
 			user_name->reshape(user_name_rect.getWidth(), user_name_rect.getHeight());
 			user_name->setRect(user_name_rect);
 
-			time_box->setVisible(TRUE);
+			time_box->setVisible(true);
 		}
 
 		LLPanel::draw();
@@ -982,7 +982,7 @@ protected:
 
 	void hideInfoCtrl()
 	{
-		mInfoCtrl->setVisible(FALSE);
+		mInfoCtrl->setVisible(false);
 	}
 
 private:
@@ -1042,7 +1042,7 @@ private:
 			style_params_name.font.name("SansSerifSmall");
 			style_params_name.font.style("NORMAL");
 			style_params_name.readonly_color(userNameColor);
-			user_name->appendText("  - " + av_name.getUserName(), FALSE, style_params_name);
+			user_name->appendText("  - " + av_name.getUserName(), false, style_params_name);
 		}
 		setToolTip( av_name.getUserName() );
 		// name might have changed, update width
@@ -1223,7 +1223,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	if (mNotifyAboutUnreadMsg && !mEditor->scrolledToEnd() && !from_me && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
-		mMoreChatPanel->setVisible(TRUE);
+		mMoreChatPanel->setVisible(true);
 		std::string chatters;
 		for (unread_chat_source_t::iterator it = mUnreadChatSources.begin();
 			it != mUnreadChatSources.end();)
@@ -1561,7 +1561,7 @@ void LLChatHistory::draw()
 	if (mEditor->scrolledToEnd())
 	{
 		mUnreadChatSources.clear();
-		mMoreChatPanel->setVisible(FALSE);
+		mMoreChatPanel->setVisible(false);
 	}
 
 	LLUICtrl::draw();

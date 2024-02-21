@@ -51,7 +51,7 @@ public:
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLViewerWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
+	static void editWearable(LLViewerWearable *wearable, LLView *data, bool disable_camera_switch = false);
 
 	void fetchInventory();
 	void inventoryFetched();
@@ -59,7 +59,7 @@ public:
     void showOutfitsInventoryPanel(); // last selected
 	void showOutfitsInventoryPanel(const std::string& tab_name);
 	void showOutfitEditPanel();
-	void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void showWearableEditPanel(LLViewerWearable *wearable = NULL, bool disable_camera_switch = false);
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();

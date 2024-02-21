@@ -83,19 +83,19 @@ private:
     static void onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle);
 
     void assignAndValidateAsset(const LLUUID &asset_id, bool silent = false);
-    static void onImageDataLoaded(BOOL success,
+    static void onImageDataLoaded(bool success,
         LLViewerFetchedTexture *src_vi,
         LLImageRaw* src,
         LLImageRaw* aux_src,
         S32 discard_level,
-        BOOL final,
+        bool final,
         void* userdata);
-    static void onFullImageLoaded(BOOL success,
+    static void onFullImageLoaded(bool success,
                                   LLViewerFetchedTexture* src_vi,
                                   LLImageRaw* src,
                                   LLImageRaw* aux_src,
                                   S32 discard_level,
-                                  BOOL final,
+                                  bool final,
                                   void* userdata);
 
     void showTexturePicker(const LLUUID &thumbnail_id);

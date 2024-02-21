@@ -91,8 +91,8 @@ public:
 	static bool clearAllToolbars();
 	
 	static void startDragTool(S32 x, S32 y, LLToolBarButton* toolbarButton);
-	static BOOL handleDragTool(S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
-	static BOOL handleDropTool(void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
+	static bool handleDragTool(S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
+	static bool handleDropTool(void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
 	static void resetDragTool(LLToolBarButton* toolbarButton);
 	LLInventoryObject* getDragItem();
 	LLView* getBottomToolbar() { return mBottomToolbarPanel; }

@@ -163,7 +163,7 @@ private:
 	LLButton*			mPreviewBtn;
 
 	LLMultiGesture*		mPreviewGesture;
-	BOOL mDirty;
+	bool mDirty;
 };
 
 #endif // LL_LLPREVIEWGESTURE_H

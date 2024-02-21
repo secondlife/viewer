@@ -303,7 +303,7 @@ bool LLFriendCardsManager::isCategoryInFriendFolder(const LLViewerInventoryCateg
 {
 	if (NULL == cat)
 		return false;
-	return TRUE == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
+	return true == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
 }
 
 bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
@@ -312,7 +312,7 @@ bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
 	if (catID == friendFolderID)
 		return true;
 
-	return TRUE == gInventory.isObjectDescendentOf(catID, friendFolderID);
+	return true == gInventory.isObjectDescendentOf(catID, friendFolderID);
 }
 
 void LLFriendCardsManager::syncFriendCardsFolders()

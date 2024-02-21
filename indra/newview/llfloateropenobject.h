@@ -76,7 +76,7 @@ protected:
 
 	LLPanelObjectInventory*	mPanelInventoryObject;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
-	BOOL mDirty;
+	bool mDirty;
 };
 
 #endif
