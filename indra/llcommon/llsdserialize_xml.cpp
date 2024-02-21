@@ -404,11 +404,18 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 		if (buffer)
 		{
 			((char*) buffer)[count ? count - 1 : 0] = '\0';
+            if (mEmitErrors)
+            {
+                LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*)buffer << LL_ENDL;
+            }
 		}
-		if (mEmitErrors)
-		{
-		LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*) buffer << LL_ENDL;
-		}
+        else
+        {
+            if (mEmitErrors)
+            {
+                LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR, null buffer" << LL_ENDL;
+            }
+        }
 		data = LLSD();
 		return LLSDParser::PARSE_FAILURE;
 	}
