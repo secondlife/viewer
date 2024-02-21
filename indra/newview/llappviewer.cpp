@@ -1116,8 +1116,8 @@ bool LLAppViewer::init()
 
 	LLGameControl::init();
     LLGameControl::enableSendToServer(gSavedSettings.getBOOL("GameControlToServer"));
-    LLGameControl::enableControlAvatar(gSavedSettings.getBOOL("GameControlToAvatar"));
-    LLGameControl::enableReceiveControlFromAvatar(gSavedSettings.getBOOL("AvatarToGameControl"));
+    LLGameControl::enableControlAgent(gSavedSettings.getBOOL("GameControlToAgent"));
+    LLGameControl::enableTranslateAgentActions(gSavedSettings.getBOOL("AgentToGameControl"));
 
     try
     {
