@@ -406,9 +406,14 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
 }
 
 LuaState::LuaState(script_finished_fn cb):
-    mCallback(cb),
-    mState(luaL_newstate())
+    mCallback(cb)    
 {
+    initLuaState();
+}
+
+void LuaState::initLuaState() 
+{
+    mState = luaL_newstate();
     luaL_openlibs(mState);
     LuaFunction::init(mState);
     // Try to make print() write to our log.

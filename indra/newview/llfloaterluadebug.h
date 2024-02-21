@@ -58,6 +58,7 @@ class LLFloaterLUADebug :
 
 private:
     void completion(int count, const LLSD& result);
+    void cleanLuaState();
 
     LLTempBoundListener mOutConnection;
 
