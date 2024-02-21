@@ -407,7 +407,7 @@ bool LLFloaterImagePreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 bool LLFloaterImagePreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gFocusMgr.setMouseCapture(false);
+	gFocusMgr.setMouseCapture(nullptr);
 	gViewerWindow->showCursor();
 	return LLFloater::handleMouseUp(x, y, mask);
 }
