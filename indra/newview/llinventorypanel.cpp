@@ -1844,7 +1844,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(bool auto_open)
 	if (!floater_inventory)
 	{
 		LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
-		return false;
+		return nullptr;
 	}
 
 	LLSidepanelInventory *inventory_panel =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
