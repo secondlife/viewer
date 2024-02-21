@@ -10390,6 +10390,17 @@
 		<key>Value</key>
 		<real>8</real>
 	</map>
+  <key>RenderHeroProbeUpdateRate</key>
+  <map>
+    <key>Comment</key>
+    <string>How many frames to wait for until it's time to render the probe. E.g., every other frame (1), every two frames (2), every three frames (3) etc.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <real>1</real>
+  </map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>

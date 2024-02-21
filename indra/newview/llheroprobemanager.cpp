@@ -264,6 +264,30 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
         LLRenderTarget *screen_rt = &gPipeline.mHeroProbeRT.screen;
         LLRenderTarget *depth_rt  = &gPipeline.mHeroProbeRT.deferredScreen;
 
+        // perform a gaussian blur on the super sampled render before downsampling
+        {
+            gGaussianProgram.bind();
+            gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
+            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+
+            // horizontal
+            gGaussianProgram.uniform2f(direction, 1.f, 0.f);
+            gGL.getTexUnit(diffuseChannel)->bind(screen_rt);
+            mRenderTarget.bindTarget();
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            mRenderTarget.flush();
+
+            // vertical
+            gGaussianProgram.uniform2f(direction, 0.f, 1.f);
+            gGL.getTexUnit(diffuseChannel)->bind(&mRenderTarget);
+            screen_rt->bindTarget();
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            screen_rt->flush();
+            gGaussianProgram.unbind();
+        }
+
         S32 mips = log2((F32)mProbeResolution) + 0.5f;
 
         gReflectionMipProgram.bind();
