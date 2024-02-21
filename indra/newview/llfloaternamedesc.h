@@ -50,7 +50,7 @@ public:
 	S32			getExpectedUploadCost() const;
 	
 protected:
-	virtual void		onCommit();
+	virtual void		onCommit() override;
 
 protected:
 	bool        mIsAudio;

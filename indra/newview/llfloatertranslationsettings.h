@@ -45,7 +45,7 @@ public:
 	void setAzureVerified(bool ok, bool alert, S32 status);
 	void setGoogleVerified(bool ok, bool alert, S32 status);
     void setDeepLVerified(bool ok, bool alert, S32 status);
-	void onClose(bool app_quitting);
+	void onClose(bool app_quitting) override;
 
 private:
 	std::string getSelectedService() const;

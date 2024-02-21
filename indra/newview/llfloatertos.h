@@ -60,7 +60,7 @@ public:
 	void			updateAgreeEnabled(bool enabled);
 
 	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+	void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
 private:
     static void testSiteIsAliveCoro(LLHandle<LLFloater> handle, std::string url);

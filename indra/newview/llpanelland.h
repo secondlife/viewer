@@ -43,7 +43,7 @@ public:
 	LLPanelLandInfo();
 	virtual ~LLPanelLandInfo();
 
-	void refresh();
+	void refresh() override;
 	static void refreshAll();
 	
 	LLCheckBoxCtrl	*mCheckShowOwners;

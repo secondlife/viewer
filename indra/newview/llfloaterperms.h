@@ -81,7 +81,7 @@ enum Categories
 
 private:
 	LLFloaterPermsDefault(const LLSD& seed);
-	void refresh();
+	void refresh() override;
 
 	static const std::string sCategoryNames[CAT_LAST]; 
     static void updateCapCoro(std::string url);

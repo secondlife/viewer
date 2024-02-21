@@ -55,7 +55,7 @@ public:
 	const std::string getHomeUrl();	
 	//bool passesWhiteList( const std::string& test_url );
 
-	virtual void	draw();
+	virtual void	draw() override;
 
 	bool mIdenticalHasMediaInfo;
 	bool mMultipleMedia;

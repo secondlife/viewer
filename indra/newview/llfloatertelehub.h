@@ -49,7 +49,7 @@ public:
 	static BOOL renderBeacons();
 	static void addBeacons();
 
-	void refresh();
+	void refresh() override;
 	void sendTelehubInfoRequest();
 
 	void onClickConnect();

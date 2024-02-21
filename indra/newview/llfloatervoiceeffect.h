@@ -58,7 +58,7 @@ private:
 	void updateControls();
 
 	/// Called by voice effect provider when voice effect list is changed.
-	virtual void onVoiceEffectChanged(bool effect_list_updated);
+	virtual void onVoiceEffectChanged(bool effect_list_updated) override;
 
 	void onClickRecord();
 	void onClickPlay();

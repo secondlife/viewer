@@ -37,7 +37,7 @@ class LLParcelChangeObserver;
 
 class LLPanelTopInfoBar : public LLPanel, public LLSingleton<LLPanelTopInfoBar>, private LLDestroyClass<LLPanelTopInfoBar>
 {
-	LLSINGLETON(LLPanelTopInfoBar);
+	LLSINGLETON_C11(LLPanelTopInfoBar);
 	~LLPanelTopInfoBar();
 	LOG_CLASS(LLPanelTopInfoBar);
 
@@ -83,7 +83,7 @@ private:
 	 */
 	void initParcelIcons();
 
-	bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+	bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 
 	/**
 	 * Handles clicks on the parcel icons.

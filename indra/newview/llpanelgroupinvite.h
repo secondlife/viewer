@@ -43,7 +43,7 @@ public:
 	 * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
 	 */  
 	void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
-	void clear();
+	void clear() override;
 	void update();
 
 	void setCloseCallback(void (*close_callback)(void*), void* data);

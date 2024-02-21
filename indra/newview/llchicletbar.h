@@ -38,7 +38,7 @@ class LLChicletBar
 	: public LLSingleton<LLChicletBar>
 	, public LLPanel
 {
-	LLSINGLETON(LLChicletBar);
+	LLSINGLETON_C11(LLChicletBar);
 	LOG_CLASS(LLChicletBar);
 
 public:

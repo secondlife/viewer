@@ -51,7 +51,7 @@ public:
 
 
 protected:
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);	
+	void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event) override;
 	
 	U32				mEventID;
 
