@@ -382,8 +382,9 @@ public:
     void updateEnabledState();
 
     void onClickGameControlToServer(LLUICtrl* ctrl);
-    void onClickGameControlToAvatar(LLUICtrl* ctrl);
-    void onClickAvatarToGameControl(LLUICtrl* ctrl);
+    // "Agent" in this context means either Avatar or Flycam
+    void onClickGameControlToAgent(LLUICtrl* ctrl);
+    void onClickAgentToGameControl(LLUICtrl* ctrl);
     void onActionSelect();
     void onCommitInputChannel();
 
@@ -395,16 +396,17 @@ protected:
     void populateActionTable();
     void populateColumns();
     void populateRows();
+    void populateCameraRows();
 
 private:
     void clearSelectionState();
-    void addTableSeparator(LLScrollListCtrl* table);
+    void addTableSeparator();
     void updateTable();
     LOG_CLASS(LLPanelPreferenceGameControl);
 
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
-    LLCheckBoxCtrl  *mCheckGameControlToAvatar; // use game_control data to move avatar
-    LLCheckBoxCtrl  *mCheckAvatarToGameControl; // translate external avatar actions to game_control data
+    LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
+    LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
 
     LLScrollListCtrl* mActionTable;
     LLComboBox* mChannelSelector;
