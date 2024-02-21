@@ -218,14 +218,14 @@ void LLInspectObject::onOpen(const LLSD& data)
 		LLViewerMediaFocus::getInstance()->clearFocus();
 		
 		LLSelectMgr::instance().deselectAll();
-		mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj,FALSE,TRUE);
+		mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj,false,true);
 
 		// Mark this as a transient selection
 		struct SetTransient : public LLSelectedNodeFunctor
 		{
 			bool apply(LLSelectNode* node)
 			{
-				node->setTransient(TRUE);
+				node->setTransient(true);
 				return true;
 			}
 		} functor;
@@ -372,7 +372,7 @@ void LLInspectObject::updateButtons(LLSelectNode* nodep)
 	}
 
 	// No flash
-	focusFirstItem(FALSE, FALSE);
+	focusFirstItem(false, false);
 }
 
 void LLInspectObject::updateSitLabel(LLSelectNode* nodep)

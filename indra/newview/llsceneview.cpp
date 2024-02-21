@@ -46,7 +46,7 @@ LLSceneView::LLSceneView(const LLRect& rect)
 	:	LLFloater(LLSD())
 {
 	setRect(rect);
-	setVisible(FALSE);
+	setVisible(false);
 	
 	setCanMinimize(false);
 	setCanClose(true);

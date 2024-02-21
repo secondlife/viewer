@@ -42,7 +42,7 @@ public:
 	~LLFastTimerView();
 	bool postBuild();
 
-	static BOOL sAnalyzePerformance;
+	static bool sAnalyzePerformance;
 
 	static void outputAllMetrics();
 	static void doAnalysis(std::string baseline, std::string target, std::string output);

@@ -137,7 +137,7 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 				LLFolderViewFolder* first_outfit = dynamic_cast<LLFolderViewFolder*>(my_outfits_folder->getFirstChild());
 				if (first_outfit)
 				{
-					first_outfit->setOpen(TRUE);
+					first_outfit->setOpen(true);
 				}
 			}
 		}

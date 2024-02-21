@@ -45,9 +45,9 @@ public:
 	virtual bool	handleHover(S32 x, S32 y, MASK mask);
 
 	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
-	virtual BOOL	clipMouseWhenDown()		{ return FALSE; }
+	virtual bool	clipMouseWhenDown()		{ return false; }
 private:
-	BOOL mIsSelected;
+	bool mIsSelected;
 };
 
 #endif

@@ -371,7 +371,7 @@ void init_group_list(LLScrollListCtrl* group_list, const LLUUID& highlight_id, U
 		}
 	}
 
-	group_list->sortOnce(0, TRUE);
+	group_list->sortOnce(0, true);
 
 	// add "none" to list at top
 	{

@@ -41,10 +41,10 @@ public:
 	void setSurface(LLSurface *surfacep);
 
 	// Viewer side hack to generate composition values
-	BOOL generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
-	BOOL generateComposition();
+	bool generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
+	bool generateComposition();
 	// Generate texture from composition values.
-	BOOL generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);		
+	bool generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);		
 
 	// Use these as indeces ito the get/setters below that use 'corner'
 	enum ECorner
@@ -66,12 +66,12 @@ public:
 
 	friend class LLVOSurfacePatch;
 	friend class LLDrawPoolTerrain;
-	void setParamsReady()		{ mParamsReady = TRUE; }
-	BOOL getParamsReady() const	{ return mParamsReady; }
+	void setParamsReady()		{ mParamsReady = true; }
+	bool getParamsReady() const	{ return mParamsReady; }
 protected:
-	BOOL mParamsReady;
+	bool mParamsReady;
 	LLSurface *mSurfacep;
-	BOOL mTexturesLoaded;
+	bool mTexturesLoaded;
 
 	LLPointer<LLViewerFetchedTexture> mDetailTextures[CORNER_COUNT];
 	LLPointer<LLImageRaw> mRawImages[CORNER_COUNT];

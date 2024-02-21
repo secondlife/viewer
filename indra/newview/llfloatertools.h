@@ -181,8 +181,8 @@ public:
 	LLObjectSelectionHandle	mObjectSelection;
 
 private:
-	BOOL					mDirty;
-	BOOL                    mHasSelection;
+	bool					mDirty;
+	bool                    mHasSelection;
 
 	std::map<std::string, std::string> mStatusText;
 

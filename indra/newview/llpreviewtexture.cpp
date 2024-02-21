@@ -66,23 +66,23 @@ const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.005f;
 
 LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	: LLPreview(key),
-	  mLoadingFullImage( FALSE ),
-	  mShowKeepDiscard(FALSE),
-	  mCopyToInv(FALSE),
-	  mIsCopyable(FALSE),
-	  mIsFullPerm(FALSE),
-	  mUpdateDimensions(TRUE),
+	  mLoadingFullImage( false ),
+	  mShowKeepDiscard(false),
+	  mCopyToInv(false),
+	  mIsCopyable(false),
+	  mIsFullPerm(false),
+	  mUpdateDimensions(true),
 	  mLastHeight(0),
 	  mLastWidth(0),
 	  mAspectRatio(0.f),
-	  mPreviewToSave(FALSE),
+	  mPreviewToSave(false),
 	  mImage(NULL),
 	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
 {
 	updateImageID();
 	if (key.has("save_as"))
 	{
-		mPreviewToSave = TRUE;
+		mPreviewToSave = true;
 	}
 }
 
@@ -158,7 +158,7 @@ bool LLPreviewTexture::postBuild()
             getChild<LLUICtrl>("desc")->setValue(item->getDescription());
             getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
         }
-        BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID());
+        bool source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID());
         if (source_library)
         {
             getChildView("Discard")->setEnabled(false);
@@ -304,18 +304,18 @@ void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenam
 	const LLInventoryItem* item = getItem();
 	if (item && mPreviewToSave)
 	{
-		mPreviewToSave = FALSE;
+		mPreviewToSave = false;
 		LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", item->getUUID());
 	}
 
 	// remember the user-approved/edited file name.
 	mSaveFileName = filenames[0];
-	mLoadingFullImage = TRUE;
+	mLoadingFullImage = true;
 	getWindow()->incBusyCount();
 
 	mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
 	mImage->setLoadedCallback(LLPreviewTexture::onFileLoadedForSave,
-		0, TRUE, FALSE, new LLUUID(mItemUUID), &mCallbackTextureList);
+		0, true, false, new LLUUID(mItemUUID), &mCallbackTextureList);
 }
 
 
@@ -348,12 +348,12 @@ void LLPreviewTexture::saveMultipleToFile(const std::string& file_name)
     
     
     mSaveFileName = filepath;
-    mLoadingFullImage = TRUE;
+    mLoadingFullImage = true;
     getWindow()->incBusyCount();
 
     mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
     mImage->setLoadedCallback(LLPreviewTexture::onFileLoadedForSave,
-        0, TRUE, FALSE, new LLUUID(mItemUUID), &mCallbackTextureList);
+        0, true, false, new LLUUID(mItemUUID), &mCallbackTextureList);
 }
 
 // virtual
@@ -412,7 +412,7 @@ void LLPreviewTexture::onFocusReceived()
 
 void LLPreviewTexture::openToSave()
 {
-	mPreviewToSave = TRUE;
+	mPreviewToSave = true;
 }
 
 void LLPreviewTexture::hideCtrlButtons()
@@ -426,12 +426,12 @@ void LLPreviewTexture::hideCtrlButtons()
 }
 
 // static
-void LLPreviewTexture::onFileLoadedForSave(BOOL success, 
+void LLPreviewTexture::onFileLoadedForSave(bool success, 
 					   LLViewerFetchedTexture *src_vi,
 					   LLImageRaw* src, 
 					   LLImageRaw* aux_src, 
 					   S32 discard_level,
-					   BOOL final,
+					   bool final,
 					   void* userdata)
 {
 	LLUUID* item_uuid = (LLUUID*) userdata;
@@ -445,7 +445,7 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		if( self )
 		{
 			self->getWindow()->decBusyCount();
-			self->mLoadingFullImage = FALSE;
+			self->mLoadingFullImage = false;
 		}
 	}
 
@@ -530,12 +530,12 @@ void LLPreviewTexture::updateDimensions()
 	// Reshape the floater only when required
 	if (mUpdateDimensions)
 	{
-		mUpdateDimensions = FALSE;
+		mUpdateDimensions = false;
 		
 		//reshape floater
 		reshape(getRect().getWidth(), getRect().getHeight());
 
-		gFloaterView->adjustToFitScreen(this, FALSE);
+		gFloaterView->adjustToFitScreen(this, false);
 
 		LLRect dim_rect(getChildView("dimensions")->getRect());
 		LLRect aspect_label_rect(getChildView("aspect_ratio")->getRect());
@@ -547,7 +547,7 @@ void LLPreviewTexture::updateDimensions()
 // Return true if everything went fine, false if we somewhat modified the ratio as we bumped on border values
 bool LLPreviewTexture::setAspectRatio(const F32 width, const F32 height)
 {
-	mUpdateDimensions = TRUE;
+	mUpdateDimensions = true;
 
 	// We don't allow negative width or height. Also, if height is positive but too small, we reset to default
 	// A default 0.f value for mAspectRatio means "unconstrained" in the rest of the code
@@ -595,7 +595,7 @@ void LLPreviewTexture::loadAsset()
 	mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
-	mUpdateDimensions = TRUE;
+	mUpdateDimensions = true;
 	updateDimensions();
 	getChildView("save_tex_btn")->setEnabled(canSaveAs());
 	if (mObjectUUID.notNull())
@@ -606,7 +606,7 @@ void LLPreviewTexture::loadAsset()
 	else
 	{
 		// check that we can remove item
-		BOOL source_library = gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
+		bool source_library = gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
 		if (source_library)
 		{
 			getChildView("Discard")->setEnabled(false);
@@ -674,7 +674,7 @@ void LLPreviewTexture::adjustAspectRatio()
 		}
 	}
 
-	mUpdateDimensions = TRUE;
+	mUpdateDimensions = true;
 }
 
 void LLPreviewTexture::updateImageID()
@@ -687,9 +687,9 @@ void LLPreviewTexture::updateImageID()
 		// here's the old logic...
 		//mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
 		// here's the new logic... 'cos we hate disappearing buttons.
-		mShowKeepDiscard = TRUE;
+		mShowKeepDiscard = true;
 
-		mCopyToInv = FALSE;
+		mCopyToInv = false;
 		LLPermissions perm(item->getPermissions());
 		mIsCopyable = perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID()) && perm.allowTransferTo(gAgent.getID());
 		mIsFullPerm = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
@@ -697,10 +697,10 @@ void LLPreviewTexture::updateImageID()
 	else // not an item, assume it's an asset id
 	{
 		mImageID = mItemUUID;
-		mShowKeepDiscard = FALSE;
-		mCopyToInv = TRUE;
-		mIsCopyable = TRUE;
-		mIsFullPerm = TRUE;
+		mShowKeepDiscard = false;
+		mCopyToInv = true;
+		mIsCopyable = true;
+		mIsFullPerm = true;
 	}
 
 }

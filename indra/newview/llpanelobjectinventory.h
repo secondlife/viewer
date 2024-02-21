@@ -102,7 +102,7 @@ protected:
 	void clearItemIDs();
 
 	bool			handleKeyHere( KEY key, MASK mask );
-	BOOL			isSelectionRemovable();
+	bool			isSelectionRemovable();
 
 private:
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
@@ -112,9 +112,9 @@ private:
 	
 	LLUUID mTaskUUID;
 	LLUUID mAttachmentUUID;
-	BOOL mHaveInventory; // 'Loading' label and used for initial request
-	BOOL mIsInventoryEmpty; // 'Empty' label
-	BOOL mInventoryNeedsUpdate; // for idle, set on changed callback
+	bool mHaveInventory; // 'Loading' label and used for initial request
+	bool mIsInventoryEmpty; // 'Empty' label
+	bool mInventoryNeedsUpdate; // for idle, set on changed callback
 	LLFolderViewModelInventory	mInventoryViewModel;	
     bool mShowRootFolder;
 };

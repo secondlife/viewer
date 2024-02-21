@@ -162,7 +162,7 @@ void LLChannelManager::onStartUpToastClose()
 {
 	if(mStartUpChannel)
 	{
-		mStartUpChannel->setVisible(FALSE);
+		mStartUpChannel->setVisible(false);
 		mStartUpChannel->closeStartUpToast();
 		removeChannelByID(LLUUID(gSavedSettings.getString("StartUpChannelUUID")));
 		mStartUpChannel = NULL;

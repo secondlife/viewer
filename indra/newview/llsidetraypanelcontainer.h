@@ -31,7 +31,7 @@
 
 /**
 * LLSideTrayPanelContainer class acts like LLTabContainer with invisible tabs.
-* It is designed to make panel switching easier, avoid setVisible(TRUE) setVisible(FALSE)
+* It is designed to make panel switching easier, avoid setVisible(true) setVisible(false)
 * calls and related workarounds.
 * use onOpen to open sub panel, pass the name of panel to open
 * in key[PARAM_SUB_PANEL_NAME].

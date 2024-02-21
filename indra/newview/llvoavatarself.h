@@ -60,9 +60,9 @@ public:
 	void					cleanup();
 protected:
 	/*virtual*/ bool		loadAvatar();
-	BOOL					loadAvatarSelf();
-	BOOL					buildSkeletonSelf(const LLAvatarSkeletonInfo *info);
-	BOOL					buildMenus();
+	bool					loadAvatarSelf();
+	bool					buildSkeletonSelf(const LLAvatarSkeletonInfo *info);
+	bool					buildMenus();
 
 /**                    Initialization
  **                                                                            **
@@ -101,7 +101,7 @@ public:
 
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
-	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight);
+	bool setParamWeight(const LLViewerVisualParam *param, F32 weight);
 
 /********************************************************************************
  **                                                                            **
@@ -149,7 +149,7 @@ private:
 	// Render beam
 	//--------------------------------------------------------------------
 protected:
-	BOOL 		needsRenderBeam();
+	bool 		needsRenderBeam();
 private:
 	LLPointer<LLHUDEffectSpiral> mBeam;
 	LLFrameTimer mBeamTimer;
@@ -177,32 +177,32 @@ public:
 public:
 	S32					getLocalDiscardLevel(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	bool				areTexturesCurrent() const;
-	BOOL				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
-	BOOL				isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const;
+	bool				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
+	bool				isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
 	/*virtual*/ bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
-	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
-	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
+	/*virtual*/ bool	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+	/*virtual*/ bool	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 
 
 	//--------------------------------------------------------------------
 	// Local Textures
 	//--------------------------------------------------------------------
 public:
-	BOOL				getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture** image_gl_pp, U32 index) const;
+	bool				getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture** image_gl_pp, U32 index) const;
 	LLViewerFetchedTexture*	getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
-	/*virtual*/ void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
+	/*virtual*/ void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, bool baked_version_exits, U32 index);
 protected:
-	/*virtual*/ void	setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
-	void				localTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	/*virtual*/ void	setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, bool baked_version_exists, U32 index);
+	void				localTextureLoaded(bool succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
 	void				getLocalTextureByteCount(S32* gl_byte_count) const;
-	/*virtual*/ void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
+	/*virtual*/ void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, bool rendered, bool covered_by_baked);
 	LLLocalTextureObject* getLocalTextureObject(LLAvatarAppearanceDefines::ETextureIndex i, U32 index) const;
 
 private:
-	static void			onLocalTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	static void			onLocalTextureLoaded(bool succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
 
 	/*virtual*/	void	setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
 	/*virtual*/ LLViewerTexture* getImage(const U8 te, const U32 index) const;
@@ -240,7 +240,7 @@ public:
 	void				updateComposites();
 
 	const LLUUID&		grabBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
-	BOOL				canGrabBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
+	bool				canGrabBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index) const;
 
 
 	//--------------------------------------------------------------------
@@ -282,12 +282,12 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	void 				updateAttachmentVisibility(U32 camera_mode);
-	BOOL 				isWearingAttachment(const LLUUID& inv_item_id) const;
+	bool 				isWearingAttachment(const LLUUID& inv_item_id) const;
 	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id);
 	bool				getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const;
 	/*virtual*/ const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
-	/*virtual*/ BOOL 	detachObject(LLViewerObject *viewer_object);
-	static BOOL			detachAttachmentIntoInventory(const LLUUID& item_id);
+	/*virtual*/ bool 	detachObject(LLViewerObject *viewer_object);
+	static bool			detachAttachmentIntoInventory(const LLUUID& item_id);
 
     bool hasAttachmentsInTrash();
 
@@ -371,10 +371,10 @@ public:
 	void 					outputRezDiagnostics() const;
 	void					outputRezTiming(const std::string& msg) const;
 	void					reportAvatarRezTime() const;
-	void 					debugBakedTextureUpload(LLAvatarAppearanceDefines::EBakedTextureIndex index, BOOL finished);
-	static void				debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	void 					debugBakedTextureUpload(LLAvatarAppearanceDefines::EBakedTextureIndex index, bool finished);
+	static void				debugOnTimingLocalTexLoaded(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
 
-	BOOL					isAllLocalTextureDataFinal() const;
+	bool					isAllLocalTextureDataFinal() const;
 
 	const LLViewerTexLayerSet*	debugGetLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex index) const { return (LLViewerTexLayerSet*)(mBakedTextureDatas[index].mTexLayerSet); }
 	const std::string		verboseDebugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer
@@ -388,7 +388,7 @@ private:
 	F32 					mDebugTimeAvatarVisible;
 	F32 					mDebugTextureLoadTimes[LLAvatarAppearanceDefines::TEX_NUM_INDICES][MAX_DISCARD_LEVEL+1]; // load time for each texture at each discard level
 	F32 					mDebugBakedTextureTimes[LLAvatarAppearanceDefines::BAKED_NUM_INDICES][2]; // time to start upload and finish upload of each baked texture
-	void					debugTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	void					debugTimingLocalTexLoaded(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
 
     void                    appearanceChangeMetricsCoro(std::string url);
     bool                    mInitialMetric;
@@ -401,7 +401,7 @@ private:
 
 extern LLPointer<LLVOAvatarSelf> gAgentAvatarp;
 
-BOOL isAgentAvatarValid();
+bool isAgentAvatarValid();
 
 void selfStartPhase(const std::string& phase_name);
 void selfStopPhase(const std::string& phase_name, bool err_check = true);

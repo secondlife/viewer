@@ -354,8 +354,8 @@ public:
 	void removeObject(LLVOVolume* obj) ;
 	const std::list< LLVOVolume* >* getObjectList() const ;
 	LLVOVolume *getSomeObject();
-	void setUpdated(BOOL updated) ;
-	BOOL isUpdated() ;
+	void setUpdated(bool updated) ;
+	bool isUpdated() ;
 
 	// updates the javascript object in the embedded browser with viewer values
 	void updateJavascriptObject();
@@ -488,7 +488,7 @@ private:
     static std::vector<std::string> sMimeTypesFailed;
     LLPointer<LLImageRaw> mRawImage; //backing buffer for texture updates
 private:
-	BOOL mIsUpdated ;
+	bool mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;
 
     void mimeDiscoveryCoro(std::string url);

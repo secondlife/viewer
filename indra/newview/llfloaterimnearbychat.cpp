@@ -122,7 +122,7 @@ LLFloaterIMNearbyChat* LLFloaterIMNearbyChat::buildFloater(const LLSD& key)
 //virtual
 bool LLFloaterIMNearbyChat::postBuild()
 {
-    setIsSingleInstance(TRUE);
+    setIsSingleInstance(true);
     bool result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
@@ -153,7 +153,7 @@ void LLFloaterIMNearbyChat::closeHostedFloater()
 	// If detached from conversations window close anyway
 	if (!getHost())
 	{
-		setVisible(FALSE);
+		setVisible(false);
 	}
 
 	// Should check how many conversations are ongoing. Select next to "Nearby Chat" in case there are some other besides.
@@ -380,7 +380,7 @@ void LLFloaterIMNearbyChat::showHistory()
 	}
 	else
 	{
-		LLFloaterIMContainer::getInstance()->setFocus(TRUE);
+		LLFloaterIMContainer::getInstance()->setFocus(true);
 	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
@@ -427,7 +427,7 @@ bool LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 	return handled;
 }
 
-BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
+bool LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
 {
 	U32 in_len = in_str.length();
 	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
@@ -678,8 +678,8 @@ void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 	LLUUID id;
 
 	id.setNull();
-	mSpeakerMgr->update(FALSE);
-	mSpeakerMgr->getSpeakerList(&speaker_list, FALSE);
+	mSpeakerMgr->update(false);
+	mSpeakerMgr->getSpeakerList(&speaker_list, false);
 
 	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
 	{
@@ -692,12 +692,12 @@ void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 	}
 }
 
-void LLFloaterIMNearbyChat::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
+void LLFloaterIMNearbyChat::sendChatFromViewer(const std::string &utf8text, EChatType type, bool animate)
 {
 	sendChatFromViewer(utf8str_to_wstring(utf8text), type, animate);
 }
 
-void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate)
+void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, bool animate)
 {
 	// Look for "/20 foo" channel chats.
 	S32 channel = 0;
@@ -781,7 +781,7 @@ void LLFloaterIMNearbyChat::startChat(const char* line)
 			nearby_chat->setMinimized(false);
 		}
 		nearby_chat->show();
-		nearby_chat->setFocus(TRUE);
+		nearby_chat->setFocus(true);
 
 		if (line)
 		{
@@ -800,7 +800,7 @@ void LLFloaterIMNearbyChat::stopChat()
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-		nearby_chat->mInputEditor->setFocus(FALSE);
+		nearby_chat->mInputEditor->setFocus(false);
 	    gAgent.stopTyping();
 	}
 }

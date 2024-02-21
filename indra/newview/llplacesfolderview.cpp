@@ -39,7 +39,7 @@ LLPlacesFolderView::LLPlacesFolderView(const LLFolderView::Params& p)
     // we do not need auto select functionality in places landmarks, so override default behavior.
     // this disables applying of the LLSelectFirstFilteredItem in LLFolderView::doIdle.
     // Fixed issues: EXT-1631, EXT-4994.
-    mAutoSelectOverride = TRUE;
+    mAutoSelectOverride = true;
 }
 
 bool LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)

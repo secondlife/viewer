@@ -111,7 +111,7 @@ bool LLFloaterImagePreview::postBuild()
 	if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
 	{
 		mAvatarPreview = new LLImagePreviewAvatar(256, 256);
-		mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, FALSE);
+		mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, false);
 
 		mSculptedPreview = new LLImagePreviewSculpted(256, 256);
 		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
@@ -181,28 +181,28 @@ void	LLFloaterImagePreview::onPreviewTypeCommit(LLUICtrl* ctrl, void* userdata)
 	case 0:
 		break;
 	case 1:
-		fp->mAvatarPreview->setPreviewTarget("mSkull", "mHairMesh0", fp->mRawImagep, 0.4f, FALSE);
+		fp->mAvatarPreview->setPreviewTarget("mSkull", "mHairMesh0", fp->mRawImagep, 0.4f, false);
 		break;
 	case 2:
-		fp->mAvatarPreview->setPreviewTarget("mSkull", "mHeadMesh0", fp->mRawImagep, 0.4f, FALSE);
+		fp->mAvatarPreview->setPreviewTarget("mSkull", "mHeadMesh0", fp->mRawImagep, 0.4f, false);
 		break;
 	case 3:
-		fp->mAvatarPreview->setPreviewTarget("mChest", "mUpperBodyMesh0", fp->mRawImagep, 1.0f, FALSE);
+		fp->mAvatarPreview->setPreviewTarget("mChest", "mUpperBodyMesh0", fp->mRawImagep, 1.0f, false);
 		break;
 	case 4:
-		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mLowerBodyMesh0", fp->mRawImagep, 1.2f, FALSE);
+		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mLowerBodyMesh0", fp->mRawImagep, 1.2f, false);
 		break;
 	case 5:
-		fp->mAvatarPreview->setPreviewTarget("mSkull", "mHeadMesh0", fp->mRawImagep, 0.4f, TRUE);
+		fp->mAvatarPreview->setPreviewTarget("mSkull", "mHeadMesh0", fp->mRawImagep, 0.4f, true);
 		break;
 	case 6:
-		fp->mAvatarPreview->setPreviewTarget("mChest", "mUpperBodyMesh0", fp->mRawImagep, 1.2f, TRUE);
+		fp->mAvatarPreview->setPreviewTarget("mChest", "mUpperBodyMesh0", fp->mRawImagep, 1.2f, true);
 		break;
 	case 7:
-		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mLowerBodyMesh0", fp->mRawImagep, 1.2f, TRUE);
+		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mLowerBodyMesh0", fp->mRawImagep, 1.2f, true);
 		break;
 	case 8:
-		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mSkirtMesh0", fp->mRawImagep, 1.3f, FALSE);
+		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mSkirtMesh0", fp->mRawImagep, 1.3f, false);
 		break;
 	case 9:
 		fp->mSculptedPreview->setPreviewTarget(fp->mRawImagep, 2.0f);
@@ -258,7 +258,7 @@ void LLFloaterImagePreview::draw()
 			}
 			else
 			{
-				mImagep = LLViewerTextureManager::getLocalTexture(mRawImagep.get(), FALSE) ;
+				mImagep = LLViewerTextureManager::getLocalTexture(mRawImagep.get(), false) ;
 				
 				gGL.getTexUnit(0)->unbind(mImagep->getTarget()) ;
 				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());
@@ -407,7 +407,7 @@ bool LLFloaterImagePreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 bool LLFloaterImagePreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gFocusMgr.setMouseCapture(FALSE);
+	gFocusMgr.setMouseCapture(false);
 	gViewerWindow->showCursor();
 	return LLFloater::handleMouseUp(x, y, mask);
 }
@@ -562,9 +562,9 @@ void LLFloaterImagePreview::onMouseCaptureLostImagePreview(LLMouseHandler* handl
 //-----------------------------------------------------------------------------
 // LLImagePreviewAvatar
 //-----------------------------------------------------------------------------
-LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
+LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, false)
 {
-	mNeedsUpdate = TRUE;
+	mNeedsUpdate = true;
 	mTargetJoint = NULL;
 	mTargetMesh = NULL;
 	mCameraDistance = 0.f;
@@ -590,7 +590,7 @@ S8 LLImagePreviewAvatar::getType() const
 	return LLViewerDynamicTexture::LL_IMAGE_PREVIEW_AVATAR ;
 }
 
-void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male) 
+void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, bool male) 
 { 
 	mTargetJoint = mDummyAvatar->mRoot->findJoint(joint_name);
 	// clear out existing test mesh
@@ -611,11 +611,11 @@ void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const
 		mDummyAvatar->updateVisualParams();
 		mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
 	}
-	mDummyAvatar->mRoot->setVisible(FALSE, TRUE);
+	mDummyAvatar->mRoot->setVisible(false, true);
 
 	mTargetMesh = dynamic_cast<LLViewerJointMesh*>(mDummyAvatar->mRoot->findJoint(mesh_name));
 	mTargetMesh->setTestTexture(mTextureName);
-	mTargetMesh->setVisible(TRUE, FALSE);
+	mTargetMesh->setVisible(true, false);
 	mCameraDistance = distance;
 	mCameraZoom = 1.f;
 	mCameraPitch = 0.f;
@@ -642,9 +642,9 @@ void LLImagePreviewAvatar::clearPreviewTexture(const std::string& mesh_name)
 //-----------------------------------------------------------------------------
 // update()
 //-----------------------------------------------------------------------------
-BOOL LLImagePreviewAvatar::render()
+bool LLImagePreviewAvatar::render()
 {
-	mNeedsUpdate = FALSE;
+	mNeedsUpdate = false;
 	LLVOAvatar* avatarp = mDummyAvatar;
 
 	gGL.pushUIMatrix();
@@ -689,7 +689,7 @@ BOOL LLImagePreviewAvatar::render()
 
 	LLViewerCamera::getInstance()->setAspect((F32)mFullWidth / mFullHeight);
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
-	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
+	LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 
 	LLVertexBuffer::unbind();
 	avatarp->updateLOD();
@@ -711,7 +711,7 @@ BOOL LLImagePreviewAvatar::render()
 
 	gGL.popUIMatrix();
 	gGL.color4f(1,1,1,1);
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -719,7 +719,7 @@ BOOL LLImagePreviewAvatar::render()
 //-----------------------------------------------------------------------------
 void LLImagePreviewAvatar::refresh()
 { 
-	mNeedsUpdate = TRUE; 
+	mNeedsUpdate = true; 
 }
 
 //-----------------------------------------------------------------------------
@@ -751,9 +751,9 @@ void LLImagePreviewAvatar::pan(F32 right, F32 up)
 // LLImagePreviewSculpted
 //-----------------------------------------------------------------------------
 
-LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
+LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, false)
 {
-	mNeedsUpdate = TRUE;
+	mNeedsUpdate = true;
 	mCameraDistance = 0.f;
 	mCameraYaw = 0.f;
 	mCameraPitch = 0.f;
@@ -846,9 +846,9 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 //-----------------------------------------------------------------------------
 // render()
 //-----------------------------------------------------------------------------
-BOOL LLImagePreviewSculpted::render()
+bool LLImagePreviewSculpted::render()
 {
-	mNeedsUpdate = FALSE;
+	mNeedsUpdate = false;
 	LLGLSUIDefault def;
 	LLGLDisable no_blend(GL_BLEND);
 	LLGLEnable cull(GL_CULL_FACE);
@@ -892,7 +892,7 @@ BOOL LLImagePreviewSculpted::render()
 
 	LLViewerCamera::getInstance()->setAspect((F32) mFullWidth / mFullHeight);
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
-	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
+	LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 
 	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
 	U32 num_indices = vf.mNumIndices;
@@ -915,7 +915,7 @@ BOOL LLImagePreviewSculpted::render()
 
 	gObjectPreviewProgram.unbind();
 
-	return TRUE;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -923,7 +923,7 @@ BOOL LLImagePreviewSculpted::render()
 //-----------------------------------------------------------------------------
 void LLImagePreviewSculpted::refresh()
 { 
-	mNeedsUpdate = TRUE; 
+	mNeedsUpdate = true; 
 }
 
 //-----------------------------------------------------------------------------

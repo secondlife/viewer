@@ -1639,7 +1639,7 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
     return toLightNorm(light_direction);
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
@@ -1678,7 +1678,7 @@ void LLEnvironment::update(const LLViewerCamera * cam)
                 && (gPipeline.canUseWindLightShaders()
                 || shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER))
             {
-                shaders_iter->mUniformsDirty = TRUE;
+                shaders_iter->mUniformsDirty = true;
             }
         }
     }

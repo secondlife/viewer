@@ -45,7 +45,7 @@ void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data, bool updat
 
 	LLFloaterHoverHeight *self = static_cast<LLFloaterHoverHeight*>(user_data);
 	LLSliderCtrl* sldrCtrl = self->getChild<LLSliderCtrl>("HoverHeightSlider");
-	sldrCtrl->setValue(value,FALSE);
+	sldrCtrl->setValue(value,false);
 
 	if (isAgentAvatarValid() && update_offset)
 	{

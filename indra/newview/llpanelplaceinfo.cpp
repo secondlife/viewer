@@ -262,7 +262,7 @@ void LLPanelPlaceInfo::reshape(S32 width, S32 height, bool called_from_parent)
 {
 
 	// This if was added to force collapsing description textbox on Windows at the beginning of reshape
-	// (the only case when reshape is skipped here is when it's caused by this textbox, so called_from_parent is FALSE)
+	// (the only case when reshape is skipped here is when it's caused by this textbox, so called_from_parent is false)
 	// This way it is consistent with Linux where topLost collapses textbox at the beginning of reshape.
 	// On windows it collapsed only after reshape which caused EXT-8342.
 	if(called_from_parent)

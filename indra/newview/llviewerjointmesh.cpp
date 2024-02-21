@@ -439,7 +439,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
 bool LLViewerJointMesh::updateLOD(F32 pixel_area, bool activate)
 {
 	bool valid = mValid;
-	setValid(activate, TRUE);
+	setValid(activate, true);
 	return (valid != activate);
 }
 

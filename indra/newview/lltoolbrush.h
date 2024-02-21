@@ -57,7 +57,7 @@ public:
 
 	// isAlwaysRendered() - return true if this is a tool that should
 	// always be rendered regardless of selection.
-	virtual BOOL isAlwaysRendered() { return TRUE; }
+	virtual bool isAlwaysRendered() { return true; }
 
 	// Draw the area that will be affected.
 	virtual void render();
@@ -95,8 +95,8 @@ protected:
 	S32 mMouseX;
 	S32 mMouseY;
 	F32 mBrushSize;
-	BOOL mGotHover;
-	BOOL mBrushSelected;
+	bool mGotHover;
+	bool mBrushSelected;
 	// Order doesn't matter and we do check for existance of regions, so use a set
 	region_list_t mLastAffectedRegions;
 

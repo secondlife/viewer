@@ -151,7 +151,7 @@ LLGesture *LLViewerGestureList::create_gesture(U8 **buffer, S32 max_size)
 }
 
 
-// See if the prefix matches any gesture.  If so, return TRUE
+// See if the prefix matches any gesture.  If so, return true
 // and place the full text of the gesture trigger into
 // output_str
 bool LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* out_str)
@@ -197,7 +197,7 @@ void LLViewerGestureList::xferCallback(void *data, S32 size, void** /*user_data*
 			LL_ERRS() << "Read off of end of array, error in serialization" << LL_ENDL;
 		}
 
-		gGestureList.mIsLoaded = TRUE;
+		gGestureList.mIsLoaded = true;
 	}
 	else
 	{

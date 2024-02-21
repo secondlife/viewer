@@ -317,7 +317,7 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 		updateState();
 	else
 		toPrevMode();
-	mClosed = FALSE;
+	mClosed = false;
 
 	populatePresetCombo();
 }
@@ -338,21 +338,21 @@ void LLFloaterCamera::onClose(bool app_quitting)
 		mPrevMode = CAMERA_CTRL_MODE_PAN;
 
 	switchMode(CAMERA_CTRL_MODE_PAN);
-	mClosed = TRUE;
+	mClosed = true;
 
-	gAgent.setMovementLocked(FALSE);
+	gAgent.setMovementLocked(false);
 }
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 :	LLFloater(val),
-	mClosed(FALSE),
+	mClosed(false),
 	mCurrMode(CAMERA_CTRL_MODE_PAN),
 	mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
 	LLHints::getInstance()->registerHintTarget("view_popup", getHandle());
 	mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 	mCommitCallbackRegistrar.add("CameraPresets.Save", boost::bind(&LLFloaterCamera::onSavePreset, this));
-	mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), FALSE));
+	mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false));
 }
 
 // virtual
@@ -367,7 +367,7 @@ bool LLFloaterCamera::postBuild()
 
 	getChild<LLTextBox>("precise_ctrs_label")->setShowCursorHand(false);
 	getChild<LLTextBox>("precise_ctrs_label")->setSoundFlags(LLView::MOUSE_UP);
-	getChild<LLTextBox>("precise_ctrs_label")->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), FALSE));
+	getChild<LLTextBox>("precise_ctrs_label")->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), false));
 
 	mPresetCombo->setCommitCallback(boost::bind(&LLFloaterCamera::onCustomPresetSelected, this));
 	LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCamera::populatePresetCombo, this));
@@ -470,7 +470,7 @@ void LLFloaterCamera::switchMode(ECameraControlMode mode)
 
 	default:
 		//normally we won't occur here
-		llassert_always(FALSE);
+		llassert_always(false);
 	}
 }
 

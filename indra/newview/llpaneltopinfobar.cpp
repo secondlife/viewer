@@ -241,7 +241,7 @@ void LLPanelTopInfoBar::setParcelInfoText(const std::string& new_text)
 	LLRect rect = mParcelInfoText->getRect();
 	rect.setOriginAndSize(rect.mLeft, rect.mBottom, new_text_width, rect.getHeight());
 
-	mParcelInfoText->reshape(rect.getWidth(), rect.getHeight(), TRUE);
+	mParcelInfoText->reshape(rect.getWidth(), rect.getHeight(), true);
 	mParcelInfoText->setRect(rect);
 	layoutParcelIcons();
 

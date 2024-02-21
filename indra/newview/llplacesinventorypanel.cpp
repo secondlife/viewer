@@ -48,7 +48,7 @@ LLPlacesInventoryPanel::LLPlacesInventoryPanel(const Params& p) :
 {
 	mInvFVBridgeBuilder = &PLACES_INVENTORY_BUILDER;
 	mSavedFolderState = new LLSaveFolderState();
-	mSavedFolderState->setApply(FALSE);
+	mSavedFolderState->setApply(false);
 }
 
 
@@ -90,14 +90,14 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
 // save current folder open state
 void LLPlacesInventoryPanel::saveFolderState()
 {
-	mSavedFolderState->setApply(FALSE);
+	mSavedFolderState->setApply(false);
 	mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
 }
 
 // re-open folders which state was saved
 void LLPlacesInventoryPanel::restoreFolderState()
 {
-	mSavedFolderState->setApply(TRUE);
+	mSavedFolderState->setApply(true);
 	mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
 	LLOpenFoldersWithSelection opener;
 	mFolderRoot.get()->applyFunctorRecursively(opener);

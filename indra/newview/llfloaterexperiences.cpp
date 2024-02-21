@@ -129,7 +129,7 @@ void LLFloaterExperiences::resizeToTabs()
     {
         rect.mRight = rect.mLeft + tabs->getTotalTabWidth() + TAB_WIDTH_PADDING;
     }
-    reshape(rect.getWidth(), rect.getHeight(), FALSE);
+    reshape(rect.getWidth(), rect.getHeight(), false);
 }
 
 void LLFloaterExperiences::refreshContents()

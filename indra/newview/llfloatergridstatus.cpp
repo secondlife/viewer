@@ -43,7 +43,7 @@ const std::string DEFAULT_GRID_STATUS_URL = "http://status.secondlifegrid.net/";
 
 LLFloaterGridStatus::LLFloaterGridStatus(const Params& key) :
     LLFloaterWebContent(key),
-    mIsFirstUpdate(TRUE)
+    mIsFirstUpdate(true)
 {
 }
 
@@ -154,7 +154,7 @@ void LLFloaterGridStatus::getGridStatusRSSCoro()
     {
         gToolBarView->flashCommand(LLCommandId("gridstatus"), true);
     }
-    getInstance()->setFirstUpdate(FALSE);
+    getInstance()->setFirstUpdate(false);
 }
 
 // virtual

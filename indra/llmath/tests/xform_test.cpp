@@ -91,7 +91,7 @@ namespace tut
 		xform_obj.setPositionZ(z);
 		ensure("setPositionX/Y/Z failed: ", xform_obj.getPosition() == vec);
 
-		xform_obj.setScaleChildOffset(TRUE);
+		xform_obj.setScaleChildOffset(true);
 		ensure("setScaleChildOffset failed: ", xform_obj.getScaleChildOffset());
 
 		vec.setVec(x, y, z);
@@ -216,7 +216,7 @@ namespace tut
 		parent.setPosition(llvecpospar);
 
 		LLVector3 llvecparentscale(1.0, 2.0, 0);
-		parent.setScaleChildOffset(TRUE);
+		parent.setScaleChildOffset(true);
 		parent.setScale(llvecparentscale);
 
 		LLQuaternion quat(1, 2, 3, 4);

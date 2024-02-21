@@ -306,7 +306,7 @@ void LLFloaterBuyLandUI::onClose(bool app_quitting)
 	// This object holds onto observer, transactions, and parcel state.
 	// Despite being single_instance, destroy it to call destructors and clean
 	// everything up.
-	setVisible(FALSE);
+	setVisible(false);
 	destroy();
 }
 
@@ -569,7 +569,7 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	LLTextBox* box = getChild<LLTextBox>("covenant_text");
 	if(box)
 	{
-		box->setVisible(FALSE);
+		box->setVisible(false);
 	}
 	
 	// send EstateCovenantInfo message
@@ -605,14 +605,14 @@ void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, co
 		refreshUI();
 
 		// remove the line stating that you must agree
-		box->setVisible(FALSE);
+		box->setVisible(false);
 	}
 	else
 	{
 		check->setEnabled(true);
 
 		// remove the line stating that you must agree
-		box->setVisible(TRUE);
+		box->setVisible(true);
 	}
 }
 
@@ -733,7 +733,7 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 		return;
 	}
 	
-	BOOL remove_contribution = getChild<LLUICtrl>("remove_contribution")->getValue().asBoolean();
+	bool remove_contribution = getChild<LLUICtrl>("remove_contribution")->getValue().asBoolean();
 	mParcelBuyInfo = LLViewerParcelMgr::getInstance()->setupParcelBuy(gAgent.getID(), gAgent.getSessionID(),
 						gAgent.getGroupID(), mIsForGroup, mIsClaim, remove_contribution);
 
@@ -1097,9 +1097,9 @@ void LLFloaterBuyLandUI::refreshUI()
 	}
 	else
 	{
-		getChildView("step_error")->setVisible(FALSE);
-		getChildView("error_message")->setVisible(FALSE);
-		getChildView("error_web")->setVisible(FALSE);
+		getChildView("step_error")->setVisible(false);
+		getChildView("error_message")->setVisible(false);
+		getChildView("error_web")->setVisible(false);
 	}
 	
 	
@@ -1134,16 +1134,16 @@ void LLFloaterBuyLandUI::refreshUI()
 			levels->setCurrentByIndex(mUserPlanChoice);
 		}
 
-		getChildView("step_1")->setVisible(TRUE);
-		getChildView("account_action")->setVisible(TRUE);
-		getChildView("account_reason")->setVisible(TRUE);
+		getChildView("step_1")->setVisible(true);
+		getChildView("account_action")->setVisible(true);
+		getChildView("account_reason")->setVisible(true);
 	}
 	else
 	{
-		getChildView("step_1")->setVisible(FALSE);
-		getChildView("account_action")->setVisible(FALSE);
-		getChildView("account_reason")->setVisible(FALSE);
-		getChildView("account_level")->setVisible(FALSE);
+		getChildView("step_1")->setVisible(false);
+		getChildView("account_action")->setVisible(false);
+		getChildView("account_reason")->setVisible(false);
+		getChildView("account_level")->setVisible(false);
 	}
 	
 	// section two: land use fees
@@ -1201,15 +1201,15 @@ void LLFloaterBuyLandUI::refreshUI()
 
 		getChild<LLUICtrl>("land_use_reason")->setValue(message);
 
-		getChildView("step_2")->setVisible(TRUE);
-		getChildView("land_use_action")->setVisible(TRUE);
-		getChildView("land_use_reason")->setVisible(TRUE);
+		getChildView("step_2")->setVisible(true);
+		getChildView("land_use_action")->setVisible(true);
+		getChildView("land_use_reason")->setVisible(true);
 	}
 	else
 	{
-		getChildView("step_2")->setVisible(FALSE);
-		getChildView("land_use_action")->setVisible(FALSE);
-		getChildView("land_use_reason")->setVisible(FALSE);
+		getChildView("step_2")->setVisible(false);
+		getChildView("land_use_action")->setVisible(false);
+		getChildView("land_use_reason")->setVisible(false);
 	}
 	
 	// section three: purchase & currency
@@ -1281,18 +1281,18 @@ void LLFloaterBuyLandUI::refreshUI()
 							llformat("%d", minContribution));
 		getChildView("remove_contribution")->setVisible( showRemoveContribution);
 
-		getChildView("step_3")->setVisible(TRUE);
-		getChildView("purchase_action")->setVisible(TRUE);
-		getChildView("currency_reason")->setVisible(TRUE);
-		getChildView("currency_balance")->setVisible(TRUE);
+		getChildView("step_3")->setVisible(true);
+		getChildView("purchase_action")->setVisible(true);
+		getChildView("currency_reason")->setVisible(true);
+		getChildView("currency_balance")->setVisible(true);
 	}
 	else
 	{
-		getChildView("step_3")->setVisible(FALSE);
-		getChildView("purchase_action")->setVisible(FALSE);
-		getChildView("currency_reason")->setVisible(FALSE);
-		getChildView("currency_balance")->setVisible(FALSE);
-		getChildView("remove_group_donation")->setVisible(FALSE);
+		getChildView("step_3")->setVisible(false);
+		getChildView("purchase_action")->setVisible(false);
+		getChildView("currency_reason")->setVisible(false);
+		getChildView("currency_balance")->setVisible(false);
+		getChildView("remove_group_donation")->setVisible(false);
 	}
 
 

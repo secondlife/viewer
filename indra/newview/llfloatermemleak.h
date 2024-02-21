@@ -67,7 +67,7 @@ private:
 	static U32 sMaxLeakedMem ; //maximum allowed leaked memory
 	static U32 sTotalLeaked ;
 	static S32 sStatus ; //0: stop ; >0: start ; <0: release
-	static BOOL sbAllocationFailed ;
+	static bool sbAllocationFailed ;
 
 	std::vector<char*> mLeakedMem ;	
 };

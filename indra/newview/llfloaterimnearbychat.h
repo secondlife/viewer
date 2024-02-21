@@ -77,15 +77,15 @@ public:
 	static void startChat(const char* line);
 	static void stopChat();
 
-	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
-	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
+	static void sendChatFromViewer(const std::string &utf8text, EChatType type, bool animate);
+	static void sendChatFromViewer(const LLWString &wtext, EChatType type, bool animate);
 
 	static bool isWordsName(const std::string& name);
 
 	void showHistory();
 
 protected:
-	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
+	static bool matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
 	void onChatBoxKeystroke();
 	void onChatBoxFocusLost();
 	void onChatBoxFocusReceived();

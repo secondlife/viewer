@@ -94,12 +94,12 @@ void LLPopupView::draw()
 	LLPanel::draw();
 }
 
-BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func, 
+bool LLPopupView::handleMouseEvent(boost::function<bool(LLView*, S32, S32)> func, 
 								   boost::function<bool(LLView*)> predicate, 
 								   S32 x, S32 y,
 								   bool close_popups)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	// make a copy of list of popups, in case list is modified during mouse event handling
 	popup_list_t popups(mPopups);
@@ -120,7 +120,7 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 		{
 			if (func(popup, popup_x, popup_y))
 			{
-				handled = TRUE;
+				handled = true;
 				break;
 			}
 		}

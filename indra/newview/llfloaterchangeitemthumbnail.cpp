@@ -124,7 +124,7 @@ bool LLFloaterChangeItemThumbnail::postBuild()
 
     LLSD tooltip_text;
     mToolTipTextBox->setValue(tooltip_text);
-    mMultipleTextBox->setVisible(FALSE);
+    mMultipleTextBox->setVisible(false);
 
     LLButton *upload_local = getChild<LLButton>("upload_local");
     upload_local->setClickedCallback(onUploadLocal, (void*)this);
@@ -386,7 +386,7 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
     {
         setTitle(getString("title_item_thumbnail"));
 
-        icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
+        icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), false);
         mRemoveImageBtn->setEnabled(thumbnail_id.notNull() && ((item->getActualType() != LLAssetType::AT_TEXTURE) || (item->getAssetUUID() != thumbnail_id)));
     }
     else
@@ -436,14 +436,14 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
     if (mItemList.size() == 1)
     {
         mItemTypeIcon->setImage(icon_img);
-        mItemTypeIcon->setVisible(TRUE);
-        mMultipleTextBox->setVisible(FALSE);
+        mItemTypeIcon->setVisible(true);
+        mMultipleTextBox->setVisible(false);
         mItemNameText->setValue(obj->getName());
         mItemNameText->setToolTip(std::string());
     }
     else
     {
-        mItemTypeIcon->setVisible(FALSE);
+        mItemTypeIcon->setVisible(false);
         mMultipleTextBox->setVisible(mMultipleThumbnails);
         mItemNameText->setValue(getString("multiple_item_names"));
 
@@ -690,11 +690,11 @@ void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id
 
         texturep->setLoadedCallback(onImageDataLoaded,
             MAX_DISCARD_LEVEL, // Don't need full image, just size data
-            FALSE,
-            FALSE,
+            false,
+            false,
             (void*)data,
             NULL,
-            FALSE);
+            false);
     }
     else
     {
@@ -748,12 +748,12 @@ bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
 
 //static
 void LLFloaterChangeItemThumbnail::onImageDataLoaded(
-    BOOL success,
+    bool success,
     LLViewerFetchedTexture *src_vi,
     LLImageRaw* src,
     LLImageRaw* aux_src,
     S32 discard_level,
-    BOOL final,
+    bool final,
     void* userdata)
 {
     if (!userdata) return;
@@ -794,12 +794,12 @@ void LLFloaterChangeItemThumbnail::onImageDataLoaded(
 
 //static
 void LLFloaterChangeItemThumbnail::onFullImageLoaded(
-    BOOL success,
+    bool success,
     LLViewerFetchedTexture* src_vi,
     LLImageRaw* src,
     LLImageRaw* aux_src,
     S32 discard_level,
-    BOOL final,
+    bool final,
     void* userdata)
 {
     if (!userdata) return;
@@ -861,12 +861,12 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             thumbnail_id,
             thumbnail_id,
             thumbnail_id,
-            FALSE,
-            TRUE,
+            false,
+            true,
             "SELECT PHOTO",
             PERM_NONE,
             PERM_NONE,
-            FALSE,
+            false,
             NULL);
 
         mPickerHandle = floaterp->getHandle();
@@ -885,8 +885,8 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             }
             );
 
-            texture_floaterp->setLocalTextureEnabled(FALSE);
-            texture_floaterp->setBakeTextureEnabled(FALSE);
+            texture_floaterp->setLocalTextureEnabled(false);
+            texture_floaterp->setBakeTextureEnabled(false);
             texture_floaterp->setCanApplyImmediately(false);
             texture_floaterp->setCanApply(false, true, false /*Hide 'preview disabled'*/);
             texture_floaterp->setMinDimentionsLimits(LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN);
@@ -896,7 +896,7 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
 
         floaterp->openFloater();
     }
-    floaterp->setFocus(TRUE);
+    floaterp->setFocus(true);
 }
 
 void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
@@ -990,11 +990,11 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
                 texturep->setMinDiscardLevel(0);
                 texturep->setLoadedCallback(onFullImageLoaded,
                                             0, // Need best quality
-                                            TRUE,
-                                            FALSE,
+                                            true,
+                                            false,
                                             (void*)data,
                                             NULL,
-                                            FALSE);
+                                            false);
                 texturep->forceToSaveRawImage(0);
             }
             return;
@@ -1035,7 +1035,7 @@ void LLFloaterChangeItemThumbnail::onUploadComplete(const LLUUID& asset_id,
         if (floater)
         {
             floater->mMultipleThumbnails = false;
-            floater->mMultipleTextBox->setVisible(FALSE);
+            floater->mMultipleTextBox->setVisible(false);
         }
     }
 }

@@ -49,13 +49,13 @@ public:
 	virtual void reset();
 
 	void dirty();
-	void setIsEditing(BOOL edit);
+	void setIsEditing(bool edit);
 protected:
 	virtual void refresh() = 0;
 	virtual void save() = 0;
 	virtual void updateVerbs();
 	
-	BOOL getIsEditing() const;
+	bool getIsEditing() const;
 	
 	//
 	// UI Elements
@@ -66,8 +66,8 @@ protected:
 	LLButton*					mCancelBtn;
 
 private:
-	BOOL mIsDirty; 		// item properties need to be updated
-	BOOL mIsEditing; 	// if we're in edit mode
+	bool mIsDirty; 		// item properties need to be updated
+	bool mIsEditing; 	// if we're in edit mode
 };
 
 #endif // LL_LLSIDEPANELINVENTORYSUBPANEL_H

@@ -60,7 +60,7 @@ LLFloaterPreviewTrash::~LLFloaterPreviewTrash()
 // static
 void LLFloaterPreviewTrash::show()
 {
-	LLFloaterReg::showTypedInstance<LLFloaterPreviewTrash>("preview_trash", LLSD(), TRUE);
+	LLFloaterReg::showTypedInstance<LLFloaterPreviewTrash>("preview_trash", LLSD(), true);
 }
 
 // static

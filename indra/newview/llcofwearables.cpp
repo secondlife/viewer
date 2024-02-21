@@ -69,7 +69,7 @@ protected:
 		// Hide the "Create new <WEARABLE_TYPE>" if it's irrelevant.
 		if (w_type == LLWearableType::WT_NONE)
 		{
-			menu_item->setVisible(FALSE);
+			menu_item->setVisible(false);
 			return;
 		}
 

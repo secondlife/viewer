@@ -187,7 +187,7 @@ private:
 class LLTeleportRequestViaLure : public LLTeleportRequestViaLandmark
 {
 public:
-	LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike);
+	LLTeleportRequestViaLure(const LLUUID &pLureId, bool pIsLureGodLike);
 	virtual ~LLTeleportRequestViaLure();
 
 	virtual void toOstream(std::ostream& os) const;
@@ -197,10 +197,10 @@ public:
 	virtual void startTeleport();
 
 protected:
-	inline BOOL isLureGodLike() const {return mIsLureGodLike;};
+	inline bool isLureGodLike() const {return mIsLureGodLike;};
 
 private:
-	BOOL mIsLureGodLike;
+	bool mIsLureGodLike;
 };
 
 class LLTeleportRequestViaLocation : public LLTeleportRequest
@@ -866,7 +866,7 @@ bool LLAgent::canFly()
 	return parcel->getAllowFly();
 }
 
-BOOL LLAgent::getFlying() const
+bool LLAgent::getFlying() const
 { 
 	return mControlFlags & AGENT_CONTROL_FLY; 
 }
@@ -874,7 +874,7 @@ BOOL LLAgent::getFlying() const
 //-----------------------------------------------------------------------------
 // setFlying()
 //-----------------------------------------------------------------------------
-void LLAgent::setFlying(BOOL fly, BOOL fail_sound)
+void LLAgent::setFlying(bool fly, bool fail_sound)
 {
 	if (isAgentAvatarValid())
 	{
@@ -897,7 +897,7 @@ void LLAgent::setFlying(BOOL fly, BOOL fail_sound)
 
 	if (fly)
 	{
-		BOOL was_flying = getFlying();
+		bool was_flying = getFlying();
 		if (!canFly() && !was_flying)
 		{
 			// parcel doesn't let you start fly
@@ -924,7 +924,7 @@ void LLAgent::setFlying(BOOL fly, BOOL fail_sound)
 	// Update Movement Controls according to Fly mode
 	LLFloaterMove::setFlyingMode(fly);
 
-	mbFlagsDirty = TRUE;
+	mbFlagsDirty = true;
 }
 
 
@@ -940,7 +940,7 @@ void LLAgent::toggleFlying()
 		LLToolPie::instance().stopClickToWalk();
 	}
 
-	BOOL fly = !gAgent.getFlying();
+	bool fly = !gAgent.getFlying();
 
 	gAgent.mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -1148,7 +1148,7 @@ void LLAgent::removeRegionChangedCallback(boost::signals2::connection callback)
 //-----------------------------------------------------------------------------
 // inPrelude()
 //-----------------------------------------------------------------------------
-BOOL LLAgent::inPrelude()
+bool LLAgent::inPrelude()
 {
 	return mRegionp && mRegionp->isPrelude();
 }
@@ -1167,7 +1167,7 @@ std::string LLAgent::getRegionCapability(const std::string &name)
 // canManageEstate()
 //-----------------------------------------------------------------------------
 
-BOOL LLAgent::canManageEstate() const
+bool LLAgent::canManageEstate() const
 {
 	return mRegionp && mRegionp->canManageEstate();
 }
@@ -1540,7 +1540,7 @@ U32 LLAgent::getControlFlags()
 void LLAgent::setControlFlags(U32 mask)
 {
 	mControlFlags |= mask;
-	mbFlagsDirty = TRUE;
+	mbFlagsDirty = true;
 }
 
 
@@ -1553,14 +1553,14 @@ void LLAgent::clearControlFlags(U32 mask)
 	mControlFlags &= ~mask;
 	if (old_flags != mControlFlags)
 	{
-		mbFlagsDirty = TRUE;
+		mbFlagsDirty = true;
 	}
 }
 
 //-----------------------------------------------------------------------------
 // controlFlagsDirty()
 //-----------------------------------------------------------------------------
-BOOL LLAgent::controlFlagsDirty() const
+bool LLAgent::controlFlagsDirty() const
 {
 	return mbFlagsDirty;
 }
@@ -1570,7 +1570,7 @@ BOOL LLAgent::controlFlagsDirty() const
 //-----------------------------------------------------------------------------
 void LLAgent::enableControlFlagReset()
 {
-	mbFlagsNeedReset = TRUE;
+	mbFlagsNeedReset = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1580,8 +1580,8 @@ void LLAgent::resetControlFlags()
 {
 	if (mbFlagsNeedReset)
 	{
-		mbFlagsNeedReset = FALSE;
-		mbFlagsDirty = FALSE;
+		mbFlagsNeedReset = false;
+		mbFlagsDirty = false;
 		// reset all of the ephemeral flags
 		// some flags are managed elsewhere
 		mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
@@ -1628,7 +1628,7 @@ void LLAgent::clearAFK()
 //-----------------------------------------------------------------------------
 // getAFK()
 //-----------------------------------------------------------------------------
-BOOL LLAgent::getAFK() const
+bool LLAgent::getAFK() const
 {
 	return (mControlFlags & AGENT_CONTROL_AWAY) != 0;
 }
@@ -1665,11 +1665,11 @@ void LLAgent::startAutoPilotGlobal(
 	const LLVector3d &target_global,
 	const std::string& behavior_name,
 	const LLQuaternion *target_rotation,
-	void (*finish_callback)(BOOL, void *),
+	void (*finish_callback)(bool, void *),
 	void *callback_data,
 	F32 stop_distance,
 	F32 rot_threshold,
-	BOOL allow_flying)
+	bool allow_flying)
 {
 	if (!isAgentAvatarValid())
 	{
@@ -1726,38 +1726,38 @@ void LLAgent::startAutoPilotGlobal(
 	}
 	else
 	{
-		mAutoPilotFlyOnStop = FALSE;
+		mAutoPilotFlyOnStop = false;
 	}
 
 	if (distance > 30.0 && mAutoPilotAllowFlying)
 	{
-		setFlying(TRUE);
+		setFlying(true);
 	}
 
 	if ( distance > 1.f && 
 		mAutoPilotAllowFlying &&
 		heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
 	{
-		setFlying(TRUE);
+		setFlying(true);
 		// Do not force flying for "Sit" behavior to prevent flying after pressing "Stand"
 		// from an object. See EXT-1655.
 		if ("Sit" != mAutoPilotBehaviorName)
-			mAutoPilotFlyOnStop = TRUE;
+			mAutoPilotFlyOnStop = true;
 	}
 
-	mAutoPilot = TRUE;
+	mAutoPilot = true;
 	setAutoPilotTargetGlobal(target_global);
 
 	if (target_rotation)
 	{
-		mAutoPilotUseRotation = TRUE;
+		mAutoPilotUseRotation = true;
 		mAutoPilotTargetFacing = LLVector3::x_axis * *target_rotation;
 		mAutoPilotTargetFacing.mV[VZ] = 0.f;
 		mAutoPilotTargetFacing.normalize();
 	}
 	else
 	{
-		mAutoPilotUseRotation = FALSE;
+		mAutoPilotUseRotation = false;
 	}
 
 	mAutoPilotNoProgressFrameCount = 0;
@@ -1795,7 +1795,7 @@ void LLAgent::setAutoPilotTargetGlobal(const LLVector3d &target_global)
 //-----------------------------------------------------------------------------
 // startFollowPilot()
 //-----------------------------------------------------------------------------
-void LLAgent::startFollowPilot(const LLUUID &leader_id, BOOL allow_flying, F32 stop_distance)
+void LLAgent::startFollowPilot(const LLUUID &leader_id, bool allow_flying, F32 stop_distance)
 {
 	mLeaderID = leader_id;
 	if ( mLeaderID.isNull() ) return;
@@ -1821,11 +1821,11 @@ void LLAgent::startFollowPilot(const LLUUID &leader_id, BOOL allow_flying, F32 s
 //-----------------------------------------------------------------------------
 // stopAutoPilot()
 //-----------------------------------------------------------------------------
-void LLAgent::stopAutoPilot(BOOL user_cancel)
+void LLAgent::stopAutoPilot(bool user_cancel)
 {
 	if (mAutoPilot)
 	{
-		mAutoPilot = FALSE;
+		mAutoPilot = false;
 		if (mAutoPilotUseRotation && !user_cancel)
 		{
 			resetAxes(mAutoPilotTargetFacing);
@@ -1883,7 +1883,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 
 		if (gAgentAvatarp->mInAir && mAutoPilotAllowFlying)
 		{
-			setFlying(TRUE);
+			setFlying(true);
 		}
 	
 		LLVector3 at;
@@ -2078,7 +2078,7 @@ void LLAgent::propagate(const F32 dt)
 	// handle auto-land behavior
 	if (isAgentAvatarValid())
 	{
-		BOOL in_air = gAgentAvatarp->mInAir;
+		bool in_air = gAgentAvatarp->mInAir;
 		LLVector3 land_vel = getVelocity();
 		land_vel.mV[VZ] = 0.f;
 
@@ -2088,7 +2088,7 @@ void LLAgent::propagate(const F32 dt)
 			&& gSavedSettings.getBOOL("AutomaticFly"))
 		{
 			// land automatically
-			setFlying(FALSE);
+			setFlying(false);
 		}
 	}
 
@@ -2152,23 +2152,23 @@ std::ostream& operator<<(std::ostream &s, const LLAgent &agent)
 	return s;
 }
 
-// TRUE if your own avatar needs to be rendered.  Usually only
+// true if your own avatar needs to be rendered.  Usually only
 // in third person and build.
 //-----------------------------------------------------------------------------
 // needsRenderAvatar()
 //-----------------------------------------------------------------------------
-BOOL LLAgent::needsRenderAvatar()
+bool LLAgent::needsRenderAvatar()
 {
 	if (gAgentCamera.cameraMouselook() && !LLVOAvatar::sVisibleInFirstPerson)
 	{
-		return FALSE;
+		return false;
 	}
 
 	return mShowAvatar && mOutfitChosen;
 }
 
-// TRUE if we need to render your own avatar's head.
-BOOL LLAgent::needsRenderHead()
+// true if we need to render your own avatar's head.
+bool LLAgent::needsRenderHead()
 {
 	return (LLVOAvatar::sVisibleInFirstPerson && LLPipeline::sReflectionRender) || (mShowAvatar && !gAgentCamera.cameraMouselook());
 }
@@ -2201,7 +2201,7 @@ void LLAgent::startTyping()
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
 	(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+			sendChatFromViewer("", CHAT_TYPE_START, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -2214,7 +2214,7 @@ void LLAgent::stopTyping()
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
 		(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+				sendChatFromViewer("", CHAT_TYPE_STOP, false);
 	}
 }
 
@@ -2289,19 +2289,19 @@ void LLAgent::endAnimationUpdateUI()
 		// show mouse cursor
 		gViewerWindow->showCursor();
 		// show menus
-		gMenuBarView->setVisible(TRUE);
-		LLNavigationBar::getInstance()->setVisible(TRUE && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
+		gMenuBarView->setVisible(true);
+		LLNavigationBar::getInstance()->setVisible(true && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
 		gStatusBar->setVisibleForMouselook(true);
 
         static LLCachedControl<bool> show_mini_location_panel(gSavedSettings, "ShowMiniLocationPanel");
 		if (show_mini_location_panel)
 		{
-			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
+			LLPanelTopInfoBar::getInstance()->setVisible(true);
 		}
 
-		LLChicletBar::getInstance()->setVisible(TRUE);
+		LLChicletBar::getInstance()->setVisible(true);
 
-		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
+		LLPanelStandStopFlying::getInstance()->setVisible(true);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
@@ -2313,7 +2313,7 @@ void LLAgent::endAnimationUpdateUI()
 		}
 
 		// Only pop if we have pushed...
-		if (TRUE == mViewsPushed)
+		if (true == mViewsPushed)
 		{
 #if 0 // Use this once all floaters are registered
 			LLFloaterReg::restoreVisibleInstances();
@@ -2338,14 +2338,14 @@ void LLAgent::endAnimationUpdateUI()
 
 			gFloaterView->popVisibleAll(skip_list);
 #endif
-			mViewsPushed = FALSE;
+			mViewsPushed = false;
 		}
 
 		
 		gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
 		if( gMorphView )
 		{
-			gMorphView->setVisible( FALSE );
+			gMorphView->setVisible( false );
 		}
 
 		// Disable mouselook-specific animations
@@ -2384,7 +2384,7 @@ void LLAgent::endAnimationUpdateUI()
 
 		if( gMorphView )
 		{
-			gMorphView->setVisible( FALSE );
+			gMorphView->setVisible( false );
 		}
 
 		if (isAgentAvatarValid())
@@ -2394,7 +2394,7 @@ void LLAgent::endAnimationUpdateUI()
 				sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_STOP);
 				sendAnimationRequest(ANIM_AGENT_CUSTOMIZE_DONE, ANIM_REQUEST_START);
 
-				mCustomAnim = FALSE ;
+				mCustomAnim = false ;
 			}
 			
 		}
@@ -2410,19 +2410,19 @@ void LLAgent::endAnimationUpdateUI()
 	{
 		// clean up UI
 		// first show anything hidden by UI toggle
-		gViewerWindow->setUIVisibility(TRUE);
+		gViewerWindow->setUIVisibility(true);
 
 		// then hide stuff we want hidden for mouselook 
 		gToolBarView->setToolBarsVisible(false);
-		gMenuBarView->setVisible(FALSE);
-		LLNavigationBar::getInstance()->setVisible(FALSE);
+		gMenuBarView->setVisible(false);
+		LLNavigationBar::getInstance()->setVisible(false);
 		gStatusBar->setVisibleForMouselook(false);
 
-		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
+		LLPanelTopInfoBar::getInstance()->setVisible(false);
 
-		LLChicletBar::getInstance()->setVisible(FALSE);
+		LLChicletBar::getInstance()->setVisible(false);
 
-		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
+		LLPanelStandStopFlying::getInstance()->setVisible(false);
 
 		// clear out camera lag effect
 		gAgentCamera.clearCameraLag();
@@ -2432,7 +2432,7 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
-		mViewsPushed = TRUE;
+		mViewsPushed = true;
 
 		if (mMouselookModeInSignal)
 		{
@@ -2449,15 +2449,15 @@ void LLAgent::endAnimationUpdateUI()
 		LLFloaterView::skip_list_t skip_list;
 		skip_list.insert(LLFloaterReg::findInstance("mini_map"));
 		skip_list.insert(LLFloaterReg::findInstance("beacons"));
-		gFloaterView->pushVisibleAll(FALSE, skip_list);
+		gFloaterView->pushVisibleAll(false, skip_list);
 #endif
 
 		if( gMorphView )
 		{
-			gMorphView->setVisible(FALSE);
+			gMorphView->setVisible(false);
 		}
 
-		gConsole->setVisible( TRUE );
+		gConsole->setVisible( true );
 
 		if (isAgentAvatarValid())
 		{
@@ -2506,7 +2506,7 @@ void LLAgent::endAnimationUpdateUI()
 
 		if( gMorphView )
 		{
-			gMorphView->setVisible( TRUE );
+			gMorphView->setVisible( true );
 		}
 
 		// freeze avatar
@@ -3059,7 +3059,7 @@ bool LLAgent::requestGetCapability(const std::string &capName, httpCallback_t cb
     return false;
 }
 
-BOOL LLAgent::getAdminOverride() const	
+bool LLAgent::getAdminOverride() const	
 { 
 	return mAgentAccess->getAdminOverride(); 
 }
@@ -3069,7 +3069,7 @@ void LLAgent::setMaturity(char text)
 	mAgentAccess->setMaturity(text);
 }
 
-void LLAgent::setAdminOverride(BOOL b)	
+void LLAgent::setAdminOverride(bool b)	
 { 
 	mAgentAccess->setAdminOverride(b);
 }
@@ -3121,7 +3121,7 @@ void LLAgent::buildFullnameAndTitle(std::string& name) const
 	}
 }
 
-BOOL LLAgent::isInGroup(const LLUUID& group_id, BOOL ignore_god_mode /* FALSE */) const
+bool LLAgent::isInGroup(const LLUUID& group_id, bool ignore_god_mode /* false */) const
 {
 	if (!ignore_god_mode && isGodlike())
 		return true;
@@ -3131,33 +3131,33 @@ BOOL LLAgent::isInGroup(const LLUUID& group_id, BOOL ignore_god_mode /* FALSE */
 	{
 		if(mGroups[i].mID == group_id)
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 // This implementation should mirror LLAgentInfo::hasPowerInGroup
-BOOL LLAgent::hasPowerInGroup(const LLUUID& group_id, U64 power) const
+bool LLAgent::hasPowerInGroup(const LLUUID& group_id, U64 power) const
 {
 	if (isGodlikeWithoutAdminMenuFakery())
 		return true;
 
 	// GP_NO_POWERS can also mean no power is enough to grant an ability.
-	if (GP_NO_POWERS == power) return FALSE;
+	if (GP_NO_POWERS == power) return false;
 
 	U32 count = mGroups.size();
 	for(U32 i = 0; i < count; ++i)
 	{
 		if(mGroups[i].mID == group_id)
 		{
-			return (BOOL)((mGroups[i].mPowers & power) > 0);
+			return (bool)((mGroups[i].mPowers & power) > 0);
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLAgent::hasPowerInActiveGroup(U64 power) const
+bool LLAgent::hasPowerInActiveGroup(U64 power) const
 {
 	return (mGroupID.notNull() && (hasPowerInGroup(mGroupID, power)));
 }
@@ -3179,7 +3179,7 @@ U64 LLAgent::getPowerInGroup(const LLUUID& group_id) const
 	return GP_NO_POWERS;
 }
 
-BOOL LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
+bool LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
 {
 	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
@@ -3187,10 +3187,10 @@ BOOL LLAgent::getGroupData(const LLUUID& group_id, LLGroupData& data) const
 		if(mGroups[i].mID == group_id)
 		{
 			data = mGroups[i];
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 S32 LLAgent::getGroupContribution(const LLUUID& group_id) const
@@ -3207,7 +3207,7 @@ S32 LLAgent::getGroupContribution(const LLUUID& group_id) const
 	return 0;
 }
 
-BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
+bool LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 {
 	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
@@ -3224,13 +3224,13 @@ BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 			msg->addUUID("GroupID", group_id);
 			msg->addS32("Contribution", contribution);
 			sendReliableMessage();
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile)
+bool LLAgent::setUserGroupFlags(const LLUUID& group_id, bool accept_notices, bool list_in_profile)
 {
 	S32 count = mGroups.size();
 	for(S32 i = 0; i < count; ++i)
@@ -3250,13 +3250,13 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 			msg->nextBlock("NewData");
 			msg->addBOOL("ListInProfile", list_in_profile);
 			sendReliableMessage();
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLAgent::canJoinGroups() const
+bool LLAgent::canJoinGroups() const
 {
 	return (S32)mGroups.size() < LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 }
@@ -3310,7 +3310,7 @@ void LLAgent::sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRe
 		}
 		msg->nextBlockFast(_PREHASH_AnimationList);
 		msg->addUUIDFast(_PREHASH_AnimID, (anim_ids[i]) );
-		msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? TRUE : FALSE);
+		msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? true : false);
 		num_valid_anims++;
 	}
 
@@ -3337,7 +3337,7 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 
 	msg->nextBlockFast(_PREHASH_AnimationList);
 	msg->addUUIDFast(_PREHASH_AnimID, (anim_id) );
-	msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? TRUE : FALSE);
+	msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? true : false);
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
 	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
@@ -3361,7 +3361,7 @@ void LLAgent::sendAnimationStateReset()
 
 	msg->nextBlockFast(_PREHASH_AnimationList);
 	msg->addUUIDFast(_PREHASH_AnimID, LLUUID::null );
-	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
+	msg->addBOOLFast(_PREHASH_StartAnim, false);
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
 	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
@@ -3402,7 +3402,7 @@ void LLAgent::sendWalkRun(bool running)
 		msgsys->nextBlockFast(_PREHASH_AgentData);
 		msgsys->addUUIDFast(_PREHASH_AgentID, getID());
 		msgsys->addUUIDFast(_PREHASH_SessionID, getSessionID());
-		msgsys->addBOOLFast(_PREHASH_AlwaysRun, BOOL(running) );
+		msgsys->addBOOLFast(_PREHASH_AlwaysRun, bool(running) );
 		sendReliableMessage();
 	}
 }
@@ -3414,20 +3414,20 @@ void LLAgent::friendsChanged()
 	mProxyForAgents = collector.mProxy;
 }
 
-BOOL LLAgent::isGrantedProxy(const LLPermissions& perm)
+bool LLAgent::isGrantedProxy(const LLPermissions& perm)
 {
 	return (mProxyForAgents.count(perm.getOwner()) > 0);
 }
 
-BOOL LLAgent::allowOperation(PermissionBit op,
+bool LLAgent::allowOperation(PermissionBit op,
 							 const LLPermissions& perm,
 							 U64 group_proxy_power,
 							 U8 god_minimum)
 {
 	// Check god level.
-	if (getGodLevel() >= god_minimum) return TRUE;
+	if (getGodLevel() >= god_minimum) return true;
 
-	if (!perm.isOwned()) return FALSE;
+	if (!perm.isOwned()) return false;
 
 	// A group member with group_proxy_power can act as owner.
 	bool is_group_owned;
@@ -3486,37 +3486,37 @@ void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
 	mAgentOriginGlobal = origin_global;
 }
 
-BOOL LLAgent::leftButtonGrabbed() const	
+bool LLAgent::leftButtonGrabbed() const	
 { 
-	const BOOL camera_mouse_look = gAgentCamera.cameraMouselook();
+	const bool camera_mouse_look = gAgentCamera.cameraMouselook();
 	return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0) 
 		|| (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)
 		|| (!camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
 		|| (camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
 }
 
-BOOL LLAgent::rotateGrabbed() const		
+bool LLAgent::rotateGrabbed() const		
 { 
 	return (mControlsTakenCount[CONTROL_YAW_POS_INDEX] > 0)
 		|| (mControlsTakenCount[CONTROL_YAW_NEG_INDEX] > 0); 
 }
 
-BOOL LLAgent::forwardGrabbed() const
+bool LLAgent::forwardGrabbed() const
 { 
 	return (mControlsTakenCount[CONTROL_AT_POS_INDEX] > 0); 
 }
 
-BOOL LLAgent::backwardGrabbed() const
+bool LLAgent::backwardGrabbed() const
 { 
 	return (mControlsTakenCount[CONTROL_AT_NEG_INDEX] > 0); 
 }
 
-BOOL LLAgent::upGrabbed() const		
+bool LLAgent::upGrabbed() const		
 { 
 	return (mControlsTakenCount[CONTROL_UP_POS_INDEX] > 0); 
 }
 
-BOOL LLAgent::downGrabbed() const	
+bool LLAgent::downGrabbed() const	
 { 
 	return (mControlsTakenCount[CONTROL_UP_NEG_INDEX] > 0); 
 }
@@ -3936,19 +3936,19 @@ void LLAgent::processControlRelease(LLMessageSystem *msg, void **)
 }
 */
 
-BOOL LLAgent::anyControlGrabbed() const
+bool LLAgent::anyControlGrabbed() const
 {
 	for (U32 i = 0; i < TOTAL_CONTROLS; i++)
 	{
 		if (gAgent.mControlsTakenCount[i] > 0)
-			return TRUE;
+			return true;
 		if (gAgent.mControlsTakenPassedOnCount[i] > 0)
-			return TRUE;
+			return true;
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLAgent::isControlGrabbed(S32 control_index) const
+bool LLAgent::isControlGrabbed(S32 control_index) const
 {
 	return mControlsTakenCount[control_index] > 0;
 }
@@ -3964,22 +3964,22 @@ void LLAgent::forceReleaseControls()
 
 void LLAgent::setHomePosRegion( const U64& region_handle, const LLVector3& pos_region)
 {
-	mHaveHomePosition = TRUE;
+	mHaveHomePosition = true;
 	mHomeRegionHandle = region_handle;
 	mHomePosRegion = pos_region;
 }
 
-BOOL LLAgent::getHomePosGlobal( LLVector3d* pos_global )
+bool LLAgent::getHomePosGlobal( LLVector3d* pos_global )
 {
 	if(!mHaveHomePosition)
 	{
-		return FALSE;
+		return false;
 	}
 	F32 x = 0;
 	F32 y = 0;
 	from_region_handle( mHomeRegionHandle, &x, &y);
 	pos_global->setVec( x + mHomePosRegion.mV[VX], y + mHomePosRegion.mV[VY], mHomePosRegion.mV[VZ] );
-	return TRUE;
+	return true;
 }
 
 bool LLAgent::isInHomeRegion()
@@ -4062,7 +4062,7 @@ bool LLAgent::teleportCore(bool is_local)
 
 	// Close all pie menus, deselect land, etc.
 	// Don't change the camera until we know teleport succeeded. JC
-	gAgentCamera.resetView(FALSE);
+	gAgentCamera.resetView(false);
 
 	// local logic
 	add(LLStatViewer::TELEPORT, 1);
@@ -4073,7 +4073,7 @@ bool LLAgent::teleportCore(bool is_local)
 	}
 	else
 	{
-		gTeleportDisplay = TRUE;
+		gTeleportDisplay = true;
 		LL_INFOS("Teleport") << "Non-local, setting teleport state to TELEPORT_START" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 	}
@@ -4106,7 +4106,7 @@ void LLAgent::clearTeleportRequest()
 {
     if(LLVoiceClient::instanceExists())
     {
-        LLVoiceClient::getInstance()->setHidden(FALSE);
+        LLVoiceClient::getInstance()->setHidden(false);
     }
 	mTeleportRequest.reset();
     mTPNeedsNeabyChatSeparator = false;
@@ -4136,7 +4136,7 @@ void LLAgent::startTeleportRequest()
     LL_INFOS("Telport") << "Agent handling start teleport request." << LL_ENDL;
     if(LLVoiceClient::instanceExists())
     {
-        LLVoiceClient::getInstance()->setHidden(TRUE);
+        LLVoiceClient::getInstance()->setHidden(true);
     }
 	if (hasPendingTeleportRequest())
 	{
@@ -4144,7 +4144,7 @@ void LLAgent::startTeleportRequest()
         mTeleportCanceled.reset();
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{
-			gTeleportDisplay = TRUE;
+			gTeleportDisplay = true;
 			LL_INFOS("Teleport") << "Maturity preference not synced yet, setting teleport state to TELEPORT_PENDING" << LL_ENDL;
 			setTeleportState(TELEPORT_PENDING);
 		}
@@ -4219,13 +4219,13 @@ void LLAgent::handleTeleportFailed()
     LL_WARNS("Teleport") << "Agent handling teleport failure!" << LL_ENDL;
     if(LLVoiceClient::instanceExists())
     {
-        LLVoiceClient::getInstance()->setHidden(FALSE);
+        LLVoiceClient::getInstance()->setHidden(false);
     }
 
     setTeleportState(LLAgent::TELEPORT_NONE);
     // Unlock the UI if the progress bar has been shown.
-//     gViewerWindow->setShowProgress(FALSE);
-//     gTeleportDisplay = FALSE;
+//     gViewerWindow->setShowProgress(false);
+//     gTeleportDisplay = false;
 
     if (mTeleportRequest)
 	{
@@ -4271,14 +4271,14 @@ void LLAgent::addTPNearbyChatSeparator()
 
         LLChat chat;
         chat.mFromName = location_name;
-        chat.mMuted = FALSE;
+        chat.mMuted = false;
         chat.mFromID = LLUUID::null;
         chat.mSourceType = CHAT_SOURCE_TELEPORT;
         chat.mChatStyle = CHAT_STYLE_TELEPORT_SEP;
         chat.mText = "";
 
         LLSD args;
-        args["do_not_log"] = TRUE;
+        args["do_not_log"] = true;
         nearby_chat->addMessage(chat, true, args);
     }
 }
@@ -4358,13 +4358,13 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 	}
 }
 
-void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
+void LLAgent::teleportViaLure(const LLUUID& lure_id, bool godlike)
 {
 	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
 	startTeleportRequest();
 }
 
-void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
+void LLAgent::doTeleportViaLure(const LLUUID& lure_id, bool godlike)
 {
 	LLViewerRegion* regionp = getRegion();
 	if(regionp && teleportCore())
@@ -4431,7 +4431,7 @@ void LLAgent::restoreCanceledTeleportRequest()
         gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
         mTeleportRequest = mTeleportCanceled;
         mTeleportCanceled.reset();
-        gTeleportDisplay = TRUE;
+        gTeleportDisplay = true;
         gTeleportDisplayTimer.reset();
     }
 }
@@ -4509,7 +4509,7 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
 
 	if(!gAgentCamera.isfollowCamLocked())
 	{
-		gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
+		gAgentCamera.setFocusOnAvatar(false, ANIMATE);	// detach camera form avatar, so it keeps direction
 	}
 
 	U64 region_handle = to_region_handle(pos_global);
@@ -4595,7 +4595,7 @@ void LLAgent::stopCurrentAnimations()
 			else
 			{
 				// stop this animation locally
-				gAgentAvatarp->stopMotion(anim_it->first, TRUE);
+				gAgentAvatarp->stopMotion(anim_it->first, true);
 				// ...and tell the server to tell everyone.
 				anim_ids.push_back(anim_it->first);
 			}
@@ -4692,7 +4692,7 @@ void LLAgent::requestEnterGodMode()
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->nextBlockFast(_PREHASH_RequestBlock);
-	msg->addBOOLFast(_PREHASH_Godlike, TRUE);
+	msg->addBOOLFast(_PREHASH_Godlike, true);
 	msg->addUUIDFast(_PREHASH_Token, LLUUID::null);
 
 	// simulators need to know about your request
@@ -4707,7 +4707,7 @@ void LLAgent::requestLeaveGodMode()
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->nextBlockFast(_PREHASH_RequestBlock);
-	msg->addBOOLFast(_PREHASH_Godlike, FALSE);
+	msg->addBOOLFast(_PREHASH_Godlike, false);
 	msg->addUUIDFast(_PREHASH_Token, LLUUID::null);
 
 	// simulator needs to know about your request
@@ -4900,7 +4900,7 @@ const std::string& LLAgent::getTeleportStateName() const
 void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 {
 	LLXMLNodePtr root;
-	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
 	if (!success || !root || !root->hasName( "teleport_messages" ))
 	{
@@ -5088,7 +5088,7 @@ void LLTeleportRequestViaLandmark::restartTeleport()
 // LLTeleportRequestViaLure
 //-----------------------------------------------------------------------------
 
-LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike)
+LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, bool pIsLureGodLike)
 	: LLTeleportRequestViaLandmark(pLureId),
 	mIsLureGodLike(pIsLureGodLike)
 {

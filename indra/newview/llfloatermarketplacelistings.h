@@ -72,7 +72,7 @@ private:
 	bool onViewSortMenuItemCheck(const LLSD& userdata);
 	void onAddButtonClicked();
     void onAuditButtonClicked();
-	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, bool user_action);
     void onTabChange();
     void onFilterEdit(const std::string& search_string);
     
@@ -162,7 +162,7 @@ private:
 	virtual ~LLFloaterAssociateListing();
     
 	// UI Callbacks
-	void apply(BOOL user_confirm = TRUE);
+	void apply(bool user_confirm = true);
 	void cancel();
     void callback_apply(const LLSD& notification, const LLSD& response);
     

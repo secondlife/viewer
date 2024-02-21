@@ -1938,7 +1938,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                        << " VoiceEnabled " << mVoiceEnabled
                        << " IsInitialized " << mIsInitialized
                        << " RelogRequested " << mRelogRequested
-                       << " ShuttingDown " << (sShuttingDown ? "TRUE" : "FALSE")
+                       << " ShuttingDown " << (sShuttingDown ? "true" : "false")
                        << " returning " << status
                        << LL_ENDL;
     return status;
@@ -5152,16 +5152,16 @@ bool LLVivoxVoiceClient::isVoiceWorking() const
 
 // Returns true if the indicated participant in the current audio session is really an SL avatar.
 // Currently this will be false only for PSTN callers into group chats, and PSTN p2p calls.
-BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
+bool LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 {
-	BOOL result = TRUE; 
+	bool result = true; 
     sessionStatePtr_t session(findSession(id));
 	
 	if(session)
 	{
 		// this is a p2p session with the indicated caller, or the session with the specified UUID.
 		if(session->mSynthesizedCallerID)
-			result = FALSE;
+			result = false;
 	}
 	else
 	{
@@ -5181,9 +5181,9 @@ BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 
 // Returns true if calling back the session URI after the session has closed is possible.
 // Currently this will be false only for PSTN P2P calls.		
-BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
+bool LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 {
-	BOOL result = TRUE; 
+	bool result = true; 
     sessionStatePtr_t session(findSession(session_id));
 	
 	if(session != NULL)
@@ -5196,9 +5196,9 @@ BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 
 // Returns true if the session can accept text IM's.
 // Currently this will be false only for PSTN P2P calls.
-BOOL LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
+bool LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 {
-	bool result = TRUE;
+	bool result = true;
     sessionStatePtr_t session(findSession(session_id));
 	
 	if(session != NULL)
@@ -5627,12 +5627,12 @@ bool LLVivoxVoiceClient::voiceEnabled()
           !gNonInteractive;
 }
 
-void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)
+void LLVivoxVoiceClient::setLipSyncEnabled(bool enabled)
 {
 	mLipSyncEnabled = enabled;
 }
 
-BOOL LLVivoxVoiceClient::lipSyncEnabled()
+bool LLVivoxVoiceClient::lipSyncEnabled()
 {
 	   
 	if ( mVoiceEnabled )
@@ -5641,7 +5641,7 @@ BOOL LLVivoxVoiceClient::lipSyncEnabled()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -5687,15 +5687,15 @@ void LLVivoxVoiceClient::setMicGain(F32 volume)
 
 /////////////////////////////
 // Accessors for data related to nearby speakers
-BOOL LLVivoxVoiceClient::getVoiceEnabled(const LLUUID& id)
+bool LLVivoxVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		// I'm not sure what the semantics of this should be.
 		// For now, if we have any data about the user that came through the chat channel, assume they're voice-enabled.
-		result = TRUE;
+		result = true;
 	}
 	
 	return result;
@@ -5715,16 +5715,16 @@ std::string LLVivoxVoiceClient::getDisplayName(const LLUUID& id)
 
 
 
-BOOL LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
+bool LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		if (participant->mSpeakingTimeout.getElapsedTimeF32() > SPEAKING_TIMEOUT)
 		{
-			participant->mIsSpeaking = FALSE;
+			participant->mIsSpeaking = false;
 		}
 		result = participant->mIsSpeaking;
 	}
@@ -5732,9 +5732,9 @@ BOOL LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
 	return result;
 }
 
-BOOL LLVivoxVoiceClient::getIsModeratorMuted(const LLUUID& id)
+bool LLVivoxVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
@@ -5759,9 +5759,9 @@ F32 LLVivoxVoiceClient::getCurrentPower(const LLUUID& id)
 
 
 
-BOOL LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
+bool LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
@@ -5774,9 +5774,9 @@ BOOL LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
 	return result;
 }
 
-BOOL LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
+bool LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 	
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
@@ -5844,7 +5844,7 @@ std::string LLVivoxVoiceClient::getGroupID(const LLUUID& id)
 	return result;
 }
 
-BOOL LLVivoxVoiceClient::getAreaVoiceDisabled()
+bool LLVivoxVoiceClient::getAreaVoiceDisabled()
 {
 	return mAreaVoiceDisabled;
 }
@@ -7079,7 +7079,7 @@ void LLVivoxVoiceClient::updateVoiceMorphingMenu()
 			const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
 			if (!effect_list.empty())
 			{
-				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
+				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", true);
 
 				if (NULL != voice_morphing_menup)
 				{

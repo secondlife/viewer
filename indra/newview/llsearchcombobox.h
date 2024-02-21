@@ -50,7 +50,7 @@ public:
 	/**
 	 * Removes an entry from combo box, case insensitive
 	 */
-	BOOL remove(const std::string& name);
+	bool remove(const std::string& name);
 
 	/**
 	 * Clears search history

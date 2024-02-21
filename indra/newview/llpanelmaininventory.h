@@ -144,14 +144,14 @@ protected:
 	void setFilterTextFromFilter();
 	void startSearch();
 	
-	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, bool user_action);
 
-	static BOOL filtersVisible(void* user_data);
+	static bool filtersVisible(void* user_data);
 	void onClearSearch();
 	static void onFoldersByName(void *user_data);
-	static BOOL checkFoldersByName(void *user_data);
+	static bool checkFoldersByName(void *user_data);
 	
-	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
+	static bool incrementalFind(LLFolderViewItem* first_item, const char *find_text, bool backward);
 	void onFilterSelected();
 
 	const std::string getFilterSubString();
@@ -224,8 +224,8 @@ protected:
 	void onAddButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onClipboardAction(const LLSD& userdata);
-	BOOL isActionEnabled(const LLSD& command_name);
-	BOOL isActionChecked(const LLSD& userdata);
+	bool isActionEnabled(const LLSD& command_name);
+	bool isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
     bool isActionVisible(const LLSD& userdata);
     static bool hasSettingsInventory();
@@ -235,7 +235,7 @@ protected:
     
     void onCombinationRootChanged(bool gallery_clicked);
     void onCombinationGallerySelectionChanged(const LLUUID& category_id);
-    void onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+    void onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, bool user_action);
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */

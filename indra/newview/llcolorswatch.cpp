@@ -59,7 +59,7 @@ LLColorSwatchCtrl::Params::Params()
 
 LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 :	LLUICtrl(p),
-	mValid( TRUE ),
+	mValid( true ),
 	mColor(p.color()),
 	mCanApplyImmediately(p.can_apply_immediately),
 	mAlphaGradientImage(p.alpha_background_image),
@@ -123,7 +123,7 @@ bool LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
 	if( ' ' == uni_char )
 	{
-		showPicker(TRUE);
+		showPicker(true);
 	}
 	return LLUICtrl::handleUnicodeCharHere(uni_char);
 }
@@ -139,7 +139,7 @@ void LLColorSwatchCtrl::setOriginal(const LLColor4& color)
 	}
 }
 
-void LLColorSwatchCtrl::set(const LLColor4& color, BOOL update_picker, BOOL from_event)
+void LLColorSwatchCtrl::set(const LLColor4& color, bool update_picker, bool from_event)
 {
 	mColor = color; 
 	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
@@ -184,9 +184,9 @@ bool LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 
 			// Focus the widget now in order to return the focus
 			// after the color picker is closed.
-			setFocus(TRUE);
+			setFocus(true);
 
-			showPicker(FALSE);
+			showPicker(false);
 		}
 	}
 
@@ -202,7 +202,7 @@ void LLColorSwatchCtrl::draw()
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 	// Draw border
 	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );
-	gl_rect_2d( border, mBorderColor.get(), FALSE );
+	gl_rect_2d( border, mBorderColor.get(), false );
 
 	LLRect interior = border;
 	interior.stretch( -1 );
@@ -217,7 +217,7 @@ void LLColorSwatchCtrl::draw()
 		}
 
 		// Draw the color swatch
-		gl_rect_2d(interior, mColor % alpha, TRUE);
+		gl_rect_2d(interior, mColor % alpha, true);
 
 		if (!mColor.isOpaque())
 		{
@@ -244,7 +244,7 @@ void LLColorSwatchCtrl::draw()
 		else
 		{
 			// Draw grey and an X
-			gl_rect_2d(interior, LLColor4::grey % alpha, TRUE);
+			gl_rect_2d(interior, LLColor4::grey % alpha, true);
 			
 			gl_draw_x(interior, LLColor4::black % alpha);
 		}
@@ -272,7 +272,7 @@ void LLColorSwatchCtrl::setEnabled( bool enabled )
 
 void LLColorSwatchCtrl::setValue(const LLSD& value)
 {
-	set(LLColor4(value), TRUE, TRUE);
+	set(LLColor4(value), true, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,7 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
             {
                 // both select and cancel close LLFloaterColorPicker
                 // but COLOR_CHANGE does not
-                subject->setFocus(TRUE);
+                subject->setFocus(true);
             }
 		}
 	}
@@ -337,7 +337,7 @@ void LLColorSwatchCtrl::closeFloaterColorPicker()
 	mPickerHandle.markDead();
 }
 
-void LLColorSwatchCtrl::setValid(BOOL valid )
+void LLColorSwatchCtrl::setValid(bool valid )
 {
 	mValid = valid;
 
@@ -348,7 +348,7 @@ void LLColorSwatchCtrl::setValid(BOOL valid )
 	}
 }
 
-void LLColorSwatchCtrl::showPicker(BOOL take_focus)
+void LLColorSwatchCtrl::showPicker(bool take_focus)
 {
 	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (!pickerp)
@@ -370,7 +370,7 @@ void LLColorSwatchCtrl::showPicker(BOOL take_focus)
 
 	if (take_focus)
 	{
-		pickerp->setFocus(TRUE);
+		pickerp->setFocus(true);
 	}
 }
 

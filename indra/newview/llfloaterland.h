@@ -130,7 +130,7 @@ public:
 	// we send an update to the simulator, it usually replies with the
 	// parcel information, causing the land to be reselected.  This allows
 	// us to suppress that behavior.
-	static BOOL sRequestReplyOnUpdate;
+	static bool sRequestReplyOnUpdate;
 };
 
 
@@ -153,7 +153,7 @@ public:
 	static void onClickRelease(void*);
 	static void onClickReclaim(void*);
 	static void onClickBuyPass(void* deselect_when_done);
-	static BOOL enableBuyPass(void*);
+	static bool enableBuyPass(void*);
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 	static void finalizeCommit(void * userdata);
 	static void onForSaleChange(LLUICtrl *ctrl, void * userdata);
@@ -178,7 +178,7 @@ public:
 	virtual bool postBuild();
 
 protected:
-	BOOL			mUncheckedSell; // True only when verifying land information when land is for sale on sale info change
+	bool			mUncheckedSell; // True only when verifying land information when land is for sale on sale info change
 	
 	LLTextBox*		mLabelName;
 	LLLineEditor*	mEditName;
@@ -302,12 +302,12 @@ protected:
 	LLPointer<LLUIImage>	mIconAvatarOffline;
 	LLPointer<LLUIImage>	mIconGroup;
 
-	BOOL			mFirstReply;
+	bool			mFirstReply;
 
 	uuid_list_t		mSelectedOwners;
 	std::string		mSelectedName;
 	S32				mSelectedCount;
-	BOOL			mSelectedIsGroup;
+	bool			mSelectedIsGroup;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

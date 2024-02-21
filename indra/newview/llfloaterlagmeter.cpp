@@ -348,7 +348,7 @@ void LLFloaterLagMeter::updateControls(bool shrink)
 		button->setLabel( getString("bigger_label", mStringArgs) );
 	}
 	// Don't put keyboard focus on the button
-	button->setFocus(FALSE);
+	button->setFocus(false);
 
 //	self->mClientText->setVisible(self->mShrunk);
 //	self->mClientCause->setVisible(self->mShrunk);
@@ -365,7 +365,7 @@ void LLFloaterLagMeter::updateControls(bool shrink)
 //	self->mShrunk = !self->mShrunk;
 }
 
-BOOL LLFloaterLagMeter::isShrunk()
+bool LLFloaterLagMeter::isShrunk()
 {
 	return gSavedSettings.getBOOL("LagMeterShrunk");
 }

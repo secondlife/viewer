@@ -119,7 +119,7 @@ void LLPanelExperienceListEditor::onAdd()
 
 	mKey.generateNewID();
 
-	LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, FALSE, TRUE, mFilters, mAdd);
+	LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, false, true, mFilters, mAdd);
 	mPicker = picker->getDerivedHandle<LLFloaterExperiencePicker>();
 }
 

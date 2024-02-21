@@ -135,7 +135,7 @@ void LLFloaterForgetUser::onForgetClicked()
     const std::string user_id = user_data["user_id"];
 
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
-    BOOL delete_data = chk_box->getValue();
+    bool delete_data = chk_box->getValue();
 
     if (delete_data && mUserGridsCount[user_id] > 1)
     {
@@ -192,7 +192,7 @@ void LLFloaterForgetUser::processForgetUser()
 {
     LLScrollListCtrl *scroll_list = getChild<LLScrollListCtrl>("user_list");
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
-    BOOL delete_data = chk_box->getValue();
+    bool delete_data = chk_box->getValue();
     LLSD user_data = scroll_list->getSelectedValue();
     const std::string user_id = user_data["user_id"];
     const std::string grid = user_data["grid"];

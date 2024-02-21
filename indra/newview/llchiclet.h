@@ -104,8 +104,8 @@ public:
 	{
 		Params()
 		{
-			changeDefault(draw_tooltip, FALSE);
-			changeDefault(mouse_opaque, FALSE);
+			changeDefault(draw_tooltip, false);
+			changeDefault(mouse_opaque, false);
 			changeDefault(default_icon_name, "Generic_Person");
 		};
 	};
@@ -485,7 +485,7 @@ public:
 
 	/*virtual*/ ~LLSysWellChiclet();
 
-	void setToggleState(BOOL toggled);
+	void setToggleState(bool toggled);
 
 	void setNewMessagesState(bool new_messages);
 	//this method should change a widget according to state of the SysWellWindow 

@@ -46,7 +46,7 @@ public:
 	virtual ~LLTool();
 
 	// Hack to support LLFocusMgr
-	virtual BOOL isView() const { return FALSE; }
+	virtual bool isView() const { return false; }
 
 	// Virtual functions inherited from LLMouseHandler
 	virtual bool	handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down);
@@ -63,7 +63,7 @@ public:
 	virtual bool	handleRightMouseUp(S32 x, S32 y, MASK mask);
 	virtual bool	handleToolTip(S32 x, S32 y, MASK mask);
 
-		// Return FALSE to allow context menu to be shown.
+		// Return false to allow context menu to be shown.
 	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const
 							{ *local_x = screen_x; *local_y = screen_y;	}
 	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
@@ -74,10 +74,10 @@ public:
 	// New virtual functions
 	virtual LLViewerObject*	getEditingObject()		{ return NULL; }
 	virtual LLVector3d		getEditingPointGlobal()	{ return LLVector3d(); }
-	virtual BOOL			isEditing()				{ return (getEditingObject() != NULL); }
+	virtual bool			isEditing()				{ return (getEditingObject() != NULL); }
 	virtual void			stopEditing()			{}
 
-	virtual BOOL			clipMouseWhenDown()		{ return TRUE; }
+	virtual bool			clipMouseWhenDown()		{ return true; }
 
 	virtual void			handleSelect()			{ }	// do stuff when your tool is selected
 	virtual void			handleDeselect()		{ }	// clean up when your tool is deselected
@@ -86,15 +86,15 @@ public:
 
 	// isAlwaysRendered() - return true if this is a tool that should
 	// always be rendered regardless of selection.
-	virtual BOOL isAlwaysRendered() { return FALSE; }
+	virtual bool isAlwaysRendered() { return false; }
 
 	virtual void			render() {}				// draw tool specific 3D content in world
 	virtual void			draw();					// draw tool specific 2D overlay
 
-	virtual BOOL			handleKey(KEY key, MASK mask);
+	virtual bool			handleKey(KEY key, MASK mask);
 
 	// Note: NOT virtual.  Subclasses should call this version.
-	void					setMouseCapture(BOOL b);
+	void					setMouseCapture(bool b);
 	bool					hasMouseCapture();
 	virtual void			onMouseCaptureLost() {}  // override this one as needed.
 

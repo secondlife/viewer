@@ -84,8 +84,8 @@ bool LLPanelGroupCreate::postBuild()
     mGroupNameEditor->setPrevalidate(LLTextValidate::validateASCIINoLeadingSpace);
 
     mInsignia = getChild<LLTextureCtrl>("insignia", true);
-    mInsignia->setAllowLocalTexture(FALSE);
-    mInsignia->setCanApplyImmediately(FALSE);
+    mInsignia->setAllowLocalTexture(false);
+    mInsignia->setCanApplyImmediately(false);
 
     return true;
 }

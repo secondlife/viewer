@@ -50,8 +50,8 @@ public:
     static void getGridStatusRSSCoro();
 
     void startGridStatusTimer();
-    BOOL isFirstUpdate() { return mIsFirstUpdate; }
-    void setFirstUpdate(BOOL first_update) { mIsFirstUpdate = first_update; }
+    bool isFirstUpdate() { return mIsFirstUpdate; }
+    void setFirstUpdate(bool first_update) { mIsFirstUpdate = first_update; }
 
     static LLFloaterGridStatus* getInstance();
 
@@ -64,7 +64,7 @@ private:
     static std::map<std::string, std::string> sItemsMap;
 
     LLFrameTimer    mGridStatusTimer;
-    BOOL            mIsFirstUpdate;
+    bool            mIsFirstUpdate;
 };
 
 #endif  // LL_LLFLOATERGRIDSTATUS_H

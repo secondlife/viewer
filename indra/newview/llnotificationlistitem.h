@@ -92,7 +92,7 @@ public:
     boost::signals2::connection setOnItemClickCallback(item_callback_t cb) { return mOnItemClick.connect(cb); }
     
     virtual bool showPopup() { return true; }
-    void setExpanded(BOOL value);
+    void setExpanded(bool value);
     virtual bool postBuild();
     void reshapeNotification();
 

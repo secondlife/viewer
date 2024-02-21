@@ -199,8 +199,8 @@ void LLFloaterLinkReplace::onStartClickedResponse(const LLSD& notification, cons
 				args["NUM"] = llformat("%d", mRemainingItems);
 				mStatusText->setText(getString("ItemsRemaining", args));
 
-				mStartBtn->setEnabled(FALSE);
-				mRefreshBtn->setEnabled(FALSE);
+				mStartBtn->setEnabled(false);
+				mRefreshBtn->setEnabled(false);
 
 				mEventTimer.start();
 				tick();
@@ -296,8 +296,8 @@ void LLFloaterLinkReplace::decreaseOpenItemCount()
 	if (mRemainingItems == 0)
 	{
 		mStatusText->setText(getString("ReplaceFinished"));
-		mStartBtn->setEnabled(TRUE);
-		mRefreshBtn->setEnabled(TRUE);
+		mStartBtn->setEnabled(true);
+		mRefreshBtn->setEnabled(true);
 		mEventTimer.stop();
 		LL_INFOS() << "Inventory link replace finished." << LL_ENDL;
 	}

@@ -122,7 +122,7 @@ bool LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 	// If floater is minimized, minimap should be shown on doubleclick (STORM-299)
 	if (isMinimized())
 	{
-		setMinimized(FALSE);
+		setMinimized(false);
 		return true;
 	}
 
@@ -229,13 +229,13 @@ void LLFloaterMap::draw()
 	// Note: we can't just gAgent.check cameraMouselook() because the transition states are wrong.
 	if(gAgentCamera.cameraMouselook())
 	{
-		setMouseOpaque(FALSE);
-		getDragHandle()->setMouseOpaque(FALSE);
+		setMouseOpaque(false);
+		getDragHandle()->setMouseOpaque(false);
 	}
 	else
 	{
-		setMouseOpaque(TRUE);
-		getDragHandle()->setMouseOpaque(TRUE);
+		setMouseOpaque(true);
+		getDragHandle()->setMouseOpaque(true);
 	}
 	
 	LLFloater::draw();

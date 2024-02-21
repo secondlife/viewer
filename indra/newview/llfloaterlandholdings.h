@@ -69,10 +69,10 @@ protected:
 
 	// Has a packet of data been received?
 	// Used to clear out the mParcelList's "Loading..." indicator
-	BOOL mFirstPacketReceived;
+	bool mFirstPacketReceived;
 
 	std::string mSortColumn;
-	BOOL mSortAscending;
+	bool mSortAscending;
 };
 
 #endif

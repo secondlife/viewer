@@ -133,7 +133,7 @@ S32 LLPanelSnapshot::getTypedPreviewHeight() const
     return getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
 }
 
-void LLPanelSnapshot::enableAspectRatioCheckbox(BOOL enable)
+void LLPanelSnapshot::enableAspectRatioCheckbox(bool enable)
 {
     llassert(!getAspectRatioCBName().empty());
     getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);

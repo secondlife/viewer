@@ -74,7 +74,7 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 
 // public
 LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
-								 BOOL enabled, const std::string& suffix, const std::string& prefix)
+								 bool enabled, const std::string& suffix, const std::string& prefix)
 {
 	//LL_INFOS() << "LLNameListCtrl::addNameItem " << agent_id << LL_ENDL;
 
@@ -301,7 +301,7 @@ bool LLNameListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 // public
 void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,
-									  BOOL enabled)
+									  bool enabled)
 {
 	NameItem item;
 	item.value = group_id;
@@ -438,7 +438,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	LLScrollListColumn* columnp = getColumn(mNameColumnIndex);
 	if (columnp && columnp->mHeader)
 	{
-		columnp->mHeader->setHasResizableElement(TRUE);
+		columnp->mHeader->setHasResizableElement(true);
 	}
 
 	return item;
@@ -496,7 +496,7 @@ void LLNameListCtrl::selectItemBySpecialId(const LLUUID& special_id)
         LLNameListItem* item = dynamic_cast<LLNameListItem*>(*it);
         if (item && item->getSpecialID() == special_id)
         {
-            item->setSelected(TRUE);
+            item->setSelected(true);
             break;
         }
     }
@@ -616,7 +616,7 @@ void LLNameListCtrl::updateColumns(bool force_update)
 	}
 }
 
-void LLNameListCtrl::sortByName(BOOL ascending)
+void LLNameListCtrl::sortByName(bool ascending)
 {
 	sortByColumnIndex(mNameColumnIndex,ascending);
 }

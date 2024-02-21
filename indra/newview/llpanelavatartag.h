@@ -75,7 +75,7 @@ private:
 		const LLUUID& id,
 		const std::string& first,
 		const std::string& last,
-		BOOL is_group);
+		bool is_group);
 	
 	LLAvatarIconCtrl*		mIcon;			/// status tracking avatar icon
 	LLTextBox*				mName;			/// displays avatar name

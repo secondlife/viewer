@@ -55,7 +55,7 @@ public:
 	popup_list_t getCurrentPopups() { return mPopups; }
 
 private:
-	BOOL handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)>, boost::function<bool(LLView*)>, S32 x, S32 y, bool close_popups);
+	bool handleMouseEvent(boost::function<bool(LLView*, S32, S32)>, boost::function<bool(LLView*)>, S32 x, S32 y, bool close_popups);
 	popup_list_t mPopups;
 };
 #endif //LL_LLROOTVIEW_H

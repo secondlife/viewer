@@ -101,7 +101,7 @@ bool LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 void LLToolIndividual::handleSelect()
 {
-	const BOOL children_ok = TRUE;
+	const bool children_ok = true;
 	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 	LLSelectMgr::getInstance()->deselectAll();
 	if(obj)

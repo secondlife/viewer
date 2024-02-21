@@ -95,8 +95,8 @@ private:
 	void findEmbeddedItemSegments(S32 start, S32 end);
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char);
 
-	BOOL			openEmbeddedItemAtPos( S32 pos );
-	BOOL			openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc);
+	bool			openEmbeddedItemAtPos( S32 pos );
+	bool			openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc);
 
 	S32				insertEmbeddedItem(S32 pos, LLInventoryItem* item);
 
@@ -118,7 +118,7 @@ private:
 	LLPointer<LLInventoryItem> mDragItem;
 	LLTextSegment* mDragSegment;
 	llwchar mDragItemChar;
-	BOOL mDragItemSaved;
+	bool mDragItemSaved;
 	class LLEmbeddedItems* mEmbeddedItemList;
 
 	LLUUID mObjectID;

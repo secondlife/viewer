@@ -572,7 +572,7 @@ void LLToolBarView::draw()
 
 		for (S32 i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
 		{
-			gl_rect_2d(toolbar_rects[i], drop_color, TRUE);
+			gl_rect_2d(toolbar_rects[i], drop_color, true);
 		}
 	}
 	
@@ -593,7 +593,7 @@ void LLToolBarView::startDragTool(S32 x, S32 y, LLToolBarButton* toolbarButton)
 	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
 }
 
-BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)
+bool LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)
 {
 	if (LLToolDragAndDrop::getInstance()->isOverThreshold( x, y ))
 	{
@@ -615,7 +615,7 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			gToolBarView->stopCommandInProgress(command_id);
 
 			gToolBarView->mDragStarted = true;
-			return TRUE;
+			return true;
 		}
 		else
 		{
@@ -623,18 +623,18 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
+bool LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	LLInventoryObject* inv_item = static_cast<LLInventoryObject*>(cargo_data);
 	
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
 	{
-		handled = TRUE;
+		handled = true;
 		// Get the command from its uuid
 		LLCommandManager& mgr = LLCommandManager::instance();
 		LLCommandId command_id(inv_item->getUUID());

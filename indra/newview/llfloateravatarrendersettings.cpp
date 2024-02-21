@@ -224,10 +224,10 @@ void LLFloaterAvatarRenderSettings::onClickAdd(const LLSD& userdata)
         visual_setting = S32(LLVOAvatar::AV_ALWAYS_RENDER);
     }
 
-    LLView * button = findChild<LLButton>("plus_btn", TRUE);
+    LLView * button = findChild<LLButton>("plus_btn", true);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterAvatarRenderSettings::callbackAvatarPicked, this, _1, visual_setting),
-                                                                    FALSE, TRUE, FALSE, root_floater->getName(), button);
+                                                                    false, true, false, root_floater->getName(), button);
 
     if (root_floater)
     {

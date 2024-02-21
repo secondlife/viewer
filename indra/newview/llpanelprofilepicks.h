@@ -184,7 +184,7 @@ protected:
     /**
      * Enables/disables "Save" button
      */
-    void enableSaveButton(BOOL enable);
+    void enableSaveButton(bool enable);
 
     /**
      * Called when snapshot image changes.

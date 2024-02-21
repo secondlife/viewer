@@ -256,7 +256,7 @@ void LLOutfitGallery::moveUp()
                 item = mIndexToItemMap[n];
                 LLUUID item_id = item->getUUID();
                 ChangeOutfitSelection(nullptr, item_id);
-                item->setFocus(TRUE);
+                item->setFocus(true);
 
                 scrollToShowItem(mSelectedOutfitUUID);
             }
@@ -278,7 +278,7 @@ void LLOutfitGallery::moveDown()
                 item = mIndexToItemMap[n];
                 LLUUID item_id = item->getUUID();
                 ChangeOutfitSelection(nullptr, item_id);
-                item->setFocus(TRUE);
+                item->setFocus(true);
 
                 scrollToShowItem(mSelectedOutfitUUID);
             }
@@ -303,7 +303,7 @@ void LLOutfitGallery::moveLeft()
             item = mIndexToItemMap[n];
             LLUUID item_id = item->getUUID();
             ChangeOutfitSelection(nullptr, item_id);
-            item->setFocus(TRUE);
+            item->setFocus(true);
 
             scrollToShowItem(mSelectedOutfitUUID);
         }
@@ -326,7 +326,7 @@ void LLOutfitGallery::moveRight()
             item = mIndexToItemMap[n];
             LLUUID item_id = item->getUUID();
             ChangeOutfitSelection(nullptr, item_id);
-            item->setFocus(TRUE);
+            item->setFocus(true);
 
             scrollToShowItem(mSelectedOutfitUUID);
         }
@@ -869,11 +869,11 @@ void LLOutfitGallery::onChangeOutfitSelection(LLWearableItemsList* list, const L
         return;
     if (mOutfitMap[mSelectedOutfitUUID])
     {
-        mOutfitMap[mSelectedOutfitUUID]->setSelected(FALSE);
+        mOutfitMap[mSelectedOutfitUUID]->setSelected(false);
     }
     if (mOutfitMap[category_id])
     {
-        mOutfitMap[category_id]->setSelected(TRUE);
+        mOutfitMap[category_id]->setSelected(true);
     }
     // mSelectedOutfitUUID will be set in LLOutfitListBase::ChangeOutfitSelection
 }
@@ -906,15 +906,15 @@ void LLOutfitGallery::updateMessageVisibility()
 {
     if(mItems.empty())
     {
-        mMessageTextBox->setVisible(TRUE);
-        mScrollPanel->setVisible(FALSE);
+        mMessageTextBox->setVisible(true);
+        mScrollPanel->setVisible(false);
         std::string message = sFilterSubString.empty()? getString("no_outfits_msg") : getString("no_matched_outfits_msg");
         mMessageTextBox->setValue(message);
     }
     else
     {
-        mScrollPanel->setVisible(TRUE);
-        mMessageTextBox->setVisible(FALSE);
+        mScrollPanel->setVisible(true);
+        mMessageTextBox->setVisible(false);
     }
 }
 
@@ -963,7 +963,7 @@ void LLOutfitGalleryItem::draw()
     LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "OutfitGalleryItemSelected" : "OutfitGalleryItemUnselected", LLColor4::white);
     LLRect border = getChildView("preview_outfit")->getRect();
     border.mRight = border.mRight + 1;
-    gl_rect_2d(border, border_color.get(), FALSE);
+    gl_rect_2d(border, border_color.get(), false);
 
     // If the floater is focused, don't apply its alpha to the texture (STORM-677).
     const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
@@ -1021,13 +1021,13 @@ void LLOutfitGalleryItem::setSelected(bool value)
 
 bool LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    setFocus(TRUE);
+    setFocus(true);
     return LLUICtrl::handleMouseDown(x, y, mask);
 }
 
 bool LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    setFocus(TRUE);
+    setFocus(true);
     return LLUICtrl::handleRightMouseDown(x, y, mask);
 }
 
@@ -1116,7 +1116,7 @@ bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
     {
         mImageAssetId = image_asset_id;
         mTexturep = texture;
-        getChildView("preview_outfit")->setVisible(FALSE);
+        getChildView("preview_outfit")->setVisible(false);
         mDefaultImage = false;
         mImageUpdatePending = (texture->getDiscardLevel() == -1);
         return true;
@@ -1133,7 +1133,7 @@ void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
     mImageAssetId.setNull();
-    getChildView("preview_outfit")->setVisible(TRUE);
+    getChildView("preview_outfit")->setVisible(true);
     mDefaultImage = true;
     mImageUpdatePending = false;
 }
@@ -1202,11 +1202,11 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("expand", FALSE);
-    mMenu->setItemVisible("collapse", FALSE);
+    mMenu->setItemVisible("expand", false);
+    mMenu->setItemVisible("collapse", false);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sepatator3", TRUE);
-    mMenu->setItemVisible("sort_folders_by_name", TRUE);
+    mMenu->setItemVisible("sepatator3", true);
+    mMenu->setItemVisible("sort_folders_by_name", true);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -1294,7 +1294,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                         LLFloater* appearance_floater = LLFloaterReg::getInstance("appearance");
                         if (appearance_floater)
                         {
-                            appearance_floater->setFocus(TRUE);
+                            appearance_floater->setFocus(true);
                         }
                     }
                     if (item_name == LLAppearanceMgr::sExpectedTextureName)

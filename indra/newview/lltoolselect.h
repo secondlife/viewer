@@ -44,13 +44,13 @@ public:
 
 	virtual void		stopEditing();
 
-	static LLSafeHandle<LLObjectSelection>	handleObjectSelection(const LLPickInfo& pick, BOOL ignore_group, BOOL temp_select, BOOL select_root = FALSE);
+	static LLSafeHandle<LLObjectSelection>	handleObjectSelection(const LLPickInfo& pick, bool ignore_group, bool temp_select, bool select_root = false);
 
 	virtual void		onMouseCaptureLost();
 	virtual void		handleDeselect();
 
 protected:
-	BOOL				mIgnoreGroup;
+	bool				mIgnoreGroup;
 	LLUUID				mSelectObjectID;
 	LLPickInfo			mPick;
 };

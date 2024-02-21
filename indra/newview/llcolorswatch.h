@@ -76,18 +76,18 @@ public:
 	/*virtual*/ LLSD getValue() const { return mColor.getValue(); }
 	const LLColor4&	get()							{ return mColor; }
 	
-	void			set(const LLColor4& color, BOOL update_picker = FALSE, BOOL from_event = FALSE);
+	void			set(const LLColor4& color, bool update_picker = false, bool from_event = false);
 	void			setOriginal(const LLColor4& color);
-	void			setValid(BOOL valid);
+	void			setValid(bool valid);
 	void			setLabel(const std::string& label);
 	void			setLabelWidth(S32 label_width) {mLabelWidth =label_width;}
-	void			setCanApplyImmediately(BOOL apply) { mCanApplyImmediately = apply; }
+	void			setCanApplyImmediately(bool apply) { mCanApplyImmediately = apply; }
 	void			setOnCancelCallback(commit_callback_t cb) { mOnCancelCallback = cb; }
 	void			setOnSelectCallback(commit_callback_t cb) { mOnSelectCallback = cb; }
 	void			setPreviewCallback(commit_callback_t cb) { mPreviewCallback = cb; }
 	void			setFallbackImage(LLPointer<LLUIImage> image) { mFallbackImage = image; }
 
-	void			showPicker(BOOL take_focus);
+	void			showPicker(bool take_focus);
 
 	/*virtual*/ bool	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ bool	handleMouseUp(S32 x, S32 y, MASK mask);

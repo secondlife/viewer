@@ -47,12 +47,12 @@ public:
 	virtual ~LLViewerTexLayerSet();
 
 	/*virtual*/void				requestUpdate();
-	BOOL						isLocalTextureDataAvailable() const;
-	BOOL						isLocalTextureDataFinal() const;
+	bool						isLocalTextureDataAvailable() const;
+	bool						isLocalTextureDataFinal() const;
 	void						updateComposite();
 	/*virtual*/void				createComposite();
-	void						setUpdatesEnabled(BOOL b);
-	BOOL						getUpdatesEnabled()	const 	{ return mUpdatesEnabled; }
+	void						setUpdatesEnabled(bool b);
+	bool						getUpdatesEnabled()	const 	{ return mUpdatesEnabled; }
 
 	LLVOAvatarSelf*				getAvatar();
 	const LLVOAvatarSelf*		getAvatar()	const;
@@ -60,7 +60,7 @@ public:
 	const LLViewerTexLayerSetBuffer*	getViewerComposite() const;
 
 private:
-	BOOL						mUpdatesEnabled;
+	bool						mUpdatesEnabled;
 
 };
 
@@ -79,7 +79,7 @@ public:
 
 public:
 	/*virtual*/ S8          getType() const;
-	BOOL					isInitialized(void) const;
+	bool					isInitialized(void) const;
 	static void				dumpTotalByteCount();
 	const std::string		dumpTextureInfo() const;
 	virtual void 			restoreGLTexture();
@@ -106,21 +106,21 @@ private:
 	// Dynamic Texture Interface
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL		needsRender();
+	/*virtual*/ bool		needsRender();
 protected:
 	// Pass these along for tex layer rendering.
-	virtual void			preRender(BOOL clear_depth) { preRenderTexLayerSet(); }
-	virtual void			postRender(BOOL success) { postRenderTexLayerSet(success); }
-	virtual BOOL			render() { return renderTexLayerSet(mBoundTarget); }
+	virtual void			preRender(bool clear_depth) { preRenderTexLayerSet(); }
+	virtual void			postRender(bool success) { postRenderTexLayerSet(success); }
+	virtual bool			render() { return renderTexLayerSet(mBoundTarget); }
 	
 	//--------------------------------------------------------------------
 	// Updates
 	//--------------------------------------------------------------------
 public:
 	void					requestUpdate();
-	BOOL					requestUpdateImmediate();
+	bool					requestUpdateImmediate();
 protected:
-	BOOL					isReadyToUpdate() const;
+	bool					isReadyToUpdate() const;
 	void					doUpdate();
 	void					restartUpdateTimer();
 private:

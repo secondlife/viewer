@@ -66,7 +66,7 @@ bool LLPanelGroupBulkBan::postBuild()
 	mImplementation->mBulkAgentList = getChild<LLNameListCtrl>("banned_agent_list", recurse);
 	if ( mImplementation->mBulkAgentList )
 	{
-		mImplementation->mBulkAgentList->setCommitOnSelectionChange(TRUE);
+		mImplementation->mBulkAgentList->setCommitOnSelectionChange(true);
 		mImplementation->mBulkAgentList->setCommitCallback(LLPanelGroupBulkImpl::callbackSelect, mImplementation);
 	}
 
@@ -163,12 +163,12 @@ void LLPanelGroupBulkBan::submit()
 	// remove already banned users and yourself from request.
 	std::vector<LLAvatarName> banned_avatar_names;
 	std::vector<LLAvatarName> out_of_limit_names;
-	bool banning_self = FALSE;
+	bool banning_self = false;
 	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
 	if (conflict != banned_agent_list.end())
 	{
 		banned_agent_list.erase(conflict);
-		banning_self = TRUE;
+		banning_self = true;
 	}
 	if (group_datap)
 	{

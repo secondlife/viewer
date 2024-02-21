@@ -60,7 +60,7 @@ public:
 	void				changeCamera(U8 subpart);
 
 	LLViewerWearable*	getWearable() { return mWearablePtr; }
-	void				setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
+	void				setWearable(LLViewerWearable *wearable, bool disable_camera_switch = false);
 
 	void				saveChanges(bool force_save_as = false);
 	void				revertChanges();
@@ -81,7 +81,7 @@ public:
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
-	void				showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
+	void				showWearable(LLViewerWearable* wearable, bool show, bool disable_camera_switch = false);
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
@@ -106,7 +106,7 @@ private:
 	bool changeHeightUnits(const LLSD& new_value);
 
 	// updates current metric and replacement metric label text
-	void updateMetricLayout(BOOL new_value);
+	void updateMetricLayout(bool new_value);
 
 	// updates avatar height label
 	void updateAvatarHeightLabel();

@@ -86,7 +86,7 @@ bool LLSideTrayPanelContainer::handleKeyHere(KEY key, MASK mask)
 	// No key press handling code for Panel Container - this disables
 	// Tab Container's Alt + Left/Right Button tab switching.
 	
-	// Let default handler process key presses, don't simply return TRUE or FALSE
+	// Let default handler process key presses, don't simply return true or false
 	// as this may brake some functionality as it did with Copy/Paste for 
 	// text_editor (ticket EXT-642).
 	return LLPanel::handleKeyHere(key, mask);

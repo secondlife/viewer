@@ -48,7 +48,7 @@
 
 LLToolPipette::LLToolPipette()
 :	LLTool(std::string("Pipette")),
-	mSuccess(TRUE)
+	mSuccess(true)
 { 
 }
 
@@ -59,20 +59,20 @@ LLToolPipette::~LLToolPipette()
 
 bool LLToolPipette::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	mSuccess = TRUE;
+	mSuccess = true;
 	mTooltipMsg.clear();
-	setMouseCapture(TRUE);
+	setMouseCapture(true);
 	gViewerWindow->pickAsync(x, y, mask, pickCallback);
 	return true;
 }
 
 bool LLToolPipette::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	mSuccess = TRUE;
+	mSuccess = true;
 	LLSelectMgr::getInstance()->unhighlightAll();
 	// *NOTE: This assumes the pipette tool is a transient tool.
 	LLToolMgr::getInstance()->clearTransientTool();
-	setMouseCapture(FALSE);
+	setMouseCapture(false);
 	return true;
 }
 
@@ -129,7 +129,7 @@ void LLToolPipette::pickCallback(const LLPickInfo& pick_info)
 	}
 }
 
-void LLToolPipette::setResult(BOOL success, const std::string& msg)
+void LLToolPipette::setResult(bool success, const std::string& msg)
 {
 	mTooltipMsg = msg;
 	mSuccess = success;

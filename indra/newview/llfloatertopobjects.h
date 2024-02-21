@@ -104,7 +104,7 @@ private:
 	U32 mFlags;
 	std::string mFilter;
 
-	BOOL mInitialized;
+	bool mInitialized;
 
 	F32 mtotalScore;
 

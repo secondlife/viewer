@@ -177,8 +177,8 @@ void LLPanelPlaceProfile::resetLocation()
 	mLastSelectedRegionID = LLUUID::null;
 	mNextCovenantUpdateTime = 0;
 
-	mForSalePanel->setVisible(FALSE);
-	mYouAreHerePanel->setVisible(FALSE);
+	mForSalePanel->setVisible(false);
+	mYouAreHerePanel->setVisible(false);
 
 	std::string loading = LLTrans::getString("LoadingData");
 
@@ -222,7 +222,7 @@ void LLPanelPlaceProfile::resetLocation()
 	mResaleText->setValue(loading);
 	mSaleToText->setValue(loading);
 
-	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(TRUE);
+	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(true);
 }
 
 // virtual
@@ -540,7 +540,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	S32 claim_price;
 	S32 rent_price;
 	F32 dwell;
-	BOOL for_sale;
+	bool for_sale;
 	vpm->getDisplayInfo(&area, &claim_price, &rent_price, &for_sale, &dwell);
 	mForSalePanel->setVisible(for_sale);
 	if (for_sale)
@@ -553,7 +553,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			// Show sales info to a specific person or a group he belongs to.
 			if (auth_buyer_id != gAgent.getID() && !gAgent.isInGroup(auth_buyer_id))
 			{
-				for_sale = FALSE;
+				for_sale = false;
 			}
 		}
 		else
@@ -674,7 +674,7 @@ void LLPanelPlaceProfile::updateYouAreHereBanner(void* userdata)
 	{
 		static F32 radius = gSavedSettings.getF32("YouAreHereDistance");
 
-		BOOL display_banner = gAgent.getRegion()->getRegionID() == self->mLastSelectedRegionID &&
+		bool display_banner = gAgent.getRegion()->getRegionID() == self->mLastSelectedRegionID &&
 										LLAgentUI::checkAgentDistance(self->mPosRegion, radius);
 
 		self->mYouAreHerePanel->setVisible(display_banner);

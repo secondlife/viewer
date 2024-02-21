@@ -317,7 +317,7 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
 			item->setRegionName(persistent_item.mTitle);
 			item->setDate(persistent_item.mDate);
 			item->setHighlightedText(hl);
-			item->setVisible(TRUE);
+			item->setVisible(true);
 			item->updateTitle();
 			item->updateTimestamp();
 		}

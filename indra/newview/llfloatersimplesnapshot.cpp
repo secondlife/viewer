@@ -228,8 +228,8 @@ void LLFloaterSimpleSnapshot::Impl::updateResolution(void* data)
         if (original_width != width || original_height != height)
         {
             // hide old preview as the aspect ratio could be wrong
-            checkAutoSnapshot(previewp, FALSE);
-            previewp->updateSnapshot(TRUE);
+            checkAutoSnapshot(previewp, false);
+            previewp->updateSnapshot(true);
         }
     }
 }
@@ -291,10 +291,10 @@ bool LLFloaterSimpleSnapshot::postBuild()
     impl->setAdvanced(true);
     impl->setSkipReshaping(true);
 
-    previewp->mKeepAspectRatio = FALSE;
+    previewp->mKeepAspectRatio = false;
     previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
     previewp->setAllowRenderUI(false);
-    previewp->setThumbnailSubsampled(TRUE);
+    previewp->setThumbnailSubsampled(true);
 
     return true;
 }
@@ -348,12 +348,12 @@ void LLFloaterSimpleSnapshot::onOpen(const LLSD& key)
     LLSnapshotLivePreview* preview = getPreviewView();
     if (preview)
     {
-        preview->updateSnapshot(TRUE);
+        preview->updateSnapshot(true);
     }
-    focusFirstItem(FALSE);
-    gSnapshotFloaterView->setEnabled(TRUE);
-    gSnapshotFloaterView->setVisible(TRUE);
-    gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
+    focusFirstItem(false);
+    gSnapshotFloaterView->setEnabled(true);
+    gSnapshotFloaterView->setVisible(true);
+    gSnapshotFloaterView->adjustToFitScreen(this, false);
 
     impl->updateControls(this);
     impl->setStatus(ImplBase::STATUS_READY);
@@ -505,7 +505,7 @@ void LLFloaterSimpleSnapshot::saveTexture()
         return;
     }
 
-    previewp->saveTexture(TRUE, getInventoryId().asString());
+    previewp->saveTexture(true, getInventoryId().asString());
     closeFloater();
 }
 

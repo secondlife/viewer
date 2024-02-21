@@ -80,7 +80,7 @@
 #include <boost/algorithm/string.hpp>
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-BOOL 				gHackGodmode = FALSE;
+bool 				gHackGodmode = false;
 #endif
 
 // Should you contemplate changing the name "Global", please first grep for
@@ -93,8 +93,8 @@ LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warning
 
 std::string gLastRunVersion;
 
-extern BOOL gResizeScreenTexture;
-extern BOOL gResizeShadowTexture;
+extern bool gResizeScreenTexture;
+extern bool gResizeShadowTexture;
 extern bool gDebugGL;
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
@@ -370,7 +370,7 @@ static void handleAudioVolumeChanged(const LLSD& newvalue)
 
 static bool handleJoystickChanged(const LLSD& newvalue)
 {
-	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(TRUE);
+	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
 	return true;
 }
 
@@ -435,7 +435,7 @@ static bool handleRenderDebugPipelineChanged(const LLSD& newvalue)
 
 static bool handleRenderResolutionDivisorChanged(const LLSD&)
 {
-	gResizeScreenTexture = TRUE;
+	gResizeScreenTexture = true;
 	return true;
 }
 
@@ -842,7 +842,7 @@ DECL_LLCC(U32, (U32)666);
 DECL_LLCC(S32, (S32)-666);
 DECL_LLCC(F32, (F32)-666.666);
 DECL_LLCC(bool, true);
-DECL_LLCC(BOOL, FALSE);
+DECL_LLCC(bool, false);
 static LLCachedControl<std::string> mySetting_string("TestCachedControlstring", "Default String Value");
 DECL_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
 DECL_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));
@@ -863,7 +863,7 @@ void test_cached_control()
 	TEST_LLCC(S32, (S32)-666);
 	TEST_LLCC(F32, (F32)-666.666);
 	TEST_LLCC(bool, true);
-	TEST_LLCC(BOOL, FALSE);
+	TEST_LLCC(bool, false);
 	if((std::string)mySetting_string != "Default String Value") LL_ERRS() << "Fail string" << LL_ENDL;
 	TEST_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
 	TEST_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));

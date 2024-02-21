@@ -407,7 +407,7 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
         joystick_enabled = true;
     }
     gSavedSettings.setBOOL("JoystickEnabled", joystick_enabled);
-	BOOL flycam_enabled = self->mCheckFlycamEnabled->get();
+	bool flycam_enabled = self->mCheckFlycamEnabled->get();
 
 	if (!joystick_enabled || !flycam_enabled)
 	{

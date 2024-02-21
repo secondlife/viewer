@@ -871,7 +871,7 @@ void LLPanelEnvironmentInfo::onBtnSelect()
         picker->setSettingsFilter(LLSettingsType::ST_NONE);
         picker->setSettingsItemId(item_id);
         picker->openFloater();
-        picker->setFocus(TRUE);
+        picker->setFocus(true);
     }
 }
 

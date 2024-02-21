@@ -83,7 +83,7 @@ bool LLPanelLandMedia::postBuild()
 
 	mMediaTextureCtrl = getChild<LLTextureCtrl>("media texture");
 	mMediaTextureCtrl->setCommitCallback( onCommitAny, this );
-	mMediaTextureCtrl->setAllowNoTexture ( TRUE );
+	mMediaTextureCtrl->setAllowNoTexture ( true );
 	mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	mMediaTextureCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
 
@@ -130,10 +130,10 @@ void LLPanelLandMedia::refresh()
 		// something selected, hooray!
 
 		// Display options
-		BOOL can_change_media = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_MEDIA);
+		bool can_change_media = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_MEDIA);
 
 		mMediaURLEdit->setText(parcel->getMediaURL());
-		mMediaURLEdit->setEnabled( FALSE );
+		mMediaURLEdit->setEnabled( false );
 
 		getChild<LLUICtrl>("current_url")->setValue(parcel->getMediaCurrentURL());
 

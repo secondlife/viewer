@@ -51,7 +51,7 @@
 #include "llvoavatarself.h"
 
 
-void modify_outfit(BOOL append, const LLUUID& cat_id, LLInventoryModel* model)
+void modify_outfit(bool append, const LLUUID& cat_id, LLInventoryModel* model)
 {
     LLViewerInventoryCategory* cat = model->getCategory(cat_id);
     if (!cat) return;
@@ -76,12 +76,12 @@ void modify_outfit(BOOL append, const LLUUID& cat_id, LLInventoryModel* model)
     }
     if (model->isObjectDescendentOf(cat_id, gInventory.getRootFolderID()))
     {
-        LLAppearanceMgr::instance().wearInventoryCategory(cat, FALSE, append);
+        LLAppearanceMgr::instance().wearInventoryCategory(cat, false, append);
     }
     else
     {
         // Library, we need to copy content first
-        LLAppearanceMgr::instance().wearInventoryCategory(cat, TRUE, append);
+        LLAppearanceMgr::instance().wearInventoryCategory(cat, true, append);
     }
 }
 
@@ -251,11 +251,11 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     }
     else if ("replaceoutfit" == action)
     {
-        modify_outfit(FALSE, mUUIDs.front(), &gInventory);
+        modify_outfit(false, mUUIDs.front(), &gInventory);
     }
     else if ("addtooutfit" == action)
     {
-        modify_outfit(TRUE, mUUIDs.front(), &gInventory);
+        modify_outfit(true, mUUIDs.front(), &gInventory);
     }
     else if ("removefromoutfit" == action)
     {

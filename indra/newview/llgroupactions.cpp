@@ -124,7 +124,7 @@ public:
 		}
 
 		LLUUID group_id;
-		if (!group_id.set(tokens[0], FALSE))
+		if (!group_id.set(tokens[0], false))
 		{
 			return false;
 		}
@@ -192,7 +192,7 @@ public:
 			} 
 			else if (!gdatap->isMemberDataComplete())
 			{
-				LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData()->isMemberDataComplete() was FALSE" << LL_ENDL;
+				LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData()->isMemberDataComplete() was false" << LL_ENDL;
 				processGroupData();
 				mRequestProcessed = true;
 			}
@@ -418,7 +418,7 @@ void LLGroupActions::show(const LLUUID& group_id)
     LLFloater *floater = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("people");
     if (!floater->isFrontmost())
     {
-        floater->setVisibleAndFrontmost(TRUE, params);
+        floater->setVisibleAndFrontmost(true, params);
     }
 }
 

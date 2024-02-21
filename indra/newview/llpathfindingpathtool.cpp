@@ -76,14 +76,14 @@ bool LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 				: UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD);
 			computeFinalPoints(pX, pY, pMask);
 			mIsLeftMouseButtonHeld = true;
-			setMouseCapture(TRUE);
+			setMouseCapture(true);
 			returnVal = true;
 		}
 		else if (!isCameraModKeys(pMask))
 		{
 			gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 			mIsLeftMouseButtonHeld = true;
-			setMouseCapture(TRUE);
+			setMouseCapture(true);
 			returnVal = true;
 		}
 	}
@@ -99,7 +99,7 @@ bool LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 	if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
 	{
 		computeFinalPoints(pX, pY, pMask);
-		setMouseCapture(FALSE);
+		setMouseCapture(false);
 		returnVal = true;
 	}
 	mIsLeftMouseButtonHeld = false;
@@ -109,7 +109,7 @@ bool LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 bool LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(TRUE);
+	setMouseCapture(true);
 	mIsMiddleMouseButtonHeld = true;
 	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 
@@ -120,7 +120,7 @@ bool LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
 	if (!mIsLeftMouseButtonHeld && mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
 	{
-		setMouseCapture(FALSE);
+		setMouseCapture(false);
 	}
 	mIsMiddleMouseButtonHeld = false;
 
@@ -129,7 +129,7 @@ bool LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 bool LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(TRUE);
+	setMouseCapture(true);
 	mIsRightMouseButtonHeld = true;
 	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 
@@ -140,7 +140,7 @@ bool LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
 {
 	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && mIsRightMouseButtonHeld)
 	{
-		setMouseCapture(FALSE);
+		setMouseCapture(false);
 	}
 	mIsRightMouseButtonHeld = false;
 
@@ -178,7 +178,7 @@ bool LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 	return returnVal;
 }
 
-BOOL LLPathfindingPathTool::handleKey(KEY pKey, MASK pMask)
+bool LLPathfindingPathTool::handleKey(KEY pKey, MASK pMask)
 {
 	// Eat the escape key or else the camera tool will pick up and reset to default view.  This,
 	// in turn, will cause some other methods to get called.  And one of those methods will reset

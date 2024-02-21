@@ -93,7 +93,7 @@ void LLSplitButton::onArrowBtnDown()
 	{
 		showButtons();
 
-		setFocus(TRUE);
+		setFocus(true);
 
 		if (mArrowBtn->hasMouseCapture() || mShownItem->hasMouseCapture())
 		{
@@ -161,21 +161,21 @@ void LLSplitButton::showButtons()
 	// effectively putting us into a special draw layer
 	gViewerWindow->addPopup(this);
 
-	mItemsPanel->setFocus(TRUE);
+	mItemsPanel->setFocus(true);
 
 	//push arrow button down and show the item buttons
-	mArrowBtn->setToggleState(TRUE);
-	mItemsPanel->setVisible(TRUE);
+	mArrowBtn->setToggleState(true);
+	mItemsPanel->setVisible(true);
 
-	setUseBoundingRect(TRUE);
+	setUseBoundingRect(true);
 }
 
 void LLSplitButton::hideButtons()
 {
-	mItemsPanel->setVisible(FALSE);
-	mArrowBtn->setToggleState(FALSE);
+	mItemsPanel->setVisible(false);
+	mArrowBtn->setToggleState(false);
 
-	setUseBoundingRect(FALSE);
+	setUseBoundingRect(false);
 	gViewerWindow->removePopup(this);
 }
 

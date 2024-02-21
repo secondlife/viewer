@@ -577,7 +577,7 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
 }
 
 void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color, 
-							BOOL draw_arrow )
+							bool draw_arrow )
 {
 	LLVector3 pos_local = globalPosToView(pos_global);
 	if( (pos_local.mV[VX] < 0) ||
@@ -838,12 +838,12 @@ bool LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
     return true;
 }
 
-BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
+bool LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
 {
 	LLAvatarName av_name;
 	if (avatar_id.isNull() || !LLAvatarNameCache::get(avatar_id, &av_name))
 	{
-		return FALSE;
+		return false;
 	}
 
 	// only show tooltip if same inspector not already open
@@ -864,7 +864,7 @@ BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
 
 		LLToolTipMgr::instance().show(p);
 	}
-	return TRUE;
+	return true;
 }
 
 // static
@@ -1003,7 +1003,7 @@ void LLNetMap::createObjectImage()
 		mObjectRawImagep = new LLImageRaw(img_size, img_size, 4);
 		U8* data = mObjectRawImagep->getData();
 		memset( data, 0, img_size * img_size * 4 );
-		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
+		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), false);
 	}
 	setScale(mScale);
 	mUpdateNow = true;

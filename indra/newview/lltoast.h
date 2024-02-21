@@ -57,7 +57,7 @@ public:
 	void stop();
 	void start();
 	void restart();
-	BOOL getStarted();
+	bool getStarted();
 	void setPeriod(F32 period);
 	F32 getRemainingTimeF32();
 
@@ -109,7 +109,7 @@ public:
 	static void updateClass();
 	static void cleanupToasts();
 
-	static BOOL isAlertToastShown() { return sModalToastsList.size() > 0; }
+	static bool isAlertToastShown() { return sModalToastsList.size() > 0; }
 
 	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();
@@ -149,7 +149,7 @@ public:
 	//
 	virtual void setVisible(bool show);
 
-	/*virtual*/ void setBackgroundOpaque(BOOL b);
+	/*virtual*/ void setBackgroundOpaque(bool b);
 	//
 	virtual void hide();
 
@@ -236,7 +236,7 @@ private:
 	bool		mCanBeStored;
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;
-	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
+	bool		mIsHidden;  // this flag is true when a toast has faded or was hidden with (x) button (EXT-1849)
 	bool		mIsTip;
 	bool		mIsFading;
 	bool		mIsHovered;

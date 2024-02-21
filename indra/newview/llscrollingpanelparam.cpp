@@ -50,7 +50,7 @@ const S32 LLScrollingPanelParam::PARAM_HINT_HEIGHT = 128;
 S32 LLScrollingPanelParam::sUpdateDelayFrames = 0;
 
 LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_params,
-					      LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints )
+					      LLViewerJointMesh* mesh, LLViewerVisualParam* param, bool allow_modify, LLWearable* wearable, LLJoint* jointp, bool use_hints )
     : LLScrollingPanelParamBase( panel_params, mesh, param, allow_modify, wearable, jointp, use_hints)
 {
 	// *HACK To avoid hard coding texture position, lets use border's position for texture. 
@@ -66,8 +66,8 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	pos_x = getChild<LLViewBorder>("right_border")->getRect().mLeft + left_border->getBorderWidth();
 	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable, max_weight, jointp );
 	
-	mHintMin->setAllowsUpdates( FALSE );
-	mHintMax->setAllowsUpdates( FALSE );
+	mHintMin->setAllowsUpdates( false );
+	mHintMax->setAllowsUpdates( false );
 
 	std::string min_name = LLTrans::getString(param->getMinDisplayName());
 	std::string max_name = LLTrans::getString(param->getMaxDisplayName());
@@ -92,8 +92,8 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 		more->setHeldDownDelay( PARAM_STEP_TIME_THRESHOLD );
 	}
 
-	setVisible(FALSE);
-	setBorderVisible( FALSE );
+	setVisible(false);
+	setBorderVisible( false );
 }
 
 LLScrollingPanelParam::~LLScrollingPanelParam()
@@ -149,8 +149,8 @@ void LLScrollingPanelParam::draw()
 	getChildView("right_border")->setVisible( !mHintMax->getVisible());
 
 	// Draw all the children except for the labels
-	getChildView("min param text")->setVisible( FALSE );
-	getChildView("max param text")->setVisible( FALSE );
+	getChildView("min param text")->setVisible( false );
+	getChildView("max param text")->setVisible( false );
 	LLPanel::draw();
 	
 	// If we're in a focused floater, don't apply the floater's alpha to visual param hint,
@@ -176,10 +176,10 @@ void LLScrollingPanelParam::draw()
 
 
 	// Draw labels on top of the buttons
-	getChildView("min param text")->setVisible( TRUE );
+	getChildView("min param text")->setVisible( true );
 	drawChild(getChild<LLView>("min param text"));
 
-	getChildView("max param text")->setVisible( TRUE );
+	getChildView("max param text")->setVisible( true );
 	drawChild(getChild<LLView>("max param text"));
 }
 

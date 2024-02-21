@@ -53,7 +53,7 @@
 
 LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed) 
 :	LLFloater(seed),
-	mDone(FALSE)
+	mDone(false)
 {
 	mID.generate();
 	mCommitCallbackRegistrar.add("BulkPermission.Ok",		boost::bind(&LLFloaterBulkPermission::onOkBtn, this));
@@ -120,7 +120,7 @@ void LLFloaterBulkPermission::doApply()
 	}
 	else
 	{
-		mDone = FALSE;
+		mDone = false;
 		if (!start())
 		{
 			LL_WARNS() << "Unexpected bulk permission change failure." << LL_ENDL;
@@ -213,7 +213,7 @@ void LLFloaterBulkPermission::onCommitCopy()
 	xfer->setEnabled(copyable);
 }
 
-BOOL LLFloaterBulkPermission::start()
+bool LLFloaterBulkPermission::start()
 {
 	// note: number of top-level objects to modify is mObjectIDs.size().
 	getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("start_text"));
@@ -221,10 +221,10 @@ BOOL LLFloaterBulkPermission::start()
 }
 
 // Go to the next object and start if found. Returns false if no objects left, true otherwise.
-BOOL LLFloaterBulkPermission::nextObject()
+bool LLFloaterBulkPermission::nextObject()
 {
 	S32 count;
-	BOOL successful_start = FALSE;
+	bool successful_start = false;
 	do
 	{
 		count = mObjectIDs.size();
@@ -240,17 +240,17 @@ BOOL LLFloaterBulkPermission::nextObject()
 	if(isDone() && !mDone)
 	{
 		getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("done_text"));
-		mDone = TRUE;
+		mDone = true;
 	}
 	return successful_start;
 }
 
 // Pop the top object off of the queue.
-// Return TRUE if the queue has started, otherwise FALSE.
-BOOL LLFloaterBulkPermission::popNext()
+// Return true if the queue has started, otherwise false.
+bool LLFloaterBulkPermission::popNext()
 {
 	// get the head element from the container, and attempt to get its inventory.
-	BOOL rv = FALSE;
+	bool rv = false;
 	S32 count = mObjectIDs.size();
 	if(mCurrentObjectID.isNull() && (count > 0))
 	{
@@ -264,7 +264,7 @@ BOOL LLFloaterBulkPermission::popNext()
 			LLUUID* id = new LLUUID(mID);
 			registerVOInventoryListener(obj,id);
 			requestVOInventory();
-			rv = TRUE;
+			rv = true;
 		}
 		else
 		{
@@ -276,7 +276,7 @@ BOOL LLFloaterBulkPermission::popNext()
 }
 
 
-void LLFloaterBulkPermission::doCheckUncheckAll(BOOL check)
+void LLFloaterBulkPermission::doCheckUncheckAll(bool check)
 {
 	gSavedSettings.setBOOL("BulkChangeIncludeAnimations", check);
 	gSavedSettings.setBOOL("BulkChangeIncludeBodyParts" , check);
@@ -352,7 +352,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
 					perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("BulkChange"));
 					perm.setMaskGroup(LLFloaterPerms::getGroupPerms("BulkChange"));
 					new_item->setPermissions(perm); // here's the beef
-					updateInventory(object,new_item,TASK_INVENTORY_ITEM_KEY,FALSE);
+					updateInventory(object,new_item,TASK_INVENTORY_ITEM_KEY,false);
 					//status_text.setArg("[STATUS]", getString("status_ok_text"));
 					status_text.setArg("[STATUS]", "");
 				}

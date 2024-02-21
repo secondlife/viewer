@@ -246,7 +246,7 @@ void LLAvatarList::setDirty(bool val /*= true*/, bool force_refresh /*= false*/)
 //////////////////////////////////////////////////////////////////////////
 void LLAvatarList::refresh()
 {
-	bool have_names			= TRUE;
+	bool have_names			= true;
 	bool add_limit_exceeded	= false;
 	bool modified			= false;
 	bool have_filter		= !mNameFilter.empty();
@@ -415,7 +415,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 	return LLFlatListViewEx::notifyParent(info);
 }
 
-void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
+void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, bool is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
 	item->setShowCompleteName(mShowCompleteName);

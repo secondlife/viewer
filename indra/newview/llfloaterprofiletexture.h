@@ -48,12 +48,12 @@ public:
 
 
     static void onTextureLoaded(
-        BOOL success,
+        bool success,
         LLViewerFetchedTexture *src_vi,
         LLImageRaw* src,
         LLImageRaw* aux_src,
         S32 discard_level,
-        BOOL final,
+        bool final,
         void* userdata);
 
     void reshape(S32 width, S32 height, bool called_from_parent = true) override;
@@ -70,7 +70,7 @@ private:
     F32 mContextConeOpacity;
     S32 mLastHeight;
     S32 mLastWidth;
-    BOOL mUpdateDimensions;
+    bool mUpdateDimensions;
 
     LLHandle<LLView> mOwnerHandle;
     LLIconCtrl* mProfileIcon;

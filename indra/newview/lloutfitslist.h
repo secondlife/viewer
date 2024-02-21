@@ -246,7 +246,7 @@ public:
 	*/
 	void onExpandAllFolders();
 
-    /*virtual*/ bool getHasExpandableFolders() { return TRUE; }
+    /*virtual*/ bool getHasExpandableFolders() { return true; }
 
 protected:
     LLOutfitListGearMenuBase* createGearMenu();

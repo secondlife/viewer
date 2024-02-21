@@ -153,7 +153,7 @@ void LLFloaterSearch::search(const SearchQuery &p)
 	}
 
 	// reset the god level warning as we're sending the latest state
-	getChildView("refresh_search")->setVisible(FALSE);
+	getChildView("refresh_search")->setVisible(false);
 	mSearchGodLevel = gAgent.getGodLevel();
 
 	// work out the subdir to use based on the requested category

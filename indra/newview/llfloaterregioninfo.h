@@ -147,7 +147,7 @@ public:
 	virtual bool postBuild();
 	virtual void updateChild(LLUICtrl* child_ctrl);
 	
-	void enableButton(const std::string& btn_name, BOOL enable = TRUE);
+	void enableButton(const std::string& btn_name, bool enable = true);
 	void disableButton(const std::string& btn_name);
 	
 	void onClickManageTelehub();
@@ -155,9 +155,9 @@ public:
 protected:
 	void initCtrl(const std::string& name);
 	
-	// Returns TRUE if update sent and apply button should be
+	// Returns true if update sent and apply button should be
 	// disabled.
-	virtual BOOL sendUpdate() { return TRUE; }
+	virtual bool sendUpdate() { return true; }
 	
 	typedef std::vector<std::string> strings_t;
 	//typedef std::vector<U32> integers_t;
@@ -193,7 +193,7 @@ public:
 	void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
 
 protected:
-	virtual BOOL sendUpdate();
+	virtual bool sendUpdate();
 	void onClickKick();
 	void onKickCommit(const uuid_vec_t& ids);
 	static void onClickKickAll(void* userdata);
@@ -220,7 +220,7 @@ public:
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	
 protected:
-	virtual BOOL sendUpdate();
+	virtual bool sendUpdate();
 
 	void onClickChooseAvatar();
 	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
@@ -252,12 +252,12 @@ public:
 	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
-	BOOL validateTextureSizes();
-	BOOL validateTextureHeights();
+	bool validateTextureSizes();
+	bool validateTextureHeights();
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 	
-	virtual BOOL sendUpdate();
+	virtual bool sendUpdate();
 
 	static void onClickDownloadRaw(void*);
 	static void onClickUploadRaw(void*);
@@ -319,14 +319,14 @@ public:
 	void setOwnerName(const std::string& name);
 
 protected:
-	virtual BOOL sendUpdate();
+	virtual bool sendUpdate();
 	// confirmation dialog callback
 	bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
 	void commitEstateAccess();
 	void commitEstateManagers();
 	
-	BOOL checkSunHourSlider(LLUICtrl* child_ctrl);
+	bool checkSunHourSlider(LLUICtrl* child_ctrl);
 
 	U32 mEstateID;
 };
@@ -382,7 +382,7 @@ public:
 	} EAssetStatus;
 
 protected:
-	virtual BOOL sendUpdate();
+	virtual bool sendUpdate();
 	LLTextBox*				mEstateNameText;
 	LLTextBox*				mEstateOwnerText;
 	LLTextBox*				mLastModifiedText;
@@ -402,7 +402,7 @@ class LLPanelRegionExperiences : public LLPanelRegionInfo
 public:
 	LLPanelRegionExperiences(){}
 	/*virtual*/ bool postBuild();
-	virtual BOOL sendUpdate();
+	virtual bool sendUpdate();
 	
 	static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
 	static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
@@ -486,7 +486,7 @@ private:
 	void copyListToClipboard(std::string list_name);
 
 	bool mPendingUpdate;
-	BOOL mCtrlsEnabled;
+	bool mCtrlsEnabled;
 };
 
 #endif

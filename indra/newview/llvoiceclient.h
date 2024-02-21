@@ -203,21 +203,21 @@ public:
 	//@{
 	virtual bool voiceEnabled()=0;
 	virtual void setVoiceEnabled(bool enabled)=0;
-	virtual void setLipSyncEnabled(BOOL enabled)=0;
-	virtual BOOL lipSyncEnabled()=0;	
+	virtual void setLipSyncEnabled(bool enabled)=0;
+	virtual bool lipSyncEnabled()=0;	
 	virtual void setMuteMic(bool muted)=0;		// Set the mute state of the local mic.
 	//@}
 		
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
-	virtual BOOL getVoiceEnabled(const LLUUID& id)=0;		// true if we've received data for this avatar
+	virtual bool getVoiceEnabled(const LLUUID& id)=0;		// true if we've received data for this avatar
 	virtual std::string getDisplayName(const LLUUID& id)=0;
-	virtual BOOL isParticipantAvatar(const LLUUID &id)=0;
-	virtual BOOL getIsSpeaking(const LLUUID& id)=0;
-	virtual BOOL getIsModeratorMuted(const LLUUID& id)=0;
+	virtual bool isParticipantAvatar(const LLUUID &id)=0;
+	virtual bool getIsSpeaking(const LLUUID& id)=0;
+	virtual bool getIsModeratorMuted(const LLUUID& id)=0;
 	virtual F32 getCurrentPower(const LLUUID& id)=0;		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	virtual BOOL getOnMuteList(const LLUUID& id)=0;
+	virtual bool getOnMuteList(const LLUUID& id)=0;
 	virtual F32 getUserVolume(const LLUUID& id)=0;
 	virtual void setUserVolume(const LLUUID& id, F32 volume)=0; // set's volume for specified agent, from 0-1 (where .5 is nominal)	
 	//@}
@@ -225,9 +225,9 @@ public:
 	//////////////////////////
 	/// @name text chat
 	//@{
-	virtual BOOL isSessionTextIMPossible(const LLUUID& id)=0;
-	virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
-	//virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
+	virtual bool isSessionTextIMPossible(const LLUUID& id)=0;
+	virtual bool isSessionCallBackPossible(const LLUUID& id)=0;
+	//virtual bool sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
 	virtual void endUserIMSession(const LLUUID &uuid)=0;	
 	//@}
 	
@@ -396,7 +396,7 @@ public:
 	void setMicGain(F32 volume);
 	void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)		
 	bool voiceEnabled();
-	void setLipSyncEnabled(BOOL enabled);
+	void setLipSyncEnabled(bool enabled);
 	void setMuteMic(bool muted);		// Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
 	void setUserPTTState(bool ptt);
 	bool getUserPTTState();
@@ -410,25 +410,25 @@ public:
 
 	void updateMicMuteLogic();
 
-	BOOL lipSyncEnabled();
+	bool lipSyncEnabled();
 
 	boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
 
 	
 	/////////////////////////////
 	// Accessors for data related to nearby speakers
-	BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
+	bool getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
 	std::string getDisplayName(const LLUUID& id);	
-	BOOL isOnlineSIP(const LLUUID &id);
-	BOOL isParticipantAvatar(const LLUUID &id);
-	BOOL getIsSpeaking(const LLUUID& id);
-	BOOL getIsModeratorMuted(const LLUUID& id);
+	bool isOnlineSIP(const LLUUID &id);
+	bool isParticipantAvatar(const LLUUID &id);
+	bool getIsSpeaking(const LLUUID& id);
+	bool getIsModeratorMuted(const LLUUID& id);
 	F32 getCurrentPower(const LLUUID& id);		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	BOOL getOnMuteList(const LLUUID& id);
+	bool getOnMuteList(const LLUUID& id);
 	F32 getUserVolume(const LLUUID& id);
 
 	/////////////////////////////
-	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
+	bool getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
 													  // Use this to determine whether to show a "no speech" icon in the menu bar.
 	void getParticipantList(std::set<LLUUID> &participants);
 	bool isParticipant(const LLUUID& speaker_id);
@@ -436,9 +436,9 @@ public:
 	//////////////////////////
 	/// @name text chat
 	//@{
-	BOOL isSessionTextIMPossible(const LLUUID& id);
-	BOOL isSessionCallBackPossible(const LLUUID& id);
-	//BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
+	bool isSessionTextIMPossible(const LLUUID& id);
+	bool isSessionCallBackPossible(const LLUUID& id);
+	//bool sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
 	void endUserIMSession(const LLUUID &uuid);	
 	//@}
 	
