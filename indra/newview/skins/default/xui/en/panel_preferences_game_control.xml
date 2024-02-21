@@ -20,23 +20,23 @@
         top="6"
         width="232"/>
     <check_box
-        control_name="GameControlToAvatar"
+        control_name="GameControlToAgent"
         follows="top|left"
         height="15"
-        label="GameControl moves avatar"
+        label="GameControl moves avatar and flycam"
         layout="topleft"
         left="10"
-        name="game_control_to_avatar"
+        name="game_control_to_agent"
         top="27"
         width="232"/>
     <check_box
-        control_name="AvatarToGameControl"
+        control_name="AgentToGameControl"
         follows="top|left"
         height="15"
-        label="Avatar actions interpreted as GameControl data"
+        label="Avatar and flycam actions interpreted as GameControl"
         layout="topleft"
         left="10"
-        name="avatar_to_game_control"
+        name="agent_to_game_control"
         top="48"
         width="232"/>
     <scroll_list

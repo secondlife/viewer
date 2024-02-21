@@ -2,146 +2,171 @@
 <contents>
     <rows
      enabled="false"
-     name="move_actions"
+     name="camera_actions"
      value="">
         <columns
          type="icontext"
          column="action"
          font="SansSerif"
          halign="left"
-         label="Move Actions"
+         label="Camera"
          name="action"
-         value="Move_Walk_Off" />
+         value="Cam_FreeCam_Off" />
     </rows>
     <rows
-     name="push_forward"
-     value="push_forward">
+     name="move_forward"
+     value="move_forward">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
+         tool_tip="Camera move forward"
          value="Move Forward" />
     </rows>
     <rows
-     name="push_backward"
-     value="push_backward">
+     name="move_backward"
+     value="move_backward">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
+         tool_tip="Camera move backward"
          value="Move Backward" />
     </rows>
     <rows
-     name="turn_left"
-     value="turn_left">
+     name="pan_left"
+     value="pan_left">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Turn Left" />
+         tool_tip="Camera pan left"
+         value="Pan Left" />
     </rows>
     <rows
-     name="turn_right"
-     value="turn_right">
+     name="pan_right"
+     value="pan_right">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Turn Right" />
+         tool_tip="Camera pan right"
+         value="Pan Right" />
     </rows>
     <rows
-     name="slide_left"
-     value="slide_left">
+     name="rise_up"
+     value="rise_up">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Strafe left" />
+         tool_tip="Camera rise up"
+         value="Rise Up" />
     </rows>
     <rows
-     name="slide_right"
-     value="slide_right">
+     name="drop_down"
+     value="drop_down">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Strafe right" />
+         tool_tip="Camera drop down"
+         value="Drop Down" />
     </rows>
     <rows
-     name="jump"
-     value="jump">
+     name="pitch_up"
+     value="pitch_up">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Jump/Up" />
+         tool_tip="Camera pitch up"
+         value="Pitch Up" />
     </rows>
     <rows
-     name="push_down"
-     value="push_down">
+     name="pitch_down"
+     value="pitch_down">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Down" />
-    </rows>
-
-    <rows
-     name="toggle_run"
-     value="toggle_run">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Toggle Run" />
+         tool_tip="Camera pitch down"
+         value="Pitch Down" />
     </rows>
     <rows
-     name="toggle_fly"
-     value="toggle_fly">
+     name="yaw_left"
+     value="yaw_left">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Fly/Stop flying" />
+         tool_tip="Camera turn left"
+         value="Yaw Left" />
     </rows>
     <rows
-     name="toggle_sit"
-     value="toggle_sit">
+     name="yaw_right"
+     value="yaw_right">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Sit/Stand" />
+         tool_tip="Camera turn right"
+         value="Yaw Right" />
+    </rows>
+    <!--
+    <rows
+     name="roll_ccw"
+     value="roll_ccw">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera roll counterclockwise"
+         value="Roll Counterclockwise" />
     </rows>
     <rows
-     name="flycam"
-     value="flycam">
+     name="roll_cw"
+     value="roll_cw">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Flycam" />
+         tool_tip="Camera roll clockwise"
+         value="Roll Clockwise" />
     </rows>
     <rows
-     name="stop_moving"
-     value="stop_moving">
+     name="zoom_in"
+     value="zoom_in">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Stop Moving" />
+         tool_tip="Camera zoom in"
+         value="Zoom In" />
     </rows>
+    <rows
+     name="zoom_out"
+     value="zoom_out">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera zoom out"
+         value="Zoom Out" />
+    </rows>
+    -->
 </contents>

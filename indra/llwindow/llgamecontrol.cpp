@@ -34,6 +34,7 @@
 #include "SDL2/SDL_gamecontroller.h"
 #include "SDL2/SDL_joystick.h"
 
+#include "indra_constants.h"
 #include "llgamecontroltranslator.h"
 
 constexpr size_t NUM_AXES = 6;
@@ -274,10 +275,12 @@ private:
     std::vector<LLGameControl::State> mStates; // one state per device
 
     LLGameControl::State mExternalState;
-    LLGameControlTranslator mTranslator;
+    LLGameControlTranslator mActionTranslator;
+    LLGameControlTranslator mCameraTranslator;
     std::vector<S32> mAxesAccumulator;
     U32 mButtonAccumulator { 0 };
     U32 mLastActionFlags { 0 };
+    U32 mLastCameraActionFlags { 0 };
 };
 
 // local globals
@@ -306,8 +309,9 @@ namespace
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
     bool g_sendToServer = false;
-    bool g_controlAvatar = false;
-    bool g_controlFromAvatar = false;
+    bool g_controlAgent = false;
+    bool g_translateAgentActions = false;
+    LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_NONE;
 
     constexpr U8 MAX_AXIS = 5;
     constexpr U8 MAX_BUTTON = 31;
@@ -355,6 +359,78 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
 LLGameControllerManager::LLGameControllerManager()
 {
     mAxesAccumulator.resize(NUM_AXES, 0);
+
+    // build the invariant name-to-mask maps
+    LLGameControlTranslator::NameToMaskMap avatar_map;
+    avatar_map["push_forward"] = AGENT_CONTROL_AT_POS | AGENT_CONTROL_FAST_AT;
+    avatar_map["push_backward"] = AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT;
+    avatar_map["turn_left"] = AGENT_CONTROL_YAW_POS;
+    avatar_map["turn_right"] = AGENT_CONTROL_YAW_NEG;
+    avatar_map["slide_left"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
+    avatar_map["slide_right"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
+    avatar_map["jump"] = AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP;
+    avatar_map["push_down"] = AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP;
+    // These are HACKs. We borrow some AGENT_CONTROL bits for "unrelated" features.
+    avatar_map["toggle_run"] = AGENT_CONTROL_NUDGE_AT_POS; // HACK
+    avatar_map["toggle_fly"] = AGENT_CONTROL_FLY; // HACK
+    avatar_map["toggle_sit"] = AGENT_CONTROL_SIT_ON_GROUND; // HACK
+    avatar_map["flycam"]     = AGENT_CONTROL_NUDGE_AT_NEG; // HACK
+    avatar_map["stop_moving"] = AGENT_CONTROL_STOP;
+    mActionTranslator.setNameToMaskMap(avatar_map);
+
+    using type = LLGameControl::InputChannel::Type;
+
+    // load defaults
+    std::vector< std::pair<std::string, LLGameControl::InputChannel> > avatar_defaults =
+    {
+        { "push_forward",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY_POS) }         },
+        { "push_backward", { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY_NEG) }         },
+        { "turn_left",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_POS) }         },
+        { "turn_right",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_NEG) }         },
+        { "slide_left",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_POS) }        },
+        { "slide_right",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_NEG) }        },
+        { "jump",          { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) }  },
+        { "push_down",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS) }   },
+        { "toggle_run",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSHOULDER) }  },
+        { "toggle_fly",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_UP) }       },
+        { "toggle_sit",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_DOWN) }     },
+        { "flycam",        { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) } },
+        { "stop_moving",   { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSTICK) }     }
+    };
+    mActionTranslator.setMappings(avatar_defaults);
+
+    // similarly for camera
+    LLGameControlTranslator::NameToMaskMap camera_map;
+    camera_map["move_forward"] = AGENT_CONTROL_AT_POS;
+    camera_map["move_backward"] = AGENT_CONTROL_AT_NEG;
+    camera_map["pan_left"] = AGENT_CONTROL_LEFT_POS;
+    camera_map["pan_right"] = AGENT_CONTROL_LEFT_NEG;
+    camera_map["rise_up"] = AGENT_CONTROL_UP_POS;
+    camera_map["drop_down"] = AGENT_CONTROL_UP_NEG;
+    camera_map["pitch_up"] = AGENT_CONTROL_PITCH_NEG;
+    camera_map["pitch_down"] = AGENT_CONTROL_PITCH_POS;
+    camera_map["yaw_left"] = AGENT_CONTROL_YAW_POS;
+    camera_map["yaw_right"] = AGENT_CONTROL_YAW_NEG;
+    mCameraTranslator.setNameToMaskMap(camera_map);
+    std::vector< std::pair< std::string, LLGameControl::InputChannel > > camera_defaults =
+    {
+        { "move_forward",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY_POS) }        },
+        { "move_backward", { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY_NEG) }        },
+        { "pan_left",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_NEG) }        },
+        { "pan_right",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_POS) }        },
+        { "rise_up",       { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) } },
+        { "drop_down",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS) }  },
+        { "pitch_up",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY_POS) }       },
+        { "pitch_down",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY_NEG) }       },
+        { "yaw_left",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_POS) }       },
+        { "yaw_right",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_NEG) }       }
+        //{ "zoom_in",       { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) } },
+        //{ "zoom_out",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS) }  },
+        //{ "roll_ccw",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) } },
+        //{ "roll_cw",       { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS) }  }
+
+    };
+    mCameraTranslator.setMappings(camera_defaults);
 }
 
 void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
@@ -477,6 +553,7 @@ void LLGameControllerManager::clearAllState()
     }
     mExternalState.clear();
     mLastActionFlags = 0;
+    mLastCameraActionFlags = 0;
 }
 
 void LLGameControllerManager::accumulateInternalState()
@@ -504,7 +581,7 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
     // finish by accumulating "external" state (if enabled)
     U32 old_buttons = final_state.mButtons;
     final_state.mButtons = mButtonAccumulator;
-    if (g_controlFromAvatar)
+    if (g_translateAgentActions)
     {
         // accumulate from mExternalState
         final_state.mButtons |= mExternalState.mButtons;
@@ -539,15 +616,31 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
 
 LLGameControl::InputChannel LLGameControllerManager::getChannelByActionName(const std::string& name) const
 {
-    return mTranslator.getChannelByActionName(name);
+    LLGameControl::InputChannel channel = mActionTranslator.getChannelByName(name);
+    if (channel.isNone())
+    {
+        // maybe we're looking for a camera action
+        channel = mCameraTranslator.getChannelByName(name);
+    }
+    return channel;
 }
 
 void LLGameControllerManager::addActionMapping(const std::string& name,  LLGameControl::InputChannel channel)
 {
-    bool something_changed = mTranslator.addActionMapping(name, channel);
-    if (something_changed)
+    bool success = mActionTranslator.addMapping(name, channel);
+    if (success)
     {
         mLastActionFlags = 0;
+    }
+    else
+    {
+        // did not find action by name
+        // maybe we're trying to map a camera action
+        success = mCameraTranslator.addMapping(name, channel);
+        if (success)
+        {
+            mLastCameraActionFlags = 0;
+        }
     }
 }
 
@@ -556,9 +649,9 @@ U32 LLGameControllerManager::computeInternalActionFlags()
 {
     // add up device inputs
     accumulateInternalState();
-    if (g_controlAvatar)
+    if (g_controlAgent)
     {
-        return mTranslator.computeInternalActionFlags(mAxesAccumulator, mButtonAccumulator);
+        return mActionTranslator.computeFlagsFromState(mAxesAccumulator, mButtonAccumulator);
     }
     return 0;
 }
@@ -566,13 +659,13 @@ U32 LLGameControllerManager::computeInternalActionFlags()
 // static
 void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
 {
-    if (g_controlFromAvatar)
+    if (g_translateAgentActions)
     {
-        U32 active_flags = action_flags & mTranslator.getMappedFlags();
+        U32 active_flags = action_flags & mActionTranslator.getMappedFlags();
         if (active_flags != mLastActionFlags)
         {
             mLastActionFlags = active_flags;
-            mExternalState = mTranslator.computeStateFromActionFlags(action_flags);
+            mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
         }
     }
 }
@@ -763,15 +856,20 @@ void LLGameControl::enableSendToServer(bool enable)
 }
 
 // static
-void LLGameControl::enableControlAvatar(bool enable)
+void LLGameControl::enableControlAgent(bool enable)
 {
-    g_controlAvatar = enable;
+    g_controlAgent = enable;
 }
 
 // static
-void LLGameControl::enableReceiveControlFromAvatar(bool enable)
+void LLGameControl::enableTranslateAgentActions(bool enable)
 {
-    g_controlFromAvatar = enable;
+    g_translateAgentActions = enable;
+}
+
+void LLGameControl::setAgentControlMode(LLGameControl::AgentControlMode mode)
+{
+    g_agentControlMode = mode;
 }
 
 // static
@@ -783,14 +881,28 @@ bool LLGameControl::willSendToServer()
 // static
 bool LLGameControl::willControlAvatar()
 {
-    return g_controlAvatar;
+    return g_agentControlMode == CONTROL_MODE_AVATAR;
 }
 
 // static
-bool LLGameControl::willReceiveControlFromAvatar()
+bool LLGameControl::willControlFlycam()
 {
-    return g_controlFromAvatar;
+    return g_agentControlMode == CONTROL_MODE_FLYCAM;
 }
+
+// static
+bool LLGameControl::willTranslateAgentActions()
+{
+    return g_translateAgentActions;
+}
+
+/*
+// static
+LLGameControl::LocalControlMode LLGameControl::getLocalControlMode()
+{
+    return g_agentControlMode;
+}
+*/
 
 // static
 LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& name)
