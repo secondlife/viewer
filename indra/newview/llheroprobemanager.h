@@ -104,6 +104,7 @@ private:
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip);
+    void generateRadiance(LLReflectionMap *probe);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;

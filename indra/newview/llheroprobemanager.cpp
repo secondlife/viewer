@@ -157,7 +157,7 @@ void LLHeroProbeManager::update()
             probe_pos.load3(point.mV);
 
             // Collect the list of faces that need updating based upon the camera's rotation.
-            LLVector3 cam_direction = LLVector3(0, 0, -1) * LLViewerCamera::instance().getQuaternion();
+            LLVector3 cam_direction = LLVector3(-1, -1, -1) * LLViewerCamera::instance().getQuaternion();
 
             static LLVector3 cubeFaces[6] = { 
                 LLVector3(1, 0, 0), 
@@ -207,6 +207,7 @@ void LLHeroProbeManager::update()
                 if (mFaceUpdateList[i])
                     updateProbeFace(mProbes[j], i, near_clip);
             }
+            generateRadiance(mProbes[j]);
         }
         mRenderingMirror = false;
         
@@ -262,30 +263,6 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
 
         LLRenderTarget *screen_rt = &gPipeline.mHeroProbeRT.screen;
         LLRenderTarget *depth_rt  = &gPipeline.mHeroProbeRT.deferredScreen;
-        
-        // perform a gaussian blur on the super sampled render before downsampling
-        {
-            gGaussianProgram.bind();
-            gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
-            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
-
-            // horizontal
-            gGaussianProgram.uniform2f(direction, 1.f, 0.f);
-            gGL.getTexUnit(diffuseChannel)->bind(screen_rt);
-            mRenderTarget.bindTarget();
-            gPipeline.mScreenTriangleVB->setBuffer();
-            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-            mRenderTarget.flush();
-
-            // vertical
-            gGaussianProgram.uniform2f(direction, 0.f, 1.f);
-            gGL.getTexUnit(diffuseChannel)->bind(&mRenderTarget);
-            screen_rt->bindTarget();
-            gPipeline.mScreenTriangleVB->setBuffer();
-            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-            screen_rt->flush();
-            gGaussianProgram.unbind();
-        }
 
         S32 mips = log2((F32)mProbeResolution) + 0.5f;
 
@@ -338,14 +315,22 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
         gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_TEXTURE);
         gReflectionMipProgram.unbind();
     }
+}
 
-    if (face == 5)
+void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
+{
+    S32 sourceIdx = mReflectionProbeCount;
+
+    // Unlike the reflectionmap manager, all probes are considered "realtime" for hero probes.
+    sourceIdx += 1;
     {
         mMipChain[0].bindTarget();
         static LLStaticHashedString sSourceIdx("sourceIdx");
 
         {
-            //generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
+
+
+            // generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
             gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
 
@@ -354,10 +339,10 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
             gHeroRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
             gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
-            
+
             U32 res = mMipChain[0].getWidth();
 
-            for (int i = 0; i < mMipChain.size(); ++i)
+            for (int i = 0; i < mMipChain.size() / 4; ++i)
             {
                 LL_PROFILE_GPU_ZONE("probe radiance gen");
                 static LLStaticHashedString sMipLevel("mipLevel");
@@ -371,7 +356,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
                 gHeroRadianceGenProgram.uniform1f(sStrength, 1);
 
                 for (int cf = 0; cf < 6; ++cf)
-                { // for each cube face
+                {  // for each cube face
                     LLCoordFrame frame;
                     frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
 
