@@ -148,28 +148,28 @@ public:
 
 	// LLView interface
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
-						BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
-						EAcceptance *accept,
-						std::string& tooltip_msg);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+    BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
+        BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+        EAcceptance *accept,
+        std::string& tooltip_msg) override;
+    BOOL handleHover(S32 x, S32 y, MASK mask) override;
+    BOOL handleUnicodeCharHere(llwchar uni_char) override;
 
-	virtual void	draw();
-	virtual void	setVisible( BOOL visible );
-	virtual void	setEnabled( BOOL enabled );
+    void draw() override;
+    void setVisible( BOOL visible ) override;
+    void setEnabled( BOOL enabled ) override;
 
-	void onVisibilityChange(BOOL new_visibility) override;
+    void onVisibilityChange(BOOL new_visibility) override;
 
-	void			setValid(BOOL valid);
+    void setValid(BOOL valid);
 
-	// LLUICtrl interface
-	virtual void	clear();
+    // LLUICtrl interface
+    void clear() override;
 
-	// Takes a UUID, wraps get/setImageAssetID
-	virtual void	setValue(const LLSD& value);
-	virtual LLSD	getValue() const;
+    // Takes a UUID, wraps get/setImageAssetID
+    void setValue(const LLSD& value) override;
+    LLSD getValue() const override;
 
 	// LLTextureCtrl interface
 	void			showPicker(BOOL take_focus);
