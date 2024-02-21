@@ -67,7 +67,7 @@ LLFloater360Capture::LLFloater360Capture(const LLSD& key)
     mStartILMode = gAgent.getInterestListMode();
 
     // send everything to us for as long as this floater is open
-    gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
+    gAgent.changeInterestListMode(IL_MODE_360);
 }
 
 LLFloater360Capture::~LLFloater360Capture()

@@ -52,6 +52,11 @@ const U32	MAX_OBJECT_CACHE_ENTRIES = 50000;
 // Region handshake flags
 const U32 REGION_HANDSHAKE_SUPPORTS_SELF_APPEARANCE = 1U << 2;
 
+// Interest list mode,
+// in use by agent and region classes so must exist before region classes
+const std::string IL_MODE_DEFAULT = "default";
+const std::string IL_MODE_360 = "360";
+
 class LLEventPoll;
 class LLVLComposition;
 class LLViewerObject;
@@ -504,9 +509,6 @@ public:
     const std::string & getInterestListMode() const { return mInterestListMode; }
 
 	void resetInterestList();
-
-	static const std::string IL_MODE_DEFAULT;
-    static const std::string IL_MODE_360;
 
   private:
 	static S32  sNewObjectCreationThrottle;
