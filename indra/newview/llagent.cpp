@@ -1455,7 +1455,37 @@ LLVector3 LLAgent::getReferenceUpVector()
 }
 
 
-// Radians, positive is forward into ground
+/*
+//-----------------------------------------------------------------------------
+// getReferenceLeftVector()
+//-----------------------------------------------------------------------------
+LLVector3 LLAgent::getReferenceLeftVector()
+{
+	// this vector is in the coordinate frame of the avatar's parent object, or the world if none
+	LLVector3 left_vector = LLVector3::y_axis;
+	if (isAgentAvatarValid() && 
+		gAgentAvatarp->getParent() &&
+		gAgentAvatarp->mDrawable.notNull())
+	{
+		U32 camera_mode = gAgentCamera.getCameraAnimating() ? gAgentCamera.getLastCameraMode() : gAgentCamera.getCameraMode();
+		// and in third person...
+		if (camera_mode == CAMERA_MODE_THIRD_PERSON)
+		{
+			// make the up vector point to the absolute +z axis
+			left_vector = left_vector * ~((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
+		}
+		else if (camera_mode == CAMERA_MODE_MOUSELOOK)
+		{
+			// make the up vector point to the avatar's +z axis
+			left_vector = left_vector * gAgentAvatarp->mDrawable->getRotation();
+		}
+	}
+
+	return left_vector;
+}
+*/
+
+// Radians, positive is downward toward ground
 //-----------------------------------------------------------------------------
 // pitch()
 //-----------------------------------------------------------------------------
@@ -1491,6 +1521,7 @@ void LLAgent::pitch(F32 angle)
 	if (fabs(angle) > 1e-4)
 	{
 		mFrameAgent.pitch(angle);
+		//mFrameAgent.rotate(angle, getReferenceLeftVector());
 	}
 }
 
@@ -2068,12 +2099,20 @@ void LLAgent::propagate(const F32 dt)
 	}
 
 	// handle rotation based on keyboard levels
-	const F32 YAW_RATE = 90.f * DEG_TO_RAD;				// radians per second
-	yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
+	constexpr F32 YAW_RATE = 90.f * DEG_TO_RAD;				// radians per second
+    F32 angle = YAW_RATE * gAgentCamera.getYawKey() * dt;
+    if (fabs(angle) > 0.0f)
+    {
+	    yaw(angle);
+    }
 
-	const F32 PITCH_RATE = 90.f * DEG_TO_RAD;			// radians per second
-	pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
-	
+	constexpr F32 PITCH_RATE = 90.f * DEG_TO_RAD;			// radians per second
+    angle = PITCH_RATE * gAgentCamera.getPitchKey() * dt;
+    if (fabs(angle) > 0.0f)
+    {
+	    pitch(angle);
+    }
+
 	// handle auto-land behavior
 	if (isAgentAvatarValid())
 	{
@@ -5012,6 +5051,26 @@ void LLAgent::applyExternalActionFlags()
         return;
     }
 
+    // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
+    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_NEG) > 0)
+    {
+        if (mToggleFlycam)
+        {
+            mUsingFlycam = !mUsingFlycam;
+        }
+        mToggleFlycam = false;
+    }
+    else
+    {
+        mToggleFlycam = true;
+    }
+
+    if (mUsingFlycam)
+    {
+        applyExternalActionFlagsForFlycam();
+        return;
+    }
+
     S32 direction = (S32)(mExternalActionFlags & AGENT_CONTROL_AT_POS)
         - (S32)((mExternalActionFlags & AGENT_CONTROL_AT_NEG) >> 1);
     if (direction != 0)
@@ -5075,11 +5134,10 @@ void LLAgent::applyExternalActionFlags()
         moveYaw(sign * LLFloaterMove::getYawRate(3.0f));
     }
 
-    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_PITCH_POS)
-        - (S32)((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) >> 1);
-    if (direction != 0)
     {
-        movePitch(direction);
+        F32 pitch = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
+            - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
+        movePitch(pitch);
     }
 
     if ((mExternalActionFlags & AGENT_CONTROL_FLY) > 0)
@@ -5142,6 +5200,11 @@ void LLAgent::applyExternalActionFlags()
     {
         mToggleRun = true;
     }
+}
+
+void LLAgent::applyExternalActionFlagsForFlycam()
+{
+    // TODO: implement this
 }
 
 /********************************************************************************/

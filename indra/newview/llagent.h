@@ -508,12 +508,15 @@ public:
     //
     void setExternalActionFlags(U32 flags);
     void applyExternalActionFlags();
+    void applyExternalActionFlagsForFlycam();
 
 private:
     U32 mExternalActionFlags { 0 };
     bool mToggleFly { true };
     bool mToggleSit { true };
     bool mToggleRun { true };
+    bool mToggleFlycam { true };
+    bool mUsingFlycam { false };
 
 	//--------------------------------------------------------------------
 	// Animations
@@ -582,6 +585,7 @@ public:
 	void			roll(F32 angle);
 	void			yaw(F32 angle);
 	LLVector3		getReferenceUpVector();
+	//LLVector3		getReferenceLeftVector();
 
 	//--------------------------------------------------------------------
 	// Autopilot
