@@ -4216,7 +4216,10 @@ public:
 				input["body"]["from_id"].asUUID(),
 				input["body"]["from_name"].asString(),
 				session_type_p2p ? IM_SESSION_P2P_INVITE : IM_SESSION_INVITE,
-				LLIMMgr::INVITATION_TYPE_VOICE);
+				LLIMMgr::INVITATION_TYPE_VOICE,
+                LLStringUtil::null,  // session_handle
+                LLStringUtil::null,
+                voice_server_type);
 		}
 		else if ( input["body"].has("immediate") )
 		{

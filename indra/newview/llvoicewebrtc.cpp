@@ -93,7 +93,8 @@ namespace {
     const F32 SPEAKING_TIMEOUT = 1.f;
     const F32 SPEAKING_AUDIO_LEVEL = 0.40;
 
-    static const std::string VOICE_SERVER_TYPE = "WebRTC";
+    static const std::string VISIBLE_VOICE_SERVER_TYPE = "WebRTC";
+    static const std::string WEBRTC_VOICE_SERVER_TYPE = "webrtc";
 
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.1f;
@@ -289,7 +290,7 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 	mSpeakerVolume = 0.0;
 
 	mVoiceVersion.serverVersion = "";
-	mVoiceVersion.serverType = VOICE_SERVER_TYPE;
+	mVoiceVersion.voiceServerType = VISIBLE_VOICE_SERVER_TYPE;
 	
 #if LL_DARWIN || LL_LINUX
 		// HACK: THIS DOES NOT BELONG HERE
@@ -559,10 +560,24 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                 continue;
             }
 
+    		LLViewerRegion *regionp = gAgent.getRegion();
+            if (!regionp)
+            {
+                continue;
+            }
+            LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+            if (version.voiceServerType != VISIBLE_VOICE_SERVER_TYPE)
+            {
+                // we've switched away from webrtc voice, so shut all channels down.
+                // leave channel can be called again and again without adverse effects.
+                // it merely tells channels to shut down if they're not already doing so.
+                leaveChannel(false);
+                continue;
+            }
+
             if (inSpatialChannel())
             {
                 // add session for region or parcel voice.
-                LLViewerRegion *regionp = gAgent.getRegion();
                 if (!regionp || regionp->getRegionID().isNull())
                 {
                     continue;
@@ -2752,6 +2767,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     }
     else
     {
+        LL_WARNS("Voice") << "Invalid voice provision request result:" << result << LL_ENDL;
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
         mOutstandingRequests--;
         return;
