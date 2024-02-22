@@ -2589,10 +2589,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>GameControlToAvatar</key>
+    <key>GameControlToAgent</key>
     <map>
       <key>Comment</key>
-      <string>GameControl data moves avatar</string>
+      <string>GameControl data moves avatar/flycam</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2600,10 +2600,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AvatarToGameControl</key>
+    <key>AgentToGameControl</key>
     <map>
       <key>Comment</key>
-      <string>Avatar movement produces GameControl data</string>
+      <string>Avatar/flycam movement produces GameControl data</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

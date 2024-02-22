@@ -311,7 +311,7 @@ namespace
     bool g_sendToServer = false;
     bool g_controlAgent = false;
     bool g_translateAgentActions = false;
-    LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_NONE;
+    LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
     constexpr U8 MAX_AXIS = 5;
     constexpr U8 MAX_BUTTON = 31;
@@ -364,12 +364,14 @@ LLGameControllerManager::LLGameControllerManager()
     LLGameControlTranslator::NameToMaskMap avatar_map;
     avatar_map["push_forward"] = AGENT_CONTROL_AT_POS | AGENT_CONTROL_FAST_AT;
     avatar_map["push_backward"] = AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT;
-    avatar_map["turn_left"] = AGENT_CONTROL_YAW_POS;
-    avatar_map["turn_right"] = AGENT_CONTROL_YAW_NEG;
     avatar_map["slide_left"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
     avatar_map["slide_right"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
     avatar_map["jump"] = AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP;
     avatar_map["push_down"] = AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP;
+    avatar_map["turn_left"] = AGENT_CONTROL_YAW_POS;
+    avatar_map["turn_right"] = AGENT_CONTROL_YAW_NEG;
+    avatar_map["look_up"] = AGENT_CONTROL_PITCH_NEG;
+    avatar_map["look_down"] = AGENT_CONTROL_PITCH_POS;
     // These are HACKs. We borrow some AGENT_CONTROL bits for "unrelated" features.
     avatar_map["toggle_run"] = AGENT_CONTROL_NUDGE_AT_POS; // HACK
     avatar_map["toggle_fly"] = AGENT_CONTROL_FLY; // HACK
@@ -385,12 +387,14 @@ LLGameControllerManager::LLGameControllerManager()
     {
         { "push_forward",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY_POS) }         },
         { "push_backward", { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY_NEG) }         },
-        { "turn_left",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_POS) }         },
-        { "turn_right",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_NEG) }         },
-        { "slide_left",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_POS) }        },
-        { "slide_right",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_NEG) }        },
+        { "slide_left",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_POS) }         },
+        { "slide_right",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX_NEG) }         },
         { "jump",          { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT_POS) }  },
         { "push_down",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT_POS) }   },
+        { "turn_left",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_POS) }        },
+        { "turn_right",    { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX_NEG) }        },
+        { "look_up",       { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY_NEG) }        },
+        { "look_down",     { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY_POS) }        },
         { "toggle_run",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSHOULDER) }  },
         { "toggle_fly",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_UP) }       },
         { "toggle_sit",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_DOWN) }     },
@@ -881,13 +885,13 @@ bool LLGameControl::willSendToServer()
 // static
 bool LLGameControl::willControlAvatar()
 {
-    return g_agentControlMode == CONTROL_MODE_AVATAR;
+    return g_controlAgent && g_agentControlMode == CONTROL_MODE_AVATAR;
 }
 
 // static
 bool LLGameControl::willControlFlycam()
 {
-    return g_agentControlMode == CONTROL_MODE_FLYCAM;
+    return g_controlAgent && g_agentControlMode == CONTROL_MODE_FLYCAM;
 }
 
 // static
