@@ -13,10 +13,10 @@ Material preview is a UI feature which displays a lit spherical preview of a PBR
 
 These are known issues that the current implementation of this feature does not address:
 
-- Material swatch preview is a preview of the base material ID only, and ignores other properties on the prim face like material overrides
-- Alpha mask previews as alpha blend
-- Double-sided previews as single-sided
-- Material swatch preview inherits some of its lighting from the current environment, and reflections from the default reflection probe
+- The material preview in the build floater is a preview of the base material ID only, and ignores other properties on the prim face like material overrides (https://github.com/secondlife/viewer/issues/865)
+- Alpha mask previews as alpha blend (https://github.com/secondlife/viewer/issues/866)
+- Double-sided previews as single-sided (https://github.com/secondlife/viewer/issues/867)
+- Material preview inherits some of its lighting from the current environment, and reflections from the default reflection probe (https://github.com/secondlife/viewer/issues/868)
 
 ## General Regression Testing
 
@@ -29,11 +29,11 @@ These are known issues that the current implementation of this feature does not 
 
 ### Disappearing Objects Fix Test
 
-This test is recommended for verifying that secondlife/viewer-issues#72 is fixed.
+This test is recommended for verifying that https://github.com/secondlife/viewer-issues/issues/72 is fixed.
 
 #### Symptoms
 
-The following types of objects could randomly disappear until relog in the main view when the bug occured:
+When the bug occurs, one or more of following types of objects could randomly disappear in the world, permanently until relog:
 
 - Objects
 - Water level in current region
@@ -45,8 +45,10 @@ Note: Disappearing objects in reflections have a different root cause and are no
 
 Verify the disappearing objects bug does not reproduce, given the following steps:
 
-- Runtime prerequisites: Material preview swatch is enabled ("UIPreviewMaterial") by visiting a test region with the feature enabled, or by manually enabling "UIPreviewMaterial" in the advanced settings for the current session
-- Region prerequisites: Unknown, but a region with lots of stuff in it (like Rumpus Room 2048 on Aditi) seems to increase repro rate
+- Runtime prerequisites: Material preview swatch may not be available in your viewer or region if this feature is still behind a feature flag. It is safe to enable this feature manually by setting, "UIPreviewMaterial" to True in the advanced settings. The setting will persist for the current session.
+- Region prerequisites: Unknown, but a region with lots of objects in it seems to increase repro rate. The following locations have been known to easily reproduce the bug, as of 2024-02-16:
+    - http://maps.secondlife.com/secondlife/LindenWorld%20B/161/75/47
+    - [secondlife://Aditi/secondlife/Rumpus%20Room%202048/128/128/24](secondlife://Aditi/secondlife/Rumpus%20Room%202048/128/128/24)
 - Right click an object and select, "Edit item"
 - Go to texture tab, select PBR Metallic Roughness from dropdown, and click the button to select material from inventory
 - Ensure "Apply now" is checked in the inventory selection floater
@@ -55,7 +57,7 @@ Verify the disappearing objects bug does not reproduce, given the following step
 
 ### Dynamic Exposure Influence Fix Test
 
-This test is recommended for verifying that secondlife/viewer-issues#72 is fixed.
+This test is recommended for verifying that https://github.com/secondlife/viewer-issues/issues/72 is fixed.
 
 #### Symptoms
 
