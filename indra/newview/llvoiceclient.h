@@ -94,8 +94,10 @@ public:
 
 struct LLVoiceVersionInfo
 {
-	std::string serverType;
-	std::string serverVersion;
+	std::string voiceServerType;
+    int         majorVersion;
+    int         minorVersion;
+    std::string serverVersion;
 	std::string mBuildVersion;
 };
 
@@ -122,6 +124,8 @@ public:
     virtual void setHidden(bool hidden)=0;  //  Hides the user from voice.
 
 	virtual const LLVoiceVersionInfo& getVersion()=0;
+
+
 	
 	/////////////////////
 	/// @name Tuning
@@ -449,9 +453,13 @@ public:
 	void endUserIMSession(const LLUUID &uuid);	
 	//@}
 	
+	void setVoiceModule(const std::string& voice_server_type);
 
 	void userAuthorized(const std::string& user_id,
-			const LLUUID &agentID);
+						const LLUUID &agentID);
+
+    void onRegionChanged();
+    void onSimulatorFeaturesReceived(const LLUUID &region_id);
 	
 	void addObserver(LLVoiceClientStatusObserver* observer);
 	void removeObserver(LLVoiceClientStatusObserver* observer);
@@ -478,6 +486,9 @@ protected:
 	LLVoiceModuleInterface* mVoiceModule;
 	LLPumpIO *m_servicePump;
 
+	std::string mUserID;
+    LLUUID      mAgentID;
+    boost::signals2::connection  mSimulatorFeaturesReceivedSlot;
 
 	LLCachedControl<bool> mVoiceEffectEnabled;
 	LLCachedControl<std::string> mVoiceEffectDefault;

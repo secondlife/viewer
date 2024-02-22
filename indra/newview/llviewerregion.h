@@ -546,7 +546,7 @@ public:
 	U8		mCentralBakeVersion;
 	
 	LLVOCacheEntry* mLastVisitedEntry;
-	U32				mInvisibilityCheckHistory;	
+	U32				mInvisibilityCheckHistory;
 
 	// Information for Homestead / CR-53
 	S32 mClassID;

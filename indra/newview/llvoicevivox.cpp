@@ -85,7 +85,8 @@ namespace {
 
     const F32 SPEAKING_TIMEOUT = 1.f;
 
-    static const std::string VOICE_SERVER_TYPE = "Vivox";
+    static const std::string VISIBLE_VOICE_SERVER_TYPE = "Vivox";
+    static const std::string VIVOX_VOICE_SERVER_TYPE = "vivox";
 
     // Don't retry connecting to the daemon more frequently than this:
     const F32 DAEMON_CONNECT_THROTTLE_SECONDS = 1.0f;
@@ -358,7 +359,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mSpeakerVolume = scale_speaker_volume(0);
 
 	mVoiceVersion.serverVersion = "";
-	mVoiceVersion.serverType = VOICE_SERVER_TYPE;
+	mVoiceVersion.voiceServerType = VISIBLE_VOICE_SERVER_TYPE;
 	
 	//  gMuteListp isn't set up at this point, so we defer this until later.
 //	gMuteListp->addObserver(&mutelist_listener);
@@ -736,6 +737,19 @@ void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
             // about state of coroutine, so just stop
             return;
         }
+
+
+        // grab the active voice server version info to see if we should use
+        // vivox.
+        LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        if (version.voiceServerType != VISIBLE_VOICE_SERVER_TYPE)
+		{
+			// we've switched to another voice provider, so  
+			// disable voice and shut down vivox.  Don't
+			// notify, though.
+            mVoiceEnabled = false;
+		}
+
 
         switch (coro_state)
         {
@@ -1970,6 +1984,17 @@ bool LLVivoxVoiceClient::waitForChannel()
         {
             // terminate() forcefully disconects voice, no need for cleanup
             return false;
+        }
+
+        // grab the active voice server version info to see if we should use
+        // vivox.
+        LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        if (version.voiceServerType != VISIBLE_VOICE_SERVER_TYPE)
+        {
+            // we've switched to another voice provider, so
+            // disable voice and shut down vivox.  Don't
+            // notify, though.
+            mVoiceEnabled = false;
         }
 
         switch (state)
