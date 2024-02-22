@@ -34,26 +34,6 @@
          value="Move Backward" />
     </rows>
     <rows
-     name="turn_left"
-     value="turn_left">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Turn Left" />
-    </rows>
-    <rows
-     name="turn_right"
-     value="turn_right">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Turn Right" />
-    </rows>
-    <rows
      name="slide_left"
      value="slide_left">
         <columns
@@ -92,6 +72,46 @@
          halign="left"
          name="action"
          value="Down" />
+    </rows>
+    <rows
+     name="turn_left"
+     value="turn_left">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Turn Left" />
+    </rows>
+    <rows
+     name="turn_right"
+     value="turn_right">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Turn Right" />
+    </rows>
+    <rows
+     name="look_up"
+     value="look_up">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Look Up" />
+    </rows>
+    <rows
+     name="look_down"
+     value="look_down">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Look Down" />
     </rows>
 
     <rows
