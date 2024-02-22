@@ -3149,6 +3149,7 @@ void LLPanelPreferenceGameControl::onClickGameControlToAgent(LLUICtrl* ctrl)
 {
     BOOL checked = mCheckGameControlToAgent->get();
     gSavedSettings.setBOOL( "GameControlToAgent", checked );
+    LLGameControl::enableControlAgent(checked);
 
     mActionTable->deselectAllItems();
     bool table_enabled = checked || mCheckAgentToGameControl->get();

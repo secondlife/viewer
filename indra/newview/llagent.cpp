@@ -1454,12 +1454,39 @@ LLVector3 LLAgent::getReferenceUpVector()
 }
 
 
-// Radians, positive is forward into ground
+// Radians, positive is downward toward ground
 //-----------------------------------------------------------------------------
 // pitch()
 //-----------------------------------------------------------------------------
 void LLAgent::pitch(F32 angle)
 {
+    // don't let user pitch if pointed almost all the way down or up
+
+    // A dot B = mag(A) * mag(B) * cos(angle between A and B)
+    // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
+    //                                  = A dot B for unit vectors
+
+    LLVector3 skyward = getReferenceUpVector();
+
+    // SL-19286 Avatar is upside down when viewed from below
+    // after left-clicking the mouse on the avatar and dragging down
+    //
+    // The issue is observed on angle below 10 degrees
+    const F32 look_down_limit = 179.f * DEG_TO_RAD;
+    const F32 look_up_limit = 10.f * DEG_TO_RAD;
+
+    F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
+
+    // clamp pitch to limits
+    if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
+    {
+        angle = look_down_limit - angle_from_skyward;
+    }
+    else if ((angle < 0.f) && (angle_from_skyward + angle < look_up_limit))
+    {
+        angle = look_up_limit - angle_from_skyward;
+    }
+
     if (fabs(angle) > 1e-4)
     {
         mFrameAgent.pitch(angle);
@@ -2040,11 +2067,19 @@ void LLAgent::propagate(const F32 dt)
     }
 
     // handle rotation based on keyboard levels
-    const F32 YAW_RATE = 90.f * DEG_TO_RAD;             // radians per second
-    yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
+    constexpr F32 YAW_RATE = 90.f * DEG_TO_RAD;                // radians per second
+    F32 angle = YAW_RATE * gAgentCamera.getYawKey() * dt;
+    if (fabs(angle) > 0.0f)
+    {
+        yaw(angle);
+    }
 
-    const F32 PITCH_RATE = 90.f * DEG_TO_RAD;           // radians per second
-    pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
+    constexpr F32 PITCH_RATE = 90.f * DEG_TO_RAD;            // radians per second
+    angle = PITCH_RATE * gAgentCamera.getPitchKey() * dt;
+    if (fabs(angle) > 0.0f)
+    {
+        pitch(angle);
+    }
 
     // handle auto-land behavior
     if (isAgentAvatarValid())
@@ -4972,7 +5007,7 @@ void LLAgent::setExternalActionFlags(U32 outer_flags)
         // save these flags for later, for when we're ready
         // to actually send an AgentUpdate packet
         mExternalActionFlags = outer_flags;
-	    mbFlagsDirty = TRUE;
+        mbFlagsDirty = TRUE;
     }
 }
 
@@ -4980,6 +5015,26 @@ void LLAgent::applyExternalActionFlags()
 {
     if (! LLGameControl::willControlAvatar())
     {
+        return;
+    }
+
+    // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
+    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_NEG) > 0)
+    {
+        if (mToggleFlycam)
+        {
+            mUsingFlycam = !mUsingFlycam;
+        }
+        mToggleFlycam = false;
+    }
+    else
+    {
+        mToggleFlycam = true;
+    }
+
+    if (mUsingFlycam)
+    {
+        applyExternalActionFlagsForFlycam();
         return;
     }
 
@@ -5046,11 +5101,10 @@ void LLAgent::applyExternalActionFlags()
         moveYaw(sign * LLFloaterMove::getYawRate(3.0f));
     }
 
-    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_PITCH_POS)
-        - (S32)((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) >> 1);
-    if (direction != 0)
     {
-        movePitch(direction);
+        F32 pitch = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
+            - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
+        movePitch(pitch);
     }
 
     if ((mExternalActionFlags & AGENT_CONTROL_FLY) > 0)
@@ -5113,6 +5167,11 @@ void LLAgent::applyExternalActionFlags()
     {
         mToggleRun = true;
     }
+}
+
+void LLAgent::applyExternalActionFlagsForFlycam()
+{
+    // TODO: implement this
 }
 
 /********************************************************************************/
