@@ -196,6 +196,7 @@ LLGLSLShader			gDeferredPostGammaCorrectProgram;
 LLGLSLShader            gNoPostGammaCorrectProgram;
 LLGLSLShader            gLegacyPostGammaCorrectProgram;
 LLGLSLShader			gExposureProgram;
+LLGLSLShader			gExposureProgramNoFade;
 LLGLSLShader			gLuminanceProgram;
 LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
@@ -980,6 +981,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
         gExposureProgram.unload();
+        gExposureProgramNoFade.unload();
         gLuminanceProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
         gNoPostGammaCorrectProgram.unload();
@@ -2127,10 +2129,25 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gExposureProgram.mFeatures.isDeferred = true;
         gExposureProgram.mShaderFiles.clear();
         gExposureProgram.clearPermutations();
+        gExposureProgram.addPermutation("USE_LAST_EXPOSURE", "1");
         gExposureProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
         gExposureProgram.mShaderFiles.push_back(make_pair("deferred/exposureF.glsl", GL_FRAGMENT_SHADER));
         gExposureProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gExposureProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gExposureProgramNoFade.mName = "Exposure (no fade)";
+        gExposureProgramNoFade.mFeatures.hasSrgb = true;
+        gExposureProgramNoFade.mFeatures.isDeferred = true;
+        gExposureProgramNoFade.mShaderFiles.clear();
+        gExposureProgramNoFade.clearPermutations();
+        gExposureProgramNoFade.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gExposureProgramNoFade.mShaderFiles.push_back(make_pair("deferred/exposureF.glsl", GL_FRAGMENT_SHADER));
+        gExposureProgramNoFade.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gExposureProgramNoFade.createShader(NULL, NULL);
         llassert(success);
     }
 

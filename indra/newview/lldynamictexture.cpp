@@ -118,6 +118,8 @@ BOOL LLViewerDynamicTexture::render()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
      //use the bottom left corner
 	mOrigin.set(0, 0);
 
@@ -219,7 +221,6 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
                 llassert(dynamicTexture->getFullHeight() <= LLPipeline::MAX_BAKE_WIDTH);
 
 				glClear(GL_DEPTH_BUFFER_BIT);
-				gDepthDirty = TRUE;
 								
 				gGL.color4f(1,1,1,1);
                 dynamicTexture->setBoundTarget(&bake_target);
