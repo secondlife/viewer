@@ -213,16 +213,4 @@ private:
     lua_State* L;
 };
 
-// log exit from any block declaring an instance of DebugExit, regardless of
-// how control leaves that block
-struct DebugExit
-{
-    DebugExit(const std::string& name): mName(name) {}
-    DebugExit(const DebugExit&) = delete;
-    DebugExit& operator=(const DebugExit&) = delete;
-    ~DebugExit();
-
-    std::string mName;
-};
-
 #endif /* ! defined(LL_LUA_FUNCTION_H) */

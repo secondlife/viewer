@@ -16,6 +16,7 @@
 // STL headers
 // std headers
 #include <algorithm>
+#include <iomanip>                  // std::quoted
 #include <map>
 #include <memory>                   // std::unique_ptr
 // external library headers
@@ -92,7 +93,6 @@ LLSD lua_tollsd(lua_State* L, int index)
 {
     LL_DEBUGS("Lua") << "lua_tollsd(" << index << ") of " << lua_gettop(L) << " stack entries: "
                      << lua_what(L, index) << LL_ENDL;
-    DebugExit log_exit("lua_tollsd()");
     switch (lua_type(L, index))
     {
     case LUA_TNONE:
@@ -784,12 +784,4 @@ std::ostream& operator<<(std::ostream& out, const lua_stack& self)
     }
     out << ']';
     return out;
-}
-
-/*****************************************************************************
-*   DebugExit
-*****************************************************************************/
-DebugExit::~DebugExit()
-{
-    LL_DEBUGS("Lua") << "exit " << mName << LL_ENDL;
 }
