@@ -104,6 +104,13 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	}
 }
 
+LLSearchEditor::~LLSearchEditor()
+{
+    mKeystrokeCallback = NULL;
+    mTextChangedCallback = NULL;
+    setCommitOnFocusLost(false);
+}
+
 //virtual
 void LLSearchEditor::draw()
 {

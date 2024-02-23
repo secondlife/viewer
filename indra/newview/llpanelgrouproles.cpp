@@ -437,6 +437,7 @@ LLPanelGroupSubTab::LLPanelGroupSubTab()
 
 LLPanelGroupSubTab::~LLPanelGroupSubTab()
 {
+    mSearchCommitConnection.disconnect();
 }
 
 bool LLPanelGroupSubTab::postBuildSubTab(LLView* root) 
@@ -469,7 +470,8 @@ bool LLPanelGroupSubTab::postBuild()
 	mSearchEditor = findChild<LLFilterEditor>("filter_input", recurse);
 	if (mSearchEditor) // SubTab doesn't implement this, only some of derived classes
 	{
-		mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
+        // panel 
+        mSearchCommitConnection = mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
 	}
 
 	return LLPanelGroupTab::postBuild();
