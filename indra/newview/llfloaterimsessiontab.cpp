@@ -470,7 +470,6 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 	{
 		im_box->setTimeNow(mSessionID,chat.mFromID);
 	}
-	
 
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 

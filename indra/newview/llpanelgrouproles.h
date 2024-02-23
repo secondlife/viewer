@@ -136,6 +136,7 @@ protected:
 	LLPanel* mFooter;
 
 	LLFilterEditor*	mSearchEditor;
+    boost::signals2::connection mSearchCommitConnection;
 
 	std::string mSearchFilter;
 
