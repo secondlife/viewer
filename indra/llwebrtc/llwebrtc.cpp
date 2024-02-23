@@ -40,7 +40,7 @@
 namespace llwebrtc
 {
 
-LLAudioDeviceObserver::LLAudioDeviceObserver() : mMicrophoneEnergy(0.0), mSumVector {0} {}
+LLAudioDeviceObserver::LLAudioDeviceObserver() : mSumVector {0}, mMicrophoneEnergy(0.0) {}
 
 float LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
 

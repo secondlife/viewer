@@ -117,7 +117,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 {
   public:
     LLWebRTCImpl() : 
-        mPeerCustomProcessor(nullptr), mMute(true)
+        mMute(true), mPeerCustomProcessor(nullptr)
     {
     }
     ~LLWebRTCImpl() {}
