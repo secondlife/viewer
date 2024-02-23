@@ -469,6 +469,7 @@ static std::string ELLPathToString(ELLPath location)
 		ENT(LL_PATH_DEFAULT_SKIN)
 		ENT(LL_PATH_FONTS)
 		ENT(LL_PATH_LAST)
+        ENT(LL_PATH_SCRIPTS)
 	;
 #undef ENT
 
@@ -588,6 +589,10 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 	case LL_PATH_FONTS:
 		prefix = add(getAppRODataDir(), "fonts");
 		break;
+
+    case LL_PATH_SCRIPTS:
+        prefix = add(getAppRODataDir(), "scripts");
+        break;
 		
 	default:
 		llassert(0);

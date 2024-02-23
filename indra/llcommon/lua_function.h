@@ -22,15 +22,6 @@
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
 
-namespace
-{
-    // can't specify free function free() as a unique_ptr deleter
-    struct freer
-    {
-        void operator()(void *ptr) { free(ptr); }
-    };
-}
-
 namespace lluau
 {
     // luau defines luaL_error() as void, but we want to use the Lua idiom of
@@ -56,6 +47,7 @@ namespace lluau
     // rather than string_views because dostring() needs pointers to nul-
     // terminated char arrays.
     int dostring(lua_State* L, const std::string& desc, const std::string& text);
+    int loadstring(lua_State* L, const std::string& desc, const std::string& text);
 } // namespace lluau
 
 std::string lua_tostdstring(lua_State* L, int index);

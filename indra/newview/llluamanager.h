@@ -97,14 +97,12 @@ class LLRequireResolver
     struct ResolvedRequire
     {
         ModuleStatus status;
-        std::string chunkName;
         std::string absolutePath;
         std::string sourceCode;
     };
 
     [[nodiscard]] ResolvedRequire static resolveRequire(lua_State *L, std::string path);
 
-    std::string mChunkname;
     std::string mAbsolutePath;
     std::string mSourceCode;
 
@@ -112,7 +110,7 @@ class LLRequireResolver
     std::string mPathToResolve;
     std::string mSourceChunkname;
 
-    LLRequireResolver(lua_State *L, std::string path);
+    LLRequireResolver(lua_State *L, const std::string& path);
 
     ModuleStatus findModule();
     lua_State *L;
