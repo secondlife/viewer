@@ -61,12 +61,16 @@ public:
 	LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
     Type getMaterialType();
-    BOOL texturesReady(BOOL boost = FALSE);
-    BOOL materialsReady(BOOL boost = FALSE);
+    bool texturesReady(bool boost, bool strict);
+    // strict = true -> all materials must be sufficiently loaded
+    // strict = false -> at least one material must be loaded
+    bool materialsReady(bool boost, bool strict);
 
 protected:
-    static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
-    static BOOL materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost = FALSE);
+    static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
+    // strict = true -> all materials must be sufficiently loaded
+    // strict = false -> at least one material must be loaded
+    static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
 	LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
 	LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
     bool mMaterialTexturesSet[ASSET_COUNT];
@@ -116,8 +120,8 @@ public:
 	BOOL getParamsReady() const	{ return mParamsReady; }
 
 protected:
-    static BOOL textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost = FALSE);
-    static BOOL materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost = FALSE);
+    static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost = false);
+    static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost = false);
 
 	BOOL mParamsReady = FALSE;
 	LLSurface *mSurfacep;

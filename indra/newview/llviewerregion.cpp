@@ -1610,8 +1610,8 @@ void LLViewerRegion::idleUpdate(F32 max_update_time)
 
 	mLastUpdate = LLViewerOctreeEntryData::getCurrentFrame();
 
-    static bool pbr_terrain_enabled = gSavedSettings.get<bool>("RenderTerrainPBREnabled");
-    static LLCachedControl<bool> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", FALSE);
+    static LLCachedControl<bool> pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
+    static LLCachedControl<bool> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", false);
     bool pbr_material = mImpl->mCompositionp && (mImpl->mCompositionp->getMaterialType() == LLTerrainMaterials::Type::PBR);
     bool pbr_land = pbr_material && pbr_terrain_enabled && pbr_terrain_experimental_normals;
 
@@ -1925,8 +1925,8 @@ void LLViewerRegion::forceUpdate()
 {
 	constexpr F32 max_update_time = 0.f;
 
-	static bool pbr_terrain_enabled = gSavedSettings.get<BOOL>("RenderTerrainPBREnabled");
-	static LLCachedControl<BOOL> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", FALSE);
+    static LLCachedControl<bool> pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
+    static LLCachedControl<bool> pbr_terrain_experimental_normals(gSavedSettings, "RenderTerrainPBRNormalsEnabled", false);
 	bool pbr_material = mImpl->mCompositionp && (mImpl->mCompositionp->getMaterialType() == LLTerrainMaterials::Type::PBR);
 	bool pbr_land = pbr_material && pbr_terrain_enabled && pbr_terrain_experimental_normals;
 
@@ -2459,6 +2459,26 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
     }
 
     gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
+
+    if (mSimulatorFeatures.has("PBRTerrainEnabled"))
+    {
+        bool enabled = mSimulatorFeatures["PBRTerrainEnabled"];
+        gSavedSettings.setBOOL("RenderTerrainPBREnabled", enabled);
+    }
+    else
+    {
+        gSavedSettings.setBOOL("RenderTerrainPBREnabled", false);
+    }
+
+    if (mSimulatorFeatures.has("PBRMaterialSwatchEnabled"))
+    {
+        bool enabled = mSimulatorFeatures["PBRMaterialSwatchEnabled"];
+        gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
+    }
+    else
+    {
+        gSavedSettings.setBOOL("UIPreviewMaterial", false);
+    }
 }
 
 //this is called when the parent is not cacheable.

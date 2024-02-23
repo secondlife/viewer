@@ -75,12 +75,12 @@ LLTerrainMaterials::~LLTerrainMaterials()
 
 BOOL LLTerrainMaterials::generateMaterials()
 {
-    if (texturesReady(TRUE))
+    if (texturesReady(true, true))
     {
         return TRUE;
     }
 
-    if (materialsReady(TRUE))
+    if (materialsReady(true, true))
     {
         return TRUE;
     }
@@ -123,27 +123,43 @@ LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 {
 	LL_PROFILE_ZONE_SCOPED;
 
-    const BOOL use_textures = texturesReady() || !materialsReady();
+    const BOOL use_textures = texturesReady(false, false) || !materialsReady(false, false);
     return use_textures ? Type::TEXTURE : Type::PBR;
 }
 
-BOOL LLTerrainMaterials::texturesReady(BOOL boost)
+bool LLTerrainMaterials::texturesReady(bool boost, bool strict)
 {
-    BOOL ready = TRUE;
-	for (S32 i = 0; i < ASSET_COUNT; i++)
-	{
-        if (!textureReady(mDetailTextures[i], boost))
+    bool ready[ASSET_COUNT];
+    // *NOTE: Calls to textureReady may boost textures. Do not early-return.
+    for (S32 i = 0; i < ASSET_COUNT; i++)
+    {
+        ready[i] = textureReady(mDetailTextures[i], boost);
+    }
+
+    bool one_ready = false;
+    for (S32 i = 0; i < ASSET_COUNT; i++)
+    {
+        const bool current_ready = ready[i];
+        one_ready = one_ready || current_ready;
+        if (!current_ready && strict)
         {
-            ready = FALSE;
+            return false;
         }
-	}
-    return ready;
+    }
+    return one_ready;
 }
 
-BOOL LLTerrainMaterials::materialsReady(BOOL boost)
+bool LLTerrainMaterials::materialsReady(bool boost, bool strict)
 {
+    bool ready[ASSET_COUNT];
+    // *NOTE: Calls to materialReady may boost materials/textures. Do not early-return.
+    for (S32 i = 0; i < ASSET_COUNT; i++)
+    {
+        ready[i] = materialReady(mDetailMaterials[i], mMaterialTexturesSet[i], boost, strict);
+    }
+
 #if 1
-    static bool sRenderTerrainPBREnabled = gSavedSettings.get<bool>("RenderTerrainPBREnabled");
+    static LLCachedControl<bool> sRenderTerrainPBREnabled(gSavedSettings, "RenderTerrainPBREnabled", false);
     static LLCachedControl<bool> sRenderTerrainPBRForce(gSavedSettings, "RenderTerrainPBRForce", false);
     if (sRenderTerrainPBREnabled && sRenderTerrainPBRForce)
     {
@@ -158,28 +174,31 @@ BOOL LLTerrainMaterials::materialsReady(BOOL boost)
         }
         if (defined)
         {
-            return TRUE;
+            return true;
         }
     }
 #endif
 
-    BOOL ready = TRUE;
-	for (S32 i = 0; i < ASSET_COUNT; i++)
-	{
-        if (!materialReady(mDetailMaterials[i], mMaterialTexturesSet[i], boost))
+    bool one_ready = false;
+    for (S32 i = 0; i < ASSET_COUNT; i++)
+    {
+        const bool current_ready = ready[i];
+        one_ready = one_ready || current_ready;
+        if (!current_ready && strict)
         {
-            ready = FALSE;
+            return false;
         }
     }
-    return ready;
+    return one_ready;
 }
 
 // Boost the texture loading priority
 // Return true when ready to use (i.e. texture is sufficiently loaded)
 // static
-BOOL LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, BOOL boost)
+bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost)
 {
-    llassert(tex.notNull());
+    llassert(tex);
+    if (!tex) { return false; }
 
     if (tex->getDiscardLevel() < 0)
     {
@@ -188,7 +207,7 @@ BOOL LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, BO
             tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
             tex->addTextureStats(BASE_SIZE*BASE_SIZE);
         }
-        return FALSE;
+        return false;
     }
     if ((tex->getDiscardLevel() != 0 &&
          (tex->getWidth() < BASE_SIZE ||
@@ -209,23 +228,23 @@ BOOL LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, BO
             tex->setMinDiscardLevel(ddiscard);
             tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
         }
-        return FALSE;
+        return false;
     }
     if (tex->getComponents() == 0)
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // Boost the loading priority of every known texture in the material
-// Return true when ready to use (i.e. material and all textures within are sufficiently loaded)
+// Return true when ready to use
 // static
-BOOL LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, BOOL boost)
+bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
 {
     if (!mat || !mat->isLoaded())
     {
-        return FALSE;
+        return false;
     }
 
     // Material is loaded, but textures may not be
@@ -234,33 +253,39 @@ BOOL LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bo
         // *NOTE: These can sometimes be set to to nullptr due to
         // updateTEMaterialTextures. For the sake of robustness, we emulate
         // that fetching behavior by setting textures of null IDs to nullptr.
-        mat->mBaseColorTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
-        mat->mNormalTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
+        mat->mBaseColorTexture         = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
+        mat->mNormalTexture            = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
         mat->mMetallicRoughnessTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
-        mat->mEmissiveTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
-        textures_set = true;
+        mat->mEmissiveTexture          = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+        textures_set                   = true;
 
-        return FALSE;
-    }
-
-    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull() && !textureReady(mat->mBaseColorTexture, boost))
-    {
-        return FALSE;
-    }
-    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull() && !textureReady(mat->mNormalTexture, boost))
-    {
-        return FALSE;
-    }
-    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull() && !textureReady(mat->mMetallicRoughnessTexture, boost))
-    {
-        return FALSE;
-    }
-    if (mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull() && !textureReady(mat->mEmissiveTexture, boost))
-    {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    // *NOTE: Calls to textureReady may boost textures. Do not early-return.
+    bool ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT];
+    ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] =
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].isNull() || textureReady(mat->mBaseColorTexture, boost);
+    ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] =
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].isNull() || textureReady(mat->mNormalTexture, boost);
+    ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] =
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].isNull() ||
+        textureReady(mat->mMetallicRoughnessTexture, boost);
+    ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] =
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].isNull() || textureReady(mat->mEmissiveTexture, boost);
+
+    if (strict)
+    {
+        for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+        {
+            if (!ready[i])
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 
@@ -427,16 +452,13 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 	S32 st_data_size[ASSET_COUNT]; // for debugging
 
     const bool use_textures = getMaterialType() != LLTerrainMaterials::Type::PBR;
-    // *TODO: Remove this as it is reduandant computation (first and foremost
-    // because getMaterialType() does something similar, but also... shouldn't
-    // the textures/materials already be loaded by now?)
     if (use_textures)
     {
-        if (!texturesReady()) { return FALSE; }
+        if (!texturesReady(true, true)) { return FALSE; }
     }
     else
     {
-        if (!materialsReady()) { return FALSE; }
+        if (!materialsReady(true, true)) { return FALSE; }
     }
 
 	for (S32 i = 0; i < ASSET_COUNT; i++)

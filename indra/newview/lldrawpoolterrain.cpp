@@ -125,27 +125,29 @@ void LLDrawPoolTerrain::boostTerrainDetailTextures()
 		tex->setBoostLevel(level);
         tex->addTextureStats(stats);
 
-        LLPointer<LLFetchedGLTFMaterial>& mat = compp->mDetailMaterials[i];
-        llassert(mat.notNull());
-        if (mat->mBaseColorTexture)
+        LLPointer<LLFetchedGLTFMaterial>& fetched_material = compp->mDetailMaterials[i];
+        if (fetched_material)
         {
-            mat->mBaseColorTexture->setBoostLevel(level);
-            mat->mBaseColorTexture->addTextureStats(stats);
-        }
-        if (mat->mNormalTexture)
-        {
-            mat->mNormalTexture->setBoostLevel(level);
-            mat->mNormalTexture->addTextureStats(stats);
-        }
-        if (mat->mMetallicRoughnessTexture)
-        {
-            mat->mMetallicRoughnessTexture->setBoostLevel(level);
-            mat->mMetallicRoughnessTexture->addTextureStats(stats);
-        }
-        if (mat->mEmissiveTexture)
-        {
-            mat->mEmissiveTexture->setBoostLevel(level);
-            mat->mEmissiveTexture->addTextureStats(stats);
+            if (fetched_material->mBaseColorTexture)
+            {
+                fetched_material->mBaseColorTexture->setBoostLevel(level);
+                fetched_material->mBaseColorTexture->addTextureStats(stats);
+            }
+            if (fetched_material->mNormalTexture)
+            {
+                fetched_material->mNormalTexture->setBoostLevel(level);
+                fetched_material->mNormalTexture->addTextureStats(stats);
+            }
+            if (fetched_material->mMetallicRoughnessTexture)
+            {
+                fetched_material->mMetallicRoughnessTexture->setBoostLevel(level);
+                fetched_material->mMetallicRoughnessTexture->addTextureStats(stats);
+            }
+            if (fetched_material->mEmissiveTexture)
+            {
+                fetched_material->mEmissiveTexture->setBoostLevel(level);
+                fetched_material->mEmissiveTexture->addTextureStats(stats);
+            }
         }
 	}
 }
@@ -234,7 +236,7 @@ void LLDrawPoolTerrain::drawLoop()
 
 void LLDrawPoolTerrain::renderFullShader()
 {
-    const BOOL use_local_materials = gLocalTerrainMaterials.materialsReady(TRUE);
+    const BOOL use_local_materials = gLocalTerrainMaterials.materialsReady(true, false);
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
@@ -362,15 +364,26 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-	LLPointer<LLFetchedGLTFMaterial> (*materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
+	LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
+
+	constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
+#ifdef SHOW_ASSERT
+	constexpr U32 shader_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
+	llassert(shader_material_count == terrain_material_count);
+#endif
 
     if (local_materials)
     {
         // Override region terrain with the global local override terrain
-        materials = &gLocalTerrainMaterials.mDetailMaterials;
+		fetched_materials = &gLocalTerrainMaterials.mDetailMaterials;
     }
+	const LLGLTFMaterial* materials[terrain_material_count];
+	for (U32 i = 0; i < terrain_material_count; ++i)
+	{
+		materials[i] = (*fetched_materials)[i].get();
+		if (!materials[i]) { materials[i] = &LLGLTFMaterial::sDefault; }
+	}
 
-    constexpr U32 terrain_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
     S32 detail_basecolor[terrain_material_count];
     S32 detail_normal[terrain_material_count];
     S32 detail_metalrough[terrain_material_count];
@@ -378,12 +391,19 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
-		const LLFetchedGLTFMaterial* material = (*materials)[i].get();
+		LLViewerTexture* detail_basecolor_texturep = nullptr;
+		LLViewerTexture* detail_normal_texturep = nullptr;
+		LLViewerTexture* detail_metalrough_texturep = nullptr;
+		LLViewerTexture* detail_emissive_texturep = nullptr;
 
-        LLViewerTexture *detail_basecolor_texturep = material->mBaseColorTexture;
-        LLViewerTexture *detail_normal_texturep = material->mNormalTexture;
-        LLViewerTexture *detail_metalrough_texturep = material->mMetallicRoughnessTexture;
-        LLViewerTexture *detail_emissive_texturep = material->mEmissiveTexture;
+		const LLFetchedGLTFMaterial* fetched_material = (*fetched_materials)[i].get();
+		if (fetched_material)
+		{
+			detail_basecolor_texturep = fetched_material->mBaseColorTexture;
+			detail_normal_texturep = fetched_material->mNormalTexture;
+			detail_metalrough_texturep = fetched_material->mMetallicRoughnessTexture;
+			detail_emissive_texturep = fetched_material->mEmissiveTexture;
+		}
 
         detail_basecolor[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR + i);
         if (detail_basecolor_texturep)
@@ -483,7 +503,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
     F32 minimum_alphas[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
-        const LLFetchedGLTFMaterial* material = (*materials)[i].get();
+        const LLGLTFMaterial* material = materials[i];
 
         base_color_factors[i] = material->mBaseColor;
         metallic_factors[i] = material->mMetallicFactor;

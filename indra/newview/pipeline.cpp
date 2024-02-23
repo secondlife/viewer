@@ -6779,11 +6779,12 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
 	}
 }
 
-void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst) {
+void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history) {
 	// exposure sample
 	{
 		LL_PROFILE_GPU_ZONE("exposure sample");
 
+		if (use_history)
 		{
 			// copy last frame's exposure into mLastExposure
 			mLastExposure.bindTarget();
@@ -6800,51 +6801,67 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst) {
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
-		gExposureProgram.bind();
-
-		S32 channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
-		if (channel > -1)
+		LLGLSLShader* shader;
+		if (use_history)
 		{
-			mLuminanceMap.bindTexture(0, channel, LLTexUnit::TFO_TRILINEAR);
+			shader = &gExposureProgram;
+		}
+		else
+		{
+			shader = &gExposureProgramNoFade;
 		}
 
-		channel = gExposureProgram.enableTexture(LLShaderMgr::EXPOSURE_MAP);
+		shader->bind();
+
+		S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
 		if (channel > -1)
 		{
-			mLastExposure.bindTexture(0, channel);
+			src->bindTexture(0, channel, LLTexUnit::TFO_TRILINEAR);
+		}
+
+		if (use_history)
+		{
+			channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
+			if (channel > -1)
+			{
+				mLastExposure.bindTexture(0, channel);
+			}
 		}
 
 		static LLStaticHashedString dt("dt");
 		static LLStaticHashedString noiseVec("noiseVec");
 		static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
 		static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
-        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+		static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
 
-        LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
+		LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
-        F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
-        F32 exp_min = 1.f;
-        F32 exp_max = 1.f;
-                
-        if (probe_ambiance > 0.f)
-        {
-            F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma())*2.f;
+		F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
+		F32 exp_min = 1.f;
+		F32 exp_max = 1.f;
 
-            if (hdr_scale > 1.f)
-            {
-                exp_min = 1.f / hdr_scale;
-                exp_max = hdr_scale;
-            }
-        }
-		gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
-		gExposureProgram.uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
-		gExposureProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max);
+		if (probe_ambiance > 0.f)
+		{
+			F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma()) * 2.f;
+
+			if (hdr_scale > 1.f)
+			{
+				exp_min = 1.f / hdr_scale;
+				exp_max = hdr_scale;
+			}
+		}
+		shader->uniform1f(dt, gFrameIntervalSeconds);
+		shader->uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
+		shader->uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max);
 
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-		gGL.getTexUnit(channel)->unbind(mLastExposure.getUsage());
-		gExposureProgram.unbind();
+		if (use_history)
+		{
+			gGL.getTexUnit(channel)->unbind(mLastExposure.getUsage());
+		}
+		shader->unbind();
 		dst->flush();
 	}
 }

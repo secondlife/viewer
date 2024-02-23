@@ -154,7 +154,7 @@ public:
 	void renderFinalize();
 	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
 	void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
-	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
 	void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
 	void generateGlow(LLRenderTarget* src);
 	void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
