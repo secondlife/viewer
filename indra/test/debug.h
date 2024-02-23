@@ -30,6 +30,7 @@
 #define LL_DEBUG_H
 
 #include "print.h"
+#include "stringize.h"
 
 /*****************************************************************************
 *   Debugging stuff
@@ -52,8 +53,9 @@
 class Debug
 {
 public:
-    Debug(const std::string& block):
-        mBlock(block),
+    template <typename... ARGS>
+    Debug(ARGS&&... args):
+        mBlock(stringize(std::forward<ARGS>(args)...)),
         mLOGTEST(getenv("LOGTEST")),
         // debug output enabled when LOGTEST is set AND non-empty
         mEnabled(mLOGTEST && *mLOGTEST)
@@ -88,15 +90,15 @@ private:
 // of the Debug block.
 #define DEBUG Debug debug(LL_PRETTY_FUNCTION)
 
-// These BEGIN/END macros are specifically for debugging output -- please
-// don't assume you must use such for coroutines in general! They only help to
-// make control flow (as well as exception exits) explicit.
-#define BEGIN                                   \
+// These DEBUGIN/DEBUGEND macros are specifically for debugging output --
+// please don't assume you must use such for coroutines in general! They only
+// help to make control flow (as well as exception exits) explicit.
+#define DEBUGIN                                 \
 {                                               \
     DEBUG;                                      \
     try
 
-#define END                                     \
+#define DEBUGEND                                \
     catch (...)                                 \
     {                                           \
         debug("*** exceptional ");              \
