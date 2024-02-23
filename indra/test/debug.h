@@ -30,6 +30,7 @@
 #define LL_DEBUG_H
 
 #include "print.h"
+#include "stringize.h"
 
 /*****************************************************************************
 *   Debugging stuff
@@ -52,8 +53,9 @@
 class Debug
 {
 public:
-    Debug(const std::string& block):
-        mBlock(block),
+    template <typename... ARGS>
+    Debug(ARGS&&... args):
+        mBlock(stringize(std::forward<ARGS>(args)...)),
         mLOGTEST(getenv("LOGTEST")),
         // debug output enabled when LOGTEST is set AND non-empty
         mEnabled(mLOGTEST && *mLOGTEST)
