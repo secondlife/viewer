@@ -16,6 +16,7 @@
 // STL headers
 #include <algorithm>                // std::find_if
 #include <functional>
+#include <iomanip>                  // std::quoted
 #include <map>
 #include <set>
 // std headers
@@ -54,12 +55,19 @@
     return features;
 }
 
-LLLeapListener::LLLeapListener(const ConnectFunc& connect):
+LLLeapListener::LLLeapListener(const std::string_view& caller, const Callback& callback):
     // Each LEAP plugin has an instance of this listener. Make the command
     // pump name difficult for other such plugins to guess.
     LLEventAPI(LLUUID::generateNewID().asString(),
                "Operations relating to the LLSD Event API Plugin (LEAP) protocol"),
-    mConnect(connect)
+    mCaller(caller),
+    mCallback(callback),
+    // Troubling thought: what if one plugin intentionally messes with
+    // another plugin? LLEventPump names are in a single global namespace.
+    // Try to make that more difficult by generating a UUID for the reply-
+    // pump name -- so it should NOT need tweaking for uniqueness.
+    mReplyPump(LLUUID::generateNewID().asString()),
+    mReplyConn(connect(mReplyPump, mCaller))
 {
     LLSD need_name(LLSDMap("name", LLSD()));
     add("newpump",
@@ -133,8 +141,7 @@ void LLLeapListener::newpump(const LLSD& request)
         reply["name"] = name;
 
         // Now listen on this new pump with our plugin listener
-        std::string myname("llleap");
-        saveListener(name, myname, mConnect(new_pump, myname));
+        saveListener(name, mCaller, connect(new_pump, mCaller));
     }
     catch (const LLEventPumps::BadType& error)
     {
@@ -170,7 +177,7 @@ void LLLeapListener::listen(const LLSD& request)
             {
                 // "dest" unspecified means to direct events on "source"
                 // to our plugin listener.
-                saveListener(source_name, listener_name, mConnect(source, listener_name));
+                saveListener(source_name, listener_name, connect(source, listener_name));
             }
             reply["status"] = true;
         }
@@ -292,10 +299,27 @@ void LLLeapListener::getFeature(const LLSD& request) const
     }
 }
 
+LLBoundListener LLLeapListener::connect(LLEventPump& pump, const std::string& listener)
+{
+    // Connect to source pump with an adapter that calls our callback with the
+    // pump name as well as the event data.
+    return pump.listen(
+        listener,
+        [callback=mCallback, pump=pump.getName()]
+        (const LLSD& data)
+        { return callback(pump, data); });
+}
+
 void LLLeapListener::saveListener(const std::string& pump_name,
                                   const std::string& listener_name,
                                   const LLBoundListener& listener)
 {
-    mListeners.insert(ListenersMap::value_type(ListenersMap::key_type(pump_name, listener_name),
-                                               listener));
+    // Don't use insert() or emplace() because, if this (pump_name,
+    // listener_name) pair is already in mListeners, we *want* to overwrite it.
+    auto& listener_entry{ mListeners[ListenersMap::key_type(pump_name, listener_name)] };
+    // If we already stored a connection for this pump and listener name,
+    // disconnect it before overwriting it. But if this entry was newly
+    // created, disconnect() will be a no-op.
+    listener_entry.disconnect();
+    listener_entry = listener;
 }
