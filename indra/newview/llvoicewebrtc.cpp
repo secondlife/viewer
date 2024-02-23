@@ -291,6 +291,9 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 
 	mVoiceVersion.serverVersion = "";
 	mVoiceVersion.voiceServerType = VISIBLE_VOICE_SERVER_TYPE;
+    mVoiceVersion.minorVersion = 0;
+    mVoiceVersion.majorVersion = 2;
+    mVoiceVersion.mBuildVersion = "";
 	
 #if LL_DARWIN || LL_LINUX
 		// HACK: THIS DOES NOT BELONG HERE

@@ -360,6 +360,10 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 
 	mVoiceVersion.serverVersion = "";
 	mVoiceVersion.voiceServerType = VISIBLE_VOICE_SERVER_TYPE;
+    mVoiceVersion.majorVersion = 1;
+    mVoiceVersion.minorVersion = 0;
+    mVoiceVersion.mBuildVersion = "";
+    mVoiceVersion.serverVersion = "";
 	
 	//  gMuteListp isn't set up at this point, so we defer this until later.
 //	gMuteListp->addObserver(&mutelist_listener);
