@@ -12,17 +12,13 @@
 #if ! defined(LL_LUALISTENER_H)
 #define LL_LUALISTENER_H
 
-#include "llevents.h"
 #include "llinstancetracker.h"
 #include "llsd.h"
 #include "llthreadsafequeue.h"
-#include "lluuid.h"
-#include <iosfwd>
+#include <iosfwd>                   // std::ostream
 #include <memory>                   // std::unique_ptr
-
-#ifdef LL_TEST
-#include "lleventfilter.h"
-#endif
+#include <string>
+#include <utility>                  // std::pair
 
 struct lua_State;
 class LLLeapListener;
