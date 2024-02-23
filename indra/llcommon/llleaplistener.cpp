@@ -16,7 +16,6 @@
 // STL headers
 #include <algorithm>                // std::find_if
 #include <functional>
-#include <iomanip>                  // std::quoted
 #include <map>
 #include <set>
 // std headers

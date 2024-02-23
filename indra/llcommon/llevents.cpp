@@ -43,6 +43,7 @@
 #include <typeinfo>
 #include <cmath>
 #include <cctype>
+#include <iomanip>                  // std::quoted
 // external library headers
 #include <boost/range/iterator_range.hpp>
 #if LL_WINDOWS
