@@ -32,15 +32,15 @@
 out vec4 vertex_color;
 
 in vec4 normal_g[];
-#if HAS_ATTRIBUTE_TANGENT == 1
+#ifdef HAS_ATTRIBUTE_TANGENT
 in vec4 tangent_g[];
 #endif
 
-layout(TRIANGLES) in;
-#if HAS_ATTRIBUTE_TANGENT == 1
-layout(LINE_STRIP, max_vertices = 12) out;
+layout(triangles) in;
+#ifdef HAS_ATTRIBUTE_TANGENT
+layout(line_strip, max_vertices = 12) out;
 #else
-layout(LINE_STRIP, max_vertices = 6) out;
+layout(line_strip, max_vertices = 6) out;
 #endif
 
 void triangle_normal_debug(int i)
@@ -55,7 +55,7 @@ void triangle_normal_debug(int i)
     EmitVertex();
     EndPrimitive();
 
-#if HAS_ATTRIBUTE_TANGENT == 1
+#ifdef HAS_ATTRIBUTE_TANGENT
     // Tangent
     vec4 tangent_color = vec4(0.0, 1.0, 1.0, 1.0);
     gl_Position = gl_in[i].gl_Position;

@@ -26,7 +26,7 @@
 in vec3 position;
 in vec3 normal;
 out vec4 normal_g;
-#if HAS_ATTRIBUTE_TANGENT == 1
+#ifdef HAS_ATTRIBUTE_TANGENT
 in vec4 tangent;
 out vec4 tangent_g;
 #endif
@@ -67,7 +67,7 @@ void main()
 
 	gl_Position = projection_matrix * world_pos;
 	normal_g = get_screen_normal(position.xyz, world_pos, normal.xyz, mat);
-#if HAS_ATTRIBUTE_TANGENT == 1
+#ifdef HAS_ATTRIBUTE_TANGENT
 	tangent_g = get_screen_normal(position.xyz, world_pos, tangent.xyz, mat);
 #endif
 }
