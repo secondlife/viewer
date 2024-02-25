@@ -266,7 +266,7 @@
 			</text>
 			<spinner label="X" name="Pos X"/>
 			<spinner label="Y" name="Pos Y"/>
-			<spinner label="X" name="Pos Z"/>
+			<spinner label="Z" name="Pos Z"/>
 			<text name="label size">
 				サイズ（メートル）
 			</text>
