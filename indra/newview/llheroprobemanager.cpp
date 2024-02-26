@@ -165,7 +165,12 @@ void LLHeroProbeManager::update()
             {
                 float shouldUpdate = cam_direction * cubeFaces[i] * 0.5 + 0.5;
                 
-                int updateRate = fmaxf(1, (1 - shouldUpdate) * 8);
+                int updateRate = ceilf((1 - shouldUpdate) * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
+                
+                // Chances are this is a face that's non-visible to the camera when it's being reflected.
+                // Set it to 0.  It will be skipped below.
+                if (updateRate == gPipeline.RenderHeroProbeConservativeUpdateMultiplier)
+                    updateRate = 0;
                 
                 mFaceUpdateList[i] = updateRate;
             }

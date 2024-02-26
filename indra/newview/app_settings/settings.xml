@@ -10399,7 +10399,18 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <real>1</real>
+    <integer>2</integer>
+  </map>
+  <key>RenderHeroProbeConservativeUpdateMultiplier</key>
+  <map>
+    <key>Comment</key>
+    <string>How many probe updates to wait until it's time to update faces that are not directly facing the camera.  Acts as a multiplier.  E.g., frames to the periphery of the camera updating once every 3 updates, vs ones directly facing the camera updating every update.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>16</integer>
   </map>
     <key>RenderReflectionProbeVolumes</key>
     <map>

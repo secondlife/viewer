@@ -138,7 +138,6 @@ private:
     std::map<int, int> mFaceUpdateList;
     
     U32 mCurrentProbeUpdateFrame = 0;
-    U32 mLowPriorityFaceThrottle = 2;
     
     std::vector<LLVOVolume*>                       mHeroVOList;
     LLVOVolume*                                 mNearestHero;
