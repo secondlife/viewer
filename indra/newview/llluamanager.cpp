@@ -418,16 +418,17 @@ std::string read_file(const std::string &name)
 
 LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) : mPathToResolve(path), L(L)
 {
+    //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
+    //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
     lua_Debug ar;
     lua_getinfo(L, 1, "s", &ar);
     mSourceChunkname = ar.source;
 
-    mPathToResolve = std::filesystem::path(mPathToResolve).lexically_normal().string();
+    std::filesystem::path fs_path(mPathToResolve);
+    mPathToResolve = fs_path.lexically_normal().string();
 
-    if (std::filesystem::path(mPathToResolve).is_absolute())
+    if (fs_path.is_absolute())
         luaL_argerrorL(L, 1, "cannot require a full path");
-
-    std::replace(mPathToResolve.begin(), mPathToResolve.end(), '\\', '/');
 }
 
 [[nodiscard]] LLRequireResolver::ResolvedRequire LLRequireResolver::resolveRequire(lua_State *L, std::string path)
@@ -494,6 +495,7 @@ LLRequireResolver::ModuleStatus LLRequireResolver::findModuleImpl()
         std::string source = read_file(suffixedPath);
         if (!source.empty())
         {
+            mAbsolutePath = suffixedPath;
             mSourceCode = source;
             return ModuleStatus::FileRead;
         }
