@@ -382,7 +382,7 @@ jobs:
             ${{ needs.build.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
-          target_commitish: ${{ github.ref }}
+          target_commitish: ${{ github.ref_name }}
           append_body: true
           fail_on_unmatched_files: true
           files: |
