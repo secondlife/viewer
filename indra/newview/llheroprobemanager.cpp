@@ -417,7 +417,7 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
 
 void LLHeroProbeManager::updateUniforms()
 {
-    if (!LLPipeline::sReflectionProbesEnabled)
+    if (!gPipeline.RenderMirrors)
     {
         return;
     }
@@ -426,8 +426,11 @@ void LLHeroProbeManager::updateUniforms()
     
     struct HeroProbeData
     {
-        LLVector4 heroPosition[1];
-        GLint heroProbeCount = 1;
+        LLMatrix4 heroBox[1];
+        LLVector4 heroSphere[1];
+        GLint heroShape[1];
+        GLint heroMipCount;
+        GLint heroProbeCount;
     };
     
     HeroProbeData hpd;
@@ -437,8 +440,32 @@ void LLHeroProbeManager::updateUniforms()
     LLVector4a oa; // scratch space for transformed origin
     oa.set(0, 0, 0, 0);
     hpd.heroProbeCount = 1;
-    modelview.affineTransform(mProbes[0]->mOrigin, oa);
-    hpd.heroPosition[0].set(oa.getF32ptr());
+    
+    if (mNearestHero != nullptr)
+    {
+        mProbes[0]->mViewerObject = mNearestHero;
+        if (mNearestHero->getReflectionProbeIsBox())
+        {
+            LLVector3 s = mNearestHero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+            mProbes[0]->mRadius = s.magVec();
+        }
+        else
+        {
+            mProbes[0]->mRadius = mNearestHero->getScale().mV[0] * 0.5f;
+        }
+        
+        modelview.affineTransform(mProbes[0]->mOrigin, oa);
+        hpd.heroShape[0] = 0;
+        if (!mProbes[0]->getBox(hpd.heroBox[0]))
+        {
+            hpd.heroShape[0] = 1;
+        }
+        
+        hpd.heroSphere[0].set(oa.getF32ptr());
+        hpd.heroSphere[0].mV[3] = mProbes[0]->mRadius;
+    }
+    
+    hpd.heroMipCount = mMipChain.size();
 
     //copy rpd into uniform buffer object
     if (mUBO == 0)

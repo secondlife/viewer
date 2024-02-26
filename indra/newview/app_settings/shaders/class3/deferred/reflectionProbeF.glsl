@@ -686,17 +686,82 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
 #if defined(HERO_PROBES)
 
 uniform vec4 clipPlane;
-uniform samplerCubeArray heroProbes;
+
+uniform samplerCubeArray   heroProbes;
+
+layout (std140) uniform HeroProbeData
+{
+    mat4 heroBox[1];
+    vec4 heroSphere[1];
+    uint heroShape[1];
+    int heroMipCount;
+    int heroProbeCount;
+};
+
+vec3 boxIntersectHero(vec3 origin, vec3 dir, int i, out float d, float scale)
+{
+    // Intersection with OBB convert to unit box space
+    // Transform in local unit parallax cube space (scaled and rotated)
+    mat4 clipToLocal = heroBox[i];
+
+    vec3 RayLS = mat3(clipToLocal) * dir;
+    vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
+
+    d = 1.0-max(max(abs(PositionLS.x), abs(PositionLS.y)), abs(PositionLS.z));
+
+    vec3 Unitary = vec3(scale);
+    vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
+    vec3 SecondPlaneIntersect = (-Unitary - PositionLS) / RayLS;
+    vec3 FurthestPlane = max(FirstPlaneIntersect, SecondPlaneIntersect);
+    float Distance = min(FurthestPlane.x, min(FurthestPlane.y, FurthestPlane.z));
+
+    // Use Distance in CS directly to recover intersection
+    vec3 IntersectPositionCS = origin + dir * Distance;
+
+    return IntersectPositionCS;
+}
+
+float sphereWeightHero(vec3 pos, vec3 dir, vec3 origin, float r, out float dw)
+{
+    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
+    vec3 delta = pos.xyz - origin;
+    float d2 = max(length(delta), 0.001);
+
+    float atten = 1.0 - max(d2 - r1, 0.0) / max((r - r1), 0.001);
+    float w = 1.0 / d2;
+
+    dw = w * atten * max(r, 1.0)*4;
+
+    w *= atten;
+
+    return w;
+}
 
 void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
     float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
-    if (clipDist > 0.0 && clipDist < 0.1 && glossiness > 0.8)
+    float w = 0;
+    float dw = 0;
+    if (heroShape[0] < 1)
+    {
+        float d = 0;
+        boxIntersectHero(pos, norm, 0, d, 1.0);
+        
+        w = max(d, 0.001);
+    }
+    else
+    {
+        float r = heroSphere[0].w;
+        //v = sphereIntersect(pos, norm, heroSphere[0].xyz, 4096.0*4096.0);
+        
+        w = sphereWeightHero(pos, norm, heroSphere[0].xyz, r, dw);
+    }
+    
     {
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
         if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
         {
-            glossenv = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*10).xyz;
+            glossenv = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz * w;
         }
     }
 }
