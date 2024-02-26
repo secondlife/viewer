@@ -342,7 +342,7 @@ namespace LLTextValidate
 	bool validateASCIIWithNewLine(const LLWString &str)
 	{
 		bool rv = TRUE;
-		S32 len = str.length();
+		/*S32 len = str.length();
 		while(len--)
 		{
 			if ((str[len] < 0x20 && str[len] != 0xA) || str[len] > 0x7f)
@@ -350,7 +350,7 @@ namespace LLTextValidate
 				rv = FALSE;
 				break;
 			}
-		}
+		}*/
 		return rv;
 	}
 }
