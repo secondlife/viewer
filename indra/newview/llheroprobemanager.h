@@ -68,7 +68,7 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
-    void registerViewerObject(LLVOVolume *drawablep);
+    bool registerViewerObject(LLVOVolume *drawablep);
     void unregisterViewerObject(LLVOVolume* drawablep);
 
     bool isMirrorPass() const { return mRenderingMirror; }
@@ -107,7 +107,7 @@ private:
     void generateRadiance(LLReflectionMap *probe);
     
     // list of active reflection maps
-    std::vector<LLPointer<LLReflectionMap> > mProbes;
+    std::vector<LLPointer<LLReflectionMap>> mProbes;
 
     // handle to UBO
     U32 mUBO = 0;
@@ -137,7 +137,10 @@ private:
     bool mRenderingMirror = false;
     std::map<int, bool> mFaceUpdateList;
     
-    std::set<LLPointer<LLVOVolume>>               mHeroVOList;
-    LLPointer<LLVOVolume>                         mNearestHero;
+    U32 mCurrentProbeUpdateFrame = 0;
+    U32 mLowPriorityFaceThrottle = 2;
+    
+    std::vector<LLVOVolume*>                       mHeroVOList;
+    LLVOVolume*                                 mNearestHero;
 };
 

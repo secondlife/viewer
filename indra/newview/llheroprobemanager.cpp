@@ -114,7 +114,7 @@ void LLHeroProbeManager::update()
 
         for (auto vo : mHeroVOList)
         {
-            if (vo && !vo->isDead())
+            if (vo && (!vo->isDead() || vo != nullptr))
             {
                 if (vo->mDrawable.notNull())
                 {
@@ -135,7 +135,7 @@ void LLHeroProbeManager::update()
                 unregisterViewerObject(vo);
             }
         }
-
+        
         if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
@@ -205,7 +205,16 @@ void LLHeroProbeManager::update()
             for (U32 i = 0; i < 6; ++i)
             {
                 if (mFaceUpdateList[i])
+                {
                     updateProbeFace(mProbes[j], i, near_clip);
+                }
+                else
+                {
+                    if (mLowPriorityFaceThrottle > 0 && mCurrentProbeUpdateFrame % mLowPriorityFaceThrottle == 0) {
+                        updateProbeFace(mProbes[j], i, near_clip);
+                        mCurrentProbeUpdateFrame = 0;
+                    }
+                }
             }
             generateRadiance(mProbes[j]);
         }
@@ -213,6 +222,8 @@ void LLHeroProbeManager::update()
         
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
     }
+    
+    mCurrentProbeUpdateFrame++;
 }
 
 // Do the reflection map update render passes.
@@ -568,21 +579,25 @@ void LLHeroProbeManager::doOcclusion()
     }
 }
 
-void LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
+bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 {
     llassert(drawablep != nullptr);
 
-    if (mHeroVOList.find(drawablep) == mHeroVOList.end())
+    if (std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep) == mHeroVOList.end())
     {
         // Probe isn't in our list for consideration.  Add it.
-        mHeroVOList.insert(drawablep);
+        mHeroVOList.push_back(drawablep);
+        return true;
     }
+    
+    return false;
 }
 
 void LLHeroProbeManager::unregisterViewerObject(LLVOVolume* drawablep)
 {
-    if (mHeroVOList.find(drawablep) != mHeroVOList.end())
+    std::vector<LLVOVolume*>::iterator found_itr = std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep);
+    if (found_itr != mHeroVOList.end())
     {
-        mHeroVOList.erase(drawablep);
+        mHeroVOList.erase(found_itr);
     }
 }
