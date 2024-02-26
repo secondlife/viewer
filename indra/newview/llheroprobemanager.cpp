@@ -116,18 +116,11 @@ void LLHeroProbeManager::update()
         {
             if (vo && (!vo->isDead() || vo != nullptr))
             {
-                if (vo->mDrawable.notNull())
+                float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
+                if (distance < last_distance)
                 {
-                    if (vo->mDrawable->mDistanceWRTCamera < last_distance)
-                    {
-                        mNearestHero = vo;
-                        last_distance = vo->mDrawable->mDistanceWRTCamera;
-                    }
-                }
-                else
-                {
-                    // Valid drawables only please.  Unregister this one.
-                    unregisterViewerObject(vo);
+                    mNearestHero = vo;
+                    last_distance = distance;
                 }
             }
             else
@@ -136,12 +129,12 @@ void LLHeroProbeManager::update()
             }
         }
         
-        if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
+        if (mNearestHero != nullptr && !mNearestHero->isDead())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
             LLVector3 face_normal = LLVector3(0, 0, 1);
 
-            face_normal *= mNearestHero->mDrawable->getXform()->getWorldRotation();
+            face_normal *= mNearestHero->getWorldRotation();
             face_normal.normalize();
 
             LLVector3 offset = camera_pos - hero_pos;
@@ -210,7 +203,8 @@ void LLHeroProbeManager::update()
                 }
                 else
                 {
-                    if (mLowPriorityFaceThrottle > 0 && mCurrentProbeUpdateFrame % mLowPriorityFaceThrottle == 0) {
+                    if (mLowPriorityFaceThrottle > 0 && mCurrentProbeUpdateFrame % mLowPriorityFaceThrottle == 0)
+                    {
                         updateProbeFace(mProbes[j], i, near_clip);
                         mCurrentProbeUpdateFrame = 0;
                     }
@@ -352,6 +346,9 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
     }
 }
 
+// Separate out radiance generation as a separate stage.
+// This is to better enable independent control over how we generate radiance vs. having it coupled with processing the final face of the probe.
+// Useful when we may not always be rendering a full set of faces of the probe.
 void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
 {
     S32 sourceIdx = mReflectionProbeCount;
