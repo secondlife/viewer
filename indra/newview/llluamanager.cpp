@@ -530,8 +530,12 @@ lua_function(require, "require(module_name) : module_name can be fullpath or jus
 
     LLRequireResolver::ResolvedRequire resolvedRequire = LLRequireResolver::resolveRequire(L, name);
 
-    if (resolvedRequire.status == LLRequireResolver::ModuleStatus::Cached)
+    if (resolvedRequire.status == LLRequireResolver::ModuleStatus::Cached) 
+    {
+        // remove _MODULES from stack
+        lua_remove(L, -2);
         return finishrequire(L);
+    }
     else if (resolvedRequire.status == LLRequireResolver::ModuleStatus::NotFound)
         luaL_errorL(L, "error requiring module");
 
@@ -571,6 +575,11 @@ lua_function(require, "require(module_name) : module_name can be fullpath or jus
     lua_pushvalue(L, -1);
     lua_setfield(L, -4, resolvedRequire.absolutePath.c_str());
 
-    // L stack: _MODULES ML result
+    //remove _MODULES from stack
+    lua_remove(L, -3);
+    // remove ML from stack
+    lua_remove(L, -2);
+    
+    // L stack: [module name] [result]
     return finishrequire(L);
 }
