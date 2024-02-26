@@ -114,7 +114,7 @@ void LLHeroProbeManager::update()
 
         for (auto vo : mHeroVOList)
         {
-            if (vo && (!vo->isDead() || vo != nullptr))
+            if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
                 if (distance < last_distance)
@@ -129,12 +129,12 @@ void LLHeroProbeManager::update()
             }
         }
         
-        if (mNearestHero != nullptr && !mNearestHero->isDead())
+        if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
             LLVector3 face_normal = LLVector3(0, 0, 1);
-
-            face_normal *= mNearestHero->getWorldRotation();
+            
+            face_normal *= mNearestHero->mDrawable->getWorldRotation();
             face_normal.normalize();
 
             LLVector3 offset = camera_pos - hero_pos;
@@ -150,7 +150,7 @@ void LLHeroProbeManager::update()
             probe_pos.load3(point.mV);
 
             // Collect the list of faces that need updating based upon the camera's rotation.
-            LLVector3 cam_direction = LLVector3(-1, -1, -1) * LLViewerCamera::instance().getQuaternion();
+            LLVector3 cam_direction = LLVector3(0, 0, 1) * LLViewerCamera::instance().getQuaternion();
 
             static LLVector3 cubeFaces[6] = { 
                 LLVector3(1, 0, 0), 
@@ -163,9 +163,11 @@ void LLHeroProbeManager::update()
 
             for (int i = 0; i < 6; i++)
             {
-                bool shouldUpdate = (cam_direction * cubeFaces[i]) > 0;
-
-                mFaceUpdateList[i] = shouldUpdate;
+                float shouldUpdate = cam_direction * cubeFaces[i] * 0.5 + 0.5;
+                
+                int updateRate = fmaxf(1, (1 - shouldUpdate) * 8);
+                
+                mFaceUpdateList[i] = updateRate;
             }
         }
         else
@@ -197,17 +199,10 @@ void LLHeroProbeManager::update()
         {
             for (U32 i = 0; i < 6; ++i)
             {
-                if (mFaceUpdateList[i])
+                if (mFaceUpdateList[i] > 0 && mCurrentProbeUpdateFrame % mFaceUpdateList[i] == 0)
                 {
                     updateProbeFace(mProbes[j], i, near_clip);
-                }
-                else
-                {
-                    if (mLowPriorityFaceThrottle > 0 && mCurrentProbeUpdateFrame % mLowPriorityFaceThrottle == 0)
-                    {
-                        updateProbeFace(mProbes[j], i, near_clip);
-                        mCurrentProbeUpdateFrame = 0;
-                    }
+                    mCurrentProbeUpdateFrame = 0;
                 }
             }
             generateRadiance(mProbes[j]);

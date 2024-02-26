@@ -135,7 +135,7 @@ private:
     bool mReset = false;
 
     bool mRenderingMirror = false;
-    std::map<int, bool> mFaceUpdateList;
+    std::map<int, int> mFaceUpdateList;
     
     U32 mCurrentProbeUpdateFrame = 0;
     U32 mLowPriorityFaceThrottle = 2;
