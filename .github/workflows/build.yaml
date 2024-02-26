@@ -369,20 +369,21 @@ jobs:
       # forked from softprops/action-gh-release
       - name: Create GitHub release
         id: release
-        uses: secondlife-3p/action-gh-release@v1
+        uses: secondlife-3p/action-gh-release@feat/add-generateReleaseNotes
         with:
           # name the release page for the branch
           name: "${{ needs.build.outputs.viewer_branch }}"
           # SL-20546: want the channel and version to be visible on the
           # release page
           body: |
-            Build ${{ github.repositoryUrl }}/actions/runs/${{ github.run_id }}
+            Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ needs.build.outputs.viewer_channel }}
             ${{ needs.build.outputs.viewer_version }}
             ${{ needs.build.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
+          previous_tag: 7.1.2-release
           append_body: true
           fail_on_unmatched_files: true
           files: |
