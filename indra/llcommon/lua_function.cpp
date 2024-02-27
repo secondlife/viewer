@@ -41,21 +41,24 @@ namespace
 
 int lluau::dostring(lua_State* L, const std::string& desc, const std::string& text)
 {
-    {
-        size_t bytecodeSize = 0;
-        // The char* returned by luau_compile() must be freed by calling free().
-        // Use unique_ptr so the memory will be freed even if luau_load() throws.
-        std::unique_ptr<char[], freer> bytecode{
-            luau_compile(text.data(), text.length(), nullptr, &bytecodeSize)};
-        auto r = luau_load(L, desc.data(), bytecode.get(), bytecodeSize, 0);
-        if (r != LUA_OK)
-            return r;
-    } // free bytecode
+    auto r = loadstring(L, desc, text);
+    if (r != LUA_OK)
+        return r;
 
     // It's important to pass LUA_MULTRET as the expected number of return
     // values: if we pass any fixed number, we discard any returned values
     // beyond that number.
     return lua_pcall(L, 0, LUA_MULTRET, 0);
+}
+
+int lluau::loadstring(lua_State *L, const std::string &desc, const std::string &text)
+{
+    size_t bytecodeSize = 0;
+    // The char* returned by luau_compile() must be freed by calling free().
+    // Use unique_ptr so the memory will be freed even if luau_load() throws.
+    std::unique_ptr<char[], freer> bytecode{
+        luau_compile(text.data(), text.length(), nullptr, &bytecodeSize)};
+    return luau_load(L, desc.data(), bytecode.get(), bytecodeSize, 0);
 }
 
 /*****************************************************************************
@@ -426,8 +429,18 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
 *****************************************************************************/
 LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
-    mState(luaL_newstate())
+    mState(nullptr)
 {
+    initLuaState();
+}
+
+void LuaState::initLuaState() 
+{
+    if (mState)
+    {
+        lua_close(mState);
+    }
+    mState = luaL_newstate();
     luaL_openlibs(mState);
     LuaFunction::init(mState);
     // Try to make print() write to our log.

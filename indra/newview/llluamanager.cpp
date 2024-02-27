@@ -46,6 +46,7 @@ extern LLUIListener sUIListener;
 #endif // ! LL_TEST
 
 #include <boost/algorithm/string/replace.hpp>
+#include <filesystem>
 
 #include "luau/luacode.h"
 #include "luau/lua.h"
@@ -259,8 +260,7 @@ void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, scrip
 
         if (in_file.is_open()) 
         {
-            std::string text{std::istreambuf_iterator<char>(in_file),
-                             std::istreambuf_iterator<char>()};
+            std::string text{std::istreambuf_iterator<char>(in_file), {}};
             auto [count, result] = L.expr(filename, text);
             if (cb)
             {
@@ -352,4 +352,186 @@ void LLLUAmanager::runScriptOnLogin()
 
     runScriptFile(filename);
 #endif // ! LL_TEST
+}
+
+std::string read_file(const std::string &name)
+{
+    llifstream in_file;
+    in_file.open(name.c_str());
+
+    if (in_file.is_open())
+    {
+        std::string text {std::istreambuf_iterator<char>(in_file), {}};
+        return text;
+    }
+
+    return std::string();
+}
+
+LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) : mPathToResolve(path), L(L)
+{
+    //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
+    //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
+    lua_Debug ar;
+    lua_getinfo(L, 1, "s", &ar);
+    mSourceChunkname = ar.source;
+
+    std::filesystem::path fs_path(mPathToResolve);
+    mPathToResolve = fs_path.lexically_normal().string();
+
+    if (fs_path.is_absolute())
+        luaL_argerrorL(L, 1, "cannot require a full path");
+}
+
+[[nodiscard]] LLRequireResolver::ResolvedRequire LLRequireResolver::resolveRequire(lua_State *L, std::string path)
+{
+    LLRequireResolver resolver(L, std::move(path));
+    ModuleStatus status = resolver.findModule();
+    if (status != ModuleStatus::FileRead)
+        return ResolvedRequire {status};
+    else
+        return ResolvedRequire {status, resolver.mAbsolutePath, resolver.mSourceCode};
+}
+
+LLRequireResolver::ModuleStatus LLRequireResolver::findModule()
+{
+    resolveAndStoreDefaultPaths();
+
+    // Put _MODULES table on stack for checking and saving to the cache
+    luaL_findtable(L, LUA_REGISTRYINDEX, "_MODULES", 1);
+
+    // Check if the module is already in _MODULES table, read from file otherwise
+    LLRequireResolver::ModuleStatus moduleStatus = findModuleImpl();
+
+    if (moduleStatus != LLRequireResolver::ModuleStatus::NotFound)
+        return moduleStatus;
+
+    if (std::filesystem::path(mPathToResolve).is_absolute())
+        return moduleStatus;
+
+    std::vector<std::string> lib_paths {gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua")};
+
+    for (const auto& path : lib_paths)
+    {
+        std::string absolutePathOpt = (std::filesystem::path(path) / mPathToResolve).u8string();
+
+        if (absolutePathOpt.empty())
+            luaL_errorL(L, "error requiring module");
+
+        mAbsolutePath = absolutePathOpt;
+
+        moduleStatus = findModuleImpl();
+
+        if (moduleStatus != LLRequireResolver::ModuleStatus::NotFound)
+            return moduleStatus;
+    }
+
+    return LLRequireResolver::ModuleStatus::NotFound;
+}
+
+LLRequireResolver::ModuleStatus LLRequireResolver::findModuleImpl()
+{
+    std::string possibleSuffixedPaths[] = {mAbsolutePath + ".luau", mAbsolutePath + ".lua"};
+
+     for (auto suffixedPath : possibleSuffixedPaths)
+    {
+         // Check _MODULES cache for module
+        lua_getfield(L, -1, suffixedPath.c_str());
+        if (!lua_isnil(L, -1))
+        {
+            return ModuleStatus::Cached;
+        }
+        lua_pop(L, 1);
+
+        // Try to read the matching file
+        std::string source = read_file(suffixedPath);
+        if (!source.empty())
+        {
+            mAbsolutePath = suffixedPath;
+            mSourceCode = source;
+            return ModuleStatus::FileRead;
+        }
+    }
+
+    return ModuleStatus::NotFound;
+}
+
+void LLRequireResolver::resolveAndStoreDefaultPaths()
+{
+    if (!std::filesystem::path(mPathToResolve).is_absolute())
+    {
+        mAbsolutePath = (std::filesystem::path((mSourceChunkname)).parent_path() / mPathToResolve).u8string();;
+    }
+    else
+    {
+        mAbsolutePath = mPathToResolve;
+    }
+}
+
+static int finishrequire(lua_State *L)
+{
+    if (lua_isstring(L, -1))
+        lua_error(L);
+
+    return 1;
+}
+
+lua_function(require, "require(module_name) : module_name can be fullpath or just the name, in both cases without .lua")
+{
+    std::string name = lua_tostdstring(L, 1);
+
+    LLRequireResolver::ResolvedRequire resolvedRequire = LLRequireResolver::resolveRequire(L, name);
+
+    if (resolvedRequire.status == LLRequireResolver::ModuleStatus::Cached) 
+    {
+        // remove _MODULES from stack
+        lua_remove(L, -2);
+        return finishrequire(L);
+    }
+    else if (resolvedRequire.status == LLRequireResolver::ModuleStatus::NotFound)
+        luaL_errorL(L, "error requiring module");
+
+    // module needs to run in a new thread, isolated from the rest
+    // note: we create ML on main thread so that it doesn't inherit environment of L
+    lua_State *GL = lua_mainthread(L);
+    lua_State *ML = lua_newthread(GL);
+    lua_xmove(GL, L, 1);
+
+    // new thread needs to have the globals sandboxed
+    luaL_sandboxthread(ML);
+
+    {
+        if (lluau::loadstring(ML, resolvedRequire.absolutePath.c_str(), resolvedRequire.sourceCode.c_str()) == LUA_OK)
+        {
+            int status = lua_resume(ML, L, 0);
+
+            if (status == LUA_OK)
+            {
+                if (lua_gettop(ML) == LUA_OK)
+                    lua_pushstring(ML, "module must return a value");
+                else if (!lua_istable(ML, -1) && !lua_isfunction(ML, -1))
+                    lua_pushstring(ML, "module must return a table or function");
+            }
+            else if (status == LUA_YIELD)
+            {
+                lua_pushstring(ML, "module can not yield");
+            }
+            else if (!lua_isstring(ML, -1))
+            {
+                lua_pushstring(ML, "unknown error while running module");
+            }
+        }
+    }
+    // there's now a return value on top of ML; L stack: _MODULES ML
+    lua_xmove(ML, L, 1);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -4, resolvedRequire.absolutePath.c_str());
+
+    //remove _MODULES from stack
+    lua_remove(L, -3);
+    // remove ML from stack
+    lua_remove(L, -2);
+    
+    // L stack: [module name] [result]
+    return finishrequire(L);
 }

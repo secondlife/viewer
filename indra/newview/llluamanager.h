@@ -33,6 +33,9 @@
 #include <string>
 #include <utility>                  // std::pair
 
+#include "luau/lua.h"
+#include "luau/lualib.h"
+
 class LuaState;
 
 class LLLUAmanager
@@ -81,4 +84,38 @@ public:
     static void runScriptOnLogin();
 };
 
+class LLRequireResolver
+{
+ public:
+    enum class ModuleStatus
+    {
+        Cached,
+        FileRead,
+        NotFound
+    };
+
+    struct ResolvedRequire
+    {
+        ModuleStatus status;
+        std::string absolutePath;
+        std::string sourceCode;
+    };
+
+    [[nodiscard]] ResolvedRequire static resolveRequire(lua_State *L, std::string path);
+
+    std::string mAbsolutePath;
+    std::string mSourceCode;
+
+ private:
+    std::string mPathToResolve;
+    std::string mSourceChunkname;
+
+    LLRequireResolver(lua_State *L, const std::string& path);
+
+    ModuleStatus findModule();
+    lua_State *L;
+
+    void resolveAndStoreDefaultPaths();
+    ModuleStatus findModuleImpl();
+};
 #endif

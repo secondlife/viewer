@@ -50,6 +50,7 @@ namespace lluau
     // rather than string_views because dostring() needs pointers to nul-
     // terminated char arrays.
     int dostring(lua_State* L, const std::string& desc, const std::string& text);
+    int loadstring(lua_State* L, const std::string& desc, const std::string& text);
 } // namespace lluau
 
 std::string lua_tostdstring(lua_State* L, int index);
@@ -71,6 +72,8 @@ public:
     LuaState& operator=(const LuaState&) = delete;
 
     ~LuaState();
+
+    void initLuaState();
 
     bool checkLua(const std::string& desc, int r);
 
