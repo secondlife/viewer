@@ -12,14 +12,13 @@
 #if ! defined(LL_LUALISTENER_H)
 #define LL_LUALISTENER_H
 
-#include "llevents.h"
 #include "llinstancetracker.h"
-#include "lluuid.h"
+#include "llsd.h"
+#include "llthreadsafequeue.h"
+#include <iosfwd>                   // std::ostream
 #include <memory>                   // std::unique_ptr
-
-#ifdef LL_TEST
-#include "lleventfilter.h"
-#endif
+#include <string>
+#include <utility>                  // std::pair
 
 struct lua_State;
 class LLLeapListener;
@@ -31,7 +30,6 @@ class LLLeapListener;
  * inconvenience malicious Lua scripts wanting to mess with others. The idea
  * is that a given lua_State stores in its Registry:
  * - "event.listener": the int key of the corresponding LuaListener, if any
- * - "event.function": the Lua function to be called with incoming events
  * The original thought was that LuaListener would itself store the Lua
  * function -- but surprisingly, there is no C/C++ type in the API that stores
  * a Lua function.
@@ -55,22 +53,25 @@ public:
 
     ~LuaListener();
 
-    std::string getReplyName() const { return mReplyPump.getName(); }
+    std::string getReplyName() const;
     std::string getCommandName() const;
+
+    /**
+     * LuaListener enqueues reply events from its LLLeapListener on mQueue.
+     * Call getNext() to retrieve the next such event. Blocks the calling
+     * coroutine if the queue is empty.
+     */
+    using PumpData = std::pair<std::string, LLSD>;
+    PumpData getNext();
+
+    friend std::ostream& operator<<(std::ostream& out, const LuaListener& self);
 
 private:
     static int getUniqueKey();
+    bool queueEvent(const std::string& pump, const LLSD& data);
 
-    static LLBoundListener connect(lua_State* L, LLEventPump& pump, const std::string& listener);
+    LLThreadSafeQueue<PumpData> mQueue;
 
-    static bool call_lua(lua_State* L, const std::string& pump, const LLSD& data);
-
-#ifndef LL_TEST
-    LLEventStream mReplyPump{ LLUUID::generateNewID().asString() };
-#else
-    LLEventLogProxyFor<LLEventStream> mReplyPump{ "luapump", false };
-#endif
-    LLTempBoundListener mReplyConnection;
     std::unique_ptr<LLLeapListener> mListener;
 };
 

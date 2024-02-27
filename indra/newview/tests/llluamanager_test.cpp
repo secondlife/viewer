@@ -108,7 +108,6 @@ namespace tut
             replypump.listen("llluamanager_test",
                              listener([&fromlua](const LLSD& data){ fromlua = data; })));
         const std::string lua(stringize(
-            "-- test LLSD synthesized by Lua\n",
             "data = ", construct, "\n"
             "post_on('testpump', data)\n"
         ));
@@ -134,7 +133,7 @@ namespace tut
     template<> template<>
     void object::test<3>()
     {
-        set_test_name("test post_on(), listen_events(), await_event()");
+        set_test_name("test post_on(), get_event_pumps(), get_event_next()");
         StringVec posts;
         LLEventStream replypump("testpump");
         LLTempBoundListener conn(
@@ -142,17 +141,14 @@ namespace tut
                              listener([&posts](const LLSD& data)
                              { posts.push_back(data.asString()); })));
         const std::string lua(
-            "-- test post_on,listen_events,await_event\n"
+            "-- test post_on,get_event_pumps,get_event_next\n"
             "post_on('testpump', 'entry')\n"
-            "callback = function(pump, data)\n"
-            "    -- just echo the data we received\n"
-            "    post_on('testpump', data)\n"
-            "end\n"
-            "post_on('testpump', 'listen_events()')\n"
-            "replypump, cmdpump = listen_events(callback)\n"
+            "post_on('testpump', 'get_event_pumps()')\n"
+            "replypump, cmdpump = get_event_pumps()\n"
             "post_on('testpump', replypump)\n"
-            "post_on('testpump', 'await_event()')\n"
-            "await_event(replypump)\n"
+            "post_on('testpump', 'get_event_next()')\n"
+            "pump, data = get_event_next()\n"
+            "post_on('testpump', data)\n"
             "post_on('testpump', 'exit')\n"
         );
         LuaState L;
@@ -162,9 +158,9 @@ namespace tut
         auto future = LLLUAmanager::startScriptLine(L, lua);
         StringVec expected{
             "entry",
-            "listen_events()",
+            "get_event_pumps()",
             "",
-            "await_event()",
+            "get_event_next()",
             "message",
             "exit"
         };
@@ -188,18 +184,15 @@ namespace tut
                              listener([&reply](const LLSD& post){ reply = post; })));
         const std::string lua(
             "-- test LLSD round trip\n"
-            "callback = function(pump, data)\n"
-            "    -- just echo the data we received\n"
-            "    post_on('testpump', data)\n"
-            "end\n"
-            "replypump, cmdpump = listen_events(callback)\n"
+            "replypump, cmdpump = get_event_pumps()\n"
             "post_on('testpump', replypump)\n"
-            "await_event(replypump)\n"
+            "pump, data = get_event_next()\n"
+            "return data\n"
         );
         LuaState L;
         auto future = LLLUAmanager::startScriptLine(L, lua);
         // We woke up again ourselves because the coroutine running Lua has
-        // reached the await_event() call, which suspends the calling C++
+        // reached the get_event_next() call, which suspends the calling C++
         // coroutine (including the Lua code running on it) until we post
         // something to that reply pump.
         auto luapump{ reply.asString() };
@@ -208,7 +201,7 @@ namespace tut
         // The C++ coroutine running the Lua script is now ready to run. Run
         // it so it will echo the LLSD back to us.
         auto [count, result] = future.get();
-        ensure_equals(desc, reply, expect);
+        ensure_equals(desc, result, expect);
     }
 
     // Define an RTItem to be used for round-trip LLSD testing: what it is,

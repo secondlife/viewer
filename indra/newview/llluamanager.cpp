@@ -167,79 +167,31 @@ lua_function(post_on, "post_on(pumpname, data): post specified data to specified
     return 0;
 }
 
-lua_function(listen_events,
-             "listen_events(callback): call callback(pumpname, data) with events received\n"
-             "on this Lua chunk's replypump.\n"
-             "Returns replypump, commandpump: names of LLEventPumps specific to this chunk.")
+lua_function(get_event_pumps,
+             "get_event_pumps():\n"
+             "Returns replypump, commandpump: names of LLEventPumps specific to this chunk.\n"
+             "Events posted to replypump are queued for get_event_next().\n"
+             "post_on(commandpump, ...) to engage LLEventAPI operations (see helpleap()).")
 {
-    if (! lua_isfunction(L, 1))
-    {
-        luaL_typeerror(L, 1, "function");
-        return 0;
-    }
     luaL_checkstack(L, 2, nullptr);
-
-/*==========================================================================*|
-    // Get the lua_State* for the main thread of this state, in case we were
-    // called from a coroutine thread. We're going to make callbacks into Lua
-    // code, and we want to do it on the main thread rather than a (possibly
-    // suspended) coroutine thread.
-    // Registry table is at pseudo-index LUA_REGISTRYINDEX
-    // Main thread is at registry key LUA_RIDX_MAINTHREAD
-    auto regtype {lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD)};
-    // Not finding the main thread at the documented place isn't a user error,
-    // it's a Problem
-    llassert_always(regtype == LUA_TTHREAD);
-    lua_State* mainthread{ lua_tothread(L, -1) };
-    // pop the main thread
-    lua_pop(L, 1);
-|*==========================================================================*/
-    // Luau is based on Lua 5.1, and Lua 5.1 apparently provides no way to get
-    // back to the main thread from a coroutine thread?
-    lua_State* mainthread{ L };
-
-    luaL_checkstack(mainthread, 1, nullptr);
-    LuaListener::ptr_t listener;
-    // Does the main thread already have a LuaListener stored in the registry?
-    // That is, has this Lua chunk already called listen_events()?
-    auto keytype{ lua_getfield(mainthread, LUA_REGISTRYINDEX, "event.listener") };
-    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
-    if (keytype == LUA_TNUMBER)
-    {
-        // We do already have a LuaListener. Retrieve it.
-        int isint;
-        listener = LuaListener::getInstance(lua_tointegerx(mainthread, -1, &isint));
-        // pop the int "event.listener" key
-        lua_pop(mainthread, 1);
-        // Nobody should have destroyed this LuaListener instance!
-        llassert(isint && listener);
-    }
-    else
-    {
-        // pop the nil "event.listener" key
-        lua_pop(mainthread, 1);
-        // instantiate a new LuaListener, binding the mainthread state -- but
-        // use a no-op deleter: we do NOT want to delete this new LuaListener
-        // on return from listen_events()!
-        listener.reset(new LuaListener(mainthread), [](LuaListener*){});
-        // set its key in the field where we'll look for it later
-        lua_pushinteger(mainthread, listener->getKey());
-        lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.listener");
-    }
-
-    // Now that we've found or created our LuaListener, store the passed Lua
-    // function as the callback. Beware: our caller passed the function on L's
-    // stack, but we want to store it on the mainthread registry.
-    if (L != mainthread)
-    {
-        // push 1 value (the Lua function) from L's stack to mainthread's
-        lua_xmove(L, mainthread, 1);
-    }
-    lua_setfield(mainthread, LUA_REGISTRYINDEX, "event.function");
-
+    auto listener{ LuaState::obtainListener(L) };
     // return the reply pump name and the command pump name on caller's lua_State
     lua_pushstdstring(L, listener->getReplyName());
     lua_pushstdstring(L, listener->getCommandName());
+    return 2;
+}
+
+lua_function(get_event_next,
+             "get_event_next():\n"
+             "Returns the next (pumpname, data) pair from the replypump whose name\n"
+             "is returned by get_event_pumps(). Blocks the calling chunk until an\n"
+             "event becomes available.")
+{
+    luaL_checkstack(L, 2, nullptr);
+    auto listener{ LuaState::obtainListener(L) };
+    const auto& [pump, data]{ listener->getNext() };
+    lua_pushstdstring(L, pump);
+    lua_pushllsd(L, data);
     return 2;
 }
 
@@ -370,7 +322,7 @@ void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_r
     if (shortchunk.length() > shortlen)
         shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
-    std::string desc{ stringize("runScriptLine('", shortchunk, "')") };
+    std::string desc{ stringize("lua: ", shortchunk) };
     LLCoros::instance().launch(desc, [&L, desc, chunk, cb]()
     {
         auto [count, result] = L.expr(desc, chunk);

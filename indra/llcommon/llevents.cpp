@@ -43,6 +43,7 @@
 #include <typeinfo>
 #include <cmath>
 #include <cctype>
+#include <iomanip>                  // std::quoted
 // external library headers
 #include <boost/range/iterator_range.hpp>
 #if LL_WINDOWS
@@ -189,8 +190,13 @@ bool LLEventPumps::post(const std::string&name, const LLSD&message)
     PumpMap::iterator found = mPumpMap.find(name);
 
     if (found == mPumpMap.end())
+    {
+        LL_DEBUGS("LLEventPumps") << "LLEventPump(" << std::quoted(name) << ") not found"
+                                  << LL_ENDL;
         return false;
+    }
 
+//  LL_DEBUGS("LLEventPumps") << "posting to " << name << ": " << message << LL_ENDL;
     return (*found).second->post(message);
 }
 
@@ -405,7 +411,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
 {
     if (!mSignal)
     {
-        LL_WARNS() << "Can't connect listener" << LL_ENDL;
+        LL_WARNS("LLEventPump") << "Can't connect listener" << LL_ENDL;
         // connect will fail, return dummy
         return LLBoundListener();
     }

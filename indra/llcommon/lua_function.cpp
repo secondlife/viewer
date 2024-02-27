@@ -16,15 +16,20 @@
 // STL headers
 // std headers
 #include <algorithm>
+#include <iomanip>                  // std::quoted
 #include <map>
 #include <memory>                   // std::unique_ptr
 // external library headers
 // other Linden headers
 #include "hexdump.h"
+#include "lleventcoro.h"
 #include "llsd.h"
 #include "llsdutil.h"
 #include "lualistener.h"
 
+/*****************************************************************************
+*   luau namespace
+*****************************************************************************/
 namespace
 {
     // can't specify free function free() as a unique_ptr deleter
@@ -56,6 +61,9 @@ int lluau::loadstring(lua_State *L, const std::string &desc, const std::string &
     return luau_load(L, desc.data(), bytecode.get(), bytecodeSize, 0);
 }
 
+/*****************************************************************************
+*   Lua <=> C++ conversions
+*****************************************************************************/
 std::string lua_tostdstring(lua_State* L, int index)
 {
     size_t len;
@@ -88,7 +96,6 @@ LLSD lua_tollsd(lua_State* L, int index)
 {
     LL_DEBUGS("Lua") << "lua_tollsd(" << index << ") of " << lua_gettop(L) << " stack entries: "
                      << lua_what(L, index) << LL_ENDL;
-    DebugExit log_exit("lua_tollsd()");
     switch (lua_type(L, index))
     {
     case LUA_TNONE:
@@ -417,6 +424,9 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     }
 }
 
+/*****************************************************************************
+*   LuaState class
+*****************************************************************************/
 LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
     mState(nullptr)
@@ -439,25 +449,15 @@ void LuaState::initLuaState()
 
 LuaState::~LuaState()
 {
-    // Did somebody call listen_events() on this LuaState?
+    // Did somebody call obtainListener() on this LuaState?
     // That is, is there a LuaListener key in its registry?
-    auto keytype{ lua_getfield(mState, LUA_REGISTRYINDEX, "event.listener") };
-    if (keytype == LUA_TNUMBER)
+    auto listener{ getListener() };
+    if (listener)
     {
-        // We do have a LuaListener. Retrieve it.
-        int isint;
-        auto listener{ LuaListener::getInstance(lua_tointegerx(mState, -1, &isint)) };
-        // pop the int "event.listener" key
-        lua_pop(mState, 1);
         // if we got a LuaListener instance, destroy it
-        // (if (! isint), lua_tointegerx() returned 0, but key 0 might
-        // validly designate someone ELSE's LuaListener)
-        if (isint && listener)
-        {
-            auto lptr{ listener.get() };
-            listener.reset();
-            delete lptr;
-        }
+        auto lptr{ listener.get() };
+        listener.reset();
+        delete lptr;
     }
 
     lua_close(mState);
@@ -512,7 +512,48 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     return result;
 }
 
+LuaListener::ptr_t LuaState::getListener(lua_State* L)
+{
+    // have to use one more stack slot
+    luaL_checkstack(L, 1, nullptr);
+    LuaListener::ptr_t listener;
+    // Does this lua_State already have a LuaListener stored in the registry?
+    auto keytype{ lua_getfield(L, LUA_REGISTRYINDEX, "event.listener") };
+    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
+    if (keytype == LUA_TNUMBER)
+    {
+        // We do already have a LuaListener. Retrieve it.
+        int isint;
+        listener = LuaListener::getInstance(lua_tointegerx(L, -1, &isint));
+        // Nobody should have destroyed this LuaListener instance!
+        llassert(isint && listener);
+    }
+    // pop the int "event.listener" key
+    lua_pop(L, 1);
+    return listener;
+}
 
+LuaListener::ptr_t LuaState::obtainListener(lua_State* L)
+{
+    auto listener{ getListener(L) };
+    if (! listener)
+    {
+        // have to use one more stack slot
+        luaL_checkstack(L, 1, nullptr);
+        // instantiate a new LuaListener, binding the L state -- but use a
+        // no-op deleter: we do NOT want this ptr_t to manage the lifespan of
+        // this new LuaListener!
+        listener.reset(new LuaListener(L), [](LuaListener*){});
+        // set its key in the field where we'll look for it later
+        lua_pushinteger(L, listener->getKey());
+        lua_setfield(L, LUA_REGISTRYINDEX, "event.listener");
+    }
+    return listener;
+}
+
+/*****************************************************************************
+*   LuaPopper class
+*****************************************************************************/
 LuaPopper::~LuaPopper()
 {
     if (mCount)
@@ -521,15 +562,21 @@ LuaPopper::~LuaPopper()
     }
 }
 
+/*****************************************************************************
+*   LuaFunction class
+*****************************************************************************/
 LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
                          const std::string_view& helptext)
 {
-    getRegistry().emplace(name, Registry::mapped_type{ function, helptext });
+    const auto& [registry, lookup] = getState();
+    registry.emplace(name, Registry::mapped_type{ function, helptext });
+    lookup.emplace(function, name);
 }
 
 void LuaFunction::init(lua_State* L)
 {
-    for (const auto& [name, pair]: getRegistry())
+    const auto& [registry, lookup] = getRState();
+    for (const auto& [name, pair]: registry)
     {
         const auto& [funcptr, helptext] = pair;
         lua_register(L, name.c_str(), funcptr);
@@ -540,19 +587,148 @@ lua_CFunction LuaFunction::get(const std::string& key)
 {
     // use find() instead of subscripting to avoid creating an entry for
     // unknown key
-    const auto& registry{ getRegistry() };
+    const auto& [registry, lookup] = getState();
     auto found{ registry.find(key) };
     return (found == registry.end())? nullptr : found->second.first;
 }
 
-LuaFunction::Registry& LuaFunction::getRegistry()
+std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 {
-    // use a function-local static to ensure it's initialized
+    // use function-local statics to ensure they're initialized
     static Registry registry;
-    return registry;
+    static Lookup lookup;
+    return { registry, lookup };
 }
 
+/*****************************************************************************
+*   help()
+*****************************************************************************/
+lua_function(help,
+             "help(): list viewer's Lua functions\n"
+             "help(function): show help string for specific function")
+{
+    auto& luapump{ LLEventPumps::instance().obtain("lua output") };
+    const auto& [registry, lookup]{ LuaFunction::getRState() };
+    if (! lua_gettop(L))
+    {
+        // no arguments passed: list all lua_functions
+        for (const auto& [name, pair] : registry)
+        {
+            const auto& [fptr, helptext] = pair;
+            luapump.post(helptext);
+        }
+    }
+    else
+    {
+        // arguments passed: list each of the specified lua_functions
+        for (int idx = 1, top = lua_gettop(L); idx <= top; ++idx)
+        {
+            std::string arg{ stringize("<unknown ", lua_typename(L, lua_type(L, idx)), ">") };
+            if (lua_type(L, idx) == LUA_TSTRING)
+            {
+                arg = lua_tostdstring(L, idx);
+            }
+            else if (lua_type(L, idx) == LUA_TFUNCTION)
+            {
+                // Caller passed the actual function instead of its string
+                // name. A Lua function is an anonymous callable object; it
+                // has a name only by assigment. You can't ask Lua for a
+                // function's name, which is why our constructor maintains a
+                // reverse Lookup map.
+                auto function{ lua_tocfunction(L, idx) };
+                if (auto found = lookup.find(function); found != lookup.end())
+                {
+                    // okay, pass found name to lookup below
+                    arg = found->second;
+                }
+            }
 
+            if (auto found = registry.find(arg); found != registry.end())
+            {
+                luapump.post(found->second.second);
+            }
+            else
+            {
+                luapump.post(arg + ": NOT FOUND");
+            }
+        }
+        // pop all arguments
+        lua_settop(L, 0);
+    }
+    return 0;                       // void return
+}
+
+/*****************************************************************************
+*   leaphelp()
+*****************************************************************************/
+lua_function(
+    leaphelp,
+    "leaphelp(): list viewer's LEAP APIs\n"
+    "leaphelp(api): show help for specific api string name")
+{
+    LLSD request;
+    int top{ lua_gettop(L) };
+    if (top)
+    {
+        request = llsd::map("op", "getAPI", "api", lua_tostdstring(L, 1));
+    }
+    else
+    {
+        request = llsd::map("op", "getAPIs");
+    }
+    // pop all args
+    lua_settop(L, 0);
+
+    auto& outpump{ LLEventPumps::instance().obtain("lua output") };
+    auto listener{ LuaState::obtainListener(L) };
+    LLEventStream replyPump("leaphelp", true);
+    // ask the LuaListener's LeapListener and suspend calling coroutine until reply
+    auto reply{ llcoro::postAndSuspend(request, listener->getCommandName(), replyPump, "reply") };
+    reply.erase("reqid");
+
+    if (auto error = reply["error"]; error.isString())
+    {
+        outpump.post(error.asString());
+        return 0;
+    }
+
+    if (top)
+    {
+        // caller wants a specific API
+        outpump.post(stringize(reply["name"].asString(), ":\n", reply["desc"].asString()));
+        for (const auto& opmap : llsd::inArray(reply["ops"]))
+        {
+            std::ostringstream reqstr;
+            auto req{ opmap["required"] };
+            if (req.isArray())
+            {
+                const char* sep = " (requires ";
+                for (const auto& [reqkey, reqval] : llsd::inMap(req))
+                {
+                    reqstr << sep << reqkey;
+                    sep = ", ";
+                }
+                reqstr << ")";
+            }
+            outpump.post(stringize("---- ", reply["key"].asString(), " == '",
+                                   opmap["name"].asString(), "'", reqstr.str(), ":\n",
+                                   opmap["desc"].asString()));
+        }
+    }
+    else
+    {
+        // caller wants a list of APIs
+        for (const auto& [name, data] : llsd::inMap(reply))
+        {
+            outpump.post(stringize("==== ", name, ":\n", data["desc"].asString()));
+        }
+    }
+    return 0;                       // void return
+}
+
+/*****************************************************************************
+*   lua_what
+*****************************************************************************/
 std::ostream& operator<<(std::ostream& out, const lua_what& self)
 {
     switch (lua_type(self.L, self.index))
@@ -608,6 +784,9 @@ std::ostream& operator<<(std::ostream& out, const lua_what& self)
     return out;
 }
 
+/*****************************************************************************
+*   lua_stack
+*****************************************************************************/
 std::ostream& operator<<(std::ostream& out, const lua_stack& self)
 {
     const char* sep = "stack: [";
@@ -618,9 +797,4 @@ std::ostream& operator<<(std::ostream& out, const lua_stack& self)
     }
     out << ']';
     return out;
-}
-
-DebugExit::~DebugExit()
-{
-    LL_DEBUGS("Lua") << "exit " << mName << LL_ENDL;
 }
