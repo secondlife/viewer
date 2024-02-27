@@ -366,11 +366,11 @@ return texCUBE(envMap, ReflDirectionWS);
 // i - probe index in refBox/refSphere
 // d - distance to nearest wall in clip space
 // scale - scale of box, default 1.0
-vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d, float scale)
+vec3 boxIntersect(vec3 origin, vec3 dir, mat4 i, out float d, float scale)
 {
     // Intersection with OBB convert to unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
-    mat4 clipToLocal = refBox[i];
+    mat4 clipToLocal = i;
 
     vec3 RayLS = mat3(clipToLocal) * dir;
     vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
@@ -389,7 +389,7 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d, float scale)
     return IntersectPositionCS;
 }
 
-vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
+vec3 boxIntersect(vec3 origin, vec3 dir, mat4 i, out float d)
 {
     return boxIntersect(origin, dir, i, d, 1.0);
 }
@@ -444,9 +444,9 @@ void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
 }
 
 
-void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
+void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 {
-    mat4 clipToLocal = refBox[i];
+    mat4 clipToLocal = i;
     
     // transform into unit cube space
     origin = (clipToLocal * vec4(origin, 1.0)).xyz;
@@ -463,7 +463,7 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 //  r - radius of probe influence volume
 // i - index of probe in refSphere
 // dw - distance weight
-float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, int i, out float dw)
+float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, vec4 i, out float dw)
 {
     float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down) 
     vec3 delta = pos.xyz - origin;
@@ -472,7 +472,7 @@ float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, int i, out float dw
     float atten = 1.0 - max(d2 - r1, 0.0) / max((r - r1), 0.001);
     float w = 1.0 / d2;
 
-    w *= refParams[i].z;
+    w *= i.z;
 
     dw = w * atten * max(r, 1.0)*4;
 
@@ -498,7 +498,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
     if (refIndex[i].w < 0)
     {  // box probe
         float d = 0;
-        v = boxIntersect(pos, dir, i, d);
+        v = boxIntersect(pos, dir, refBox[i], d);
 
         w = max(d, 0.001);
     }
@@ -512,7 +512,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, i, dw);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, refParams[i], dw);
     }
 
     v -= c;
@@ -538,7 +538,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
     if (refIndex[i].w < 0)
     {
         float d = 0.0;
-        v = boxIntersect(pos, dir, i, d, 3.0);
+        v = boxIntersect(pos, dir, refBox[i], d, 3.0);
         w = max(d, 0.001);
     }
     else
@@ -552,7 +552,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, i, dw);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, refParams[i], dw);
     }
 
     v -= c;
@@ -698,29 +698,6 @@ layout (std140) uniform HeroProbeData
     int heroProbeCount;
 };
 
-vec3 boxIntersectHero(vec3 origin, vec3 dir, int i, out float d, float scale)
-{
-    // Intersection with OBB convert to unit box space
-    // Transform in local unit parallax cube space (scaled and rotated)
-    mat4 clipToLocal = heroBox[i];
-
-    vec3 RayLS = mat3(clipToLocal) * dir;
-    vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
-
-    d = 1.0-max(max(abs(PositionLS.x), abs(PositionLS.y)), abs(PositionLS.z));
-
-    vec3 Unitary = vec3(scale);
-    vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
-    vec3 SecondPlaneIntersect = (-Unitary - PositionLS) / RayLS;
-    vec3 FurthestPlane = max(FirstPlaneIntersect, SecondPlaneIntersect);
-    float Distance = min(FurthestPlane.x, min(FurthestPlane.y, FurthestPlane.z));
-
-    // Use Distance in CS directly to recover intersection
-    vec3 IntersectPositionCS = origin + dir * Distance;
-
-    return IntersectPositionCS;
-}
-
 float sphereWeightHero(vec3 pos, vec3 dir, vec3 origin, float r, out float dw)
 {
     float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
@@ -745,7 +722,7 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
     if (heroShape[0] < 1)
     {
         float d = 0;
-        boxIntersectHero(pos, norm, 0, d, 1.0);
+        boxIntersect(pos, norm, heroBox[0], d, 1.0);
         
         w = max(d, 0.001);
     }
@@ -844,7 +821,7 @@ void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
     {
         if (refIndex[i].w < 0)
         {
-            boxIntersectDebug(origin, pos, i, col);
+            boxIntersectDebug(origin, pos, refBox[i], col);
         }
         else
         {
