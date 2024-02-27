@@ -1056,6 +1056,8 @@ public:
 	static S32 RenderScreenSpaceReflectionGlossySamples;
 	static S32 RenderBufferVisualization;
 	static bool RenderMirrors;
+	static S32 RenderHeroProbeUpdateRate;
+    static S32 RenderHeroProbeConservativeUpdateMultiplier;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

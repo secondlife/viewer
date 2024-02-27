@@ -114,20 +114,13 @@ void LLHeroProbeManager::update()
 
         for (auto vo : mHeroVOList)
         {
-            if (vo && !vo->isDead())
+            if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
-                if (vo->mDrawable.notNull())
+                float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
+                if (distance < last_distance)
                 {
-                    if (vo->mDrawable->mDistanceWRTCamera < last_distance)
-                    {
-                        mNearestHero = vo;
-                        last_distance = vo->mDrawable->mDistanceWRTCamera;
-                    }
-                }
-                else
-                {
-                    // Valid drawables only please.  Unregister this one.
-                    unregisterViewerObject(vo);
+                    mNearestHero = vo;
+                    last_distance = distance;
                 }
             }
             else
@@ -135,13 +128,13 @@ void LLHeroProbeManager::update()
                 unregisterViewerObject(vo);
             }
         }
-
+        
         if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
             LLVector3 face_normal = LLVector3(0, 0, 1);
-
-            face_normal *= mNearestHero->mDrawable->getXform()->getWorldRotation();
+            
+            face_normal *= mNearestHero->mDrawable->getWorldRotation();
             face_normal.normalize();
 
             LLVector3 offset = camera_pos - hero_pos;
@@ -155,6 +148,32 @@ void LLHeroProbeManager::update()
         
 
             probe_pos.load3(point.mV);
+
+            // Collect the list of faces that need updating based upon the camera's rotation.
+            LLVector3 cam_direction = LLVector3(0, 0, 1) * LLViewerCamera::instance().getQuaternion();
+
+            static LLVector3 cubeFaces[6] = { 
+                LLVector3(1, 0, 0), 
+                LLVector3(-1, 0, 0),
+                LLVector3(0, 1, 0),
+                LLVector3(0, -1, 0),
+                LLVector3(0, 0, 1),
+                LLVector3(0, 0, -1)
+            };
+
+            for (int i = 0; i < 6; i++)
+            {
+                float shouldUpdate = cam_direction * cubeFaces[i] * 0.5 + 0.5;
+                
+                int updateRate = ceilf((1 - shouldUpdate) * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
+                
+                // Chances are this is a face that's non-visible to the camera when it's being reflected.
+                // Set it to 0.  It will be skipped below.
+                if (updateRate == gPipeline.RenderHeroProbeConservativeUpdateMultiplier)
+                    updateRate = 0;
+                
+                mFaceUpdateList[i] = updateRate;
+            }
         }
         else
         { 
@@ -185,13 +204,20 @@ void LLHeroProbeManager::update()
         {
             for (U32 i = 0; i < 6; ++i)
             {
-                updateProbeFace(mProbes[j], i, near_clip);
+                if (mFaceUpdateList[i] > 0 && mCurrentProbeUpdateFrame % mFaceUpdateList[i] == 0)
+                {
+                    updateProbeFace(mProbes[j], i, near_clip);
+                    mCurrentProbeUpdateFrame = 0;
+                }
             }
+            generateRadiance(mProbes[j]);
         }
         mRenderingMirror = false;
         
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
     }
+    
+    mCurrentProbeUpdateFrame++;
 }
 
 // Do the reflection map update render passes.
@@ -242,7 +268,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
 
         LLRenderTarget *screen_rt = &gPipeline.mHeroProbeRT.screen;
         LLRenderTarget *depth_rt  = &gPipeline.mHeroProbeRT.deferredScreen;
-        
+
         // perform a gaussian blur on the super sampled render before downsampling
         {
             gGaussianProgram.bind();
@@ -318,14 +344,25 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
         gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_TEXTURE);
         gReflectionMipProgram.unbind();
     }
+}
 
-    if (face == 5)
+// Separate out radiance generation as a separate stage.
+// This is to better enable independent control over how we generate radiance vs. having it coupled with processing the final face of the probe.
+// Useful when we may not always be rendering a full set of faces of the probe.
+void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
+{
+    S32 sourceIdx = mReflectionProbeCount;
+
+    // Unlike the reflectionmap manager, all probes are considered "realtime" for hero probes.
+    sourceIdx += 1;
     {
         mMipChain[0].bindTarget();
         static LLStaticHashedString sSourceIdx("sourceIdx");
 
         {
-            //generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
+
+
+            // generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
             gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
 
@@ -334,10 +371,10 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
             gHeroRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
             gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
-            
+
             U32 res = mMipChain[0].getWidth();
 
-            for (int i = 0; i < mMipChain.size(); ++i)
+            for (int i = 0; i < mMipChain.size() / 4; ++i)
             {
                 LL_PROFILE_GPU_ZONE("probe radiance gen");
                 static LLStaticHashedString sMipLevel("mipLevel");
@@ -351,7 +388,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 n
                 gHeroRadianceGenProgram.uniform1f(sStrength, 1);
 
                 for (int cf = 0; cf < 6; ++cf)
-                { // for each cube face
+                {  // for each cube face
                     LLCoordFrame frame;
                     frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
 
@@ -539,21 +576,25 @@ void LLHeroProbeManager::doOcclusion()
     }
 }
 
-void LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
+bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 {
     llassert(drawablep != nullptr);
 
-    if (mHeroVOList.find(drawablep) == mHeroVOList.end())
+    if (std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep) == mHeroVOList.end())
     {
         // Probe isn't in our list for consideration.  Add it.
-        mHeroVOList.insert(drawablep);
+        mHeroVOList.push_back(drawablep);
+        return true;
     }
+    
+    return false;
 }
 
 void LLHeroProbeManager::unregisterViewerObject(LLVOVolume* drawablep)
 {
-    if (mHeroVOList.find(drawablep) != mHeroVOList.end())
+    std::vector<LLVOVolume*>::iterator found_itr = std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep);
+    if (found_itr != mHeroVOList.end())
     {
-        mHeroVOList.erase(drawablep);
+        mHeroVOList.erase(found_itr);
     }
 }
