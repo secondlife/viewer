@@ -120,8 +120,11 @@ void LL::ThreadPoolBase::close()
         mQueue->close();
         for (auto& pair: mThreads)
         {
-            LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
-            pair.second.join();
+            if (pair.second.joinable())
+            {
+                LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
+                pair.second.join();
+            }
         }
         LL_DEBUGS("ThreadPool") << mName << " shutdown complete" << LL_ENDL;
     }
