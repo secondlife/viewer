@@ -698,22 +698,6 @@ layout (std140) uniform HeroProbeData
     int heroProbeCount;
 };
 
-float sphereWeightHero(vec3 pos, vec3 dir, vec3 origin, float r, out float dw)
-{
-    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
-    vec3 delta = pos.xyz - origin;
-    float d2 = max(length(delta), 0.001);
-
-    float atten = 1.0 - max(d2 - r1, 0.0) / max((r - r1), 0.001);
-    float w = 1.0 / d2;
-
-    dw = w * atten * max(r, 1.0)*4;
-
-    w *= atten;
-
-    return w;
-}
-
 void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
     float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
@@ -729,16 +713,15 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
     else
     {
         float r = heroSphere[0].w;
-        //v = sphereIntersect(pos, norm, heroSphere[0].xyz, 4096.0*4096.0);
         
-        w = sphereWeightHero(pos, norm, heroSphere[0].xyz, r, dw);
+        w = sphereWeight(pos, norm, heroSphere[0].xyz, r, vec4(1), dw);
     }
     
     {
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
         if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
         {
-            glossenv = textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz * w;
+            glossenv = mix(glossenv, textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz, w);
         }
     }
 }
