@@ -1037,6 +1037,13 @@ LLFontGL* LLFontGL::getFontEmoji()
 }
 
 //static
+LLFontGL* LLFontGL::getFontEmojiSmall()
+{
+    static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Small", 0));
+    return fontp;;
+}
+
+//static
 LLFontGL* LLFontGL::getFontEmojiHuge()
 {
 	static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Huge", 0));

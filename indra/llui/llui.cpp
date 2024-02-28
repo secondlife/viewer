@@ -592,11 +592,13 @@ namespace LLInitParam
 	
 	void ParamValue<const LLFontGL*>::updateBlockFromValue(bool make_block_authoritative)
 	{
-		if (getValue())
+		// It is important to use getRawValue() instead of getValue() here
+		// because getValue() calls validateBlock() and updateValueFromBlock()
+		if (getRawValue())
 		{
-			name.set(LLFontGL::nameFromFont(getValue()), make_block_authoritative);
-			size.set(LLFontGL::sizeFromFont(getValue()), make_block_authoritative);
-			style.set(LLFontGL::getStringFromStyle(getValue()->getFontDesc().getStyle()), make_block_authoritative);
+			name.set(LLFontGL::nameFromFont(getRawValue()), make_block_authoritative);
+			size.set(LLFontGL::sizeFromFont(getRawValue()), make_block_authoritative);
+			style.set(LLFontGL::getStringFromStyle(getRawValue()->getFontDesc().getStyle()), make_block_authoritative);
 		}
 	}
 

@@ -14,6 +14,5 @@
 			 highlight_color="EmphasisColor"
 			 preedit_bg_color="White"
              mouse_opaque="true"
-             name="line_editor"
-             font="SansSerifSmall">
+             name="line_editor">
 </line_editor>

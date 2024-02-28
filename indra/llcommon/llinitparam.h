@@ -2798,6 +2798,11 @@ namespace LLInitParam
 
 	protected:
 
+		const value_t& getRawValue() const
+		{
+			return mValue;
+		}
+
 		// use this from within updateValueFromBlock() to set the value without making it authoritative
 		void updateValue(const value_t& value)
 		{
