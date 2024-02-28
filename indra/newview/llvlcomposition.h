@@ -58,7 +58,7 @@ public:
 
     BOOL generateMaterials();
 
-	LLUUID getDetailAssetID(S32 asset);
+	virtual LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
     Type getMaterialType();
     bool texturesReady(bool boost, bool strict);

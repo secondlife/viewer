@@ -340,7 +340,6 @@ void LLFloaterRegionInfo::onRegionChanged()
     }
 }
 
-// static
 void LLFloaterRegionInfo::requestRegionInfo()
 {
 	LLTabContainer* tab = findChild<LLTabContainer>("region_panels");
@@ -1327,9 +1326,6 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
-    // *TODO: Don't early-exit in PBR material terrain editing mode, and
-    // instead do some reasonable checks that the PBR material is compatible
-    // with the terrain rendering pipeline. Err on the side of permissive.
     LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
     if (material_type_ctrl)
     {
@@ -1446,54 +1442,24 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
         mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLPanelRegionTerrainInfo::onRegionChanged,this));
     }
 
-    refresh();
-
 	return LLPanelRegionInfo::postBuild();
 }
 
-// virtual
-void LLPanelRegionTerrainInfo::refresh()
+void LLPanelRegionTerrainInfo::onSelectMaterialType()
 {
-    static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
-
-    LLTextBox* texture_text = getChild<LLTextBox>("detail_texture_text");
-    if (texture_text) { texture_text->setVisible(!feature_pbr_terrain_enabled); }
-
-    LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
-    if (material_type_ctrl)
-    {
-        material_type_ctrl->setVisible(feature_pbr_terrain_enabled);
-
-        bool has_material_assets = false;
-
-        std::string buffer;
-        for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-        {
-            buffer = llformat("material_detail_%d", i);
-            LLTextureCtrl* material_ctrl = getChild<LLTextureCtrl>(buffer);
-            if (material_ctrl && material_ctrl->getImageAssetID().notNull())
-            {
-                has_material_assets = true;
-                break;
-            }
-        }
-
-        TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
-
-        if (!feature_pbr_terrain_enabled) { material_type = TerrainMaterialType::TEXTURE; }
-
-        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
-        material_type_ctrl->setEnabled(feature_pbr_terrain_enabled && !(is_material_selected && has_material_assets));
-    }
+    updateForMaterialType();
+    onChangeAnything();
 }
 
-void LLPanelRegionTerrainInfo::onSelectMaterialType()
+void LLPanelRegionTerrainInfo::updateForMaterialType()
 {
     LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
     if (!material_type_ctrl) { return; }
     const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
     const bool show_texture_controls = material_type == TerrainMaterialType::TEXTURE;
     const bool show_material_controls = material_type == TerrainMaterialType::PBR_MATERIAL;
+
+    // Toggle visibility of correct swatches
     std::string buffer;
     LLTextureCtrl* texture_ctrl;
     for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
@@ -1554,31 +1520,98 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 
 		LLVLComposition* compp = region->getComposition();
 
-        // Are these 4 texture IDs or 4 material IDs? Who knows! Let's set the IDs on both pickers for now.
+        static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
+
+        const bool textures_ready = compp->texturesReady(false, false);
+        const bool materials_ready = feature_pbr_terrain_enabled && compp->materialsReady(false, false);
+
+        LLTextBox* texture_text = getChild<LLTextBox>("detail_texture_text");
+        if (texture_text) { texture_text->setVisible(!feature_pbr_terrain_enabled); }
+
+        bool set_texture_swatches;
+        bool set_material_swatches;
+        bool clear_texture_swatches;
+        bool clear_material_swatches;
+        LLTerrainMaterials::Type material_type;
+        if (!textures_ready && !materials_ready)
+        {
+            // Are these 4 texture IDs or 4 material IDs? Who knows! Let's set
+            // the IDs on both pickers for now.
+            material_type = LLTerrainMaterials::Type::TEXTURE;
+            set_texture_swatches = true;
+            set_material_swatches = true;
+            clear_texture_swatches = false;
+            clear_material_swatches = false;
+        }
+        else
+        {
+            material_type = compp->getMaterialType();
+            set_texture_swatches = material_type == LLTerrainMaterials::Type::TEXTURE;
+            set_material_swatches = !set_texture_swatches;
+            clear_texture_swatches = !set_texture_swatches;
+            clear_material_swatches = !set_material_swatches;
+        }
+
+		LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
+		if (material_type_ctrl) { material_type_ctrl->setCurrentByIndex(S32(material_type)); }
+		updateForMaterialType();
+
 		LLTextureCtrl* asset_ctrl;
 		std::string buffer;
-		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-		{
-			buffer = llformat("texture_detail_%d", i);
-			asset_ctrl = getChild<LLTextureCtrl>(buffer);
-			if(asset_ctrl)
-			{
-				LL_DEBUGS() << "Detail Texture " << i << ": "
-						 << compp->getDetailAssetID(i) << LL_ENDL;
-				LLUUID tmp_id(compp->getDetailAssetID(i));
-				asset_ctrl->setImageAssetID(tmp_id);
-			}
-		}
-		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-		{
-			buffer = llformat("material_detail_%d", i);
-			asset_ctrl = getChild<LLTextureCtrl>(buffer);
-			if(asset_ctrl)
-			{
-				LLUUID tmp_id(compp->getDetailAssetID(i));
-				asset_ctrl->setImageAssetID(tmp_id);
-			}
-		}
+        if (set_texture_swatches)
+        {
+            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+            {
+                buffer = llformat("texture_detail_%d", i);
+                asset_ctrl = getChild<LLTextureCtrl>(buffer);
+                if(asset_ctrl)
+                {
+                    LL_DEBUGS() << "Detail Texture " << i << ": "
+                             << compp->getDetailAssetID(i) << LL_ENDL;
+                    LLUUID tmp_id(compp->getDetailAssetID(i));
+                    asset_ctrl->setImageAssetID(tmp_id);
+                }
+            }
+        }
+        if (set_material_swatches)
+        {
+            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+            {
+                buffer = llformat("material_detail_%d", i);
+                asset_ctrl = getChild<LLTextureCtrl>(buffer);
+                if(asset_ctrl)
+                {
+                    LL_DEBUGS() << "Detail Material " << i << ": "
+                             << compp->getDetailAssetID(i) << LL_ENDL;
+                    LLUUID tmp_id(compp->getDetailAssetID(i));
+                    asset_ctrl->setImageAssetID(tmp_id);
+                }
+            }
+        }
+        if (clear_texture_swatches)
+        {
+            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+            {
+                buffer = llformat("texture_detail_%d", i);
+                asset_ctrl = getChild<LLTextureCtrl>(buffer);
+                if(asset_ctrl)
+                {
+                    asset_ctrl->setImageAssetID(LLUUID::null);
+                }
+            }
+        }
+        if (clear_material_swatches)
+        {
+            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+            {
+                buffer = llformat("material_detail_%d", i);
+                asset_ctrl = getChild<LLTextureCtrl>(buffer);
+                if(asset_ctrl)
+                {
+                    asset_ctrl->setImageAssetID(LLUUID::null);
+                }
+            }
+        }
 
 		for(S32 i = 0; i < CORNER_COUNT; ++i)
     	{
@@ -1650,29 +1683,13 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
 
-    // Use material IDs instead of texture IDs if all material IDs are set, AND the mode is set to PBR materials.
-    S32 materials_used = 0;
+    // Send either material IDs instead of texture IDs depending on
+    // terrain_material_type - they both occupy the same slot.
     LLComboBox* material_type_ctrl = getChild<LLComboBox>("terrain_material_type");
-    if (material_type_ctrl)
-    {
-        const TerrainMaterialType material_type = material_type_from_index(material_type_ctrl->getCurrentIndex());
-        const bool is_material_selected = material_type == TerrainMaterialType::PBR_MATERIAL;
-        if (is_material_selected)
-        {
-            for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-            {
-                buffer = llformat("material_detail_%d", i);
-                asset_ctrl = getChild<LLTextureCtrl>(buffer);
-                if(asset_ctrl && asset_ctrl->getImageAssetID().notNull())
-                {
-                    ++materials_used;
-                }
-            }
-        }
-    }
+    const TerrainMaterialType material_type = material_type_ctrl ? material_type_from_index(material_type_ctrl->getCurrentIndex()) : TerrainMaterialType::TEXTURE;
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
-        if (materials_used == TERRAIN_TEXTURE_COUNT)
+        if (material_type == TerrainMaterialType::PBR_MATERIAL)
         {
             buffer = llformat("material_detail_%d", i);
             asset_ctrl = getChild<LLTextureCtrl>(buffer);

@@ -91,10 +91,10 @@ BOOL LLTerrainMaterials::generateMaterials()
 LLUUID LLTerrainMaterials::getDetailAssetID(S32 asset)
 {
     llassert(mDetailTextures[asset] && mDetailMaterials[asset]);
-    // *HACK: Assume both the the material and texture were fetched in the same
-    // way using the same UUID. However, we may not know at this point which
-    // one will load.
-	return mDetailTextures[asset]->getID();
+    // Assume both the the material and texture were fetched in the same way
+    // using the same UUID. However, we may not know at this point which one
+    // will load.
+	return mDetailTextures[asset] ? mDetailTextures[asset]->getID() : LLUUID::null;
 }
 
 LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
@@ -133,7 +133,7 @@ bool LLTerrainMaterials::texturesReady(bool boost, bool strict)
     // *NOTE: Calls to textureReady may boost textures. Do not early-return.
     for (S32 i = 0; i < ASSET_COUNT; i++)
     {
-        ready[i] = textureReady(mDetailTextures[i], boost);
+        ready[i] = mDetailTextures[i].notNull() && textureReady(mDetailTextures[i], boost);
     }
 
     bool one_ready = false;
@@ -250,6 +250,7 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
     // Material is loaded, but textures may not be
     if (!textures_set)
     {
+        textures_set = true;
         // *NOTE: These can sometimes be set to to nullptr due to
         // updateTEMaterialTextures. For the sake of robustness, we emulate
         // that fetching behavior by setting textures of null IDs to nullptr.
@@ -257,9 +258,6 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
         mat->mNormalTexture            = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
         mat->mMetallicRoughnessTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
         mat->mEmissiveTexture          = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
-        textures_set                   = true;
-
-        return false;
     }
 
     // *NOTE: Calls to textureReady may boost textures. Do not early-return.
