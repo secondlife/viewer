@@ -96,7 +96,7 @@ LLLineEditor::Params::Params()
 	commit_on_focus_lost("commit_on_focus_lost", true),
 	ignore_tab("ignore_tab", true),
 	is_password("is_password", false),
-	allow_emoji("allow_emoji"),
+	allow_emoji("allow_emoji", true),
 	cursor_color("cursor_color"),
 	use_bg_color("use_bg_color", false),
 	bg_color("bg_color"),
