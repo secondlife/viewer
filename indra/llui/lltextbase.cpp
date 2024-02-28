@@ -915,7 +915,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 				if (!emoji_style)
 				{
 					emoji_style = new LLStyle(getStyleParams());
-					emoji_style->setFont(LLFontGL::getFontEmoji());
+					emoji_style->setFont(LLFontGL::getFontEmojiLarge());
 				}
 
 				S32 new_seg_start = pos + text_kitty;
