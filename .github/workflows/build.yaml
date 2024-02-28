@@ -369,7 +369,7 @@ jobs:
       # forked from softprops/action-gh-release
       - name: Create GitHub release
         id: release
-        uses: secondlife-3p/action-gh-release@feat/add-generateReleaseNotes
+        uses: secondlife-3p/action-gh-release@v1
         with:
           # name the release page for the branch
           name: "${{ needs.build.outputs.viewer_branch }}"
