@@ -463,7 +463,7 @@ bool LLRequireResolver::findModuleImpl(const std::string& absolutePath)
     for (const auto& suffixedPath : possibleSuffixedPaths)
     {
          // Check _MODULES cache for module
-        lua_getfield(L, -1, suffixedPath.c_str());
+        lua_getfield(L, -1, suffixedPath.data());
         if (!lua_isnil(L, -1))
         {
             return true;
@@ -485,7 +485,7 @@ bool LLRequireResolver::findModuleImpl(const std::string& absolutePath)
             // duplicate the new module: _MODULES newmodule newmodule
             lua_pushvalue(L, -1);
             // store _MODULES[found path] = newmodule
-            lua_setfield(L, -3, source.data());
+            lua_setfield(L, -3, suffixedPath.data());
 
             return true;
         }
