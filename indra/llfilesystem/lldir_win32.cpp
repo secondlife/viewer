@@ -390,6 +390,15 @@ bool LLDir_Win32::fileExists(const std::string &filename) const
 	}
 }
 
+// virtual
+bool LLDir_Win32::skinExists(const std::string& subdir, const std::string &skin) const
+{
+    if (subdir == LLDir::XUI && skin == "en")
+        return true;
+
+    return LLDir::skinExists(subdir, skin);
+}
+
 
 /*virtual*/ std::string LLDir_Win32::getLLPluginLauncher()
 {
