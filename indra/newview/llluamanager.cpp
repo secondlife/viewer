@@ -195,30 +195,6 @@ lua_function(get_event_next,
     return 2;
 }
 
-lua_function(await_event,
-             "await_event(pumpname [, timeout [, value to return if timeout (default nil)]]):\n"
-             "pause the running Lua chunk until the next event on the named LLEventPump")
-{
-    auto pumpname{ lua_tostdstring(L, 1) };
-    LLSD result;
-    if (lua_gettop(L) > 1)
-    {
-        auto timeout{ lua_tonumber(L, 2) };
-        // with no 3rd argument, should be LLSD()
-        auto dftval{ lua_tollsd(L, 3) };
-        lua_settop(L, 0);
-        result = llcoro::suspendUntilEventOnWithTimeout(pumpname, timeout, dftval);
-    }
-    else
-    {
-        // no timeout
-        lua_pop(L, 1);
-        result = llcoro::suspendUntilEventOn(pumpname);
-    }
-    lua_pushllsd(L, result);
-    return 1;
-}
-
 void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn cb)
 {
     // A script_finished_fn is used to initialize the LuaState.
@@ -361,14 +337,36 @@ std::string read_file(const std::string &name)
 
     if (in_file.is_open())
     {
-        std::string text {std::istreambuf_iterator<char>(in_file), {}};
-        return text;
+        return std::string{std::istreambuf_iterator<char>(in_file), {}};
     }
 
-    return std::string();
+    return {};
 }
 
-LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) : mPathToResolve(path), L(L)
+lua_function(require, "require(module_name) : load module_name.lua from known places")
+{
+    std::string name = lua_tostdstring(L, 1);
+    lua_pop(L, 1);
+
+    // resolveRequire() does not return in case of error.
+    LLRequireResolver::resolveRequire(L, name);
+
+    // resolveRequire() returned the newly-loaded module on the stack top.
+    // Return it.
+    return 1;
+}
+
+// push loaded module or throw Lua error
+void LLRequireResolver::resolveRequire(lua_State *L, std::string path)
+{
+    LLRequireResolver resolver(L, std::move(path));
+    // findModule() pushes the loaded module or throws a Lua error.
+    resolver.findModule();
+}
+
+LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
+    mPathToResolve(path),
+    L(L)
 {
     //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
     //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
@@ -383,31 +381,59 @@ LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) : mP
         luaL_argerrorL(L, 1, "cannot require a full path");
 }
 
-[[nodiscard]] LLRequireResolver::ResolvedRequire LLRequireResolver::resolveRequire(lua_State *L, std::string path)
+/**
+ * Remove a particular stack index on exit from enclosing scope.
+ * If you pass a negative index (meaning relative to the current stack top),
+ * converts to an absolute index. The point of LuaRemover is to remove the
+ * entry at the specified index regardless of subsequent pushes to the stack.
+ */
+class LuaRemover
 {
-    LLRequireResolver resolver(L, std::move(path));
-    ModuleStatus status = resolver.findModule();
-    if (status != ModuleStatus::FileRead)
-        return ResolvedRequire {status};
-    else
-        return ResolvedRequire {status, resolver.mAbsolutePath, resolver.mSourceCode};
-}
+public:
+    LuaRemover(lua_State* L, int index):
+        mState(L),
+        mIndex(lua_absindex(L, index))
+    {}
+    LuaRemover(const LuaRemover&) = delete;
+    LuaRemover& operator=(const LuaRemover&) = delete;
+    ~LuaRemover()
+    {
+        lua_remove(mState, mIndex);
+    }
 
-LLRequireResolver::ModuleStatus LLRequireResolver::findModule()
+private:
+    lua_State* mState;
+    int mIndex;
+};
+
+// push the loaded module or throw a Lua error
+void LLRequireResolver::findModule()
 {
-    resolveAndStoreDefaultPaths();
+    // If mPathToResolve is absolute, this replaces mSourceChunkname.parent_path.
+    auto absolutePath = (std::filesystem::path((mSourceChunkname)).parent_path() / mPathToResolve).u8string();
 
-    // Put _MODULES table on stack for checking and saving to the cache
+    // Push _MODULES table on stack for checking and saving to the cache
     luaL_findtable(L, LUA_REGISTRYINDEX, "_MODULES", 1);
+    // Remove that stack entry no matter how we exit
+    LuaRemover rm_MODULES(L, -1);
 
-    // Check if the module is already in _MODULES table, read from file otherwise
-    LLRequireResolver::ModuleStatus moduleStatus = findModuleImpl();
+    // Check if the module is already in _MODULES table, read from file
+    // otherwise.
+    // findModuleImpl() pushes module if found, nothing if not, may throw Lua
+    // error.
+    if (findModuleImpl(absolutePath))
+        return;
 
-    if (moduleStatus != LLRequireResolver::ModuleStatus::NotFound)
-        return moduleStatus;
+    // not already cached - prep error message just in case
+    auto fail{
+        [L=L, path=mPathToResolve]()
+        { luaL_error(L, "could not find require('%s')", path.data()); }};
 
     if (std::filesystem::path(mPathToResolve).is_absolute())
-        return moduleStatus;
+    {
+        // no point searching known directories for an absolute path
+        fail();
+    }
 
     std::vector<std::string> lib_paths {gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua")};
 
@@ -416,30 +442,31 @@ LLRequireResolver::ModuleStatus LLRequireResolver::findModule()
         std::string absolutePathOpt = (std::filesystem::path(path) / mPathToResolve).u8string();
 
         if (absolutePathOpt.empty())
-            luaL_errorL(L, "error requiring module");
+            luaL_error(L, "error requiring module '%s'", mPathToResolve.data());
 
-        mAbsolutePath = absolutePathOpt;
-
-        moduleStatus = findModuleImpl();
-
-        if (moduleStatus != LLRequireResolver::ModuleStatus::NotFound)
-            return moduleStatus;
+        if (findModuleImpl(absolutePathOpt))
+            return;
     }
 
-    return LLRequireResolver::ModuleStatus::NotFound;
+    // not found
+    fail();
 }
 
-LLRequireResolver::ModuleStatus LLRequireResolver::findModuleImpl()
+// expects _MODULES table on stack top (and leaves it there)
+// - if found, pushes loaded module and returns true
+// - not found, pushes nothing and returns false
+// - may throw Lua error
+bool LLRequireResolver::findModuleImpl(const std::string& absolutePath)
 {
-    std::string possibleSuffixedPaths[] = {mAbsolutePath + ".luau", mAbsolutePath + ".lua"};
+    std::string possibleSuffixedPaths[] = {absolutePath + ".luau", absolutePath + ".lua"};
 
-     for (auto suffixedPath : possibleSuffixedPaths)
+    for (const auto& suffixedPath : possibleSuffixedPaths)
     {
          // Check _MODULES cache for module
         lua_getfield(L, -1, suffixedPath.c_str());
         if (!lua_isnil(L, -1))
         {
-            return ModuleStatus::Cached;
+            return true;
         }
         lua_pop(L, 1);
 
@@ -447,91 +474,73 @@ LLRequireResolver::ModuleStatus LLRequireResolver::findModuleImpl()
         std::string source = read_file(suffixedPath);
         if (!source.empty())
         {
-            mAbsolutePath = suffixedPath;
-            mSourceCode = source;
-            return ModuleStatus::FileRead;
+            // Try to run the loaded source. This will leave either a string
+            // error message or the module contents on the stack top.
+            runModule(suffixedPath, source);
+
+            // If the stack top is an error message string, raise it.
+            if (lua_isstring(L, -1))
+                lua_error(L);
+
+            // duplicate the new module: _MODULES newmodule newmodule
+            lua_pushvalue(L, -1);
+            // store _MODULES[found path] = newmodule
+            lua_setfield(L, -3, source.data());
+
+            return true;
         }
     }
 
-    return ModuleStatus::NotFound;
+    return false;
 }
 
-void LLRequireResolver::resolveAndStoreDefaultPaths()
+// push string error message or new module
+void LLRequireResolver::runModule(const std::string& desc, const std::string& code)
 {
-    if (!std::filesystem::path(mPathToResolve).is_absolute())
-    {
-        mAbsolutePath = (std::filesystem::path((mSourceChunkname)).parent_path() / mPathToResolve).u8string();;
-    }
-    else
-    {
-        mAbsolutePath = mPathToResolve;
-    }
-}
-
-static int finishrequire(lua_State *L)
-{
-    if (lua_isstring(L, -1))
-        lua_error(L);
-
-    return 1;
-}
-
-lua_function(require, "require(module_name) : module_name can be fullpath or just the name, in both cases without .lua")
-{
-    std::string name = lua_tostdstring(L, 1);
-
-    LLRequireResolver::ResolvedRequire resolvedRequire = LLRequireResolver::resolveRequire(L, name);
-
-    if (resolvedRequire.status == LLRequireResolver::ModuleStatus::Cached) 
-    {
-        // remove _MODULES from stack
-        lua_remove(L, -2);
-        return finishrequire(L);
-    }
-    else if (resolvedRequire.status == LLRequireResolver::ModuleStatus::NotFound)
-        luaL_errorL(L, "error requiring module");
-
-    // module needs to run in a new thread, isolated from the rest
-    // note: we create ML on main thread so that it doesn't inherit environment of L
+    // Here we just loaded a new module 'code', need to run it and get its result.
+    // Module needs to run in a new thread, isolated from the rest.
+    // Note: we create ML on main thread so that it doesn't inherit environment of L.
     lua_State *GL = lua_mainthread(L);
     lua_State *ML = lua_newthread(GL);
+    // lua_newthread() pushed the new thread object on GL's stack. Move to L's.
     lua_xmove(GL, L, 1);
 
     // new thread needs to have the globals sandboxed
     luaL_sandboxthread(ML);
 
     {
-        if (lluau::loadstring(ML, resolvedRequire.absolutePath.c_str(), resolvedRequire.sourceCode.c_str()) == LUA_OK)
+        // If loadstring() returns (! LUA_OK) then there's an error message on
+        // the stack. If it returns LUA_OK then the newly-loaded module code
+        // is on the stack.
+        if (lluau::loadstring(ML, desc, code) == LUA_OK)
         {
+            // luau uses Lua 5.3's version of lua_resume():
+            // run the coroutine on ML, "from" L, passing no arguments.
             int status = lua_resume(ML, L, 0);
 
             if (status == LUA_OK)
             {
-                if (lua_gettop(ML) == LUA_OK)
-                    lua_pushstring(ML, "module must return a value");
+                if (lua_gettop(ML) == 0)
+                    lua_pushfstring(ML, "module %s must return a value", desc.data());
                 else if (!lua_istable(ML, -1) && !lua_isfunction(ML, -1))
-                    lua_pushstring(ML, "module must return a table or function");
+                    lua_pushfstring(ML, "module %s must return a table or function, not %s",
+                                    desc.data(), lua_typename(ML, lua_type(ML, -1)));
             }
             else if (status == LUA_YIELD)
             {
-                lua_pushstring(ML, "module can not yield");
+                lua_pushfstring(ML, "module %s can not yield", desc.data());
             }
             else if (!lua_isstring(ML, -1))
             {
-                lua_pushstring(ML, "unknown error while running module");
+                lua_pushfstring(ML, "unknown error while running module %s", desc.data());
             }
         }
     }
-    // there's now a return value on top of ML; L stack: _MODULES ML
+    // There's now a return value (string error message or module) on top of ML.
+    // Move return value to L's stack.
     lua_xmove(ML, L, 1);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -4, resolvedRequire.absolutePath.c_str());
-
-    //remove _MODULES from stack
-    lua_remove(L, -3);
-    // remove ML from stack
+    // remove ML from L's stack
     lua_remove(L, -2);
-    
-    // L stack: [module name] [result]
-    return finishrequire(L);
+//  // DON'T call lua_close(ML)! Since ML is only a thread of L, corrupts L too!    
+//  lua_close(ML);
 }
