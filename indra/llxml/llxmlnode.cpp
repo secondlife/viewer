@@ -651,33 +651,83 @@ bool LLXMLNode::updateNode(
 }
 
 // static
+std::string LLXMLNode::getXML(const std::string& filename)
+{
+    // Try to read from file
+    LLFILE* fp = LLFile::fopen(filename, "rb"); /* Flawfinder: ignore */
+    if (fp)
+    {
+        fseek(fp, 0, SEEK_END);
+        U32 length = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        LL_DEBUGS("XMLNode") << "reading XML from file: " << filename << LL_ENDL;
+        std::vector<char> buffer(length);
+        size_t nread = fread(buffer.data(), 1, length, fp);
+        fclose(fp);
+
+        return std::string(buffer.data(), nread);
+    }
+
+#ifdef _WIN64
+    // Try to read from resource
+    std::string app_dir = gDirUtilp->getAppRODataDir();
+    // E.g., if finename starts with "C:\\Program Files\\SecondLifeViewer"
+    if (filename.substr(0, app_dir.size()) == app_dir)
+    {
+        // Convert the rest of filename to resource_id
+        // E.g., "app_settings\\settings_files.xml" => L"IDR_APP_SETTINGS_SETTINGS_FILES_XML"
+        std::string resource_id = filename.substr(app_dir.size() + 1);
+        LLStringUtil::replaceChar(resource_id, '\\', '_');
+        LLStringUtil::replaceChar(resource_id, '%', '_');
+        LLStringUtil::replaceChar(resource_id, '.', '_');
+        LLStringUtil::toUpper(resource_id);
+        resource_id = "IDR_" + resource_id;
+        std::wstring resource_idw(resource_id.begin(), resource_id.end());
+
+        HMODULE hmodule = GetModuleHandleW(nullptr);
+        HRSRC hresource = FindResourceW(hmodule, resource_idw.c_str(), L"XML");
+        if (hresource)
+        {
+            HGLOBAL hglobal = LoadResource(hmodule, hresource);
+            if (hglobal)
+            {
+                const char* text = (const char*)LockResource(hglobal);
+                if (text)
+                {
+                    LL_DEBUGS("XMLNode") << "reading XML from resource: " << resource_id << LL_ENDL;
+                    size_t size = SizeofResource(nullptr, hresource);
+
+                    return std::string(text, size);
+                }
+            }
+        }
+    }
+#endif
+
+    return LLStringUtil::null;
+}
+
+// static
 bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree)
 {
-	// Read file
-	LL_DEBUGS("XMLNode") << "parsing XML file: " << filename << LL_ENDL;
-	LLFILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
-	if (fp == NULL)
-	{
-		node = NULL ;
-		return false;
-	}
-	fseek(fp, 0, SEEK_END);
-	U32 length = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
+    std::string xml = getXML(filename);
+    if (xml.empty())
+    {
+        LL_WARNS("XMLNode") << "no XML file: " << filename << LL_ENDL;
+    }
+    else if (parseBuffer(xml.data(), xml.size(), node, defaults_tree))
+    {
+        return true;
+    }
 
-	U8* buffer = new U8[length+1];
-	size_t nread = fread(buffer, 1, length, fp);
-	buffer[nread] = 0;
-	fclose(fp);
-
-	bool rv = parseBuffer(buffer, nread, node, defaults_tree);
-	delete [] buffer;
-	return rv;
+    node = nullptr;
+    return false;
 }
 
 // static
 bool LLXMLNode::parseBuffer(
-	U8* buffer,
+	const char* buffer,
 	U32 length,
 	LLXMLNodePtr& node, 
 	LLXMLNode* defaults)
@@ -696,7 +746,7 @@ bool LLXMLNode::parseBuffer(
 	XML_SetUserData(my_parser, (void *)file_node_ptr);
 
 	// Do the parsing
-	if (XML_Parse(my_parser, (const char *)buffer, length, true) != XML_STATUS_OK)
+	if (XML_Parse(my_parser, buffer, length, true) != XML_STATUS_OK)
 	{
 		LL_WARNS() << "Error parsing xml error code: "
 				<< XML_ErrorString(XML_GetErrorCode(my_parser))
