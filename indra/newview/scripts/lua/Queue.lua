@@ -2,29 +2,29 @@
 
 local Queue = {}
 Queue.__index = Queue
-​
+
 function Queue.new()
 	local self = setmetatable({}, Queue)
-​
+
 	self._first = 0
 	self._last = -1
 	self._queue = {}
-​
+
 	return self
 end
-​
+
 -- Check if the queue is empty
 function Queue:IsEmpty()
 	return self._first > self._last
 end
-​
+
 -- Add a value to the queue
 function Queue:Enqueue(value)
 	local last = self._last + 1
 	self._last = last
 	self._queue[last] = value
 end
-​
+
 -- Remove a value from the queue
 function Queue:Dequeue()
 	local first = self._first
@@ -36,5 +36,5 @@ function Queue:Dequeue()
 	self._first = first + 1
 	return value
 end
-​
+
 return Queue
