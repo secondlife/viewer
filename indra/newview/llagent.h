@@ -510,10 +510,9 @@ public:
     //
     void setExternalActionFlags(U32 flags);
     void applyExternalActionFlags();
-    void applyExternalActionFlagsForFlycam();
+    void updateFlycam();
 
 private:
-    void updateFlycam();
 
     U64 mLastFlycamUpdate { 0 };
     U32 mExternalActionFlags { 0 };

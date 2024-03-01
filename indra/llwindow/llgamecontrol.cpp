@@ -198,28 +198,30 @@ public:
     void accumulateInternalState();
     void computeFinalState(LLGameControl::State& state);
 
-    LLGameControl::InputChannel getChannelByName(const std::string& name) const;
     LLGameControl::InputChannel getChannelByActionName(const std::string& action_name) const;
+    LLGameControl::InputChannel getFlycamChannelByActionName(const std::string& action_name) const;
 
     bool updateActionMap(const std::string& name,  LLGameControl::InputChannel channel);
     U32 computeInternalActionFlags();
-    void getCameraInputs(std::vector<F32>& inputs_out);
+    void getFlycamInputs(std::vector<F32>& inputs_out);
     void setExternalActionFlags(U32 action_flags);
 
     void clear();
 
 private:
+    bool updateFlycamMap(const std::string& action,  LLGameControl::InputChannel channel);
+
     std::vector<SDL_JoystickID> mControllerIDs;
     std::vector<SDL_GameController*> mControllers;
     std::vector<LLGameControl::State> mStates; // one state per device
 
     LLGameControl::State mExternalState;
     LLGameControlTranslator mActionTranslator;
-    ActionToChannelMap mCameraChannelMap;
+    std::vector<LLGameControl::InputChannel> mFlycamChannels;
     std::vector<S32> mAxesAccumulator;
     U32 mButtonAccumulator { 0 };
-    U32 mLastActionFlags { 0 };
-    U32 mLastCameraActionFlags { 0 };
+    U32 mLastActiveFlags { 0 };
+    U32 mLastFlycamActionFlags { 0 };
 };
 
 // local globals
@@ -343,20 +345,15 @@ LLGameControllerManager::LLGameControllerManager()
     };
     mActionTranslator.setMappings(agent_defaults);
 
-    // Camera actions don't need bitwise translation, so we maintain the map in
-    // here directly rather than using an LLGameControlTranslator.
-    // Note: there must NOT be duplicate names between avatar and camera actions
-    mCameraChannelMap =
-    {
-        { "move",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY),        -1 } },
-        { "pan",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX),        -1 } },
-        { "rise",  { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT), -1 } },
-        { "pitch", { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY),       -1 } },
-        { "yaw",   { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX),       -1 } },
-        { "zoom",  { type::TYPE_NONE, 0                                          } },
-        // TODO?: allow flycam to roll
-        //{ "roll_ccw",      { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT) } },
-        //{ "roll_cw",       { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERLEFT) }  }
+    // Flycam actions don't need bitwise translation, so we maintain the map
+    // of channels here directly rather than using an LLGameControlTranslator.
+    mFlycamChannels = {
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY),        1 }, // advance
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX),        1 }, // pan
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT), 1 }, // rise
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY),      -1 }, // pitch
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX),       1 }, // yaw
+        { type::TYPE_NONE, 0                                         }  // zoom
     };
 }
 
@@ -479,8 +476,8 @@ void LLGameControllerManager::clearAllState()
         state.clear();
     }
     mExternalState.clear();
-    mLastActionFlags = 0;
-    mLastCameraActionFlags = 0;
+    mLastActiveFlags = 0;
+    mLastFlycamActionFlags = 0;
 }
 
 void LLGameControllerManager::accumulateInternalState()
@@ -512,10 +509,6 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
     {
         // accumulate from mExternalState
         final_state.mButtons |= mExternalState.mButtons;
-        for (size_t i = 0; i < NUM_AXES; ++i)
-        {
-            mAxesAccumulator[i] += (S32)(mExternalState.mAxes[i]);
-        }
     }
     if (old_buttons != final_state.mButtons)
     {
@@ -525,17 +518,26 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
     // clamp the accumulated axes
     for (size_t i = 0; i < NUM_AXES; ++i)
     {
-        S32 new_axis = (S16)(std::min(std::max(mAxesAccumulator[i], -32768), 32767));
+        S32 axis = mAxesAccumulator[i];
+        if (g_translateAgentActions)
+        {
+            // Note: we accumulate mExternalState onto local 'axis' variable
+            // rather than onto mAxisAccumulator[i] because the internal
+            // accumulated value is also used to drive the Flycam, and
+            // we don't want any external state leaking into that value.
+            axis += (S32)(mExternalState.mAxes[i]);
+        }
+        axis = (S16)(std::min(std::max(axis, -32768), 32767));
         // check for change
-        if (final_state.mAxes[i] != new_axis)
+        if (final_state.mAxes[i] != axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
-            // prior to storing new_axis.  The only other place where prevAxis
+            // prior to storing axis.  The only other place where prevAxis
             // is updated in updateResendPeriod() which is explicitly called after
             // a packet is sent.  The result is: unchanged axes are included in
             // first resend but not later ones.
             final_state.mPrevAxes[i] = final_state.mAxes[i];
-            final_state.mAxes[i] = new_axis;
+            final_state.mAxes[i] = axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
     }
@@ -546,12 +548,53 @@ LLGameControl::InputChannel LLGameControllerManager::getChannelByActionName(cons
     LLGameControl::InputChannel channel = mActionTranslator.getChannelByAction(name);
     if (channel.isNone())
     {
-        //maybe we're looking for a camera action
-        ActionToChannelMap::const_iterator itr = mCameraChannelMap.find(name);
-        if (itr != mCameraChannelMap.end())
-        {
-            channel = itr->second;
-        }
+        // maybe we're looking for a flycam action
+        channel = getFlycamChannelByActionName(name);
+    }
+    return channel;
+}
+
+// helper
+S32 get_flycam_index_by_name(const std::string& name)
+{
+    // the Flycam action<-->channel relationship
+    // is implicitly stored in std::vector in a known order
+    S32 index = -1;
+    if (name.rfind("advance", 0) == 0)
+    {
+        index = 0;
+    }
+    else if (name.rfind("pan", 0) == 0)
+    {
+        index = 1;
+    }
+    else if (name.rfind("rise", 0) == 0)
+    {
+        index = 2;
+    }
+    else if (name.rfind("pitch", 0) == 0)
+    {
+        index = 3;
+    }
+    else if (name.rfind("yaw", 0) == 0)
+    {
+        index = 4;
+    }
+    else if (name.rfind("zoom", 0) == 0)
+    {
+        index = 5;
+    }
+    return index;
+}
+
+LLGameControl::InputChannel LLGameControllerManager::getFlycamChannelByActionName(const std::string& name) const
+{
+    // the Flycam channels are stored in a strict order
+    LLGameControl::InputChannel channel;
+    S32 index = get_flycam_index_by_name(name);
+    if (index != -1)
+    {
+        channel = mFlycamChannels[index];
     }
     return channel;
 }
@@ -561,23 +604,29 @@ bool LLGameControllerManager::updateActionMap(const std::string& action,  LLGame
     bool success = mActionTranslator.updateMap(action, channel);
     if (success)
     {
-        mLastActionFlags = 0;
+        mLastActiveFlags = 0;
     }
     else
     {
-        // maybe we're looking for a camera action
-        ActionToChannelMap::iterator itr = mCameraChannelMap.find(action);
-        if (itr != mCameraChannelMap.end())
-        {
-            itr->second = channel;
-            success = true;
-        }
+        // maybe we're looking for a flycam action
+        success = updateFlycamMap(action, channel);
     }
     if (!success)
     {
         LL_WARNS("GameControl") << "unmappable action='" << action << "'" << LL_ENDL;
     }
     return success;
+}
+
+bool LLGameControllerManager::updateFlycamMap(const std::string& action,  LLGameControl::InputChannel channel)
+{
+    S32 index = get_flycam_index_by_name(action);
+    if (index != -1)
+    {
+        mFlycamChannels[index] = channel;
+        return true;
+    }
+    return false;
 }
 
 U32 LLGameControllerManager::computeInternalActionFlags()
@@ -591,13 +640,42 @@ U32 LLGameControllerManager::computeInternalActionFlags()
     return 0;
 }
 
-void LLGameControllerManager::getCameraInputs(std::vector<F32>& inputs_out)
+void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
 {
-    // TODO: fill inputs_out with real data
-    inputs_out.resize(6);
-    for (auto& value : inputs_out)
+    // The inputs are packed in the same order as they exist in mFlycamChannels:
+    //
+    //     advance
+    //     pan
+    //     rise
+    //     pitch
+    //     yaw
+    //     zoom
+    //
+    for (const auto& channel: mFlycamChannels)
     {
-        value = 0.0f;
+        S16 axis;
+        if (channel.mIndex == (U8)(LLGameControl::AXIS_TRIGGERLEFT)
+            || channel.mIndex == (U8)(LLGameControl::AXIS_TRIGGERRIGHT))
+        {
+            // TIED TRIGGER HACK: we assume the two triggers are paired together
+            S32 total_axis = mAxesAccumulator[(U8)(LLGameControl::AXIS_TRIGGERLEFT)]
+                - mAxesAccumulator[(U8)(LLGameControl::AXIS_TRIGGERRIGHT)];
+            if (channel.mIndex == (U8)(LLGameControl::AXIS_TRIGGERRIGHT))
+            {
+                // negate previous math when TRIGGERRIGHT is positive channel
+                total_axis *= -1;
+            }
+            axis = S16(std::min(std::max(total_axis, -32768), 32767));
+        }
+        else
+        {
+            axis = S16(std::min(std::max(mAxesAccumulator[channel.mIndex], -32768), 32767));
+        }
+        // value arrives as S16 in range [-32768, 32767]
+        // so we scale positive and negative values by slightly different factors
+        // to try to map it to [-1, 1]
+        F32 input = F32(axis) * ((axis > 0.0f) ? 3.051850476e-5 : 3.0517578125e-5f) * channel.mSign;
+        inputs.push_back(input);
     }
 }
 
@@ -606,10 +684,26 @@ void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
 {
     if (g_translateAgentActions)
     {
+        // HACK: these are the bits we can safely translate from control flags to GameControl
+        // Extracting LLGameControl::InputChannels that are mapped to other bits is a WIP.
+        // TODO: translate other bits to GameControl, which might require measure of gAgent
+        // state changes (e.g. sitting <--> standing, flying <--> not-flying, etc)
+        const U32 BITS_OF_INTEREST =
+            AGENT_CONTROL_AT_POS | AGENT_CONTROL_AT_NEG
+            | AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_LEFT_NEG
+            | AGENT_CONTROL_UP_POS | AGENT_CONTROL_UP_NEG
+            | AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG
+            | AGENT_CONTROL_PITCH_POS | AGENT_CONTROL_PITCH_NEG
+            | AGENT_CONTROL_STOP
+            | AGENT_CONTROL_FAST_AT
+            | AGENT_CONTROL_FAST_LEFT
+            | AGENT_CONTROL_FAST_UP;
+        action_flags &= BITS_OF_INTEREST;
+
         U32 active_flags = action_flags & mActionTranslator.getMappedFlags();
-        if (active_flags != mLastActionFlags)
+        if (active_flags != mLastActiveFlags)
         {
-            mLastActionFlags = active_flags;
+            mLastActiveFlags = active_flags;
             mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
         }
     }
@@ -732,14 +826,15 @@ void LLGameControl::terminate()
 // or not.
 bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
-    // Note: LLGameControllerManager::computeFinalState() can modify g_nextResendPeriod as a side-effect
+    // Note: LLGameControllerManager::computeFinalState() modifies g_nextResendPeriod as a side-effect
     g_manager.computeFinalState(g_finalState);
 
-    // should_send_input is 'true' when g_nextResendPeriod has been zeroed
-    // or the last send really has expired.
-    U64 now = get_now_nsec();
-    bool should_send_input = (g_lastSend + g_nextResendPeriod < now);
-    return should_send_input;
+    // should send input when:
+    //     sending is enabled and
+    //     g_lastSend has "expired"
+    //         either because g_nextResendPeriod has been zeroed
+    //         or the last send really has expired.
+    return g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
 }
 
 // static
@@ -794,9 +889,9 @@ const LLGameControl::State& LLGameControl::getState()
 }
 
 // static
-void LLGameControl::getCameraInputs(std::vector<F32>& inputs_out)
+void LLGameControl::getFlycamInputs(std::vector<F32>& inputs_out)
 {
-    return g_manager.getCameraInputs(inputs_out);
+    return g_manager.getFlycamInputs(inputs_out);
 }
 
 // static
@@ -823,36 +918,10 @@ void LLGameControl::setAgentControlMode(LLGameControl::AgentControlMode mode)
 }
 
 // static
-bool LLGameControl::willSendToServer()
-{
-    return g_sendToServer;
-}
-
-// static
 bool LLGameControl::willControlAvatar()
 {
     return g_controlAgent && g_agentControlMode == CONTROL_MODE_AVATAR;
 }
-
-// static
-bool LLGameControl::willControlFlycam()
-{
-    return g_controlAgent && g_agentControlMode == CONTROL_MODE_FLYCAM;
-}
-
-// static
-bool LLGameControl::willTranslateAgentActions()
-{
-    return g_translateAgentActions;
-}
-
-/*
-// static
-LLGameControl::LocalControlMode LLGameControl::getLocalControlMode()
-{
-    return g_agentControlMode;
-}
-*/
 
 // static
 //

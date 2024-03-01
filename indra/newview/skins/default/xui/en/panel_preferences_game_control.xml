@@ -33,7 +33,7 @@
         control_name="AgentToGameControl"
         follows="top|left"
         height="15"
-        label="Avatar and flycam actions interpreted as GameControl"
+        label="Avatar actions interpreted as GameControl"
         layout="topleft"
         left="10"
         name="agent_to_game_control"
