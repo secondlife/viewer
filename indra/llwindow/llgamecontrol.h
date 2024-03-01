@@ -179,7 +179,7 @@ public:
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
-    static void getCameraInputs(std::vector<F32>& inputs_out);
+    static void getFlycamInputs(std::vector<F32>& inputs_out);
 
     // these methods for accepting input from keyboard
     static void enableSendToServer(bool enable);
@@ -187,11 +187,7 @@ public:
     static void enableTranslateAgentActions(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
-    static bool willSendToServer();
-    static bool willTranslateAgentActions();
     static bool willControlAvatar();
-    static bool willControlFlycam();
-    //static LocalControlMode getLocalControlMode();
 
     // Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
     // If the axis name lacks the +/- postfix it assumes '+' postfix.
