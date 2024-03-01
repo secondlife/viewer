@@ -226,7 +226,7 @@ class LLProxy: public LLSingleton<LLProxy>
 	LLSINGLETON(LLProxy);
 	LOG_CLASS(LLProxy);
 
-    /*virtual*/ void initSingleton();
+    /*virtual*/ void initSingleton() override;
 
 public:
 	// Static check for enabled status for UDP packets. Call from main thread only.

@@ -141,7 +141,7 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
 
             # Include our fonts
-            with self.prefix(src_dst="fonts"):
+            with self.prefix(src="../packages/fonts",src_dst="fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
 
@@ -558,6 +558,10 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 # Get openal dll
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
+
+            # For ICU4C
+            self.path("icudt48.dll")
+            self.path("icuuc48.dll")
 
             # For textures
             self.path("openjp2.dll")
