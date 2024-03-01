@@ -235,10 +235,10 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
 	{
         Optional<EnableCallbackParam > on_visible;
-        Params() : on_visible("on_visible")
-        {}
+        Params();
 	};
-	LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
+
+    LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
 
 	/*virtual*/ void draw( void );
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);

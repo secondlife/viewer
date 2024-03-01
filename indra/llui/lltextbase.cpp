@@ -29,6 +29,8 @@
 
 #include "lltextbase.h"
 
+#include "llemojidictionary.h"
+#include "llemojihelper.h"
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "llscrollcontainer.h"
@@ -161,10 +163,12 @@ LLTextBase::Params::Params()
 	line_spacing("line_spacing"),
 	max_text_length("max_length", 255),
 	font_shadow("font_shadow"),
+	text_valign("text_valign"),
 	wrap("wrap"),
 	trusted_content("trusted_content", true),
 	always_show_icons("always_show_icons", false),
 	use_ellipses("use_ellipses", false),
+	use_color("use_color", true),
 	parse_urls("parse_urls", false),
 	force_urls_external("force_urls_external", false),
 	parse_highlights("parse_highlights", false)
@@ -208,6 +212,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
 	mVAlign(p.font_valign),
+	mTextVAlign(p.text_valign.isProvided() ? p.text_valign.getValue() : p.font_valign.getValue()),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClip(p.clip),
@@ -222,6 +227,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
+	mUseColor(p.use_color),
 	mParseHTML(p.parse_urls),
 	mForceUrlsExternal(p.force_urls_external),
 	mParseHighlights(p.parse_highlights),
@@ -582,7 +588,7 @@ void LLTextBase::drawCursor()
 				fontp = segmentp->getStyle()->getFont();
 				fontp->render(text, mCursorPos, cursor_rect, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
-					LLFontGL::LEFT, mVAlign,
+					LLFontGL::LEFT, mTextVAlign,
 					LLFontGL::NORMAL,
 					LLFontGL::NO_SHADOW,
 					1);
@@ -896,6 +902,28 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 		}
 	}
 
+	// Insert special segments where necessary (insertSegment takes care of splitting normal text segments around them for us)
+	{
+		LLStyleSP emoji_style;
+		LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
+		for (S32 text_kitty = 0, text_len = wstr.size(); text_kitty < text_len; text_kitty++)
+		{
+			llwchar code = wstr[text_kitty];
+			bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
+			if (isEmoji)
+			{
+				if (!emoji_style)
+				{
+					emoji_style = new LLStyle(getStyleParams());
+					emoji_style->setFont(LLFontGL::getFontEmoji());
+				}
+
+				S32 new_seg_start = pos + text_kitty;
+				insertSegment(new LLEmojiTextSegment(emoji_style, new_seg_start, new_seg_start + 1, *this));
+			}
+		}
+	}
+
 	getViewModel()->getEditableDisplay().insert(pos, wstr);
 
 	if ( truncate() )
@@ -1079,6 +1107,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 	needsReflow(reflow_start_index);
 }
 
+//virtual 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// handle triple click
@@ -1133,6 +1162,7 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleMouseDown(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1152,6 +1182,7 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleMouseUp(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1163,6 +1194,7 @@ BOOL LLTextBase::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleMiddleMouseDown(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1174,6 +1206,7 @@ BOOL LLTextBase::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleMiddleMouseUp(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1185,6 +1218,7 @@ BOOL LLTextBase::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleRightMouseDown(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1196,6 +1230,7 @@ BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleRightMouseUp(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	//Don't start triple click timer if user have clicked on scrollbar
@@ -1215,6 +1250,7 @@ BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleDoubleClick(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleHover(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1226,6 +1262,7 @@ BOOL LLTextBase::handleHover(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleHover(x, y, mask);
 }
 
+//virtual 
 BOOL LLTextBase::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1237,6 +1274,7 @@ BOOL LLTextBase::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return LLUICtrl::handleScrollWheel(x, y, clicks);
 }
 
+//virtual 
 BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
@@ -1248,7 +1286,20 @@ BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
 
+//virtual 
+const std::string LLTextBase::getToolTip() const
+{
+    if (sDebugUnicode)
+    {
+        std::string text = getText();
+        std::string tooltip = utf8str_showBytesUTF8(text);
+        return tooltip;
+    }
 
+    return LLUICtrl::getToolTip();
+}
+
+//virtual 
 void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight() || LLView::sForceReshape)
@@ -1275,6 +1326,7 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 }
 
+//virtual 
 void LLTextBase::draw()
 {
 	// reflow if needed, on demand
@@ -1985,20 +2037,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
-
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
-
-	S32 text_len = 0;
-	if (!useLabel())
-	{
-		text_len = getLength();
-	}
-	else
-	{
-		text_len = mLabel.getWString().length();
-	}
-
-	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -2012,18 +2051,6 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
-
-	S32 text_len = 0;
-	if (!useLabel())
-	{
-		text_len = getLength();
-	}
-	else
-	{
-		text_len = mLabel.getWString().length();
-	}
-
-	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -2188,8 +2215,8 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		S32 start=0,end=0;
 		LLUrlMatch match;
 		std::string text = new_text;
-		while ( LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted() || mAlwaysShowIcons))
+		while (LLUrlRegistry::instance().findUrl(text, match,
+				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3), isContentTrusted() || mAlwaysShowIcons))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -2437,18 +2464,18 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			LLStyle::Params normal_style_params(style_params);
 			normal_style_params.font.style("NORMAL");
 			LLStyleConstSP normal_sp(new LLStyle(normal_style_params));
-			segments.push_back(new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this ));
+			segments.push_back(new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this));
 		}
 		else
 		{
-		segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this ));
+			segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this));
 		}
 
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}
 
 	// Set the cursor and scroll position
-	if( selection_start != selection_end )
+	if (selection_start != selection_end)
 	{
 		mSelectionStart = selection_start;
 		mSelectionEnd = selection_end;
@@ -2456,7 +2483,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 		mIsSelecting = was_selecting;
 		setCursorPos(cursor_pos);
 	}
-	else if( cursor_was_at_end )
+	else if (cursor_was_at_end)
 	{
 		setCursorPos(getLength());
 	}
@@ -2468,25 +2495,28 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 
 void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
 {
-	if (new_text.empty()) return; 
+	if (new_text.empty())
+	{
+		return; 
+	}
 
 	std::string::size_type start = 0;
-	std::string::size_type pos = new_text.find("\n",start);
+	std::string::size_type pos = new_text.find("\n", start);
 	
-	while(pos!=-1)
+	while (pos != std::string::npos)
 	{
-		if(pos!=start)
+		if (pos != start)
 		{
 			std::string str = std::string(new_text,start,pos-start);
-			appendAndHighlightTextImpl(str,highlight_part, style_params, underline_on_hover_only);
+			appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
 		}
 		appendLineBreakSegment(style_params);
 		start = pos+1;
-		pos = new_text.find("\n",start);
+		pos = new_text.find("\n", start);
 	}
 
-	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendAndHighlightTextImpl(str,highlight_part, style_params, underline_on_hover_only);
+	std::string str = std::string(new_text, start, new_text.length() - start);
+	appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
 }
 
 
@@ -3318,12 +3348,13 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		font->render(text, start, 
 				 rect, 
 				 color, 
-				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::LEFT, mEditor.mTextVAlign,
 				 LLFontGL::NORMAL, 
 				 mStyle->getShadowType(), 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
 	rect.mLeft = right_x;
 	
@@ -3337,12 +3368,13 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		font->render(text, start, 
 				 rect,
 				 mStyle->getSelectedColor().get(),
-				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::LEFT, mEditor.mTextVAlign,
 				 LLFontGL::NORMAL, 
 				 LLFontGL::NO_SHADOW, 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
 	rect.mLeft = right_x;
 	if( selection_end < seg_end )
@@ -3354,12 +3386,13 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		font->render(text, start, 
 				 rect, 
 				 color, 
-				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::LEFT, mEditor.mTextVAlign,
 				 LLFontGL::NORMAL, 
 				 mStyle->getShadowType(), 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
     return right_x;
 }
@@ -3588,6 +3621,33 @@ const LLWString& LLLabelTextSegment::getWText()	const
 const S32 LLLabelTextSegment::getLength() const
 {
 	return mEditor.getWlabel().length();
+}
+
+//
+// LLEmojiTextSegment
+//
+LLEmojiTextSegment::LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor)
+	: LLNormalTextSegment(style, start, end, editor)
+{
+}
+
+LLEmojiTextSegment::LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible)
+	: LLNormalTextSegment(color, start, end, editor, is_visible)
+{
+}
+
+BOOL LLEmojiTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	if (mTooltip.empty())
+	{
+		LLWString emoji = getWText().substr(getStart(), getEnd() - getStart());
+		if (!emoji.empty())
+		{
+			mTooltip = LLEmojiHelper::instance().getToolTip(emoji[0]);
+		}
+	}
+
+	return LLNormalTextSegment::handleToolTip(x, y, mask);
 }
 
 //
