@@ -1399,31 +1399,11 @@ LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State&
     return input;
 }
 
-// static
-bool packGameControlInput(LLMessageSystem* msg)
+
+void sendGameControlInput()
 {
-    if (! LLGameControl::computeFinalStateAndCheckForChanges())
-    {
-        // Note: LLGameControl manages some re-send logic
-        // so if we get here: nothing changed AND there is no need for a re-send
-        return false;
-    }
-    if (!gSavedSettings.getBOOL("GameControlToServer"))
-    {
-        LLGameControl::clearAllState();
-        return false;
-    }
-
+    LLMessageSystem* msg = gMessageSystem;
     const LLGameControl::State& state = LLGameControl::getState();
-
-    if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
-    {
-        LLGameControl::InputChannel channel = get_active_input_channel(state);
-        if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
-        {
-            LLPanelPreferenceGameControl::applyGameControlInput(channel);
-        }
-    }
 
     msg->newMessageFast(_PREHASH_GameControlInput);
     msg->nextBlock("AgentData");
@@ -1458,7 +1438,7 @@ bool packGameControlInput(LLMessageSystem* msg)
     }
 
     LLGameControl::updateResendPeriod();
-    return true;
+    gAgent.sendMessage();
 }
 
 
@@ -4827,11 +4807,23 @@ void LLAppViewer::idle()
         U32 control_flags = gAgent.getControlFlags();
         U32 action_flags = LLGameControl::computeInternalActionFlags();
         LLGameControl::setExternalActionFlags(control_flags);
-        if (packGameControlInput(gMessageSystem))
+
+        bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
+        if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
-            // to help minimize lag we send GameInput packets ASAP
-           gAgent.sendMessage();
+            LLGameControl::InputChannel channel = get_active_input_channel(LLGameControl::getState());
+            if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
+            {
+                LLPanelPreferenceGameControl::applyGameControlInput(channel);
+                // skip this send because input is being used to set preferences
+                should_send_game_control = false;
+            }
         }
+        if (should_send_game_control)
+        {
+            sendGameControlInput();
+        }
+
         gAgent.setExternalActionFlags(action_flags);
 
         // When appropriate, update agent location to the simulator.
@@ -5102,7 +5094,7 @@ void LLAppViewer::idle()
     }
     else if (gAgent.isUsingFlycam())
     {
-        // TODO: implement this
+        gAgent.updateFlycam();
     }
     else
     {
