@@ -84,7 +84,7 @@ namespace tut
 				mMessageName = "MessageName";
 				gUdpDispatchWasCalled = false;
 				gClearRecvWasCalled = false;
-				gValidateMessage = FALSE;
+				gValidateMessage = false;
 				mMessage["body"]["binary-template-data"] = std::vector<U8>();
 			}
 
@@ -121,7 +121,7 @@ namespace tut
 	{
 		LLTemplateMessageReader* pReader = NULL;
 		LLTemplateMessageDispatcher t(*pReader);
-		gValidateMessage = TRUE;
+		gValidateMessage = true;
 		std::vector<U8> vector_data;
 		fillVector(vector_data, gBinaryTemplateData);		
 		mMessage["body"]["binary-template-data"] = vector_data;
@@ -138,7 +138,7 @@ namespace tut
 		std::vector<U8> vector_data;
 		fillVector(vector_data, gBinaryTemplateData);
 		mMessage["body"]["binary-template-data"] = vector_data;
-		gValidateMessage = FALSE;
+		gValidateMessage = false;
 		t.dispatch(mMessageName, mMessage, mResponsePtr);
 		ensure("clear received message was called", gClearRecvWasCalled);
 	}
@@ -149,7 +149,7 @@ namespace tut
 	{
 		LLTemplateMessageReader* pReader = NULL;
 		LLTemplateMessageDispatcher t(*pReader);
-		gValidateMessage = TRUE;
+		gValidateMessage = true;
 		std::vector<U8> vector_data;
 		fillVector(vector_data, gBinaryTemplateData);
 		mMessage["body"]["binary-template-data"] = vector_data;

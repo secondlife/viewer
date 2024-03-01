@@ -75,7 +75,7 @@ static void substitute_string(std::string &input, const std::string &search, con
 #include "../llagent.h"
 LLAgent::LLAgent() : mAgentAccess(NULL) { }
 LLAgent::~LLAgent() { }
-bool LLAgent::isGodlike() const { return FALSE; }
+bool LLAgent::isGodlike() const { return false; }
 
 LLAgent gAgent;
 

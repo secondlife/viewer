@@ -964,7 +964,7 @@ namespace tut
 		// test creation of credentials		
 		my_cred = handler->createCredential("mysavedgrid", my_id, my_authenticator);
 		// test save without saving authenticator. 		
-		handler->saveCredential(my_cred, FALSE);
+		handler->saveCredential(my_cred, false);
 		my_new_cred = handler->loadCredential("mysavedgrid");	
 		ensure_equals("saved credential without auth", 
 					  (const std::string)my_new_cred->getIdentifier()["type"], "test_type");
