@@ -103,7 +103,7 @@ jobs:
 
       - name: Determine source branch
         id: which-branch
-        uses: secondlife/viewer-build-util/which-branch@relnotes
+        uses: secondlife/viewer-build-util/which-branch@v1
         with:
           token: ${{ github.token }}
 
