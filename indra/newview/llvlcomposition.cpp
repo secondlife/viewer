@@ -44,7 +44,6 @@
 
 static const U32 BASE_SIZE = 128;
 
-
 F32 bilinear(const F32 v00, const F32 v01, const F32 v10, const F32 v11, const F32 x_frac, const F32 y_frac)
 {
 	// Not sure if this is the right math...
@@ -286,16 +285,29 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
     return true;
 }
 
+// static
+const LLUUID (&LLVLComposition::getDefaultTextures())[ASSET_COUNT]
+{
+    const static LLUUID default_textures[LLVLComposition::ASSET_COUNT] =
+    {
+        TERRAIN_DIRT_DETAIL,
+        TERRAIN_GRASS_DETAIL,
+        TERRAIN_MOUNTAIN_DETAIL,
+        TERRAIN_ROCK_DETAIL
+    };
+    return default_textures;
+}
 
 LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale) :
     LLTerrainMaterials(),
 	LLViewerLayer(width, scale)
 {
 	// Load Terrain Textures - Original ones
-	setDetailAssetID(0, TERRAIN_DIRT_DETAIL);
-	setDetailAssetID(1, TERRAIN_GRASS_DETAIL);
-	setDetailAssetID(2, TERRAIN_MOUNTAIN_DETAIL);
-	setDetailAssetID(3, TERRAIN_ROCK_DETAIL);
+    const LLUUID (&default_textures)[LLVLComposition::ASSET_COUNT] = LLVLComposition::getDefaultTextures();
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        setDetailAssetID(i, default_textures[i]);
+    }
 
 	mSurfacep = surfacep;
 
