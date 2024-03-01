@@ -83,6 +83,7 @@ void LLGameControlTranslator::setMappings(LLGameControlTranslator::NamedChannels
     mMaskToChannel.clear();
     mMappedFlags = 0;
     mPrevActiveFlags = 0;
+    mCachedState.clear();
 
     for (auto& name_channel : list)
     {
@@ -118,7 +119,7 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
                     //new_name.append("-");
                     new_name.data()[name_length] = '-';
                     LLGameControl::InputChannel other_channel(channel.mType, channel.mIndex, -channel.mSign);
-                    // HACK: this works for XBox and similar controllers,
+                    // TIED TRIGGER HACK: this works for XBox and similar controllers,
                     // and those are pretty much the only supported devices right now
                     // however TODO: figure out how to do this better.
                     //
@@ -209,6 +210,7 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
             mMappedFlags |= pair.first;
         }
         mPrevActiveFlags = 0;
+        mCachedState.clear();
     }
     return map_changed;
 }
@@ -221,17 +223,12 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
 // the avatar character.
 const LLGameControl::State& LLGameControlTranslator::computeStateFromFlags(U32 action_flags)
 {
-    static U32 last_action_flags = 0;
-    if (last_action_flags != action_flags)
-    {
-        last_action_flags = action_flags;
-    }
     // translate action_flag bits to equivalent game controller state
     // according to data in mMaskToChannel
 
     // only bother to update mCachedState if active_flags have changed
     U32 active_flags = action_flags & mMappedFlags;
-    //if (active_flags != mPrevActiveFlags)
+    if (active_flags != mPrevActiveFlags)
     {
         mCachedState.clear();
         for (const auto& pair : mMaskToChannel)

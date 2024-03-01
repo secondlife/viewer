@@ -14,15 +14,15 @@
          value="Cam_FreeCam_Off" />
     </rows>
     <rows
-     name="move"
-     value="move">
+     name="advance"
+     value="advance">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
          tool_tip="Camera move forward/backward"
-         value="Move Forward" />
+         value="Advance Forward" />
     </rows>
     <rows
      name="pan"
