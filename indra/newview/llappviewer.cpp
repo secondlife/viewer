@@ -1397,7 +1397,8 @@ LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State&
                 // which distinguishes between negative and positive directions
                 // so we must translate to axis index "i" according to the sign
                 // of the axis value.
-                input.mIndex = i * 2 + (U8)(state.mAxes[i] > 0);
+                input.mIndex = i;
+                input.mSign = state.mAxes[i] > 0 ? 1 : -1;
                 break;
             }
         }
@@ -5069,6 +5070,10 @@ void LLAppViewer::idle()
 	{
 		LLViewerJoystick::getInstance()->moveFlycam();
 	}
+    else if (gAgent.isUsingFlycam())
+    {
+        // TODO: implement this
+    }
 	else
 	{
 		if (LLToolMgr::getInstance()->inBuildMode())

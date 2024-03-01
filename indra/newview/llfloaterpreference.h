@@ -400,8 +400,7 @@ protected:
 
     void populateActionTable();
     void populateColumns();
-    void populateRows();
-    void populateCameraRows();
+    void populateRows(const std::string& filename);
 
 private:
     void clearSelectionState();

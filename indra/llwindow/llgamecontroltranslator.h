@@ -35,17 +35,19 @@
 class LLGameControlTranslator
 {
 public:
-    using NameToMaskMap = std::map< std::string, U32 >; // < name : mask >
+
+    using ActionToMaskMap = std::map< std::string, U32 >; // < action : mask >
     using MaskToChannelMap = std::map< U32, LLGameControl::InputChannel >; // < mask : channel >
-    using NamedInput = std::pair < std::string, LLGameControl::InputChannel >;
-    using InputList = std::vector< NamedInput >;
+    using NamedChannel = std::pair < std::string , LLGameControl::InputChannel >;
+    using NamedChannels = std::vector< NamedChannel >;
+
 
     LLGameControlTranslator();
-    void setNameToMaskMap(NameToMaskMap& name_to_mask);
-    LLGameControl::InputChannel getChannelByName(const std::string& name) const;
-    void setMappings(InputList& inputs);
-    bool addMapping(const std::string& name, const LLGameControl::InputChannel& channel);
-    // Note: to remove mapping: call addMapping() with a TYPE_NONE channel
+    void setAvailableActions(ActionToMaskMap& action_to_mask);
+    LLGameControl::InputChannel getChannelByAction(const std::string& action) const;
+    void setMappings(NamedChannels& list);
+    bool updateMap(const std::string& name, const LLGameControl::InputChannel& channel);
+    // Note: to remove a mapping you can call updateMap() with a TYPE_NONE channel
 
     // Given external action_flags (i.e. raw avatar input)
     // compute the corresponding LLGameControl::State that would have produced those flags.
@@ -59,12 +61,23 @@ public:
     U32 getMappedFlags() const { return mMappedFlags; }
 
 private:
-    void clearMap();
+    bool updateMapInternal(const std::string& name, const LLGameControl::InputChannel& channel);
+    bool addOrRemoveMaskMapping(U32 mask, const LLGameControl::InputChannel& channel);
 
 private:
-    NameToMaskMap mNameToMask; // invariant map after init
+    // mActionToMask is an invarient map between the possible actions
+    // and the action bit masks.  Only actions therein can have their
+    // bit masks mapped to channels.
+    ActionToMaskMap mActionToMask; // invariant map after init
+
+    // mMaskToChannel is a dynamic map between action bit masks
+    // and GameControl channels.
     MaskToChannelMap mMaskToChannel; // dynamic map, per preference changes
+
+    // mCachedState is an optimization:
+    // it is only recomputed when external action_flags change
     LLGameControl::State mCachedState;
+
     U32 mMappedFlags { 0 };
     U32 mPrevActiveFlags { 0 };
 };
