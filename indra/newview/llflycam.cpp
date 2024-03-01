@@ -26,6 +26,10 @@
 
 #include "llflycam.h"
 
+#include <algorithm>
+#include "llcamera.h"
+#include "llcoordframe.h"
+
 LLFlycam::LLFlycam()
 {
 }
@@ -44,25 +48,42 @@ void LLFlycam::getTransform(LLVector3& position_out, LLQuaternion& rotation_out)
     rotation_out = mRotation;
 }
 
+// 'view' is expected to be in radians
+void LLFlycam::setView(F32 view)
+{
+    mView = std::min(std::max(view, MIN_FIELD_OF_VIEW), MAX_FIELD_OF_VIEW);
+}
+
 
 void LLFlycam::setLinearVelocity(const LLVector3& velocity)
 {
-    // TODO: cap input
+    // Note: this math expects velocity components to be in range [-1.0, 1.0]
     mLinearVelocity = velocity;
 }
 
 
 void LLFlycam::setPitchRate(F32 pitch_rate)
 {
-    // TODO: cap input
-    mPitchRate = pitch_rate;
+    // Note: this math expects pitch_rate to be in range [-1.0, 1.0]
+    constexpr F32 PITCH_RATE_FACTOR = 0.75f;
+    mPitchRate = pitch_rate * PITCH_RATE_FACTOR;
 }
 
 
 void LLFlycam::setYawRate(F32 yaw_rate)
 {
-    // TODO: cap input
-    mYawRate = yaw_rate;
+    // Note: this math expects yaw_rate to be in range [-1.0, 1.0]
+    constexpr F32 YAW_RATE_FACTOR = 0.90f;
+    mYawRate = yaw_rate * YAW_RATE_FACTOR;
+}
+
+
+void LLFlycam::setZoomRate(F32 zoom_rate)
+{
+    // Note: this math expects zoom_rate to be in range [-1.0, 1.0]
+    constexpr F32 FULL_ZOOM_PERIOD = 5.0f; // seconds
+    constexpr F32 ZOOM_RATE_FACTOR = (MAX_FIELD_OF_VIEW - MIN_FIELD_OF_VIEW) / FULL_ZOOM_PERIOD;
+    mZoomRate = zoom_rate * ZOOM_RATE_FACTOR;
 }
 
 
@@ -75,12 +96,9 @@ void LLFlycam::integrate(F32 delta_time)
         delta_time = MAX_DELTA_TIME;
     }
 
-    if (mLinearVelocity.lengthSquared() > 0.0f)
-    {
-        mPosition += delta_time * mLinearVelocity;
-    }
-
-    F32 angle = mPitchRate * delta_time;
+    // Note: we modulate pitch and yaw rates by view ratio
+    // to make pitch and yaw work better when zoomed in close
+    F32 angle = delta_time * mPitchRate * (mView / DEFAULT_FIELD_OF_VIEW);
     bool needs_renormalization = false;
     if (fabsf(angle) > 0.0f)
     {
@@ -90,28 +108,29 @@ void LLFlycam::integrate(F32 delta_time)
         needs_renormalization = true;
     }
 
-    angle = mYawRate * delta_time;
+    angle = delta_time * mYawRate * (mView / DEFAULT_FIELD_OF_VIEW);
     if (fabsf(angle) > 0.0f)
     {
         LLQuaternion dQ;
         dQ.setAngleAxis(angle, 0.0f, 0.0f, 1.0f);
-        mRotation = dQ * mRotation;
+        mRotation = mRotation * dQ;
         needs_renormalization = true;
+    }
+
+    if (mLinearVelocity.lengthSquared() > 0.0f)
+    {
+        mPosition += (delta_time * mLinearVelocity) * mRotation;
+    }
+
+    if (mZoomRate != 0.0f)
+    {
+        // Note: we subtract the delta because "positive" zoom (e.g. "zoom in")
+        // produces smaller view angle
+        mView = std::min(std::max(mView - delta_time * mZoomRate, MIN_FIELD_OF_VIEW), MAX_FIELD_OF_VIEW);
     }
 
     if (needs_renormalization)
     {
         mRotation.normalize();
     }
-
-
-    /*
-    // from llviewerjoystick.cpp
-    LLMatrix3 mat(sFlycamRotation);
-    LLViewerCamera::getInstance()->setView(sFlycamZoom);
-    LLViewerCamera::getInstance()->setOrigin(sFlycamPosition);
-    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
-    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
-    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
-    */
 }

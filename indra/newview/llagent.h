@@ -506,22 +506,26 @@ private:
 public:
     // ActionFlags are similar to, but not the same as, ControlFlags!
     // An 'ActionFlags' bitmask stores 'simplified input' from key/button
-    // presses that are mapped to avatar/camera movement actions
+    // presses that correspond to avatar/camera movement actions
     // whereas 'mControlFlags' are a more complicated set of behavior bits
-    // computed as a function of input and state.
+    // computed as a function of input and state, and are sent to the server
+    // to steer its character controller for the avatar.
     //
     void setExternalActionFlags(U32 flags);
     void applyExternalActionFlags();
-    void applyExternalActionFlagsForFlycam();
+    void updateFlycam();
+
+    void pressGameControlButton(U8 button);
+    void releaseGameControlButton(U8 button);
+    U32 getGameControlButtonsFromKeys() const { return mGameControlButtonsFromKeys; }
 
 private:
-    void updateFlycam();
 
     U64 mLastFlycamUpdate { 0 };
     U32 mExternalActionFlags { 0 };
+    U32 mGameControlButtonsFromKeys { 0 };
     LLFlycam mFlycam;
     bool mToggleFly { true };
-    bool mToggleSit { true };
     bool mToggleRun { true };
     bool mToggleFlycam { true };
     bool mUsingFlycam { false };
