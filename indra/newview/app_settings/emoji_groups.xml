@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="llsd.xsd">
+  <array>
+    <map>
+      <key>Name</key>
+      <string>all</string>
+      <key>Character</key>
+      <string>🔍</string>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>😀</string>
+      <key>Categories</key>
+      <array>
+        <string>smileys and emotion</string>
+        <string>people and body</string>
+      </array>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>🥬</string>
+      <key>Categories</key>
+      <array>
+        <string>animals and nature</string>
+      </array>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>🍔</string>
+      <key>Categories</key>
+      <array>
+        <string>food and drink</string>
+      </array>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>🛩</string>
+      <key>Categories</key>
+      <array>
+        <string>travel and places</string>
+      </array>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>🏈</string>
+      <key>Categories</key>
+      <array>
+        <string>activities</string>
+      </array>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>💡</string>
+      <key>Categories</key>
+      <array>
+        <string>objects</string>
+      </array>
+    </map>
+    <map>
+      <key>Character</key>
+      <string>⚠</string>
+      <key>Categories</key>
+      <array>
+        <string>symbols</string>
+      </array>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>others</string>
+      <key>Character</key>
+      <string>🌂</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>skip</string>
+      <key>Categories</key>
+      <array>
+        <string>components</string>
+      </array>
+    </map>
+  </array>
+</llsd>
