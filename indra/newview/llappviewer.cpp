@@ -1109,12 +1109,12 @@ bool LLAppViewer::init()
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
     gSimFrames = (F32)gFrameCount;
 
-	if (gSavedSettings.getBOOL("JoystickEnabled"))
-	{
-		LLViewerJoystick::getInstance()->init(false);
-	}
+    if (gSavedSettings.getBOOL("JoystickEnabled"))
+    {
+        LLViewerJoystick::getInstance()->init(false);
+    }
 
-	LLGameControl::init();
+    LLGameControl::init();
     LLGameControl::enableSendToServer(gSavedSettings.getBOOL("GameControlToServer"));
     LLGameControl::enableControlAgent(gSavedSettings.getBOOL("GameControlToAgent"));
     LLGameControl::enableTranslateAgentActions(gSavedSettings.getBOOL("AgentToGameControl"));
@@ -1390,7 +1390,8 @@ LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State&
                 // which distinguishes between negative and positive directions
                 // so we must translate to axis index "i" according to the sign
                 // of the axis value.
-                input.mIndex = i * 2 + (U8)(state.mAxes[i] > 0);
+                input.mIndex = i;
+                input.mSign = state.mAxes[i] > 0 ? 1 : -1;
                 break;
             }
         }
@@ -1571,7 +1572,7 @@ bool LLAppViewer::doFrame()
                 joystick->scanJoystick();
                 gKeyboard->scanKeyboard();
                 gViewerInput.scanMouse();
-			}
+            }
 
             // Update state based on messages, user input, object idle.
             {
@@ -4833,23 +4834,23 @@ void LLAppViewer::idle()
         }
         gAgent.setExternalActionFlags(action_flags);
 
-		// When appropriate, update agent location to the simulator.
-		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-		bool force_update = gAgent.controlFlagsDirty()
-							|| (mLastAgentControlFlags != gAgent.getControlFlags())
-							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
-		{
+        // When appropriate, update agent location to the simulator.
+        F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
+        F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
+        bool force_update = gAgent.controlFlagsDirty()
+                            || (mLastAgentControlFlags != gAgent.getControlFlags())
+                            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+        if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+        {
             gAgent.applyExternalActionFlags();
-			LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-			// Send avatar and camera info
-			mLastAgentControlFlags = gAgent.getControlFlags();
-			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
-			send_agent_update(force_update);
-			agent_update_timer.reset();
-		}
-	}
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
+            // Send avatar and camera info
+            mLastAgentControlFlags = gAgent.getControlFlags();
+            mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
+            send_agent_update(force_update);
+            agent_update_timer.reset();
+        }
+    }
 
     //////////////////////////////////////
     //
@@ -5098,6 +5099,10 @@ void LLAppViewer::idle()
     else if (LLViewerJoystick::getInstance()->getOverrideCamera())
     {
         LLViewerJoystick::getInstance()->moveFlycam();
+    }
+    else if (gAgent.isUsingFlycam())
+    {
+        // TODO: implement this
     }
     else
     {

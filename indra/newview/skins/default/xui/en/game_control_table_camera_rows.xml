@@ -14,114 +14,70 @@
          value="Cam_FreeCam_Off" />
     </rows>
     <rows
-     name="move_forward"
-     value="move_forward">
+     name="move"
+     value="move">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         tool_tip="Camera move forward"
+         tool_tip="Camera move forward/backward"
          value="Move Forward" />
     </rows>
     <rows
-     name="move_backward"
-     value="move_backward">
+     name="pan"
+     value="pan">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         tool_tip="Camera move backward"
-         value="Move Backward" />
-    </rows>
-    <rows
-     name="pan_left"
-     value="pan_left">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         tool_tip="Camera pan left"
+         tool_tip="Camera pan left/right"
          value="Pan Left" />
     </rows>
     <rows
-     name="pan_right"
-     value="pan_right">
+     name="rise"
+     value="rise">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         tool_tip="Camera pan right"
-         value="Pan Right" />
-    </rows>
-    <rows
-     name="rise_up"
-     value="rise_up">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         tool_tip="Camera rise up"
+         tool_tip="Camera rise/fall"
          value="Rise Up" />
     </rows>
     <rows
-     name="drop_down"
-     value="drop_down">
+     name="pitch"
+     value="pitch">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         tool_tip="Camera drop down"
-         value="Drop Down" />
-    </rows>
-    <rows
-     name="pitch_up"
-     value="pitch_up">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         tool_tip="Camera pitch up"
-         value="Pitch Up" />
-    </rows>
-    <rows
-     name="pitch_down"
-     value="pitch_down">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         tool_tip="Camera pitch down"
+         tool_tip="Camera adjust pitch"
          value="Pitch Down" />
     </rows>
     <rows
-     name="yaw_left"
-     value="yaw_left">
+     name="yaw"
+     value="yaw">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         tool_tip="Camera turn left"
-         value="Yaw Left" />
+         tool_tip="Camera turn left/right"
+         value="Yaw CCW" />
     </rows>
     <rows
-     name="yaw_right"
-     value="yaw_right">
+     name="zoom"
+     value="zoom">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         tool_tip="Camera turn right"
-         value="Yaw Right" />
+         tool_tip="Camera zoom in/out"
+         value="Zoom In" />
     </rows>
     <!--
     <rows
@@ -145,28 +101,6 @@
          name="action"
          tool_tip="Camera roll clockwise"
          value="Roll Clockwise" />
-    </rows>
-    <rows
-     name="zoom_in"
-     value="zoom_in">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         tool_tip="Camera zoom in"
-         value="Zoom In" />
-    </rows>
-    <rows
-     name="zoom_out"
-     value="zoom_out">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         tool_tip="Camera zoom out"
-         value="Zoom Out" />
     </rows>
     -->
 </contents>
