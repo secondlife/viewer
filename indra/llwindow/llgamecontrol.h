@@ -58,7 +58,7 @@
 //            |            /                          \            |
 //             \__________/                            \__________/
 //
-// Note: the analog joystics provide NEGATIVE X,Y values for LEFT,FORWARD
+// Note: the analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
 // whereas those directions are actually POSITIVE in SL's local right-handed
 // reference frame.  This is why we implicitly negate those axes the moment
 // they are extracted from SDL, before being used anywhere.  See the
@@ -156,8 +156,12 @@ public:
     // State is a minimal class for storing axes and buttons values
     class State
     {
+        int mJoystickID { -1 };
+        void* mController { nullptr };
     public:
         State();
+        void setDevice(int joystickID, void* controller);
+        int getJoystickID() const { return mJoystickID; }
         void clear();
         bool onButton(U8 button, bool pressed);
         std::vector<S16> mAxes; // [ -32768, 32767 ]
@@ -166,7 +170,7 @@ public:
     };
 
     static bool isInitialized();
-	static void init();
+	static void init(const std::string& gamecontrollerdb_path);
 	static void terminate();
 
     // returns 'true' if GameControlInput message needs to go out,
@@ -175,11 +179,11 @@ public:
     // or not.
     static bool computeFinalStateAndCheckForChanges();
 
-    static void clearAllState();
+    static void clearAllStates();
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
-    static void getCameraInputs(std::vector<F32>& inputs_out);
+    static void getFlycamInputs(std::vector<F32>& inputs_out);
 
     // these methods for accepting input from keyboard
     static void enableSendToServer(bool enable);
@@ -187,11 +191,7 @@ public:
     static void enableTranslateAgentActions(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
-    static bool willSendToServer();
-    static bool willTranslateAgentActions();
     static bool willControlAvatar();
-    static bool willControlFlycam();
-    //static LocalControlMode getLocalControlMode();
 
     // Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
     // If the axis name lacks the +/- postfix it assumes '+' postfix.
@@ -206,7 +206,7 @@ public:
     // and game_control devices produce State which can be translated into action_flags.
     // These methods help exchange such translations.
     static U32 computeInternalActionFlags();
-    static void setExternalActionFlags(U32 action_flags);
+    static void setExternalInput(U32 action_flags, U32 buttons_from_keys);
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();

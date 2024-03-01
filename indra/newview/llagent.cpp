@@ -5033,14 +5033,9 @@ void LLAgent::applyExternalActionFlags()
                 // copy main camera transform to flycam
                 LLViewerCamera* camera = LLViewerCamera::getInstance();
                 mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+                mFlycam.setView(camera->getView());
                 mLastFlycamUpdate = LLFrameTimer::getTotalTime();
             }
-            /*
-            else
-            {
-                // do we need to reset main camera?
-            }
-            */
         }
         mToggleFlycam = false;
     }
@@ -5062,7 +5057,7 @@ void LLAgent::applyExternalActionFlags()
 
     if (mUsingFlycam)
     {
-        updateFlycam();
+        // Flycam will be updated later by exernal context
         return;
     }
 
@@ -5154,26 +5149,6 @@ void LLAgent::applyExternalActionFlags()
         setControlFlags(AGENT_CONTROL_STOP);
     }
 
-    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND) > 0)
-    {
-        if (mToggleSit)
-        {
-            if (isSitting())
-            {
-                standUp();
-            }
-            else
-            {
-                sitDown();
-            }
-        }
-        mToggleSit = false;
-    }
-    else
-    {
-        mToggleSit = true;
-    }
-
     // HACK: AGENT_CONTROL_NUDGE_AT_POS is used to toggle running
     if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_POS) > 0)
     {
@@ -5198,44 +5173,54 @@ void LLAgent::applyExternalActionFlags()
     }
 }
 
+void LLAgent::pressGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys |= (1U << button_index);
+}
+
+void LLAgent::releaseGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys &= !(1U << button_index);
+}
+
 void LLAgent::updateFlycam()
 {
-    // Note: no matter how camera_inputs are mapped to the controller
+    // Note: flycam_inputs arrive in range [-1,1]
+    std::vector<F32> flycam_inputs;
+    LLGameControl::getFlycamInputs(flycam_inputs);
+
+    // Note: no matter how flycam_inputs are mapped to the controller
     // they arrive in the following order:
-    enum FLYCAM_AXIS {
-        FLYCAM_FORWARD = 0,
-        FLYCAM_LEFT,
-        FLYCAM_UP,
-        FLYCAM_PITCH,
-        FLYCAM_YAW,
-        FLYCAM_ZOOM
-    };
-    std::vector<F32> camera_inputs;
-    LLGameControl::getCameraInputs(camera_inputs);
+    constexpr S32 FLYCAM_ADVANCE = 0;
+    constexpr S32 FLYCAM_PAN     = 1;
+    constexpr S32 FLYCAM_RISE    = 2;
+    constexpr S32 FLYCAM_PITCH   = 3;
+    constexpr S32 FLYCAM_YAW     = 4;
+    constexpr S32 FLYCAM_ZOOM    = 5;
 
     LLVector3 linear_velocity(
-            camera_inputs[FLYCAM_FORWARD],
-            camera_inputs[FLYCAM_LEFT],
-            camera_inputs[FLYCAM_UP]);
+            flycam_inputs[FLYCAM_ADVANCE],
+            flycam_inputs[FLYCAM_PAN],
+            flycam_inputs[FLYCAM_RISE]);
     constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
     mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
 
-    mFlycam.setPitchRate(camera_inputs[FLYCAM_PITCH]);
-    mFlycam.setYawRate(camera_inputs[FLYCAM_PITCH]);
+    mFlycam.setPitchRate(flycam_inputs[FLYCAM_PITCH]);
+    mFlycam.setYawRate(flycam_inputs[FLYCAM_YAW]);
+    mFlycam.setZoomRate(flycam_inputs[FLYCAM_ZOOM]);
 
     mFlycam.integrate(g_deltaTime);
 
     LLVector3 pos;
     LLQuaternion rot;
     mFlycam.getTransform(pos, rot);
-
-    // copy flycam transform to main camera
     LLMatrix3 mat(rot);
-    //LLViewerCamera::getInstance()->setView(sFlycamZoom);
     LLViewerCamera::getInstance()->setOrigin(pos);
     LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
     LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
     LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+
+    LLViewerCamera::getInstance()->setView(mFlycam.getView());
 }
 
 /********************************************************************************/
