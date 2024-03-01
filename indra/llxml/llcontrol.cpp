@@ -1002,7 +1002,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 	{
 		infile.close();
 		LL_WARNS("Settings") << "Unable to parse LLSD control file " << filename << ". Trying Legacy Method." << LL_ENDL;
-		return loadFromFileLegacy(filename, TRUE, TYPE_STRING);
+		return loadFromFileLegacy(filename, true, TYPE_STRING);
 	}
 
 	U32	validitems = 0;
@@ -1188,7 +1188,7 @@ void main()
 
 	// ...invalid data type
 	getfoo = (F32_CONTROL) gGlobals.resolveName("gFoo");
-	getfoo->set(TRUE);
+	getfoo->set(true);
 	getfoo->dump();
 
 	// ...out of range data

@@ -345,13 +345,13 @@ namespace tut
 			gTOSReplyPump = 0; // clear the callback.
 
 
-			gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", LLControlVariable::PERSIST_NO);
-			gSavedSettings.declareBOOL("ConnectAsGod", FALSE, "", LLControlVariable::PERSIST_NO);
-			gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("NoInventoryLibrary", false, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("ConnectAsGod", false, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("UseDebugMenus", false, "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::PERSIST_NO);
 			gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::PERSIST_NO);
-			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("CmdLineSkipUpdater", TRUE, "", LLControlVariable::PERSIST_NO);
+			gSavedSettings.declareBOOL("LoginLastLocation", false, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("CmdLineSkipUpdater", true, "", LLControlVariable::PERSIST_NO);
 
 			LLSD authenticator = LLSD::emptyMap();
 			LLSD identifier = LLSD::emptyMap();

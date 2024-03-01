@@ -54,7 +54,7 @@ namespace tut
 		LLSaleInfo saleinfo1 = ll_sale_info_from_sd(llsd_obj1);
 		
 		ensure("1. The getSaleType() fn failed", LLSaleInfo::FS_COPY == llsaleinfo.getSaleType());
-		ensure("2. LLSaleInfo::isForSale() fn failed", TRUE == llsaleinfo.isForSale());
+		ensure("2. LLSaleInfo::isForSale() fn failed", true == llsaleinfo.isForSale());
 		ensure("3. The getSalePrice() fn failed", sale_price == llsaleinfo.getSalePrice());
 		ensure("4. The getCRC32() fn failed", 235833404 == llsaleinfo.getCRC32());
 		ensure("5. LLSaleInfo::lookup(const char* name) fn failed", LLSaleInfo::FS_COPY == llsaleinfo.lookup(sale));
@@ -68,7 +68,7 @@ namespace tut
 		saleinfo1 = ll_sale_info_from_sd(llsd_obj1);
 
 		ensure("8. The getSaleType() and setSaleType() fn failed", LLSaleInfo::FS_ORIGINAL == llsaleinfo.getSaleType());
-		ensure("9. LLSaleInfo::isForSale() fn failed", TRUE == llsaleinfo.isForSale());
+		ensure("9. LLSaleInfo::isForSale() fn failed", true == llsaleinfo.isForSale());
 		ensure("10. The getSalePrice() fn failed", 10000000 == llsaleinfo.getSalePrice());
 		ensure("11. The getCRC32() fn failed", 127911702 == llsaleinfo.getCRC32());
 		ensure("12. LLSaleInfo::lookup(const char* name) fn failed", LLSaleInfo::FS_CONTENTS == llsaleinfo.lookup(sale));
@@ -82,7 +82,7 @@ namespace tut
 		saleinfo1 = ll_sale_info_from_sd(llsd_obj1);
 
 		ensure("15. The getSaleType() and setSaleType() fn failed", LLSaleInfo::FS_CONTENTS == llsaleinfo.getSaleType());
-		ensure("16. LLSaleInfo::isForSale() fn failed", TRUE == llsaleinfo.isForSale());
+		ensure("16. LLSaleInfo::isForSale() fn failed", true == llsaleinfo.isForSale());
 		ensure("17. The getSalePrice() fn failed", 55000550 == llsaleinfo.getSalePrice());
 		ensure("18. The getCRC32() fn failed", 408735656 == llsaleinfo.getCRC32());
 		ensure("19. LLSaleInfo::lookup(const char* name) fn failed", LLSaleInfo::FS_ORIGINAL == llsaleinfo.lookup(sale));
@@ -96,7 +96,7 @@ namespace tut
 		saleinfo1 = ll_sale_info_from_sd(llsd_obj1);
 
 		ensure("22. The getSaleType() and setSaleType() fn failed", LLSaleInfo::FS_NOT == llsaleinfo.getSaleType());
-		ensure("23. LLSaleInfo::isForSale() fn failed", FALSE == llsaleinfo.isForSale());
+		ensure("23. LLSaleInfo::isForSale() fn failed", false == llsaleinfo.isForSale());
 		ensure("24. The getSalePrice() fn failed", 0 == llsaleinfo.getSalePrice());
 		ensure("25. The getCRC32() fn failed", 0 == llsaleinfo.getCRC32());
 		ensure("26. LLSaleInfo::lookup(const char* name) fn failed", LLSaleInfo::FS_NOT == llsaleinfo.lookup(sale));
