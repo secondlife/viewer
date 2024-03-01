@@ -87,24 +87,7 @@ public:
 class LLRequireResolver
 {
  public:
-    enum class ModuleStatus
-    {
-        Cached,
-        FileRead,
-        NotFound
-    };
-
-    struct ResolvedRequire
-    {
-        ModuleStatus status;
-        std::string absolutePath;
-        std::string sourceCode;
-    };
-
-    [[nodiscard]] ResolvedRequire static resolveRequire(lua_State *L, std::string path);
-
-    std::string mAbsolutePath;
-    std::string mSourceCode;
+    static void resolveRequire(lua_State *L, std::string path);
 
  private:
     std::string mPathToResolve;
@@ -112,10 +95,10 @@ class LLRequireResolver
 
     LLRequireResolver(lua_State *L, const std::string& path);
 
-    ModuleStatus findModule();
+    void findModule();
     lua_State *L;
 
-    void resolveAndStoreDefaultPaths();
-    ModuleStatus findModuleImpl();
+    bool findModuleImpl(const std::string& absolutePath);
+    void runModule(const std::string& desc, const std::string& code);
 };
 #endif

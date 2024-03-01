@@ -17,6 +17,7 @@
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
 #include "stringize.h"
+#include <exception>                // std::uncaught_exceptions()
 #include <memory>                   // std::shared_ptr
 #include <utility>                  // std::pair
 
@@ -214,6 +215,42 @@ public:
 
 private:
     lua_State* L;
+};
+
+// adapted from indra/test/debug.h
+// can't generalize Debug::operator() target because it's a variadic template
+class LuaLog
+{
+public:
+    template <typename... ARGS>
+    LuaLog(lua_State* L, ARGS&&... args):
+        L(L),
+        mBlock(stringize(std::forward<ARGS>(args)...))
+    {
+        (*this)("entry ", lua_stack(L));
+    }
+
+    // non-copyable
+    LuaLog(const LuaLog&) = delete;
+    LuaLog& operator=(const LuaLog&) = delete;
+
+    ~LuaLog()
+    {
+        auto exceptional{ std::uncaught_exceptions()? "exceptional " : "" };
+        (*this)(exceptional, "exit ", lua_stack(L));
+    }
+
+    template <typename... ARGS>
+    void operator()(ARGS&&... args)
+    {
+        LL_INFOS("Lua") << mBlock << ' ';
+        stream_to(LL_CONT, std::forward<ARGS>(args)...);
+        LL_ENDL;
+    }
+
+private:
+    lua_State* L;
+    const std::string mBlock;
 };
 
 #endif /* ! defined(LL_LUA_FUNCTION_H) */

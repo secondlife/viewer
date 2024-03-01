@@ -789,7 +789,8 @@ std::ostream& operator<<(std::ostream& out, const lua_what& self)
 *****************************************************************************/
 std::ostream& operator<<(std::ostream& out, const lua_stack& self)
 {
-    const char* sep = "stack: [";
+    out << "stack: [";
+    const char* sep = "";
     for (int index = 1; index <= lua_gettop(self.L); ++index)
     {
         out << sep << lua_what(self.L, index);
