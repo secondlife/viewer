@@ -81,18 +81,12 @@ public:
 
     enum KeyboardAxis
     {
-        AXIS_LEFTX_NEG = 0,
-        AXIS_LEFTX_POS,
-        AXIS_LEFTY_NEG,
-        AXIS_LEFTY_POS,
-        AXIS_RIGHTX_NEG,
-        AXIS_RIGHTX_POS,
-        AXIS_RIGHTY_NEG,
-        AXIS_RIGHTY_POS,
-        AXIS_TRIGGERLEFT_NEG,
-        AXIS_TRIGGERLEFT_POS,
-        AXIS_TRIGGERRIGHT_NEG,
-        AXIS_TRIGGERRIGHT_POS,
+        AXIS_LEFTX = 0,
+        AXIS_LEFTY,
+        AXIS_RIGHTX,
+        AXIS_RIGHTY,
+        AXIS_TRIGGERLEFT,
+        AXIS_TRIGGERRIGHT,
         AXIS_LAST
     };
 
@@ -142,22 +136,20 @@ public:
             TYPE_NONE
         };
 
-        static void initChannelMap();
-
         InputChannel() {}
         InputChannel(Type type, U8 index) : mType(type), mIndex(index) {}
+        InputChannel(Type type, U8 index, S32 sign) : mType(type), mSign(sign), mIndex(index) {}
 
         // these methods for readability
         bool isAxis() const { return mType == TYPE_AXIS; }
         bool isButton() const { return mType == TYPE_BUTTON; }
         bool isNone() const { return mType == TYPE_NONE; }
 
-        bool isNegAxis() const;
-
         std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, etc
         std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
 
         Type mType { TYPE_NONE };
+        S32 mSign { 0 };
         U8 mIndex { 255 };
     };
 
@@ -187,6 +179,7 @@ public:
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
+    static void getCameraInputs(std::vector<F32>& inputs_out);
 
     // these methods for accepting input from keyboard
     static void enableSendToServer(bool enable);
@@ -200,23 +193,20 @@ public:
     static bool willControlFlycam();
     //static LocalControlMode getLocalControlMode();
 
-    // "Action" refers to avatar motion actions (e.g. push_forward, slide_left, etc)
-    // this is a roundabout way to convert keystrokes to GameControl input.
+    // Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
+    // If the axis name lacks the +/- postfix it assumes '+' postfix.
     static LLGameControl::InputChannel getChannelByName(const std::string& name);
+
+    // action_name = push+, strafe-, etc
     static LLGameControl::InputChannel getChannelByActionName(const std::string& name);
-    static void addActionMapping(const std::string& name,  LLGameControl::InputChannel channel);
 
-
-    static U32 computeInternalActionFlags();
-    static void setExternalActionFlags(U32 action_flags);
+    static bool updateActionMap(const std::string& action_name,  LLGameControl::InputChannel channel);
 
     // Keyboard presses produce action_flags which can be translated into State
     // and game_control devices produce State which can be translated into action_flags.
-    // This method exchanges the two varieties of action flags in one call
-    // so the twain do not touch.
-    //static U32 exchangeActionFlags(U32 action_flags);
-    //static void getActionFlags();                 // LLGameControl --> LLAgent
-    //static void setActionFlags(U32 action_flags); // LLAgent --> LLGameControl
+    // These methods help exchange such translations.
+    static U32 computeInternalActionFlags();
+    static void setExternalActionFlags(U32 action_flags);
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();

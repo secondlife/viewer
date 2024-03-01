@@ -33,6 +33,7 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"           // for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llflycam.h"
 #include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
@@ -481,6 +482,7 @@ public:
     void            resetControlFlags();
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
+    bool            isUsingFlycam() const { return mUsingFlycam; }
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
@@ -511,7 +513,11 @@ public:
     void applyExternalActionFlagsForFlycam();
 
 private:
+    void updateFlycam();
+
+    U64 mLastFlycamUpdate { 0 };
     U32 mExternalActionFlags { 0 };
+    LLFlycam mFlycam;
     bool mToggleFly { true };
     bool mToggleSit { true };
     bool mToggleRun { true };
