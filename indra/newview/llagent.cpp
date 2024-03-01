@@ -1054,7 +1054,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             {
                 regionp->setCapabilitiesReceivedCallback(LLAgent::capabilityReceivedCallback);
             }
-
         }
         else
         {
@@ -5011,6 +5010,11 @@ void LLAgent::setExternalActionFlags(U32 outer_flags)
     }
 }
 
+static U64 g_lastUpdateTime { 0 };
+static F32 g_deltaTime { 0.0f };
+static S32 g_lastUpdateFrame { 0 };
+static S32 g_deltaFrame { 0 };
+
 void LLAgent::applyExternalActionFlags()
 {
     if (! LLGameControl::willControlAvatar())
@@ -5024,6 +5028,19 @@ void LLAgent::applyExternalActionFlags()
         if (mToggleFlycam)
         {
             mUsingFlycam = !mUsingFlycam;
+            if (mUsingFlycam)
+            {
+                // copy main camera transform to flycam
+                LLViewerCamera* camera = LLViewerCamera::getInstance();
+                mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+                mLastFlycamUpdate = LLFrameTimer::getTotalTime();
+            }
+            /*
+            else
+            {
+                // do we need to reset main camera?
+            }
+            */
         }
         mToggleFlycam = false;
     }
@@ -5032,9 +5049,20 @@ void LLAgent::applyExternalActionFlags()
         mToggleFlycam = true;
     }
 
+    // measure delta time and frame
+    // Note: it is possible for the deltas to be very large
+    // and it is the duty of the code that uses them to clamp as necessary
+    U64 now = LLFrameTimer::getTotalTime();
+    g_deltaTime = F32(now - g_lastUpdateTime) / (F32)(USEC_PER_SEC);
+    g_lastUpdateTime = now;
+
+    S32 frame_count = LLFrameTimer::getFrameCount();
+    g_deltaFrame = frame_count - g_lastUpdateFrame;
+    g_lastUpdateFrame = frame_count;
+
     if (mUsingFlycam)
     {
-        applyExternalActionFlagsForFlycam();
+        updateFlycam();
         return;
     }
 
@@ -5045,14 +5073,15 @@ void LLAgent::applyExternalActionFlags()
         moveAt(direction);
     }
 
-    static S32 last_non_fly_frame = 0;
-    static F32 last_non_fly_time = 0.0f;
+    static U32 last_non_fly_frame = 0;
+    static U64 last_non_fly_time = 0;
     direction = (S32)(mExternalActionFlags & AGENT_CONTROL_UP_POS)
         - (S32)((mExternalActionFlags & AGENT_CONTROL_UP_NEG) >> 1);
     if (direction != 0)
     {
         // HACK: this auto-fly logic based on original code still extant in llviewerinput.cpp::agent_jump()
-        // TODO: DRY this logic
+        // but has been cleaned up.
+        // TODO?: DRY this logic
         if (direction > 0)
         {
             if (!getFlying()
@@ -5060,11 +5089,11 @@ void LLAgent::applyExternalActionFlags()
                 && gSavedSettings.getBOOL("AutomaticFly"))
             {
                 constexpr F32 FLY_TIME = 0.5f;
-                constexpr S32 FLY_FRAMES = 4;
-                F32 time = LLFrameTimer::getElapsedSeconds() - last_non_fly_time;
-                S32 frame_count = (S32)(LLFrameTimer::getFrameCount()) - last_non_fly_frame;
-                if( time > FLY_TIME
-                    && frame_count > FLY_FRAMES)
+                constexpr U32 FLY_FRAMES = 4;
+                F32 delta_time = (F32)(now - last_non_fly_time) / (F32)(USEC_PER_SEC);
+                U32 delta_frames = frame_count - last_non_fly_frame;
+                if( delta_time > FLY_TIME
+                    && delta_frames > FLY_FRAMES)
                 {
                     setFlying(TRUE);
                 }
@@ -5072,16 +5101,16 @@ void LLAgent::applyExternalActionFlags()
         }
         else
         {
-            last_non_fly_frame = (S32)(LLFrameTimer::getFrameCount());
-            last_non_fly_time = LLFrameTimer::getElapsedSeconds();
+            last_non_fly_frame = frame_count;
+            last_non_fly_time = now;
         }
 
         moveUp(direction);
     }
     else if (!getFlying())
     {
-        last_non_fly_frame = (S32)(LLFrameTimer::getFrameCount());
-        last_non_fly_time = LLFrameTimer::getElapsedSeconds();
+        last_non_fly_frame = frame_count;
+        last_non_fly_time = now;
     }
 
     direction = (S32)(mExternalActionFlags & AGENT_CONTROL_LEFT_POS)
@@ -5169,9 +5198,44 @@ void LLAgent::applyExternalActionFlags()
     }
 }
 
-void LLAgent::applyExternalActionFlagsForFlycam()
+void LLAgent::updateFlycam()
 {
-    // TODO: implement this
+    // Note: no matter how camera_inputs are mapped to the controller
+    // they arrive in the following order:
+    enum FLYCAM_AXIS {
+        FLYCAM_FORWARD = 0,
+        FLYCAM_LEFT,
+        FLYCAM_UP,
+        FLYCAM_PITCH,
+        FLYCAM_YAW,
+        FLYCAM_ZOOM
+    };
+    std::vector<F32> camera_inputs;
+    LLGameControl::getCameraInputs(camera_inputs);
+
+    LLVector3 linear_velocity(
+            camera_inputs[FLYCAM_FORWARD],
+            camera_inputs[FLYCAM_LEFT],
+            camera_inputs[FLYCAM_UP]);
+    constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
+    mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
+
+    mFlycam.setPitchRate(camera_inputs[FLYCAM_PITCH]);
+    mFlycam.setYawRate(camera_inputs[FLYCAM_PITCH]);
+
+    mFlycam.integrate(g_deltaTime);
+
+    LLVector3 pos;
+    LLQuaternion rot;
+    mFlycam.getTransform(pos, rot);
+
+    // copy flycam transform to main camera
+    LLMatrix3 mat(rot);
+    //LLViewerCamera::getInstance()->setView(sFlycamZoom);
+    LLViewerCamera::getInstance()->setOrigin(pos);
+    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
 }
 
 /********************************************************************************/

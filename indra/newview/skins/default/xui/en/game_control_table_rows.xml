@@ -14,44 +14,24 @@
          value="Move_Walk_Off" />
     </rows>
     <rows
-     name="push_forward"
-     value="push_forward">
+     name="push"
+     value="push">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Move Forward" />
+         value="Walk Forward" />
     </rows>
     <rows
-     name="push_backward"
-     value="push_backward">
+     name="slide"
+     value="slide">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
-         value="Move Backward" />
-    </rows>
-    <rows
-     name="slide_left"
-     value="slide_left">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Strafe left" />
-    </rows>
-    <rows
-     name="slide_right"
-     value="slide_right">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Strafe right" />
+         value="Strafe Left" />
     </rows>
     <rows
      name="jump"
@@ -61,21 +41,11 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Jump/Up" />
+         value="Jump Up" />
     </rows>
     <rows
-     name="push_down"
-     value="push_down">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Down" />
-    </rows>
-    <rows
-     name="turn_left"
-     value="turn_left">
+     name="turn"
+     value="turn">
         <columns
          column="action"
          font="SansSerif"
@@ -84,28 +54,8 @@
          value="Turn Left" />
     </rows>
     <rows
-     name="turn_right"
-     value="turn_right">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Turn Right" />
-    </rows>
-    <rows
-     name="look_up"
-     value="look_up">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Look Up" />
-    </rows>
-    <rows
-     name="look_down"
-     value="look_down">
+     name="look"
+     value="look">
         <columns
          column="action"
          font="SansSerif"
@@ -115,6 +65,16 @@
     </rows>
 
     <rows
+     name="stop"
+     value="stop">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Stop" />
+    </rows>
+    <rows
      name="toggle_run"
      value="toggle_run">
         <columns
@@ -122,7 +82,7 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Toggle Run" />
+         value="Run" />
     </rows>
     <rows
      name="toggle_fly"
@@ -132,7 +92,7 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Fly/Stop flying" />
+         value="Fly" />
     </rows>
     <rows
      name="toggle_sit"
@@ -142,26 +102,16 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Sit/Stand" />
+         value="Sit" />
     </rows>
     <rows
-     name="flycam"
-     value="flycam">
+     name="toggle_flycam"
+     value="toggle_flycam">
         <columns
          column="action"
          font="SansSerif"
          halign="left"
          name="action"
          value="Flycam" />
-    </rows>
-    <rows
-     name="stop_moving"
-     value="stop_moving">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Stop Moving" />
     </rows>
 </contents>
