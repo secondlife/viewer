@@ -60,6 +60,7 @@ static const S32 LINE_HEIGHT = 15;
 
 S32		LLView::sDepth = 0;
 bool	LLView::sDebugRects = false;
+bool	LLView::sDebugUnicode = false;
 bool	LLView::sIsRectDirty = false;
 LLRect	LLView::sDirtyRect;
 bool	LLView::sDebugRectsShowNames = true;
@@ -520,7 +521,7 @@ BOOL LLView::focusNext(LLView::child_list_t & result)
 		{
 			next = result.rbegin();
 		}
-		if((*next)->isCtrl())
+		if ((*next)->isCtrl() && ((LLUICtrl*)*next)->hasTabStop())
 		{
 			LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
 			ctrl->setFocus(TRUE);
@@ -1024,7 +1025,7 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 			handled = handleUnicodeCharHere(uni_char);
 			if (handled && LLView::sDebugKeys)
 			{
-				LL_INFOS() << "Unicode key handled by " << getName() << LL_ENDL;
+				LL_INFOS() << "Unicode key " << wchar_utf8_preview(uni_char) << " is handled by " << getName() << LL_ENDL;
 			}
 		}
 	}
@@ -1336,8 +1337,7 @@ void LLView::drawDebugRect()
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
-												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-												S32_MAX, S32_MAX, NULL, FALSE);
+					LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
 		}
 	}
 	LLUI::popMatrix();
@@ -1753,23 +1753,26 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S3
 	const S32 KEEP_ONSCREEN_PIXELS_WIDTH = llmin(min_overlap_pixels, input.getWidth());
 	const S32 KEEP_ONSCREEN_PIXELS_HEIGHT = llmin(min_overlap_pixels, input.getHeight());
 
-	if( input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft )
+	if (KEEP_ONSCREEN_PIXELS_WIDTH <= constraint.getWidth() &&
+		KEEP_ONSCREEN_PIXELS_HEIGHT <= constraint.getHeight())
 	{
-		delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
-	}
-	else if( input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight )
-	{
-		delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
-	}
+		if (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft)
+		{
+			delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
+		}
+		else if (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight)
+		{
+			delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
+		}
 
-	if( input.mTop > constraint.mTop )
-	{
-		delta.mY = constraint.mTop - input.mTop;
-	}
-	else
-	if( input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom )
-	{
-		delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+		if (input.mTop > constraint.mTop)
+		{
+			delta.mY = constraint.mTop - input.mTop;
+		}
+		else if (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom)
+		{
+			delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+		}
 	}
 
 	return delta;
@@ -1780,13 +1783,19 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S3
 // (Why top and left?  That's where the drag bars are for floaters.)
 BOOL LLView::translateIntoRect(const LLRect& constraint, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(getRect(), constraint, min_overlap_pixels);
+    return translateRectIntoRect(getRect(), constraint, min_overlap_pixels);
+}
+
+BOOL LLView::translateRectIntoRect(const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels)
+{
+	LLCoordGL translation = getNeededTranslation(rect, constraint, min_overlap_pixels);
 
 	if (translation.mX != 0 || translation.mY != 0)
 	{
 		translate(translation.mX, translation.mY);
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
@@ -1966,7 +1975,7 @@ private:
 class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
 {
 	LLSINGLETON_EMPTY_CTOR(SortByTabOrder);
-	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const 
+	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const override
 	{
 		children.sort(CompareByTabOrder(parent->getTabOrder(), parent->getDefaultTabGroup()));
 	}
@@ -1990,7 +1999,7 @@ const LLViewQuery & LLView::getTabOrderQuery()
 class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRootsFilter>
 {
 	LLSINGLETON_EMPTY_CTOR(LLFocusRootsFilter);
-	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
 	{
 		return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
 	}
