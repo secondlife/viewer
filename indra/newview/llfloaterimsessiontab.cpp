@@ -33,18 +33,21 @@
 #include "llagentcamera.h"
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
-#include "llgroupiconctrl.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
 #include "llchiclet.h"
 #include "llchicletbar.h"
 #include "lldraghandle.h"
+#include "llemojidictionary.h"
 #include "llfloaterreg.h"
+#include "llfloateremojipicker.h"
 #include "llfloaterimsession.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
-#include "lllayoutstack.h"
-#include "lltoolbarview.h"
 #include "llfloaterimnearbychat.h"
+#include "llgroupiconctrl.h"
+#include "lllayoutstack.h"
+#include "llpanelemojicomplete.h"
+#include "lltoolbarview.h"
 
 const F32 REFRESH_INTERVAL = 1.0f;
 const std::string ICN_GROUP("group_chat_icon");
@@ -56,7 +59,7 @@ void cb_group_do_nothing()
 }
 
 LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
-:	LLTransientDockableFloater(NULL, false, session_id),
+:	super(NULL, false, session_id),
 	mIsP2PChat(false),
 	mExpandCollapseBtn(NULL),
 	mTearOffBtn(NULL),
@@ -75,7 +78,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 	mInputPanels(NULL),
 	mChatLayoutPanelHeight(0)
 {
-    setAutoFocus(FALSE);
+	setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
@@ -88,12 +91,12 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 			boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
 
 	// Right click menu handling
-    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem,	this, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&cb_group_do_nothing));
+	mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem,	this, _2));
+	mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
+	mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
+	mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&cb_group_do_nothing));
 
-    mMinFloaterHeight = getMinHeight();
+	mMinFloaterHeight = getMinHeight();
 }
 
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
@@ -101,7 +104,7 @@ LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 	delete mRefreshTimer;
 }
 
-//static
+// static
 LLFloaterIMSessionTab* LLFloaterIMSessionTab::findConversation(const LLUUID& uuid)
 {
 	LLFloaterIMSessionTab* conv;
@@ -118,7 +121,7 @@ LLFloaterIMSessionTab* LLFloaterIMSessionTab::findConversation(const LLUUID& uui
 	return conv;
 };
 
-//static
+// static
 LLFloaterIMSessionTab* LLFloaterIMSessionTab::getConversation(const LLUUID& uuid)
 {
 	LLFloaterIMSessionTab* conv;
@@ -134,14 +137,16 @@ LLFloaterIMSessionTab* LLFloaterIMSessionTab::getConversation(const LLUUID& uuid
 	}
 
 	return conv;
+
 };
 
+// virtual
 void LLFloaterIMSessionTab::setVisible(BOOL visible)
 {
-	if(visible && !mHasVisibleBeenInitialized)
+	if (visible && !mHasVisibleBeenInitialized)
 	{
 		mHasVisibleBeenInitialized = true;
-		if(!gAgentCamera.cameraMouselook())
+		if (!gAgentCamera.cameraMouselook())
 		{
 			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
 		}
@@ -155,26 +160,25 @@ void LLFloaterIMSessionTab::setVisible(BOOL visible)
 		mInputButtonPanel->setVisible(isTornOff());
 	}
 
-	LLTransientDockableFloater::setVisible(visible);
+	super::setVisible(visible);
 }
 
-/*virtual*/
+// virtual
 void LLFloaterIMSessionTab::setFocus(BOOL focus)
 {
-	LLTransientDockableFloater::setFocus(focus);
+	super::setFocus(focus);
 
-    //Redirect focus to input editor
-    if (focus)
+	// Redirect focus to input editor
+	if (focus)
 	{
-    	updateMessages();
+		updateMessages();
 
-        if (mInputEditor)
-        {
-    	    mInputEditor->setFocus(TRUE);
-        }
+		if (mInputEditor)
+		{
+			mInputEditor->setFocus(TRUE);
+		}
 	}
 }
-
 
 void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 {
@@ -220,42 +224,60 @@ void LLFloaterIMSessionTab::assignResizeLimits()
 {
 	bool is_participants_pane_collapsed = mParticipantListPanel->isCollapsed();
 
-    // disable a layoutstack's functionality when participant list panel is collapsed
+	// disable a layoutstack's functionality when participant list panel is collapsed
 	mRightPartPanel->setIgnoreReshape(is_participants_pane_collapsed);
 
-    S32 participants_pane_target_width = is_participants_pane_collapsed?
-    		0 : (mParticipantListPanel->getRect().getWidth() + mParticipantListAndHistoryStack->getPanelSpacing());
+	S32 participants_pane_target_width = is_participants_pane_collapsed?
+			0 : (mParticipantListPanel->getRect().getWidth() + mParticipantListAndHistoryStack->getPanelSpacing());
 
-    S32 new_min_width = participants_pane_target_width + mRightPartPanel->getExpandedMinDim() + mFloaterExtraWidth;
+	S32 new_min_width = participants_pane_target_width + mRightPartPanel->getExpandedMinDim() + mFloaterExtraWidth;
 
 	setResizeLimits(new_min_width, getMinHeight());
 
 	this->mParticipantListAndHistoryStack->updateLayout();
 }
 
+// virtual
 BOOL LLFloaterIMSessionTab::postBuild()
 {
 	BOOL result;
 
 	mBodyStack = getChild<LLLayoutStack>("main_stack");
-    mParticipantListAndHistoryStack = getChild<LLLayoutStack>("im_panels");
+	mParticipantListAndHistoryStack = getChild<LLLayoutStack>("im_panels");
 
 	mCloseBtn = getChild<LLButton>("close_btn");
-	mCloseBtn->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
+	mCloseBtn->setCommitCallback([this](LLUICtrl*, const LLSD&) { onClickClose(this); });
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
-	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMSessionTab::onSlide, this));
+	mExpandCollapseBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onSlide(this); });
 
 	mExpandCollapseLineBtn = getChild<LLButton>("minz_btn");
-	mExpandCollapseLineBtn->setClickedCallback(boost::bind(&LLFloaterIMSessionTab::onCollapseToLine, this));
+	mExpandCollapseLineBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onCollapseToLine(this); });
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
+	mEmojiRecentPanelToggleBtn = getChild<LLButton>("emoji_recent_panel_toggle_btn");
+	mEmojiRecentPanelToggleBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiRecentPanelToggleBtnClicked(); });
+
+	mEmojiRecentPanel = getChild<LLLayoutPanel>("emoji_recent_layout_panel");
+	mEmojiRecentPanel->setVisible(false);
+
+	mEmojiRecentEmptyText = getChild<LLTextBox>("emoji_recent_empty_text");
+	mEmojiRecentEmptyText->setToolTip(mEmojiRecentEmptyText->getText());
+	mEmojiRecentEmptyText->setVisible(false);
+
+	mEmojiRecentIconsCtrl = getChild<LLPanelEmojiComplete>("emoji_recent_icons_ctrl");
+	mEmojiRecentIconsCtrl->setCommitCallback([this](LLUICtrl*, const LLSD& value) { onRecentEmojiPicked(value); });
+	mEmojiRecentIconsCtrl->setVisible(false);
+
+	mEmojiPickerShowBtn = getChild<LLButton>("emoji_picker_show_btn");
+	mEmojiPickerShowBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerShowBtnClicked(); });
+
 	mGearBtn = getChild<LLButton>("gear_btn");
-    mAddBtn = getChild<LLButton>("add_btn");
+	mAddBtn = getChild<LLButton>("add_btn");
 	mVoiceButton = getChild<LLButton>("voice_call_btn");
-    
+
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	mRightPartPanel = getChild<LLLayoutPanel>("right_part_holder");
 
@@ -307,17 +329,17 @@ BOOL LLFloaterIMSessionTab::postBuild()
 
 	// Create the root using an ad-hoc base item
 	LLConversationItem* base_item = new LLConversationItem(mSessionID, mConversationViewModel);
-    LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-    p.rect = LLRect(0, 0, getRect().getWidth(), 0);
-    p.parent_panel = mParticipantListPanel;
-    p.listener = base_item;
-    p.view_model = &mConversationViewModel;
-    p.root = NULL;
-    p.use_ellipses = true;
-    p.options_menu = "menu_conversation.xml";
-    p.name = "root";
+	LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
+	p.rect = LLRect(0, 0, getRect().getWidth(), 0);
+	p.parent_panel = mParticipantListPanel;
+	p.listener = base_item;
+	p.view_model = &mConversationViewModel;
+	p.root = NULL;
+	p.use_ellipses = true;
+	p.options_menu = "menu_conversation.xml";
+	p.name = "root";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 	mConversationsRoot->setEnableRegistrar(&mEnableCallbackRegistrar);
 	// Attach that root to the scroller
 	mScroller->addChild(mConversationsRoot);
@@ -357,6 +379,7 @@ LLParticipantList* LLFloaterIMSessionTab::getParticipantList()
 	return dynamic_cast<LLParticipantList*>(LLFloaterIMContainer::getInstance()->getSessionModel(mSessionID));
 }
 
+// virtual
 void LLFloaterIMSessionTab::draw()
 {
 	if (mRefreshTimer->hasExpired())
@@ -381,23 +404,24 @@ void LLFloaterIMSessionTab::draw()
 		mRefreshTimer->setTimerExpirySec(REFRESH_INTERVAL);
 	}
 
-	LLTransientDockableFloater::draw();
+	super::draw();
 }
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    if (LLVoiceClient::instanceExists() && mVoiceButton)
-    {
-        mVoiceButton->setEnabled(
-            mSessionID.notNull()
-            && mSession
-            && mSession->mSessionInitialized
-            && LLVoiceClient::getInstance()->voiceEnabled()
-            && LLVoiceClient::getInstance()->isVoiceWorking()
-            && mSession->mCallBackEnabled);
-    }
+	if (LLVoiceClient::instanceExists() && mVoiceButton)
+	{
+		mVoiceButton->setEnabled(
+			mSessionID.notNull()
+			&& mSession
+			&& mSession->mSessionInitialized
+			&& LLVoiceClient::getInstance()->voiceEnabled()
+			&& LLVoiceClient::getInstance()->isVoiceWorking()
+			&& mSession->mCallBackEnabled);
+	}
 }
 
+// virtual
 void LLFloaterIMSessionTab::onFocusReceived()
 {
 	setBackgroundOpaque(true);
@@ -407,13 +431,14 @@ void LLFloaterIMSessionTab::onFocusReceived()
 		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
 	}
 
-	LLTransientDockableFloater::onFocusReceived();
+	super::onFocusReceived();
 }
 
+// virtual
 void LLFloaterIMSessionTab::onFocusLost()
 {
 	setBackgroundOpaque(false);
-	LLTransientDockableFloater::onFocusLost();
+	super::onFocusLost();
 }
 
 void LLFloaterIMSessionTab::onInputEditorClicked()
@@ -426,53 +451,130 @@ void LLFloaterIMSessionTab::onInputEditorClicked()
 	gToolBarView->flashCommand(LLCommandId("chat"), false);
 }
 
+void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked()
+{
+    BOOL show = mEmojiRecentPanel->getVisible() ? FALSE : TRUE;
+    if (show)
+    {
+        initEmojiRecentPanel();
+    }
+
+    mEmojiRecentPanel->setVisible(show);
+    mInputEditor->setFocus(TRUE);
+}
+
+void LLFloaterIMSessionTab::onEmojiPickerShowBtnClicked()
+{
+    mInputEditor->setFocus(TRUE);
+    mInputEditor->showEmojiHelper();
+}
+
+void LLFloaterIMSessionTab::initEmojiRecentPanel()
+{
+    std::list<llwchar>& recentlyUsed = LLFloaterEmojiPicker::getRecentlyUsed();
+    if (recentlyUsed.empty())
+    {
+        mEmojiRecentEmptyText->setVisible(TRUE);
+        mEmojiRecentIconsCtrl->setVisible(FALSE);
+    }
+    else
+    {
+        LLWString emojis;
+        for (llwchar emoji : recentlyUsed)
+        {
+            emojis += emoji;
+        }
+        mEmojiRecentIconsCtrl->setEmojis(emojis);
+        mEmojiRecentEmptyText->setVisible(FALSE);
+        mEmojiRecentIconsCtrl->setVisible(TRUE);
+    }
+}
+
+void LLFloaterIMSessionTab::onRecentEmojiPicked(const LLSD& value)
+{
+	LLSD::String str = value.asString();
+	if (str.size())
+	{
+		LLWString wstr = utf8string_to_wstring(str);
+		if (wstr.size())
+		{
+			llwchar emoji = wstr[0];
+			mInputEditor->insertEmoji(emoji);
+		}
+	}
+}
+
+void LLFloaterIMSessionTab::closeFloater(bool app_quitting)
+{
+	LLFloaterEmojiPicker::saveState();
+	super::closeFloater(app_quitting);
+}
+
 std::string LLFloaterIMSessionTab::appendTime()
 {
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"]";
+	std::string timeStr = "[" + LLTrans::getString("TimeHour") + "]:"
+						  "[" + LLTrans::getString("TimeMin") + "]";
 
 	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
+	substitution["datetime"] = (S32)time_corrected();
+	LLStringUtil::format(timeStr, substitution);
 
 	return timeStr;
 }
 
-void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
+void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD& args)
 {
+	if (chat.mMuted || !mChatHistory)
+		return;
 
 	// Update the participant activity time
 	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
 	{
-		im_box->setTimeNow(mSessionID,chat.mFromID);
+		im_box->setTimeNow(mSessionID, chat.mFromID);
 	}
 	
-
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 
-	if(tmp_chat.mTimeStr.empty())
+	if (tmp_chat.mTimeStr.empty())
 		tmp_chat.mTimeStr = appendTime();
 
-	if (!chat.mMuted)
-	{
-		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args;
-		if (args) chat_args = args;
-		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] =
-				!mIsP2PChat || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+	tmp_chat.mFromName = chat.mFromName;
 
-		if (mChatHistory)
-		{
-			mChatHistory->appendMessage(chat, chat_args);
-		}
-	}
+	LLSD chat_args = args;
+	chat_args["use_plain_text_chat_history"] =
+			gSavedSettings.getBOOL("PlainTextChatHistory");
+	chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+	chat_args["show_names_for_p2p_conv"] = !mIsP2PChat ||
+			gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+
+	mChatHistory->appendMessage(chat, chat_args);
+}
+
+void LLFloaterIMSessionTab::updateUsedEmojis(LLWString text)
+{
+    LLEmojiDictionary* dictionary = LLEmojiDictionary::getInstance();
+    llassert_always(dictionary);
+
+    bool emojiSent = false;
+    for (llwchar& c : text)
+    {
+        if (dictionary->isEmoji(c))
+        {
+            LLFloaterEmojiPicker::onEmojiUsed(c);
+            emojiSent = true;
+        }
+    }
+
+    if (!emojiSent)
+        return;
+
+    LLFloaterEmojiPicker::saveState();
+
+    if (mEmojiRecentPanel->getVisible())
+    {
+        initEmojiRecentPanel();
+    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT("Build Conversation View");
@@ -502,10 +604,10 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-        if (participant_model)
-        {
-            addConversationViewParticipant(participant_model);
-        }
+		if (participant_model)
+		{
+			addConversationViewParticipant(participant_model);
+		}
 		current_participant_model++;
 	}
 }
@@ -525,10 +627,10 @@ void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* p
 	// If not already present, create the participant view and attach it to the root, otherwise, just refresh it
 	if (widget)
 	{
-        if (update_view)
-        {
-            updateConversationViewParticipant(uuid); // overkill?
-        }
+		if (update_view)
+		{
+			updateConversationViewParticipant(uuid); // overkill?
+		}
 	}
 	else
 	{
@@ -578,11 +680,11 @@ void LLFloaterIMSessionTab::refreshConversation()
 		{
 			participants_uuids.push_back(widget_it->first);
 		}
-        if (widget_it->second->getViewModelItem())
-        {
-            widget_it->second->refresh();
-            widget_it->second->setVisible(TRUE);
-        }
+		if (widget_it->second->getViewModelItem())
+		{
+			widget_it->second->refresh();
+			widget_it->second->setVisible(TRUE);
+		}
 		++widget_it;
 	}
 	if (is_ad_hoc || mIsP2PChat)
@@ -638,7 +740,7 @@ void LLFloaterIMSessionTab::refreshConversation()
 // Copied from LLFloaterIMContainer::createConversationViewParticipant(). Refactor opportunity!
 LLConversationViewParticipant* LLFloaterIMSessionTab::createConversationViewParticipant(LLConversationItem* item)
 {
-    LLRect panel_rect = mParticipantListPanel->getRect();
+	LLRect panel_rect = mParticipantListPanel->getRect();
 	
 	LLConversationViewParticipant::Params params;
 	params.name = item->getDisplayName();
@@ -766,7 +868,7 @@ void LLFloaterIMSessionTab::hideAllStandardButtons()
 void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 {
 	// prevent start conversation before its container
-    LLFloaterIMContainer::getInstance();
+	LLFloaterIMContainer::getInstance();
 
 	bool is_not_torn_off = !checkIfTornOff();
 	if (is_not_torn_off)
@@ -783,12 +885,12 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 			&& !mIsP2PChat;
 
 	mParticipantListAndHistoryStack->collapsePanel(mParticipantListPanel, !is_participant_list_visible);
-    mParticipantListPanel->setVisible(is_participant_list_visible);
+	mParticipantListPanel->setVisible(is_participant_list_visible);
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
 	bool is_expanded = is_not_torn_off || is_participant_list_visible;
-    
+	
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 	mExpandCollapseBtn->setToolTip(
 			is_not_torn_off?
@@ -817,10 +919,10 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
  
 void LLFloaterIMSessionTab::forceReshape()
 {
-    LLRect floater_rect = getRect();
-    reshape(llmax(floater_rect.getWidth(), this->getMinWidth()),
-    		llmax(floater_rect.getHeight(), this->getMinHeight()),
-    		true);
+	LLRect floater_rect = getRect();
+	reshape(llmax(floater_rect.getWidth(), this->getMinWidth()),
+			llmax(floater_rect.getHeight(), this->getMinHeight()),
+			true);
 }
 
 
@@ -846,7 +948,7 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* 
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-             nearby_chat->reloadMessages(clean_messages);
+			 nearby_chat->reloadMessages(clean_messages);
 	}
 }
 
@@ -892,15 +994,15 @@ void LLFloaterIMSessionTab::onSlide(LLFloaterIMSessionTab* self)
 	{
 		if (!self->mIsP2PChat)
 		{
-            // The state must toggle the collapsed state of the panel
-           should_be_expanded = self->mParticipantListPanel->isCollapsed();
+			// The state must toggle the collapsed state of the panel
+			should_be_expanded = self->mParticipantListPanel->isCollapsed();
 
 			// Update the expand/collapse flag of the participant list panel and save it
-            gSavedSettings.setBOOL("IMShowControlPanel", should_be_expanded);
-            self->mIsParticipantListExpanded = should_be_expanded;
-            
-            // Refresh for immediate feedback
-            self->refreshConversation();
+			gSavedSettings.setBOOL("IMShowControlPanel", should_be_expanded);
+			self->mIsParticipantListExpanded = should_be_expanded;
+
+			// Refresh for immediate feedback
+			self->refreshConversation();
 		}
 	}
 
@@ -937,12 +1039,12 @@ void LLFloaterIMSessionTab::reshapeFloater(bool collapse)
 			+ mChatLayoutPanel->getRect().getHeight() - mChatLayoutPanelHeight + 2;
 		floater_rect.mTop -= height;
 
-        setResizeLimits(getMinWidth(), floater_rect.getHeight());
+		setResizeLimits(getMinWidth(), floater_rect.getHeight());
 	}
 	else
 	{
 		floater_rect.mTop = floater_rect.mBottom + mFloaterHeight;
-        setResizeLimits(getMinWidth(), mMinFloaterHeight);
+		setResizeLimits(getMinWidth(), mMinFloaterHeight);
 	}
 
 	enableResizeCtrls(true, true, !collapse);
@@ -967,7 +1069,7 @@ void LLFloaterIMSessionTab::restoreFloater()
 		setShape(floater_rect, true);
 		mBodyStack->updateLayout();
 		mExpandCollapseLineBtn->setImageOverlay(getString("expandline_icon"));
-        setResizeLimits(getMinWidth(), mMinFloaterHeight);
+		setResizeLimits(getMinWidth(), mMinFloaterHeight);
 		setMessagePaneExpanded(true);
 		saveCollapsedState();
 		mInputEditor->enableSingleLineMode(false);
@@ -995,8 +1097,8 @@ void LLFloaterIMSessionTab::onTearOffClicked()
 {
 	restoreFloater();
 	setFollows(isTornOff()? FOLLOWS_ALL : FOLLOWS_NONE);
-    mSaveRect = isTornOff();
-    initRectControl();
+	mSaveRect = isTornOff();
+	initRectControl();
 	LLFloater::onClickTearOff(this);
 	LLFloaterIMContainer* container = LLFloaterReg::findTypedInstance<LLFloaterIMContainer>("im_container");
 
@@ -1086,8 +1188,8 @@ bool LLFloaterIMSessionTab::checkIfTornOff()
 void LLFloaterIMSessionTab::doToSelected(const LLSD& userdata)
 {
 	// Get the list of selected items in the tab
-    std::string command = userdata.asString();
-    uuid_vec_t selected_uuids;
+	std::string command = userdata.asString();
+	uuid_vec_t selected_uuids;
 	getSelectedUUIDs(selected_uuids);
 		
 	// Perform the command (IM, profile, etc...) on the list using the general conversation container method
@@ -1099,8 +1201,8 @@ void LLFloaterIMSessionTab::doToSelected(const LLSD& userdata)
 bool LLFloaterIMSessionTab::enableContextMenuItem(const LLSD& userdata)
 {
 	// Get the list of selected items in the tab
-    std::string command = userdata.asString();
-    uuid_vec_t selected_uuids;
+	std::string command = userdata.asString();
+	uuid_vec_t selected_uuids;
 	getSelectedUUIDs(selected_uuids);
 	
 	// Perform the item enable test on the list using the general conversation container method
@@ -1111,8 +1213,8 @@ bool LLFloaterIMSessionTab::enableContextMenuItem(const LLSD& userdata)
 bool LLFloaterIMSessionTab::checkContextMenuItem(const LLSD& userdata)
 {
 	// Get the list of selected items in the tab
-    std::string command = userdata.asString();
-    uuid_vec_t selected_uuids;
+	std::string command = userdata.asString();
+	uuid_vec_t selected_uuids;
 	getSelectedUUIDs(selected_uuids);
 	
 	// Perform the item check on the list using the general conversation container method
@@ -1122,19 +1224,19 @@ bool LLFloaterIMSessionTab::checkContextMenuItem(const LLSD& userdata)
 
 void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)
 {
-    const std::set<LLFolderViewItem*> selected_items = mConversationsRoot->getSelectionList();
+	const std::set<LLFolderViewItem*> selected_items = mConversationsRoot->getSelectionList();
 	
-    std::set<LLFolderViewItem*>::const_iterator it = selected_items.begin();
-    const std::set<LLFolderViewItem*>::const_iterator it_end = selected_items.end();
+	std::set<LLFolderViewItem*>::const_iterator it = selected_items.begin();
+	const std::set<LLFolderViewItem*>::const_iterator it_end = selected_items.end();
 	
-    for (; it != it_end; ++it)
-    {
-        LLConversationItem* conversation_item = static_cast<LLConversationItem *>((*it)->getViewModelItem());
-        if (conversation_item)
-        {
-            selected_uuids.push_back(conversation_item->getUUID());
-        }
-    }
+	for (; it != it_end; ++it)
+	{
+		LLConversationItem* conversation_item = static_cast<LLConversationItem *>((*it)->getViewModelItem());
+		if (conversation_item)
+		{
+			selected_uuids.push_back(conversation_item->getUUID());
+		}
+	}
 }
 
 LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
@@ -1142,8 +1244,8 @@ LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 	LLConversationItem *conversationItem = NULL;
 
 	if(mConversationsRoot && 
-        mConversationsRoot->getCurSelectedItem() && 
-        mConversationsRoot->getCurSelectedItem()->getViewModelItem())
+		mConversationsRoot->getCurSelectedItem() && 
+		mConversationsRoot->getCurSelectedItem()->getViewModelItem())
 	{
 		conversationItem = static_cast<LLConversationItem *>(mConversationsRoot->getCurSelectedItem()->getViewModelItem()) ;
 	}
