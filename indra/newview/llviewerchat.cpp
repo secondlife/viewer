@@ -25,7 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llviewerchat.h" 
+#include "llviewerchat.h"
 
 // newview includes
 #include "llagent.h" 	// gAgent		

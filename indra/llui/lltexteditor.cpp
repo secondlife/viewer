@@ -43,6 +43,7 @@
 #include "llmath.h"
 
 #include "llclipboard.h"
+#include "llemojihelper.h"
 #include "llscrollbar.h"
 #include "llstl.h"
 #include "llstring.h"
@@ -238,6 +239,7 @@ LLTextEditor::Params::Params()
 	default_color("default_color"),
     commit_on_focus_lost("commit_on_focus_lost", false),
 	show_context_menu("show_context_menu"),
+	show_emoji_helper("show_emoji_helper"),
 	enable_tooltip_paste("enable_tooltip_paste")
 {
 	addSynonym(prevalidate_callback, "text_type");
@@ -258,6 +260,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mTabsToNextField(p.ignore_tab),
 	mPrevalidateFunc(p.prevalidate_callback()),
 	mShowContextMenu(p.show_context_menu),
+	mShowEmojiHelper(p.show_emoji_helper),
 	mEnableTooltipPaste(p.enable_tooltip_paste),
 	mPassDelete(FALSE),
 	mKeepSelectionOnReturn(false)
@@ -505,6 +508,16 @@ void LLTextEditor::getSegmentsInRange(LLTextEditor::segment_vec_t& segments_out,
 	}
 }
 
+void LLTextEditor::setShowEmojiHelper(bool show)
+{
+	if (!mShowEmojiHelper)
+	{
+		LLEmojiHelper::instance().hideHelper(this);
+	}
+
+	mShowEmojiHelper = show;
+}
+
 BOOL LLTextEditor::selectionContainsLineBreaks()
 {
 	if (hasSelection())
@@ -666,6 +679,28 @@ void LLTextEditor::selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_p
 	startSelection();
 	setCursorPos(next_cursor_pos);
 	endSelection();
+}
+
+void LLTextEditor::insertEmoji(llwchar emoji)
+{
+	LL_INFOS() << "LLTextEditor::insertEmoji(" << wchar_utf8_preview(emoji) << ")" << LL_ENDL;
+	auto styleParams = LLStyle::Params();
+	styleParams.font = LLFontGL::getFontEmoji();
+	auto segment = new LLEmojiTextSegment(new LLStyle(styleParams), mCursorPos, mCursorPos + 1, *this);
+	insert(mCursorPos, LLWString(1, emoji), false, segment);
+	setCursorPos(mCursorPos + 1);
+}
+
+void LLTextEditor::handleEmojiCommit(llwchar emoji)
+{
+	S32 shortCodePos;
+	if (LLEmojiHelper::isCursorInEmojiCode(getWText(), mCursorPos, &shortCodePos))
+	{
+		remove(shortCodePos, mCursorPos - shortCodePos, true);
+		setCursorPos(shortCodePos);
+
+		insertEmoji(emoji);
+	}
 }
 
 BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -934,6 +969,12 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 S32 LLTextEditor::execute( TextCmd* cmd )
 {
+	if (!mReadOnly && mShowEmojiHelper)
+	{
+		// Any change to our contents should always hide the helper
+		LLEmojiHelper::instance().hideHelper(this);
+	}
+
 	S32 delta = 0;
 	if( cmd->execute(this, &delta) )
 	{
@@ -983,7 +1024,7 @@ S32 LLTextEditor::remove(S32 pos, S32 length, bool group_with_next_op)
 	// store text segments
 	getSegmentsInRange(segments_to_remove, pos, pos + length, false);
 	
-	if(pos <= end_pos)
+	if (pos <= end_pos)
 	{
 		removedChar = execute( new TextCmdRemove( pos, group_with_next_op, end_pos - pos, segments_to_remove ) );
 	}
@@ -1007,11 +1048,12 @@ S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
 // a pseudo-tab (up to for spaces in a row)
 void LLTextEditor::removeCharOrTab()
 {
-	if( !getEnabled() )
+	if (!getEnabled())
 	{
 		return;
 	}
-	if( mCursorPos > 0 )
+
+	if (mCursorPos > 0)
 	{
 		S32 chars_to_remove = 1;
 
@@ -1023,14 +1065,14 @@ void LLTextEditor::removeCharOrTab()
 			if (offset > 0)
 			{
 				chars_to_remove = offset % SPACES_PER_TAB;
-				if( chars_to_remove == 0 )
+				if (chars_to_remove == 0)
 				{
 					chars_to_remove = SPACES_PER_TAB;
 				}
 
-				for( S32 i = 0; i < chars_to_remove; i++ )
+				for (S32 i = 0; i < chars_to_remove; i++)
 				{
-					if (text[ mCursorPos - i - 1] != ' ')
+					if (text[mCursorPos - i - 1] != ' ')
 					{
 						// Fewer than a full tab's worth of spaces, so
 						// just delete a single character.
@@ -1044,8 +1086,10 @@ void LLTextEditor::removeCharOrTab()
 		for (S32 i = 0; i < chars_to_remove; i++)
 		{
 			setCursorPos(mCursorPos - 1);
-			remove( mCursorPos, 1, FALSE );
+			remove(mCursorPos, 1, false);
 		}
+
+		tryToShowEmojiHelper();
 	}
 	else
 	{
@@ -1056,7 +1100,7 @@ void LLTextEditor::removeCharOrTab()
 // Remove a single character from the text
 S32 LLTextEditor::removeChar(S32 pos)
 {
-	return remove( pos, 1, FALSE );
+	return remove(pos, 1, false);
 }
 
 void LLTextEditor::removeChar()
@@ -1065,10 +1109,12 @@ void LLTextEditor::removeChar()
 	{
 		return;
 	}
+
 	if (mCursorPos > 0)
 	{
 		setCursorPos(mCursorPos - 1);
 		removeChar(mCursorPos);
+		tryToShowEmojiHelper();
 	}
 	else
 	{
@@ -1127,6 +1173,7 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
+	tryToShowEmojiHelper();
 
 	if (!mReadOnly && mAutoreplaceCallback != NULL)
 	{
@@ -1144,6 +1191,37 @@ void LLTextEditor::addChar(llwchar wc)
 			setCursorPos(new_cursor_pos);
 		}
 	}
+}
+
+void LLTextEditor::showEmojiHelper()
+{
+    if (mReadOnly || !mShowEmojiHelper)
+        return;
+
+    const LLRect cursorRect(getLocalRectFromDocIndex(mCursorPos));
+    auto cb = [this](llwchar emoji) { insertEmoji(emoji); };
+    LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, LLStringUtil::null, cb);
+}
+
+void LLTextEditor::tryToShowEmojiHelper()
+{
+    if (mReadOnly || !mShowEmojiHelper)
+        return;
+
+    S32 shortCodePos;
+    LLWString wtext(getWText());
+    if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
+    {
+        const LLRect cursorRect(getLocalRectFromDocIndex(shortCodePos));
+        const LLWString wpart(wtext.substr(shortCodePos, mCursorPos - shortCodePos));
+        const std::string part(wstring_to_utf8str(wpart));
+        auto cb = [this](llwchar emoji) { handleEmojiCommit(emoji); };
+        LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, part, cb);
+    }
+    else
+    {
+        LLEmojiHelper::instance().hideHelper();
+    }
 }
 
 void LLTextEditor::addLineBreakChar(BOOL group_together)
@@ -1778,6 +1856,11 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	}
 	else 
 	{
+		if (!mReadOnly && mShowEmojiHelper && LLEmojiHelper::instance().handleKey(this, key, mask))
+		{
+			return TRUE;
+		}
+
 		if (mEnableTooltipPaste &&
 			LLToolTipMgr::instance().toolTipVisible() && 
 			KEY_TAB == key)
@@ -1819,6 +1902,12 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	{
 		resetCursorBlink();
 		needsScroll();
+
+		if (mShowEmojiHelper)
+		{
+			// Dismiss the helper whenever we handled a key that it didn't
+			LLEmojiHelper::instance().hideHelper(this);
+		}
 	}
 
 	return handled;
@@ -1837,7 +1926,12 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 	// Handle most keys only if the text editor is writeable.
 	if( !mReadOnly )
 	{
-		if( mAutoIndent && '}' == uni_char )
+        if (mShowEmojiHelper && uni_char < 0x80 && LLEmojiHelper::instance().handleKey(this, (KEY)uni_char, MASK_NONE))
+        {
+            return TRUE;
+        }
+
+        if( mAutoIndent && '}' == uni_char )
 		{
 			unindentLineBeforeCloseBrace();
 		}

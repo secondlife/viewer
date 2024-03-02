@@ -111,7 +111,7 @@ public:
 		Alternative<std::string>	string;
 		Alternative<U32>			flags;
 
-        Follows();
+		Follows();
 	};
 
 	struct Params : public LLInitParam::Block<Params>
@@ -369,6 +369,7 @@ public:
 	virtual void	translate( S32 x, S32 y );
 	void			setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
 	BOOL			translateIntoRect( const LLRect& constraint, S32 min_overlap_pixels = S32_MAX);
+	BOOL			translateRectIntoRect( const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels = S32_MAX);
 	BOOL			translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, S32 min_overlap_pixels = S32_MAX);
 	void			centerWithin(const LLRect& bounds);
 
@@ -658,8 +659,11 @@ public:
 	// Draw debug rectangles around widgets to help with alignment and spacing
 	static bool	sDebugRects;
 
-    static bool sIsRectDirty;
-    static LLRect sDirtyRect;
+	// Show hexadecimal byte values of unicode symbols in a tooltip
+	static bool	sDebugUnicode;
+
+	static bool sIsRectDirty;
+	static LLRect sDirtyRect;
 
 	// Draw widget names and sizes when drawing debug rectangles, turning this
 	// off is useful to make the rectangles themselves easier to see.
@@ -702,19 +706,15 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 		if (!result)
 		{
 			result = LLUICtrlFactory::getDefaultWidget<T>(name);
+			if (!result)
+			{
+				LL_ERRS() << "Failed to create dummy " << typeid(T).name() << LL_ENDL;
+			}
 
-			if (result)
-			{
-				// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
-				// in a floater or panel constructor.  The widgets will not
-				// be ready.  Instead, put it in postBuild().
-				LL_WARNS() << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << LL_ENDL;
-			}
-			else
-			{
-				LL_WARNS() << "Failed to create dummy " << typeid(T).name() << LL_ENDL;
-				return NULL;
-			}
+			// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
+			// in a floater or panel constructor.  The widgets will not
+			// be ready.  Instead, put it in postBuild().
+			LL_WARNS() << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << LL_ENDL;
 
 			getDefaultWidgetContainer().addChild(result);
 		}
