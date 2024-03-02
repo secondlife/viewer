@@ -21,6 +21,13 @@
 	<menu label="デバッグ" name="Debug">
 		<menu_item_call label="デバッグ設定を表示" name="Debug Settings"/>
 		<menu_item_call label="ＸＵＩプレビューツール" name="UI Preview Tool"/>
+		<menu_item_separator />
+		<menu label="フォント" name="Fonts">
+			<menu_item_call label="フォントテストを表示" name="Show Font Test"/>
+			<menu_item_separator />
+			<menu_item_call label="フォントをダンプ" name="Dump Fonts"/>
+			<menu_item_call label="フォントをテクスチャにダンプ" name="Dump Font Textures"/>
+		</menu>
 		<menu label="ＵＩテスト" name="UI Tests">
 			<menu_item_call label="テキストボックス" name="Textbox"/>
 			<menu_item_call label="テキストエディタ" name="Text Editor"/>

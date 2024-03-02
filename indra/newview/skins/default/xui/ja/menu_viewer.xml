@@ -458,6 +458,8 @@
 		</menu>
 		<menu label="ＵＩ" name="UI">
 			<menu_item_call label="メディアブラウザ" name="Media Browser"/>
+			<menu_item_call label="フォントをダンプ" name="Dump Fonts"/>
+			<menu_item_call label="フォントをテクスチャにダンプ" name="Dump Font Textures"/>
 			<menu_item_call label="SelectMgrをダンプ" name="Dump SelectMgr"/>
 			<menu_item_call label="インベントリの出力" name="Dump Inventory"/>
 			<menu_item_call label="タイマーをダンプ" name="Dump Timers"/>
@@ -468,6 +470,7 @@
 			<menu_item_check label="SelectMgrのデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>
+			<menu_item_check label="Unicodeのデバッグ" name="Debug Unicode"/>
 			<menu_item_check label="デバッグ名ツールチップ" name="Debug Name Tooltips"/>
 			<menu_item_check label="マウスイベントのデバッグ" name="Debug Mouse Events"/>
 			<menu_item_check label="デバッグキー" name="Debug Keys"/>
@@ -512,13 +515,16 @@
 			<menu_item_check label="ボーンを表示" name="Show Bones"/>
 			<menu_item_check label="エージェントの目標を表示する" name="Display Agent Target"/>
 			<menu_item_check label="インポスターの範囲を表示" name="Show Impostor Extents"/>
+			<!-- Appears not to exist anymore
+			<menu_item_check label="回転をデバッグ" name="Debug Rotation"/>
+			-->
 			<menu_item_call label="装着物のダンプ" name="Dump Attachments"/>
 			<menu_item_call label="アバターのテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_separator/>
-		<menu_item_check label="ＨＴＴＰテクスチャ" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
+		<menu_item_check label="ＨＴＴＰテクスチャ" name="HTTP Textures" />
 		<menu_item_call label="圧縮ファイルテスト" name="Compress File Test"/>
 		<menu_item_call label="Visual Leak Detectorを有効にする" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>

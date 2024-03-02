@@ -3615,7 +3615,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Discard" text="処分する"/>
 		</form>
 	</notification>
-	<notification name="UserGiveItem" label="[NAME_LABEL]からのインベントリのオファー">
+	<notification name="UserGiveItem">
 		[NAME_SLURL] が、あなたに[OBJECTTYPE]を渡しました：
 [ITEM_SLURL]
 		<form name="form">
@@ -3638,7 +3638,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Info" text="情報"/>
 		</form>
 	</notification>
-	<notification name="TeleportOffered" label="[NAME_LABEL]からのテレポートのオファー">
+	<notification name="TeleportOffered">
 		[NAME_SLURL] は、テレポートであなたを呼んでいます。
 [MESSAGE]
 
@@ -3693,7 +3693,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="GoNow..." text="今すぐ行く…"/>
 		</form>
 	</notification>
-	<notification name="OfferFriendship" label="[NAME_LABEL]からのフレンド登録のオファー">
+	<notification name="OfferFriendship">
 		[NAME_SLURL] は、あなたにフレンド登録を申し込んでいます。
 
 [MESSAGE]
@@ -3710,7 +3710,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		[TO_NAME]にフレンド登録依頼を送りました。
 		<tag>friendship</tag>
 	</notification>
-	<notification name="OfferFriendshipNoMessage" label="[NAME_LABEL]からのフレンドシップの申し込み">
+	<notification name="OfferFriendshipNoMessage">
 		[NAME_SLURL] は、フレンド登録を申し込んでいます。（デフォルト設定では、お互いのオンライン状態を見ることができます。）
 		<tag>friendship</tag>
 		<form name="form">
