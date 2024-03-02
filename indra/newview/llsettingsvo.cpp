@@ -742,6 +742,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> auto_adjust_probe_ambiance(gSavedSettings, "RenderSkyAutoAdjustProbeAmbiance", 1.f);
     static LLCachedControl<F32> sunlight_scale(gSavedSettings, "RenderSkySunlightScale", 1.5f);
     static LLCachedControl<F32> ambient_scale(gSavedSettings, "RenderSkyAmbientScale", 1.5f);
+    static LLCachedControl<F32> desaturation(gSavedSettings, "RenderSkyReflectionDesaturation", 2.f);
+    static LLCachedControl<F32> darkening(gSavedSettings, "RenderSkyReflectionDarkening", 1.5f);
 
     shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, sunlight_scale);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
@@ -766,6 +768,13 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
             LLColor3 blue_horizon = getBlueHorizon() * auto_adjust_blue_horizon_scale;
             LLColor3 blue_density = getBlueDensity() * auto_adjust_blue_density_scale;
+            if (gCubeSnapshot)
+            {
+                // Attenuate the blue hue if this is a reflection probe render
+                // pass. HB
+                blue_density.desaturate(desaturation, darkening);
+                blue_horizon.desaturate(desaturation, darkening);
+            }
             LLColor3 sun_diffuse = getSunDiffuse() * auto_adjust_sun_color_scale;
             
             shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_diffuse.mV);

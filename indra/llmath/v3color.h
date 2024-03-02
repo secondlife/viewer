@@ -77,6 +77,17 @@ public:
 
 	void setHSL(F32 hue, F32 saturation, F32 luminance);
 	void calcHSL(F32* hue, F32* saturation, F32* luminance) const;
+
+    // Desaturates the color by a given factor, also optionnally darkens it. HB
+    inline void desaturate(F32 factor, F32 darkening = 1.f)
+    {
+        if (factor > 1.f)
+        {
+            F32 h, s, l;
+            calcHSL(&h, &s, &l);
+            setHSL(h, s / factor, l / llmax(darkening, 1.f));
+        }
+    }
 	
 	const LLColor3&	setToBlack();					// Clears LLColor3 to (0, 0, 0)
 	const LLColor3&	setToWhite();					// Zero LLColor3 to (0, 0, 0)

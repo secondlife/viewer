@@ -1718,6 +1718,12 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
         uniforms[i].clear();
     }
 
+    static LLCachedControl<F32> desaturation(gSavedSettings,
+											 "RenderSkyReflectionDesaturation",
+                                             2.f);
+    static LLCachedControl<F32> darkening(gSavedSettings,
+										  "RenderSkyReflectionDarkening",
+                                          1.5f);
     LLShaderUniforms* shader = &uniforms[LLGLSLShader::SG_ANY];
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
     LLSettingsBase::parammapping_t params = psetting->getParameterMap();
@@ -1739,51 +1745,55 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
             value = it.second.getDefaultValue();
         }
 
+        S32 shader_key = it.second.getShaderKey();
         LLSD::Type setting_type = value.type();
         stop_glerror();
         switch (setting_type)
         {
         case LLSD::TypeInteger:
-            shader->uniform1i(it.second.getShaderKey(), value.asInteger());
+            shader->uniform1i(shader_key, value.asInteger());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
         case LLSD::TypeReal:
-            shader->uniform1f(it.second.getShaderKey(), value.asReal());
+            shader->uniform1f(shader_key, value.asReal());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
         case LLSD::TypeBoolean:
-            shader->uniform1i(it.second.getShaderKey(), value.asBoolean() ? 1 : 0);
+            shader->uniform1i(shader_key, value.asBoolean() ? 1 : 0);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
         case LLSD::TypeArray:
         {
             LLVector4 vect4(value);
-
-            if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
-            { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
-                auto max_vec = [](LLVector4 col)
+            if (gCubeSnapshot &&
+                (shader_key == LLShaderMgr::BLUE_HORIZON ||
+                 shader_key == LLShaderMgr::BLUE_DENSITY))
+            {
+                LLColor3 color(vect4);
+                if (gPipeline.mReflectionMapManager.isRadiancePass())
                 {
-                    LLColor3 color(col);
+                    // Attenuate blue hue if this is a reflection probe
+                    // radiance pass. HB
+                    color.desaturate(desaturation, darkening);
+                    vect4.mV[0] = color.mV[0];
+                    vect4.mV[1] = color.mV[1];
+                    vect4.mV[2] = color.mV[2];
+                }
+                else
+                {
+                    // Maximize and remove tinting if this is an irradiance map
+                    // render pass and the parameter feeds into the sky
+                    // background color
                     F32 h, s, l;
                     color.calcHSL(&h, &s, &l);
-
-                    col.mV[0] = col.mV[1] = col.mV[2] = l;
-                    return col;
-                };
-
-                switch (it.second.getShaderKey())
-                { 
-                case LLShaderMgr::BLUE_HORIZON:
-                case LLShaderMgr::BLUE_DENSITY:
-                    vect4 = max_vec(vect4);
-                        break;
+                    vect4.mV[0] = vect4.mV[1] = vect4.mV[2] = l;
                 }
             }
 
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform3fv(it.second.getShaderKey(), LLVector3(vect4.mV) );
+            shader->uniform3fv(shader_key, LLVector3(vect4.mV));
             break;
         }
 

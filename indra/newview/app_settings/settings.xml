@@ -10744,6 +10744,29 @@
     <key>Value</key>
     <real>0.7</real>
   </map>
+
+  <key>RenderSkyReflectionDarkening</key>
+    <map>
+    <key>Comment</key>
+    <string>Darkening factor for the colors fed to the reflection probes shaders to attenuate the blue hue. 1 or less to disable.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.5</real>
+    </map>
+  <key>RenderSkyReflectionDesaturation</key>
+    <map>
+    <key>Comment</key>
+    <string>Desaturation factor for the colors fed to the reflection probes shaders to attenuate the blue hue. 1 or less to disable.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2</real>
+    </map>
   
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
