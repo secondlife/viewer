@@ -32,7 +32,7 @@
 
 namespace LLTrace
 {
-extern MemStatHandle gTraceMemStat;
+//extern MemStatHandle gTraceMemStat;
 
 static ThreadRecorder* sMasterThreadRecorder = NULL;
 
@@ -81,9 +81,9 @@ void ThreadRecorder::init()
 
 	BlockTimer::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
 
-	claim_alloc(gTraceMemStat, this);
-	claim_alloc(gTraceMemStat, mRootTimer);
-	claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
+	//claim_alloc(gTraceMemStat, this);
+	//claim_alloc(gTraceMemStat, mRootTimer);
+	//claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 #endif
 }
 
@@ -101,9 +101,9 @@ ThreadRecorder::~ThreadRecorder()
 #if LL_TRACE_ENABLED
 	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(NULL);
 
-	disclaim_alloc(gTraceMemStat, this);
-	disclaim_alloc(gTraceMemStat, sizeof(BlockTimer));
-	disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
+	//disclaim_alloc(gTraceMemStat, this);
+	//disclaim_alloc(gTraceMemStat, sizeof(BlockTimer));
+	//disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
 
 	deactivate(&mThreadRecordingBuffers);
 

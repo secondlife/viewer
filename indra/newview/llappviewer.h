@@ -156,6 +156,7 @@ public:
     virtual void forceErrorBadMemoryAccess();
     virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
+    virtual void forceErrorOSSpecificException();
     virtual void forceErrorDriverCrash();
     virtual void forceErrorCoroutineCrash();
     virtual void forceErrorThreadCrash();

@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu" 
       bg_color="MenuDefaultBgColor"
       bg_visible="true"
       drop_shadow="true"
       tear_off="false"
+      font="SansSerifSmall" 
       shortcut_pad="15">
 </menu>
