@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater title="マーケットプレイス一覧" name="floater_marketplace_listings">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater title="マーケットプレイスの出品リスト" name="floater_marketplace_listings">
 	<panel name="marketplace_listings_panel">
 		<panel>
 			<panel name="marketplace_listings_inventory_placeholder_panel">
@@ -8,7 +8,7 @@
 				</text>
 				<text name="marketplace_listings_inventory_placeholder_text"/>
 			</panel>
-			<panel name="panel_marketplace_listing" filename="panel_marketplace_listings.xml" class="llpanelmarketplacelistings" top="0" follows="all"/>
+			<panel name="panel_marketplace_listing"/>
 		</panel>
 		<panel name="marketplace_panel_status"/>
 		<layout_stack name="initialization_progress_indicator"/>

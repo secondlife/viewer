@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="着信">
+<floater name="incoming call">
 	<floater.string name="lifetime">
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		近隣のボイスチャット
+		近くのボイスチャット
 	</floater.string>
 	<floater.string name="anonymous">
 		匿名ユーザー
@@ -29,5 +29,5 @@
 	</text>
 	<button label="取る" label_selected="取る" name="Accept"/>
 	<button label="無視" label_selected="無視" name="Reject"/>
-	<button label="代わりにIMを開く" name="Start IM"/>
+	<button label="代わりにＩＭを開く" name="Start IM"/>
 </floater>

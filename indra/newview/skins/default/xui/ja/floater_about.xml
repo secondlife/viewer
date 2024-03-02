@@ -2,8 +2,7 @@
 <floater name="floater_about" title="[CAPITALIZED_APP_NAME]について">
 	<tab_container name="about_tab">
 		<panel label="情報" name="support_panel">
-			<button label="コピー" name="copy_btn"/>
-			<button label="更新の確認" name="update_btn"/>
+			<button name="copy_btn" label="情報をコピー"/>
 		</panel>
 		<panel label="クレジット" name="credits_panel">
 			<text name="linden_intro">

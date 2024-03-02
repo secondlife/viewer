@@ -23,3 +23,6 @@
 	<button label="変更を保存" name="autoreplace_save_changes" tool_tip="変更をすべて保存します。"/>
 	<button label="キャンセル" name="autoreplace_cancel" tool_tip="変更をすべて破棄します。"/>
 </floater>
+<!--
+<text top_ name="autoreplace_text2">エントリ</text>
+-->

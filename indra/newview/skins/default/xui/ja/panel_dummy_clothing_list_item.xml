@@ -8,5 +8,4 @@
 		<button name="btn_add" tool_tip="この種類のアイテムを追加する。"/>
 	</panel>
 	<icon name="wearable_type_separator_icon"/>
-	<text name="item_name"/>
 </panel>

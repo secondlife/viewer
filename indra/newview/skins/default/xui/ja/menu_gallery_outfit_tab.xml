@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit">
-	<menu_item_call label="着る－このアウトフィットに着替える" name="wear_replace"/>
-	<menu_item_call label="着る－このアウトフィットに追加する" name="wear_add"/>
-	<menu_item_call label="脱ぐ－このアウトフィットから取り外す" name="take_off"/>
-	<menu_item_call label="画像をアップロード（L$ [UPLOAD_COST]）" name="upload_photo"/>
-	<menu_item_call label="画像を選択" name="select_photo"/>
-	<menu_item_call label="スナップショットを撮影" name="take_snapshot"/>
-	<menu_item_call label="画像を削除" name="remove_photo"/>
+	<menu_item_call label="着る‐このアウトフィットに着替える" name="wear_replace"/>
+	<menu_item_call label="着る‐このアウトフィットに追加する" name="wear_add"/>
+	<menu_item_call label="脱ぐ‐このアウトフィットから取り外す" name="take_off"/>
+	<menu_item_call label="画像…" name="thumbnail"/>
 	<menu_item_separator name="sepatator1"/>
 	<menu label="新しい服装" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>

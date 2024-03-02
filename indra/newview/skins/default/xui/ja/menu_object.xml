@@ -2,7 +2,8 @@
 <context_menu name="Object Pie">
 	<menu_item_call label="触る" name="Object Touch"/>
 	<menu_item_call label="編集…" name="Edit..."/>
-	<menu_item_call label="制作" name="Build"/>
+	<menu_item_call label="ＰＢＲマテリアルを編集" name="EditGLTFMaterial"/>
+	<menu_item_call label="ビルド" name="Build"/>
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="ここに座る" name="Object Sit"/>
 	<menu_item_call label="立ち上がる" name="Object Stand Up"/>
@@ -15,12 +16,14 @@
 		<menu_item_call label="着用" name="Wear"/>
 		<menu_item_call label="追加" name="Add"/>
 		<context_menu label="装着" name="Object Attach"/>
-		<context_menu label="HUDに装着" name="Object Attach HUD"/>
+		<context_menu label="ＨＵＤに装着" name="Object Attach HUD"/>
 	</context_menu>
 	<context_menu label="管理" name="Remove">
 		<menu_item_call label="嫌がらせの報告…" name="Report Abuse..."/>
+		<menu_item_separator/>
 		<menu_item_call label="ブロック" name="Object Mute"/>
 		<menu_item_call label="ブロック解除" name="Object Unmute"/>
+		<menu_item_separator/>
 		<menu_item_call label="返却…" name="Return..."/>
 	</context_menu>
 	<menu_item_separator/>
@@ -31,6 +34,6 @@
 	<menu_item_call label="削除" name="Delete"/>
 	<menu_item_separator/>
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
-	<menu_item_call label="XMLとしてダンプ" name="Dump XML"/>
+	<menu_item_call label="ＸＭＬとしてダンプ" name="Dump XML"/>
 	<menu_item_call label="スケルトンをリセット" name="Reset Skeleton"/>
 </context_menu>

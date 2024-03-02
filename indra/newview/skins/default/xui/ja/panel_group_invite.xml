@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーを招待" name="invite_panel">
 	<panel.string name="confirm_invite_owner_str">
-		本当に新しい所有者を招待しますか？この操作は取り消しできません。
+		本当に新しい所有者を招待してもよろしいですか？この操作は取り消しできません。
 	</panel.string>
 	<panel.string name="loading">
 		（読み込んでいます…）
@@ -16,7 +16,7 @@
 	<text name="help_text">
 		グループには一度に複数の住人を招待することができます。「リストから住人を選択」をクリックしてください。
 	</text>
-	<button label="リストから住人を選択" name="add_button" tool_tip=""/>
+	<button label="リストから住人を選択" name="add_button"/>
 	<name_list name="invitee_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
 	<button label="リストから選択したものを削除" name="remove_button" tool_tip="招待リストから上で選択した住人を削除します"/>
 	<text name="role_text">

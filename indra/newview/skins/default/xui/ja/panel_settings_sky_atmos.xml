@@ -1,61 +1,71 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="大気と雷" name="panel_settings_sky_atmos">
-	<layout_stack follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="vertical">
-		<layout_panel border="true" bevel_style="in" auto_resize="false" user_resize="false" visible="true" height="75">
-			<text follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" width="80">
-				アンビエントカラー：
+<panel label="大気と光源" name="panel_settings_sky_atmos">
+	<string name="hdr_string">
+		ＨＤＲスケール：
+	</string>
+	<string name="brightness_string">
+		ブライトネス：
+	</string>
+	<string name="hdr_tooltip">
+		リアルで明るい空やダイナミックな露出などの光源効果の強さを指定します。1.0がデフォルトで、0はオフとなり、0～1の間の値はアンビエントとＨＤＲの混合となります。
+	</string>
+	<layout_stack name="main_ls">
+		<layout_panel name="top_lp">
+			<text name="ambient_color_label">
+				周辺カラー：
 			</text>
-			<color_swatch can_apply_immediately="true" follows="left|top" height="37" label_height="0" layout="topleft" left_delta="0" name="ambient_light" top_pad="5" width="60"/>
-			<text follows="left" height="10" layout="topleft" left_delta="90" top_delta="-15" width="80">
-				青のホライズン：
+			<color_swatch name="ambient_light"/>
+			<text name="blue_horizon_label">
+				地平線の青：
 			</text>
-			<color_swatch can_apply_immediately="true" follows="left|top" height="37" label_height="0" layout="topleft" left_delta="0" name="blue_horizon" top_pad="5" width="60"/>
-			<text follows="left" height="10" layout="topleft" left_delta="90" top_delta="-15" width="80">
+			<color_swatch name="blue_horizon"/>
+			<text name="blue_density_label">
 				青の濃度：
 			</text>
-			<color_swatch can_apply_immediately="true" follows="left|top" height="37" label_height="0" layout="topleft" left_delta="0" name="blue_density" top_pad="5" width="60"/>
+			<color_swatch name="blue_density"/>
 		</layout_panel>
-		<layout_panel border="true" bevel_style="in" auto_resize="true" user_resize="false" visible="true">
-			<layout_stack name="atmosphere1" left="5" top="5" right="-5" bottom="-5" follows="left|top|right|bottom" orientation="hoizontal">
-				<layout_panel border="false" bevel_style="in" auto_resize="true" user_resize="false" visible="true" min_width="225">
-					<text follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" width="80">
-						霞の地平線：
+		<layout_panel name="bottom_lp">
+			<layout_stack name="atmosphere1">
+				<layout_panel name="left_lp">
+					<text name="haze_horizon_label">
+						地平線の霞：
 					</text>
-					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="5" name="haze_horizon" top_delta="20" width="207" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="80">
-						霞の密度:
+					<slider name="haze_horizon"/>
+					<text name="haze_density_label">
+						霞の密度：
 					</text>
-					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="5" name="haze_density" top_delta="20" width="207" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="80">
-						水分レベル：
+					<slider name="haze_density"/>
+					<text name="moisture_level_label">
+						湿度：
 					</text>
-					<slider decimal_digits="3" follows="left|top" height="14" increment="0.001" initial_value="0" left_delta="5" top_delta="20" layout="topleft" min_val="0" max_val="1" name="moisture_level" width="207" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="80">
+					<slider name="moisture_level"/>
+					<text name="droplet_radius_label">
 						液滴半径：
 					</text>
-					<slider decimal_digits="2" follows="left|top" height="14" increment="0.01" initial_value="0" left_delta="5" top_delta="20" layout="topleft" min_val="5.0" max_val="1000.0" name="droplet_radius" width="207" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="80">
+					<slider name="droplet_radius"/>
+					<text name="ice_level_label">
 						氷のレベル：
 					</text>
-					<slider decimal_digits="3" follows="left|top" height="14" increment="0.001" initial_value="0" left_delta="5" top_delta="20" layout="topleft" min_val="0" max_val="1" name="ice_level" width="207" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="80">
-						シーンのガンマ値：
-					</text>
-					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" max_val="20" name="scene_gamma" top_delta="20" width="207" can_edit_text="true"/>
+					<slider name="ice_level"/>
 				</layout_panel>
-				<layout_panel border="false" bevel_style="in" auto_resize="true" user_resize="false" visible="true" min_width="225">
-					<text follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" width="200">
+				<layout_panel name="right_lp">
+					<text name="density_multiplier_label">
 						密度乗数：
 					</text>
-					<slider decimal_digits="4" follows="left|top" height="16" increment="0.0001" initial_value="0" layout="topleft" left_delta="5" min_val="0.0001" max_val="2" name="density_multip" top_delta="20" width="219" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="200">
+					<slider name="density_multip"/>
+					<text name="distance_multiplier_label">
 						距離乗数：
 					</text>
-					<slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0.8" layout="topleft" left_delta="5" min_val="0.05" max_val="1000" name="distance_multip" top_delta="20" width="219" can_edit_text="true"/>
-					<text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="200">
+					<slider name="distance_multip"/>
+					<text name="maximum_altitude_label">
 						最大高度：
 					</text>
-					<slider decimal_digits="1" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="10000" name="max_alt" top_delta="20" width="219" can_edit_text="true"/>
+					<slider name="max_alt"/>
+					<slider name="probe_ambiance" tool_tip="環境ベースの間接照明の強度を制御します。０の場合、ＨＤＲスケールは明るさになります。"/>
+					<text name="scene_gamma_label">
+						ブライトネス：
+					</text>
+					<slider name="scene_gamma"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

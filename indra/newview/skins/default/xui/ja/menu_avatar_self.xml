@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Self Pie">
-	<menu_item_call label="座る" name="Sit Down Here"/>
-	<menu_item_call label="立ち上がる" name="Stand Up"/>
+	<menu_item_call label="着用中…" name="NowWearing"/>
+	<menu_item_call label="アウトフィット変更…" name="Chenge Outfit"/>
+	<menu_item_call label="ホバーする高さ…" name="Hover Height"/>
+	<menu_item_call label="シェイプ…" name="Edit Shape"/>
+	<menu_item_call label="アウトフィットのパーツの編集" name="Edit Outfit"/>
 	<context_menu label="脱ぐ" name="Take Off &gt;">
 		<context_menu label="服装" name="Clothes &gt;">
 			<menu_item_call label="シャツ" name="Shirt"/>
@@ -18,20 +21,20 @@
 			<menu_item_call label="アルファ" name="Self Alpha"/>
 			<menu_item_call label="すべての服装" name="All Clothes"/>
 		</context_menu>
-		<context_menu label="HUD" name="Object Detach HUD"/>
+		<context_menu label="ＨＵＤ" name="Object Detach HUD"/>
 		<context_menu label="取り外す" name="Object Detach"/>
 		<menu_item_call label="すべて取り外す" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="アウトフィットを変更" name="Chenge Outfit"/>
-	<menu_item_call label="アウトフィットの編集" name="Edit Outfit"/>
-	<menu_item_call label="シェイプを編集" name="Edit My Shape"/>
-	<menu_item_call label="ホバー高さ" name="Hover Height"/>
+	<menu_item_separator/>
+	<menu_item_call label="座る／立つ" name="Sit stand"/>
+	<menu_item_call label="飛行／着地" name="Fly land"/>
+	<menu_item_call label="自分のアニメーションを停止" name="Stop Animating My Avatar"/>
+	<menu_item_separator/>
 	<menu_item_call label="スケルトンをリセット" name="Reset Skeleton"/>
 	<menu_item_call label="スケルトンとアニメーションをリセット" name="Reset Skeleton And Animations"/>
-	<menu_item_call label="フレンド…" name="Friends..."/>
-	<menu_item_call label="グループ…" name="Groups..."/>
-	<menu_item_call label="プロフィール…" name="Profile..."/>
 	<menu_item_call label="テクスチャのデバッグ…" name="Debug..."/>
-	<menu_item_call label="XMLとしてダンプ" name="Dump XML"/>
+	<menu_item_call label="ＸＭＬとしてダンプ" name="Dump XML"/>
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
+	<menu_item_separator/>
+	<menu_item_call label="プロフィールを表示" name="show_avatar_profile"/>
 </context_menu>

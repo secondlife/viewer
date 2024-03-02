@@ -17,11 +17,11 @@
 	</string>
 	<panel name="controls">
 		<panel name="zoom">
-			<joystick_rotate name="cam_rotate_stick" tool_tip="対象にカメラを追尾"/>
+			<joystick_rotate name="cam_rotate_stick" tool_tip="対象にカメラを追尾させます。"/>
 			<button name="zoom_plus_btn"/>
-			<slider_bar tool_tip="対象にカメラをズーム"/>
+			<slider_bar name="zoom_slider" tool_tip="対象にカメラをズームします。"/>
 			<button name="zoom_minus_btn"/>
-			<joystick_track tool_tip="カメラを上下左右に動かします。"/>
+			<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に動かします。"/>
 			<text name="precise_ctrs_label">
 				数値で角度方位を指定
 			</text>

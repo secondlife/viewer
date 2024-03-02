@@ -55,7 +55,7 @@
 	</radio_group>
 	<check_box label="喋るときにアバターの口を動かす" name="enable_lip_sync"/>
 	<check_box label="ボイスチャットをトグルモードにする" name="push_to_talk_toggle_check" tool_tip="トグルモードでは、トリガーキーを押すことでマイクのオン／オフを切り替えます。そうでない場合は、トリガーキーを押している間だけマイクがオンになります。"/>
-	<check_box name="gesture_audio_play_btn" tool_tip="ジェスチャーからのサウンドを聞くにはこれを選択" label="ゼスチャーのサウンドを再生"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="ジェスチャーからのサウンドを聞くにはこれを選択" label="ジェスチャーのサウンドを再生"/>
 	<button label="入出力機器の設定" name="device_settings_btn"/>
 	<panel name="device_settings_panel"/>
 </panel>

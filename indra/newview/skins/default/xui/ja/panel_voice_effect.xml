@@ -9,7 +9,7 @@
 	<string name="get_voice_effects">
 		ボイスモーフィングを取得
 	</string>
-	<combo_box name="voice_effect" tool_tip="ボイスモーフィングを選択してボイスを変更">
+	<combo_box name="voice_effect" tool_tip="ボイスモーフィングを選択してボイスを変更します。">
 		<combo_box.item label="ボイスモーフィングなし" name="no_voice_effect"/>
 	</combo_box>
 </panel>
