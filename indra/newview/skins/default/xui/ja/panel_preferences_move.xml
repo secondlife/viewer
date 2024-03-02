@@ -6,7 +6,7 @@
 	<text name="heading2">
 		自動ポジション：
 	</text>
-	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
+	<check_box label="ビルド・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
 	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
 	<icon name="avatar_icon"/>
 	<text name="keyboard_lbl">

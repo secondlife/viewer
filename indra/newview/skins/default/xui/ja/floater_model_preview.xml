@@ -151,7 +151,7 @@
 					<item name="MeshOptSloppy" label="簡易生成" value="MeshOptSloppy"/>
 				</combo_box>
 				<line_editor name="lod_file_high" value=""/>
-				<button label="ブラウズ…" name="lod_browse_high"/>
+				<button label="参照…" name="lod_browse_high"/>
 				<combo_box name="lod_mode_high">
 					<item label="三角形の限度数" name="Triangle Limit" value="Triangle Limit"/>
 					<item label="エラーのしきい値" name="Error Threshold" value="Error Threshold"/>
@@ -165,7 +165,7 @@
 					<item name="Use LoD above" label="上記のＬｏＤ設定を使用" value="Use LoD above"/>
 				</combo_box>
 				<line_editor name="lod_file_medium" value=""/>
-				<button label="ブラウズ…" name="lod_browse_medium"/>
+				<button label="参照…" name="lod_browse_medium"/>
 				<combo_box name="lod_mode_medium">
 					<item label="三角形の限度数" name="Triangle Limit" value="Triangle Limit"/>
 					<item label="エラーのしきい値" name="Error Threshold" value="Error Threshold"/>
@@ -179,7 +179,7 @@
 					<item name="Use LoD above" label="上記のＬｏＤ設定を使用" value="Use LoD above"/>
 				</combo_box>
 				<line_editor name="lod_file_low" value=""/>
-				<button label="ブラウズ…" name="lod_browse_low"/>
+				<button label="参照…" name="lod_browse_low"/>
 				<combo_box name="lod_mode_low">
 					<item label="三角形の限度数" name="Triangle Limit" value="Triangle Limit"/>
 					<item label="エラーのしきい値" name="Error Threshold" value="Error Threshold"/>
@@ -199,7 +199,7 @@
 					<item name="Use LoD above" label="上記のＬｏＤ設定を使用" value="Use LoD above"/>
 				</combo_box>
 				<line_editor name="lod_file_lowest"/>
-				<button label="ブラウズ…" name="lod_browse_lowest"/>
+				<button label="参照…" name="lod_browse_lowest"/>
 				<combo_box name="lod_mode_lowest">
 					<item name="Triangle Limit" label="三角形の限度数" value="Triangle Limit"/>
 					<item name="Error Threshold" label="エラーのしきい値" value="Error Threshold"/>
@@ -247,7 +247,7 @@
 						</combo_item>
 					</combo_box>
 					<line_editor name="physics_file"/>
-					<button name="physics_browse" label="ブラウズ…"/>
+					<button name="physics_browse" label="参照…"/>
 				</panel>
 				<view_border name="physics_tab_border"/>
 				<panel name="physics analysis">

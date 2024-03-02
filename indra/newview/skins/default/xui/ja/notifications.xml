@@ -3275,7 +3275,13 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="MissingMaterialCaps">
 		<tag>fail</tag>
-    マテリアル対応リージョンに接続されていません。
+		マテリアル対応リージョンに接続されていません。
+	</notification>
+	<notification name="CantSelectReflectionProbe">
+		<unique/>
+		反射プローブを配置しましたが、「反射プローブの選択」が無効になっています。反射プローブを選択できるようにするには、「ビルド」＞「オプション」＞「反射プローブの選択」をオンにします。
+		<tag>confirm</tag>
+		<usetemplate ignoretext="反射プローブの選択が無効になっているとき" name="okignore" yestext="ＯＫ"/>
 	</notification>
 	<notification name="ScriptMissing">
 		データベースにスクリプトがありません。
