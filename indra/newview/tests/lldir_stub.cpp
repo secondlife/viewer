@@ -28,7 +28,7 @@
 
 LLDir::LLDir() {}
 LLDir::~LLDir() {}
-BOOL LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask) { return true; }
+bool LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask) { return true; }
 void LLDir::setChatLogsDir(const std::string &path) {}
 void LLDir::setPerAccountChatLogsDir(const std::string &) {}
 void LLDir::updatePerAccountChatLogsDir() {}

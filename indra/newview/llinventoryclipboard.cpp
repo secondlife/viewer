@@ -99,7 +99,7 @@ void LLInventoryClipboard::reset()
 }
 
 // returns true if the clipboard has something pasteable in it.
-BOOL LLInventoryClipboard::hasContents() const
+bool LLInventoryClipboard::hasContents() const
 {
 	return (mObjects.count() > 0);
 }

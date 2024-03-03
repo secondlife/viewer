@@ -26,7 +26,7 @@
 
 class LLPipeline
 {
-public: BOOL canUseWindLightShaders() const;
+public: bool canUseWindLightShaders() const;
 };
-BOOL LLPipeline::canUseWindLightShaders() const {return TRUE;}
+bool LLPipeline::canUseWindLightShaders() const {return true;}
 LLPipeline gPipeline;

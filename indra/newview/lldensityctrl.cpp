@@ -98,7 +98,7 @@ LLSD LLDensityCtrl::getProfileConfig()
     return config;
 }
 
-BOOL LLDensityCtrl::postBuild()
+bool LLDensityCtrl::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_PROFILE_EXPONENTIAL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onExponentialChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_PROFILE_EXPONENTIAL_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onExponentialScaleFactorChanged(); });
@@ -113,10 +113,10 @@ BOOL LLDensityCtrl::postBuild()
         getChild<LLUICtrl>(FIELD_SKY_DENSITY_ANISO_FACTOR)->setVisible(false);
     }
 
-    return TRUE;
+    return true;
 }
 
-void LLDensityCtrl::setEnabled(BOOL enabled)
+void LLDensityCtrl::setEnabled(bool enabled)
 {
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_PROFILE_EXPONENTIAL)->setEnabled(enabled);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_PROFILE_EXPONENTIAL_SCALE)->setEnabled(enabled);
@@ -134,13 +134,13 @@ void LLDensityCtrl::refresh()
 {
     if (!mSkySettings)
     {
-        setAllChildrenEnabled(FALSE);
-        setEnabled(FALSE);
+        setAllChildrenEnabled(false);
+        setEnabled(false);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(true);
+    setAllChildrenEnabled(true);
 
     LLSD config = getProfileConfig();
 

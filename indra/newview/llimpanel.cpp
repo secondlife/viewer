@@ -203,7 +203,7 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 	mFocusCallbackConnection.disconnect();
 }
 
-BOOL LLFloaterIMPanel::postBuild() 
+bool LLFloaterIMPanel::postBuild()
 {
 	setVisibleCallback(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
 	
@@ -212,9 +212,9 @@ BOOL LLFloaterIMPanel::postBuild()
 	mFocusCallbackConnection = mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this));
 	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
 	mInputEditor->setCommitCallback( onCommitChat, this );
-	mInputEditor->setCommitOnFocusLost( FALSE );
-	mInputEditor->setRevertOnEsc( FALSE );
-	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
+	mInputEditor->setCommitOnFocusLost( false );
+	mInputEditor->setRevertOnEsc( false );
+	mInputEditor->setReplaceNewlinesWithSpaces( false );
 
 	childSetAction("profile_callee_btn", onClickProfile, this);
 	childSetAction("group_info_btn", onClickGroupInfo, this);
@@ -232,12 +232,12 @@ BOOL LLFloaterIMPanel::postBuild()
 
 	if ( IM_SESSION_GROUP_START == mDialog )
 	{
-		childSetEnabled("profile_btn", FALSE);
+		childSetEnabled("profile_btn", false);
 	}
 	
 	if(!mProfileButtonEnabled)
 	{
-		childSetEnabled("profile_callee_btn", FALSE);
+		childSetEnabled("profile_callee_btn", false);
 	}
 
 	sTitleString = getString("title_string");
@@ -256,7 +256,7 @@ BOOL LLFloaterIMPanel::postBuild()
 	}
 
 	setDefaultBtn("send_btn");
-	return TRUE;
+	return true;
 }
 
 void* LLFloaterIMPanel::createSpeakersPanel(void* data)
@@ -406,12 +406,12 @@ private:
 	LLUUID mSessionID;
 };
 
-BOOL LLFloaterIMPanel::inviteToSession(const std::vector<LLUUID>& ids)
+bool LLFloaterIMPanel::inviteToSession(const std::vector<LLUUID>& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region)
 	{
-		return FALSE;
+		return false;
 	}
 	
 	S32 count = ids.size();
@@ -447,7 +447,7 @@ BOOL LLFloaterIMPanel::inviteToSession(const std::vector<LLUUID>& ids)
 		// was added.
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4& color, bool log_to_file, const LLUUID& source, const std::string& name)
@@ -522,17 +522,17 @@ void LLFloaterIMPanel::selectNone()
 	mInputEditor->deselect();
 }
 
-BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask )
+bool LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 	if( KEY_RETURN == key && mask == MASK_NONE)
 	{
 		sendMsg();
-		handled = TRUE;
+		handled = true;
 	}
 	else if ( KEY_ESCAPE == key )
 	{
-		handled = TRUE;
+		handled = true;
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
@@ -541,7 +541,7 @@ BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask )
 	return handled;
 }
 
-BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 								  EDragAndDropType cargo_type,
 								  void* cargo_data,
 								  EAcceptance* accept,
@@ -574,12 +574,12 @@ BOOL LLFloaterIMPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			}
 		}
 	}
-	return TRUE;
-} 
+	return true;
+}
 
-BOOL LLFloaterIMPanel::dropCallingCard(LLInventoryItem* item, BOOL drop)
+bool LLFloaterIMPanel::dropCallingCard(LLInventoryItem* item, bool drop)
 {
-	BOOL rv = isInviteAllowed();
+	bool rv = isInviteAllowed();
 	if(rv && item && item->getCreatorUUID().notNull())
 	{
 		if(drop)
@@ -592,12 +592,12 @@ BOOL LLFloaterIMPanel::dropCallingCard(LLInventoryItem* item, BOOL drop)
 	else
 	{
 		// set to false if creator uuid is null.
-		rv = FALSE;
+		rv = false;
 	}
 	return rv;
 }
 
-BOOL LLFloaterIMPanel::dropCategory(LLInventoryCategory* category, BOOL drop)
+bool LLFloaterIMPanel::dropCategory(LLInventoryCategory* category, bool drop)
 {
 	BOOL rv = isInviteAllowed();
 	if(rv && category)
@@ -613,7 +613,7 @@ BOOL LLFloaterIMPanel::dropCategory(LLInventoryCategory* category, BOOL drop)
 		S32 count = items.count();
 		if(count == 0)
 		{
-			rv = FALSE;
+			rv = false;
 		}
 		else if(drop)
 		{
@@ -629,7 +629,7 @@ BOOL LLFloaterIMPanel::dropCategory(LLInventoryCategory* category, BOOL drop)
 	return rv;
 }
 
-BOOL LLFloaterIMPanel::isInviteAllowed() const
+bool LLFloaterIMPanel::isInviteAllowed() const
 {
 
 	return ( (IM_SESSION_CONFERENCE_START == mDialog) 
@@ -641,7 +641,7 @@ BOOL LLFloaterIMPanel::isInviteAllowed() const
 void LLFloaterIMPanel::onTabClick(void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
-	self->setInputFocus(TRUE);
+	self->setInputFocus(true);
 }
 
 
