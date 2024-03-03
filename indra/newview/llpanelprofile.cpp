@@ -1446,7 +1446,7 @@ void LLPanelProfileSecondLife::changed(U32 mask)
 }
 
 // virtual, called by LLVoiceClient
-void LLPanelProfileSecondLife::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+void LLPanelProfileSecondLife::onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
 {
     if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
     {

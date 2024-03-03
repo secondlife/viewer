@@ -5121,7 +5121,7 @@ void LLAppViewer::sendLogoutRequest()
 
 		if(LLVoiceClient::instanceExists())
 		{
-			LLVoiceClient::getInstance()->leaveChannel();
+			LLVoiceClient::getInstance()->setVoiceEnabled(false);
 		}
 	}
 }

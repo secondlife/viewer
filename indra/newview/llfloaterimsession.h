@@ -114,8 +114,7 @@ public:
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
 	// button when voice is available
-	void onChange(EStatusType status, const std::string &channelURI,
-			bool proximal);
+	void onChange(EStatusType status, const LLSD& channelInfo, bool proximal);
 
 	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 	virtual void onVoiceChannelStateChanged(

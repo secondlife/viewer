@@ -51,10 +51,25 @@ class LLVivoxProtocolParser;
 class LLAvatarName;
 class LLVivoxVoiceClientMuteListObserver;
 
+extern const std::string VIVOX_VOICE_SERVER_TYPE;
+
+class LLVivoxVoiceP2PIncomingCall : public LLVoiceP2PIncomingCallInterface
+{
+  public:
+    LLVivoxVoiceP2PIncomingCall(const LLSD& call_info) : mCallInfo(call_info) {}
+    ~LLVivoxVoiceP2PIncomingCall() override {}
+
+    bool answerInvite() override;
+    void declineInvite() override;
+
+  protected:
+    LLSD mCallInfo;
+};
 
 class LLVivoxVoiceClient :	public LLSingleton<LLVivoxVoiceClient>,
 							virtual public LLVoiceModuleInterface,
-							virtual public LLVoiceEffectInterface
+							virtual public LLVoiceEffectInterface,
+	                        virtual public LLVoiceP2POutgoingCallInterface
 {
 	LLSINGLETON_C11(LLVivoxVoiceClient);
 	LOG_CLASS(LLVivoxVoiceClient);
@@ -112,9 +127,6 @@ public:
 
 	// Send a text message to the specified user, initiating the session if necessary.
 	// virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
-	
-	// close any existing text IM session with the specified user
-	void endUserIMSession(const LLUUID &uuid) override;
 
 	// Returns true if calling back the session URI after the session has closed is possible.
 	// Currently this will be false only for PSTN P2P calls.		
@@ -134,33 +146,37 @@ public:
 	// Note that gestures should only fire if this returns true.
 	bool inProximalChannel() override;
 	
-	void setNonSpatialChannel(const std::string &uri,
-									  const std::string &credentials,
-		                              bool hangup_on_last_leave) override;
+	void setNonSpatialChannel(const LLSD& channelInfo,
+		                      bool hangup_on_last_leave) override;
 	
-	bool setSpatialChannel(const std::string &uri,
-								   const std::string &credentials) override;
+	bool setSpatialChannel(const LLSD& channelInfo) override;
 	
 	void leaveNonSpatialChannel() override;
+
+	void processChannels(bool process) override;
 	
-	void leaveChannel(void) override;
-	
-	// Returns the URI of the current channel, or an empty string if not currently in a channel.
-	// NOTE that it will return an empty string if it's in the process of joining a channel.
-	std::string getCurrentChannel() override;
+	void leaveChannel(void);
+
+	bool isCurrentChannel(const LLSD &channelInfo) override;
+    bool compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2) override;
+
 	//@}
 	
 	
 	//////////////////////////
-	/// @name invitations
+	/// @name LLVoiceP2POutgoingCallInterface
 	//@{
 	// start a voice channel with the specified user
-    bool hasP2PInterface() override { return true; }
 	void callUser(const LLUUID &uuid) override;
-	bool isValidChannel(std::string &channelHandle) override;
-    bool answerInvite(std::string &channelHandle) override;
-    void declineInvite(std::string &channelHandle) override;
+    void hangup() override;
 	//@}
+
+    LLVoiceP2POutgoingCallInterface *getOutgoingCallInterface() override { return this; }
+
+	LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voice_call_info) override;
+
+    bool answerInvite(const std::string &sessionHandle);
+    void declineInvite(const std::string &sessionHandle);
 	
 	/////////////////////////
 	/// @name Volume/gain
@@ -172,10 +188,7 @@ public:
 	/////////////////////////
 	/// @name enable disable voice and features
 	//@{
-	bool voiceEnabled() override;
 	void setVoiceEnabled(bool enabled) override;
-	BOOL lipSyncEnabled() override;
-	void setLipSyncEnabled(BOOL enabled) override;
 	void setMuteMic(bool muted) override;		// Set the mute state of the local mic.
 	//@}
 		
@@ -312,6 +325,8 @@ protected:
 
         static ptr_t createSession();
 		~sessionState();
+
+		LLSD getVoiceChannelInfo();
 		
         participantStatePtr_t addParticipant(const std::string &uri);
         void removeParticipant(const participantStatePtr_t &participant);
@@ -327,6 +342,7 @@ protected:
 
 		bool isCallBackPossible();
 		bool isTextIMPossible();
+        bool isSpatial() { return mIsSpatial; }
 		
         static void for_each(sessionFunc_t func);
 
@@ -738,10 +754,8 @@ private:
 	bool switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
     void joinSession(const sessionStatePtr_t &session);
 	
-	std::string nameFromAvatar(LLVOAvatar *avatar);
 	std::string nameFromID(const LLUUID &id);
 	bool IDFromName(const std::string name, LLUUID &uuid);
-	std::string displayNameFromAvatar(LLVOAvatar *avatar);
 	std::string sipURIFromAvatar(LLVOAvatar *avatar);
 	std::string sipURIFromName(std::string &name);
 	
@@ -749,7 +763,7 @@ private:
 	std::string nameFromsipURI(const std::string &uri);		
 
 	bool inSpatialChannel(void);
-	std::string getAudioSessionURI();
+	LLSD getAudioSessionChannelInfo();
 	std::string getAudioSessionHandle();
 			
     void setHidden(bool hidden) override; //virtual
@@ -805,11 +819,10 @@ private:
 	bool		mMicVolumeDirty;
 	
 	bool		mVoiceEnabled;
+    bool        mProcessChannels;
 	bool		mWriteInProgress;
 	std::string mWriteString;
 	size_t		mWriteOffset;
-	
-	BOOL		mLipSyncEnabled;
 
 	typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
 	observer_set_t mParticipantObservers;

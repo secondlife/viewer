@@ -62,7 +62,7 @@ public:
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
 	// button when voice is available
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+	/*virtual*/ void onChange(EStatusType status, const LLSD& channelInfo, bool proximal);
 
 	void showNotice(const std::string& subject,
 					const std::string& message,

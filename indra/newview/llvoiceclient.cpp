@@ -113,13 +113,28 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 	return result;
 }
 
-
+LLVoiceModuleInterface *getVoiceModule(const std::string &voice_server_type)
+{
+    if (voice_server_type == VIVOX_VOICE_SERVER_TYPE || voice_server_type.empty())
+    {
+        return (LLVoiceModuleInterface *) LLVivoxVoiceClient::getInstance();
+    }
+    else if (voice_server_type == WEBRTC_VOICE_SERVER_TYPE)
+    {
+        return (LLVoiceModuleInterface *) LLWebRTCVoiceClient::getInstance();
+    }
+    else
+    {
+        LLNotificationsUtil::add("VoiceVersionMismatch");
+        return nullptr;
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 	:
-	mVoiceModule(NULL),
+	mSpatialVoiceModule(NULL),
 	m_servicePump(NULL),
 	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
 	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
@@ -141,7 +156,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 
 LLVoiceClient::~LLVoiceClient()
 {
-    llassert(!mVoiceModule);
+    llassert(!mSpatialVoiceModule);
 }
 
 void LLVoiceClient::init(LLPumpIO *pump)
@@ -154,9 +169,9 @@ void LLVoiceClient::init(LLPumpIO *pump)
 
 void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &agentID)
 {
-    mUserID = user_id;
-    mAgentID = agentID;
     gAgent.addRegionChangedCallback(boost::bind(&LLVoiceClient::onRegionChanged, this));
+    LLWebRTCVoiceClient::getInstance()->userAuthorized(user_id, agentID);
+    LLVivoxVoiceClient::getInstance()->userAuthorized(user_id, agentID);
 }
 
 void LLVoiceClient::onRegionChanged()
@@ -166,7 +181,7 @@ void LLVoiceClient::onRegionChanged()
     {
             LLSD simulatorFeatures;
             region->getSimulatorFeatures(simulatorFeatures);
-            setVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+            setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
     }
     else if (region)
     {
@@ -187,44 +202,57 @@ void LLVoiceClient::onSimulatorFeaturesReceived(const LLUUID& region_id)
     {
         LLSD simulatorFeatures;
         region->getSimulatorFeatures(simulatorFeatures);
-        setVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+        setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
     }
 }
 
-void LLVoiceClient::setVoiceModule(const std::string& voice_server_type)
+void LLVoiceClient::setSpatialVoiceModule(const std::string &voice_server_type)
 {
-    if (voice_server_type == "vivox" || voice_server_type.empty())
-    {
-        mVoiceModule = (LLVoiceModuleInterface *) LLVivoxVoiceClient::getInstance();
-    }
-    else if (voice_server_type == "webrtc")
-    {
-        mVoiceModule = (LLVoiceModuleInterface *) LLWebRTCVoiceClient::getInstance();
-    }
-	else
+    LLVoiceModuleInterface *module = getVoiceModule(voice_server_type);
+    if (!module) 
 	{
-        LLNotificationsUtil::add("VoiceVersionMismatch");
-        mVoiceModule = nullptr;
         return;
 	}
-    mVoiceModule->userAuthorized(mUserID, mAgentID);
-    updateSettings();
+    if (module != mSpatialVoiceModule)
+    {
+		if (inProximalChannel())
+		{
+            mSpatialVoiceModule->processChannels(false);
+		}
+        module->processChannels(true);
+        mSpatialVoiceModule = module;
+        mSpatialVoiceModule->updateSettings();
+    }
 }
 
-
+void LLVoiceClient::setNonSpatialVoiceModule(const std::string &voice_server_type)
+{
+    mNonSpatialVoiceModule = getVoiceModule(voice_server_type);
+    if (!mNonSpatialVoiceModule)
+    {
+		// we don't have a non-spatial voice module,
+		// so revert to spatial.
+		if (mSpatialVoiceModule)
+		{
+            mSpatialVoiceModule->processChannels(true);
+		}
+        return;
+    }
+    mNonSpatialVoiceModule->updateSettings();
+}
 
 void LLVoiceClient::setHidden(bool hidden)
 {
-    if (mVoiceModule)
+    if (mSpatialVoiceModule)
     {
-        mVoiceModule->setHidden(hidden);
+        mSpatialVoiceModule->setHidden(hidden);
     }
 }
 
 void LLVoiceClient::terminate()
 {
-	if (mVoiceModule) mVoiceModule->terminate();
-	mVoiceModule = NULL;
+	if (mSpatialVoiceModule) mSpatialVoiceModule->terminate();
+	mSpatialVoiceModule = NULL;
     m_servicePump = NULL;
 
     // Shutdown speaker volume storage before LLSingletonBase::deleteAll() does it
@@ -236,9 +264,9 @@ void LLVoiceClient::terminate()
 
 const LLVoiceVersionInfo LLVoiceClient::getVersion()
 {
-	if (mVoiceModule) 
+	if (mSpatialVoiceModule) 
 	{
-		return mVoiceModule->getVersion();
+		return mSpatialVoiceModule->getVersion();
 	}
 	else
 	{
@@ -258,10 +286,8 @@ void LLVoiceClient::updateSettings()
 
 	updateMicMuteLogic();
 
-	if (mVoiceModule)
-    {
-        mVoiceModule->updateSettings();
-    }
+    LLWebRTCVoiceClient::getInstance()->updateSettings();
+    LLVivoxVoiceClient::getInstance()->updateSettings();
 }
 
 //--------------------------------------------------
@@ -269,117 +295,76 @@ void LLVoiceClient::updateSettings()
 
 void LLVoiceClient::tuningStart()
 {
-	if (mVoiceModule) mVoiceModule->tuningStart();
+	LLWebRTCVoiceClient::getInstance()->tuningStart();
+    LLVivoxVoiceClient::getInstance()->tuningStart();
 }
 
 void LLVoiceClient::tuningStop()
 {
-	if (mVoiceModule) mVoiceModule->tuningStop();
+	LLWebRTCVoiceClient::getInstance()->tuningStop();
+    LLVivoxVoiceClient::getInstance()->tuningStop();
+
 }
 
 bool LLVoiceClient::inTuningMode()
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->inTuningMode();
-	}
-	else
-	{
-		return false;
-	}
+	return LLWebRTCVoiceClient::getInstance()->inTuningMode();
 }
 
 void LLVoiceClient::tuningSetMicVolume(float volume)
 {
-	if (mVoiceModule) mVoiceModule->tuningSetMicVolume(volume);
+	LLWebRTCVoiceClient::getInstance()->tuningSetMicVolume(volume);
 }
 
 void LLVoiceClient::tuningSetSpeakerVolume(float volume)
 {
-	if (mVoiceModule) mVoiceModule->tuningSetSpeakerVolume(volume);
+	LLWebRTCVoiceClient::getInstance()->tuningSetSpeakerVolume(volume);
 }
 
 float LLVoiceClient::tuningGetEnergy(void)
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->tuningGetEnergy();
-	}
-	else
-	{
-		return 0.0;
-	}
+	return LLWebRTCVoiceClient::getInstance()->tuningGetEnergy();
 }
-
 
 //------------------------------------------------
 // devices
 
 bool LLVoiceClient::deviceSettingsAvailable()
-{
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->deviceSettingsAvailable();
-	}
-	else
-	{
-		return false;
-	}
+{ 
+	return LLWebRTCVoiceClient::getInstance()->deviceSettingsAvailable();
 }
 
 bool LLVoiceClient::deviceSettingsUpdated()
-{
-	if (mVoiceModule)
-	{
-		return mVoiceModule->deviceSettingsUpdated();
-	}
-	else
-	{
-		return false;
-	}
+{ 
+	return LLWebRTCVoiceClient::getInstance()->deviceSettingsUpdated();
 }
 
 void LLVoiceClient::refreshDeviceLists(bool clearCurrentList)
 {
-	if (mVoiceModule) mVoiceModule->refreshDeviceLists(clearCurrentList);
+	LLWebRTCVoiceClient::getInstance()->refreshDeviceLists(clearCurrentList);
 }
 
 void LLVoiceClient::setCaptureDevice(const std::string& name)
 {
-	if (mVoiceModule) mVoiceModule->setCaptureDevice(name);
-	
+	LLWebRTCVoiceClient::getInstance()->setCaptureDevice(name);
+    LLVivoxVoiceClient::getInstance()->setCaptureDevice(name);
 }
 
 void LLVoiceClient::setRenderDevice(const std::string& name)
 {
-	if (mVoiceModule) mVoiceModule->setRenderDevice(name);	
+	LLWebRTCVoiceClient::getInstance()->setRenderDevice(name);
+    LLVivoxVoiceClient::getInstance()->setRenderDevice(name);
 }
 
 const LLVoiceDeviceList& LLVoiceClient::getCaptureDevices()
 {
-	static LLVoiceDeviceList nullCaptureDevices;
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getCaptureDevices();
-	}
-	else
-	{
-		return nullCaptureDevices;
-	}
+	return LLWebRTCVoiceClient::getInstance()->getCaptureDevices();
 }
 
 
 const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
-{
-	static LLVoiceDeviceList nullRenderDevices;	
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getRenderDevices();
-	}
-	else
-	{
-		return nullRenderDevices;
-	}
+{ 
+	return LLWebRTCVoiceClient::getInstance()->getRenderDevices();
 }
 
 
@@ -388,74 +373,41 @@ const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
 
 void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 {
-	if (mVoiceModule) 
-	{
-	  mVoiceModule->getParticipantList(participants);
-	}
-	else
-	{
-	  participants = std::set<LLUUID>();
-	}
+    LLWebRTCVoiceClient::getInstance()->getParticipantList(participants);
+    LLVivoxVoiceClient::getInstance()->getParticipantList(participants);
 }
 
 bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
 {
-  if(mVoiceModule)
-    {
-      return mVoiceModule->isParticipant(speaker_id);
-    }
-  return false;
+    return LLWebRTCVoiceClient::getInstance()->isParticipant(speaker_id) || LLVivoxVoiceClient::getInstance()->isParticipant(speaker_id);
 }
 
 
 //--------------------------------------------------
 // text chat
 
-
 BOOL LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
 {
-	if (mVoiceModule) 
+	if (mSpatialVoiceModule) 
 	{
-		return mVoiceModule->isSessionTextIMPossible(id);
+		return mSpatialVoiceModule->isSessionTextIMPossible(id);
 	}
 	else
 	{
 		return FALSE;
-	}	
+	}
 }
 
 BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
 {
-	if (mVoiceModule) 
+	if (mSpatialVoiceModule) 
 	{
-		return mVoiceModule->isSessionCallBackPossible(id);
+		return mSpatialVoiceModule->isSessionCallBackPossible(id);
 	}
 	else
 	{
 		return FALSE;
 	}	
-}
-
-/* obsolete
-BOOL LLVoiceClient::sendTextMessage(const LLUUID& participant_id, const std::string& message)
-{
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->sendTextMessage(participant_id, message);
-	}
-	else
-	{
-		return FALSE;
-	}	
-}
-*/
-
-void LLVoiceClient::endUserIMSession(const LLUUID& participant_id)
-{
-	if (mVoiceModule) 
-	{
-		// mVoiceModule->endUserIMSession(participant_id);  // A SLim leftover
-	}
 }
 
 //----------------------------------------------
@@ -463,9 +415,9 @@ void LLVoiceClient::endUserIMSession(const LLUUID& participant_id)
 
 bool LLVoiceClient::inProximalChannel()
 {
-	if (mVoiceModule) 
+	if (mSpatialVoiceModule) 
 	{
-		return mVoiceModule->inProximalChannel();
+		return mSpatialVoiceModule->inProximalChannel();
 	}
 	else
 	{
@@ -474,99 +426,96 @@ bool LLVoiceClient::inProximalChannel()
 }
 
 void LLVoiceClient::setNonSpatialChannel(
-	const std::string &uri,
-	const std::string &credentials,
+	const LLSD& channelInfo,
 	bool hangup_on_last_leave)
 {
-	if (mVoiceModule)
+    setNonSpatialVoiceModule(channelInfo["voice_server_type"].asString());
+	if (mSpatialVoiceModule)
     {
-        mVoiceModule->setNonSpatialChannel(uri, credentials, hangup_on_last_leave);
+        mSpatialVoiceModule->processChannels(false);
     }
+	if (mNonSpatialVoiceModule)
+	{
+        mNonSpatialVoiceModule->setNonSpatialChannel(channelInfo, hangup_on_last_leave);
+        mNonSpatialVoiceModule->processChannels(true);
+	}
 }
 
-void LLVoiceClient::setSpatialChannel(
-	const std::string &uri,
-	const std::string &credentials)
+void LLVoiceClient::setSpatialChannel(const LLSD &channelInfo)
 {
-	if (mVoiceModule)
+    LLViewerRegion *region = gAgent.getRegion();
+    if (region && region->simulatorFeaturesReceived())
     {
-        mVoiceModule->setSpatialChannel(uri, credentials);
+        LLSD simulatorFeatures;
+        region->getSimulatorFeatures(simulatorFeatures);
+        setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+    }
+    if (mNonSpatialVoiceModule)
+    {
+        mNonSpatialVoiceModule->leaveNonSpatialChannel();
+        mNonSpatialVoiceModule->processChannels(false);
+        mNonSpatialVoiceModule = nullptr;
+    }
+	if (mSpatialVoiceModule)
+    {
+        mSpatialVoiceModule->setSpatialChannel(channelInfo);
+        mSpatialVoiceModule->processChannels(true);
     }
 }
 
 void LLVoiceClient::leaveNonSpatialChannel()
 {
-	if (mVoiceModule)
+	if (mNonSpatialVoiceModule)
     {
-        mVoiceModule->leaveNonSpatialChannel();
+        mNonSpatialVoiceModule->leaveNonSpatialChannel();
+        mNonSpatialVoiceModule->processChannels(false);
+        mNonSpatialVoiceModule = nullptr;
     }
-}
-
-void LLVoiceClient::leaveChannel(void)
-{
-	if (mVoiceModule)
-    {
-        mVoiceModule->leaveChannel();
-    }
-}
-
-std::string LLVoiceClient::getCurrentChannel()
-{
-	if (mVoiceModule) 
+	if (mSpatialVoiceModule)
 	{
-		return mVoiceModule->getCurrentChannel();
-	}
-	else
-	{
-		return std::string();
+        mSpatialVoiceModule->processChannels(true);
+        ;
 	}
 }
 
+void LLVoiceClient::activateSpatialChannel(bool activate)
+{
+    if (mSpatialVoiceModule)
+    {
+        mSpatialVoiceModule->processChannels(activate);
+    }
+}
+
+bool LLVoiceClient::isCurrentChannel(const LLSD& channelInfo)
+{
+    return LLWebRTCVoiceClient::getInstance()->isCurrentChannel(channelInfo) ||
+           LLVivoxVoiceClient::getInstance()->isCurrentChannel(channelInfo);
+}
+
+bool LLVoiceClient::compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2)
+{
+    return LLWebRTCVoiceClient::getInstance()->compareChannels(channelInfo1, channelInfo2) ||
+           LLVivoxVoiceClient::getInstance()->compareChannels(channelInfo1, channelInfo2);
+}
+
+LLVoiceP2PIncomingCallInterfacePtr LLVoiceClient::getIncomingCallInterface(const LLSD& voice_call_info)
+{
+    LLVoiceModuleInterface *module = getVoiceModule(voice_call_info["voice_server_type"]);
+	if (module)
+	{
+        return module->getIncomingCallInterface(voice_call_info);
+	}
+    return nullptr;
+
+}
 
 //---------------------------------------
-// invitations
-
-bool LLVoiceClient::hasP2PInterface()
+// outgoing calls
+LLVoiceP2POutgoingCallInterface *LLVoiceClient::getOutgoingCallInterface(const LLSD& voiceChannelInfo)
 {
-    if (mVoiceModule)
-        return mVoiceModule->hasP2PInterface();
-    return false;
+    LLVoiceModuleInterface *module = getVoiceModule(voiceChannelInfo["voice_server_type"].asString());
+    return dynamic_cast<LLVoiceP2POutgoingCallInterface *>(module);
 }
-
-void LLVoiceClient::callUser(const LLUUID &uuid)
-{
-	if (mVoiceModule) mVoiceModule->callUser(uuid);
-}
-
-bool LLVoiceClient::isValidChannel(std::string &session_handle)
-{
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->isValidChannel(session_handle);
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool LLVoiceClient::answerInvite(std::string &channelHandle)
-{
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->answerInvite(channelHandle);
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void LLVoiceClient::declineInvite(std::string &channelHandle)
-{
-	if (mVoiceModule) mVoiceModule->declineInvite(channelHandle);
-}
-
 
 //------------------------------------------
 // Volume/gain
@@ -574,12 +523,14 @@ void LLVoiceClient::declineInvite(std::string &channelHandle)
 
 void LLVoiceClient::setVoiceVolume(F32 volume)
 {
-	if (mVoiceModule) mVoiceModule->setVoiceVolume(volume);
+    LLWebRTCVoiceClient::getInstance()->setVoiceVolume(volume);
+    LLVivoxVoiceClient::getInstance()->setVoiceVolume(volume);
 }
 
-void LLVoiceClient::setMicGain(F32 volume)
+void LLVoiceClient::setMicGain(F32 gain)
 {
-	if (mVoiceModule) mVoiceModule->setMicGain(volume);
+    LLWebRTCVoiceClient::getInstance()->setMicGain(gain);
+    LLVivoxVoiceClient::getInstance()->setMicGain(gain);
 }
 
 
@@ -588,22 +539,13 @@ void LLVoiceClient::setMicGain(F32 volume)
 
 bool LLVoiceClient::voiceEnabled()
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->voiceEnabled();
-	}
-	else
-	{
-		return false;
-	}
+    return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice") && !gNonInteractive;
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
 {
-	if (mVoiceModule)
-    {
-        mVoiceModule->setVoiceEnabled(enabled);
-    }
+    LLWebRTCVoiceClient::getInstance()->setVoiceEnabled(enabled);
+    LLVivoxVoiceClient::getInstance()->setVoiceEnabled(enabled);
 }
 
 void LLVoiceClient::updateMicMuteLogic()
@@ -622,25 +564,8 @@ void LLVoiceClient::updateMicMuteLogic()
 		// Either of these always overrides any other PTT setting.
 		new_mic_mute = true;
 	}
-	
-	if (mVoiceModule) mVoiceModule->setMuteMic(new_mic_mute);
-}
-
-void LLVoiceClient::setLipSyncEnabled(BOOL enabled)
-{
-	if (mVoiceModule) mVoiceModule->setLipSyncEnabled(enabled);
-}
-
-BOOL LLVoiceClient::lipSyncEnabled()
-{
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->lipSyncEnabled();
-	}
-	else
-	{
-		return false;
-	}
+    LLWebRTCVoiceClient::getInstance()->setMuteMic(new_mic_mute);
+    LLVivoxVoiceClient::getInstance()->setMuteMic(new_mic_mute);
 }
 
 void LLVoiceClient::setMuteMic(bool muted)
@@ -726,9 +651,13 @@ void LLVoiceClient::toggleUserPTTState(void)
 
 BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
-	if (mVoiceModule) 
+	if (mNonSpatialVoiceModule)
 	{
-		return mVoiceModule->getVoiceEnabled(id);
+        return mNonSpatialVoiceModule->getVoiceEnabled(id);
+	}
+	else if (mSpatialVoiceModule) 
+	{
+		return mSpatialVoiceModule->getVoiceEnabled(id);
 	} 
 	else
 	{
@@ -738,9 +667,13 @@ BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
 
 std::string LLVoiceClient::getDisplayName(const LLUUID& id)
 {
-	if (mVoiceModule) 
+	if (mNonSpatialVoiceModule)
 	{
-		return mVoiceModule->getDisplayName(id);
+        return mNonSpatialVoiceModule->getDisplayName(id);
+	}
+	else if (mSpatialVoiceModule) 
+	{
+		return mSpatialVoiceModule->getDisplayName(id);
 	}
 	else
 	{
@@ -750,47 +683,35 @@ std::string LLVoiceClient::getDisplayName(const LLUUID& id)
 
 bool LLVoiceClient::isVoiceWorking() const
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->isVoiceWorking();
-	}
-	return false;
+    return LLVivoxVoiceClient::getInstance()->isVoiceWorking() || LLWebRTCVoiceClient::getInstance()->isVoiceWorking();
 }
 
 BOOL LLVoiceClient::isParticipantAvatar(const LLUUID& id)
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->isParticipantAvatar(id);
-	}
-	else
-	{
-		return FALSE;
-	}
+    return TRUE;
 }
 
 BOOL LLVoiceClient::isOnlineSIP(const LLUUID& id)
 {
-		return FALSE;
+	return FALSE;
 }
 
 BOOL LLVoiceClient::getIsSpeaking(const LLUUID& id)
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getIsSpeaking(id);
-	}
-	else
-	{
-		return FALSE;
-	}
+    return LLVivoxVoiceClient::getInstance()->getIsSpeaking(id) || LLWebRTCVoiceClient::getInstance()->getIsSpeaking(id);
 }
 
 BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
-	if (mVoiceModule) 
+	// don't bother worrying about p2p calls, as
+	// p2p calls don't have mute.
+    if (mNonSpatialVoiceModule)
+    {
+        return mNonSpatialVoiceModule->getIsModeratorMuted(id);
+    }
+	else if (mSpatialVoiceModule) 
 	{
-		return mVoiceModule->getIsModeratorMuted(id);
+		return mSpatialVoiceModule->getIsModeratorMuted(id);
 	}
 	else
 	{
@@ -799,22 +720,21 @@ BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
 }
 
 F32 LLVoiceClient::getCurrentPower(const LLUUID& id)
-{		
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getCurrentPower(id);
-	}
-	else
-	{
-		return 0.0;
-	}
+{	
+	return std::fmax(LLVivoxVoiceClient::getInstance()->getCurrentPower(id), LLWebRTCVoiceClient::getInstance()->getCurrentPower(id));
 }
 
 BOOL LLVoiceClient::getOnMuteList(const LLUUID& id)
 {
-	if (mVoiceModule) 
+    // don't bother worrying about p2p calls, as
+    // p2p calls don't have mute.
+    if (mNonSpatialVoiceModule)
+    {
+        return mNonSpatialVoiceModule->getOnMuteList(id);
+    }
+    else if (mSpatialVoiceModule) 
 	{
-		return mVoiceModule->getOnMuteList(id);
+		return mSpatialVoiceModule->getOnMuteList(id);
 	}
 	else
 	{
@@ -824,19 +744,13 @@ BOOL LLVoiceClient::getOnMuteList(const LLUUID& id)
 
 F32 LLVoiceClient::getUserVolume(const LLUUID& id)
 {
-	if (mVoiceModule) 
-	{
-		return mVoiceModule->getUserVolume(id);
-	}
-	else
-	{
-		return 0.0;
-	}
+    return std::fmax(LLVivoxVoiceClient::getInstance()->getUserVolume(id), LLWebRTCVoiceClient::getInstance()->getUserVolume(id));
 }
 
 void LLVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 {
-	if (mVoiceModule) mVoiceModule->setUserVolume(id, volume);
+    LLWebRTCVoiceClient::getInstance()->setUserVolume(id, volume);
+    LLVivoxVoiceClient::getInstance()->setUserVolume(id, volume);
 }
 
 //--------------------------------------------------
@@ -844,48 +758,49 @@ void LLVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 
 void LLVoiceClient::addObserver(LLVoiceClientStatusObserver* observer)
 {
-	if (mVoiceModule) mVoiceModule->addObserver(observer);
+	LLVivoxVoiceClient::getInstance()->addObserver(observer);
+    LLWebRTCVoiceClient::getInstance()->addObserver(observer);
 }
 
 void LLVoiceClient::removeObserver(LLVoiceClientStatusObserver* observer)
 {
-    if (mVoiceModule)
-    {
-        mVoiceModule->removeObserver(observer);
-    }
+    LLVivoxVoiceClient::getInstance()->removeObserver(observer);
+    LLWebRTCVoiceClient::getInstance()->removeObserver(observer);
 }
 
 void LLVoiceClient::addObserver(LLFriendObserver* observer)
 {
-	if (mVoiceModule) mVoiceModule->addObserver(observer);
+    LLVivoxVoiceClient::getInstance()->addObserver(observer);
+    LLWebRTCVoiceClient::getInstance()->addObserver(observer);
 }
 
 void LLVoiceClient::removeObserver(LLFriendObserver* observer)
 {
-    if (mVoiceModule)
-    {
-        mVoiceModule->removeObserver(observer);
-    }
+    LLVivoxVoiceClient::getInstance()->removeObserver(observer);
+    LLWebRTCVoiceClient::getInstance()->removeObserver(observer);
 }
 
 void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
 {
-	if (mVoiceModule) mVoiceModule->addObserver(observer);
+    LLVivoxVoiceClient::getInstance()->addObserver(observer);
+    LLWebRTCVoiceClient::getInstance()->addObserver(observer);
 }
 
 void LLVoiceClient::removeObserver(LLVoiceClientParticipantObserver* observer)
 {
-    if (mVoiceModule)
-    {
-        mVoiceModule->removeObserver(observer);
-    }
+    LLVivoxVoiceClient::getInstance()->removeObserver(observer);
+    LLWebRTCVoiceClient::getInstance()->removeObserver(observer);
 }
 
 std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
 {
-	if (mVoiceModule) 
+	if (mNonSpatialVoiceModule)
 	{
-		return mVoiceModule->sipURIFromID(id);
+        return mNonSpatialVoiceModule->sipURIFromID(id);
+	}
+	else if (mSpatialVoiceModule) 
+	{
+		return mSpatialVoiceModule->sipURIFromID(id);
 	}
 	else
 	{
@@ -895,7 +810,7 @@ std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
 
 LLVoiceEffectInterface* LLVoiceClient::getVoiceEffectInterface() const
 {
-	return getVoiceEffectEnabled() ? dynamic_cast<LLVoiceEffectInterface*>(mVoiceModule) : NULL;
+	return getVoiceEffectEnabled() ? dynamic_cast<LLVoiceEffectInterface*>(mSpatialVoiceModule) : NULL;
 }
 
 ///////////////////
@@ -983,22 +898,8 @@ class LLViewerParcelVoiceInfo : public LLHTTPNode
 			//local parcel id to make sure it's for the same parcel
 			//we believe we're in
 			if ( body.has("voice_credentials") )
-			{
-				LLSD voice_credentials = body["voice_credentials"];
-				std::string uri;
-				std::string credentials;
-				
-				if ( voice_credentials.has("channel_uri") )
-				{
-					uri = voice_credentials["channel_uri"].asString();
-				}
-				if ( voice_credentials.has("channel_credentials") )
-				{
-					credentials =
-					voice_credentials["channel_credentials"].asString();
-				}
-				
-				LLVoiceClient::getInstance()->setSpatialChannel(uri, credentials);
+			{	
+				LLVoiceClient::getInstance()->setSpatialChannel(body["voice_credentials"]);
 			}
 		}
 	}
