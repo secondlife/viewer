@@ -20,3 +20,7 @@ Availability of PBR textures varies by machine and graphics setting:
 - Low: Base color only (looks similar to texture terrain)
 - Medium-Low, and machines that do not support greater than 16 textures such as Macs: All PBR textures enabled except emissive textures.
 - Medium: All PBR textures enabled
+
+## PBR Alpha
+
+PBR terrain does not support materials with alpha blend or double-sided. In addition, the viewer does not make any guarantees about what will render behind the terrain if alpha is used.
