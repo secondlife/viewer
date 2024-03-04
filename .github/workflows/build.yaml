@@ -24,6 +24,8 @@ jobs:
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
+      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
+      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -334,7 +336,7 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: [sign-and-package-windows, sign-and-package-mac]
+    needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
@@ -365,17 +367,31 @@ jobs:
           mv newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
-      - uses: secondlife-3p/action-gh-release@v1
+      - name: Create GitHub release
+        id: release
+        uses: secondlife-3p/action-gh-release@v1
         with:
-          # name the release page for the build number so we can find it
-          # easily (analogous to looking up a codeticket build page)
-          name: "v${{ github.run_id }}"
+          # name the release page for the branch
+          name: "${{ needs.build.outputs.viewer_branch }}"
+          # SL-20546: want the channel and version to be visible on the
+          # release page
+          body: |
+            Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            ${{ needs.build.outputs.viewer_channel }}
+            ${{ needs.build.outputs.viewer_version }}
+            ${{ needs.build.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
-          # the only reason we generate a GH release is to post build products
+          target_commitish: ${{ github.sha }}
+          previous_tag: release
+          append_body: true
           fail_on_unmatched_files: true
           files: |
             *.dmg 
             *.exe
             *-autobuild-package.xml
             *-viewer_version.txt
+
+      - name: post release URL
+        run: |
+          echo "::notice::Release ${{ steps.release.outputs.url }}"
