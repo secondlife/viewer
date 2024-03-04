@@ -612,7 +612,7 @@ private:
     bool inOrJoiningChannel(const std::string &channelID);
     bool inEstateChannel();
 
-	std::string getAudioSessionChannelInfo();
+	LLSD getAudioSessionChannelInfo();
 			
     void setHidden(bool hidden) override; //virtual
 

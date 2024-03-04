@@ -460,7 +460,7 @@ void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
-		if(mChannelInfo.isUndefined())
+		if(!mChannelInfo.isUndefined())
 		{
 			setState(STATE_READY);
 

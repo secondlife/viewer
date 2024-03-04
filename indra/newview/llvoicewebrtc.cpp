@@ -575,10 +575,8 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                 // leave channel can be called again and again without adverse effects.
                 // it merely tells channels to shut down if they're not already doing so.
                 leaveChannel(false);
-                continue;
             }
-
-            if (inSpatialChannel())
+            else if (inSpatialChannel())
             {
                 // add session for region or parcel voice.
                 if (!regionp || regionp->getRegionID().isNull())
@@ -637,7 +635,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             }
             
             sessionState::processSessionStates();
-            if (voiceEnabled)
+            if (mProcessChannels && voiceEnabled)
             {
                 sendPositionUpdate(true);
                 updateOwnVolume();
@@ -1274,8 +1272,9 @@ bool LLWebRTCVoiceClient::startParcelSession(const std::string &channelID, S32 p
 bool LLWebRTCVoiceClient::startAdHocSession(const LLSD& channelInfo, bool hangup_on_last_leave)
 {
     leaveChannel(false);
-    std::string channelID = channelInfo["channel"];
-    std::string credentials = channelInfo["credentials"];
+    LL_WARNS("Voice") << "Start AdHoc Session " << channelInfo << LL_ENDL;
+    std::string channelID = channelInfo["channel_uri"];
+    std::string credentials = channelInfo["channel_credentials"];
     mNextSession = addSession(channelID, sessionState::ptr_t(new adhocSessionState(channelID, credentials, hangup_on_last_leave)));
     return true;
 }
@@ -1452,7 +1451,7 @@ bool LLWebRTCVoiceClient::inSpatialChannel()
 	return result;
 }
 
-std::string LLWebRTCVoiceClient::getAudioSessionChannelInfo()
+LLSD LLWebRTCVoiceClient::getAudioSessionChannelInfo()
 {
     LLSD result;
 
@@ -1644,8 +1643,17 @@ void LLWebRTCVoiceClient::leaveChannel(bool stopTalking)
 
 bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 {
-    return (channelInfo["voice_server_type"].asString() == WEBRTC_VOICE_SERVER_TYPE) &&
-           (sessionState::hasSession(channelInfo["session_handle"].asString()));
+    if (channelInfo["voice_server_type"].asString() != WEBRTC_VOICE_SERVER_TYPE)
+        return false;
+    if (mSession)
+    {
+        if (!channelInfo["sessionHandle"].asString().empty())
+        {
+            return mSession->mHandle == channelInfo["session_handle"].asString();
+        }
+        return channelInfo["channel_uri"].asString() == mSession->mChannelID;
+    }
+    return false;
 }
 
 bool LLWebRTCVoiceClient::compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2)
@@ -2248,12 +2256,13 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 
     mIsProcessingChannels = status == LLVoiceClientStatusObserver::STATUS_JOINED;
 
+    LLSD channelInfo = getAudioSessionChannelInfo();
 	for (status_observer_set_t::iterator it = mStatusObservers.begin();
 		it != mStatusObservers.end();
 		)
 	{
 		LLVoiceClientStatusObserver* observer = *it;
-		observer->onChange(status, getAudioSessionChannelInfo(), inSpatialChannel());
+		observer->onChange(status, channelInfo, inSpatialChannel());
 		// In case onError() deleted an entry.
 		it = mStatusObservers.upper_bound(observer);
 	}
@@ -3151,6 +3160,7 @@ bool LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
     body["credentials"] = mCredentials;
     body["channel"] = mChannelID;
     body["channel_type"] = "multiagent";
+    body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
 
     LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(
         url,
