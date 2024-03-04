@@ -146,7 +146,7 @@ public:
 	void requestChannelInfo() override;
 
 protected:
-	virtual void setState(EState state);
+	void setState(EState state) override;
 
 private:
     void voiceCallCapCoro(std::string url);
@@ -158,7 +158,7 @@ private:
 
 class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoiceChannelProximal>
 {
-	LLSINGLETON(LLVoiceChannelProximal);
+	LLSINGLETON_C11(LLVoiceChannelProximal);
 public:
 
 	void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) override;
@@ -184,10 +184,10 @@ public:
 	void requestChannelInfo() override;
     void deactivate() override;
 
-	void setChannelInfo(const LLSD& channel_info);
+	void setChannelInfo(const LLSD& channel_info) override;
 
 protected:
-	virtual void setState(EState state);
+	void setState(EState state) override;
 
 private:
 
