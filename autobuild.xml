@@ -2198,6 +2198,62 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>OpenAL Soft is a software implementation of the OpenAL 3D audio API.</string>
       </map>
+      <key>openexr</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-openexr</string>
+        <key>copyright</key>
+        <string>Copyright (c) Contributors to the OpenEXR Project. All rights reserved.</string>
+        <key>description</key>
+        <string>OpenEXR provides the specification and reference implementation of the EXR file format, the professional-grade image storage format of the motion picture industry.</string>
+        <key>license</key>
+        <string>OpenEXR</string>
+        <key>license_file</key>
+        <string>LICENSES/OpenEXR.txt</string>
+        <key>name</key>
+        <string>openexr</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>541a841d7f407433a92208baeede399e543530dc</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.1/openexr-3.2.2-darwin64-5cd1075.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>471ed4bdd1b04898751bffc148372aee3e6bd1e7</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.1/openexr-3.2.2-windows64-5cd1075.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>source_type</key>
+        <string>git</string>
+        <key>vcs_branch</key>
+        <string>debug_autobuild</string>
+        <key>vcs_revision</key>
+        <string>5cd1075295c17b5f7085e83d5c16b13c7ecb2eb1</string>
+        <key>vcs_url</key>
+        <string>https://github.com/secondlife/3p-openexr</string>
+        <key>version</key>
+        <string>3.2.2</string>
+      </map>
       <key>openjpeg</key>
       <map>
         <key>platforms</key>
