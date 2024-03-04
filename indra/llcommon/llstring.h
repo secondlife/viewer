@@ -357,6 +357,8 @@ public:
 	static void	replaceNonstandardASCII( string_type& string, T replacement );
 	static void	replaceChar( string_type& string, T target, T replacement );
 	static void replaceString( string_type& string, string_type target, string_type replacement );
+	static string_type capitalize(const string_type& str);
+	static void capitalize(string_type& str);
 	
 	static BOOL	containsNonprintable(const string_type& string);
 	static void	stripNonprintable(string_type& string);
@@ -680,6 +682,8 @@ LL_COMMON_API S32 wstring_utf8_length(const LLWString& wstr);
 // Length in bytes of this wide char in a UTF8 string
 LL_COMMON_API S32 wchar_utf8_length(const llwchar wc); 
 
+LL_COMMON_API std::string wchar_utf8_preview(const llwchar wc);
+
 LL_COMMON_API std::string utf8str_tolower(const std::string& utf8str);
 
 // Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.
@@ -738,6 +742,10 @@ LL_COMMON_API std::string utf8str_makeASCII(const std::string& utf8str);
 LL_COMMON_API std::string mbcsstring_makeASCII(const std::string& str); 
 
 LL_COMMON_API std::string utf8str_removeCRLF(const std::string& utf8str);
+
+LL_COMMON_API llwchar utf8str_to_wchar(const std::string& utf8str, size_t offset, size_t length);
+
+LL_COMMON_API std::string utf8str_showBytesUTF8(const std::string& utf8str);
 
 LL_COMMON_API bool wstring_has_emoji(const LLWString& wstr);
 
@@ -1598,6 +1606,29 @@ void LLStringUtilBase<T>::replaceTabsWithSpaces( string_type& str, size_type spa
 		}
 	}
 	str = out_str;
+}
+
+//static
+template<class T>
+std::basic_string<T> LLStringUtilBase<T>::capitalize(const string_type& str)
+{
+	string_type result(str);
+	capitalize(result);
+	return result;
+}
+
+//static
+template<class T>
+void LLStringUtilBase<T>::capitalize(string_type& str)
+{
+	if (str.size())
+	{
+		auto last = str[0] = toupper(str[0]);
+		for (U32 i = 1; i < str.size(); ++i)
+		{
+			last = (last == ' ' || last == '-' || last == '_') ? str[i] = toupper(str[i]) : str[i];
+		}
+	}
 }
 
 //static

@@ -865,6 +865,10 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		mReferenceBuffer->unmapBuffer();
 		llassert(vertex_count == max_vertices);
 		llassert(index_count == max_indices);
+#ifndef SHOW_ASSERT
+        (void)vertex_count;
+        (void)index_count;
+#endif
 	}
 
 	//generate tree mesh
