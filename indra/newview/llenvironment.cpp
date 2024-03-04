@@ -1770,8 +1770,10 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
         case LLSD::TypeArray:
         {
             LLVector4 vect4(value);
+            // always identify as a radiance pass if desaturating irradiance is disabled
+            static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
 
-            if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+            if (desaturate_irradiance && gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
             { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
                 auto max_vec = [](LLVector4 col)
                 {

@@ -39,6 +39,96 @@
 #include "llenvironment.h"
 #include "llstartup.h"
 
+
+// load an OpenEXR image from a file
+#define IMATH_HALF_NO_LOOKUP_TABLE 1
+#include <ImfInputFile.h>
+#include <ImfArray.h>
+#include <ImfHeader.h>
+#include <ImfFrameBuffer.h>
+#include <iostream>
+
+LLPointer<LLImageGL> gEXRImage;
+
+void load_exr()
+{
+    try {
+        Imf::InputFile file("skins/default/textures/cloud_layers_4k.exr");
+        Imath::Box2i       dw = file.header().dataWindow();
+        int                width = dw.max.x - dw.min.x + 1;
+        int                height = dw.max.y - dw.min.y + 1;
+
+        Imf::Array2D<Imath::half> rPixels;
+        Imf::Array2D<Imath::half> gPixels;
+        Imf::Array2D<Imath::half> bPixels;
+
+        rPixels.resizeErase(height, width);
+        gPixels.resizeErase(height, width);
+        bPixels.resizeErase(height, width);
+
+        Imf::FrameBuffer frameBuffer;
+
+        frameBuffer.insert("R",                                    // name
+            Imf::Slice(Imf::HALF,                            // type
+                (char*)(&rPixels[0][0] -      // base
+                    dw.min.x -
+                    dw.min.y * width),
+                sizeof(rPixels[0][0]) * 1,     // xStride
+                sizeof(rPixels[0][0]) * width, // yStride
+                1, 1,                            // x/y sampling
+                0.0));                           // fillValue
+
+        frameBuffer.insert("G",                                    // name
+            Imf::Slice(Imf::HALF,                            // type
+                (char*)(&gPixels[0][0] -      // base
+                    dw.min.x -
+                    dw.min.y * width),
+                sizeof(gPixels[0][0]) * 1,     // xStride
+                sizeof(gPixels[0][0]) * width, // yStride
+                1, 1,                            // x/y sampling
+                0.0));                           // fillValue
+
+        frameBuffer.insert("B",                                    // name
+            Imf::Slice(Imf::HALF,                           // type
+                (char*)(&bPixels[0][0] -      // base
+                    dw.min.x -
+                    dw.min.y * width),
+                sizeof(bPixels[0][0]) * 1,     // xStride
+                sizeof(bPixels[0][0]) * width, // yStride
+                1, 1,                            // x/y sampling
+                FLT_MAX));                       // fillValue
+
+        file.setFrameBuffer(frameBuffer);
+        file.readPixels(dw.min.y, dw.max.y);
+
+        U32 texName = 0;
+        LLImageGL::generateTextures(1, &texName);
+
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texName, true);
+        glBindTexture(GL_TEXTURE_2D, texName);
+        F32* data = new F32[width * height * 3];
+        for (int i = 0; i < width * height; ++i)
+        {
+            data[i * 3 + 0] = rPixels[i / width][i % width];
+            data[i * 3 + 1] = gPixels[i / width][i % width];
+            data[i * 3 + 2] = bPixels[i / width][i % width];
+        }
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
+        delete data;
+
+        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_WRAP);
+        gEXRImage->setHasMipMaps(FALSE);
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "error reading image file hello.exr:" << e.what() << std::endl;
+        return;
+    }
+}
+
+
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
 
@@ -1324,6 +1414,7 @@ void LLReflectionMapManager::initReflectionMaps()
 
         touch_default_probe(mDefaultProbe);
 
+        load_exr();
     }
 
     if (mVertexBuffer.isNull())
