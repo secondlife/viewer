@@ -87,6 +87,16 @@ const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
+
+enum EMultiAgentChatSessionType
+{
+    GROUP_CHAT_SESSION = 0,
+    CONFERENCE_SESSION = 1,
+    P2P_CHAT_SESSION   = 2,
+    SESSION_TYPE_COUNT
+};
+
+
 void startConferenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
 
 void startP2PCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
@@ -2078,7 +2088,7 @@ bool LLIMModel::sendStartSession(
 
 		return true;
 	}
-    else if ((dialog == IM_SESSION_CONFERENCE_START ) || p2p_as_adhoc_call)
+    else if (dialog == IM_SESSION_CONFERENCE_START )
 	{
 		LLSD agents;
 		for (int i = 0; i < (S32) ids.size(); i++)
@@ -4100,8 +4110,8 @@ public:
 				return;
 			}
 
-            BOOL        session_type_p2p  = input["body"]["voice"].get("p2p").asBoolean();
-
+            BOOL session_type_p2p = input["body"]["voice"].get("invitation_type").asInteger() == EMultiAgentChatSessionType::P2P_CHAT_SESSION;
+            LL_WARNS("Voice") << "VOICE DATA: " << input["body"]["voice"] << LL_ENDL;
 			gIMMgr->inviteToSession(
 				input["body"]["session_id"].asUUID(),
 				input["body"]["session_name"].asString(),
