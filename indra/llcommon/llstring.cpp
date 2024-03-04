@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llsd.h"
+#include <unicode/uchar.h>
 #include <vector>
 
 #if LL_WINDOWS
@@ -338,8 +339,6 @@ S32 wchar_utf8_length(const llwchar wc)
 {
 	if (wc < 0x80)
 	{
-		// This case will also catch negative values which are
-		// technically invalid.
 		return 1;
 	}
 	else if (wc < 0x800)
@@ -364,6 +363,30 @@ S32 wchar_utf8_length(const llwchar wc)
 	}
 }
 
+std::string wchar_utf8_preview(const llwchar wc)
+{
+    std::ostringstream oss;
+    oss << std::hex << std::uppercase << (U32)wc;
+
+    U8 out_bytes[8];
+    U32 size = (U32)wchar_to_utf8chars(wc, (char*)out_bytes);
+
+    if (size > 1)
+    {
+        oss << " [";
+        for (U32 i = 0; i < size; ++i)
+        {
+            if (i)
+            {
+                oss << ", ";
+            }
+            oss << (int)out_bytes[i];
+        }
+        oss << "]";
+    }
+
+    return oss.str();
+}
 
 S32 wstring_utf8_length(const LLWString& wstr)
 {
@@ -622,6 +645,119 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 	return out;
 }
 
+llwchar utf8str_to_wchar(const std::string& utf8str, size_t offset, size_t length)
+{
+    switch (length)
+    {
+    case 2:
+        return ((utf8str[offset] & 0x1F) << 6) +
+                (utf8str[offset + 1] & 0x3F);
+    case 3:
+        return ((utf8str[offset] & 0x0F) << 12) +
+                ((utf8str[offset + 1] & 0x3F) << 6) +
+                (utf8str[offset + 2] & 0x3F);
+    case 4:
+        return ((utf8str[offset] & 0x07) << 18) +
+                ((utf8str[offset + 1] & 0x3F) << 12) +
+                ((utf8str[offset + 2] & 0x3F) << 6) +
+                (utf8str[offset + 3] & 0x3F);
+    case 5:
+        return ((utf8str[offset] & 0x03) << 24) +
+                ((utf8str[offset + 1] & 0x3F) << 18) +
+                ((utf8str[offset + 2] & 0x3F) << 12) +
+                ((utf8str[offset + 3] & 0x3F) << 6) +
+                (utf8str[offset + 4] & 0x3F);
+    case 6:
+        return ((utf8str[offset] & 0x01) << 30) +
+                ((utf8str[offset + 1] & 0x3F) << 24) +
+                ((utf8str[offset + 2] & 0x3F) << 18) +
+                ((utf8str[offset + 3] & 0x3F) << 12) +
+                ((utf8str[offset + 4] & 0x3F) << 6) +
+                (utf8str[offset + 5] & 0x3F);
+    case 7:
+        return ((utf8str[offset + 1] & 0x03) << 30) +
+                ((utf8str[offset + 2] & 0x3F) << 24) +
+                ((utf8str[offset + 3] & 0x3F) << 18) +
+                ((utf8str[offset + 4] & 0x3F) << 12) +
+                ((utf8str[offset + 5] & 0x3F) << 6) +
+                (utf8str[offset + 6] & 0x3F);
+    }
+    return LL_UNKNOWN_CHAR;
+}
+
+std::string utf8str_showBytesUTF8(const std::string& utf8str)
+{
+    std::string result;
+
+    bool in_sequence = false;
+    size_t sequence_size = 0;
+    size_t byte_index = 0;
+    size_t source_length = utf8str.size();
+
+    auto open_sequence = [&]()
+        {
+            if (!result.empty() && result.back() != '\n')
+                result += '\n'; // Use LF as a separator before new UTF-8 sequence
+            result += '[';
+            in_sequence = true;
+        };
+
+    auto close_sequence = [&]()
+        {
+            llwchar unicode = utf8str_to_wchar(utf8str, byte_index - sequence_size, sequence_size);
+            if (unicode != LL_UNKNOWN_CHAR)
+            {
+                result += llformat("+%04X", unicode);
+            }
+            result += ']';
+            in_sequence = false;
+            sequence_size = 0;
+        };
+
+    while (byte_index < source_length)
+    {
+        U8 byte = utf8str[byte_index];
+        if (byte >= 0x80) // Part of an UTF-8 sequence
+        {
+            if (!in_sequence) // Start new UTF-8 sequence
+            {
+                open_sequence();
+            }
+            else if (byte >= 0xC0) // Start another UTF-8 sequence
+            {
+                close_sequence();
+                open_sequence();
+            }
+            else // Continue the same UTF-8 sequence
+            {
+                result += '.';
+            }
+            result += llformat("%02X", byte); // The byte is represented in hexadecimal form
+            ++sequence_size;
+        }
+        else // ASCII symbol is represented as a character
+        {
+            if (in_sequence) // End of UTF-8 sequence
+            {
+                close_sequence();
+                if (byte != '\n')
+                {
+                    result += '\n'; // Use LF as a separator between UTF-8 and ASCII
+                }
+            }
+            result += byte;
+        }
+        ++byte_index;
+    }
+
+    if (in_sequence) // End of UTF-8 sequence
+    {
+        close_sequence();
+    }
+
+    return result;
+}
+
 // Search for any emoji symbol, return true if found
 bool wstring_has_emoji(const LLWString& wstr)
 {
@@ -874,61 +1010,35 @@ std::string LLStringOps::sPM;
 // static
 bool LLStringOps::isEmoji(llwchar wch)
 {
-    // Most of the following symbols are not actually emoticons, but rather small pictures
-
-    // 0x1F000 .. 0x1F02F - mahjong tiles
-    // https://symbl.cc/en/unicode/table/#mahjong-tiles
-
-    // 0x1F030 .. 0x1F09F - domino tiles
-    // https://symbl.cc/en/unicode/table/#domino-tiles
-
-    // 0x1F0A0 .. 0x1F0FF - playing cards
-    // https://symbl.cc/en/unicode/table/#playing-cards
-
-    // 0x1F100 .. 0x1F1FF - enclosed alphanumeric supplement
-    // https://symbl.cc/en/unicode/table/#enclosed-alphanumeric-supplement
-
-    // 0x1F200 .. 0x1F2FF - enclosed ideographic supplement
-    // https://symbl.cc/en/unicode/table/#enclosed-ideographic-supplement
-
-    // 0x1F300 .. 0x1F5FF - miscellaneous symbols and pictographs
-    // https://symbl.cc/en/unicode/table/#miscellaneous-symbols-and-pictographs
-
-    // 0x1F600 .. 0x1F64F - emoticons
-    // https://symbl.cc/en/unicode/table/#emoticons
-
-    // 0x1F650 .. 0x1F67F - ornamental dingbats
-    // https://symbl.cc/en/unicode/table/#ornamental-dingbats
-
-    // 0x1F680 .. 0x1F6FF - transport and map symbols
-    // https://symbl.cc/en/unicode/table/#transport-and-map-symbols
-
-    // 0x1F700 .. 0x1F77F - alchemical symbols
-    // https://symbl.cc/en/unicode/table/#alchemical-symbols
-
-    // 0x1F780 .. 0x1F7FF - geometric shapes extended
-    // https://symbl.cc/en/unicode/table/#geometric-shapes-extended
-
-    // 0x1F800 .. 0x1F8FF - supplemental arrows c
-    // https://symbl.cc/en/unicode/table/#supplemental-arrows-c
-
-    // 0x1F900 .. 0x1F9FF - supplemental symbols and pictographs
-    // https://symbl.cc/en/unicode/table/#supplemental-symbols-and-pictographs
-
-    // 0x1FA00 .. 0x1FA6F - chess symbols
-    // https://symbl.cc/en/unicode/table/#chess-symbols
-
-    // 0x1FA70 .. 0x1FAFF - symbols and pictographs extended a
-    // https://symbl.cc/en/unicode/table/#symbols-and-pictographs-extended-a
-
-    // 0x1FB00 .. 0x1FBFF - symbols for legacy computing
-    // https://symbl.cc/en/unicode/table/#symbols-for-legacy-computing
-
-    // 0x1FC00 .. 0x1FFFF - undefined block 44
-    // These symbols aren't defined yet
-    // https://symbl.cc/en/unicode/table/#undefined-block-44
-
-    return wch >= 0x1F000 && wch < 0x1FC00;
+	int ublock = ublock_getCode(wch);
+	switch (ublock)
+	{
+		case UBLOCK_GENERAL_PUNCTUATION:
+		case UBLOCK_LETTERLIKE_SYMBOLS:
+		case UBLOCK_ARROWS:
+		case UBLOCK_MISCELLANEOUS_TECHNICAL:
+		case UBLOCK_ENCLOSED_ALPHANUMERICS:
+		case UBLOCK_GEOMETRIC_SHAPES:
+		case UBLOCK_MISCELLANEOUS_SYMBOLS:
+		case UBLOCK_DINGBATS:
+		case UBLOCK_CJK_SYMBOLS_AND_PUNCTUATION:
+		case UBLOCK_ENCLOSED_CJK_LETTERS_AND_MONTHS:
+		case UBLOCK_MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS:
+		case UBLOCK_EMOTICONS:
+		case UBLOCK_TRANSPORT_AND_MAP_SYMBOLS:
+#if U_ICU_VERSION_MAJOR_NUM > 56
+		// Boost uses ICU so we can't update it independently
+		case UBLOCK_SUPPLEMENTAL_SYMBOLS_AND_PICTOGRAPHS:
+#endif // U_ICU_VERSION_MAJOR_NUM > 56
+			return true;
+		default:
+#if U_ICU_VERSION_MAJOR_NUM > 56
+			return false;
+#else
+			// See https://en.wikipedia.org/wiki/Supplemental_Symbols_and_Pictographs
+			return wch >= 0x1F900 && wch <= 0x1F9FF;
+#endif // U_ICU_VERSION_MAJOR_NUM > 56
+	}
 }
 
 

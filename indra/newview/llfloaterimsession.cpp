@@ -249,6 +249,8 @@ void LLFloaterIMSession::sendMsgFromInputEditor()
 			LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 			if(!text.empty())
 			{
+				updateUsedEmojis(text);
+
 				// Truncate and convert to UTF8 for transport
 				std::string utf8_text = wstring_to_utf8str(text);
 
