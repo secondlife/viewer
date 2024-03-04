@@ -139,7 +139,7 @@
       width="128"
       name="AvatarComplexityModeLabel"
       text_readonly_color="LabelDisabledColor">
-        Detail Mode:
+        Avatar display:
     </text>
 
     <combo_box

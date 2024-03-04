@@ -254,7 +254,7 @@
       width="128"
       name="AvatarComplexityModeLabel"
       text_readonly_color="LabelDisabledColor">
-        Avatar Detail Mode:
+        Avatar display:
     </text>
     <combo_box
      control_name="RenderAvatarComplexityMode"
@@ -285,7 +285,7 @@
     height="16"
     initial_value="101"
     increment="1"
-    label="Avatar Maximum Complexity:"
+    label="Avatar maximum complexity:"
     label_width="165"
     layout="topleft"
     left="30"
@@ -312,19 +312,6 @@
     width="65">
        0
   </text>
-<text
-type="string"
-length="1"
-follows="left|top"
-height="16"
-layout="topleft"
-left_delta="68"
-name="IndirectMaxComplexityLink"
-mouse_opaque="false"
-top_delta="0"
-width="120">
-[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 What's this?]
-</text>
 
   <button
     height="23"

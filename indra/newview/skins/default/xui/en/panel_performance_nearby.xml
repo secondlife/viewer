@@ -147,7 +147,7 @@
     name="AvatarComplexityModeLabel"
     text_readonly_color="LabelDisabledColor"
     width="128">
-      Detail Mode:
+      Avatar display:
   </text>
   <combo_box
    control_name="RenderAvatarComplexityMode"
