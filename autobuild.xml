@@ -474,9 +474,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ac35da9b1b5c9a05954edeef3fe8e54</string>
+              <string>52c41a4547d2d9aceb4a9a1e9e1680c71e5ffa79</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113242/980233/emoji_shortcodes-6.1.0.579438-darwin64-579438.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-darwin64-5413f58.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -486,16 +488,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>087ce7e6d93dcd88b477b10d8e1ab259</string>
+              <string>3137e06d376767a631bc9626832d558c4d5e5aa9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113243/980244/emoji_shortcodes-6.1.0.579438-windows64-579438.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-windows64-5413f58.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>6.1.0.579438</string>
+        <string>6.1.0.5413f58</string>
       </map>
       <key>expat</key>
       <map>
