@@ -37,7 +37,7 @@ LLToastScriptQuestion::LLToastScriptQuestion(const LLNotificationPtr& notificati
 :
 LLToastPanel(notification)
 {
-	buildFromFile("panel_script_question_toast.xml");
+	buildFromFile("panel_script_question_toast.xml", true);
 }
 
 bool LLToastScriptQuestion::postBuild()

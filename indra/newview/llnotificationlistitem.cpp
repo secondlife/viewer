@@ -594,7 +594,7 @@ LLSystemNotificationListItem::LLSystemNotificationListItem(const Params& p)
     mSystemNotificationIcon(NULL),
     mIsCaution(false)
 {
-    buildFromFile("panel_notification_list_item.xml");
+    buildFromFile("panel_notification_list_item.xml", true);
     mIsCaution = p.notification_priority >= NOTIFICATION_PRIORITY_HIGH;
     if (mIsCaution)
     {

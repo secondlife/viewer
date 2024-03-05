@@ -266,9 +266,9 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	LLRect current_rect = getRect();
 
 	setXMLFilename("");
-	buildFromFile("panel_notification.xml");
+	buildFromFile("panel_notification.xml", true);
 
-    if(rect != LLRect::null)
+    if (rect != LLRect::null)
     {
         this->setShape(rect);
     }
