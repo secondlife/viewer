@@ -147,6 +147,7 @@ public:
 	bool inProximalChannel() override;
 	
 	void setNonSpatialChannel(const LLSD& channelInfo,
+		                      bool notify_on_first_join,
 		                      bool hangup_on_last_leave) override;
 	
 	bool setSpatialChannel(const LLSD& channelInfo) override;

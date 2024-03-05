@@ -474,7 +474,7 @@ void startP2PCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID ot
 
     if (!status)
     {
-        LL_WARNS("LLIMModel") << "Failed to start conference:" << postData << "->" << result << LL_ENDL;
+        LL_WARNS("LLIMModel") << "Failed to start p2p session:" << postData << "->" << result << LL_ENDL;
         // try an "old school" way.
         //  *TODO: What about other error status codes?  4xx 5xx?
         if (status == LLCore::HttpStatus(HTTP_BAD_REQUEST))
@@ -736,7 +736,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 		else
 		{
             p2pAsAdhocCall = true;
-            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, true);
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, true, true);
 		}
 	}
 	else
@@ -745,12 +745,12 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 		if (gAgent.isInGroup(mSessionID))
 		{
 			mSessionType = GROUP_SESSION;
-            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false);
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false, false);
 		}
         else
 		{
 			mSessionType = ADHOC_SESSION;
-            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, true);
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false, true);
 		}
 	}
 
@@ -2750,7 +2750,7 @@ BOOL LLIncomingCallDialog::postBuild()
 
 	LLUUID session_id = mPayload["session_id"].asUUID();
 	LLSD caller_id = mPayload["caller_id"];
-	std::string caller_name = mPayload["caller_name"].asString();
+    std::string caller_name = mPayload["caller_name"].asString();
 
     if (session_id.isNull() && caller_id.asUUID().isNull())
     {
@@ -2899,6 +2899,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	LLUUID session_id = payload["session_id"].asUUID();
 	LLUUID caller_id = payload["caller_id"].asUUID();
 	std::string session_name = payload["session_name"].asString();
+	if (session_name.empty())
+	{
+        session_name = payload["caller_name"].asString();
+	}
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)payload["inv_type"].asInteger();
 	bool voice = true;
@@ -3315,7 +3319,9 @@ LLUUID LLIMMgr::addSession(
 	bool new_session = (LLIMModel::getInstance()->findIMSession(session_id) == NULL);
 
 	//works only for outgoing ad-hoc sessions
-	if (new_session && IM_SESSION_CONFERENCE_START == dialog && ids.size())
+	if (new_session &&
+		((IM_NOTHING_SPECIAL == dialog) || (IM_SESSION_P2P_INVITE == dialog) || (IM_SESSION_CONFERENCE_START == dialog)) && 
+		ids.size())
 	{
 		LLIMModel::LLIMSession* ad_hoc_found = LLIMModel::getInstance()->findAdHocIMSession(ids);
 		if (ad_hoc_found)
@@ -4111,7 +4117,7 @@ public:
 			}
 
             BOOL session_type_p2p = input["body"]["voice"].get("invitation_type").asInteger() == EMultiAgentChatSessionType::P2P_CHAT_SESSION;
-            LL_WARNS("Voice") << "VOICE DATA: " << input["body"]["voice"] << LL_ENDL;
+            LL_WARNS("Voice") << "VOICE DATA: " << input["body"]<< LL_ENDL;
 			gIMMgr->inviteToSession(
 				input["body"]["session_id"].asUUID(),
 				input["body"]["session_name"].asString(),

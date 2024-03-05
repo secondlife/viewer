@@ -4917,7 +4917,7 @@ void LLVivoxVoiceClient::joinSession(const sessionStatePtr_t &session)
     }
 }
 
-void LLVivoxVoiceClient::setNonSpatialChannel(const LLSD& channelInfo, bool hangup_on_last_leave)
+void LLVivoxVoiceClient::setNonSpatialChannel(const LLSD& channelInfo, bool notify_on_first_join, bool hangup_on_last_leave)
 {
     switchChannel(channelInfo["channel_uri"].asString(), false, false, false, channelInfo["channel_credentials"].asString());
 }

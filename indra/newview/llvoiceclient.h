@@ -205,7 +205,8 @@ public:
 	virtual bool inProximalChannel()=0;
 	
 	virtual void setNonSpatialChannel(const LLSD& channelInfo,
-									  bool hangup_on_last_leave = false)=0;
+		                              bool notify_on_first_join,
+									  bool hangup_on_last_leave)=0;
 	
 	virtual bool setSpatialChannel(const LLSD& channelInfo)=0;
 	
@@ -407,7 +408,8 @@ public:
 	bool inProximalChannel();
 
 	void setNonSpatialChannel(const LLSD& channelInfo,
-							bool hangup_on_last_leave = false);
+		                      bool notify_on_first_join,
+							  bool hangup_on_last_leave);
 
 	void setSpatialChannel(const LLSD &channelInfo);
 

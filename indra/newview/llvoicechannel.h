@@ -136,7 +136,7 @@ private:
 class LLVoiceChannelGroup : public LLVoiceChannel
 {
 public:
-	LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name, BOOL hangup_on_last_leave);
+	LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name, bool notify_on_first_join, bool hangup_on_last_leave);
 
 	void handleStatusChange(EStatusType status) override;
 	void handleError(EStatusType status) override;
@@ -153,7 +153,8 @@ private:
 
 	U32 mRetries;
 	BOOL mIsRetrying;
-    BOOL mHangupOnLastLeave;
+    bool mHangupOnLastLeave;
+    bool mNotifyOnFirstJoin;
 };
 
 class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoiceChannelProximal>

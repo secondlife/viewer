@@ -381,8 +381,12 @@ boost::signals2::connection LLVoiceChannel::setCurrentVoiceChannelChangedCallbac
 // LLVoiceChannelGroup
 //
 
-LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const std::string& session_name, BOOL hangup_on_last_leave) : 
-	LLVoiceChannel(session_id, session_name),
+LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID      &session_id,
+                                         const std::string &session_name,
+                                         bool               notify_on_first_join,
+                                         bool               hangup_on_last_leave) :
+    LLVoiceChannel(session_id, session_name),
+    mNotifyOnFirstJoin(notify_on_first_join),
     mHangupOnLastLeave(hangup_on_last_leave)
 {
 	mRetries = DEFAULT_RETRIES_COUNT;
@@ -408,6 +412,7 @@ void LLVoiceChannelGroup::activate()
 	{
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(mChannelInfo,
+			                                               mNotifyOnFirstJoin,
 											    		   mHangupOnLastLeave);
 
 		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
@@ -484,6 +489,7 @@ void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 	{
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(channelInfo,
+			                                               mNotifyOnFirstJoin,
 														   mHangupOnLastLeave);
 	}
 }
@@ -734,7 +740,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
                                      const std::string &session_name,
                                      const LLUUID      &other_user_id,
 	                                 LLVoiceP2POutgoingCallInterface* outgoing_call_interface) : 
-		LLVoiceChannelGroup(session_id, session_name, true), 
+		LLVoiceChannelGroup(session_id, session_name, true, true), 
 		mOtherUserID(other_user_id),
 		mReceivedCall(FALSE),
         mOutgoingCallInterface(outgoing_call_interface)

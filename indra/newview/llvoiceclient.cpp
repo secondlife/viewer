@@ -427,6 +427,7 @@ bool LLVoiceClient::inProximalChannel()
 
 void LLVoiceClient::setNonSpatialChannel(
 	const LLSD& channelInfo,
+	bool notify_on_first_join,
 	bool hangup_on_last_leave)
 {
     setNonSpatialVoiceModule(channelInfo["voice_server_type"].asString());
@@ -436,7 +437,7 @@ void LLVoiceClient::setNonSpatialChannel(
     }
 	if (mNonSpatialVoiceModule)
 	{
-        mNonSpatialVoiceModule->setNonSpatialChannel(channelInfo, hangup_on_last_leave);
+        mNonSpatialVoiceModule->setNonSpatialChannel(channelInfo, notify_on_first_join, hangup_on_last_leave);
         mNonSpatialVoiceModule->processChannels(true);
 	}
 }

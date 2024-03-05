@@ -143,9 +143,9 @@ public:
 	// Note that gestures should only fire if this returns true.
 	bool inProximalChannel() override;
 	
-	void setNonSpatialChannel(const LLSD& channelInfo, bool hangup_on_last_leave) override
+	void setNonSpatialChannel(const LLSD& channelInfo, bool notify_on_first_join, bool hangup_on_last_leave) override
 	{
-        startAdHocSession(channelInfo, hangup_on_last_leave);
+        startAdHocSession(channelInfo, notify_on_first_join, hangup_on_last_leave);
 	}
 	
 	bool setSpatialChannel(const LLSD &channelInfo) override 
@@ -388,6 +388,7 @@ public:
 		{ return mSessions.find(sessionID) != mSessions.end(); }
 
        bool mHangupOnLastLeave;
+       bool mNotifyOnFirstJoin;
 
     protected:
         sessionState();
@@ -429,7 +430,10 @@ public:
     class adhocSessionState : public sessionState
     {
     public:
-        adhocSessionState(const std::string &channelID, const std::string& credentials, bool hangup_on_last_leave);
+        adhocSessionState(const std::string &channelID,
+			const std::string& credentials,
+			bool notify_on_first_join,
+			bool hangup_on_last_leave);
 
         bool isSpatial() override { return false; }
         bool isEstate() override { return false; }
@@ -603,7 +607,7 @@ private:
 
 	bool startEstateSession();
     bool startParcelSession(const std::string& channelID, S32 parcelID);
-    bool startAdHocSession(const LLSD &channelInfo, bool hangup_on_last_leave);
+    bool startAdHocSession(const LLSD &channelInfo, bool notify_on_first_join, bool hangup_on_last_leave);
 	
 	std::string nameFromID(const LLUUID &id);
 	bool IDFromName(const std::string name, LLUUID &uuid);
