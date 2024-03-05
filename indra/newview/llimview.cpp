@@ -731,12 +731,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
             // which uses the voice server to relay calls and invites.  Otherwise,
             // we use the group voice provider.
             mVoiceChannel = new LLVoiceChannelP2P(session_id, name, other_participant_id, outgoingInterface);
-            mVoiceChannel->setChannelInfo(voiceChannelInfo);
         }
 		else
 		{
             p2pAsAdhocCall = true;
-            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, true, true);
+            mVoiceChannel  = new LLVoiceChannelGroup(session_id, name, voiceChannelInfo.isUndefined(), true);
 		}
 	}
 	else
@@ -754,10 +753,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 		}
 	}
 
-	if(mVoiceChannel)
-	{
-		mVoiceChannelStateChangeConnection = mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
-	}
+	mVoiceChannelStateChangeConnection = mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
+    mVoiceChannel->setChannelInfo(voiceChannelInfo);
 
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 
