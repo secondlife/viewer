@@ -803,13 +803,13 @@ boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
-bool LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& default_params)
+bool LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& default_params, bool cacheable)
 {
     LL_PROFILE_ZONE_SCOPED;
 	bool didPost = false;
 	LLXMLNodePtr root;
 
-	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root, LLDir::CURRENT_SKIN, cacheable))
 	{
 		LL_WARNS() << "Couldn't parse panel from: " << filename << LL_ENDL;
 		return didPost;
