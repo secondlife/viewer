@@ -373,6 +373,27 @@ std::string LLDir_Win32::getCurPath()
 	return utf16str_to_utf8str(llutf16string(w_str));
 }
 
+static std::wstring makeResourceID(const std::string& filename)
+{
+    std::wstring result;
+
+    std::string app_dir = gDirUtilp->getAppRODataDir();
+    // E.g., if finename starts with "C:\\Program Files\\SecondLifeViewer"
+    if (filename.substr(0, app_dir.size()) == app_dir)
+    {
+        // Convert the rest of filename to resource_id
+        // E.g., "app_settings\\settings_files.xml" => L"IDR_APP_SETTINGS_SETTINGS_FILES_XML"
+        std::string resource_id = filename.substr(app_dir.size() + 1);
+        LLStringUtil::replaceChar(resource_id, '\\', '_');
+        LLStringUtil::replaceChar(resource_id, '%', '_');
+        LLStringUtil::replaceChar(resource_id, '.', '_');
+        LLStringUtil::toUpper(resource_id);
+        resource_id = "IDR_" + resource_id;
+        result = std::wstring(resource_id.begin(), resource_id.end());
+    }
+
+    return result;
+}
 
 bool LLDir_Win32::fileExists(const std::string &filename) const
 {
@@ -384,12 +405,64 @@ bool LLDir_Win32::fileExists(const std::string &filename) const
 	{
 		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+    // Try to search in resource
+    std::wstring resource_id = makeResourceID(filename);
+    if (!resource_id.empty())
+    {
+        HMODULE hmodule = GetModuleHandleW(nullptr);
+        HRSRC hresource = FindResourceW(hmodule, resource_id.c_str(), L"FILE");
+        if (hresource)
+            return true;
+    }
+
+    return false;
 }
 
+// virtual
+bool LLDir_Win32::skinExists(const std::string& subdir, const std::string &skin) const
+{
+    if (subdir == LLDir::XUI && skin == "en")
+        return true;
+
+    if (subdir == LLDir::HTML && skin == "en-us")
+        return true;
+
+    return LLDir::skinExists(subdir, skin);
+}
+
+// virtual
+std::string LLDir_Win32::getFileContents(const std::string& filename) const
+{
+    // Try to read from file
+    std::string result = LLDir::getFileContents(filename);
+
+    if (result.empty())
+    {
+        // Try to read from resource
+        std::wstring resource_id = makeResourceID(filename);
+        if (!resource_id.empty())
+        {
+            HMODULE hmodule = GetModuleHandleW(nullptr);
+            HRSRC hresource = FindResourceW(hmodule, resource_id.c_str(), L"FILE");
+            if (hresource)
+            {
+                HGLOBAL hglobal = LoadResource(hmodule, hresource);
+                if (hglobal)
+                {
+                    const char* text = (const char*)LockResource(hglobal);
+                    if (text)
+                    {
+                        size_t size = SizeofResource(nullptr, hresource);
+                        result = std::string(text, size);
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
 
 /*virtual*/ std::string LLDir_Win32::getLLPluginLauncher()
 {

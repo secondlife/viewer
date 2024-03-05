@@ -59,6 +59,10 @@ class ViewerManifest(LLManifest):
         # files during the build (see copy_w_viewer_manifest
         # and copy_l_viewer_manifest targets)
         return 'package' in self.args['actions']
+
+    # This differs for Windows, it delivers XML files as resources
+    def is_packaging_xml_files(self):
+        return True;
     
     def construct(self):
         super(ViewerManifest, self).construct()
@@ -67,10 +71,12 @@ class ViewerManifest(LLManifest):
 
         if self.is_packaging_viewer():
             with self.prefix(src_dst="app_settings"):
-                self.exclude("logcontrol.xml")
-                self.exclude("logcontrol-dev.xml")
+                # XML files are delivered as resources on Windows
+                if self.is_packaging_xml_files():
+                    self.exclude("logcontrol.xml")
+                    self.exclude("logcontrol-dev.xml")
+                    self.path("*.xml")
                 self.path("*.ini")
-                self.path("*.xml")
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
@@ -136,8 +142,10 @@ class ViewerManifest(LLManifest):
 
 
             with self.prefix(src_dst="character"):
+                # XML files are delivered as resources on Windows
+                if self.is_packaging_xml_files():
+                    self.path("*.xml")
                 self.path("*.llm")
-                self.path("*.xml")
                 self.path("*.tga")
 
             # Include our fonts
@@ -155,9 +163,12 @@ class ViewerManifest(LLManifest):
                             self.path("*.j2c")
                             self.path("*.png")
                             self.path("textures.xml")
-                    self.path("*/xui/*/*.xml")
-                    self.path("*/xui/*/widgets/*.xml")
-                    self.path("*/*.xml")
+
+                    # XML files are delivered as resources on Windows
+                    if self.is_packaging_xml_files():
+                        self.path("*/xui/*/*.xml")
+                        self.path("*/xui/*/widgets/*.xml")
+                        self.path("*/*.xml")
 
                     # Update: 2017-11-01 CP Now we store app code in the html folder
                     #         Initially the HTML/JS code to render equirectangular
@@ -492,6 +503,10 @@ class Windows_x86_64_Manifest(ViewerManifest):
         else:
             print("Doesn't exist:", src)
         
+    # This differs for Windows, it delivers XML files as resources
+    def is_packaging_xml_files(self):
+        return False;
+
     def construct(self):
         super().construct()
 

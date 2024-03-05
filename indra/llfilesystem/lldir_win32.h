@@ -45,6 +45,8 @@ public:
 	/*virtual*/ std::string getCurPath();
 	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask);
 	/*virtual*/ bool fileExists(const std::string &filename) const;
+	/*virtual*/ bool skinExists(const std::string& subdir, const std::string &skin) const;
+	/*virtual*/ std::string getFileContents(const std::string& filename) const;
 
 	/*virtual*/ std::string getLLPluginLauncher();
 	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
