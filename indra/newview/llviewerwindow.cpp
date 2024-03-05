@@ -1957,7 +1957,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	// Initialize OpenGL Renderer
 	LLVertexBuffer::initClass(mWindow);
 	LL_INFOS("RenderInit") << "LLVertexBuffer initialization done." << LL_ENDL ;
-	gGL.init(true);
+	if (!gGL.init(true))
+    {
+        LLError::LLUserWarningMsg::show(LLTrans::getString("MBVideoDrvErr"));
+        LL_ERRS() << "gGL not initialized" << LL_ENDL;
+    }
 
 	if (LLFeatureManager::getInstance()->isSafe()
 		|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())

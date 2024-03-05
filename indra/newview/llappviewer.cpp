@@ -363,7 +363,6 @@ BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
 BOOL gCrashOnStartup = FALSE;
-BOOL gLLErrorActivated = FALSE;
 BOOL gLogoutInProgress = FALSE;
 
 BOOL gSimulateMemLeak = FALSE;
@@ -2254,14 +2253,19 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
-        //Set the ErrorActivated global so we know to create a marker file
-        gLLErrorActivated = true;
-
         gDebugInfo["FatalMessage"] = error_string;
         // We're not already crashing -- we simply *intend* to crash. Since we
         // haven't actually trashed anything yet, we can afford to write the whole
         // static info file.
         LLAppViewer::instance()->writeDebugInfo();
+    }
+}
+
+void errorMSG(const std::string& title_string, const std::string& message_string)
+{
+    if (!message_string.empty())
+    {
+        OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
     }
 }
 
@@ -2275,6 +2279,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
                                 );
     LLError::addGenericRecorder(&errorCallback);
     //LLError::setTimeFunction(getRuntime);
+
+    LLError::LLUserWarningMsg::setHandler(errorMSG);
 
 
     if (mSecondInstance)
@@ -2413,6 +2419,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			{	// failed to load
 				if(file.required)
 				{
+                    LLError::LLUserWarningMsg::showMissingFiles();
 					LL_ERRS() << "Error: Cannot load required settings file from: " << full_settings_path << LL_ENDL;
 					return false;
 				}
@@ -2511,6 +2518,7 @@ bool LLAppViewer::initConfiguration()
 	if (!success)
 	{
         LL_WARNS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        LLError::LLUserWarningMsg::showMissingFiles();
         if (gDirUtilp->fileExists(settings_file_list))
         {
             LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
@@ -2534,6 +2542,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (!mSettingsLocationList->validateBlock())
 	{
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Invalid settings file list " << settings_file_list << LL_ENDL;
 	}
 
@@ -2968,6 +2977,8 @@ bool LLAppViewer::initConfiguration()
 		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", key));
 	}
 
+    LLError::LLUserWarningMsg::setOutOfMemoryStrings(LLTrans::getString("MBOutOfMemoryTitle"), LLTrans::getString("MBOutOfMemoryErr"));
+
 	return true; // Config was successful.
 }
 
@@ -3005,6 +3016,7 @@ void LLAppViewer::initStrings()
 
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
+        LLError::LLUserWarningMsg::showMissingFiles();
 		LL_ERRS() << "Viewer failed to find localization and UI files."
 			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
 			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
@@ -4310,6 +4322,7 @@ void LLAppViewer::loadKeyBindings()
 		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
 		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
+            LLError::LLUserWarningMsg::showMissingFiles();
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
@@ -5398,6 +5411,14 @@ void LLAppViewer::disconnectViewer()
 void LLAppViewer::forceErrorLLError()
 {
    	LL_ERRS() << "This is a deliberate llerror" << LL_ENDL;
+}
+
+void LLAppViewer::forceErrorLLErrorMsg()
+{
+    LLError::LLUserWarningMsg::show("Deliberate error");
+    // Note: under debug this will show a message as well,
+    // but release won't show anything and will quit silently
+    LL_ERRS() << "This is a deliberate llerror with a message" << LL_ENDL;
 }
 
 void LLAppViewer::forceErrorBreakpoint()
