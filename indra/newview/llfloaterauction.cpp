@@ -43,7 +43,6 @@
 #include "llmimetypes.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llsavedsettingsglue.h"
 #include "llviewertexturelist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
