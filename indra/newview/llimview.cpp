@@ -2368,6 +2368,11 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
 			return;
 		}
 		break;
+    case LLVoiceChannel::STATE_NO_CHANNEL_INFO :
+		// This will happen in p2p calls using the adhoc
+		// infrastructure, which marks the channel as no channel info
+		// after the call is closed, which forces a dialogue.
+        return;
 
 	case LLVoiceChannel::STATE_HUNG_UP:
 		// this state is coming before session is changed
@@ -3394,6 +3399,13 @@ void LLIMMgr::inviteToSession(
 	EInvitationType inv_type,
     const LLSD& voice_channel_info)
 {
+
+	if (caller_id == gAgentID)
+	{
+		// ignore invites from ourself.
+        return;
+	}
+
 	std::string notify_box_type;
 	// voice invite question is different from default only for group call (EXT-7118)
 	std::string question_type = "VoiceInviteQuestionDefault";
