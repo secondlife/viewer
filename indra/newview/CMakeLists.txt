@@ -1744,6 +1744,12 @@ if (WINDOWS)
       media_plugin_cef
       media_plugin_libvlc
       media_plugin_example
+      ${SHARED_LIB_STAGING_DIR}/Iex-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/IlmThread-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/Imath-3_1.dll
+      ${SHARED_LIB_STAGING_DIR}/OpenEXR-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/OpenEXRCore-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/OpenEXRUtil-3_2.dll
       )
 
     if (ADDRESS_SIZE EQUAL 64)
