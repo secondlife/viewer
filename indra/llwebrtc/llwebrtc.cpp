@@ -649,21 +649,26 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
     return true;
 }
 
-void LLWebRTCPeerConnectionImpl::shutdownConnection()
+bool LLWebRTCPeerConnectionImpl::shutdownConnection()
 {
-    mWebRTCImpl->PostSignalingTask(
-        [this]()
-        {
-            if (mPeerConnection)
+    if (mPeerConnection)
+    {
+        mWebRTCImpl->PostSignalingTask(
+            [this]()
             {
-                mPeerConnection->Close();
-                mPeerConnection = nullptr;
-            }
-            for (auto &observer : mSignalingObserverList)
-            {
-                observer->OnPeerShutDown();
-            }
-        });
+                if (mPeerConnection)
+                {
+                    mPeerConnection->Close();
+                    mPeerConnection = nullptr;
+                }
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnPeerShutDown();
+                }
+            });
+        return true;
+    }
+    return false;
 }
 
 void LLWebRTCPeerConnectionImpl::enableSenderTracks(bool enable)

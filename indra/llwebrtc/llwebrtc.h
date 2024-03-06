@@ -138,7 +138,7 @@ class LLWebRTCPeerConnection
     virtual void unsetSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
 
     virtual bool initializeConnection() = 0;
-    virtual void shutdownConnection() = 0;
+    virtual bool shutdownConnection() = 0;
     virtual void AnswerAvailable(const std::string &sdp) = 0;
 };
 

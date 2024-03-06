@@ -248,7 +248,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
     void setSignalingObserver(LLWebRTCSignalingObserver *observer) override;
     void unsetSignalingObserver(LLWebRTCSignalingObserver *observer) override;
     bool initializeConnection() override;
-    void shutdownConnection() override;
+    bool shutdownConnection() override;
     void AnswerAvailable(const std::string &sdp) override;
 
     //

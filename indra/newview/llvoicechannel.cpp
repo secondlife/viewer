@@ -438,12 +438,9 @@ void LLVoiceChannelGroup::activate()
 			}
 		}
 
-		//Mic default state is OFF on initiating/joining Ad-Hoc/Group calls
-		if (LLVoiceClient::getInstance()->getUserPTTState() && LLVoiceClient::getInstance()->getPTTIsToggle())
-		{
-			LLVoiceClient::getInstance()->inputUserControlState(true);
-		}
-		
+		// Mic default state is OFF on initiating/joining Ad-Hoc/Group calls.  It's on for P2P using the AdHoc infra.
+		 
+		LLVoiceClient::getInstance()->setUserPTTState(mNotifyOnFirstJoin);
 	}
 }
 

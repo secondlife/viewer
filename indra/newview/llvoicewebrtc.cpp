@@ -2395,8 +2395,11 @@ LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
         // by llwebrtc::terminate() on shutdown.
         return;
     }
-    llwebrtc::freePeerConnection(mWebRTCPeerConnection);
-    mWebRTCPeerConnection = nullptr;
+    if (mWebRTCPeerConnection)
+    {
+        llwebrtc::freePeerConnection(mWebRTCPeerConnection);
+        mWebRTCPeerConnection = nullptr;
+    }
 }
 
 void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::IceGatheringState state)
@@ -2689,8 +2692,10 @@ void LLVoiceWebRTCConnection::OnVoiceDisconnectionRequestSuccess(const LLSD &res
 
     if (mWebRTCPeerConnection)
     {
-        mOutstandingRequests++;
-        mWebRTCPeerConnection->shutdownConnection();
+        if (mWebRTCPeerConnection->shutdownConnection())
+        {
+            mOutstandingRequests++;
+        }
     }
     else
     {
@@ -2765,6 +2770,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, i
     }
     if (retries >= 0)
     {
+        LL_WARNS("Voice") << "Failure connecting to voice, retrying." << body << " RESULT: " << result << LL_ENDL;
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(
             url,
             LLCore::HttpRequest::DEFAULT_POLICY_ID,
