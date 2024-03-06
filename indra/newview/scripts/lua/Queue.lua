@@ -1,40 +1,41 @@
--- from https://create.roblox.com/docs/luau/queues#implementing-queues
+-- from https://create.roblox.com/docs/luau/queues#implementing-queues,
+-- amended per https://www.lua.org/pil/16.1.html
 
 local Queue = {}
-Queue.__index = Queue
 
-function Queue.new()
-	local self = setmetatable({}, Queue)
+function Queue:new()
+    local obj = setmetatable({}, self)
+    self.__index = self
 
-	self._first = 0
-	self._last = -1
-	self._queue = {}
+    obj._first = 0
+    obj._last = -1
+    obj._queue = {}
 
-	return self
+    return obj
 end
 
 -- Check if the queue is empty
 function Queue:IsEmpty()
-	return self._first > self._last
+    return self._first > self._last
 end
 
 -- Add a value to the queue
 function Queue:Enqueue(value)
-	local last = self._last + 1
-	self._last = last
-	self._queue[last] = value
+    local last = self._last + 1
+    self._last = last
+    self._queue[last] = value
 end
 
 -- Remove a value from the queue
 function Queue:Dequeue()
-	local first = self._first
-	if self:IsEmpty() then
-		return nil
-	end
-	local value = self._queue[first]
-	self._queue[first] = nil
-	self._first = first + 1
-	return value
+    if self:IsEmpty() then
+        return nil
+    end
+    local first = self._first
+    local value = self._queue[first]
+    self._queue[first] = nil
+    self._first = first + 1
+    return value
 end
 
 return Queue
