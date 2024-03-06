@@ -73,7 +73,6 @@ if (NOT HAVOK_TPV)
    endif()
 endif (NOT HAVOK_TPV)
 
-
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
@@ -1938,6 +1937,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::bugsplat
         ll::tracy
         ll::icu4c
+        ll::openexr
         )
 
 if( TARGET ll::intel_memops )

@@ -11,11 +11,12 @@ if(USE_CONAN )
 endif()
 
 use_prebuilt_binary(openexr)
+
 if (WINDOWS)
-  target_link_libraries( ll::openexr INTERFACE openexr )
+  target_link_libraries( ll::openexr INTERFACE Iex-3_2 IlmThread-3_2 Imath-3_1 OpenEXR-3_2 OpenEXRCore-3_2 OpenEXRUtil-3_2)
 else()
   
 endif (WINDOWS)
 
-target_include_directories( ll::openexr SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/openexr)
+target_include_directories( ll::openexr SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/OpenEXR ${LIBS_PREBUILT_DIR}/include/Imath)
 

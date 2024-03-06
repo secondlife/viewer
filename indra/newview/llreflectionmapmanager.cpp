@@ -38,6 +38,8 @@
 #include "llviewercontrol.h"
 #include "llenvironment.h"
 #include "llstartup.h"
+#include "llviewermenufile.h"
+#include "llnotificationsutil.h"
 
 
 // load an OpenEXR image from a file
@@ -50,10 +52,10 @@
 
 LLPointer<LLImageGL> gEXRImage;
 
-void load_exr()
+void load_exr(const std::string& filename)
 {
     try {
-        Imf::InputFile file("skins/default/textures/cloud_layers_4k.exr");
+        Imf::InputFile file(filename.c_str());
         Imath::Box2i       dw = file.header().dataWindow();
         int                width = dw.max.x - dw.min.x + 1;
         int                height = dw.max.y - dw.min.y + 1;
@@ -117,17 +119,39 @@ void load_exr()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
         delete data;
 
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
         gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_WRAP);
         gEXRImage->setHasMipMaps(FALSE);
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        
     }
     catch (const std::exception& e) {
-        std::cerr << "error reading image file hello.exr:" << e.what() << std::endl;
+        LLSD notif_args;
+        notif_args["WHAT"] = filename;
+        notif_args["REASON"] = e.what();
+        LLNotificationsUtil::add("CannotLoad", notif_args);
         return;
     }
 }
 
+void hdri_preview()
+{
+    LLFilePickerReplyThread::startPicker(
+        [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+        {
+            if (LLAppViewer::instance()->quitRequested())
+            {
+                return;
+            }
+            if (filenames.size() > 0)
+            {
+                load_exr(filenames[0]);
+            }
+        },
+        LLFilePicker::FFLOAD_HDRI,
+        true);
+}
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -1356,6 +1380,8 @@ void LLReflectionMapManager::initReflectionMaps()
 
     if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {
+        gEXRImage = nullptr;
+
         mReset = false;
         mReflectionProbeCount = count;
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
@@ -1413,8 +1439,6 @@ void LLReflectionMapManager::initReflectionMaps()
         mDefaultProbe->mComplete = default_complete;
 
         touch_default_probe(mDefaultProbe);
-
-        load_exr();
     }
 
     if (mVertexBuffer.isNull())

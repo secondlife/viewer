@@ -630,6 +630,13 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
+                self.path("Iex-3_2.dll")
+                self.path("IlmThread-3_2.dll")
+                self.path("Imath-3_1.dll")
+                self.path("OpenEXR-3_2.dll")
+                self.path("OpenEXRCore-3_2.dll")
+                self.path("OpenEXRUtil-3_2.dll")
+
                 self.path("dullahan_host.exe")
                 self.path("snapshot_blob.bin")
                 self.path("v8_context_snapshot.bin")

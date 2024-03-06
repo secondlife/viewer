@@ -9260,6 +9260,15 @@ Unable to upload texture.
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ name="CannotLoad"
+ type="alertmodal">
+    Unable to load [WHAT].
+    [REASON]
+    <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CannotUploadMaterial"
    type="alertmodal">

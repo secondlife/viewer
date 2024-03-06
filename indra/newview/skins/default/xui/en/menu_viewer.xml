@@ -2818,6 +2818,12 @@ function="World.EnvPreset"
               <menu_item_call.on_click
                function="Advanced.ClickRenderBenchmark" />
           </menu_item_call>
+          <menu_item_call
+           label="HDRI Preview"
+           name="HDRI Preview">
+            <menu_item_call.on_click
+             function="Advanced.ClickHDRIPreview" />
+          </menu_item_call>
         </menu>
       <menu
         create_jump_keys="true"
