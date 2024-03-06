@@ -249,8 +249,6 @@ public:
 	
 	BOOL postBuild() override;
 	
-    void onRegionChanged();
-    void onSimulatorFeaturesReceived(const LLUUID& region_id, LLViewerRegion* regionp);
     bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
@@ -274,7 +272,6 @@ protected:
 private:
 	bool mConfirmedTextureHeights;
 	bool mAskedTextureHeights;
-    boost::signals2::connection mRegionChangedSlot;
     LLUUID mLastSetTextures[LLTerrainMaterials::ASSET_COUNT];
     LLUUID mLastSetMaterials[LLTerrainMaterials::ASSET_COUNT];
 };

@@ -1440,11 +1440,6 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	mAskedTextureHeights = false;
 	mConfirmedTextureHeights = false;
 
-    if (!mRegionChangedSlot.connected())
-    {
-        mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLPanelRegionTerrainInfo::onRegionChanged,this));
-    }
-
 	return LLPanelRegionInfo::postBuild();
 }
 
@@ -1489,27 +1484,6 @@ void LLPanelRegionTerrainInfo::updateForMaterialType()
 	if (texture_label) { texture_label->setVisible(show_texture_controls); }
     LLUICtrl* material_label = getChild<LLUICtrl>("detail_material_text");
 	if (material_label) { material_label->setVisible(show_material_controls); }
-}
-
-void LLPanelRegionTerrainInfo::onRegionChanged()
-{
-    LLViewerRegion *region = gAgent.getRegion();
-    if (!region) { return; }
-
-    if (region->simulatorFeaturesReceived())
-    {
-        onSimulatorFeaturesReceived(region->getRegionID(), region);
-    }
-    else
-    {
-        // See "RenderTerrainPBREnabled" in LLViewerRegion::setSimulatorFeatures
-        region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLPanelRegionTerrainInfo::onSimulatorFeaturesReceived,this,_1, _2));
-    }
-}
-
-void LLPanelRegionTerrainInfo::onSimulatorFeaturesReceived(const LLUUID& region_id, LLViewerRegion* regionp)
-{
-    refresh();
 }
 
 // virtual
