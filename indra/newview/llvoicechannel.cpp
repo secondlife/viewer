@@ -383,11 +383,9 @@ boost::signals2::connection LLVoiceChannel::setCurrentVoiceChannelChangedCallbac
 
 LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID      &session_id,
                                          const std::string &session_name,
-                                         bool               notify_on_first_join,
-                                         bool               hangup_on_last_leave) :
+                                         bool               is_p2p) :
     LLVoiceChannel(session_id, session_name),
-    mNotifyOnFirstJoin(notify_on_first_join),
-    mHangupOnLastLeave(hangup_on_last_leave)
+    mIsP2P(is_p2p)
 {
 	mRetries = DEFAULT_RETRIES_COUNT;
 	mIsRetrying = FALSE;
@@ -400,7 +398,15 @@ void LLVoiceChannelGroup::deactivate()
 		LLVoiceClient::getInstance()->leaveNonSpatialChannel();
 	}
 	LLVoiceChannel::deactivate();
-}
+
+    if (mIsP2P)
+    {
+		// void the channel info for p2p adhoc channels
+		// so we request it again, hence throwing up the 
+		// connect dialogue on the other side.
+        setState(STATE_NO_CHANNEL_INFO);
+    }
+ }
 
 void LLVoiceChannelGroup::activate()
 {
@@ -411,36 +417,42 @@ void LLVoiceChannelGroup::activate()
 	if (callStarted())
 	{
 		// we have the channel info, just need to use it now
-		LLVoiceClient::getInstance()->setNonSpatialChannel(mChannelInfo,
-			                                               mNotifyOnFirstJoin,
-											    		   mHangupOnLastLeave);
+        LLVoiceClient::getInstance()->setNonSpatialChannel(mChannelInfo,
+			                                               mCallDirection == OUTGOING_CALL, 
+			                                               mIsP2P);
 
-		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
-		{
-			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionID);
-			// Adding ad-hoc call participants to Recent People List.
-			// If it's an outgoing ad-hoc, we can use mInitialTargetIDs that holds IDs of people we
-			// called(both online and offline) as source to get people for recent (STORM-210).
-			if (session->isOutgoingAdHoc())
-			{
-				for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
-					it!=session->mInitialTargetIDs.end();++it)
-				{
-					const LLUUID id = *it;
-					LLRecentPeople::instance().add(id);
-				}
-			}
-			// If this ad-hoc is incoming then trying to get ids of people from mInitialTargetIDs
-			// would lead to EXT-8246. So in this case we get them from speakers list.
-			else
-			{
-				LLIMModel::addSpeakersToRecent(mSessionID);
-			}
-		}
+		if (mIsP2P)
+        {
+            LLIMModel::addSpeakersToRecent(mSessionID);
+        }
+        else
+        {
+            if (!gAgent.isInGroup(mSessionID))  // ad-hoc channel
+            {
+                LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(mSessionID);
+                // Adding ad-hoc call participants to Recent People List.
+                // If it's an outgoing ad-hoc, we can use mInitialTargetIDs that holds IDs of people we
+                // called(both online and offline) as source to get people for recent (STORM-210).
+                if (session->isOutgoingAdHoc())
+                {
+                    for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin(); it != session->mInitialTargetIDs.end(); ++it)
+                    {
+                        const LLUUID id = *it;
+                        LLRecentPeople::instance().add(id);
+                    }
+                }
+                // If this ad-hoc is incoming then trying to get ids of people from mInitialTargetIDs
+                // would lead to EXT-8246. So in this case we get them from speakers list.
+                else
+                {
+                    LLIMModel::addSpeakersToRecent(mSessionID);
+                }
+            }
+        }
 
 		// Mic default state is OFF on initiating/joining Ad-Hoc/Group calls.  It's on for P2P using the AdHoc infra.
 		 
-		LLVoiceClient::getInstance()->setUserPTTState(mNotifyOnFirstJoin);
+		LLVoiceClient::getInstance()->setUserPTTState(mIsP2P);
 	}
 }
 
@@ -486,8 +498,8 @@ void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 	{
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(channelInfo,
-			                                               mNotifyOnFirstJoin,
-														   mHangupOnLastLeave);
+			                                               mCallDirection == OUTGOING_CALL,
+														   mIsP2P);
 	}
 }
 
@@ -737,7 +749,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
                                      const std::string &session_name,
                                      const LLUUID      &other_user_id,
 	                                 LLVoiceP2POutgoingCallInterface* outgoing_call_interface) : 
-		LLVoiceChannelGroup(session_id, session_name, true, true), 
+		LLVoiceChannelGroup(session_id, session_name, true), 
 		mOtherUserID(other_user_id),
 		mReceivedCall(FALSE),
         mOutgoingCallInterface(outgoing_call_interface)

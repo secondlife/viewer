@@ -735,7 +735,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 		else
 		{
             p2pAsAdhocCall = true;
-            mVoiceChannel  = new LLVoiceChannelGroup(session_id, name, voiceChannelInfo.isUndefined(), true);
+            mVoiceChannel  = new LLVoiceChannelGroup(session_id, name, true);
 		}
 	}
 	else
@@ -744,12 +744,12 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 		if (gAgent.isInGroup(mSessionID))
 		{
 			mSessionType = GROUP_SESSION;
-            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false, false);
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false);
 		}
         else
 		{
 			mSessionType = ADHOC_SESSION;
-            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false, true);
+            mVoiceChannel = new LLVoiceChannelGroup(session_id, name, false);
 		}
 	}
 
