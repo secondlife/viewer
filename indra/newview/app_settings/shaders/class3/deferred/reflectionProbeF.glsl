@@ -48,6 +48,7 @@ layout (std140) uniform ReflectionProbes
     /// box[0..2] - plane 0 .. 2 in [A,B,C,D] notation
     //  box[3][0..2] - plane thickness
     mat4 refBox[MAX_REFMAP_COUNT];
+    mat4 heroBox;
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[MAX_REFMAP_COUNT];
     // extra parameters 
@@ -56,6 +57,7 @@ layout (std140) uniform ReflectionProbes
     //  z - fade in
     //  w - znear
     vec4 refParams[MAX_REFMAP_COUNT];
+    vec4 heroSphere;
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
     // refIndex.x - cubemap channel in reflectionProbes
@@ -71,6 +73,10 @@ layout (std140) uniform ReflectionProbes
 
     // number of reflection probes present in refSphere
     int refmapCount;
+
+    int heroShape;
+    int heroMipCount;
+    int heroProbeCount;
 };
 
 // Inputs
@@ -682,48 +688,37 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
     return col[1]+col[0];
 }
 
-
 #if defined(HERO_PROBES)
 
 uniform vec4 clipPlane;
-
 uniform samplerCubeArray   heroProbes;
-
-layout (std140) uniform HeroProbeData
-{
-    mat4 heroBox[1];
-    vec4 heroSphere[1];
-    uint heroShape[1];
-    int heroMipCount;
-    int heroProbeCount;
-};
 
 void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
     float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
     float w = 0;
     float dw = 0;
-    if (heroShape[0] < 1)
+    float falloffMult = 10;
+    vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+    if (heroShape < 1)
     {
         float d = 0;
-        boxIntersect(pos, norm, heroBox[0], d, 1.0);
+        boxIntersect(pos, norm, heroBox, d, 1.0);
         
-        w = max(d, 0.001);
+        w = max(d, 0);
     }
     else
     {
-        float r = heroSphere[0].w;
+        float r = heroSphere.w;
         
-        w = sphereWeight(pos, norm, heroSphere[0].xyz, r, vec4(1), dw);
+        w = sphereWeight(pos, refnormpersp, heroSphere.xyz, r, vec4(1), dw);
     }
-    
-    {
-        vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-        if (dot(refnormpersp.xyz, clipPlane.xyz) > 0.0)
-        {
-            glossenv = mix(glossenv, textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz, w);
-        }
-    }
+
+    clipDist = clipDist * 0.95 + 0.05;
+    clipDist = clamp(clipDist * falloffMult, 0, 1);
+    w = clamp(w * falloffMult * clipDist, 0, 1);
+
+    glossenv = mix(glossenv, textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz, w);
 }
 
 #else

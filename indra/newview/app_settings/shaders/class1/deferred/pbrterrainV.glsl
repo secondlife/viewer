@@ -25,6 +25,7 @@
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 in vec3 position;
@@ -42,6 +43,7 @@ out vec3 vary_tangent;
 flat out float vary_sign;
 out vec4 vary_texcoord0;
 out vec4 vary_texcoord1;
+out vec3 vary_position;
 
 // *HACK: tangent_space_transform should use texture_normal_transform, or maybe
 // we shouldn't use tangent_space_transform at all. See the call to
@@ -55,6 +57,7 @@ void main()
 {
     //transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+    vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 
 	vec3 n = normal_matrix * normal;
     vary_vertex_normal = normal;

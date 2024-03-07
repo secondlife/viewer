@@ -133,6 +133,7 @@ uniform vec4 minimum_alphas; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlpha
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 in vec4[2] vary_coords;
 #endif
+in vec3 vary_position;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
@@ -140,11 +141,14 @@ in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
 
 vec2 encode_normal(vec3 n);
+void mirrorClip(vec3 position);
 
 float terrain_mix(TerrainMix tm, vec4 tms4);
 
 void main()
 {
+    // Make sure we clip the terrain if we're in a mirror.
+    mirrorClip(vary_position);
 
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
     TerrainCoord terrain_texcoord = vary_coords;
