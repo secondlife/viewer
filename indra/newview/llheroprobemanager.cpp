@@ -434,7 +434,7 @@ void LLHeroProbeManager::updateUniforms()
     oa.set(0, 0, 0, 0);
     mHeroData.heroProbeCount = 1;
     
-    if (mNearestHero != nullptr)
+    if (mNearestHero != nullptr && !mNearestHero->isDead())
     {
         if (mNearestHero->getReflectionProbeIsBox())
         {
