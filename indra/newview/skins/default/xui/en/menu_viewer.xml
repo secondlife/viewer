@@ -2717,6 +2717,12 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorLlerror" />
             </menu_item_call>
             <menu_item_call
+             label="Force LLError, Message And Crash"
+             name="Force LLError And Crash">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorLlerrorMsg" />
+            </menu_item_call>
+            <menu_item_call
              label="Force Bad Memory Access"
              name="Force Bad Memory Access">
                 <menu_item_call.on_click
@@ -3538,6 +3544,18 @@ function="World.EnvPreset"
              parameter="http://duckduckgo.com"/>
           </menu_item_call>
           <menu_item_call
+           label="Dump Fonts"
+           name="Dump Fonts">
+            <menu_item_call.on_click
+             function="Develop.Fonts.Dump" />
+          </menu_item_call>
+          <menu_item_call
+           label="Dump Font Textures"
+           name="Dump Font Textures">
+            <menu_item_call.on_click
+             function="Develop.Fonts.DumpTextures" />
+          </menu_item_call>
+          <menu_item_call
              label="Dump SelectMgr"
              name="Dump SelectMgr">
                 <menu_item_call.on_click
@@ -3604,6 +3622,14 @@ function="World.EnvPreset"
                  function="Advanced.CheckDebugViews" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleDebugViews" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Unicode"
+             name="Debug Unicode">
+                <menu_item_check.on_check
+                 function="Advanced.CheckDebugUnicode" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleDebugUnicode" />
             </menu_item_check>
             <menu_item_check
              label="Debug Name Tooltips"
@@ -4412,7 +4438,7 @@ function="World.EnvPreset"
                     <menu_item_call.on_click
                      function="PromptShowURL"
                      name="PublicIssueTracker_url"
-                     parameter="WebLaunchPublicIssue,http://jira.secondlife.com" />
+                     parameter="WebLaunchPublicIssue,https://feedback.secondlife.com/" />
                 </menu_item_call>
                 <menu_item_call
                  label="Public Issue Tracker Help"

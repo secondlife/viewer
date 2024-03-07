@@ -44,7 +44,6 @@
 
 static const U32 BASE_SIZE = 128;
 
-
 F32 bilinear(const F32 v00, const F32 v01, const F32 v10, const F32 v11, const F32 x_frac, const F32 y_frac)
 {
 	// Not sure if this is the right math...
@@ -91,10 +90,10 @@ BOOL LLTerrainMaterials::generateMaterials()
 LLUUID LLTerrainMaterials::getDetailAssetID(S32 asset)
 {
     llassert(mDetailTextures[asset] && mDetailMaterials[asset]);
-    // *HACK: Assume both the the material and texture were fetched in the same
-    // way using the same UUID. However, we may not know at this point which
-    // one will load.
-	return mDetailTextures[asset]->getID();
+    // Assume both the the material and texture were fetched in the same way
+    // using the same UUID. However, we may not know at this point which one
+    // will load.
+	return mDetailTextures[asset] ? mDetailTextures[asset]->getID() : LLUUID::null;
 }
 
 LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
@@ -133,7 +132,7 @@ bool LLTerrainMaterials::texturesReady(bool boost, bool strict)
     // *NOTE: Calls to textureReady may boost textures. Do not early-return.
     for (S32 i = 0; i < ASSET_COUNT; i++)
     {
-        ready[i] = textureReady(mDetailTextures[i], boost);
+        ready[i] = mDetailTextures[i].notNull() && textureReady(mDetailTextures[i], boost);
     }
 
     bool one_ready = false;
@@ -250,6 +249,7 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
     // Material is loaded, but textures may not be
     if (!textures_set)
     {
+        textures_set = true;
         // *NOTE: These can sometimes be set to to nullptr due to
         // updateTEMaterialTextures. For the sake of robustness, we emulate
         // that fetching behavior by setting textures of null IDs to nullptr.
@@ -257,9 +257,6 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
         mat->mNormalTexture            = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
         mat->mMetallicRoughnessTexture = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
         mat->mEmissiveTexture          = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
-        textures_set                   = true;
-
-        return false;
     }
 
     // *NOTE: Calls to textureReady may boost textures. Do not early-return.
@@ -288,16 +285,29 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
     return true;
 }
 
+// static
+const LLUUID (&LLVLComposition::getDefaultTextures())[ASSET_COUNT]
+{
+    const static LLUUID default_textures[LLVLComposition::ASSET_COUNT] =
+    {
+        TERRAIN_DIRT_DETAIL,
+        TERRAIN_GRASS_DETAIL,
+        TERRAIN_MOUNTAIN_DETAIL,
+        TERRAIN_ROCK_DETAIL
+    };
+    return default_textures;
+}
 
 LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale) :
     LLTerrainMaterials(),
 	LLViewerLayer(width, scale)
 {
 	// Load Terrain Textures - Original ones
-	setDetailAssetID(0, TERRAIN_DIRT_DETAIL);
-	setDetailAssetID(1, TERRAIN_GRASS_DETAIL);
-	setDetailAssetID(2, TERRAIN_MOUNTAIN_DETAIL);
-	setDetailAssetID(3, TERRAIN_ROCK_DETAIL);
+    const LLUUID (&default_textures)[LLVLComposition::ASSET_COUNT] = LLVLComposition::getDefaultTextures();
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        setDetailAssetID(i, default_textures[i]);
+    }
 
 	mSurfacep = surfacep;
 

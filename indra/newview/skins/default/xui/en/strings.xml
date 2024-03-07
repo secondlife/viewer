@@ -490,9 +490,9 @@ http://secondlife.com/support for help fixing this problem.
 	<!-- build floater -->
 	<string name="multiple_textures">Multiple</string>
 
-<string name="use_texture">Use texture</string>
-    <string name="manip_hint1">Move mouse cursor over ruler</string>
-    <string name="manip_hint2">to snap to grid</string>
+	<string name="use_texture">Use texture</string>
+	<string name="manip_hint1">Move mouse cursor over ruler</string>
+	<string name="manip_hint2">to snap to grid</string>
 
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
@@ -507,14 +507,14 @@ http://secondlife.com/support for help fixing this problem.
 
 	<!-- Chat -->
 	<string name="NearbyChatTitle">Nearby chat</string>
-  <string name="NearbyChatLabel">(Nearby chat)</string>
+	<string name="NearbyChatLabel">(Nearby chat)</string>
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 	<string name="ringing">Connecting to in-world Voice Chat...</string>
 	<string name="connected">Connected</string>
 	<string name="unavailable">Voice not available at your current location</string>
 	<string name="hang_up">Disconnected from in-world Voice Chat</string>
-  <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
+	<string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
 	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
@@ -3019,8 +3019,19 @@ Running in window.
 
 If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
+    <string name="MBOutOfMemoryTitle">Out Of Memory</string>
+    <string name="MBOutOfMemoryErr">
+        [APP_NAME]'s request for memory failed. Application can't proceed and will be closed.
 
-	<!-- Avatar Shape Information -->
+If your computer's RAM is low, quit any heavy applications before runing Second Life, allocate a page file or reduce graphical settings like draw distance.
+    </string>
+    <string name="MBMissingFile">
+        [APP_NAME] couldn't access or find some of the files it needs and will be closed.
+
+Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall.
+    </string>
+
+    <!-- Avatar Shape Information -->
 <string name="5 O'Clock Shadow">5 O'Clock Shadow</string>
 
 <string name="All White">All White</string>
