@@ -16,7 +16,7 @@ if (WINDOWS)
         FetchContent_Declare(
               webrtc
               URL "https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.windows_x86_64.tar.bz2"
-              URL_HASH "MD5=b7a93b111e51ebcda21701c009c0676c"
+              URL_HASH "MD5=6e25b99284215933ec1571b6e60c1030"
               FIND_PACKAGE_ARGS NAMES webrtc
               DOWNLOAD_EXTRACT_TIMESTAMP TRUE
               DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
@@ -26,7 +26,7 @@ elseif (DARWIN)
     FetchContent_Declare(
       webrtc
       URL "https://webrtc-build-releases.s3.us-west-2.amazonaws.com/webrtc.macos_x86_64.tar.bz2"
-      URL_HASH "MD5=a965974e1d9fc7f55b852a8ff8ccf9a9"
+      URL_HASH "MD5=6849e81773135290f5c70cbf679992fb"
       FIND_PACKAGE_ARGS NAMES webrtc
       DOWNLOAD_EXTRACT_TIMESTAMP TRUE
       DOWNLOAD_DIR "${LIBS_PREBUILT_DIR}/webrtc/"
