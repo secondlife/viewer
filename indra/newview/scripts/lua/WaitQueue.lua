@@ -4,7 +4,7 @@
 
 local Queue = require('Queue')
 
-WaitQueue = Queue:new()
+local WaitQueue = Queue:new()
 
 function WaitQueue:new()
     local obj = Queue:new()

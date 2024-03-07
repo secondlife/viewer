@@ -17,6 +17,8 @@
 -- get_event_next() blocks the calling Lua script until the next event is
 -- received.
 
+local ErrorQueue = require('ErrorQueue')
+
 local leap = {}
 
 -- _reply: string name of reply LLEventPump. Any events the viewer posts to
@@ -120,7 +122,7 @@ function leap._requestSetup(pump, data)
     -- because, unlike the WaitFor base class, WaitForReqid does not
     -- self-register on our leap._waitfors list. Instead, capture the new
     -- WaitForReqid object in leap._pending so _dispatch() can find it.
-    leap._pending[reqid] = WaitForReqid.new(reqid)
+    leap._pending[reqid] = leap.WaitForReqid:new(reqid)
     -- Pass reqid to send() to stamp it into (a copy of) the request data.
     leap.send(pump, data, reqid)
     return reqid
@@ -177,6 +179,10 @@ function leap.process()
     end
     for i, waitfor in pairs(leap._waitfors) do
         waitfor._exception(pump)
+    end
+    -- now that we're done with cleanup, propagate the error we caught above
+    if not ok then
+        error(pump)
     end
 end
 
@@ -235,18 +241,18 @@ end
 -- object willing to accept it. If no such object is found, the unsolicited
 -- event is discarded.
 -- 
--- - First, instantiate a WaitFor subclass object to register its interest in
+-- * First, instantiate a WaitFor subclass object to register its interest in
 --   some incoming event(s). WaitFor instances are self-registering; merely
 --   instantiating the object suffices.
--- - Any coroutine may call a given WaitFor object's wait() method. This blocks
+-- * Any coroutine may call a given WaitFor object's wait() method. This blocks
 --   the calling coroutine until a suitable event arrives.
--- - WaitFor's constructor accepts a float priority. Every incoming event
+-- * WaitFor's constructor accepts a float priority. Every incoming event
 --   (other than those claimed by request() or generate()) is passed to each
 --   extant WaitFor.filter() method in descending priority order. The first
 --   such filter() to return nontrivial data claims that event.
--- - At that point, the blocked wait() call on that WaitFor object returns the
+-- * At that point, the blocked wait() call on that WaitFor object returns the
 --   item returned by filter().
--- - WaitFor contains a queue. Multiple arriving events claimed by that WaitFor
+-- * WaitFor contains a queue. Multiple arriving events claimed by that WaitFor
 --   object's filter() method are added to the queue. Naturally, until the
 --   queue is empty, calling wait() immediately returns the front entry.
 -- 
@@ -261,24 +267,127 @@ end
 -- "blocking" operations. Or a given coroutine might sample a number of WaitFor
 -- objects in round-robin fashion... etc. etc. Nonetheless, it's
 -- straightforward to designate one coroutine for each WaitFor object.
-leap.WaitFor = {}
 
-function leap.WaitFor:new()
-    obj = setmetatable({}, self)
+-- --------------------------------- WaitFor ---------------------------------
+leap.WaitFor = { _id=0 }
+
+function leap.WaitFor:new(priority, name)
+    local obj = setmetatable({}, self)
     self.__index = self
 
-    
-
-    self._first = 0
-    self._last = -1
-    self._queue = {}
+    obj.priority = priority
+    if name then
+        obj.name = name
+    else
+        self._id += 1
+        obj.name = 'WaitFor' .. self._id
+    end
+    obj._queue = ErrorQueue:new()
+    obj._registered = false
+    obj:enable()
 
     return obj
 end
 
--- Check if the queue is empty
-function Queue:IsEmpty()
-    return self._first > self._last
+function leap.WaitFor.tostring(self)
+    -- Lua (sub)classes have no name; can't prefix with that
+    return self.name
+end
+
+-- Re-enable a disable()d WaitFor object. New WaitFor objects are
+-- enable()d by default.
+function leap.WaitFor:enable()
+    if not self._registered then
+        leap._registerWaitFor(self)
+        self._registered = true
+    end
+end
+
+-- Disable an enable()d WaitFor object.
+function leap.WaitFor:disable()
+    if self._registered then
+        leap._unregisterWaitFor(self)
+        self._registered = false
+    end
+end
+
+-- Block the calling coroutine until a suitable unsolicited event (one
+-- for which filter() returns the event) arrives.
+function leap.WaitFor:wait()
+    return self._queue:Dequeue()
+end
+
+-- Loop over wait() calls.
+function leap.WaitFor:iterate()
+    -- on each iteration, call self.wait(self)
+    return self.wait, self, nil
+end
+
+-- Override filter() to examine the incoming event in whatever way
+-- makes sense.
+-- 
+-- Return nil to ignore this event.
+-- 
+-- To claim the event, return the item you want placed in the queue.
+-- Typically you'd write:
+-- return data
+-- or perhaps
+-- return {pump=pump, data=data}
+-- or some variation.
+function leap.WaitFor:filter(pump, data)
+    error('You must subclass WaitFor and override its filter() method')
+end
+
+-- called by leap._unsolicited() for each WaitFor in leap._waitfors
+function leap.WaitFor:_handle(pump, data)
+    item = self:filter(pump, data)
+    -- if this item doesn't pass the filter, we're not interested
+    if not item then
+        return false
+    end
+    -- okay, filter() claims this event
+    self:process(item)
+    return true
+end
+
+-- called by WaitFor:_handle() for an accepted event
+function leap.WaitFor:process(item)
+    self._queue:Enqueue(item)
+end
+
+-- called by leap.process() when get_event_next() raises an error
+function leap.WaitFor:_exception(message)
+    self._queue:Error(message)
+end
+
+-- ------------------------------ WaitForReqid -------------------------------
+leap.WaitForReqid = leap.WaitFor:new()
+
+function leap.WaitForReqid:new(reqid)
+    -- priority is meaningless, since this object won't be added to the
+    -- priority-sorted ViewerClient.waitfors list. Use the reqid as the
+    -- debugging name string.
+    local obj = leap.WaitFor:new(0, 'WaitForReqid(' .. reqid .. ')')
+    setmetatable(obj, self)
+    self.__index = self
+
+    return obj
+end
+
+function leap.WaitForReqid:enable()
+    -- Do NOT self-register in the normal way. request() and generate()
+    -- have an entirely different registry that points directly to the
+    -- WaitForReqid object of interest.
+end
+
+function leap.WaitForReqid:disable()
+end
+
+function leap.WaitForReqid:filter(pump, data)
+    -- Because we expect to directly look up the WaitForReqid object of
+    -- interest based on the incoming ["reqid"] value, it's not necessary
+    -- to test the event again. Accept every such event.
+    return data
 end
 
 return leap

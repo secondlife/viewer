@@ -4,7 +4,7 @@
 
 local WaitQueue = require('WaitQueue')
 
-ErrorQueue = WaitQueue:new()
+local ErrorQueue = WaitQueue:new()
 
 function ErrorQueue:Error(message)
     -- Setting Error() is a marker, like closing the queue. Once we reach the
