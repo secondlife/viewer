@@ -117,7 +117,7 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
                 if (success)
                 {
                     //new_name.append("-");
-                    new_name.data()[name_length] = '-';
+                    new_name[name_length] = '-';
                     LLGameControl::InputChannel other_channel(channel.mType, channel.mIndex, -channel.mSign);
                     // TIED TRIGGER HACK: this works for XBox and similar controllers,
                     // and those are pretty much the only supported devices right now
@@ -170,20 +170,20 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
                 {
                     // also need to remove the other entry
                     std::string other_name = name;
-                    if (other_name.data()[name.length() - 1] == '-')
+                    if (other_name[name.length() - 1] == '-')
                     {
-                        other_name.data()[name.length() - 1] = '+';
+                        other_name[name.length() - 1] = '+';
                     }
                     else
                     {
-                        other_name.data()[name.length() - 1] = '-';
+                        other_name[name.length() - 1] = '-';
                     }
                     // remove from map
                     updateMapInternal(other_name, channel);
                 }
             }
-            else if (name.data()[name.length() - 1] == '+'
-                    || name.data()[name.length() - 1] == '-')
+            else if (name[name.length() - 1] == '+'
+                    || name[name.length() - 1] == '-')
             {
                 // action was not found but name doesn't end with +/-
                 // maybe it is an axis-name sans the +/- on the end
@@ -194,7 +194,7 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
                 if (map_changed)
                 {
                     // that worked! now do the other one
-                    other_name.data()[name.length()] = '-';
+                    other_name[name.length()] = '-';
                     updateMapInternal(other_name, channel);
                 }
             }
