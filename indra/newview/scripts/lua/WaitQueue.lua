@@ -7,8 +7,10 @@ local Queue = require('Queue')
 WaitQueue = Queue:new()
 
 function WaitQueue:new()
-    local obj = setmetatable(Queue:new(), self)
+    local obj = Queue:new()
+    setmetatable(obj, self)
     self.__index = self
+
     obj._waiters = {}
     obj._closed = false
     return obj
@@ -18,7 +20,14 @@ function WaitQueue:Enqueue(value)
     if self._closed then
         error("can't Enqueue() on closed Queue")
     end
-    Queue:Enqueue(value)
+    -- can't simply call Queue:Enqueue(value)! That calls the method on the
+    -- Queue class definition, instead of calling Queue:Enqueue() on self.
+    -- Hand-expand the Queue:Enqueue() syntactic sugar.
+    Queue.Enqueue(self, value)
+    self:_wake_waiters()
+end
+
+function WaitQueue:_wake_waiters()
     -- WaitQueue is designed to support multi-producer, multi-consumer use
     -- cases. With multiple consumers, if more than one is trying to
     -- Dequeue() from an empty WaitQueue, we'll have multiple waiters.
@@ -27,7 +36,7 @@ function WaitQueue:Enqueue(value)
     -- callers. But since resuming that caller might entail either Enqueue()
     -- or Dequeue() calls, recheck every time around to see if we must resume
     -- another waiting coroutine.
-    while not self:IsEmpty() and #self._waiters do
+    while not self:IsEmpty() and #self._waiters > 0 do
         -- pop the oldest waiting coroutine instead of the most recent, for
         -- more-or-less round robin fairness
         local waiter = table.remove(self._waiters, 1)
@@ -58,11 +67,14 @@ function WaitQueue:Dequeue()
         coroutine.yield()
     end
     -- here we're sure this queue isn't empty
-    return Queue:Dequeue()
+    return Queue.Dequeue(self)
 end
 
 function WaitQueue:close()
     self._closed = true
+    -- close() is like Enqueueing an end marker. If there are waiting
+    -- consumers, give them a chance to see we're closed.
+    self:_wake_waiters()
 end
 
 return WaitQueue
