@@ -108,7 +108,7 @@ void load_exr(const std::string& filename)
 
         gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texName, true);
         glBindTexture(GL_TEXTURE_2D, texName);
-        F32* data = new F32[width * height * 3];
+        std::vector<F32> data(width * height * 3);
         for (int i = 0; i < width * height; ++i)
         {
             data[i * 3 + 0] = rPixels[i / width][i % width];
@@ -116,15 +116,13 @@ void load_exr(const std::string& filename)
             data[i * 3 + 2] = bPixels[i / width][i % width];
         }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
-        delete data;
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data.data());
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
         gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_WRAP);
         gEXRImage->setHasMipMaps(FALSE);
 
-        
     }
     catch (const std::exception& e) {
         LLSD notif_args;
