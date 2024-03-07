@@ -593,6 +593,9 @@ void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
     LLSD postData;
     postData["method"] = "call";
     postData["session-id"] = mSessionID;
+    LLSD altParams;
+    altParams["preferred_voice_server_type"] = gSavedSettings.getString("VoiceServerType");
+    postData["alt_params"] = altParams;
 
     LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;
 
