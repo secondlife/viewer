@@ -1437,6 +1437,30 @@ class LLAdvancedCheckDebugViews : public view_listener_t
 
 
 
+///////////////////
+// DEBUG UNICODE //
+///////////////////
+
+
+class LLAdvancedToggleDebugUnicode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLView::sDebugUnicode = !(LLView::sDebugUnicode);
+		return true;
+	}
+};
+
+class LLAdvancedCheckDebugUnicode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLView::sDebugUnicode;
+	}
+};
+
+
+
 ///////////////////////
 // XUI NAME TOOLTIPS //
 ///////////////////////
@@ -8509,23 +8533,8 @@ void handle_show_url(const LLSD& param)
 
 void handle_report_bug(const LLSD& param)
 {
-	LLUIString url(param.asString());
-	
-	LLStringUtil::format_map_t replace;
-	std::string environment = LLAppViewer::instance()->getViewerInfoString(true);
-	boost::regex regex;
-	regex.assign("</?nolink>");
-	std::string stripped_env = boost::regex_replace(environment, regex, "");
-
-	replace["[ENVIRONMENT]"] = LLURI::escape(stripped_env);
-	LLSLURL location_url;
-	LLAgentUI::buildSLURL(location_url);
-	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());
-
-	LLUIString file_bug_url = gSavedSettings.getString("ReportBugURL");
-	file_bug_url.setArgs(replace);
-
-	LLWeb::loadURLExternal(file_bug_url.getString());
+    std::string url = gSavedSettings.getString("ReportBugURL");
+    LLWeb::loadURLExternal(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -9524,6 +9533,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugViews(), "Advanced.ToggleDebugViews");
+	view_listener_t::addMenu(new LLAdvancedCheckDebugUnicode(), "Advanced.CheckDebugUnicode");
+	view_listener_t::addMenu(new LLAdvancedToggleDebugUnicode(), "Advanced.ToggleDebugUnicode");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINameTooltips(), "Advanced.ToggleXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINameTooltips(), "Advanced.CheckXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugMouseEvents(), "Advanced.ToggleDebugMouseEvents");
@@ -9623,7 +9634,11 @@ void initialize_menus()
 	
 	//Develop (clear cache immediately)
 	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
-    
+
+	// Develop (Fonts debugging)
+	commit.add("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
+	commit.add("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
+
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
 	view_listener_t::addMenu(new LLAdminHandleObjectOwnerSelf(), "Admin.HandleObjectOwnerSelf");

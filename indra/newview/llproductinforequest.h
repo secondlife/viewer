@@ -46,7 +46,7 @@ public:
 	std::string getDescriptionForSku(const std::string& sku);
 
 private:
-	/* virtual */ void initSingleton();
+	/* virtual */ void initSingleton() override;
 
     void getLandDescriptionsCoro(std::string url);
     LLSD mSkuDescriptions;

@@ -34,8 +34,8 @@ class LLViewerParcelAskPlay : public LLSingleton<LLViewerParcelAskPlay>
 {
     LLSINGLETON(LLViewerParcelAskPlay);
     ~LLViewerParcelAskPlay();
-    void initSingleton();
-    void cleanupSingleton();
+    void initSingleton() override;
+    void cleanupSingleton() override;
 public:
     // functor expects functor(region_id, parcel_id, url, play/stop)
     typedef boost::function<void(const LLUUID&, const S32&, const std::string&, const bool&)> ask_callback;
