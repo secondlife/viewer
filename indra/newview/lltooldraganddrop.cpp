@@ -1077,51 +1077,71 @@ void set_texture_to_material(LLViewerObject* hit_obj,
                              LLGLTFMaterial::TextureInfo drop_channel)
 {
     LLTextureEntry* te = hit_obj->getTE(hit_face);
-    if (te)
+    if (!te)
     {
-        LLPointer<LLGLTFMaterial> material = te->getGLTFMaterialOverride();
-
-        // make a copy to not invalidate existing
-        // material for multiple objects
-        if (material.isNull())
-        {
-            // Start with a material override which does not make any changes
-            material = new LLGLTFMaterial();
-        }
-        else
-        {
-            material = new LLGLTFMaterial(*material);
-        }
-
-        switch (drop_channel)
-        {
-            case LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR:
-            default:
-                {
-                    material->setBaseColorId(asset_id);
-                }
-                break;
-
-            case LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS:
-                {
-                    material->setOcclusionRoughnessMetallicId(asset_id);
-                }
-                break;
-
-            case LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE:
-                {
-                    material->setEmissiveId(asset_id);
-                }
-                break;
-
-            case LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL:
-                {
-                    material->setNormalId(asset_id);
-                }
-                break;
-        }
-        LLGLTFMaterialList::queueModify(hit_obj, hit_face, material);
+        return;
     }
+
+    const LLUUID base_mat_id = hit_obj->getRenderMaterialID(hit_face);
+    if (base_mat_id.isNull())
+    {
+        return;
+    }
+
+    if (hit_obj->isInventoryDirty() && hit_obj->hasInventoryListeners())
+    {
+        hit_obj->requestInventory();
+        return;
+    }
+
+    LLViewerInventoryItem* mat_item = hit_obj->getInventoryItemByAsset(base_mat_id);
+    if (mat_item && !mat_item->getPermissions().allowModifyBy(gAgentID))
+    {
+        return;
+    }
+
+    LLPointer<LLGLTFMaterial> material = te->getGLTFMaterialOverride();
+
+    // make a copy to not invalidate existing
+    // material for multiple objects
+    if (material.isNull())
+    {
+        // Start with a material override which does not make any changes
+        material = new LLGLTFMaterial();
+    }
+    else
+    {
+        material = new LLGLTFMaterial(*material);
+    }
+
+    switch (drop_channel)
+    {
+        case LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR:
+        default:
+            {
+                material->setBaseColorId(asset_id);
+            }
+            break;
+
+        case LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS:
+            {
+                material->setOcclusionRoughnessMetallicId(asset_id);
+            }
+            break;
+
+        case LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE:
+            {
+                material->setEmissiveId(asset_id);
+            }
+            break;
+
+        case LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL:
+            {
+                material->setNormalId(asset_id);
+            }
+            break;
+    }
+    LLGLTFMaterialList::queueModify(hit_obj, hit_face, material);
 }
 
 void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
