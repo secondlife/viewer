@@ -198,7 +198,12 @@ F32 LLPipeline::RenderScreenSpaceReflectionDepthRejectBias;
 F32 LLPipeline::RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
+bool LLPipeline::RenderMirrors;
+S32 LLPipeline::RenderHeroProbeUpdateRate;
+S32 LLPipeline::RenderHeroProbeConservativeUpdateMultiplier;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
+
+const U32 LLPipeline::MAX_BAKE_WIDTH = 512;
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
@@ -555,6 +560,9 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionGlossySamples");
 	connectRefreshCachedSettingsSafe("RenderBufferVisualization");
+    connectRefreshCachedSettingsSafe("RenderMirrors");
+    connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
+    connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
@@ -638,6 +646,7 @@ void LLPipeline::cleanup()
 	mCubeVB = NULL;
 
     mReflectionMapManager.cleanup();
+    mHeroProbeManager.cleanup();
 }
 
 //============================================================================
@@ -764,13 +773,30 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    if (mRT == &mMainRT && sReflectionProbesEnabled)
+    if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
+
         gCubeSnapshot = TRUE;
         mReflectionMapManager.initReflectionMaps();
+        mHeroProbeManager.initReflectionMaps();
+
+        if (sReflectionProbesEnabled)
+        {
+            gCubeSnapshot = TRUE;
+            mReflectionMapManager.initReflectionMaps();
+        }
+
         mRT = &mAuxillaryRT;
         U32 res = mReflectionMapManager.mProbeResolution * 4;  //multiply by 4 because probes will be 16x super sampled
         allocateScreenBuffer(res, res, samples);
+
+		if (RenderMirrors)
+        {
+            res = mHeroProbeManager.mProbeResolution;  // We also scale the hero probe RT to the probe res since we don't super sample it.
+            mRT = &mHeroProbeRT;
+            allocateScreenBuffer(res, res, samples);
+        }
+
         mRT = &mMainRT;
         gCubeSnapshot = FALSE;
     }
@@ -1043,6 +1069,15 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
 	RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
+    if (gSavedSettings.getBOOL("RenderMirrors") != (BOOL)RenderMirrors)
+    {
+        RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
+        LLViewerShaderMgr::instance()->clearShaderCache();
+        LLViewerShaderMgr::instance()->setShaders();
+    }
+    RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
+    RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
+
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
 
@@ -1072,7 +1107,6 @@ void LLPipeline::releaseGLBuffers()
 	releaseLUTBuffers();
 
 	mWaterDis.release();
-    mBake.release();
 	
     mSceneMap.release();
 
@@ -1150,9 +1184,6 @@ void LLPipeline::createGLBuffers()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     stop_glerror();
 	assertInitialized();
-
-    // Use FBO for bake tex
-    mBake.allocate(512, 512, GL_RGBA, true); // SL-12781 Build > Upload > Model; 3D Preview
 
 	stop_glerror();
 
@@ -2390,6 +2421,26 @@ void LLPipeline::doOcclusion(LLCamera& camera)
         mCubeVB->setBuffer();
 
         mReflectionMapManager.doOcclusion();
+        gOcclusionCubeProgram.unbind();
+
+        gGL.setColorMask(true, true);
+    }
+    
+    if (sReflectionProbesEnabled && sUseOcclusion > 1 && !LLPipeline::sShadowRender && !gCubeSnapshot)
+    {
+        gGL.setColorMask(false, false);
+        LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+        LLGLDisable cull(GL_CULL_FACE);
+
+        gOcclusionCubeProgram.bind();
+
+        if (mCubeVB.isNull())
+        { //cube VB will be used for issuing occlusion queries
+            mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX);
+        }
+        mCubeVB->setBuffer();
+
+        mHeroProbeManager.doOcclusion();
         gOcclusionCubeProgram.unbind();
 
         gGL.setColorMask(true, true);
@@ -3771,6 +3822,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
         {
             //update reflection probe uniform
             mReflectionMapManager.updateUniforms();
+            mHeroProbeManager.updateUniforms();
         }
 
 		U32 cur_type = 0;
@@ -6536,7 +6588,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                mSimplePool->pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
+                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
             }
             else
             {
@@ -6562,7 +6614,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                mSimplePool->pushGLTFBatch(*pparams);
+                LLRenderPass::pushGLTFBatch(*pparams);
             }
             else
             {
@@ -6730,11 +6782,12 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
 	}
 }
 
-void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst) {
+void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history) {
 	// exposure sample
 	{
 		LL_PROFILE_GPU_ZONE("exposure sample");
 
+		if (use_history)
 		{
 			// copy last frame's exposure into mLastExposure
 			mLastExposure.bindTarget();
@@ -6751,51 +6804,67 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst) {
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
-		gExposureProgram.bind();
-
-		S32 channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
-		if (channel > -1)
+		LLGLSLShader* shader;
+		if (use_history)
 		{
-			mLuminanceMap.bindTexture(0, channel, LLTexUnit::TFO_TRILINEAR);
+			shader = &gExposureProgram;
+		}
+		else
+		{
+			shader = &gExposureProgramNoFade;
 		}
 
-		channel = gExposureProgram.enableTexture(LLShaderMgr::EXPOSURE_MAP);
+		shader->bind();
+
+		S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
 		if (channel > -1)
 		{
-			mLastExposure.bindTexture(0, channel);
+			src->bindTexture(0, channel, LLTexUnit::TFO_TRILINEAR);
+		}
+
+		if (use_history)
+		{
+			channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
+			if (channel > -1)
+			{
+				mLastExposure.bindTexture(0, channel);
+			}
 		}
 
 		static LLStaticHashedString dt("dt");
 		static LLStaticHashedString noiseVec("noiseVec");
 		static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
 		static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
-        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+		static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
 
-        LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
+		LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
-        F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
-        F32 exp_min = 1.f;
-        F32 exp_max = 1.f;
-                
-        if (probe_ambiance > 0.f)
-        {
-            F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma())*2.f;
+		F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
+		F32 exp_min = 1.f;
+		F32 exp_max = 1.f;
 
-            if (hdr_scale > 1.f)
-            {
-                exp_min = 1.f / hdr_scale;
-                exp_max = hdr_scale;
-            }
-        }
-		gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
-		gExposureProgram.uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
-		gExposureProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max);
+		if (probe_ambiance > 0.f)
+		{
+			F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma()) * 2.f;
+
+			if (hdr_scale > 1.f)
+			{
+				exp_min = 1.f / hdr_scale;
+				exp_max = hdr_scale;
+			}
+		}
+		shader->uniform1f(dt, gFrameIntervalSeconds);
+		shader->uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
+		shader->uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max);
 
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-		gGL.getTexUnit(channel)->unbind(mLastExposure.getUsage());
-		gExposureProgram.unbind();
+		if (use_history)
+		{
+			gGL.getTexUnit(channel)->unbind(mLastExposure.getUsage());
+		}
+		shader->unbind();
 		dst->flush();
 	}
 }
@@ -8209,6 +8278,7 @@ void LLPipeline::renderDeferredLighting()
                           LLPipeline::RENDER_TYPE_CONTROL_AV,
                           LLPipeline::RENDER_TYPE_ALPHA_MASK,
                           LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
+						  LLPipeline::RENDER_TYPE_TERRAIN,
                           LLPipeline::RENDER_TYPE_WATER,
                           END_RENDER_TYPES);
 
@@ -8359,7 +8429,7 @@ void LLPipeline::doWaterHaze()
         else
         {
             //render water patches like LLDrawPoolWater does
-            LLGLDepthTest depth(GL_FALSE);
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE);
             LLGLDisable   cull(GL_CULL_FACE);
 
             gGLLastMatrix = NULL;
@@ -8612,6 +8682,17 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         mReflectionMapManager.mIrradianceMaps->bind(channel);
         bound = true;
     }
+    
+	if (RenderMirrors)
+    {
+        channel = shader.enableTexture(LLShaderMgr::HERO_PROBE, LLTexUnit::TT_CUBE_MAP_ARRAY);
+        if (channel > -1 && mHeroProbeManager.mTexture.notNull())
+        {
+            mHeroProbeManager.mTexture->bind(channel);
+            bound = true;
+        }
+    }
+     
 
     if (bound)
     {
@@ -10826,3 +10907,12 @@ void LLPipeline::rebuildDrawInfo()
     }
 }
 
+void LLPipeline::rebuildTerrain()
+{
+    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+        iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+    {
+        LLViewerRegion* region = *iter;
+        region->dirtyAllPatches();
+    }
+}

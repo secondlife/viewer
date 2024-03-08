@@ -57,7 +57,7 @@ public:
 	void			refresh();
 
 	void			sendIsLight();
-    
+
     // when an object is becoming a refleciton probe, present a dialog asking for confirmation
     // otherwise, send the reflection probe update immediately
     void            sendIsReflectionProbe();

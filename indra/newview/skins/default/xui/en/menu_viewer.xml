@@ -2717,6 +2717,12 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorLlerror" />
             </menu_item_call>
             <menu_item_call
+             label="Force LLError, Message And Crash"
+             name="Force LLError And Crash">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorLlerrorMsg" />
+            </menu_item_call>
+            <menu_item_call
              label="Force Bad Memory Access"
              name="Force Bad Memory Access">
                 <menu_item_call.on_click
@@ -3296,6 +3302,13 @@ function="World.EnvPreset"
             name="Shader Cache Clear">
             <menu_item_call.on_click
              function="Advanced.ClearShaderCache" />
+          </menu_item_call>
+          <menu_item_call
+            enabled="true"
+            label="Rebuild Terrain"
+            name="Rebuild Terrain">
+            <menu_item_call.on_click
+             function="Advanced.RebuildTerrain" />
           </menu_item_call>
           <menu_item_separator />
           <menu_item_call

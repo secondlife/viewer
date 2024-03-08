@@ -815,7 +815,7 @@ const F64Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("651510b8-5f4d-8991-1592-e7eeab2a5a06");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("c46226b4-0e43-5a56-9708-d27ca1df3292");
 const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("cef49723-0292-af49-9b14-9598a616b8a3");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
@@ -894,6 +894,14 @@ void LLEnvironment::initSingleton()
     {
         gGenericDispatcher.addHandler(MESSAGE_PUSHENVIRONMENT, &environment_push_dispatch_handler);
     }
+
+    gSavedSettings.getControl("RenderSkyAutoAdjustProbeAmbiance")->getSignal()->connect(
+        [](LLControlVariable*, const LLSD& new_val, const LLSD& old_val)
+        {
+            LLSettingsSky::sAutoAdjustProbeAmbiance = new_val.asReal();
+        }
+    );
+    LLSettingsSky::sAutoAdjustProbeAmbiance = gSavedSettings.getF32("RenderSkyAutoAdjustProbeAmbiance");
 
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
@@ -1667,8 +1675,6 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     updateSettingsUniforms();
 
-    // *TODO: potential optimization - this block may only need to be
-    // executed some of the time.  For example for water shaders only.
     {
         LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
         end_shaders = LLViewerShaderMgr::instance()->endShaders();
@@ -1679,6 +1685,10 @@ void LLEnvironment::update(const LLViewerCamera * cam)
                 || shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER))
             {
                 shaders_iter->mUniformsDirty = TRUE;
+                if (shaders_iter->mRiggedVariant)
+                {
+                    shaders_iter->mRiggedVariant->mUniformsDirty = TRUE;
+                }
             }
         }
     }

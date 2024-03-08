@@ -1522,12 +1522,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					std::string temp_string;
 					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, temp_string, block_num );
-					
+                    
 					LLColor4U coloru;
 					mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextColor, coloru.mV, 4, block_num);
-
+                        
 					// alpha was flipped so that it zero encoded better
 					coloru.mV[3] = 255 - coloru.mV[3];
+                    
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
 
@@ -1907,6 +1908,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				{
 					std::string temp_string;
 					dp->unpackString(temp_string, "Text");
+                    
 					LLColor4U coloru;
 					dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
 					coloru.mV[3] = 255 - coloru.mV[3];
@@ -5041,11 +5043,6 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
-                        LLViewerRegion* region = obj->getRegion();
-                        if(region)
-                        {
-                            region->loadCacheMiscExtras(obj->getLocalID());
-                        }
                         obj->markForUpdate();
                     }
                 });
@@ -5353,7 +5350,6 @@ S32 LLViewerObject::setTEFullbright(const U8 te, const U8 fullbright)
 	}
 	return retval;
 }
-
 
 S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 {

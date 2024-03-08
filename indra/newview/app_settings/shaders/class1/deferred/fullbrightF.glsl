@@ -50,9 +50,11 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 #endif
 
+void mirrorClip(vec3 pos);
+
 void main() 
 {
-
+    mirrorClip(vary_position);
 #ifdef IS_ALPHA
     waterClip(vary_position.xyz);
 #endif

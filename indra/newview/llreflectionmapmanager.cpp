@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llreflectionmapmanager.h"
+
+#include <vector>
+
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
 #include "llviewerregion.h"
@@ -306,8 +309,8 @@ void LLReflectionMapManager::update()
             }
         }
 
-        if (realtime && 
-            closestDynamic == nullptr && 
+        if (realtime &&
+            closestDynamic == nullptr &&
             probe->mCubeIndex != -1 &&
             probe->getIsDynamic())
         {
@@ -322,7 +325,7 @@ void LLReflectionMapManager::update()
         // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
         closestDynamic->autoAdjustOrigin();
 
-        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set 
+        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
         // lighting values etc
         bool radiance_pass = isRadiancePass();
         mRadiancePass = mRealtimeRadiancePass;
@@ -573,7 +576,7 @@ void LLReflectionMapManager::doProbeUpdate()
 
 // Do the reflection map update render passes.
 // For every 12 calls of this function, one complete reflection probe radiance map and irradiance map is generated
-// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate 
+// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate
 // a simple mip chain (not convolution filter).
 // At the end of these passes, an irradiance map is generated for this probe and placed into the irradiance cube map array at the index for this probe
 // The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
@@ -734,6 +737,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             mTexture->bind(channel);
             gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
+            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, 1.f);
 
             U32 res = mMipChain[0].getWidth();
 
@@ -898,33 +902,41 @@ void LLReflectionMapManager::updateUniforms()
     // see class3/deferred/reflectionProbeF.glsl
     struct ReflectionProbeData
     {
-        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of 
+        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
         // the box probe
-        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT]; 
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLMatrix4 heroBox;
 
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
-        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; 
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
 
-        // extra parameters 
+        // extra parameters
         //  x - irradiance scale
         //  y - radiance scale
         //  z - fade in
         //  w - znear
         LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
 
+        LLVector4 heroSphere;
+
         // indices used by probe:
         //  [i][0] - cubemap array index for this probe
         //  [i][1] - index into "refNeighbor" for probes that intersect this probe
         //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
         //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
-        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4]; 
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
 
         // list of neighbor indices
-        GLint refNeighbor[4096]; 
+        GLint refNeighbor[4096];
 
         GLint refBucket[256][4]; //lookup table for which index to start with for the given Z depth
         // numbrer of active refmaps
-        GLint refmapCount;  
+        GLint refmapCount;
+
+        GLint     heroShape;
+        GLint     heroMipCount;
+        GLint     heroProbeCount;
     };
 
     mReflectionMaps.resize(mReflectionProbeCount);
@@ -1012,7 +1024,6 @@ void LLReflectionMapManager::updateUniforms()
                 {
                     refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
                 }
-
             }
             modelview.affineTransform(refmap->mOrigin, oa);
             rpd.refSphere[count].set(oa.getF32ptr());
@@ -1115,6 +1126,16 @@ void LLReflectionMapManager::updateUniforms()
 
     rpd.refmapCount = count;
 
+    gPipeline.mHeroProbeManager.updateUniforms();
+
+    // Get the hero data.
+
+    rpd.heroBox = gPipeline.mHeroProbeManager.mHeroData.heroBox;
+    rpd.heroSphere = gPipeline.mHeroProbeManager.mHeroData.heroSphere;
+    rpd.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
+    rpd.heroMipCount = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
+    rpd.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
+
     //copy rpd into uniform buffer object
     if (mUBO == 0)
     {
@@ -1152,7 +1173,7 @@ void LLReflectionMapManager::setUniforms()
     }
 
     if (mUBO == 0)
-    { 
+    {
         updateUniforms();
     }
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
@@ -1343,8 +1364,8 @@ void LLReflectionMapManager::initReflectionMaps()
     }
 }
 
-void LLReflectionMapManager::cleanup() 
-{ 
+void LLReflectionMapManager::cleanup()
+{
     mVertexBuffer = nullptr;
     mRenderTarget.release();
 
@@ -1381,5 +1402,41 @@ void LLReflectionMapManager::doOcclusion()
         {
             probe->doOcclusion(eye);
         }
+    }
+}
+
+void LLReflectionMapManager::forceDefaultProbeAndUpdateUniforms(bool force)
+{
+    static std::vector<bool> mProbeWasOccluded;
+
+    if (force)
+    {
+        llassert(mProbeWasOccluded.empty());
+
+        for (size_t i = 0; i < mProbes.size(); ++i)
+        {
+            auto& probe = mProbes[i];
+            mProbeWasOccluded.push_back(probe->mOccluded);
+            if (probe != nullptr && probe != mDefaultProbe)
+            {
+                probe->mOccluded = true;
+            }
+        }
+
+        updateUniforms();
+    }
+    else
+    {
+        llassert(mProbes.size() == mProbeWasOccluded.size());
+
+        const size_t n = llmin(mProbes.size(), mProbeWasOccluded.size());
+        for (size_t i = 0; i < n; ++i)
+        {
+            auto& probe = mProbes[i];
+            llassert(probe->mOccluded == (probe != mDefaultProbe));
+            probe->mOccluded = mProbeWasOccluded[i];
+        }
+        mProbeWasOccluded.clear();
+        mProbeWasOccluded.shrink_to_fit();
     }
 }
