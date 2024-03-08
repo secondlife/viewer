@@ -435,7 +435,14 @@ void LLRequireResolver::findModule()
         fail();
     }
 
-    std::vector<std::string> lib_paths {gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua")};
+    std::vector<std::string> lib_paths
+    {
+        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua"),
+#ifdef LL_TEST
+        // Build-time tests don't have the app bundle - use source tree.
+        std::filesystem::path(__FILE__).parent_path() / "scripts" / "lua",
+#endif
+    };
 
     for (const auto& path : lib_paths)
     {
