@@ -58,7 +58,7 @@ public:
 
     BOOL generateMaterials();
 
-	LLUUID getDetailAssetID(S32 asset);
+	virtual LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
     Type getMaterialType();
     bool texturesReady(bool boost, bool strict);
@@ -82,6 +82,11 @@ extern LLTerrainMaterials gLocalTerrainMaterials;
 class LLVLComposition : public LLTerrainMaterials, public LLViewerLayer
 {
 public:
+	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
+	// So we need to compress heights into this range.
+    static const S32 ASSET_COUNT = 4;
+	static const LLUUID (&getDefaultTextures())[ASSET_COUNT];
+
 	LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale);
 	/*virtual*/ ~LLVLComposition();
 
@@ -92,10 +97,6 @@ public:
 	BOOL generateComposition();
 	// Generate texture from composition values.
 	BOOL generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);		
-
-	// Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
-	// So we need to compress heights into this range.
-    static const S32 ASSET_COUNT = 4;
 
 	// Use these as indeces ito the get/setters below that use 'corner'
 	enum ECorner

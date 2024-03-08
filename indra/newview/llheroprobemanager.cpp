@@ -151,6 +151,7 @@ void LLHeroProbeManager::update()
 
             // Collect the list of faces that need updating based upon the camera's rotation.
             LLVector3 cam_direction = LLVector3(0, 0, 1) * LLViewerCamera::instance().getQuaternion();
+            cam_direction.normalize();
 
             static LLVector3 cubeFaces[6] = { 
                 LLVector3(1, 0, 0), 
@@ -163,7 +164,7 @@ void LLHeroProbeManager::update()
 
             for (int i = 0; i < 6; i++)
             {
-                float shouldUpdate = cam_direction * cubeFaces[i] * 0.5 + 0.5;
+                float shouldUpdate = fminf(1, (fmaxf(-1, cam_direction * cubeFaces[i]) * 0.5 + 0.5));
                 
                 int updateRate = ceilf((1 - shouldUpdate) * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
                 
@@ -215,6 +216,9 @@ void LLHeroProbeManager::update()
         mRenderingMirror = false;
         
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
+
+        mProbes[0]->mViewerObject = mNearestHero;
+        mProbes[0]->autoAdjustOrigin();
     }
     
     mCurrentProbeUpdateFrame++;
@@ -417,55 +421,43 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
 
 void LLHeroProbeManager::updateUniforms()
 {
-    if (!LLPipeline::sReflectionProbesEnabled)
+    if (!gPipeline.RenderMirrors)
     {
         return;
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     
-    struct HeroProbeData
-    {
-        LLVector4 heroPosition[1];
-        GLint heroProbeCount = 1;
-    };
-    
-    HeroProbeData hpd;
-    
     LLMatrix4a modelview;
     modelview.loadu(gGLModelView);
     LLVector4a oa; // scratch space for transformed origin
     oa.set(0, 0, 0, 0);
-    hpd.heroProbeCount = 1;
-    modelview.affineTransform(mProbes[0]->mOrigin, oa);
-    hpd.heroPosition[0].set(oa.getF32ptr());
-
-    //copy rpd into uniform buffer object
-    if (mUBO == 0)
+    mHeroData.heroProbeCount = 1;
+    
+    if (mNearestHero != nullptr && !mNearestHero->isDead())
     {
-        glGenBuffers(1, &mUBO);
+        if (mNearestHero->getReflectionProbeIsBox())
+        {
+            LLVector3 s = mNearestHero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+            mProbes[0]->mRadius = s.magVec();
+        }
+        else
+        {
+            mProbes[0]->mRadius = mNearestHero->getScale().mV[0] * 0.5f;
+        }
+        
+        modelview.affineTransform(mProbes[0]->mOrigin, oa);
+        mHeroData.heroShape = 0;
+        if (!mProbes[0]->getBox(mHeroData.heroBox))
+        {
+            mHeroData.heroShape = 1;
+        }
+        
+        mHeroData.heroSphere.set(oa.getF32ptr());
+        mHeroData.heroSphere.mV[3] = mProbes[0]->mRadius;
     }
-
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmsu - update buffer");
-        glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(HeroProbeData), &hpd, GL_STREAM_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    }
-}
-
-void LLHeroProbeManager::setUniforms()
-{
-    if (!LLPipeline::sReflectionProbesEnabled)
-    {
-        return;
-    }
-
-    if (mUBO == 0)
-    { 
-        updateUniforms();
-    }
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
+    
+    mHeroData.heroMipCount = mMipChain.size();
 }
 
 void LLHeroProbeManager::renderDebug()
@@ -554,9 +546,6 @@ void LLHeroProbeManager::cleanup()
     
     mDefaultProbe = nullptr;
     mUpdatingProbe = nullptr;
-
-    glDeleteBuffers(1, &mUBO);
-    mUBO = 0;
     
     mHeroVOList.clear();
     mNearestHero = nullptr;

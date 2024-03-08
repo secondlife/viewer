@@ -166,7 +166,7 @@ void LLReflectionMap::autoAdjustOrigin()
             
         }
     }
-    else if (mViewerObject)
+    else if (mViewerObject && !mViewerObject->isDead())
     {
         mPriority = 1;
         mOrigin.load3(mViewerObject->getPositionAgent().mV);

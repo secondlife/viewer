@@ -32,16 +32,6 @@ uniform sampler2D specularRect;
 uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
-uniform samplerCubeArray   heroProbes;
-
-#if defined(HERO_PROBES)
-layout (std140) uniform HeroProbeData
-{
-    vec4 heroPosition[1];
-    int heroProbeCount;
-};
-#endif
-
 const float M_PI = 3.14159265;
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)

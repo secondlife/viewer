@@ -76,33 +76,17 @@
      left="8"
      top="30"
      width="460" />
-    <combo_box
-     layout="topleft"
-     left="10"
-     top="105"
-     follows="left|top"
-     name="terrain_material_type"
-     width="170">
-        <combo_box.item
-         label="Terrain Textures"
-         name="Textures"
-         value="Textures" />
-        <combo_box.item
-         label="Terrain PBR Materials"
-         name="PBRMaterials"
-         value="PBRMaterials" />
-    </combo_box>
     <text
      type="string"
      length="1"
-     follows="left|top"
      halign="left"
      valign="center"
+     follows="left|top"
      height="20"
      layout="topleft"
      name="detail_texture_text"
-     top_delta="0"
-     left_delta="0"
+     left="10"
+     top="105"
      width="170">
         Terrain Textures
     </text>
@@ -114,12 +98,25 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     top_delta="0"
-     left_delta="180"
-     name="detail_texture_limits_text"
-     width="200">
-        Maximum size: 1024x1024
+     name="detail_material_text"
+     left="10"
+     top="105"
+     width="170">
+        Terrain Materials
     </text>
+    <check_box
+     height="20"
+     halign="left"
+     valign="center"
+     follows="left|top"
+     layout="topleft"
+     top_delta="1"
+     left_delta="180"
+     label="PBR Metallic Roughness"
+     name="terrain_material_type"
+     tool_tip="If checked, use PBR Metallic Roughness materials for terrain. Otherwise, use textures."
+     left_pad="2"
+     width="200" />
     <texture_picker
      follows="left|top"
      height="100"

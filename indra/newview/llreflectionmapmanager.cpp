@@ -1032,6 +1032,8 @@ void LLReflectionMapManager::updateUniforms()
         // the box probe
         LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
 
+        LLMatrix4 heroBox;
+
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
         LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
 
@@ -1041,6 +1043,8 @@ void LLReflectionMapManager::updateUniforms()
         //  z - fade in
         //  w - znear
         LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLVector4 heroSphere;
 
         // indices used by probe:
         //  [i][0] - cubemap array index for this probe
@@ -1055,6 +1059,10 @@ void LLReflectionMapManager::updateUniforms()
         GLint refBucket[256][4]; //lookup table for which index to start with for the given Z depth
         // numbrer of active refmaps
         GLint refmapCount;
+
+        GLint     heroShape;
+        GLint     heroMipCount;
+        GLint     heroProbeCount;
     };
 
     mReflectionMaps.resize(mReflectionProbeCount);
@@ -1142,7 +1150,6 @@ void LLReflectionMapManager::updateUniforms()
                 {
                     refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
                 }
-
             }
             modelview.affineTransform(refmap->mOrigin, oa);
             rpd.refSphere[count].set(oa.getF32ptr());
@@ -1244,6 +1251,16 @@ void LLReflectionMapManager::updateUniforms()
 #endif
 
     rpd.refmapCount = count;
+
+    gPipeline.mHeroProbeManager.updateUniforms();
+
+    // Get the hero data.
+
+    rpd.heroBox = gPipeline.mHeroProbeManager.mHeroData.heroBox;
+    rpd.heroSphere = gPipeline.mHeroProbeManager.mHeroData.heroSphere;
+    rpd.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
+    rpd.heroMipCount = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
+    rpd.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
 
     //copy rpd into uniform buffer object
     if (mUBO == 0)
