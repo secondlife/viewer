@@ -272,6 +272,7 @@ protected:
 private:
 	bool mConfirmedTextureHeights;
 	bool mAskedTextureHeights;
+    LLCheckBoxCtrl* mMaterialTypeCtrl = nullptr;
     LLUUID mLastSetTextures[LLTerrainMaterials::ASSET_COUNT];
     LLUUID mLastSetMaterials[LLTerrainMaterials::ASSET_COUNT];
 };
