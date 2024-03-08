@@ -523,33 +523,36 @@ LLWebRTCVoiceClient::adhocSessionState::adhocSessionState(const std::string &cha
 bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
 {
 
-    // Estate voice requires connection to neighboring regions.
-    std::set<LLUUID> neighbor_ids = LLWebRTCVoiceClient::getInstance()->getNeighboringRegions();
-
-    for (auto& connection : mWebRTCConnections)
+    if (!mShuttingDown)
     {
-        boost::shared_ptr<LLVoiceWebRTCSpatialConnection> spatialConnection =
-            boost::static_pointer_cast<LLVoiceWebRTCSpatialConnection>(connection);
+        // Estate voice requires connection to neighboring regions.
+        std::set<LLUUID> neighbor_ids = LLWebRTCVoiceClient::getInstance()->getNeighboringRegions();
 
-        LLUUID regionID = spatialConnection.get()->getRegionID();
-     
-        if (neighbor_ids.find(regionID) == neighbor_ids.end())
+        for (auto &connection : mWebRTCConnections)
         {
-            // shut down connections to neighbors that are too far away.
-            spatialConnection.get()->shutDown();
+            boost::shared_ptr<LLVoiceWebRTCSpatialConnection> spatialConnection =
+                boost::static_pointer_cast<LLVoiceWebRTCSpatialConnection>(connection);
+
+            LLUUID regionID = spatialConnection.get()->getRegionID();
+
+            if (neighbor_ids.find(regionID) == neighbor_ids.end())
+            {
+                // shut down connections to neighbors that are too far away.
+                spatialConnection.get()->shutDown();
+            }
+            neighbor_ids.erase(regionID);
         }
-        neighbor_ids.erase(regionID);
-    }
 
-    // add new connections for new neighbors
-    for (auto &neighbor : neighbor_ids)
-    {
-        connectionPtr_t  connection(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+        // add new connections for new neighbors
+        for (auto &neighbor : neighbor_ids)
+        {
+            connectionPtr_t connection(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
 
-        mWebRTCConnections.push_back(connection);
-        connection->setMicGain(mMicGain);
-        connection->setMuteMic(mMuted);
-        connection->setSpeakerVolume(mSpeakerVolume);
+            mWebRTCConnections.push_back(connection);
+            connection->setMicGain(mMicGain);
+            connection->setMuteMic(mMuted);
+            connection->setSpeakerVolume(mSpeakerVolume);
+        }
     }
     return LLWebRTCVoiceClient::sessionState::processConnectionStates();
 }
@@ -636,7 +639,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                         }
                     }
                 }
-                else
+                if (!voiceEnabled)
                 {
                     // voice is disabled, so leave and disable PTT
                     leaveChannel(true);

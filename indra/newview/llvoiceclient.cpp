@@ -400,14 +400,8 @@ BOOL LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
 
 BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
 {
-	if (mSpatialVoiceModule) 
-	{
-		return mSpatialVoiceModule->isSessionCallBackPossible(id);
-	}
-	else
-	{
-		return FALSE;
-	}	
+	// we don't support PSTN calls anymore.  (did we ever?)
+    return TRUE;
 }
 
 //----------------------------------------------
