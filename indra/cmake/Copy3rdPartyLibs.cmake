@@ -60,6 +60,12 @@ if(WINDOWS)
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
+        Iex-3_2.dll
+        IlmThread-3_2.dll
+        Imath-3_1.dll
+        OpenEXR-3_2.dll
+        OpenEXRCore-3_2.dll
+        OpenEXRUtil-3_2.dll
         )
 
     # ICU4C (same filenames for 32 and 64 bit builds)
@@ -184,6 +190,12 @@ elseif(DARWIN)
         liburiparser.dylib
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib
+        libIex-3_2.dylib
+        libIlmThread-3_2.dylib
+        libImath-3_1.dylib
+        libOpenEXR-3_2.dylib
+        libOpenEXRCore-3_2.dylib
+        libOpenEXRUtil-3_2.dylib
        )
 
     if (TARGET ll::fmodstudio)

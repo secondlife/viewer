@@ -38,6 +38,126 @@
 #include "llviewercontrol.h"
 #include "llenvironment.h"
 #include "llstartup.h"
+#include "llviewermenufile.h"
+#include "llnotificationsutil.h"
+
+
+// load an OpenEXR image from a file
+#define IMATH_HALF_NO_LOOKUP_TABLE 1
+#include <ImfInputFile.h>
+#include <ImfArray.h>
+#include <ImfHeader.h>
+#include <ImfFrameBuffer.h>
+#include <iostream>
+
+LLPointer<LLImageGL> gEXRImage;
+
+void load_exr(const std::string& filename)
+{
+    // reset reflection maps when previewing a new HDRI
+    gPipeline.mReflectionMapManager.reset();
+    gPipeline.mReflectionMapManager.initReflectionMaps();
+
+    try {
+        Imf::InputFile file(filename.c_str());
+        Imath::Box2i       dw = file.header().dataWindow();
+        int                width = dw.max.x - dw.min.x + 1;
+        int                height = dw.max.y - dw.min.y + 1;
+
+        Imf::Array2D<Imath::half> rPixels;
+        Imf::Array2D<Imath::half> gPixels;
+        Imf::Array2D<Imath::half> bPixels;
+
+        rPixels.resizeErase(height, width);
+        gPixels.resizeErase(height, width);
+        bPixels.resizeErase(height, width);
+
+        Imf::FrameBuffer frameBuffer;
+
+        frameBuffer.insert("R",                                    // name
+            Imf::Slice(Imf::HALF,                            // type
+                (char*)(&rPixels[0][0] -      // base
+                    dw.min.x -
+                    dw.min.y * width),
+                sizeof(rPixels[0][0]) * 1,     // xStride
+                sizeof(rPixels[0][0]) * width, // yStride
+                1, 1,                            // x/y sampling
+                0.0));                           // fillValue
+
+        frameBuffer.insert("G",                                    // name
+            Imf::Slice(Imf::HALF,                            // type
+                (char*)(&gPixels[0][0] -      // base
+                    dw.min.x -
+                    dw.min.y * width),
+                sizeof(gPixels[0][0]) * 1,     // xStride
+                sizeof(gPixels[0][0]) * width, // yStride
+                1, 1,                            // x/y sampling
+                0.0));                           // fillValue
+
+        frameBuffer.insert("B",                                    // name
+            Imf::Slice(Imf::HALF,                           // type
+                (char*)(&bPixels[0][0] -      // base
+                    dw.min.x -
+                    dw.min.y * width),
+                sizeof(bPixels[0][0]) * 1,     // xStride
+                sizeof(bPixels[0][0]) * width, // yStride
+                1, 1,                            // x/y sampling
+                FLT_MAX));                       // fillValue
+
+        file.setFrameBuffer(frameBuffer);
+        file.readPixels(dw.min.y, dw.max.y);
+
+        U32 texName = 0;
+        LLImageGL::generateTextures(1, &texName);
+
+        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_CLAMP);
+        gEXRImage->setHasMipMaps(TRUE);
+        gEXRImage->setUseMipMaps(TRUE);
+        gEXRImage->setFilteringOption(LLTexUnit::TFO_TRILINEAR);
+
+        gGL.getTexUnit(0)->bind(gEXRImage);
+
+        std::vector<F32> data(width * height * 3);
+        for (int i = 0; i < width * height; ++i)
+        {
+            data[i * 3 + 0] = rPixels[i / width][i % width];
+            data[i * 3 + 1] = gPixels[i / width][i % width];
+            data[i * 3 + 2] = bPixels[i / width][i % width];
+        }
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data.data());
+        
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+    }
+    catch (const std::exception& e) {
+        LLSD notif_args;
+        notif_args["WHAT"] = filename;
+        notif_args["REASON"] = e.what();
+        LLNotificationsUtil::add("CannotLoad", notif_args);
+        return;
+    }
+}
+
+void hdri_preview()
+{
+    LLFilePickerReplyThread::startPicker(
+        [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+        {
+            if (LLAppViewer::instance()->quitRequested())
+            {
+                return;
+            }
+            if (filenames.size() > 0)
+            {
+                load_exr(filenames[0]);
+            }
+        },
+        LLFilePicker::FFLOAD_HDRI,
+        true);
+}
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -131,6 +251,11 @@ void LLReflectionMapManager::update()
     if (LLAppViewer::instance()->logoutRequestSent())
     {
         return;
+    }
+
+    if (mPaused && gFrameTimeSeconds > mResumeTime)
+    {
+        resume();
     }
 
     initReflectionMaps();
@@ -831,9 +956,10 @@ void LLReflectionMapManager::reset()
     mReset = true;
 }
 
-void LLReflectionMapManager::pause()
+void LLReflectionMapManager::pause(F32 duration)
 {
     mPaused = true;
+    mResumeTime = gFrameTimeSeconds + duration;
 }
 
 void LLReflectionMapManager::resume()
@@ -1283,6 +1409,8 @@ void LLReflectionMapManager::initReflectionMaps()
 
     if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {
+        gEXRImage = nullptr;
+
         mReset = false;
         mReflectionProbeCount = count;
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
@@ -1340,7 +1468,6 @@ void LLReflectionMapManager::initReflectionMaps()
         mDefaultProbe->mComplete = default_complete;
 
         touch_default_probe(mDefaultProbe);
-
     }
 
     if (mVertexBuffer.isNull())

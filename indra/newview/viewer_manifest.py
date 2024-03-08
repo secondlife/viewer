@@ -587,6 +587,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("libcrypto-1_1-x64.dll")
             self.path("libssl-1_1-x64.dll")
 
+            # OpenEXR
+            self.path("Iex-3_2.dll")
+            self.path("IlmThread-3_2.dll")
+            self.path("Imath-3_1.dll")
+            self.path("OpenEXR-3_2.dll")
+            self.path("OpenEXRCore-3_2.dll")
+            self.path("OpenEXRUtil-3_2.dll")
+
             # HTTP/2
             self.path("nghttp2.dll")
 
@@ -934,6 +942,12 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
                     self.path("libhunspell-*.dylib")   
+                    self.path("libIex-3_2.dylib")
+                    self.path("libIlmThread-3_2.dylib")
+                    self.path("libImath-3_1.dylib")
+                    self.path("libOpenEXR-3_2.dylib")
+                    self.path("libOpenEXRCore-3_2.dylib")
+                    self.path("libOpenEXRUtil-3_2.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")

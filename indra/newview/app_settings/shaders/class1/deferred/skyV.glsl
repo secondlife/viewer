@@ -35,6 +35,10 @@ in vec3 position;
 out vec3 vary_HazeColor;
 out float vary_LightNormPosDot;
 
+#ifdef HAS_HDRI
+out vec3 vary_position;
+#endif
+
 // Inputs
 uniform vec3 camPosLocal;
 
@@ -71,6 +75,10 @@ void main()
 
     // Get relative position
     vec3 rel_pos = position.xyz - camPosLocal.xyz + vec3(0, 50, 0);
+
+#ifdef HAS_HDRI
+    vary_position = rel_pos;
+#endif
 
     // Adj position vector to clamp altitude
     if (rel_pos.y > 0.)

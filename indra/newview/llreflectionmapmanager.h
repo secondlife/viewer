@@ -87,7 +87,8 @@ public:
     void reset();
 
     // pause all updates other than the default probe
-    void pause();
+    // duration - number of seconds to pause (default 10)
+    void pause(F32 duration = 10.f);
 
     // unpause (see pause)
     void resume();
@@ -208,5 +209,6 @@ private:
 
     // if true, only update the default probe
     bool mPaused = false;
+    F32 mResumeTime = 0.f;
 };
 

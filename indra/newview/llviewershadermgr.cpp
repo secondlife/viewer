@@ -201,6 +201,7 @@ LLGLSLShader			gLuminanceProgram;
 LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
+LLGLSLShader            gEnvironmentMapProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
 LLGLSLShader			gDeferredWLSunProgram;
 LLGLSLShader			gDeferredWLMoonProgram;
@@ -315,6 +316,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredEmissiveProgram);
     mShaderList.push_back(&gDeferredAvatarEyesProgram);
     mShaderList.push_back(&gDeferredAvatarAlphaProgram);
+    mShaderList.push_back(&gEnvironmentMapProgram);
     mShaderList.push_back(&gDeferredWLSkyProgram);
     mShaderList.push_back(&gDeferredWLCloudProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
@@ -987,6 +989,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gNoPostGammaCorrectProgram.unload();
         gLegacyPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
+        gEnvironmentMapProgram.unload();
 		gDeferredWLSkyProgram.unload();
 		gDeferredWLCloudProgram.unload();
         gDeferredWLSunProgram.unload();
@@ -2267,6 +2270,26 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredPostNoDoFProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
+
+    if (success)
+    {
+        gEnvironmentMapProgram.mName = "Environment Map Program";
+        gEnvironmentMapProgram.mShaderFiles.clear();
+        gEnvironmentMapProgram.mFeatures.calculatesAtmospherics = true;
+        gEnvironmentMapProgram.mFeatures.hasAtmospherics = true;
+        gEnvironmentMapProgram.mFeatures.hasGamma = true;
+        gEnvironmentMapProgram.mFeatures.hasSrgb = true;
+
+        gEnvironmentMapProgram.clearPermutations();
+        gEnvironmentMapProgram.addPermutation("HAS_HDRI", "1");
+        gEnvironmentMapProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER));
+        gEnvironmentMapProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER));
+        gEnvironmentMapProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gEnvironmentMapProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+
+        success = gEnvironmentMapProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
 
 	if (success)
 	{

@@ -6869,6 +6869,8 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 	}
 }
 
+extern LLPointer<LLImageGL> gEXRImage;
+
 void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
 	dst->bindTarget();
 	// gamma correct lighting
@@ -6905,8 +6907,10 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
 		F32 e = llclamp(exposure(), 0.5f, 4.f);
 
 		static LLStaticHashedString s_exposure("exposure");
+        static LLStaticHashedString aces_mix("aces_mix");
 
         shader.uniform1f(s_exposure, e);
+        shader.uniform1f(aces_mix, gEXRImage.notNull() ? 0.f : 0.3f);
 
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
