@@ -38,6 +38,15 @@ class LLViewerObject;
 // number of reflection probes to keep in vram
 #define LL_MAX_HERO_PROBE_COUNT 2
 
+struct HeroProbeData
+{
+    LLMatrix4 heroBox;
+    LLVector4 heroSphere;
+    GLint     heroShape;
+    GLint     heroMipCount;
+    GLint     heroProbeCount;
+};
+
 class alignas(16) LLHeroProbeManager
 {
     LL_ALIGN_NEW
@@ -74,16 +83,17 @@ public:
     bool isMirrorPass() const { return mRenderingMirror; }
 
     LLVector3 mMirrorPosition;
-    LLVector3 mMirrorNormal;
+    LLVector3     mMirrorNormal;
+    HeroProbeData mHeroData;
     
 private:
     friend class LLPipeline;
+    friend class LLReflectionMapManager;
     
     // update UBO used for rendering (call only once per render pipe flush)
     void updateUniforms();
 
     // bind UBO used for rendering
-    void setUniforms();
 
     // render target for cube snapshots
     // used to generate mipmaps without doing a copy-to-texture
@@ -108,9 +118,6 @@ private:
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap>> mProbes;
-
-    // handle to UBO
-    U32 mUBO = 0;
 
     // list of maps being used for rendering
     std::vector<LLReflectionMap*> mReflectionMaps;
@@ -141,5 +148,6 @@ private:
     
     std::vector<LLVOVolume*>                       mHeroVOList;
     LLVOVolume*                                 mNearestHero;
+
 };
 
