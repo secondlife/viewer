@@ -56,6 +56,7 @@ class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
+class LLTextureCtrl;
 
 class LLPanelRegionGeneralInfo;
 class LLPanelRegionDebugInfo;
@@ -273,6 +274,8 @@ private:
 	bool mConfirmedTextureHeights;
 	bool mAskedTextureHeights;
     LLCheckBoxCtrl* mMaterialTypeCtrl = nullptr;
+    LLTextureCtrl* mTextureDetailCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLTextureCtrl* mMaterialDetailCtrl[LLTerrainMaterials::ASSET_COUNT];
     LLUUID mLastSetTextures[LLTerrainMaterials::ASSET_COUNT];
     LLUUID mLastSetMaterials[LLTerrainMaterials::ASSET_COUNT];
 };
