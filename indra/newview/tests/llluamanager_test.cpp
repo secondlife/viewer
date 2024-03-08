@@ -94,9 +94,10 @@ namespace tut
         {
             auto [count, result] =
                 LLLUAmanager::waitScriptLine(L, "return " + luax.expr);
-            auto desc{ stringize("waitScriptLine(", luax.desc, ")") };
-            ensure_equals(desc + ".count", count, 1);
-            ensure_equals(desc + ".result", result, luax.expect);
+            auto desc{ stringize("waitScriptLine(", luax.desc, "): ") };
+            // if count < 0, report Lua error message
+            ensure_equals(desc + result.asString(), count, 1);
+            ensure_equals(desc + "result", result, luax.expect);
         }
     }
 
@@ -116,7 +117,7 @@ namespace tut
         // We woke up again ourselves because the coroutine running Lua has
         // finished. But our Lua chunk didn't actually return anything, so we
         // expect count to be 0 and result to be undefined.
-        ensure_equals(desc + " count", count, 0);
+        ensure_equals(desc + ": " + result.asString(), count, 0);
         ensure_equals(desc, fromlua, expect);
     }
 
@@ -172,16 +173,13 @@ namespace tut
                     << "': post('" << expected[4] << "')" << LL_ENDL;
         luapump.post(expected[4]);
         auto [count, result] = future.get();
+        ensure_equals("post_on(): " + result.asString(), count, 0);
         ensure_equals("post_on() sequence", posts, expected);
     }
 
     void round_trip(const std::string& desc, const LLSD& send, const LLSD& expect)
     {
-        LLSD reply;
-        LLEventStream replypump("testpump");
-        LLTempBoundListener conn(
-            replypump.listen("llluamanager_test",
-                             listener([&reply](const LLSD& post){ reply = post; })));
+        LLEventMailDrop replypump("testpump");
         const std::string lua(
             "-- test LLSD round trip\n"
             "replypump, cmdpump = get_event_pumps()\n"
@@ -195,12 +193,12 @@ namespace tut
         // reached the get_event_next() call, which suspends the calling C++
         // coroutine (including the Lua code running on it) until we post
         // something to that reply pump.
-        auto luapump{ reply.asString() };
-        reply.clear();
+        auto luapump{ llcoro::suspendUntilEventOn(replypump).asString() };
         LLEventPumps::instance().post(luapump, send);
         // The C++ coroutine running the Lua script is now ready to run. Run
         // it so it will echo the LLSD back to us.
         auto [count, result] = future.get();
+        ensure_equals(stringize("round_trip(", desc, "): ", result.asString()), count, 1);
         ensure_equals(desc, result, expect);
     }
 
@@ -303,5 +301,19 @@ namespace tut
             expect_map = new_expect_map;
         }
         round_trip("nested map", send_map, expect_map);
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("test leap.lua");
+        const std::string lua(
+            "-- test leap.lua\n"
+            "leap = require('leap')\n"
+        );
+        LuaState L;
+        auto future = LLLUAmanager::startScriptLine(L, lua);
+        auto [count, result] = future.get();
+        ensure_equals("leap.lua: " + result.asString(), count, 0);
     }
 } // namespace tut
