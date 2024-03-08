@@ -2688,6 +2688,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="Full Sides">
 		Meget hår
 	</string>
+	<string name="Gender">
+		Køn
+	</string>
 	<string name="Glossy">
 		Skinnende
 	</string>
