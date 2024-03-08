@@ -251,7 +251,7 @@ public:
 	void			setFont(const LLFontGL *font)		
 		{ mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
 	const LLFontGL* getFont() const { return mGLFont; }
-
+	const std::string& getText() const { return getCurrentLabel().getString(); }
 
 	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
 	bool			labelIsTruncated() const;

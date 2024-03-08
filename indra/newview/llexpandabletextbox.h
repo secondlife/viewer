@@ -121,7 +121,7 @@ public:
 	/**
 	 * Returns text
 	 */
-	virtual std::string getText() const { return mText; }
+	virtual const std::string& getText() const { return mText; }
 
 	/**
 	 * Sets text

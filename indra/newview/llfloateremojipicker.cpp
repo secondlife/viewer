@@ -128,7 +128,7 @@ public:
         , const LLEmojiSearchResult& emoji)
         : LLScrollingPanel(panel_params)
         , mData(emoji)
-        , mText(LLWString(1, emoji.Character))
+        , mChar(LLWString(1, emoji.Character))
     {
     }
 
@@ -139,7 +139,7 @@ public:
         F32 x = getRect().getWidth() / 2;
         F32 y = getRect().getHeight() / 2;
         LLFontGL::getFontEmojiLarge()->render(
-            mText,                      // wstr
+            mChar,                      // wstr
             0,                          // begin_offset
             x,                          // x
             y,                          // y
@@ -154,11 +154,11 @@ public:
     virtual void updatePanel(BOOL allow_modify) override {}
 
     const LLEmojiSearchResult& getData() const { return mData; }
-    LLWString getText() const { return mText; }
+    const LLWString& getChar() const { return mChar; }
 
 private:
     const LLEmojiSearchResult mData;
-    const LLWString mText;
+    const LLWString mChar;
 };
 
 class LLEmojiPreviewPanel : public LLPanel
@@ -924,7 +924,7 @@ void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
 
     if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
-        LLSD value(wstring_to_utf8str(icon->getText()));
+        LLSD value(wstring_to_utf8str(icon->getChar()));
         setValue(value);
 
         onCommit();
