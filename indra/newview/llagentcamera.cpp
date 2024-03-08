@@ -749,11 +749,6 @@ F32 LLAgentCamera::getCameraZoomFraction(bool get_third_person)
 		return mHUDTargetZoom;
 	}
 
-	if (isDisableCameraConstraints())
-	{
-		return mCameraZoomFraction;
-	}
-
 	if (get_third_person || (mFocusOnAvatar && cameraThirdPerson()))
 	{
 		return clamp_rescale(mCameraZoomFraction, MIN_ZOOM_FRACTION, MAX_ZOOM_FRACTION, 1.f, 0.f);
@@ -767,6 +762,10 @@ F32 LLAgentCamera::getCameraZoomFraction(bool get_third_person)
 
 	F32 min_zoom;
 	F32 max_zoom = getCameraMaxZoomDistance();
+    if (isDisableCameraConstraints())
+    {
+        max_zoom = MAX_CAMERA_DISTANCE_FROM_OBJECT;
+    }
 
 	F32 distance = (F32)mCameraFocusOffsetTarget.magVec();
 	if (mFocusObject.notNull())
@@ -798,10 +797,6 @@ void LLAgentCamera::setCameraZoomFraction(F32 fraction)
 	{
 		mHUDTargetZoom = fraction;
 	}
-	else if (isDisableCameraConstraints())
-	{
-		mCameraZoomFraction = fraction;
-	}
 	else if (mFocusOnAvatar && cameraThirdPerson())
 	{
 		mCameraZoomFraction = rescale(fraction, 0.f, 1.f, MAX_ZOOM_FRACTION, MIN_ZOOM_FRACTION);
@@ -816,6 +811,10 @@ void LLAgentCamera::setCameraZoomFraction(F32 fraction)
 	{
 		F32 min_zoom = LAND_MIN_ZOOM;
 		F32 max_zoom = getCameraMaxZoomDistance();
+        if (isDisableCameraConstraints())
+        {
+            max_zoom = MAX_CAMERA_DISTANCE_FROM_OBJECT;
+        }
 
 		if (mFocusObject.notNull())
 		{
