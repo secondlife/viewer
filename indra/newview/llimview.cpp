@@ -2971,7 +2971,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 				}
 			}
 
-			gIMMgr->addSession(correct_session_name, type, session_id, true);
+			gIMMgr->addSession(correct_session_name, type, session_id, payload["voice_channel_info"]);
 
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
