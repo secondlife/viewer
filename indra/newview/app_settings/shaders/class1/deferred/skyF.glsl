@@ -29,6 +29,8 @@ in float vary_LightNormPosDot;
 
 #ifdef HAS_HDRI
 in vec3 vary_position;
+uniform float sky_hdr_scale;
+uniform mat3 env_mat;
 uniform sampler2D environmentMap;
 #endif
 
@@ -81,9 +83,9 @@ void main()
 {
 #ifdef HAS_HDRI
     vec3 pos = normalize(vary_position);
-
+    pos = env_mat * pos;
     vec2 texCoord = vec2(atan(pos.z, pos.x) + PI, acos(pos.y)) / vec2(2.0 * PI, PI);
-    vec3 color = (texture(environmentMap, texCoord.xy).rgb);
+    vec3 color = textureLod(environmentMap, texCoord.xy, 0).rgb * sky_hdr_scale;
     color = min(color, vec3(8192*8192*16));
 #else
 

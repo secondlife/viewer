@@ -9351,6 +9351,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderHDRIExposure</key>
+  <map>
+    <key>Comment</key>
+    <string>Exposure adjustment of HDRI when previewing an HDRI.  Units are EV.  Sane values would be -10 to 10.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>RenderHDRIRotation</key>
+  <map>
+    <key>Comment</key>
+    <string>Rotation (in degrees) of environment when previewing an HDRI.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>

@@ -2968,7 +2968,7 @@ void LLEnvironment::DayTransition::animate()
 
 
     // pause probe updates and reset reflection maps on sky change
-    gPipeline.mReflectionMapManager.pause();
+    gPipeline.mReflectionMapManager.pause(mTransitionTime);
     gPipeline.mReflectionMapManager.reset();
 
     mSky = mStartSky->buildClone();
@@ -3571,7 +3571,7 @@ namespace
             mInjectedSky->setSource(target_sky);
 
             // clear reflection probes and pause updates during sky change
-            gPipeline.mReflectionMapManager.pause();
+            gPipeline.mReflectionMapManager.pause(transition);
             gPipeline.mReflectionMapManager.reset();
 
             mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(target_sky, start_sky, psky, transition);

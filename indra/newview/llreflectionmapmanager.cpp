@@ -54,6 +54,10 @@ LLPointer<LLImageGL> gEXRImage;
 
 void load_exr(const std::string& filename)
 {
+    // reset reflection maps when previewing a new HDRI
+    gPipeline.mReflectionMapManager.reset();
+    gPipeline.mReflectionMapManager.initReflectionMaps();
+
     try {
         Imf::InputFile file(filename.c_str());
         Imath::Box2i       dw = file.header().dataWindow();
@@ -106,8 +110,13 @@ void load_exr(const std::string& filename)
         U32 texName = 0;
         LLImageGL::generateTextures(1, &texName);
 
-        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texName, true);
-        glBindTexture(GL_TEXTURE_2D, texName);
+        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_CLAMP);
+        gEXRImage->setHasMipMaps(TRUE);
+        gEXRImage->setUseMipMaps(TRUE);
+        gEXRImage->setFilteringOption(LLTexUnit::TFO_TRILINEAR);
+
+        gGL.getTexUnit(0)->bind(gEXRImage);
+
         std::vector<F32> data(width * height * 3);
         for (int i = 0; i < width * height; ++i)
         {
@@ -117,11 +126,10 @@ void load_exr(const std::string& filename)
         }
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data.data());
+        
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_WRAP);
-        gEXRImage->setHasMipMaps(FALSE);
 
     }
     catch (const std::exception& e) {
@@ -243,6 +251,11 @@ void LLReflectionMapManager::update()
     if (LLAppViewer::instance()->logoutRequestSent())
     {
         return;
+    }
+
+    if (mPaused && gFrameTimeSeconds > mResumeTime)
+    {
+        resume();
     }
 
     initReflectionMaps();
@@ -943,9 +956,10 @@ void LLReflectionMapManager::reset()
     mReset = true;
 }
 
-void LLReflectionMapManager::pause()
+void LLReflectionMapManager::pause(F32 duration)
 {
     mPaused = true;
+    mResumeTime = gFrameTimeSeconds + duration;
 }
 
 void LLReflectionMapManager::resume()

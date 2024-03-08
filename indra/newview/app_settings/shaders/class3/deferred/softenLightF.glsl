@@ -202,7 +202,6 @@ void main()
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
     {
         color = texture(emissiveRect, tc).rgb;
-        color *= sky_hdr_scale;
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {

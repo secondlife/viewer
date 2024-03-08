@@ -7886,6 +7886,8 @@ class LLAdvancedClickHDRIPreview: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
+        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
+        LLFloaterReg::showInstance("env_adjust_snapshot");
         hdri_preview();
         return true;
     }
