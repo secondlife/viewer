@@ -1287,19 +1287,6 @@ BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 }
 
 //virtual 
-const std::string LLTextBase::getToolTip() const
-{
-    if (sDebugUnicode)
-    {
-        std::string text = getText();
-        std::string tooltip = utf8str_showBytesUTF8(text);
-        return tooltip;
-    }
-
-    return LLUICtrl::getToolTip();
-}
-
-//virtual 
 void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight() || LLView::sForceReshape)
@@ -2182,10 +2169,10 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
 	onValueChange(0, getLength());
 }
 
-//virtual
-std::string LLTextBase::getText() const
+// virtual
+const std::string& LLTextBase::getText() const
 {
-	return getViewModel()->getValue().asString();
+	return getViewModel()->getStringValue();
 }
 
 // IDEVO - icons can be UI image names or UUID sent from

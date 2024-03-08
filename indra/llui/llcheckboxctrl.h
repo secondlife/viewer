@@ -117,7 +117,7 @@ public:
 	std::string			getLabel() const;
 
 	void				setFont( const LLFontGL* font ) { mFont = font; }
-	const LLFontGL*		getFont() { return mFont; }
+	const LLFontGL*		getFont() const { return mFont; }
 	
 	virtual void		setControlName(const std::string& control_name, LLView* context);
 

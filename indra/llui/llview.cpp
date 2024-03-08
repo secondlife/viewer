@@ -898,6 +898,34 @@ F32 LLView::getTooltipTimeout()
     : tooltip_delay);
 }
 
+// virtual
+const std::string LLView::getToolTip() const
+{
+    if (sDebugUnicode)
+    {
+        std::string text = getText();
+        if (!text.empty())
+        {
+            const std::string& name = getName();
+            std::string tooltip = llformat("Name: \"%s\"", name.c_str());
+
+            if (const LLFontGL* font = getFont())
+            {
+                tooltip += llformat("\nFont: %s (%s)",
+                    font->getFontDesc().getName().c_str(),
+                    font->getFontDesc().getSize().c_str()
+                );
+            }
+
+            tooltip += "\n\n" + utf8str_showBytesUTF8(text);
+
+            return tooltip;
+        }
+    }
+
+    return mToolTipMsg.getString();
+}
+
 BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;

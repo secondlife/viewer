@@ -176,7 +176,6 @@ public:
 	void				onSpellCheckSettingsChange();
 
 	// view overrides
-	/*virtual*/ const std::string getToolTip() const override;
 	/*virtual*/ void	draw() override;
 	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 	/*virtual*/ void	onFocusReceived() override;
@@ -204,7 +203,7 @@ public:
 
 	void			setText(const LLStringExplicit &new_text);
 
-	const std::string& getText() const		{ return mText.getString(); }
+	const std::string& getText() const override { return mText.getString(); }
 	LLWString       getWText() const	{ return mText.getWString(); }
 	LLWString getConvertedText() const; // trimmed text with paragraphs converted to newlines
 
@@ -236,7 +235,7 @@ public:
 	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor.get(); }
 	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
 
-	const LLFontGL* getFont() const { return mGLFont; }
+	const LLFontGL* getFont() const override { return mGLFont; }
 	void setFont(const LLFontGL* font);
 
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
