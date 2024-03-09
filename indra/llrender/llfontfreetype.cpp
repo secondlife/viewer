@@ -356,9 +356,7 @@ void LLFontFreetype::clearFontStreams()
 
 void LLFontFreetype::addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor)
 {
-	// Insert functor fallbacks before generic fallbacks
-	mFallbackFonts.insert((functor) ? std::find_if(mFallbackFonts.begin(), mFallbackFonts.end(), [](const fallback_font_t& fe) { return !fe.second; }) : mFallbackFonts.end(),
-	                      std::make_pair(fallback_font, functor));
+	mFallbackFonts.emplace_back(fallback_font, functor);
 }
 
 F32 LLFontFreetype::getLineHeight() const
@@ -450,47 +448,61 @@ BOOL LLFontFreetype::hasGlyph(llwchar wch) const
 
 LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type) const
 {
-	if (mFTFace == NULL)
-		return FALSE;
+	if (!mFTFace)
+    {
+        return NULL;
+    }
 
 	llassert(!mIsFallback);
 	llassert(glyph_type < EFontGlyphType::Count);
 	//LL_DEBUGS() << "Adding new glyph for " << wch << " to font" << LL_ENDL;
 
-	FT_UInt glyph_index;
-
-	// Fallback fonts with a functor have precedence over everything else
-	fallback_font_vector_t::const_iterator it_fallback = mFallbackFonts.cbegin();
-	/* This leads to a bug SL-19831 "Check marks in the menu are less visible."
-	** Also, LLFontRegistry::createFont() says: "Fallback fonts don't render"
-	for (; it_fallback != mFallbackFonts.cend() && it_fallback->second; ++it_fallback)
-	{
-		if (it_fallback->second(wch))
-		{
-			glyph_index = FT_Get_Char_Index(it_fallback->first->mFTFace, wch);
-			if (glyph_index)
-			{
-				return addGlyphFromFont(it_fallback->first, wch, glyph_index, glyph_type);
-			}
-		}
-	}
-	*/
-
 	// Initialize char to glyph map
-	glyph_index = FT_Get_Char_Index(mFTFace, wch);
+	FT_UInt glyph_index = FT_Get_Char_Index(mFTFace, wch);
 	if (glyph_index == 0)
 	{
-		//LL_INFOS() << "Trying to add glyph from fallback font!" << LL_ENDL;
-		for (; it_fallback != mFallbackFonts.cend(); ++it_fallback)
+        // Try *first* looking it up in the backup Unicode fonts *without* a
+        // functor; we do this to avoid seeing "usual" UTF-8 characters that
+        // have been in use for years in the UI and/or the scripted objects
+        // menus being displayed as fancy colored characters coming from the
+        // emoji font !  HB
+        size_t count = mFallbackFonts.size();
+		for (size_t i = 0; i < count; ++i)
 		{
-			glyph_index = FT_Get_Char_Index(it_fallback->first->mFTFace, wch);
+			const fallback_font_t& pair = mFallbackFonts[i];
+            if (pair.second)
+            {
+                // If this font got a functor, reject it.
+                continue;
+            }
+            glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
+            if (glyph_index)
+            {
+                return addGlyphFromFont(pair.first, wch, glyph_index,
+                                        glyph_type);
+            }
+        }
+ 		// Then try looking it up in the backup Unicode fonts with a functor:
+		// this allows to display the *actual* emojis, in excess of the UTF-8
+		// characters dealt with via the other fallback fonts. HB
+		for (size_t i = 0; i < count; ++i)
+		{
+			const fallback_font_t& pair = mFallbackFonts[i];
+			if (!pair.second || !pair.second(wch))
+			{
+				// If we do not have a functor or this character does not pass
+				// our functor: try the next font !  HB
+				continue;
+			}
+			glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
 			if (glyph_index)
 			{
-				return addGlyphFromFont(it_fallback->first, wch, glyph_index, glyph_type);
+				return addGlyphFromFont(pair.first, wch, glyph_index,
+										glyph_type);
 			}
 		}
 	}
-	
+
 	std::pair<char_glyph_info_map_t::iterator, char_glyph_info_map_t::iterator> range_it = mCharGlyphInfoMap.equal_range(wch);
 	char_glyph_info_map_t::iterator iter = 
 		std::find_if(range_it.first, range_it.second, [&glyph_type](const char_glyph_info_map_t::value_type& entry) { return entry.second->mGlyphType == glyph_type; });
