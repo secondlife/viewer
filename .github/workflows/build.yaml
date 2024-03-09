@@ -262,7 +262,6 @@ jobs:
             ${{ steps.build.outputs.physicstpv }}
 
   sign-and-package-windows:
-    if: secrets.AZURE_KEY_VAULT_URI && secrets.AZURE_CERT_NAME && secrets.AZURE_CLIENT_ID && secrets.AZURE_CLIENT_SECRET && secrets.AZURE_TENANT_ID
     needs: build
     runs-on: windows
     steps:
@@ -276,7 +275,6 @@ jobs:
           tenant_id: "${{ secrets.AZURE_TENANT_ID }}"
 
   sign-and-package-mac:
-    if: secrets.NOTARIZE_CREDS_MACOS && secrets.SIGNING_CERT_MACOS && secrets.SIGNING_CERT_MACOS_IDENTITY && secrets.SIGNING_CERT_MACOS_PASSWORD
     needs: build
     runs-on: macos-latest
     steps:
@@ -312,7 +310,6 @@ jobs:
           note_team: ${{ steps.note-creds.outputs.note_team }}
 
   post-windows-symbols:
-    if: secrets.BUGSPLAT_USER && secrets.BUGSPLAT_PASS
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -326,7 +323,6 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   post-mac-symbols:
-    if: secrets.BUGSPLAT_USER && secrets.BUGSPLAT_PASS
     needs: build
     runs-on: ubuntu-latest
     steps:
