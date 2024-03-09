@@ -37,8 +37,6 @@ jobs:
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ matrix.configuration != 'ReleaseOS' && 'SecondLife_Viewer_2018' || '' }}
-      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
-      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
       build_viewer: true
@@ -250,23 +248,36 @@ jobs:
             ${{ steps.build.outputs.physicstpv }}
 
   sign-and-package-windows:
+    env:
+      AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
+      AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
+      AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
     runs-on: windows
     steps:
       - name: Sign and package Windows viewer
+        if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
         uses: secondlife/viewer-build-util/sign-pkg-windows@v1
         with:
-          vault_uri: "${{ secrets.AZURE_KEY_VAULT_URI }}"
-          cert_name: "${{ secrets.AZURE_CERT_NAME }}"
-          client_id: "${{ secrets.AZURE_CLIENT_ID }}"
-          client_secret: "${{ secrets.AZURE_CLIENT_SECRET }}"
-          tenant_id: "${{ secrets.AZURE_TENANT_ID }}"
+          vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
+          cert_name: "${{ env.AZURE_CERT_NAME }}"
+          client_id: "${{ env.AZURE_CLIENT_ID }}"
+          client_secret: "${{ env.AZURE_CLIENT_SECRET }}"
+          tenant_id: "${{ env.AZURE_TENANT_ID }}"
 
   sign-and-package-mac:
+    env:
+      NOTARIZE_CREDS_MACOS:        ${{ secrets.NOTARIZE_CREDS_MACOS }}
+      SIGNING_CERT_MACOS:          ${{ secrets.SIGNING_CERT_MACOS }}
+      SIGNING_CERT_MACOS_IDENTITY: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
+      SIGNING_CERT_MACOS_PASSWORD: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
     needs: build
     runs-on: macos-latest
     steps:
       - name: Unpack Mac notarization credentials
+        if: env.NOTARIZE_CREDS_MACOS
         id: note-creds
         shell: bash
         run: |
@@ -274,7 +285,7 @@ jobs:
           # USERNAME="..."
           # PASSWORD="..."
           # TEAM_ID="..."
-          eval "${{ secrets.NOTARIZE_CREDS_MACOS }}"
+          eval "${{ env.NOTARIZE_CREDS_MACOS }}"
           echo "::add-mask::$USERNAME"
           echo "::add-mask::$PASSWORD"
           echo "::add-mask::$TEAM_ID"
@@ -286,39 +297,48 @@ jobs:
           [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
 
       - name: Sign and package Mac viewer
+        if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
         uses: secondlife/viewer-build-util/sign-pkg-mac@v1
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
-          cert_base64: ${{ secrets.SIGNING_CERT_MACOS }}
-          cert_name: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
-          cert_pass: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
+          cert_base64: ${{ env.SIGNING_CERT_MACOS }}
+          cert_name: ${{ env.SIGNING_CERT_MACOS_IDENTITY }}
+          cert_pass: ${{ env.SIGNING_CERT_MACOS_PASSWORD }}
           note_user: ${{ steps.note-creds.outputs.note_user }}
           note_pass: ${{ steps.note-creds.outputs.note_pass }}
           note_team: ${{ steps.note-creds.outputs.note_team }}
 
   post-windows-symbols:
+    env:
+      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
+      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Post Windows symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife/viewer-build-util/post-bugsplat-windows@v1
         with:
-          username: ${{ secrets.BUGSPLAT_USER }}
-          password: ${{ secrets.BUGSPLAT_PASS }}
+          username: ${{ env.BUGSPLAT_USER }}
+          password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
           channel: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
 
   post-mac-symbols:
+    env:
+      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
+      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Post Mac symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife/viewer-build-util/post-bugsplat-mac@v1
         with:
-          username: ${{ secrets.BUGSPLAT_USER }}
-          password: ${{ secrets.BUGSPLAT_PASS }}
+          username: ${{ env.BUGSPLAT_USER }}
+          password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
           channel: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
