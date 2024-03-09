@@ -1541,7 +1541,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
                 LLTextureCtrl* asset_ctrl = mTextureDetailCtrl[i];
                 if(asset_ctrl)
                 {
-                    LL_DEBUGS() << "Detail Texture " << i << ": "
+                    LL_DEBUGS("Terrain", "Texture") << "Detail Texture " << i << ": "
                              << compp->getDetailAssetID(i) << LL_ENDL;
                     LLUUID tmp_id(compp->getDetailAssetID(i));
                     asset_ctrl->setImageAssetID(tmp_id);
@@ -1555,7 +1555,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
                 LLTextureCtrl* asset_ctrl = mMaterialDetailCtrl[i];
                 if(asset_ctrl)
                 {
-                    LL_DEBUGS() << "Detail Material " << i << ": "
+                    LL_DEBUGS("Terrain", "Material") << "Detail Material " << i << ": "
                              << compp->getDetailAssetID(i) << LL_ENDL;
                     LLUUID tmp_id(compp->getDetailAssetID(i));
                     asset_ctrl->setImageAssetID(tmp_id);
@@ -1566,6 +1566,8 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         {
             for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
             {
+                LL_DEBUGS("Terrain", "Texture") << "Reset Texture swatch " << i
+                         << LL_ENDL;
                 LLTextureCtrl* asset_ctrl = mTextureDetailCtrl[i];
                 if(asset_ctrl)
                 {
@@ -1577,6 +1579,8 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         {
             for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
             {
+                LL_DEBUGS("Terrain", "Material") << "Reset Material swatch " << i
+                         << LL_ENDL;
                 LLTextureCtrl* asset_ctrl = mMaterialDetailCtrl[i];
                 if(asset_ctrl)
                 {
