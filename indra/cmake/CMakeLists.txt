@@ -30,6 +30,7 @@ set(cmake_SOURCE_FILES
         GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
+        ICU4C.cmake
         JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
@@ -65,7 +66,7 @@ set(cmake_SOURCE_FILES
         LibVLCPlugin.cmake
         WebRTC.cmake
         XmlRpcEpi.cmake
-    xxHash.cmake
+        xxHash.cmake
         ZLIBNG.cmake
         )
 

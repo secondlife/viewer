@@ -160,36 +160,34 @@ private:
 
 class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoiceChannelProximal>
 {
-	LLSINGLETON_C11(LLVoiceChannelProximal);
-public:
+    LLSINGLETON_C11(LLVoiceChannelProximal);
+  public:
 
-	void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) override;
-	void handleStatusChange(EStatusType status) override;
-	void handleError(EStatusType status) override;
-	BOOL isActive() override;
+    void onChange(EStatusType status, const LLSD &channelInfo, bool proximal) override;
+    void handleStatusChange(EStatusType status) override;
+    void handleError(EStatusType status) override;
+    BOOL isActive() override;
     void activate() override;
-	void deactivate() override;
-
+    void deactivate() override;
 };
 
 class LLVoiceChannelP2P : public LLVoiceChannelGroup
 {
-public:
+  public:
     LLVoiceChannelP2P(const LLUUID      &session_id,
                       const std::string &session_name,
                       const LLUUID      &other_user_id,
                       LLVoiceP2POutgoingCallInterface * outgoing_call_interface);
 
-	void handleStatusChange(EStatusType status) override;
-	void handleError(EStatusType status) override;
+    void handleStatusChange(EStatusType status) override;
+    void handleError(EStatusType status) override;
     void activate() override;
-	void requestChannelInfo() override;
+    void requestChannelInfo() override;
     void deactivate() override;
+    void setChannelInfo(const LLSD& channel_info) override;
 
-	void setChannelInfo(const LLSD& channel_info) override;
-
-protected:
-	void setState(EState state) override;
+  protected:
+    void setState(EState state) override;
 
 private:
 

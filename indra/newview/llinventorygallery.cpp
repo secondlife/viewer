@@ -2402,11 +2402,17 @@ void LLInventoryGallery::startDrag()
 {
     std::vector<EDragAndDropType> types;
     uuid_vec_t ids;
+    LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_AGENT;
     for (LLUUID& selected_id : mSelectedItemIDs)
     {
         const LLInventoryItem* item = gInventory.getItem(selected_id);
         if (item)
         {
+            if (item->getPermissions().getOwner() == ALEXANDRIA_LINDEN_ID)
+            {
+                src = LLToolDragAndDrop::SOURCE_LIBRARY;
+            }
+
             EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(item->getType());
             types.push_back(type);
             ids.push_back(selected_id);
@@ -2416,12 +2422,17 @@ void LLInventoryGallery::startDrag()
         if (cat && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
             && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
         {
+            if (cat->getOwnerID() == ALEXANDRIA_LINDEN_ID)
+            {
+                src = LLToolDragAndDrop::SOURCE_LIBRARY;
+            }
+
             EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
             types.push_back(type);
             ids.push_back(selected_id);
         }
     }
-    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, LLToolDragAndDrop::SOURCE_AGENT);
+    LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, src);
 }
 
 bool LLInventoryGallery::areViewsInitialized()

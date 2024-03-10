@@ -99,6 +99,7 @@ public:
 	void tuningSetMicVolume(float volume) override;
 	void tuningSetSpeakerVolume(float volume) override;
 	float tuningGetEnergy(void) override;
+
 	//@}
 
 	/////////////////////
@@ -138,7 +139,6 @@ public:
 	// NOTE: this will return true if the session can't be found.
 	BOOL isSessionTextIMPossible(const LLUUID &session_id) override;
 
-
 	////////////////////////////
 	/// @name Channel stuff
 	//@{
@@ -170,6 +170,7 @@ public:
 	// start a voice channel with the specified user
 	void callUser(const LLUUID &uuid) override;
     void hangup() override;
+
 	//@}
 
     LLVoiceP2POutgoingCallInterface *getOutgoingCallInterface() override { return this; }
@@ -206,8 +207,8 @@ public:
 	//@}
 
 	// authorize the user
-	virtual void userAuthorized(const std::string& user_id,
-								const LLUUID &agentID) override;
+	void userAuthorized(const std::string& user_id,
+					    const LLUUID &agentID) override;
 
 	//////////////////////////////
 	/// @name Status notification
