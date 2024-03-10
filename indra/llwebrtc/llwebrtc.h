@@ -24,6 +24,17 @@
  * $/LicenseInfo$
  */
 
+/*
+ * llwebrtc wraps the native webrtc c++ library in a dynamic library with a simlified interface
+ * so that the viewer can use it.  This is done because native webrtc has a different
+ * overall threading model than the viewer.
+ * The native webrtc library is also compiled with clang, and has memory management
+ * functions that conflict namespace-wise with those in the viewer.
+ * 
+ * Due to these differences, code from the viewer cannot be pulled in to this
+ * dynamic library, so it remains very simple.
+ */
+
 #ifndef LLWEBRTC_H
 #define LLWEBRTC_H
 
@@ -45,52 +56,74 @@
 namespace llwebrtc
 {
 
-struct LLWebRTCIceCandidate
-{
-    std::string candidate;
-    std::string sdp_mid;
-    int         mline_index;
-};
+// LLWebRTCVoiceDevice is a simple representation of the 
+// components of a device, used to communicate this
+// information to the viewer.
+
+
+// A note on threading.
+// Native WebRTC has it's own threading model.  Some discussion
+// can be found here (https://webrtc.github.io/webrtc-org/native-code/native-apis/)
+//
+// Note that all callbacks to observers will occurr on one of the WebRTC native threads
+// (signaling, worker, etc.)  Care should be taken to assure there are not
+// bad interactions with the viewer threads.
 
 class LLWebRTCVoiceDevice
 {
   public:
-    std::string display_name;  // friendly value for the user
-    std::string id; // internal value for selection
-    bool current;  // current device
+    std::string mDisplayName;  // friendly name for user interface purposes
+    std::string mID;           // internal value for selection
+    bool        mCurrent;      // current device
 
     LLWebRTCVoiceDevice(const std::string &display_name, const std::string &id, bool current) :
-        display_name(display_name),
-        id(id),
-        current(current)
+        mDisplayName(display_name),
+        mID(id),
+        mCurrent(current)
     {};
 };
 
 typedef std::vector<LLWebRTCVoiceDevice> LLWebRTCVoiceDeviceList;
 
+
+// The LLWebRTCDeviceObserver should be implemented by the viewer
+// webrtc module, which will receive notifications when devices
+// change (are unplugged, etc.)
 class LLWebRTCDevicesObserver
 {
   public:
-    virtual void OnDevicesChanged(const LLWebRTCVoiceDeviceList &render_devices, const LLWebRTCVoiceDeviceList &capture_devices) = 0;
+    virtual void OnDevicesChanged(const LLWebRTCVoiceDeviceList &render_devices,
+                                  const LLWebRTCVoiceDeviceList &capture_devices) = 0;
 };
 
+
+// The LLWebRTCDeviceInterface provides a way for the viewer
+// to enumerate, set, and get notifications of changes
+// for both capture (microphone) and render (speaker)
+// devices.
 class LLWebRTCDeviceInterface
 {
   public:
 
+    // instructs webrtc to refresh the device list.
     virtual void refreshDevices() = 0;
 
+    // set the capture and render devices using the unique identifier for the device
     virtual void setCaptureDevice(const std::string& id) = 0;
     virtual void setRenderDevice(const std::string& id) = 0;
 
+    // Device observers for device change callbacks.
     virtual void setDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;
     virtual void unsetDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;
 
+    // tuning and audio levels
     virtual void setTuningMode(bool enable) = 0;
-    virtual float getTuningAudioLevel() = 0;
-    virtual float getPeerAudioLevel() = 0;
+    virtual float getTuningAudioLevel() = 0; // for use during tuning
+    virtual float getPeerConnectionAudioLevel() = 0; // for use when not tuning
 };
 
+// LLWebRTCAudioInterface provides the viewer with a way
+// to set audio characteristics (mute, send and receive volume)
 class LLWebRTCAudioInterface
 {
   public:
@@ -99,41 +132,81 @@ class LLWebRTCAudioInterface
     virtual void setSendVolume(float volume) = 0;  // volume between 0.0 and 1.0
 };
 
+// LLWebRTCDataObserver allows the viewer voice module to be notified when
+// data is received over the data channel.
 class LLWebRTCDataObserver
 {
 public:
     virtual void OnDataReceived(const std::string& data, bool binary) = 0;
 };
 
+// LLWebRTCDataInterface allows the viewer to send data over the data channel.
 class LLWebRTCDataInterface
 {
 public:
+
     virtual void sendData(const std::string& data, bool binary=false) = 0;
 
     virtual void setDataObserver(LLWebRTCDataObserver *observer) = 0;
     virtual void unsetDataObserver(LLWebRTCDataObserver *observer) = 0;
 };
 
+// LLWebRTCIceCandidate is a basic structure containing
+// information needed for ICE trickling.
+struct LLWebRTCIceCandidate
+{
+    std::string mCandidate;
+    std::string mSdpMid;
+    int         mMLineIndex;
+};
+
+// LLWebRTCSignalingObserver provides a way for the native
+// webrtc library to notify the viewer voice module of
+// various state changes.
 class LLWebRTCSignalingObserver
 {
-  public: 
-    enum IceGatheringState{
+  public:
+
+    typedef enum e_ice_gathering_state {
         ICE_GATHERING_NEW,
         ICE_GATHERING_GATHERING,
         ICE_GATHERING_COMPLETE
-    };
-    virtual void OnIceGatheringState(IceGatheringState state) = 0;
+    } EIceGatheringState;
+
+    // Called when ICE gathering states have changed.
+    // This may be called at any time, as ICE gathering
+    // can be redone while a connection is up.
+    virtual void OnIceGatheringState(EIceGatheringState state) = 0;
+
+    // Called when a new ice candidate is available.
     virtual void OnIceCandidate(const LLWebRTCIceCandidate& candidate) = 0;
+
+    // Called when an offer is available after a connection is requested.
     virtual void OnOfferAvailable(const std::string& sdp) = 0;
+
+    // Called when a connection enters a failure state and renegotiation is needed.
     virtual void OnRenegotiationNeeded() = 0;
+
+    // Called when the audio channel has been established and audio
+    // can begin.
     virtual void OnAudioEstablished(LLWebRTCAudioInterface *audio_interface) = 0;
+
+    // Called when the data channel has been established and data
+    // transfer can begin.
     virtual void OnDataChannelReady(LLWebRTCDataInterface *data_interface) = 0;
-    virtual void OnPeerShutDown() = 0;
+
+    // Called when a peer connection has finished shutting down.
+    virtual void OnPeerConnectionShutdown() = 0;
 };
 
-class LLWebRTCPeerConnection
+
+// LLWebRTCPeerConnectionInterface representsd a connection to a peer,
+// in most cases a Secondlife WebRTC server.  This interface
+// allows for management of this peer connection.
+class LLWebRTCPeerConnectionInterface
 {
   public:
+
     virtual void setSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
     virtual void unsetSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
 
@@ -142,11 +215,21 @@ class LLWebRTCPeerConnection
     virtual void AnswerAvailable(const std::string &sdp) = 0;
 };
 
+// The following define the dynamic linked library
+// exports.
+
+// This library must be initialized before use.
 LLSYMEXPORT void init();
+
+// And should be terminated as part of shutdown.
 LLSYMEXPORT void terminate();
+
+// Return an interface for device management.
 LLSYMEXPORT LLWebRTCDeviceInterface* getDeviceInterface();
-LLSYMEXPORT LLWebRTCPeerConnection* newPeerConnection();
-LLSYMEXPORT void freePeerConnection(LLWebRTCPeerConnection *connection);
+
+// Allocate and free peer connections.
+LLSYMEXPORT LLWebRTCPeerConnectionInterface* newPeerConnection();
+LLSYMEXPORT void freePeerConnection(LLWebRTCPeerConnectionInterface *connection);
 }
 
 #endif // LLWEBRTC_H

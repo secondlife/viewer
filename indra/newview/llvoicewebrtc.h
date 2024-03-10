@@ -584,12 +584,12 @@ class LLVoiceWebRTCConnection :
     /// @name Signaling notification
     //  LLWebRTCSignalingObserver
     //@{
-    void OnIceGatheringState(IceGatheringState state) override;
+    void OnIceGatheringState(EIceGatheringState state) override;
     void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate) override;
     void OnOfferAvailable(const std::string &sdp) override;
     void OnRenegotiationNeeded() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
-    void OnPeerShutDown() override;
+    void OnPeerConnectionShutdown() override;
     //@}
 
     /////////////////////////
@@ -702,7 +702,7 @@ class LLVoiceWebRTCConnection :
     bool                                        mIceCompleted;
     bool                                        mTrickling;
 
-    llwebrtc::LLWebRTCPeerConnection *mWebRTCPeerConnection;
+    llwebrtc::LLWebRTCPeerConnectionInterface *mWebRTCPeerConnectionInterface;
     llwebrtc::LLWebRTCAudioInterface *mWebRTCAudioInterface;
     llwebrtc::LLWebRTCDataInterface  *mWebRTCDataInterface;
 };

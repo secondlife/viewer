@@ -1,6 +1,6 @@
 /**
  * @file llwebrtc_impl.h
- * @brief WebRTC interface implementation header
+ * @brief WebRTC dynamic library implementation header
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -65,19 +65,27 @@ namespace llwebrtc
 
 class LLWebRTCPeerConnectionImpl;
 
+
+// Implements a class allowing capture of audio data
+// to determine audio level of the microphone.
 class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
 {
   public:
     LLAudioDeviceObserver();
 
+    // Retrieve the RMS audio loudness
     float getMicrophoneEnergy();
 
+    // Data retrieved from the caputure device is
+    // passed in here for processing.
     void OnCaptureData(const void    *audio_samples,
                        const size_t   num_samples,
                        const size_t   bytes_per_sample,
                        const size_t   num_channels,
                        const uint32_t samples_per_sec) override;
 
+    // This is for data destined for the render device.
+    // not currently used.
     void OnRenderData(const void    *audio_samples,
                       const size_t   num_samples,
                       const size_t   bytes_per_sample,
@@ -85,10 +93,13 @@ class LLAudioDeviceObserver : public webrtc::AudioDeviceDataObserver
                       const uint32_t samples_per_sec) override;
 
   protected:
-    float mSumVector[30];  // 300 ms of smoothing
+    static const int NUM_PACKETS_TO_FILTER = 30;  // 300 ms of smoothing (30 frames)
+    float mSumVector[NUM_PACKETS_TO_FILTER];
     float mMicrophoneEnergy;
 };
 
+// Used to process/retrieve audio levels after
+// all of the processing (AGC, AEC, etc.) for display in-world to the user.
 class LLCustomProcessor : public webrtc::CustomProcessing
 {
   public:
@@ -97,8 +108,10 @@ class LLCustomProcessor : public webrtc::CustomProcessing
 
     // (Re-) Initializes the submodule.
     void Initialize(int sample_rate_hz, int num_channels) override;
+
     // Analyzes the given capture or render signal.
     void Process(webrtc::AudioBuffer *audio) override;
+
     // Returns a string representation of the module state.
     std::string ToString() const override { return ""; }
 
@@ -113,13 +126,13 @@ class LLCustomProcessor : public webrtc::CustomProcessing
     float mMicrophoneEnergy;
 };
 
+
+// Primary singleton implementation for interfacing
+// with the native webrtc library.
 class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceSink
 {
   public:
-    LLWebRTCImpl() : 
-        mPeerCustomProcessor(nullptr), mMute(true)
-    {
-    }
+    LLWebRTCImpl();
     ~LLWebRTCImpl() {}
 
     void init();
@@ -139,7 +152,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
-    float getPeerAudioLevel() override;
+    float getPeerConnectionAudioLevel() override;
     
     //
     // AudioDeviceSink
@@ -150,6 +163,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     // Helpers
     //
 
+    // The following thread helpers allow the
+    // LLWebRTCPeerConnectionImpl class to post
+    // tasks to the native webrtc threads.
     void PostWorkerTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
@@ -185,21 +201,31 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     {
         mNetworkThread->BlockingCall(std::move(functor), location);
     }
-    
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> getPeerConnectionFactory() { return mPeerConnectionFactory; }
 
-    LLWebRTCPeerConnection *  newPeerConnection();
-    void freePeerConnection(LLWebRTCPeerConnection * peer_connection);
+    // Allows the LLWebRTCPeerConnectionImpl class to retrieve the
+    // native webrtc PeerConnectionFactory.
+    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> getPeerConnectionFactory()
+    { 
+        return mPeerConnectionFactory;
+    }
 
+    // create or destroy a peer connection.
+    LLWebRTCPeerConnectionInterface* newPeerConnection();
+    void freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection);
+
+    // enables/disables capture via the capture device
     void setRecording(bool recording);
 
   protected:
-
+    // The native webrtc threads
     std::unique_ptr<rtc::Thread>                               mNetworkThread;
     std::unique_ptr<rtc::Thread>                               mWorkerThread;
     std::unique_ptr<rtc::Thread>                               mSignalingThread;
+
+    // The factory that allows creation of native webrtc PeerConnections.
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
-    webrtc::PeerConnectionInterface::RTCConfiguration          mConfiguration;
+
+    // more native webrtc stuff
     std::unique_ptr<webrtc::TaskQueueFactory>                  mTaskQueueFactory;
 
 
@@ -209,11 +235,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     rtc::scoped_refptr<webrtc::AudioDeviceModule>              mPeerDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
 
-    // accessors in webrtc aren't apparently implemented yet.
+    // accessors in native webrtc for devices aren't apparently implemented yet.
     int32_t                                                    mPlayoutDevice;
     int32_t                                                    mRecordingDevice;
     bool                                                       mMute;
-    
+
     LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
     LLCustomProcessor *                                        mPeerCustomProcessor;
     
@@ -221,7 +247,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     std::vector<rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>     mPeerConnections;
 };
 
-class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
+
+// The implementation of a peer connection, which contains
+// the various interfaces used by the viewer to interact with
+// the webrtc connection.
+class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
                                    public LLWebRTCAudioInterface,
                                    public LLWebRTCDataInterface,
                                    public webrtc::PeerConnectionObserver,
@@ -232,7 +262,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
 
 {
   public:
-    LLWebRTCPeerConnectionImpl() {}
+    LLWebRTCPeerConnectionImpl();
     ~LLWebRTCPeerConnectionImpl() {}
 
     void init(LLWebRTCImpl * webrtc_impl);
@@ -270,7 +300,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
     //
 
     void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state) override {}
-    void OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface>                     receiver,
+    void OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
                     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>> &streams) override;
     void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
     void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override;
@@ -311,6 +341,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
   protected:
     
     LLWebRTCImpl * mWebRTCImpl;
+
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
 
     bool                                                       mMute;
@@ -323,6 +354,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnection,
     rtc::scoped_refptr<webrtc::PeerConnectionInterface>        mPeerConnection;
     rtc::scoped_refptr<webrtc::MediaStreamInterface>           mLocalStream;
 
+    // data
     std::vector<LLWebRTCDataObserver *>                        mDataObserverList;
     rtc::scoped_refptr<webrtc::DataChannelInterface>           mDataChannel;
 };
