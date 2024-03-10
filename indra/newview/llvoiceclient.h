@@ -464,8 +464,6 @@ public:
 	F32 getUserVolume(const LLUUID& id);
 
 	/////////////////////////////
-	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
-													  // Use this to determine whether to show a "no speech" icon in the menu bar.
 	void getParticipantList(std::set<LLUUID> &participants);
 	bool isParticipant(const LLUUID& speaker_id);
 	

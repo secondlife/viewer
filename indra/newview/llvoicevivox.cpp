@@ -295,7 +295,6 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mTuningSpeakerVolumeDirty(true),
 	mDevicesListUpdated(false),
 
-	mAreaVoiceDisabled(false),
 	mAudioSession(), // TBD - should be NULL
 	mAudioSessionChanged(false),
 	mNextAudioSession(),
@@ -4927,7 +4926,6 @@ bool LLVivoxVoiceClient::setSpatialChannel(const LLSD& channelInfo)
     mProcessChannels = true;
 	mSpatialSessionURI = channelInfo["channel_uri"].asString();
     mSpatialSessionCredentials = channelInfo["channel_credentials"].asString();
-	mAreaVoiceDisabled = mSpatialSessionURI.empty();
 
 	LL_DEBUGS("Voice") << "got spatial channel uri: \"" << mSpatialSessionURI << "\"" << LL_ENDL;
 	
@@ -5655,11 +5653,6 @@ std::string LLVivoxVoiceClient::getGroupID(const LLUUID& id)
 	}
 	
 	return result;
-}
-
-BOOL LLVivoxVoiceClient::getAreaVoiceDisabled()
-{
-	return mAreaVoiceDisabled;
 }
 
 void LLVivoxVoiceClient::recordingLoopStart(int seconds, int deltaFramesPerControlFrame)

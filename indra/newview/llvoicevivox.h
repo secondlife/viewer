@@ -511,11 +511,6 @@ protected:
 	// MBW -- XXX -- Not sure how to get this data out of the TVC
 	BOOL getUsingPTT(const LLUUID& id);
 	std::string getGroupID(const LLUUID& id);		// group ID if the user is in group chat (empty string if not applicable)
-
-	/////////////////////////////
-	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
-										// Use this to determine whether to show a "no speech" icon in the menu bar.
-		
 	
 	/////////////////////////////
 	// Recording controls
@@ -711,7 +706,6 @@ private:
 	std::string mMainSessionGroupHandle; // handle of the "main" session group.
 	
 	std::string mChannelName;			// Name of the channel to be looked up 
-	bool mAreaVoiceDisabled;
     sessionStatePtr_t mAudioSession;		// Session state for the current audio session
 	bool mAudioSessionChanged;			// set to true when the above pointer gets changed, so observers can be notified.
 
