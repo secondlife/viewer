@@ -1,25 +1,25 @@
- /** 
+ /**
  * @file llvoiceclient.cpp
  * @brief Voice client delegation class implementation.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -81,10 +81,10 @@ LLVoiceHandler gVoiceHandler;
 std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserver::EStatusType inStatus)
 {
 	std::string result = "UNTRANSLATED";
-	
+
 	// Prevent copy-paste errors when updating this list...
 #define CASE(x)  case x:  result = #x;  break
-	
+
 	switch(inStatus)
 	{
 			CASE(STATUS_LOGIN_RETRY);
@@ -107,9 +107,9 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
             }
 			break;
 	}
-	
+
 #undef CASE
-	
+
 	return result;
 }
 
@@ -209,7 +209,7 @@ void LLVoiceClient::onSimulatorFeaturesReceived(const LLUUID& region_id)
 void LLVoiceClient::setSpatialVoiceModule(const std::string &voice_server_type)
 {
     LLVoiceModuleInterface *module = getVoiceModule(voice_server_type);
-    if (!module) 
+    if (!module)
 	{
         return;
 	}
@@ -264,7 +264,7 @@ void LLVoiceClient::terminate()
 
 const LLVoiceVersionInfo LLVoiceClient::getVersion()
 {
-	if (mSpatialVoiceModule) 
+	if (mSpatialVoiceModule)
 	{
 		return mSpatialVoiceModule->getVersion();
 	}
@@ -330,12 +330,12 @@ float LLVoiceClient::tuningGetEnergy(void)
 // devices
 
 bool LLVoiceClient::deviceSettingsAvailable()
-{ 
+{
 	return LLWebRTCVoiceClient::getInstance()->deviceSettingsAvailable();
 }
 
 bool LLVoiceClient::deviceSettingsUpdated()
-{ 
+{
 	return LLWebRTCVoiceClient::getInstance()->deviceSettingsUpdated();
 }
 
@@ -363,7 +363,7 @@ const LLVoiceDeviceList& LLVoiceClient::getCaptureDevices()
 
 
 const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
-{ 
+{
 	return LLWebRTCVoiceClient::getInstance()->getRenderDevices();
 }
 
@@ -379,7 +379,8 @@ void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 
 bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
 {
-    return LLWebRTCVoiceClient::getInstance()->isParticipant(speaker_id) || LLVivoxVoiceClient::getInstance()->isParticipant(speaker_id);
+    return LLWebRTCVoiceClient::getInstance()->isParticipant(speaker_id) || 
+		   LLVivoxVoiceClient::getInstance()->isParticipant(speaker_id);
 }
 
 
@@ -388,14 +389,8 @@ bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
 
 BOOL LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
 {
-	if (mSpatialVoiceModule) 
-	{
-		return mSpatialVoiceModule->isSessionTextIMPossible(id);
-	}
-	else
-	{
-		return FALSE;
-	}
+	// all sessions can do TextIM, as we no longer support PSTN
+    return TRUE;
 }
 
 BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
@@ -409,7 +404,7 @@ BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
 
 bool LLVoiceClient::inProximalChannel()
 {
-	if (mSpatialVoiceModule) 
+	if (mSpatialVoiceModule)
 	{
 		return mSpatialVoiceModule->inProximalChannel();
 	}
@@ -552,7 +547,7 @@ void LLVoiceClient::updateMicMuteLogic()
 {
 	// If not configured to use PTT, the mic should be open (otherwise the user will be unable to speak).
 	bool new_mic_mute = false;
-	
+
 	if(mUsePTT)
 	{
 		// If configured to use PTT, track the user state.
@@ -603,7 +598,7 @@ void LLVoiceClient::setUsePTT(bool usePTT)
 		mUserPTTState = false;
 	}
 	mUsePTT = usePTT;
-	
+
 	updateMicMuteLogic();
 }
 
@@ -614,7 +609,7 @@ void LLVoiceClient::setPTTIsToggle(bool PTTIsToggle)
 		// When the user turns off toggle, reset the current state.
 		mUserPTTState = false;
 	}
-	
+
 	mPTTIsToggle = PTTIsToggle;
 
 	updateMicMuteLogic();
@@ -629,12 +624,12 @@ void LLVoiceClient::inputUserControlState(bool down)
 {
 	if(mPTTIsToggle)
 	{
-		if(down) // toggle open-mic state on 'down'                                                        
+		if(down) // toggle open-mic state on 'down'
 		{
 			toggleUserPTTState();
 		}
 	}
-	else // set open-mic state as an absolute                                                                  
+	else // set open-mic state as an absolute
 	{
 		setUserPTTState(down);
 	}
@@ -651,39 +646,23 @@ void LLVoiceClient::toggleUserPTTState(void)
 
 BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
-	if (mNonSpatialVoiceModule)
-	{
-        return mNonSpatialVoiceModule->getVoiceEnabled(id);
-	}
-	else if (mSpatialVoiceModule) 
-	{
-		return mSpatialVoiceModule->getVoiceEnabled(id);
-	} 
-	else
-	{
-		return FALSE;
-	}
+    return isParticipant(id) ? TRUE : FALSE;
 }
 
 std::string LLVoiceClient::getDisplayName(const LLUUID& id)
 {
-	if (mNonSpatialVoiceModule)
+    std::string result = LLWebRTCVoiceClient::getInstance()->getDisplayName(id);
+	if (result.empty())
 	{
-        return mNonSpatialVoiceModule->getDisplayName(id);
+        result = LLVivoxVoiceClient::getInstance()->getDisplayName(id);
 	}
-	else if (mSpatialVoiceModule) 
-	{
-		return mSpatialVoiceModule->getDisplayName(id);
-	}
-	else
-	{
-	  return std::string();
-	}
+    return result;
 }
 
 bool LLVoiceClient::isVoiceWorking() const
 {
-    return LLVivoxVoiceClient::getInstance()->isVoiceWorking() || LLWebRTCVoiceClient::getInstance()->isVoiceWorking();
+    return LLVivoxVoiceClient::getInstance()->isVoiceWorking() || 
+		   LLWebRTCVoiceClient::getInstance()->isVoiceWorking();
 }
 
 BOOL LLVoiceClient::isParticipantAvatar(const LLUUID& id)
@@ -698,48 +677,29 @@ BOOL LLVoiceClient::isOnlineSIP(const LLUUID& id)
 
 BOOL LLVoiceClient::getIsSpeaking(const LLUUID& id)
 {
-    return LLVivoxVoiceClient::getInstance()->getIsSpeaking(id) || LLWebRTCVoiceClient::getInstance()->getIsSpeaking(id);
+    return LLWebRTCVoiceClient::getInstance()->getIsSpeaking(id) || 
+		   LLVivoxVoiceClient::getInstance()->getIsSpeaking(id);
 }
 
 BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
 	// don't bother worrying about p2p calls, as
 	// p2p calls don't have mute.
-    if (mNonSpatialVoiceModule)
-    {
-        return mNonSpatialVoiceModule->getIsModeratorMuted(id);
-    }
-	else if (mSpatialVoiceModule) 
-	{
-		return mSpatialVoiceModule->getIsModeratorMuted(id);
-	}
-	else
-	{
-		return FALSE;
-	}
+    return LLWebRTCVoiceClient::getInstance()->getIsModeratorMuted(id) || 
+		   LLVivoxVoiceClient::getInstance()->getIsModeratorMuted(id);
 }
 
 F32 LLVoiceClient::getCurrentPower(const LLUUID& id)
-{	
-	return std::fmax(LLVivoxVoiceClient::getInstance()->getCurrentPower(id), LLWebRTCVoiceClient::getInstance()->getCurrentPower(id));
+{
+	return std::fmax(LLVivoxVoiceClient::getInstance()->getCurrentPower(id), 
+		             LLWebRTCVoiceClient::getInstance()->getCurrentPower(id));
 }
 
 BOOL LLVoiceClient::getOnMuteList(const LLUUID& id)
 {
     // don't bother worrying about p2p calls, as
     // p2p calls don't have mute.
-    if (mNonSpatialVoiceModule)
-    {
-        return mNonSpatialVoiceModule->getOnMuteList(id);
-    }
-    else if (mSpatialVoiceModule) 
-	{
-		return mSpatialVoiceModule->getOnMuteList(id);
-	}
-	else
-	{
-		return FALSE;
-	}
+    return LLMuteList::getInstance()->isMuted(id, LLMute::flagVoiceChat);
 }
 
 F32 LLVoiceClient::getUserVolume(const LLUUID& id)
@@ -798,7 +758,7 @@ std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
 	{
         return mNonSpatialVoiceModule->sipURIFromID(id);
 	}
-	else if (mSpatialVoiceModule) 
+	else if (mSpatialVoiceModule)
 	{
 		return mSpatialVoiceModule->sipURIFromID(id);
 	}
@@ -854,7 +814,7 @@ class LLViewerRequiredVoiceVersion : public LLHTTPNode
         }
 
 		LLVoiceVersionInfo versionInfo = voiceModule->getVersion();
-        if (input.has("body") && input["body"].has("major_version") && 
+        if (input.has("body") && input["body"].has("major_version") &&
 			input["body"]["major_version"].asInteger() > versionInfo.majorVersion)
 		{
             if (!sAlertedUser)
@@ -879,26 +839,26 @@ class LLViewerParcelVoiceInfo : public LLHTTPNode
 	{
 		//the parcel you are in has changed something about its
 		//voice information
-		
+
 		//this is a misnomer, as it can also be when you are not in
 		//a parcel at all.  Should really be something like
 		//LLViewerVoiceInfoChanged.....
 		if ( input.has("body") )
 		{
 			LLSD body = input["body"];
-			
+
 			//body has "region_name" (str), "parcel_local_id"(int),
 			//"voice_credentials" (map).
-			
+
 			//body["voice_credentials"] has "channel_uri" (str),
 			//body["voice_credentials"] has "channel_credentials" (str)
-			
+
 			//if we really wanted to be extra careful,
 			//we'd check the supplied
 			//local parcel id to make sure it's for the same parcel
 			//we believe we're in
 			if ( body.has("voice_credentials") )
-			{	
+			{
 				LLVoiceClient::getInstance()->setSpatialChannel(body["voice_credentials"]);
 			}
 		}
@@ -941,7 +901,7 @@ void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 vo
 bool LLSpeakerVolumeStorage::getSpeakerVolume(const LLUUID& speaker_id, F32& volume)
 {
 	speaker_data_map_t::const_iterator it = mSpeakersData.find(speaker_id);
-	
+
 	if (it != mSpeakersData.end())
 	{
 		volume = it->second;
@@ -1020,9 +980,9 @@ void LLSpeakerVolumeStorage::load()
 		if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(settings_llsd, file))
         {
             LL_WARNS("Voice") << "failed to parse " << filename << LL_ENDL;
-            
+
         }
-            
+
 	}
 
 	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();

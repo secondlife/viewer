@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llvoiceclient.h
  * @brief Declaration of LLVoiceClient class which is the interface to the voice client process.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -147,32 +147,32 @@ class LLVoiceModuleInterface
 public:
 	LLVoiceModuleInterface() {}
 	virtual ~LLVoiceModuleInterface() {}
-	
+
 	virtual void init(LLPumpIO *pump)=0;	// Call this once at application startup (creates connector)
 	virtual void terminate()=0;	// Call this to clean up during shutdown
-	
+
 	virtual void updateSettings()=0; // call after loading settings and whenever they change
-	
+
 	virtual bool isVoiceWorking() const = 0; // connected to a voice server and voice channel
-    
+
     virtual void setHidden(bool hidden)=0;  //  Hides the user from voice.
 
 	virtual const LLVoiceVersionInfo& getVersion()=0;
 
 
-	
+
 	/////////////////////
 	/// @name Tuning
 	//@{
 	virtual void tuningStart()=0;
 	virtual void tuningStop()=0;
 	virtual bool inTuningMode()=0;
-	
+
 	virtual void tuningSetMicVolume(float volume)=0;
 	virtual void tuningSetSpeakerVolume(float volume)=0;
 	virtual float tuningGetEnergy(void)=0;
 	//@}
-	
+
 	/////////////////////
 	/// @name Devices
 	//@{
@@ -180,36 +180,36 @@ public:
 	// i.e. when the daemon is running and connected, and the device lists are populated.
 	virtual bool deviceSettingsAvailable()=0;
 	virtual bool deviceSettingsUpdated() = 0;
-	
+
 	// Requery the vivox daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
 	// (use this if you want to know when it's done).
 	// If you pass false, you'll have no way to know when the query finishes, but the device lists will not appear empty in the interim.
 	virtual void refreshDeviceLists(bool clearCurrentList = true)=0;
-	
+
 	virtual void setCaptureDevice(const std::string& name)=0;
 	virtual void setRenderDevice(const std::string& name)=0;
-	
+
 	virtual LLVoiceDeviceList& getCaptureDevices()=0;
 	virtual LLVoiceDeviceList& getRenderDevices()=0;
-	
+
 	virtual void getParticipantList(std::set<LLUUID> &participants)=0;
 	virtual bool isParticipant(const LLUUID& speaker_id)=0;
 	//@}
-	
+
 	////////////////////////////
 	/// @ name Channel stuff
 	//@{
 	// returns true iff the user is currently in a proximal (local spatial) channel.
 	// Note that gestures should only fire if this returns true.
 	virtual bool inProximalChannel()=0;
-	
+
 	virtual void setNonSpatialChannel(const LLSD& channelInfo,
 		                              bool notify_on_first_join,
 									  bool hangup_on_last_leave)=0;
-	
+
 	virtual bool setSpatialChannel(const LLSD& channelInfo)=0;
-	
+
 	virtual void leaveNonSpatialChannel() = 0;
     virtual void processChannels(bool process) = 0;
 
@@ -217,12 +217,12 @@ public:
     virtual bool compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2) = 0;
 
 	//@}
-	
-	
+
+
 	//////////////////////////
 	/// @name p2p
 	//@{
-	
+
     // initiate a call with a peer using the P2P interface, which only applies to some
     // voice server types.  Otherwise, a group call should be used for P2P
     virtual LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface() = 0;
@@ -231,35 +231,33 @@ public:
 	// answer or decline.
     virtual LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voice_call_info) = 0;
 	//@}
-	
+
 	/////////////////////////
 	/// @name Volume/gain
 	//@{
 	virtual void setVoiceVolume(F32 volume)=0;
 	virtual void setMicGain(F32 volume)=0;
 	//@}
-	
+
 	/////////////////////////
 	/// @name enable disable voice and features
 	//@{
 	virtual void setVoiceEnabled(bool enabled)=0;
 	virtual void setMuteMic(bool muted)=0;		// Set the mute state of the local mic.
 	//@}
-		
+
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
-	virtual BOOL getVoiceEnabled(const LLUUID& id)=0;		// true if we've received data for this avatar
 	virtual std::string getDisplayName(const LLUUID& id)=0;
 	virtual BOOL isParticipantAvatar(const LLUUID &id)=0;
 	virtual BOOL getIsSpeaking(const LLUUID& id)=0;
 	virtual BOOL getIsModeratorMuted(const LLUUID& id)=0;
 	virtual F32 getCurrentPower(const LLUUID& id)=0;		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	virtual BOOL getOnMuteList(const LLUUID& id)=0;
 	virtual F32 getUserVolume(const LLUUID& id)=0;
-	virtual void setUserVolume(const LLUUID& id, F32 volume)=0; // set's volume for specified agent, from 0-1 (where .5 is nominal)	
+	virtual void setUserVolume(const LLUUID& id, F32 volume)=0; // set's volume for specified agent, from 0-1 (where .5 is nominal)
 	//@}
-	
+
 	//////////////////////////
 	/// @name text chat
 	//@{
@@ -267,25 +265,25 @@ public:
 	virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
 	//virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
 	//@}
-	
+
 	// authorize the user
 	virtual void userAuthorized(const std::string& user_id,
 								const LLUUID &agentID)=0;
-	
+
 	//////////////////////////////
 	/// @name Status notification
 	//@{
 	virtual void addObserver(LLVoiceClientStatusObserver* observer)=0;
 	virtual void removeObserver(LLVoiceClientStatusObserver* observer)=0;
 	virtual void addObserver(LLFriendObserver* observer)=0;
-	virtual void removeObserver(LLFriendObserver* observer)=0;	
+	virtual void removeObserver(LLFriendObserver* observer)=0;
 	virtual void addObserver(LLVoiceClientParticipantObserver* observer)=0;
-	virtual void removeObserver(LLVoiceClientParticipantObserver* observer)=0;	
+	virtual void removeObserver(LLVoiceClientParticipantObserver* observer)=0;
 	//@}
-	
+
 	virtual std::string sipURIFromID(const LLUUID &id)=0;
 	//@}
-	
+
 };
 
 
@@ -357,9 +355,9 @@ public:
 	micro_changed_signal_t mMicroChangedSignal;
 
 	void terminate();	// Call this to clean up during shutdown
-	
+
 	const LLVoiceVersionInfo getVersion();
-	
+
 	static const F32 OVERDRIVEN_POWER_LEVEL;
 
 	static const F32 VOLUME_MIN;
@@ -374,18 +372,18 @@ public:
 	void tuningStart();
 	void tuningStop();
 	bool inTuningMode();
-		
+
 	void tuningSetMicVolume(float volume);
 	void tuningSetSpeakerVolume(float volume);
 	float tuningGetEnergy(void);
-				
+
 	// devices
-	
+
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
 	// i.e. when the daemon is running and connected, and the device lists are populated.
 	bool deviceSettingsAvailable();
 	bool deviceSettingsUpdated();	// returns true when the device list has been updated recently.
-		
+
 	// Requery the vivox daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
 	// (use this if you want to know when it's done).
@@ -402,7 +400,7 @@ public:
 	////////////////////////////
 	// Channel stuff
 	//
-	
+
 	// returns true iff the user is currently in a proximal (local spatial) channel.
 	// Note that gestures should only fire if this returns true.
 	bool inProximalChannel();
@@ -426,35 +424,35 @@ public:
     LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface(const LLSD& voiceChannelInfo);
 
 	LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voiceCallInfo);
-	
+
 	/////////////////////////////
 	// Sending updates of current state
-	
+
 
 	void setVoiceVolume(F32 volume);
 	void setMicGain(F32 volume);
-	void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)		
+	void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)
 	bool voiceEnabled();
 	void setMuteMic(bool muted);		// Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
 	void setUserPTTState(bool ptt);
 	bool getUserPTTState();
 	void toggleUserPTTState(void);
-	void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs	
+	void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
 	void setVoiceEnabled(bool enabled);
 
 	void setUsePTT(bool usePTT);
 	void setPTTIsToggle(bool PTTIsToggle);
-	bool getPTTIsToggle();	
+	bool getPTTIsToggle();
 
 	void updateMicMuteLogic();
 
 	boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
 
-	
+
 	/////////////////////////////
 	// Accessors for data related to nearby speakers
 	BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
-	std::string getDisplayName(const LLUUID& id);	
+	std::string getDisplayName(const LLUUID& id);
 	BOOL isOnlineSIP(const LLUUID &id);
 	BOOL isParticipantAvatar(const LLUUID &id);
 	BOOL getIsSpeaking(const LLUUID& id);
@@ -466,7 +464,7 @@ public:
 	/////////////////////////////
 	void getParticipantList(std::set<LLUUID> &participants);
 	bool isParticipant(const LLUUID& speaker_id);
-	
+
 	//////////////////////////
 	/// @name text chat
 	//@{
@@ -474,7 +472,7 @@ public:
 	BOOL isSessionCallBackPossible(const LLUUID& id);
 	//BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
 	//@}
-	
+
 	void setSpatialVoiceModule(const std::string& voice_server_type);
     void setNonSpatialVoiceModule(const std::string &voice_server_type);
 
@@ -483,15 +481,15 @@ public:
 
     void onRegionChanged();
     void onSimulatorFeaturesReceived(const LLUUID &region_id);
-	
+
 	void addObserver(LLVoiceClientStatusObserver* observer);
 	void removeObserver(LLVoiceClientStatusObserver* observer);
 	void addObserver(LLFriendObserver* observer);
 	void removeObserver(LLFriendObserver* observer);
 	void addObserver(LLVoiceClientParticipantObserver* observer);
 	void removeObserver(LLVoiceClientParticipantObserver* observer);
-	
-	std::string sipURIFromID(const LLUUID &id);	
+
+	std::string sipURIFromID(const LLUUID &id);
 
 	//////////////////////////
 	/// @name Voice effects
@@ -517,7 +515,7 @@ protected:
 
 	bool		mPTTDirty;
 	bool		mPTT;
-	
+
 	bool		mUsePTT;
 	S32			mPTTMouseButton;
 	KEY			mPTTKey;

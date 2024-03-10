@@ -1,25 +1,25 @@
- /** 
+ /**
  * @file LLWebRTCVoiceClient.cpp
  * @brief Implementation of LLWebRTCVoiceClient class which is the interface to the voice client process.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -92,7 +92,7 @@ namespace {
 
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.1f;
-    
+
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
     const F32 MINUSCULE_ANGLE_COS = (F32) cos(0.5f * FOUR_DEGREES);
@@ -302,12 +302,12 @@ void LLWebRTCVoiceClient::updateSettings()
 
 // Observers
 void LLWebRTCVoiceClient::addObserver(LLVoiceClientParticipantObserver *observer)
-{ 
+{
     mParticipantObservers.insert(observer);
 }
 
 void LLWebRTCVoiceClient::removeObserver(LLVoiceClientParticipantObserver *observer)
-{ 
+{
     mParticipantObservers.erase(observer);
 }
 
@@ -323,12 +323,12 @@ void LLWebRTCVoiceClient::notifyParticipantObservers()
 }
 
 void LLWebRTCVoiceClient::addObserver(LLVoiceClientStatusObserver *observer)
-{ 
+{
     mStatusObservers.insert(observer);
 }
 
 void LLWebRTCVoiceClient::removeObserver(LLVoiceClientStatusObserver *observer)
-{ 
+{
     mStatusObservers.erase(observer);
 }
 
@@ -352,7 +352,7 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
     }
 
     // skipped to avoid speak button blinking
-    if (status != LLVoiceClientStatusObserver::STATUS_JOINING && 
+    if (status != LLVoiceClientStatusObserver::STATUS_JOINING &&
         status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL &&
         status != LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED)
     {
@@ -368,11 +368,11 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 }
 
 void LLWebRTCVoiceClient::addObserver(LLFriendObserver *observer)
-{ 
+{
 }
 
 void LLWebRTCVoiceClient::removeObserver(LLFriendObserver *observer)
-{ 
+{
 }
 
 //---------------------------------------------------
@@ -381,12 +381,12 @@ void LLWebRTCVoiceClient::removeObserver(LLFriendObserver *observer)
 // takes to process the various functions called in the loop
 // The loop does the following:
 // * gates whether we do channel processing depending on
-//   whether we're running a WebRTC voice channel or 
+//   whether we're running a WebRTC voice channel or
 //   one from another voice provider.
 // * If in spatial voice, it determines whether we've changed
 //   parcels, whether region/parcel voice settings have changed,
 //   etc. and manages whether the voice channel needs to change.
-// * calls the state machines for the sessions to negotiate 
+// * calls the state machines for the sessions to negotiate
 //   connection to various voice channels.
 // * Sends updates to the voice server when this agent's
 //   voice levels, or positions have changed.
@@ -485,7 +485,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                     updatePosition();
                 }
             }
-            
+
             sessionState::processSessionStates();
             if (mProcessChannels && voiceEnabled)
             {
@@ -629,7 +629,7 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
 }
 
 void LLWebRTCVoiceClient::clearRenderDevices()
-{    
+{
     LL_DEBUGS("Voice") << "called" << LL_ENDL;
     mRenderDevices.clear();
 }
@@ -661,7 +661,7 @@ void LLWebRTCVoiceClient::tuningStart()
 }
 
 void LLWebRTCVoiceClient::tuningStop()
-{ 
+{
     if (mIsInTuningMode)
     {
         mWebRTCDeviceInterface->setTuningMode(false);
@@ -680,7 +680,7 @@ void LLWebRTCVoiceClient::tuningSetMicVolume(float volume)
 }
 
 void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
-{    
+{
 
     if (volume != mTuningSpeakerVolume)
     {
@@ -708,17 +708,17 @@ float LLWebRTCVoiceClient::tuningGetEnergy(void)
 bool LLWebRTCVoiceClient::deviceSettingsAvailable()
 {
     bool result = true;
-    
+
     if(mRenderDevices.empty() || mCaptureDevices.empty())
         result = false;
-    
+
     return result;
 }
 bool LLWebRTCVoiceClient::deviceSettingsUpdated()
 {
     bool updated = mDevicesListUpdated;
     mDevicesListUpdated = false;
-    return updated;        
+    return updated;
 }
 
 void LLWebRTCVoiceClient::refreshDeviceLists(bool clearCurrentList)
@@ -758,7 +758,7 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
 // status for a given channel.  By filtering
 // on channel and region, these functions
 // can send various notifications to
-// other parts of the viewer, as well as 
+// other parts of the viewer, as well as
 // managing housekeeping
 
 // A connection to a channel was successfully established,
@@ -997,14 +997,14 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 // Update our own volume on our participant, so it'll show up
 // in the UI.  This is done on all sessions, so switching
 // sessions retains consistent volume levels.
-void LLWebRTCVoiceClient::updateOwnVolume() { 
+void LLWebRTCVoiceClient::updateOwnVolume() {
     F32 audio_level = 0.0;
     if (!mMuteMic && !mTuningMode)
     {
         audio_level = getAudioLevel();
     }
 
-    sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level)); 
+    sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level));
 }
 
 ////////////////////////////////////
@@ -1020,9 +1020,9 @@ BOOL LLWebRTCVoiceClient::isParticipantAvatar(const LLUUID &id)
 
 void LLWebRTCVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 {
-    if (mSession)
+    if (mProcessChannels && mSession)
     {
-        for (participantUUIDMap::iterator iter = mSession->mParticipantsByUUID.begin(); 
+        for (participantUUIDMap::iterator iter = mSession->mParticipantsByUUID.begin();
             iter != mSession->mParticipantsByUUID.end();
             iter++)
         {
@@ -1033,7 +1033,7 @@ void LLWebRTCVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 
 bool LLWebRTCVoiceClient::isParticipant(const LLUUID &speaker_id)
 {
-    if (mSession)
+    if (mProcessChannels && mSession)
     {
         return (mSession->mParticipantsByUUID.find(speaker_id) != mSession->mParticipantsByUUID.end());
     }
@@ -1089,28 +1089,27 @@ void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, co
 
 
 //  participantState level participant management
-LLWebRTCVoiceClient::participantState::participantState(const LLUUID& agent_id) : 
+LLWebRTCVoiceClient::participantState::participantState(const LLUUID& agent_id) :
      mURI(agent_id.asString()),
      mAvatarID(agent_id),
-     mIsSpeaking(false), 
-     mIsModeratorMuted(false), 
-     mLevel(0.f), 
-     mVolume(LLVoiceClient::VOLUME_DEFAULT), 
-     mOnMuteList(false)
+     mIsSpeaking(false),
+     mIsModeratorMuted(false),
+     mLevel(0.f),
+     mVolume(LLVoiceClient::VOLUME_DEFAULT)
 {
 }
 
 LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::addParticipant(const LLUUID& agent_id)
 {
     participantStatePtr_t result;
-    
+
     participantUUIDMap::iterator iter = mParticipantsByUUID.find(agent_id);
 
     if (iter != mParticipantsByUUID.end())
     {
         result = iter->second;
     }
-        
+
     if(!result)
     {
         // participant isn't already in one list or the other.
@@ -1119,31 +1118,16 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::ad
         result->mAvatarID      = agent_id;
 
         LLWebRTCVoiceClient::getInstance()->lookupName(agent_id);
-        
-        result->updateMuteState();
 
         LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID, result->mVolume);
         if (!LLWebRTCVoiceClient::sShuttingDown)
         {
             LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
         }
-        
+
         LL_DEBUGS("Voice") << "Participant \"" << result->mURI << "\" added." << LL_ENDL;
     }
-    
-    return result;
-}
 
-bool LLWebRTCVoiceClient::participantState::updateMuteState()
-{
-    bool result = false;
-
-    bool isMuted = LLMuteList::getInstance()->isMuted(mAvatarID, LLMute::flagVoiceChat);
-    if(mOnMuteList != isMuted)
-    {
-        mOnMuteList = isMuted;
-        result = true;
-    }
     return result;
 }
 
@@ -1218,7 +1202,7 @@ bool LLWebRTCVoiceClient::startAdHocSession(const LLSD& channelInfo, bool notify
     std::string channelID = channelInfo["channel_uri"];
     std::string credentials = channelInfo["channel_credentials"];
     mNextSession = addSession(channelID,
-                              sessionState::ptr_t(new adhocSessionState(channelID, 
+                              sessionState::ptr_t(new adhocSessionState(channelID,
                                                                         credentials,
                                                                         notify_on_first_join,
                                                                         hangup_on_last_leave)));
@@ -1231,7 +1215,7 @@ bool LLWebRTCVoiceClient::isVoiceWorking() const
 }
 
 // Returns true if calling back the session URI after the session has closed is possible.
-// Currently this will be false only for PSTN P2P calls.        
+// Currently this will be false only for PSTN P2P calls.
 BOOL LLWebRTCVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 {
     sessionStatePtr_t session(findP2PSession(session_id));
@@ -1245,14 +1229,14 @@ void LLWebRTCVoiceClient::leaveNonSpatialChannel()
 
     // make sure we're not simply rejoining the current session
     deleteSession(mNextSession);
-    
+
     leaveChannel(true);
 }
 
 // determine whether we're processing channels, or whether
 // another voice provider is.
 void LLWebRTCVoiceClient::processChannels(bool process)
-{ 
+{
     mProcessChannels = process;
 }
 
@@ -1274,8 +1258,8 @@ bool LLWebRTCVoiceClient::inEstateChannel()
 bool LLWebRTCVoiceClient::inSpatialChannel()
 {
     bool result = true;
-    
-    if (mNextSession) 
+
+    if (mNextSession)
     {
         result = mNextSession->isSpatial();
     }
@@ -1283,7 +1267,7 @@ bool LLWebRTCVoiceClient::inSpatialChannel()
     {
         result = mSession->isSpatial();
     }
-    
+
     return result;
 }
 
@@ -1323,8 +1307,11 @@ void LLWebRTCVoiceClient::leaveChannel(bool stopTalking)
 
 bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 {
-    if (channelInfo["voice_server_type"].asString() != WEBRTC_VOICE_SERVER_TYPE)
+    if (!mProcessChannels || (channelInfo["voice_server_type"].asString() != WEBRTC_VOICE_SERVER_TYPE))
+    {
         return false;
+    }
+
     if (mSession)
     {
         if (!channelInfo["sessionHandle"].asString().empty())
@@ -1339,7 +1326,7 @@ bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 bool LLWebRTCVoiceClient::compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2)
 {
     return (channelInfo1["voice_server_type"] == WEBRTC_VOICE_SERVER_TYPE) &&
-           (channelInfo1["voice_server_type"] == channelInfo2["voice_server_type"]) && 
+           (channelInfo1["voice_server_type"] == channelInfo2["voice_server_type"]) &&
            (channelInfo1["sip_uri"] == channelInfo2["sip_uri"]);
 }
 
@@ -1401,14 +1388,14 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
         << " was "<< (mVoiceEnabled ? "enabled" : "disabled")
         << " coro "<< (mIsCoroutineActive ? "active" : "inactive")
         << LL_ENDL;
-    
+
     if (enabled != mVoiceEnabled)
     {
         // TODO: Refactor this so we don't call into LLVoiceChannel, but simply
         // use the status observer
         mVoiceEnabled = enabled;
         LLVoiceClientStatusObserver::EStatusType status;
-        
+
         if (enabled)
         {
             LL_DEBUGS("Voice") << "enabling" << LL_ENDL;
@@ -1446,53 +1433,32 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 
 /////////////////////////////
 // Accessors for data related to nearby speakers
-BOOL LLWebRTCVoiceClient::getVoiceEnabled(const LLUUID& id)
-{
-    BOOL result = FALSE;
-    if (!mSession)
-    {
-        return FALSE;
-    }
-    participantStatePtr_t participant(mSession->findParticipantByID(id));
-    if(participant)
-    {
-        // I'm not sure what the semantics of this should be.
-        // For now, if we have any data about the user that came through the chat channel, assume they're voice-enabled.
-        result = TRUE;
-    }
-    
-    return result;
-}
 
 std::string LLWebRTCVoiceClient::getDisplayName(const LLUUID& id)
 {
     std::string result;
-    if (!mSession)
+    if (mProcessChannels && mSession)
     {
-        return result;
+        participantStatePtr_t participant(mSession->findParticipantByID(id));
+        if (participant)
+        {
+            result = participant->mDisplayName;
+        }
     }
-    participantStatePtr_t participant(mSession->findParticipantByID(id));
-    if(participant)
-    {
-        result = participant->mDisplayName;
-    }
-    
     return result;
 }
 
 BOOL LLWebRTCVoiceClient::getIsSpeaking(const LLUUID& id)
 {
     BOOL result = FALSE;
-    if (!mSession)
+    if (mProcessChannels && mSession)
     {
-        return result;
+        participantStatePtr_t participant(mSession->findParticipantByID(id));
+        if (participant)
+        {
+            result = participant->mIsSpeaking;
+        }
     }
-    participantStatePtr_t participant(mSession->findParticipantByID(id));
-    if(participant)
-    {
-        result = participant->mIsSpeaking;
-    }
-    
     return result;
 }
 
@@ -1500,23 +1466,21 @@ BOOL LLWebRTCVoiceClient::getIsSpeaking(const LLUUID& id)
 BOOL LLWebRTCVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
     BOOL result = FALSE;
-    if (!mSession)
+    if (mProcessChannels && mSession)
     {
-        return result;
+        participantStatePtr_t participant(mSession->findParticipantByID(id));
+        if (participant)
+        {
+            result = participant->mIsModeratorMuted;
+        }
     }
-    participantStatePtr_t participant(mSession->findParticipantByID(id));
-    if(participant)
-    {
-        result = participant->mIsModeratorMuted;
-    }
-    
     return result;
 }
 
 F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
 {
     F32 result = 0.0;
-    if (!mSession)
+    if (!mProcessChannels || !mSession)
     {
         return result;
     }
@@ -1531,25 +1495,12 @@ F32 LLWebRTCVoiceClient::getCurrentPower(const LLUUID &id)
     return result;
 }
 
-BOOL LLWebRTCVoiceClient::getOnMuteList(const LLUUID& id)
-{
-    BOOL result = FALSE;
-    
-    participantStatePtr_t participant(mSession->findParticipantByID(id));
-    if(participant)
-    {
-        result = participant->mOnMuteList;
-    }
-
-    return result;
-}
-
 // External accessors.
 F32 LLWebRTCVoiceClient::getUserVolume(const LLUUID& id)
 {
     // Minimum volume will be returned for users with voice disabled
     F32 result = LLVoiceClient::VOLUME_MIN;
-    
+
     participantStatePtr_t participant(mSession->findParticipantByID(id));
     if(participant)
     {
@@ -1619,7 +1570,7 @@ void LLWebRTCVoiceClient::predSetUserMute(const LLWebRTCVoiceClient::sessionStat
 std::map<std::string, LLWebRTCVoiceClient::sessionState::ptr_t> LLWebRTCVoiceClient::sessionState::mSessions;
 
 
-LLWebRTCVoiceClient::sessionState::sessionState() : 
+LLWebRTCVoiceClient::sessionState::sessionState() :
     mHangupOnLastLeave(false),
     mNotifyOnFirstJoin(false),
     mMicGain(1.0),
@@ -1803,7 +1754,7 @@ LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::findP2PSession(const
     {
         return result;
     }
-    
+
     result.reset();
     return result;
 }
@@ -1943,12 +1894,17 @@ LLWebRTCVoiceClient::adhocSessionState::adhocSessionState(const std::string &cha
 }
 
 void LLWebRTCVoiceClient::predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t& session)
-{ 
+{
     session->shutdownAllConnections();
 }
 
 void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
 {
+    if (!session)
+    {
+        return;
+    }
+
     // At this point, the session should be unhooked from all lists and all state should be consistent.
     session->shutdownAllConnections();
     // If this is the current audio session, clean up the pointer which will soon be dangling.
@@ -2004,7 +1960,7 @@ void LLWebRTCVoiceClient::avatarNameResolved(const LLUUID &id, const std::string
 
 // Leftover from vivox PTSN
 std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id)
-{ 
+{
     return id.asString();
 }
 
@@ -2014,7 +1970,7 @@ std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id)
 // These connections manage state transitions, negotiating webrtc connections,
 // and other such things for a single connection to a Secondlife WebRTC server.
 // Multiple of these connections may be active at once, in the case of
-// cross-region voice, or when a new connection is being created before the old 
+// cross-region voice, or when a new connection is being created before the old
 // has a chance to shut down.
 LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const std::string &channelID) :
     mWebRTCAudioInterface(nullptr),
@@ -2132,7 +2088,7 @@ void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLS
 // Ice candidates may be streamed in before or after the SDP offer is available (see below)
 // This function determines whether candidates are available to send to the Secondlife WebRTC
 // server via the simulator.  If so, and there are no more candidates, this code
-// will make the cap call to the server sending up the ICE candidates. 
+// will make the cap call to the server sending up the ICE candidates.
 void LLVoiceWebRTCConnection::processIceUpdates()
 {
     if (mShutDown || LLWebRTCVoiceClient::isShuttingDown())
@@ -2211,7 +2167,7 @@ void LLVoiceWebRTCConnection::processIceUpdates()
 // to the type of session (audio, video) to characteristics (the encoder type.)
 // This SDP also serves as the 'ticket' to the server, security-wise.
 // The Offer is retrieved from the WebRTC library on the client,
-// and is passed to the simulator via a CAP, which then passes 
+// and is passed to the simulator via a CAP, which then passes
 // it on to the Secondlife WebRTC server.
 
 void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
@@ -2510,7 +2466,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestFailure(std::string url, i
 }
 
 
-// Primary state machine for negotiating a single voice connection to the 
+// Primary state machine for negotiating a single voice connection to the
 // Secondlife WebRTC server.
 bool LLVoiceWebRTCConnection::connectionStateMachine()
 {
@@ -2553,7 +2509,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 setVoiceConnectionState(VOICE_STATE_DISCONNECT);
                 break;
             }
-            // Ask the sim to ask the Secondlife WebRTC server for a connection to 
+            // Ask the sim to ask the Secondlife WebRTC server for a connection to
             // a given voice channel.  On completion, we'll move on to the
             // VOICE_STATE_SESSION_ESTABLISHED via a callback on a webrtc thread.
             if (!requestVoiceConnection())
@@ -2708,7 +2664,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                                    // that come from voice servers that aren't their primary
                                    // voice server.  This will happen with cross-region voice
                                    // where a participant on a neighboring region may be
-                                   // connected to multiple servers.  We don't want to 
+                                   // connected to multiple servers.  We don't want to
                                    // add new identical participants from all of those servers.
             if (voice_data[participant_id].isMember("j"))
             {
@@ -2751,7 +2707,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
                     F32 level = (F32) (voice_data[participant_id].get("p", Json::Value(participant->mLevel)).asInt()) / 128;
                     // convert to decibles
                     participant->mLevel = level;
-                    
+
                     if (voice_data[participant_id].isMember("v"))
                     {
                         participant->mIsSpeaking = voice_data[participant_id].get("v", Json::Value(false)).asBool();
@@ -2821,7 +2777,7 @@ LLVoiceWebRTCSpatialConnection::LLVoiceWebRTCSpatialConnection(const LLUUID &reg
 {
 }
 
-LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection() 
+LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()
 {
     if (LLWebRTCVoiceClient::isShuttingDown())
     {

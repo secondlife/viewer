@@ -153,12 +153,12 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
     float getPeerConnectionAudioLevel() override;
-    
+
     //
     // AudioDeviceSink
     //
     void OnDevicesUpdated() override;
-    
+
     //
     // Helpers
     //
@@ -171,7 +171,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     {
         mWorkerThread->PostTask(std::move(task), location);
     }
-    
+
     void PostSignalingTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
@@ -189,7 +189,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     {
         mWorkerThread->BlockingCall(std::move(functor), location);
     }
-    
+
     void SignalingBlockingCall(rtc::FunctionView<void()> functor,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
@@ -205,7 +205,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     // Allows the LLWebRTCPeerConnectionImpl class to retrieve the
     // native webrtc PeerConnectionFactory.
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> getPeerConnectionFactory()
-    { 
+    {
         return mPeerConnectionFactory;
     }
 
@@ -242,7 +242,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
     LLCustomProcessor *                                        mPeerCustomProcessor;
-    
+
     // peer connections
     std::vector<rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>     mPeerConnections;
 };
@@ -270,7 +270,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 
     virtual void AddRef() const override = 0;
     virtual rtc::RefCountReleaseStatus Release() const override = 0;
-    
+
     //
     // LLWebRTCPeerConnection
     //
@@ -326,20 +326,20 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     // SetLocalDescriptionObserverInterface implementation.
     //
     void OnSetLocalDescriptionComplete(webrtc::RTCError error) override;
-    
+
     //
     // DataChannelObserver implementation.
     //
     void OnStateChange() override;
     void OnMessage(const webrtc::DataBuffer& buffer) override;
-    
+
     // Helpers
     void resetMute();
     void enableSenderTracks(bool enable);
     void enableReceiverTracks(bool enable);
 
   protected:
-    
+
     LLWebRTCImpl * mWebRTCImpl;
 
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
@@ -358,7 +358,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     std::vector<LLWebRTCDataObserver *>                        mDataObserverList;
     rtc::scoped_refptr<webrtc::DataChannelInterface>           mDataChannel;
 };
-        
+
 }
 
 #endif // LLWEBRTC_IMPL_H

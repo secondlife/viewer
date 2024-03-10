@@ -30,7 +30,7 @@
  * overall threading model than the viewer.
  * The native webrtc library is also compiled with clang, and has memory management
  * functions that conflict namespace-wise with those in the viewer.
- * 
+ *
  * Due to these differences, code from the viewer cannot be pulled in to this
  * dynamic library, so it remains very simple.
  */
@@ -56,7 +56,7 @@
 namespace llwebrtc
 {
 
-// LLWebRTCVoiceDevice is a simple representation of the 
+// LLWebRTCVoiceDevice is a simple representation of the
 // components of a device, used to communicate this
 // information to the viewer.
 
